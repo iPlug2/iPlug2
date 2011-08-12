@@ -5,6 +5,7 @@ RTAS WIN - alt modifier lost
 AU/RTAS - how to define sidechaiin?
 RTAS - chunks
 RTAS - key passthrough
+RTAS - audiosuite
 
 ALL - resource importing like cinder
 ALL - text entry dimensions
