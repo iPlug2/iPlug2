@@ -19,7 +19,7 @@ public:
 		const char* effectName, const char* productName, const char* mfrName,
 		int vendorVersion, int uniqueID, int mfrID, int latency = 0, 
     bool plugDoesMidi = false, bool plugDoesChunks = false, 
-    bool plugIsInst = false);
+    bool plugIsInst = false, int plugScChans = 0);
 
   // ----------------------------------------
   // See IPlugBase for the full list of methods that your plugin class can implement.
@@ -28,9 +28,16 @@ public:
 	void InformHostOfParamChange(int idx, double normalizedValue);
   void EndInformHostOfParamChange(int idx);
 
+	void InformHostOfProgramChange();
+	
 	int GetSamplePos();   // Samples since start of project.
 	double GetTempo();
 	void GetTimeSig(int* pNum, int* pDenom);
+	void GetTime(double *pSamplePos, double *pTempo, 
+		     double *pMusicalPos, double *pLastBar,
+		     int* pNum, int* pDenom,
+		     double *pCycleStart,double *pCycleEnd,
+		     bool *pTransportRunning,bool *pTransportCycle);
 	EHost GetHost();  // GetHostVersion() is inherited.
   
   // Tell the host that the graphics resized.

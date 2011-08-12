@@ -42,6 +42,7 @@ public:
 	// Default passthrough.  Inputs and outputs are [nChannel][nSample].
   // Mutex is already locked.
 	virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
+	virtual void ProcessSingleReplacing(float** inputs, float** outputs, int nFrames);
 
 	// In case the audio processing thread needs to do anything when the GUI opens
 	// (like for example, set some state dependent initial values for controls).
@@ -62,10 +63,11 @@ public:
 	virtual bool MidiNoteName(int noteNumber, char* rName) { *rName = '\0'; return false; }
 
   // Implementations should set a mutex lock.
-	virtual bool SerializeState(ByteChunk* pChunk) { return SerializeParams(pChunk); }
+//	virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
+	virtual bool SerializeState(ByteChunk* pChunk);
   // Return the new chunk position (endPos).
-	virtual int UnserializeState(ByteChunk* pChunk, int startPos) { return UnserializeParams(pChunk, startPos); }
-
+//	virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
+	virtual int UnserializeState(ByteChunk* pChunk, int startPos);
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
@@ -89,6 +91,7 @@ public:
   virtual void InformHostOfParamChange(int idx, double normalizedValue) = 0;
   virtual void EndInformHostOfParamChange(int idx) = 0;
 
+	virtual void InformHostOfProgramChange() = 0;
   // ----------------------------------------
   // Useful stuff for your plugin class or an outsider to call, 
   // most of which is implemented by the API class.
@@ -109,6 +112,11 @@ public:
 	virtual double GetTempo() = 0;
 	double GetSamplesPerBeat();
 	virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
+	virtual void GetTime(double *pSamplePos, double *pTempo, 
+			     double *pMusicalPos, double *pLastBar,
+			     int* pNum, int* pDenom,
+			     double *pCycleStart,double *pCycleEnd,
+			     bool *pTransportRunning,bool *pTransportCycle) = 0;
   
 	virtual EHost GetHost() { return mHost; }
 	int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
@@ -120,10 +128,12 @@ public:
   
   // Not fully supported.  A call back from the host saying the user has resized the window.
   // If the plugin supports different sizes, it may wish to resize.
+#ifndef OS_IOS
   virtual void UserResizedWindow(IRECT* pR) {}
-    
+#endif
   void EnsureDefaultPreset();
-  
+  virtual bool HostRequestingAboutBox(); // implement this to trigger your custom about box from a standalone
+
 protected:
 
   // ----------------------------------------
@@ -140,9 +150,9 @@ protected:
   
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() = 0;
-  
+#ifndef OS_IOS
 	virtual void AttachGraphics(IGraphics* pGraphics);
-  
+#endif
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); 
   // If latency changes after initialization (often not supported by the host).
@@ -163,26 +173,20 @@ protected:
   bool SerializeParams(ByteChunk* pChunk);
   // Returns the new chunk position (endPos).
   int UnserializeParams(ByteChunk* pChunk, int startPos);
-  void RedrawParamControls();  // Called after restoring state.
-
+#ifndef OS_IOS
+  virtual void RedrawParamControls();  // Called after restoring state.
+#endif
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
   
   void OnParamReset();	// Calls OnParamChange(each param) + Reset().
 
-  int NPresets() { return mPresets.GetSize(); }
-  int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
   void PruneUninitializedPresets();
-  bool RestorePreset(int idx);
-  bool RestorePreset(const char* name);
-  const char* GetPresetName(int idx);
-  void ModifyCurrentPreset(const char* name = 0);     // Sets the currently active preset to whatever current params are.
-  bool SerializePresets(ByteChunk* pChunk);
-  // Returns the new chunk position (endPos).
-  int UnserializePresets(ByteChunk* pChunk, int startPos);
 
-  // Dump the current state as source code for a call to MakePresetFromNamedParams.
-  void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
+  virtual bool SerializePresets(ByteChunk* pChunk);
+  // Returns the new chunk position (endPos).
+  virtual int UnserializePresets(ByteChunk* pChunk, int startPos);
+
 
   // Set connection state for n channels.
   // If a channel is connected, we expect a call to attach the buffers before each process call.
@@ -200,6 +204,22 @@ protected:
 
 public:
   
+	void ModifyCurrentPreset(const char* name = 0);     // Sets the currently active preset to whatever current params are.
+	int NPresets() { return mPresets.GetSize(); }
+	int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
+	bool RestorePreset(int idx);
+	bool RestorePreset(const char* name);
+	const char* GetPresetName(int idx);
+	// Dump the current state as source code for a call to MakePresetFromNamedParams.
+	void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
+	virtual void PresetsChangedByHost() {} // does nothing by default
+  void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
+#ifndef OS_IOS  
+  bool SaveProgramAsFXP(const char* defaultFileName = "");
+  bool SaveBankAsFXB(const char* defaultFileName = "");
+  bool LoadProgramFromFXP();
+  bool LoadBankFromFXB();
+#endif  
   WDL_Mutex mMutex;
 
   struct IMutexLock 
@@ -217,11 +237,11 @@ private:
   
   EHost mHost;
   int mHostVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
-
+protected:
   bool mStateChunks, mIsInst;
   double mSampleRate;
   int mBlockSize, mLatency;
-
+private:
  	WDL_PtrList<IParam> mParams;
 	IGraphics* mGraphics;
 

@@ -2,15 +2,22 @@
 #define _IPLUGSTRUCTS_
 
 #include "Containers.h"
+#include "IPlugOSDetect.h"
 
-// Abstracting the graphics made it easy to go ahead and abstract the OS ... 
-// the cost is this crap redefining some basic stuff.
+#ifndef OS_IOS
+
+#include "../swell/swell.h"
+#include "../lice/lice_text.h"
+
+enum EFileAction { kFileOpen, kFileSave };
 
 struct IBitmap 
 {
 	void* mData;
 	int W, H, N;		// N = number of states (for multibitmaps).
 	IBitmap(void* pData = 0, int w = 0, int h = 0, int n = 1) : mData(pData), W(w), H(h), N(n) {}
+	
+	inline int frameHeight() const { return H / N; }
 };
 
 struct IColor 
@@ -20,7 +27,7 @@ struct IColor
     bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
     bool operator!=(const IColor& rhs) { return !operator==(rhs); }
     bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
-    void Clamp() { A = MIN(A, 255); R = MIN(R, 255); G = MIN(G, 255); B = MIN(B, 255); }
+    void Clamp() { A = IPMIN(A, 255); R = IPMIN(R, 255); G = IPMIN(G, 255); B = IPMIN(B, 255); }
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -48,12 +55,18 @@ struct IChannelBlend
 	IChannelBlend(EBlendMethod method = kBlendNone, float weight = 1.0f) : mMethod(method), mWeight(weight) {}
 };
 
-const int DEFAULT_TEXT_SIZE = 14;
 const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
-const char* const DEFAULT_FONT = "Arial";
+
+#ifdef OS_WIN
+  const char* const DEFAULT_FONT = "Verdana";
+  const int DEFAULT_TEXT_SIZE = 13;
+#elif defined OS_OSX
+  const char* const DEFAULT_FONT = "Monaco";
+  const int DEFAULT_TEXT_SIZE = 10;
+#endif
 const int FONT_LEN = 32;
 
-struct IText 
+struct IText
 {
 	char mFont[FONT_LEN];
 	int mSize;
@@ -61,25 +74,27 @@ struct IText
 	enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
 	enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
 	int mOrientation;   // Degrees ccwise from normal.
-
+	enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality;
+	LICE_IFont* mCached;
+  
 	IText(int size = DEFAULT_TEXT_SIZE, const IColor* pColor = 0, char* font = 0,
-		EStyle style = kStyleNormal, EAlign align = kAlignCenter, int orientation = 0)
-    :	mSize(size), mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR), //mFont(font ? font : DEFAULT_FONT),
-        mStyle(style), mAlign(align), mOrientation(orientation) 
-    {
-        strcpy(mFont, (font ? font : DEFAULT_FONT));     
-    }
-
-    IText(const IColor* pColor) 
+        EStyle style = kStyleNormal, EAlign align = kAlignCenter, int orientation = 0, EQuality quality = kQualityDefault)
+  :	mSize(size), mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR), //mFont(font ? font : DEFAULT_FONT),
+  mStyle(style), mAlign(align), mOrientation(orientation), mQuality(quality), mCached(0)
+  {
+    strcpy(mFont, (font ? font : DEFAULT_FONT));     
+  }
+  
+  IText(const IColor* pColor) 
 	:	mSize(DEFAULT_TEXT_SIZE), mColor(*pColor), //mFont(DEFAULT_FONT), 
-        mStyle(kStyleNormal), mAlign(kAlignCenter), mOrientation(0)
-    {
-        strcpy(mFont, DEFAULT_FONT);     
-    }
-
- //   bool operator==(const IText& rhs) const;
- //   bool operator!=(const IText& rhs) const { return !operator==(rhs); }
- //	bool operator<(const IText& rhs) const;	// For sorting.
+  mStyle(kStyleNormal), mAlign(kAlignCenter), mOrientation(0), mQuality(kQualityDefault), mCached(0)
+  {
+    strcpy(mFont, DEFAULT_FONT);     
+  }
+  
+  //   bool operator==(const IText& rhs) const;
+  //   bool operator!=(const IText& rhs) const { return !operator==(rhs); }
+  //	bool operator<(const IText& rhs) const;	// For sorting.
 };
 
 struct IRECT 
@@ -111,11 +126,11 @@ struct IRECT
 	inline IRECT Union(IRECT* pRHS) {
 		if (Empty()) { return *pRHS; }
 		if (pRHS->Empty()) { return *this; }
-		return IRECT(MIN(L, pRHS->L), MIN(T, pRHS->T), MAX(R, pRHS->R), MAX(B, pRHS->B));
+		return IRECT(IPMIN(L, pRHS->L), IPMIN(T, pRHS->T), IPMAX(R, pRHS->R), IPMAX(B, pRHS->B));
 	}
 	inline IRECT Intersect(IRECT* pRHS) {
 		if (Intersects(pRHS)) {
-			return IRECT(MAX(L, pRHS->L), MAX(T, pRHS->T), MIN(R, pRHS->R), MIN(B, pRHS->B));
+			return IRECT(IPMAX(L, pRHS->L), IPMAX(T, pRHS->T), IPMIN(R, pRHS->R), IPMIN(B, pRHS->B));
 		}
 		return IRECT();
 	}
@@ -131,19 +146,19 @@ struct IRECT
 
   void Clank(IRECT* pRHS) {
     if (L < pRHS->L) {
-      R = MIN(pRHS->R - 1, R + pRHS->L - L);
+      R = IPMIN(pRHS->R - 1, R + pRHS->L - L);
       L = pRHS->L;
     }
     if (T < pRHS->T) {
-      B = MIN(pRHS->B - 1, B + pRHS->T - T);
+      B = IPMIN(pRHS->B - 1, B + pRHS->T - T);
       T = pRHS->T;
     }
     if (R >= pRHS->R) {
-      L = MAX(pRHS->L, L - (R - pRHS->R + 1));
+      L = IPMAX(pRHS->L, L - (R - pRHS->R + 1));
       R = pRHS->R - 1;
     }
     if (B >= pRHS->B) {
-      T = MAX(pRHS->T, T - (B - pRHS->B + 1));
+      T = IPMAX(pRHS->T, T - (B - pRHS->B + 1));
       B = pRHS->B - 1;
     }
   }
@@ -155,6 +170,8 @@ struct IMouseMod
 	IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
     : L(l), R(r), S(s), C(c), A(a) {} 
 };
+
+#endif // !OS_IOS
 
 struct IMidiMsg
 {
@@ -251,11 +268,12 @@ struct IMidiMsg
 
 	IMidiMsg(int offs = 0, BYTE s = 0, BYTE d1 = 0, BYTE d2 = 0) : mOffset(offs), mStatus(s), mData1(d1), mData2(d2) {}
 
-  void MakeNoteOnMsg(int noteNumber, int velocity, int offset);
-  void MakeNoteOffMsg(int noteNumber, int offset);
-  void MakePitchWheelMsg(double value);    // Value in [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
-  void MakeControlChangeMsg(EControlChangeMsg idx, double value);           //  Value in [0, 1].
-
+	void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel=0);
+	void MakeNoteOffMsg(int noteNumber, int offset, int channel=0);
+	void MakePitchWheelMsg(double value, int channel=0);    // Value in [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
+	void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel=0);           //  Value in [0, 1].
+	int Channel(); // returns [0, 15] for midi channels 1 ... 16 
+	
 	EStatusMsg StatusMsg() const;
 	int NoteNumber() const;		  // Returns [0, 128), -1 if NA.
 	int Velocity() const;		    // Returns [0, 128), -1 if NA.
@@ -275,12 +293,15 @@ struct IPreset
 {
   bool mInitialized;
   char mName[MAX_PRESET_NAME_LEN];
+  //int mVersion; // the effect version with which the preset was made
+
   ByteChunk mChunk;
 
   IPreset(int idx)
   : mInitialized(false)
   {
-    sprintf(mName, "- %d -", idx+1);
+    sprintf(mName, "%s", UNUSED_PRESET_NAME);
+//    sprintf(mName, "- %d -", idx+1);
   }
 };
 

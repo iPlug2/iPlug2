@@ -3,8 +3,11 @@
 #include "IControl.h"
 #include "Log.h"
 #import "IGraphicsCocoa.h"
-#include "IGraphicsCarbon.h"
+#ifndef IPLUG_NO_CARBON_SUPPORT
+	#include "IGraphicsCarbon.h"
+#endif
 #include "../swell/swell-internal.h"
+//#include "Hosts.h"
 
 struct CocoaAutoReleasePool
 {
@@ -21,29 +24,75 @@ struct CocoaAutoReleasePool
   }
 };
 
-inline NSColor* ToNSColor(IColor* pColor)
+#ifdef RTAS_API
+
+@interface CUSTOM_COCOA_WINDOW : NSWindow {}
+@end
+
+@implementation CUSTOM_COCOA_WINDOW
+- (BOOL)canBecomeKeyWindow {return YES;}
+@end
+
+void* attachSubWindow (void* hostWindowRef, IGraphics* pGraphics)
 {
-  double r = (double) pColor->R / 255.0;
-  double g = (double) pColor->G / 255.0;
-  double b = (double) pColor->B / 255.0;
-  double a = (double) pColor->A / 255.0;
-  return [NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+  CocoaAutoReleasePool pool;
+  
+  NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: hostWindowRef];
+  [hostWindow retain];
+  [hostWindow setCanHide: YES];
+  [hostWindow setReleasedWhenClosed: YES];
+  
+  NSRect w = [hostWindow frame];
+  NSRect windowRect = NSMakeRect(w.origin.x, w.origin.y, pGraphics->Width(), pGraphics->Height());
+  CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect 
+                                                      styleMask:( NSBorderlessWindowMask ) 
+                                                        backing:NSBackingStoreBuffered defer:NO];
+  [childWindow retain];
+  [childWindow setOpaque:YES];
+  [childWindow setCanHide: YES];
+  [childWindow setHasShadow: NO];
+  [childWindow setReleasedWhenClosed: YES];
+  
+  NSView* childContent = [childWindow contentView];
+  pGraphics->OpenWindow(childContent);
+  
+  [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
+  [hostWindow orderFront: nil];
+  [childWindow orderFront: nil];
+  
+  return (void*) hostWindow;
 }
 
+void removeSubWindow (void* cocoaHostWindow, IGraphics* pGraphics)
+{
+  CocoaAutoReleasePool pool;
+  
+  NSWindow* hostWindow = (NSWindow*) cocoaHostWindow;
+  NSArray* childWindows = [hostWindow childWindows];
+  NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
+  
+  pGraphics->CloseWindow();
+  [childWindow orderOut:nil];
+  [hostWindow orderOut:nil];
+  [childWindow close];
+  [hostWindow removeChildWindow: childWindow];
+  [hostWindow close];
+}
+#endif
+
 IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
-:	IGraphicsLice(pPlug, w, h, refreshFPS), mGraphicsCarbon(0), mGraphicsCocoa(0), mTxtAttrs(0)
+:	IGraphics(pPlug, w, h, refreshFPS),
+#ifndef IPLUG_NO_CARBON_SUPPORT
+	mGraphicsCarbon(0),
+#endif
+	mGraphicsCocoa(0)
 {
   NSApplicationLoad();
-  
 }
 
 IGraphicsMac::~IGraphicsMac()
 {
 	CloseWindow();
-  if (mTxtAttrs) {
-    [mTxtAttrs release];
-    mTxtAttrs = 0;
-  }
 }
 
 LICE_IBitmap* LoadImgFromResourceOSX(const char* bundleID, const char* filename)
@@ -56,8 +105,12 @@ LICE_IBitmap* LoadImgFromResourceOSX(const char* bundleID, const char* filename)
   ++ext;
   
   bool ispng = !stricmp(ext, "png");
+#ifndef IPLUG_JPEG_SUPPORT
+  if (!ispng) return 0;
+#else
   bool isjpg = !stricmp(ext, "jpg");
-  if (!ispng && !isjpg) return 0;
+  if (!isjpg && !ispng) return 0;
+#endif
   
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(bundleID)];
   NSString* pFile = [[[NSString stringWithCString:filename] lastPathComponent] stringByDeletingPathExtension];
@@ -65,15 +118,19 @@ LICE_IBitmap* LoadImgFromResourceOSX(const char* bundleID, const char* filename)
   {
     NSString* pPath = 0;
     if (ispng) pPath = [pBundle pathForResource:pFile ofType:@"png"];  
+#ifdef IPLUG_JPEG_SUPPORT
     if (isjpg) pPath = [pBundle pathForResource:pFile ofType:@"jpg"];  
-
+#endif
+    
     if (pPath) 
     {
       const char* resourceFileName = [pPath cString];
       if (CSTR_NOT_EMPTY(resourceFileName))
       {
         if (ispng) return LICE_LoadPNG(resourceFileName);
+#ifdef IPLUG_JPEG_SUPPORT
         if (isjpg) return LICE_LoadJPG(resourceFileName);
+#endif
       }
     }
   }
@@ -94,12 +151,14 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
     NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
     pCGC = (CGContextRef) [gc graphicsPort];    
   }
+#ifndef IPLUG_NO_CARBON_SUPPORT
   else
   if (mGraphicsCarbon) {
     pCGC = mGraphicsCarbon->GetCGContext();
     mGraphicsCarbon->OffsetContentRect(&r);
     // Flipping is handled in IGraphicsCarbon.
   }
+#endif
   if (!pCGC) {
     return false;
   }
@@ -116,10 +175,12 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   return OpenCocoaWindow(pParent);
 }
 
+#ifndef IPLUG_NO_CARBON_SUPPORT
 void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl)
 {
   return OpenCarbonWindow(pWindow, pControl);
 }
+#endif
 
 void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
 {
@@ -134,6 +195,7 @@ void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
   return mGraphicsCocoa;
 }
 
+#ifndef IPLUG_NO_CARBON_SUPPORT
 void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
 {
   TRACE;
@@ -144,31 +206,38 @@ void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
   mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);
   return mGraphicsCarbon->GetView();
 }
+#endif
 
 void IGraphicsMac::CloseWindow()
 {
+#ifndef IPLUG_NO_CARBON_SUPPORT
   if (mGraphicsCarbon) 
   {
     DELETE_NULL(mGraphicsCarbon);
   }
   else  
+#endif
 	if (mGraphicsCocoa) 
   {
     IGRAPHICS_COCOA* graphicscocoa = (IGRAPHICS_COCOA*)mGraphicsCocoa;
     [graphicscocoa killTimer];
     mGraphicsCocoa = 0;
+    
     if (graphicscocoa->mGraphics)
     {
       graphicscocoa->mGraphics = 0;
       [graphicscocoa removeFromSuperview];   // Releases.
     }
-
 	}
 }
 
 bool IGraphicsMac::WindowIsOpen()
 {
+#ifndef IPLUG_NO_CARBON_SUPPORT
 	return (mGraphicsCarbon || mGraphicsCocoa);
+#else
+	return mGraphicsCocoa;
+#endif
 }
 
 void IGraphicsMac::Resize(int w, int h)
@@ -178,14 +247,43 @@ void IGraphicsMac::Resize(int w, int h)
     mDrawBitmap->resize(w, h);
   } 
   
+#ifndef IPLUG_NO_CARBON_SUPPORT
   if (mGraphicsCarbon) {
     mGraphicsCarbon->Resize(w, h);
   }
   else
+#endif
   if (mGraphicsCocoa) {
     NSSize size = { w, h };
     [(IGRAPHICS_COCOA*) mGraphicsCocoa setFrameSize: size ];
   }  
+}
+
+void IGraphicsMac::ForceEndUserEdit()
+{
+#ifndef IPLUG_NO_CARBON_SUPPORT
+  if (mGraphicsCarbon) {
+    mGraphicsCarbon->EndUserInput(false);
+  }
+#endif
+  if (mGraphicsCocoa) 
+  {
+    [(IGRAPHICS_COCOA*) mGraphicsCocoa endUserInput];
+  }
+}
+
+const char* IGraphicsMac::GetGUIAPI()
+{
+#ifndef IPLUG_NO_CARBON_SUPPORT
+  if (mGraphicsCarbon) {
+    if (mGraphicsCarbon->GetIsComposited())
+      return "Carbon Composited gui";
+    else
+      return "Carbon Non-Composited gui";
+  }
+  else
+#endif
+    return "Cocoa gui";
 }
 
 void IGraphicsMac::HostPath(WDL_String* pPath)
@@ -195,7 +293,7 @@ void IGraphicsMac::HostPath(WDL_String* pPath)
   if (pBundle) {
     NSString* path = [pBundle executablePath];
     if (path) {
-      pPath->Set([path cString]);
+      pPath->Set([path UTF8String]);
     }
   }
 }
@@ -207,7 +305,7 @@ void IGraphicsMac::PluginPath(WDL_String* pPath)
   if (pBundle) {
     NSString* path = [[pBundle bundlePath] stringByDeletingLastPathComponent]; 
     if (path) {
-      pPath->Set([path cString]);
+      pPath->Set([path UTF8String]);
       pPath->Append("/");
     }
   }
@@ -216,6 +314,62 @@ void IGraphicsMac::PluginPath(WDL_String* pPath)
 // extensions = "txt wav" for example
 void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, char* dir, char* extensions)
 {
+  if (!WindowIsOpen()) { 
+    pFilename->Set("");
+    return;
+  }
+  
+  NSString* defaultFileName;
+  NSString* defaultPath;
+  NSArray* fileTypes = nil;
+
+  if (pFilename->GetLength())
+    defaultFileName = [NSString stringWithCString:pFilename->Get() encoding:NSUTF8StringEncoding];
+  else {
+    defaultFileName = [NSString stringWithCString:"" encoding:NSUTF8StringEncoding];
+  }
+
+  if (CSTR_NOT_EMPTY(dir))
+    defaultPath = [NSString stringWithCString:dir encoding:NSUTF8StringEncoding];
+  else 
+    defaultPath = [NSString stringWithCString:DEFAULT_PATH_OSX encoding:NSUTF8StringEncoding];
+
+  pFilename->Set(""); // reset it
+  
+  //if (CSTR_NOT_EMPTY(extensions))
+  fileTypes = [[NSString stringWithUTF8String:extensions] componentsSeparatedByString: @" "];
+  
+  if (action == kFileSave) {
+    NSSavePanel* panelSave = [NSSavePanel savePanel];
+    
+    //[panelOpen setTitle:title];
+    [panelSave setAllowedFileTypes: fileTypes];
+    [panelSave setAllowsOtherFileTypes: NO];
+    
+    int result = [panelSave runModalForDirectory:defaultPath file:defaultFileName];
+    
+    if (result == NSOKButton)
+      pFilename->Set( [[ panelSave filename ] UTF8String] );
+  }
+  else {
+    NSOpenPanel* panelOpen = [NSOpenPanel openPanel];
+    
+    //[panelOpen setTitle:title];
+    //[panelOpen setAllowsMultipleSelection:(allowmul?YES:NO)];
+    [panelOpen setCanChooseFiles:YES];
+    [panelOpen setCanChooseDirectories:NO];
+    [panelOpen setResolvesAliases:YES];
+    
+    int result = [panelOpen runModalForDirectory:defaultPath file:defaultFileName types:fileTypes];
+
+    if (result == NSOKButton)
+      pFilename->Set( [[ panelOpen filename ] UTF8String] );
+  }
+  
+// dont know if you have to free these  
+// [defaultFileName release];
+// [defaultPath release];
+// [fileTypes release];
 }
 
 bool IGraphicsMac::PromptForColor(IColor* pColor, char* prompt)
@@ -223,8 +377,39 @@ bool IGraphicsMac::PromptForColor(IColor* pColor, char* prompt)
 	return false;
 }
 
-void IGraphicsMac::PromptUserInput(IControl* pControl, IParam* pParam)
+IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect)
 {
+  ReleaseMouseCapture();
+  
+	if (mGraphicsCocoa)
+	{
+		NSRect areaRect = ToNSRect(this, pTextRect);
+		return [(IGRAPHICS_COCOA*) mGraphicsCocoa createIPopupMenu: pMenu: areaRect];
+	}
+#ifndef IPLUG_NO_CARBON_SUPPORT
+	else if (mGraphicsCarbon)
+	{
+    return mGraphicsCarbon->CreateIPopupMenu(pMenu, pTextRect);
+	}
+#endif
+	else return 0;
+}
+
+void IGraphicsMac::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+{
+  if (mGraphicsCocoa)
+	{
+		NSRect areaRect = ToNSRect(this, pTextRect);
+    [(IGRAPHICS_COCOA*) mGraphicsCocoa createTextEntry: pControl: pParam: pText: pString: areaRect];
+	}
+#ifndef IPLUG_NO_CARBON_SUPPORT
+	else if (mGraphicsCarbon)
+	{
+    //CGRect areaRect = ToCGRect(Height(), pTextRect);
+//    return mGraphicsCarbon->CreateTextEntry(pMenu, pControl, pParam, pText, pString, areaRect);
+    mGraphicsCarbon->CreateTextEntry(pControl, pText, pTextRect, pString, pParam);
+	}
+#endif
 }
 
 bool IGraphicsMac::OpenURL(const char* url,
@@ -248,7 +433,8 @@ bool IGraphicsMac::OpenURL(const char* url,
 
 void* IGraphicsMac::GetWindow()
 {
-	return mGraphicsCocoa;
+	if (mGraphicsCocoa) return mGraphicsCocoa;
+	else return 0;
 }
 
 // static
@@ -259,55 +445,3 @@ int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
   Trace(TRACELOC, "%x", ver);
   return ver;
 }
-
-bool IGraphicsMac::DrawIText(IText* pTxt, char* cStr, IRECT* pR)
-{
-  bool init = (mTxtAttrs);
-  if (!init) {
-    mTxtAttrs = [[NSMutableDictionary alloc] init];
-  }
-  
-  int fontSize = int(0.75 * (double) pTxt->mSize);
-  int yAdj = fontSize / 4;
-  bool antialias = (fontSize >= 12);
-  
-  if (!init) { // || strcmp(pTxt->mFont, mTxt.mFont)) {
-    NSFont* font = [NSFont fontWithName: ToNSString(pTxt->mFont) size: fontSize]; 
-    [mTxtAttrs setValue: font forKey: NSFontAttributeName];
-    strcpy(mTxt.mFont, pTxt->mFont);
-  }
-  
-  if (!init || pTxt->mColor != mTxt.mColor) {
-    [mTxtAttrs setValue: ToNSColor(&(pTxt->mColor)) forKey: NSForegroundColorAttributeName];
-    mTxt.mColor = pTxt->mColor;
-  }
-  
-  if (!init || pTxt->mAlign != mTxt.mAlign) {
-    NSTextAlignment align;
-    switch (pTxt->mAlign) {
-      case IText::kAlignNear:   align = NSLeftTextAlignment;    break;
-      case IText::kAlignFar:    align = NSRightTextAlignment;   break;
-      case IText::kAlignCenter:
-      default:                  align = NSCenterTextAlignment;  break;
-    }
-    NSMutableParagraphStyle* paraStyle = [[NSMutableParagraphStyle alloc] init];
-    [paraStyle setAlignment: align];
-    [mTxtAttrs setValue: paraStyle forKey: NSParagraphStyleAttributeName];   
-    [paraStyle release];
-    mTxt.mAlign = pTxt->mAlign;
-  }
-  
-  [NSGraphicsContext saveGraphicsState];
-  HDC__* destCtx = (HDC__*) mDrawBitmap->getDC();
-  NSGraphicsContext* destGC = [NSGraphicsContext graphicsContextWithGraphicsPort:destCtx->ctx flipped:YES];
-  [destGC setShouldAntialias: antialias];
-  [NSGraphicsContext setCurrentContext:destGC];
-  NSRect r = { pR->L, pR->T+yAdj+6, pR->W(), pR->H() };
-  NSString* str = ToNSString(cStr);
-  [str drawWithRect:r options: NSStringDrawingUsesDeviceMetrics attributes: mTxtAttrs]; 
-  [NSGraphicsContext restoreGraphicsState];
-  
-  return true;  
-}
-
-                                

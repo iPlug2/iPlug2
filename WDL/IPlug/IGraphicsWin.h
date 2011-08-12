@@ -1,21 +1,23 @@
 #ifndef _IGRAPHICSWIN_
 #define _IGRAPHICSWIN_
 
-#include "IGraphicsLice.h"
+#include "IGraphics.h"
 
 #include <windows.h>
 #include <windowsx.h>
 #include <winuser.h>
 
-class IGraphicsWin : public IGraphicsLice
+class IGraphicsWin : public IGraphics
 {
 public:
 
-	IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS = 0);
+	IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS);
 	virtual ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
   
+  void ForceEndUserEdit();
+
   void Resize(int w, int h);
   bool DrawScreen(IRECT* pR);  
   
@@ -26,11 +28,10 @@ public:
 	void HostPath(WDL_String* pPath); 
   void PluginPath(WDL_String* pPath);
 
-	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = "",
-    char* extensions = "");   // extensions = "txt wav" for example.
-
+	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = "", char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
-	void PromptUserInput(IControl* pControl, IParam* pParam);
+  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
+  void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
 
   bool OpenURL(const char* url, 
     const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
@@ -44,15 +45,10 @@ public:
   IRECT GetWindowRECT();
   void SetWindowTitle(char* str);
 
-  bool DrawIText(IText* pText, char* str, IRECT* pR);
-
 protected:
   LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
 
 private:
-  bool mFontActive;
-  IColor mActiveFontColor;
-
   HINSTANCE mHInstance;
   HWND mPlugWnd, mParamEditWnd;
 	// Ed = being edited manually.

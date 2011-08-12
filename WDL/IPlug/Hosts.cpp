@@ -7,6 +7,10 @@ EHost LookUpHost(const char* inHost)
   char host[256];
   ToLower(host, inHost);
   
+  if (strstr(host, "standalone")) {
+		return kHostStandalone;
+	}
+  
 	// C4 is version >= 8.2
 	if (strstr(host, "cubase")) {
 		return kHostCubase;

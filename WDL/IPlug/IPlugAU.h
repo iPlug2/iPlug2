@@ -33,7 +33,7 @@ public:
 	IPlugAU(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets, 
 		const char* effectName, const char* productName, const char* mfrName,
 		int vendorVersion, int uniqueID, int mfrID, int latency, 
-    bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst);
+          bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst, int plugScChans);
 
   virtual ~IPlugAU();
   
@@ -44,15 +44,22 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue);
   void EndInformHostOfParamChange(int idx);
   
+	void InformHostOfProgramChange();
+	
 	int GetSamplePos();   // Samples since start of project.
 	double GetTempo();
 	void GetTimeSig(int* pNum, int* pDenom);
+	void GetTime(double *pSamplePos, double *pTempo, 
+		     double *pMusicalPos, double *pLastBar,
+		     int* pNum, int* pDenom,
+		     double *pCycleStart,double *pCycleEnd,
+		     bool *pTransportRunning,bool *pTransportCycle);
 	EHost GetHost();  // GetHostVersion() is inherited.
   
   // Tell the host that the graphics resized.
   // Should be called only by the graphics object when it resizes itself.
   void ResizeGraphics(int w, int h) {}
-  
+
   enum EAUInputType {
     eNotConnected = 0,
     eDirectFastProc,
@@ -75,6 +82,7 @@ private:
   bool mActive, mBypassed;
   double mRenderTimestamp, mTempo;
   HostCallbackInfo mHostCallbacks;
+  int mNScInputChans; // the number of input channels that should be part of the sidechain bus, i.e. 2 = stereo bus
 
  // InScratchBuf is only needed if the upstream connection is a callback.
  // OutScratchBuf is only needed if the downstream connection fails to give us a buffer.  

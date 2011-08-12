@@ -1,26 +1,34 @@
 #include "IGraphicsCocoa.h"
 
-inline NSRect ToNSRect(IGraphics* pGraphics, IRECT* pR) 
+@implementation DUMMY_COCOA_VIEW
+
+- (NSMenuItem*)MenuItem
 {
-  int B = pGraphics->Height() - pR->B;
-  return NSMakeRect(pR->L, B, pR->W(), pR->H()); 
+    return nsMenuItem;
 }
 
-inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR) 
+- (void)OnMenuSelection:(id)sender
 {
-  int x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
-  return IRECT(x, gh - (y + h), x + w, gh - y);
+    nsMenuItem = sender;
 }
+
+@end
 
 NSString* ToNSString(const char* cStr)
 {
-  return [NSString stringWithCString:cStr];
+	return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
 }
 
 inline IMouseMod GetMouseMod(NSEvent* pEvent)
 {
   int mods = [pEvent modifierFlags];
-  return IMouseMod(true, (mods & NSRightMouseDownMask) || (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+  return IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+}
+
+inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
+{
+  int mods = [pEvent modifierFlags];
+  return IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 }
 
 @implementation IGRAPHICS_COCOA
@@ -54,7 +62,7 @@ inline IMouseMod GetMouseMod(NSEvent* pEvent)
 
 - (BOOL) isOpaque
 {
-  return YES;
+	return mGraphics ? YES : NO;
 }
 
 - (BOOL) acceptsFirstResponder
@@ -78,7 +86,12 @@ inline IMouseMod GetMouseMod(NSEvent* pEvent)
 
 - (void) drawRect: (NSRect) rect 
 {
-  mGraphics->Draw(&ToIRECT(mGraphics, &rect));
+	if (mGraphics)
+	{
+		IRECT tmpRect = ToIRECT(mGraphics, &rect);
+		if (mGraphics) mGraphics->Draw(&tmpRect);
+
+	}
 }
 
 - (void) onTimer: (NSTimer*) pTimer
@@ -91,50 +104,160 @@ inline IMouseMod GetMouseMod(NSEvent* pEvent)
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (int*) pX y: (int*) pY
 {
-  NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
-  *pX = (int) pt.x;
-  *pY = mGraphics->Height() - (int) pt.y;
+	if (mGraphics)
+	{
+		NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
+		*pX = (int) pt.x - 2;
+		*pY = mGraphics->Height() - (int) pt.y - 3;
+	}
 }
 
 - (void) mouseDown: (NSEvent*) pEvent
 {
-  int x, y;
-  [self getMouseXY:pEvent x:&x y:&y];
-  if ([pEvent clickCount] > 1) {
-    mGraphics->OnMouseDblClick(x, y, &GetMouseMod(pEvent));
-  }
-  else {
-    mGraphics->OnMouseDown(x, y, &GetMouseMod(pEvent));
-  }
+	if (mGraphics)
+	{
+		int x, y;
+		[self getMouseXY:pEvent x:&x y:&y];
+		IMouseMod ms = GetMouseMod(pEvent);
+    
+    #ifdef RTAS_API
+    if (ms.L && ms.R && ms.C && ms.A && (mGraphics->GetParamIdxForPTAutomation(x, y) > -1)) 
+    {
+      WindowRef carbonParent = (WindowRef) [[[self window] parentWindow] windowRef];
+      EventRef carbonEvent = (EventRef) [pEvent eventRef];
+      SendEventToWindow(carbonEvent, carbonParent);
+      return;
+    }
+    #endif
+
+		if ([pEvent clickCount] > 1) {
+			mGraphics->OnMouseDblClick(x, y, &ms);
+		}
+		else {
+			mGraphics->OnMouseDown(x, y, &ms);
+		}
+	}
 }
 
 - (void) mouseUp: (NSEvent*) pEvent
 {
-  int x, y;
-  [self getMouseXY:pEvent x:&x y:&y];
-  mGraphics->OnMouseUp(x, y, &GetMouseMod(pEvent));
+	if (mGraphics)
+	{
+		int x, y;
+		[self getMouseXY:pEvent x:&x y:&y];
+		IMouseMod ms = GetMouseMod(pEvent);
+		mGraphics->OnMouseUp(x, y, &ms);
+	}
 }
 
 - (void) mouseDragged: (NSEvent*) pEvent
 {
-  int x, y;
-  [self getMouseXY:pEvent x:&x y:&y];
-  mGraphics->OnMouseDrag(x, y, &GetMouseMod(pEvent));
+	if (mGraphics)
+	{
+	  int x, y;
+	  [self getMouseXY:pEvent x:&x y:&y];
+	  IMouseMod ms = GetMouseMod(pEvent);
+		
+	if(!mTextFieldView) 
+		mGraphics->OnMouseDrag(x, y, &ms);
+
+	}
+}
+
+- (void) rightMouseDown: (NSEvent*) pEvent
+{
+	if (mGraphics)
+	{  
+		int x, y;
+		[self getMouseXY:pEvent x:&x y:&y];
+		IMouseMod ms = GetRightMouseMod(pEvent);
+		mGraphics->OnMouseDown(x, y, &ms);
+	}
+}
+
+- (void) rightMouseUp: (NSEvent*) pEvent
+{
+	if (mGraphics)
+	{  
+		int x, y;
+		[self getMouseXY:pEvent x:&x y:&y];
+		IMouseMod ms = GetRightMouseMod(pEvent);
+		mGraphics->OnMouseUp(x, y, &ms);
+	}
+}
+
+- (void) rightMouseDragged: (NSEvent*) pEvent
+{
+	if (mGraphics)
+	{
+		int x, y;
+		[self getMouseXY:pEvent x:&x y:&y];
+		IMouseMod ms = GetRightMouseMod(pEvent);
+		
+		if(!mTextFieldView) 
+			mGraphics->OnMouseDrag(x, y, &ms);
+	}
 }
 
 - (void) mouseMoved: (NSEvent*) pEvent
 {
-  int x, y;
-  [self getMouseXY:pEvent x:&x y:&y];
-  mGraphics->OnMouseOver(x, y, &GetMouseMod(pEvent));
+	if (mGraphics)
+	{
+	  int x, y;
+	  [self getMouseXY:pEvent x:&x y:&y];
+	
+	  IMouseMod ms = GetMouseMod(pEvent);
+	  mGraphics->OnMouseOver(x, y, &ms);
+	}
 }
-
-- (void) scrollWheel: (NSEvent*) pEvent
+/*
+- (void)keyDown: (NSEvent *)pEvent
 {
-  int x, y;
-  [self getMouseXY:pEvent x:&x y:&y];
-  int d = [pEvent deltaY];
-  mGraphics->OnMouseWheel(x, y, &GetMouseMod(pEvent), d);
+	NSString *characters;
+	unsigned int characterIndex, characterCount;
+	
+	characters = [pEvent charactersIgnoringModifiers];
+	characterCount = [characters length];
+	
+	for (characterIndex = 0; characterIndex < characterCount; characterIndex++) {
+		[self doEventForCharacter:[characters characterAtIndex:characterIndex] downEvent:YES];
+	}
+} 
+
+- (void)doEventForCharacter: (unichar)character downEvent: (BOOL)flag
+{
+ bool ok = true;
+ int key;     
+ 
+ if (character == VK_SPACE) key = KEY_SPACE;
+ else if (character == VK_UP) key = KEY_UPARROW;
+ else if (character == VK_DOWN) key = KEY_DOWNARROW;
+ else if (character == VK_LEFT) key = KEY_LEFTARROW;
+ else if (character == VK_RIGHT) key = KEY_RIGHTARROW;
+ else if (character >= '0' && character <= '9') key = KEY_DIGIT_0+character-'0';
+ else if (character >= 'A' && character <= 'Z') key = KEY_ALPHA_A+character-'A';
+ else if (character >= 'a' && character <= 'z') key = KEY_ALPHA_A+character-'a';
+ else ok = false;
+ 
+ int x, y;
+ [self getMouseXY:pEvent x:&x y:&y];
+ 
+ if (ok) pGraphicsMac->OnKeyDown(x, y, key);
+}
+*/
+- (void) scrollWheel: (NSEvent*) pEvent
+{	
+	if (mGraphics)
+	{
+		if(mTextFieldView) [self endUserInput ];
+
+	  int x, y;
+	  [self getMouseXY:pEvent x:&x y:&y];
+	  int d = [pEvent deltaY];
+		
+	  IMouseMod ms = GetMouseMod(pEvent);
+	  mGraphics->OnMouseWheel(x, y, &ms, d);
+	}
 }
 
 - (void) killTimer
@@ -145,12 +268,180 @@ inline IMouseMod GetMouseMod(NSEvent* pEvent)
 
 - (void) removeFromSuperview
 {
+  if (mTextFieldView) [self endUserInput ];;
   if (mGraphics)
   {
     IGraphics* graphics = mGraphics;
     mGraphics = 0;
     graphics->CloseWindow();
   }
+}
+
+- (void) controlTextDidEndEditing: (NSNotification*) aNotification
+{
+	char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
+	
+  if (mEdParam) 
+    mGraphics->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
+  else
+    mEdControl->TextFromTextEntry(txt);
+
+  [self endUserInput ];
+  [self setNeedsDisplay: YES];		
+}
+
+- (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu: (NSRect) rect;
+{	
+	//Sanity Check... cocoa menu variables start with ns, IPlug menu variables don't
+	
+	NSMenu* nsMenu = [[[NSMenu alloc] initWithTitle:@"IPlug Popup Menu"] autorelease]; //TODO: title?
+	DUMMY_COCOA_VIEW* nsView = [[[DUMMY_COCOA_VIEW alloc] initWithFrame:rect] autorelease];
+	NSMenuItem* nsMenuItem;
+	NSMutableString* nsMenuItemTitle;
+  
+  [nsMenu setAutoenablesItems:NO];
+	
+	int numItems = pMenu->GetNItems();
+
+	for (int i = 0; i < numItems; ++i)
+	{	
+		IPopupMenuItem* menuItem = pMenu->GetItem(i);
+		
+		nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:menuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
+		
+		if ( pMenu->GetPrefix() )
+		{
+			NSString* prefixString = 0;
+			
+			switch ( pMenu->GetPrefix() )
+			{
+				case 0: prefixString = [NSString stringWithFormat:@"", i+1]; break;
+				case 1:	prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
+				case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
+				case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
+			}
+			
+			[nsMenuItemTitle insertString:prefixString atIndex:0];
+		}
+		
+		if ( menuItem->GetSubmenu() )
+		{
+//			item = [nsMenu addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
+//			NSMenu* subMenu = [[menuClass alloc] performSelector:@selector(initWithOptionMenu:) withObject:(id)item->getSubmenu ()];
+//			[nsMenu setSubmenu: subMenu forItem:nsItem];
+		}
+		else if (menuItem->GetIsSeparator())
+		{
+			[nsMenu addItem:[NSMenuItem separatorItem]];
+		}
+		else
+		{
+			nsMenuItem = [nsMenu addItemWithTitle:nsMenuItemTitle action:@selector(OnMenuSelection:) keyEquivalent:@""];
+			
+			if (menuItem->GetIsTitle ())
+				[nsMenuItem setIndentationLevel:1];
+			
+			//[item setTarget:nsMenu];
+			
+			if (menuItem->GetChecked())
+				[nsMenuItem setState:NSOnState];
+			else
+				[nsMenuItem setState:NSOffState];
+      
+      if (menuItem->GetEnabled())
+        [nsMenuItem setEnabled:YES];
+      else {
+        [nsMenuItem setEnabled:NO];
+      }
+
+		}
+	}
+	
+	NSWindow* pWindow = [self window];
+//NSRect frame = [pWindow frame];
+  
+	NSPoint wp = {rect.origin.x, rect.origin.y - 5}; // TODO: fix -5 bodge
+	wp = [self convertPointToBase:wp];
+	
+	NSEvent* event = [NSEvent otherEventWithType:NSApplicationDefined
+										location:wp
+								   modifierFlags:NSApplicationDefined 
+									   timestamp: (NSTimeInterval) 0
+									windowNumber: [pWindow windowNumber]
+										 context: [NSGraphicsContext currentContext]
+										 subtype:0
+										   data1: 0
+										   data2: 0]; 
+	
+	[NSMenu popUpContextMenu:nsMenu withEvent:event forView:nsView];      
+	NSMenuItem* chosenItem = [nsView MenuItem];
+	
+	int chosenItemIdx = [nsMenu indexOfItem: chosenItem];
+	
+	if (chosenItemIdx > -1)
+	{
+		pMenu->SetChosenItemIdx(chosenItemIdx);
+		return pMenu;
+	}
+	else return 0;
+
+}
+
+- (void) createTextEntry: (IControl*) pControl: (IParam*) pParam: (IText*) pText: (const char*) pString: (NSRect) areaRect;
+{
+  if (!pControl || mTextFieldView) return;
+
+  mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
+//  [mTextFieldView setFont: [NSFont fontWithName: @"Monaco" size: 9.]];
+  NSString* font = [NSString stringWithUTF8String: pText->mFont];
+  [mTextFieldView setFont: [NSFont fontWithName:font size: (float) AdjustFontSize(pText->mSize)]];
+
+  switch ( pText->mAlign ) 
+  {
+    case IText::kAlignNear:
+      [mTextFieldView setAlignment: NSLeftTextAlignment];
+      break;
+    case IText::kAlignCenter:
+      [mTextFieldView setAlignment: NSCenterTextAlignment];
+      break;
+    case IText::kAlignFar:
+      [mTextFieldView setAlignment: NSRightTextAlignment];
+      break;
+    default:
+      break;
+  }
+  
+  [[mTextFieldView cell] setLineBreakMode: NSLineBreakByTruncatingTail];
+  //[[mTextFieldView cell] setDrawsBackground:NO];
+  [mTextFieldView setAllowsEditingTextAttributes:NO];
+  [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
+  [mTextFieldView setTextColor:ToNSColor(&pText->mColor)];
+  
+  //if ([mTextFieldView frame].size.height > areaRect.size.height)
+  
+  [mTextFieldView setStringValue: ToNSString(pString)];
+  [mTextFieldView setBordered: NO];
+  [mTextFieldView setDelegate: self];
+  //[mTextFieldView setAutoresizingMask:NSViewMinYMargin];
+  //[mTextFieldView sizeToFit];
+
+  [self addSubview: mTextFieldView];
+  NSWindow* pWindow = [self window];
+  [pWindow makeKeyAndOrderFront:nil];
+  [pWindow makeFirstResponder: mTextFieldView];
+  
+  mEdParam = pParam; // might be 0
+  mEdControl = pControl;
+}
+
+- (void) endUserInput
+{
+  [mTextFieldView setDelegate: nil];
+  [mTextFieldView removeFromSuperview];
+	
+  mTextFieldView = 0;
+  mEdControl = 0;
+  mEdParam = 0;
 }
 
 @end

@@ -2,6 +2,19 @@
 #define _IGRAPHICS_
 
 #include "IPlugStructs.h"
+#include "IPopupMenu.h"
+#include "IControl.h"
+#include "../lice/lice.h"
+
+// Specialty stuff for calling in to Reaper for Lice functionality.
+#ifdef REAPER_SPECIAL
+  #include "../IPlugExt/ReaperExt.h"
+  #define _LICE ReaperExt
+#else
+  #define _LICE
+#endif
+
+#define MAX_PARAM_LEN 32
 
 class IPlugBase;
 class IControl;
@@ -11,47 +24,54 @@ class IGraphics
 {
 public:
   
-  virtual void PrepDraw() = 0;    // Called once, when the IGraphics class is attached to the IPlug class.
-	bool IsDirty(IRECT* pR);        // Ask the plugin what needs to be redrawn.
+  void PrepDraw();    // Called once, when the IGraphics class is attached to the IPlug class.
+
+  bool IsDirty(IRECT* pR);        // Ask the plugin what needs to be redrawn.
   bool Draw(IRECT* pR);           // The system announces what needs to be redrawn.  Ordering and drawing logic.
   virtual bool DrawScreen(IRECT* pR) = 0;  // Tells the OS class to put the final bitmap on the screen.
 
   // Methods for the drawing implementation class.
-	virtual bool DrawBitmap(IBitmap* pBitmap, IRECT* pDest, int srcX, int srcY,
-		const IChannelBlend* pBlend = 0) = 0; 
-	virtual bool DrawRotatedBitmap(IBitmap* pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0,
-		const IChannelBlend* pBlend = 0) = 0; 
-	virtual bool DrawRotatedMask(IBitmap* pBase, IBitmap* pMask, IBitmap* pTop, int x, int y, double angle,
-    const IChannelBlend* pBlend = 0) = 0; 
-	virtual bool DrawPoint(const IColor* pColor, float x, float y, 
-		const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
+  bool DrawBitmap(IBitmap* pBitmap, IRECT* pDest, int srcX, int srcY, const IChannelBlend* pBlend = 0); 
+  bool DrawRotatedBitmap(IBitmap* pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = 0); 
+  bool DrawRotatedMask(IBitmap* pBase, IBitmap* pMask, IBitmap* pTop, int x, int y, double angle, const IChannelBlend* pBlend = 0); 
+  bool DrawPoint(const IColor* pColor, float x, float y, const IChannelBlend* pBlend = 0, bool antiAlias = false);
   // Live ammo!  Will crash if out of bounds!  etc.
-  virtual bool ForcePixel(const IColor* pColor, int x, int y) = 0;
-	virtual bool DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2,
-		const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
-	virtual bool DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle, 
-		const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
-	virtual bool DrawCircle(const IColor* pColor, float cx, float cy, float r,
-		const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
-  virtual bool FillIRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend = 0) = 0;
-	virtual bool DrawIText(IText* pTxt, char* str, IRECT* pR) = 0;
-  virtual IColor GetPoint(int x, int y) = 0;
-  virtual void* GetData() = 0;
+  bool ForcePixel(const IColor* pColor, int x, int y);
+  bool DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = 0, bool antiAlias = false);
+  bool DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend = 0, bool antiAlias = false);
+  bool DrawCircle(const IColor* pColor, float cx, float cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false);
+  bool RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa);
+  
+  bool FillIRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend = 0);
+  bool FillCircle(const IColor* pColor, int cx, int cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false);
+  bool FillIConvexPolygon(const IColor* pColor, int* x, int* y, int npoints, const IChannelBlend* pBlend = 0);
+  bool FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend);
 
-	// Methods for the OS implementation class.  
+  bool DrawIText(IText* pTxt, char* str, IRECT* pR);
+
+  IColor GetPoint(int x, int y);
+  void* GetData();
+
+  void PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pTextRect);
+
+  // Methods for the OS implementation class.
+  
+  virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h);
-	virtual bool WindowIsOpen() { return (GetWindow()); }
-	virtual void PromptUserInput(IControl* pControl, IParam* pParam) = 0;
-	virtual void HostPath(WDL_String* pPath) = 0;   // Full path to host executable.
+  virtual bool WindowIsOpen() { return (GetWindow()); }
+  virtual const char* GetGUIAPI() { return ""; };
+
+  virtual IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect) = 0;
+  virtual void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString = "", IParam* pParam = 0) = 0;
+
+  void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, char *txt);
+  virtual void HostPath(WDL_String* pPath) = 0;   // Full path to host executable.
   virtual void PluginPath(WDL_String* pPath) = 0; // Full path to plugin dll.
-	// Run the "open file" or "save file" dialog.  Default to host executable path.
-  enum EFileAction { kFileOpen, kFileSave };
-	virtual void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = 0,
-        char* extensions = 0) = 0;  // extensions = "txt wav" for example.
+  // Run the "open file" or "save file" dialog.  Default to host executable path.
+  virtual void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = 0, char* extensions = 0) = 0;  // extensions = "txt wav" for example.
   virtual bool PromptForColor(IColor* pColor, char* prompt = 0) = 0;
 
-  virtual bool OpenURL(const char* url, 
-    const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
+  virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   
   // Strict (default): draw everything within the smallest rectangle that contains everything dirty.
   // Every control is guaranteed to get no more than one Draw() call per cycle.
@@ -62,13 +82,13 @@ public:
   
   virtual void* OpenWindow(void* pParentWnd) = 0;
   virtual void* OpenWindow(void* pParentWnd, void* pParentControl) { return 0; }  // For OSX Carbon hosts ... ugh.
-	virtual void CloseWindow() = 0;  
-	virtual void* GetWindow() = 0;
+  virtual void CloseWindow() = 0;  
+  virtual void* GetWindow() = 0;
 
-	////////////////////////////////////////
+  ////////////////////////////////////////
 
-	IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS = 0);
-	virtual ~IGraphics();
+  IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS = 0);
+  virtual ~IGraphics();
   
   int Width() { return mWidth; }
   int Height() { return mHeight; }
@@ -76,12 +96,14 @@ public:
   
   IPlugBase* GetPlug() { return mPlug; }
   
-	virtual IBitmap LoadIBitmap(int ID, const char* name, int nStates = 1) = 0;
-  virtual IBitmap ScaleBitmap(IBitmap* pSrcBitmap, int destW, int destH) = 0;
-  virtual IBitmap CropBitmap(IBitmap* pSrcBitmap, IRECT* pR) = 0;
-  virtual void AttachBackground(int ID, const char* name);
+  IBitmap LoadIBitmap(int ID, const char* name, int nStates = 1);
+  IBitmap ScaleBitmap(IBitmap* pSrcBitmap, int destW, int destH);
+  IBitmap CropBitmap(IBitmap* pSrcBitmap, IRECT* pR);
+  void AttachBackground(int ID, const char* name);
+  void AttachPanelBackground(const IColor *pColor);
+
   // Returns the control index of this control (not the number of controls).
-	int AttachControl(IControl* pControl);
+  int AttachControl(IControl* pControl);
 
   IControl* GetControl(int idx) { return mControls.Get(idx); }
   void HideControl(int paramIdx, bool hide);
@@ -100,24 +122,26 @@ public:
   void SetParameterFromGUI(int paramIdx, double normalizedValue);
 
   // Convenience wrappers.
-	bool DrawBitmap(IBitmap* pBitmap, IRECT* pR, int bmpState = 1, const IChannelBlend* pBlend = 0);
+  bool DrawBitmap(IBitmap* pBitmap, IRECT* pR, int bmpState = 1, const IChannelBlend* pBlend = 0);
   bool DrawRect(const IColor* pColor, IRECT* pR);
   bool DrawVerticalLine(const IColor* pColor, IRECT* pR, float x);
   bool DrawHorizontalLine(const IColor* pColor, IRECT* pR, float y);
-  virtual bool DrawVerticalLine(const IColor* pColor, int xi, int yLo, int yHi);
-  virtual bool DrawHorizontalLine(const IColor* pColor, int yi, int xLo, int xHi);
-  bool DrawRadialLine(const IColor* pColor, float cx, float cy, float angle, float rMin, float rMax, 
-    const IChannelBlend* pBlend = 0, bool antiAlias = false);
+  bool DrawVerticalLine(const IColor* pColor, int xi, int yLo, int yHi);
+  bool DrawHorizontalLine(const IColor* pColor, int yi, int xLo, int xHi);
+  bool DrawRadialLine(const IColor* pColor, float cx, float cy, float angle, float rMin, float rMax, const IChannelBlend* pBlend = 0, bool antiAlias = false);
 
-	void OnMouseDown(int x, int y, IMouseMod* pMod);
-	void OnMouseUp(int x, int y, IMouseMod* pMod);
-	void OnMouseDrag(int x, int y, IMouseMod* pMod);
+  void OnMouseDown(int x, int y, IMouseMod* pMod);
+  void OnMouseUp(int x, int y, IMouseMod* pMod);
+  void OnMouseDrag(int x, int y, IMouseMod* pMod);
   // Returns true if the control receiving the double click will treat it as a single click
   // (meaning the OS should capture the mouse).
-	bool OnMouseDblClick(int x, int y, IMouseMod* pMod);
-	void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
-	void OnKeyDown(int x, int y, int key);
-
+  bool OnMouseDblClick(int x, int y, IMouseMod* pMod);
+  void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
+  void OnKeyDown(int x, int y, int key);
+  
+  int GetParamIdxForPTAutomation(int x, int y);
+  int GetLastClickedParamForPTAutomation();
+  
   void DisplayControlValue(IControl* pControl);
   
   // For efficiency, mouseovers/mouseouts are ignored unless you explicity say you can handle them.
@@ -127,12 +151,15 @@ public:
   // Some controls may not need to capture the mouse for dragging, they can call ReleaseCapture when the mouse leaves.
   void ReleaseMouseCapture();
 
-	// This is an idle call from the GUI thread, as opposed to 
-	// IPlug::OnIdle which is called from the audio processing thread.
-	void OnGUIIdle();
+  // This is an idle call from the GUI thread, as opposed to 
+  // IPlug::OnIdle which is called from the audio processing thread.
+  void OnGUIIdle();
 
-  virtual void RetainBitmap(IBitmap* pBitmap) = 0;
-  virtual void ReleaseBitmap(IBitmap* pBitmap) = 0;
+  void RetainBitmap(IBitmap* pBitmap);
+  void ReleaseBitmap(IBitmap* pBitmap);
+  LICE_pixel* GetBits();
+  // For controls that need to interface directly with LICE.
+  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
   
   WDL_Mutex mMutex;
   
@@ -144,19 +171,21 @@ public:
   };
   
 protected:
-
   WDL_PtrList<IControl> mControls;
-	IPlugBase* mPlug;
+  IPlugBase* mPlug;
   IRECT mDrawRECT;
 
   bool CanHandleMouseOver() { return mHandleMouseOver; }
+  virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;
+  LICE_SysBitmap* mDrawBitmap;
+  LICE_IFont* CacheFont(IText* pTxt);
 
 private:
-
-	int mWidth, mHeight, mFPS, mIdleTicks;
-	int GetMouseControlIdx(int x, int y);
-	int mMouseCapture, mMouseOver, mMouseX, mMouseY;
-  bool mHandleMouseOver, mStrict, mDisplayControlValue;
+  LICE_MemBitmap* mTmpBitmap;
+  int mWidth, mHeight, mFPS, mIdleTicks;
+  int GetMouseControlIdx(int x, int y, bool mo = false);
+  int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;
+  bool mHandleMouseOver, mStrict;
 };
 
 #endif

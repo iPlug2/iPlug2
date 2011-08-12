@@ -6,15 +6,13 @@
 
 IParam::IParam()
 :	mType(kTypeNone), mValue(0.0), mMin(0.0), mMax(1.0), mStep(1.0), 
-    mDisplayPrecision(0), mNegateDisplay(false), mShape(1.0)
+    mDisplayPrecision(0), mNegateDisplay(false), mShape(1.0), mCanAutomate(true), mDefault(0.)
 {
     memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
     memset(mLabel, 0, MAX_PARAM_NAME_LEN * sizeof(char));
 }
 
-IParam::~IParam()
-{
-}
+IParam::~IParam() {}
 
 void IParam::InitBool(const char* name, bool defaultVal, const char* label)
 {
@@ -52,9 +50,10 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 	strcpy(mLabel, label);
 	mValue = defaultVal;
 	mMin = minVal;
-	mMax = MAX(maxVal, minVal + step);
+	mMax = IPMAX(maxVal, minVal + step);
 	mStep = step;
-
+  mDefault = defaultVal;
+  
 	for (mDisplayPrecision = 0; 
 		mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);
 		++mDisplayPrecision, step *= 10.0) {
@@ -89,7 +88,7 @@ void IParam::SetNormalized(double normalizedValue)
 	if (mType != kTypeDouble) {
 		mValue = floor(0.5 + mValue / mStep) * mStep;
 	}
-	mValue = MIN(mValue, mMax);
+	mValue = IPMIN(mValue, mMax);
 }
 
 double IParam::GetNormalized()
@@ -103,31 +102,35 @@ double IParam::GetNormalized(double nonNormalizedValue)
   return ToNormalizedParam(nonNormalizedValue, mMin, mMax, mShape);
 }
 
-void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay)
+void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText)
 {
-  if (normalized) {
-    value = FromNormalizedParam(value, mMin, mMax, mShape);
+	if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape);
+
+  if (withDisplayText) 
+  {  
+    const char* displayText = GetDisplayText( (int) value);
+    
+    if (CSTR_NOT_EMPTY(displayText)) 
+    {
+      strcpy(rDisplay, displayText);
+      return;
+    }
   }
+  
+  double displayValue = value;
+	
+	if (mNegateDisplay) displayValue = -displayValue;
 
-  const char* displayText = GetDisplayText((int) value);
-  if (CSTR_NOT_EMPTY(displayText)) {
-    strcpy(rDisplay, displayText);
-    return;
-  }
-
-	double displayValue = value;
-	if (mNegateDisplay) {
-		displayValue = -displayValue;
-	}
-
-	if (displayValue == 0.0) {
-		strcpy(rDisplay, "0");
-	}
+	if (mDisplayPrecision == 0) 
+    sprintf(rDisplay, "%d", int(displayValue));
+	/*else if(mSignDisplay)
+	{
+		char fmt[16];
+		sprintf(fmt, "%%+.%df", mDisplayPrecision);
+		sprintf(rDisplay, fmt, displayValue);
+	}*/
 	else
-	if (mDisplayPrecision == 0) {
-		sprintf(rDisplay, "%d", int(displayValue));
-	} 
-	else {
+	{
 		char fmt[16];
 		sprintf(fmt, "%%.%df", mDisplayPrecision);
 		sprintf(rDisplay, fmt, displayValue);

@@ -1,4 +1,5 @@
 #include "IGraphicsCarbon.h"
+#ifndef IPLUG_NO_CARBON_SUPPORT
 
 IRECT GetRegionRect(EventRef pEvent, int gfxW, int gfxH)
 {
@@ -31,7 +32,39 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
   IGraphicsMac* pGraphicsMac = _this->mGraphicsMac;
   UInt32 eventClass = GetEventClass(pEvent);
   UInt32 eventKind = GetEventKind(pEvent);
-  switch (eventClass) {      
+  switch (eventClass) {
+		  /*
+  case kEventClassKeyboard:
+  { 
+	  switch (eventKind) { 
+		  case kEventRawKeyDown:{
+
+			  bool ok = true;
+			  int key;     
+			  UInt32 result;
+			  GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &result);
+
+			  if (result == VK_SPACE) key = KEY_SPACE;
+			  else if (result == VK_UP) key = KEY_UPARROW;
+			  else if (result == VK_DOWN) key = KEY_DOWNARROW;
+			  else if (result == VK_LEFT) key = KEY_LEFTARROW;
+			  else if (result == VK_RIGHT) key = KEY_RIGHTARROW;
+			  else if (result >= '0' && result <= '9') key = KEY_DIGIT_0+result-'0';
+			  else if (result >= 'A' && result <= 'Z') key = KEY_ALPHA_A+result-'A';
+			  else if (result >= 'a' && result <= 'z') key = KEY_ALPHA_A+result-'a';
+			  else ok = false;
+		   
+		   HIPoint hp;
+		   GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
+		   HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
+		   int x = (int) hp.x;
+		   int y = (int) hp.y;
+
+			  if (ok) pGraphicsMac->OnKeyDown(x, y, key);
+		  } 
+	  }
+  }
+		   */
     case kEventClassControl: {
       switch (eventKind) {          
         case kEventControlDraw: {
@@ -47,27 +80,21 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
             pGraphicsMac->Draw(&r);
           }
           else {
-            #pragma REMINDER("not swapping gfx ports in non-composited mode")
             
             int ctlH = r.H();
             _this->mContentYOffset = ctlH - gfxH;
             
-            //Rect rct;          
-            //GetWindowBounds(_this->mWindow, kWindowContentRgn, &rct);
-            //int wndH = rct.bottom - rct.top;
-            //if (wndH > gfxH) {
-            //  int yOffs = wndH - gfxH;
-            //  _this->mContentYOffset = yOffs;
-            // }
-            
             GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
             QDBeginCGContext(port, &(_this->mCGC));        
-            // Old-style controls drawing, ask the plugin what's dirty rather than relying on the OS.
-            r.R = r.T = r.R = r.B = 0;
-            _this->mGraphicsMac->IsDirty(&r);         
+            
+            //r.R = r.T = r.R = r.B = 0;
+            //r.L = r.T = r.R = r.B = 0;
+            if(pGraphicsMac->IsDirty(&r))
+            {            
+              //printf("%i %i %i %i\n", r.L, r.T, r.R, r.B);
+              pGraphicsMac->Draw(&r);
+            }
           }       
-          
-          pGraphicsMac->Draw(&r);
             
           if (port) {
             CGContextFlush(_this->mCGC);
@@ -94,15 +121,26 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       HIPoint hp;
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
       HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
-      int x = (int) hp.x;
-      int y = (int) hp.y;
+      int x = (int) hp.x - 2;
+      int y = (int) hp.y - 3;
 
       UInt32 mods;
       GetEventParameter(pEvent, kEventParamKeyModifiers, typeUInt32, 0, sizeof(UInt32), 0, &mods);
-      IMouseMod mmod(true, (mods & cmdKey), (mods & shiftKey), (mods & controlKey), (mods & optionKey));
+      EventMouseButton button;
+      GetEventParameter(pEvent, kEventParamMouseButton, typeMouseButton, 0, sizeof(EventMouseButton), 0, &button);
+      if (button == kEventMouseButtonPrimary && (mods & cmdKey)) button = kEventMouseButtonSecondary;
+      IMouseMod mmod(true, button == kEventMouseButtonSecondary, (mods & shiftKey), (mods & controlKey), (mods & optionKey));
       
       switch (eventKind) {
         case kEventMouseDown: {
+          if (_this->mTextFieldView)
+          {
+            HIViewRef view;
+            HIViewGetViewForMouseEvent(_this->mView, pEvent, &view);
+            if (view == _this->mTextFieldView) break;
+            _this->EndUserInput(true);
+          }
+
           CallNextEventHandler(pHandlerCall, pEvent);   // Activates the window, if inactive.
           
           UInt32 clickCount = 0;
@@ -110,7 +148,8 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           if (clickCount > 1) {
             pGraphicsMac->OnMouseDblClick(x, y, &mmod);
           }
-          else {          
+          else
+          {        
             pGraphicsMac->OnMouseDown(x, y, &mmod);
           }
           return noErr;
@@ -124,7 +163,9 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           return noErr;
         }
         case kEventMouseDragged: {
-          pGraphicsMac->OnMouseDrag(x, y, &mmod);
+			
+		if (!_this->mTextFieldView)
+			pGraphicsMac->OnMouseDrag(x, y, &mmod);
           return noErr; 
         }
         case kEventMouseWheelMoved: {
@@ -133,13 +174,31 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           if (axis == kEventMouseWheelAxisY) {
             int d;
             GetEventParameter(pEvent, kEventParamMouseWheelDelta, typeSInt32, 0, sizeof(SInt32), 0, &d);
-            pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
+			  
+			  if (_this->mTextFieldView) _this->EndUserInput(false);
+			
+			  pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
             return noErr;
           }
         }   
       }
       break;    
     }
+    case kEventClassWindow:
+		{
+			WindowRef window;
+			if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
+				break;
+			switch (eventKind)
+			{
+				case kEventWindowDeactivated:
+				{          
+          if (_this->mTextFieldView) _this->EndUserInput(false);          
+					break;
+				}
+			}
+			break;
+		}
   }
   return eventNotHandledErr;
 }    
@@ -151,14 +210,50 @@ pascal void IGraphicsCarbon::CarbonTimerHandler(EventLoopTimerRef pTimer, void* 
   IRECT r;
   if (_this->mGraphicsMac->IsDirty(&r)) {
     if (_this->mIsComposited) {
-      HIViewSetNeedsDisplayInRect(_this->mView, &CGRectMake(r.L, r.T, r.W(), r.H()), true);
+		CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
+      HIViewSetNeedsDisplayInRect(_this->mView, &tmp , true);
     }
     else {
-      int h = _this->mGraphicsMac->Height();
-      SetRectRgn(_this->mRgn, r.L, h - r.B, r.R, h - r.T);
+      //int h = _this->mGraphicsMac->Height();
+      //SetRectRgn(_this->mRgn, r.L, h - r.B, r.R, h - r.T);
       UpdateControls(_this->mWindow, 0);// _this->mRgn);
+      //UpdateControls(_this->mWindow, _this->mRgn);
+
     }
   } 
+}
+
+// static
+pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
+{
+  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
+  UInt32 eventClass = GetEventClass(pEvent);
+  UInt32 eventKind = GetEventKind(pEvent);
+
+  switch (eventClass)
+  {
+    case kEventClassKeyboard:
+    {
+      switch (eventKind)
+      {
+        case kEventRawKeyDown:
+        case kEventRawKeyRepeat:
+        {
+          char ch;
+          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(ch), NULL, &ch);
+		
+          if (ch == 3 || ch == 13)
+          {
+            _this->EndUserInput(true);
+            return noErr;
+          }
+          break;
+        }
+      }
+      break;
+    }
+  }
+  return eventNotHandledErr;
 }
 
 void ResizeWindow(WindowRef pWindow, int w, int h)
@@ -172,7 +267,7 @@ void ResizeWindow(WindowRef pWindow, int w, int h)
 
 IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl)
 : mGraphicsMac(pGraphicsMac), mWindow(pWindow), mView(0), mTimer(0), mControlHandler(0), mWindowHandler(0), mCGC(0),
-  mContentXOffset(0), mContentYOffset(0)
+  mContentXOffset(0), mContentYOffset(0), mTextFieldView(0), mParamEditHandler(0), mEdControl(0), mEdParam(0)
 { 
   TRACE;
   
@@ -186,7 +281,7 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
   GetWindowAttributes(pWindow, &winAttrs);
   mIsComposited = (winAttrs & kWindowCompositingAttribute);
   mRgn = NewRgn();  
-  
+ 
   UInt32 features =  kControlSupportsFocus | kControlHandlesTracking | kControlSupportsEmbedding;
   if (mIsComposited) {
     features |= kHIViewIsOpaque | kHIViewFeatureDoesNotUseSpecialParts;
@@ -210,11 +305,13 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
     { kEventClassMouse, kEventMouseUp },
     { kEventClassMouse, kEventMouseMoved },
     { kEventClassMouse, kEventMouseDragged },
-    { kEventClassMouse, kEventMouseWheelMoved }
+    { kEventClassMouse, kEventMouseWheelMoved },
+    { kEventClassWindow, kEventWindowDeactivated }
   };
   InstallWindowEventHandler(mWindow, CarbonEventHandler, GetEventTypeCount(windowEvents), windowEvents, this, &mWindowHandler);  
   
-  double t = 2.0*kEventDurationSecond/(double)pGraphicsMac->FPS();
+  //double t = 2.0*kEventDurationSecond/(double)pGraphicsMac->FPS();
+  double t = kEventDurationSecond/(double)pGraphicsMac->FPS();
   OSStatus s = InstallEventLoopTimer(GetMainEventLoop(), 0.0, t, CarbonTimerHandler, this, &mTimer);
   
   if (mIsComposited) {
@@ -241,6 +338,15 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
 IGraphicsCarbon::~IGraphicsCarbon()
 {
   // Called from IGraphicsMac::CloseWindow.
+  if (mTextFieldView)
+  {
+    RemoveEventHandler(mParamEditHandler);
+    mParamEditHandler = 0;
+    HIViewRemoveFromSuperview(mTextFieldView);
+    mTextFieldView = 0;
+    mEdControl = 0;
+    mEdParam = 0;
+  }
   RemoveEventLoopTimer(mTimer);
   RemoveEventHandler(mControlHandler);
   RemoveEventHandler(mWindowHandler);
@@ -258,7 +364,304 @@ bool IGraphicsCarbon::Resize(int w, int h)
 {
   if (mWindow && mView) {
     ResizeWindow(mWindow, w, h);
-    return (HIViewSetFrame(mView, &CGRectMake(0, 0, w, h)) == noErr);
+	CGRect tmp = CGRectMake(0, 0, w, h);
+    return (HIViewSetFrame(mView, &tmp) == noErr);
   }
   return false;
 }
+
+void IGraphicsCarbon::EndUserInput(bool commit)
+{
+  RemoveEventHandler(mParamEditHandler);
+  mParamEditHandler = 0;
+
+  if (commit)
+  {
+    CFStringRef str;
+    if (GetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str, NULL) == noErr)
+    {
+      char txt[MAX_PARAM_LEN];
+      CFStringGetCString(str, txt, MAX_PARAM_LEN, kCFStringEncodingUTF8);
+      CFRelease(str);
+      
+      if (mEdParam) 
+        mGraphicsMac->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
+      else
+        mEdControl->TextFromTextEntry(txt);
+    }
+  }
+
+  HIViewSetVisible(mTextFieldView, false);
+  HIViewRemoveFromSuperview(mTextFieldView);
+  
+  if (mIsComposited)
+  {
+    //IRECT* pR = mEdControl->GetRECT();
+    //HIViewSetNeedsDisplayInRect(mView, &CGRectMake(pR->L, pR->T, pR->W(), pR->H()), true);
+    HIViewSetNeedsDisplay(mView, true);
+  }
+  else
+  {
+    mEdControl->SetDirty(false);
+    mEdControl->Redraw();
+  }
+  SetThemeCursor(kThemeArrowCursor);
+  SetUserFocusWindow(kUserFocusAuto);
+
+  mTextFieldView = 0;
+  mEdControl = 0;
+  mEdParam = 0;
+}
+
+IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+{
+	MenuRef menuRef = 0;
+	ResID menuID = UniqueID ('MENU');
+
+	int numItems = pMenu->GetNItems();
+	
+	if (numItems && CreateNewMenu(menuID, kMenuAttrCondenseSeparators, &menuRef) == noErr)
+	{
+//		bool multipleCheck = menu->getStyle () & (kMultipleCheckStyle & ~kCheckStyle);
+
+		for (int i = 0; i < numItems; ++i)
+		{	
+			IPopupMenuItem* menuItem = pMenu->GetItem(i);
+			
+			if (menuItem->GetIsSeparator())
+				AppendMenuItemTextWithCFString(menuRef, CFSTR(""), kMenuItemAttrSeparator, 0, NULL);
+			else
+			{
+				CFStringRef itemString = CFStringCreateWithCString (NULL, menuItem->GetText(), kCFStringEncodingUTF8);
+				
+				if (pMenu->GetPrefix())
+				{
+					CFStringRef prefixString = 0;
+					
+					switch (pMenu->GetPrefix())
+					{
+						case 0: 
+							prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR(""),i+1); break;
+						case 1:
+							prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR("%1d: "),i+1); break;
+						case 2:
+							prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR("%02d: "),i+1); break;
+						case 3:
+							prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR("%03d: "),i+1); break;
+					}
+					
+					CFMutableStringRef newItemString = CFStringCreateMutable (0, 0);
+					CFStringAppend (newItemString, prefixString);
+					CFStringAppend (newItemString, itemString);
+					CFRelease (itemString);
+					CFRelease (prefixString);
+					itemString = newItemString;
+				}
+				
+				if (itemString == 0)
+					continue;
+				
+				MenuItemAttributes itemAttribs = kMenuItemAttrIgnoreMeta;
+				if (!menuItem->GetEnabled())
+					itemAttribs |= kMenuItemAttrDisabled;
+				if (menuItem->GetIsTitle())
+					itemAttribs |= kMenuItemAttrSectionHeader;
+				
+				InsertMenuItemTextWithCFString(menuRef, itemString, i, itemAttribs, 0);
+								
+				if (menuItem->GetChecked())
+				{
+					//MacCheckMenuItem(menuRef, i, true);
+					CheckMenuItem(menuRef, i+1, true);
+				}
+//				if (menuItem->GetChecked() && multipleCheck)
+//					CheckMenuItem (menuRef, i, true);
+				
+//				if (menuItem->GetSubmenu())
+//				{
+//					MenuRef submenu = createMenu (menuItem->GetSubmenu());
+//					if (submenu)
+//					{
+//						SetMenuItemHierarchicalMenu (menuRef, i, submenu);
+//						CFRelease (submenu);
+//					}
+//				}
+				
+//				if (item->getIcon ())
+//				{
+//					IPlatformBitmap* platformBitmap = item->getIcon ()->getPlatformBitmap ();
+//					CGBitmap* cgBitmap = platformBitmap ? dynamic_cast<CGBitmap*> (platformBitmap) : 0;
+//					CGImageRef image = cgBitmap ? cgBitmap->getCGImage () : 0;
+//					if (image)
+//					{
+//						SetMenuItemIconHandle (menuRef, i, kMenuCGImageRefType, (Handle)image);
+//					}
+//				}
+				
+//				if (menuItem->getKeycode ())
+//				{
+//					SetItemCmd (menuRef, i, item->getKeycode ()[0]);
+//					UInt8 keyModifiers = 0;
+//					int32_t itemModifiers = item->getKeyModifiers ();
+//					if (itemModifiers & kShift)
+//						keyModifiers |= kMenuShiftModifier;
+//					if (!(itemModifiers & kControl))
+//						keyModifiers |= kMenuNoCommandModifier;
+//					if (itemModifiers & kAlt)
+//						keyModifiers |= kMenuOptionModifier;
+//					if (itemModifiers & kApple)
+//						keyModifiers |= kMenuControlModifier;
+//					
+//					SetMenuItemModifiers (menuRef, i, keyModifiers);
+//				}
+				
+				CFRelease (itemString);
+			}
+		}
+		
+	//	if (pMenu->getStyle() & kCheckStyle && !multipleCheck)
+	//		CheckMenuItem (menuRef, pMenu->getCurrentIndex (true) + 1, true);
+		
+
+		
+	//	SetMenuItemRefCon(menuRef, 0, (int32_t)menu);
+	//	InsertMenu(menuRef, kInsertHierarchicalMenu);
+	}
+
+	if (menuRef)
+	{
+		CalcMenuSize(menuRef);
+	//	SInt16 menuWidth = GetMenuWidth(menuRef);
+	//	if (menuWidth < optionMenu->getViewSize().getWidth())
+	//		SetMenuWidth(menuRef, optionMenu->getViewSize().getWidth());
+	//	int32_t popUpItem = 1;
+	//	int32_t PopUpMenuItem = PopUpMenuItem = PopUpMenuSelect(menuRef, gy, gx, popUpItem);
+		
+    
+    // TODO: this seems like a convoluted way to get the popup x/y position
+    
+    // Get the plugin gui frame rect within the host's window
+    HIRect rct;
+    HIViewGetFrame(this->mView, &rct);
+    
+    // Get the host's window rect within the screen
+    Rect wrct;
+    GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
+    
+    int xpos = wrct.left + rct.origin.x + pAreaRect->L;
+    int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
+    
+    // vstgui does something with these methods
+    // HIViewRef contentView;
+    // HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
+    // HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
+    
+    int32_t PopUpMenuItem = PopUpMenuSelect (menuRef, ypos, xpos, 0);//popUpItem);
+
+		short result = LoWord(PopUpMenuItem) - 1;	
+		short menuIDResult = HiWord(PopUpMenuItem);
+		IPopupMenu* resultMenu = 0;
+		
+		if (menuIDResult != 0)
+		{
+			//MenuRef usedMenuRef = GetMenuHandle(menuIDResult);
+			
+			//if (usedMenuRef)
+			//{
+			//	if (GetMenuItemRefCon(usedMenuRef, 0, (URefCon*)&resultMenu) == noErr)
+			//	{
+				//	popupResult.menu = resultMenu;
+				//	popupResult.index = result;
+					
+					//printf("result = %i", result);
+					
+					resultMenu = pMenu;
+					resultMenu->SetChosenItemIdx(result);
+			//	}
+			//}
+		}
+		
+		CFRelease(menuRef);
+		
+		return resultMenu;
+	}
+	else {
+		return 0;
+	}
+}
+
+void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+{
+  ControlRef control = 0;
+
+  // TODO: Only composited carbon supports text entry
+
+	if (!pControl || mTextFieldView || !mIsComposited) return;
+  
+  Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R }; // these adjustments should make it the same as the cocoa one
+
+  //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 }; // these adjustments should make it the same as the cocoa one
+  if (CreateEditUnicodeTextControl(NULL, &r, NULL, false, NULL, &control) != noErr) return;
+  
+  HIViewAddSubview(mView, control);
+  
+  const EventTypeSpec events[] = 
+  {
+    { kEventClassKeyboard, kEventRawKeyDown },
+    { kEventClassKeyboard, kEventRawKeyRepeat }
+  };
+  
+  InstallControlEventHandler(control, CarbonParamEditHandler, GetEventTypeCount(events), events, this, &mParamEditHandler);
+  mTextFieldView = control;
+  
+  if (pString[0] != '\0')
+  {
+    CFStringRef str = CFStringCreateWithCString(NULL, pString, kCFStringEncodingUTF8);
+    
+    if (str)
+    {
+      SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str);
+      CFRelease(str);
+    }
+    
+    ControlEditTextSelectionRec sel;
+    sel.selStart = 0;
+    sel.selEnd = strlen(pString);
+    SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextSelectionTag, sizeof(sel), &sel);
+  }
+  
+  int just = 0;
+  
+  switch ( pText->mAlign ) 
+  {
+    case IText::kAlignNear:
+      just = teJustLeft;
+      break;
+    case IText::kAlignCenter:
+      just = teCenter;
+      break;
+    case IText::kAlignFar:
+      just = teJustRight;
+      break;
+    default:
+      just = teCenter;
+      break;
+  }	
+  //CGContextSetShouldAntialias(mCGC, false);
+
+  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, 11., 0, 0, just, 0, 0 };
+  //font.font = ATSFontFamilyFindFromName(CFSTR("Monaco"), kATSOptionFlagsDefault);
+
+  font.font = ATSFontFamilyFindFromName(CFSTR("Arial"), kATSOptionFlagsDefault);
+  SetControlData(mTextFieldView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
+  
+  HIViewSetVisible(mTextFieldView, true);
+  HIViewAdvanceFocus(mTextFieldView, 0);
+  SetKeyboardFocus(mWindow, mTextFieldView, kControlEditTextPart);
+  SetUserFocusWindow(mWindow);
+  
+  mEdControl = pControl;
+  mEdParam = pParam;
+}
+
+#endif // IPLUG_NO_CARBON_SUPPORT

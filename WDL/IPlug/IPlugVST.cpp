@@ -17,7 +17,7 @@ int VSTSpkrArrType(int nchan)
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
 	const char* effectName, const char* productName, const char* mfrName,
 	int vendorVersion, int uniqueID, int mfrID, int latency, 
-  bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst)
+  bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, int plugScChans)
 : IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName,
     vendorVersion, uniqueID, mfrID, latency,
     plugDoesMidi, plugDoesChunks, plugIsInst),
@@ -88,6 +88,11 @@ void IPlugVST::EndInformHostOfParamChange(int idx)
   mHostCallback(&mAEffect, audioMasterEndEdit, idx, 0, 0, 0.0f);
 }
 
+void IPlugVST::InformHostOfProgramChange()
+{
+	mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
+}
+
 inline VstTimeInfo* GetTimeInfo(audioMasterCallback hostCallback, AEffect* pAEffect, int filter = 0)
 { 
 #pragma warning(disable:4312)	// Pointer size cast mismatch.
@@ -103,7 +108,7 @@ int IPlugVST::GetSamplePos()
 { 
 	VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect);
 	if (pTI && pTI->samplePos >= 0.0) {
-		return int(pTI->samplePos);
+		return int(pTI->samplePos + 0.5);
 	}
 	return 0;
 }
@@ -127,6 +132,49 @@ void IPlugVST::GetTimeSig(int* pNum, int* pDenom)
 		*pNum = pTI->timeSigNumerator;
 		*pDenom = pTI->timeSigDenominator;
 	}
+}
+
+// cc: I need all this stuff, and I guess once you need one bit. you probably need it all
+//  Always returns non-zero, positive values for tempo, pNum and pDemum (120bpm 4/4 if
+//   it doesn't get anything sensible back)
+//  I haven't tested the AU version very well
+void IPlugVST::GetTime(double *pSamplePos, double *pTempo, double *pMusicalPos, double *pLastBar,
+		       int* pNum, int* pDenom,
+		       double *pCycleStart,double *pCycleEnd,
+		       bool *pTransportRunning,bool *pTransportCycle)
+{
+  *pSamplePos = *pMusicalPos = *pLastBar = *pCycleStart = *pCycleEnd = -1.0;
+  *pTempo = 120;
+  *pNum = *pDenom = 4;
+  VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect, 
+				 kVstPpqPosValid |
+				 kVstTempoValid |
+				 kVstBarsValid |
+				 kVstCyclePosValid |
+				 kVstTimeSigValid );
+  if (pTI) {
+    *pSamplePos = pTI->samplePos;
+	    
+    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) {
+      *pMusicalPos = pTI->ppqPos;
+    }
+    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) {
+      *pTempo = pTI->tempo;
+    }
+    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) {
+      *pLastBar = pTI->barStartPos;
+    }
+    if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0) {
+      *pCycleStart = pTI->cycleStartPos;
+      *pCycleEnd = pTI->cycleEndPos;
+    }
+    if ((pTI->flags & kVstTimeSigValid) && pTI->timeSigNumerator > 0.0 && pTI->timeSigDenominator > 0.0) {
+      *pNum = pTI->timeSigNumerator;
+      *pDenom = pTI->timeSigDenominator;
+    }
+    *pTransportRunning = pTI->flags & kVstTransportPlaying;
+    *pTransportCycle   = pTI->flags & kVstTransportCycleActive;
+  }
 }
 
 EHost IPlugVST::GetHost() 
@@ -317,6 +365,33 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       }
 	    return 0;
     }
+    case effString2Parameter:
+    {
+      if (idx >= 0 && idx < _this->NParams())
+      {
+        if (ptr)
+        {
+          double v;
+          IParam* pParam = _this->GetParam(idx);
+          if (pParam->GetNDisplayTexts())
+          {
+            int vi;
+            if (!pParam->MapDisplayText((char*)ptr, &vi)) return 0;
+            v = (double)vi;
+          }
+          else
+          {
+            v = atof((char*)ptr);
+            if (pParam->DisplayIsNegated()) v = -v;
+          }
+          if (_this->GetGUI()) _this->GetGUI()->SetParameterFromPlug(idx, v, false);
+          pParam->Set(v);
+          _this->OnParamChange(idx);
+        }
+        return 1;
+      }
+      return 0;
+    }
     case effSetSampleRate: {
 	    _this->SetSampleRate(opt);
 	    _this->Reset();
@@ -353,9 +428,13 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
 #ifdef _WIN32
         if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
 #else   // OSX, check if we are in a Cocoa VST host
+#if defined(__LP64__)
+        if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
+#else
         bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
         if (iscocoa && !pGraphics->OpenWindow(ptr)) pGraphics=0;
         if (!iscocoa && !pGraphics->OpenWindow(ptr, 0)) pGraphics=0;
+#endif
 #endif
         if (pGraphics)
         {
@@ -385,8 +464,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         bool savedOK = true;
         if (isBank) {
           _this->ModifyCurrentPreset();
-          //savedOK = _this->SerializePresets(pChunk);
-          savedOK = _this->SerializeState(pChunk);
+          savedOK = _this->SerializePresets(pChunk);
+          //savedOK = _this->SerializeState(pChunk);
         }
         else {
           savedOK = _this->SerializeState(pChunk);
@@ -408,8 +487,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         int iplugVer = GetIPlugVerFromChunk(pChunk, &pos);
         isBank &= (iplugVer >= 0x010000);
         if (isBank) {
-          //pos = _this->UnserializePresets(pChunk, pos);
-          pos = _this->UnserializeState(pChunk, pos);
+          pos = _this->UnserializePresets(pChunk, pos);
+          //pos = _this->UnserializeState(pChunk, pos);
         }
         else {
           pos = _this->UnserializeState(pChunk, pos);
@@ -573,7 +652,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effSetProgram: {
       if (!(_this->DoesStateChunks())) {
-        _this->ModifyCurrentPreset();
+        _this->ModifyCurrentPreset(); // TODO: test, something is funny about this http://forum.cockos.com/showpost.php?p=485113&postcount=22
       }
       _this->RestorePreset((int) value);
       return 0;
@@ -585,6 +664,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effSetProgramName: {
       if (ptr) {
         _this->ModifyCurrentPreset((char*) ptr);
+        _this->PresetsChangedByHost();
       }
       return 0;
     }
@@ -608,8 +688,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effGetVstVersion: {
 	    return VST_VERSION;
     }
+	case effEndSetProgram:
     case effBeginSetProgram:
-    case effEndSetProgram:
     case effGetMidiProgramName: 
     case effHasMidiProgramsChanged:
     case effGetMidiProgramCategory: 
@@ -643,7 +723,7 @@ void VSTCALLBACK IPlugVST::VSTProcess(AEffect* pEffect, float** inputs, float** 
 
 void VSTCALLBACK IPlugVST::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 { 
-  TRACE;
+  //TRACE;
 	IPlugVST* _this = (IPlugVST*) pEffect->object;
   IMutexLock lock(_this);
   _this->VSTPrepProcess(inputs, outputs, nFrames);

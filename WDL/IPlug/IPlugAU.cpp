@@ -48,7 +48,12 @@ int PtrListInitialize(WDL_PtrList<C>* pList, int size)
   return size;
 }
 
-#define GET_COMP_PARAM(TYPE, IDX) *((TYPE*)&(params->params[IDX]))
+#if defined(__APPLE__) && defined(__LP64__)
+	#define GET_COMP_PARAM(TYPE, IDX, NUM) *((TYPE*)&(params->params[NUM - IDX]))
+#else
+	#define GET_COMP_PARAM(TYPE, IDX, NUM) *((TYPE*)&(params->params[IDX]))
+#endif
+
 #define NO_OP(select) case select: return badComponentSelector;
 
 // static
@@ -62,7 +67,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     IPlugAU* _this = MakePlug();
     _this->HostSpecificInit();
     _this->PruneUninitializedPresets();
-    _this->mCI = GET_COMP_PARAM(ComponentInstance, 0);
+    _this->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
     SetComponentInstanceStorage(_this->mCI, (Handle) _this);
     return noErr;
   }
@@ -70,6 +75,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   IPlugAU* _this = (IPlugAU*) pPlug;
 
   if (select == kComponentCloseSelect) {
+    _this->ClearConnections();
     DELETE_NULL(_this);
     return noErr;
   }
@@ -91,16 +97,15 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
     case kAudioUnitUninitializeSelect: {
       _this->mActive = false;
-      _this->ClearConnections();
       _this->OnActivate(false);
       return noErr;
     }
     case kAudioUnitGetPropertyInfoSelect: {
-      AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 4);
-      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3);
-      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2);
-      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 1);
-      Boolean* pWriteable = GET_COMP_PARAM(Boolean*, 0);
+      AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 4, 5);
+      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3, 5);
+      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
+      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 1, 5);
+      Boolean* pWriteable = GET_COMP_PARAM(Boolean*, 0, 5);
 
       UInt32 dataSize = 0;
       if (!pDataSize) {
@@ -114,11 +119,11 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       return _this->GetProperty(propID, scope, element, pDataSize, pWriteable, 0);
     }
     case kAudioUnitGetPropertySelect: {
-      AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 4);
-      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3);
-      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2);
-      void* pData = GET_COMP_PARAM(void*, 1);
-      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0);
+      AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 4, 5);
+      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3, 5);
+      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
+      void* pData = GET_COMP_PARAM(void*, 1, 5);
+      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0, 5);
 
       UInt32 dataSize = 0;
       if (!pDataSize) {
@@ -128,18 +133,18 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       return _this->GetProperty(propID, scope, element, pDataSize, &writeable, pData);
     }
     case kAudioUnitSetPropertySelect: {
-      AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 4);
-      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3);
-      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2);
-      const void* pData = GET_COMP_PARAM(const void*, 1);
-      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0);
+      AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 4, 5);
+      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3, 5);
+      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
+      const void* pData = GET_COMP_PARAM(const void*, 1, 5);
+      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0, 5);
       return _this->SetProperty(propID, scope, element, pDataSize, pData);
     }
     case kAudioUnitAddPropertyListenerSelect: {
       PropertyListener listener;
-      listener.mPropID = GET_COMP_PARAM(AudioUnitPropertyID, 2);
-      listener.mListenerProc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 1);
-      listener.mProcArgs = GET_COMP_PARAM(void*, 0);
+      listener.mPropID = GET_COMP_PARAM(AudioUnitPropertyID, 2, 3);
+      listener.mListenerProc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 1, 3);
+      listener.mProcArgs = GET_COMP_PARAM(void*, 0, 3);
       int i, n = _this->mPropertyListeners.GetSize();
       for (i = 0; i < n; ++i) {
         PropertyListener* pListener = _this->mPropertyListeners.Get(i);
@@ -152,8 +157,8 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
     case kAudioUnitRemovePropertyListenerSelect: {
       PropertyListener listener;
-      listener.mPropID = GET_COMP_PARAM(AudioUnitPropertyID, 1);
-      listener.mListenerProc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 0);
+      listener.mPropID = GET_COMP_PARAM(AudioUnitPropertyID, 1, 2);
+      listener.mListenerProc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 0, 2);
       int i, n = _this->mPropertyListeners.GetSize();
       for (i = 0; i < n; ++i) {
         PropertyListener* pListener = _this->mPropertyListeners.Get(i);
@@ -166,9 +171,9 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
   	case kAudioUnitRemovePropertyListenerWithUserDataSelect: {
       PropertyListener listener;
-      listener.mPropID = GET_COMP_PARAM(AudioUnitPropertyID, 2);
-      listener.mListenerProc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 1);
-      listener.mProcArgs = GET_COMP_PARAM(void*, 0);
+      listener.mPropID = GET_COMP_PARAM(AudioUnitPropertyID, 2, 3);
+      listener.mListenerProc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 1, 3);
+      listener.mProcArgs = GET_COMP_PARAM(void*, 0, 3);
       int i, n = _this->mPropertyListeners.GetSize();
       for (i = 0; i < n; ++i) {
         PropertyListener* pListener = _this->mPropertyListeners.Get(i);
@@ -182,15 +187,15 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
     case kAudioUnitAddRenderNotifySelect: {
       AURenderCallbackStruct acs;
-      acs.inputProc = GET_COMP_PARAM(AURenderCallback, 1);
-      acs.inputProcRefCon = GET_COMP_PARAM(void*, 0);
+      acs.inputProc = GET_COMP_PARAM(AURenderCallback, 1, 2);
+      acs.inputProcRefCon = GET_COMP_PARAM(void*, 0, 2);
       PtrListAddFromStack(&(_this->mRenderNotify), &acs);
       return noErr;
     }
     case kAudioUnitRemoveRenderNotifySelect: {
       AURenderCallbackStruct acs;
-      acs.inputProc = GET_COMP_PARAM(AURenderCallback, 1);
-      acs.inputProcRefCon = GET_COMP_PARAM(void*, 0);
+      acs.inputProc = GET_COMP_PARAM(AURenderCallback, 1, 2);
+      acs.inputProcRefCon = GET_COMP_PARAM(void*, 0, 2);
       int i, n = _this->mRenderNotify.GetSize();
       for (i = 0; i < n; ++i) {
         AURenderCallbackStruct* pACS = _this->mRenderNotify.Get(i);
@@ -202,23 +207,23 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       return noErr;
     }
     case kAudioUnitGetParameterSelect: {
-      AudioUnitParameterID paramID = GET_COMP_PARAM(AudioUnitParameterID, 3);
-      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 2);
-      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 1);
-      AudioUnitParameterValue* pValue = GET_COMP_PARAM(AudioUnitParameterValue*, 0);
+      AudioUnitParameterID paramID = GET_COMP_PARAM(AudioUnitParameterID, 3, 4);
+      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 2, 4);
+      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 1, 4);
+      AudioUnitParameterValue* pValue = GET_COMP_PARAM(AudioUnitParameterValue*, 0, 4);
       return GetParamProc(pPlug, paramID, scope, element, pValue);
     }
     case kAudioUnitSetParameterSelect: {
-      AudioUnitParameterID paramID = GET_COMP_PARAM(AudioUnitParameterID, 4);
-      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3);
-      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2);
-      AudioUnitParameterValue value = GET_COMP_PARAM(AudioUnitParameterValue, 1);
-      UInt32 offset = GET_COMP_PARAM(UInt32, 0);
+      AudioUnitParameterID paramID = GET_COMP_PARAM(AudioUnitParameterID, 4, 5);
+      AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3, 5);
+      AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
+      AudioUnitParameterValue value = GET_COMP_PARAM(AudioUnitParameterValue, 1, 5);
+      UInt32 offset = GET_COMP_PARAM(UInt32, 0, 5);
       return SetParamProc(pPlug, paramID, scope, element, value, offset);
     }
     case kAudioUnitScheduleParametersSelect: {
-      AudioUnitParameterEvent* pEvent = GET_COMP_PARAM(AudioUnitParameterEvent*, 1);
-      UInt32 nEvents = GET_COMP_PARAM(UInt32, 0);
+      AudioUnitParameterEvent* pEvent = GET_COMP_PARAM(AudioUnitParameterEvent*, 1, 2);
+      UInt32 nEvents = GET_COMP_PARAM(UInt32, 0, 2);
       for (int i = 0; i < nEvents; ++i, ++pEvent) {
         if (pEvent->eventType == kParameterEvent_Immediate) {
           ComponentResult r = SetParamProc(pPlug, pEvent->parameter, pEvent->scope, pEvent->element,
@@ -231,11 +236,11 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       return noErr;
     }
     case kAudioUnitRenderSelect: {
-      AudioUnitRenderActionFlags* pFlags = GET_COMP_PARAM(AudioUnitRenderActionFlags*, 4);
-      const AudioTimeStamp* pTimestamp = GET_COMP_PARAM(AudioTimeStamp*, 3);
-      UInt32 outputBusIdx = GET_COMP_PARAM(UInt32, 2);
-      UInt32 nFrames = GET_COMP_PARAM(UInt32, 1);
-      AudioBufferList* pBufferList = GET_COMP_PARAM(AudioBufferList*, 0);
+      AudioUnitRenderActionFlags* pFlags = GET_COMP_PARAM(AudioUnitRenderActionFlags*, 4, 5);
+      const AudioTimeStamp* pTimestamp = GET_COMP_PARAM(AudioTimeStamp*, 3, 5);
+      UInt32 outputBusIdx = GET_COMP_PARAM(UInt32, 2, 5);
+      UInt32 nFrames = GET_COMP_PARAM(UInt32, 1, 5);
+      AudioBufferList* pBufferList = GET_COMP_PARAM(AudioBufferList*, 0, 5);
       return RenderProc(_this, pFlags, pTimestamp, outputBusIdx, nFrames, pBufferList);
     }
     case kAudioUnitResetSelect: {
@@ -244,10 +249,10 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
     case kMusicDeviceMIDIEventSelect: {   // Ignore kMusicDeviceSysExSelect for now.
       IMidiMsg msg;
-      msg.mStatus = GET_COMP_PARAM(UInt32, 3);
-      msg.mData1 = GET_COMP_PARAM(UInt32, 2);
-      msg.mData2 = GET_COMP_PARAM(UInt32, 1);
-      msg.mOffset = GET_COMP_PARAM(UInt32, 0);
+      msg.mStatus = GET_COMP_PARAM(UInt32, 3, 4);
+      msg.mData1 = GET_COMP_PARAM(UInt32, 2, 4);
+      msg.mData2 = GET_COMP_PARAM(UInt32, 1, 4);
+      msg.mOffset = GET_COMP_PARAM(UInt32, 0, 4);
       _this->ProcessMidiMsg(&msg);
       return noErr;
     }
@@ -259,11 +264,11 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       return noErr;
     }
     case kMusicDeviceStartNoteSelect: {
-      MusicDeviceInstrumentID deviceID = GET_COMP_PARAM(MusicDeviceInstrumentID, 4);
-      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 3);
-      NoteInstanceID* pNoteID = GET_COMP_PARAM(NoteInstanceID*, 2);
-      UInt32 offset = GET_COMP_PARAM(UInt32, 1);
-      MusicDeviceNoteParams* pNoteParams = GET_COMP_PARAM(MusicDeviceNoteParams*, 0);
+//      MusicDeviceInstrumentID deviceID = GET_COMP_PARAM(MusicDeviceInstrumentID, 4, 5);
+//      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 3, 5);
+      NoteInstanceID* pNoteID = GET_COMP_PARAM(NoteInstanceID*, 2, 5);
+      UInt32 offset = GET_COMP_PARAM(UInt32, 1, 5);
+      MusicDeviceNoteParams* pNoteParams = GET_COMP_PARAM(MusicDeviceNoteParams*, 0, 5);
       int note = (int) pNoteParams->mPitch;
       *pNoteID = note;
       IMidiMsg msg;
@@ -271,9 +276,9 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       return noErr;
     }
     case kMusicDeviceStopNoteSelect: {
-      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 2);
-      NoteInstanceID noteID = GET_COMP_PARAM(NoteInstanceID, 1);
-      UInt32 offset = GET_COMP_PARAM(UInt32, 0);
+//      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 2, 3);
+      NoteInstanceID noteID = GET_COMP_PARAM(NoteInstanceID, 1, 3);
+      UInt32 offset = GET_COMP_PARAM(UInt32, 0, 3);
       // noteID is supposed to be some incremented unique ID, but we're just storing note number in it.
       IMidiMsg msg;
       msg.MakeNoteOffMsg(noteID, offset);
@@ -331,7 +336,7 @@ ComponentResult IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, voi
 
   if (select == kComponentOpenSelect) {
       CarbonViewInstance* pCVI = new CarbonViewInstance;
-      pCVI->mCI = GET_COMP_PARAM(ComponentInstance, 0);
+      pCVI->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
       pCVI->mPlug = 0;
       SetComponentInstanceStorage(pCVI->mCI, (Handle) pCVI);
       return noErr;
@@ -427,11 +432,14 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = MakeCFString(pParam->GetNameForHost());
         strcpy(pInfo->name, paramName);   // Max 52.
+        
         switch (pParam->Type()) {
           case IParam::kTypeBool:
             pInfo->unit = kAudioUnitParameterUnit_Boolean;
             break;
           case IParam::kTypeEnum:
+            //fall through
+          case IParam::kTypeInt: 
             pInfo->unit = kAudioUnitParameterUnit_Indexed;
             break;
           default: {
@@ -504,7 +512,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     case kAudioUnitProperty_SupportedNumChannels: {      // 13,
       ASSERT_SCOPE(kAudioUnitScope_Global);
       int n = mChannelIO.GetSize();
-      *pDataSize = n * sizeof(AUChannelInfo);
+		*pDataSize = n * sizeof(AUChannelInfo);
       if (pData) {
         AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
         for (int i = 0; i < n; ++i, ++pChInfo) {
@@ -512,6 +520,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           pChInfo->inChannels = pIO->mIn;
           pChInfo->outChannels = pIO->mOut;
           Trace(TRACELOC, "IO:%d:%d", pIO->mIn, pIO->mOut);
+
         }
       }
       return noErr;
@@ -639,7 +648,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         char cStr[MAX_PARAM_NAME_LEN];
         strcpy(cStr, pParam->GetNameForHost());
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full) {
-          int n = MIN(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
+          int n = IPMIN(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
           cStr[n] = '\0';
         }
         pIDName->outName = MakeCFString(cStr);
@@ -678,8 +687,16 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         if (scope == kAudioUnitScope_Global) {
           CStrLocal cStr(pVFS->inString);
           IParam* pParam = GetParam(pVFS->inParamID);
-          int v;
-          if (pParam->MapDisplayText(cStr.mCStr, &v)) {
+          if (pParam->GetNDisplayTexts())
+          {
+            int v;
+            if (pParam->MapDisplayText(cStr.mCStr, &v))
+              pVFS->outValue = (AudioUnitParameterValue) v;
+          }
+          else
+          {
+            double v = atof(cStr.mCStr);
+            if (pParam->DisplayIsNegated()) v = -v;
             pVFS->outValue = (AudioUnitParameterValue) v;
           }
         }
@@ -766,7 +783,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         // which counts as a successful negotiation.
       }
       AssessInputConnections();
-      return (negotiatedOK ? noErr : kAudioUnitErr_InvalidProperty);
+      return (negotiatedOK ? noErr : (int) kAudioUnitErr_InvalidProperty);  // casting to int avoids gcc error
     }
     case kAudioUnitProperty_SampleRate: {                // 2,
       SetSampleRate(*((Float64*) pData));
@@ -806,7 +823,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         }
       }
       AssessInputConnections();
-      return (connectionOK ? noErr : kAudioUnitErr_InvalidProperty);
+      return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
     NO_OP(kAudioUnitProperty_ElementCount);              // 11,
     NO_OP(kAudioUnitProperty_Latency);                   // 12,
@@ -873,7 +890,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
         CStrLocal hostStr(pHostID->hostName);
         int hostVer = (pHostID->hostVersion.majorRev << 16) + (pHostID->hostVersion.minorAndBugRev << 8);
-        SetHost("", hostStr.mCStr, hostVer);
+        SetHost(hostStr.mCStr, hostVer);
         return noErr;
       }
       NO_OP(kAudioUnitProperty_MIDIOutputCallbackInfo);   // 47,
@@ -921,13 +938,13 @@ int IPlugAU::NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int exclud
 bool IPlugAU::CheckLegalIO(AudioUnitScope scope, int busIdx, int nChannels)
 {
   if (scope == kAudioUnitScope_Input) {
-    int nIn = MAX(NHostChannelsConnected(&mInBuses, busIdx), 0);
+    int nIn = IPMAX(NHostChannelsConnected(&mInBuses, busIdx), 0);
     int nOut = (mActive ? NHostChannelsConnected(&mOutBuses) : -1);
     return LegalIO(nIn + nChannels, nOut);
   }
   else {
     int nIn = (mActive ? NHostChannelsConnected(&mInBuses) : -1);
-    int nOut = MAX(NHostChannelsConnected(&mOutBuses, busIdx), 0);
+    int nOut = IPMAX(NHostChannelsConnected(&mOutBuses, busIdx), 0);
     return LegalIO(nIn, nOut + nChannels);
   }
 }
@@ -944,7 +961,8 @@ void IPlugAU::AssessInputConnections()
   TRACE;
   IMutexLock lock(this);
 
-  SetInputChannelConnections(0, NInChannels(), false);
+  SetInputChannelConnections(0, NInChannels() + mNScInputChans, false);
+  //SetInputChannelConnections(0, NInChannels(), false);
 
   int nIn = mInBuses.GetSize();
   for (int i = 0; i < nIn; ++i) {
@@ -982,7 +1000,7 @@ void IPlugAU::AssessInputConnections()
         pInBus->mNHostChannels = pInBus->mNPlugChannels;
       }
       int nConnected = pInBus->mNHostChannels;
-      int nUnconnected = MAX(pInBus->mNPlugChannels - nConnected, 0);
+      int nUnconnected = IPMAX(pInBus->mNPlugChannels - nConnected, 0);
       SetInputChannelConnections(startChannelIdx, nConnected, true);
       SetInputChannelConnections(startChannelIdx + nConnected, nUnconnected, false);
     }
@@ -1288,8 +1306,8 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
   BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
   if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers) {
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-    int nConnected = MIN(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
-    int nUnconnected = MAX(pOutBus->mNPlugChannels - nConnected, 0);
+    int nConnected = IPMIN(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
+    int nUnconnected = IPMAX(pOutBus->mNPlugChannels - nConnected, 0);
     _this->SetOutputChannelConnections(startChannelIdx, nConnected, true);
     _this->SetOutputChannelConnections(startChannelIdx + nConnected, nUnconnected, false);
     pOutBus->mConnected = true;
@@ -1336,7 +1354,7 @@ IPlugAU::BusChannels* IPlugAU::GetBus(AudioUnitScope scope, AudioUnitElement bus
 void IPlugAU::ClearConnections()
 {
   int nInBuses = mInBuses.GetSize();
-  for (int i = 0,; i < nInBuses; ++i) {
+  for (int i = 0; i < nInBuses; ++i) {
     BusChannels* pInBus = mInBuses.Get(i);
     pInBus->mConnected = false;
     pInBus->mNHostChannels = -1;
@@ -1344,18 +1362,20 @@ void IPlugAU::ClearConnections()
     memset(pInBusConn, 0, sizeof(InputBusConnection));
   }
   int nOutBuses = mOutBuses.GetSize();
-  for (int i = 0,; i < nOutBuses; ++i) {
+  for (int i = 0; i < nOutBuses; ++i) {
     BusChannels* pOutBus = mOutBuses.Get(i);
     pOutBus->mConnected = false;
     pOutBus->mNHostChannels = -1;
   }
 }
 
+#pragma mark IPlugAU Constructor
+
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
   int nParams, const char* channelIOStr, int nPresets,
   const char* effectName, const char* productName, const char* mfrName,
 	int vendorVersion, int uniqueID, int mfrID, int latency,
-  bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst)
+  bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst, int plugScChans)
 : IPlugBase(nParams, channelIOStr, nPresets,
   effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency,
   plugDoesMidi, plugDoesChunks, plugIsInst),
@@ -1369,30 +1389,53 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
   mOSXBundleID.Set(instanceInfo.mOSXBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
-  // Every channel pair requested on input or output is a separate bus.
-  int nInputs = NInChannels(), nOutputs = NOutChannels();
-  int nInBuses = (int) ceil(nInputs / 2);
-  int nOutBuses = (int) ceil(nOutputs / 2);
-
-  PtrListInitialize(&mInBusConnections, nInBuses);
-  PtrListInitialize(&mInBuses, nInBuses);
-  PtrListInitialize(&mOutBuses, nOutBuses);
-
-  for (int i = 0, startCh = 0; i < nInBuses; ++i, startCh += 2) {
-    BusChannels* pInBus = mInBuses.Get(i);
+  mNScInputChans = plugScChans;
+  int nNormalInputs = NInChannels();
+  
+  if (plugScChans && nNormalInputs) // effect with side chain input... 2 input buses
+  {
+    int nNonScInputChans = nNormalInputs - plugScChans;
+    
+    PtrListInitialize(&mInBusConnections, 2);
+    PtrListInitialize(&mInBuses, 2);
+    
+    BusChannels* pInBus = mInBuses.Get(0);
     pInBus->mNHostChannels = -1;
-    pInBus->mPlugChannelStartIdx = startCh;
-    pInBus->mNPlugChannels = MIN(nInputs - startCh, 2);
+    pInBus->mPlugChannelStartIdx = 0;
+    pInBus->mNPlugChannels = nNonScInputChans;
+    
+    BusChannels* pInBus2 = mInBuses.Get(1);
+    pInBus2->mNHostChannels = -1;
+    pInBus2->mPlugChannelStartIdx = nNonScInputChans;
+    pInBus2->mNPlugChannels = plugScChans;
   }
-  for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2) {
-    BusChannels* pOutBus = mOutBuses.Get(i);
-    pOutBus->mNHostChannels = -1;
-    pOutBus->mPlugChannelStartIdx = startCh;
-    pOutBus->mNPlugChannels = MIN(nOutputs - startCh, 2);
+  else if (nNormalInputs) // effect with no side chain... 1 bus
+  {
+    PtrListInitialize(&mInBusConnections, 1);
+    PtrListInitialize(&mInBuses, 1);
+    
+    BusChannels* pInBus = mInBuses.Get(0);
+    pInBus->mNHostChannels = -1;
+    pInBus->mPlugChannelStartIdx = 0;
+    pInBus->mNPlugChannels = nNormalInputs;
   }
-
+  else { // synth
+    PtrListInitialize(&mInBusConnections, 0);
+    PtrListInitialize(&mInBuses, 0);
+  }
+  
+  // allways one output bus
+  int nOutputs = NOutChannels();
+  int nOutBuses = 1;
+  PtrListInitialize(&mOutBuses, nOutBuses);
+  
+	BusChannels* pOutBus = mOutBuses.Get(0);
+	pOutBus->mNHostChannels = -1;
+	pOutBus->mPlugChannelStartIdx = 0;
+	pOutBus->mNPlugChannels = nOutputs;
+  
   AssessInputConnections();
-
+  
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 }
 
@@ -1435,6 +1478,12 @@ void IPlugAU::EndInformHostOfParamChange(int idx)
   SendAUEvent(kAudioUnitEvent_EndParameterChangeGesture, mCI, idx);
 }
 
+void IPlugAU::InformHostOfProgramChange()
+{
+	//InformListeners(kAudioUnitProperty_CurrentPreset, kAudioUnitScope_Global);
+	InformListeners(kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global);
+}
+
 // Samples since start of project.
 int IPlugAU::GetSamplePos()
 {
@@ -1443,7 +1492,7 @@ int IPlugAU::GetSamplePos()
     Boolean playing, changed, looping;
     mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos,
       &looping, &loopStartBeat, &loopEndBeat);
-    return (int) samplePos;
+    return int (samplePos+0.5);
   }
   return 0;
 }
@@ -1473,6 +1522,67 @@ void IPlugAU::GetTimeSig(int* pNum, int* pDenom)
   }
 }
 
+// cc: I need all this stuff, and I guess once you need one bit. you probably need it all
+//  Always returns non-zero, positive values for tempo, pNum and pDemum (120bpm 4/4 if
+//   it doesn't get anything sensible back)
+//  I haven't tested the AU version very well
+void IPlugAU::GetTime(double *pSamplePos, double *pTempo, double *pMusicalPos, double *pLastBar,
+		       int* pNum, int* pDenom,
+		       double *pCycleStart,double *pCycleEnd,
+		       bool *pTransportRunning,bool *pTransportCycle)
+{
+  *pSamplePos = *pMusicalPos = *pLastBar = *pCycleStart = *pCycleEnd = -1.0;
+  *pTempo = 120;
+  *pNum = *pDenom = 4;
+  *pTransportRunning = *pTransportCycle = false;
+
+  if (mHostCallbacks.beatAndTempoProc) {
+    double currentBeat = 0.0, tempo = 0.0;
+    mHostCallbacks.beatAndTempoProc(mHostCallbacks.hostUserData, &currentBeat, &tempo);
+    if (tempo > 0.0) {
+      *pTempo = tempo;
+    }
+    if (currentBeat> 0.0) {
+      *pMusicalPos=currentBeat;
+    }
+  }
+
+  if (mHostCallbacks.transportStateProc) {
+    double samplePos = 0.0, loopStartBeat=0.0, loopEndBeat=0.0;
+    Boolean playing, changed, looping;
+    mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos,
+      &looping, &loopStartBeat, &loopEndBeat);
+
+    if (samplePos>0.0) {
+      *pSamplePos=samplePos;
+    }
+    *pTransportRunning=playing;
+    *pTransportCycle=looping;
+    if (loopStartBeat>0.0) {
+      *pCycleStart=loopStartBeat;
+    }
+    if (loopEndBeat>0.0) {
+      *pCycleEnd=loopEndBeat;
+    }
+  }
+
+
+  UInt32 sampleOffsetToNextBeat = 0, tsDenom = 0;
+  float tsNum = 0.0f;
+  double currentMeasureDownBeat = 0.0;
+  if (mHostCallbacks.musicalTimeLocationProc) {
+    mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat,
+      &tsNum, &tsDenom, &currentMeasureDownBeat);
+    *pNum = (int) tsNum;
+    *pDenom = (int) tsDenom;
+    if (currentMeasureDownBeat>0.0) {
+      *pLastBar=currentMeasureDownBeat;
+    }
+  }
+
+
+}
+
 EHost IPlugAU::GetHost()
 {
   EHost host = IPlugBase::GetHost();
@@ -1496,7 +1606,7 @@ EHost IPlugAU::GetHost()
 
 void IPlugAU::HostSpecificInit()
 {
-  EHost host = GetHost();
+//  EHost host = GetHost();
 }
 
 void IPlugAU::SetBlockSize(int blockSize)

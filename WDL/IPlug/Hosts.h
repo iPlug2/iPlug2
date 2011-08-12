@@ -6,20 +6,20 @@
 
 enum EHost {
   kHostUninit = -1,
-	kHostUnknown = 0,
-	kHostReaper,
-	kHostProTools,
-	kHostCubase,
+  kHostUnknown = 0,
+  kHostReaper,
+  kHostProTools,
+  kHostCubase,
   kHostNuendo,
-	kHostSonar,
-	kHostVegas,
-	kHostFL,
-	kHostSamplitude,
-	kHostAbletonLive,
-	kHostTracktion,
-	kHostNTracks,
-	kHostMelodyneStudio,
-	kHostVSTScanner,
+  kHostSonar,
+  kHostVegas,
+  kHostFL,
+  kHostSamplitude,
+  kHostAbletonLive,
+  kHostTracktion,
+  kHostNTracks,
+  kHostMelodyneStudio,
+  kHostVSTScanner,
   kHostAULab,
   kHostForte,
   kHostChainer,
@@ -27,17 +27,18 @@ enum EHost {
   kHostOrion,
   kHostBias,
   kHostSAWStudio,
-	kHostLogic,
-	kHostDigitalPerformer,
+  kHostLogic,
+  kHostDigitalPerformer,
+  kHostStandalone
 
-	// These hosts don't report the host name:
+  // These hosts don't report the host name:
   // EnergyXT2
-	// MiniHost
+  // MiniHost
 };
 
 EHost LookUpHost(const char* host);
 
 #endif
-				
+        
 
-	
+  

@@ -1,18 +1,57 @@
 #ifndef _IGRAPHICSMAC_
 #define _IGRAPHICSMAC_
 
-#include "IGraphicsLice.h"
+#if defined(__APPLE__) && defined(__LP64__) && !defined(IPLUG_NO_CARBON_SUPPORT)
+	#define IPLUG_NO_CARBON_SUPPORT
+#endif
+
+#include "IGraphics.h"
 #include "../swell/swell.h"
 #include <Carbon/Carbon.h>
 
-class IGraphicsCarbon;
-class NSMutableDictionary;
+#ifndef DEFAULT_PATH_OSX
+#define DEFAULT_PATH_OSX "~/Desktop"
+#endif
 
-class IGraphicsMac : public IGraphicsLice
+#ifndef IPLUG_NO_CARBON_SUPPORT
+	class IGraphicsCarbon;
+#endif
+
+#ifndef COCOA_PREFIX 
+#define COCOA_PREFIX vOliLarkin
+#endif
+
+#if defined(VST_API)
+#define API _vst
+#elif defined(AU_API)
+#define API _au
+#elif defined(RTAS_API)
+#define API _rtas
+#elif defined(VST3_API)
+#define API _vst3
+#elif defined(SA_API)
+#define API _sa
+#endif
+
+#define CONCAT3(a,b,c) a##b##c
+#define CONCAT2(a,b,c) CONCAT3(a,b,c)
+#define CONCAT(cname) CONCAT2(cname,COCOA_PREFIX,API)
+
+#define IGRAPHICS_COCOA CONCAT(IGraphicsCocoa_)
+#define DUMMY_COCOA_VIEW CONCAT(DummyCocoaView_)
+#define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
+
+#ifdef RTAS_API
+// used by RTAS wrapper to attach/remove cocoa child window on top of PT's carbon window
+void* attachSubWindow (void* hostWindowRef, IGraphics* pGraphics);
+void removeSubWindow (void* cocoaHostWindow, IGraphics* pGraphics);
+#endif
+
+class IGraphicsMac : public IGraphics
 {
 public:
 
-	IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS = FPS);
+	IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS);
 	virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
@@ -20,22 +59,32 @@ public:
   bool DrawScreen(IRECT* pR);
 
   void* OpenWindow(void* pWindow);
+#ifndef IPLUG_NO_CARBON_SUPPORT
   void* OpenWindow(void* pWindow, void* pControl);
+#endif
   
 	void* OpenCocoaWindow(void* pParentView);  
+#ifndef IPLUG_NO_CARBON_SUPPORT
   void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
+#endif
   
 	void CloseWindow();
 	bool WindowIsOpen();
   void Resize(int w, int h);
   
+  void ForceEndUserEdit();
+  
+  const char* GetGUIAPI();
+
 	void HostPath(WDL_String* pPath); 
   void PluginPath(WDL_String* pPath);
 
-	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = "",
-    char* extensions = "");   // extensions = "txt wav" for example.
+	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = "", char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
-	void PromptUserInput(IControl* pControl, IParam* pParam);
+	
+	IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect);
+  void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam );
+
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
 
 	void* GetWindow();
@@ -44,7 +93,6 @@ public:
 
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
-  bool DrawIText(IText* pTxt, char* str, IRECT* pR);
   
 protected:
   
@@ -52,12 +100,12 @@ protected:
   
 private:
   
+#ifndef IPLUG_NO_CARBON_SUPPORT
   IGraphicsCarbon* mGraphicsCarbon; 
+#endif
   void* mGraphicsCocoa;   // Can't forward-declare IGraphicsCocoa because it's an obj-C object.
   
   WDL_String mBundleID;
-  NSMutableDictionary* mTxtAttrs;
-  IText mTxt;
 };
 
 inline CFStringRef MakeCFString(const char* cStr)
@@ -92,5 +140,16 @@ struct CStrLocal
     FREE_NULL(mCStr); 
   }
 };
+
+inline CGRect ToCGRect(int h, IRECT* pR)
+{
+  int B = h - pR->B;
+  return CGRectMake(pR->L, B, pR->W(), B + pR->H()); 
+}
+
+inline int AdjustFontSize(int size)
+{
+	return int(0.9 * (double)size);
+}
 
 #endif

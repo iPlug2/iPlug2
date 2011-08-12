@@ -4,10 +4,37 @@
 #include "time.h"
 #include <fstream>
 
-#ifdef _WIN32
+//#define TRACETOSTDOUT
+
+#ifdef OS_WIN
   #define LOGFILE "C:\\IPlugLog.txt"
+
+  #ifndef _NDEBUG
+    void DBGMSG(const char *format, ...)
+    {
+      char    buf[4096], *p = buf;
+      va_list args;
+      int     n;
+      
+      va_start(args, format);
+      n = _vsnprintf(p, sizeof buf - 3, format, args); // buf-3 is room for CR/LF/NUL
+      va_end(args);
+      
+      p += (n < 0) ? sizeof buf - 3 : n;
+      
+      while ( p > buf  &&  isspace(p[-1]) )
+        *--p = '\0';
+      
+      *p++ = '\r';
+      *p++ = '\n';
+      *p   = '\0';
+      
+      OutputDebugString(buf);
+    }
+  #endif
+
 #else
-  #define LOGFILE "/IPlugLog.txt"
+  #define LOGFILE "/Users/oli/Desktop/IPlugLog.txt"
 #endif
   
 const int TXTLEN = 1024;
@@ -101,28 +128,27 @@ bool IsWhitespace(char c)
 }
 
 // Needs rewriting for WDL.
-//StrVector SplitStr(const std::string& line, char separator)
-//{
-//	std::string field;
-//	StrVector fields;
-//	for (int i = 0; i < line.size(); ++i) {
-//        bool sep = (line[i] == separator);
-//        sep |= (IsWhitespace(separator) && IsWhitespace(line[i]));
-//        
-//        if (!sep) {
-//			field.push_back(line[i]);
-//		}
-//		else
-//        if (!field.empty()) {
-//			fields.push_back(field);
-//			field.clear();
-//		}
-//	}
-//	if (!field.empty()) {
-//		fields.push_back(field);
-//	}
-//	return fields;
-//}
+std::vector<std::string> SplitStr(const char* line)
+{
+	std::string field;
+	std::vector<std::string> fields;
+
+	for (int i = 0; i < strlen(line); ++i)
+  {
+    if (!IsWhitespace(line[i])) {
+			field.push_back(line[i]);
+		}
+		else
+      if (!field.empty()) {
+			fields.push_back(field);
+			field.clear();
+		}
+	}
+	if (!field.empty()) {
+		fields.push_back(field);
+	}
+	return fields;
+}
 
 void ToLower(char* cDest, const char* cSrc)
 {
@@ -205,11 +231,16 @@ const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const
       static WDL_Mutex sLogMutex;      
       char str[TXTLEN];
       VARARGS_TO_STR(str);
+		
+#ifdef TRACETOSTDOUT
       printf("[%d:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
-     
-      //WDL_MutexLock lock(&sLogMutex);
-      //fprintf(sLogFile.mFP, "[%d:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
-      //fflush(sLogFile.mFP);
+#else
+  #ifndef __LP64__ // TODO: fix
+        WDL_MutexLock lock(&sLogMutex);
+        fprintf(sLogFile.mFP, "[%d:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+        fflush(sLogFile.mFP);
+  #endif
+#endif
     }
   }
 

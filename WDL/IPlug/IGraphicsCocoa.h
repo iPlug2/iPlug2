@@ -4,23 +4,46 @@
 #import <AudioUnit/AUCocoaUIView.h>
 #include "IGraphicsMac.h"
 
-// Cocoa objects can be supplied by any existing component, 
-// so we need to make sure the C++ static lib code gets the 
-// IGraphicsCocoa that it expects.
-#define IGRAPHICS_COCOA IGraphicsCocoa_v1002
+inline NSRect ToNSRect(IGraphics* pGraphics, IRECT* pR) 
+{
+	int B = pGraphics->Height() - pR->B;
+	return NSMakeRect(pR->L, B-1, pR->W()+1, pR->H()+1); 
+}
+
+inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR) 
+{
+	int x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
+	return IRECT(x, gh - (y + h), x + w, gh - y);
+}
+
+inline NSColor* ToNSColor(IColor* pColor)
+{
+  double r = (double) pColor->R / 255.0;
+  double g = (double) pColor->G / 255.0;
+  double b = (double) pColor->B / 255.0;
+  double a = (double) pColor->A / 255.0;
+  return [NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+}
 
 NSString* ToNSString(const char* cStr);
 
-inline CGRect ToCGRect(int h, IRECT* pR)
+// Dummy View class used to receive Menu Events
+@interface DUMMY_COCOA_VIEW : NSView
 {
-  int B = h - pR->B;
-  return CGRectMake(pR->L, B, pR->W(), B + pR->H()); 
+    NSMenuItem* nsMenuItem;
 }
+- (void) OnMenuSelection:(id)sender;
+- (NSMenuItem*)MenuItem;
+@end
 
 @interface IGRAPHICS_COCOA : NSView
 {
-  IGraphicsMac* mGraphics;
   NSTimer* mTimer;
+	NSTextField* mTextFieldView;
+	IControl* mEdControl; // the control linked to the open text edit
+	IParam* mEdParam; // the param linked to the open text edit (optional)
+@public
+	IGraphicsMac* mGraphics;
 }
 - (id) init;
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics;
@@ -34,7 +57,18 @@ inline CGRect ToCGRect(int h, IRECT* pR)
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;
+- (void) rightMouseDown: (NSEvent*) pEvent;
+- (void) rightMouseUp: (NSEvent*) pEvent;
+- (void) rightMouseDragged: (NSEvent*) pEvent;
 - (void) mouseMoved: (NSEvent*) pEvent;
 - (void) scrollWheel: (NSEvent*) pEvent;
+//- (void) keyDown: (NSEvent *)pEvent;
+//- (void) doEventForCharacter: (unichar)character downEvent: (BOOL)flag
 - (void) killTimer;
+- (void) removeFromSuperview;
+//- (void) controlTextDidChange: (NSNotification *) aNotification;
+- (void) controlTextDidEndEditing: (NSNotification*) aNotification;
+- (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu: (NSRect) rect;
+- (void) createTextEntry: (IControl*) pControl: (IParam*) pParam: (IText*) pText: (const char*) pString: (NSRect) areaRect;
+- (void) endUserInput;
 @end

@@ -41,6 +41,9 @@ public:
 	// Call this if your param is (x, y) but you want to always display (-x, -y).
 	void NegateDisplay() { mNegateDisplay = true; }
 	bool DisplayIsNegated() const { return mNegateDisplay; }
+	
+	//call this to make sure the param display text allways has a sign
+	void SignDisplay() { mSignDisplay = true; }
 
 	// Accessors / converters.
 	// These all return the readable value, not the VST (0,1).
@@ -53,7 +56,8 @@ public:
 	double GetNormalized();
 	double GetNormalized(double nonNormalizedValue);
   void GetDisplayForHost(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay); }
-  void GetDisplayForHost(double value, bool normalized, char* rDisplay);
+  void GetDisplayForHostNoDisplayText(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay, false); }
+  void GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText = true);
 	const char* GetNameForHost();
 	const char* GetLabelForHost();
 
@@ -61,16 +65,28 @@ public:
 	const char* GetDisplayText(int value);
 	bool MapDisplayText(char* str, int* pValue);	// Reverse map back to value.
   void GetBounds(double* pMin, double* pMax);
-
+	const double GetShape() {return mShape;}; 
+  const double GetStep() {return mStep;}; 
+  const double GetDefault() {return mDefault;}; 
+	const double GetMin() {return mMin;}; 
+	const double GetMax() {return mMax;}; 
+	const double GetRange() {return mMax - mMin;}
+  
+  bool GetCanAutomate() { return mCanAutomate; };
+	void SetCanAutomate() { mCanAutomate = true; };
+	void KillAutomation() { mCanAutomate = false; };
+  
 private:
 
 	// All we store is the readable values.
 	// SetFromHost() and GetForHost() handle conversion from/to (0,1).
   EParamType mType;
-	double mValue, mMin, mMax, mStep, mShape;	
+	double mValue, mMin, mMax, mStep, mShape, mDefault;	
 	int mDisplayPrecision;
 	char mName[MAX_PARAM_NAME_LEN], mLabel[MAX_PARAM_NAME_LEN];
 	bool mNegateDisplay;
+	bool mSignDisplay;
+  bool mCanAutomate;
   
   struct DisplayText {
     int mValue;

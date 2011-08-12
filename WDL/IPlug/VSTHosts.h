@@ -9,7 +9,7 @@ enum EVSTHost {
 	kHostReaper,
 	kHostProTools,
 	kHostCubase,
-    kHostNuendo,
+  kHostNuendo,
 	kHostSonar,
 	kHostVegas,
 	kHostFL,
