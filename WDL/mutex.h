@@ -169,7 +169,16 @@ class WDL_SharedMutex
     { 
       m_mutex.Enter(); 
 #ifdef _WIN32
+  // OL - This is nessecary to avoid a collision in the PTSDK
+  #ifdef Sleep
+    #define tempSleep Sleep
+    #undef Sleep
+  #endif
       while (m_sharedcnt>0) Sleep(1);
+  #ifdef tempSleep
+    #define Sleep tempSleep
+    #undef tempSleep
+  #endif
 #else
       while (m_sharedcnt>0) usleep(100);		
 #endif
