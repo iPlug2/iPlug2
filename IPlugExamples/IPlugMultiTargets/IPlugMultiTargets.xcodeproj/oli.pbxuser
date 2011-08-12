@@ -3,8 +3,8 @@
 	089C1669FE841209C02AAC07 /* Project object */ = {
 		activeArchitecturePreference = x86_64;
 		activeBuildConfigurationName = Release;
-		activeExecutable = 4FD16A0A13B63081001D0217 /* App */;
-		activeTarget = 4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */;
+		activeExecutable = 4FF6D80F12B28631001E9114 /* Live */;
+		activeTarget = 8D5B49AC048680CD000E48DA /* VST2_32_intel */;
 		addToTargets = (
 			4F7F5C4213E95EC8002918FD /* RTAS_32_intel */,
 		);
@@ -79,7 +79,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1006,
+					862,
 					20,
 					48,
 					43,
@@ -170,13 +170,14 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 334853103;
-			PBXWorkspaceStateSaveDate = 334853103;
+			PBXPerProjectTemplateStateSaveDate = 334857928;
+			PBXWorkspaceStateSaveDate = 334857928;
 		};
 		perUserProjectItems = {
+			4F29312B13F5898A0081BEE0 /* PBXTextBookmark */ = 4F29312B13F5898A0081BEE0 /* PBXTextBookmark */;
+			4F29312C13F5898A0081BEE0 /* XCBuildMessageTextBookmark */ = 4F29312C13F5898A0081BEE0 /* XCBuildMessageTextBookmark */;
+			4F29313A13F58B710081BEE0 /* PBXTextBookmark */ = 4F29313A13F58B710081BEE0 /* PBXTextBookmark */;
 			4F9B0CD813F5740700EA68BF /* PBXTextBookmark */ = 4F9B0CD813F5740700EA68BF /* PBXTextBookmark */;
-			4F9B0CD913F5740700EA68BF /* PBXTextBookmark */ = 4F9B0CD913F5740700EA68BF /* PBXTextBookmark */;
-			4F9B0CEA13F57C4000EA68BF /* PBXTextBookmark */ = 4F9B0CEA13F57C4000EA68BF /* PBXTextBookmark */;
 			4FA6EC2213F467DC003F4A20 /* PlistBookmark */ = 4FA6EC2213F467DC003F4A20 /* PlistBookmark */;
 			4FA6EC2313F467DC003F4A20 /* PBXTextBookmark */ = 4FA6EC2313F467DC003F4A20 /* PBXTextBookmark */;
 			4FA6EC2513F467DC003F4A20 /* PBXTextBookmark */ = 4FA6EC2513F467DC003F4A20 /* PBXTextBookmark */;
@@ -200,6 +201,58 @@
 	};
 	4F20EEC8132C69FE0030E34C /* VST2_32&64_intel */ = {
 		activeExec = 0;
+	};
+	4F29312B13F5898A0081BEE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FCF15AF133124D1009A6277 /* IPlugMultiTargets.xcconfig */;
+		name = "IPlugMultiTargets.xcconfig: 47";
+		rLen = 2;
+		rLoc = 1341;
+		rType = 0;
+		vrLen = 1307;
+		vrLoc = 1187;
+	};
+	4F29312C13F5898A0081BEE0 /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "Passing argument 2 of 'png_set_longjmp_fn' makes qualified function pointer from unqualified";
+		fRef = 4F29312D13F5898A0081BEE0 /* pngread.c */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 89;
+		rType = 1;
+	};
+	4F29312D13F5898A0081BEE0 /* pngread.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = pngread.c;
+		path = /Users/oli/Dev/MyPluginsIPlug/WDL/IPlug/../libpng/pngread.c;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1040, 19188}}";
+			sepNavSelRange = "{2658, 0}";
+			sepNavVisRange = "{1956, 1331}";
+		};
+	};
+	4F29313A13F58B710081BEE0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F29313B13F58B710081BEE0 /* pngread.c */;
+		name = "pngread.c: 58";
+		rLen = 0;
+		rLoc = 1670;
+		rType = 0;
+		vrLen = 1259;
+		vrLoc = 1364;
+	};
+	4F29313B13F58B710081BEE0 /* pngread.c */ = {
+		isa = PBXFileReference;
+		name = pngread.c;
+		path = /Users/oli/Dev/MyPluginsIPlug/WDL/IPlug/../libpng/pngread.c;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1040, 19201}}";
+			sepNavSelRange = "{1670, 0}";
+			sepNavVisRange = "{1364, 1259}";
+		};
 	};
 	4F30A3F21117540400C237CE /* Aulab */ = {
 		isa = PBXExecutable;
@@ -886,26 +939,6 @@
 		vrLen = 1449;
 		vrLoc = 14633;
 	};
-	4F9B0CD913F5740700EA68BF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FCF15AF133124D1009A6277 /* IPlugMultiTargets.xcconfig */;
-		name = "IPlugMultiTargets.xcconfig: 41";
-		rLen = 0;
-		rLoc = 1160;
-		rType = 0;
-		vrLen = 1925;
-		vrLoc = 640;
-	};
-	4F9B0CEA13F57C4000EA68BF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FCF15AF133124D1009A6277 /* IPlugMultiTargets.xcconfig */;
-		name = "IPlugMultiTargets.xcconfig: 74";
-		rLen = 0;
-		rLoc = 2256;
-		rType = 0;
-		vrLen = 1923;
-		vrLoc = 640;
-	};
 	4FA6EC2213F467DC003F4A20 /* PlistBookmark */ = {
 		isa = PlistBookmark;
 		fRef = 4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */;
@@ -976,9 +1009,9 @@
 	};
 	4FCF15AF133124D1009A6277 /* IPlugMultiTargets.xcconfig */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1184, 1144}}";
-			sepNavSelRange = "{2256, 0}";
-			sepNavVisRange = "{640, 1923}";
+			sepNavIntBoundsRect = "{{0, 0}, {1056, 1144}}";
+			sepNavSelRange = "{1341, 2}";
+			sepNavVisRange = "{1187, 1307}";
 			sepNavWindowFrame = "{{15, 10}, {1135, 1163}}";
 		};
 	};
