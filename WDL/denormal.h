@@ -27,12 +27,20 @@ typedef union { float fl; unsigned int w; } WDL_DenormalFloatAccess;
 #endif
 
 #define WDL_DENORMAL_DOUBLE_HW(a) (((const WDL_DenormalDoubleAccess*)(a))->w.hw)
-#define WDL_DENORMAL_DOUBLE_LW(a) (((const WDL_DenormalDoubleAccess*)(a))->w.hw)
+#define WDL_DENORMAL_DOUBLE_LW(a) (((const WDL_DenormalDoubleAccess*)(a))->w.lw)
 #define WDL_DENORMAL_FLOAT_W(a) (((const WDL_DenormalFloatAccess*)(a))->w)
 
 #define WDL_DENORMAL_DOUBLE_HW_NC(a) (((WDL_DenormalDoubleAccess*)(a))->w.hw)
-#define WDL_DENORMAL_DOUBLE_LW_NC(a) (((WDL_DenormalDoubleAccess*)(a))->w.hw)
+#define WDL_DENORMAL_DOUBLE_LW_NC(a) (((WDL_DenormalDoubleAccess*)(a))->w.lw)
 #define WDL_DENORMAL_FLOAT_W_NC(a) (((WDL_DenormalFloatAccess*)(a))->w)
+
+#define WDL_NOT_DENORMAL_DOUBLE(a) (WDL_DENORMAL_DOUBLE_HW(a)&0x7ff00000)
+#define WDL_NOT_DENORMAL_FLOAT(a) (WDL_DENORMAL_FLOAT_W(a)&0x7f800000)
+
+#define WDL_DENORMAL_OR_ZERO_DOUBLE(a) (!WDL_NOT_DENORMAL_DOUBLE(a))
+#define WDL_DENORMAL_OR_ZERO_FLOAT(a) (!WDL_NOT_DENORMAL_FLOAT(a))
+#define WDL_DENORMAL_OR_ZERO_DOUBLE_AGGRESSIVE(a) ((WDL_DENORMAL_DOUBLE_HW(a)&0x7ff00000) < 0x3c900000)
+#define WDL_DENORMAL_OR_ZERO_FLOAT_AGGRESSIVE(a) ((WDL_DENORMAL_FLOAT_W(a)&0x7f800000) < 0x24800000)
 
 static double WDL_DENORMAL_INLINE denormal_filter_double(double a)
 {
@@ -110,6 +118,26 @@ static void WDL_DENORMAL_INLINE denormal_fix(float *a)
 static void WDL_DENORMAL_INLINE denormal_fix_aggressive(float *a)
 {
   if ((WDL_DENORMAL_FLOAT_W(a)&0x7f800000) < 0x24800000) *a=0.0f;
+}
+
+static bool WDL_DENORMAL_INLINE WDL_DENORMAL_OR_ZERO(double *a)
+{
+  return WDL_DENORMAL_OR_ZERO_DOUBLE(a);
+}
+
+static bool WDL_DENORMAL_INLINE WDL_DENORMAL_OR_ZERO(float *a)
+{
+  return WDL_DENORMAL_OR_ZERO_FLOAT(a);
+}
+
+static bool WDL_DENORMAL_INLINE WDL_DENORMAL_OR_ZERO_AGGRESSIVE(double *a)
+{
+  return WDL_DENORMAL_OR_ZERO_DOUBLE_AGGRESSIVE(a);
+}
+
+static bool WDL_DENORMAL_INLINE WDL_DENORMAL_OR_ZERO_AGGRESSIVE(float *a)
+{
+  return WDL_DENORMAL_OR_ZERO_FLOAT_AGGRESSIVE(a);
 }
 
 
