@@ -482,10 +482,20 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
       Boolean isBold=lfWeight >= FW_BOLD;
       Boolean isItal=!!lfItalic;
       Boolean isUnder=!!lfUnderline;
+
+      ATSStyleRenderingOptions render;
+      if (!lfQuality)
+        render = kATSStyleNoOptions;
+      else if (lfQuality == ANTIALIASED_QUALITY)
+        render = kATSStyleApplyAntiAliasing;
+      else if (lfQuality == NONANTIALIASED_QUALITY)
+        render = kATSStyleNoAntiAliasing;
+      else
+        render = kATSStyleNoOptions;
     
-      ATSUAttributeTag        theTags[] = { kATSUQDBoldfaceTag, kATSUQDItalicTag, kATSUQDUnderlineTag,kATSUSizeTag,kATSUFontTag };
-      ByteCount               theSizes[] = { sizeof(Boolean),sizeof(Boolean),sizeof(Boolean), sizeof(Fixed),sizeof(ATSUFontID)  };
-      ATSUAttributeValuePtr   theValues[] =  {&isBold, &isItal, &isUnder,  &fsize, &fontid  } ;
+      ATSUAttributeTag        theTags[] = { kATSUQDBoldfaceTag, kATSUQDItalicTag, kATSUQDUnderlineTag,kATSUSizeTag,kATSUFontTag, kATSUStyleRenderingOptionsTag };
+      ByteCount               theSizes[] = { sizeof(Boolean),sizeof(Boolean),sizeof(Boolean), sizeof(Fixed),sizeof(ATSUFontID), sizeof(ATSStyleRenderingOptions)  };
+      ATSUAttributeValuePtr   theValues[] =  {&isBold, &isItal, &isUnder,  &fsize, &fontid, &render } ;
     
       int attrcnt=sizeof(theTags)/sizeof(theTags[0]);
       if (fontid == kATSUInvalidFontID) attrcnt--;    
@@ -534,6 +544,8 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
       float sc = min(fontwid,15.0)*0.55;
       [font->fontdict setObject:[NSNumber numberWithFloat:-sc] forKey:NSStrokeWidthAttributeName];
     }
+
+    font->font_quality = (!lfQuality || lfQuality == ANTIALIASED_QUALITY || lfQuality == NONANTIALIASED_QUALITY ? lfQuality : 0);
   }
   
   return font;
@@ -790,7 +802,12 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
   // NSString, attributes based text drawing
   
   NSMutableDictionary *dict=NULL;
-  if (HGDIOBJ_VALID(ct->curfont,TYPE_FONT)) dict=ct->curfont->fontdict;  
+  int quality=0;
+  if (HGDIOBJ_VALID(ct->curfont,TYPE_FONT))
+  {
+    dict=ct->curfont->fontdict;  
+    quality=ct->curfont->font_quality;
+  }
   if (!dict) 
   {
     static NSMutableDictionary *dd;
@@ -834,12 +851,20 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
 
   
   
-  NSGraphicsContext *gc=NULL,*oldgc=NULL;
-  if (ct->ctx != [[NSGraphicsContext currentContext] graphicsPort])
+  NSGraphicsContext *gc=NULL,*oldgc=NULL, *curgc=[NSGraphicsContext currentContext];
+  if (ct->ctx != [curgc graphicsPort])
   {
     gc=[NSGraphicsContext graphicsContextWithGraphicsPort:ct->ctx flipped:YES];
-    oldgc=[NSGraphicsContext currentContext];
+    oldgc=curgc;
     [NSGraphicsContext setCurrentContext:gc];
+    curgc=gc;
+  }
+
+  BOOL oldaa;
+  if (quality)
+  {
+    oldaa=[curgc shouldAntialias];
+    [curgc setShouldAntialias:(quality == ANTIALIASED_QUALITY ? YES : NO)];
   }
   
   NSStringDrawingOptions opt = NSStringDrawingUsesFontLeading;
@@ -896,6 +921,8 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     [str drawWithRect:drawr options:opt attributes:dict];
     
   }
+
+  if (quality) [curgc setShouldAntialias:oldaa];
   
   if (gc)
   {

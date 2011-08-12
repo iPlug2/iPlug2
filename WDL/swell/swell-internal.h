@@ -430,6 +430,7 @@ struct HGDIOBJ__
   // used by font
   // if using NSString to draw text
   NSMutableDictionary *fontdict;
+  char font_quality;
   // if using ATSU to draw text (faster)
   ATSUStyle font_style;
   
