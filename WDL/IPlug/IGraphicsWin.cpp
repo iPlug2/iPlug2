@@ -3,7 +3,7 @@
 #include "Log.h"
 #include <wininet.h>
 
-#if RTAS_API
+#ifdef RTAS_API
 #include "PlugInUtils.h"
 #endif
 
