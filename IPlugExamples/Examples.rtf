@@ -1,0 +1,112 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier-BoldOblique;\f2\fmodern\fcharset0 Courier;
+\f3\fmodern\fcharset0 Courier-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww23040\viewh20760\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\b\fs24 \cf0 Oli IPlug Examples\
+
+\b0 \
+This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working.\
+\
+Projects are provided for Visual Studio 2010 and Xcode3 (or higher). Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010.\
+\
+To build 64 bit binaries on windows, using VS2010 express, you need to have installed the Windows SDK 7.1. Alternatively if you have VS2010 professional, you may need to change the PlatformToolset to "v100" instead of "Windows7.1SDK" in all .vcxproj files, because the projects were made with the express version.\
+\
+The IPlugMultiTargets project is the main starting project, and if you wish to support multiple targets you should start by duplicating this (see below) and then removing the bits you don't need manually.\
+\
+
+\b Building VST2
+\b0 \
+\
+You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK in order to compile for vst2, see filestoputhere.txt\
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
+\ls1\ilvl0\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b \cf0 Building RTAS
+\b0 \
+\
+- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: {\field{\*\fldinst{HYPERLINK "http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html"}}{\fldrslt http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html}}\
+\
+- On windows, the debug builds of the RTAS plugin will not be recognised by ProTools. This is true of the Digidesign examples as well for the PT8 and PT9 sdks, PT7 works however. I have found that enabling debug symbols in the release build was sufficient to allow me to debug my plugins.\
+\
+- By default the Digidesign PluginLibrary.lib static libraries are built to link dynamically to the MSVC libraries\'85 i.e. /MD instead of /MT. You need to change this setting to /MT when you build IPlugMultiTargets, unless you want to link dynamically (see below) in which case you need to change the settings in all the IPlug projects.\
+\
+
+\b Building AudioUnits
+\b0 \
+\
+- Nothing special\
+\
+
+\b Building Standalone
+\b0 \
+\
+- To build on windows you need to extract some files into ASIO_SDK, see filestoputhere.txt\
+\
+
+\b Building For IOS
+\b0 \
+\
+- Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.0.2 and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\
+- NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new guy using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\
+\
+
+\b Windows Issues\
+\
+
+\b0 Microsoft Visual C++ 2005 SP1 Redistributable Package \
+Microsoft Visual C++ 2010 Redistributable Package\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 Duplicating Projects\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\fs24 \cf0 \
+
+\b0 The IPlugExamples folder contains a python script to duplicate an IPlug project. This allows you to very quickly create a new project based on one of the examples. It does a multiple file find and replace to substitute the new name of the project for the old name, and also to change the manufacturer name. Once you have done this you only need to change two more things by hand in resource.h to make your plugin unique.\
+\
+you can duplicate a project as follows with the following commands in the OSX terminal or on the windows command prompt. In this example i will copy the IPlugEffect project to a new project called MyNewPlugin\'85\
+\
+- open terminal or cmd.exe and navigate to the IPlugExamples folder\
+- type \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f1\i\b \cf0 	duplicate.py [inputprojectname] [outputprojectname] [manufacturername]\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\i0\b0 \cf0 \
+e.g\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f2 \cf0 	
+\f1\i\b duplicate.py IPlugEffect MyNewPlugin OliLarkin\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\i0\b0 \cf0 \
+you might need to do 
+\f1\i\b ./duplicate.py
+\f0\i0\b0  on OSX\
+\
+- open 
+\f3\b MyNewPlugin/resource.h
+\f0\b0  and change 
+\f3\b PLUG_UNIQUE_ID
+\f0\b0  and 
+\f3\b PLUG_MFR_ID
+\f0\b0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\b\fs26 \cf0 Debugging Setups\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+
+\b0\fs24 \cf0 remember to change executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID\
+}

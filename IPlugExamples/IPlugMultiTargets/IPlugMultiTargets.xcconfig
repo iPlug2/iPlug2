@@ -1,0 +1,88 @@
+
+//------------------------------
+// Global settings
+
+// path to WDL folder
+WDL_PATH = $(SRCROOT)/../../WDL
+IPLUG_PATH = $(WDL_PATH)/IPlug
+
+MacBag = $(SRCROOT)/../../PT9_SDK/MacBag
+
+ADDITIONAL_INCLUDES = /// $(SRCROOT)/../../../MyDSP/
+
+// for jack headers
+//ADDITIONAL_APP_INCLUDES = /usr/local/include
+
+// Which comipler to use
+COMPILER = 4.2 // 4.0 = GCC 4.0, 4.2
+
+// What is the minimum OS to support?
+BASE_SDK = macosx10.5 // macosx10.4, macosx10.5, macosx10.6
+//SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk
+//SDKROOT = /Developer/SDKs/MacOSX10.5.sdk
+//SDKROOT = /Developer/SDKs/MacOSX10.6.sdk
+
+// Flags to pass to compiler for all builds
+GCC_CFLAGS = -Wno-write-strings
+
+//------------------------------
+
+// Where to build the plugins / app ...
+
+// build to current user's plugin folder
+//VST_FOLDER = ~/Library/Audio/Plug-Ins/VST   	
+//AU_FOLDER = ~/Library/Audio/Plug-Ins/Components
+//RTAS_FOLDER = ~/Library/Application Support/Digidesign/Plug-Ins
+//APP_FOLDER = ~/Applications
+
+// build to system plugin folder
+VST_FOLDER = /Library/Audio/Plug-Ins/VST
+AU_FOLDER = /Library/Audio/Plug-Ins/Components
+RTAS_FOLDER = /Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins
+//RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
+APP_FOLDER = /Applications
+
+//------------------------------
+
+// Preprocessor definitions
+
+// Preprocessor definitions for all VST builds
+VST_DEFS = VST_API VST_FORCE_DEPRECATED
+
+// Preprocessor definitions for all AU builds
+AU_DEFS = AU_API
+
+RTAS_DEFS = RTAS_API
+
+APP_DEFS = SA_API __MACOSX_CORE__ //__UNIX_JACK__
+
+IOS_DEFS = SA_API
+// Preprocessor definitions for all Debug builds
+DEBUG_DEFS = _DEBUG
+
+// Preprocessor definitions for all Release builds
+RELEASE_DEFS = _NDEBUG //DEMO_VERSION
+
+// Preprocessor definitions for all Tracer builds
+TRACER_DEFS = TRACER_BUILD
+
+// Preprocessor definitions for cocoa uniqueness (all builds)
+// If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too
+//COCOA_DEFS = IGRAPHICS_COCOA=IGraphicsCocoa_vIPlugMultiTargets DUMMY_COCOA_VIEW=DummyCocoaView_vIPlugMultiTargets //SWELL_APP_PREFIX=Swell_vIPlugMultiTargets
+COCOA_DEFS = COCOA_PREFIX=vIPlugMultiTargets SWELL_APP_PREFIX=Swell_vIPlugMultiTargets
+
+//------------------------------
+
+// Release build options
+
+//Enable/Disable Profiling code
+PROFILE = NO //NO, YES - enable this if you want to use shark to profile a plugin
+
+// GCC optimization level -
+// None: [-O0] Fast: [-O, -O1] Faster:[-O2] Fastest: [-O3] Fastest, smallest: Optimize for size. [-Os]
+RELEASE_OPTIMIZE = 3 //0,1,2,3,s
+
+//------------------------------
+// Debug build options
+//DEBUG_OPTIMIZE = 0 //0,1,2,3,s
+
