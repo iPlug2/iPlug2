@@ -1164,6 +1164,23 @@ bool IsWindowVisible(HWND hwnd)
   return true;
 }
 
+void CenterWindow(HWND hwnd)
+{
+  if (!hwnd) return;
+  
+  id turd=(id)hwnd;
+  
+  if ([turd isKindOfClass:[NSView class]])
+  {
+    NSWindow *w = [turd window];
+    [w center];
+  }
+  if ([turd isKindOfClass:[NSWindow class]])
+  {
+    [turd center];
+  }
+}
+
 static void *__GetNSImageFromHICON(HICON ico) // local copy to not be link dependent on swell-gdi.mm
 {
   HGDIOBJ__ *i = (HGDIOBJ__ *)ico;
