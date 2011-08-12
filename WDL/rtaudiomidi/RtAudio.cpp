@@ -38,7 +38,7 @@
 */
 /************************************************************************/
 
-// RtAudio: Version 4.0.8
+// RtAudio: Version 4.0.9pre-rev1
 
 #include "RtAudio.h"
 #include <iostream>
@@ -946,6 +946,9 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
       errorText_ = errorStream_.str();
       return FAILURE;
     }
+
+    // A slight pause seems necessary to allow the device to update its stream formats.
+    usleep(5000);
   }
 
   // Try to set "hog" mode ... it's not clear to me this is working.
@@ -985,7 +988,7 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
 
   // Now set the stream format for each stream.  Also, check the
   // physical format of the device and change that if necessary.
-  AudioStreamBasicDescription	description;
+  AudioStreamBasicDescription	description = {0};
   dataSize = sizeof( AudioStreamBasicDescription );
 
   bool updateFormat;
@@ -993,7 +996,6 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
 
     property.mSelector = kAudioStreamPropertyVirtualFormat;
     result = AudioObjectGetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, &dataSize, &description );
-
     if ( result != noErr ) {
       errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream format for device (" << device << ").";
       errorText_ = errorStream_.str();
@@ -1021,6 +1023,8 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
         errorText_ = errorStream_.str();
         return FAILURE;
       }
+      //std::cout << "pausing after virtual format update ..." << std::endl;
+      usleep(5000);
     }
 
     // Now check the physical format.
@@ -1032,49 +1036,85 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
       return FAILURE;
     }
 
-    if ( description.mFormatID != kAudioFormatLinearPCM || description.mBitsPerChannel < 24 ) {
+    //std::cout << "Current physical stream format:" << std::endl;
+    //std::cout << "   mBitsPerChan = " << description.mBitsPerChannel << ", isPacked = " << (description.mFormatFlags & kAudioFormatFlagIsPacked) << std::endl;
+    //std::cout << "   bytesPerFrame = " << description.mBytesPerFrame << std::endl;
+    //std::cout << "   sample rate = " << description.mSampleRate << std::endl;
+
+    if ( description.mFormatID != kAudioFormatLinearPCM || description.mBitsPerChannel < 33 ) {
       description.mFormatID = kAudioFormatLinearPCM;
+      description.mSampleRate = (double) sampleRate;
       AudioStreamBasicDescription	testDescription = description;
-      unsigned long formatFlags;
+      UInt32 formatFlags;
 
       // We'll try higher bit rates first and then work our way down.
+      //std::cout << "trying to set 32-bit float format" << std::endl;
       testDescription.mBitsPerChannel = 32;
       testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
       testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      formatFlags = description.mFormatFlags | kLinearPCMFormatFlagIsFloat & ~kLinearPCMFormatFlagIsSignedInteger;
+      formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsFloat) & ~kLinearPCMFormatFlagIsSignedInteger;
+      formatFlags |= kAudioFormatFlagIsPacked;
       testDescription.mFormatFlags = formatFlags;
       result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
       if ( result == noErr ) continue;
 
+      ////std::cout << "trying to set 32-bit int format" << std::endl;
       testDescription = description;
       testDescription.mBitsPerChannel = 32;
       testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
       testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
       formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsSignedInteger) & ~kLinearPCMFormatFlagIsFloat;
+      formatFlags |= kAudioFormatFlagIsPacked;
       testDescription.mFormatFlags = formatFlags;
       result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
       if ( result == noErr ) continue;
 
+      // Devices use different 24-bit formats, so we'll have to try several.
+      //std::cout << "trying 24-bit packed int format" << std::endl;
       testDescription = description;
       testDescription.mBitsPerChannel = 24;
       testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
       testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
+      //formatFlags &= ~kAudioFormatFlagIsPacked;
+      //formatFlags &= ~kAudioFormatFlagIsAlignedHigh;
       testDescription.mFormatFlags = formatFlags;
       result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
       if ( result == noErr ) continue;
 
+      // Try 24-bit in 4-byte words aligned low.
+      //std::cout << "trying 24-bit unpacked int (low) format" << std::endl;
+      testDescription.mBytesPerFrame =  4 * testDescription.mChannelsPerFrame;
+      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
+      formatFlags &= ~kAudioFormatFlagIsPacked;
+      formatFlags &= ~kAudioFormatFlagIsAlignedHigh;
+      testDescription.mFormatFlags = formatFlags;
+      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
+      if ( result == noErr ) continue;
+
+      // Try 24-bit in 4-byte words aligned high.
+      //std::cout << "trying 24-bit unpacked int (high) format" << std::endl;
+      formatFlags |= kAudioFormatFlagIsAlignedHigh;
+      testDescription.mFormatFlags = formatFlags;
+      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
+      if ( result == noErr ) continue;
+
+      //std::cout << "trying 16-bit int format" << std::endl;
       testDescription = description;
       testDescription.mBitsPerChannel = 16;
       testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
       testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
+      formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsSignedInteger) & ~kLinearPCMFormatFlagIsFloat;
+      formatFlags |= kAudioFormatFlagIsPacked;
       testDescription.mFormatFlags = formatFlags;
       result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
       if ( result == noErr ) continue;
 
+      //std::cout << "trying 8-bit int format" << std::endl;
       testDescription = description;
       testDescription.mBitsPerChannel = 8;
       testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
       testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
+      formatFlags |= kAudioFormatFlagIsPacked;
       testDescription.mFormatFlags = formatFlags;
       result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
       if ( result != noErr ) {
@@ -4756,7 +4796,7 @@ void RtApiDs :: callbackEvent()
       // safeWritePointer and leadPointer.  If leadPointer is not
       // beyond the next endWrite position, wait until it is.
       leadPointer = safeWritePointer + handle->dsPointerLeadTime[0];
-      //std::cout << "safeWritePointer = " << safeWritePointer << ", leadPointer = " << leadPointer << ", nextWritePointer = " << nextWritePointer << std::endl;
+      ////std::cout << "safeWritePointer = " << safeWritePointer << ", leadPointer = " << leadPointer << ", nextWritePointer = " << nextWritePointer << std::endl;
       if ( leadPointer > dsBufferSize ) leadPointer -= dsBufferSize;
       if ( leadPointer < nextWritePointer ) leadPointer += dsBufferSize; // unwrap offset
       endWrite = nextWritePointer + bufferBytes;
