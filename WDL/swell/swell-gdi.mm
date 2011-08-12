@@ -32,7 +32,7 @@
 
 #include "../mutex.h"
 
-#ifndef __LP64__ 
+#if !defined(__LP64__) && !defined(SWELL_FORCE_COCOA_TEXT)
 #define SWELL_ATSUI_TEXT_SUPPORT // faster, but unsupported on 64-bit. will fall back to the NSString drawing method
 #endif
 
