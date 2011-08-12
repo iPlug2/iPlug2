@@ -137,7 +137,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
   int had_flags=0;
 
   NSColor *staticFg=NULL; // had_flags&1, WM_CTLCOLORSTATIC
-  NSColor *editFg=NULL, *editBg=NULL; // had_flags&2, WM_CTLCOLOREDIT
+//  NSColor *editFg=NULL, *editBg=NULL; // had_flags&2, WM_CTLCOLOREDIT
   NSColor *buttonFg=NULL; // had_flags&4, WM_CTLCOLORBTN
       
   int x;
@@ -232,8 +232,8 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
   }     // children
   if (buttonFg) [buttonFg release];
   if (staticFg) [staticFg release];
-  if (editFg) [editFg release];
-  if (editBg) [editBg release];
+//  if (editFg) [editFg release];
+//  if (editBg) [editBg release];
 }  
 
 static LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -2023,7 +2023,7 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
   else
   {
     HWND h=NULL;
-    SWELL_ModelessWindow *ch=[[SWELL_ModelessWindow alloc] initModeless:p Parent:parent dlgProc:dlgproc Param:param outputHwnd:&h];
+/*    SWELL_ModelessWindow *ch=*/[[SWELL_ModelessWindow alloc] initModeless:p Parent:parent dlgProc:dlgproc Param:param outputHwnd:&h];
     return h;
   }
   
