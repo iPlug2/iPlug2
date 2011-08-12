@@ -11,19 +11,12 @@
     <Filter Include="Source Files\zlib">
       <UniqueIdentifier>{00f8957e-dc21-46c5-90a5-878c0fd1ff77}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{5b39e41c-edcb-462f-9c6b-271bed570b8e}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lice\lice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\lice\lice_arc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lice\lice_bmp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\lice\lice_line.cpp">
@@ -125,17 +118,17 @@
     <ClCompile Include="..\lice\lice_textnew.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\lice\lice_palette.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lice\lice_colorspace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lice\lice_texgen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lice_bezier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lice_combine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\libpng\png.h">
       <Filter>Source Files\libpng</Filter>
     </ClInclude>
@@ -189,6 +182,24 @@
     </ClInclude>
     <ClInclude Include="..\zlib\inflate.h">
       <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="lice.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lice_combine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lice_bezier.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lice\lice_combine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lice\lice_text.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lice\lice_extended.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

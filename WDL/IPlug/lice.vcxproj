@@ -232,9 +232,11 @@
     <ClCompile Include="..\libpng\pngwutil.c" />
     <ClCompile Include="..\lice\lice.cpp" />
     <ClCompile Include="..\lice\lice_arc.cpp" />
-    <ClCompile Include="..\lice\lice_bmp.cpp" />
+    <ClCompile Include="..\lice\lice_colorspace.cpp" />
     <ClCompile Include="..\lice\lice_line.cpp" />
+    <ClCompile Include="..\lice\lice_palette.cpp" />
     <ClCompile Include="..\lice\lice_png.cpp" />
+    <ClCompile Include="..\lice\lice_texgen.cpp" />
     <ClCompile Include="..\lice\lice_textnew.cpp" />
     <ClCompile Include="..\zlib\adler32.c" />
     <ClCompile Include="..\zlib\compress.c" />
@@ -260,6 +262,9 @@
     <ClInclude Include="..\libpng\pnglibconf.h" />
     <ClInclude Include="..\libpng\pngpriv.h" />
     <ClInclude Include="..\libpng\pngstruct.h" />
+    <ClInclude Include="..\lice\lice_combine.h" />
+    <ClInclude Include="..\lice\lice_extended.h" />
+    <ClInclude Include="..\lice\lice_text.h" />
     <ClInclude Include="..\zlib\crc32.h" />
     <ClInclude Include="..\zlib\deflate.h" />
     <ClInclude Include="..\zlib\gzguts.h" />
