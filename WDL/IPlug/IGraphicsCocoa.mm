@@ -224,8 +224,9 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
     bool handle = true;
     int key;     
     
-    if (k == 49) key = KEY_SPACE;
-    else if (k == 125) key = KEY_UPARROW;
+    //if (k == 49) key = KEY_SPACE;
+    //else if (k == 125) key = KEY_UPARROW;
+    if (k == 125) key = KEY_UPARROW;
     else if (k == 126) key = KEY_DOWNARROW;
     else if (k == 123) key = KEY_LEFTARROW;
     else if (k == 124) key = KEY_RIGHTARROW;
@@ -241,6 +242,7 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
     }
     else {
       [[self nextResponder] keyDown:pEvent];
+      //mGraphics->ForwardKeyEventToHost();
     }
   }
 } 

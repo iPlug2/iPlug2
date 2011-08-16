@@ -205,13 +205,6 @@ void IGraphicsMac::RemoveSubWindow ()
   [hostWindow close];
 }
 
-//void forwardKeyEventToHost(void* cocoaHostWindow)
-//{
-//  NSWindow* hostWindow = (NSWindow*) cocoaHostWindow;
-//  [hostWindow makeKeyWindow];
-//  [NSApp postEvent: [NSApp currentEvent] atStart: YES];
-//}
-
 void IGraphicsMac::CloseWindow()
 {
 #ifndef IPLUG_NO_CARBON_SUPPORT

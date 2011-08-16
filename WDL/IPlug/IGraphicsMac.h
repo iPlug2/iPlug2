@@ -64,7 +64,8 @@ public:
   
   void AttachSubWindow(void* hostWindowRef);
   void RemoveSubWindow();
-  
+  //void ForwardKeyEventToHost();
+
 	void CloseWindow();
 	bool WindowIsOpen();
   void Resize(int w, int h);
