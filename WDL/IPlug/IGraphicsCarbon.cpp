@@ -649,12 +649,15 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
   }	
   //CGContextSetShouldAntialias(mCGC, false);
 
-  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, 11., 0, 0, just, 0, 0 };
-  //font.font = ATSFontFamilyFindFromName(CFSTR("Monaco"), kATSOptionFlagsDefault);
+  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, just, 0, 0 };
 
-  font.font = ATSFontFamilyFindFromName(CFSTR("Arial"), kATSOptionFlagsDefault);
+  //ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, 11., 0, 0, just, 0, 0 };
+  //font.font = ATSFontFamilyFindFromName(CFSTR("Monaco"), kATSOptionFlagsDefault);
+  CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
+  font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
   SetControlData(mTextFieldView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
-  
+  CFRelease(str);
+
   HIViewSetVisible(mTextFieldView, true);
   HIViewAdvanceFocus(mTextFieldView, 0);
   SetKeyboardFocus(mWindow, mTextFieldView, kControlEditTextPart);
