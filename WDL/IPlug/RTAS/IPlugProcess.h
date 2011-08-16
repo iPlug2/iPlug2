@@ -39,6 +39,7 @@ public:
   //virtual void ProcessRestoreResourceFile(short resFile) { fProcessType->GetProcessGroup()->RestoreResourceFile(resFile); }
   
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
+  //virtual	Boolean HandleKeystroke(EventRecord *theEvent);
   
   virtual IPlugRTAS* getPlug()  { return mPlug; }
   

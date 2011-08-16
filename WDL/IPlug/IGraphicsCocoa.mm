@@ -241,7 +241,15 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
       mGraphics->OnKeyDown(x, y, key);
     }
     else {
+#ifdef RTAS_API
+      // TODO: fix this super hack - and why does it work when there is no edit window... is it hidden?
+      WindowRef root = FindNamedCarbonWindow(kAllWindowClasses, "Edit:" , false);
+      ActivateWindow(root, true);
+      EventRef carbonEvent = (EventRef) [pEvent eventRef];
+      SendEventToWindow(carbonEvent, root);
+#else
       [[self nextResponder] keyDown:pEvent];
+#endif
       //mGraphics->ForwardKeyEventToHost();
     }
   }
@@ -440,6 +448,9 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 {
   [mTextFieldView setDelegate: nil];
   [mTextFieldView removeFromSuperview];
+  
+  NSWindow* pWindow = [self window];
+  [pWindow makeFirstResponder: self];
 	
   mTextFieldView = 0;
   mEdControl = 0;

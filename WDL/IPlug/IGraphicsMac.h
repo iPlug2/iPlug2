@@ -41,6 +41,27 @@
 #define DUMMY_COCOA_VIEW CONCAT(DummyCocoaView_)
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 
+
+// super hack
+static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exact)
+{
+  WindowRef tref = GetFrontWindowOfClass(wcl,FALSE);
+	for(int i = 0; tref; ++i) {
+		char buf[256];
+		CFStringRef cfstr;
+		CopyWindowTitleAsCFString(tref,&cfstr);
+		if(cfstr && CFStringGetCString(cfstr,buf,sizeof buf-1,kCFStringEncodingASCII)) 
+		{
+      if(exact? 
+         strcmp(buf,s) == 0: 
+         strstr(buf,s) != NULL
+         ) break;
+		}
+		tref = GetNextWindowOfClass(tref,wcl,FALSE);
+	} 
+	return tref;
+}
+
 class IGraphicsMac : public IGraphics
 {
 public:
