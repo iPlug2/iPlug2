@@ -24,61 +24,12 @@ struct CocoaAutoReleasePool
   }
 };
 
-#ifdef RTAS_API
-
 @interface CUSTOM_COCOA_WINDOW : NSWindow {}
 @end
 
 @implementation CUSTOM_COCOA_WINDOW
 - (BOOL)canBecomeKeyWindow {return YES;}
 @end
-
-void* attachSubWindow (void* hostWindowRef, IGraphics* pGraphics)
-{
-  CocoaAutoReleasePool pool;
-  
-  NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: hostWindowRef];
-  [hostWindow retain];
-  [hostWindow setCanHide: YES];
-  [hostWindow setReleasedWhenClosed: YES];
-  
-  NSRect w = [hostWindow frame];
-  NSRect windowRect = NSMakeRect(w.origin.x, w.origin.y, pGraphics->Width(), pGraphics->Height());
-  CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect 
-                                                      styleMask:( NSBorderlessWindowMask ) 
-                                                        backing:NSBackingStoreBuffered defer:NO];
-  [childWindow retain];
-  [childWindow setOpaque:YES];
-  [childWindow setCanHide: YES];
-  [childWindow setHasShadow: NO];
-  [childWindow setReleasedWhenClosed: YES];
-  
-  NSView* childContent = [childWindow contentView];
-  pGraphics->OpenWindow(childContent);
-  
-  [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
-  [hostWindow orderFront: nil];
-  [childWindow orderFront: nil];
-  
-  return (void*) hostWindow;
-}
-
-void removeSubWindow (void* cocoaHostWindow, IGraphics* pGraphics)
-{
-  CocoaAutoReleasePool pool;
-  
-  NSWindow* hostWindow = (NSWindow*) cocoaHostWindow;
-  NSArray* childWindows = [hostWindow childWindows];
-  NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
-  
-  pGraphics->CloseWindow();
-  [childWindow orderOut:nil];
-  [hostWindow orderOut:nil];
-  [childWindow close];
-  [hostWindow removeChildWindow: childWindow];
-  [hostWindow close];
-}
-#endif
 
 IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
 :	IGraphics(pPlug, w, h, refreshFPS),
@@ -207,6 +158,59 @@ void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
   return mGraphicsCarbon->GetView();
 }
 #endif
+
+void IGraphicsMac::AttachSubWindow (void* hostWindowRef)
+{
+  CocoaAutoReleasePool pool;
+  
+  NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: hostWindowRef];
+  [hostWindow retain];
+  [hostWindow setCanHide: YES];
+  [hostWindow setReleasedWhenClosed: YES];
+  
+  NSRect w = [hostWindow frame];
+  NSRect windowRect = NSMakeRect(w.origin.x, w.origin.y, Width(), Height());
+  CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect 
+                                                                            styleMask:( NSBorderlessWindowMask ) 
+                                                                              backing:NSBackingStoreBuffered defer:NO];
+  [childWindow retain];
+  [childWindow setOpaque:YES];
+  [childWindow setCanHide: YES];
+  [childWindow setHasShadow: NO];
+  [childWindow setReleasedWhenClosed: YES];
+  
+  NSView* childContent = [childWindow contentView];
+  
+  OpenWindow(childContent);
+  
+  [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
+  [hostWindow orderFront: nil];
+  [childWindow orderFront: nil];  
+}
+
+void IGraphicsMac::RemoveSubWindow ()
+{
+  CocoaAutoReleasePool pool;
+  
+  NSWindow* hostWindow = (NSWindow*) mHostNSWindow;
+  NSArray* childWindows = [hostWindow childWindows];
+  NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
+  
+  CloseWindow();
+  
+  [childWindow orderOut:nil];
+  [hostWindow orderOut:nil];
+  [childWindow close];
+  [hostWindow removeChildWindow: childWindow];
+  [hostWindow close];
+}
+
+//void forwardKeyEventToHost(void* cocoaHostWindow)
+//{
+//  NSWindow* hostWindow = (NSWindow*) cocoaHostWindow;
+//  [hostWindow makeKeyWindow];
+//  [NSApp postEvent: [NSApp currentEvent] atStart: YES];
+//}
 
 void IGraphicsMac::CloseWindow()
 {

@@ -17,7 +17,7 @@ IPlugCustomUI* CreateIPlugCustomUI(void *processPtr)
 #if MAC_VERSION
 
 IPlugCustomUI::IPlugCustomUI(void *processPtr) : EditorInterface(processPtr), 
-  mGraphics(0), mLocalWindow(0), mCocoaHostWindow(0)
+  mGraphics(0), mLocalWindow(0)
 {
   mPlug=((IPlugProcess*)processPtr)->getPlug();
   mGraphics=((IPlugProcess*)processPtr)->getGraphics();
@@ -48,13 +48,11 @@ void IPlugCustomUI::GetRect(short *left, short *top, short *right, short *bottom
 bool IPlugCustomUI::Open(void *winPtr)
 {
   mLocalWindow = (WindowRef) winPtr;
-  // open our IPlug in this window!
-  if( mGraphics )
+
+  if(mGraphics)
   {
-    if(mCocoaHostWindow)
-      removeSubWindow(mCocoaHostWindow, mGraphics);
+    mGraphics->AttachSubWindow(winPtr);
     
-    mCocoaHostWindow = attachSubWindow(winPtr, mGraphics);    
     mPlug->OnGUIOpen();
   }
 
@@ -73,13 +71,10 @@ bool IPlugCustomUI::Open(void *winPtr)
 
 bool IPlugCustomUI::Close()
 {
-  if(mLocalWindow)
+  if(mLocalWindow && mGraphics)
   {
-    if( mGraphics ) {
-      removeSubWindow(mCocoaHostWindow, mGraphics);
-      mCocoaHostWindow = 0;
-      mLocalWindow = 0;
-    }
+    mGraphics->RemoveSubWindow();
+    mLocalWindow = 0;
   }
   return true;
 }

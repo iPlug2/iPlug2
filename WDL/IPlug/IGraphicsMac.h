@@ -41,12 +41,6 @@
 #define DUMMY_COCOA_VIEW CONCAT(DummyCocoaView_)
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 
-#ifdef RTAS_API
-// used by RTAS wrapper to attach/remove cocoa child window on top of PT's carbon window
-void* attachSubWindow (void* hostWindowRef, IGraphics* pGraphics);
-void removeSubWindow (void* cocoaHostWindow, IGraphics* pGraphics);
-#endif
-
 class IGraphicsMac : public IGraphics
 {
 public:
@@ -67,6 +61,9 @@ public:
 #ifndef IPLUG_NO_CARBON_SUPPORT
   void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
 #endif
+  
+  void AttachSubWindow(void* hostWindowRef);
+  void RemoveSubWindow();
   
 	void CloseWindow();
 	bool WindowIsOpen();
@@ -104,8 +101,12 @@ private:
   IGraphicsCarbon* mGraphicsCarbon; 
 #endif
   void* mGraphicsCocoa;   // Can't forward-declare IGraphicsCocoa because it's an obj-C object.
-  
+
   WDL_String mBundleID;
+  
+public: //TODO: make this private
+  void* mHostNSWindow;
+
 };
 
 inline CFStringRef MakeCFString(const char* cStr)

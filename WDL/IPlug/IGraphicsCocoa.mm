@@ -214,18 +214,7 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 - (void)keyDown: (NSEvent *)pEvent
 {
 	NSString *s = [pEvent charactersIgnoringModifiers];
-  
-//  KEY_SPACE,
-//  KEY_UPARROW,
-//  KEY_DOWNARROW,
-//  KEY_LEFTARROW,
-//  KEY_RIGHTARROW,
-//  KEY_DIGIT_0,
-//  KEY_DIGIT_9=KEY_DIGIT_0+9,
-//  KEY_ALPHA_A,
-//  KEY_ALPHA_Z=KEY_ALPHA_A+25
-//  
-  
+
   if ([s length] == 1) 
   {
     

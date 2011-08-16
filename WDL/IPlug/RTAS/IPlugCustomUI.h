@@ -33,7 +33,6 @@ public:
   
 protected:
   WindowRef mLocalWindow; // carbon PT window
-  void* mCocoaHostWindow; // this will be an NSWindow
 
   IPlugRTAS*  mPlug;
   IGraphics*  mGraphics;
