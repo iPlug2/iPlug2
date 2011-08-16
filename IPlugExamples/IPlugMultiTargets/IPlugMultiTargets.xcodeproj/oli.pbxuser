@@ -12,14 +12,15 @@
 		);
 		codeSenseManager = 4FE33FF410B4519D00B5FB70 /* Code sense */;
 		executables = (
+			4FD16A0A13B63081001D0217 /* App */,
 			4F647528132A790E00D7E58C /* Auval */,
 			4F30A3F21117540400C237CE /* Aulab */,
+			4FF2407313FAB21200E40631 /* AudioMulch */,
 			4FF6D80B12B285AF001E9114 /* Cubase */,
-			4FF6D80D12B285DC001E9114 /* Reaper */,
-			4FF6D80F12B28631001E9114 /* Live */,
 			4F8F27C7131A78AE007A37CF /* Garageband */,
+			4FF6D80F12B28631001E9114 /* Live */,
+			4FF6D80D12B285DC001E9114 /* Reaper */,
 			4F7F5D0713E9676F002918FD /* ProTools9 Dev */,
-			4FD16A0A13B63081001D0217 /* App */,
 		);
 		perUserDictionary = {
 			"PBXConfiguration.PBXBreakpointsDataSource.v1:1CA1AED706398EBD00589147" = {
@@ -66,7 +67,7 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					22,
 					300,
-					926,
+					910,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXExecutablesDataSource_ActiveFlagID,
@@ -79,7 +80,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1099,
+					1022,
 					20,
 					48,
 					43,
@@ -170,21 +171,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 334882277;
-			PBXWorkspaceStateSaveDate = 334882277;
-		};
-		perUserProjectItems = {
-			4F90BC8F13F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC8F13F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9013F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9013F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9113F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9113F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9213F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9213F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9313F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9313F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9413F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9413F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9513F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9513F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9613F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9613F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9713F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9713F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9813F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9813F5E7C400C9C7D3 /* PBXTextBookmark */;
-			4F90BC9913F5E7C400C9C7D3 /* PBXTextBookmark */ = 4F90BC9913F5E7C400C9C7D3 /* PBXTextBookmark */;
+			PBXPerProjectTemplateStateSaveDate = 335196657;
+			PBXWorkspaceStateSaveDate = 335196657;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -878,116 +866,6 @@
 		path = /Applications/GarageBand.app;
 		sourceTree = "<absolute>";
 	};
-	4F90BC8F13F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D9EE13B63C6A0032E0F3 /* VSTHosts.cpp */;
-		name = "VSTHosts.cpp: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 1160;
-		vrLoc = 0;
-	};
-	4F90BC9013F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D90813B63BA50032E0F3 /* IGraphics.h */;
-		name = "IGraphics.h: 187";
-		rLen = 0;
-		rLoc = 8697;
-		rType = 0;
-		vrLen = 2537;
-		vrLoc = 315;
-	};
-	4F90BC9113F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */;
-		name = "IGraphics.cpp: 168";
-		rLen = 6;
-		rLoc = 3619;
-		rType = 0;
-		vrLen = 1146;
-		vrLoc = 3155;
-	};
-	4F90BC9213F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */;
-		name = "IPlugBase.cpp: 497";
-		rLen = 6;
-		rLoc = 12944;
-		rType = 0;
-		vrLen = 1448;
-		vrLoc = 12267;
-	};
-	4F90BC9313F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D8EC13B63BA40032E0F3 /* IPlugBase.h */;
-		name = "IPlugBase.h: 127";
-		rLen = 14;
-		rLoc = 5308;
-		rType = 0;
-		vrLen = 1990;
-		vrLoc = 4152;
-	};
-	4F90BC9413F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D9EC13B63C6A0032E0F3 /* IPlugVST.cpp */;
-		name = "IPlugVST.cpp: 212";
-		rLen = 14;
-		rLoc = 6774;
-		rType = 0;
-		vrLen = 1464;
-		vrLoc = 6036;
-	};
-	4F90BC9513F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D8E913B63BA40032E0F3 /* IControl.h */;
-		name = "IControl.h: 355";
-		rLen = 19;
-		rLoc = 12070;
-		rType = 0;
-		vrLen = 1615;
-		vrLoc = 3504;
-	};
-	4F90BC9613F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED20D0CF13D001C8B8A /* IPlugMultiTargets.h */;
-		name = "IPlugMultiTargets.h: 9";
-		rLen = 0;
-		rLoc = 162;
-		rType = 0;
-		vrLen = 1023;
-		vrLoc = 0;
-	};
-	4F90BC9713F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */;
-		name = "IControl.cpp: 138";
-		rLen = 15;
-		rLoc = 2445;
-		rType = 0;
-		vrLen = 1015;
-		vrLoc = 2328;
-	};
-	4F90BC9813F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */;
-		name = "IPlugMultiTargets.cpp: 101";
-		rLen = 0;
-		rLoc = 1661;
-		rType = 0;
-		vrLen = 1074;
-		vrLoc = 1620;
-	};
-	4F90BC9913F5E7C400C9C7D3 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */;
-		name = "IPlugMultiTargets.cpp: 82";
-		rLen = 0;
-		rLoc = 1661;
-		rType = 0;
-		vrLen = 1673;
-		vrLoc = 1620;
-	};
 	4FB3624E13B648FE00DB6B76 /* main.m */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1511, 745}}";
@@ -1248,6 +1126,42 @@
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{0, 1696}";
 		};
+	};
+	4FF2407313FAB21200E40631 /* AudioMulch */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 4FF2407413FAB21200E40631 /* AudioMulch.app */;
+		libgmallocEnabled = 0;
+		name = AudioMulch;
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	4FF2407413FAB21200E40631 /* AudioMulch.app */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = wrapper.application;
+		name = AudioMulch.app;
+		path = "/Applications/AudioMulch 2.1.1/AudioMulch.app";
+		sourceTree = "<absolute>";
 	};
 	4FF6D80B12B285AF001E9114 /* Cubase */ = {
 		isa = PBXExecutable;
