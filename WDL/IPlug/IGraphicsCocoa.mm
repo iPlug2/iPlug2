@@ -210,41 +210,52 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 	  mGraphics->OnMouseOver(x, y, &ms);
 	}
 }
-/*
+
 - (void)keyDown: (NSEvent *)pEvent
 {
-	NSString *characters;
-	unsigned int characterIndex, characterCount;
-	
-	characters = [pEvent charactersIgnoringModifiers];
-	characterCount = [characters length];
-	
-	for (characterIndex = 0; characterIndex < characterCount; characterIndex++) {
-		[self doEventForCharacter:[characters characterAtIndex:characterIndex] downEvent:YES];
-	}
+	NSString *s = [pEvent charactersIgnoringModifiers];
+  
+//  KEY_SPACE,
+//  KEY_UPARROW,
+//  KEY_DOWNARROW,
+//  KEY_LEFTARROW,
+//  KEY_RIGHTARROW,
+//  KEY_DIGIT_0,
+//  KEY_DIGIT_9=KEY_DIGIT_0+9,
+//  KEY_ALPHA_A,
+//  KEY_ALPHA_Z=KEY_ALPHA_A+25
+//  
+  
+  if ([s length] == 1) 
+  {
+    
+    unsigned short k = [pEvent keyCode];
+    unichar c = [s characterAtIndex:0];
+    
+    bool handle = true;
+    int key;     
+    
+    if (k == 49) key = KEY_SPACE;
+    else if (k == 125) key = KEY_UPARROW;
+    else if (k == 126) key = KEY_DOWNARROW;
+    else if (k == 123) key = KEY_LEFTARROW;
+    else if (k == 124) key = KEY_RIGHTARROW;
+    else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
+    else if (c >= 'A' && c <= 'Z') key = KEY_ALPHA_A+c-'A';
+    else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
+    else handle = false;
+    
+    if (handle) {
+      int x, y;
+      [self getMouseXY:pEvent x:&x y:&y];
+      mGraphics->OnKeyDown(x, y, key);
+    }
+    else {
+      [[self nextResponder] keyDown:pEvent];
+    }
+  }
 } 
 
-- (void)doEventForCharacter: (unichar)character downEvent: (BOOL)flag
-{
- bool ok = true;
- int key;     
- 
- if (character == VK_SPACE) key = KEY_SPACE;
- else if (character == VK_UP) key = KEY_UPARROW;
- else if (character == VK_DOWN) key = KEY_DOWNARROW;
- else if (character == VK_LEFT) key = KEY_LEFTARROW;
- else if (character == VK_RIGHT) key = KEY_RIGHTARROW;
- else if (character >= '0' && character <= '9') key = KEY_DIGIT_0+character-'0';
- else if (character >= 'A' && character <= 'Z') key = KEY_ALPHA_A+character-'A';
- else if (character >= 'a' && character <= 'z') key = KEY_ALPHA_A+character-'a';
- else ok = false;
- 
- int x, y;
- [self getMouseXY:pEvent x:&x y:&y];
- 
- if (ok) pGraphicsMac->OnKeyDown(x, y, key);
-}
-*/
 - (void) scrollWheel: (NSEvent*) pEvent
 {	
 	if (mGraphics)

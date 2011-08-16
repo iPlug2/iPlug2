@@ -62,8 +62,7 @@ NSString* ToNSString(const char* cStr);
 - (void) rightMouseDragged: (NSEvent*) pEvent;
 - (void) mouseMoved: (NSEvent*) pEvent;
 - (void) scrollWheel: (NSEvent*) pEvent;
-//- (void) keyDown: (NSEvent *)pEvent;
-//- (void) doEventForCharacter: (unichar)character downEvent: (BOOL)flag
+- (void) keyDown: (NSEvent *)pEvent;
 - (void) killTimer;
 - (void) removeFromSuperview;
 //- (void) controlTextDidChange: (NSNotification *) aNotification;
