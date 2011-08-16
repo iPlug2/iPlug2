@@ -744,8 +744,8 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
                                pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1, 
                                mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
   
-  HFONT font = CreateFont(12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Verdana");
-  //HFONT font = CreateFont(txt->mSize, 0, 0, 0, txt->mStyle == IText::kStyleBold ? FW_BOLD : 0, txt->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, txt->mFont);
+  //HFONT font = CreateFont(p, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Verdana");
+  HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
 
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
