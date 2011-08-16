@@ -63,5 +63,8 @@ EHost LookUpHost(const char* inHost)
 	if (strstr(host, "digital")) {
 		return kHostDigitalPerformer;
 	}
+  if (strstr(host, "AudioMulch")) {
+		return kHostAudioMulch;
+	}
 	return kHostUnknown;
 }
