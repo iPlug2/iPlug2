@@ -3,7 +3,7 @@
 	089C1669FE841209C02AAC07 /* Project object */ = {
 		activeArchitecturePreference = i386;
 		activeBuildConfigurationName = Debug;
-		activeExecutable = 4FD16A0A13B63081001D0217 /* App */;
+		activeExecutable = 4FF6D80B12B285AF001E9114 /* Cubase */;
 		activeTarget = 8D5B49AC048680CD000E48DA /* VST2_32_intel */;
 		addToTargets = (
 			4F7F5C4213E95EC8002918FD /* RTAS_32_intel */,
@@ -171,8 +171,15 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 335196657;
-			PBXWorkspaceStateSaveDate = 335196657;
+			PBXPerProjectTemplateStateSaveDate = 335196814;
+			PBXWorkspaceStateSaveDate = 335196814;
+		};
+		perUserProjectItems = {
+			4FF2409B13FAB48300E40631 /* PBXTextBookmark */ = 4FF2409B13FAB48300E40631 /* PBXTextBookmark */;
+			4FF2409C13FAB48300E40631 /* PBXTextBookmark */ = 4FF2409C13FAB48300E40631 /* PBXTextBookmark */;
+			4FF2409D13FAB48300E40631 /* PBXTextBookmark */ = 4FF2409D13FAB48300E40631 /* PBXTextBookmark */;
+			4FF2409E13FAB48300E40631 /* PBXTextBookmark */ = 4FF2409E13FAB48300E40631 /* PBXTextBookmark */;
+			4FF240A313FAB4D100E40631 /* PBXTextBookmark */ = 4FF240A313FAB4D100E40631 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -483,16 +490,16 @@
 	};
 	4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1277, 8762}}";
-			sepNavSelRange = "{18823, 121}";
-			sepNavVisRange = "{19826, 1472}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 8827}}";
+			sepNavSelRange = "{20550, 1}";
+			sepNavVisRange = "{20119, 1372}";
 		};
 	};
 	4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1277, 5954}}";
-			sepNavSelRange = "{748, 15}";
-			sepNavVisRange = "{0, 944}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 5434}}";
+			sepNavSelRange = "{9473, 12}";
+			sepNavVisRange = "{8471, 1564}";
 		};
 	};
 	4F78D8F913B63BA50032E0F3 /* IGraphicsCocoa.h */ = {
@@ -560,9 +567,9 @@
 	};
 	4F78D90713B63BA50032E0F3 /* IGraphicsCarbon.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1277, 715}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 715}}";
 			sepNavSelRange = "{115, 23}";
-			sepNavVisRange = "{0, 1488}";
+			sepNavVisRange = "{0, 1098}";
 		};
 	};
 	4F78D90813B63BA50032E0F3 /* IGraphics.h */ = {
@@ -1152,6 +1159,8 @@
 		launchableReference = 4FF2407413FAB21200E40631 /* AudioMulch.app */;
 		libgmallocEnabled = 0;
 		name = AudioMulch;
+		savedGlobals = {
+		};
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
@@ -1162,6 +1171,56 @@
 		name = AudioMulch.app;
 		path = "/Applications/AudioMulch 2.1.1/AudioMulch.app";
 		sourceTree = "<absolute>";
+	};
+	4FF2409B13FAB48300E40631 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */;
+		name = "IPlugMultiTargets.cpp: 82";
+		rLen = 0;
+		rLoc = 1661;
+		rType = 0;
+		vrLen = 1794;
+		vrLoc = 1590;
+	};
+	4FF2409C13FAB48300E40631 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */;
+		name = "IGraphicsCocoa.mm: 397";
+		rLen = 12;
+		rLoc = 9473;
+		rType = 0;
+		vrLen = 1564;
+		vrLoc = 8471;
+	};
+	4FF2409D13FAB48300E40631 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F78D90713B63BA50032E0F3 /* IGraphicsCarbon.h */;
+		name = "IGraphicsCarbon.h: 7";
+		rLen = 23;
+		rLoc = 115;
+		rType = 0;
+		vrLen = 1098;
+		vrLoc = 0;
+	};
+	4FF2409E13FAB48300E40631 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */;
+		name = "IGraphicsCarbon.cpp: 657";
+		rLen = 0;
+		rLoc = 21113;
+		rType = 0;
+		vrLen = 1522;
+		vrLoc = 19917;
+	};
+	4FF240A313FAB4D100E40631 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */;
+		name = "IGraphicsCarbon.cpp: 646";
+		rLen = 1;
+		rLoc = 20550;
+		rType = 0;
+		vrLen = 1372;
+		vrLoc = 20119;
 	};
 	4FF6D80B12B285AF001E9114 /* Cubase */ = {
 		isa = PBXExecutable;
@@ -1214,7 +1273,7 @@
 		isa = PBXFileReference;
 		lastKnownFileType = wrapper.application;
 		name = "Cubase 5.app";
-		path = "/Applications/Cubase 5.app";
+		path = "/Applications/Cubase 6.app";
 		sourceTree = "<absolute>";
 	};
 	4FF6D80D12B285DC001E9114 /* Reaper */ = {
@@ -1336,9 +1395,9 @@
 	};
 	52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1277, 4251}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 4251}}";
 			sepNavSelRange = "{1661, 0}";
-			sepNavVisRange = "{1620, 1673}";
+			sepNavVisRange = "{1590, 1794}";
 			sepNavWindowFrame = "{{15, 109}, {1089, 914}}";
 		};
 	};
