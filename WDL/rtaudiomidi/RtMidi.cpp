@@ -35,7 +35,7 @@
 */
 /**********************************************************************/
 
-// RtMidi: Version 1.0.15
+// RtMidi: Version 1.0.14
 
 #include "RtMidi.h"
 #include <sstream>
@@ -69,14 +69,9 @@ void RtMidi :: error( RtError::Type type )
 //  Common RtMidiIn Definitions
 //*********************************************************************//
 
-RtMidiIn :: RtMidiIn( const std::string clientName, unsigned int queueSizeLimit ) : RtMidi()
+RtMidiIn :: RtMidiIn( const std::string clientName ) : RtMidi()
 {
   this->initialize( clientName );
-
-  // Allocate the MIDI queue.
-  inputData_.queue.ringSize = queueSizeLimit;
-  if ( inputData_.queue.ringSize > 0 )
-    inputData_.queue.ring = new MidiMessage[ inputData_.queue.ringSize ];
 }
 
 void RtMidiIn :: setCallback( RtMidiCallback callback, void *userData )
@@ -111,6 +106,11 @@ void RtMidiIn :: cancelCallback()
   inputData_.usingCallback = false;
 }
 
+void RtMidiIn :: setQueueSizeLimit( unsigned int queueSize )
+{
+  inputData_.queueLimit = queueSize;
+}
+
 void RtMidiIn :: ignoreTypes( bool midiSysex, bool midiTime, bool midiSense )
 {
   inputData_.ignoreFlags = 0;
@@ -129,16 +129,13 @@ double RtMidiIn :: getMessage( std::vector<unsigned char> *message )
     return 0.0;
   }
 
-  if ( inputData_.queue.size == 0 ) return 0.0;
+  if ( inputData_.queue.size() == 0 ) return 0.0;
 
   // Copy queued message to the vector pointer argument and then "pop" it.
-  std::vector<unsigned char> *bytes = &(inputData_.queue.ring[inputData_.queue.front].bytes);
+  std::vector<unsigned char> *bytes = &(inputData_.queue.front().bytes);
   message->assign( bytes->begin(), bytes->end() );
-  double deltaTime = inputData_.queue.ring[inputData_.queue.front].timeStamp;
-  inputData_.queue.size--;
-  inputData_.queue.front++;
-  if ( inputData_.queue.front == inputData_.queue.ringSize )
-    inputData_.queue.front = 0;
+  double deltaTime = inputData_.queue.front().timeStamp;
+  inputData_.queue.pop();
 
   return deltaTime;
 }
@@ -251,12 +248,8 @@ void midiInputCallback( const MIDIPacketList *list, void *procRef, void *srcRef 
         }
         else {
           // As long as we haven't reached our queue size limit, push the message.
-          if ( data->queue.size < data->queue.ringSize ) {
-            data->queue.ring[data->queue.back++] = message;
-            if ( data->queue.back == data->queue.ringSize )
-              data->queue.back = 0;
-            data->queue.size++;
-          }
+          if ( data->queueLimit > data->queue.size() )
+            data->queue.push( message );
           else
             std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
         }
@@ -315,12 +308,8 @@ void midiInputCallback( const MIDIPacketList *list, void *procRef, void *srcRef 
             }
             else {
               // As long as we haven't reached our queue size limit, push the message.
-              if ( data->queue.size < data->queue.ringSize ) {
-                data->queue.ring[data->queue.back++] = message;
-                if ( data->queue.back == data->queue.ringSize )
-                  data->queue.back = 0;
-                data->queue.size++;
-              }
+              if ( data->queueLimit > data->queue.size() )
+                data->queue.push( message );
               else
                 std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
             }
@@ -445,9 +434,6 @@ RtMidiIn :: ~RtMidiIn()
   MIDIClientDispose( data->client );
   if ( data->endpoint ) MIDIEndpointDispose( data->endpoint );
   delete data;
-
-  // Delete the MIDI queue.
-  if ( inputData_.queue.ringSize > 0 ) delete [] inputData_.queue.ring;
 }
 
 unsigned int RtMidiIn :: getPortCount()
@@ -1035,12 +1021,8 @@ extern "C" void *alsaMidiHandler( void *ptr )
     }
     else {
       // As long as we haven't reached our queue size limit, push the message.
-      if ( data->queue.size < data->queue.ringSize ) {
-        data->queue.ring[data->queue.back++] = message;
-        if ( data->queue.back == data->queue.ringSize )
-          data->queue.back = 0;
-        data->queue.size++;
-      }
+      if ( data->queueLimit > data->queue.size() )
+        data->queue.push( message );
       else
         std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
     }
@@ -1292,9 +1274,6 @@ RtMidiIn :: ~RtMidiIn()
 #endif
   snd_seq_close( data->seq );
   delete data;
-
-  // Delete the MIDI queue.
-  if ( inputData_.queue.ringSize > 0 ) delete [] inputData_.queue.ring;
 }
 
 unsigned int RtMidiIn :: getPortCount()
@@ -1646,12 +1625,8 @@ extern "C" void *irixMidiHandler( void *ptr )
             }
             else {
               // As long as we haven't reached our queue size limit, push the message.
-              if ( data->queue.size < data->queue.ringSize ) {
-                data->queue.ring[data->queue.back++] = message;
-                if ( data->queue.back == data->queue.ringSize )
-                  data->queue.back = 0;
-                data->queue.size++;
-              }
+              if ( data->queueLimit > data->queue.size() )
+                data->queue.push( message );
               else
                 std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
             }
@@ -1693,12 +1668,8 @@ extern "C" void *irixMidiHandler( void *ptr )
       }
       else {
         // As long as we haven't reached our queue size limit, push the message.
-        if ( data->queue.size < data->queue.ringSize ) {
-          data->queue.ring[data->queue.back++] = message;
-          if ( data->queue.back == data->queue.ringSize )
-            data->queue.back = 0;
-          data->queue.size++;
-        }
+        if ( data->queueLimit > data->queue.size() )
+          data->queue.push( message );
         else
           std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
       }
@@ -1799,9 +1770,6 @@ RtMidiIn :: ~RtMidiIn()
   // Cleanup.
   IrixMidiData *data = static_cast<IrixMidiData *> (apiData_);
   delete data;
-
-  // Delete the MIDI queue.
-  if ( inputData_.queue.ringSize > 0 ) delete [] inputData_.queue.ring;
 }
 
 unsigned int RtMidiIn :: getPortCount()
@@ -2083,12 +2051,8 @@ static void CALLBACK midiInputCallback( HMIDIIN hmin,
   }
   else {
     // As long as we haven't reached our queue size limit, push the message.
-    if ( data->queue.size < data->queue.ringSize ) {
-      data->queue.ring[data->queue.back++] = apiData->message;
-      if ( data->queue.back == data->queue.ringSize )
-        data->queue.back = 0;
-      data->queue.size++;
-    }
+    if ( data->queueLimit > data->queue.size() )
+      data->queue.push( apiData->message );
     else
       std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
   }
@@ -2218,9 +2182,6 @@ RtMidiIn :: ~RtMidiIn()
   // Cleanup.
   WinMidiData *data = static_cast<WinMidiData *> (apiData_);
   delete data;
-
-  // Delete the MIDI queue.
-  if ( inputData_.queue.ringSize > 0 ) delete [] inputData_.queue.ring;
 }
 
 unsigned int RtMidiIn :: getPortCount()
@@ -2244,14 +2205,14 @@ std::string RtMidiIn :: getPortName( unsigned int portNumber )
   MIDIINCAPS deviceCaps;
   midiInGetDevCaps( portNumber, &deviceCaps, sizeof(MIDIINCAPS));
 
-#if defined( UNICODE ) || defined( _UNICODE )
-  int length = WideCharToMultiByte(CP_UTF8, 0, deviceCaps.szPname, -1, NULL, 0, NULL, NULL);
-  stringName.assign( length, 0 );
-  length = WideCharToMultiByte(CP_UTF8, 0, deviceCaps.szPname, wcslen(deviceCaps.szPname), &stringName[0], length, NULL, NULL);
-#else
-  stringName = std::string( deviceCaps.szPname );
-#endif
+  // For some reason, we need to copy character by character with
+  // UNICODE (thanks to Eduardo Coutinho!).
+  //std::string stringName = std::string( deviceCaps.szPname );
+  char nameString[MAXPNAMELEN];
+  for( int i=0; i<MAXPNAMELEN; ++i )
+    nameString[i] = (char)( deviceCaps.szPname[i] );
 
+  stringName = nameString;
   return stringName;
 }
 
@@ -2281,14 +2242,14 @@ std::string RtMidiOut :: getPortName( unsigned int portNumber )
   MIDIOUTCAPS deviceCaps;
   midiOutGetDevCaps( portNumber, &deviceCaps, sizeof(MIDIOUTCAPS));
 
-#if defined( UNICODE ) || defined( _UNICODE )
-  int length = WideCharToMultiByte(CP_UTF8, 0, deviceCaps.szPname, -1, NULL, 0, NULL, NULL);
-  stringName.assign( length, 0 );
-  length = WideCharToMultiByte(CP_UTF8, 0, deviceCaps.szPname, wcslen(deviceCaps.szPname), &stringName[0], length, NULL, NULL);
-#else
-  stringName = std::string( deviceCaps.szPname );
-#endif
+  // For some reason, we need to copy character by character with
+  // UNICODE (thanks to Eduardo Coutinho!).
+  //std::string stringName = std::string( deviceCaps.szPname );
+  char nameString[MAXPNAMELEN];
+  for( int i=0; i<MAXPNAMELEN; ++i )
+    nameString[i] = (char)( deviceCaps.szPname[i] );
 
+  stringName = nameString;
   return stringName;
 }
 
@@ -2517,12 +2478,8 @@ int jackProcessIn( jack_nframes_t nframes, void *arg )
     }
     else {
       // As long as we haven't reached our queue size limit, push the message.
-      if ( rtData->queue.size < rtData->queue.ringSize ) {
-        rtData->queue.ring[rtData->queue.back++] = message;
-        if ( rtData->queue.back == rtData->queue.ringSize )
-          rtData->queue.back = 0;
-        rtData->queue.size++;
-      }
+      if ( rtData->queueLimit > rtData->queue.size() )
+        rtData->queue.push( message );
       else
         std::cerr << "\nRtMidiIn: message queue limit reached!!\n\n";
     }
@@ -2558,9 +2515,6 @@ RtMidiIn :: ~RtMidiIn()
 {
   JackMidiData *data = static_cast<JackMidiData *> (apiData_);
   jack_client_close( data->client );
-
-  // Delete the MIDI queue.
-  if ( inputData_.queue.ringSize > 0 ) delete [] inputData_.queue.ring;
 }
 
 void RtMidiIn :: openPort( unsigned int portNumber, const std::string portName )
