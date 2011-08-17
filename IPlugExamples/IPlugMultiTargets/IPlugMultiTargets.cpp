@@ -61,7 +61,7 @@ public:
   {
     switch (key) {
       case KEY_SPACE:
-        printf("space bar handled\n");
+        DBGMSG("space bar handled\n");
         return true;
       default:
         return false;
@@ -138,7 +138,6 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   IBitmap about = pGraphics->LoadIBitmap(ABOUTBOX_ID, ABOUTBOX_FN);
   mAboutBox = new IBitmapOverlayControl(this, 100, 100, &about, IRECT(540, 250, 680, 290));
   pGraphics->AttachControl(mAboutBox);
-
   AttachGraphics(pGraphics);
 #endif
   //MakePreset("preset 1", ... );
