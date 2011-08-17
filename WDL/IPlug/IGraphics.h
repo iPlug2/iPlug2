@@ -141,7 +141,7 @@ public:
   // (meaning the OS should capture the mouse).
   bool OnMouseDblClick(int x, int y, IMouseMod* pMod);
   void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
-  void OnKeyDown(int x, int y, int key);
+  bool OnKeyDown(int x, int y, int key);
   
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();

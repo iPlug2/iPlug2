@@ -42,6 +42,7 @@ NSString* ToNSString(const char* cStr);
 	NSTextField* mTextFieldView;
 	IControl* mEdControl; // the control linked to the open text edit
 	IParam* mEdParam; // the param linked to the open text edit (optional)
+  int mPrevX, mPrevY;
 @public
 	IGraphicsMac* mGraphics;
 }

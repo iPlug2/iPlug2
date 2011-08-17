@@ -61,6 +61,8 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
   
   mGraphics = 0;
   mTimer = 0;
+  mPrevX = 0;
+  mPrevY = 0;
   return self;
 }
 
@@ -131,6 +133,8 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
 		NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
 		*pX = (int) pt.x - 2;
 		*pY = mGraphics->Height() - (int) pt.y - 3;
+    mPrevX = *pX;
+    mPrevY = *pY;
 	}
 }
 
@@ -227,7 +231,6 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
 	{
 	  int x, y;
 	  [self getMouseXY:pEvent x:&x y:&y];
-	
 	  IMouseMod ms = GetMouseMod(pEvent);
 	  mGraphics->OnMouseOver(x, y, &ms);
 	}
@@ -246,9 +249,8 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
     bool handle = true;
     int key;     
     
-    //if (k == 49) key = KEY_SPACE;
-    //else if (k == 125) key = KEY_UPARROW;
-    if (k == 125) key = KEY_UPARROW;
+    if (k == 49) key = KEY_SPACE;
+    else if (k == 125) key = KEY_UPARROW;
     else if (k == 126) key = KEY_DOWNARROW;
     else if (k == 123) key = KEY_LEFTARROW;
     else if (k == 124) key = KEY_RIGHTARROW;
@@ -257,12 +259,13 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
     else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
     else handle = false;
     
-    if (handle) {
-      int x, y;
-      [self getMouseXY:pEvent x:&x y:&y];
-      mGraphics->OnKeyDown(x, y, key);
+    if (handle) {      
+      // can't use getMouseXY because its a key event
+      handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
     }
-    else {
+    
+    if (!handle)
+    {
 #ifdef RTAS_API
       // TODO: fix this super hack - and why does it work when there is no edit window... is it hidden?
       WindowRef root = FindNamedCarbonWindow(kAllWindowClasses, "Edit:" , false);
