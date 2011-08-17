@@ -67,7 +67,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone) {
           switch (pGraphics->mParamEditMsg) {
-            case kUpdate: {
+            //case kUpdate: {
               //pGraphics->mEdParam->GetDisplayForHost(txt);
               //SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, 0, (LPARAM) txt);
               //char currentText[MAX_PARAM_LEN];
@@ -79,8 +79,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
               //  else
               //    SendMessage(pGraphics->mParamEditWnd, WM_SETTEXT, 0, (LPARAM) txt);
               //}
-              break;
-            }
+            //  break;
+            //}
             case kCommit: {
               SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) txt);
 
@@ -158,7 +158,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		InvalidateRect(hWnd, &r, FALSE);
 		UpdateWindow(hWnd);
       }
-      
+      SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
 #ifdef RTAS_API
       // pass ctrl-start-alt-click or ctrl-start-click to host window (Pro Tools)
