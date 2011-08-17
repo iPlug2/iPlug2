@@ -42,6 +42,7 @@ private:
   // Ed = being edited manually.
   IControl* mEdControl;
   IParam* mEdParam;
+  int mPrevX, mPrevY;
   
 public:
   

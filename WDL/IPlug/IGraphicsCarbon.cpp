@@ -32,43 +32,48 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
   IGraphicsMac* pGraphicsMac = _this->mGraphicsMac;
   UInt32 eventClass = GetEventClass(pEvent);
   UInt32 eventKind = GetEventKind(pEvent);
+  
   switch (eventClass) {
-		  /*
-  case kEventClassKeyboard:
-  { 
-	  switch (eventKind) { 
-		  case kEventRawKeyDown:{
+    case kEventClassKeyboard:
+    { 
+      switch (eventKind) { 
+        case kEventRawKeyDown:{
 
-			  bool ok = true;
-			  int key;     
-			  UInt32 result;
-			  GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &result);
+          if (_this->mTextFieldView)
+            return eventNotHandledErr;
+          
+          bool handle = true;
+          int key;     
+          UInt32 k;
+          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
 
-			  if (result == VK_SPACE) key = KEY_SPACE;
-			  else if (result == VK_UP) key = KEY_UPARROW;
-			  else if (result == VK_DOWN) key = KEY_DOWNARROW;
-			  else if (result == VK_LEFT) key = KEY_LEFTARROW;
-			  else if (result == VK_RIGHT) key = KEY_RIGHTARROW;
-			  else if (result >= '0' && result <= '9') key = KEY_DIGIT_0+result-'0';
-			  else if (result >= 'A' && result <= 'Z') key = KEY_ALPHA_A+result-'A';
-			  else if (result >= 'a' && result <= 'z') key = KEY_ALPHA_A+result-'a';
-			  else ok = false;
-		   
-		   HIPoint hp;
-		   GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
-		   HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
-		   int x = (int) hp.x;
-		   int y = (int) hp.y;
+          char c;
+          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(char), NULL, &c);
 
-			  if (ok) pGraphicsMac->OnKeyDown(x, y, key);
-		  } 
-	  }
-  }
-		   */
+          if (k == 49) key = KEY_SPACE;
+          else if (k == 125) key = KEY_UPARROW;
+          else if (k == 126) key = KEY_DOWNARROW;
+          else if (k == 123) key = KEY_LEFTARROW;
+          else if (k == 124) key = KEY_RIGHTARROW;
+          else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
+          else if (c >= 'A' && c <= 'Z') key = KEY_ALPHA_A+c-'A';
+          else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
+          else handle = false;
+
+          if(handle)
+            handle = pGraphicsMac->OnKeyDown(_this->mPrevX, _this->mPrevY, key);
+          
+          if(handle)
+            return noErr;
+          else
+            return eventNotHandledErr;
+
+        } 
+      }
+    }
     case kEventClassControl: {
       switch (eventKind) {          
         case kEventControlDraw: {
-          
           int gfxW = pGraphicsMac->Width(), gfxH = pGraphicsMac->Height();
           IRECT r = GetRegionRect(pEvent, gfxW, gfxH);  
           
@@ -159,13 +164,15 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           return noErr;
         }
         case kEventMouseMoved: {
+          _this->mPrevX = x;
+          _this->mPrevY = y;
           pGraphicsMac->OnMouseOver(x, y, &mmod);
           return noErr;
         }
         case kEventMouseDragged: {
-			
-		if (!_this->mTextFieldView)
-			pGraphicsMac->OnMouseDrag(x, y, &mmod);
+      
+    if (!_this->mTextFieldView)
+      pGraphicsMac->OnMouseDrag(x, y, &mmod);
           return noErr; 
         }
         case kEventMouseWheelMoved: {
@@ -174,10 +181,10 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           if (axis == kEventMouseWheelAxisY) {
             int d;
             GetEventParameter(pEvent, kEventParamMouseWheelDelta, typeSInt32, 0, sizeof(SInt32), 0, &d);
-			  
-			  if (_this->mTextFieldView) _this->EndUserInput(false);
-			
-			  pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
+        
+        if (_this->mTextFieldView) _this->EndUserInput(false);
+      
+        pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
             return noErr;
           }
         }   
@@ -185,20 +192,20 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       break;    
     }
     case kEventClassWindow:
-		{
-			WindowRef window;
-			if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
-				break;
-			switch (eventKind)
-			{
-				case kEventWindowDeactivated:
-				{          
+    {
+      WindowRef window;
+      if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
+        break;
+      switch (eventKind)
+      {
+        case kEventWindowDeactivated:
+        {          
           if (_this->mTextFieldView) _this->EndUserInput(false);          
-					break;
-				}
-			}
-			break;
-		}
+          break;
+        }
+      }
+      break;
+    }
   }
   return eventNotHandledErr;
 }    
@@ -277,6 +284,9 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
   r.bottom = pGraphicsMac->Height();   
   //ResizeWindow(pWindow, r.right, r.bottom);
 
+  mPrevX = 0;
+  mPrevY = 0;
+  
   WindowAttributes winAttrs = 0;
   GetWindowAttributes(pWindow, &winAttrs);
   mIsComposited = (winAttrs & kWindowCompositingAttribute);
@@ -293,7 +303,6 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
     //{kEventClassControl, kEventControlGetOptimalBounds},    
     //{ kEventClassControl, kEventControlHitTest },
     { kEventClassControl, kEventControlClick },
-    //{ kEventClassKeyboard, kEventRawKeyDown },
     { kEventClassControl, kEventControlDraw },
     { kEventClassControl, kEventControlDispose },
     { kEventClassControl, kEventControlBoundsChanged }
@@ -306,6 +315,7 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
     { kEventClassMouse, kEventMouseMoved },
     { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseWheelMoved },
+    { kEventClassKeyboard, kEventRawKeyDown },
     { kEventClassWindow, kEventWindowDeactivated }
   };
   InstallWindowEventHandler(mWindow, CarbonEventHandler, GetEventTypeCount(windowEvents), windowEvents, this, &mWindowHandler);  
