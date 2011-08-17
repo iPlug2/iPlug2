@@ -117,7 +117,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             break;            
           }
           pGraphics->mParamEditMsg = kNone;
-          //return 0;
+          return 0; // TODO: check this!
         }
        
         IRECT dirtyR;
@@ -133,10 +133,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             UpdateWindow(hWnd);
             pGraphics->mParamEditMsg = kUpdate;
           }
-          else UpdateWindow(hWnd);
-          
+          else 
+			UpdateWindow(hWnd);
         }
-        
       }
       return 0;
     }
@@ -154,6 +153,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->mEdControl = 0;
         pGraphics->mDefEditProc = 0;
         pGraphics->mParamEditMsg = kNone;
+		//force full redraw when closing text entry
+		RECT r = { 0, 0, pGraphics->Width(), pGraphics->Height() };
+		InvalidateRect(hWnd, &r, FALSE);
+		UpdateWindow(hWnd);
       }
       
       SetCapture(hWnd);
@@ -248,7 +251,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
     case WM_KEYDOWN:
     {
-      bool ok = true;
+      bool handle = true;
       int key;     
       
       if (wParam == VK_SPACE) key = KEY_SPACE;
@@ -259,14 +262,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       else if (wParam >= '0' && wParam <= '9') key = KEY_DIGIT_0+wParam-'0';
       else if (wParam >= 'A' && wParam <= 'Z') key = KEY_ALPHA_A+wParam-'A';
       else if (wParam >= 'a' && wParam <= 'z') key = KEY_ALPHA_A+wParam-'a';
-      else ok = false;
+      else handle = false;
 
-      if (ok)
+      if (handle)
       {
         POINT p;
         GetCursorPos(&p); 
         ScreenToClient(hWnd, &p);
-        pGraphics->OnKeyDown(p.x, p.y, key);
+        handle = pGraphics->OnKeyDown(p.x, p.y, key);
       }
     }
     return 0;
@@ -307,6 +310,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return result;
     }
 #endif
+	case WM_SETFOCUS: {
+        return 0;
+    }
+    case WM_KILLFOCUS: {
+		return 0;
+	}
   }
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -342,7 +351,6 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
         break;
       }
       case WM_KILLFOCUS: {
-//        pGraphics->mParamEditMsg = kNone;
         pGraphics->mParamEditMsg = kCancel; // when another window is focussed, kill the text edit box
         break;
       }

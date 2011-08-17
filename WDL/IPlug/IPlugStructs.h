@@ -59,7 +59,7 @@ const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
 
 #ifdef OS_WIN
   const char* const DEFAULT_FONT = "Verdana";
-  const int DEFAULT_TEXT_SIZE = 13;
+  const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_OSX
   const char* const DEFAULT_FONT = "Monaco";
   const int DEFAULT_TEXT_SIZE = 10;
