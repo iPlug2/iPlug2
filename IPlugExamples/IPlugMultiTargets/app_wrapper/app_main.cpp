@@ -294,7 +294,11 @@ int AudioCallback(void *outputBuffer,
       }
       
       outputBufferD[i] *= gFadeMult;
-      
+      outputBufferD[i + nFrames] *= gFadeMult;
+
+      outputBufferD[i] *= APP_MULT;
+      outputBufferD[i + nFrames] *= APP_MULT;
+
       gBufIndex++;
     }
   }
