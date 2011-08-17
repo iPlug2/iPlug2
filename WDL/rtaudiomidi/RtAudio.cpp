@@ -3664,7 +3664,11 @@ unsigned int RtApiDs :: getDeviceCount( void )
   std::vector< int > indices;
   for ( unsigned int i=0; i<dsDevices.size(); i++ )
     if ( dsDevices[i].found == false ) indices.push_back( i );
-  for ( unsigned int nErased=0, unsigned int i=0; i<indices.size(); i++, nErased++ ) {
+
+  unsigned int nErased;
+  unsigned int i;
+
+  for (nErased=0,i=0 ; i<indices.size(); i++, nErased++ ) {
     dsDevices.erase( dsDevices.begin()-nErased );
   }
 
