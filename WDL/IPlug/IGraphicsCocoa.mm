@@ -31,6 +31,28 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   return IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 }
 
+#ifdef RTAS_API
+// super hack - used to find the ProTools Edit window and forward key events there
+static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exact)
+{
+  WindowRef tref = GetFrontWindowOfClass(wcl,FALSE);
+	for(int i = 0; tref; ++i) {
+		char buf[256];
+		CFStringRef cfstr;
+		CopyWindowTitleAsCFString(tref,&cfstr);
+		if(cfstr && CFStringGetCString(cfstr,buf,sizeof buf-1,kCFStringEncodingASCII)) 
+		{
+      if(exact? 
+         strcmp(buf,s) == 0: 
+         strstr(buf,s) != NULL
+         ) break;
+		}
+		tref = GetNextWindowOfClass(tref,wcl,FALSE);
+	} 
+	return tref;
+}
+#endif
+
 @implementation IGRAPHICS_COCOA
 
 - (id) init
