@@ -134,7 +134,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             pGraphics->mParamEditMsg = kUpdate;
           }
           else 
-			UpdateWindow(hWnd);
+			      UpdateWindow(hWnd);
         }
       }
       return 0;
@@ -271,9 +271,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         ScreenToClient(hWnd, &p);
         handle = pGraphics->OnKeyDown(p.x, p.y, key);
       }
-    }
-    return 0;
 
+      if (!handle) {
+        // Somehow pass the keydown message to HOST/PT
+        //SetFocus(pGraphics->GetMainWnd());
+        return DefWindowProc(hWnd, msg, wParam, lParam);
+      }
+      else
+        return 0;
+    }
     case WM_PAINT: {
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE)) {
