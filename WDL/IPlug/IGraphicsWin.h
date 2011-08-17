@@ -11,8 +11,8 @@ class IGraphicsWin : public IGraphics
 {
 public:
 
-	IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS);
-	virtual ~IGraphicsWin();
+  IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS);
+  virtual ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
   
@@ -21,23 +21,22 @@ public:
   void Resize(int w, int h);
   bool DrawScreen(IRECT* pR);  
   
-	void* OpenWindow(void* pParentWnd);
-	void CloseWindow();
-	bool WindowIsOpen() { return (mPlugWnd); }
+  void* OpenWindow(void* pParentWnd);
+  void CloseWindow();
+  bool WindowIsOpen() { return (mPlugWnd); }
 
-	void HostPath(WDL_String* pPath); 
+  void HostPath(WDL_String* pPath); 
   void PluginPath(WDL_String* pPath);
 
-	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = "", char* extensions = "");   // extensions = "txt wav" for example.
+  void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, char* dir = "", char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
   IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
   void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
 
-  bool OpenURL(const char* url, 
-    const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
+  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
 
     // Specialty use!
-	void* GetWindow() { return mPlugWnd; }
+  void* GetWindow() { return mPlugWnd; }
   HWND GetParentWindow() { return mParentWnd; }
   HWND GetMainWnd();
   void SetMainWndClassName(char* name) { mMainWndClassName.Set(name); }
@@ -51,13 +50,13 @@ protected:
 private:
   HINSTANCE mHInstance;
   HWND mPlugWnd, mParamEditWnd;
-	// Ed = being edited manually.
-	IControl* mEdControl;
-	IParam* mEdParam;
-	WNDPROC mDefEditProc;
-	int mParamEditMsg;
-	int mIdleTicks;
-	COLORREF* mCustomColorStorage;
+  // Ed = being edited manually.
+  IControl* mEdControl;
+  IParam* mEdParam;
+  WNDPROC mDefEditProc;
+  int mParamEditMsg;
+  int mIdleTicks;
+  COLORREF* mCustomColorStorage;
 
   DWORD mPID;
   HWND mParentWnd, mMainWnd;
@@ -65,8 +64,8 @@ private:
 
 public:
 
-	static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
 };
 

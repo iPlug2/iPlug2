@@ -7,9 +7,9 @@
 #include "PlugInUtils.h"
 #endif
 
-#pragma warning(disable:4244)	// Pointer size cast mismatch.
-#pragma warning(disable:4312)	// Pointer size cast mismatch.
-#pragma warning(disable:4311)	// Pointer size cast mismatch.
+#pragma warning(disable:4244) // Pointer size cast mismatch.
+#pragma warning(disable:4312) // Pointer size cast mismatch.
+#pragma warning(disable:4311) // Pointer size cast mismatch.
 
 static int nWndClassReg = 0;
 static const char* wndClassName = "IPlugWndClass";
@@ -18,18 +18,18 @@ static double sFPS = 0.0;
 #define PARAM_EDIT_ID 99
 
 enum EParamEditMsg {
-	kNone,
-	kEditing,
-	kUpdate,
-	kCancel,
-	kCommit
+  kNone,
+  kEditing,
+  kUpdate,
+  kCancel,
+  kCommit
 };
 
 #define IPLUG_TIMER_ID 2
 
 inline IMouseMod GetMouseMod(WPARAM wParam)
 {
-	return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), 
+  return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), 
         (wParam & MK_SHIFT), (wParam & MK_CONTROL), GetKeyState(VK_MENU) < 0);
 }
 
@@ -39,50 +39,50 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   if (msg == WM_CREATE) {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-		int mSec = int(1000.0 / sFPS);
-		SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
+    int mSec = int(1000.0 / sFPS);
+    SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
-		return 0;
-	}
+    return 0;
+  }
 
-	IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-	char txt[MAX_PARAM_LEN];
-	double v;
+  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+  char txt[MAX_PARAM_LEN];
+  double v;
 
-	if (!pGraphics || hWnd != pGraphics->mPlugWnd) {
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
-	if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing) {
-		if (msg == WM_RBUTTONDOWN || (msg == WM_LBUTTONDOWN)) {
-			pGraphics->mParamEditMsg = kCancel;
-			return 0;
-		}
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
+  if (!pGraphics || hWnd != pGraphics->mPlugWnd) {
+    return DefWindowProc(hWnd, msg, wParam, lParam);
+  }
+  if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing) {
+    if (msg == WM_RBUTTONDOWN || (msg == WM_LBUTTONDOWN)) {
+      pGraphics->mParamEditMsg = kCancel;
+      return 0;
+    }
+    return DefWindowProc(hWnd, msg, wParam, lParam);
+  }
 
-	switch (msg) {
+  switch (msg) {
 
-		case WM_TIMER: {
-			if (wParam == IPLUG_TIMER_ID) {
+    case WM_TIMER: {
+      if (wParam == IPLUG_TIMER_ID) {
 
-				if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone) {
-					switch (pGraphics->mParamEditMsg) {
+        if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone) {
+          switch (pGraphics->mParamEditMsg) {
             case kUpdate: {
-							//pGraphics->mEdParam->GetDisplayForHost(txt);
-							//SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, 0, (LPARAM) txt);
-							//char currentText[MAX_PARAM_LEN];
-							//SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) currentText);
-							//if (strcmp(txt, currentText))
-							//{
-							//	if (pGraphics->mEdParam->GetNDisplayTexts())
-							//		SendMessage(pGraphics->mParamEditWnd, CB_SELECTSTRING, -1, (LPARAM) txt);
-							//	else
-							//		SendMessage(pGraphics->mParamEditWnd, WM_SETTEXT, 0, (LPARAM) txt);
-							//}
-							break;
+              //pGraphics->mEdParam->GetDisplayForHost(txt);
+              //SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, 0, (LPARAM) txt);
+              //char currentText[MAX_PARAM_LEN];
+              //SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) currentText);
+              //if (strcmp(txt, currentText))
+              //{
+              //  if (pGraphics->mEdParam->GetNDisplayTexts())
+              //    SendMessage(pGraphics->mParamEditWnd, CB_SELECTSTRING, -1, (LPARAM) txt);
+              //  else
+              //    SendMessage(pGraphics->mParamEditWnd, WM_SETTEXT, 0, (LPARAM) txt);
+              //}
+              break;
             }
             case kCommit: {
-							SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) txt);
+              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) txt);
 
               if(pGraphics->mEdParam){
                 IParam::EParamType type = pGraphics->mEdParam->Type();
@@ -91,34 +91,34 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
                   int vi = 0;
                   pGraphics->mEdParam->MapDisplayText(txt, &vi);
                   v = (double) vi;
-							  }
-							  else {
-								  v = atof(txt);
-								  if (pGraphics->mEdParam->DisplayIsNegated()) {
-									  v = -v;
-								  }
-							  }
-							  pGraphics->mEdControl->SetValueFromUserInput(pGraphics->mEdParam->GetNormalized(v));
+                }
+                else {
+                  v = atof(txt);
+                  if (pGraphics->mEdParam->DisplayIsNegated()) {
+                    v = -v;
+                  }
+                }
+                pGraphics->mEdControl->SetValueFromUserInput(pGraphics->mEdParam->GetNormalized(v));
               }
               else {
                 pGraphics->mEdControl->TextFromTextEntry(txt);
               }
-							// Fall through.
+              // Fall through.
             }
             case kCancel:
-			      {
-							SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
-							DestroyWindow(pGraphics->mParamEditWnd);
-							pGraphics->mParamEditWnd = 0;
-							pGraphics->mEdParam = 0;
-							pGraphics->mEdControl = 0;
-							pGraphics->mDefEditProc = 0;
+            {
+              SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
+              DestroyWindow(pGraphics->mParamEditWnd);
+              pGraphics->mParamEditWnd = 0;
+              pGraphics->mEdParam = 0;
+              pGraphics->mEdControl = 0;
+              pGraphics->mDefEditProc = 0;
             }
             break;            
           }
-					pGraphics->mParamEditMsg = kNone;
-				  //return 0;
-				}
+          pGraphics->mParamEditMsg = kNone;
+          //return 0;
+        }
        
         IRECT dirtyR;
         if (pGraphics->IsDirty(&dirtyR)) {
@@ -148,70 +148,70 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (pGraphics->mParamEditWnd) 
       {
         SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
-				DestroyWindow(pGraphics->mParamEditWnd);
+        DestroyWindow(pGraphics->mParamEditWnd);
         pGraphics->mParamEditWnd = 0;
-				pGraphics->mEdParam = 0;
-	  		pGraphics->mEdControl = 0;
-				pGraphics->mDefEditProc = 0;
+        pGraphics->mEdParam = 0;
+        pGraphics->mEdControl = 0;
+        pGraphics->mDefEditProc = 0;
         pGraphics->mParamEditMsg = kNone;
       }
       
       SetCapture(hWnd);
 #ifdef RTAS_API
-			// pass ctrl-start-alt-click or ctrl-start-click to host window (Pro Tools)
-			if ((IsControlKeyDown() && IsOptionKeyDown() && IsCommandKeyDown() ) || (IsControlKeyDown() && IsCommandKeyDown()))
+      // pass ctrl-start-alt-click or ctrl-start-click to host window (Pro Tools)
+      if ((IsControlKeyDown() && IsOptionKeyDown() && IsCommandKeyDown() ) || (IsControlKeyDown() && IsCommandKeyDown()))
       {
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
-	
+  
         union point{
-					long lp;
-					struct {
-						short x;
-						short y;
-					}s;
-				} mousePoint;
+          long lp;
+          struct {
+            short x;
+            short y;
+          }s;
+        } mousePoint;
  
-				// Get global coordinates of local window
-				RECT childRect;
-				GetWindowRect(hWnd, &childRect);
+        // Get global coordinates of local window
+        RECT childRect;
+        GetWindowRect(hWnd, &childRect);
  
-				// Convert global coords to parent window coords
-				POINT p;
-				p.x = childRect.left;
-				p.y = childRect.top;
+        // Convert global coords to parent window coords
+        POINT p;
+        p.x = childRect.left;
+        p.y = childRect.top;
  
-				ScreenToClient(rootHWnd, &p);
+        ScreenToClient(rootHWnd, &p);
  
-				// offset the local click-event coordinates to the parent window's values
-				mousePoint.lp = lParam;
-				mousePoint.s.x += p.x;
-				mousePoint.s.y += p.y;
+        // offset the local click-event coordinates to the parent window's values
+        mousePoint.lp = lParam;
+        mousePoint.s.x += p.x;
+        mousePoint.s.y += p.y;
  
         if( pGraphics->GetParamIdxForPTAutomation(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)) > -1)
         {
-				// Send converted coords to parent window's event handler for regular processing
-				  LRESULT result = SendMessage(rootHWnd, msg, wParam, mousePoint.lp);
+        // Send converted coords to parent window's event handler for regular processing
+          LRESULT result = SendMessage(rootHWnd, msg, wParam, mousePoint.lp);
         }
 
-        return 0;				
+        return 0;       
       }
 #endif
-			pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
-			return 0;
-			
+      pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
+      return 0;
+      
     case WM_MOUSEMOVE: { 
-			if (!(wParam & (MK_LBUTTON | MK_RBUTTON))) { 
+      if (!(wParam & (MK_LBUTTON | MK_RBUTTON))) { 
         if (pGraphics->OnMouseOver(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam))) {
           TRACKMOUSEEVENT eventTrack = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hWnd, HOVER_DEFAULT };
           TrackMouseEvent(&eventTrack);
         }
-			}
+      }
       else
-			if (GetCapture() == hWnd && !pGraphics->mParamEditWnd) {
-				pGraphics->OnMouseDrag(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
-			}
+      if (GetCapture() == hWnd && !pGraphics->mParamEditWnd) {
+        pGraphics->OnMouseDrag(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
+      }
 
-			return 0;
+      return 0;
     }
     case WM_MOUSELEAVE: {
       pGraphics->OnMouseOut();
@@ -220,31 +220,31 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_LBUTTONUP:
     case WM_RBUTTONUP: {
       ReleaseCapture();
-			pGraphics->OnMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
-			return 0;
+      pGraphics->OnMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
+      return 0;
     }
     case WM_LBUTTONDBLCLK: {
       if (pGraphics->OnMouseDblClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam))) {
         SetCapture(hWnd);
       }
-			return 0;
+      return 0;
     }
-		case WM_MOUSEWHEEL: {
+    case WM_MOUSEWHEEL: {
 
-			if (pGraphics->mParamEditWnd) {
-				pGraphics->mParamEditMsg = kCancel;
-				return 0;
-			}
-			else
-			{
-				int d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-				int x = GET_X_LPARAM(lParam), y = GET_Y_LPARAM(lParam);
-				RECT r;
-				GetWindowRect(hWnd, &r);
-				pGraphics->OnMouseWheel(x - r.left, y - r.top, &GetMouseMod(wParam), d);
-				return 0;
-			}
-		}
+      if (pGraphics->mParamEditWnd) {
+        pGraphics->mParamEditMsg = kCancel;
+        return 0;
+      }
+      else
+      {
+        int d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+        int x = GET_X_LPARAM(lParam), y = GET_Y_LPARAM(lParam);
+        RECT r;
+        GetWindowRect(hWnd, &r);
+        pGraphics->OnMouseWheel(x - r.left, y - r.top, &GetMouseMod(wParam), d);
+        return 0;
+      }
+    }
 
     case WM_KEYDOWN:
     {
@@ -261,7 +261,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       else if (wParam >= 'a' && wParam <= 'z') key = KEY_ALPHA_A+wParam-'a';
       else ok = false;
 
-
       if (ok)
       {
         POINT p;
@@ -272,122 +271,122 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     return 0;
 
-		case WM_PAINT: {
+    case WM_PAINT: {
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE)) {
         IRECT ir(r.left, r.top, r.right, r.bottom);
         pGraphics->Draw(&ir);
       }
-			return 0;
-		}
+      return 0;
+    }
 
-	/*	case WM_CTLCOLOREDIT: {
-			// An edit control just opened.
-			HDC dc = (HDC) wParam;
+  /*  case WM_CTLCOLOREDIT: {
+      // An edit control just opened.
+      HDC dc = (HDC) wParam;
       SetBkColor (dc, RGB(0, 0, 0));
-			SetTextColor(dc, RGB(255, 255, 255));
+      SetTextColor(dc, RGB(255, 255, 255));
       SetBkMode(dc,OPAQUE); 
       //SetDCBrushColor(dc, RGB(255, 0, 0));
-		  return (BOOL)GetStockObject(DC_BRUSH);
-			//return 0;
-		}
+      return (BOOL)GetStockObject(DC_BRUSH);
+      //return 0;
+    }
    */
-		case WM_CLOSE: {
-			pGraphics->CloseWindow();
-			return 0;
-		}
+    case WM_CLOSE: {
+      pGraphics->CloseWindow();
+      return 0;
+    }
 #ifdef RTAS_API
     case WM_MEASUREITEM : {
-	    HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
-	    LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
-	    return result;
+      HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
+      LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
+      return result;
     }
     case WM_DRAWITEM : {
-	    HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
-	    LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
-	    return result;
+      HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
+      LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
+      return result;
     }
 #endif
-	}
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+  }
+  return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 // static 
 LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-	if (pGraphics && pGraphics->mParamEditWnd && pGraphics->mParamEditWnd == hWnd) 
+  if (pGraphics && pGraphics->mParamEditWnd && pGraphics->mParamEditWnd == hWnd) 
   {
-		switch (msg) {
-			case WM_KEYDOWN: {
+    switch (msg) {
+      case WM_KEYDOWN: {
 
         //bool ok = true;
         //int key;     
       
         // limit to numbers for text entry on appropriate parameters
- //       if(pGraphics->mEdParam && pGraphics->mParamEditWnd && pGraphics->mEdParam->Type() != IParam::kTypeEnum || pGraphics->mEdParam->Type() == IParam::kTypeBool )
- //       {
- //         if (wParam >= '0' && wParam <= '9') return 0;
- //         else return 1;
-  //      }
+//       if(pGraphics->mEdParam && pGraphics->mParamEditWnd && pGraphics->mEdParam->Type() != IParam::kTypeEnum || pGraphics->mEdParam->Type() == IParam::kTypeBool )
+//       {
+//         if (wParam >= '0' && wParam <= '9') return 0;
+//         else return 1;
+//      }
 
-				if (wParam == VK_RETURN) {
-					pGraphics->mParamEditMsg = kCommit;
-					return 0;
-				}
-				break;
-			}
-			case WM_SETFOCUS: {
-				pGraphics->mParamEditMsg = kEditing;
-				break;
-			}
-			case WM_KILLFOCUS: {
+        if (wParam == VK_RETURN) {
+          pGraphics->mParamEditMsg = kCommit;
+          return 0;
+        }
+        break;
+      }
+      case WM_SETFOCUS: {
+        pGraphics->mParamEditMsg = kEditing;
+        break;
+      }
+      case WM_KILLFOCUS: {
 //        pGraphics->mParamEditMsg = kNone;
-				pGraphics->mParamEditMsg = kCancel; // when another window is focussed, kill the text edit box
-				break;
-			}
+        pGraphics->mParamEditMsg = kCancel; // when another window is focussed, kill the text edit box
+        break;
+      }
         // handle WM_GETDLGCODE so that we can say that we want the return key message
         //  (normally single line edit boxes don't get sent return key messages)
-			case WM_GETDLGCODE: {
-				if (pGraphics->mEdParam) break;
-				LPARAM lres;
-				// find out if the original control wants it
-				lres = CallWindowProc(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
-				// add in that we want it if it is a return keydown
-				if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_RETURN) {
-					lres |= DLGC_WANTMESSAGE;
-				}
-				return lres;
-			}
-			case WM_COMMAND: {
-				switch HIWORD(wParam) {
-					case CBN_SELCHANGE: {
-						if (pGraphics->mParamEditWnd) {
-							pGraphics->mParamEditMsg = kCommit;
-							return 0;
-						}
-					}
-				
-				}
-				break;	// Else let the default proc handle it.
-			}
-		}
-		return CallWindowProc(pGraphics->mDefEditProc, hWnd, msg, wParam, lParam);
-	}
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+      case WM_GETDLGCODE: {
+        if (pGraphics->mEdParam) break;
+        LPARAM lres;
+        // find out if the original control wants it
+        lres = CallWindowProc(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
+        // add in that we want it if it is a return keydown
+        if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_RETURN) {
+          lres |= DLGC_WANTMESSAGE;
+        }
+        return lres;
+      }
+      case WM_COMMAND: {
+        switch HIWORD(wParam) {
+          case CBN_SELCHANGE: {
+            if (pGraphics->mParamEditWnd) {
+              pGraphics->mParamEditMsg = kCommit;
+              return 0;
+            }
+          }
+        
+        }
+        break;  // Else let the default proc handle it.
+      }
+    }
+    return CallWindowProc(pGraphics->mDefEditProc, hWnd, msg, wParam, lParam);
+  }
+  return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 IGraphicsWin::IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS)
-:	IGraphics(pPlug, w, h, refreshFPS), mPlugWnd(0), mParamEditWnd(0), 
+: IGraphics(pPlug, w, h, refreshFPS), mPlugWnd(0), mParamEditWnd(0), 
   mPID(0), mParentWnd(0), mMainWnd(0), mCustomColorStorage(0),
-	mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone), mIdleTicks(0),
+  mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone), mIdleTicks(0),
   mHInstance(0)
 {}
 
 IGraphicsWin::~IGraphicsWin()
 {
-	CloseWindow();
+  CloseWindow();
   FREE_NULL(mCustomColorStorage);
 }
 
@@ -471,10 +470,10 @@ bool IGraphicsWin::DrawScreen(IRECT* pR)
 {
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
-	HDC dc = BeginPaint(hWnd, &ps);
-	BitBlt(dc, pR->L, pR->T, pR->W(), pR->H(), mDrawBitmap->getDC(), pR->L, pR->T, SRCCOPY);
-	EndPaint(hWnd, &ps);
-	return true;
+  HDC dc = BeginPaint(hWnd, &ps);
+  BitBlt(dc, pR->L, pR->T, pR->W(), pR->H(), mDrawBitmap->getDC(), pR->L, pR->T, SRCCOPY);
+  EndPaint(hWnd, &ps);
+  return true;
 }
 
 void* IGraphicsWin::OpenWindow(void* pParentWnd)
@@ -482,35 +481,35 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
   int x = 0, y = 0, w = Width(), h = Height();
   mParentWnd = (HWND) pParentWnd;
 
-	if (mPlugWnd) {
-		RECT pR, cR;
-		GetWindowRect((HWND) pParentWnd, &pR);
-		GetWindowRect(mPlugWnd, &cR);
-		CloseWindow();
-		x = cR.left - pR.left;
-		y = cR.top - pR.top;
-		w = cR.right - cR.left;
-		h = cR.bottom - cR.top;
-	}
+  if (mPlugWnd) {
+    RECT pR, cR;
+    GetWindowRect((HWND) pParentWnd, &pR);
+    GetWindowRect(mPlugWnd, &cR);
+    CloseWindow();
+    x = cR.left - pR.left;
+    y = cR.top - pR.top;
+    w = cR.right - cR.left;
+    h = cR.bottom - cR.top;
+  }
 
-	if (nWndClassReg++ == 0) {
-		WNDCLASS wndClass = { CS_DBLCLKS, WndProc, 0, 0, mHInstance, 0, LoadCursor(NULL, IDC_ARROW), 0, 0, wndClassName };
-		RegisterClass(&wndClass);
-	}
+  if (nWndClassReg++ == 0) {
+    WNDCLASS wndClass = { CS_DBLCLKS, WndProc, 0, 0, mHInstance, 0, LoadCursor(NULL, IDC_ARROW), 0, 0, wndClassName };
+    RegisterClass(&wndClass);
+  }
 
   sFPS = FPS();
   mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
-	//SetWindowLong(mPlugWnd, GWL_USERDATA, (LPARAM) this);
+    x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
+  //SetWindowLong(mPlugWnd, GWL_USERDATA, (LPARAM) this);
 
-	if (!mPlugWnd && --nWndClassReg == 0) {
-		UnregisterClass(wndClassName, mHInstance);
-	}
+  if (!mPlugWnd && --nWndClassReg == 0) {
+    UnregisterClass(wndClassName, mHInstance);
+  }
   else {
     SetAllControlsDirty();
   }  
 
-	return mPlugWnd;
+  return mPlugWnd;
 }
 
 #define MAX_CLASSNAME_LEN 128
@@ -580,14 +579,14 @@ void IGraphicsWin::SetWindowTitle(char* str)
 
 void IGraphicsWin::CloseWindow()
 {
-	if (mPlugWnd) {
-		DestroyWindow(mPlugWnd);
-		mPlugWnd = 0;
+  if (mPlugWnd) {
+    DestroyWindow(mPlugWnd);
+    mPlugWnd = 0;
 
-		if (--nWndClassReg == 0) {
-			UnregisterClass(wndClassName, mHInstance);
-		}
-	}
+    if (--nWndClassReg == 0) {
+      UnregisterClass(wndClassName, mHInstance);
+    }
+  }
 }
 
 IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
@@ -713,18 +712,18 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
 
   
   switch ( pText->mAlign ) 
-	{
-		case IText::kAlignNear:   editStyle = ES_LEFT;   break;
-		case IText::kAlignFar:    editStyle = ES_RIGHT;  break;
-		case IText::kAlignCenter:
-		default:                  editStyle = ES_CENTER; break;
-	}
+  {
+    case IText::kAlignNear:   editStyle = ES_LEFT;   break;
+    case IText::kAlignFar:    editStyle = ES_RIGHT;  break;
+    case IText::kAlignCenter:
+    default:                  editStyle = ES_CENTER; break;
+  }
   
 //  if (!pControl->IsEditable()) editStyle |= ES_READONLY;
 //  if (pControl->IsSecure())
-//		editStyle |= ES_PASSWORD;
-//	else
-		editStyle |= ES_MULTILINE;
+//    editStyle |= ES_PASSWORD;
+//  else
+    editStyle |= ES_MULTILINE;
   
   mParamEditWnd = CreateWindow("EDIT", pString, WS_CHILD | WS_VISIBLE | editStyle , 
                                pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1, 
@@ -740,10 +739,10 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
   SetWindowLong(mParamEditWnd, GWLP_USERDATA, (LPARAM) this);
   
-  //DeleteObject(font);	
+  //DeleteObject(font); 
   
   mEdControl = pControl;
-  mEdParam = pParam; // could be 0	
+  mEdParam = pParam; // could be 0  
 }
 
 #define MAX_PATH_LEN 256
@@ -751,9 +750,9 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
 void GetModulePath(HMODULE hModule, WDL_String* pPath) 
 {
   pPath->Set("");
-	char pathCStr[MAX_PATH_LEN];
-	pathCStr[0] = '\0';
-	if (GetModuleFileName(hModule, pathCStr, MAX_PATH_LEN)) {
+  char pathCStr[MAX_PATH_LEN];
+  pathCStr[0] = '\0';
+  if (GetModuleFileName(hModule, pathCStr, MAX_PATH_LEN)) {
     int s = -1;
     for (int i = 0; i < strlen(pathCStr); ++i) {
       if (pathCStr[i] == '\\') {
@@ -778,44 +777,44 @@ void IGraphicsWin::PluginPath(WDL_String* pPath)
 
 void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, char* dir, char* extensions)
 {
-	if (!WindowIsOpen()) { 
+  if (!WindowIsOpen()) { 
     pFilename->Set("");
-		return;
-	}
+    return;
+  }
 
   WDL_String pathStr;
-	char fnCStr[MAX_PATH_LEN], dirCStr[MAX_PATH_LEN];
-	
+  char fnCStr[MAX_PATH_LEN], dirCStr[MAX_PATH_LEN];
+  
   if (pFilename->GetLength())
     strcpy(fnCStr, pFilename->Get());
   else
     fnCStr[0] = '\0';
 
-	dirCStr[0] = '\0';
-	if (CSTR_NOT_EMPTY(dir)) {
+  dirCStr[0] = '\0';
+  if (CSTR_NOT_EMPTY(dir)) {
   pathStr.Set(dir);
-		strcpy(dirCStr, dir);
-	}
+    strcpy(dirCStr, dir);
+  }
   else {
     HostPath(&pathStr);
   }
-	
-	OPENFILENAME ofn;
-	memset(&ofn, 0, sizeof(OPENFILENAME));
-
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = mPlugWnd;
-	ofn.lpstrFile = fnCStr;
-	ofn.nMaxFile = MAX_PATH_LEN - 1;
-	ofn.lpstrInitialDir = dirCStr;
-	ofn.Flags = OFN_PATHMUSTEXIST;
   
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = mPlugWnd;
-	ofn.lpstrFile = fnCStr;
-	ofn.nMaxFile = MAX_PATH_LEN - 1;
-	ofn.lpstrInitialDir = dirCStr;
-	ofn.Flags = OFN_PATHMUSTEXIST;
+  OPENFILENAME ofn;
+  memset(&ofn, 0, sizeof(OPENFILENAME));
+
+  ofn.lStructSize = sizeof(OPENFILENAME);
+  ofn.hwndOwner = mPlugWnd;
+  ofn.lpstrFile = fnCStr;
+  ofn.nMaxFile = MAX_PATH_LEN - 1;
+  ofn.lpstrInitialDir = dirCStr;
+  ofn.Flags = OFN_PATHMUSTEXIST;
+  
+  ofn.lStructSize = sizeof(OPENFILENAME);
+  ofn.hwndOwner = mPlugWnd;
+  ofn.lpstrFile = fnCStr;
+  ofn.nMaxFile = MAX_PATH_LEN - 1;
+  ofn.lpstrInitialDir = dirCStr;
+  ofn.Flags = OFN_PATHMUSTEXIST;
   
   if (CSTR_NOT_EMPTY(extensions)) {
     static char extStr[256];
@@ -857,7 +856,7 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, char
         case kFileOpen:     
         default:
             ofn.Flags |= OFN_FILEMUSTEXIST;
-    	    rc = GetOpenFileName(&ofn);
+          rc = GetOpenFileName(&ofn);
             break;
     }
 
