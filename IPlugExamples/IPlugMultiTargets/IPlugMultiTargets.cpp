@@ -59,9 +59,18 @@ public:
   
   bool OnKeyDown(int x, int y, int key)
   {
+    IMidiMsg msg;
     switch (key) {
       case KEY_SPACE:
         DBGMSG("space bar handled\n");
+        return true;
+      case KEY_LEFTARROW:
+          msg.MakeNoteOnMsg(60, 127, 0);
+          mPlug->ProcessMidiMsg(&msg);
+        return true;
+      case KEY_RIGHTARROW:
+          msg.MakeNoteOffMsg(60, 0);
+          mPlug->ProcessMidiMsg(&msg);
         return true;
       default:
         return false;
