@@ -38,7 +38,7 @@
 */
 /************************************************************************/
 
-// RtAudio: Version 4.0.9pre-rev1
+// RtAudio: Version 4.0.9
 
 #include "RtAudio.h"
 #include <iostream>
@@ -392,12 +392,6 @@ unsigned int RtApi :: getStreamSampleRate( void )
 // quite a bit of extra code and most likely, a user program wouldn't
 // be prepared for the result anyway.  However, we do provide a flag
 // to the client callback function to inform of an over/underrun.
-//
-// The mechanism for querying and setting system parameters was
-// updated (and perhaps simplified) in OS-X version 10.4.  However,
-// since 10.4 support is not necessarily available to all users, I've
-// decided not to update the respective code at this time.  Perhaps
-// this will happen when Apple makes 10.4 free for everyone. :-)
 
 // A structure to hold various information related to the CoreAudio API
 // implementation.
@@ -418,9 +412,23 @@ struct CoreHandle {
     :deviceBuffer(0), drainCounter(0), internalDrain(false) { nStreams[0] = 1; nStreams[1] = 1; id[0] = 0; id[1] = 0; xrun[0] = false; xrun[1] = false; }
 };
 
-RtApiCore :: RtApiCore()
+RtApiCore:: RtApiCore()
 {
-  // Nothing to do here.
+#if defined( AVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER )
+  // This is a largely undocumented but absolutely necessary
+  // requirement starting with OS-X 10.6.  If not called, queries and
+  // updates to various audio device properties are not handled
+  // correctly.
+  CFRunLoopRef theRunLoop = NULL;
+  AudioObjectPropertyAddress property = { kAudioHardwarePropertyRunLoop,
+                                          kAudioObjectPropertyScopeGlobal,
+                                          kAudioObjectPropertyElementMaster };
+  OSStatus result = AudioObjectSetPropertyData( kAudioObjectSystemObject, &property, 0, NULL, sizeof(CFRunLoopRef), &theRunLoop);
+  if ( result != noErr ) {
+    errorText_ = "RtApiCore::RtApiCore: error setting run loop property!";
+    error( RtError::WARNING );
+  }
+#endif
 }
 
 RtApiCore :: ~RtApiCore()
@@ -732,7 +740,7 @@ OSStatus callbackHandler( AudioDeviceID inDevice,
     return kAudioHardwareNoError;
 }
 
-OSStatus deviceListener( AudioObjectID inDevice,
+OSStatus xrunListener( AudioObjectID inDevice,
                          UInt32 nAddresses,
                          const AudioObjectPropertyAddress properties[],
                          void* handlePointer )
@@ -747,6 +755,21 @@ OSStatus deviceListener( AudioObjectID inDevice,
     }
   }
 
+  return kAudioHardwareNoError;
+}
+
+OSStatus rateListener( AudioObjectID inDevice,
+                       UInt32 nAddresses,
+                       const AudioObjectPropertyAddress properties[],
+                       void* ratePointer )
+{
+
+  Float64 *rate = (Float64 *) ratePointer;
+  UInt32 dataSize = sizeof( Float64 );
+  AudioObjectPropertyAddress property = { kAudioDevicePropertyNominalSampleRate,
+                                          kAudioObjectPropertyScopeGlobal,
+                                          kAudioObjectPropertyElementMaster };
+  AudioObjectGetPropertyData( inDevice, &property, 0, NULL, &dataSize, rate );
   return kAudioHardwareNoError;
 }
 
@@ -924,33 +947,6 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
   stream_.bufferSize = *bufferSize;
   stream_.nBuffers = 1;
 
-  // Check and if necessary, change the sample rate for the device.
-  Float64 nominalRate;
-  dataSize = sizeof( Float64 );
-  property.mSelector = kAudioDevicePropertyNominalSampleRate;
-  result = AudioObjectGetPropertyData( id, &property, 0, NULL, &dataSize, &nominalRate );
-
-  if ( result != noErr ) {
-    errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting current sample rate.";
-    errorText_ = errorStream_.str();
-    return FAILURE;
-  }
-
-  // Only change the sample rate if off by more than 1 Hz.
-  if ( fabs( nominalRate - (double)sampleRate ) > 1.0 ) {
-    nominalRate = (Float64) sampleRate;
-    result = AudioObjectSetPropertyData( id, &property, 0, NULL, dataSize, &nominalRate );
-
-    if ( result != noErr ) {
-      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate for device (" << device << ").";
-      errorText_ = errorStream_.str();
-      return FAILURE;
-    }
-
-    // A slight pause seems necessary to allow the device to update its stream formats.
-    usleep(5000);
-  }
-
   // Try to set "hog" mode ... it's not clear to me this is working.
   if ( options && options->flags & RTAUDIO_HOG_DEVICE ) {
     pid_t hog_pid;
@@ -974,163 +970,159 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
     }
   }
 
-  // Get the stream ID(s) so we can set the stream format.
-  AudioStreamID streamIDs[ nStreams ];
-  dataSize = nStreams * sizeof( AudioStreamID );
-  property.mSelector = kAudioDevicePropertyStreams;
-  result = AudioObjectGetPropertyData( id, &property, 0, NULL, &dataSize, &streamIDs );
+  // Check and if necessary, change the sample rate for the device.
+  Float64 nominalRate;
+  dataSize = sizeof( Float64 );
+  property.mSelector = kAudioDevicePropertyNominalSampleRate;
+  result = AudioObjectGetPropertyData( id, &property, 0, NULL, &dataSize, &nominalRate );
 
   if ( result != noErr ) {
-    errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream ID(s) for device (" << device << ").";
+    errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting current sample rate.";
     errorText_ = errorStream_.str();
     return FAILURE;
   }
 
-  // Now set the stream format for each stream.  Also, check the
-  // physical format of the device and change that if necessary.
-  AudioStreamBasicDescription	description = {0};
-  dataSize = sizeof( AudioStreamBasicDescription );
+  // Only change the sample rate if off by more than 1 Hz.
+  if ( fabs( nominalRate - (double)sampleRate ) > 1.0 ) {
 
-  bool updateFormat;
-  for ( UInt32 i=0; i<streamCount; i++ ) {
-
-    property.mSelector = kAudioStreamPropertyVirtualFormat;
-    result = AudioObjectGetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, &dataSize, &description );
+    // Set a property listener for the sample rate change
+    Float64 reportedRate = 0.0;
+    AudioObjectPropertyAddress tmp = { kAudioDevicePropertyNominalSampleRate, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+    result = AudioObjectAddPropertyListener( id, &tmp, rateListener, (void *) &reportedRate );
     if ( result != noErr ) {
-      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream format for device (" << device << ").";
+      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate property listener for device (" << device << ").";
       errorText_ = errorStream_.str();
       return FAILURE;
     }
 
-    // Set the sample rate and data format id.  However, only make the
-    // change if the sample rate is not within 1.0 of the desired
-    // rate and the format is not linear pcm.
-    updateFormat = false;
-    if ( fabs( description.mSampleRate - (double)sampleRate ) > 1.0 ) {
-      description.mSampleRate = (double) sampleRate;
-      updateFormat = true;
-    }
+    nominalRate = (Float64) sampleRate;
+    result = AudioObjectSetPropertyData( id, &property, 0, NULL, dataSize, &nominalRate );
 
-    if ( description.mFormatID != kAudioFormatLinearPCM ) {
-      description.mFormatID = kAudioFormatLinearPCM;
-      updateFormat = true;
-    }
-
-    if ( updateFormat ) {
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &description );
-      if ( result != noErr ) {
-        errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate or data format for device (" << device << ").";
-        errorText_ = errorStream_.str();
-        return FAILURE;
-      }
-      //std::cout << "pausing after virtual format update ..." << std::endl;
-      usleep(5000);
-    }
-
-    // Now check the physical format.
-    property.mSelector = kAudioStreamPropertyPhysicalFormat;
-    result = AudioObjectGetPropertyData( streamIDs[firstStream+i], &property, 0, NULL,  &dataSize, &description );
     if ( result != noErr ) {
-      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream physical format for device (" << device << ").";
+      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate for device (" << device << ").";
       errorText_ = errorStream_.str();
       return FAILURE;
     }
 
-    //std::cout << "Current physical stream format:" << std::endl;
-    //std::cout << "   mBitsPerChan = " << description.mBitsPerChannel << ", isPacked = " << (description.mFormatFlags & kAudioFormatFlagIsPacked) << std::endl;
-    //std::cout << "   bytesPerFrame = " << description.mBytesPerFrame << std::endl;
-    //std::cout << "   sample rate = " << description.mSampleRate << std::endl;
+    // Now wait until the reported nominal rate is what we just set.
+    UInt32 microCounter = 0;
+    while ( reportedRate != nominalRate ) {
+      microCounter += 5000;
+      if ( microCounter > 5000000 ) break;
+      usleep( 5000 );
+    }
 
-    if ( description.mFormatID != kAudioFormatLinearPCM || description.mBitsPerChannel < 33 ) {
-      description.mFormatID = kAudioFormatLinearPCM;
-      description.mSampleRate = (double) sampleRate;
-      AudioStreamBasicDescription	testDescription = description;
-      UInt32 formatFlags;
+    // Remove the property listener.
+    AudioObjectRemovePropertyListener( id, &tmp, rateListener, (void *) &reportedRate );
 
-      // We'll try higher bit rates first and then work our way down.
-      //std::cout << "trying to set 32-bit float format" << std::endl;
-      testDescription.mBitsPerChannel = 32;
-      testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
-      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsFloat) & ~kLinearPCMFormatFlagIsSignedInteger;
-      formatFlags |= kAudioFormatFlagIsPacked;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result == noErr ) continue;
-
-      ////std::cout << "trying to set 32-bit int format" << std::endl;
-      testDescription = description;
-      testDescription.mBitsPerChannel = 32;
-      testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
-      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsSignedInteger) & ~kLinearPCMFormatFlagIsFloat;
-      formatFlags |= kAudioFormatFlagIsPacked;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result == noErr ) continue;
-
-      // Devices use different 24-bit formats, so we'll have to try several.
-      //std::cout << "trying 24-bit packed int format" << std::endl;
-      testDescription = description;
-      testDescription.mBitsPerChannel = 24;
-      testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
-      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      //formatFlags &= ~kAudioFormatFlagIsPacked;
-      //formatFlags &= ~kAudioFormatFlagIsAlignedHigh;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result == noErr ) continue;
-
-      // Try 24-bit in 4-byte words aligned low.
-      //std::cout << "trying 24-bit unpacked int (low) format" << std::endl;
-      testDescription.mBytesPerFrame =  4 * testDescription.mChannelsPerFrame;
-      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      formatFlags &= ~kAudioFormatFlagIsPacked;
-      formatFlags &= ~kAudioFormatFlagIsAlignedHigh;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result == noErr ) continue;
-
-      // Try 24-bit in 4-byte words aligned high.
-      //std::cout << "trying 24-bit unpacked int (high) format" << std::endl;
-      formatFlags |= kAudioFormatFlagIsAlignedHigh;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result == noErr ) continue;
-
-      //std::cout << "trying 16-bit int format" << std::endl;
-      testDescription = description;
-      testDescription.mBitsPerChannel = 16;
-      testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
-      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsSignedInteger) & ~kLinearPCMFormatFlagIsFloat;
-      formatFlags |= kAudioFormatFlagIsPacked;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result == noErr ) continue;
-
-      //std::cout << "trying 8-bit int format" << std::endl;
-      testDescription = description;
-      testDescription.mBitsPerChannel = 8;
-      testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
-      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
-      formatFlags |= kAudioFormatFlagIsPacked;
-      testDescription.mFormatFlags = formatFlags;
-      result = AudioObjectSetPropertyData( streamIDs[firstStream+i], &property, 0, NULL, dataSize, &testDescription );
-      if ( result != noErr ) {
-        errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting physical data format for device (" << device << ").";
-        errorText_ = errorStream_.str();
-        return FAILURE;
-      }
+    if ( microCounter > 5000000 ) {
+      errorStream_ << "RtApiCore::probeDeviceOpen: timeout waiting for sample rate update for device (" << device << ").";
+      errorText_ = errorStream_.str();
+      return FAILURE;
     }
   }
 
+  // Now set the stream format for all streams.  Also, check the
+  // physical format of the device and change that if necessary.
+  AudioStreamBasicDescription	description;
+  dataSize = sizeof( AudioStreamBasicDescription );
+  property.mSelector = kAudioStreamPropertyVirtualFormat;
+  result = AudioObjectGetPropertyData( id, &property, 0, NULL, &dataSize, &description );
+  if ( result != noErr ) {
+    errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream format for device (" << device << ").";
+    errorText_ = errorStream_.str();
+    return FAILURE;
+  }
 
-  // Get the stream latency.  There can be latency in both the device
-  // and the stream.  First, attempt to get the device latency on the
-  // master channel or the first open channel.  Errors that might
-  // occur here are not deemed critical.
+  // Set the sample rate and data format id.  However, only make the
+  // change if the sample rate is not within 1.0 of the desired
+  // rate and the format is not linear pcm.
+  bool updateFormat = false;
+  if ( fabs( description.mSampleRate - (Float64)sampleRate ) > 1.0 ) {
+    description.mSampleRate = (Float64) sampleRate;
+    updateFormat = true;
+  }
 
+  if ( description.mFormatID != kAudioFormatLinearPCM ) {
+    description.mFormatID = kAudioFormatLinearPCM;
+    updateFormat = true;
+  }
+
+  if ( updateFormat ) {
+    result = AudioObjectSetPropertyData( id, &property, 0, NULL, dataSize, &description );
+    if ( result != noErr ) {
+      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting sample rate or data format for device (" << device << ").";
+      errorText_ = errorStream_.str();
+      return FAILURE;
+    }
+  }
+
+  // Now check the physical format.
+  property.mSelector = kAudioStreamPropertyPhysicalFormat;
+  result = AudioObjectGetPropertyData( id, &property, 0, NULL,  &dataSize, &description );
+  if ( result != noErr ) {
+    errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream physical format for device (" << device << ").";
+    errorText_ = errorStream_.str();
+    return FAILURE;
+  }
+
+  //std::cout << "Current physical stream format:" << std::endl;
+  //std::cout << "   mBitsPerChan = " << description.mBitsPerChannel << std::endl;
+  //std::cout << "   aligned high = " << (description.mFormatFlags & kAudioFormatFlagIsAlignedHigh) << ", isPacked = " << (description.mFormatFlags & kAudioFormatFlagIsPacked) << std::endl;
+  //std::cout << "   bytesPerFrame = " << description.mBytesPerFrame << std::endl;
+  //std::cout << "   sample rate = " << description.mSampleRate << std::endl;
+
+  if ( description.mFormatID != kAudioFormatLinearPCM || description.mBitsPerChannel < 16 ) {
+    description.mFormatID = kAudioFormatLinearPCM;
+    //description.mSampleRate = (Float64) sampleRate;
+    AudioStreamBasicDescription	testDescription = description;
+    UInt32 formatFlags;
+
+    // We'll try higher bit rates first and then work our way down.
+    std::vector< std::pair<UInt32, UInt32>  > physicalFormats;
+    formatFlags = description.mFormatFlags | kLinearPCMFormatFlagIsFloat & ~kLinearPCMFormatFlagIsSignedInteger;
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 32, formatFlags ) );
+    formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked) & ~kLinearPCMFormatFlagIsFloat;
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 32, formatFlags ) );
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 24, formatFlags ) );   // 24-bit packed
+    formatFlags &= ~( kAudioFormatFlagIsPacked | kAudioFormatFlagIsAlignedHigh );
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 24.2, formatFlags ) ); // 24-bit in 4 bytes, aligned low
+    formatFlags |= kAudioFormatFlagIsAlignedHigh;
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 24.4, formatFlags ) ); // 24-bit in 4 bytes, aligned high
+    formatFlags = (description.mFormatFlags | kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked) & ~kLinearPCMFormatFlagIsFloat;
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 16, formatFlags ) );
+    physicalFormats.push_back( std::pair<Float32, UInt32>( 8, formatFlags ) );
+
+    bool setPhysicalFormat = false;
+    for( unsigned int i=0; i<physicalFormats.size(); i++ ) {
+      testDescription = description;
+      testDescription.mBitsPerChannel = (UInt32) physicalFormats[i].first;
+      testDescription.mFormatFlags = physicalFormats[i].second;
+      if ( (24 == (UInt32)physicalFormats[i].first) && ~( physicalFormats[i].second & kAudioFormatFlagIsPacked ) )
+        testDescription.mBytesPerFrame =  4 * testDescription.mChannelsPerFrame;
+      else
+        testDescription.mBytesPerFrame =  testDescription.mBitsPerChannel/8 * testDescription.mChannelsPerFrame;
+      testDescription.mBytesPerPacket = testDescription.mBytesPerFrame * testDescription.mFramesPerPacket;
+      result = AudioObjectSetPropertyData( id, &property, 0, NULL, dataSize, &testDescription );
+      if ( result == noErr ) {
+        setPhysicalFormat = true;
+        //std::cout << "Updated physical stream format:" << std::endl;
+        //std::cout << "   mBitsPerChan = " << testDescription.mBitsPerChannel << std::endl;
+        //std::cout << "   aligned high = " << (testDescription.mFormatFlags & kAudioFormatFlagIsAlignedHigh) << ", isPacked = " << (testDescription.mFormatFlags & kAudioFormatFlagIsPacked) << std::endl;
+        //std::cout << "   bytesPerFrame = " << testDescription.mBytesPerFrame << std::endl;
+        //std::cout << "   sample rate = " << testDescription.mSampleRate << std::endl;
+        break;
+      }
+    }
+
+    if ( !setPhysicalFormat ) {
+      errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") setting physical data format for device (" << device << ").";
+      errorText_ = errorStream_.str();
+      return FAILURE;
+    }
+  } // done setting virtual/physical formats.
+
+  // Get the stream / device latency.
   UInt32 latency;
   dataSize = sizeof( UInt32 );
   property.mSelector = kAudioDevicePropertyLatency;
@@ -1142,16 +1134,6 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
       errorText_ = errorStream_.str();
       error( RtError::WARNING );
     }
-  }
-
-  // Now try to get the stream latency.  For multiple streams, I assume the
-  // latency is equal for each.
-  result = AudioObjectGetPropertyData( streamIDs[firstStream], &property, 0, NULL, &dataSize, &latency );
-  if ( result == kAudioHardwareNoError ) stream_.latency[ mode ] += latency;
-  else {
-    errorStream_ << "RtApiCore::probeDeviceOpen: system error (" << getErrorCode( result ) << ") getting stream latency for device (" << device << ").";
-    errorText_ = errorStream_.str();
-    error( RtError::WARNING );
   }
 
   // Byte-swapping: According to AudioHardware.h, the stream data will
@@ -1216,7 +1198,8 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
   unsigned long bufferBytes;
   bufferBytes = stream_.nUserChannels[mode] * *bufferSize * formatBytes( stream_.userFormat );
   //  stream_.userBuffer[mode] = (char *) calloc( bufferBytes, 1 );
-  stream_.userBuffer[mode] = (char *) malloc( bufferBytes );
+  stream_.userBuffer[mode] = (char *) malloc( bufferBytes * sizeof(char) );
+  memset( stream_.userBuffer[mode], 0, bufferBytes * sizeof(char) );
   if ( stream_.userBuffer[mode] == NULL ) {
     errorText_ = "RtApiCore::probeDeviceOpen: error allocating user buffer memory.";
     goto error;
@@ -1281,7 +1264,7 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
 
   // Setup the device property listener for over/underload.
   property.mSelector = kAudioDeviceProcessorOverload;
-  result = AudioObjectAddPropertyListener( id, &property, deviceListener, (void *) handle );
+  result = AudioObjectAddPropertyListener( id, &property, xrunListener, (void *) handle );
 
   return SUCCESS;
 
@@ -2782,15 +2765,14 @@ bool RtApiAsio :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
     return FAILURE;
   }
 
-  // The getDeviceInfo() function will not work when a stream is open
-  // because ASIO does not allow multiple devices to run at the same
-  // time.  Thus, we'll probe the system before opening a stream and
-  // save the results for use by getDeviceInfo().
-  //this->saveDeviceInfo();
-
   // Only load the driver once for duplex stream.
   if ( mode != INPUT || stream_.mode != OUTPUT ) {
+    // The getDeviceInfo() function will not work when a stream is open
+    // because ASIO does not allow multiple devices to run at the same
+    // time.  Thus, we'll probe the system before opening a stream and
+    // save the results for use by getDeviceInfo().
     this->saveDeviceInfo();
+
     if ( !drivers.loadDriver( driverName ) ) {
       errorStream_ << "RtApiAsio::probeDeviceOpen: unable to load driver (" << driverName << ").";
       errorText_ = errorStream_.str();
@@ -3679,9 +3661,12 @@ unsigned int RtApiDs :: getDeviceCount( void )
   }
 
   // Clean out any devices that may have disappeared.
-  std::vector< DsDevice > :: iterator it;
-  for ( it=dsDevices.begin(); it < dsDevices.end(); it++ )
-    if ( it->found == false ) dsDevices.erase( it );
+  std::vector< int > indices;
+  for ( unsigned int i=0; i<dsDevices.size(); i++ )
+    if ( dsDevices[i].found == false ) indices.push_back( i );
+  for ( unsigned int nErased=0, unsigned int i=0; i<indices.size(); i++, nErased++ ) {
+    dsDevices.erase( dsDevices.begin()-nErased );
+  }
 
   return dsDevices.size();
 }
@@ -3845,7 +3830,7 @@ RtAudio::DeviceInfo RtApiDs :: getDeviceInfo( unsigned int device )
     }
     if ( found == false ) info.sampleRates.push_back( rates[i] );
   }
-  sort( info.sampleRates.begin(), info.sampleRates.end() );
+  std::sort( info.sampleRates.begin(), info.sampleRates.end() );
 
   // If device opens for both playback and capture, we determine the channels.
   if ( info.outputChannels > 0 && info.inputChannels > 0 )
@@ -4796,7 +4781,7 @@ void RtApiDs :: callbackEvent()
       // safeWritePointer and leadPointer.  If leadPointer is not
       // beyond the next endWrite position, wait until it is.
       leadPointer = safeWritePointer + handle->dsPointerLeadTime[0];
-      ////std::cout << "safeWritePointer = " << safeWritePointer << ", leadPointer = " << leadPointer << ", nextWritePointer = " << nextWritePointer << std::endl;
+      //std::cout << "safeWritePointer = " << safeWritePointer << ", leadPointer = " << leadPointer << ", nextWritePointer = " << nextWritePointer << std::endl;
       if ( leadPointer > dsBufferSize ) leadPointer -= dsBufferSize;
       if ( leadPointer < nextWritePointer ) leadPointer += dsBufferSize; // unwrap offset
       endWrite = nextWritePointer + bufferBytes;
@@ -5010,16 +4995,12 @@ extern "C" unsigned __stdcall callbackHandler( void *ptr )
 
 std::string convertTChar( LPCTSTR name )
 {
-  std::string s;
-
 #if defined( UNICODE ) || defined( _UNICODE )
-  // Yes, this conversion doesn't make sense for two-byte characters
-  // but RtAudio is currently written to return an std::string of
-  // one-byte chars for the device name.
-  for ( unsigned int i=0; i<wcslen( name ); i++ )
-    s.push_back( name[i] );
+  int length = WideCharToMultiByte(CP_UTF8, 0, name, -1, NULL, 0, NULL, NULL);
+  std::string s( length, 0 );
+  length = WideCharToMultiByte(CP_UTF8, 0, name, wcslen(name), &s[0], length, NULL, NULL);
 #else
-  s.append( std::string( name ) );
+  std::string s( name );
 #endif
 
   return s;
@@ -5169,10 +5150,11 @@ struct AlsaHandle {
   snd_pcm_t *handles[2];
   bool synchronized;
   bool xrun[2];
-  pthread_cond_t runnable;
+  pthread_cond_t runnable_cv;
+  bool runnable;
 
   AlsaHandle()
-    :synchronized(false) { xrun[0] = false; xrun[1] = false; }
+    :synchronized(false), runnable(false) { xrun[0] = false; xrun[1] = false; }
 };
 
 extern "C" void *alsaCallbackHandler( void * ptr );
@@ -5860,7 +5842,7 @@ bool RtApiAlsa :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
       goto error;
     }
 
-    if ( pthread_cond_init( &apiInfo->runnable, NULL ) ) {
+    if ( pthread_cond_init( &apiInfo->runnable_cv, NULL ) ) {
       errorText_ = "RtApiAlsa::probeDeviceOpen: error initializing pthread condition variable.";
       goto error;
     }
@@ -5973,7 +5955,7 @@ bool RtApiAlsa :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
 
  error:
   if ( apiInfo ) {
-    pthread_cond_destroy( &apiInfo->runnable );
+    pthread_cond_destroy( &apiInfo->runnable_cv );
     if ( apiInfo->handles[0] ) snd_pcm_close( apiInfo->handles[0] );
     if ( apiInfo->handles[1] ) snd_pcm_close( apiInfo->handles[1] );
     delete apiInfo;
@@ -6006,8 +5988,10 @@ void RtApiAlsa :: closeStream()
   AlsaHandle *apiInfo = (AlsaHandle *) stream_.apiHandle;
   stream_.callbackInfo.isRunning = false;
   MUTEX_LOCK( &stream_.mutex );
-  if ( stream_.state == STREAM_STOPPED )
-    pthread_cond_signal( &apiInfo->runnable );
+  if ( stream_.state == STREAM_STOPPED ) {
+    apiInfo->runnable = true;
+    pthread_cond_signal( &apiInfo->runnable_cv );
+  }
   MUTEX_UNLOCK( &stream_.mutex );
   pthread_join( stream_.callbackInfo.thread, NULL );
 
@@ -6020,7 +6004,7 @@ void RtApiAlsa :: closeStream()
   }
 
   if ( apiInfo ) {
-    pthread_cond_destroy( &apiInfo->runnable );
+    pthread_cond_destroy( &apiInfo->runnable_cv );
     if ( apiInfo->handles[0] ) snd_pcm_close( apiInfo->handles[0] );
     if ( apiInfo->handles[1] ) snd_pcm_close( apiInfo->handles[1] );
     delete apiInfo;
@@ -6087,9 +6071,9 @@ void RtApiAlsa :: startStream()
   stream_.state = STREAM_RUNNING;
 
  unlock:
+  apiInfo->runnable = true;
+  pthread_cond_signal( &apiInfo->runnable_cv );
   MUTEX_UNLOCK( &stream_.mutex );
-
-  pthread_cond_signal( &apiInfo->runnable );
 
   if ( result >= 0 ) return;
   error( RtError::SYSTEM_ERROR );
@@ -6195,7 +6179,9 @@ void RtApiAlsa :: callbackEvent()
   AlsaHandle *apiInfo = (AlsaHandle *) stream_.apiHandle;
   if ( stream_.state == STREAM_STOPPED ) {
     MUTEX_LOCK( &stream_.mutex );
-    pthread_cond_wait( &apiInfo->runnable, &stream_.mutex );
+    while ( !apiInfo->runnable )
+      pthread_cond_wait( &apiInfo->runnable_cv, &stream_.mutex );
+
     if ( stream_.state != STREAM_RUNNING ) {
       MUTEX_UNLOCK( &stream_.mutex );
       return;
