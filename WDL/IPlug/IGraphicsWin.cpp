@@ -199,20 +199,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
 			return 0;
 			
-                   /*
-	case WM_RBUTTONDOWN: {
-			if (pGraphics->mParamEditWnd) {
-				pGraphics->mParamEditMsg = kCancel;
-				return 0;
-			}
-			// Else fall through.
-    }
-    case WM_LBUTTONDOWN: {
-			if (pGraphics->mParamEditWnd) pGraphics->mParamEditMsg = kCommit;
-			SetCapture(hWnd);
-			pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
-			return 0;
-    }*/
     case WM_MOUSEMOVE: { 
 			if (!(wParam & (MK_LBUTTON | MK_RBUTTON))) { 
         if (pGraphics->OnMouseOver(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam))) {

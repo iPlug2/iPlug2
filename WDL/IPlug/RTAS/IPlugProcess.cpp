@@ -242,6 +242,13 @@ long IPlugProcess::GetControlDefaultValue(long aControlIndex, long* aValue)
 //    return noErr;
 //}
 
+//Boolean IPlugProcess::HandleKeystroke(EventRecord *theEvent) 
+//{
+//	bool usedEvent = false;
+//
+//	return usedEvent;
+//}
+
 int IPlugProcess::ProcessTouchControl (long aControlIndex)
 {
   return (int)CProcess::TouchControl(aControlIndex);

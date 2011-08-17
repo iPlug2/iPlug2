@@ -41,6 +41,7 @@
 #define DUMMY_COCOA_VIEW CONCAT(DummyCocoaView_)
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 
+
 class IGraphicsMac : public IGraphics
 {
 public:
@@ -64,7 +65,8 @@ public:
   
   void AttachSubWindow(void* hostWindowRef);
   void RemoveSubWindow();
-  
+  //void ForwardKeyEventToHost();
+
 	void CloseWindow();
 	bool WindowIsOpen();
   void Resize(int w, int h);

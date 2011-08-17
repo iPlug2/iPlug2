@@ -31,6 +31,28 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   return IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 }
 
+#ifdef RTAS_API
+// super hack - used to find the ProTools Edit window and forward key events there
+static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exact)
+{
+  WindowRef tref = GetFrontWindowOfClass(wcl,FALSE);
+	for(int i = 0; tref; ++i) {
+		char buf[256];
+		CFStringRef cfstr;
+		CopyWindowTitleAsCFString(tref,&cfstr);
+		if(cfstr && CFStringGetCString(cfstr,buf,sizeof buf-1,kCFStringEncodingASCII)) 
+		{
+      if(exact? 
+         strcmp(buf,s) == 0: 
+         strstr(buf,s) != NULL
+         ) break;
+		}
+		tref = GetNextWindowOfClass(tref,wcl,FALSE);
+	} 
+	return tref;
+}
+#endif
+
 @implementation IGRAPHICS_COCOA
 
 - (id) init
@@ -39,6 +61,8 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   
   mGraphics = 0;
   mTimer = 0;
+  mPrevX = 0;
+  mPrevY = 0;
   return self;
 }
 
@@ -109,6 +133,8 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 		NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
 		*pX = (int) pt.x - 2;
 		*pY = mGraphics->Height() - (int) pt.y - 3;
+    mPrevX = *pX;
+    mPrevY = *pY;
 	}
 }
 
@@ -205,7 +231,6 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 	{
 	  int x, y;
 	  [self getMouseXY:pEvent x:&x y:&y];
-	
 	  IMouseMod ms = GetMouseMod(pEvent);
 	  mGraphics->OnMouseOver(x, y, &ms);
 	}
@@ -234,13 +259,23 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
     else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
     else handle = false;
     
-    if (handle) {
-      int x, y;
-      [self getMouseXY:pEvent x:&x y:&y];
-      mGraphics->OnKeyDown(x, y, key);
+    if (handle) {      
+      // can't use getMouseXY because its a key event
+      handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
     }
-    else {
+    
+    if (!handle)
+    {
+#ifdef RTAS_API
+      // TODO: fix this super hack - and why does it work when there is no edit window... is it hidden?
+      WindowRef root = FindNamedCarbonWindow(kAllWindowClasses, "Edit:" , false);
+      ActivateWindow(root, true);
+      EventRef carbonEvent = (EventRef) [pEvent eventRef];
+      SendEventToWindow(carbonEvent, root);
+#else
       [[self nextResponder] keyDown:pEvent];
+#endif
+      //mGraphics->ForwardKeyEventToHost();
     }
   }
 } 
@@ -438,6 +473,9 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 {
   [mTextFieldView setDelegate: nil];
   [mTextFieldView removeFromSuperview];
+  
+  NSWindow* pWindow = [self window];
+  [pWindow makeFirstResponder: self];
 	
   mTextFieldView = 0;
   mEdControl = 0;

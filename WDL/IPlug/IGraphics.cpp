@@ -825,12 +825,16 @@ void IGraphics::ReleaseMouseCapture()
 	mMouseCapture = mMouseX = mMouseY = -1;
 }
 
-void IGraphics::OnKeyDown(int x, int y, int key)
+bool IGraphics::OnKeyDown(int x, int y, int key)
 {
 	int c = GetMouseControlIdx(x, y);
 	if (c >= 0) {
-		mControls.Get(c)->OnKeyDown(x, y, key);
+		return mControls.Get(c)->OnKeyDown(x, y, key);
 	}
+  else {
+    return false;
+  }
+
 }
 
 int IGraphics::GetMouseControlIdx(int x, int y, bool mo)

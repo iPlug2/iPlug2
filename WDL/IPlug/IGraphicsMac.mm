@@ -186,6 +186,8 @@ void IGraphicsMac::AttachSubWindow (void* hostWindowRef)
   [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
   [hostWindow orderFront: nil];
   [childWindow orderFront: nil];  
+  
+  mHostNSWindow = (void*) hostWindow;
 }
 
 void IGraphicsMac::RemoveSubWindow ()
@@ -195,7 +197,7 @@ void IGraphicsMac::RemoveSubWindow ()
   NSWindow* hostWindow = (NSWindow*) mHostNSWindow;
   NSArray* childWindows = [hostWindow childWindows];
   NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
-  
+    
   CloseWindow();
   
   [childWindow orderOut:nil];
@@ -204,13 +206,6 @@ void IGraphicsMac::RemoveSubWindow ()
   [hostWindow removeChildWindow: childWindow];
   [hostWindow close];
 }
-
-//void forwardKeyEventToHost(void* cocoaHostWindow)
-//{
-//  NSWindow* hostWindow = (NSWindow*) cocoaHostWindow;
-//  [hostWindow makeKeyWindow];
-//  [NSApp postEvent: [NSApp currentEvent] atStart: YES];
-//}
 
 void IGraphicsMac::CloseWindow()
 {
