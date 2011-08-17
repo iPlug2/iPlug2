@@ -54,8 +54,18 @@ public:
     if (CSTR_NOT_EMPTY(disp)) {
       return pGraphics->DrawIText(&mText, disp, &mTextRECT);
     }
-    
     return true;
+  }
+  
+  bool OnKeyDown(int x, int y, int key)
+  {
+    switch (key) {
+      case KEY_SPACE:
+        printf("space bar handled\n");
+        return true;
+      default:
+        return false;
+    }
   }
   
 	void OnMouseDown(int x, int y, IMouseMod* pMod)
