@@ -216,8 +216,16 @@ bool IPlugCustomUI::Open(void *winPtr)
     return false;
   }
 
-  //TODO: fix name collision
-  //ShowWindow(mLocalPIWin, SW_SHOWNORMAL); 
+  #ifdef ShowWindow
+    #define tempShowWindow ShowWindow
+    #undef ShowWindow
+  #endif
+      ShowWindow(mLocalPIWin, SW_SHOWNORMAL);
+  #ifdef tempShowWindow
+    #define ShowWindow tempShowWindow
+    #undef tempShowWindow
+  #endif
+
   InvalidateRect(mLocalPIWin,NULL,false);
   UpdateWindow(mLocalPIWin);
 
