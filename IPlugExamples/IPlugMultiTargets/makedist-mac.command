@@ -34,7 +34,7 @@ echo ""
 #remove existing App
 if [ -d $APP ] 
 then
-  rm -R $APP
+  rm -R -f $APP
 fi
 
 #remove existing AU
@@ -72,30 +72,32 @@ echo "building plugins only installer"
 echo ""
 freeze installer/IPlugMultiTargets-plugins.packproj
 mv installer/build-mac/install-plugins.pkg /Applications/IPlugMultiTargets.app/Contents/Resources/install-plugins.pkg
+cp installer/changelog.txt /Applications/IPlugMultiTargets.app/Contents/Resources/changelog.txt
 
 echo "code signing app"
 echo ""
-codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" "$APP"
+codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
  
 echo "building pkg for app store"
 productbuild \
      --component $APP /Applications \
      --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
-     --product "$APP/Contents/Info.plist" installer/IPlugMultiTargets.pkg
+     --product "/Applications/IPlugMultiTargets.app/Contents/Info.plist" installer/IPlugMultiTargets.pkg
 
-# installer stuff, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
+# installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
-rm -R -f /Applications/IPlugMultiTargets.app/Contents/Resources/install-plugins.pkg
+#rm -R -f /Applications/IPlugMultiTargets.app/Contents/Resources/install-plugins.pkg
+rm -R -f installer/IPlugMultiTargets-mac.dmg
 
 echo "building all installer"
 echo ""
 freeze installer/IPlugMultiTargets-all.packproj
 
+# dmg, uses dmgcanvas http://www.araelium.com/dmgcanvas/
+
 echo "building dmg"
 echo ""
-rm -R -f installer/IPlugMultiTargets-mac.dmg
-hdiutil create installer/IPlugMultiTargets-mac.dmg -volname IPlugMultiTargets -srcfolder installer/build-mac/ -ov -anyowners
-#hdiutil convert installer/IPlugMultiTargets-mac.dmg -format UDZO -o installer/IPlugMultiTargets-mac.dmg
+dmgcanvas installer/IPlugMultiTargets.dmgCanvas installer/IPlugMultiTargets-mac.dmg
 
 rm -R -f installer/build-mac/
 
