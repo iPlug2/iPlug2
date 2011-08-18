@@ -20,28 +20,28 @@ def main():
 	vst2 = plistlib.readPlist(plistpath)
 	vst2['CFBundleGetInfoString'] = CFBundleGetInfoString
 	vst2['CFBundleVersion'] = CFBundleVersion
-
+	vst2['CFBundleShortVersionString'] = CFBundleVersion
 	plistlib.writePlist(vst2, plistpath)
 	
 	plistpath = scriptpath + "/resources/IPlugMultiTargets-AU-Info.plist"
 	au = plistlib.readPlist(plistpath)
 	au['CFBundleGetInfoString'] = CFBundleGetInfoString
 	au['CFBundleVersion'] = CFBundleVersion
-
+	au['CFBundleShortVersionString'] = CFBundleVersion
 	plistlib.writePlist(au, plistpath)
 	
 	plistpath = scriptpath + "/resources/IPlugMultiTargets-OSXAPP-Info.plist"
 	app = plistlib.readPlist(plistpath)
 	app['CFBundleGetInfoString'] = CFBundleGetInfoString
 	app['CFBundleVersion'] = CFBundleVersion
-
+	app['CFBundleShortVersionString'] = CFBundleVersion
 	plistlib.writePlist(app, plistpath)
 	
 	plistpath = scriptpath + "/resources/IPlugMultiTargets-IOSAPP-Info.plist"
 	iosapp = plistlib.readPlist(plistpath)
 	iosapp['CFBundleGetInfoString'] = CFBundleGetInfoString
 	iosapp['CFBundleVersion'] = CFBundleVersion
-
+	iosapp['CFBundleShortVersionString'] = CFBundleVersion
 	plistlib.writePlist(iosapp, plistpath)
 
 	plistpath = scriptpath + "/installer/IPlugMultiTargets-plugins.packproj"
