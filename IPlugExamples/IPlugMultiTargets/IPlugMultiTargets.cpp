@@ -22,7 +22,7 @@ enum EParams
  // kMode,
   kNumParams
 };
-
+#ifndef OS_IOS
 class IKnobMultiControlText : public IKnobControl  
 {
 private:
@@ -98,7 +98,7 @@ public:
   }
   
 };
-
+#endif
 IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), 
   mGainL(1.),

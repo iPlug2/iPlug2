@@ -37,3 +37,4 @@
 #define ENABLE_ACTIVE_SENSING 0
 #define NUM_CHANNELS 2
 #define N_VECTOR_WAIT 50
+#define APP_MULT 0.25
