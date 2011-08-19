@@ -238,8 +238,8 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
   UInt32 eventClass = GetEventClass(pEvent);
   UInt32 eventKind = GetEventKind(pEvent);
 
-//  switch (eventClass)
-//  {
+  switch (eventClass)
+  {
 //    case kEventClassControl:
 //		{
 //			switch (eventKind)
