@@ -7,14 +7,14 @@ scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 def main():
 	p = optparse.OptionParser()
-	p.add_option('--major', '-b', default="1")
+	p.add_option('--major', '-b', default="0")
 	p.add_option('--minor', '-s', default="0")
 	p.add_option('--bug', '-t', default="0")
 	o, arguments = p.parse_args()
 	
-	CFBundleGetInfoString = o.major + ".0." + o.minor + ", Copyright DEFAULT_MFR, 2011"
-	CFBundleVersion = o.major + ".0." + o.minor
-	FullVersion = o.major + ".0." + o.minor + "." + o.bug
+	FullVersion = o.major + "." + o.minor + "." + o.bug
+	CFBundleGetInfoString = FullVersion + ", Copyright DEFAULT_MFR, 2011"
+	CFBundleVersion = FullVersion
 	
 	plistpath = scriptpath + "/resources/IPlugMultiTargets-VST2-Info.plist"
 	vst2 = plistlib.readPlist(plistpath)

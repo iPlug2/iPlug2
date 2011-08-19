@@ -598,7 +598,7 @@
 						<key>IFPkgDescriptionTitle</key>
 						<string>IPlugMultiTargets</string>
 						<key>IFPkgDescriptionVersion</key>
-						<string>1.0.0.0</string>
+						<string>1.0.0</string>
 					</dict>
 				</dict>
 				<key>Display Information</key>

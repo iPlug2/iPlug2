@@ -1,6 +1,5 @@
 iplug-todo
 
-RTAS - sidechain support
 RTAS WIN - alt modifier lost
 RTAS WIN - disappearing guis when two IPlug Plugins are loaded and one is deleted
 RTAS - default PT behaviour for IControls
@@ -13,8 +12,7 @@ RTAS - presets list
 ALL - resource importing like cinder
 ALL - text entry dimensions
 ALL - freetype based font renderer, import .ttf files
-ALL - keyboard input
-ALL - text entry formatters
+ALL - test keyboard input
 ALL - submenus
 ALL OSX - cocoa window overlay instead of carbon in 32bit vst / AU 
 

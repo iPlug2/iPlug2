@@ -15,7 +15,7 @@
 #define VIEW_CLASS IPlugMultiTargets_View
 #define VIEW_CLASS_STR "IPlugMultiTargets_View"
 
-// Format        0xMAJR.MN.BG
+// Format        0xMAJR.MN.BG - in HEX! so version 10.1.5 would be 0x000A0105
 #define PLUG_VER 0x00010000
 
 // http://service.steinberg.de/databases/plugin.nsf/plugIn?openForm
@@ -29,9 +29,16 @@
 #define PLUG_NAME_DIGI "IPlugMultiTargets\nIPMT"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 
-#define PLUG_CHANNEL_IO "2-2"
+//#define PLUG_CHANNEL_IO "2-2 4-2"
+#define PLUG_CHANNEL_IO "1-2 2-2"
 
-#define PLUG_SC_CHANS 1 // TODO: PT only has mono sc, but au is different?
+// PLUG_SC_CHANS defines the number of inputs in the PLUG_CHANNEL_IO that should be considered sidechain inputs.
+// PT can only have a mono sidechain. If PLUG_SC_CHANS > 1 then an audiounit will have one sidechain input with PLUG_SC_CHANS channels
+// audiounit effects only
+
+// TODO: sort this PLUG_SC_CHANS mess out with aus and rtas
+
+#define PLUG_SC_CHANS 1
 #define PLUG_LATENCY 0
 #define PLUG_IS_INST 0
 #define PLUG_DOES_MIDI 1

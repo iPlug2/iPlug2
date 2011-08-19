@@ -7,9 +7,11 @@ cd $BASEDIR
 VERSION=`echo | grep PLUG_VER resource.h`
 VERSION=${VERSION//\#define PLUG_VER }
 VERSION=${VERSION//\'}
-MAJOR_VERSION=${VERSION:5:1}
-MINOR_VERSION=${VERSION:7:1}
-BUG_FIX=${VERSION:8:2}
+MAJOR_VERSION=$(($VERSION & 0xFFFF0000))
+MAJOR_VERSION=$(($MAJOR_VERSION >> 16)) 
+MINOR_VERSION=$(($VERSION & 0x0000FF00))
+MINOR_VERSION=$(($MINOR_VERSION >> 8)) 
+BUG_FIX=$(($VERSION & 0x000000FF))
 
 VST2="/Library/Audio/Plug-Ins/VST/IPlugMultiTargets.vst"
 APP="/Applications/IPlugMultiTargets.app"
@@ -58,8 +60,7 @@ fi
 xcodebuild -project IPlugMultiTargets.xcodeproj -xcconfig IPlugMultiTargets.xcconfig -target "All" -configuration Release
 #xcodebuild -project IPlugMultiTargets-ios.xcodeproj -xcconfig IPlugMultiTargets.xcconfig -target "IOSAPP" -configuration Release
 
-#icon stuff
-
+#icon stuff - http://maxao.free.fr/telechargements/setfileicon.gz
 echo "setting icons"
 echo ""
 setfileicon resources/IPlugMultiTargets.icns $AUDIOUNIT
