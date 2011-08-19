@@ -334,18 +334,33 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
   if (pGraphics && pGraphics->mParamEditWnd && pGraphics->mParamEditWnd == hWnd) 
   {
     switch (msg) {
-      case WM_KEYDOWN: {
-
-        //bool ok = true;
-        //int key;     
-      
+      case WM_CHAR: {
         // limit to numbers for text entry on appropriate parameters
-//       if(pGraphics->mEdParam && pGraphics->mParamEditWnd && pGraphics->mEdParam->Type() != IParam::kTypeEnum || pGraphics->mEdParam->Type() == IParam::kTypeBool )
-//       {
-//         if (wParam >= '0' && wParam <= '9') return 0;
-//         else return 1;
-//      }
+        if(pGraphics->mEdParam) {
+	        char c = wParam;
 
+          if(c == 0x08) break; // backspace
+
+	        switch ( pGraphics->mEdParam->Type() ) 
+	        {
+	          case IParam::kTypeEnum:
+	          case IParam::kTypeInt:
+		          if (c >= '0' && c <= '9') break;
+		          else return 0;
+	          case IParam::kTypeBool:
+		          if (c == '0' || c == '1') break;
+		          else return 0;
+	          case IParam::kTypeDouble:
+		          if (c >= '0' && c <= '9') break;
+		          else if (c == '.') break;
+		          else return 0;
+	          default:
+		          break;
+	        }
+        }
+        break; 
+      }
+      case WM_KEYDOWN: {
         if (wParam == VK_RETURN) {
           pGraphics->mParamEditMsg = kCommit;
           return 0;
