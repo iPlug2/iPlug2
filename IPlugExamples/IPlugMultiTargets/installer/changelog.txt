@@ -2,9 +2,3 @@ IPlugMultiTargets changelog
 www.olilarkin.co.uk
 
 00/00/00 - v1.00 initial release
-
-known issues
-
-- [WIN, STANDALONE] when changing to ASIO driver on some systems app hangs
-
-
