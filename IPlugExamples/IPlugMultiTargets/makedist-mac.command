@@ -8,7 +8,7 @@ VERSION=`echo | grep PLUG_VER resource.h`
 VERSION=${VERSION//\#define PLUG_VER }
 VERSION=${VERSION//\'}
 MAJOR_VERSION=${VERSION:5:1}
-MINOR_VERSION=${VERSION:6:2}
+MINOR_VERSION=${VERSION:7:1}
 BUG_FIX=${VERSION:8:2}
 
 VST2="/Library/Audio/Plug-Ins/VST/IPlugMultiTargets.vst"

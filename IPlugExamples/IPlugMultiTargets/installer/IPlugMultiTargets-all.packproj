@@ -598,13 +598,13 @@
 						<key>IFPkgDescriptionTitle</key>
 						<string>IPlugMultiTargets</string>
 						<key>IFPkgDescriptionVersion</key>
-						<string>1.00.00</string>
+						<string>1.0.0.0</string>
 					</dict>
 				</dict>
 				<key>Display Information</key>
 				<dict>
 					<key>CFBundleGetInfoString</key>
-					<string>1.00, Copyright DEFAULT_MFR, 2011</string>
+					<string>1.0.0, Copyright DEFAULT_MFR, 2011</string>
 					<key>CFBundleIconFile</key>
 					<string>../Resources/IPlugMultiTargets.icns</string>
 					<key>CFBundleIconFile Path Type</key>
@@ -614,7 +614,7 @@
 					<key>CFBundleName</key>
 					<string>IPlugMultiTargets</string>
 					<key>CFBundleShortVersionString</key>
-					<string>1.00</string>
+					<string>1.0.0</string>
 				</dict>
 				<key>Options</key>
 				<dict>
