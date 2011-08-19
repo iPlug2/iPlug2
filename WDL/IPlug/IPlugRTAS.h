@@ -22,9 +22,6 @@ public:
         bool plugDoesMidi = false, bool plugDoesChunks = false, 
         bool plugIsInst = false, int plugScChans = 0);
   
-  // ----------------------------------------
-  // See IPlugBase for the full list of methods that your plugin class can implement.
-  
   void BeginInformHostOfParamChange(int idx);
   void InformHostOfParamChange(int idx, double normalizedValue);
   void EndInformHostOfParamChange(int idx);
@@ -41,24 +38,16 @@ public:
                double *pCycleStart,double *pCycleEnd,
                bool *pTransportRunning,bool *pTransportCycle) { return; };
   
-  // Tell the host that the graphics resized.
-  // Should be called only by the graphics object when it resizes itself.
   void ResizeGraphics(int w, int h);
   
   void Created(class IPlugProcessRTAS *r);
   class IPlugProcessRTAS *mRTAS;
   
-  void ProcessAudio(float** inputs, float** outputs, float** sidechain, int nFrames);
+  void ProcessAudio(float** inputs, float** outputs, int nFrames);
   
   void SetNumInputs(int nInputs); 
   void SetNumOutputs(int nOutputs);
-  void SetNumSideChainInputs(int nSideChainInputs);
-  void SetSideChainConnectionNum(int connectionNum);
-
-  int GetNumInputs() { return mNumInputs; }
-  int GetNumOutputs() { return mNumOutputs; }
-  int GetNumSideChainInputs() { return mNumSideChainInputs; }
-  int GetSideChainConnectionNum() { return mSideChainConnectionNum; }
+  void SetSideChainConnected(bool connected);
 
   bool PluginDoesStateChunks() { return DoesStateChunks(); }
   
@@ -73,9 +62,7 @@ protected:
   
 private:
   bool mDoesMidi;
-  int mNumInputs;
-  int mNumOutputs;
-  int mNumSideChainInputs;
+  bool mHasSideChain, mSideChainIsConnected;
   int mSideChainConnectionNum;
 };
 

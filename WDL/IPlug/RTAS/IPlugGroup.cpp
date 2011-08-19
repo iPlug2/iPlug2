@@ -111,7 +111,7 @@ void IPlugGroup::CreateEffectTypes(void)
   char *channelIOStr = PLUG_CHANNEL_IO;
   
   int ioConfigIdx = 0;
-  int nSIn = PLUG_SC_CHANS;
+  int nSIn = (PLUG_SC_CHANS > 0); // force it to 1
   
   while (channelIOStr) 
   {
@@ -119,6 +119,8 @@ void IPlugGroup::CreateEffectTypes(void)
 
     if (sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2)    
     {
+      nIn -= nSIn;
+      
       OSType typeId = plugid + ioConfigIdx;
       
       CEffectType* RTAS = new CEffectTypeRTAS(typeId, productID, category);
@@ -130,7 +132,7 @@ void IPlugGroup::CreateEffectTypes(void)
       RTAS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
       RTAS->AttachEffectProcessCreator(NewProcessRTAS);
                                
-      if (nSIn >= 1)
+      if (nSIn)
         RTAS->AddGestalt(pluginGestalt_SideChainInput);
       
       AddEffectType (RTAS);

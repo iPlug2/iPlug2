@@ -291,12 +291,6 @@ long IPlugCustomUI::UpdateGraphicControl(long index, long value)
   return 0; //no error
 }
 
-void IPlugCustomUI::Idle()
-{
-  if( mGraphics )
-    mGraphics->OnGUIIdle();
-}
-
 void IPlugCustomUI::SetControlHighlight(long controlIndex, short isHighlighted, short color)
 {
 }

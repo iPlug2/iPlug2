@@ -29,11 +29,11 @@
 #define PLUG_NAME_DIGI "IPlugMultiTargets\nIPMT"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 
-#define PLUG_CHANNEL_IO "1-1 2-2"
+#define PLUG_CHANNEL_IO "2-2"
 
-#define PLUG_SC_CHANS 0 // TODO: PT only has mono sc, but au is different?
+#define PLUG_SC_CHANS 1 // TODO: PT only has mono sc, but au is different?
 #define PLUG_LATENCY 0
-#define PLUG_IS_INST 1
+#define PLUG_IS_INST 0
 #define PLUG_DOES_MIDI 1
 #define PLUG_DOES_STATE_CHUNKS 0
 

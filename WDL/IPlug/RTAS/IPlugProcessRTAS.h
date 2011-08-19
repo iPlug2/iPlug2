@@ -34,6 +34,10 @@ private:
   void HandleMIDI();
   OSType mPluginID;
   int mBlockSize;
+
+// TODO: Meters? 
+// SFloat32 mMeterVal[EffectLayerDef::MAX_NUM_CONNECTIONS];
+// SFloat32 mMeterMin[EffectLayerDef::MAX_NUM_CONNECTIONS];
 };
 
 #endif  // __IPLUGPPROCESS_RTAS__

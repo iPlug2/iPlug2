@@ -302,6 +302,9 @@
 		4FDA440D13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
 		4FDA440E13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
 		4FDA440F13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */; };
+		4FDD5A9B13FEA66C003A4CAC /* IPlugMultiTargets_controls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD5A9A13FEA66C003A4CAC /* IPlugMultiTargets_controls.h */; };
+		4FDD5A9C13FEA66C003A4CAC /* IPlugMultiTargets_controls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD5A9A13FEA66C003A4CAC /* IPlugMultiTargets_controls.h */; };
+		4FDD5A9D13FEA66C003A4CAC /* IPlugMultiTargets_controls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD5A9A13FEA66C003A4CAC /* IPlugMultiTargets_controls.h */; };
 		4FF016F7134E14E2001447BA /* mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F4134E14E2001447BA /* mutex.h */; };
 		4FF016F8134E14E2001447BA /* ptrlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F5134E14E2001447BA /* ptrlist.h */; };
 		4FF016F9134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
@@ -525,6 +528,7 @@
 		4FD290A8137C34D700CEBE7E /* IPlugMultiTargets.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IPlugMultiTargets.icns; path = resources/IPlugMultiTargets.icns; sourceTree = "<group>"; };
 		4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IBitmapMonoText.cpp; path = ../../WDL/IPlug/IBitmapMonoText.cpp; sourceTree = SOURCE_ROOT; };
 		4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IBitmapMonoText.h; path = ../../WDL/IPlug/IBitmapMonoText.h; sourceTree = SOURCE_ROOT; };
+		4FDD5A9A13FEA66C003A4CAC /* IPlugMultiTargets_controls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugMultiTargets_controls.h; sourceTree = "<group>"; };
 		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
 		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
@@ -625,6 +629,7 @@
 				52FBBED30D0CF143001C8B8A /* resource.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugMultiTargets.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */,
+				4FDD5A9A13FEA66C003A4CAC /* IPlugMultiTargets_controls.h */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
@@ -636,7 +641,6 @@
 		089C1671FE841209C02AAC07 /* Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				4F78DAE913B6423C0032E0F3 /* 3rd Party */,
 				4FF01613134E0BCD001447BA /* WDL */,
 				1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */,
 			);
@@ -1012,6 +1016,7 @@
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
+				4F78DAE913B6423C0032E0F3 /* 3rd Party */,
 				4F78D8D013B63B390032E0F3 /* IPlug */,
 				4FD16CF713B6343B001D0217 /* SWELL */,
 				4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */,
@@ -1064,6 +1069,7 @@
 				4F78DA0713B63CD90032E0F3 /* IPlugAU.h in Headers */,
 				4F3EE94913B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440913F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
+				4FDD5A9D13FEA66C003A4CAC /* IPlugMultiTargets_controls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1104,6 +1110,7 @@
 				4F78D9FF13B63CD90032E0F3 /* IPlugAU.h in Headers */,
 				4F3EE94713B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440B13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
+				4FDD5A9C13FEA66C003A4CAC /* IPlugMultiTargets_controls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1150,6 +1157,7 @@
 				4F78DAA613B640050032E0F3 /* IGraphics.h in Headers */,
 				4F3EE94613B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440F13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
+				4FDD5A9B13FEA66C003A4CAC /* IPlugMultiTargets_controls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2228,6 +2236,13 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(ADDITIONAL_INCLUDES)",
@@ -2250,7 +2265,7 @@
 				SYMROOT = "$(MacBag)";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
-					"$(inherited)",
+					"-Wno-four-char-constants",
 				);
 				WRAPPER_EXTENSION = dpm;
 			};
@@ -2271,6 +2286,12 @@
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(ADDITIONAL_INCLUDES)",
@@ -2292,7 +2313,7 @@
 				SYMROOT = "$(MacBag)";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
-					"$(inherited)",
+					"-Wno-four-char-constants",
 				);
 				WRAPPER_EXTENSION = dpm;
 			};
@@ -2315,6 +2336,11 @@
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(ADDITIONAL_INCLUDES)",
@@ -2336,6 +2362,10 @@
 				SDKROOT = "$(BASE_SDK)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "$(MacBag)";
+				WARNING_CFLAGS = (
+					"-Wno-reorder",
+					"-Wno-four-char-constants",
+				);
 				WRAPPER_EXTENSION = dpm;
 			};
 			name = Tracer;

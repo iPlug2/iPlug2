@@ -5,6 +5,7 @@
 #ifndef OS_IOS
 #include "IControl.h"
 #include "IKeyboardControl.h"
+#include "IPlugMultiTargets_controls.h"
 #endif
 
 const int kNumPrograms = 1;
@@ -22,83 +23,7 @@ enum EParams
  // kMode,
   kNumParams
 };
-#ifndef OS_IOS
-class IKnobMultiControlText : public IKnobControl  
-{
-private:
-  IRECT mTextRECT, mImgRECT;
-  IBitmap mBitmap;
-  
-public:
-  IKnobMultiControlText(IPlugBase* pPlug, IRECT pR, int paramIdx, IBitmap* pBitmap, IText* pText)
-	:	IKnobControl(pPlug, pR, paramIdx), mBitmap(*pBitmap)
-  {
-    mText = *pText;
-    mTextRECT = IRECT(mRECT.L, mRECT.B-20, mRECT.R, mRECT.B);
-    mImgRECT = IRECT(mRECT.L, mRECT.T, &mBitmap);
-    mDisablePrompt = false;
-	}
-	
-	~IKnobMultiControlText() {}
-	
-  bool Draw(IGraphics* pGraphics)
-  {
-    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
-    i = BOUNDED(i, 1, mBitmap.N);
-    pGraphics->DrawBitmap(&mBitmap, &mImgRECT, i, &mBlend);
-    //pGraphics->FillIRect(&COLOR_WHITE, &mTextRECT);
-    
-    char disp[20];
-    mPlug->GetParam(mParamIdx)->GetDisplayForHost(disp);
-    
-    if (CSTR_NOT_EMPTY(disp)) {
-      return pGraphics->DrawIText(&mText, disp, &mTextRECT);
-    }
-    return true;
-  }
-  
-  bool OnKeyDown(int x, int y, int key)
-  {
-    IMidiMsg msg;
-    switch (key) {
-      case KEY_SPACE:
-        DBGMSG("space bar handled\n");
-        return true;
-      case KEY_LEFTARROW:
-          msg.MakeNoteOnMsg(60, 127, 0);
-          mPlug->ProcessMidiMsg(&msg);
-        return true;
-      case KEY_RIGHTARROW:
-          msg.MakeNoteOffMsg(60, 0);
-          mPlug->ProcessMidiMsg(&msg);
-        return true;
-      default:
-        return false;
-    }
-  }
-  
-	void OnMouseDown(int x, int y, IMouseMod* pMod)
-	{
-    if (mTextRECT.Contains(x, y)) PromptUserInput(&mTextRECT);
-    else {
-      OnMouseDrag(x, y, 0, 0, pMod);
-    }
-	}
-  
-  void OnMouseDblClick(int x, int y, IMouseMod* pMod)
-  {
-#ifdef RTAS_API
-    PromptUserInput(&mTextRECT);
-#else
-    if (mDefaultValue >= 0.0) {
-      mValue = mDefaultValue;
-      SetDirty();
-    }
-#endif
-  }
-  
-};
-#endif
+
 IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), 
   mGainL(1.),
@@ -108,7 +33,10 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   mSampleRate(44100.),
   mFreq(440.),
   mNumKeys(0),
-  mKey(-1)
+  mKey(-1),
+  mPrevL(0.0),
+  mPrevR(0.0)
+
 {
   TRACE;
   
@@ -134,7 +62,10 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20), kGainL, &knob, &text));
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX + 75, kGainY, kGainX + 48 + 75, kGainY + 48 + 20), kGainR, &knob, &text));
-  
+
+  mMeterIdx_L = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(300, 100, 310, 200)));
+  mMeterIdx_R = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(312, 100, 322, 200)));
+
   IBitmap regular = pGraphics->LoadIBitmap(WHITE_KEY_ID, WHITE_KEY_FN, 6);
   IBitmap sharp   = pGraphics->LoadIBitmap(BLACK_KEY_ID, BLACK_KEY_FN);
   
@@ -178,7 +109,8 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
   double* in2 = inputs[1];
   double* out1 = outputs[0];
   double* out2 = outputs[1];
-  
+  double peakL = 0.0, peakR = 0.0;
+
   IKeyboardControl* pKeyboard = (IKeyboardControl*) mKeyboard;
   
   if (pKeyboard->GetKey() != mKey)
@@ -241,8 +173,26 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
     }
     
     *out1 = sin( 2. * M_PI * mFreq * mPhase / mSampleRate ) * mGainLSmoother.Process(mGainL * mNoteGain);
-    *out2 = sin( 2. * M_PI * mFreq * 1.01 * (mPhase++) / mSampleRate ) * mGainRSmoother.Process(mGainR * mNoteGain);
+    *out2 = *in2 * sin( 2. * M_PI * mFreq * 1.01 * (mPhase++) / mSampleRate ) * mGainRSmoother.Process(mGainR * mNoteGain);
     
+  	peakL = MAX(peakL, fabs(*in1));
+		peakR = MAX(peakR, fabs(*in2));
+	}
+  
+	const double METER_ATTACK = 0.6, METER_DECAY = 0.005;
+	double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+	double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+  
+	peakL = peakL * xL + mPrevL * (1.0 - xL);
+	peakR = peakR * xR + mPrevR * (1.0 - xR);
+  
+	mPrevL = peakL;
+	mPrevR = peakR;
+  
+  if (GetGUI())
+  {
+    GetGUI()->SetControlFromPlug(mMeterIdx_L, peakL);
+    GetGUI()->SetControlFromPlug(mMeterIdx_R, peakR);
   }
   
   mMidiQueue.Flush(nFrames);

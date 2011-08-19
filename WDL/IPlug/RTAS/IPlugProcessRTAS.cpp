@@ -23,9 +23,6 @@ IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
       AddChunk(mPluginID, PLUG_MFR);
     }
     
-    mPlug->SetNumInputs(GetNumInputs());
-    mPlug->SetNumOutputs(GetNumOutputs());  
-    
     mPlug->Created(this);
   }
 }
@@ -57,7 +54,6 @@ void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
   // Two possible cases for RTAS since ip==op for PT8 and below.
   long ips=GetNumInputs();
   long ops=GetNumOutputs();
-  long sip=GetSideChainConnectionNum();
   
   if (mBypassed)
   {
@@ -67,46 +63,63 @@ void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
       memcpy(outputs[1],inputs[1],frames*sizeof(float));
   }
   else if (mPlug)
-  {
-    int nFrames = frames;
+  {    
+    //DBGMSG("Number of inputs: %d outputs: %d, sip: %d\n", ips, ops, sip);
     
-    //we are delivered the sidechain buffer (if connected) as inputs[sip][0] where sip is always the last channel in the array
-    //we need to extract it as we want to process it seperately through iPlug
-    
-    int numSideChainChannels = 1; // pro tools only supports mono side-chain ips
-    
-    float** side = new float*[numSideChainChannels];
-    side[0] = new float[numSideChainChannels*nFrames];
-    
-    //memset(&side[0][0], 0, nFrames*sizeof(float));
-    //we could memset here, but iPlug should use its scratchbuf (silence) when its not connected
-    
-    if (GetSideChainConnectionNum() != EffectLayerDef::NO_SIDECHAIN_CONNECTED)
-    {
-      memcpy(side[0],inputs[sip], nFrames*sizeof(float));
-    }
-    
-    Trace(TRACELOC,"Number of inputs: %d Sidechain Connection Number: %d", ips, sip);
-    if (GetSideChainConnectionNum() != EffectLayerDef::NO_SIDECHAIN_CONNECTED) {
-      mPlug->SetNumInputs(ips+1);
-      mPlug->SetNumSideChainInputs(1);
-    } else {
-      mPlug->SetNumInputs(ips);
-      mPlug->SetNumSideChainInputs(0);
-    }
+    mPlug->SetNumInputs(ips);
     mPlug->SetNumOutputs(ops);
     
-    mPlug->ProcessAudio(inputs, outputs, side, nFrames);
+    mPlug->ProcessAudio(inputs, outputs, frames);
   }
+  
+// TODO: Meters?  
+  
+//  for(int i = 0; i < GetNumOutputs(); i++)
+//	{
+//		float* outSamples = outputs[i];
+//		
+//		for (int j = 0; j<frames; j++)
+//		{      
+//			if ( fabsf(outSamples[j]) > mMeterVal[i] )
+//				mMeterVal[i] = fabsf(outSamples[j]);
+//		}
+//	}
 }
 
 void IPlugProcessRTAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators)
 {
+// TODO: Meters?
+  
+//	SFloat32 currentVal = 0.0;
+//  
+//	for (int i = 0; i < GetNumOutputs(); i++) 
+//	{
+//		currentVal = mMeterVal[i];
+//		
+//		if(currentVal < mMeterMin[i])
+//			currentVal = mMeterMin[i];
+//		mMeterMin[i] = currentVal * 0.7;
+//		
+//		if (fabsf(currentVal) > 1.0)
+//		{ 
+//			currentVal = -1.0;
+//			clipIndicators[i] = true;
+//			fClipped = true;	
+//		} 
+//		else {
+//			currentVal *= k32BitPosMax;
+//			clipIndicators[i] = false;
+//		}
+//		
+//		allMeters[i] = currentVal;
+//		mMeterVal[i] = 0;
+//  }
+  
   for (int i = 0; i < GetNumOutputs(); i++) 
-  {
-    clipIndicators[i] = false;
-    allMeters[i] = 0;
-  }
+	{
+		clipIndicators[i] = false;
+		allMeters[i] = 0;
+	}
 }
 
 double IPlugProcessRTAS::GetTempo()

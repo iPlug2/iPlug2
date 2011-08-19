@@ -7,16 +7,17 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
       int vendorVersion, int uniqueID, int mfrID, int latency, bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, int plugScChans)
 : IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName,vendorVersion, uniqueID, mfrID, latency, plugDoesMidi, plugDoesChunks, plugIsInst)
 , mDoesMidi(plugDoesMidi)
-, mNumInputs(0)
-, mNumOutputs(0)
-//, mNumSideChainInputs(0)
-//, mSideChainConnectionNum(0)
+, mSideChainIsConnected(false)
 {
   Trace(TRACELOC, "%s", effectName);
-  SetNumInputs(mNumInputs);
-  SetNumOutputs(mNumOutputs);
-  SetNumSideChainInputs(mNumSideChainInputs);
+  int nInputs = NInChannels(), nOutputs = NOutChannels();
   
+  // Default everything to connected, then disconnect pins if the host says to.
+  SetInputChannelConnections(0, nInputs, true);
+  SetOutputChannelConnections(0, nOutputs, true);
+  
+  mHasSideChain = (plugScChans > 0);
+    
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 }
 
@@ -25,46 +26,32 @@ void IPlugRTAS::SetBlockSize(int blockSize)
   IPlugBase::SetBlockSize(blockSize);
 }
 
+void IPlugRTAS::SetSideChainConnected(bool connected)
+{
+  mSideChainIsConnected = connected;
+  DBGMSG("mSideChainIsConnected %i\n", mSideChainIsConnected);
+}
+
 void IPlugRTAS::SetNumInputs(int nInputs)
-{ 
-  mNumInputs = nInputs; 
+{
+  nInputs += mSideChainIsConnected;
   
-  SetInputChannelConnections(0, mNumInputs, true); 
-  SetInputChannelConnections(mNumInputs, NInChannels()-mNumInputs, false); 
+  SetInputChannelConnections(0, nInputs, true);
+  SetInputChannelConnections(nInputs, NInChannels() - nInputs, false);
 }
 
 void IPlugRTAS::SetNumOutputs(int nOutputs)
-{ 
-  mNumOutputs = nOutputs; 
-  SetOutputChannelConnections(0, mNumOutputs, true); 
-  SetOutputChannelConnections(mNumOutputs, NOutChannels()-mNumOutputs, false); 
-}
-
-void IPlugRTAS::SetNumSideChainInputs(int nSideChainInputs)
-{ 
-  mNumSideChainInputs = nSideChainInputs;
-  //SetSideChainChannelConnections(0, mNumSideChainInputs, true); 
-  //SetSideChainChannelConnections(mNumSideChainInputs, NSideChainChannels()-mNumSideChainInputs, false); 
-}
-
-void IPlugRTAS::SetSideChainConnectionNum(int connectionNum)
 {
-  mSideChainConnectionNum = connectionNum;
+  SetOutputChannelConnections(0, nOutputs, true);
+  SetOutputChannelConnections(nOutputs, NOutChannels() - nOutputs, false);
 }
 
-void IPlugRTAS::ProcessAudio(float** inputs, float** outputs, float** sidechain, int nFrames)
+void IPlugRTAS::ProcessAudio(float** inputs, float** outputs, int nFrames)
 {
   IMutexLock lock(this);
   
-  AttachInputBuffers(0, mNumInputs, inputs, nFrames);
-  AttachOutputBuffers(0, mNumOutputs, outputs);
-  
-  //if (mNumSideChainInputs > 0)
-  //{
-  //  //AttachSideChainBuffers(0, mNumSideChainInputs, sidechain, nFrames);
-  //  AttachInputBuffers(mNumInputs + 1, mNumSideChainInputs, sidechain, nFrames);
-  //  Trace(TRACELOC, "%s - %d : %d", "Sidechain buffer attached", mNumInputs, mNumSideChainInputs);
-  //}
+  AttachInputBuffers(0, NInChannels(), inputs, nFrames);
+  AttachOutputBuffers(0, NOutChannels(), outputs);
   
   ProcessBuffers((float) 0.0, nFrames);
 }
@@ -95,7 +82,6 @@ void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue)
     
     if (control) 
     {
-      // from the protools SDK source
       static const double kControlMin = -2147483648.0;
       static const double kControlMax = 2147483647.0;
       

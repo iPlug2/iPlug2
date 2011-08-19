@@ -45,6 +45,7 @@ private:
 #ifndef OS_IOS
   IBitmapOverlayControl* mAboutBox;
   IControl* mKeyboard;
+  int mMeterIdx_L, mMeterIdx_R;
 #endif
   
   IMidiQueue mMidiQueue;
@@ -60,7 +61,8 @@ private:
   double mSampleRate;
   double mFreq;
   double mNoteGain;
-  
+  double mPrevL, mPrevR;
+
   CParamSmooth mGainLSmoother, mGainRSmoother;
 };
 

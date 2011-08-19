@@ -84,16 +84,22 @@ void IPlugProcess::EffectInit()
       
       mPlug->Reset();
     }
+    
+    mPlug->SetNumInputs(GetNumInputs());
+    mPlug->SetNumOutputs(GetNumOutputs());
+    
   }
 }
 
-// TODO: check this is nessecary
 void IPlugProcess::DoTokenIdle (void)
 {
   CEffectProcess::DoTokenIdle();  // call inherited to get tokens so we can move controls.
   
-  if(mCustomUI) 
-    mCustomUI->Idle();
+  // TODO: check this... idle not implemented in AU and not widely supported in vst... do we need it in PT?
+//#ifdef USE_IDLE_CALLS
+//  mPlug->OnIdle();
+//#endif
+
 }
 
 //  Tells Pro Tools what size view it should create for you. 
@@ -285,12 +291,12 @@ ComponentResult IPlugProcess::ChooseControl (Point aLocalCoord, long *aControlIn
 void IPlugProcess::ConnectSidechain(void)
 {
   CEffectProcess::ConnectSidechain();
-  mPlug->SetNumSideChainInputs(1);
+  mPlug->SetSideChainConnected(true);
 }
 
 void IPlugProcess::DisconnectSidechain(void)
 {
   CEffectProcess::DisconnectSidechain();
-  mPlug->SetNumSideChainInputs(0);
+  mPlug->SetSideChainConnected(false);
 }
 
