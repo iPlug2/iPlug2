@@ -961,8 +961,7 @@ void IPlugAU::AssessInputConnections()
   TRACE;
   IMutexLock lock(this);
 
-  SetInputChannelConnections(0, NInChannels() + mNScInputChans, false);
-  //SetInputChannelConnections(0, NInChannels(), false);
+  SetInputChannelConnections(0, NInChannels(), false);
 
   int nIn = mInBuses.GetSize();
   for (int i = 0; i < nIn; ++i) {
