@@ -45,16 +45,7 @@ void GetVersionStr(int version, char* str)
 {
   int ver, rmaj, rmin;
   GetVersionParts(version, &ver, &rmaj, &rmin);
-  //if (rmin) {
-  //  sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
-  //}
-  //else
-  //if (rmaj) {
-    sprintf(str, "v%d.%02d", ver, rmaj);
-  //}
-  //else {
-  //  sprintf(str, "v%d", ver);
-  //}
+  sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
 IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
@@ -190,10 +181,10 @@ bool IPlugBase::HostRequestingAboutBox() {return false;}
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
 int IPlugBase::GetEffectVersion(bool decimal)   
 {
-  if (decimal) {
+  if (decimal)
     return GetDecimalVersion(mVersion);
-  }
-  return mVersion;
+  else
+    return mVersion;
 }
 
 void IPlugBase::GetEffectVersionStr(char* str)
