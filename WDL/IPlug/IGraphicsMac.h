@@ -40,7 +40,7 @@
 #define IGRAPHICS_COCOA CONCAT(IGraphicsCocoa_)
 #define DUMMY_COCOA_VIEW CONCAT(DummyCocoaView_)
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
-
+#define COCOA_FORMATTER CONCAT(CocoaFormatter_)
 
 class IGraphicsMac : public IGraphics
 {

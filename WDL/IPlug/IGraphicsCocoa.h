@@ -27,6 +27,20 @@ inline NSColor* ToNSColor(IColor* pColor)
 
 NSString* ToNSString(const char* cStr);
 
+// based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
+@interface COCOA_FORMATTER : NSFormatter
+{
+	NSCharacterSet *filterCharacterSet;
+	int				maxLength;
+	int				maxValue;
+}
+
+- (void) setAcceptableCharacterSet:(NSCharacterSet *) inCharacterSet;
+- (void) setMaximumLength:(int) inLength;
+- (void) setMaximumValue:(int) inValue;
+
+@end
+
 // Dummy View class used to receive Menu Events
 @interface DUMMY_COCOA_VIEW : NSView
 {
