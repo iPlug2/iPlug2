@@ -200,7 +200,8 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       {
         case kEventWindowDeactivated:
         {          
-          if (_this->mTextFieldView) _this->EndUserInput(false);          
+          if (_this->mTextFieldView) 
+            _this->EndUserInput(false);          
           break;
         }
       }
@@ -237,8 +238,20 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
   UInt32 eventClass = GetEventClass(pEvent);
   UInt32 eventKind = GetEventKind(pEvent);
 
-  switch (eventClass)
-  {
+//  switch (eventClass)
+//  {
+//    case kEventClassControl:
+//		{
+//			switch (eventKind)
+//			{
+//				case kEventControlDraw:
+//				{
+//          // todo... maybe
+//          return noErr;
+//        }
+//      }
+//    }
+      
     case kEventClassKeyboard:
     {
       switch (eventKind)
@@ -246,13 +259,38 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
         case kEventRawKeyDown:
         case kEventRawKeyRepeat:
         {
-          char ch;
-          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(ch), NULL, &ch);
+          char c;
+          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
 		
-          if (ch == 3 || ch == 13)
-          {
+          // trap enter key
+          if (c == 3 || c == 13) {
             _this->EndUserInput(true);
             return noErr;
+          }
+          
+          // pass delete keys
+          if (c == 8 || c == 127) {
+            break;
+          }
+          
+          switch ( _this->mEdParam->Type() ) 
+          {
+            case IParam::kTypeEnum:
+            case IParam::kTypeInt:
+              if (c >= '0' && c <= '9') break;
+              else return noErr;
+              break;
+            case IParam::kTypeBool:
+              if (c == '0' || c == '1') break;
+              else return noErr;
+              break;
+            case IParam::kTypeDouble:
+              if (c >= '0' && c <= '9') break;
+              else if (c == '.') break;
+              else return noErr;
+              break;
+            default:
+              break;
           }
           break;
         }
@@ -619,6 +657,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
   {
     { kEventClassKeyboard, kEventRawKeyDown },
     { kEventClassKeyboard, kEventRawKeyRepeat }
+    //,{ kEventClassControl, kEventControlDraw }
   };
   
   InstallControlEventHandler(control, CarbonParamEditHandler, GetEventTypeCount(events), events, this, &mParamEditHandler);
