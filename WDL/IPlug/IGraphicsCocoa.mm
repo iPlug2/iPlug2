@@ -53,6 +53,82 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
 }
 #endif
 
+@implementation COCOA_FORMATTER
+- (void) dealloc
+{
+	[filterCharacterSet release];
+	[super dealloc];
+}
+
+- (BOOL)isPartialStringValid:(NSString *)partialString newEditingString:(NSString **)newString errorDescription:(NSString **)error
+{
+	if (filterCharacterSet != nil)
+	{
+		int i = 0;
+		int len = [partialString length];
+		for (i = 0; i < len; i++)
+		{
+			if (![filterCharacterSet characterIsMember:[partialString characterAtIndex:i]])
+			{
+				return NO;
+			}
+		}
+	}
+  
+	if (maxLength)
+	{
+		if ([partialString length] > maxLength)
+		{
+			return NO;
+		}
+	}
+  
+	if (maxValue && [partialString intValue] > maxValue)
+	{
+		return NO;
+	}
+	
+	return YES;
+}
+
+- (void) setAcceptableCharacterSet:(NSCharacterSet *) inCharacterSet
+{
+	[inCharacterSet retain];
+	[filterCharacterSet release];
+	filterCharacterSet = inCharacterSet;
+}
+
+- (void) setMaximumLength:(int) inLength
+{
+	maxLength = inLength;
+}
+
+- (void) setMaximumValue:(int) inValue
+{
+	maxValue = inValue;
+}
+
+- (NSString *)stringForObjectValue:(id)anObject
+{
+	if ([anObject isKindOfClass:[NSString class]])
+	{
+		return anObject;
+	}
+	
+	return nil;
+}
+
+- (BOOL)getObjectValue:(id *)anObject forString:(NSString *)string errorDescription:(NSString **)error
+{
+	if (anObject && string)
+	{
+		*anObject = [NSString stringWithString:string];
+	}
+	
+	return YES;
+}
+@end
+
 @implementation IGRAPHICS_COCOA
 
 - (id) init
@@ -444,6 +520,31 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
       break;
     default:
       break;
+  }
+  
+  // set up formatter
+  if (pParam) {
+    NSMutableCharacterSet *characterSet = [[NSMutableCharacterSet alloc] init];
+
+    switch ( pParam->Type() ) 
+    {
+      case IParam::kTypeEnum:
+      case IParam::kTypeInt:
+        [characterSet addCharactersInString:@"0123456789"];
+        break;
+      case IParam::kTypeBool:
+        [characterSet addCharactersInString:@"01"];
+        break;
+      case IParam::kTypeDouble:
+        [characterSet addCharactersInString:@"0123456789."];
+        break;
+      default:
+        break;
+    }
+    
+    [mTextFieldView setFormatter:[[[COCOA_FORMATTER alloc] init] autorelease]];	
+    [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
+    [characterSet release];
   }
   
   [[mTextFieldView cell] setLineBreakMode: NSLineBreakByTruncatingTail];
