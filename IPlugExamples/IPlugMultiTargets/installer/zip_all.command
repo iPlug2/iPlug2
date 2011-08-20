@@ -2,7 +2,7 @@ BASEDIR=$(dirname $0)
 
 cd $BASEDIR
 
-VERSION=`echo | grep PLUG_VER resource.h`
+VERSION=`echo | grep PLUG_VER ../resource.h`
 VERSION=${VERSION//\#define PLUG_VER }
 VERSION=${VERSION//\'}
 MAJOR_VERSION=$(($VERSION & 0xFFFF0000))
