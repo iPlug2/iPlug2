@@ -11,6 +11,12 @@
  
  Notes:
  
+ App settings are stored in a .ini file. The location is as follows:
+ 
+ Windows7: C:\Users\USERNAME\AppData\Local\IPlugMultiTargets\settings.ini
+ Windows XP/Vista: C:\Documents and Settings\USERNAME\Local Settings\Application Data\IPlugMultiTargets\settings.ini
+ OSX: /Users/USERNAME/Library/Application\ Support/IPlugMultiTargets/settings.ini
+ 
  TODO:
  
  - fix bug with coreaudio stream SR & bitdepth not set properly on 10.6 when SR changed in the prefs. On restart all is fine
