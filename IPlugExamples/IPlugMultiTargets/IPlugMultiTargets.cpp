@@ -175,8 +175,8 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
     *out1 = sin( 2. * M_PI * mFreq * mPhase / mSampleRate ) * mGainLSmoother.Process(mGainL * mNoteGain);
     *out2 = *in2 * sin( 2. * M_PI * mFreq * 1.01 * (mPhase++) / mSampleRate ) * mGainRSmoother.Process(mGainR * mNoteGain);
     
-  	peakL = MAX(peakL, fabs(*in1));
-		peakR = MAX(peakR, fabs(*in2));
+  	peakL = IPMAX(peakL, fabs(*in1));
+		peakR = IPMAX(peakR, fabs(*in2));
 	}
   
 	const double METER_ATTACK = 0.6, METER_DECAY = 0.005;

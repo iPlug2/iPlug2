@@ -35,8 +35,8 @@ public:
   virtual int ProcessReleaseControl (long aControlIndex);
   virtual void ProcessDoIdle();
   virtual void* ProcessGetModuleHandle() { return mModuleHandle; }
-  //virtual short ProcessUseResourceFile() { return fProcessType->GetProcessGroup()->UseResourceFile(); }
-  //virtual void ProcessRestoreResourceFile(short resFile) { fProcessType->GetProcessGroup()->RestoreResourceFile(resFile); }
+  virtual short ProcessUseResourceFile() { return fProcessType->GetProcessGroup()->UseResourceFile(); }
+  virtual void ProcessRestoreResourceFile(short resFile) { fProcessType->GetProcessGroup()->RestoreResourceFile(resFile); }
   
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
   //virtual	Boolean HandleKeystroke(EventRecord *theEvent);

@@ -231,8 +231,8 @@ bool IPlugCustomUI::Open(void *winPtr)
 
   short prevRes = 0;
   
-//  if(mProcess)
-//    prevRes = ((ProcessInterface*)mProcess)->ProcessUseResourceFile();
+  if(mProcess)
+    prevRes = ((ProcessInterface*)mProcess)->ProcessUseResourceFile();
 
   if( mGraphics )
   {
@@ -240,8 +240,8 @@ bool IPlugCustomUI::Open(void *winPtr)
     mPlug->OnGUIOpen();
   }
     
-//  if(mProcess)
-//    ((ProcessInterface*)mProcess)->ProcessRestoreResourceFile(prevRes);
+  if(mProcess)
+    ((ProcessInterface*)mProcess)->ProcessRestoreResourceFile(prevRes);
 
   return true;
 }

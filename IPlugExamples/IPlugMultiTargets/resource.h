@@ -38,7 +38,7 @@
 
 // TODO: sort this PLUG_SC_CHANS mess out with aus and rtas
 
-#define PLUG_SC_CHANS 1
+#define PLUG_SC_CHANS 0
 #define PLUG_LATENCY 0
 #define PLUG_IS_INST 0
 #define PLUG_DOES_MIDI 1
