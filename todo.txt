@@ -1,7 +1,7 @@
 iplug-todo
 
 RTAS WIN - alt modifier lost
-RTAS WIN - disappearing guis when two IPlug Plugins are loaded and one is deleted
+RTAS WIN - sporadic redraw problem
 RTAS - default PT behaviour for IControls
 AU/RTAS - how to define sidechaiin?
 RTAS - chunks
@@ -14,7 +14,6 @@ ALL - text entry dimensions
 ALL - freetype based font renderer, import .ttf files
 ALL - test keyboard input
 ALL - submenus
-ALL OSX - cocoa window overlay instead of carbon in 32bit vst / AU 
 
 SA - ASIO driver issues on win
 SA - Midi Out issues on win
