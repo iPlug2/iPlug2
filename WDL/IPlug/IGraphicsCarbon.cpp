@@ -273,24 +273,26 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
             break;
           }
           
-          switch ( _this->mEdParam->Type() ) 
-          {
-            case IParam::kTypeEnum:
-            case IParam::kTypeInt:
-              if (c >= '0' && c <= '9') break;
-              else return noErr;
-              break;
-            case IParam::kTypeBool:
-              if (c == '0' || c == '1') break;
-              else return noErr;
-              break;
-            case IParam::kTypeDouble:
-              if (c >= '0' && c <= '9') break;
-              else if (c == '.') break;
-              else return noErr;
-              break;
-            default:
-              break;
+          if (_this->mEdParam) {
+            switch ( _this->mEdParam->Type() ) 
+            {
+              case IParam::kTypeEnum:
+              case IParam::kTypeInt:
+                if (c >= '0' && c <= '9') break;
+                else return noErr;
+                break;
+              case IParam::kTypeBool:
+                if (c == '0' || c == '1') break;
+                else return noErr;
+                break;
+              case IParam::kTypeDouble:
+                if (c >= '0' && c <= '9') break;
+                else if (c == '.') break;
+                else return noErr;
+                break;
+              default:
+                break;
+            }
           }
           break;
         }
