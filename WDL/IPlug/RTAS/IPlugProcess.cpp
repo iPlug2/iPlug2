@@ -13,6 +13,24 @@
 #include "../IGraphics.h"
 #include "IPlugCustomUI.h"
 
+static const double kDigiControlMin = -2147483648.0;
+static const double kDigiControlMax =  2147483647.0;
+#define LIMIT_OF(v1,firstVal,secondVal) ( (secondVal > firstVal) ? IPMAX(IPMIN(v1,secondVal),firstVal) :  IPMIN(IPMAX(v1,secondVal),firstVal) )
+
+double LongToDoubleLinear(long aValue, double firstVal = 0., double secondVal = 1.)
+{
+	double controlPartial = ((double)aValue - kDigiControlMin) / (kDigiControlMax - kDigiControlMin);
+	return firstVal + controlPartial*(secondVal - firstVal);
+}
+
+long DoubleToLongLinear(double aValue, double firstVal = 0., double secondVal = 1.)
+{
+	aValue = LIMIT_OF(aValue,firstVal,secondVal);
+	
+	double controlPartial = (aValue - firstVal) / (secondVal - firstVal);
+	return floor(kDigiControlMin + controlPartial*(kDigiControlMax - kDigiControlMin)+0.5);
+}
+
 IPlugProcess::IPlugProcess(void)
 : mCustomUI(0), mNoUIView(0), mModuleHandle(0), mPlug(NULL), mDirectMidiInterface(NULL)
 {
@@ -199,17 +217,13 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
   double value=0;
   
   if (cc) 
-  {
-    // from the protools SDK source
-    static const double kControlMin = -2147483648.0;
-    static const double kControlMax = 2147483647.0;
-    value = ((double)cc->GetValue() - kControlMin) / (kControlMax - kControlMin);
-  }
-  
+    value = LongToDoubleLinear((double)cc->GetValue());
+
   idx -= kPTParamIdxOffset;
   
   if (idx >= 0 && idx < mPlug->NParams()) 
   {
+    printf("value %f\n", value);
     mPlug->GetParam(idx)->SetNormalized(value);
     
     if (mPlug->GetGUI()) 
@@ -224,7 +238,7 @@ long IPlugProcess::SetControlValue (long aControlIndex, long aValue)
   TRACE;
   CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(aControlIndex));
   
-  if (cc) 
+  if (cc)
     cc->SetValue(aValue);
   
   return (long)CProcess::SetControlValue(aControlIndex, aValue);
@@ -234,12 +248,29 @@ long IPlugProcess::GetControlValue(long aControlIndex, long *aValue)
 {
   TRACE;
   return (long)CProcess::GetControlValue(aControlIndex, aValue);
+  
+//  if (aControlIndex < kPTParamIdxOffset) {
+//    return (long)CProcess::GetControlValue(aControlIndex, aValue);
+//  }
+//  else {
+//    *aValue = DoubleToLongLinear(mPlug->GetParam(aControlIndex - kPTParamIdxOffset)->GetNormalized());
+//    return noErr;
+//  }
 }
 
 long IPlugProcess::GetControlDefaultValue(long aControlIndex, long* aValue)
 {
   TRACE;
   return (long)CProcess::GetControlDefaultValue(aControlIndex, aValue);
+
+//  if (aControlIndex < kPTParamIdxOffset) {
+//    return (long)CProcess::GetControlDefaultValue(aControlIndex, aValue);
+//  }
+//  else {
+//    double v = mPlug->GetParam(aControlIndex - kPTParamIdxOffset)->GetDefault();
+//    *aValue = DoubleToLongLinear(mPlug->GetParam(aControlIndex - kPTParamIdxOffset)->GetNormalized(v));
+//    return noErr;
+//  }
 }
 
 // TODO: this caused jittery audio, is it nessecary?
