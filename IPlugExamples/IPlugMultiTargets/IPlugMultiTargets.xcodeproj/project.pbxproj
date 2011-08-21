@@ -1192,6 +1192,7 @@
 				4F25BECE12C61F47005D51F7 /* Resources */,
 				4F3AE1D312C0E5E2001FD7A4 /* Frameworks */,
 				4F3AE1DA12C0E5E2001FD7A4 /* Rez */,
+				4F744D4C14005ADA002FAD90 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1212,6 +1213,7 @@
 				4F55733612C7F49C003A4AD1 /* Resources */,
 				4F55733712C7F49C003A4AD1 /* Frameworks */,
 				4F55733E12C7F49C003A4AD1 /* Rez */,
+				4F744D4714005A8C002FAD90 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1438,6 +1440,37 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXRezBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F744D4714005A8C002FAD90 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "reset audiounit caches";
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
+		};
+		4F744D4C14005ADA002FAD90 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "reset audiounit caches";
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4F20EECA132C69FE0030E34C /* Sources */ = {
