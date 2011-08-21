@@ -190,6 +190,8 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
 
 void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
 {
+  TRACE;
+  
   if (!IsValidControlIndex(idx)) return;
   if (idx==mMasterBypassIndex)  return;
   
@@ -211,31 +213,32 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
     mPlug->GetParam(idx)->SetNormalized(value);
     
     if (mPlug->GetGUI()) 
-    {
       mPlug->GetGUI()->SetParameterFromPlug(idx, value, true);
-      //printf("UpdateControlValueInAlgorithm %d %s %f\n", idx, mPlug->GetParam(idx)->GetNameForHost(), value);
-    }
+
     mPlug->OnParamChange(idx);
   }
 }
 
-long IPlugProcess::SetControlValue (long idx, long aValue)
+long IPlugProcess::SetControlValue (long aControlIndex, long aValue)
 {
-  CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(idx));
+  TRACE;
+  CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(aControlIndex));
   
   if (cc) 
     cc->SetValue(aValue);
   
-  return (long)CProcess::SetControlValue(idx, aValue);;
+  return (long)CProcess::SetControlValue(aControlIndex, aValue);
 }
  
-long IPlugProcess::GetControlValue(long idx, long *aValue)
+long IPlugProcess::GetControlValue(long aControlIndex, long *aValue)
 {
-  return (long)CProcess::GetControlValue(idx, aValue);
+  TRACE;
+  return (long)CProcess::GetControlValue(aControlIndex, aValue);
 }
 
 long IPlugProcess::GetControlDefaultValue(long aControlIndex, long* aValue)
 {
+  TRACE;
   return (long)CProcess::GetControlDefaultValue(aControlIndex, aValue);
 }
 
@@ -257,11 +260,13 @@ long IPlugProcess::GetControlDefaultValue(long aControlIndex, long* aValue)
 
 int IPlugProcess::ProcessTouchControl (long aControlIndex)
 {
+  TRACE;
   return (int)CProcess::TouchControl(aControlIndex);
 }
 
 int IPlugProcess::ProcessReleaseControl (long aControlIndex)
 {
+  TRACE;
   return (int)CProcess::ReleaseControl(aControlIndex);
 }
 

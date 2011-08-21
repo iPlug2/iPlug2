@@ -8,6 +8,7 @@ RTAS - chunks
 RTAS - key passthrough
 RTAS - audiosuite
 RTAS - presets list
+RTAS - close session frozen buffer
 
 ALL - resource importing like cinder
 ALL - text entry dimensions

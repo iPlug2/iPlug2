@@ -29,6 +29,7 @@ public:
   CPlugInView* CreateCPlugInView();
   ComponentResult SetControlHighliteInfo (long controlIndex, short isHighlighted, short color);
   ComponentResult ChooseControl (Point aLocalCoord, long *aControlIndex);
+  //ComponentResult DoCustomPlugInSettingsFile	(	char * 	settingsFolder	 ); //TODO
   
   void setEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
   virtual int ProcessTouchControl (long aControlIndex);

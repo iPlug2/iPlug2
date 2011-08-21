@@ -132,6 +132,7 @@ void IPlugGroup::CreateEffectTypes(void)
       RTAS->AddGestalt(pluginGestalt_CanBypass);
       RTAS->AddGestalt(pluginGestalt_SupportsVariableQuanta);
       RTAS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
+      //RTAS->AddGestalt(pluginGestalt_UsesCustomPlugInSettingsFile); // TODO
       RTAS->AttachEffectProcessCreator(NewProcessRTAS);
                                
       if (nSIn)

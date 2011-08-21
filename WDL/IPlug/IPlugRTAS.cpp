@@ -160,7 +160,6 @@ void IPlugRTAS::Created(class IPlugProcessRTAS *r)
 	PruneUninitializedPresets();
 	
 	SetBlockSize(r->GetBlockSize());
-  RestorePreset(0);
 }
 
 void IPlugRTAS::AttachGraphics(IGraphics* pGraphics)

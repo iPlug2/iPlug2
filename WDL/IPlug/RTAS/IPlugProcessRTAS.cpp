@@ -14,6 +14,7 @@ IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
 : mPluginID(type)
 , mBlockSize(GetMaximumRTASQuantum()) 
 {
+  TRACE;
   mPlug = MakePlug();
   
   if (mPlug != NULL)
@@ -23,12 +24,13 @@ IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
 #endif
     
     mPlug->Created(this);
+    
   }
 }
 
 void IPlugProcessRTAS::HandleMIDI()
 {
-  TRACE;
+ // TRACE;
   
   if (mDirectMidiInterface)
   {
