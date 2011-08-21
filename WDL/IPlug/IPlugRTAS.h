@@ -54,7 +54,7 @@ public:
   void SetBlockSize(int blockSize); // Public in IPlugRTAS, protected in IPlugBase
 
 protected:
-  void HostSpecificInit();
+  virtual void HostSpecificInit() {};
   void AttachGraphics(IGraphics* pGraphics);  
   bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);

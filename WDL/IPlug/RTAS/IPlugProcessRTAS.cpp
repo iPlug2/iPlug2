@@ -123,6 +123,17 @@ void IPlugProcessRTAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicat
 	}
 }
 
+int IPlugProcessRTAS::GetSamplePos()
+{
+  if (mDirectMidiInterface)
+  {
+    Cmn_Int64 samplePos;
+    mDirectMidiInterface->GetCurrentRTASSampleLocation(&samplePos);
+    return (int) samplePos;
+  }
+  return 0;
+}
+
 double IPlugProcessRTAS::GetTempo()
 {
   if (mDirectMidiInterface)
@@ -132,6 +143,14 @@ double IPlugProcessRTAS::GetTempo()
     return (double) t;
   }
   return 0.0;
+}
+
+void IPlugProcessRTAS::GetTimeSig(int* pNum, int* pDenom)
+{
+  if (mDirectMidiInterface)
+  {
+    mDirectMidiInterface->GetCurrentMeter((Cmn_Int32*) pNum,(Cmn_Int32*) pDenom);
+  }
 }
 
 ComponentResult IPlugProcessRTAS::IsControlAutomatable(long aControlIndex, short *aItIsP)

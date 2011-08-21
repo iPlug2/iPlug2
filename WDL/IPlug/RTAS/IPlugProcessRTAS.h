@@ -15,6 +15,7 @@ class IPlugProcessRTAS : public IPlugProcess, public CEffectProcessRTAS
 {
 public:
   IPlugProcessRTAS(OSType type);
+  // TODO" should these be virtual or not?
   virtual ~IPlugProcessRTAS(void) {}
   
   virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
@@ -26,6 +27,8 @@ public:
   int GetBlockSize() { return mBlockSize; }
   
   double GetTempo();
+  void GetTimeSig(int* pNum, int* pDenom);
+  int GetSamplePos();
   
 protected:
   virtual void GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators); 

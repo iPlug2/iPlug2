@@ -107,7 +107,7 @@ void IPlugRTAS::EndInformHostOfParamChange(int idx)
 // TODO: GetSamplePos()
 int IPlugRTAS::GetSamplePos()
 {
-  return 0;
+  return mRTAS->GetSamplePos();
 }
 
 double IPlugRTAS::GetTempo()
@@ -115,9 +115,9 @@ double IPlugRTAS::GetTempo()
   return mRTAS->GetTempo();
 }
 
-// TODO: GetTimeSig()
 void IPlugRTAS::GetTimeSig(int* pNum, int* pDenom)
 {
+  mRTAS->GetTimeSig(pNum, pDenom);
 }
 
 EHost IPlugRTAS::GetHost()
@@ -144,10 +144,6 @@ void IPlugRTAS::Created(class IPlugProcessRTAS *r)
 	
 	SetBlockSize(r->GetBlockSize());
   RestorePreset(0);
-}
-
-void IPlugRTAS::HostSpecificInit()
-{
 }
 
 void IPlugRTAS::AttachGraphics(IGraphics* pGraphics)
