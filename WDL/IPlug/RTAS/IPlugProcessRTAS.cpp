@@ -57,6 +57,7 @@ void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
   
   if (mBypassed)
   {
+    // TODO: implement delay of bypassed signal equal to mPlug->GetLatency();
     if (ips>=1 && ops>=1) 
       memcpy(outputs[0],inputs[0],frames*sizeof(float));
     if (ips>=2 && ops>=2) 
@@ -204,8 +205,11 @@ ComponentResult IPlugProcessRTAS::GetChunk(OSType chunkID, SFicPlugInChunk *chun
     return CEffectProcess::GetChunk(chunkID, chunk); // Not our chunk
 }
 
-
-
-
+// this is dynamic in PT9 > 
+ComponentResult IPlugProcessRTAS::GetDelaySamplesLong(long* aNumSamples)
+{
+  *aNumSamples = (long) mPlug->GetLatency();
+  return noErr;
+}
 
 

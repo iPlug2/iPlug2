@@ -157,11 +157,6 @@ void IPlugRTAS::AttachGraphics(IGraphics* pGraphics)
   }
 }
 
-// TODO: SetLatency()
-void IPlugRTAS::SetLatency(int samples)
-{
-}
-
 // TODO: SendMidiMsg()
 bool IPlugRTAS::SendMidiMsg(IMidiMsg* pMsg)
 {

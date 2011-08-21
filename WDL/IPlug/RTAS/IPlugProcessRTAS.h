@@ -21,7 +21,8 @@ public:
   virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   virtual ComponentResult GetChunkSize(OSType chunkID, long *size);
   virtual ComponentResult IsControlAutomatable(long aControlIndex, short *aItIsP);
-  
+  virtual ComponentResult GetDelaySamplesLong(long* aNumSamples);
+
   int GetBlockSize() { return mBlockSize; }
   
   double GetTempo();

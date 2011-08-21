@@ -56,7 +56,6 @@ public:
 protected:
   void HostSpecificInit();
   void AttachGraphics(IGraphics* pGraphics);  
-  void SetLatency(int samples);
   bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   
