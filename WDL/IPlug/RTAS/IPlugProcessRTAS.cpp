@@ -153,6 +153,47 @@ void IPlugProcessRTAS::GetTimeSig(int* pNum, int* pDenom)
   }
 }
 
+void IPlugProcessRTAS::GetTime( double *pSamplePos, 
+                                double *pTempo, 
+                                double *pMusicalPos, 
+                                double *pLastBar,
+                                int* pNum, 
+                                int* pDenom,
+                                double *pCycleStart,
+                                double *pCycleEnd,
+                                bool *pTransportRunning,
+                                bool *pTransportCycle)
+{
+  if (mDirectMidiInterface)
+  {
+    Cmn_Int64 samplePos;
+    Cmn_Bool transportRunning;
+    Cmn_Int64 ticks = 0;
+
+    mDirectMidiInterface->GetCurrentRTASSampleLocation(&samplePos);
+    *pSamplePos = (double) samplePos;
+    
+    mDirectMidiInterface->GetCurrentTempo((Cmn_Float64*) pTempo);
+    mDirectMidiInterface->GetCurrentMeter((Cmn_Int32*) pNum,(Cmn_Int32*) pDenom);
+    mDirectMidiInterface->IsTransportPlaying(&transportRunning);
+    *pTransportRunning = (bool) transportRunning;
+    
+    if (transportRunning)
+      mDirectMidiInterface->GetCurrentRTASSampleLocation (&samplePos);
+    else
+      mDirectMidiInterface->GetCurrentTDMSampleLocation (&samplePos);
+    
+    mDirectMidiInterface->GetCustomTickPosition (&ticks, samplePos);
+    *pMusicalPos = ticks / 960000.0;
+    
+    // TODO: how to get these?
+    *pLastBar = 0.;
+    *pTransportCycle = false;
+    *pCycleStart = 0.;
+    *pCycleEnd = 0.;
+  }
+}
+
 ComponentResult IPlugProcessRTAS::IsControlAutomatable(long aControlIndex, short *aItIsP)
 {
   TRACE;

@@ -104,7 +104,6 @@ void IPlugRTAS::EndInformHostOfParamChange(int idx)
   }
 }
 
-// TODO: GetSamplePos()
 int IPlugRTAS::GetSamplePos()
 {
   return mRTAS->GetSamplePos();
@@ -118,6 +117,24 @@ double IPlugRTAS::GetTempo()
 void IPlugRTAS::GetTimeSig(int* pNum, int* pDenom)
 {
   mRTAS->GetTimeSig(pNum, pDenom);
+}
+
+void IPlugRTAS::GetTime(double *pSamplePos, 
+                        double *pTempo, 
+                        double *pMusicalPos, 
+                        double *pLastBar,
+                        int* pNum, 
+                        int* pDenom,
+                        double *pCycleStart,
+                        double *pCycleEnd,
+                        bool *pTransportRunning,
+                        bool *pTransportCycle) 
+{
+  mRTAS->GetTime(pSamplePos, pTempo, 
+                 pMusicalPos, pLastBar,
+                 pNum, pDenom,
+                 pCycleStart, pCycleEnd,
+                 pTransportRunning, pTransportCycle);
 }
 
 EHost IPlugRTAS::GetHost()

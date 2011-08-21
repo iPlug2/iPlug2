@@ -36,7 +36,7 @@ public:
                double *pMusicalPos, double *pLastBar,
                int* pNum, int* pDenom,
                double *pCycleStart,double *pCycleEnd,
-               bool *pTransportRunning,bool *pTransportCycle) { return; };
+               bool *pTransportRunning,bool *pTransportCycle);
   
   void ResizeGraphics(int w, int h);
   

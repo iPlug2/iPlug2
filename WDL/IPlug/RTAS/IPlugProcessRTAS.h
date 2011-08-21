@@ -29,6 +29,16 @@ public:
   double GetTempo();
   void GetTimeSig(int* pNum, int* pDenom);
   int GetSamplePos();
+  void GetTime( double *pSamplePos, 
+                double *pTempo, 
+                double *pMusicalPos, 
+                double *pLastBar,
+                int* pNum, 
+                int* pDenom,
+                double *pCycleStart,
+                double *pCycleEnd,
+                bool *pTransportRunning,
+                bool *pTransportCycle);
   
 protected:
   virtual void GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators); 
