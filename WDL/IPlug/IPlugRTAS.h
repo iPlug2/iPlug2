@@ -48,8 +48,6 @@ public:
   void SetNumInputs(int nInputs); 
   void SetNumOutputs(int nOutputs);
   void SetSideChainConnected(bool connected);
-
-  bool PluginDoesStateChunks() { return DoesStateChunks(); }
   
   void SetBlockSize(int blockSize); // Public in IPlugRTAS, protected in IPlugBase
 

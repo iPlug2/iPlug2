@@ -29,6 +29,8 @@
 #define PLUG_NAME_DIGI "IPlugMultiTargets\nIPMT"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 
+#define PLUG_CHANNEL_IO "1-1 2-2"
+
 // if you want to do anything unusual re i/o you need to #ifdef PLUG_CHANNEL_IO and PLUG_SC_CHANS depending on the api because they all do it differently...
 
 // PLUGINS WITH SIDE CHAIN INPUTS

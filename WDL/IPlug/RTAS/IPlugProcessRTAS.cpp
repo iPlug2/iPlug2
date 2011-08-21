@@ -18,10 +18,9 @@ IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
   
   if (mPlug != NULL)
   {
-    if (mPlug->PluginDoesStateChunks())
-    {
-      AddChunk(mPluginID, PLUG_MFR);
-    }
+#if PLUG_DOES_STATE_CHUNKS
+     AddChunk(mPluginID, PLUG_MFR);
+#endif
     
     mPlug->Created(this);
   }
