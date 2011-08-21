@@ -27,7 +27,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1070,
+					487,
 					20,
 					48,
 					43,
@@ -66,16 +66,17 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 334752900;
-			PBXWorkspaceStateSaveDate = 334752900;
+			PBXPerProjectTemplateStateSaveDate = 335543615;
+			PBXWorkspaceStateSaveDate = 335543615;
 		};
 		perUserProjectItems = {
-			4FDA44BF13F40126000B4551 /* PBXTextBookmark */ = 4FDA44BF13F40126000B4551 /* PBXTextBookmark */;
+			4F744CD814000EF4002FAD90 /* PBXTextBookmark */ = 4F744CD814000EF4002FAD90 /* PBXTextBookmark */;
+			4F744CD914000EF4002FAD90 /* PBXTextBookmark */ = 4F744CD914000EF4002FAD90 /* PBXTextBookmark */;
+			4F744CDA14000EF4002FAD90 /* PBXTextBookmark */ = 4F744CDA14000EF4002FAD90 /* PBXTextBookmark */;
 			4FDA44C013F40126000B4551 /* PBXTextBookmark */ = 4FDA44C013F40126000B4551 /* PBXTextBookmark */;
 			4FDA44C113F40126000B4551 /* PBXTextBookmark */ = 4FDA44C113F40126000B4551 /* PBXTextBookmark */;
 			4FDA44C213F40126000B4551 /* PBXTextBookmark */ = 4FDA44C213F40126000B4551 /* PBXTextBookmark */;
 			4FDA44C313F40126000B4551 /* PBXTextBookmark */ = 4FDA44C313F40126000B4551 /* PBXTextBookmark */;
-			4FDA44C413F40126000B4551 /* PBXBookmark */ = 4FDA44C413F40126000B4551 /* PBXBookmark */;
 			4FDA44C513F40126000B4551 /* PBXTextBookmark */ = 4FDA44C513F40126000B4551 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4F86100A13BB7F4B00BE2BB0 /* Source Control */;
@@ -96,6 +97,36 @@
 			sepNavSelRange = "{246, 0}";
 			sepNavVisRange = "{0, 246}";
 		};
+	};
+	4F744CD814000EF4002FAD90 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FDBEF5613BB835700F1C193 /* IPlugMultiTargets.h */;
+		name = "IPlugMultiTargets.h: 34";
+		rLen = 77;
+		rLoc = 634;
+		rType = 0;
+		vrLen = 410;
+		vrLoc = 483;
+	};
+	4F744CD914000EF4002FAD90 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FDBEF5513BB835700F1C193 /* IPlugMultiTargets.cpp */;
+		name = "IPlugMultiTargets.cpp: 105";
+		rLen = 0;
+		rLoc = 3298;
+		rType = 0;
+		vrLen = 270;
+		vrLoc = 0;
+	};
+	4F744CDA14000EF4002FAD90 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FDBEF5513BB835700F1C193 /* IPlugMultiTargets.cpp */;
+		name = "IPlugMultiTargets.cpp: 89";
+		rLen = 0;
+		rLoc = 2737;
+		rType = 0;
+		vrLen = 1046;
+		vrLoc = 2594;
 	};
 	4F86100113BB7F4A00BE2BB0 /* IOSAPP */ = {
 		isa = PBXExecutable;
@@ -201,16 +232,6 @@
 			sepNavWindowFrame = "{{107, 29}, {1416, 1060}}";
 		};
 	};
-	4FDA44BF13F40126000B4551 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FDBEF5513BB835700F1C193 /* IPlugMultiTargets.cpp */;
-		name = "IPlugMultiTargets.cpp: 123";
-		rLen = 0;
-		rLoc = 3298;
-		rType = 0;
-		vrLen = 264;
-		vrLoc = 0;
-	};
 	4FDA44C013F40126000B4551 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 4F86103613BB802B00BE2BB0 /* IPlugMultiTargetsAppDelegate.h */;
@@ -251,10 +272,6 @@
 		vrLen = 1105;
 		vrLoc = 98;
 	};
-	4FDA44C413F40126000B4551 /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = 4F86103A13BB802B00BE2BB0 /* MainViewController.mm */;
-	};
 	4FDA44C513F40126000B4551 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 4F86103A13BB802B00BE2BB0 /* MainViewController.mm */;
@@ -282,16 +299,16 @@
 	};
 	4FDBEF5513BB835700F1C193 /* IPlugMultiTargets.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1034, 4173}}";
-			sepNavSelRange = "{3298, 0}";
-			sepNavVisRange = "{0, 264}";
+			sepNavIntBoundsRect = "{{0, 0}, {1034, 3653}}";
+			sepNavSelRange = "{2737, 0}";
+			sepNavVisRange = "{2594, 1046}";
 		};
 	};
 	4FDBEF5613BB835700F1C193 /* IPlugMultiTargets.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1326, 936}}";
-			sepNavSelRange = "{533, 0}";
-			sepNavVisRange = "{0, 1007}";
+			sepNavIntBoundsRect = "{{0, 0}, {654, 1053}}";
+			sepNavSelRange = "{634, 77}";
+			sepNavVisRange = "{483, 410}";
 		};
 	};
 	4FDBEF5A13BB837300F1C193 /* IPlugStandalone.h */ = {

@@ -119,7 +119,9 @@ void IPlugGroup::CreateEffectTypes(void)
 
     if (sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2)    
     {
-      nIn -= nSIn;
+      // if we have a 1-N config + sidechain we don't want to include the sidechain
+      if (nIn > 1)
+        nIn -= nSIn;
       
       OSType typeId = plugid + ioConfigIdx;
       

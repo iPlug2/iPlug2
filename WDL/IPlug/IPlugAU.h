@@ -82,7 +82,6 @@ private:
   bool mActive, mBypassed;
   double mRenderTimestamp, mTempo;
   HostCallbackInfo mHostCallbacks;
-  int mNScInputChans; // the number of input channels that should be part of the sidechain bus, i.e. 2 = stereo bus
 
  // InScratchBuf is only needed if the upstream connection is a callback.
  // OutScratchBuf is only needed if the downstream connection fails to give us a buffer.  
