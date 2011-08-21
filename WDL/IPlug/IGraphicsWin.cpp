@@ -28,6 +28,45 @@ enum EParamEditMsg {
 #define IPLUG_TIMER_ID 2
 
 #ifdef RTAS_API
+// thanks juce
+HWND findMDIParentHwnd(HWND w)
+{
+	const int frameThickness = GetSystemMetrics(SM_CYFIXEDFRAME);
+
+	while (w != 0)
+	{
+		HWND parent = GetParent (w);
+
+		if (parent == 0)
+			break;
+
+		TCHAR windowType [32] = { 0 };
+		GetClassName (parent, windowType, 31);
+
+		if(strcmp(windowType, "MDIClient") == 0)
+		{
+			w = parent;
+			break;
+		}
+
+		RECT windowPos, parentPos;
+		GetWindowRect(w, &windowPos);
+		GetWindowRect(parent, &parentPos);
+
+		int dw = (parentPos.right - parentPos.left) - (windowPos.right - windowPos.left);
+		int dh = (parentPos.bottom - parentPos.top) - (windowPos.bottom - windowPos.top);
+
+		if (dw > 100 || dh > 100)
+			break;
+
+		w = parent;
+
+		if (dw == 2 * frameThickness)
+			break;
+	}
+	return w;
+}
+
 inline IMouseMod GetMouseMod(WPARAM wParam)
 {
   return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), 
@@ -281,7 +320,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if (!handle) {
         // Somehow pass the keydown message to HOST/PT
-        //SetFocus(pGraphics->GetMainWnd());
+        HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
+        SetFocus(findMDIParentHwnd(rootHWnd));
         return DefWindowProc(hWnd, msg, wParam, lParam);
       }
       else
