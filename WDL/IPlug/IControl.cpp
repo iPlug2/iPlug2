@@ -337,8 +337,12 @@ bool IFaderControl::Draw(IGraphics* pGraphics)
 void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
 {
   double gearing = mGearing;
-#if RTAS_API
-  if (pMod->C) gearing *= 10.0;  
+#ifdef RTAS_API
+  #ifdef OS_WIN
+    if (pMod->C) gearing *= 10.0;
+  #else
+    if (pMod->R) gearing *= 10.0;
+  #endif  
 #else
   if (pMod->C || pMod->S) gearing *= 10.0;  
 #endif
