@@ -4,7 +4,7 @@
 {\colortbl;\red255\green255\blue255;}
 {\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
-\paperw11900\paperh16840\margl1440\margr1440\vieww23040\viewh20760\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww23040\viewh19160\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Oli IPlug Examples\
@@ -22,7 +22,7 @@ The IPlugMultiTargets project is the main starting project, and if you wish to s
 \b Building VST2
 \b0 \
 \
-You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK in order to compile for vst2, see filestoputhere.txt\
+You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK in order to compile for vst2, see VST_SDK/readme.txt\
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
 \ls1\ilvl0\cf0 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
@@ -46,13 +46,13 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK in ord
 \b Building Standalone
 \b0 \
 \
-- To build on windows you need to extract some files into ASIO_SDK, see filestoputhere.txt\
+- To build on windows you need to extract some files into ASIO_SDK, see ASIO_SDK/readme.txt\
 \
 
 \b Building For IOS
 \b0 \
 \
-- Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.0.2 and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\
+- Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.x and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\
 - NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new guy using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\
 \
 
