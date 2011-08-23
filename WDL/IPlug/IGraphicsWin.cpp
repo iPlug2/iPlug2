@@ -320,8 +320,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if (!handle) {
         // Somehow pass the keydown message to HOST/PT
+        #ifdef RTAS_API
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
         SetFocus(findMDIParentHwnd(rootHWnd));
+        #endif
         return DefWindowProc(hWnd, msg, wParam, lParam);
       }
       else
@@ -808,7 +810,7 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
 
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
-  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) pControl->GetTextEntryLength(), 0);
+  Edit_LimitText(mParamEditWnd, pControl->GetTextEntryLength());
   SetFocus(mParamEditWnd);
   
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
