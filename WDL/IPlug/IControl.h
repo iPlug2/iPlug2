@@ -12,6 +12,8 @@
 // transforming a bitmap, or cycling through a set of bitmaps.
 // Other controls are readouts only.
 
+#define DEFAULT_TEXT_ENTRY_LEN 7
+
 class IControl
 {
 public:
@@ -20,7 +22,7 @@ public:
   IControl(IPlugBase* pPlug, IRECT pR, int paramIdx = -1, IChannelBlend blendMethod = IChannelBlend::kBlendNone)
 	:	mPlug(pPlug), mRECT(pR), mTargetRECT(pR), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
         mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false), 
-	mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false) {}
+	mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN) {}
 
 	virtual ~IControl() {}
 
@@ -51,7 +53,8 @@ public:
 	void SetValueFromUserInput(double value);
 	double GetValue() { return mValue; }
 	
-	IText* GetText() { return &mText; }	
+	IText* GetText() { return &mText; }
+  int GetTextEntryLength() { return mTextEntryLength; }
 	void SetText(IText* txt) { mText = *txt; }	
 	IRECT* GetRECT() { return &mRECT; }				// The draw area for this control.
 	IRECT* GetTargetRECT() { return &mTargetRECT; }	// The mouse target area (default = draw area).
@@ -87,6 +90,7 @@ public:
   virtual void OnGUIIdle() {}
 
 protected:
+  int mTextEntryLength;
 	IText mText;
 	IPlugBase* mPlug;
 	IRECT mRECT, mTargetRECT;

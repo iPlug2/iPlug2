@@ -261,17 +261,22 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
         {
           char c;
           GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
-		
+          UInt32 k;
+          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
+                    
           // trap enter key
           if (c == 3 || c == 13) {
             _this->EndUserInput(true);
             return noErr;
           }
           
-          // pass delete keys
-          if (c == 8 || c == 127) {
+          // pass arrow keys
+          if (k == 125 || k == 126 || k == 123 || k == 124) 
             break;
-          }
+          
+          // pass delete keys
+          if (c == 8 || c == 127)
+            break;
           
           if (_this->mEdParam) {
             switch ( _this->mEdParam->Type() ) 
@@ -289,6 +294,17 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
                 break;
             }
           }
+          
+          // check the length of the text 
+          Str31  theText;
+          Size   textLength;            
+          
+          GetControlData(_this->mTextFieldView,kControlNoPart,kControlEditTextTextTag,
+                         sizeof(theText) -1,(Ptr) &theText[1],&textLength);
+          
+          if(textLength >= _this->mEdControl->GetTextEntryLength())
+            return noErr;
+          
           break;
         }
       }

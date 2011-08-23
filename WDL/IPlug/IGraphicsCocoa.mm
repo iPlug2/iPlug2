@@ -542,6 +542,7 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
     
     [mTextFieldView setFormatter:[[[COCOA_FORMATTER alloc] init] autorelease]];	
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
+    [[mTextFieldView formatter] setMaximumLength:pControl->GetTextEntryLength()];
     [characterSet release];
   }
   
