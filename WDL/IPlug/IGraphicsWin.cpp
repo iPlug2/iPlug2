@@ -392,10 +392,8 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 	        {
 	          case IParam::kTypeEnum:
 	          case IParam::kTypeInt:
+            case IParam::kTypeBool:
 		          if (c >= '0' && c <= '9') break;
-		          else return 0;
-	          case IParam::kTypeBool:
-		          if (c == '0' || c == '1') break;
 		          else return 0;
 	          case IParam::kTypeDouble:
 		          if (c >= '0' && c <= '9') break;

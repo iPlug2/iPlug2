@@ -530,10 +530,8 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
     {
       case IParam::kTypeEnum:
       case IParam::kTypeInt:
-        [characterSet addCharactersInString:@"0123456789"];
-        break;
       case IParam::kTypeBool:
-        [characterSet addCharactersInString:@"01"];
+        [characterSet addCharactersInString:@"0123456789"];
         break;
       case IParam::kTypeDouble:
         [characterSet addCharactersInString:@"0123456789."];
