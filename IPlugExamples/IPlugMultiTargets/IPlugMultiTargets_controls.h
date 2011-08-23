@@ -1,3 +1,26 @@
+class ITempoDisplay : public IControl
+{
+private:
+  ITimeInfo* mTimeInfo;
+  char mDisp[80];
+
+public:
+  ITempoDisplay(IPlugBase* pPlug, IRECT pR, IText* pText, ITimeInfo* pTimeInfo)
+  : IControl(pPlug, pR) 
+  {
+    mText = *pText;
+    mTimeInfo = pTimeInfo;
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  {
+    sprintf(mDisp, "Tempo: %f, SamplePos: %i, PPQPos: %f", mTimeInfo->mTempo, (int) mTimeInfo->mSamplePos, mTimeInfo->mPPQPos);
+    return pGraphics->DrawIText(&mText, mDisp, &mRECT);
+  }
+  
+  bool IsDirty() { return true;}
+};
+
 class IKnobMultiControlText : public IKnobControl  
 {
 private:
@@ -93,7 +116,8 @@ public:
     
     //pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
 
-    pGraphics->FillIRect(&mColor, &IRECT(mRECT.L, mRECT.T, mRECT.R , mRECT.B - (mValue * mRECT.H() )));
+    IRECT filledBit = IRECT(mRECT.L, mRECT.T, mRECT.R , mRECT.B - (mValue * mRECT.H()));
+    pGraphics->FillIRect(&mColor, &filledBit);
     return true;
   }
   
@@ -104,13 +128,14 @@ protected:
 };
 
 class IPeakMeterHoriz : public IPeakMeterVert
-  {
+{
 public:
 
   bool Draw(IGraphics* pGraphics)
   {
     pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
-    pGraphics->FillIRect(&mColor, &IRECT(mRECT.L, mRECT.T, mRECT.L + (mValue * mRECT.W() ) , mRECT.B ));
+    IRECT filledBit = IRECT(mRECT.L, mRECT.T, mRECT.L + (mValue * mRECT.W() ) , mRECT.B );
+    pGraphics->FillIRect(&mColor, &filledBit);
     return true;
   }
 };

@@ -63,6 +63,9 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20), kGainL, &knob, &text));
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX + 75, kGainY, kGainX + 48 + 75, kGainY + 48 + 20), kGainR, &knob, &text));
 
+  IText timeText = IText(14);
+  pGraphics->AttachControl(new ITempoDisplay(this, IRECT(10, 10, kWidth, 20), &timeText, &mTimeInfo));
+  
   mMeterIdx_L = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(300, 100, 310, 200)));
   mMeterIdx_R = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(312, 100, 322, 200)));
 
@@ -110,7 +113,9 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
   double* out1 = outputs[0];
   double* out2 = outputs[1];
   double peakL = 0.0, peakR = 0.0;
-
+  
+  GetTime(&mTimeInfo);
+  
   IKeyboardControl* pKeyboard = (IKeyboardControl*) mKeyboard;
   
   if (pKeyboard->GetKey() != mKey)

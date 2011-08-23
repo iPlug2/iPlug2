@@ -62,7 +62,9 @@ private:
   double mFreq;
   double mNoteGain;
   double mPrevL, mPrevR;
-
+  
+  ITimeInfo mTimeInfo;
+  
   CParamSmooth mGainLSmoother, mGainRSmoother;
 };
 
