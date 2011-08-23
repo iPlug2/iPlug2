@@ -10,8 +10,6 @@
 #include "../wdlstring.h"
 #include "../ptrlist.h"
 
-#define MAX_ITEM_NAME_LENGTH 30
-
 class IPopupMenu;
 
 class IPopupMenuItem 
@@ -25,15 +23,20 @@ public:
 		kSeparator	= 1 << 3	///< item is a separator
 	};
 	
-	IPopupMenuItem(const char* text, int flags = kNoFlags);
+	IPopupMenuItem(const char* text, const int flags = kNoFlags)
+  : mFlags (flags)
+  , mSubmenu (0)
+  {
+    SetText(text);
+  }
 	//IPopupMenuItem (const char* text, IPopupMenu* submenu/*);
 	//IPopupMenuItem(const char* text, int tag);
 	//IPopupMenuItem (const IPopupMenuItem& item);
 	
 	~IPopupMenuItem(){}
 	
-	void SetText (const char* text);
-	const char* GetText() { return mText; };
+	void SetText(const char* text) { mText.Set(text); }
+	const char* GetText() { return mText.Get(); };
 	
 	bool GetEnabled () const { return !(mFlags & kDisabled); }
 	bool GetChecked () const { return (mFlags & kChecked) != 0; }
@@ -43,7 +46,7 @@ public:
 	IPopupMenu* GetSubmenu () const { return mSubmenu; }
   
 protected:
-	char mText[MAX_ITEM_NAME_LENGTH];
+	WDL_String mText;
 	IPopupMenu* mSubmenu;
 	int mFlags;
 };
@@ -52,8 +55,8 @@ class IPopupMenu
 {
 public:
 	
-	IPopupMenu();
-	~IPopupMenu();
+  IPopupMenu() : mChosenItemIdx(-1), mPrefix(0) {}
+  ~IPopupMenu() {}
 	
 	virtual IPopupMenuItem* AddItem(IPopupMenuItem* item, const int index = -1);
 	//virtual IPopupMenuItem* AddItem(IPopupMenu* submenu, const char* text);

@@ -1,21 +1,5 @@
 #include "IPopupMenu.h"
 
-IPopupMenuItem::IPopupMenuItem(const char* text, const int flags)
-: mFlags (flags)
-, mSubmenu (0)
-{
-	SetText (text);
-}
-
-void IPopupMenuItem::SetText(const char* text)
-{
-	//TODO: is this a bit brash?
-	strcpy (mText, text);
-}
-
-IPopupMenu::IPopupMenu() : mChosenItemIdx(-1), mPrefix(0) {}
-IPopupMenu::~IPopupMenu() {}
-
 IPopupMenuItem* IPopupMenu::GetItem(const int itemIdx)
 {
 	int nItems = GetNItems();
@@ -27,7 +11,6 @@ IPopupMenuItem* IPopupMenu::GetItem(const int itemIdx)
 	else {
 		return 0;
 	}
-
 }
 
 IPopupMenuItem* IPopupMenu::AddItem(IPopupMenuItem* item, const int index)
