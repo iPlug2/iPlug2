@@ -62,6 +62,9 @@
     <ClInclude Include="IPlugMultiTargets.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="IPlugMultiTargets_controls.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">

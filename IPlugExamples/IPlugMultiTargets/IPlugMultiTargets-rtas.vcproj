@@ -719,6 +719,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\IPlugMultiTargets_controls.h"
+			>
+		</File>
+		<File
 			RelativePath=".\resource.h"
 			>
 		</File>

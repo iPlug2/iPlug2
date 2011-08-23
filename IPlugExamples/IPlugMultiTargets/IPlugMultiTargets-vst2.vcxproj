@@ -368,6 +368,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="IPlugMultiTargets.h" />
+    <ClInclude Include="IPlugMultiTargets_controls.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
