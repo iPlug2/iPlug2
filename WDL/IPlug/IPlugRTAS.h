@@ -29,15 +29,11 @@ public:
   
   int GetSamplePos();   // Samples since start of project.
   double GetTempo();
-  void GetTimeSig(int* pNum, int* pDenom);
+  void GetTimeSig(int* pNum, int* pDenom);  
+  void GetTime(ITimeInfo* pTimeInfo);
+  
   EHost GetHost();  // GetHostVersion() is inherited.
-  
-  void GetTime(double *pSamplePos, double *pTempo, 
-               double *pMusicalPos, double *pLastBar,
-               int* pNum, int* pDenom,
-               double *pCycleStart,double *pCycleEnd,
-               bool *pTransportRunning,bool *pTransportCycle);
-  
+
   void ResizeGraphics(int w, int h);
   
   void Created(class IPlugProcessRTAS *r);

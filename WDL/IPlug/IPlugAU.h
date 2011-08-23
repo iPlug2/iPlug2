@@ -49,11 +49,7 @@ public:
 	int GetSamplePos();   // Samples since start of project.
 	double GetTempo();
 	void GetTimeSig(int* pNum, int* pDenom);
-	void GetTime(double *pSamplePos, double *pTempo, 
-		     double *pMusicalPos, double *pLastBar,
-		     int* pNum, int* pDenom,
-		     double *pCycleStart,double *pCycleEnd,
-		     bool *pTransportRunning,bool *pTransportCycle);
+	void GetTime(ITimeInfo* pTimeInfo);
 	EHost GetHost();  // GetHostVersion() is inherited.
   
   // Tell the host that the graphics resized.

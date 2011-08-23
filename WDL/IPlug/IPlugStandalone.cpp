@@ -26,17 +26,14 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
-  int nInputs = NInChannels(), nOutputs = NOutChannels();
-
-  SetInputChannelConnections(0, nInputs, true);
-  SetOutputChannelConnections(0, nOutputs, true);  
+  SetInputChannelConnections(0, NInChannels(), true);
+  SetOutputChannelConnections(0, NOutChannels(), true);  
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("standalone", vendorVersion); // TODO:vendor version correct?
   
 #ifdef OS_IOS
   mIOSLink = instanceInfo.mIOSLink;
-  //TODO coremidi ios
 #else
   mMidiOutChan = instanceInfo.mMidiOutChan;
   mMidiOut = instanceInfo.mRTMidiOut;
@@ -74,10 +71,7 @@ double IPlugStandalone::GetTempo()
 }
 
 // TODO: GetTime()
-void IPlugStandalone::GetTime(double *pSamplePos, double *pTempo, double *pMusicalPos, double *pLastBar,
-                       int* pNum, int* pDenom,
-                       double *pCycleStart,double *pCycleEnd,
-                       bool *pTransportRunning,bool *pTransportCycle)
+void IPlugStandalone::GetTime(ITimeInfo* pTimeInfo)
 {
 }
 

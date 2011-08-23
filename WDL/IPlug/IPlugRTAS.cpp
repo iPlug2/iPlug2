@@ -119,22 +119,13 @@ void IPlugRTAS::GetTimeSig(int* pNum, int* pDenom)
   mRTAS->GetTimeSig(pNum, pDenom);
 }
 
-void IPlugRTAS::GetTime(double *pSamplePos, 
-                        double *pTempo, 
-                        double *pMusicalPos, 
-                        double *pLastBar,
-                        int* pNum, 
-                        int* pDenom,
-                        double *pCycleStart,
-                        double *pCycleEnd,
-                        bool *pTransportRunning,
-                        bool *pTransportCycle) 
+void IPlugRTAS::GetTime(ITimeInfo* pTimeInfo) 
 {
-  mRTAS->GetTime(pSamplePos, pTempo, 
-                 pMusicalPos, pLastBar,
-                 pNum, pDenom,
-                 pCycleStart, pCycleEnd,
-                 pTransportRunning, pTransportCycle);
+  mRTAS->GetTime(&pTimeInfo->mSamplePos, &pTimeInfo->mTempo, 
+                 &pTimeInfo->mPPQPos, &pTimeInfo->mLastBar,
+                 &pTimeInfo->mNumerator, &pTimeInfo->mDenominator,
+                 &pTimeInfo->mCycleStart, &pTimeInfo->mCycleEnd,
+                 &pTimeInfo->mTransportIsRunning, &pTimeInfo->mTransportLoopEnabled);
 }
 
 EHost IPlugRTAS::GetHost()

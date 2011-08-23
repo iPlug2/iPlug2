@@ -286,6 +286,30 @@ struct IMidiMsg
   void LogMsg();
 };
 
+struct ITimeInfo 
+{
+  double mTempo;
+  double mSamplePos;
+  double mPPQPos;
+  double mLastBar;
+  double mCycleStart;
+  double mCycleEnd;
+  
+  int mNumerator;
+  int mDenominator;
+  
+  bool mTransportIsRunning;
+  bool mTransportLoopEnabled;
+  
+  ITimeInfo()
+  {
+    mSamplePos = mSamplePos = mTempo = mPPQPos = mLastBar = mCycleStart = mCycleEnd = -1.0;
+    mTempo = 120.;
+    mNumerator = mDenominator = 4;
+    mTransportIsRunning = mTransportLoopEnabled = false;
+  }
+};
+
 const int MAX_PRESET_NAME_LEN = 256;
 #define UNUSED_PRESET_NAME "empty"
 

@@ -112,13 +112,8 @@ public:
 	virtual double GetTempo() = 0;
 	double GetSamplesPerBeat();
 	virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
-	virtual void GetTime(double *pSamplePos, double *pTempo, 
-			     double *pMusicalPos, double *pLastBar,
-			     int* pNum, int* pDenom,
-			     double *pCycleStart,double *pCycleEnd,
-			     bool *pTransportRunning,bool *pTransportCycle) = 0;
-  
-	virtual EHost GetHost() { return mHost; }
+	virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
+  virtual EHost GetHost() { return mHost; }
 	int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetHostVersionStr(char* str);
   

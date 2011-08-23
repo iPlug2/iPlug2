@@ -134,46 +134,32 @@ void IPlugVST::GetTimeSig(int* pNum, int* pDenom)
 	}
 }
 
-// cc: I need all this stuff, and I guess once you need one bit. you probably need it all
-//  Always returns non-zero, positive values for tempo, pNum and pDemum (120bpm 4/4 if
-//   it doesn't get anything sensible back)
-//  I haven't tested the AU version very well
-void IPlugVST::GetTime(double *pSamplePos, double *pTempo, double *pMusicalPos, double *pLastBar,
-		       int* pNum, int* pDenom,
-		       double *pCycleStart,double *pCycleEnd,
-		       bool *pTransportRunning,bool *pTransportCycle)
+void IPlugVST::GetTime(ITimeInfo* pTimeInfo)
 {
-  *pSamplePos = *pMusicalPos = *pLastBar = *pCycleStart = *pCycleEnd = -1.0;
-  *pTempo = 120;
-  *pNum = *pDenom = 4;
-  VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect, 
-				 kVstPpqPosValid |
-				 kVstTempoValid |
-				 kVstBarsValid |
-				 kVstCyclePosValid |
-				 kVstTimeSigValid );
+  VstTimeInfo* pTI = GetTimeInfo(mHostCallback, 
+                                 &mAEffect, 
+                                 kVstPpqPosValid |
+                                 kVstTempoValid |
+                                 kVstBarsValid |
+                                 kVstCyclePosValid |
+                                 kVstTimeSigValid );
+  
   if (pTI) {
-    *pSamplePos = pTI->samplePos;
+    pTimeInfo->mSamplePos = pTI->samplePos;
 	    
-    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) {
-      *pMusicalPos = pTI->ppqPos;
-    }
-    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) {
-      *pTempo = pTI->tempo;
-    }
-    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) {
-      *pLastBar = pTI->barStartPos;
-    }
+    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) pTimeInfo->mPPQPos = pTI->ppqPos;
+    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) pTimeInfo->mTempo = pTI->tempo;
+    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) pTimeInfo->mLastBar = pTI->barStartPos;
     if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0) {
-      *pCycleStart = pTI->cycleStartPos;
-      *pCycleEnd = pTI->cycleEndPos;
+      pTimeInfo->mCycleStart = pTI->cycleStartPos;
+      pTimeInfo->mCycleEnd = pTI->cycleEndPos;
     }
     if ((pTI->flags & kVstTimeSigValid) && pTI->timeSigNumerator > 0.0 && pTI->timeSigDenominator > 0.0) {
-      *pNum = pTI->timeSigNumerator;
-      *pDenom = pTI->timeSigDenominator;
+      pTimeInfo->mNumerator = pTI->timeSigNumerator;
+      pTimeInfo->mDenominator = pTI->timeSigDenominator;
     }
-    *pTransportRunning = pTI->flags & kVstTransportPlaying;
-    *pTransportCycle   = pTI->flags & kVstTransportCycleActive;
+    pTimeInfo->mTransportIsRunning = pTI->flags & kVstTransportPlaying;
+    pTimeInfo->mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
   }
 }
 
