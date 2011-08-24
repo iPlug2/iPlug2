@@ -250,8 +250,6 @@ void IPlugCustomUI::Draw(long left, long top, long right, long bottom)
 {
   if (mGraphics)
   { 
-    // this only seems to get called when the window is opened in our case..
-    // since IPlug handles all control drawing, just mark the window to be redrawn.. seems to work..!
     mGraphics->SetAllControlsDirty();
   }
 }
