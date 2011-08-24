@@ -162,12 +162,14 @@ protected:
   // MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
   // nParamsNamed may be less than the total number of params.
   void MakePresetFromNamedParams(char* name, int nParamsNamed, ...);
+  void MakePresetFromChunk(char* name, ByteChunk* pChunk);
+  void MakePresetFromBlob(char* name, const char* blob, int sizeOfChunk);
 
   bool DoesStateChunks() { return mStateChunks; }
   // Will append if the chunk is already started.
-  bool SerializeParams(ByteChunk* pChunk);
+  virtual bool SerializeParams(ByteChunk* pChunk);
   // Returns the new chunk position (endPos).
-  int UnserializeParams(ByteChunk* pChunk, int startPos);
+  virtual int UnserializeParams(ByteChunk* pChunk, int startPos);
 #ifndef OS_IOS
   virtual void RedrawParamControls();  // Called after restoring state.
 #endif

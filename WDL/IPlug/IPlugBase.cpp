@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "../wdlendian.h"
+#include "../base64encdec.h"
 
 #ifndef VstInt32
   #ifdef WIN32
@@ -510,6 +511,26 @@ void IPlugBase::MakePresetFromNamedParams(char* name, int nParamsNamed, ...)
       pPreset->mChunk.Put(pV);
     }
   }
+}
+
+void IPlugBase::MakePresetFromChunk(char* name, ByteChunk* pChunk)
+{
+  IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
+  if (pPreset) {
+    pPreset->mInitialized = true;
+    strcpy(pPreset->mName, name);
+    
+    pPreset->mChunk.PutChunk(pChunk);
+  }
+}
+
+void IPlugBase::MakePresetFromBlob(char* name, const char* blob, int sizeOfChunk)
+{
+  ByteChunk presetChunk;
+  presetChunk.Resize(sizeOfChunk);
+  base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
+  
+  MakePresetFromChunk(name, &presetChunk);
 }
 
 #define DEFAULT_USER_PRESET_NAME "user preset"
