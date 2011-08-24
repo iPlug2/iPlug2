@@ -11,6 +11,16 @@ enum EParams
   kNumParams
 };
 
+enum ELayout
+{
+  kWidth = 300,
+  kHeight = 300,
+
+  kGainX = 100,
+  kGainY = 100,
+  kKnobFrames = 60
+};
+
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 :	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
@@ -19,6 +29,11 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGain)->InitDouble("Gain", 0.0, -70.0, 12.0, 0.1, "dB");
   
+  IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
+  pGraphics->AttachPanelBackground(&COLOR_RED);
+  IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
+  pGraphics->AttachControl(new IKnobMultiControl(this, kGainX, kGainY, kGain, &knob));
+  AttachGraphics(pGraphics);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset((char *) "-", kNumPrograms);
 }
