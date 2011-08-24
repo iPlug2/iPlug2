@@ -21,10 +21,6 @@
   #define PLUGIN_SDK_BUILD          1
   #define PLUGIN_SDK_DIRECTMIDI     1
 
-// the Digidesign projects all use a struct alignment of 2..
-//  #pragma pack (2)
-//  #pragma warning (disable: 4267 4996 4311 4312 4103)
-
   #include "ForcedInclude.h"
 
 #else
