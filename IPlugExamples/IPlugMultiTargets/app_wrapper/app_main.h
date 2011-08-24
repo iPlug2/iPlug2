@@ -17,24 +17,7 @@
  Windows XP/Vista: C:\Documents and Settings\USERNAME\Local Settings\Application Data\IPlugMultiTargets\settings.ini
  OSX: /Users/USERNAME/Library/Application\ Support/IPlugMultiTargets/settings.ini
  
- TODO:
- 
- - fix bug with coreaudio stream SR & bitdepth not set properly on 10.6 when SR changed in the prefs. On restart all is fine
- - fade out audio stream when changing settings?
- - make it work with no audio input & look at PLUG_IS_INST
- - make it work with variable i/o count
- - make it work with non-gui plugins
- - transport & tempo generator
- - missing funtions in IPlugStandalone.h
- - windows midi - sendmidimsg cause a crash
- - windows midi - MS Built in GS Synth crashes when selected in prefs (XP)
- - state persistance - save fxp & option
- - look again at JACK client osx
- - get latency and display
- - improve MIDI output timing (portmidi instead of RTMidi?)
- 
 */
-
 
 #ifdef OS_WIN
   #include <windows.h>

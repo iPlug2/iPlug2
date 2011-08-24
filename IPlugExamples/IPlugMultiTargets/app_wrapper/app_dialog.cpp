@@ -508,6 +508,14 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
       DestroyWindow(hwndDlg);
     return 0;
+//    case WM_GETDLGCODE: {
+//        LPARAM lres;
+//        lres = CallWindowProc(/*TODO GET PROC */, hWnd, WM_GETDLGCODE, wParam, lParam);
+//        if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_LEFT) {
+//          lres |= DLGC_WANTMESSAGE;
+//        }
+//        return lres;
+//      }
     case WM_COMMAND:
       switch (LOWORD(wParam))
       {
