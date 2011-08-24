@@ -153,13 +153,16 @@ inline int LiceBlendMode(const IChannelBlend* pBlend)
 
 IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS)
 :	mPlug(pPlug), mWidth(w), mHeight(h), mIdleTicks(0), 
-  mMouseCapture(-1), mMouseOver(-1), mMouseX(0), mMouseY(0), mHandleMouseOver(false), mStrict(true), mDrawBitmap(0), mTmpBitmap(0), mLastClickedParam(-1) 
+  mMouseCapture(-1), mMouseOver(-1), mMouseX(0), mMouseY(0), mHandleMouseOver(false), mStrict(true), mDrawBitmap(0), mTmpBitmap(0), mLastClickedParam(-1), mKeyCatcher(0)
 {
 	mFPS = (refreshFPS > 0 ? refreshFPS : DEFAULT_FPS);
 }
 
 IGraphics::~IGraphics()
 {
+  if (mKeyCatcher)
+    DELETE_NULL(mKeyCatcher);
+
   mControls.Empty(true);
   DELETE_NULL(mDrawBitmap);
 	DELETE_NULL(mTmpBitmap);
@@ -217,6 +220,11 @@ int IGraphics::AttachControl(IControl* pControl)
 {
 	mControls.Add(pControl);
   return mControls.GetSize() - 1;
+}
+
+void IGraphics::AttachKeyCatcher(IControl* pControl)
+{
+  mKeyCatcher = pControl;
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)
@@ -828,13 +836,12 @@ void IGraphics::ReleaseMouseCapture()
 bool IGraphics::OnKeyDown(int x, int y, int key)
 {
 	int c = GetMouseControlIdx(x, y);
-	if (c >= 0) {
-		return mControls.Get(c)->OnKeyDown(x, y, key);
-	}
-  else {
+	if (c > 0) 
+    return mControls.Get(c)->OnKeyDown(x, y, key);
+  else if (mKeyCatcher) 
+    return mKeyCatcher->OnKeyDown(x, y, key);
+  else 
     return false;
-  }
-
 }
 
 int IGraphics::GetMouseControlIdx(int x, int y, bool mo)
@@ -843,7 +850,7 @@ int IGraphics::GetMouseControlIdx(int x, int y, bool mo)
 		return mMouseCapture;
 	}
   
-  bool allow; // this is so that mouseovers can still be called when a control is disabled
+  bool allow; // this is so that mouseovers can still be called when a control is greyed out
 
 	// The BG is a control and will catch everything, so assume the programmer
 	// attached the controls from back to front, and return the frontmost match.

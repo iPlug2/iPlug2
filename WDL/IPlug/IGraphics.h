@@ -105,6 +105,7 @@ public:
   IBitmap CropBitmap(IBitmap* pSrcBitmap, IRECT* pR);
   void AttachBackground(int ID, const char* name);
   void AttachPanelBackground(const IColor *pColor);
+  void AttachKeyCatcher(IControl* pControl);
 
   // Returns the control index of this control (not the number of controls).
   int AttachControl(IControl* pControl);
@@ -190,6 +191,7 @@ private:
   int GetMouseControlIdx(int x, int y, bool mo = false);
   int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;
   bool mHandleMouseOver, mStrict;
+  IControl* mKeyCatcher;
 };
 
 #endif

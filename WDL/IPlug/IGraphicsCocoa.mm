@@ -326,8 +326,8 @@ static WindowRef FindNamedCarbonWindow(WindowClass wcl, const char *s, bool exac
     int key;     
     
     if (k == 49) key = KEY_SPACE;
-    else if (k == 125) key = KEY_UPARROW;
-    else if (k == 126) key = KEY_DOWNARROW;
+    else if (k == 126) key = KEY_UPARROW;
+    else if (k == 125) key = KEY_DOWNARROW;
     else if (k == 123) key = KEY_LEFTARROW;
     else if (k == 124) key = KEY_RIGHTARROW;
     else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
