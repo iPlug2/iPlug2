@@ -1216,7 +1216,7 @@ struct BufferList {
 inline ComponentResult RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp,
   UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
-  TRACE;
+  TRACE_PROCESS;
   return pCB->inputProc(pCB->inputProcRefCon, pFlags, pTimestamp, inputBusIdx, nFrames, pOutBufList);
 }
 

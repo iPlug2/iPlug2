@@ -700,7 +700,7 @@ void IPlugVST::VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
 // Deprecated.
 void VSTCALLBACK IPlugVST::VSTProcess(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 { 
-  TRACE;
+  TRACE_PROCESS;
 	IPlugVST* _this = (IPlugVST*) pEffect->object;
   IMutexLock lock(_this);
   _this->VSTPrepProcess(inputs, outputs, nFrames);
@@ -709,7 +709,7 @@ void VSTCALLBACK IPlugVST::VSTProcess(AEffect* pEffect, float** inputs, float** 
 
 void VSTCALLBACK IPlugVST::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 { 
-  //TRACE;
+  TRACE_PROCESS;
 	IPlugVST* _this = (IPlugVST*) pEffect->object;
   IMutexLock lock(_this);
   _this->VSTPrepProcess(inputs, outputs, nFrames);
@@ -718,7 +718,7 @@ void VSTCALLBACK IPlugVST::VSTProcessReplacing(AEffect* pEffect, float** inputs,
 
 void VSTCALLBACK IPlugVST::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
 {  
-  TRACE;
+  TRACE_PROCESS;
   IPlugVST* _this = (IPlugVST*) pEffect->object;
   IMutexLock lock(_this);
   _this->VSTPrepProcess(inputs, outputs, nFrames);

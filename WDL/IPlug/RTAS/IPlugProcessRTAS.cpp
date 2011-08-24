@@ -30,8 +30,6 @@ IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
 
 void IPlugProcessRTAS::HandleMIDI()
 {
- // TRACE;
-  
   if (mDirectMidiInterface)
   {
     for (int nodeIdx=0; nodeIdx < mDirectMidiInterface->directMidiParamBlkPtr->mNumMidiNodes; ++nodeIdx)
@@ -50,9 +48,14 @@ void IPlugProcessRTAS::HandleMIDI()
 
 void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
 {
-  HandleMIDI();
+  TRACE_PROCESS;
   
+#if PLUG_DOES_MIDI
+  HandleMIDI();
+#endif
+
   // Two possible cases for RTAS since ip==op for PT8 and below.
+  // TODO: do we need to call these here?
   long ips=GetNumInputs();
   long ops=GetNumOutputs();
   

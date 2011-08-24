@@ -34,8 +34,11 @@
 
 #if defined TRACER_BUILD
   #define TRACE Trace(TRACELOC, "");
+//  #define TRACE_PROCESS Trace(TRACELOC, "");
+  #define TRACE_PROCESS
 #else
   #define TRACE
+  #define TRACE_PROCESS
 #endif
 
 #define TRACELOC __FUNCTION__,__LINE__
