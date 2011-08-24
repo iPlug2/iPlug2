@@ -6,9 +6,8 @@
 
 //#define TRACETOSTDOUT
 
-#ifdef OS_WIN
+#ifdef _WIN32
   #define LOGFILE "C:\\IPlugLog.txt"
-
   #ifndef _NDEBUG
     void DBGMSG(const char *format, ...)
     {
@@ -34,7 +33,7 @@
   #endif
 
 #else
-  #define LOGFILE "/Users/oli/Desktop/IPlugLog.txt"
+  #define LOGFILE "IPlugLog.txt" // will get put on Desktop
 #endif
   
 const int TXTLEN = 1024;
@@ -60,10 +59,17 @@ const int TXTLEN = 1024;
 struct LogFile
 {
 	FILE* mFP;
-
+  
 	LogFile() 
   {
+#ifdef _WIN32
     mFP = fopen(LOGFILE, "w");
+#else
+    char logFilePath[100];
+    char* home = getenv("HOME");
+    sprintf(logFilePath, "%s/Desktop/%s", home, LOGFILE);
+    mFP = fopen(logFilePath, "w");
+#endif
     assert(mFP);
   }
   
