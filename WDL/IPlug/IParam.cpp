@@ -63,11 +63,11 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     
 void IParam::SetShape(double shape)
 {
-#ifndef RTAS_API
+//#ifndef RTAS_API
     if (shape != 0.0) {
         mShape = shape;
     }
-#endif
+//#endif
 }
 
 void IParam::SetDisplayText(int value, const char* text) 

@@ -214,7 +214,7 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
   if (idx==mMasterBypassIndex)  return;
   
   CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(idx));
-  double value=0;
+  double value = 0.;
   
   if (cc) 
     value = LongToDoubleLinear((double)cc->GetValue());
@@ -223,7 +223,6 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
   
   if (idx >= 0 && idx < mPlug->NParams()) 
   {
-    printf("value %f\n", value);
     mPlug->GetParam(idx)->SetNormalized(value);
     
     if (mPlug->GetGUI()) 

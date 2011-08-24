@@ -1,3 +1,4 @@
+// Key catcher is an icontrol but only its OnKeyDown() is called... after all the other controls have been tested to see if they want keyboard input
 class IKeyCatcher : public IControl
 { 
 public:
