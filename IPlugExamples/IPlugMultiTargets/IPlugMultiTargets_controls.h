@@ -1,3 +1,36 @@
+class IKeyCatcher : public IControl
+{ 
+public:
+  IKeyCatcher(IPlugBase* pPlug, IRECT pR)
+  : IControl(pPlug, pR) {}
+  
+  // this never gets called but is needed for an IControl
+  bool Draw(IGraphics* pGraphics) { return false; }
+  
+  bool OnKeyDown(int x, int y, int key)
+  {
+    switch (key) {
+      case KEY_SPACE:
+        DBGMSG("Space\n");
+        return true;
+      case KEY_LEFTARROW:;
+        DBGMSG("Left\n");
+        return true;
+      case KEY_RIGHTARROW:
+        DBGMSG("Right\n");
+        return true;
+      case KEY_UPARROW:;
+        DBGMSG("Up\n");
+        return true;
+      case KEY_DOWNARROW:
+        DBGMSG("Down\n");
+        return true;
+      default:
+        return false;
+    }
+  }
+};
+
 class ITempoDisplay : public IControl
 {
 private:
@@ -53,26 +86,6 @@ public:
       return pGraphics->DrawIText(&mText, disp, &mTextRECT);
     }
     return true;
-  }
-  
-  bool OnKeyDown(int x, int y, int key)
-  {
-    IMidiMsg msg;
-    switch (key) {
-      case KEY_SPACE:
-        DBGMSG("space bar handled\n");
-        return true;
-      case KEY_LEFTARROW:
-        msg.MakeNoteOnMsg(60, 127, 0);
-        mPlug->ProcessMidiMsg(&msg);
-        return true;
-      case KEY_RIGHTARROW:
-        msg.MakeNoteOffMsg(60, 0);
-        mPlug->ProcessMidiMsg(&msg);
-        return true;
-      default:
-        return false;
-    }
   }
   
 	void OnMouseDown(int x, int y, IMouseMod* pMod)

@@ -66,6 +66,8 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   IText timeText = IText(14);
   pGraphics->AttachControl(new ITempoDisplay(this, IRECT(10, 10, kWidth, 20), &timeText, &mTimeInfo));
   
+  pGraphics->AttachKeyCatcher(new IKeyCatcher(this, IRECT(0, 0, kWidth, kHeight)));
+  
   mMeterIdx_L = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(300, 100, 310, 200)));
   mMeterIdx_R = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(312, 100, 322, 200)));
 
