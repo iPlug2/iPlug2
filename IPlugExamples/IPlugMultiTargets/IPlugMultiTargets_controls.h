@@ -2,7 +2,7 @@ class ITempoDisplay : public IControl
 {
 private:
   ITimeInfo* mTimeInfo;
-  char mDisp[80];
+  WDL_String mDisplay;
 
 public:
   ITempoDisplay(IPlugBase* pPlug, IRECT pR, IText* pText, ITimeInfo* pTimeInfo)
@@ -14,8 +14,8 @@ public:
   
   bool Draw(IGraphics* pGraphics)
   {
-    sprintf(mDisp, "Tempo: %f, SamplePos: %i, PPQPos: %f", mTimeInfo->mTempo, (int) mTimeInfo->mSamplePos, mTimeInfo->mPPQPos);
-    return pGraphics->DrawIText(&mText, mDisp, &mRECT);
+    mDisplay.SetFormatted(80, "Tempo: %f, SamplePos: %i, PPQPos: %f", mTimeInfo->mTempo, (int) mTimeInfo->mSamplePos, mTimeInfo->mPPQPos);
+    return pGraphics->DrawIText(&mText, mDisplay.Get(), &mRECT);
   }
   
   bool IsDirty() { return true;}
