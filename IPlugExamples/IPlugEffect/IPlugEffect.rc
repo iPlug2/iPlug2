@@ -1,0 +1,5 @@
+#include "resource.h"
+
+KNOB_ID       PNG KNOB_FN
+BG_ID         PNG BG_FN
+

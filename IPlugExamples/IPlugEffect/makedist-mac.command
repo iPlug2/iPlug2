@@ -1,0 +1,117 @@
+#! /bin/sh
+
+BASEDIR=$(dirname $0)
+
+cd $BASEDIR
+
+VERSION=`echo | grep PLUG_VER resource.h`
+VERSION=${VERSION//\#define PLUG_VER }
+VERSION=${VERSION//\'}
+MAJOR_VERSION=$(($VERSION & 0xFFFF0000))
+MAJOR_VERSION=$(($MAJOR_VERSION >> 16)) 
+MINOR_VERSION=$(($VERSION & 0x0000FF00))
+MINOR_VERSION=$(($MINOR_VERSION >> 8)) 
+BUG_FIX=$(($VERSION & 0x000000FF))
+
+VST2="/Library/Audio/Plug-Ins/VST/IPlugEffect.vst"
+APP="/Applications/IPlugEffect.app"
+AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugEffect.component"
+RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugEffect.dpm"
+
+echo "making IPlugEffect version $MAJOR_VERSION.$MINOR_VERSION.$BUG_FIX mac distribution..."
+echo ""
+
+echo updating version numbers
+echo ""
+./update_version.py --major $MAJOR_VERSION --minor $MINOR_VERSION --bug $BUG_FIX
+
+#remove existing dist folder
+#if [ -d installer/dist ] 
+#then
+#  rm -R installer/dist
+#fi
+
+#mkdir installer/dist
+
+#remove existing App
+if [ -d $APP ] 
+then
+  rm -R -f $APP
+fi
+
+#remove existing AU
+if [ -d $AUDIOUNIT ] 
+then
+  rm -R $AUDIOUNIT
+fi
+
+#remove existing VST
+if [ -d $VST2 ] 
+then
+  rm -R $VST2
+fi
+
+#remove existing RTAS
+if [ -d $RTAS ] 
+then
+  rm -R $RTAS
+fi
+
+xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release
+#xcodebuild -project IPlugEffect-ios.xcodeproj -xcconfig IPlugEffect.xcconfig -target "IOSAPP" -configuration Release
+
+#icon stuff - http://maxao.free.fr/telechargements/setfileicon.gz
+echo "setting icons"
+echo ""
+setfileicon resources/IPlugEffect.icns $AUDIOUNIT
+setfileicon resources/IPlugEffect.icns $VST2
+setfileicon resources/IPlugEffect.icns $RTAS
+
+#appstore stuff
+
+echo "building plugins only installer"
+echo ""
+freeze installer/IPlugEffect-plugins.packproj
+mv installer/build-mac/install-plugins.pkg /Applications/IPlugEffect.app/Contents/Resources/install-plugins.pkg
+cp installer/changelog.txt /Applications/IPlugEffect.app/Contents/Resources/changelog.txt
+
+echo "code signing app"
+echo ""
+codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
+ 
+echo "building pkg for app store"
+productbuild \
+     --component $APP /Applications \
+     --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
+     --product "/Applications/IPlugEffect.app/Contents/Info.plist" installer/IPlugEffect.pkg
+
+# installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
+
+#rm -R -f /Applications/IPlugEffect.app/Contents/Resources/install-plugins.pkg
+rm -R -f installer/IPlugEffect-mac.dmg
+
+echo "building all installer"
+echo ""
+freeze installer/IPlugEffect-all.packproj
+
+# dmg, uses dmgcanvas http://www.araelium.com/dmgcanvas/
+
+echo "building dmg"
+echo ""
+dmgcanvas installer/IPlugEffect.dmgCanvas installer/IPlugEffect-mac.dmg
+
+rm -R -f installer/build-mac/
+
+# echo "copying binaries..."
+# echo ""
+# cp -R $AUDIOUNIT installer/dist/IPlugEffect.component
+# cp -R $VST2 installer/dist/IPlugEffect.vst
+# cp -R $RTAS installer/dist/IPlugEffect.dpm
+# cp -R $APP installer/dist/IPlugEffect.app
+# 
+# echo "zipping binaries..."
+# echo ""
+# ditto -c -k installer/dist installer/IPlugEffect-mac.zip
+# rm -R installer/dist
+
+echo "done"
