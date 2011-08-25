@@ -169,7 +169,14 @@ void IGraphicsMac::AttachSubWindow (void* hostWindowRef)
   [hostWindow setReleasedWhenClosed: YES];
   
   NSRect w = [hostWindow frame];
-  NSRect windowRect = NSMakeRect(w.origin.x, w.origin.y, Width(), Height());
+  
+  int xOffset = 0;
+  
+  if (w.size.width > Width()) {
+    xOffset = (int) floor((w.size.width - Width()) / 2.);
+  }
+  
+  NSRect windowRect = NSMakeRect(w.origin.x + xOffset, w.origin.y, Width(), Height());
   CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect 
                                                                             styleMask:( NSBorderlessWindowMask ) 
                                                                               backing:NSBackingStoreBuffered defer:NO];
