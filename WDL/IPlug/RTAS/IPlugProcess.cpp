@@ -221,18 +221,10 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
 
   idx -= kPTParamIdxOffset;
   
-  if (idx >= 0 && idx < mPlug->NParams()) 
-  {
-    mPlug->GetParam(idx)->SetNormalized(value);
-    
-    if (mPlug->GetGUI()) 
-      mPlug->GetGUI()->SetParameterFromPlug(idx, value, true);
-
-    mPlug->OnParamChange(idx);
-  }
+  mPlug->SetParameter(idx, value);
 }
 
-long IPlugProcess::SetControlValue (long aControlIndex, long aValue)
+long IPlugProcess::SetControlValue(long aControlIndex, long aValue)
 {
   TRACE;
   CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(aControlIndex));

@@ -170,3 +170,19 @@ bool IPlugRTAS::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
 {
   return false;
 }
+
+void IPlugRTAS::SetParameter(int idx, double value)
+{
+  IMutexLock lock(this);
+  
+  if (idx >= 0 && idx < NParams()) 
+  {
+    Trace(TRACELOC, "idx: %d v:%f shape: %f", idx, value, GetParam(idx)->GetShape());
+    
+    if (GetGUI()) 
+      GetGUI()->SetParameterFromPlug(idx, value, true);
+    
+    GetParam(idx)->SetNormalized(value);
+    OnParamChange(idx);
+  }
+}

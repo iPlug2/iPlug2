@@ -3,6 +3,7 @@
 // Only load one API class!
 
 #include "IPlugBase.h"
+#include "IGraphics.h"
 
 const int kPTParamIdxOffset = 2;
 
@@ -44,6 +45,8 @@ public:
   void SetNumInputs(int nInputs); 
   void SetNumOutputs(int nOutputs);
   void SetSideChainConnected(bool connected);
+  
+  void SetParameter(int idx, double value);
   
   void SetBlockSize(int blockSize); // Public in IPlugRTAS, protected in IPlugBase
 
