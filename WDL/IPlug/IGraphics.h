@@ -147,7 +147,7 @@ public:
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();
   
-  void DisplayControlValue(IControl* pControl);
+//  void DisplayControlValue(IControl* pControl);
   
   // For efficiency, mouseovers/mouseouts are ignored unless you explicity say you can handle them.
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }

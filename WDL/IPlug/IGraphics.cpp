@@ -639,8 +639,8 @@ bool IGraphics::IsDirty(IRECT* pR)
   return dirty;
 }
 
-void IGraphics::DisplayControlValue(IControl* pControl)
-{
+//void IGraphics::DisplayControlValue(IControl* pControl)
+//{
 //  char str[32];
 //  int paramIdx = pControl->ParamIdx();
 //  if (paramIdx >= 0) {
@@ -653,7 +653,7 @@ void IGraphics::DisplayControlValue(IControl* pControl)
 //    r.B = r.T + 10;    
 //    DrawIText(&IText(), str, &r);
 //  }  
-}  
+//}  
                          
 // The OS is announcing what needs to be redrawn,
 // which may be a larger area than what is strictly dirty.
