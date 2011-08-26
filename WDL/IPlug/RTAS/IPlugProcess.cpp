@@ -8,28 +8,11 @@
 #include "CDAEError.h"
 #include "IPlugProcess.h"
 #include "CNoResourceView.h"
+#include "SliderConversions.h"
 #include "CPlugincontrol_OnOff.h"
 #include "CPluginControl_Linear.h"
 #include "../IGraphics.h"
 #include "IPlugCustomUI.h"
-
-static const double kDigiControlMin = -2147483648.0;
-static const double kDigiControlMax =  2147483647.0;
-#define LIMIT_OF(v1,firstVal,secondVal) ( (secondVal > firstVal) ? IPMAX(IPMIN(v1,secondVal),firstVal) :  IPMIN(IPMAX(v1,secondVal),firstVal) )
-
-double LongToDoubleLinear(long aValue, double firstVal = 0., double secondVal = 1.)
-{
-	double controlPartial = ((double)aValue - kDigiControlMin) / (kDigiControlMax - kDigiControlMin);
-	return firstVal + controlPartial*(secondVal - firstVal);
-}
-
-long DoubleToLongLinear(double aValue, double firstVal = 0., double secondVal = 1.)
-{
-	aValue = LIMIT_OF(aValue,firstVal,secondVal);
-	
-	double controlPartial = (aValue - firstVal) / (secondVal - firstVal);
-	return floor(kDigiControlMin + controlPartial*(kDigiControlMax - kDigiControlMin)+0.5);
-}
 
 IPlugProcess::IPlugProcess(void)
 : mCustomUI(0), mNoUIView(0), mModuleHandle(0), mPlug(NULL), mDirectMidiInterface(NULL)
@@ -71,11 +54,7 @@ void IPlugProcess::EffectInit()
     for (int i=0;i<paramCount;i++)
     {
       IParam *p = mPlug->GetParam(i);
-      
-      double low=0.0; double high=1.0;
-      p->GetBounds(&low, &high);
-      
-      AddControl(new CPluginControl_Linear(' ld '+i, p->GetNameForHost(), low, high, p->GetStep(), p->GetDefault(), p->GetCanAutomate()));
+      AddControl(new CPluginControl_Linear(' ld '+i, p->GetNameForHost(), p->GetMin(), p->GetMax(), p->GetStep(), p->GetDefault(), p->GetCanAutomate()));
     }
     
     if (PLUG_DOES_MIDI)
@@ -114,9 +93,9 @@ void IPlugProcess::DoTokenIdle (void)
   CEffectProcess::DoTokenIdle();  // call inherited to get tokens so we can move controls.
   
   // TODO: check this... idle not implemented in AU and not widely supported in vst... do we need it in PT?
-//#ifdef USE_IDLE_CALLS
-//  mPlug->OnIdle();
-//#endif
+#ifdef USE_IDLE_CALLS
+  mPlug->OnIdle();
+#endif
 
 }
 
@@ -217,7 +196,7 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
   double value = 0.;
   
   if (cc) 
-    value = LongToDoubleLinear((double)cc->GetValue());
+    value = LongControlToDouble((double)cc->GetValue(), cc->GetMin(), cc->GetMax());
 
   idx -= kPTParamIdxOffset;
   
@@ -228,7 +207,7 @@ long IPlugProcess::SetControlValue(long aControlIndex, long aValue)
 {
   TRACE;
   CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(aControlIndex));
-  
+    
   if (cc)
     cc->SetValue(aValue);
   
@@ -236,32 +215,13 @@ long IPlugProcess::SetControlValue(long aControlIndex, long aValue)
 }
  
 long IPlugProcess::GetControlValue(long aControlIndex, long *aValue)
-{
-  TRACE;
+{  
   return (long)CProcess::GetControlValue(aControlIndex, aValue);
-  
-//  if (aControlIndex < kPTParamIdxOffset) {
-//    return (long)CProcess::GetControlValue(aControlIndex, aValue);
-//  }
-//  else {
-//    *aValue = DoubleToLongLinear(mPlug->GetParam(aControlIndex - kPTParamIdxOffset)->GetNormalized());
-//    return noErr;
-//  }
 }
 
 long IPlugProcess::GetControlDefaultValue(long aControlIndex, long* aValue)
 {
-  TRACE;
   return (long)CProcess::GetControlDefaultValue(aControlIndex, aValue);
-
-//  if (aControlIndex < kPTParamIdxOffset) {
-//    return (long)CProcess::GetControlDefaultValue(aControlIndex, aValue);
-//  }
-//  else {
-//    double v = mPlug->GetParam(aControlIndex - kPTParamIdxOffset)->GetDefault();
-//    *aValue = DoubleToLongLinear(mPlug->GetParam(aControlIndex - kPTParamIdxOffset)->GetNormalized(v));
-//    return noErr;
-//  }
 }
 
 // TODO: this caused jittery audio, is it nessecary?
@@ -298,7 +258,7 @@ void IPlugProcess::ProcessDoIdle()
   gProcessGroup->YieldCriticalSection();
 }
 
-ComponentResult IPlugProcess::SetControlHighliteInfo(long controlIndex,short  isHighlighted,short color)
+ComponentResult IPlugProcess::SetControlHighliteInfo(long controlIndex, short isHighlighted, short color)
 {
   return noErr;
 }

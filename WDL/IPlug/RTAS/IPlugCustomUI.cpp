@@ -173,9 +173,6 @@ bool IPlugCustomUI::Open(void *winPtr)
   long PIHeight, PITop, PILeft, PIWidth, CLHeight;
   RECT clRect;
 
-  // Calculate header size so that proper window size is created in the proper place
-  // NOTE: Header will make mPluginWindow client height larger and may make 
-  //  client width larger. 
   PIHeight = mPIRect.bottom - mPIRect.top;
   GetClientRect(mPluginWindow, &clRect);
 

@@ -1,6 +1,7 @@
 #include "IPlugRTAS.h"
 #include "RTAS/IPlugProcessRTAS.h"
 #include "CPluginControl_Continuous.h"
+#include "SliderConversions.h"
 
 IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
       const char* effectName, const char* productName, const char* mfrName,
@@ -12,7 +13,6 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
   Trace(TRACELOC, "%s", effectName);
   int nInputs = NInChannels(), nOutputs = NOutChannels();
   
-  // Default everything to connected, then disconnect pins if the host says to.
   SetInputChannelConnections(0, nInputs, true);
   SetOutputChannelConnections(0, nOutputs, true);
   
@@ -29,7 +29,6 @@ void IPlugRTAS::SetBlockSize(int blockSize)
 void IPlugRTAS::SetSideChainConnected(bool connected)
 {
   mSideChainIsConnected = connected;
-  DBGMSG("mSideChainIsConnected %i\n", mSideChainIsConnected);
 }
 
 void IPlugRTAS::SetNumInputs(int nInputs)
@@ -68,26 +67,21 @@ void IPlugRTAS::BeginInformHostOfParamChange(int idx)
   }
 }
 
-void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue)
+void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue) // actually we don't use normalized value
 {
   if (!mRTAS) 
     return;
   
+  IParam* p = GetParam(idx);
+
   idx += kPTParamIdxOffset;
   
   if ( mRTAS->IsValidControlIndex(idx) ) 
   { 
     CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(mRTAS->GetControl(idx));
-    SInt32 controlValue = 0;
     
     if (control) 
-    {
-      static const double kControlMin = -2147483648.0;
-      static const double kControlMax = 2147483647.0;
-      
-      controlValue = kControlMin + floor(normalizedValue*(kControlMax - kControlMin)+0.5);
-    }
-    mRTAS->SetControlValue(idx, controlValue);
+      mRTAS->SetControlValue(idx, DoubleToLongControl(p->Value(), p->GetMin(), p->GetMax()));
   }
 }
 
@@ -95,8 +89,7 @@ void IPlugRTAS::EndInformHostOfParamChange(int idx)
 {
   if (!mRTAS) return;
   
-  // PT index 1 based + master bypass, so offset by 2
-  idx+=2;
+  idx+=kPTParamIdxOffset;
   
   if ( mRTAS->IsValidControlIndex(idx) ) 
   {
@@ -176,13 +169,11 @@ void IPlugRTAS::SetParameter(int idx, double value)
   IMutexLock lock(this);
   
   if (idx >= 0 && idx < NParams()) 
-  {
-    Trace(TRACELOC, "idx: %d v:%f shape: %f", idx, value, GetParam(idx)->GetShape());
-    
+  {    
     if (GetGUI()) 
-      GetGUI()->SetParameterFromPlug(idx, value, true);
+      GetGUI()->SetParameterFromPlug(idx, value, false);
     
-    GetParam(idx)->SetNormalized(value);
+    GetParam(idx)->Set(value);
     OnParamChange(idx);
   }
 }

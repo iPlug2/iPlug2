@@ -15,8 +15,6 @@ struct IPlugInstanceInfo
 class IPlugRTAS : public IPlugBase
 {
 public:
-  
-  // Use IPLUG_CTOR instead of calling directly (defined in IPlug_include_in_plug_src.h).
   IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
         const char* effectName, const char* productName, const char* mfrName,
         int vendorVersion, int uniqueID, int mfrID, int latency = 0, 
@@ -46,8 +44,7 @@ public:
   void SetNumOutputs(int nOutputs);
   void SetSideChainConnected(bool connected);
   
-  void SetParameter(int idx, double value);
-  
+  void SetParameter(int idx, double value); // Locks mutex first
   void SetBlockSize(int blockSize); // Public in IPlugRTAS, protected in IPlugBase
 
 protected:

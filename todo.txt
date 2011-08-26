@@ -6,6 +6,8 @@ ALL - freetype based font renderer, import .ttf files
 ALL - test keyboard input
 ALL - submenus
 AU - mono buses
+ALL - resize graphics
+
 
 RTAS wrapper:
 
@@ -17,6 +19,8 @@ RTAS wrapper:
 - audiosuite
 - presets list
 - close session frozen buffer (only happens when debugging?)
+- SendMidiMsg/s
+- resize graphics
 
 Standalone wrapper:
 
