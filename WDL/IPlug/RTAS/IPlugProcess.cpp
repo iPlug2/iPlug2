@@ -2,7 +2,7 @@
 #include <windows.h>
 #include "Mac2Win.H"
 #endif
-
+#include <assert.h>
 #include "IPlugGroup.h"
 #include "FicPluginEnums.h"
 #include "CDAEError.h"
@@ -70,6 +70,8 @@ void IPlugProcess::EffectInit()
           for (int j=0; j<p->GetNDisplayTexts(); j++) {
             displayTexts.push_back(p->GetDisplayText(j));
           }
+          
+          assert(displayTexts.size());
           
           AddControl(new CPluginControl_List(' ld '+i, p->GetNameForHost(), displayTexts, (long) p->GetDefault(), p->GetCanAutomate()));
 
