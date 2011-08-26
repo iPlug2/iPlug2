@@ -25,7 +25,6 @@ public:
   long SetControlValue (long aControlIndex, long aValue);
   long GetControlValue(long aControlIndex, long *aValue);
   long GetControlDefaultValue(long aControlIndex, long* aValue);
-  //ComponentResult UpdateControlGraphic (long aControlIndex, long aValue);
   CPlugInView* CreateCPlugInView();
   ComponentResult SetControlHighliteInfo (long controlIndex, short isHighlighted, short color);
   ComponentResult ChooseControl (Point aLocalCoord, long *aControlIndex);
@@ -40,7 +39,6 @@ public:
   virtual void ProcessRestoreResourceFile(short resFile) { fProcessType->GetProcessGroup()->RestoreResourceFile(resFile); }
   
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
-  //virtual	Boolean HandleKeystroke(EventRecord *theEvent);
   
   virtual IPlugRTAS* getPlug()  { return mPlug; }
   

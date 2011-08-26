@@ -147,8 +147,7 @@ CPlugInView* IPlugProcess::CreateCPlugInView()
   {
     try
     {
-      if( !mCustomUI )
-      {
+      if( !mCustomUI ) {
         mCustomUI = CreateIPlugCustomUI((void*)this);
         mCustomUI->GetRect(&mPluginWinRect.left, &mPluginWinRect.top, &mPluginWinRect.right, &mPluginWinRect.bottom);
       }
@@ -179,10 +178,8 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
   mMainPort = aPort;
   CEffectProcess::SetViewPort( mMainPort ); // call inherited first
   
-  if(mMainPort) // opening window, set it up.
-  {
-    if(mCustomUI)
-    {
+  if(mMainPort) {
+    if(mCustomUI) {
       void *windowPtr = NULL;
 #if WINDOWS_VERSION
       windowPtr = (void*)ASI_GethWnd((WindowPtr)mMainPort);
@@ -198,8 +195,7 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
 #endif
     }
   }
-  else  // do clean-up
-  {
+  else {
     if(mCustomUI)
       mCustomUI->Close();
     
@@ -239,22 +235,6 @@ long IPlugProcess::GetControlDefaultValue(long aControlIndex, long* aValue)
 {
   return (long)CProcess::GetControlDefaultValue(aControlIndex, aValue);
 }
-
-// TODO: this caused jittery audio, is it nessecary?
-//ComponentResult IPlugProcess::UpdateControlGraphic (long aControlIndex, long aValue)
-//{
-//  if (mCustomUI)
-//    return mCustomUI->UpdateGraphicControl(aControlIndex, aValue);
-//  else
-//    return noErr;
-//}
-
-//Boolean IPlugProcess::HandleKeystroke(EventRecord *theEvent) 
-//{
-//	bool usedEvent = false;
-//
-//	return usedEvent;
-//}
 
 int IPlugProcess::ProcessTouchControl (long aControlIndex)
 {

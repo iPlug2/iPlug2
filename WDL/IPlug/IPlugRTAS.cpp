@@ -1,7 +1,7 @@
 #include "IPlugRTAS.h"
 #include "RTAS/IPlugProcessRTAS.h"
 #include "CPluginControl_Continuous.h"
-#include "SliderConversions.h"
+#include "CPluginControl_Discrete.h"
 
 IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
       const char* effectName, const char* productName, const char* mfrName,
@@ -78,10 +78,20 @@ void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue) // actu
   
   if ( mRTAS->IsValidControlIndex(idx) ) 
   { 
-    CPluginControl *control = dynamic_cast<CPluginControl*>(mRTAS->GetControl(idx));
-    
-    if (control) 
-      mRTAS->SetControlValue(idx, DoubleToLongControl(pParam->Value(), pParam->GetMin(), pParam->GetMax()));
+    switch (pParam->Type()) {
+      case IParam::kTypeDouble: {
+        CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(mRTAS->GetControl(idx));
+        mRTAS->SetControlValue(idx, control->ConvertContinuousToControl( pParam->Value() ));
+        break; }
+      case IParam::kTypeInt:
+      case IParam::kTypeEnum:
+      case IParam::kTypeBool: {
+        CPluginControl_Discrete *control = dynamic_cast<CPluginControl_Discrete*>(mRTAS->GetControl(idx));
+        mRTAS->SetControlValue(idx, control->ConvertDiscreteToControl( pParam->Int() ));
+        break; }
+      default:
+        break;
+    }
   }
 }
 
@@ -158,16 +168,29 @@ bool IPlugRTAS::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
 }
 
 void IPlugRTAS::SetParameter(int idx)
-{
-  IMutexLock lock(this);
-
+{  
   if ( mRTAS->IsValidControlIndex(idx) ) 
   { 
     IParam* pParam = GetParam(idx - kPTParamIdxOffset);
+    double value;
 
-    CPluginControl *control = dynamic_cast<CPluginControl*>(mRTAS->GetControl(idx));
-    double value = LongControlToDouble(control->GetValue(), pParam->GetMin(), pParam->GetMax());
+    switch (pParam->Type()) {
+      case IParam::kTypeDouble: {
+        CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(mRTAS->GetControl(idx));
+        value = control->GetContinuous();
+        break; }
+      case IParam::kTypeInt:
+      case IParam::kTypeEnum:
+      case IParam::kTypeBool: {
+        CPluginControl_Discrete *control = dynamic_cast<CPluginControl_Discrete*>(mRTAS->GetControl(idx));
+        value = (double) control->GetDiscrete();
+        break; }
+      default:
+        break;
+    }
     
+    IMutexLock lock(this);
+
     if (GetGUI()) 
       GetGUI()->SetParameterFromPlug(idx - kPTParamIdxOffset, value, false);
     

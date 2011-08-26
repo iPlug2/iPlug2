@@ -129,32 +129,30 @@ void IPlugProcessRTAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicat
 
 int IPlugProcessRTAS::GetSamplePos()
 {
-  if (mDirectMidiInterface)
-  {
+  if (mDirectMidiInterface) {
     Cmn_Int64 samplePos;
     mDirectMidiInterface->GetCurrentRTASSampleLocation(&samplePos);
     return (int) samplePos;
   }
-  return 0;
+  else
+    return 0;
 }
 
 double IPlugProcessRTAS::GetTempo()
 {
-  if (mDirectMidiInterface)
-  {
+  if (mDirectMidiInterface) {
     Cmn_Float64 t;
     mDirectMidiInterface->GetCurrentTempo(&t);
     return (double) t;
   }
-  return 0.0;
+  else
+    return 0.0;
 }
 
 void IPlugProcessRTAS::GetTimeSig(int* pNum, int* pDenom)
 {
   if (mDirectMidiInterface)
-  {
     mDirectMidiInterface->GetCurrentMeter((Cmn_Int32*) pNum,(Cmn_Int32*) pDenom);
-  }
 }
 
 void IPlugProcessRTAS::GetTime( double *pSamplePos, 
@@ -168,8 +166,7 @@ void IPlugProcessRTAS::GetTime( double *pSamplePos,
                                 bool *pTransportRunning,
                                 bool *pTransportCycle)
 {
-  if (mDirectMidiInterface)
-  {
+  if (mDirectMidiInterface) {
     Cmn_Int64 samplePos;
     Cmn_Bool transportRunning;
     Cmn_Int64 ticks = 0;
@@ -201,28 +198,26 @@ void IPlugProcessRTAS::GetTime( double *pSamplePos,
 ComponentResult IPlugProcessRTAS::IsControlAutomatable(long aControlIndex, short *aItIsP)
 {
   TRACE;
-  if (aControlIndex == 1) //master bypass
-  {
+  
+  if (aControlIndex == 1) // master bypass
     *aItIsP = 1; 
-    return noErr;
-  }
-  *aItIsP = mPlug->GetParam(aControlIndex-2)->GetCanAutomate() ? 1 : 0;
+  else
+    *aItIsP = mPlug->GetParam(aControlIndex-kPTParamIdxOffset)->GetCanAutomate() ? 1 : 0;
+  
   return noErr;
 }
 
 ComponentResult IPlugProcessRTAS::GetChunkSize(OSType chunkID, long *size)
 {
   TRACE;
-//  if (chunkID == EffectLayerDef::CONTROLS_CHUNK_ID) return noErr;
 
-  if (chunkID == mPluginID) 
-  {
+  if (chunkID == mPluginID) {
     *size = sizeof(SFicPlugInChunkHeader);
     ByteChunk IPlugChunk;
+    
     if (mPlug->SerializeState(&IPlugChunk))
-    {
       *size = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
-    }
+
     return noErr;
   }
   else 
@@ -231,12 +226,10 @@ ComponentResult IPlugProcessRTAS::GetChunkSize(OSType chunkID, long *size)
 
 ComponentResult IPlugProcessRTAS::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 {
-    TRACE;
-//  if (chunkID == EffectLayerDef::CONTROLS_CHUNK_ID) return noErr;
+  TRACE;
   
   //called when project is loaded from save
-  if (chunkID == mPluginID) 
-  {
+  if (chunkID == mPluginID) {
     const int dataSize = chunk->fSize - sizeof(SFicPlugInChunkHeader);
     
     ByteChunk IPlugChunk;
@@ -250,15 +243,12 @@ ComponentResult IPlugProcessRTAS::SetChunk(OSType chunkID, SFicPlugInChunk *chun
 
 ComponentResult IPlugProcessRTAS::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 {
-    TRACE;
-//  if (chunkID == EffectLayerDef::CONTROLS_CHUNK_ID) return noErr;
+  TRACE;
   
   //called when project is saved
-  if (chunkID == mPluginID)
-  {
+  if (chunkID == mPluginID) {
     ByteChunk IPlugChunk;
-    if (mPlug->SerializeState(&IPlugChunk))
-    {
+    if (mPlug->SerializeState(&IPlugChunk)) {
       chunk->fSize = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
       memcpy(chunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
       return noErr;
