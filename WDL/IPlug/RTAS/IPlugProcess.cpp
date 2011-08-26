@@ -10,7 +10,9 @@
 #include "CNoResourceView.h"
 #include "SliderConversions.h"
 #include "CPlugincontrol_OnOff.h"
+#include "CPluginControl_Discrete.h"
 #include "CPluginControl_Linear.h"
+#include "CPluginControl_List.h"
 #include "../IGraphics.h"
 #include "IPlugCustomUI.h"
 
@@ -54,7 +56,29 @@ void IPlugProcess::EffectInit()
     for (int i=0;i<paramCount;i++)
     {
       IParam *p = mPlug->GetParam(i);
-      AddControl(new CPluginControl_Linear(' ld '+i, p->GetNameForHost(), p->GetMin(), p->GetMax(), p->GetStep(), p->GetDefault(), p->GetCanAutomate()));
+      
+      switch (p->Type()) {
+        case IParam::kTypeDouble:
+          AddControl(new CPluginControl_Linear(' ld '+i, p->GetNameForHost(), p->GetMin(), p->GetMax(), p->GetStep(), p->GetDefault(), p->GetCanAutomate()));
+          break;
+        case IParam::kTypeInt:
+          AddControl(new CPluginControl_Discrete(' ld '+i, p->GetNameForHost(), (long) p->GetMin(), (long) p->GetMax(), (long) p->GetDefault(), p->GetCanAutomate()));
+          break;
+        case IParam::kTypeEnum:
+        case IParam::kTypeBool: {
+          std::vector<std::string> displayTexts;
+          for (int j=0; j<p->GetNDisplayTexts(); j++) {
+            displayTexts.push_back(p->GetDisplayText(j));
+          }
+          
+          AddControl(new CPluginControl_List(' ld '+i, p->GetNameForHost(), displayTexts, (long) p->GetDefault(), p->GetCanAutomate()));
+
+          //AddControl(new CPluginControl_OnOff(' ld '+i, p->GetNameForHost(), p->GetDefault(), p->GetCanAutomate()));
+          break; }
+        default:
+          break;
+      }
+
     }
     
     if (PLUG_DOES_MIDI)
@@ -191,22 +215,14 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
   
   if (!IsValidControlIndex(idx)) return;
   if (idx==mMasterBypassIndex)  return;
-  
-  CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(idx));
-  double value = 0.;
-  
-  if (cc) 
-    value = LongControlToDouble((double)cc->GetValue(), cc->GetMin(), cc->GetMax());
-
-  idx -= kPTParamIdxOffset;
-  
-  mPlug->SetParameter(idx, value);
+    
+  mPlug->SetParameter(idx);
 }
 
 long IPlugProcess::SetControlValue(long aControlIndex, long aValue)
 {
   TRACE;
-  CPluginControl_Continuous *cc=dynamic_cast<CPluginControl_Continuous*>(GetControl(aControlIndex));
+  CPluginControl *cc=dynamic_cast<CPluginControl*>(GetControl(aControlIndex));
     
   if (cc)
     cc->SetValue(aValue);

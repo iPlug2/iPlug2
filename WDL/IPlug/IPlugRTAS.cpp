@@ -61,9 +61,9 @@ void IPlugRTAS::BeginInformHostOfParamChange(int idx)
   
   idx += kPTParamIdxOffset;
 
-  if ( mRTAS->IsValidControlIndex(idx) ) 
+  if(mRTAS->IsValidControlIndex(idx)) 
   {
-      mRTAS->ProcessTouchControl(idx);
+    mRTAS->ProcessTouchControl(idx);
   }
 }
 
@@ -72,16 +72,16 @@ void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue) // actu
   if (!mRTAS) 
     return;
   
-  IParam* p = GetParam(idx);
+  IParam* pParam = GetParam(idx);
 
   idx += kPTParamIdxOffset;
   
   if ( mRTAS->IsValidControlIndex(idx) ) 
   { 
-    CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(mRTAS->GetControl(idx));
+    CPluginControl *control = dynamic_cast<CPluginControl*>(mRTAS->GetControl(idx));
     
     if (control) 
-      mRTAS->SetControlValue(idx, DoubleToLongControl(p->Value(), p->GetMin(), p->GetMax()));
+      mRTAS->SetControlValue(idx, DoubleToLongControl(pParam->Value(), pParam->GetMin(), pParam->GetMax()));
   }
 }
 
@@ -157,16 +157,21 @@ bool IPlugRTAS::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   return false;
 }
 
-void IPlugRTAS::SetParameter(int idx, double value)
+void IPlugRTAS::SetParameter(int idx)
 {
   IMutexLock lock(this);
-  
-  if (idx >= 0 && idx < NParams()) 
-  {    
-    if (GetGUI()) 
-      GetGUI()->SetParameterFromPlug(idx, value, false);
+
+  if ( mRTAS->IsValidControlIndex(idx) ) 
+  { 
+    IParam* pParam = GetParam(idx - kPTParamIdxOffset);
+
+    CPluginControl *control = dynamic_cast<CPluginControl*>(mRTAS->GetControl(idx));
+    double value = LongControlToDouble(control->GetValue(), pParam->GetMin(), pParam->GetMax());
     
-    GetParam(idx)->Set(value);
-    OnParamChange(idx);
+    if (GetGUI()) 
+      GetGUI()->SetParameterFromPlug(idx - kPTParamIdxOffset, value, false);
+    
+    pParam->Set(value);
+    OnParamChange(idx - kPTParamIdxOffset);
   }
 }

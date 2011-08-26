@@ -44,7 +44,7 @@ public:
   void SetNumOutputs(int nOutputs);
   void SetSideChainConnected(bool connected);
   
-  void SetParameter(int idx, double value); // Locks mutex first
+  void SetParameter(int idx); // Locks mutex first
   void SetBlockSize(int blockSize); // Public in IPlugRTAS, protected in IPlugBase
 
 protected:
