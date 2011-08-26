@@ -27,12 +27,14 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   TRACE;
   
   //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kGain)->InitDouble("Gain", 0.0, -70.0, 12.0, 0.1, "dB");
+  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->SetShape(2.);
   
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachPanelBackground(&COLOR_RED);
   IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
-  pGraphics->AttachControl(new IKnobMultiControl(this, kGainX, kGainY, kGain, &knob));
+  IText text = IText(14);
+  pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20), kGain, &knob, &text));
   AttachGraphics(pGraphics);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset((char *) "-", kNumPrograms);
@@ -75,7 +77,7 @@ void IPlugEffect::OnParamChange(int paramIdx)
   switch (paramIdx)
   {
     case kGain:
-      mGain = GetParam(kGain)->DBToAmp();
+      mGain = GetParam(kGain)->Value() / 100.;;
       break;
       
     default:

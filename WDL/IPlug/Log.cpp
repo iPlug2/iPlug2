@@ -4,7 +4,7 @@
 #include "time.h"
 #include <fstream>
 
-//#define TRACETOSTDOUT
+#define TRACETOSTDOUT
 
 #ifdef _WIN32
   #define LOGFILE "C:\\IPlugLog.txt"
