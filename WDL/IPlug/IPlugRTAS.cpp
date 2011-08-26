@@ -146,13 +146,6 @@ void IPlugRTAS::Created(class IPlugProcessRTAS *r)
 	SetBlockSize(r->GetBlockSize());
 }
 
-void IPlugRTAS::AttachGraphics(IGraphics* pGraphics)
-{
-  if (pGraphics) {
-    IPlugBase::AttachGraphics(pGraphics);
-  }
-}
-
 // TODO: SendMidiMsg()
 bool IPlugRTAS::SendMidiMsg(IMidiMsg* pMsg)
 {

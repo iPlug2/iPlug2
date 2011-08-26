@@ -49,7 +49,6 @@ public:
 
 protected:
   virtual void HostSpecificInit() {};
-  void AttachGraphics(IGraphics* pGraphics);  
   bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   
