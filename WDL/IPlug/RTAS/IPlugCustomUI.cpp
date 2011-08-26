@@ -257,8 +257,19 @@ bool IPlugCustomUI::Close()
   
   if( mLocalPIWin )
   {
-    if( mGraphics )
+      // OL - This is nessecary to avoid a collision in the PTSDK
+  #ifdef CloseWindow
+    #define tempCloseWindow CloseWindow
+    #undef CloseWindow
+  #endif
+
+  if( mGraphics )
       mGraphics->CloseWindow();
+
+  #ifdef CloseWindow
+    #define CloseWindow tempCloseWindow
+    #undef CloseWindow
+  #endif
 
     result = DestroyWindow(mLocalPIWin);
   }
