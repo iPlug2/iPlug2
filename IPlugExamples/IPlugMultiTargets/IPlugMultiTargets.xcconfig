@@ -61,7 +61,7 @@ IOS_DEFS = SA_API
 DEBUG_DEFS = _DEBUG
 
 // Preprocessor definitions for all Release builds
-RELEASE_DEFS = _NDEBUG //DEMO_VERSION
+RELEASE_DEFS = NDEBUG //DEMO_VERSION
 
 // Preprocessor definitions for all Tracer builds
 TRACER_DEFS = TRACER_BUILD

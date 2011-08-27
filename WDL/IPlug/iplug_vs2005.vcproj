@@ -94,7 +94,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_NDEBUG;"
+				PreprocessorDefinitions="NDEBUG;"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -150,7 +150,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_NDEBUG; TRACER_BUILD"
+				PreprocessorDefinitions="NDEBUG; TRACER_BUILD"
 				DebugInformationFormat="3"
 			/>
 			<Tool
