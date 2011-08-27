@@ -200,15 +200,15 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 		[self getMouseXY:pEvent x:&x y:&y];
 		IMouseMod ms = GetMouseMod(pEvent);
     
-    #ifdef RTAS_API
-    if (ms.L && ms.R && ms.C && ms.A && (mGraphics->GetParamIdxForPTAutomation(x, y) > -1)) 
-    {
-      WindowRef carbonParent = (WindowRef) [[[self window] parentWindow] windowRef];
-      EventRef carbonEvent = (EventRef) [pEvent eventRef];
-      SendEventToWindow(carbonEvent, carbonParent);
-      return;
-    }
-    #endif
+        #ifdef RTAS_API
+        if (ms.L && ms.R && ms.C && (mGraphics->GetParamIdxForPTAutomation(x, y) > -1)) 
+        {
+          WindowRef carbonParent = (WindowRef) [[[self window] parentWindow] windowRef];
+          EventRef carbonEvent = (EventRef) [pEvent eventRef];
+          SendEventToWindow(carbonEvent, carbonParent);
+          return;
+        }
+        #endif
 
 		if ([pEvent clickCount] > 1) {
 			mGraphics->OnMouseDblClick(x, y, &ms);
