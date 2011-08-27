@@ -8,7 +8,7 @@
 
 #ifdef _WIN32
   #define LOGFILE "C:\\IPlugLog.txt"
-  #ifndef _NDEBUG
+  #ifndef NDEBUG
     void DBGMSG(const char *format, ...)
     {
       char    buf[4096], *p = buf;

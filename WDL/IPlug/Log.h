@@ -16,7 +16,7 @@
   #include <stdio.h>
   #include <ctype.h>
 
-#ifndef _NDEBUG
+#ifndef NDEBUG
   void DBGMSG(const char *format, ...);
 #endif
 
@@ -24,7 +24,7 @@
 #elif defined __APPLE__ // TODO: check on ios
   #define SYS_THREAD_ID (int) pthread_self()
 
-#ifndef _NDEBUG
+#ifndef NDEBUG
   #define DBGMSG(...) printf(__VA_ARGS__)
 #endif
 
@@ -44,7 +44,7 @@
 #define TRACELOC __FUNCTION__,__LINE__
 void Trace(const char* funcName, int line, const char* fmtStr, ...);
 
-#ifdef _NDEBUG
+#ifdef NDEBUG
   #define DBGMSG
 #endif
 
