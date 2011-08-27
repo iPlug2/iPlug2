@@ -42,10 +42,13 @@ public:
   
   void SetNumInputs(int nInputs); 
   void SetNumOutputs(int nOutputs);
-  void SetSideChainConnected(bool connected);
   
+  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate;} ;
+  void SetBlockSize(int blockSize) { IPlugBase::SetBlockSize(blockSize);}
+  
+  void SetSideChainConnected(bool connected) { mSideChainIsConnected = connected; }
+    
   void SetParameter(int idx); // Locks mutex first
-  void SetBlockSize(int blockSize); // Public in IPlugRTAS, protected in IPlugBase
 
 protected:
   virtual void HostSpecificInit() {};

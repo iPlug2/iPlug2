@@ -24,6 +24,8 @@ public:
   virtual ComponentResult IsControlAutomatable(long aControlIndex, short *aItIsP);
   virtual ComponentResult GetDelaySamplesLong(long* aNumSamples);
 
+  void SetSampleRate(double sampleRate);
+
   int GetBlockSize() { return mBlockSize; }
   
   double GetTempo();

@@ -21,16 +21,6 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 }
 
-void IPlugRTAS::SetBlockSize(int blockSize)
-{
-  IPlugBase::SetBlockSize(blockSize);
-}
-
-void IPlugRTAS::SetSideChainConnected(bool connected)
-{
-  mSideChainIsConnected = connected;
-}
-
 void IPlugRTAS::SetNumInputs(int nInputs)
 {
   nInputs += mSideChainIsConnected;

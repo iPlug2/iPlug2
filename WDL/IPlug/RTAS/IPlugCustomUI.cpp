@@ -59,16 +59,6 @@ bool IPlugCustomUI::Open(void *winPtr)
   return true;
 }
 
-//void IPlugCustomUI::Draw(long left, long top, long right, long bottom)
-//{
-//  if (mGraphics)
-//  { 
-//    // this only seems to get called when the window is opened in our case..
-//    // since IPlug handles all control drawing, just mark the window to be redrawn.. seems to work..!
-//    mGraphics->SetAllControlsDirty();
-//  }
-//}
-
 bool IPlugCustomUI::Close()
 {
   if(mLocalWindow && mGraphics)
@@ -78,15 +68,6 @@ bool IPlugCustomUI::Close()
   }
   return true;
 }
-
-//long IPlugCustomUI::UpdateGraphicControl(long index, long value)
-//{
-//  // TSS update control? 
-//  if (mGraphics && mGraphics->GetControl(index)){
-//    mGraphics->GetControl(index)->SetDirty();
-//  }
-//  return 0; // no error
-//}
 
 void IPlugCustomUI::SetControlHighlight(long controlIndex, short isHighlighted, short color)
 {

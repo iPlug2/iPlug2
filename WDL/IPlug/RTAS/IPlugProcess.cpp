@@ -72,10 +72,7 @@ void IPlugProcess::EffectInit()
           }
           
           assert(displayTexts.size());
-          
           AddControl(new CPluginControl_List(' ld '+i, p->GetNameForHost(), displayTexts, (long) p->GetDefault(), p->GetCanAutomate()));
-
-          //AddControl(new CPluginControl_OnOff(' ld '+i, p->GetNameForHost(), p->GetDefault(), p->GetCanAutomate()));
           break; }
         default:
           break;
@@ -104,13 +101,13 @@ void IPlugProcess::EffectInit()
         
         requestedVersion--;
       }
-      
-      mPlug->Reset();
     }
     
     mPlug->SetNumInputs(GetNumInputs());
     mPlug->SetNumOutputs(GetNumOutputs());
+    mPlug->SetSampleRate(GetSampleRate());
     
+    mPlug->Reset();
   }
 }
 
