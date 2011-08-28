@@ -17,6 +17,7 @@
 
 // Format        0xMAJR.MN.BG - in HEX! so version 10.1.5 would be 0x000A0105
 #define PLUG_VER 0x00010000
+#define PLUG_VER_STR "1.0.0" // for vst3
 
 // http://service.steinberg.de/databases/plugin.nsf/plugIn?openForm
 // 4 chars, single quotes. At least one capital letter
@@ -106,8 +107,16 @@
   #endif
 #endif
 
+// vst3 stuff
+#define MFR_URL "www.olilarkin.co.uk"
+#define MFR_EMAIL "spam@me.com"
+#define EFFECT_TYPE_VST3 kFxModulation 
 
-
-
-
-
+/* kFxAnalyzer, kFxDelay, kFxDistortion, kFxDynamics, kFxEQ, kFxFilter,
+kFx, kFxInstrument, kFxInstrumentExternal, kFxSpatial, kFxGenerator,
+kFxMastering, kFxModulation, kFxPitchShift, kFxRestoration, kFxReverb,
+kFxSurround, kFxTools, kInstrument, kInstrumentDrum, kInstrumentSampler,
+kInstrumentSynth, kInstrumentSynthSample, kInstrumentExternal, kSpatial,
+kSpatialFx, kOnlyRealTime, kOnlyOfflineProcess, kMono, kStereo,
+kSurround
+*/

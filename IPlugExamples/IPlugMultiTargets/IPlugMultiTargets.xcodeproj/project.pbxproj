@@ -17,6 +17,7 @@
 				4F78DAF813B6436B0032E0F3 /* PBXTargetDependency */,
 				4F78DAFA13B6436B0032E0F3 /* PBXTargetDependency */,
 				4F8D4C6313E97B3D004F7633 /* PBXTargetDependency */,
+				4F9828F8140A9F0200F3FCC1 /* PBXTargetDependency */,
 			);
 			name = All;
 			productName = "AllOSX_32&64_intel";
@@ -48,9 +49,51 @@
 		4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F3AE1D812C0E5E2001FD7A4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F3AE1D912C0E5E2001FD7A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
+		4F3E690B1409747300C4D749 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E213B647A00097A67E /* bg.png */; };
+		4F3E690C1409747300C4D749 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
+		4F3E690D1409747300C4D749 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F7F950D13E4897900A3283D /* about.png */; };
+		4F3E690E1409747300C4D749 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1713EDC962009D26BB /* bk.png */; };
+		4F3E690F1409747300C4D749 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1813EDC962009D26BB /* wk.png */; };
+		4F3E69111409747300C4D749 /* IPlugMultiTargets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */; };
+		4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
+		4F3E69131409747300C4D749 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
+		4F3E69141409747300C4D749 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
+		4F3E69151409747300C4D749 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
+		4F3E69161409747300C4D749 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */; };
+		4F3E69171409747300C4D749 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */; };
+		4F3E69181409747300C4D749 /* IGraphicsCarbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */; };
+		4F3E69191409747300C4D749 /* IGraphicsCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */; };
+		4F3E691A1409747300C4D749 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
+		4F3E691B1409747300C4D749 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
+		4F3E691C1409747300C4D749 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
+		4F3E691D1409747300C4D749 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
+		4F3E69201409747300C4D749 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
+		4F3E69221409747300C4D749 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
+		4F3E69231409747300C4D749 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
+		4F3E69241409747300C4D749 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
+		4F3E69491409759600C4D749 /* IPlugVST3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E69041409746500C4D749 /* IPlugVST3.cpp */; };
 		4F3EE94613B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
 		4F3EE94713B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
 		4F3EE94913B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
+		4F4AD043140996A10068A6D4 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFF5140996A10068A6D4 /* memorystream.cpp */; };
+		4F4AD044140996A10068A6D4 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFF7140996A10068A6D4 /* pluginview.cpp */; };
+		4F4AD046140996A10068A6D4 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFB140996A10068A6D4 /* macmain.cpp */; };
+		4F4AD047140996A10068A6D4 /* pluginfactoryvst3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFC140996A10068A6D4 /* pluginfactoryvst3.cpp */; };
+		4F4AD048140996A10068A6D4 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFF140996A10068A6D4 /* vstaudioeffect.cpp */; };
+		4F4AD049140996A10068A6D4 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD001140996A10068A6D4 /* vstbus.cpp */; };
+		4F4AD04A140996A10068A6D4 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD003140996A10068A6D4 /* vstcomponent.cpp */; };
+		4F4AD04B140996A10068A6D4 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */; };
+		4F4AD04C140996A10068A6D4 /* vsteditcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */; };
+		4F4AD04D140996A10068A6D4 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD009140996A10068A6D4 /* vstinitiids.cpp */; };
+		4F4AD04E140996A10068A6D4 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */; };
+		4F4AD04F140996A10068A6D4 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00C140996A10068A6D4 /* vstparameters.cpp */; };
+		4F4AD050140996A10068A6D4 /* vstpresetfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00E140996A10068A6D4 /* vstpresetfile.cpp */; };
+		4F4AD051140996A10068A6D4 /* vstrepresentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD010140996A10068A6D4 /* vstrepresentation.cpp */; };
+		4F4AD052140996A10068A6D4 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD012140996A10068A6D4 /* vstsinglecomponenteffect.cpp */; };
+		4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD016140996A10068A6D4 /* conststringtable.cpp */; };
+		4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
+		4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
+		4F4AD2001409A5A90068A6D4 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F5572DE12C7F49C003A4AD1 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* resource.h */; };
 		4F5572DF12C7F49C003A4AD1 /* IPlugMultiTargets.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED20D0CF13D001C8B8A /* IPlugMultiTargets.h */; };
 		4F55730612C7F49C003A4AD1 /* IPlugMultiTargets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */; };
@@ -254,6 +297,48 @@
 		4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2913E97794004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4F9828B0140A9EB700F3FCC1 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E213B647A00097A67E /* bg.png */; };
+		4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
+		4F9828B2140A9EB700F3FCC1 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F7F950D13E4897900A3283D /* about.png */; };
+		4F9828B3140A9EB700F3FCC1 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1713EDC962009D26BB /* bk.png */; };
+		4F9828B4140A9EB700F3FCC1 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1813EDC962009D26BB /* wk.png */; };
+		4F9828B6140A9EB700F3FCC1 /* IPlugMultiTargets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */; };
+		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
+		4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
+		4F9828B9140A9EB700F3FCC1 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
+		4F9828BA140A9EB700F3FCC1 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
+		4F9828BB140A9EB700F3FCC1 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */; };
+		4F9828BC140A9EB700F3FCC1 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */; };
+		4F9828BD140A9EB700F3FCC1 /* IGraphicsCarbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */; };
+		4F9828BE140A9EB700F3FCC1 /* IGraphicsCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */; };
+		4F9828BF140A9EB700F3FCC1 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
+		4F9828C0140A9EB700F3FCC1 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
+		4F9828C1140A9EB700F3FCC1 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
+		4F9828C2140A9EB700F3FCC1 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
+		4F9828C3140A9EB700F3FCC1 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
+		4F9828C4140A9EB700F3FCC1 /* IPlugVST3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E69041409746500C4D749 /* IPlugVST3.cpp */; };
+		4F9828C5140A9EB700F3FCC1 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFF5140996A10068A6D4 /* memorystream.cpp */; };
+		4F9828C6140A9EB700F3FCC1 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFF7140996A10068A6D4 /* pluginview.cpp */; };
+		4F9828C7140A9EB700F3FCC1 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFB140996A10068A6D4 /* macmain.cpp */; };
+		4F9828C8140A9EB700F3FCC1 /* pluginfactoryvst3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFC140996A10068A6D4 /* pluginfactoryvst3.cpp */; };
+		4F9828C9140A9EB700F3FCC1 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFF140996A10068A6D4 /* vstaudioeffect.cpp */; };
+		4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD001140996A10068A6D4 /* vstbus.cpp */; };
+		4F9828CB140A9EB700F3FCC1 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD003140996A10068A6D4 /* vstcomponent.cpp */; };
+		4F9828CC140A9EB700F3FCC1 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */; };
+		4F9828CD140A9EB700F3FCC1 /* vsteditcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */; };
+		4F9828CE140A9EB700F3FCC1 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD009140996A10068A6D4 /* vstinitiids.cpp */; };
+		4F9828CF140A9EB700F3FCC1 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */; };
+		4F9828D0140A9EB700F3FCC1 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00C140996A10068A6D4 /* vstparameters.cpp */; };
+		4F9828D1140A9EB700F3FCC1 /* vstpresetfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00E140996A10068A6D4 /* vstpresetfile.cpp */; };
+		4F9828D2140A9EB700F3FCC1 /* vstrepresentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD010140996A10068A6D4 /* vstrepresentation.cpp */; };
+		4F9828D3140A9EB700F3FCC1 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD012140996A10068A6D4 /* vstsinglecomponenteffect.cpp */; };
+		4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD016140996A10068A6D4 /* conststringtable.cpp */; };
+		4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
+		4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
+		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
+		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
+		4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
+		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4FB2DD1913EDC962009D26BB /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1713EDC962009D26BB /* bk.png */; };
 		4FB2DD1A13EDC962009D26BB /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1813EDC962009D26BB /* wk.png */; };
 		4FB2DD1B13EDC962009D26BB /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2DD1713EDC962009D26BB /* bk.png */; };
@@ -319,6 +404,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4F3E69091409747300C4D749 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F8D4BD513E976A7004F7633;
+			remoteInfo = lice_32_intel;
+		};
+		4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteInfo = base;
+		};
+		4F4AD1F71409A5820068A6D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = base;
+		};
 		4F678B6C13E984B200A6A9BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
@@ -403,6 +509,27 @@
 			remoteGlobalIDString = 4F7F5C4213E95EC8002918FD;
 			remoteInfo = RTAS_32_intel;
 		};
+		4F9828AE140A9EB700F3FCC1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = base;
+		};
+		4F9828F2140A9ED500F3FCC1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* lice_32&64_intel */;
+			remoteInfo = "lice_32&64_intel";
+		};
+		4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */;
+			remoteInfo = "VST3_32&64_intel";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -416,7 +543,79 @@
 		4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiTargets-AU-Info.plist"; path = "resources/IPlugMultiTargets-AU-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1413B647E50097A67E /* IPlugMultiTargets-OSXAPP-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiTargets-OSXAPP-Info.plist"; path = "resources/IPlugMultiTargets-OSXAPP-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IPlugMultiTargets-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiTargets-VST2-Info.plist"; path = "resources/IPlugMultiTargets-VST2-Info.plist"; sourceTree = "<group>"; };
+		4F3E69041409746500C4D749 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../WDL/IPlug/IPlugVST3.cpp; sourceTree = SOURCE_ROOT; };
+		4F3E69051409746500C4D749 /* IPlugVST3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3.h; path = ../../WDL/IPlug/IPlugVST3.h; sourceTree = SOURCE_ROOT; };
+		4F3E69291409747300C4D749 /* IPlugMultiTargets.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMultiTargets.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F3E693A1409747300C4D749 /* IPlugMultiTargets-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugMultiTargets-VST3-Info.plist"; path = "resources/IPlugMultiTargets-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3EE94513B65A350097B791 /* IPlugOSDetect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugOSDetect.h; path = ../../WDL/IPlug/IPlugOSDetect.h; sourceTree = SOURCE_ROOT; };
+		4F4ACFF5140996A10068A6D4 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
+		4F4ACFF6140996A10068A6D4 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memorystream.h; sourceTree = "<group>"; };
+		4F4ACFF7140996A10068A6D4 /* pluginview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pluginview.cpp; sourceTree = "<group>"; };
+		4F4ACFF8140996A10068A6D4 /* pluginview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pluginview.h; sourceTree = "<group>"; };
+		4F4ACFFB140996A10068A6D4 /* macmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = macmain.cpp; sourceTree = "<group>"; };
+		4F4ACFFC140996A10068A6D4 /* pluginfactoryvst3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pluginfactoryvst3.cpp; sourceTree = "<group>"; };
+		4F4ACFFD140996A10068A6D4 /* pluginfactoryvst3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pluginfactoryvst3.h; sourceTree = "<group>"; };
+		4F4ACFFF140996A10068A6D4 /* vstaudioeffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstaudioeffect.cpp; sourceTree = "<group>"; };
+		4F4AD000140996A10068A6D4 /* vstaudioeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstaudioeffect.h; sourceTree = "<group>"; };
+		4F4AD001140996A10068A6D4 /* vstbus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstbus.cpp; sourceTree = "<group>"; };
+		4F4AD002140996A10068A6D4 /* vstbus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstbus.h; sourceTree = "<group>"; };
+		4F4AD003140996A10068A6D4 /* vstcomponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstcomponent.cpp; sourceTree = "<group>"; };
+		4F4AD004140996A10068A6D4 /* vstcomponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstcomponent.h; sourceTree = "<group>"; };
+		4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstcomponentbase.cpp; sourceTree = "<group>"; };
+		4F4AD006140996A10068A6D4 /* vstcomponentbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstcomponentbase.h; sourceTree = "<group>"; };
+		4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vsteditcontroller.cpp; sourceTree = "<group>"; };
+		4F4AD008140996A10068A6D4 /* vsteditcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsteditcontroller.h; sourceTree = "<group>"; };
+		4F4AD009140996A10068A6D4 /* vstinitiids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstinitiids.cpp; sourceTree = "<group>"; };
+		4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstnoteexpressiontypes.cpp; sourceTree = "<group>"; };
+		4F4AD00B140996A10068A6D4 /* vstnoteexpressiontypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstnoteexpressiontypes.h; sourceTree = "<group>"; };
+		4F4AD00C140996A10068A6D4 /* vstparameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstparameters.cpp; sourceTree = "<group>"; };
+		4F4AD00D140996A10068A6D4 /* vstparameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstparameters.h; sourceTree = "<group>"; };
+		4F4AD00E140996A10068A6D4 /* vstpresetfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstpresetfile.cpp; sourceTree = "<group>"; };
+		4F4AD00F140996A10068A6D4 /* vstpresetfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstpresetfile.h; sourceTree = "<group>"; };
+		4F4AD010140996A10068A6D4 /* vstrepresentation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstrepresentation.cpp; sourceTree = "<group>"; };
+		4F4AD011140996A10068A6D4 /* vstrepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstrepresentation.h; sourceTree = "<group>"; };
+		4F4AD012140996A10068A6D4 /* vstsinglecomponenteffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstsinglecomponenteffect.cpp; sourceTree = "<group>"; };
+		4F4AD013140996A10068A6D4 /* vstsinglecomponenteffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstsinglecomponenteffect.h; sourceTree = "<group>"; };
+		4F4AD016140996A10068A6D4 /* conststringtable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = conststringtable.cpp; sourceTree = "<group>"; };
+		4F4AD017140996A10068A6D4 /* conststringtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = conststringtable.h; sourceTree = "<group>"; };
+		4F4AD018140996A10068A6D4 /* falignpop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = falignpop.h; sourceTree = "<group>"; };
+		4F4AD019140996A10068A6D4 /* falignpush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = falignpush.h; sourceTree = "<group>"; };
+		4F4AD01A140996A10068A6D4 /* fplatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fplatform.h; sourceTree = "<group>"; };
+		4F4AD01B140996A10068A6D4 /* fstrdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fstrdefs.h; sourceTree = "<group>"; };
+		4F4AD01C140996A10068A6D4 /* ftypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftypes.h; sourceTree = "<group>"; };
+		4F4AD01D140996A10068A6D4 /* funknown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = funknown.cpp; sourceTree = "<group>"; };
+		4F4AD01E140996A10068A6D4 /* funknown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = funknown.h; sourceTree = "<group>"; };
+		4F4AD01F140996A10068A6D4 /* futils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = futils.h; sourceTree = "<group>"; };
+		4F4AD020140996A10068A6D4 /* ibstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ibstream.h; sourceTree = "<group>"; };
+		4F4AD021140996A10068A6D4 /* icloneable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = icloneable.h; sourceTree = "<group>"; };
+		4F4AD022140996A10068A6D4 /* ierrorcontext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ierrorcontext.h; sourceTree = "<group>"; };
+		4F4AD023140996A10068A6D4 /* ipersistent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipersistent.h; sourceTree = "<group>"; };
+		4F4AD024140996A10068A6D4 /* ipluginbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipluginbase.h; sourceTree = "<group>"; };
+		4F4AD025140996A10068A6D4 /* istringresult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = istringresult.h; sourceTree = "<group>"; };
+		4F4AD026140996A10068A6D4 /* iupdatehandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iupdatehandler.h; sourceTree = "<group>"; };
+		4F4AD027140996A10068A6D4 /* keycodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keycodes.h; sourceTree = "<group>"; };
+		4F4AD028140996A10068A6D4 /* ustring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ustring.cpp; sourceTree = "<group>"; };
+		4F4AD029140996A10068A6D4 /* ustring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ustring.h; sourceTree = "<group>"; };
+		4F4AD02B140996A10068A6D4 /* iplugview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iplugview.h; sourceTree = "<group>"; };
+		4F4AD02D140996A10068A6D4 /* ivstattributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstattributes.h; sourceTree = "<group>"; };
+		4F4AD02E140996A10068A6D4 /* ivstaudioprocessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstaudioprocessor.h; sourceTree = "<group>"; };
+		4F4AD02F140996A10068A6D4 /* ivstcomponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstcomponent.h; sourceTree = "<group>"; };
+		4F4AD030140996A10068A6D4 /* ivstcontextmenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstcontextmenu.h; sourceTree = "<group>"; };
+		4F4AD031140996A10068A6D4 /* ivsteditcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivsteditcontroller.h; sourceTree = "<group>"; };
+		4F4AD032140996A10068A6D4 /* ivstevents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstevents.h; sourceTree = "<group>"; };
+		4F4AD033140996A10068A6D4 /* ivsthostapplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivsthostapplication.h; sourceTree = "<group>"; };
+		4F4AD034140996A10068A6D4 /* ivstmessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstmessage.h; sourceTree = "<group>"; };
+		4F4AD035140996A10068A6D4 /* ivstmidicontrollers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstmidicontrollers.h; sourceTree = "<group>"; };
+		4F4AD036140996A10068A6D4 /* ivstnoteexpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstnoteexpression.h; sourceTree = "<group>"; };
+		4F4AD037140996A10068A6D4 /* ivstparameterchanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstparameterchanges.h; sourceTree = "<group>"; };
+		4F4AD038140996A10068A6D4 /* ivstplugview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstplugview.h; sourceTree = "<group>"; };
+		4F4AD039140996A10068A6D4 /* ivstprocesscontext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstprocesscontext.h; sourceTree = "<group>"; };
+		4F4AD03A140996A10068A6D4 /* ivstrepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstrepresentation.h; sourceTree = "<group>"; };
+		4F4AD03B140996A10068A6D4 /* ivstunits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ivstunits.h; sourceTree = "<group>"; };
+		4F4AD03C140996A10068A6D4 /* vstpresetkeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstpresetkeys.h; sourceTree = "<group>"; };
+		4F4AD03D140996A10068A6D4 /* vstpshpack4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstpshpack4.h; sourceTree = "<group>"; };
+		4F4AD03E140996A10068A6D4 /* vsttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsttypes.h; sourceTree = "<group>"; };
+		4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = ../../VST3_SDK/base/mac/base.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F55734412C7F49C003A4AD1 /* IPlugMultiTargets.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMultiTargets.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F78D62313B637200032E0F3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
@@ -497,6 +696,7 @@
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = IPlugRTAS.r; sourceTree = "<group>"; };
 		4F7F950D13E4897900A3283D /* about.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = about.png; path = resources/img/about.png; sourceTree = "<group>"; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/IPlug/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4F9828E0140A9EB700F3FCC1 /* IPlugMultiTargets.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMultiTargets.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FB2DD1713EDC962009D26BB /* bk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bk.png; path = resources/img/bk.png; sourceTree = "<group>"; };
 		4FB2DD1813EDC962009D26BB /* wk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wk.png; path = resources/img/wk.png; sourceTree = "<group>"; };
 		4FB3624E13B648FE00DB6B76 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = app_wrapper/main.m; sourceTree = "<group>"; };
@@ -570,6 +770,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F3E69211409747300C4D749 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F4AD2001409A5A90068A6D4 /* libbase.a in Frameworks */,
+				4F3E69221409747300C4D749 /* lice32.a in Frameworks */,
+				4F3E69231409747300C4D749 /* Cocoa.framework in Frameworks */,
+				4F3E69241409747300C4D749 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F55733712C7F49C003A4AD1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -593,6 +804,17 @@
 				4F7F5C6213E95EC8002918FD /* Cocoa.framework in Frameworks */,
 				4F7F5C6313E95EC8002918FD /* Carbon.framework in Frameworks */,
 				4F7F5CF713E96564002918FD /* System.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9828D7140A9EB700F3FCC1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */,
+				4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */,
+				4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */,
+				4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -631,7 +853,6 @@
 				52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */,
 				4FDD5A9A13FEA66C003A4CAC /* IPlugMultiTargets_controls.h */,
 				32C88E010371C26100C91783 /* Other Sources */,
-				089C167CFE841241C02AAC07 /* Resources */,
 				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
 			);
@@ -655,6 +876,7 @@
 				4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */,
 				4F23BA1413B647E50097A67E /* IPlugMultiTargets-OSXAPP-Info.plist */,
 				4F23BA1513B647E50097A67E /* IPlugMultiTargets-VST2-Info.plist */,
+				4F3E693A1409747300C4D749 /* IPlugMultiTargets-VST3-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugMultiTargets.icns */,
 			);
 			name = Resources;
@@ -664,6 +886,7 @@
 			isa = PBXGroup;
 			children = (
 				4F78DB2113B644E80032E0F3 /* App & Plugins */,
+				4F3E695B1409774100C4D749 /* VST3 Plugin */,
 				4F78DB2213B645060032E0F3 /* AU Plugin */,
 				4F7F5CEB13E9651F002918FD /* RTAS Plugin */,
 				4F78DB2013B644BD0032E0F3 /* App */,
@@ -678,6 +901,8 @@
 				4F78DB4513B6458B0032E0F3 /* VST2 */,
 				4F78DB4613B645AD0032E0F3 /* AU */,
 				4FD16A0913B63081001D0217 /* IPlugMultiTargets.app */,
+				4F3E69291409747300C4D749 /* IPlugMultiTargets.vst3 */,
+				4F9828E0140A9EB700F3FCC1 /* IPlugMultiTargets.vst3 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -689,8 +914,182 @@
 				4FD16C9D13B6327C001D0217 /* OSX App Wrapper */,
 				526F9C010D7DC7D700562CF8 /* IPlugMultiTargets.exp */,
 				4FCF15AF133124D1009A6277 /* IPlugMultiTargets.xcconfig */,
+				089C167CFE841241C02AAC07 /* Resources */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		4F3E69001409743C00C4D749 /* VST3 */ = {
+			isa = PBXGroup;
+			children = (
+				4F3E69041409746500C4D749 /* IPlugVST3.cpp */,
+				4F3E69051409746500C4D749 /* IPlugVST3.h */,
+			);
+			name = VST3;
+			sourceTree = "<group>";
+		};
+		4F3E695B1409774100C4D749 /* VST3 Plugin */ = {
+			isa = PBXGroup;
+			children = (
+				4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */,
+			);
+			name = "VST3 Plugin";
+			sourceTree = "<group>";
+		};
+		4F3E696A1409778C00C4D749 /* VST3_SDK */ = {
+			isa = PBXGroup;
+			children = (
+				4F4ACFF2140996A10068A6D4 /* public.sdk */,
+				4F4AD014140996A10068A6D4 /* pluginterfaces */,
+			);
+			name = VST3_SDK;
+			sourceTree = "<group>";
+		};
+		4F4ACFF2140996A10068A6D4 /* public.sdk */ = {
+			isa = PBXGroup;
+			children = (
+				4F4ACFF3140996A10068A6D4 /* source */,
+			);
+			name = public.sdk;
+			path = ../../VST3_SDK/public.sdk;
+			sourceTree = SOURCE_ROOT;
+		};
+		4F4ACFF3140996A10068A6D4 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				4F4ACFF4140996A10068A6D4 /* common */,
+				4F4ACFF9140996A10068A6D4 /* main */,
+				4F4ACFFE140996A10068A6D4 /* vst */,
+			);
+			path = source;
+			sourceTree = "<group>";
+		};
+		4F4ACFF4140996A10068A6D4 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				4F4ACFF5140996A10068A6D4 /* memorystream.cpp */,
+				4F4ACFF6140996A10068A6D4 /* memorystream.h */,
+				4F4ACFF7140996A10068A6D4 /* pluginview.cpp */,
+				4F4ACFF8140996A10068A6D4 /* pluginview.h */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		4F4ACFF9140996A10068A6D4 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				4F4ACFFB140996A10068A6D4 /* macmain.cpp */,
+				4F4ACFFC140996A10068A6D4 /* pluginfactoryvst3.cpp */,
+				4F4ACFFD140996A10068A6D4 /* pluginfactoryvst3.h */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		4F4ACFFE140996A10068A6D4 /* vst */ = {
+			isa = PBXGroup;
+			children = (
+				4F4ACFFF140996A10068A6D4 /* vstaudioeffect.cpp */,
+				4F4AD000140996A10068A6D4 /* vstaudioeffect.h */,
+				4F4AD001140996A10068A6D4 /* vstbus.cpp */,
+				4F4AD002140996A10068A6D4 /* vstbus.h */,
+				4F4AD003140996A10068A6D4 /* vstcomponent.cpp */,
+				4F4AD004140996A10068A6D4 /* vstcomponent.h */,
+				4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */,
+				4F4AD006140996A10068A6D4 /* vstcomponentbase.h */,
+				4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */,
+				4F4AD008140996A10068A6D4 /* vsteditcontroller.h */,
+				4F4AD009140996A10068A6D4 /* vstinitiids.cpp */,
+				4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */,
+				4F4AD00B140996A10068A6D4 /* vstnoteexpressiontypes.h */,
+				4F4AD00C140996A10068A6D4 /* vstparameters.cpp */,
+				4F4AD00D140996A10068A6D4 /* vstparameters.h */,
+				4F4AD00E140996A10068A6D4 /* vstpresetfile.cpp */,
+				4F4AD00F140996A10068A6D4 /* vstpresetfile.h */,
+				4F4AD010140996A10068A6D4 /* vstrepresentation.cpp */,
+				4F4AD011140996A10068A6D4 /* vstrepresentation.h */,
+				4F4AD012140996A10068A6D4 /* vstsinglecomponenteffect.cpp */,
+				4F4AD013140996A10068A6D4 /* vstsinglecomponenteffect.h */,
+			);
+			path = vst;
+			sourceTree = "<group>";
+		};
+		4F4AD014140996A10068A6D4 /* pluginterfaces */ = {
+			isa = PBXGroup;
+			children = (
+				4F4AD015140996A10068A6D4 /* base */,
+				4F4AD02A140996A10068A6D4 /* gui */,
+				4F4AD02C140996A10068A6D4 /* vst */,
+			);
+			name = pluginterfaces;
+			path = ../../VST3_SDK/pluginterfaces;
+			sourceTree = SOURCE_ROOT;
+		};
+		4F4AD015140996A10068A6D4 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				4F4AD016140996A10068A6D4 /* conststringtable.cpp */,
+				4F4AD017140996A10068A6D4 /* conststringtable.h */,
+				4F4AD018140996A10068A6D4 /* falignpop.h */,
+				4F4AD019140996A10068A6D4 /* falignpush.h */,
+				4F4AD01A140996A10068A6D4 /* fplatform.h */,
+				4F4AD01B140996A10068A6D4 /* fstrdefs.h */,
+				4F4AD01C140996A10068A6D4 /* ftypes.h */,
+				4F4AD01D140996A10068A6D4 /* funknown.cpp */,
+				4F4AD01E140996A10068A6D4 /* funknown.h */,
+				4F4AD01F140996A10068A6D4 /* futils.h */,
+				4F4AD020140996A10068A6D4 /* ibstream.h */,
+				4F4AD021140996A10068A6D4 /* icloneable.h */,
+				4F4AD022140996A10068A6D4 /* ierrorcontext.h */,
+				4F4AD023140996A10068A6D4 /* ipersistent.h */,
+				4F4AD024140996A10068A6D4 /* ipluginbase.h */,
+				4F4AD025140996A10068A6D4 /* istringresult.h */,
+				4F4AD026140996A10068A6D4 /* iupdatehandler.h */,
+				4F4AD027140996A10068A6D4 /* keycodes.h */,
+				4F4AD028140996A10068A6D4 /* ustring.cpp */,
+				4F4AD029140996A10068A6D4 /* ustring.h */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		4F4AD02A140996A10068A6D4 /* gui */ = {
+			isa = PBXGroup;
+			children = (
+				4F4AD02B140996A10068A6D4 /* iplugview.h */,
+			);
+			path = gui;
+			sourceTree = "<group>";
+		};
+		4F4AD02C140996A10068A6D4 /* vst */ = {
+			isa = PBXGroup;
+			children = (
+				4F4AD02D140996A10068A6D4 /* ivstattributes.h */,
+				4F4AD02E140996A10068A6D4 /* ivstaudioprocessor.h */,
+				4F4AD02F140996A10068A6D4 /* ivstcomponent.h */,
+				4F4AD030140996A10068A6D4 /* ivstcontextmenu.h */,
+				4F4AD031140996A10068A6D4 /* ivsteditcontroller.h */,
+				4F4AD032140996A10068A6D4 /* ivstevents.h */,
+				4F4AD033140996A10068A6D4 /* ivsthostapplication.h */,
+				4F4AD034140996A10068A6D4 /* ivstmessage.h */,
+				4F4AD035140996A10068A6D4 /* ivstmidicontrollers.h */,
+				4F4AD036140996A10068A6D4 /* ivstnoteexpression.h */,
+				4F4AD037140996A10068A6D4 /* ivstparameterchanges.h */,
+				4F4AD038140996A10068A6D4 /* ivstplugview.h */,
+				4F4AD039140996A10068A6D4 /* ivstprocesscontext.h */,
+				4F4AD03A140996A10068A6D4 /* ivstrepresentation.h */,
+				4F4AD03B140996A10068A6D4 /* ivstunits.h */,
+				4F4AD03C140996A10068A6D4 /* vstpresetkeys.h */,
+				4F4AD03D140996A10068A6D4 /* vstpshpack4.h */,
+				4F4AD03E140996A10068A6D4 /* vsttypes.h */,
+			);
+			path = vst;
+			sourceTree = "<group>";
+		};
+		4F4AD1F21409A56A0068A6D4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F4AD1F61409A56A0068A6D4 /* libbase.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		4F75900813B7A91A00DA399F /* MACGUI */ = {
@@ -732,6 +1131,7 @@
 		4F78D8D013B63B390032E0F3 /* IPlug */ = {
 			isa = PBXGroup;
 			children = (
+				4F3E69001409743C00C4D749 /* VST3 */,
 				4F7F5C7213E95FB8002918FD /* RTAS */,
 				4F78D9FA13B63CA10032E0F3 /* APP */,
 				4F78D9F913B63C920032E0F3 /* AU */,
@@ -811,6 +1211,7 @@
 		4F78DAE913B6423C0032E0F3 /* 3rd Party */ = {
 			isa = PBXGroup;
 			children = (
+				4F3E696A1409778C00C4D749 /* VST3_SDK */,
 				4F78D8D113B63B5D0032E0F3 /* VST2_SDK */,
 				4F78D8BE13B63A700032E0F3 /* rtaudiomidi */,
 			);
@@ -1204,6 +1605,26 @@
 			productReference = 4F78DB5F13B6462B0032E0F3 /* IPlugMultiTargets.component */;
 			productType = "com.apple.product-type.bundle";
 		};
+		4F3E69071409747300C4D749 /* VST3_32_intel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F3E69251409747300C4D749 /* Build configuration list for PBXNativeTarget "VST3_32_intel" */;
+			buildPhases = (
+				4F3E690A1409747300C4D749 /* Resources */,
+				4F3E69101409747300C4D749 /* Sources */,
+				4F3E69211409747300C4D749 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F3E69081409747300C4D749 /* PBXTargetDependency */,
+				4F4AD1F81409A5820068A6D4 /* PBXTargetDependency */,
+			);
+			name = VST3_32_intel;
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = IPlugExample;
+			productReference = 4F3E69291409747300C4D749 /* IPlugMultiTargets.vst3 */;
+			productType = "com.apple.product-type.bundle";
+		};
 		4F5572DB12C7F49C003A4AD1 /* AU_32_intel */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F55734012C7F49C003A4AD1 /* Build configuration list for PBXNativeTarget "AU_32_intel" */;
@@ -1243,6 +1664,26 @@
 			productInstallPath = "$(HOME)/Library/Bundles";
 			productName = IPlugExample;
 			productReference = 4F7F5C6813E95EC8002918FD /* IPlugMultiTargets.dpm */;
+			productType = "com.apple.product-type.bundle";
+		};
+		4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F9828DC140A9EB700F3FCC1 /* Build configuration list for PBXNativeTarget "VST3_32&64_intel" */;
+			buildPhases = (
+				4F9828AF140A9EB700F3FCC1 /* Resources */,
+				4F9828B5140A9EB700F3FCC1 /* Sources */,
+				4F9828D7140A9EB700F3FCC1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */,
+				4F9828F3140A9ED500F3FCC1 /* PBXTargetDependency */,
+			);
+			name = "VST3_32&64_intel";
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = IPlugExample;
+			productReference = 4F9828E0140A9EB700F3FCC1 /* IPlugMultiTargets.vst3 */;
 			productType = "com.apple.product-type.bundle";
 		};
 		4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */ = {
@@ -1302,6 +1743,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 4F4AD1F21409A56A0068A6D4 /* Products */;
+					ProjectRef = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+				},
+				{
 					ProductGroup = 4F8D4BC513E97664004F7633 /* Products */;
 					ProjectRef = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
 				},
@@ -1315,11 +1760,20 @@
 				4F5572DB12C7F49C003A4AD1 /* AU_32_intel */,
 				4F3AE17812C0E5E2001FD7A4 /* AU_32&64_intel */,
 				4F7F5C4213E95EC8002918FD /* RTAS_32_intel */,
+				4F3E69071409747300C4D749 /* VST3_32_intel */,
+				4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		4F4AD1F61409A56A0068A6D4 /* libbase.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbase.a;
+			remoteRef = 4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		4F8D4BCC13E97664004F7633 /* lice.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1361,6 +1815,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F3E690A1409747300C4D749 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F3E690B1409747300C4D749 /* bg.png in Resources */,
+				4F3E690C1409747300C4D749 /* knob.png in Resources */,
+				4F3E690D1409747300C4D749 /* about.png in Resources */,
+				4F3E690E1409747300C4D749 /* bk.png in Resources */,
+				4F3E690F1409747300C4D749 /* wk.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F55733612C7F49C003A4AD1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1382,6 +1848,18 @@
 				4F7F5C4713E95EC8002918FD /* about.png in Resources */,
 				4FB2DD1913EDC962009D26BB /* bk.png in Resources */,
 				4FB2DD1A13EDC962009D26BB /* wk.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9828AF140A9EB700F3FCC1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9828B0140A9EB700F3FCC1 /* bg.png in Resources */,
+				4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */,
+				4F9828B2140A9EB700F3FCC1 /* about.png in Resources */,
+				4F9828B3140A9EB700F3FCC1 /* bk.png in Resources */,
+				4F9828B4140A9EB700F3FCC1 /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1519,6 +1997,46 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F3E69101409747300C4D749 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F3E69111409747300C4D749 /* IPlugMultiTargets.cpp in Sources */,
+				4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */,
+				4F3E69131409747300C4D749 /* IPlugBase.cpp in Sources */,
+				4F3E69141409747300C4D749 /* IPlugStructs.cpp in Sources */,
+				4F3E69151409747300C4D749 /* Hosts.cpp in Sources */,
+				4F3E69161409747300C4D749 /* IGraphicsMac.mm in Sources */,
+				4F3E69171409747300C4D749 /* IGraphics.cpp in Sources */,
+				4F3E69181409747300C4D749 /* IGraphicsCarbon.cpp in Sources */,
+				4F3E69191409747300C4D749 /* IGraphicsCocoa.mm in Sources */,
+				4F3E691A1409747300C4D749 /* Log.cpp in Sources */,
+				4F3E691B1409747300C4D749 /* IPopupMenu.cpp in Sources */,
+				4F3E691C1409747300C4D749 /* IParam.cpp in Sources */,
+				4F3E691D1409747300C4D749 /* IControl.cpp in Sources */,
+				4F3E69201409747300C4D749 /* IBitmapMonoText.cpp in Sources */,
+				4F3E69491409759600C4D749 /* IPlugVST3.cpp in Sources */,
+				4F4AD043140996A10068A6D4 /* memorystream.cpp in Sources */,
+				4F4AD044140996A10068A6D4 /* pluginview.cpp in Sources */,
+				4F4AD046140996A10068A6D4 /* macmain.cpp in Sources */,
+				4F4AD047140996A10068A6D4 /* pluginfactoryvst3.cpp in Sources */,
+				4F4AD048140996A10068A6D4 /* vstaudioeffect.cpp in Sources */,
+				4F4AD049140996A10068A6D4 /* vstbus.cpp in Sources */,
+				4F4AD04A140996A10068A6D4 /* vstcomponent.cpp in Sources */,
+				4F4AD04B140996A10068A6D4 /* vstcomponentbase.cpp in Sources */,
+				4F4AD04C140996A10068A6D4 /* vsteditcontroller.cpp in Sources */,
+				4F4AD04D140996A10068A6D4 /* vstinitiids.cpp in Sources */,
+				4F4AD04E140996A10068A6D4 /* vstnoteexpressiontypes.cpp in Sources */,
+				4F4AD04F140996A10068A6D4 /* vstparameters.cpp in Sources */,
+				4F4AD050140996A10068A6D4 /* vstpresetfile.cpp in Sources */,
+				4F4AD051140996A10068A6D4 /* vstrepresentation.cpp in Sources */,
+				4F4AD052140996A10068A6D4 /* vstsinglecomponenteffect.cpp in Sources */,
+				4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */,
+				4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */,
+				4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F55730512C7F49C003A4AD1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1568,6 +2086,46 @@
 				4F7F5CB213E9607A002918FD /* IPlugProcess.cpp in Sources */,
 				4F7F5CB313E9607A002918FD /* IPlugProcessRTAS.cpp in Sources */,
 				4FDA440713F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9828B5140A9EB700F3FCC1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9828B6140A9EB700F3FCC1 /* IPlugMultiTargets.cpp in Sources */,
+				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
+				4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */,
+				4F9828B9140A9EB700F3FCC1 /* IPlugStructs.cpp in Sources */,
+				4F9828BA140A9EB700F3FCC1 /* Hosts.cpp in Sources */,
+				4F9828BB140A9EB700F3FCC1 /* IGraphicsMac.mm in Sources */,
+				4F9828BC140A9EB700F3FCC1 /* IGraphics.cpp in Sources */,
+				4F9828BD140A9EB700F3FCC1 /* IGraphicsCarbon.cpp in Sources */,
+				4F9828BE140A9EB700F3FCC1 /* IGraphicsCocoa.mm in Sources */,
+				4F9828BF140A9EB700F3FCC1 /* Log.cpp in Sources */,
+				4F9828C0140A9EB700F3FCC1 /* IPopupMenu.cpp in Sources */,
+				4F9828C1140A9EB700F3FCC1 /* IParam.cpp in Sources */,
+				4F9828C2140A9EB700F3FCC1 /* IControl.cpp in Sources */,
+				4F9828C3140A9EB700F3FCC1 /* IBitmapMonoText.cpp in Sources */,
+				4F9828C4140A9EB700F3FCC1 /* IPlugVST3.cpp in Sources */,
+				4F9828C5140A9EB700F3FCC1 /* memorystream.cpp in Sources */,
+				4F9828C6140A9EB700F3FCC1 /* pluginview.cpp in Sources */,
+				4F9828C7140A9EB700F3FCC1 /* macmain.cpp in Sources */,
+				4F9828C8140A9EB700F3FCC1 /* pluginfactoryvst3.cpp in Sources */,
+				4F9828C9140A9EB700F3FCC1 /* vstaudioeffect.cpp in Sources */,
+				4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */,
+				4F9828CB140A9EB700F3FCC1 /* vstcomponent.cpp in Sources */,
+				4F9828CC140A9EB700F3FCC1 /* vstcomponentbase.cpp in Sources */,
+				4F9828CD140A9EB700F3FCC1 /* vsteditcontroller.cpp in Sources */,
+				4F9828CE140A9EB700F3FCC1 /* vstinitiids.cpp in Sources */,
+				4F9828CF140A9EB700F3FCC1 /* vstnoteexpressiontypes.cpp in Sources */,
+				4F9828D0140A9EB700F3FCC1 /* vstparameters.cpp in Sources */,
+				4F9828D1140A9EB700F3FCC1 /* vstpresetfile.cpp in Sources */,
+				4F9828D2140A9EB700F3FCC1 /* vstrepresentation.cpp in Sources */,
+				4F9828D3140A9EB700F3FCC1 /* vstsinglecomponenteffect.cpp in Sources */,
+				4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */,
+				4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */,
+				4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1634,6 +2192,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4F3E69081409747300C4D749 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = lice_32_intel;
+			targetProxy = 4F3E69091409747300C4D749 /* PBXContainerItemProxy */;
+		};
+		4F4AD1F81409A5820068A6D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = base;
+			targetProxy = 4F4AD1F71409A5820068A6D4 /* PBXContainerItemProxy */;
+		};
 		4F678B6D13E984B200A6A9BB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "lice_32&64_intel";
@@ -1683,6 +2251,21 @@
 			isa = PBXTargetDependency;
 			target = 4F7F5C4213E95EC8002918FD /* RTAS_32_intel */;
 			targetProxy = 4F8D4C6213E97B3D004F7633 /* PBXContainerItemProxy */;
+		};
+		4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = base;
+			targetProxy = 4F9828AE140A9EB700F3FCC1 /* PBXContainerItemProxy */;
+		};
+		4F9828F3140A9ED500F3FCC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "lice_32&64_intel";
+			targetProxy = 4F9828F2140A9ED500F3FCC1 /* PBXContainerItemProxy */;
+		};
+		4F9828F8140A9F0200F3FCC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */;
+			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2074,6 +2657,115 @@
 			};
 			name = Tracer;
 		};
+		4F3E69261409747300C4D749 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = i386;
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(VST3_FOLDER)";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(IPLUG_PATH)",
+					"$(ADDITIONAL_INCLUDES)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_FILE = "resources/IPlugMultiTargets-VST3-Info.plist";
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = "$(BASE_SDK)";
+				SYMROOT = "build-mac";
+				WRAPPER_EXTENSION = vst3;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		4F3E69271409747300C4D749 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = i386;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(VST3_FOLDER)";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(IPLUG_PATH)",
+					"$(ADDITIONAL_INCLUDES)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_FILE = "resources/IPlugMultiTargets-VST3-Info.plist";
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				SYMROOT = "build-mac";
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Release;
+		};
+		4F3E69281409747300C4D749 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = i386;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(VST3_FOLDER)";
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(IPLUG_PATH)",
+					"$(ADDITIONAL_INCLUDES)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_FILE = "resources/IPlugMultiTargets-VST3-Info.plist";
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = "$(BASE_SDK)";
+				SYMROOT = "build-mac";
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Tracer;
+		};
 		4F55734112C7F49C003A4AD1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2403,6 +3095,118 @@
 			};
 			name = Tracer;
 		};
+		4F9828DD140A9EB700F3FCC1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(VST3_FOLDER)";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(IPLUG_PATH)",
+					"$(ADDITIONAL_INCLUDES)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_FILE = "resources/IPlugMultiTargets-VST3-Info.plist";
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = "$(BASE_SDK)";
+				SYMROOT = "build-mac";
+				WRAPPER_EXTENSION = vst3;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		4F9828DE140A9EB700F3FCC1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(VST3_FOLDER)";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(IPLUG_PATH)",
+					"$(ADDITIONAL_INCLUDES)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_FILE = "resources/IPlugMultiTargets-VST3-Info.plist";
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				SYMROOT = "build-mac";
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Release;
+		};
+		4F9828DF140A9EB700F3FCC1 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(VST3_FOLDER)";
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(IPLUG_PATH)",
+					"$(ADDITIONAL_INCLUDES)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_FILE = "resources/IPlugMultiTargets-VST3-Info.plist";
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(PROJECT_NAME)";
+				SDKROOT = "$(BASE_SDK)";
+				SYMROOT = "build-mac";
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Tracer;
+		};
 		4FD16A0C13B63082001D0217 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2610,6 +3414,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		4F3E69251409747300C4D749 /* Build configuration list for PBXNativeTarget "VST3_32_intel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F3E69261409747300C4D749 /* Debug */,
+				4F3E69271409747300C4D749 /* Release */,
+				4F3E69281409747300C4D749 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4F55734012C7F49C003A4AD1 /* Build configuration list for PBXNativeTarget "AU_32_intel" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2636,6 +3450,16 @@
 				4F7F5C6513E95EC8002918FD /* Debug */,
 				4F7F5C6613E95EC8002918FD /* Release */,
 				4F7F5C6713E95EC8002918FD /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4F9828DC140A9EB700F3FCC1 /* Build configuration list for PBXNativeTarget "VST3_32&64_intel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F9828DD140A9EB700F3FCC1 /* Debug */,
+				4F9828DE140A9EB700F3FCC1 /* Release */,
+				4F9828DF140A9EB700F3FCC1 /* Tracer */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

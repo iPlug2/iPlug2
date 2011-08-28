@@ -6,13 +6,13 @@
 
 #if defined OS_WIN
   HINSTANCE gHInstance = 0;
-#ifdef VST_API //TODO check
+  #ifdef VST_API //TODO check
   BOOL WINAPI DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
   {
     gHInstance = hDllInst;
     return TRUE;
   }
-#endif
+  #endif
 
   IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
   {
@@ -63,7 +63,57 @@
     }
   };
 #elif defined VST3_API
-// TODO
+#include "public.sdk/source/main/pluginfactoryvst3.h"
+
+unsigned int GUID_DATA1 = 0xF2AEE70D;
+unsigned int GUID_DATA2 = 0x00DE4F4E;
+unsigned int GUID_DATA3 = PLUG_MFR_ID;
+unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
+
+#ifndef EFFECT_TYPE_VST3
+  #if PLUG_IS_INST
+    #define EFFECT_TYPE_VST3 kInstrumentSynth
+  #else
+    #define EFFECT_TYPE_VST3 kFx
+  #endif
+#endif
+
+using namespace Steinberg::Vst;
+
+// called after library was loaded
+bool InitModule () { return true; }
+
+// called after library is unloaded
+bool DeinitModule () { return true; }
+
+IPlug* MakePlug()
+{
+  static WDL_Mutex sMutex;
+  WDL_MutexLock lock(&sMutex);
+  IPlugInstanceInfo instanceInfo;
+  
+  return new PLUG_CLASS_NAME(instanceInfo);
+}
+
+static FUnknown* createInstance (void*) {
+	return (IAudioProcessor*) MakePlug();
+}
+
+// Company Information
+BEGIN_FACTORY_DEF (PLUG_MFR, MFR_URL, MFR_EMAIL)  
+
+DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
+            PClassInfo::kManyInstances,                         // cardinality 
+            kVstAudioEffectClass,                               // the component category (don't change this)
+            PLUG_NAME,                                          // plug-in name
+            Vst::kSimpleModeSupported,                          // 0 because we can't split the gui and plugin
+            Vst::PlugType::EFFECT_TYPE_VST3,                     // Subcategory for this plug-in
+            PLUG_VER_STR,                                       // plug-in version
+            kVstVersionString,                                  // the VST 3 SDK version (dont changed this, use always this define)
+            createInstance) // function pointer called when this component should be instanciated
+
+END_FACTORY
+
 #elif defined AU_API
   IPlug* MakePlug()
   {

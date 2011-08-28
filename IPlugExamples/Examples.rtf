@@ -19,17 +19,25 @@ To build 64 bit binaries on windows, using VS2010 express, you need to have inst
 The IPlugMultiTargets project is the main starting project, and if you wish to support multiple targets you should start by duplicating this (see below) and then removing the bits you don't need manually.\
 \
 
-\b Building VST2
+\b VST2
 \b0 \
 \
-You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK in order to compile for vst2, see VST_SDK/readme.txt\
-\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
-\ls1\ilvl0\cf0 \
+You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt\
+\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-
-\b \cf0 Building RTAS
+\ls1\ilvl0
+\b \cf0 VST3\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\ls1\ilvl0
+\b0 \cf0 \
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
+\ls1\ilvl0\cf0 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK\
+	\
+\ls1\ilvl0
+\b RTAS
 \b0 \
-\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \
 - Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: {\field{\*\fldinst{HYPERLINK "http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html"}}{\fldrslt http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html}}\
 \
 - On windows, the debug builds of the RTAS plugin will not be recognised by ProTools. This is true of the Digidesign examples as well for the PT8 and PT9 sdks, PT7 works however. I have found that enabling debug symbols in the release build was sufficient to allow me to debug my plugins.\
@@ -37,23 +45,25 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK in ord
 - By default the Digidesign PluginLibrary.lib static libraries are built to link dynamically to the MSVC libraries\'85 i.e. /MD instead of /MT. You need to change this setting to /MT when you build IPlugMultiTargets, unless you want to link dynamically (see below) in which case you need to change the settings in all the IPlug projects.\
 \
 
-\b Building AudioUnits
+\b AudioUnits
 \b0 \
 \
 - Nothing special\
 \
 
-\b Building Standalone
+\b Standalone
 \b0 \
 \
 - To build on windows you need to extract some files into ASIO_SDK, see ASIO_SDK/readme.txt\
 \
 
-\b Building For IOS
+\b IOS
 \b0 \
 \
 - Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.x and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\
 - NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new guy using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\
+\
+\
 \
 
 \b Windows Issues\
