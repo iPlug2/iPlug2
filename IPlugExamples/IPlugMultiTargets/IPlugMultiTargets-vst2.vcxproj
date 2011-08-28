@@ -367,6 +367,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="IPlugMultiTargets.h" />
     <ClInclude Include="IPlugMultiTargets_controls.h" />
     <ClInclude Include="resource.h" />

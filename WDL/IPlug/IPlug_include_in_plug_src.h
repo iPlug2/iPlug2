@@ -80,11 +80,21 @@ unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
 using namespace Steinberg::Vst;
 
+void* hInstance = 0;
+
 // called after library was loaded
-bool InitModule () { return true; }
+bool InitModule ()   
+{
+	extern void* moduleHandle;
+	hInstance = moduleHandle;
+	return true; 
+}
 
 // called after library is unloaded
-bool DeinitModule () { return true; }
+bool DeinitModule ()
+{
+	return true; 
+}
 
 IPlug* MakePlug()
 {

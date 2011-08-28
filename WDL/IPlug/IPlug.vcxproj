@@ -233,8 +233,6 @@
     <ClInclude Include="IGraphics.h" />
     <ClInclude Include="IGraphicsWin.h" />
     <ClInclude Include="IControl.h" />
-    <ClInclude Include="IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="IPlug_include_in_plug_src.h" />
     <ClInclude Include="IPlugBase.h" />
     <ClInclude Include="IPlugVST.h" />
   </ItemGroup>

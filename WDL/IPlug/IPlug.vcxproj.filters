@@ -16,8 +16,6 @@
     <ClInclude Include="IPlugVST.h" />
     <ClInclude Include="IPlugStandalone.h" />
     <ClInclude Include="..\rtaudiomidi\RtMidi.h" />
-    <ClInclude Include="IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="IPlug_include_in_plug_src.h" />
     <ClInclude Include="IPopupMenu.h" />
     <ClInclude Include="IControl.h" />
     <ClInclude Include="Log.h" />
