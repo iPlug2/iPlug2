@@ -97,6 +97,8 @@ struct IText
   //	bool operator<(const IText& rhs) const;	// For sorting.
 };
 
+#define MakeIRect(a) IRECT(a##_X, a##_Y, a##_X + a##_W, a##_Y + a##_H)
+
 struct IRECT 
 { 
 	int L, T, R, B;
