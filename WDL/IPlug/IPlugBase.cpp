@@ -74,7 +74,8 @@ IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
   int nInputs = 0, nOutputs = 0;
   while (channelIOStr) {
     int nIn = 0, nOut = 0;
-    assert(sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2);
+    bool channelIOStrValid = sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2;
+    assert(channelIOStrValid);
     nInputs = IPMAX(nInputs, nIn);
     nOutputs = IPMAX(nOutputs, nOut);
     mChannelIO.Add(new ChannelIO(nIn, nOut));
