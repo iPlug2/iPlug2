@@ -21,12 +21,12 @@
 
 // http://service.steinberg.de/databases/plugin.nsf/plugIn?openForm
 // 4 chars, single quotes. At least one capital letter
-#define PLUG_UNIQUE_ID 'IplB'
+#define PLUG_UNIQUE_ID 'Ipmt'
 // make sure this is not the same as BUNDLE_MFR
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "Acme Audio Inc.\nAcme Audio\nAcme\n"
+#define PLUG_MFR_DIGI "DEFAULT_MFR Inc.\nDEFAULT_MFR\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugMultiTargets\nIPMT"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 
