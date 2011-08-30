@@ -26,7 +26,7 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "DEFAULT_MFR Inc.\nDEFAULT_MFR\nAcme\n"
+#define PLUG_MFR_DIGI "DEFAULT_MFR\nDEFAULT_MFR\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugMultiTargets\nIPMT"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 

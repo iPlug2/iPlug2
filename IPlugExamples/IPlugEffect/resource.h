@@ -26,7 +26,7 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "DEFAULT_MFR Inc.\nDEFAULT_MFR\nAcme\n"
+#define PLUG_MFR_DIGI "DEFAULT_MFR\nDEFAULT_MFR\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugEffect\nIPEF"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 
@@ -79,7 +79,7 @@
 
 #define PLUG_LATENCY 0
 #define PLUG_IS_INST 0
-#define PLUG_DOES_MIDI 1 // if this is 0 RTAS can't get tempo info
+#define PLUG_DOES_MIDI 0 // if this is 0 RTAS can't get tempo info
 #define PLUG_DOES_STATE_CHUNKS 0
 
 // Unique IDs for each image resource.
