@@ -30,6 +30,20 @@ def main():
 	au['CFBundleShortVersionString'] = CFBundleVersion
 	plistlib.writePlist(au, plistpath)
 	
+	plistpath = scriptpath + "/resources/IPlugEffect-VST3-Info.plist"
+	vst3 = plistlib.readPlist(plistpath)
+	vst3['CFBundleGetInfoString'] = CFBundleGetInfoString
+	vst3['CFBundleVersion'] = CFBundleVersion
+	vst3['CFBundleShortVersionString'] = CFBundleVersion
+	plistlib.writePlist(vst3, plistpath)
+	
+	plistpath = scriptpath + "/resources/IPlugEffect-OSXAPP-Info.plist"
+	app = plistlib.readPlist(plistpath)
+	app['CFBundleGetInfoString'] = CFBundleGetInfoString
+	app['CFBundleVersion'] = CFBundleVersion
+	app['CFBundleShortVersionString'] = CFBundleVersion
+	plistlib.writePlist(app, plistpath)
+
 	plistpath = scriptpath + "/installer/IPlugEffect-plugins.packproj"
 	pluginsInstaller = plistlib.readPlist(plistpath)
 	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
@@ -39,6 +53,16 @@ def main():
 	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor) 
 
 	plistlib.writePlist(pluginsInstaller, plistpath)
+	
+	plistpath = scriptpath + "/installer/IPlugEffect-all.packproj"
+	allInstaller = plistlib.readPlist(plistpath)
+	allInstaller['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
+	allInstaller['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
+	allInstaller['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
+	allInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
+	allInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor) 
+
+	plistlib.writePlist(allInstaller, plistpath)
 
 if __name__ == '__main__':
 	main()

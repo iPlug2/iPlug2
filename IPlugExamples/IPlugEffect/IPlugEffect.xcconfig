@@ -10,6 +10,8 @@ MacBag = $(SRCROOT)/../../PT9_SDK/MacBag
 
 ADDITIONAL_INCLUDES = /// $(SRCROOT)/../../../MyDSP/
 
+VST3_SDK = $(SRCROOT)/../../VST3_SDK/
+
 // for jack headers
 //ADDITIONAL_APP_INCLUDES = /usr/local/include
 
@@ -34,9 +36,11 @@ GCC_CFLAGS = -Wno-write-strings
 //AU_FOLDER = ~/Library/Audio/Plug-Ins/Components
 //RTAS_FOLDER = ~/Library/Application Support/Digidesign/Plug-Ins
 //APP_FOLDER = ~/Applications
+//VST3_FOLDER = ~/Library/Audio/Plug-Ins/VST3
 
 // build to system plugin folder
 VST_FOLDER = /Library/Audio/Plug-Ins/VST
+VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
 AU_FOLDER = /Library/Audio/Plug-Ins/Components
 RTAS_FOLDER = /Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins
 //RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
@@ -48,6 +52,8 @@ APP_FOLDER = /Applications
 
 // Preprocessor definitions for all VST builds
 VST_DEFS = VST_API VST_FORCE_DEPRECATED
+
+VST3_DEFS = VST3_API
 
 // Preprocessor definitions for all AU builds
 AU_DEFS = AU_API

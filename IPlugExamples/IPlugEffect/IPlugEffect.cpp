@@ -13,8 +13,8 @@ enum EParams
 
 enum ELayout
 {
-  kWidth = 300,
-  kHeight = 300,
+  kWidth = GUI_WIDTH,
+  kHeight = GUI_HEIGHT,
 
   kGainX = 100,
   kGainY = 100,
