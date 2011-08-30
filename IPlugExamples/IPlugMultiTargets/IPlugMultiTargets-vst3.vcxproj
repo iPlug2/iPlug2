@@ -157,6 +157,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Demo|x64'">$(ProjectDir)build-win-vst3\$(Platform)\bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)build-win-vst3\$(Platform)\bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">$(ProjectDir)build-win-vst3\$(Platform)\bin\</OutDir>
+    <CustomBuildAfterTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -183,11 +184,12 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <CustomBuildStep>
-      <Command>
-      </Command>
       <Outputs>
       </Outputs>
+      <Command>
+      </Command>
     </CustomBuildStep>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -237,9 +239,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
-    <CustomBuildStep>
-      <Command>copy /Y "$(TargetPath)" "C:\Program Files\Common Files\VST3\Steinberg\IPlugMultiTargets.vst3"</Command>
-    </CustomBuildStep>
+    <CustomBuildStep />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Demo|Win32'">
     <ClCompile>

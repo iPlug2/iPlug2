@@ -9,6 +9,9 @@
     <OutDir>$(ProjectDir)build-win\$(Platform)\bin\</OutDir>
     <IntDir>$(ProjectDir)build-win\$(Platform)\$(Configuration)\</IntDir>
     <_PropertySheetDisplayName>IPlugMultiTargets-vst3</_PropertySheetDisplayName>
+    <TargetExt>.vst3</TargetExt>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -19,14 +22,18 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <OutputFile>$(CommonProgramFiles)\VST3\Steinberg\$(SolutionName).vst3</OutputFile>
+      <OutputFile>$(OutDir)IPlugMultiTargets.vst3</OutputFile>
       <AdditionalLibraryDirectories>..\..\WDL\IPlug\build-win\$(Platform)\$(Configuration)\;..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>IPlug.lib;lice.lib;base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>$(SolutionDir)..\..\WDL\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <CustomBuildStep>
-      <Command>copy "$(OutDir)IPlugMultiTargets.vst3 "C:\Program Files\Common Files\VST3\Steinberg\IPlugMultiTargets.vst3"</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy /y "$(TargetPath)" "C:\Program Files\Common Files\VST3\IPlugMultiTargets.vst3"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="vst3HostPath">
