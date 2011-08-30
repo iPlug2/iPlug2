@@ -17,6 +17,7 @@
   IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(pPlug, w, h, FPS);
+    
     pGraphics->SetHInstance(gHInstance);
     return pGraphics;
   }
@@ -80,13 +81,14 @@ unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
 using namespace Steinberg::Vst;
 
-void* hInstance = 0;
-
 // called after library was loaded
 bool InitModule ()   
 {
+  #ifdef OS_WIN
 	extern void* moduleHandle;
-	hInstance = moduleHandle;
+	gHInstance = (HINSTANCE) moduleHandle;
+  #endif
+
 	return true; 
 }
 
