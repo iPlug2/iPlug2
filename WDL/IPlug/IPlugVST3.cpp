@@ -48,13 +48,49 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       if (p->GetCanAutomate()) {
         flags |= ParameterInfo::kCanAutomate;
       }
+            
+      switch (p->Type()) {
+        case IParam::kTypeDouble:
+        case IParam::kTypeInt:
+        {
+          Parameter* param = new RangeParameter ( STR16(p->GetNameForHost()), 
+                                                  i, 
+                                                  STR16(p->GetLabelForHost()), 
+                                                  p->GetMin(), 
+                                                  p->GetMax(), 
+                                                  p->GetDefault(),
+                                                  p->GetStep(),
+                                                  flags);
+          
+          param->setPrecision (p->GetPrecision());
+          parameters.addParameter (param);
+
+          break;
+        }
+        case IParam::kTypeEnum:
+        case IParam::kTypeBool: 
+        {
+          StringListParameter* param = new StringListParameter (STR16(p->GetNameForHost()), 
+                                                                i,
+                                                                STR16(p->GetLabelForHost()),
+                                                                flags | ParameterInfo::kIsList);
+          
+          int nDisplayTexts = p->GetNDisplayTexts();
+          
+          assert(nDisplayTexts);
+
+          for (int j=0; j<nDisplayTexts; j++) 
+          {
+            param->appendString(STR16(p->GetDisplayText(j)));
+          }
+          
+          parameters.addParameter (param);
+          break; 
+        }
+        default:
+          break;
+      }
       
-      SingleComponentEffect::parameters.addParameter(STR16(p->GetNameForHost()), 
-                                                     STR16(p->GetLabelForHost()), 
-                                                     p->GetStep(), 
-                                                     p->GetNormalized(p->GetDefault()), 
-                                                     flags, 
-                                                     i); // TODO: paramID, or is index OK?
     }
   }
   
@@ -135,28 +171,11 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
 
 tresult PLUGIN_API IPlugVST3::setActive (TBool state)
 {
-//  OnActivate();
+  OnActivate((bool) state);
   
   return kResultOk;
   
-//  // check if in/out config is supported
-//  SpeakerArrangement arr;
-//  if (getBusArrangement (kOutput, 0, arr) != kResultTrue)
-//    return kResultFalse;
-//  int32 numChannels = SpeakerArr::getChannelCount (arr);
-//  if (numChannels == 0)
-//    return kResultFalse;
-//  
-//  if (state)
-//  {
-//    // set active - setup buffers etc. - if needed
-//  }
-//  else
-//  {
-//    // set inactive - free buffers etc. - if needed
-//  }
-//  
-//  return SingleComponentEffect::setActive (state);
+// TODO: check if in/out config is supported?
 }
 
 tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
@@ -165,8 +184,11 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   Reset();
   
+  processSetup = newSetup;
+
   return kResultOk;
-  //return SingleComponentEffect::setupProcessing (newSetup);
+  
+  //return SingleComponentEffect::setupProcessing (newSetup); // TODO: don't think we want this
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
@@ -375,6 +397,7 @@ IPlugView* PLUGIN_API IPlugVST3::createView (const char* name)
     addDependentView (view);
     return view;
   }
+  
   return 0;
 }
 
@@ -390,6 +413,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
     RedrawParamControls();
     return kResultOk;
   }
+  
   return kResultFalse;
 }
 
@@ -407,37 +431,44 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
 {
   IParam* param = GetParam(tag);  
+  
   if (param)
   {
     return param->GetNormalized(plainValue);
   }
+  
   return plainValue;
 }
 
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
   IParam* param = GetParam(tag);  
+  
   if (param)
   {
     return param->GetNormalized();
   }
+  
   return 0.0;
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
   IParam* param = GetParam(tag);  
+  
   if (param)
   {
     param->SetNormalized(value);
     return kResultOk;
   }
+  
   return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valueNormalized, String128 string)
 {
   IParam* param = GetParam(tag);
+  
   if (param)
   {
     char disp [MAX_PARAM_NAME_LEN];
@@ -445,6 +476,7 @@ tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valu
     Steinberg::UString(string, 128).fromAscii(disp);
     return kResultTrue;
   }
+  
   return kResultFalse;
 }
 
@@ -455,13 +487,11 @@ tresult PLUGIN_API IPlugVST3::getParamValueByString (ParamID tag, TChar* string,
 
 void IPlugVST3::addDependentView (IPlugVST3View* view)
 {
-  
   viewsArray.add (view);
 }
 
 void IPlugVST3::removeDependentView (IPlugVST3View* view)
 {
-  
   for (int32 i = 0; i < viewsArray.total (); i++)
   {
     if (viewsArray.at (i) == view)
@@ -606,8 +636,7 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported (FIDString type)
 
 tresult PLUGIN_API IPlugVST3View::onSize (ViewRect* newSize)
 {
-  tresult res = CPluginView::onSize (newSize);
-  return res;
+  return CPluginView::onSize (newSize);
 }
 
 tresult PLUGIN_API IPlugVST3View::getSize (ViewRect* size) 
