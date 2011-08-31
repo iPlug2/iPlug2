@@ -4,7 +4,7 @@
 {\colortbl;\red255\green255\blue255;}
 {\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
-\paperw11900\paperh16840\margl1440\margr1440\vieww23040\viewh19160\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww23280\viewh20480\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Oli IPlug Examples\
@@ -33,8 +33,9 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
 \ls1\ilvl0\cf0 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK\
 	\
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
 \ls1\ilvl0
-\b RTAS
+\b \cf0 RTAS
 \b0 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 \cf0 \
@@ -61,9 +62,7 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \b0 \
 \
 - Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.x and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\
-- NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new guy using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\
-\
-\
+- NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new gui using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\
 \
 
 \b Windows Issues\
@@ -118,5 +117,13 @@ you might need to do
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\b0\fs24 \cf0 remember to change executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID\
+\b0\fs24 \cf0 To debug plugins in different hosts, I have added common OSX hosts to the "Executables" section in Xcode. This information is store in a .pbxuser file, which is tied to your osx username. There is a shell script setup_debugging.command which will rename all the oli.pbxuser files to yourosxusername.pbxuser.\
+\
+To debug an au using auval, remember to change the auval executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID\
+\
+AU hosts cache information about the plugin I/O channels etc, so I have added a build script that deletes the caches after a build.\
+\
+There is also a validate_audiounit.command shell script which will is a helper that runs auval with your plugins' unique IDs, and optionally performs the leaks test.\
+\
+The windows debug setups use VSThost {\field{\*\fldinst{HYPERLINK "http://www.hermannseib.com/english/vsthost.htm"}}{\fldrslt http://www.hermannseib.com/english/vsthost.htm}} for vst2 debugging, and VST3PluginTestHost for vst3 debugging (in steinberg vst3.5 sdk)\
 }

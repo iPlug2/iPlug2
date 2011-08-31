@@ -5,15 +5,26 @@ ALL - text entry dimensions / text size
 ALL - freetype based font renderer, import .ttf files
 ALL - test keyboard input
 ALL - submenus
-AU - mono buses
 ALL - resize graphics
+ALL - drag & drop area
+ALL - OS tooltips?
 
+AU wrapper:
+
+- mono output busess, i.e. for a drumsynth
+- preset changing in logic?
+
+VST3 wrapper:
+
+- midi output
+- sidechain
+- presets list?
 
 RTAS wrapper:
 
+- MAC - apple+Q problems
 - WIN - sporadic redraw problem
 - check default PT behaviour for IControls
-- AU/find a nicer way to define sidechaiins
 - chunks
 - some key press passthrough lost
 - audiosuite

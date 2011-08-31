@@ -8,7 +8,7 @@
 #include "IPlugMultiTargets_controls.h"
 #endif
 
-const int kNumPrograms = 1;
+const int kNumPrograms = 8;
 
 #define PITCH 440.
 
@@ -20,7 +20,7 @@ enum EParams
 {
   kGainL = 0,
   kGainR,
- // kMode,
+  kMode,
   kNumParams
 };
 
@@ -45,13 +45,13 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGainL)->InitDouble("GainL", -12.0, -70.0, 12.0, 0.1, "dB");
   GetParam(kGainR)->InitDouble("GainR", -12.0, -70.0, 12.0, 0.1, "dB");
-//  GetParam(kMode)->InitEnum("Mode", 0, 6);
-//  GetParam(kMode)->SetDisplayText(0, "a");
-//  GetParam(kMode)->SetDisplayText(1, "b");
-//  GetParam(kMode)->SetDisplayText(2, "c");
-//  GetParam(kMode)->SetDisplayText(3, "d");
-//  GetParam(kMode)->SetDisplayText(4, "e");
-//  GetParam(kMode)->SetDisplayText(5, "f");
+  GetParam(kMode)->InitEnum("Mode", 0, 6);
+  GetParam(kMode)->SetDisplayText(0, "a");
+  GetParam(kMode)->SetDisplayText(1, "b");
+  GetParam(kMode)->SetDisplayText(2, "c");
+  GetParam(kMode)->SetDisplayText(3, "d");
+  GetParam(kMode)->SetDisplayText(4, "e");
+  GetParam(kMode)->SetDisplayText(5, "f");
   
 #ifndef OS_IOS
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
@@ -62,10 +62,11 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20), kGainL, &knob, &text));
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX + 75, kGainY, kGainX + 48 + 75, kGainY + 48 + 20), kGainR, &knob, &text));
-
-  IText timeText = IText(14);
-  pGraphics->AttachControl(new ITempoDisplay(this, IRECT(10, 10, kWidth, 20), &timeText, &mTimeInfo));
+  pGraphics->AttachControl(new ITempoDisplay(this, IRECT(300, 10, kWidth, 20), &text, &mTimeInfo));
   
+ // pGraphics->AttachControl(new IPopUpMenuControl(this, IRECT(10, 100, 60, 115), kMode));
+  pGraphics->AttachControl(new ITestPopupMenu(this, IRECT(10, 100, 60, 115)));
+
   pGraphics->AttachKeyCatcher(new IKeyCatcher(this, IRECT(0, 0, kWidth, kHeight)));
   
   mMeterIdx_L = pGraphics->AttachControl(new IPeakMeterVert(this, IRECT(300, 100, 310, 200)));
@@ -79,6 +80,8 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   mKeyboard = new IKeyboardControl(this, kKeybX, kKeybY, 48, 5, &regular, &sharp, coords);
   
   pGraphics->AttachControl(mKeyboard);
+  
+  pGraphics->AttachControl(new IPresetMenu(this, IRECT(10, 10, 250, 25)));
   
   IBitmap about = pGraphics->LoadIBitmap(ABOUTBOX_ID, ABOUTBOX_FN);
   mAboutBox = new IBitmapOverlayControl(this, 100, 100, &about, IRECT(540, 250, 680, 290));
@@ -186,7 +189,7 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
 		peakR = IPMAX(peakR, fabs(*out2));
 	}
   
-	const double METER_ATTACK = 0.6, METER_DECAY = 0.005;
+	const double METER_ATTACK = 0.6, METER_DECAY = 0.05;
 	double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
 	double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
   

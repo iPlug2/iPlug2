@@ -1,3 +1,170 @@
+class ITestPopupMenu : public IControl
+{
+private:
+  IPopupMenu mMenu;
+
+public:
+  ITestPopupMenu(IPlugBase *pPlug, IRECT pR)
+  : IControl(pPlug, pR, -1)
+  {
+    mMenu.AddItem( new IPopupMenuItem("first item"));
+    mMenu.AddItem( new IPopupMenuItem("second item"));
+    mMenu.AddItem( new IPopupMenuItem("third item"));
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  {     
+    return pGraphics->FillIRect(&COLOR_WHITE, &mRECT);;
+  }
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
+    doPopupMenu();
+    
+    Redraw(); // seems to need this
+    SetDirty();
+  }
+  
+  void doPopupMenu()
+  {    
+    if(mPlug->GetGUI()->CreateIPopupMenu(&mMenu, &mRECT))
+    {
+      int itemChosen = mMenu.GetChosenItemIdx();
+      
+      if (itemChosen > -1)
+      { 
+        mPlug->RestorePreset(itemChosen);
+        mPlug->InformHostOfProgramChange();
+        mPlug->DirtyParameters();
+      }
+    }
+  }
+};
+
+class IPresetMenu : public IControl
+{
+private:
+  WDL_String mDisp;
+public:
+  IPresetMenu(IPlugBase *pPlug, IRECT pR)
+  : IControl(pPlug, pR, -1)
+  {
+    mTextEntryLength = MAX_PRESET_NAME_LEN - 3;
+    mText = IText(14, &COLOR_BLACK, "Arial", IText::kStyleNormal, IText::kAlignNear);
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  { 
+    int pNumber = mPlug->GetCurrentPresetIdx();
+    mDisp.SetFormatted(32, "%02d: %s", pNumber+1, mPlug->GetPresetName(pNumber));
+
+    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+
+    if (CSTR_NOT_EMPTY(mDisp.Get())) {
+      return pGraphics->DrawIText(&mText, mDisp.Get(), &mRECT);
+    }
+    
+    return true;
+  }
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
+    if (pMod->R){
+      const char* pname = mPlug->GetPresetName(mPlug->GetCurrentPresetIdx());
+      mPlug->GetGUI()->CreateTextEntry(this, &mText, &mRECT, pname);
+    }
+    else {
+      doPopupMenu();
+    }
+    
+    Redraw(); // seems to need this
+    SetDirty();
+  }
+
+  void doPopupMenu()
+  {
+    int numItems = mPlug->NPresets();
+    IPopupMenu menu;
+    
+    IGraphics* gui = mPlug->GetGUI();
+    
+    int currentPresetIdx = mPlug->GetCurrentPresetIdx();
+    
+    for(int i = 0; i< numItems;i++)
+    {
+      const char* str = mPlug->GetPresetName(i);
+      if (i == currentPresetIdx)
+        menu.AddItem( new IPopupMenuItem(str, IPopupMenuItem::kChecked), -1 );
+      else      
+        menu.AddItem( new IPopupMenuItem(str), -1 );
+    }
+    
+    menu.SetPrefix(2);
+    
+    if(gui->CreateIPopupMenu(&menu, &mRECT))
+    {
+      int itemChosen = menu.GetChosenItemIdx();
+      
+      if (itemChosen > -1)
+      { 
+        mPlug->RestorePreset(itemChosen);
+        mPlug->InformHostOfProgramChange();
+        mPlug->DirtyParameters();
+      }
+    }
+  }
+  
+  void TextFromTextEntry(const char* txt)
+  {
+    WDL_String safeName;
+    safeName.Set(txt, MAX_PRESET_NAME_LEN);
+    
+    mPlug->ModifyCurrentPreset(safeName.Get());
+    mPlug->InformHostOfProgramChange();
+    mPlug->DirtyParameters();
+    SetDirty(false);
+  }
+};
+
+class IPopUpMenuControl : public IControl
+{
+public:
+  IPopUpMenuControl(IPlugBase *pPlug, IRECT pR, int paramIdx)
+  : IControl(pPlug, pR, paramIdx) 
+  {
+    mDisablePrompt = false;
+    mDblAsSingleClick = true;
+    mText = IText(14);
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  {
+    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+
+    char disp[32];
+    mPlug->GetParam(mParamIdx)->GetDisplayForHost(disp);
+    
+    if (CSTR_NOT_EMPTY(disp)) {
+      return pGraphics->DrawIText(&mText, disp, &mRECT);
+    }
+    
+    return true;
+  }
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {   
+    if (pMod->L) 
+    {
+      PromptUserInput(&mRECT);
+    }
+    
+    mPlug->GetGUI()->SetAllControlsDirty();
+  }
+  
+  //void OnMouseWheel(int x, int y, IMouseMod* pMod, int d){} //TODO: popup menus seem to hog the mousewheel
+  
+};
+
 // Key catcher is an icontrol but only its OnKeyDown() is called... after all the other controls have been tested to see if they want keyboard input
 class IKeyCatcher : public IControl
 { 
@@ -63,16 +230,16 @@ private:
   
 public:
   IKnobMultiControlText(IPlugBase* pPlug, IRECT pR, int paramIdx, IBitmap* pBitmap, IText* pText)
-	:	IKnobControl(pPlug, pR, paramIdx), mBitmap(*pBitmap)
+  : IKnobControl(pPlug, pR, paramIdx), mBitmap(*pBitmap)
   {
     mText = *pText;
     mTextRECT = IRECT(mRECT.L, mRECT.B-20, mRECT.R, mRECT.B);
     mImgRECT = IRECT(mRECT.L, mRECT.T, &mBitmap);
     mDisablePrompt = false;
-	}
-	
-	~IKnobMultiControlText() {}
-	
+  }
+  
+  ~IKnobMultiControlText() {}
+  
   bool Draw(IGraphics* pGraphics)
   {
     int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
@@ -89,13 +256,13 @@ public:
     return true;
   }
   
-	void OnMouseDown(int x, int y, IMouseMod* pMod)
-	{
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
     if (mTextRECT.Contains(x, y)) PromptUserInput(&mTextRECT);
     else {
       OnMouseDrag(x, y, 0, 0, pMod);
     }
-	}
+  }
   
   void OnMouseDblClick(int x, int y, IMouseMod* pMod)
   {
