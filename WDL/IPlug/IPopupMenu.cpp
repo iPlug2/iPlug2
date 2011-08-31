@@ -18,7 +18,7 @@ IPopupMenuItem* IPopupMenu::AddItem(IPopupMenuItem* item, const int index)
 	if (index == -1) mMenuItems.Add(item); // add it to the end
 	else
 	{
-//		mMenuItems.Add.Insert(index, item);
+		mMenuItems.Insert(index, item);
 	}
 
 	return item;
@@ -29,6 +29,12 @@ IPopupMenuItem* IPopupMenu::AddItem(const char* text, int index, int itemFlags)
 	IPopupMenuItem* item = new IPopupMenuItem (text, itemFlags);
 	return AddItem(item, index);
 }
+
+//IPopupMenuItem* IPopupMenu::AddItem(const char* text, int index, IPopupMenu* submenu)
+//{
+//	IPopupMenuItem* item = new IPopupMenuItem(text, submenu);
+//  return AddItem(item, index);
+//}
 
 IPopupMenuItem* IPopupMenu::AddSeparator (int index)
 {

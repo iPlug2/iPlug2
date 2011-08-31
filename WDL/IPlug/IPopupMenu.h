@@ -17,10 +17,10 @@ class IPopupMenuItem
 public:
 	enum Flags {
 		kNoFlags	= 0,
-		kDisabled	= 1 << 0,	///< item is gray and not selectable
-		kTitle		= 1 << 1,	///< item indicates a title and is not selectable
-		kChecked	= 1 << 2,	///< item has a checkmark
-		kSeparator	= 1 << 3	///< item is a separator
+		kDisabled	= 1 << 0,     // item is gray and not selectable
+		kTitle		= 1 << 1,     // item indicates a title and is not selectable
+		kChecked	= 1 << 2,     // item has a checkmark
+		kSeparator	= 1 << 3    // item is a separator
 	};
 	
 	IPopupMenuItem(const char* text, const int flags = kNoFlags)
@@ -29,11 +29,22 @@ public:
   {
     SetText(text);
   }
-	//IPopupMenuItem (const char* text, IPopupMenu* submenu/*);
+	
+//  IPopupMenuItem (const char* text, IPopupMenu* pSubMenu)
+//  : mFlags (kNoFlags)
+//  , mSubmenu (pSubMenu)
+//  {
+//    SetText(text);
+//  }
 	//IPopupMenuItem(const char* text, int tag);
 	//IPopupMenuItem (const IPopupMenuItem& item);
 	
-	~IPopupMenuItem(){}
+	~IPopupMenuItem()
+  {
+//    if (mSubmenu) {
+//      delete mSubmenu;
+//    }
+  }
 	
 	void SetText(const char* text) { mText.Set(text); }
 	const char* GetText() { return mText.Get(); };
@@ -59,7 +70,7 @@ public:
   ~IPopupMenu() {}
 	
 	virtual IPopupMenuItem* AddItem(IPopupMenuItem* item, const int index = -1);
-	//virtual IPopupMenuItem* AddItem(IPopupMenu* submenu, const char* text);
+	//virtual IPopupMenuItem* AddItem(const char* text, int index, IPopupMenu* submenu);
 	virtual IPopupMenuItem* AddItem(const char* text, int index = -1, int itemFlags = IPopupMenuItem::kNoFlags);
 	virtual IPopupMenuItem* AddSeparator(int index = -1);
 	
