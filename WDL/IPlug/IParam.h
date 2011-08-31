@@ -71,6 +71,7 @@ public:
 	const double GetMin() {return mMin;}; 
 	const double GetMax() {return mMax;}; 
 	const double GetRange() {return mMax - mMin;}
+  const int GetPrecision() {return mDisplayPrecision;}
   
   bool GetCanAutomate() { return mCanAutomate; };
 	void SetCanAutomate() { mCanAutomate = true; };
