@@ -7,6 +7,7 @@
 #include "public.sdk/source/vst/vsteditcontroller.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 //#include "pluginterfaces/vst/ivstplugview.h"
+#include "IMidiQueue.h"
 
 struct IPlugInstanceInfo
 {
@@ -75,13 +76,14 @@ public:
 
 protected:
   virtual void HostSpecificInit() {} //TODO
-  virtual bool SendMidiMsg(IMidiMsg* pMsg) {return true;} //TODO
+  virtual bool SendMidiMsg(IMidiMsg* pMsg);
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) {return true;} //TODO
   
   virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
 private:
   int mScChans;
   bool mDoesMidi;
+  IMidiQueue mMidiOutputQueue;
   ProcessContext mProcessContext;
   TArray <IPlugVST3View*> viewsArray;
 };

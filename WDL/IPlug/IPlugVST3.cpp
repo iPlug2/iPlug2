@@ -36,7 +36,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     
     if(mDoesMidi) {
       addEventInput (STR16 ("MIDI In"), 1);
-      //addEventOutput(STR16 ("MIDI Out"), 1);
+      addEventOutput(STR16 ("MIDI Out"), 1);
     }
     
     for (int i=0;i<NParams();i++)
@@ -324,6 +324,21 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     ProcessBuffers(0.0, data.numSamples);
   } 
   
+  // Midi Out
+//  if (mDoesMidi) {
+//    IEventList eventList = data.outputEvents;
+//    
+//    if (eventList) 
+//    {
+//      Event event;
+//      
+//      while (!mMidiOutputQueue.Empty()) {
+//        //TODO: parse events and add
+//        eventList.addEvent(event);
+//      }
+//    }
+//  }
+  
   return kResultOk; 
 }
 
@@ -575,7 +590,6 @@ void IPlugVST3::GetTime(ITimeInfo* pTimeInfo)
   pTimeInfo->mDenominator = mProcessContext.timeSigDenominator;
   pTimeInfo->mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
   pTimeInfo->mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
-
 }
 
 double IPlugVST3::GetTempo()
@@ -592,6 +606,22 @@ void IPlugVST3::GetTimeSig(int* pNum, int* pDenom)
 int IPlugVST3::GetSamplePos()
 {
   return (int) mProcessContext.projectTimeSamples;
+}
+
+// Only add note messages, because vst3 can't handle others
+bool IPlugVST3::SendMidiMsg(IMidiMsg* pMsg)
+{
+  int status = pMsg->StatusMsg();
+  
+  switch (status)
+  {
+    case IMidiMsg::kNoteOn:
+    case IMidiMsg::kNoteOff:
+      mMidiOutputQueue.Add(pMsg);
+      return true;
+    default:
+      return false;
+  }
 }
 
 #pragma mark -
