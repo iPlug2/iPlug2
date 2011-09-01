@@ -230,7 +230,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   }
   
   if(mDoesMidi) {
-    //process events.. midi note on and note off?
+    //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;
     if (eventList) 
     {
