@@ -6,7 +6,7 @@
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
 #include "public.sdk/source/vst/vsteditcontroller.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
-//#include "pluginterfaces/vst/ivstplugview.h"
+#include "pluginterfaces/vst/vsttypes.h"
 #include "IMidiQueue.h"
 
 struct IPlugInstanceInfo
@@ -53,15 +53,6 @@ public:
   tresult PLUGIN_API getParamStringByValue (ParamID tag, ParamValue valueNormalized, String128 string);
   tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized);
   
-  // helper
-  void addDependentView (IPlugVST3View* view);
-  void removeDependentView (IPlugVST3View* view);
-  virtual tresult beginEdit(ParamID tag);
-  virtual tresult performEdit(ParamID tag, ParamValue valueNormalized);
-  virtual tresult endEdit(ParamID tag);
-  AudioBus* getAudioInput(int32 index);
-  AudioBus* getAudioOutput(int32 index);
-  
   virtual void BeginInformHostOfParamChange(int idx);
   virtual void InformHostOfParamChange(int idx, double normalizedValue);
   virtual void EndInformHostOfParamChange(int idx);
@@ -81,11 +72,25 @@ protected:
   
   virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
 private:
+  
+  // helper
+  void addDependentView (IPlugVST3View* view);
+  void removeDependentView (IPlugVST3View* view);
+  virtual tresult beginEdit(ParamID tag);
+  virtual tresult performEdit(ParamID tag, ParamValue valueNormalized);
+  virtual tresult endEdit(ParamID tag);
+  AudioBus* getAudioInput(int32 index);
+  AudioBus* getAudioOutput(int32 index);
+  SpeakerArrangement getSpeakerArrForChans(int32 chans);
+  
   int mScChans;
+  bool mSideChainIsConnected;
   bool mDoesMidi;
   IMidiQueue mMidiOutputQueue;
   ProcessContext mProcessContext;
   TArray <IPlugVST3View*> viewsArray;
+  
+  friend class IPlugVST3View;
 };
 
 IPlugVST3* MakePlug();

@@ -14,6 +14,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
 { 
   mDoesMidi = plugDoesMidi;
   mScChans = plugScChans;
+  mSideChainIsConnected = false;
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
 }
@@ -31,12 +32,20 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   
   if (result == kResultOk)
   {
-    addAudioInput (STR16 ("AudioInput"), SpeakerArr::kStereo);
-    addAudioOutput (STR16 ("AudioOutput"), SpeakerArr::kStereo);
+    addAudioInput (STR16("Audio Input"), getSpeakerArrForChans(NInChannels()) );
+    addAudioOutput (STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
     
+    if (mScChans == 1)
+      addAudioInput(STR16("Sidechain Input"), SpeakerArr::kMono, kAux, 0);
+    else if (mScChans >= 2)
+    {
+      mScChans = 2;
+      addAudioInput(STR16("Sidechain Input"), SpeakerArr::kStereo, kAux, 0);
+    }
+        
     if(mDoesMidi) {
-      addEventInput (STR16 ("MIDI In"), 1);
-      addEventOutput(STR16 ("MIDI Out"), 1);
+      addEventInput (STR16("MIDI In"), 1);
+      addEventOutput(STR16("MIDI Out"), 1);
     }
     
     for (int i=0;i<NParams();i++)
@@ -104,14 +113,6 @@ tresult PLUGIN_API IPlugVST3::terminate  ()
   return SingleComponentEffect::terminate ();
 }
 
-//tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
-//{
-//  // we only support one in and output bus and these buses must have the same number of channels
-//  if (numIns == 1 && numOuts == 1 && inputs[0] == outputs[0])
-//    return SingleComponentEffect::setBusArrangements (inputs, numIns, outputs, numOuts);
-//  return kResultFalse;
-//}
-
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
 {
   //inputs
@@ -138,6 +139,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
       
       //disconnect the unused pins, don't worry about sidechain yet - it will get done at process()
       SetInputChannelConnections(1, NInChannels(), false);
+      mSideChainIsConnected = false;
     }
   }
   
@@ -157,12 +159,15 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   
   if (mScChans)
   {
-    if (getAudioInput(0)->getArrangement() == inputs[0] && getAudioOutput(0)->getArrangement() == outputs[0] && getAudioInput(1)->getArrangement() == inputs[1])
+    if (getAudioInput(0)->getArrangement() == inputs[0] && 
+        getAudioOutput(0)->getArrangement() == outputs[0] && 
+        getAudioInput(1)->getArrangement() == inputs[1])
       return kResultOk;
   }
   else 
   {
-    if (getAudioInput(0)->getArrangement() == inputs[0] && getAudioOutput(0)->getArrangement() == outputs[0])
+    if (getAudioInput(0)->getArrangement() == inputs[0] && 
+        getAudioOutput(0)->getArrangement() == outputs[0])
       return kResultOk;
   }
   
@@ -173,9 +178,8 @@ tresult PLUGIN_API IPlugVST3::setActive (TBool state)
 {
   OnActivate((bool) state);
   
-  return kResultOk;
-  
-// TODO: check if in/out config is supported?
+  // TODO: check if in/out config is supported?
+  return SingleComponentEffect::setActive (state);  
 }
 
 tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
@@ -188,12 +192,12 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
 
   return kResultOk;
   
-  //return SingleComponentEffect::setupProcessing (newSetup); // TODO: don't think we want this
+  //return SingleComponentEffect::setupProcessing (newSetup); // don't think we want this because we want to be able to support 64bit (see method)
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 { 
-  IMutexLock lock(this);
+  IMutexLock lock(this); // TODO: is this the best place to lock the mutex?
   
   memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
   
@@ -274,49 +278,44 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     float** in  = data.inputs[0].channelBuffers32;
     float** out = data.outputs[0].channelBuffers32;
     
-//    if (mScChans && getAudioInput(1)->isActive())
-//    {
-//      for (int idx=0; idx<data.inputs[1].numChannels; ++idx)
-//      {
-//        if (!IsSideChainChannelConnected(idx)) SetSideChainChannelConnections(idx, data.inputs[1].numChannels, true); //connect the pin
-//      }
-//      float** side = data.inputs[1].channelBuffers32;
-//      AttachSideChainBuffers(0, data.inputs[1].numChannels, side, data.numSamples);
-//    }
-//    else if (mScChans && !getAudioInput(1)->isActive())
-//    {
-//      for (int idx=0; idx<data.inputs[1].numChannels; ++idx)
-//      {
-//        if (IsSideChainChannelConnected(idx)) SetSideChainChannelConnections(idx, data.inputs[1].numChannels, false); //disconnect the pin
-//      }
-//    }
+    if (mScChans) 
+    {
+      float** side = data.inputs[1].channelBuffers32;
+
+      if (getAudioInput(1)->isActive()) 
+      {
+        int totalNInputs = data.inputs[0].numChannels + data.inputs[1].numChannels;
+        
+        float* allInputs[totalNInputs];
+
+        for (int i = 0; i < data.inputs[0].numChannels; i ++) {
+          allInputs[i] = in[i];
+        }
+        
+        for (int i = 0; i < data.inputs[1].numChannels; i ++) {
+          allInputs[i + data.inputs[0].numChannels] = side[i];
+        }
+        
+        AttachInputBuffers(0, totalNInputs, allInputs, data.numSamples);
+        mSideChainIsConnected = true;
+      }
+      else 
+      {
+        AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
+        mSideChainIsConnected = false;
+      }
+    }
+    else {
+      AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
+    }
     
-    AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
     AttachOutputBuffers(0, data.outputs[0].numChannels, out);
-    
     ProcessBuffers(0.0f, data.numSamples);
   }
   else if (processSetup.symbolicSampleSize == kSample64)
   {
     double** in  = data.inputs[0].channelBuffers64;
     double** out = data.outputs[0].channelBuffers64;
-    
-//    if (mScChans && getAudioInput(1)->isActive())
-//    {
-//      for (int idx=0; idx<data.inputs[1].numChannels; ++idx)
-//      {
-//        if (!IsSideChainChannelConnected(idx)) SetSideChainChannelConnections(idx, data.inputs[1].numChannels, true); //connect the pin
-//      }
-//      double** side = data.inputs[1].channelBuffers64;
-//      AttachSideChainBuffers(0, data.inputs[1].numChannels, side, data.numSamples);
-//    }
-//    else if (mScChans && !getAudioInput(1)->isActive())
-//    {
-//      for (int idx=0; idx<data.inputs[1].numChannels; ++idx)
-//      {
-//        if (IsSideChainChannelConnected(idx)) SetSideChainChannelConnections(idx, data.inputs[1].numChannels, false); //disconnect the pin
-//      }
-//    }
     
     AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
     AttachOutputBuffers(0, data.outputs[0].numChannels, out);
@@ -342,70 +341,11 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   return kResultOk; 
 }
 
-//tresult PLUGIN_API IPlugVST3::setState (IBStream* state)
-//{
-//  // called when we load a preset, the model has to be reloaded
-//  /*  
-//   // taken from again example
-//   float savedGain = 0.f;
-//   if (state->read (&savedGain, sizeof (float)) != kResultOk)
-//   {
-//   return kResultFalse;
-//   }
-//   
-//   float savedGainReduction = 0.f;
-//   if (state->read (&savedGainReduction, sizeof (float)) != kResultOk)
-//   {
-//   return kResultFalse;
-//   }
-//   
-//   int32 savedBypass = 0.f;
-//   if (state->read (&savedBypass, sizeof (int32)) != kResultOk)
-//   {
-//   return kResultFalse;
-//   }
-//   
-//   #if BYTEORDER == kBigEndian
-//   SWAP_32 (savedGain)
-//   SWAP_32 (savedGainReduction)
-//   SWAP_32 (savedBypass)
-//   #endif
-//   
-//   fGain = savedGain;
-//   fGainReduction = savedGainReduction;
-//   bBypass = savedBypass > 0;
-//   */
-//  return kResultOk;
-//}
-//
-//tresult PLUGIN_API IPlugVST3::getState (IBStream* state)
-//{
-//  // here we need to save the model
-//  /*  
-//   // taken from again example
-//   float toSaveGain = fGain;
-//   float toSaveGainReduction = fGainReduction;
-//   int32 toSaveBypass = bBypass ? 1 : 0;
-//   
-//   #if BYTEORDER == kBigEndian
-//   SWAP_32 (toSaveGain)
-//   SWAP_32 (toSaveGainReduction)
-//   SWAP_32 (toSaveBypass)
-//   #endif
-//   
-//   state->write (&toSaveGain, sizeof (float));
-//   state->write (&toSaveGainReduction, sizeof (float));
-//   state->write (&toSaveBypass, sizeof (int32));
-//   */
-//  return kResultOk;
-//}
-
 #pragma mark -
 #pragma mark IEditController overrides
 
 IPlugView* PLUGIN_API IPlugVST3::createView (const char* name)
 {
-  // someone wants my editor
   if (name && strcmp (name, "editor") == 0)
   {
     IPlugVST3View* view = new IPlugVST3View (this);
@@ -548,6 +488,28 @@ AudioBus* IPlugVST3::getAudioOutput (int32 index)
 {
   AudioBus* bus = FCast<AudioBus> (audioOutputs.at(index));
   return bus;
+}
+
+// TODO: more speaker arrs
+SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
+{
+  switch (chans) {
+    case 1:
+      return SpeakerArr::kMono;
+    case 2:
+      return SpeakerArr::kStereo;
+    case 3:
+      return SpeakerArr::k30Music;
+    case 4:
+      return SpeakerArr::k40Music;
+    case 5:
+      return SpeakerArr::k50;
+    case 6:
+      return SpeakerArr::k51;
+    default:
+      return SpeakerArr::kEmpty;
+      break;
+  }
 }
 
 #pragma mark -
