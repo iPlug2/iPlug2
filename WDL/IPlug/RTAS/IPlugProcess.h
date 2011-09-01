@@ -83,7 +83,8 @@ protected:
   void              *mModuleHandle;
   DirectMidiPlugInInterface* mDirectMidiInterface;
   OSType mPluginID;
-
+//	short				mLeftOffset;
+//	short				mTopOffset;
 };
 
 #endif  // __IPLUGPROCESS__

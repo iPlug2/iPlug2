@@ -12,4 +12,5 @@
 #include "CEffectProcessAS.cpp"
 #include "CEffectType.cpp"
 #include "CEffectTypeRTAS.cpp"
+#include "CEffectTypeAS.cpp"
 #include "ChunkDataParser.cpp"

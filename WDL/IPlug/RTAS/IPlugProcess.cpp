@@ -24,6 +24,8 @@ mCustomUI(0)
 ,mPlug(NULL)
 ,mDirectMidiInterface(NULL)
 ,mPluginID(type)
+,mLeftOffset(0)
+,mTopOffset(0)
 {
   TRACE;
 
@@ -137,6 +139,12 @@ void IPlugProcess::DoTokenIdle (void)
   mPlug->OnIdle();
 #endif
 
+  // Disable metering for AS during Preview mode because doidle is called too frequently during
+	// preview when the mouse is moving.
+//	if(!IsAS()) 
+//		UpdateMeters();
+//	else if (GetASPreviewState() == previewState_Off)
+//		UpdateMeters();
 }
 
 //  Tells Pro Tools what size view it should create for you. 

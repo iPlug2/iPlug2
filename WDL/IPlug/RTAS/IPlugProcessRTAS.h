@@ -8,8 +8,6 @@
 #include "FicPluginConnections.h"
 #include "IPlugProcess.h"
 #include "CEffectProcessRTAS.h"
-#include "CEffectProcessMuSh.h"
-#include "CPluginControl_LinearGain.h"
 
 class IPlugProcessRTAS : public IPlugProcess, public CEffectProcessRTAS
 {

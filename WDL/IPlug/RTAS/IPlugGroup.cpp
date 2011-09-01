@@ -9,7 +9,7 @@
 #include "CEffectTypeAS.h"
 #include "CEffectTypeRTAS.h"
 #include "IPlugProcessRTAS.h"
-//#include "IPlugProcessAS.h"
+#include "IPlugProcessAS.h"
 #include "Resource.h"
 
 #ifndef PLUG_SC_CHANS
@@ -22,6 +22,11 @@ static OSType plugid = PLUG_UNIQUE_ID;
 static CEffectProcess* NewProcessRTAS() 
 {
   return new IPlugProcessRTAS(plugid);
+}
+
+static CEffectProcess* NewProcessAS()
+{
+  return new IPlugProcessAS(plugid + 100);
 }
 
 //static CEffectProcess* NewProcessRTASMono() 
@@ -124,7 +129,7 @@ void IPlugGroup::CreateEffectTypes(void)
         nIn -= nSIn;
       
       OSType typeId = plugid + ioConfigIdx;
-      
+            
       CEffectType* RTAS = new CEffectTypeRTAS(typeId, productID, category);
       RTAS->DefineTypeNames(PLUG_NAME_DIGI);
       RTAS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
@@ -134,12 +139,27 @@ void IPlugGroup::CreateEffectTypes(void)
       RTAS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
       //RTAS->AddGestalt(pluginGestalt_UsesCustomPlugInSettingsFile); // TODO
       RTAS->AttachEffectProcessCreator(NewProcessRTAS);
-                               
+      
       if (nSIn)
         RTAS->AddGestalt(pluginGestalt_SideChainInput);
       
       AddEffectType (RTAS);
       
+#if PLUG_DOES_OFFLINE
+      typeId = plugid + 100 + ioConfigIdx;
+      
+      CEffectType* AS = new CEffectTypeAS(typeId, productID, category);
+      AS->DefineTypeNames(PLUG_NAME_DIGI);
+      AS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
+      AS->AddGestalt(pluginGestalt_UseSmallPreviewBuffer);
+      AS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
+      AS->AddGestalt(pluginGestalt_CanBypass);
+      AS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
+      //RTAS->AddGestalt(pluginGestalt_UsesCustomPlugInSettingsFile); // TODO
+      AS->AttachEffectProcessCreator(NewProcessAS);
+      
+      AddEffectType (AS);
+#endif      
       ioConfigIdx++;
     }
       
