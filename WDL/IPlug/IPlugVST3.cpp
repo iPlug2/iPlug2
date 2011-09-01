@@ -286,7 +286,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       {
         int totalNInputs = data.inputs[0].numChannels + data.inputs[1].numChannels;
         
-        float* allInputs[totalNInputs];
+        float** allInputs = new float*[totalNInputs];
 
         for (int i = 0; i < data.inputs[0].numChannels; i ++) {
           allInputs[i] = in[i];
@@ -298,6 +298,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         
         AttachInputBuffers(0, totalNInputs, allInputs, data.numSamples);
         mSideChainIsConnected = true;
+        
+        delete [] allInputs;
       }
       else 
       {
