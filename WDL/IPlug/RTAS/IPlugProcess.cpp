@@ -24,8 +24,8 @@ mCustomUI(0)
 ,mPlug(NULL)
 ,mDirectMidiInterface(NULL)
 ,mPluginID(type)
-,mLeftOffset(0)
-,mTopOffset(0)
+//,mLeftOffset(0)
+//,mTopOffset(0)
 {
   TRACE;
 

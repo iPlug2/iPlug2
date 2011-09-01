@@ -1,5 +1,6 @@
 #if WINDOWS_VERSION
-#include "Mac2Win.H"
+	#include <windows.h>
+	#include "Mac2Win.H"
 #endif
 
 #include "IPlugProcessAS.h"
