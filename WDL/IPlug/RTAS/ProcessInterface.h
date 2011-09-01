@@ -19,7 +19,6 @@ public:
   virtual void* ProcessGetModuleHandle() = 0;
   virtual short ProcessUseResourceFile() = 0;
   virtual void ProcessRestoreResourceFile(short resFile) = 0;
-
 };
 
 #endif //_PROCESS_INTERFACE_H_

@@ -1,5 +1,5 @@
 #include "IPlugRTAS.h"
-#include "RTAS/IPlugProcessRTAS.h"
+#include "RTAS/IPlugProcess.h"
 #include "CPluginControl_Continuous.h"
 #include "CPluginControl_Discrete.h"
 
@@ -146,7 +146,7 @@ void IPlugRTAS::ResizeGraphics(int w, int h)
 {
 }
 
-void IPlugRTAS::Created(class IPlugProcessRTAS *r)
+void IPlugRTAS::Created(class IPlugProcess *r)
 {	
 	mRTAS = r;
 	

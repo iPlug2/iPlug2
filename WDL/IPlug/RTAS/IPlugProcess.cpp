@@ -16,9 +16,17 @@
 #include "../IGraphics.h"
 #include "IPlugCustomUI.h"
 
-IPlugProcess::IPlugProcess(void)
-: mCustomUI(0), mNoUIView(0), mModuleHandle(0), mPlug(NULL), mDirectMidiInterface(NULL)
+IPlugProcess::IPlugProcess(OSType type)
+:
+mCustomUI(0)
+,mNoUIView(0)
+,mModuleHandle(0)
+,mPlug(NULL)
+,mDirectMidiInterface(NULL)
+,mPluginID(type)
 {
+  TRACE;
+
   mPluginWinRect.top = 0;
   mPluginWinRect.left = 0;
   mPluginWinRect.bottom = 0;
@@ -28,6 +36,15 @@ IPlugProcess::IPlugProcess(void)
 #else 
   mModuleHandle = 0;
 #endif
+  
+  mPlug = MakePlug();
+  
+  if (mPlug != NULL)
+  {
+#if PLUG_DOES_STATE_CHUNKS
+    AddChunk(mPluginID, PLUG_MFR);
+#endif
+  }
 }
 
 IPlugProcess::~IPlugProcess(void)
@@ -282,3 +299,54 @@ void IPlugProcess::DisconnectSidechain(void)
   mPlug->SetSideChainConnected(false);
 }
 
+ComponentResult IPlugProcess::GetChunkSize(OSType chunkID, long *size)
+{
+  TRACE;
+  
+  if (chunkID == mPluginID) {
+    *size = sizeof(SFicPlugInChunkHeader);
+    ByteChunk IPlugChunk;
+    
+    if (mPlug->SerializeState(&IPlugChunk))
+      *size = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
+    
+    return noErr;
+  }
+  else 
+    return CEffectProcess::GetChunkSize(chunkID, size); // Not our chunk
+}
+
+ComponentResult IPlugProcess::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
+{
+  TRACE;
+  
+  //called when project is loaded from save
+  if (chunkID == mPluginID) {
+    const int dataSize = chunk->fSize - sizeof(SFicPlugInChunkHeader);
+    
+    ByteChunk IPlugChunk;
+    IPlugChunk.PutBytes(chunk->fData, dataSize);  
+    mPlug->UnserializeState(&IPlugChunk, 0);
+    return noErr;
+  }
+  else 
+    return CEffectProcess::SetChunk(chunkID, chunk); // Not our chunk
+}
+
+ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
+{
+  TRACE;
+  
+  //called when project is saved
+  if (chunkID == mPluginID) {
+    ByteChunk IPlugChunk;
+    if (mPlug->SerializeState(&IPlugChunk)) {
+      chunk->fSize = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
+      memcpy(chunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
+      return noErr;
+    }
+    return 1;
+  }
+  else 
+    return CEffectProcess::GetChunk(chunkID, chunk); // Not our chunk
+}

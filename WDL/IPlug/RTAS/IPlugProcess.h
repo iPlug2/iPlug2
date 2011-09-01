@@ -15,8 +15,8 @@
 class IPlugProcess :  virtual public CEffectProcess, ProcessInterface
 {
 public:
-  IPlugProcess(void);
-  virtual ~IPlugProcess(void);
+  IPlugProcess(OSType type);
+  virtual ~IPlugProcess();
   
   // overrides
   virtual void SetViewPort(GrafPtr aPort);
@@ -29,6 +29,10 @@ public:
   ComponentResult SetControlHighliteInfo (long controlIndex, short isHighlighted, short color);
   ComponentResult ChooseControl (Point aLocalCoord, long *aControlIndex);
   //ComponentResult DoCustomPlugInSettingsFile	(	char * 	settingsFolder	 ); //TODO
+
+  virtual ComponentResult GetChunkSize(OSType chunkID, long *size);
+  virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
+  virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   
   void setEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
   virtual int ProcessTouchControl (long aControlIndex);
@@ -41,6 +45,20 @@ public:
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
   
   virtual IPlugRTAS* getPlug()  { return mPlug; }
+  virtual int GetBlockSize() = 0;
+  virtual double GetTempo()  = 0;
+  virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
+  virtual int GetSamplePos() = 0;
+  virtual void GetTime( double *pSamplePos, 
+                       double *pTempo, 
+                       double *pMusicalPos, 
+                       double *pLastBar,
+                       int* pNum, 
+                       int* pDenom,
+                       double *pCycleStart,
+                       double *pCycleEnd,
+                       bool *pTransportRunning,
+                       bool *pTransportCycle) = 0;
   
   virtual IGraphics* getGraphics() 
   {
@@ -64,6 +82,8 @@ protected:
   IPlugRTAS         *mPlug;
   void              *mModuleHandle;
   DirectMidiPlugInInterface* mDirectMidiInterface;
+  OSType mPluginID;
+
 };
 
 #endif  // __IPLUGPROCESS__

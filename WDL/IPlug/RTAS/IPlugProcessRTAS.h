@@ -16,22 +16,17 @@ class IPlugProcessRTAS : public IPlugProcess, public CEffectProcessRTAS
 public:
   IPlugProcessRTAS(OSType type);
   // TODO" should these be virtual or not?
-  virtual ~IPlugProcessRTAS(void) {}
+  virtual ~IPlugProcessRTAS() {}
   
-  virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
-  virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
-  virtual ComponentResult GetChunkSize(OSType chunkID, long *size);
   virtual ComponentResult IsControlAutomatable(long aControlIndex, short *aItIsP);
   virtual ComponentResult GetDelaySamplesLong(long* aNumSamples);
 
-  void SetSampleRate(double sampleRate);
-
-  int GetBlockSize() { return mBlockSize; }
+  virtual int GetBlockSize() { return mBlockSize; }
   
-  double GetTempo();
-  void GetTimeSig(int* pNum, int* pDenom);
-  int GetSamplePos();
-  void GetTime( double *pSamplePos, 
+  virtual double GetTempo();
+  virtual void GetTimeSig(int* pNum, int* pDenom);
+  virtual int GetSamplePos();
+  virtual void GetTime( double *pSamplePos, 
                 double *pTempo, 
                 double *pMusicalPos, 
                 double *pLastBar,
@@ -48,7 +43,6 @@ protected:
   
 private:
   void HandleMIDI();
-  OSType mPluginID;
   int mBlockSize;
 
 // TODO: Meters? 

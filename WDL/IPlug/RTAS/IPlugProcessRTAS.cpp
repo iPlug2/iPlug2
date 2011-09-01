@@ -11,21 +11,10 @@
 #include "PlugInUtils.h"
 
 IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
-: mPluginID(type)
+:IPlugProcess(type)
 , mBlockSize(GetMaximumRTASQuantum()) 
 {
-  TRACE;
-  mPlug = MakePlug();
-  
-  if (mPlug != NULL)
-  {
-#if PLUG_DOES_STATE_CHUNKS
-     AddChunk(mPluginID, PLUG_MFR);
-#endif
-    
-    mPlug->Created(this);
-    
-  }
+  mPlug->Created(this);
 }
 
 void IPlugProcessRTAS::HandleMIDI()
@@ -205,58 +194,6 @@ ComponentResult IPlugProcessRTAS::IsControlAutomatable(long aControlIndex, short
     *aItIsP = mPlug->GetParam(aControlIndex-kPTParamIdxOffset)->GetCanAutomate() ? 1 : 0;
   
   return noErr;
-}
-
-ComponentResult IPlugProcessRTAS::GetChunkSize(OSType chunkID, long *size)
-{
-  TRACE;
-
-  if (chunkID == mPluginID) {
-    *size = sizeof(SFicPlugInChunkHeader);
-    ByteChunk IPlugChunk;
-    
-    if (mPlug->SerializeState(&IPlugChunk))
-      *size = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
-
-    return noErr;
-  }
-  else 
-    return CEffectProcess::GetChunkSize(chunkID, size); // Not our chunk
-}
-
-ComponentResult IPlugProcessRTAS::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
-{
-  TRACE;
-  
-  //called when project is loaded from save
-  if (chunkID == mPluginID) {
-    const int dataSize = chunk->fSize - sizeof(SFicPlugInChunkHeader);
-    
-    ByteChunk IPlugChunk;
-    IPlugChunk.PutBytes(chunk->fData, dataSize);  
-    mPlug->UnserializeState(&IPlugChunk, 0);
-    return noErr;
-  }
-  else 
-    return CEffectProcess::SetChunk(chunkID, chunk); // Not our chunk
-}
-
-ComponentResult IPlugProcessRTAS::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
-{
-  TRACE;
-  
-  //called when project is saved
-  if (chunkID == mPluginID) {
-    ByteChunk IPlugChunk;
-    if (mPlug->SerializeState(&IPlugChunk)) {
-      chunk->fSize = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
-      memcpy(chunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
-      return noErr;
-    }
-    return 1;
-  }
-  else 
-    return CEffectProcess::GetChunk(chunkID, chunk); // Not our chunk
 }
 
 // this is dynamic in PT9 > 

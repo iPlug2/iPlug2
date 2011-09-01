@@ -35,8 +35,8 @@ public:
 
   void ResizeGraphics(int w, int h);
   
-  void Created(class IPlugProcessRTAS *r);
-  class IPlugProcessRTAS *mRTAS;
+  void Created(class IPlugProcess *r);
+  class IPlugProcess *mRTAS;
   
   void ProcessAudio(float** inputs, float** outputs, int nFrames);
   
