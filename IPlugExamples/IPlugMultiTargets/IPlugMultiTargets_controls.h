@@ -31,12 +31,7 @@ public:
     {
       int itemChosen = mMenu.GetChosenItemIdx();
       
-      if (itemChosen > -1)
-      { 
-        mPlug->RestorePreset(itemChosen);
-        mPlug->InformHostOfProgramChange();
-        mPlug->DirtyParameters();
-      }
+      DBGMSG("item chosen %i\n", itemChosen);
     }
   }
 };

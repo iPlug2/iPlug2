@@ -38,7 +38,7 @@
 // ***************************
 //#ifdef RTAS_API
 // PLUG_SC_CHANS defines the number of inputs in the PLUG_CHANNEL_IO that should be considered sidechain inputs.
-// RTAS can only have one mono sidechain input, so for instance to make a mono/stereo plugin with a side chain input you could do this.
+// RTAS can only have one mono sidechain input, so for instance to make a mono->mono or stereo->stereo plugin with a side chain input you could do this.
 //#define PLUG_CHANNEL_IO "2-1 3-2"
 //#define PLUG_SC_CHANS 1
 //#else // AU & VST2
