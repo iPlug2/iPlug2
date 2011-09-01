@@ -93,7 +93,17 @@ void IPlugRTAS::EndInformHostOfParamChange(int idx)
   
   if ( mRTAS->IsValidControlIndex(idx) ) 
   {
-    mRTAS->ProcessReleaseControl(idx);
+    mRTAS->ProcessReleaseControl(idx);    
+  }
+}
+
+void IPlugRTAS::InformHostOfProgramChange()
+{
+  for (int i = 0; i< NParams(); i++) 
+  {
+    BeginInformHostOfParamChange(i);
+    InformHostOfParamChange(i, 0.); // don't used normalized value
+    EndInformHostOfParamChange(i);
   }
 }
 

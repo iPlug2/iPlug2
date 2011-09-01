@@ -24,7 +24,7 @@ public:
   void BeginInformHostOfParamChange(int idx);
   void InformHostOfParamChange(int idx, double normalizedValue);
   void EndInformHostOfParamChange(int idx);
-  void InformHostOfProgramChange() { return; }
+  void InformHostOfProgramChange();
   
   int GetSamplePos();   // Samples since start of project.
   double GetTempo();
