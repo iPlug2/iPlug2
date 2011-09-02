@@ -107,16 +107,23 @@ struct IRECT
 	IRECT(int l, int t, int r, int b) : L(l), R(r), T(t), B(b) {} 
 	IRECT(int x, int y, IBitmap* pBitmap) : L(x), T(y), R(x + pBitmap->W), B(y + pBitmap->H / pBitmap->N) {}
 
-	bool Empty() const {
+	bool Empty() const 
+  {
 		return (L == 0 && T == 0 && R == 0 && B == 0); 
 	}
-  void Clear() {
+  
+  void Clear() 
+  {
       L = T = R = B = 0;
   }
-  bool operator==(const IRECT& rhs) const {
+  
+  bool operator==(const IRECT& rhs) const 
+  {
       return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
   }
-  bool operator!=(const IRECT& rhs) const {
+  
+  bool operator!=(const IRECT& rhs) const 
+  {
       return !(*this == rhs);
   }
 
@@ -125,28 +132,54 @@ struct IRECT
   inline float MW() const { return 0.5f * (float) (L + R); }
   inline float MH() const { return 0.5f * (float) (T + B); }
 
-	inline IRECT Union(IRECT* pRHS) {
+	inline IRECT Union(IRECT* pRHS) 
+  {
 		if (Empty()) { return *pRHS; }
 		if (pRHS->Empty()) { return *this; }
 		return IRECT(IPMIN(L, pRHS->L), IPMIN(T, pRHS->T), IPMAX(R, pRHS->R), IPMAX(B, pRHS->B));
 	}
-	inline IRECT Intersect(IRECT* pRHS) {
+  
+	inline IRECT Intersect(IRECT* pRHS) 
+  {
 		if (Intersects(pRHS)) {
 			return IRECT(IPMAX(L, pRHS->L), IPMAX(T, pRHS->T), IPMIN(R, pRHS->R), IPMIN(B, pRHS->B));
 		}
 		return IRECT();
 	}
-	inline bool Intersects(IRECT* pRHS) {
+  
+	inline bool Intersects(IRECT* pRHS) 
+  {
 		return (!Empty() && !pRHS->Empty() && R >= pRHS->L && L < pRHS->R && B >= pRHS->T && T < pRHS->B);
 	}
-	inline bool Contains(IRECT* pRHS) {
+  
+	inline bool Contains(IRECT* pRHS) 
+  {
 		return (!Empty() && !pRHS->Empty() && pRHS->L >= L && pRHS->R <= R && pRHS->T >= T && pRHS->B <= B);
 	}
-	inline bool Contains(int x, int y) {
+  
+	inline bool Contains(int x, int y) 
+  {
 		return (!Empty() && x >= L && x < R && y >= T && y < B);
 	}
+  
+  inline IRECT SubRectVertical(int numSlices, int sliceIdx) 
+  {
+    int heightOfSubRect = (H() / numSlices);
+    int t = heightOfSubRect * sliceIdx;
+    
+    return IRECT(L, T + t, R, T + t + heightOfSubRect);
+	}
 
-  void Clank(IRECT* pRHS) {
+  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) 
+  {
+    int widthOfSubRect = (W() / numSlices);
+    int l = widthOfSubRect * sliceIdx;
+    
+    return IRECT(L + l, T, L + l + widthOfSubRect, B);
+	}
+  
+  void Clank(IRECT* pRHS) 
+  {
     if (L < pRHS->L) {
       R = IPMIN(pRHS->R - 1, R + pRHS->L - L);
       L = pRHS->L;
