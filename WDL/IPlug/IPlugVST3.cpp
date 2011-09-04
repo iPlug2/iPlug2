@@ -613,16 +613,16 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported (FIDString type)
 {
   if(mPlug->GetGUI()) // for no editor plugins
   {
-#ifdef OS_WIN
-  if (strcmp (type, kPlatformTypeHWND) == 0)
-    return kResultTrue;
-  
-#elif defined OS_OSX
-  if (strcmp (type, kPlatformTypeNSView) == 0)
-    return kResultTrue;
-#endif
+    #ifdef OS_WIN
+    if (strcmp (type, kPlatformTypeHWND) == 0)
+      return kResultTrue;
     
-    // TODO: Carbon?
+    #elif defined OS_OSX
+    if (strcmp (type, kPlatformTypeNSView) == 0)
+      return kResultTrue;
+    else if (strcmp (type, kPlatformTypeHIView) == 0)
+      return kResultTrue;
+    #endif
   }
   
   return kResultFalse;
@@ -643,7 +643,15 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
 {
   if (mPlug->GetGUI()) 
   {
-    mPlug->GetGUI()->OpenWindow(parent);
+#ifdef OS_WIN
+    if (strcmp (type, kPlatformTypeHWND) == 0)
+      mPlug->GetGUI()->OpenWindow(parent);
+#elif defined OS_OSX
+    if (strcmp (type, kPlatformTypeNSView) == 0)
+      mPlug->GetGUI()->OpenWindow(parent);
+    else // Carbon
+      mPlug->GetGUI()->OpenWindow(parent, 0);
+#endif
     mPlug->OnGUIOpen();
   }
   return kResultTrue;
