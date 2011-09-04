@@ -49,6 +49,10 @@ void GetVersionStr(int version, char* str)
   sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
+#ifndef MAX_PATH
+  #define MAX_PATH 1024
+#endif
+
 IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
 	const char* effectName, const char* productName, const char* mfrName,
 	int vendorVersion, int uniqueID, int mfrID, int latency, 
@@ -58,6 +62,8 @@ IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
   mStateChunks(plugDoesChunks), mGraphics(0), mCurrentPresetIdx(0), mIsInst(plugIsInst)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
+  
+  mPreviousPath.Set("", MAX_PATH);
   
   for (int i = 0; i < nParams; ++i) {
     mParams.Add(new IParam);
@@ -72,7 +78,9 @@ IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
   strcpy(mMfrName, mfrName);
 
   int nInputs = 0, nOutputs = 0;
-  while (channelIOStr) {
+  
+  while (channelIOStr) 
+  {
     int nIn = 0, nOut = 0;
     bool channelIOStrValid = sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2;
     assert(channelIOStrValid);
@@ -89,14 +97,19 @@ IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
   mOutData.Resize(nOutputs);
 
   double** ppInData = mInData.Get();
-  for (int i = 0; i < nInputs; ++i, ++ppInData) {
+  
+  for (int i = 0; i < nInputs; ++i, ++ppInData) 
+  {
     InChannel* pInChannel = new InChannel;
     pInChannel->mConnected = false;
     pInChannel->mSrc = ppInData;
     mInChannels.Add(pInChannel);
   }
+  
   double** ppOutData = mOutData.Get();
-  for (int i = 0; i < nOutputs; ++i, ++ppOutData) {
+  
+  for (int i = 0; i < nOutputs; ++i, ++ppOutData) 
+  {
     OutChannel* pOutChannel = new OutChannel;
     pOutChannel->mConnected = false;
     pOutChannel->mDest = ppOutData;
@@ -819,7 +832,7 @@ bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
   if (mGraphics)
   {
     WDL_String fileName(defaultFileName, strlen(defaultFileName));
-    mGraphics->PromptForFile(&fileName, kFileSave, "", "fxp");
+    mGraphics->PromptForFile(&fileName, kFileSave, &mPreviousPath, "fxp");
     
     if (fileName.GetLength()) 
     {
@@ -897,7 +910,7 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
   if (mGraphics)
   {
     WDL_String fileName(defaultFileName, strlen(defaultFileName));
-    mGraphics->PromptForFile(&fileName, kFileSave, "", "fxb");
+    mGraphics->PromptForFile(&fileName, kFileSave, &mPreviousPath, "fxb");
 
     if (fileName.GetLength()) 
     {
@@ -1009,7 +1022,7 @@ bool IPlugBase::LoadProgramFromFXP()
   if (mGraphics)
   {
     WDL_String fileName;
-    mGraphics->PromptForFile(&fileName, kFileOpen, "", "fxp");
+    mGraphics->PromptForFile(&fileName, kFileOpen, &mPreviousPath, "fxp");
     
     if (fileName.GetLength()) 
     {
@@ -1114,7 +1127,7 @@ bool IPlugBase:: LoadBankFromFXB()
   if (mGraphics)
   {
     WDL_String fileName;
-    mGraphics->PromptForFile(&fileName, kFileOpen, "", "fxb");
+    mGraphics->PromptForFile(&fileName, kFileOpen, &mPreviousPath, "fxb");
     
     if (fileName.GetLength()) 
     {

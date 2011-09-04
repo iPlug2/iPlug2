@@ -318,7 +318,7 @@ void IGraphicsMac::PluginPath(WDL_String* pPath)
 }
 
 // extensions = "txt wav" for example
-void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, char* dir, char* extensions)
+void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
 {
   if (!WindowIsOpen()) { 
     pFilename->Set("");
@@ -330,22 +330,31 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, char
   NSArray* fileTypes = nil;
 
   if (pFilename->GetLength())
+  {
     defaultFileName = [NSString stringWithCString:pFilename->Get() encoding:NSUTF8StringEncoding];
-  else {
+  }
+  else 
+  {
     defaultFileName = [NSString stringWithCString:"" encoding:NSUTF8StringEncoding];
   }
 
-  if (CSTR_NOT_EMPTY(dir))
-    defaultPath = [NSString stringWithCString:dir encoding:NSUTF8StringEncoding];
+  if (pDir->GetLength())
+  {
+    defaultPath = [NSString stringWithCString:pDir->Get() encoding:NSUTF8StringEncoding];
+  }
   else 
+  {
     defaultPath = [NSString stringWithCString:DEFAULT_PATH_OSX encoding:NSUTF8StringEncoding];
+    pDir->Set(DEFAULT_PATH_OSX);
+  }
 
   pFilename->Set(""); // reset it
   
   //if (CSTR_NOT_EMPTY(extensions))
   fileTypes = [[NSString stringWithUTF8String:extensions] componentsSeparatedByString: @" "];
-  
-  if (action == kFileSave) {
+    
+  if (action == kFileSave) 
+  {
     NSSavePanel* panelSave = [NSSavePanel savePanel];
     
     //[panelOpen setTitle:title];
@@ -355,9 +364,21 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, char
     int result = [panelSave runModalForDirectory:defaultPath file:defaultFileName];
     
     if (result == NSOKButton)
-      pFilename->Set( [[ panelSave filename ] UTF8String] );
+    {
+      NSString* fullPath = [ panelSave filename ] ;
+      pFilename->Set( [fullPath UTF8String] );
+      
+      NSString* truncatedPath = [fullPath stringByDeletingLastPathComponent]; 
+      
+      if (truncatedPath) 
+      {
+        pDir->Set([truncatedPath UTF8String]);
+        pDir->Append("/");
+      }
+    }
   }
-  else {
+  else 
+  {
     NSOpenPanel* panelOpen = [NSOpenPanel openPanel];
     
     //[panelOpen setTitle:title];
@@ -369,7 +390,18 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, char
     int result = [panelOpen runModalForDirectory:defaultPath file:defaultFileName types:fileTypes];
 
     if (result == NSOKButton)
-      pFilename->Set( [[ panelOpen filename ] UTF8String] );
+    {
+      NSString* fullPath = [ panelOpen filename ] ;
+      pFilename->Set( [fullPath UTF8String] );
+      
+      NSString* truncatedPath = [fullPath stringByDeletingLastPathComponent]; 
+      
+      if (truncatedPath) 
+      {
+        pDir->Set([truncatedPath UTF8String]);
+        pDir->Append("/");
+      }
+    }
   }
   
 // dont know if you have to free these  

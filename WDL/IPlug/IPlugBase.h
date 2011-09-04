@@ -238,6 +238,7 @@ protected:
   bool mStateChunks, mIsInst;
   double mSampleRate;
   int mBlockSize, mLatency;
+  WDL_String mPreviousPath; // for saving/loading fxps
 private:
  	WDL_PtrList<IParam> mParams;
 	IGraphics* mGraphics;
@@ -246,17 +247,22 @@ private:
   int mCurrentPresetIdx;
 
   WDL_TypedBuf<double*> mInData, mOutData;
-  struct InChannel {
+  
+  struct InChannel 
+  {
     bool mConnected;
     double** mSrc;   // Points into mInData.
     WDL_TypedBuf<double> mScratchBuf;
   };
-  struct OutChannel {
+  
+  struct OutChannel 
+  {
     bool mConnected;
     double** mDest;  // Points into mOutData.
     float* mFDest;
     WDL_TypedBuf<double> mScratchBuf;
   };
+  
   WDL_PtrList<InChannel> mInChannels;
   WDL_PtrList<OutChannel> mOutChannels;
 };

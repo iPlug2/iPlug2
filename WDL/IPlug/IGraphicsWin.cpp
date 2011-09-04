@@ -812,7 +812,20 @@ void IGraphicsWin::PluginPath(WDL_String* pPath)
   GetModulePath(mHInstance, pPath);
 }
 
-void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, char* dir, char* extensions)
+void IGraphicsWin::DesktopPath(WDL_String* pPath)
+{
+  TCHAR strPath[MAX_PATH_LEN];
+  
+  // Get the special folder path.
+  SHGetSpecialFolderPath( 0,       // Hwnd
+                         strPath, // String buffer.
+                         CSIDL_DESKTOPDIRECTORY, // CSLID of folder
+                         FALSE );
+  
+  pPath->Set(strPath, MAX_PATH_LEN);
+}
+
+void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
 {
   if (!WindowIsOpen()) { 
     pFilename->Set("");
@@ -828,12 +841,14 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, char
     fnCStr[0] = '\0';
 
   dirCStr[0] = '\0';
-  if (CSTR_NOT_EMPTY(dir)) {
-  pathStr.Set(dir);
-    strcpy(dirCStr, dir);
+  
+  if (pDir->GetLength()) 
+  {
+    pathStr.Set(dir);
+    strcpy(dirCStr, dir.Get());
   }
   else {
-    HostPath(&pathStr);
+    DesktopPath(&pathStr);
   }
   
   OPENFILENAME ofn;

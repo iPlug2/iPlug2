@@ -497,16 +497,17 @@ void IURLControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 
 void IFileSelectorControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
-	if (mPlug && mPlug->GetGUI()) {
-        mState = kFSSelecting;
-        SetDirty(false);
+	if (mPlug && mPlug->GetGUI()) 
+  {
+    mState = kFSSelecting;
+    SetDirty(false);
 
-		mPlug->GetGUI()->PromptForFile(&mFile, mFileAction, mDir.Get(), mExtensions.Get());
-        mValue += 1.0;
-        if (mValue > 1.0) {
-            mValue = 0.0;
-        }
-        mState = kFSDone;
+    mPlug->GetGUI()->PromptForFile(&mFile, mFileAction, &mDir, mExtensions.Get());
+    mValue += 1.0;
+    if (mValue > 1.0) {
+      mValue = 0.0;
+    }
+    mState = kFSDone;
 		SetDirty();
 	}
 }
