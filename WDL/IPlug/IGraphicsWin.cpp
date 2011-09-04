@@ -2,6 +2,7 @@
 #include "IControl.h"
 #include "Log.h"
 #include <wininet.h>
+#include <Shlobj.h>
 
 #ifdef RTAS_API
 #include "PlugInUtils.h"
@@ -819,7 +820,7 @@ void IGraphicsWin::DesktopPath(WDL_String* pPath)
   // Get the special folder path.
   SHGetSpecialFolderPath( 0,       // Hwnd
                          strPath, // String buffer.
-                         CSIDL_DESKTOPDIRECTORY, // CSLID of folder
+                         CSIDL_DESKTOP, // CSLID of folder
                          FALSE );
   
   pPath->Set(strPath, MAX_PATH_LEN);
@@ -832,8 +833,8 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     return;
   }
 
-  WDL_String pathStr;
-  char fnCStr[MAX_PATH_LEN], dirCStr[MAX_PATH_LEN];
+  char fnCStr[MAX_PATH_LEN];
+  char dirCStr[MAX_PATH_LEN];
   
   if (pFilename->GetLength())
     strcpy(fnCStr, pFilename->Get());
@@ -842,25 +843,16 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
 
   dirCStr[0] = '\0';
   
-  if (pDir->GetLength()) 
+  if (!pDir->GetLength()) 
   {
-    pathStr.Set(dir);
-    strcpy(dirCStr, dir.Get());
+    DesktopPath(pDir);
   }
-  else {
-    DesktopPath(&pathStr);
-  }
+
+  strcpy(dirCStr, pDir->Get());
   
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(OPENFILENAME));
 
-  ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.hwndOwner = mPlugWnd;
-  ofn.lpstrFile = fnCStr;
-  ofn.nMaxFile = MAX_PATH_LEN - 1;
-  ofn.lpstrInitialDir = dirCStr;
-  ofn.Flags = OFN_PATHMUSTEXIST;
-  
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hwndOwner = mPlugWnd;
   ofn.lpstrFile = fnCStr;
@@ -912,8 +904,15 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
             break;
     }
 
-    if (rc) {
-        pFilename->Set(ofn.lpstrFile);
+    if (rc) 
+    {
+      char drive[_MAX_DRIVE];
+      if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
+      {
+        pDir->SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
+      }
+   
+      pFilename->Set(ofn.lpstrFile);
     }
 }
 
