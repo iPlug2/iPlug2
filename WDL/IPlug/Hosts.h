@@ -30,8 +30,9 @@ enum EHost {
   kHostLogic,
   kHostDigitalPerformer,
   kHostStandalone,
-  kHostAudioMulch
-
+  kHostAudioMulch,
+  kHostStudioOne
+  
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost

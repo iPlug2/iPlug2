@@ -63,8 +63,11 @@ EHost LookUpHost(const char* inHost)
 	if (strstr(host, "digital")) {
 		return kHostDigitalPerformer;
 	}
-  if (strstr(host, "AudioMulch")) {
+  if (strstr(host, "audiomulch")) {
 		return kHostAudioMulch;
+	}
+  if (strstr(host, "presonus vst2 host")) {
+		return kHostStudioOne;
 	}
 	return kHostUnknown;
 }
