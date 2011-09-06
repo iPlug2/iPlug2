@@ -819,6 +819,26 @@ void IPlugBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNam
   } 
 }
 
+#ifndef MAX_BLOB_LENGTH
+#define MAX_BLOB_LENGTH 1024
+#endif
+
+void IPlugBase::DumpPresetBlob(const char* filename)
+{
+  FILE* fp = fopen(filename, "w");
+  fprintf(fp, "MakePresetFromBlob(\"name\", \"");
+  
+  char buf[MAX_BLOB_LENGTH];
+  
+  ByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
+  BYTE* byteStart = pPresetChunk->GetBytes();
+  
+  base64encode(byteStart, buf, pPresetChunk->Size());
+  
+  fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
+  fclose(fp);
+}
+
 const int kFXPVersionNum = 1;
 const int kFXBVersionNum = 2;
 

@@ -207,8 +207,11 @@ public:
 	bool RestorePreset(int idx);
 	bool RestorePreset(const char* name);
 	const char* GetPresetName(int idx);
+  
 	// Dump the current state as source code for a call to MakePresetFromNamedParams.
 	void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
+  void DumpPresetBlob(const char* filename); 
+  
 	virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
 #ifndef OS_IOS  
