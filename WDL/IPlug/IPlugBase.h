@@ -239,8 +239,9 @@ protected:
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
+  WDL_PtrList<IParam> mParams;
+
 private:
- 	WDL_PtrList<IParam> mParams;
 	IGraphics* mGraphics;
 
   WDL_PtrList<IPreset> mPresets;
