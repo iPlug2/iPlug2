@@ -507,7 +507,7 @@
 		4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST2-Info.plist"; path = "resources/IPlugEffect-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F3E69041409746500C4D749 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../WDL/IPlug/IPlugVST3.cpp; sourceTree = SOURCE_ROOT; };
 		4F3E69051409746500C4D749 /* IPlugVST3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3.h; path = ../../WDL/IPlug/IPlugVST3.h; sourceTree = SOURCE_ROOT; };
-		4F3E69291409747300C4D749 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F3E69291409747300C4D749 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = IPlugEffect.vst3; path = "build-mac/Debug/IPlugEffect.vst3"; sourceTree = "<group>"; };
 		4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST3-Info.plist"; path = "resources/IPlugEffect-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3EE94513B65A350097B791 /* IPlugOSDetect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugOSDetect.h; path = ../../WDL/IPlug/IPlugOSDetect.h; sourceTree = SOURCE_ROOT; };
 		4F4ACFF5140996A10068A6D4 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
@@ -655,7 +655,7 @@
 		4F7F5CF613E96564002918FD /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = IPlugRTAS.r; sourceTree = "<group>"; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/IPlug/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
-		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = IPlugEffect.vst3; path = "build-mac/Debug/IPlugEffect.vst3"; sourceTree = "<group>"; };
 		4FB3624E13B648FE00DB6B76 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = app_wrapper/main.m; sourceTree = "<group>"; };
 		4FC206BE13F44B99002A30AC /* libPluginLibrary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPluginLibrary.a; path = ../../PT9_SDK/MacBag/Libs/Release/libPluginLibrary.a; sourceTree = SOURCE_ROOT; };
 		4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
@@ -852,12 +852,11 @@
 		19C28FB8FE9D52D311CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				4FEBD2A01416385300BDCD2F /* VST3 */,
 				4F7F5CBA13E960B9002918FD /* RTAS */,
 				4F78DB4513B6458B0032E0F3 /* VST2 */,
 				4F78DB4613B645AD0032E0F3 /* AU */,
 				4FD16A0913B63081001D0217 /* IPlugEffect.app */,
-				4F3E69291409747300C4D749 /* IPlugEffect.vst3 */,
-				4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1361,6 +1360,15 @@
 				4FD16D4313B635B2001D0217 /* swell.cpp */,
 			);
 			name = "Used by App";
+			sourceTree = "<group>";
+		};
+		4FEBD2A01416385300BDCD2F /* VST3 */ = {
+			isa = PBXGroup;
+			children = (
+				4F3E69291409747300C4D749 /* IPlugEffect.vst3 */,
+				4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */,
+			);
+			name = VST3;
 			sourceTree = "<group>";
 		};
 		4FF01613134E0BCD001447BA /* WDL */ = {

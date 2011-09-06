@@ -110,7 +110,7 @@
 // vst3 stuff
 #define MFR_URL "www.olilarkin.co.uk"
 #define MFR_EMAIL "spam@me.com"
-#define EFFECT_TYPE_VST3 kFxModulation 
+#define EFFECT_TYPE_VST3 kFx 
 
 /* kFxAnalyzer, kFxDelay, kFxDistortion, kFxDynamics, kFxEQ, kFxFilter,
 kFx, kFxInstrument, kFxInstrumentExternal, kFxSpatial, kFxGenerator,
