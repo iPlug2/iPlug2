@@ -44,32 +44,29 @@ def main():
 	app['CFBundleShortVersionString'] = CFBundleVersion
 	plistlib.writePlist(app, plistpath)
 
-	plistpath = scriptpath + "/resources/IPlugMultiTargets-IOSAPP-Info.plist"
-	iosapp = plistlib.readPlist(plistpath)
-	iosapp['CFBundleGetInfoString'] = CFBundleGetInfoString
-	iosapp['CFBundleVersion'] = CFBundleVersion
-	iosapp['CFBundleShortVersionString'] = CFBundleVersion
-	plistlib.writePlist(iosapp, plistpath)
-
-	plistpath = scriptpath + "/installer/IPlugMultiTargets-plugins.packproj"
-	pluginsInstaller = plistlib.readPlist(plistpath)
-	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
-	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
-	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
-	pluginsInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor) 
-
-	plistlib.writePlist(pluginsInstaller, plistpath)
+# 	plistpath = scriptpath + "/resources/IPlugMultiTargets-IOSAPP-Info.plist"
+# 	iosapp = plistlib.readPlist(plistpath)
+# 	iosapp['CFBundleGetInfoString'] = CFBundleGetInfoString
+# 	iosapp['CFBundleVersion'] = CFBundleVersion
+# 	iosapp['CFBundleShortVersionString'] = CFBundleVersion
+# 	plistlib.writePlist(iosapp, plistpath)
 	
-	plistpath = scriptpath + "/installer/IPlugMultiTargets-all.packproj"
-	allInstaller = plistlib.readPlist(plistpath)
-	allInstaller['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
-	allInstaller['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
-	allInstaller['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-	allInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
-	allInstaller['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor) 
+	plistpath = scriptpath + "/installer/IPlugMultiTargets.packproj"
+	installer = plistlib.readPlist(plistpath)
+	installer['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
+	installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
+	installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
+	installer['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
+	installer['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor)
+	
+	for x in range(0,5):
+		installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
+		installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
+		installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
+		installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
+		installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor) 
 
-	plistlib.writePlist(allInstaller, plistpath)
+	plistlib.writePlist(installer, plistpath)
 
 if __name__ == '__main__':
 	main()

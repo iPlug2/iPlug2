@@ -14,6 +14,7 @@ MINOR_VERSION=$(($MINOR_VERSION >> 8))
 BUG_FIX=$(($VERSION & 0x000000FF))
 
 VST2="/Library/Audio/Plug-Ins/VST/IPlugEffect.vst"
+VST3="/Library/Audio/Plug-Ins/VST3/IPlugEffect.vst3"
 APP="/Applications/IPlugEffect.app"
 AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugEffect.component"
 RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugEffect.dpm"
@@ -45,11 +46,18 @@ then
   rm -R $AUDIOUNIT
 fi
 
-#remove existing VST
+#remove existing VST2
 if [ -d $VST2 ] 
 then
   rm -R $VST2
 fi
+
+#remove existing VST3
+if [ -d $VST3 ] 
+then
+  rm -R $VST3
+fi
+
 
 #remove existing RTAS
 if [ -d $RTAS ] 
@@ -65,15 +73,10 @@ echo "setting icons"
 echo ""
 setfileicon resources/IPlugEffect.icns $AUDIOUNIT
 setfileicon resources/IPlugEffect.icns $VST2
+setfileicon resources/IPlugEffect.icns $VST3
 setfileicon resources/IPlugEffect.icns $RTAS
 
 #appstore stuff
-
-echo "building plugins only installer"
-echo ""
-freeze installer/IPlugEffect-plugins.packproj
-mv installer/build-mac/install-plugins.pkg /Applications/IPlugEffect.app/Contents/Resources/install-plugins.pkg
-cp installer/changelog.txt /Applications/IPlugEffect.app/Contents/Resources/changelog.txt
 
 echo "code signing app"
 echo ""
@@ -87,12 +90,18 @@ productbuild \
 
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
-#rm -R -f /Applications/IPlugEffect.app/Contents/Resources/install-plugins.pkg
 rm -R -f installer/IPlugEffect-mac.dmg
 
-echo "building all installer"
+if [ -d "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm" ] 
+then
+  rm -R "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
+fi
+
+cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
+
+echo "building installer"
 echo ""
-freeze installer/IPlugEffect-all.packproj
+freeze installer/IPlugEffect.packproj
 
 # dmg, uses dmgcanvas http://www.araelium.com/dmgcanvas/
 
@@ -106,6 +115,7 @@ rm -R -f installer/build-mac/
 # echo ""
 # cp -R $AUDIOUNIT installer/dist/IPlugEffect.component
 # cp -R $VST2 installer/dist/IPlugEffect.vst
+# cp -R $VST3 installer/dist/IPlugEffect.vst3
 # cp -R $RTAS installer/dist/IPlugEffect.dpm
 # cp -R $APP installer/dist/IPlugEffect.app
 # 

@@ -543,7 +543,7 @@
 		4F23BA1513B647E50097A67E /* IPlugMultiTargets-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiTargets-VST2-Info.plist"; path = "resources/IPlugMultiTargets-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F3E69041409746500C4D749 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../WDL/IPlug/IPlugVST3.cpp; sourceTree = SOURCE_ROOT; };
 		4F3E69051409746500C4D749 /* IPlugVST3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3.h; path = ../../WDL/IPlug/IPlugVST3.h; sourceTree = SOURCE_ROOT; };
-		4F3E69291409747300C4D749 /* IPlugMultiTargets.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = IPlugMultiTargets.vst3; path = "build-mac/Debug/IPlugMultiTargets.vst3"; sourceTree = "<group>"; };
+		4F3E69291409747300C4D749 /* IPlugMultiTargets.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMultiTargets.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F3E693A1409747300C4D749 /* IPlugMultiTargets-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugMultiTargets-VST3-Info.plist"; path = "resources/IPlugMultiTargets-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3EE94513B65A350097B791 /* IPlugOSDetect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugOSDetect.h; path = ../../WDL/IPlug/IPlugOSDetect.h; sourceTree = SOURCE_ROOT; };
 		4F4ACFF5140996A10068A6D4 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
@@ -692,7 +692,7 @@
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = IPlugRTAS.r; sourceTree = "<group>"; };
 		4F7F950D13E4897900A3283D /* about.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = about.png; path = resources/img/about.png; sourceTree = "<group>"; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/IPlug/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
-		4F9828E0140A9EB700F3FCC1 /* IPlugMultiTargets.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = IPlugMultiTargets.vst3; path = "build-mac/Debug/IPlugMultiTargets.vst3"; sourceTree = "<group>"; };
+		4F9828E0140A9EB700F3FCC1 /* IPlugMultiTargets.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMultiTargets.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FB2DD1713EDC962009D26BB /* bk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bk.png; path = resources/img/bk.png; sourceTree = "<group>"; };
 		4FB2DD1813EDC962009D26BB /* wk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wk.png; path = resources/img/wk.png; sourceTree = "<group>"; };
 		4FB3624E13B648FE00DB6B76 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = app_wrapper/main.m; sourceTree = "<group>"; };
@@ -3128,6 +3128,7 @@
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst3;
 				ZERO_LINK = YES;
 			};
@@ -3167,6 +3168,7 @@
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
 				SYMROOT = "build-mac";
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Release;
@@ -3203,6 +3205,7 @@
 				PRODUCT_NAME = "$(PROJECT_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;

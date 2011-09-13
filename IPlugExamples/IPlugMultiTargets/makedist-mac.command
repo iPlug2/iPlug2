@@ -14,6 +14,7 @@ MINOR_VERSION=$(($MINOR_VERSION >> 8))
 BUG_FIX=$(($VERSION & 0x000000FF))
 
 VST2="/Library/Audio/Plug-Ins/VST/IPlugMultiTargets.vst"
+VST3="/Library/Audio/Plug-Ins/VST3/IPlugMultiTargets.vst3"
 APP="/Applications/IPlugMultiTargets.app"
 AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugMultiTargets.component"
 RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugMultiTargets.dpm"
@@ -45,10 +46,16 @@ then
   rm -R $AUDIOUNIT
 fi
 
-#remove existing VST
+#remove existing VST2
 if [ -d $VST2 ] 
 then
   rm -R $VST2
+fi
+
+#remove existing VST3
+if [ -d $VST3 ] 
+then
+  rm -R $VST3
 fi
 
 #remove existing RTAS
@@ -65,15 +72,10 @@ echo "setting icons"
 echo ""
 setfileicon resources/IPlugMultiTargets.icns $AUDIOUNIT
 setfileicon resources/IPlugMultiTargets.icns $VST2
+setfileicon resources/IPlugMultiTargets.icns $VST3
 setfileicon resources/IPlugMultiTargets.icns $RTAS
 
 #appstore stuff
-
-echo "building plugins only installer"
-echo ""
-freeze installer/IPlugMultiTargets-plugins.packproj
-mv installer/build-mac/install-plugins.pkg /Applications/IPlugMultiTargets.app/Contents/Resources/install-plugins.pkg
-cp installer/changelog.txt /Applications/IPlugMultiTargets.app/Contents/Resources/changelog.txt
 
 echo "code signing app"
 echo ""
@@ -87,12 +89,17 @@ productbuild \
 
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
-#rm -R -f /Applications/IPlugMultiTargets.app/Contents/Resources/install-plugins.pkg
 rm -R -f installer/IPlugMultiTargets-mac.dmg
 
-echo "building all installer"
+if [ -d "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm" ] 
+then
+  rm -R "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
+fi
+cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
+
+echo "building installer"
 echo ""
-freeze installer/IPlugMultiTargets-all.packproj
+freeze installer/IPlugMultiTargets.packproj
 
 # dmg, uses dmgcanvas http://www.araelium.com/dmgcanvas/
 
@@ -106,6 +113,7 @@ rm -R -f installer/build-mac/
 # echo ""
 # cp -R $AUDIOUNIT installer/dist/IPlugMultiTargets.component
 # cp -R $VST2 installer/dist/IPlugMultiTargets.vst
+# cp -R $VST3 installer/dist/IPlugMultiTargets.vst3
 # cp -R $RTAS installer/dist/IPlugMultiTargets.dpm
 # cp -R $APP installer/dist/IPlugMultiTargets.app
 # 
