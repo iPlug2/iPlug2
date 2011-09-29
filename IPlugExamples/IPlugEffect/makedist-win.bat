@@ -44,10 +44,13 @@ goto END-rtas
 
 msbuild IPlugEffect-rtas.sln /p:configuration=release
 
-REM - ZIP
+REM - Make Installer (InnoSetup)
 
-"C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
-"C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win-app\x64\bin\IPlugEffect.exe .\build-win-vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
+"C:\Program Files\Inno Setup 5\iscc" /cc ".\installer\IPlugEffect.iss"
+
+REM - ZIP
+REM - "C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
+REM - "C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win-app\x64\bin\IPlugEffect.exe .\build-win-vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo off
 pause
