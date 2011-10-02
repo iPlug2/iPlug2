@@ -32,7 +32,7 @@ from os.path import join
 #tabs = 0
 #newsubfolder = False
 
-VERSION = "0.71"
+VERSION = "0.7.1"
 
 def checkdirname(name, searchproject):
 	"check if directory name matches with the given pattern"
