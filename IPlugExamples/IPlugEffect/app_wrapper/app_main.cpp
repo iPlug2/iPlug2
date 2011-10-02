@@ -998,7 +998,6 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
   BEGIN
    // MENUITEM SEPARATOR
     MENUITEM "Preferences...",              ID_PREFERENCES
-    MENUITEM "Install Plugins...",          ID_INSTALL_PLUGINS
     MENUITEM "&Quit",                       ID_QUIT
   END
   POPUP "&Help"

@@ -545,24 +545,6 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
           return 0;
         }
-        #ifdef OS_OSX
-        case ID_INSTALL_PLUGINS:
-        {
-          IGraphics* pGraphics = gPluginInstance->GetGUI();
-          
-          if (pGraphics)
-          {
-            WDL_String path; 
-            pGraphics->PluginPath(&path);
-            path.Insert("open \"", 0);
-            path.Append(BUNDLE_NAME);
-            path.Append(".app/Contents/Resources/install-plugins.pkg");
-            path.Append("\"");
-            system(path.Get());
-          }
-          return 0;
-        }
-        #endif
       }
     return 0;
   }

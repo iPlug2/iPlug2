@@ -28,8 +28,6 @@
 #define IDC_BUTTON_ASIO             40014
 #define IDC_CB_MONO_INPUT           40015
 
-#define ID_INSTALL_PLUGINS          40015
-
 // some options for the app
 
 #define ENABLE_SYSEX 0
