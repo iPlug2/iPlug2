@@ -40,6 +40,14 @@ public:
 	void OnMouseDown(int x, int y, IMouseMod* pMod)
 	{
     if (mTextRECT.Contains(x, y)) PromptUserInput(&mTextRECT);
+    #ifdef RTAS_API
+    else if (pMod->A) {
+      if (mDefaultValue >= 0.0) {
+        mValue = mDefaultValue;
+        SetDirty();
+      }
+    }
+    #endif
     else {
       OnMouseDrag(x, y, 0, 0, pMod);
     }
