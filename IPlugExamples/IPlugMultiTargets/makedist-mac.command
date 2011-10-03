@@ -13,18 +13,18 @@ MINOR_VERSION=$(($VERSION & 0x0000FF00))
 MINOR_VERSION=$(($MINOR_VERSION >> 8)) 
 BUG_FIX=$(($VERSION & 0x000000FF))
 
+FULL_VERSION=$MAJOR_VERSION"."$MINOR_VERSION"."$BUG_FIX
+
 VST2="/Library/Audio/Plug-Ins/VST/IPlugMultiTargets.vst"
 VST3="/Library/Audio/Plug-Ins/VST3/IPlugMultiTargets.vst3"
 APP="/Applications/IPlugMultiTargets.app"
 AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugMultiTargets.component"
 RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugMultiTargets.dpm"
 
-echo "making IPlugMultiTargets version $MAJOR_VERSION.$MINOR_VERSION.$BUG_FIX mac distribution..."
+echo "making IPlugMultiTargets version $FULL_VERSION mac distribution..."
 echo ""
 
-echo updating version numbers
-echo ""
-./update_version.py --major $MAJOR_VERSION --minor $MINOR_VERSION --bug $BUG_FIX
+./update_version.py
 
 #remove existing dist folder
 #if [ -d installer/dist ] 
@@ -57,6 +57,7 @@ if [ -d $VST3 ]
 then
   rm -R $VST3
 fi
+
 
 #remove existing RTAS
 if [ -d $RTAS ] 
@@ -95,6 +96,7 @@ if [ -d "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
 then
   rm -R "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
 fi
+
 cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
 
 echo "building installer"
@@ -105,7 +107,21 @@ freeze installer/IPlugMultiTargets.packproj
 
 echo "building dmg"
 echo ""
-dmgcanvas installer/IPlugMultiTargets.dmgCanvas installer/IPlugMultiTargets-mac.dmg
+
+if [ -d installer/IPlugMultiTargets.dmgCanvas ]
+then
+  dmgcanvas installer/IPlugMultiTargets.dmgCanvas installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg
+else
+  hdiutil create installer/IPlugMultiTargets.dmg -srcfolder installer/build-mac/ -ov -anyowners -volname IPlugMultiTargets
+  
+  if [ -f installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg ]
+  then
+   rm -f installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg
+  fi
+  
+  hdiutil convert installer/IPlugMultiTargets.dmg -format UDZO -o installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg
+  rm -R -f installer/IPlugMultiTargets.dmg
+fi
 
 rm -R -f installer/build-mac/
 

@@ -1,13 +1,13 @@
 [Setup]
-AppName=IPlugEffect
+AppName=IPlugMultiTargets
 AppVersion=1.0.0
-DefaultDirName={pf}\IPlugEffect
-DefaultGroupName=IPlugEffect
+DefaultDirName={pf}\IPlugMultiTargets
+DefaultGroupName=IPlugMultiTargets
 Compression=lzma2
 SolidCompression=yes
 OutputDir=.\
 ArchitecturesInstallIn64BitMode=x64
-OutputBaseFilename=IPlugEffect Installer
+OutputBaseFilename=IPlugMultiTargets Installer
 LicenseFile=license.rtf
 SetupLogging=yes
 
@@ -25,30 +25,30 @@ Name: "rtas_32"; Description: "32-bit RTAS Plugin (.dpm)"; Types: full custom;
 Name: "manual"; Description: "User guide"; Types: full custom; Flags: fixed
 
 [Files]
-Source: "..\build-win-app\Win32\bin\IPlugEffect.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode; Components:app;
-Source: "..\build-win-app\x64\bin\IPlugEffect.exe"; DestDir: "{app}"; Check: Is64BitInstallMode; Components:app;
+Source: "..\build-win-app\Win32\bin\IPlugMultiTargets.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode; Components:app;
+Source: "..\build-win-app\x64\bin\IPlugMultiTargets.exe"; DestDir: "{app}"; Check: Is64BitInstallMode; Components:app;
 
-Source: "..\build-win-vst2\Win32\bin\IPlugEffect.dll"; DestDir: {code:GetVST2Dir_32}; Check: not Is64BitInstallMode; Components:vst2_32;
-Source: "..\build-win-vst2\Win32\bin\IPlugEffect.dll"; DestDir: {code:GetVST2Dir_32}; Check: Is64BitInstallMode; Components:vst2_32;
-Source: "..\build-win-vst2\x64\bin\IPlugEffect.dll"; DestDir: {code:GetVST2Dir_64}; Check: Is64BitInstallMode; Components:vst2_64;
+Source: "..\build-win-vst2\Win32\bin\IPlugMultiTargets.dll"; DestDir: {code:GetVST2Dir_32}; Check: not Is64BitInstallMode; Components:vst2_32;
+Source: "..\build-win-vst2\Win32\bin\IPlugMultiTargets.dll"; DestDir: {code:GetVST2Dir_32}; Check: Is64BitInstallMode; Components:vst2_32;
+Source: "..\build-win-vst2\x64\bin\IPlugMultiTargets.dll"; DestDir: {code:GetVST2Dir_64}; Check: Is64BitInstallMode; Components:vst2_64;
 
-Source: "..\build-win-vst3\Win32\bin\IPlugEffect.vst3"; DestDir: "{cf}\VST3\"; Check: not Is64BitInstallMode; Components:vst3_32;
-Source: "..\build-win-vst3\Win32\bin\IPlugEffect.vst3"; DestDir: "{cf32}\VST3\"; Check: Is64BitInstallMode; Components:vst3_32;
-Source: "..\build-win-vst3\x64\bin\IPlugEffect.vst3"; DestDir: "{cf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64;
+Source: "..\build-win-vst3\Win32\bin\IPlugMultiTargets.vst3"; DestDir: "{cf}\VST3\"; Check: not Is64BitInstallMode; Components:vst3_32;
+Source: "..\build-win-vst3\Win32\bin\IPlugMultiTargets.vst3"; DestDir: "{cf32}\VST3\"; Check: Is64BitInstallMode; Components:vst3_32;
+Source: "..\build-win-vst3\x64\bin\IPlugMultiTargets.vst3"; DestDir: "{cf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64;
 
-Source: "..\build-win-rtas\bin\IPlugEffect.dpm"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
-Source: "..\build-win-rtas\bin\IPlugEffect.dpm.rsr"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
+Source: "..\build-win-rtas\bin\IPlugMultiTargets.dpm"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
+Source: "..\build-win-rtas\bin\IPlugMultiTargets.dpm.rsr"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
 
-Source: "..\manual\IPlugEffect_manual.pdf"; DestDir: "{app}"
+Source: "..\manual\IPlugMultiTargets_manual.pdf"; DestDir: "{app}"
 Source: "changelog.txt"; DestDir: "{app}"
 Source: "readmewin.rtf"; DestDir: "{app}"; DestName: "readme.rtf"; Flags: isreadme
 
 [Icons]
-Name: "{group}\IPlugEffect"; Filename: "{app}\IPlugEffect.exe"
-Name: "{group}\User guide"; Filename: "{app}\IPlugEffect_manual.pdf"
+Name: "{group}\IPlugMultiTargets"; Filename: "{app}\IPlugMultiTargets.exe"
+Name: "{group}\User guide"; Filename: "{app}\IPlugMultiTargets_manual.pdf"
 Name: "{group}\Changelog"; Filename: "{app}\changelog.txt"
 ;Name: "{group}\readme"; Filename: "{app}\readme.rtf"
-Name: "{group}\Un-install IPlugEffect"; Filename: "{app}\unins000.exe"
+Name: "{group}\Un-install IPlugMultiTargets"; Filename: "{app}\unins000.exe"
 
 [Code]
 var

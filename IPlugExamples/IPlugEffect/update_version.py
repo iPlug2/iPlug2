@@ -2,19 +2,31 @@
 
 # this script will update the versions in plist and installer files to match that in resource.h
 
-import optparse, plistlib, os, datetime, fileinput, sys
+import plistlib, os, datetime, fileinput, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 def main():
-  p = optparse.OptionParser()
-  p.add_option('--major', '-b', default="0")
-  p.add_option('--minor', '-s', default="0")
-  p.add_option('--bug', '-t', default="0")
-  o, arguments = p.parse_args()
+
+  MajorStr = ""
+  MinorStr = "" 
+  BugfixStr = ""
+
+  for line in fileinput.input(scriptpath + "/resource.h",inplace=0):
+    if "#define PLUG_VER " in line:
+      FullVersion = int(string.lstrip(line, "#define PLUG_VER "), 16)
+      major = FullVersion & 0xFFFF0000
+      MajorStr = str(major >> 16)
+      minor = FullVersion & 0x0000FF00
+      MinorStr = str(minor >> 8)
+      BugfixStr = str(FullVersion & 0x000000FF)
+      
   
-  FullVersion = o.major + "." + o.minor + "." + o.bug
-  CFBundleGetInfoString = FullVersion + ", Copyright DEFAULT_MFR, 2011"
-  CFBundleVersion = FullVersion
+  FullVersionStr = MajorStr + "." + MinorStr + "." + BugfixStr
+  CFBundleGetInfoString = FullVersionStr + ", Copyright DEFAULT_MFR, 2011"
+  CFBundleVersion = FullVersionStr
+  
+  print "update_version.py - setting version to " + FullVersionStr
+  print "Updating plist version info..."
   
   plistpath = scriptpath + "/resources/IPlugEffect-VST2-Info.plist"
   vst2 = plistlib.readPlist(plistpath)
@@ -50,31 +62,32 @@ def main():
 #   iosapp['CFBundleVersion'] = CFBundleVersion
 #   iosapp['CFBundleShortVersionString'] = CFBundleVersion
 #   plistlib.writePlist(iosapp, plistpath)
+
+  print "Updating Mac Installer version info..."
   
   plistpath = scriptpath + "/installer/IPlugEffect.packproj"
   installer = plistlib.readPlist(plistpath)
-  installer['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
+  installer['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersionStr
   installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
   installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
-  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor)
+  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(MajorStr)
+  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(MinorStr)
   
   for x in range(0,5):
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersion
+    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersionStr
     installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
     installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMajorVersion'] = int(o.major)
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMinorVersion'] = int(o.minor) 
+    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMajorVersion'] = int(MajorStr)
+    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMinorVersion'] = int(MinorStr) 
 
   plistlib.writePlist(installer, plistpath)
-  
-  #do Windows (innosetup) installer version
+
+  print "Updating Windows Installer version info..."
   
   for line in fileinput.input(scriptpath + "/installer/IPlugEffect.iss",inplace=1):
     if "AppVersion" in line:
-      line="AppVersion=" + o.major + "." + o.minor + "." + o.bug + "\n"
+      line="AppVersion=" + FullVersionStr + "\n"
     sys.stdout.write(line)
-  
 
 if __name__ == '__main__':
   main()

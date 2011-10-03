@@ -13,18 +13,18 @@ MINOR_VERSION=$(($VERSION & 0x0000FF00))
 MINOR_VERSION=$(($MINOR_VERSION >> 8)) 
 BUG_FIX=$(($VERSION & 0x000000FF))
 
+FULL_VERSION=$MAJOR_VERSION"."$MINOR_VERSION"."$BUG_FIX
+
 VST2="/Library/Audio/Plug-Ins/VST/IPlugEffect.vst"
 VST3="/Library/Audio/Plug-Ins/VST3/IPlugEffect.vst3"
 APP="/Applications/IPlugEffect.app"
 AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugEffect.component"
 RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugEffect.dpm"
 
-echo "making IPlugEffect version $MAJOR_VERSION.$MINOR_VERSION.$BUG_FIX mac distribution..."
+echo "making IPlugEffect version $FULL_VERSION mac distribution..."
 echo ""
 
-echo updating version numbers
-echo ""
-./update_version.py --major $MAJOR_VERSION --minor $MINOR_VERSION --bug $BUG_FIX
+./update_version.py
 
 #remove existing dist folder
 #if [ -d installer/dist ] 
@@ -107,7 +107,21 @@ freeze installer/IPlugEffect.packproj
 
 echo "building dmg"
 echo ""
-dmgcanvas installer/IPlugEffect.dmgCanvas installer/IPlugEffect-mac.dmg
+
+if [ -d installer/IPlugEffect.dmgCanvas ]
+then
+  dmgcanvas installer/IPlugEffect.dmgCanvas installer/IPlugEffect-mac_v$FULL_VERSION.dmg
+else
+  hdiutil create installer/IPlugEffect.dmg -srcfolder installer/build-mac/ -ov -anyowners -volname IPlugEffect
+  
+  if [ -f installer/IPlugEffect-mac_v$FULL_VERSION.dmg ]
+  then
+   rm -f installer/IPlugEffect-mac_v$FULL_VERSION.dmg
+  fi
+  
+  hdiutil convert installer/IPlugEffect.dmg -format UDZO -o installer/IPlugEffect-mac_v$FULL_VERSION.dmg
+  rm -R -f installer/IPlugEffect.dmg
+fi
 
 rm -R -f installer/build-mac/
 
