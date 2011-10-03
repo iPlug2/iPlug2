@@ -3,6 +3,9 @@ REM - requires 7zip in C:\Program Files\7-Zip\7z.exe
 
 echo "making IPlugMultiTargets win distribution..."
 
+echo "updating version numbers"
+call python update_version.py
+
 REM - START VST2/APP VS2010
 
 if exist "%programfiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
@@ -44,10 +47,12 @@ goto END-rtas
 
 msbuild IPlugMultiTargets-rtas.sln /p:configuration=release
 
-REM - ZIP
+REM - Make Installer (InnoSetup)
+"C:\Program Files\Inno Setup 5\iscc" /cc ".\installer\IPlugMultiTargets.iss"
 
-"C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugMultiTargets-win-32bit.zip .\build-win-app\win32\bin\IPlugMultiTargets.exe .\build-win-vst2\win32\bin\IPlugMultiTargets.dll .\build-win-rtas\bin\IPlugMultiTargets.dpm .\build-win-rtas\bin\IPlugMultiTargets.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
-"C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugMultiTargets-win-64bit.zip .\build-win-app\x64\bin\IPlugMultiTargets.exe .\build-win-vst2\x64\bin\IPlugMultiTargets.dll .\installer\license.rtf .\installer\readmewin.rtf
+REM - ZIP
+REM - "C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugMultiTargets-win-32bit.zip .\build-win-app\win32\bin\IPlugMultiTargets.exe .\build-win-vst2\win32\bin\IPlugMultiTargets.dll .\build-win-rtas\bin\IPlugMultiTargets.dpm .\build-win-rtas\bin\IPlugMultiTargets.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
+REM - "C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugMultiTargets-win-64bit.zip .\build-win-app\x64\bin\IPlugMultiTargets.exe .\build-win-vst2\x64\bin\IPlugMultiTargets.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo off
 pause

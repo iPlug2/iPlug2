@@ -3,6 +3,9 @@ REM - requires 7zip in C:\Program Files\7-Zip\7z.exe
 
 echo "making IPlugEffect win distribution..."
 
+echo "updating version numbers"
+call python update_version.py
+
 REM - START VST2/APP VS2010
 
 if exist "%programfiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
