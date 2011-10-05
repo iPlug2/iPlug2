@@ -66,4 +66,4 @@ static int base64decode(const char *src, unsigned char *dest, int destsize)
   return dest-olddest;
 }
 
-#endif _BASE64ENCDEC_H_
+#endif // _BASE64ENCDEC_H_
