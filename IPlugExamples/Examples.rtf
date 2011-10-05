@@ -1,18 +1,22 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\rtf1\ansi\ansicpg1252\cocoartf1138
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier-BoldOblique;\f2\fmodern\fcharset0 Courier;
 \f3\fmodern\fcharset0 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;}
 {\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
 \paperw11900\paperh16840\margl1440\margr1440\vieww23280\viewh20480\viewkind0
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f0\b\fs24 \cf0 Oli IPlug Examples\
 
 \b0 \
-This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working.\
+This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working. Some of the examples are from Tale.\
 \
-Projects are provided for Visual Studio 2010 and Xcode3 (or higher). Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010.\
+Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010.\
+\
+For info about installing xcode 3.2.6 on Lion see here\
+\
+{\field{\*\fldinst{HYPERLINK "http://anatomicwax.tumblr.com/post/8064949186/installing-xcode-3-2-6-on-lion-redux"}}{\fldrslt http://anatomicwax.tumblr.com/post/8064949186/installing-xcode-3-2-6-on-lion-redux}}\
 \
 To build 64 bit binaries on windows, using VS2010 express, you need to have installed the Windows SDK 7.1. Alternatively if you have VS2010 professional, you may need to change the PlatformToolset to "v100" instead of "Windows7.1SDK" in all .vcxproj files, because the projects were made with the express version.\
 \
@@ -24,20 +28,20 @@ The IPlugMultiTargets project is the main starting project, and if you wish to s
 \
 You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt\
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 \ls1\ilvl0
 \b \cf0 VST3\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 \ls1\ilvl0
 \b0 \cf0 \
-\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
 \ls1\ilvl0\cf0 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK\
 	\
-\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\ql\qnatural\pardirnatural
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
 \ls1\ilvl0
 \b \cf0 RTAS
 \b0 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 \cf0 \
 - Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: {\field{\*\fldinst{HYPERLINK "http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html"}}{\fldrslt http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html}}\
 \
@@ -72,10 +76,10 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 Microsoft Visual C++ 2010 Redistributable Package\
 \
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \b\fs26 \cf0 Duplicating Projects\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \fs24 \cf0 \
 
@@ -85,18 +89,18 @@ you can duplicate a project as follows with the following commands in the OSX te
 \
 - open terminal or cmd.exe and navigate to the IPlugExamples folder\
 - type \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f1\i\b \cf0 	duplicate.py [inputprojectname] [outputprojectname] [manufacturername]\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f0\i0\b0 \cf0 \
 e.g\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f2 \cf0 	
 \f1\i\b duplicate.py IPlugEffect MyNewPlugin OliLarkin\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f0\i0\b0 \cf0 \
 you might need to do 
@@ -111,11 +115,11 @@ you might need to do
 \f3\b PLUG_MFR_ID
 \f0\b0 \
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \b\fs26 \cf0 Debugging Setups\
 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \b0\fs24 \cf0 To debug plugins in different hosts, I have added common OSX hosts to the "Executables" section in Xcode. This information is store in a .pbxuser file, which is tied to your osx username. There is a shell script setup_debugging.command which will rename all the oli.pbxuser files to yourosxusername.pbxuser.\
 \

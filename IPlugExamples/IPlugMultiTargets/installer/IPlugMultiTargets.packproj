@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>Hierarchy</key>
@@ -76,8 +76,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -110,8 +109,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -136,8 +134,7 @@
 																<array>
 																	<dict>
 																		<key>Children</key>
-																		<array>
-																		</array>
+																		<array/>
 																		<key>GID</key>
 																		<integer>80</integer>
 																		<key>Path</key>
@@ -195,8 +192,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -212,8 +208,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -229,8 +224,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -246,8 +240,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -263,8 +256,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -280,8 +272,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -297,8 +288,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -314,8 +304,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -331,8 +320,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -368,8 +356,7 @@
 												<array>
 													<dict>
 														<key>Children</key>
-														<array>
-														</array>
+														<array/>
 														<key>GID</key>
 														<integer>0</integer>
 														<key>Path</key>
@@ -487,8 +474,7 @@
 							<key>Additional Resources</key>
 							<dict>
 								<key>International</key>
-								<array>
-								</array>
+								<array/>
 							</dict>
 							<key>Installation Scripts</key>
 							<dict>
@@ -536,8 +522,7 @@
 								</dict>
 							</dict>
 							<key>Requirements</key>
-							<array>
-							</array>
+							<array/>
 						</dict>
 						<key>Settings</key>
 						<dict>
@@ -677,8 +662,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -711,8 +695,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -737,8 +720,7 @@
 																<array>
 																	<dict>
 																		<key>Children</key>
-																		<array>
-																		</array>
+																		<array/>
 																		<key>GID</key>
 																		<integer>80</integer>
 																		<key>Path</key>
@@ -796,8 +778,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -813,8 +794,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -830,8 +810,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -847,8 +826,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -864,8 +842,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -881,8 +858,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -898,8 +874,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -915,8 +890,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -932,8 +906,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -969,8 +942,7 @@
 												<array>
 													<dict>
 														<key>Children</key>
-														<array>
-														</array>
+														<array/>
 														<key>GID</key>
 														<integer>0</integer>
 														<key>Path</key>
@@ -1088,8 +1060,7 @@
 							<key>Additional Resources</key>
 							<dict>
 								<key>International</key>
-								<array>
-								</array>
+								<array/>
 							</dict>
 							<key>Installation Scripts</key>
 							<dict>
@@ -1137,8 +1108,7 @@
 								</dict>
 							</dict>
 							<key>Requirements</key>
-							<array>
-							</array>
+							<array/>
 						</dict>
 						<key>Settings</key>
 						<dict>
@@ -1278,8 +1248,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1312,8 +1281,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1338,8 +1306,7 @@
 																<array>
 																	<dict>
 																		<key>Children</key>
-																		<array>
-																		</array>
+																		<array/>
 																		<key>GID</key>
 																		<integer>80</integer>
 																		<key>Path</key>
@@ -1397,8 +1364,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1414,8 +1380,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1431,8 +1396,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1448,8 +1412,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1465,8 +1428,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1482,8 +1444,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1499,8 +1460,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1516,8 +1476,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1533,8 +1492,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1570,8 +1528,7 @@
 												<array>
 													<dict>
 														<key>Children</key>
-														<array>
-														</array>
+														<array/>
 														<key>GID</key>
 														<integer>0</integer>
 														<key>Path</key>
@@ -1689,8 +1646,7 @@
 							<key>Additional Resources</key>
 							<dict>
 								<key>International</key>
-								<array>
-								</array>
+								<array/>
 							</dict>
 							<key>Installation Scripts</key>
 							<dict>
@@ -1738,8 +1694,7 @@
 								</dict>
 							</dict>
 							<key>Requirements</key>
-							<array>
-							</array>
+							<array/>
 						</dict>
 						<key>Settings</key>
 						<dict>
@@ -1879,8 +1834,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1922,8 +1876,7 @@
 																<array>
 																	<dict>
 																		<key>Children</key>
-																		<array>
-																		</array>
+																		<array/>
 																		<key>GID</key>
 																		<integer>80</integer>
 																		<key>Path</key>
@@ -1981,8 +1934,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -1998,8 +1950,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2015,8 +1966,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2032,8 +1982,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2049,8 +1998,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2066,8 +2014,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2083,8 +2030,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2100,8 +2046,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2117,8 +2062,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2154,8 +2098,7 @@
 												<array>
 													<dict>
 														<key>Children</key>
-														<array>
-														</array>
+														<array/>
 														<key>GID</key>
 														<integer>0</integer>
 														<key>Path</key>
@@ -2273,8 +2216,7 @@
 							<key>Additional Resources</key>
 							<dict>
 								<key>International</key>
-								<array>
-								</array>
+								<array/>
 							</dict>
 							<key>Installation Scripts</key>
 							<dict>
@@ -2322,8 +2264,7 @@
 								</dict>
 							</dict>
 							<key>Requirements</key>
-							<array>
-							</array>
+							<array/>
 						</dict>
 						<key>Settings</key>
 						<dict>
@@ -2463,12 +2404,11 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
-												<string>/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm</string>
+												<string>/Applications/IPlugMultiTargets.app</string>
 												<key>Path Type</key>
 												<integer>1</integer>
 												<key>Privileges</key>
@@ -2480,8 +2420,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2514,8 +2453,7 @@
 										<array>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2531,8 +2469,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2548,8 +2485,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2565,8 +2501,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2582,8 +2517,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2599,8 +2533,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2616,8 +2549,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2633,8 +2565,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2650,8 +2581,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2667,8 +2597,7 @@
 											</dict>
 											<dict>
 												<key>Children</key>
-												<array>
-												</array>
+												<array/>
 												<key>GID</key>
 												<integer>80</integer>
 												<key>Path</key>
@@ -2704,8 +2633,7 @@
 												<array>
 													<dict>
 														<key>Children</key>
-														<array>
-														</array>
+														<array/>
 														<key>GID</key>
 														<integer>0</integer>
 														<key>Path</key>
@@ -2823,8 +2751,7 @@
 							<key>Additional Resources</key>
 							<dict>
 								<key>International</key>
-								<array>
-								</array>
+								<array/>
 							</dict>
 							<key>Installation Scripts</key>
 							<dict>
@@ -2872,8 +2799,7 @@
 								</dict>
 							</dict>
 							<key>Requirements</key>
-							<array>
-							</array>
+							<array/>
 						</dict>
 						<key>Settings</key>
 						<dict>
@@ -3051,8 +2977,7 @@
 				<key>Additional Resources</key>
 				<dict>
 					<key>International</key>
-					<array>
-					</array>
+					<array/>
 				</dict>
 				<key>Installation Scripts</key>
 				<dict>
@@ -3100,8 +3025,7 @@
 					</dict>
 				</dict>
 				<key>Requirements</key>
-				<array>
-				</array>
+				<array/>
 			</dict>
 			<key>Settings</key>
 			<dict>

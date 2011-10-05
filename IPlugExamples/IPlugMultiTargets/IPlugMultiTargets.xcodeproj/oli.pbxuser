@@ -3,8 +3,8 @@
 	089C1669FE841209C02AAC07 /* Project object */ = {
 		activeArchitecturePreference = i386;
 		activeBuildConfigurationName = Release;
-		activeExecutable = 4FD16A0A13B63081001D0217 /* App */;
-		activeTarget = 4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */;
+		activeExecutable = 4F7F5D0713E9676F002918FD /* ProTools9 Dev */;
+		activeTarget = 4F7F5C4213E95EC8002918FD /* RTAS_32_intel */;
 		addToTargets = (
 			4F3E69071409747300C4D749 /* VST3_32_intel */,
 		);
@@ -81,7 +81,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					958,
+					973,
 					20,
 					48,
 					43,
@@ -172,21 +172,21 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 339263457;
-			PBXWorkspaceStateSaveDate = 339263457;
+			PBXPerProjectTemplateStateSaveDate = 339518769;
+			PBXWorkspaceStateSaveDate = 339518769;
 		};
 		perUserProjectItems = {
 			4F01BBAB1438B92400FF94C5 /* PBXTextBookmark */ = 4F01BBAB1438B92400FF94C5 /* PBXTextBookmark */;
 			4F01BBAC1438B92400FF94C5 /* PBXTextBookmark */ = 4F01BBAC1438B92400FF94C5 /* PBXTextBookmark */;
-			4F01BBAD1438B92400FF94C5 /* PlistBookmark */ = 4F01BBAD1438B92400FF94C5 /* PlistBookmark */;
-			4F01BBAE1438B92400FF94C5 /* PlistBookmark */ = 4F01BBAE1438B92400FF94C5 /* PlistBookmark */;
-			4F01BBAF1438B92400FF94C5 /* PlistBookmark */ = 4F01BBAF1438B92400FF94C5 /* PlistBookmark */;
-			4F01BBB01438B92400FF94C5 /* PlistBookmark */ = 4F01BBB01438B92400FF94C5 /* PlistBookmark */;
-			4F01BBB11438B92400FF94C5 /* PlistBookmark */ = 4F01BBB11438B92400FF94C5 /* PlistBookmark */;
 			4F09615B1438BFF800880A17 /* PBXTextBookmark */ = 4F09615B1438BFF800880A17 /* PBXTextBookmark */;
 			4F09615C1438BFF800880A17 /* PBXTextBookmark */ = 4F09615C1438BFF800880A17 /* PBXTextBookmark */;
-			4F09615D1438BFF800880A17 /* PBXBookmark */ = 4F09615D1438BFF800880A17 /* PBXBookmark */;
-			4F09617F1438C00F00880A17 /* PBXTextBookmark */ = 4F09617F1438C00F00880A17 /* PBXTextBookmark */;
+			4FB26076143CA57200AC408E /* PBXTextBookmark */ = 4FB26076143CA57200AC408E /* PBXTextBookmark */;
+			4FB26082143CB38600AC408E /* PlistBookmark */ = 4FB26082143CB38600AC408E /* PlistBookmark */;
+			4FB26083143CB38600AC408E /* PlistBookmark */ = 4FB26083143CB38600AC408E /* PlistBookmark */;
+			4FB26084143CB38600AC408E /* PlistBookmark */ = 4FB26084143CB38600AC408E /* PlistBookmark */;
+			4FB26085143CB38600AC408E /* PlistBookmark */ = 4FB26085143CB38600AC408E /* PlistBookmark */;
+			4FB26086143CB38600AC408E /* PlistBookmark */ = 4FB26086143CB38600AC408E /* PlistBookmark */;
+			4FB26087143CB38600AC408E /* PlistBookmark */ = 4FB26087143CB38600AC408E /* PlistBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -214,61 +214,6 @@
 		vrLen = 892;
 		vrLoc = 19908;
 	};
-	4F01BBAD1438B92400FF94C5 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1513B647E50097A67E /* IPlugMultiTargets-VST2-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-VST2-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
-	4F01BBAE1438B92400FF94C5 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F3E693A1409747300C4D749 /* IPlugMultiTargets-VST3-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-VST3-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
-	4F01BBAF1438B92400FF94C5 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1413B647E50097A67E /* IPlugMultiTargets-OSXAPP-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-OSXAPP-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
-	4F01BBB01438B92400FF94C5 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F7F5C0C13E95DDC002918FD /* IPlugMultiTargets-RTAS-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-RTAS-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
-	4F01BBB11438B92400FF94C5 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-AU-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
 	4F09615B1438BFF800880A17 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */;
@@ -287,20 +232,6 @@
 		rLoc = 470;
 		rType = 0;
 		vrLen = 1589;
-		vrLoc = 0;
-	};
-	4F09615D1438BFF800880A17 /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = 4FD16C9E13B6327C001D0217 /* app_resource.h */;
-	};
-	4F09617F1438C00F00880A17 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16C9E13B6327C001D0217 /* app_resource.h */;
-		name = "app_resource.h: 30";
-		rLen = 0;
-		rLoc = 1069;
-		rType = 0;
-		vrLen = 1260;
 		vrLoc = 0;
 	};
 	4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {
@@ -1273,6 +1204,82 @@
 	4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */ = {
 		activeExec = 0;
 	};
+	4FB26076143CA57200AC408E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FD16C9E13B6327C001D0217 /* app_resource.h */;
+		name = "app_resource.h: 30";
+		rLen = 0;
+		rLoc = 1069;
+		rType = 0;
+		vrLen = 1260;
+		vrLoc = 0;
+	};
+	4FB26082143CB38600AC408E /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4F3E693A1409747300C4D749 /* IPlugMultiTargets-VST3-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-VST3-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	4FB26083143CB38600AC408E /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4F23BA1513B647E50097A67E /* IPlugMultiTargets-VST2-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-VST2-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	4FB26084143CB38600AC408E /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4F7F5C0C13E95DDC002918FD /* IPlugMultiTargets-RTAS-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-RTAS-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	4FB26085143CB38600AC408E /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4F23BA1413B647E50097A67E /* IPlugMultiTargets-OSXAPP-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-OSXAPP-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	4FB26086143CB38600AC408E /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-AU-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	4FB26087143CB38600AC408E /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-AU-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
 	4FB3624E13B648FE00DB6B76 /* main.m */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1511, 745}}";
@@ -1328,7 +1335,7 @@
 	};
 	4FD16C9E13B6327C001D0217 /* app_resource.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1136, 509}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1136, 507}}";
 			sepNavSelRange = "{1069, 0}";
 			sepNavVisRange = "{0, 1260}";
 		};
