@@ -19,12 +19,15 @@ VST2="/Library/Audio/Plug-Ins/VST/IPlugEffect.vst"
 VST3="/Library/Audio/Plug-Ins/VST3/IPlugEffect.vst3"
 APP="/Applications/IPlugEffect.app"
 AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugEffect.component"
-RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugEffect.dpm"
+RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
 
 echo "making IPlugEffect version $FULL_VERSION mac distribution..."
 echo ""
 
 ./update_version.py
+
+#could use touch to force a rebuild
+#touch blah.h
 
 #remove existing dist folder
 #if [ -d installer/dist ] 
@@ -37,19 +40,19 @@ echo ""
 #remove existing App
 if [ -d $APP ] 
 then
-  rm -R -f $APP
+  sudo rm -R -f $APP
 fi
 
 #remove existing AU
 if [ -d $AUDIOUNIT ] 
 then
-  rm -R $AUDIOUNIT
+  sudo rm -R $AUDIOUNIT
 fi
 
 #remove existing VST2
 if [ -d $VST2 ] 
 then
-  rm -R $VST2
+  sudo rm -R $VST2
 fi
 
 #remove existing VST3
@@ -60,9 +63,9 @@ fi
 
 
 #remove existing RTAS
-if [ -d $RTAS ] 
+if [ -d "${RTAS}" ] 
 then
-  rm -R $RTAS
+  sudo rm -R "${RTAS}"
 fi
 
 xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release
@@ -74,7 +77,7 @@ echo ""
 setfileicon resources/IPlugEffect.icns $AUDIOUNIT
 setfileicon resources/IPlugEffect.icns $VST2
 setfileicon resources/IPlugEffect.icns $VST3
-setfileicon resources/IPlugEffect.icns $RTAS
+setfileicon resources/IPlugEffect.icns "${RTAS}"
 
 #appstore stuff
 
@@ -90,14 +93,7 @@ productbuild \
 
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
-rm -R -f installer/IPlugEffect-mac.dmg
-
-if [ -d "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm" ] 
-then
-  rm -R "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
-fi
-
-cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
+sudo sudo rm -R -f installer/IPlugEffect-mac.dmg
 
 echo "building installer"
 echo ""
@@ -120,10 +116,10 @@ else
   fi
   
   hdiutil convert installer/IPlugEffect.dmg -format UDZO -o installer/IPlugEffect-mac_v$FULL_VERSION.dmg
-  rm -R -f installer/IPlugEffect.dmg
+  sudo sudo rm -R -f installer/IPlugEffect.dmg
 fi
 
-rm -R -f installer/build-mac/
+sudo sudo rm -R -f installer/build-mac/
 
 # echo "copying binaries..."
 # echo ""

@@ -19,12 +19,15 @@ VST2="/Library/Audio/Plug-Ins/VST/IPlugMultiTargets.vst"
 VST3="/Library/Audio/Plug-Ins/VST3/IPlugMultiTargets.vst3"
 APP="/Applications/IPlugMultiTargets.app"
 AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugMultiTargets.component"
-RTAS="/Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins/IPlugMultiTargets.dpm"
+RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
 
 echo "making IPlugMultiTargets version $FULL_VERSION mac distribution..."
 echo ""
 
 ./update_version.py
+
+#could use touch to force a rebuild
+#touch blah.h
 
 #remove existing dist folder
 #if [ -d installer/dist ] 
@@ -37,32 +40,31 @@ echo ""
 #remove existing App
 if [ -d $APP ] 
 then
-  rm -R -f $APP
+  sudo rm -R -f $APP
 fi
 
 #remove existing AU
 if [ -d $AUDIOUNIT ] 
 then
-  rm -R $AUDIOUNIT
+  sudo rm -R $AUDIOUNIT
 fi
 
 #remove existing VST2
 if [ -d $VST2 ] 
 then
-  rm -R $VST2
+  sudo rm -R $VST2
 fi
 
 #remove existing VST3
 if [ -d $VST3 ] 
 then
-  rm -R $VST3
+  sudo rm -R $VST3
 fi
 
-
 #remove existing RTAS
-if [ -d $RTAS ] 
+if [ -d "${RTAS}" ] 
 then
-  rm -R $RTAS
+  sudo rm -R "${RTAS}"
 fi
 
 xcodebuild -project IPlugMultiTargets.xcodeproj -xcconfig IPlugMultiTargets.xcconfig -target "All" -configuration Release
@@ -74,7 +76,7 @@ echo ""
 setfileicon resources/IPlugMultiTargets.icns $AUDIOUNIT
 setfileicon resources/IPlugMultiTargets.icns $VST2
 setfileicon resources/IPlugMultiTargets.icns $VST3
-setfileicon resources/IPlugMultiTargets.icns $RTAS
+setfileicon resources/IPlugMultiTargets.icns "${RTAS}"
 
 #appstore stuff
 
@@ -91,13 +93,6 @@ productbuild \
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
 rm -R -f installer/IPlugMultiTargets-mac.dmg
-
-if [ -d "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm" ] 
-then
-  rm -R "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
-fi
-
-cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugMultiTargets.dpm"
 
 echo "building installer"
 echo ""

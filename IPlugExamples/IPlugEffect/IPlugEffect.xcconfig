@@ -18,7 +18,7 @@ VST3_SDK = $(SRCROOT)/../../VST3_SDK/
 // Which comipler to use
 COMPILER = 4.2 // 4.0 = GCC 4.0, 4.2
 
-// What is the minimum OS to support?
+// which sdk to target
 BASE_SDK = macosx10.5 // macosx10.4, macosx10.5, macosx10.6
 //SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk
 //SDKROOT = /Developer/SDKs/MacOSX10.5.sdk
@@ -42,8 +42,8 @@ GCC_CFLAGS = -Wno-write-strings
 VST_FOLDER = /Library/Audio/Plug-Ins/VST
 VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
 AU_FOLDER = /Library/Audio/Plug-Ins/Components
-RTAS_FOLDER = /Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins
-//RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
+//RTAS_FOLDER = /Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins
+RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
 APP_FOLDER = /Applications
 
 //------------------------------
