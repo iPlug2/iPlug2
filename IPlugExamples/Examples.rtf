@@ -1,133 +1,108 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1138
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier-BoldOblique;\f2\fmodern\fcharset0 Courier;
-\f3\fmodern\fcharset0 Courier-Bold;}
-{\colortbl;\red255\green255\blue255;}
-{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
-{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
-\paperw11900\paperh16840\margl1440\margr1440\vieww23280\viewh20480\viewkind0
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\f0\b\fs24 \cf0 Oli IPlug Examples\
-
-\b0 \
-This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working. Some of the examples are from Tale.\
-\
-Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010.\
-\
-For info about installing xcode 3.2.6 on Lion see here\
-\
-{\field{\*\fldinst{HYPERLINK "http://anatomicwax.tumblr.com/post/8064949186/installing-xcode-3-2-6-on-lion-redux"}}{\fldrslt http://anatomicwax.tumblr.com/post/8064949186/installing-xcode-3-2-6-on-lion-redux}}\
-\
-To build 64 bit binaries on windows, using VS2010 express, you need to have installed the Windows SDK 7.1. Alternatively if you have VS2010 professional, you may need to change the PlatformToolset to "v100" instead of "Windows7.1SDK" in all .vcxproj files, because the projects were made with the express version.\
-\
-The IPlugMultiTargets project is the main starting project, and if you wish to support multiple targets you should start by duplicating this (see below) and then removing the bits you don't need manually.\
-\
-
-\b VST2
-\b0 \
-\
-You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt\
-\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-\ls1\ilvl0
-\b \cf0 VST3\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-\ls1\ilvl0
-\b0 \cf0 \
-\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
-\ls1\ilvl0\cf0 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK\
-	\
-\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
-\ls1\ilvl0
-\b \cf0 RTAS
-\b0 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-\cf0 \
-- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: {\field{\*\fldinst{HYPERLINK "http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html"}}{\fldrslt http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html}}\
-\
-- On windows, the debug builds of the RTAS plugin will not be recognised by ProTools. This is true of the Digidesign examples as well for the PT8 and PT9 sdks, PT7 works however. I have found that enabling debug symbols in the release build was sufficient to allow me to debug my plugins.\
-\
-- By default the Digidesign PluginLibrary.lib static libraries are built to link dynamically to the MSVC libraries\'85 i.e. /MD instead of /MT. You need to change this setting to /MT when you build IPlugMultiTargets, unless you want to link dynamically (see below) in which case you need to change the settings in all the IPlug projects.\
-\
-
-\b AudioUnits
-\b0 \
-\
-- Nothing special\
-\
-
-\b Standalone
-\b0 \
-\
-- To build on windows you need to extract some files into ASIO_SDK, see ASIO_SDK/readme.txt\
-\
-
-\b IOS
-\b0 \
-\
-- Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.x and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\
-- NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new gui using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\
-\
-
-\b Windows Issues\
-\
-
-\b0 Microsoft Visual C++ 2005 SP1 Redistributable Package \
-Microsoft Visual C++ 2010 Redistributable Package\
-\
-\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\b\fs26 \cf0 Duplicating Projects\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\fs24 \cf0 \
-
-\b0 The IPlugExamples folder contains a python script to duplicate an IPlug project. This allows you to very quickly create a new project based on one of the examples. It does a multiple file find and replace to substitute the new name of the project for the old name, and also to change the manufacturer name. Once you have done this you only need to change two more things by hand in resource.h to make your plugin unique.\
-\
-you can duplicate a project as follows with the following commands in the OSX terminal or on the windows command prompt. In this example i will copy the IPlugEffect project to a new project called MyNewPlugin\'85\
-\
-- open terminal or cmd.exe and navigate to the IPlugExamples folder\
-- type \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\f1\i\b \cf0 	duplicate.py [inputprojectname] [outputprojectname] [manufacturername]\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\f0\i0\b0 \cf0 \
-e.g\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\f2 \cf0 	
-\f1\i\b duplicate.py IPlugEffect MyNewPlugin OliLarkin\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\f0\i0\b0 \cf0 \
-you might need to do 
-\f1\i\b ./duplicate.py
-\f0\i0\b0  on OSX\
-\
-- open 
-\f3\b MyNewPlugin/resource.h
-\f0\b0  and change 
-\f3\b PLUG_UNIQUE_ID
-\f0\b0  and 
-\f3\b PLUG_MFR_ID
-\f0\b0 \
-\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
-
-\b\fs26 \cf0 Debugging Setups\
-\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
-
-\b0\fs24 \cf0 To debug plugins in different hosts, I have added common OSX hosts to the "Executables" section in Xcode. This information is store in a .pbxuser file, which is tied to your osx username. There is a shell script setup_debugging.command which will rename all the oli.pbxuser files to yourosxusername.pbxuser.\
-\
-To debug an au using auval, remember to change the auval executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID\
-\
-AU hosts cache information about the plugin I/O channels etc, so I have added a build script that deletes the caches after a build.\
-\
-There is also a validate_audiounit.command shell script which will is a helper that runs auval with your plugins' unique IDs, and optionally performs the leaks test.\
-\
-The windows debug setups use VSThost {\field{\*\fldinst{HYPERLINK "http://www.hermannseib.com/english/vsthost.htm"}}{\fldrslt http://www.hermannseib.com/english/vsthost.htm}} for vst2 debugging, and VST3PluginTestHost for vst3 debugging (in steinberg vst3.5 sdk)\
+{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fswiss\fcharset0 Helvetica;}{\f1\fmodern\fcharset0 Courier-BoldOblique;}{\f2\fmodern\fcharset0 Courier;}{\f3\fmodern\fcharset0 Courier-Bold;}}
+{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\lang2057\b\f0\fs24 Oli IPlug Examples\par
+\b0\par
+This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working. Some of the examples are from Tale.\par
+\par
+Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts. I have to recommend you avoid Xcode 4! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010. You cannot downgrade the VS2010 projects to work with VS2008;\par
+\par
+For info about installing xcode 3.2.6 on Lion see here\par
+\par
+http://anatomicwax.tumblr.com/post/8064949186/installing-xcode-3-2-6-on-lion-redux\par
+\par
+To build 64 bit binaries on windows, using VS2010 express, you need to have installed the Windows SDK 7.1. Alternatively if you have VS2010 professional, you may need to change the PlatformToolset to "v100" instead of "Windows7.1SDK" in all .vcxproj files, because the projects were made with the express version.\par
+\par
+Requirements:\par
+\par
+\b Windows\par
+\par
+\b0 - VS2010 Express c++ & Windows SDK 7.1 or VS2010 Proffesional\par
+- VS2005 Express c++ & Platform SDK or VS2005 Proffesional (for RTAS)\par
+- Python 2.x http://www.python.org/\par
+- Msysgit http://code.google.com/p/msysgit/\par
+- Innosetup http://www.jrsoftware.org/isinfo.php\par
+- 7z ip http://www.7-zip.org/\par
+\par
+\b Mac\par
+\par
+\b0 - Xcode 3.26 including command-line tools (Xcode4 is not working right now and you can't have it alongside, because you can only have one copy of the command-line tools installed)\par
+- Iceberg http://s.sudre.free.fr/Software/Iceberg.html\par
+- git http://code.google.com/p/git-osx-installer/\par
+- setfileicon utility http://maxao.free.fr/telechargements/setfileicon.gz\par
+\par
+\par
+\par
+The IPlugMultiTargets project is the main starting project, and if you wish to support multiple targets you should start by duplicating this (see below) and then removing the bits you don't need manually.\par
+\par
+\b VST2\b0\par
+\par
+You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt\par
+\par
+\b VST3\par
+\b0\par
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK. On Windows there is an extra VS2010 .vcxproj file to compile the steinberg base library for x86 and x64. \par
+VST3_SDK\\base\\win\\base_vc10.vcxproj\par
+\pard\fi-720\li720\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+\b RTAS\b0\par
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
+- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html . If you use the express version, you will also need the Platform SDK http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=3069.\par
+\par
+- On windows, the debug builds of the RTAS plugin will not be recognised by ProTools. This is true of the Digidesign examples as well for the PT8 and PT9 sdks, PT7 works however. I have found that enabling debug symbols in the release build was sufficient to allow me to debug my plugins.\par
+\par
+- By default the Digidesign PluginLibrary.lib static libraries are built to link dynamically to the MSVC libraries\'85 i.e. /MD instead of /MT. You need to change this setting to /MT when you build IPlugMultiTargets, unless you want to link dynamically (see below) in which case you need to change the settings in all the IPlug projects.\par
+\par
+\b AudioUnits\b0\par
+\par
+- Nothing special needs to be done, but when building AUs, bear in mind that some hosts keep a cache... see debugging notes below.\par
+\par
+\b Standalone\b0\par
+\par
+- Audio and Midi is provided via RTAudio and RTMidi by Gary Scavone. To build on windows you need to extract some files into ASIO_SDK, see ASIO_SDK/readme.txt\par
+\par
+\b IOS\b0\par
+\par
+- Make sure you have Xcode 3.2.6 and iOS SDK 4.3 or Xcode 4.x and iOS SDK 4.3, from apple. In order to actually put an app on a device, you need to sign up and pay for an IOS developer membership.\par
+- NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new gui using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to #ifndef OS_ IOS around any code that uses IPlug's graphics facilities.\par
+\par
+\b Windows Issues\par
+\par
+\b0 The template projects all use static linking with the MSVC runtime libraries (/MT). If you change that you will need to provide the MSVC redistributables in your installer, google for:\b\par
+\b0\par
+Microsoft Visual C++ 2005 SP1 Redistributable Package \par
+Microsoft Visual C++ 2010 Redistributable Package\par
+\par
+\par
+\b\fs26 Duplicating Projects\par
+\fs24\par
+\b0 The IPlugExamples folder contains a python script to duplicate an IPlug project. This allows you to very quickly create a new project based on one of the examples. It does a multiple file find and replace to substitute the new name of the project for the old name, and also to change the manufacturer name. Once you have done this you only need to change two more things by hand in resource.h to make your plugin unique.\par
+\par
+You can duplicate a project as follows with the following commands in the OSX terminal or on the windows command prompt. In this example i will copy the IPlugEffect project to a new project called MyNewPlugin\'85\par
+\par
+- open terminal or cmd.exe and navigate to the IPlugExamples folder\par
+- type \par
+\b\i\f1\tab duplicate.py [inputprojectname] [outputprojectname] [manufacturername]\par
+\b0\i0\f0\par
+e.g\par
+\f2\tab\b\i\f1 duplicate.py IPlugEffect MyNewPlugin OliLarkin\par
+\b0\i0\f0\par
+you might need to do \b\i\f1 ./duplicate.py\b0\i0\f0  on OSX\par
+\par
+- open  \b\f3 MyNewPlugin/resource.h\b0\f0  and change \b\f3 PLUG_UNIQUE_ID\b0\f0  and \b\f3 PLUG_MFR_ID\b0\f0\par
+\par
+\b\fs26 Debugging Setups\par
+\par
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\b0\fs24 To debug plugins in different hosts, I have added common OSX hosts to the "Executables" section in Xcode. This information is store in a .pbxuser file, which is tied to your osx username. There is a shell script setup_debugging.command which will rename all the oli.pbxuser files to yourosxusername.pbxuser.\par
+\par
+To debug an au using auval, remember to change the auval executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID\par
+\par
+AU hosts cache information about the plugin I/O channels etc, so I have added a build script that deletes the caches after a build.\par
+\par
+There is also a validate_audiounit.command shell script which will is a helper that runs auval with your plugins' unique IDs, and optionally performs the leaks test.\par
+\par
+The windows debug setups use VSTHost http://www.hermannseib.com/english/vsthost.htm for vst2 debugging, and VST3PluginTestHost for vst3 debugging (in steinberg vst3.5 sdk)\par
+\par
+\b Installers & one-click build scripts\par
+\par
+\b0 The example projects contain shell scripts for both windows and OSX that build everything and package the products in an installer including license, readme and manual. On windows the freeware installer program "Innosetup" is used, on OSX "Iceberg". A python script "update_version.py" is called to look at resource.h and get the version from the PLUG_VER define. It then updates the info.plist files and installer scripts with the version number (in the format major.minor.bugfix). If you aren't building some components, e.g. RTAS, the build scripts may need to be modified.\par
+\par
 }
+ 

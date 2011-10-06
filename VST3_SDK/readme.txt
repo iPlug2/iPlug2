@@ -1,1 +1,1 @@
-extract the VST3.5 SDK here
+extract the VST3.5 SDK here. Make sure you don't delete base\win\base_vc10.vcxproj
