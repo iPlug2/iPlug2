@@ -560,7 +560,7 @@
 								<key>IFPkgFlagAllowBackRev</key>
 								<false/>
 								<key>IFPkgFlagAuthorizationAction</key>
-								<integer>0</integer>
+								<integer>1</integer>
 								<key>IFPkgFlagFollowLinks</key>
 								<false/>
 								<key>IFPkgFlagIsRequired</key>
@@ -1146,7 +1146,7 @@
 								<key>IFPkgFlagAllowBackRev</key>
 								<false/>
 								<key>IFPkgFlagAuthorizationAction</key>
-								<integer>0</integer>
+								<integer>1</integer>
 								<key>IFPkgFlagFollowLinks</key>
 								<false/>
 								<key>IFPkgFlagIsRequired</key>
@@ -1732,7 +1732,7 @@
 								<key>IFPkgFlagAllowBackRev</key>
 								<false/>
 								<key>IFPkgFlagAuthorizationAction</key>
-								<integer>0</integer>
+								<integer>1</integer>
 								<key>IFPkgFlagFollowLinks</key>
 								<false/>
 								<key>IFPkgFlagIsRequired</key>
@@ -2302,7 +2302,7 @@
 								<key>IFPkgFlagAllowBackRev</key>
 								<false/>
 								<key>IFPkgFlagAuthorizationAction</key>
-								<integer>0</integer>
+								<integer>1</integer>
 								<key>IFPkgFlagFollowLinks</key>
 								<false/>
 								<key>IFPkgFlagIsRequired</key>
@@ -2837,7 +2837,7 @@
 								<key>IFPkgFlagAllowBackRev</key>
 								<false/>
 								<key>IFPkgFlagAuthorizationAction</key>
-								<integer>0</integer>
+								<integer>1</integer>
 								<key>IFPkgFlagFollowLinks</key>
 								<false/>
 								<key>IFPkgFlagIsRequired</key>
