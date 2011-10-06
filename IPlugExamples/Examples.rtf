@@ -1,9 +1,11 @@
 {\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fswiss\fcharset0 Helvetica;}{\f1\fmodern\fcharset0 Courier-BoldOblique;}{\f2\fmodern\fcharset0 Courier;}{\f3\fmodern\fcharset0 Courier-Bold;}}
-{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\lang2057\b\f0\fs24 Oli IPlug Examples\par
-\b0\par
-This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working. Some of the examples are from Tale.\par
+{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\lang2057\b\f0\fs24 Oli Larkin IPlug Examples Instructions\par
+\b0 www.olilarkin.co.uk\par
 \par
-Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts. I have to recommend you avoid Xcode 4! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010. You cannot downgrade the VS2010 projects to work with VS2008;\par
+\par
+This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working. Some of the examples are based on work by Theo Nisslink Tale.\par
+\par
+Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts. I have to recommend you avoid Xcode 4 for now! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010. You cannot downgrade the VS2010 projects to work with VS2008;\par
 \par
 For info about installing xcode 3.2.6 on Lion see here\par
 \par
@@ -20,7 +22,7 @@ Requirements:\par
 - Python 2.x http://www.python.org/\par
 - Msysgit http://code.google.com/p/msysgit/\par
 - Innosetup http://www.jrsoftware.org/isinfo.php\par
-- 7z ip http://www.7-zip.org/\par
+- 7zip http://www.7-zip.org/\par
 \par
 \b Mac\par
 \par
@@ -28,7 +30,6 @@ Requirements:\par
 - Iceberg http://s.sudre.free.fr/Software/Iceberg.html\par
 - git http://code.google.com/p/git-osx-installer/\par
 - setfileicon utility http://maxao.free.fr/telechargements/setfileicon.gz\par
-\par
 \par
 \par
 The IPlugMultiTargets project is the main starting project, and if you wish to support multiple targets you should start by duplicating this (see below) and then removing the bits you don't need manually.\par
@@ -39,16 +40,19 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \par
 \b VST3\par
 \b0\par
-\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK. On Windows there is an extra VS2010 .vcxproj file to compile the steinberg base library for x86 and x64. \par
-VST3_SDK\\base\\win\\base_vc10.vcxproj\par
+\pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803 Extract the entire Steinberg VST3.5 SDK to the folder VST3_SDK. On Windows there is an extra VS2010 .vcxproj file to compile the steinberg base library for x86 and x64 using vs2010 - make sure you don't delete it by accident.  \i VST3_SDK\\base\\win\\base_vc10.vcxproj\par
+\i0\par
+- On windows, make sure you have a folder \i "C:\\Program Files\\Common Files\\VST3", \i0 otherwise the copy files build stage will cause the build to fail\par
 \pard\fi-720\li720\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
 \b RTAS\b0\par
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
-- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html . If you use the express version, you will also need the Platform SDK http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=3069.\par
+- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html . If you use the express version, you will also need the Platform SDK http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=3069. It is important to set three paths to Lib, Include and Bin to get VS2005 express to see the platform sdk - google it.\par
 \par
 - On windows, the debug builds of the RTAS plugin will not be recognised by ProTools. This is true of the Digidesign examples as well for the PT8 and PT9 sdks, PT7 works however. I have found that enabling debug symbols in the release build was sufficient to allow me to debug my plugins.\par
 \par
 - By default the Digidesign PluginLibrary.lib static libraries are built to link dynamically to the MSVC libraries\'85 i.e. /MD instead of /MT. You need to change this setting to /MT when you build IPlugMultiTargets, unless you want to link dynamically (see below) in which case you need to change the settings in all the IPlug projects.\par
+\par
+- On windows, make sure you have a folder "C:\\Program Files\\Digidesign\\ProTools_3PDev\\dae\\Plug-Ins", otherwise the copy files build stage will cause the build to fail\par
 \par
 \b AudioUnits\b0\par
 \par
@@ -90,7 +94,7 @@ you might need to do \b\i\f1 ./duplicate.py\b0\i0\f0  on OSX\par
 \par
 \b\fs26 Debugging Setups\par
 \par
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\b0\fs24 To debug plugins in different hosts, I have added common OSX hosts to the "Executables" section in Xcode. This information is store in a .pbxuser file, which is tied to your osx username. There is a shell script setup_debugging.command which will rename all the oli.pbxuser files to yourosxusername.pbxuser.\par
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\b0\fs24 To debug plugins in different hosts, I have added common OSX hosts to the "Executables" section in Xcode3. This information is store in a .pbxuser file, which is tied to your osx username. There is a shell script setup_debugging.command which will rename all the oli.pbxuser files to yourosxusername.pbxuser.\par
 \par
 To debug an au using auval, remember to change the auval executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID\par
 \par
@@ -102,7 +106,7 @@ The windows debug setups use VSTHost http://www.hermannseib.com/english/vsthost.
 \par
 \b Installers & one-click build scripts\par
 \par
-\b0 The example projects contain shell scripts for both windows and OSX that build everything and package the products in an installer including license, readme and manual. On windows the freeware installer program "Innosetup" is used, on OSX "Iceberg". A python script "update_version.py" is called to look at resource.h and get the version from the PLUG_VER define. It then updates the info.plist files and installer scripts with the version number (in the format major.minor.bugfix). If you aren't building some components, e.g. RTAS, the build scripts may need to be modified.\par
+\b0 The example projects contain shell scripts for both windows and OSX that build everything and package the products in an installer including license, readme and manual. On windows the freeware installer program "Innosetup" is used, on OSX "Iceberg". A python script "update_version.py" is called to look at resource.h and get the version from the PLUG_VER define. It then updates the info.plist files and installer scripts with the version number (in the format major.minor.bugfix). If you aren't building some components, e.g. RTAS, the build scripts may need to be modified. Please alter the license and readme text and remove my name from them if you release a plugin publiclly. \par
 \par
 }
  
