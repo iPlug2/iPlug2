@@ -5,7 +5,7 @@
 \par
 This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects of the framework are working. Some of the examples are based on work by Theo Nisslink Tale.\par
 \par
-Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts. I have to recommend you avoid Xcode 4 for now! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010. You cannot downgrade the VS2010 projects to work with VS2008;\par
+Projects are provided for Visual Studio 2010 and Xcode 3. The projects will not work straight away in Xcode4 and it will probably break other stuff such as build scripts. I have to recommend you avoid Xcode 4 for now! Visual Studio 2005 projects are also included and are necessary only for building RTAS because the Avid/Digidesign libraries are built with 2005 and are cannot be linked with 2010. You cannot downgrade the VS2010 projects to work with VS2008.\par
 \par
 For info about installing xcode 3.2.6 on Lion see here\par
 \par
@@ -46,7 +46,7 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \pard\fi-720\li720\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
 \b RTAS\b0\par
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\par
-- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html . If you use the express version, you will also need the Platform SDK http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=3069. It is important to set three paths to Lib, Include and Bin to get VS2005 express to see the platform sdk - google it.\par
+- Sign up to be a registered avid plugin developer. Once you have access to it, Extract PT_90_PlugInSDK.zip into the PT9_SDK folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version here: http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html . If you use the express version, you will also need the Platform SDK http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=3069. It is important to set three paths to Lib, Include and Bin to get VS2005 express to see the platform sdk - http://msdn.microsoft.com/en-us/library/ms235626(v=vs.80).aspx.\par
 \par
 - On windows, the debug builds of the RTAS plugin will not be recognised by ProTools. This is true of the Digidesign examples as well for the PT8 and PT9 sdks, PT7 works however. I have found that enabling debug symbols in the release build was sufficient to allow me to debug my plugins.\par
 \par
