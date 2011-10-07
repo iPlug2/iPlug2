@@ -106,16 +106,16 @@ echo ""
 
 if [ -d installer/IPlugEffect.dmgCanvas ]
 then
-  dmgcanvas installer/IPlugEffect.dmgCanvas installer/IPlugEffect-mac_v$FULL_VERSION.dmg
+  dmgcanvas installer/IPlugEffect.dmgCanvas installer/IPlugEffect-mac.dmg
 else
   hdiutil create installer/IPlugEffect.dmg -srcfolder installer/build-mac/ -ov -anyowners -volname IPlugEffect
   
-  if [ -f installer/IPlugEffect-mac_v$FULL_VERSION.dmg ]
+  if [ -f installer/IPlugEffect-mac.dmg ]
   then
-   rm -f installer/IPlugEffect-mac_v$FULL_VERSION.dmg
+   rm -f installer/IPlugEffect-mac.dmg
   fi
   
-  hdiutil convert installer/IPlugEffect.dmg -format UDZO -o installer/IPlugEffect-mac_v$FULL_VERSION.dmg
+  hdiutil convert installer/IPlugEffect.dmg -format UDZO -o installer/IPlugEffect-mac.dmg
   sudo sudo rm -R -f installer/IPlugEffect.dmg
 fi
 

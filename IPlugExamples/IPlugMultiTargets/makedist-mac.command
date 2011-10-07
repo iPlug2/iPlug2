@@ -105,16 +105,16 @@ echo ""
 
 if [ -d installer/IPlugMultiTargets.dmgCanvas ]
 then
-  dmgcanvas installer/IPlugMultiTargets.dmgCanvas installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg
+  dmgcanvas installer/IPlugMultiTargets.dmgCanvas installer/IPlugMultiTargets-mac.dmg
 else
   hdiutil create installer/IPlugMultiTargets.dmg -srcfolder installer/build-mac/ -ov -anyowners -volname IPlugMultiTargets
   
-  if [ -f installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg ]
+  if [ -f installer/IPlugMultiTargets-mac.dmg ]
   then
-   rm -f installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg
+   rm -f installer/IPlugMultiTargets-mac.dmg
   fi
   
-  hdiutil convert installer/IPlugMultiTargets.dmg -format UDZO -o installer/IPlugMultiTargets-mac_v$FULL_VERSION.dmg
+  hdiutil convert installer/IPlugMultiTargets.dmg -format UDZO -o installer/IPlugMultiTargets-mac.dmg
   rm -R -f installer/IPlugMultiTargets.dmg
 fi
 
