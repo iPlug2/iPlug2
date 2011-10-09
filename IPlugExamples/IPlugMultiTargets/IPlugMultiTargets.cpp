@@ -127,17 +127,17 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
   {
     IMidiMsg msg;
     
-    if (mKey >= 0) 
+    if (mKey >= 0) {
       msg.MakeNoteOffMsg(mKey + 48, 0, 0);
-    
-    mMidiQueue.Add(&msg);
+      mMidiQueue.Add(&msg);
+    }
     
     mKey = pKeyboard->GetKey();
     
-    if (mKey >= 0) 
+    if (mKey >= 0) {
       msg.MakeNoteOnMsg(mKey + 48, pKeyboard->GetVelocity(), 0, 0);
-    
-    mMidiQueue.Add(&msg);
+      mMidiQueue.Add(&msg);
+    }
   }
   
   for (int offset = 0; offset < nFrames; ++offset, ++in1, ++in2, ++out1, ++out2)
