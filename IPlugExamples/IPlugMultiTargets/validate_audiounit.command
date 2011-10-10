@@ -42,7 +42,8 @@ then
 	echo "then leaks PID"
 	
 	export MallocStackLogging=1
-	
+	set env MallocStackLoggingNoCompact=1
+
 	auval -v $TYPE $PUID $PMID -w -q
 	
 	unset MallocStackLogging
