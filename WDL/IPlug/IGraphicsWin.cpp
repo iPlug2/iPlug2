@@ -357,9 +357,13 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 	          case IParam::kTypeInt:
             case IParam::kTypeBool:
 		          if (c >= '0' && c <= '9') break;
+              else if (c == '-') break;
+              else if (c == '+') break;
 		          else return 0;
 	          case IParam::kTypeDouble:
 		          if (c >= '0' && c <= '9') break;
+              else if (c == '-') break;
+              else if (c == '+') break;
 		          else if (c == '.') break;
 		          else return 0;
 	          default:

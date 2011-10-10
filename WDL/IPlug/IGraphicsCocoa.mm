@@ -505,10 +505,10 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
       case IParam::kTypeEnum:
       case IParam::kTypeInt:
       case IParam::kTypeBool:
-        [characterSet addCharactersInString:@"0123456789"];
+        [characterSet addCharactersInString:@"0123456789-+"];
         break;
       case IParam::kTypeDouble:
-        [characterSet addCharactersInString:@"0123456789."];
+        [characterSet addCharactersInString:@"0123456789.-+"];
         break;
       default:
         break;
