@@ -4,6 +4,7 @@
 #include "Hosts.h"
 
 //#include "/Developer/Examples/CoreAudio/PublicUtility/CAStreamBasicDescription.h"
+#include "dfx/dfx-au-utilities.h"
 
 #define kAudioUnitRemovePropertyListenerWithUserDataSelect 0x0012
 
@@ -152,6 +153,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
           return noErr;
         }
       }
+#pragma mark possibly memory leak (auval leaks test)
       PtrListAddFromStack(&(_this->mPropertyListeners), &listener);
       return noErr;
     }
@@ -189,6 +191,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AURenderCallbackStruct acs;
       acs.inputProc = GET_COMP_PARAM(AURenderCallback, 1, 2);
       acs.inputProcRefCon = GET_COMP_PARAM(void*, 0, 2);
+#pragma mark possibly memory leak (auval leaks test)
       PtrListAddFromStack(&(_this->mRenderNotify), &acs);
       return noErr;
     }
@@ -545,10 +548,11 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       *pDataSize = sizeof(CFArrayRef);
       if (pData) {
-        CFMutableArrayRef nameArray = CFArrayCreateMutable(0, n, 0);
+        CFMutableArrayRef nameArray = CFArrayCreateMutable(kCFAllocatorDefault, n, &kCFTypeArrayCallBacks);
         for (int i = 0; i < n; ++i) {
           const char* str = pParam->GetDisplayText(i);
-          CFArrayAppendValue(nameArray, MakeCFString(str)); // Release here?
+          CFStrLocal cfstr = CFStrLocal(str);
+          CFArrayAppendValue(nameArray, cfstr.mCFStr);
         }
         *((CFArrayRef*) pData) = nameArray;
       }
@@ -601,15 +605,26 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     }
     case kAudioUnitProperty_FactoryPresets: {            // 24,   // listenable
       *pDataSize = sizeof(CFArrayRef);
-      if (pData) {
+      if (pData) 
+      {
         int i, n = NPresets();
-        CFMutableArrayRef presetArray = CFArrayCreateMutable(0, n, 0);
-        for (i = 0; i < n; ++i) {
-          AUPreset* pAUPreset = new AUPreset;
-          pAUPreset->presetNumber = i;
-          pAUPreset->presetName = MakeCFString(GetPresetName(i));
-          CFArrayAppendValue(presetArray, pAUPreset);
+        CFMutableArrayRef presetArray = CFArrayCreateMutable(kCFAllocatorDefault, n, &kCFAUPresetArrayCallBacks);
+        
+        if (presetArray == NULL)
+          return coreFoundationUnknownErr;
+        
+        for (i = 0; i < n; ++i) 
+        {
+          CFStrLocal presetName = CFStrLocal(GetPresetName(i));
+          CFAUPresetRef newPreset = CFAUPresetCreate(kCFAllocatorDefault, i, presetName.mCFStr); // todo should i be 0 based?
+          
+          if (newPreset != NULL)
+          {
+            CFArrayAppendValue(presetArray, newPreset);
+            CFAUPresetRelease(newPreset);
+          }
         }
+        
         *((CFMutableArrayRef*) pData) = presetArray;
       }
       return noErr;
