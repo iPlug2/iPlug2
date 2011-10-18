@@ -67,7 +67,10 @@ class IPopupMenu
 public:
 	
   IPopupMenu() : mChosenItemIdx(-1), mPrefix(0) {}
-  ~IPopupMenu() {}
+  ~IPopupMenu() 
+  {
+    mMenuItems.Empty(true);
+  }
 	
 	virtual IPopupMenuItem* AddItem(IPopupMenuItem* item, const int index = -1);
 	//virtual IPopupMenuItem* AddItem(const char* text, int index, IPopupMenu* submenu);
