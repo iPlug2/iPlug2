@@ -165,7 +165,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       for (i = 0; i < n; ++i) {
         PropertyListener* pListener = _this->mPropertyListeners.Get(i);
         if (listener.mPropID == pListener->mPropID && listener.mListenerProc == pListener->mListenerProc) {
-          _this->mPropertyListeners.Delete(i);
+          _this->mPropertyListeners.Delete(i, true);
           break;
         }
       }
@@ -181,7 +181,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
         PropertyListener* pListener = _this->mPropertyListeners.Get(i);
         if (listener.mPropID == pListener->mPropID &&
           listener.mListenerProc == pListener->mListenerProc && listener.mProcArgs == pListener->mProcArgs) {
-          _this->mPropertyListeners.Delete(i);
+          _this->mPropertyListeners.Delete(i, true);
           break;
         }
       }
@@ -203,7 +203,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       for (i = 0; i < n; ++i) {
         AURenderCallbackStruct* pACS = _this->mRenderNotify.Get(i);
         if (acs.inputProc == pACS->inputProc) {
-          _this->mRenderNotify.Delete(i);
+          _this->mRenderNotify.Delete(i, true);
           break;
         }
       }
