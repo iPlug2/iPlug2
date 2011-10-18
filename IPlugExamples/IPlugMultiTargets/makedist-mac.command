@@ -80,15 +80,15 @@ setfileicon resources/IPlugMultiTargets.icns "${RTAS}"
 
 #appstore stuff
 
-echo "code signing app"
-echo ""
-codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
- 
-echo "building pkg for app store"
-productbuild \
-     --component $APP /Applications \
-     --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
-     --product "/Applications/IPlugMultiTargets.app/Contents/Info.plist" installer/IPlugMultiTargets.pkg
+# echo "code signing app"
+# echo ""
+# codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
+#  
+# echo "building pkg for app store"
+# productbuild \
+#      --component $APP /Applications \
+#      --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
+#      --product "/Applications/IPlugMultiTargets.app/Contents/Info.plist" installer/IPlugMultiTargets.pkg
 
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 

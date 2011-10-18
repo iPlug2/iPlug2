@@ -81,15 +81,15 @@ setfileicon resources/IPlugEffect.icns "${RTAS}"
 
 #appstore stuff
 
-echo "code signing app"
-echo ""
-codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
- 
-echo "building pkg for app store"
-productbuild \
-     --component $APP /Applications \
-     --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
-     --product "/Applications/IPlugEffect.app/Contents/Info.plist" installer/IPlugEffect.pkg
+# echo "code signing app"
+# echo ""
+# codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
+#  
+# echo "building pkg for app store"
+# productbuild \
+#      --component $APP /Applications \
+#      --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
+#      --product "/Applications/IPlugEffect.app/Contents/Info.plist" installer/IPlugEffect.pkg
 
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
