@@ -32,7 +32,7 @@ from os.path import join
 #tabs = 0
 #newsubfolder = False
 
-VERSION = "0.7.1"
+VERSION = "0.7.2"
 
 def checkdirname(name, searchproject):
 	"check if directory name matches with the given pattern"
@@ -90,6 +90,10 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
 						yield x
 			elif (f ==  "installer"):
 					print 'recursing in installer directory: '
+					for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+						yield x
+			elif (f ==  "manual"):
+					print 'recursing in manual directory: '
 					for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
 						yield x
 			elif (f ==  "English.lproj"):
@@ -168,7 +172,7 @@ def main():
 		#	rmtree(output)
 				
 		print "copying " + input + " folder to " + output
-		copytree(input, output, ignore=ignore_patterns('*.svn', '*.ncb', '*.suo', '*.sdf', 'build-*', '*.layout', '*.depend', '.DS_Store' ))
+		copytree(input, output, ignore=ignore_patterns('*.exe', '*.dmg', '*.pkg', '*.mpkg', '*.svn', '*.ncb', '*.suo', '*.sdf', 'build-*', '*.layout', '*.depend', '.DS_Store' ))
 		cpath = os.path.join(os.getcwd(), output)
 
 		#replace DEFAULT_MFR name strings
