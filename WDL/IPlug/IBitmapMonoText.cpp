@@ -80,3 +80,20 @@ void DrawBitmapedText(IGraphics* pGraphics,
     }
   }
 }
+
+void IBitmapTextControl::SetTextFromPlug(char* str)
+{
+	if (strcmp(mStr.Get(), str)) {
+		SetDirty(false);
+		mStr.Set(str);
+	}
+}
+
+bool IBitmapTextControl::Draw(IGraphics* pGraphics)
+{
+  char* cStr = mStr.Get();
+	if (CSTR_NOT_EMPTY(cStr)) {
+    DrawBitmapedText(pGraphics, &mTextBitmap, &mRECT, &mText, &mBlend, cStr, true, false, mCharWidth, mCharHeight);
+  }
+  return true;
+}
