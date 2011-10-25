@@ -1092,7 +1092,7 @@ bool IPlugBase::LoadProgramFromFXP()
         if (chunkMagic != 'CcnK') return false;
         if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
         if (pluginID != GetUniqueID()) return false;
-        if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+        //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
         if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
         if (DoesStateChunks()) 
@@ -1201,7 +1201,7 @@ bool IPlugBase:: LoadBankFromFXB()
         if (chunkMagic != 'CcnK') return false;
         if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
         if (pluginID != GetUniqueID()) return false;
-        if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+        //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
         //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
         
         if (DoesStateChunks()) 
