@@ -162,6 +162,27 @@ struct IRECT
 		return (!Empty() && x >= L && x < R && y >= T && y < B);
 	}
   
+  inline void Constrain(int* x, int* y) 
+  {
+    if (*x < L) 
+    {
+      *x = L;
+    }
+    else if (*x > R) 
+    {
+      *x = R;
+    }
+    
+    if (*y < T) 
+    {
+      *y = T;
+    }
+    else if (*y > B) 
+    {
+      *y = B;
+    }
+	}
+  
   inline IRECT SubRectVertical(int numSlices, int sliceIdx) 
   {
     int heightOfSubRect = (H() / numSlices);
