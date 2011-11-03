@@ -9,7 +9,7 @@
 #include "CEffectTypeAS.h"
 #include "CEffectTypeRTAS.h"
 #include "IPlugProcessRTAS.h"
-#include "IPlugProcessAS.h"
+//#include "IPlugProcessAS.h"
 #include "Resource.h"
 
 #ifndef PLUG_SC_CHANS
@@ -24,10 +24,10 @@ static CEffectProcess* NewProcessRTAS()
   return new IPlugProcessRTAS(plugid);
 }
 
-static CEffectProcess* NewProcessAS()
-{
-  return new IPlugProcessAS(plugid + 100);
-}
+//static CEffectProcess* NewProcessAS()
+//{
+//  return new IPlugProcessAS(plugid + 100);
+//}
 
 //static CEffectProcess* NewProcessRTASMono() 
 //{
