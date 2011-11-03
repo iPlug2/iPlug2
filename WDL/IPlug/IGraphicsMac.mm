@@ -192,7 +192,7 @@ void IGraphicsMac::AttachSubWindow (void* hostWindowRef)
   
   [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
   [hostWindow orderFront: nil];
-  [childWindow orderFront: nil];  
+  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.5];
   
   mHostNSWindow = (void*) hostWindow;
 }
