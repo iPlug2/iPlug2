@@ -327,6 +327,24 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
 
 //#pragma REMINDER("lock mutex before calling into any IPlugBase processing functions")
 
+void IPlugBase::PassThroughBuffers(double sampleType, int nFrames) 
+{
+  IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+}
+
+void IPlugBase::PassThroughBuffers(float sampleType, int nFrames) 
+{
+  IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  int i, n = NOutChannels();
+  OutChannel** ppOutChannel = mOutChannels.GetList();
+  for (i = 0; i < n; ++i, ++ppOutChannel) {
+    OutChannel* pOutChannel = *ppOutChannel;
+    if (pOutChannel->mConnected) {
+      CastCopy(pOutChannel->mFDest, *(pOutChannel->mDest), nFrames);
+    }
+  }
+}
+
 void IPlugBase::ProcessBuffers(double sampleType, int nFrames) 
 {
   ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);

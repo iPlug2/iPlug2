@@ -195,6 +195,8 @@ protected:
   void AttachInputBuffers(int idx, int n, float** ppData, int nFrames);
   void AttachOutputBuffers(int idx, int n, double** ppData);
   void AttachOutputBuffers(int idx, int n, float** ppData);
+  void PassThroughBuffers(float sampleType, int nFrames);
+  void PassThroughBuffers(double sampleType, int nFrames);
   void ProcessBuffers(float sampleType, int nFrames);
   void ProcessBuffers(double sampleType, int nFrames);
   void ProcessBuffersAccumulating(float sampleType, int nFrames); 
