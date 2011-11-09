@@ -79,14 +79,13 @@ LICE_IBitmap *LICE_LoadPNG(const char *filename, LICE_IBitmap *bmp)
   if (bit_depth < 8)
     png_set_packing(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY)
-    png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
-
   if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_gray_to_rgb(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+  if (color_type & PNG_COLOR_MASK_ALPHA)
     png_set_swap_alpha(png_ptr);
+  else
+    png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
 
   //get the bits
   if (bmp)
@@ -248,14 +247,13 @@ LICE_IBitmap *LICE_LoadPNGFromMemory(const void *data_in, int buflen, LICE_IBitm
   if (bit_depth < 8)
     png_set_packing(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY)
-    png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
-
   if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_gray_to_rgb(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+  if (color_type & PNG_COLOR_MASK_ALPHA)
     png_set_swap_alpha(png_ptr);
+  else
+    png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
 
   //get the bits
   if (bmp)
@@ -282,21 +280,18 @@ LICE_IBitmap *LICE_LoadPNGFromMemory(const void *data_in, int buflen, LICE_IBitm
   png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
   //put shit in correct order
-  if (color_type != PNG_COLOR_TYPE_PALETTE)
+  for(i=0;i<height;i++)
   {
-    for(i=0;i<height;i++)
+    unsigned char *bmpptr = row_pointers[i];
+    int j=width;
+    while (j-->0)
     {
-      unsigned char *bmpptr = row_pointers[i];
-      int j=width;
-      while (j-->0)
-      {
-        unsigned char a = bmpptr[0];
-        unsigned char r = bmpptr[1];
-        unsigned char g = bmpptr[2];
-        unsigned char b = bmpptr[3];
-        ((LICE_pixel*)bmpptr)[0] = LICE_RGBA(r,g,b,a);
-        bmpptr+=4;
-      }
+      unsigned char a = bmpptr[0];
+      unsigned char r = bmpptr[1];
+      unsigned char g = bmpptr[2];
+      unsigned char b = bmpptr[3];
+      ((LICE_pixel*)bmpptr)[0] = LICE_RGBA(r,g,b,a);
+      bmpptr+=4;
     }
   }
   free(row_pointers);
