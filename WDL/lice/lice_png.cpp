@@ -119,6 +119,7 @@ LICE_IBitmap *LICE_LoadPNG(const char *filename, LICE_IBitmap *bmp)
   fclose(fp);
 
   //put shit in correct order
+  #if !(LICE_PIXEL_A == 0 && LICE_PIXEL_R == 1 && LICE_PIXEL_G == 2 && LICE_PIXEL_B == 3)
   for(i=0;i<height;i++)
   {
     unsigned char *bmpptr = row_pointers[i];
@@ -133,6 +134,7 @@ LICE_IBitmap *LICE_LoadPNG(const char *filename, LICE_IBitmap *bmp)
       bmpptr+=4;
     }
   }
+  #endif
   free(row_pointers);
   
   return bmp;
@@ -280,6 +282,7 @@ LICE_IBitmap *LICE_LoadPNGFromMemory(const void *data_in, int buflen, LICE_IBitm
   png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
   //put shit in correct order
+  #if !(LICE_PIXEL_A == 0 && LICE_PIXEL_R == 1 && LICE_PIXEL_G == 2 && LICE_PIXEL_B == 3)
   for(i=0;i<height;i++)
   {
     unsigned char *bmpptr = row_pointers[i];
@@ -294,6 +297,7 @@ LICE_IBitmap *LICE_LoadPNGFromMemory(const void *data_in, int buflen, LICE_IBitm
       bmpptr+=4;
     }
   }
+  #endif
   free(row_pointers);
   return bmp;  
 }
