@@ -5,7 +5,7 @@
   #define OS_WIN
 #elif defined __APPLE__
   #include "TargetConditionals.h"
-  #ifdef TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+  #if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
     #define OS_IOS
   #elif TARGET_OS_MAC
     #define OS_OSX
