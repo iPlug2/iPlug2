@@ -8,15 +8,24 @@ ALL - submenus
 ALL - resize graphics
 ALL - drag & drop area
 ALL - OS tooltips?
+ALL - make consistent code style
+ALL - make side chain/multi-channel definitions consistent/easier
+
+Examples:
+
+- fix IPlugDistortion standalone app (besselfilter.h problem)
+- IPlugPolySynth, IPlugSideChain, IPlugMultiChannel
 
 AU wrapper:
 
 - mono output busess, i.e. for a drumsynth
 - preset changing in logic?
+- fix bypassing, so it copies input to output
 
 VST3 wrapper:
 
 - midi output
+- pitch bend parameters
 - sidechain
 - presets list?
 
@@ -31,11 +40,10 @@ RTAS wrapper:
 - presets list
 - close session frozen buffer (only happens when debugging?)
 - SendMidiMsg/s
-- resize graphics
 
 Standalone wrapper:
 
-- some keys not received by windows stanalone...arrow keys for example DLGC_WANTARROWS
+- some keys not received by windows standalone...arrow keys for example DLGC_WANTARROWS
 - how to change audio devices without hanging the main loop?
 - change ASIO device fails
 - crash with midi on x64??
@@ -54,3 +62,5 @@ Standalone wrapper:
 - improve MIDI output timing (portmidi instead of RTMidi?)
 
 IOS wrapper:
+
+- make it work better on device
