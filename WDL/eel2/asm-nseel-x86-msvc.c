@@ -582,8 +582,7 @@ __declspec(naked) void nseel_asm_assign(void)
     mov rcx, rdx;
     shr rdx, 32;
     and edx, 0x7FF00000;
-    cmp edx, 0x3c900000;
-    jl label_0;
+    jz label_0;
     cmp edx, 0x7FF00000;
     je label_0;
     jmp label_1;
@@ -614,8 +613,7 @@ _emit 0x90;
     mov edx, dword ptr [eax+4];
     mov ecx, dword ptr [eax];
     and edx, 0x7ff00000;
-    cmp edx, 0x3c900000;
-    jl label_2;   // if smaller than about 2^-53, then zero
+    jz label_2;   // if exponent=zero, zero
     cmp edx, 0x7ff00000;
     je label_2; // if exponent=all 1s, zero
     mov edx, dword ptr [eax+4]; // reread
@@ -898,6 +896,73 @@ _emit 0x90;
   }
 }
 __declspec(naked) void nseel_asm_mod_end(void) {}
+
+__declspec(naked) void nseel_asm_shl(void)
+{
+  __asm {
+    fld EEL_ASM_TYPE [edi];
+    fld EEL_ASM_TYPE [eax];
+    fistp dword ptr [esi];
+    fistp dword ptr [esi+4];
+    push ecx;
+    mov ecx, dword ptr [esi];
+    mov eax, dword ptr [esi+4];
+    shl eax, cl;
+    mov dword ptr [esi], eax;
+    pop ecx;
+    fild dword ptr [esi];
+    mov eax, esi;
+    fstp EEL_ASM_TYPE [esi];
+    add esi, EEL_F_SIZE;
+_emit 0x89;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+  }
+}
+__declspec(naked) void nseel_asm_shl_end(void) {}
+
+__declspec(naked) void nseel_asm_shr(void)
+{
+  __asm {
+    fld EEL_ASM_TYPE [edi];
+    fld EEL_ASM_TYPE [eax];
+    fistp dword ptr [esi];
+    fistp dword ptr [esi+4];
+    push ecx;
+    mov ecx, dword ptr [esi];
+    mov eax, dword ptr [esi+4];
+    sar eax, cl;
+    mov dword ptr [esi], eax;
+    pop ecx;
+    fild dword ptr [esi];
+    mov eax, esi;
+    fstp EEL_ASM_TYPE [esi];
+    add esi, EEL_F_SIZE;
+_emit 0x89;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+_emit 0x90;
+  }
+}
+__declspec(naked) void nseel_asm_shr_end(void) {}
+
 
 __declspec(naked) void nseel_asm_mod_op(void)
 {

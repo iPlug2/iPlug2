@@ -248,11 +248,22 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
 
 @end
 
+@implementation SWELL_ListViewCell
+-(NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
+{
+  if ([controlView isKindOfClass:[SWELL_ListView class]] && ((SWELL_ListView *)controlView)->m_selColors) return nil;
+  if ([controlView isKindOfClass:[SWELL_TreeView class]] && ((SWELL_TreeView *)controlView)->m_selColors) return nil;
+  return [super highlightColorWithFrame:cellFrame inView:controlView];
+}
+@end
+
 @implementation SWELL_StatusCell
 -(id)initNewCell
 {
-  self=[super initTextCell:@""];
-  status=0;
+  if ((self=[super initTextCell:@""]))
+  {
+    status=0;
+  }
   return self;
 }
 -(void)setStatusImage:(NSImage *)img
@@ -271,25 +282,36 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
   cellFrame.size.width -= cellFrame.size.height + 2.0;
   [super drawWithFrame:cellFrame inView:controlView];
 }
+
+-(NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
+{
+  if ([controlView isKindOfClass:[SWELL_ListView class]] && ((SWELL_ListView *)controlView)->m_selColors) return nil;
+  return [super highlightColorWithFrame:cellFrame inView:controlView];
+}
+
 @end
-
-
 
 @implementation SWELL_TreeView
 STANDARD_CONTROL_NEEDSDISPLAY_IMPL
 
 -(id) init
 {
-  id ret=[super init];
-  m_fakerightmouse=false;
-  m_items=new WDL_PtrList<HTREEITEM__>;
-  return ret;
+  if ((self = [super init]))
+  {
+    m_fakerightmouse=false;
+    m_items=new WDL_PtrList<HTREEITEM__>;
+    m_fgColor=0;
+    m_selColors=0;
+  }
+  return self;
 }
 -(void) dealloc
 {
   if (m_items) m_items->Empty(true);
   delete m_items;
   m_items=0;
+  [m_fgColor release];
+  [m_selColors release];
   [super dealloc];
 }
 
@@ -393,6 +415,35 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
   m_fakerightmouse=0;
 }
 
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect
+{
+  if (m_selColors)
+  {
+    int a = GetFocus() == (HWND)self ? 0 : 2;
+    if ([m_selColors count] >= a)
+    {
+      NSColor *c=[m_selColors objectAtIndex:a];
+      if (c)
+      {
+        // calculate rect of selected items, combine with theClipRect, and fill these areas with our background (phew!)
+
+        int x = [self selectedRow];
+        if (x>=0)
+        {
+          NSRect r = [self rectOfRow:x];
+          r = NSIntersectionRect(r,theClipRect);
+          if (r.size.height>0 && r.size.width>0)
+          {
+            [c setFill];      
+            NSRectFill(r);
+          }
+        }
+        return ;
+      }
+    }
+  }
+  return [super highlightSelectionInClipRect:theClipRect];
+}
 
 
 
@@ -420,20 +471,24 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
 
 -(id) init
 {
-  id ret=[super init];
-  ownermode_cnt=0;
-  m_status_imagelist_type=-1;
-  m_status_imagelist=0;
-  m_leftmousemovecnt=0;
-  m_fakerightmouse=false;
-  m_lbMode=0;
-  m_fastClickMask=0;
-  m_start_item=-1;
-  m_start_subitem=-1;
-  m_start_item_clickmode=0; // 0=clicked item, 1=clicked image, &2=sent drag message, &4=quickclick mode
-  m_cols = new WDL_PtrList<NSTableColumn>;
-  m_items=new WDL_PtrList<SWELL_ListView_Row>;
-  return ret;
+  if ((self = [super init]))
+  {
+    m_selColors=0;
+    m_fgColor = 0;
+    ownermode_cnt=0;
+    m_status_imagelist_type=-1;
+    m_status_imagelist=0;
+    m_leftmousemovecnt=0;
+    m_fakerightmouse=false;
+    m_lbMode=0;
+    m_fastClickMask=0;
+    m_start_item=-1;
+    m_start_subitem=-1;
+    m_start_item_clickmode=0; // 0=clicked item, 1=clicked image, &2=sent drag message, &4=quickclick mode
+    m_cols = new WDL_PtrList<NSTableColumn>;
+    m_items=new WDL_PtrList<SWELL_ListView_Row>;
+  }
+  return self;
 }
 -(void) dealloc
 {
@@ -442,14 +497,91 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
   delete m_cols;
   m_cols=0;
   m_items=0;
+  [m_fgColor release];
+  [m_selColors release];
   [super dealloc];
 }
+
+-(int)getColumnPos:(int)idx // get current position of column that was originally at idx
+{
+  int pos=idx;
+  if (m_cols)
+  {
+    NSTableColumn* col=m_cols->Get(idx);
+    if (col)
+    {
+      NSArray* arr=[self tableColumns];
+      if (arr)
+      {
+        pos=[arr indexOfObject:col];
+      }
+    }
+  }
+  return pos;
+}
+
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect
+{
+  if (m_selColors)
+  {
+    int a = GetFocus() == (HWND)self ? 0 : 2;
+    if ([m_selColors count] >= a)
+    {
+      NSColor *c=[m_selColors objectAtIndex:a];
+      if (c)
+      {
+        // calculate rect of selected items, combine with theClipRect, and fill these areas with our background (phew!)
+        bool needfillset=true;
+        int x = [self rowAtPoint:NSMakePoint(0,theClipRect.origin.y)];
+        if (x<0)x=0;
+        int n = [self numberOfRows];
+        for (;x <n;x++)
+        {
+          NSRect r = [self rectOfRow:x];
+          if (r.origin.y >= theClipRect.origin.y + theClipRect.size.height) break;
+          
+          if ([self isRowSelected:x])
+          {
+            r = NSIntersectionRect(r,theClipRect);
+            if (r.size.height>0 && r.size.width>0)
+            {
+              if (needfillset) { needfillset=false; [c setFill]; }
+              NSRectFill(r);
+            }
+          }
+        }
+        return ;
+      }
+    }
+  }
+  return [super highlightSelectionInClipRect:theClipRect];
+}
+-(int)getColumnIdx:(int)pos // get original index of column that is currently at position
+{
+  int idx=pos;
+  NSArray* arr=[self tableColumns];
+  if (arr && pos>=0 && pos < [arr count])
+  {
+    NSTableColumn* col=[arr objectAtIndex:pos];
+    if (col && m_cols)
+    {
+      idx=m_cols->Find(col);
+    }
+  }
+  return idx;
+}
+
+-(int)columnAtPoint:(NSPoint)pt
+{
+  int pos=[super columnAtPoint:pt];
+  return [self getColumnIdx:pos];
+}
+
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
   return (!m_lbMode && (style & LVS_OWNERDATA)) ? ownermode_cnt : (m_items ? m_items->GetSize():0);
 }
-
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
@@ -470,6 +602,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
     nm.item.iSubItem=m_cols->Find(aTableColumn);
     nm.item.pszText=buf;
     nm.item.cchTextMax=sizeof(buf)-1;
+    buf[0]=0;
     SendMessage(tgt,WM_NOTIFY,[self tag],(LPARAM)&nm);
     
     if (m_status_imagelist_type == LVSIL_STATE) image_idx=(nm.item.state>>16)&0xff;
@@ -529,6 +662,9 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
     pt=[self convertPoint:pt fromView:nil];
     m_start_item=[self rowAtPoint:pt];
     m_start_subitem=[self columnAtPoint:pt];
+    
+    
+    
     m_start_item_clickmode=0;
     if (m_start_item >=0 && (m_fastClickMask&(1<<m_start_subitem)))
     {
@@ -613,8 +749,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
     int col = [self columnAtPoint:pt];
     NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_CLICK}, [self rowAtPoint:pt], col, 0, 0, 0, {pt.x, pt.y}, };
     SWELL_ListView_Row *row=m_items->Get(nmlv.iItem);
-    if (row)
-      nmlv.lParam = row->m_param;
+    if (row) nmlv.lParam = row->m_param;
     SendMessage((HWND)[self target],WM_NOTIFY,[self tag],(LPARAM)&nmlv);
   }  
 }
@@ -741,6 +876,11 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
 -(void)setSwellNotificationMode:(int)lbMode
 {
   m_lbMode=lbMode;
+}
+
+-(void)onSwellCommand:(int)cmd
+{
+  // ignore commands
 }
 
 @end
@@ -1122,11 +1262,13 @@ static bool IsWindowImpl(NSView *ch, NSView *par)
   if (!par) return false;
   NSArray *ar = [par subviews];
   if (!ar) return false;
+  [ar retain];
   int x,n=[ar count];
   for (x=0;x<n;x++)
     if ([ar objectAtIndex:x] == ch) return true;
   for (x=0;x<n;x++)
     if (IsWindowImpl(ch,[ar objectAtIndex:x])) return true;
+  [ar release];
   return false;
 }
 bool IsWindow(HWND hwnd)
@@ -1134,6 +1276,7 @@ bool IsWindow(HWND hwnd)
   if (!hwnd) return false;
   // this is very costly, but required
   NSArray *ch=[NSApp windows];
+  [ch retain];
   int x,n=[ch count];
   for(x=0;x<n; x ++)
   {
@@ -1142,6 +1285,7 @@ bool IsWindow(HWND hwnd)
   }
   for(x=0;x<n; x ++)
     if (IsWindowImpl((NSView*)hwnd,[[ch objectAtIndex:x] contentView])) return true;
+  [ch release];
   return false;
 }
 
@@ -3017,6 +3161,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
   else if (!stricmp(classname, "SysListView32")||!stricmp(classname, "SysListView32_LB"))
   {
     SWELL_ListView *obj = [[SWELL_ListView alloc] init];
+    [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setDataSource:obj];
     obj->style=style;
 
@@ -3087,6 +3232,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
   else if (!stricmp(classname, "SysTreeView32"))
   {
     SWELL_TreeView *obj = [[SWELL_TreeView alloc] init];
+    [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setDataSource:obj];
     obj->style=style;
     id target=ACTIONTARGET;
@@ -3117,6 +3263,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
 
     {
       NSTableColumn *col=[[NSTableColumn alloc] init];
+      [col setDataCell:[[[SWELL_ListViewCell alloc] initTextCell:@""] autorelease]];
       [col setWidth:(int)ceil(max(tr.size.width,300.0))];
       [col setEditable:NO];
       [[col dataCell] setWraps:NO];     
@@ -3286,6 +3433,7 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
   else
   {
     SWELL_ComboBox *obj=[[SWELL_ComboBox alloc] init];
+    [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setFont:[NSFont systemFontOfSize:10.0f]];
     [obj setEditable:(flags & 0x3) == CBS_DROPDOWNLIST?NO:YES];
     [obj setSwellStyle:flags];
@@ -3425,10 +3573,20 @@ void ListView_SetExtendedListViewStyleEx(HWND h, int mask, int style)
   if (mask&LVS_EX_GRIDLINES)
   {
     int s=0;
-    if (style&LVS_EX_GRIDLINES) s=NSTableViewSolidVerticalGridLineMask|NSTableViewSolidHorizontalGridLineMask;
+    if (style&LVS_EX_GRIDLINES) 
+    {
+      s=NSTableViewSolidVerticalGridLineMask|NSTableViewSolidHorizontalGridLineMask;
+    }
     [tv setGridStyleMask:s];
   }
-  // todo LVS_EX_FULLROWSELECT
+  
+  if (mask&LVS_EX_HEADERDRAGDROP)
+  {
+    [tv setAllowsColumnReordering:!!(style&LVS_EX_HEADERDRAGDROP)];
+  }
+  
+  
+  // todo LVS_EX_FULLROWSELECT (enabled by default on OSX)
 }
 
 void SWELL_SetListViewFastClickMask(HWND hList, int mask)
@@ -3504,9 +3662,13 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   }
   else
   {  
-    [[col dataCell] setWraps:NO];
-    if (lvc->fmt == LVCFMT_CENTER) [[col dataCell] setAlignment:NSCenterTextAlignment];
-    else if (lvc->fmt == LVCFMT_RIGHT) [[col dataCell] setAlignment:NSRightTextAlignment];
+    SWELL_ListViewCell *cell = [[SWELL_ListViewCell alloc] initTextCell:@""];
+    [col setDataCell:cell];
+    [cell setWraps:NO];
+   
+    if (lvc->fmt == LVCFMT_CENTER) [cell setAlignment:NSCenterTextAlignment];
+    else if (lvc->fmt == LVCFMT_RIGHT) [cell setAlignment:NSRightTextAlignment];
+    [cell release];
   }
 
   [v addTableColumn:col];
@@ -3934,6 +4096,38 @@ void ListView_SetColumnWidth(HWND h, int colpos, int wid)
 {
 }
 
+BOOL ListView_GetColumnOrderArray(HWND h, int cnt, int* arr)
+{
+  if (!h || ![(id)h isKindOfClass:[SWELL_ListView class]]) return FALSE;
+  SWELL_ListView* lv=(SWELL_ListView*)h;
+  if (!lv->m_cols || lv->m_cols->GetSize() != cnt) return FALSE;
+  
+  int i;
+  for (i=0; i < cnt; ++i)
+  {
+    arr[i]=[lv getColumnPos:i];
+  }
+
+  return TRUE;
+}
+
+BOOL ListView_SetColumnOrderArray(HWND h, int cnt, int* arr)
+{
+  if (!h || ![(id)h isKindOfClass:[SWELL_ListView class]]) return FALSE;
+  SWELL_ListView* lv=(SWELL_ListView*)h;
+  if (!lv->m_cols || lv->m_cols->GetSize() != cnt) return FALSE;
+  
+  int i;
+  for (i=0; i < cnt; ++i)
+  {
+    int pos=[lv getColumnPos:i];
+    int dest=arr[i];
+    [lv moveColumn:pos toColumn:dest];
+  }
+
+  return TRUE;
+}
+
 int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
 {
   if (!h) return -1;
@@ -4024,6 +4218,7 @@ static bool ListViewGetRectImpl(HWND h, int item, int subitem, RECT* r) // subit
   SWELL_ListView *tv=(SWELL_ListView*)h;
   
   if (subitem >= 0 && (!tv->m_cols || subitem >= tv->m_cols->GetSize())) return false;
+  subitem=[tv getColumnPos:subitem];
   
   NSRect ar;
   if (subitem < 0) ar = [tv rectOfRow:item];
@@ -4046,6 +4241,18 @@ bool ListView_GetSubItemRect(HWND h, int item, int subitem, int code, RECT *r)
 bool ListView_GetItemRect(HWND h, int item, RECT *r, int code)
 {
   return ListViewGetRectImpl(h, item, -1, r);
+}
+
+int ListView_GetTopIndex(HWND h)
+{
+  NSTableView* tv = (NSTableView*)h;
+  if (!tv) return -1;
+  NSScrollView* sv = [tv enclosingScrollView];
+  if (!sv) return -1;  
+  
+  NSRect tvr = [sv documentVisibleRect];
+  NSPoint pt = { tvr.origin.x, tvr.origin.y };  
+  return [tv rowAtPoint:pt];      
 }
 
 bool ListView_Scroll(HWND h, int xscroll, int yscroll)
@@ -4189,14 +4396,18 @@ void ListView_SortItems(HWND hwnd, PFNLVCOMPARE compf, LPARAM parm)
 HWND WindowFromPoint(POINT p)
 {
   NSArray *windows=[NSApp orderedWindows];
-  if (!windows) return 0;
-  
-  NSWindow *bestwnd=0;
   int x;
-  for (x = 0; x < [windows count]; x ++)
+  int cnt=windows ? [windows count] : 0;
+
+  NSWindow *kw = [NSApp keyWindow];
+  if (kw && windows && [windows containsObject:kw]) kw=NULL;
+
+  NSWindow *bestwnd=0;
+  for (x = kw ? -1 : 0; x < cnt; x ++)
   {
-    NSWindow *wnd=[windows objectAtIndex:x];
-    if (wnd)
+    NSWindow *wnd = kw;
+    if (x>=0) wnd=[windows objectAtIndex:x];
+    if (wnd && [wnd isVisible])
     {
       NSRect fr=[wnd frame];
       if (p.x >= fr.origin.x && p.x < fr.origin.x + fr.size.width &&
@@ -4213,7 +4424,7 @@ HWND WindowFromPoint(POINT p)
   NSPoint lpt=[bestwnd convertScreenToBase:pt];
   NSView *v=[[bestwnd contentView] hitTest:lpt];
   if (v) return (HWND)v;
-  return (HWND)[bestwnd contentView]; // todo: implement
+  return (HWND)[bestwnd contentView]; 
 }
 
 void UpdateWindow(HWND hwnd)
@@ -5102,6 +5313,89 @@ HTREEITEM TreeView_GetNextSibling(HWND hwnd, HTREEITEM item)
     }    
   }
   return 0;
+}
+
+void TreeView_SetBkColor(HWND hwnd, int color)
+{
+  if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_TreeView class]]) return;
+  [(NSOutlineView*)hwnd setBackgroundColor:[NSColor colorWithCalibratedRed:GetRValue(color)/255.0f 
+              green:GetGValue(color)/255.0f 
+              blue:GetBValue(color)/255.0f alpha:1.0f]];
+}
+void TreeView_SetTextColor(HWND hwnd, int color)
+{
+  if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_TreeView class]]) return;
+
+  SWELL_TreeView *f = (SWELL_TreeView *)hwnd;
+  [f->m_fgColor release];
+  f->m_fgColor = [NSColor colorWithCalibratedRed:GetRValue(color)/255.0f 
+              green:GetGValue(color)/255.0f 
+              blue:GetBValue(color)/255.0f alpha:1.0f];
+  [f->m_fgColor retain];
+}
+void ListView_SetBkColor(HWND hwnd, int color)
+{
+  if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_ListView class]]) return;
+  [(NSTableView*)hwnd setBackgroundColor:[NSColor colorWithCalibratedRed:GetRValue(color)/255.0f 
+              green:GetGValue(color)/255.0f 
+              blue:GetBValue(color)/255.0f alpha:1.0f]];
+}
+
+void ListView_SetSelColors(HWND hwnd, int *colors, int ncolors) // this works for SWELL_ListView as well as SWELL_TreeView
+{
+  if (!hwnd) return;
+  NSMutableArray *ar=[[NSMutableArray alloc] initWithCapacity:ncolors];
+  if (ncolors>0 && colors)
+  {   
+    ar = [[NSMutableArray alloc] initWithCapacity:ncolors];
+    while (ncolors-->0)
+    {
+      int color = *colors++;
+      [ar addObject:[NSColor colorWithCalibratedRed:GetRValue(color)/255.0f 
+                                              green:GetGValue(color)/255.0f 
+                                               blue:GetBValue(color)/255.0f alpha:1.0f]]; 
+    }
+  }
+
+  if ([(id)hwnd isKindOfClass:[SWELL_ListView class]]) 
+  {
+    SWELL_ListView *lv = (SWELL_ListView*)hwnd;
+    [lv->m_selColors release];
+    lv->m_selColors=ar;
+  }
+  else if ([(id)hwnd isKindOfClass:[SWELL_TreeView class]]) 
+  {
+    SWELL_TreeView *lv = (SWELL_TreeView*)hwnd;
+    [lv->m_selColors release];
+    lv->m_selColors=ar;
+  }
+  else 
+  {
+    [ar release];
+  }
+}
+void ListView_SetGridColor(HWND hwnd, int color)
+{
+  if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_ListView class]]) return;
+  [(NSTableView*)hwnd setGridColor:[NSColor colorWithCalibratedRed:GetRValue(color)/255.0f 
+              green:GetGValue(color)/255.0f 
+              blue:GetBValue(color)/255.0f alpha:1.0f]];
+}
+void ListView_SetTextBkColor(HWND hwnd, int color)
+{
+  if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_ListView class]]) return;
+  // not implemented atm
+}
+void ListView_SetTextColor(HWND hwnd, int color)
+{
+  if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_ListView class]]) return;
+
+  SWELL_ListView *f = (SWELL_ListView *)hwnd;
+  [f->m_fgColor release];
+  f->m_fgColor = [NSColor colorWithCalibratedRed:GetRValue(color)/255.0f 
+              green:GetGValue(color)/255.0f 
+              blue:GetBValue(color)/255.0f alpha:1.0f];
+  [f->m_fgColor retain];
 }
 
 

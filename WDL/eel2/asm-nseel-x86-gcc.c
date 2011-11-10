@@ -366,8 +366,7 @@ void nseel_asm_assign(void)
     "movll %rdx, %rcx\n"
     "shrl $32, %rdx\n"
     "andl $0x7FF00000, %edx\n"
-    "cmpl $0x3c900000, %edx\n"
-    "jl 1f\n"
+    "jz 1f\n"
     "cmpl $0x7FF00000, %edx\n"
     "je 1f\n"
     "jmp 0f\n"
@@ -384,8 +383,7 @@ void nseel_asm_assign(void)
     "movl 4(%eax), %edx\n"
     "movl (%eax), %ecx\n"
     "andl  $0x7ff00000, %edx\n"
-    "cmpl  $0x3c900000, %edx\n"
-    "jl 1f\n"   // if smaller than about 2^-53, then zero
+    "jz 1f\n"   // if exponent=zero, zero
     "cmpl  $0x7ff00000, %edx\n"
     "je 1f\n" // if exponent=all 1s, zero
     "movl 4(%eax), %edx\n" // reread
@@ -533,6 +531,49 @@ void nseel_asm_mod(void)
   );
 }
 void nseel_asm_mod_end(void) {}
+
+void nseel_asm_shl(void)
+{
+  __asm__(
+    "fld" EEL_F_SUFFIX " (%edi)\n"
+    "fld" EEL_F_SUFFIX " (%eax)\n"
+    "fistpl (%esi)\n"
+    "fistpl 4(%esi)\n"
+    "pushl %ecx\n"
+    "movl (%esi), %ecx\n"
+    "movl 4(%esi), %eax\n"
+    "shll %cl, %eax\n"
+    "movl %eax, (%esi)\n"
+    "popl %ecx\n"
+    "fildl (%esi)\n"
+    "movl %esi, %eax\n"
+    "fstp" EEL_F_SUFFIX " (%esi)\n"
+    "addl $" EEL_F_SSTR ", %esi\n"
+  );
+}
+void nseel_asm_shl_end(void) {}
+
+void nseel_asm_shr(void)
+{
+  __asm__(
+    "fld" EEL_F_SUFFIX " (%edi)\n"
+    "fld" EEL_F_SUFFIX " (%eax)\n"
+    "fistpl (%esi)\n"
+    "fistpl 4(%esi)\n"
+    "pushl %ecx\n"
+    "movl (%esi), %ecx\n"
+    "movl 4(%esi), %eax\n"
+    "sarl %cl, %eax\n"
+    "movl %eax, (%esi)\n"
+    "popl %ecx\n"
+    "fildl (%esi)\n"
+    "movl %esi, %eax\n"
+    "fstp" EEL_F_SUFFIX " (%esi)\n"
+    "addl $" EEL_F_SSTR ", %esi\n"
+  );
+}
+void nseel_asm_shr_end(void) {}
+
 
 void nseel_asm_mod_op(void)
 {

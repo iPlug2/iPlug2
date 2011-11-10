@@ -408,12 +408,25 @@ bool DeleteMenu(HMENU hMenu, int idx, int flag)
   {
     if (idx >=0 && idx < [m numberOfItems])
       item=[m itemAtIndex:idx];
+    if (!item) return false;
   }
   else
   {
     item=[m itemWithTag:idx];
+    if (!item) 
+    {
+      int x,n=[m numberOfItems];
+      for (x=0;x<n;x++)
+      {
+        item=[m itemAtIndex:x];
+        if (item && [item hasSubmenu])
+        {
+          if (DeleteMenu((HMENU)[item submenu],idx,flag)) return true;
+        }
+      }
+      return false;
+    }
   }
-  if (!item) return false;
   
   if ([item hasSubmenu])
   {
@@ -563,10 +576,25 @@ BOOL GetMenuItemInfo(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
   
 }
 
-void SWELL_InsertMenu(HMENU menu, int pos, int flag, int idx, const char *str)
+void SWELL_InsertMenu(HMENU menu, int pos, int flag, UINT_PTR idx, const char *str)
 {
   MENUITEMINFO mi={sizeof(mi),MIIM_ID|MIIM_STATE|MIIM_TYPE,MFT_STRING,
-    (flag & ~MF_BYPOSITION),idx,NULL,NULL,NULL,0,(char *)str};
+    (flag & ~MF_BYPOSITION),(flag&MF_POPUP) ? 0 : (int)idx,NULL,NULL,NULL,0,(char *)str};
+  
+  if (flag&MF_POPUP) 
+  {
+    mi.hSubMenu = (HMENU)idx;
+    mi.fMask |= MIIM_SUBMENU;
+    mi.fState &= ~MF_POPUP;
+  }
+  
+  if (flag&MF_SEPARATOR)
+  {
+    mi.fMask=MIIM_TYPE;
+    mi.fType=MFT_SEPARATOR;
+    mi.fState &= ~MF_SEPARATOR;
+  }
+    
   InsertMenuItem(menu,pos,(flag&MF_BYPOSITION) ?  TRUE : FALSE, &mi);
 }
 

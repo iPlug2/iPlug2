@@ -28,6 +28,7 @@
 #define SWELL_ComboBox __SWELL_PREFIX_CLASSNAME(_cbox)
 
 #define SWELL_StatusCell __SWELL_PREFIX_CLASSNAME(_statuscell)
+#define SWELL_ListViewCell __SWELL_PREFIX_CLASSNAME(_listviewcell)
 #define SWELL_ODListViewCell __SWELL_PREFIX_CLASSNAME(_ODlistviewcell)
 #define SWELL_ODButtonCell __SWELL_PREFIX_CLASSNAME(_ODbuttoncell)
 
@@ -135,7 +136,12 @@ struct HTREEITEM__
 }
 @end
 
-@interface SWELL_StatusCell : NSCell
+@interface SWELL_ListViewCell : NSTextFieldCell
+{
+}
+@end
+
+@interface SWELL_StatusCell : NSTextFieldCell
 {
   NSImage *status;
 }
@@ -147,6 +153,8 @@ struct HTREEITEM__
   bool m_fakerightmouse;
   LONG style;
   WDL_PtrList<HTREEITEM__> *m_items;
+  NSColor *m_fgColor;
+  NSMutableArray *m_selColors;
 }
 @end
 
@@ -165,13 +173,17 @@ struct HTREEITEM__
   WDL_PtrList<NSTableColumn> *m_cols;
   WDL_PtrList<HGDIOBJ__> *m_status_imagelist;
   int m_status_imagelist_type;
-  int m_fastClickMask;
-	
+  int m_fastClickMask;	
+  NSColor *m_fgColor;
+  NSMutableArray *m_selColors;
 }
 -(LONG)getSwellStyle;
 -(void)setSwellStyle:(LONG)st;
 -(int)getSwellNotificationMode;
 -(void)setSwellNotificationMode:(int)lbMode;
+-(int)columnAtPoint:(NSPoint)pt;
+-(int)getColumnPos:(int)idx; // get current position of column that was originally at idx
+-(int)getColumnIdx:(int)pos; // get original index of column that is currently at position
 @end
 
 @interface SWELL_ODButtonCell : NSButtonCell

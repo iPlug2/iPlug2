@@ -462,6 +462,51 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
   m_enabled=en; 
 } 
 
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex 
+{
+  if ([aTableView isKindOfClass:[SWELL_ListView class]])
+  {
+    SWELL_ListView *f = (SWELL_ListView *)aTableView;
+    if (f->m_selColors&&[aTableView isRowSelected:rowIndex]) 
+    {
+      int cnt = [f->m_selColors count];
+      int offs = GetFocus() == (HWND)aTableView ? 0 : 2;
+      if (cnt>=offs+2)
+      {
+        if ([aCell respondsToSelector:@selector(setTextColor:)]) [aCell setTextColor:[f->m_selColors objectAtIndex:(offs+1)]];
+        return;
+      }
+    }
+
+    if (f->m_fgColor && [aCell respondsToSelector:@selector(setTextColor:)]) [aCell setTextColor:f->m_fgColor];
+  }
+}
+- (void)outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item
+{
+  if ([outlineView isKindOfClass:[SWELL_TreeView class]])
+  {
+    SWELL_TreeView *f = (SWELL_TreeView *)outlineView;
+    if (f->m_selColors)
+    {
+      HTREEITEM sel = TreeView_GetSelection((HWND)outlineView);
+      if (sel && sel->m_dh == item)
+      {
+        int cnt = [f->m_selColors count];
+        int offs = GetFocus() == (HWND)outlineView ? 0 : 2;
+        if (cnt>=offs+2)
+        {
+          if ([cell respondsToSelector:@selector(setTextColor:)]) [cell setTextColor:[f->m_selColors objectAtIndex:(offs+1)]];
+          return;
+        }
+      }
+    }
+    if (f->m_fgColor && [cell respondsToSelector:@selector(setTextColor:)]) [cell setTextColor:f->m_fgColor];
+  }
+}
+
+
+//- (void)outlineView:(NSOutlineView *)outlineView willDisplayOutlineCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item
+
 - (void)comboBoxWillPopUp:(NSNotification*)notification
 {
   id sender=[notification object];
@@ -868,7 +913,7 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
       }
 
 
-      if (parent && [(id)parent isKindOfClass:[SWELL_ModelessWindow class]] && ![(NSWindow *)parent isVisible])
+      if (parent && [self window] == parent && [(id)parent isKindOfClass:[SWELL_ModelessWindow class]] && ![(NSWindow *)parent isVisible])
       {
         // on win32, if you do CreateDialog(), WM_INITDIALOG(ret=1), then ShowWindow(SW_SHOWNA), you get the
         // window brought to front. this simulates that, hackishly.
@@ -880,7 +925,7 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
       // if top level dialog,always set default focus if it wasn't set
       // if this causes problems, change NSWindow to be SWELL_ModalDialog, as that would
       // only affect DialogBox() and not CreateDialog(), which might be preferable.
-      if (hFoc && parent && [(id)parent isKindOfClass:[NSWindow class]]) 
+      if (hFoc && parent && [self window] == parent && [(id)parent isKindOfClass:[NSWindow class]]) 
       {
         id fr = [(id)parent firstResponder];
 	if (!fr || fr == self || fr == (id)parent) [(id)parent makeFirstResponder:(id)hFoc];
@@ -1895,6 +1940,7 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(1)
 //  DOWINDOWMINMAXSIZES(ch)
   [ch release];
 
+  [self setHidesOnDeactivate:NO];
   [self display];
   
   return self;
@@ -1972,7 +2018,7 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
     return ret;
   }
     
-  if (![NSApp isActive]) // using this enables better background processing (i.e. if the app isnt active it still runs)
+  if (0 && ![NSApp isActive]) // using this enables better background processing (i.e. if the app isnt active it still runs)
   {
     [NSApp activateIgnoringOtherApps:YES];
     NSModalSession session = [NSApp beginModalSessionForWindow:box];
@@ -2508,13 +2554,24 @@ void SWELL_CarbonWndHost_SetWantAllKeys(void* carbonhost, bool want)
 
 HWND SWELL_GetAudioUnitCocoaView(HWND parent, AudioUnit aunit, AudioUnitCocoaViewInfo* viewinfo, RECT* r)
 {
-	NSString* classname = (NSString*)(viewinfo->mCocoaAUViewClass[0]);
+  NSString* classname = (NSString*)(viewinfo->mCocoaAUViewClass[0]);
   if (!classname) return 0;
-	NSString* path = (NSString*)(CFURLCopyFileSystemPath(viewinfo->mCocoaAUViewBundleLocation,kCFURLPOSIXPathStyle));
-  if (!path) return 0;
-	NSBundle* bundle = [NSBundle bundleWithPath:[path autorelease]];
+  
+  NSBundle* bundle=0;
+  if ([NSBundle respondsToSelector:@selector(bundleWithURL:)])
+  {
+    bundle=[NSBundle bundleWithURL:(NSURL*)viewinfo->mCocoaAUViewBundleLocation];    
+  }
+
+  if (!bundle)
+  {
+    NSString* path = (NSString*)(CFURLCopyFileSystemPath(viewinfo->mCocoaAUViewBundleLocation,kCFURLPOSIXPathStyle));
+    if (path) bundle = [NSBundle bundleWithPath:[path autorelease]];
+  }
+
   if (!bundle) return 0;
-	Class factoryclass = [bundle classNamed:classname];
+	
+  Class factoryclass = [bundle classNamed:classname];
   if (![factoryclass conformsToProtocol: @protocol(AUCocoaUIBase)]) return 0;
   if (![factoryclass instancesRespondToSelector: @selector(uiViewForAudioUnit:withSize:)]) return 0;
   id viewfactory = [[[factoryclass alloc] init] autorelease];

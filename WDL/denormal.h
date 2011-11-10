@@ -16,7 +16,8 @@ typedef union { double fl; WDL_DenormalTwoInts w; } WDL_DenormalDoubleAccess;
 typedef union { float fl; unsigned int w; } WDL_DenormalFloatAccess;
 
 
-// note: the _aggressive versions filter out anything less than around 1.0e-16 or so (approximately)
+// note: the _aggressive versions filter out anything less than around 1.0e-16 or so (approximately) to 0.0, including -0.0 (becomes 0.0)
+// note: new! the _aggressive versions also filter inf and NaN to 0.0
 
 #ifdef __cplusplus
 #define WDL_DENORMAL_INLINE inline
@@ -34,13 +35,9 @@ typedef union { float fl; unsigned int w; } WDL_DenormalFloatAccess;
 #define WDL_DENORMAL_DOUBLE_LW_NC(a) (((WDL_DenormalDoubleAccess*)(a))->w.lw)
 #define WDL_DENORMAL_FLOAT_W_NC(a) (((WDL_DenormalFloatAccess*)(a))->w)
 
-#define WDL_NOT_DENORMAL_DOUBLE(a) (WDL_DENORMAL_DOUBLE_HW(a)&0x7ff00000)
-#define WDL_NOT_DENORMAL_FLOAT(a) (WDL_DENORMAL_FLOAT_W(a)&0x7f800000)
+#define WDL_DENORMAL_DOUBLE_AGGRESSIVE_CUTOFF 0x3cA00000 // 0x3B8000000 maybe instead? that's 10^-5 smaller or so
+#define WDL_DENORMAL_FLOAT_AGGRESSIVE_CUTOFF 0x25000000
 
-#define WDL_DENORMAL_OR_ZERO_DOUBLE(a) (!WDL_NOT_DENORMAL_DOUBLE(a))
-#define WDL_DENORMAL_OR_ZERO_FLOAT(a) (!WDL_NOT_DENORMAL_FLOAT(a))
-#define WDL_DENORMAL_OR_ZERO_DOUBLE_AGGRESSIVE(a) ((WDL_DENORMAL_DOUBLE_HW(a)&0x7ff00000) < 0x3c900000)
-#define WDL_DENORMAL_OR_ZERO_FLOAT_AGGRESSIVE(a) ((WDL_DENORMAL_FLOAT_W(a)&0x7f800000) < 0x24800000)
 
 static double WDL_DENORMAL_INLINE denormal_filter_double(double a)
 {
@@ -49,7 +46,7 @@ static double WDL_DENORMAL_INLINE denormal_filter_double(double a)
 
 static double WDL_DENORMAL_INLINE denormal_filter_double_aggressive(double a)
 {
-  return (WDL_DENORMAL_DOUBLE_HW(&a)&0x7ff00000) >= 0x3c900000 ? a : 0.0;
+  return ((WDL_DENORMAL_DOUBLE_HW(&a)+0x100000)&0x7ff00000) >= WDL_DENORMAL_DOUBLE_AGGRESSIVE_CUTOFF ? a : 0.0;
 }
 
 static float WDL_DENORMAL_INLINE denormal_filter_float(float a)
@@ -58,7 +55,7 @@ static float WDL_DENORMAL_INLINE denormal_filter_float(float a)
 }
 static float WDL_DENORMAL_INLINE denormal_filter_float_aggressive(float a)
 {
-  return (WDL_DENORMAL_FLOAT_W(&a)&0x7f800000) >= 0x24800000 ? a : 0.0f; 
+  return ((WDL_DENORMAL_FLOAT_W(&a)+0x800000)&0x7f800000) >= WDL_DENORMAL_FLOAT_AGGRESSIVE_CUTOFF ? a : 0.0f; 
 }
 static void WDL_DENORMAL_INLINE denormal_fix_double(double *a)
 {
@@ -67,7 +64,7 @@ static void WDL_DENORMAL_INLINE denormal_fix_double(double *a)
 
 static void WDL_DENORMAL_INLINE denormal_fix_double_aggressive(double *a)
 {
-  if ((WDL_DENORMAL_DOUBLE_HW(a)&0x7ff00000) < 0x3c900000) *a=0.0;
+  if (((WDL_DENORMAL_DOUBLE_HW(a)+0x100000)&0x7ff00000) < WDL_DENORMAL_DOUBLE_AGGRESSIVE_CUTOFF) *a=0.0;
 }
 
 static void WDL_DENORMAL_INLINE denormal_fix_float(float *a)
@@ -76,7 +73,7 @@ static void WDL_DENORMAL_INLINE denormal_fix_float(float *a)
 }
 static void WDL_DENORMAL_INLINE denormal_fix_float_aggressive(float *a)
 {
-  if ((WDL_DENORMAL_FLOAT_W(a)&0x7f800000) < 0x24800000) *a=0.0f;
+  if (((WDL_DENORMAL_FLOAT_W(a)+0x800000)&0x7f800000) < WDL_DENORMAL_FLOAT_AGGRESSIVE_CUTOFF) *a=0.0f;
 }
 
 
@@ -90,7 +87,7 @@ static double WDL_DENORMAL_INLINE denormal_filter(double a)
 }
 static double WDL_DENORMAL_INLINE denormal_filter_aggressive(double a)
 {
-  return (WDL_DENORMAL_DOUBLE_HW(&a)&0x7ff00000) >= 0x3c900000 ? a : 0.0;
+  return ((WDL_DENORMAL_DOUBLE_HW(&a)+0x100000)&0x7ff00000) >= WDL_DENORMAL_DOUBLE_AGGRESSIVE_CUTOFF ? a : 0.0;
 }
 
 static float WDL_DENORMAL_INLINE denormal_filter(float a)
@@ -100,7 +97,7 @@ static float WDL_DENORMAL_INLINE denormal_filter(float a)
 
 static float WDL_DENORMAL_INLINE denormal_filter_aggressive(float a)
 {
-  return (WDL_DENORMAL_FLOAT_W(&a)&0x7f800000) >= 0x24800000 ? a : 0.0f;
+  return ((WDL_DENORMAL_FLOAT_W(&a)+0x800000)&0x7f800000) >= WDL_DENORMAL_FLOAT_AGGRESSIVE_CUTOFF ? a : 0.0f;
 }
 
 static void WDL_DENORMAL_INLINE denormal_fix(double *a)
@@ -109,7 +106,7 @@ static void WDL_DENORMAL_INLINE denormal_fix(double *a)
 }
 static void WDL_DENORMAL_INLINE denormal_fix_aggressive(double *a)
 {
-  if ((WDL_DENORMAL_DOUBLE_HW(a)&0x7ff00000) < 0x3c900000) *a=0.0;
+  if (((WDL_DENORMAL_DOUBLE_HW(a)+0x100000)&0x7ff00000) < WDL_DENORMAL_DOUBLE_AGGRESSIVE_CUTOFF) *a=0.0;
 }
 static void WDL_DENORMAL_INLINE denormal_fix(float *a)
 {
@@ -117,7 +114,7 @@ static void WDL_DENORMAL_INLINE denormal_fix(float *a)
 }
 static void WDL_DENORMAL_INLINE denormal_fix_aggressive(float *a)
 {
-  if ((WDL_DENORMAL_FLOAT_W(a)&0x7f800000) < 0x24800000) *a=0.0f;
+  if (((WDL_DENORMAL_FLOAT_W(a)+0x800000)&0x7f800000) < WDL_DENORMAL_FLOAT_AGGRESSIVE_CUTOFF) *a=0.0f;
 }
 
 static bool WDL_DENORMAL_INLINE WDL_DENORMAL_OR_ZERO(double *a)

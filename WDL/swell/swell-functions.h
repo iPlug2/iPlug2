@@ -464,6 +464,9 @@ SWELL_API_DEFINE(void, ListView_GetItemText,(HWND hwnd, int item, int subitem, c
 SWELL_API_DEFINE(void, ListView_SortItems,(HWND hwnd, PFNLVCOMPARE compf, LPARAM parm))
 SWELL_API_DEFINE(bool, ListView_GetItemRect,(HWND h, int item, RECT *r, int code))
 SWELL_API_DEFINE(bool, ListView_Scroll,(HWND h, int xscroll, int yscroll))
+SWELL_API_DEFINE(int, ListView_GetTopIndex,(HWND h))
+SWELL_API_DEFINE(BOOL, ListView_SetColumnOrderArray,(HWND h, int cnt, int* arr))
+SWELL_API_DEFINE(BOOL, ListView_GetColumnOrderArray,(HWND h, int cnt, int* arr))
 
 #ifndef ImageList_Create
 #define ImageList_Create(x,y,a,b,c) ImageList_CreateEx();
@@ -499,6 +502,13 @@ SWELL_API_DEFINE(HTREEITEM, TreeView_GetChild, (HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(HTREEITEM, TreeView_GetNextSibling, (HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(HTREEITEM, TreeView_GetRoot, (HWND hwnd))
 
+SWELL_API_DEFINE(void,TreeView_SetBkColor,(HWND hwnd, int color))
+SWELL_API_DEFINE(void,TreeView_SetTextColor,(HWND hwnd, int color))
+SWELL_API_DEFINE(void,ListView_SetBkColor,(HWND hwnd, int color))
+SWELL_API_DEFINE(void,ListView_SetTextBkColor,(HWND hwnd, int color))
+SWELL_API_DEFINE(void,ListView_SetTextColor,(HWND hwnd, int color))
+SWELL_API_DEFINE(void,ListView_SetGridColor,(HWND hwnd, int color))
+SWELL_API_DEFINE(void,ListView_SetSelColors,(HWND hwnd, int *colors, int ncolors))
 
 /*
 ** These are deprecated functions for launching a modal window but still running
@@ -527,7 +537,7 @@ SWELL_API_DEFINE(bool, EnableMenuItem,(HMENU hMenu, int idx, int en))
 SWELL_API_DEFINE(bool, DeleteMenu,(HMENU hMenu, int idx, int flag))
 SWELL_API_DEFINE(bool, CheckMenuItem,(HMENU hMenu, int idx, int chk))
 SWELL_API_DEFINE(void, InsertMenuItem,(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi))
-SWELL_API_DEFINE(void,SWELL_InsertMenu,(HMENU menu, int pos, int flag, int idx, const char *str))
+SWELL_API_DEFINE(void,SWELL_InsertMenu,(HMENU menu, int pos, int flag, UINT_PTR idx, const char *str))
 #ifdef InsertMenu
 #undef InsertMenu
 #endif
@@ -1049,6 +1059,10 @@ SWELL_API_DEFINE(void,SWELL_SetListViewFastClickMask,(HWND hList, int mask))
 #ifndef __APPLE__
 SWELL_API_DEFINE(void,SWELL_initargs,(int *argc, char ***argv))
 SWELL_API_DEFINE(void,SWELL_RunMessageLoop,())
+#endif
+
+#ifdef __APPLE__
+SWELL_API_DEFINE(void,SWELL_GenerateGUID,(void *g))
 #endif
 
 #endif // _WDL_SWELL_H_API_DEFINED_
