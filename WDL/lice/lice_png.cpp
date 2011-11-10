@@ -79,13 +79,13 @@ LICE_IBitmap *LICE_LoadPNG(const char *filename, LICE_IBitmap *bmp)
   if (bit_depth < 8)
     png_set_packing(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB)
+  if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY)
     png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
 
   if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_gray_to_rgb(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_swap_alpha(png_ptr);
 
   //get the bits
@@ -248,13 +248,13 @@ LICE_IBitmap *LICE_LoadPNGFromMemory(const void *data_in, int buflen, LICE_IBitm
   if (bit_depth < 8)
     png_set_packing(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB)
+  if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY)
     png_set_filler(png_ptr, 0xff, PNG_FILLER_BEFORE);
 
   if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_gray_to_rgb(png_ptr);
 
-  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+  if (color_type == PNG_COLOR_TYPE_RGB_ALPHA || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_swap_alpha(png_ptr);
 
   //get the bits
