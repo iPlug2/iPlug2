@@ -9,11 +9,11 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.0.0, Copyright DEFAULT_MFR, 2011</string>
+	<string>1.0.0, Copyright AcmeInc, 2011</string>
 	<key>CFBundleIconFile</key>
 	<string>IPlugMultiTargets-icon57x57.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.DEFAULT_MFR.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>com.AcmeInc.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

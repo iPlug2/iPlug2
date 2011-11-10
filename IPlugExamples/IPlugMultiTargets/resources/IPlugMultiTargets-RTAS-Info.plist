@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>VERSION_STR, DIGI_COPYRIGHT</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.DEFAULT_MFR.rtas.PRODUCT_NAME</string>
+	<string>com.AcmeInc.rtas.PRODUCT_NAME</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

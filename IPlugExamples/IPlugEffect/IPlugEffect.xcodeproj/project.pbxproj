@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 44;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -247,6 +247,7 @@
 		4F78DAB913B640530032E0F3 /* RtError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C113B63A700032E0F3 /* RtError.h */; };
 		4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C313B63A700032E0F3 /* RtMidi.h */; };
 		4F78DABB13B640620032E0F3 /* IPlugStandalone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9EA13B63BE90032E0F3 /* IPlugStandalone.h */; };
+		4F79A34E146304CD00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A34C146304CD00744AED /* IPlugProcessAS.cpp */; };
 		4F7F5C4613E95EC8002918FD /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F7F5C4913E95EC8002918FD /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F7F5C5013E95EC8002918FD /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -635,6 +636,8 @@
 		4F78DAEB13B642790032E0F3 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../WDL/IPlug/IGraphicsWin.h; sourceTree = SOURCE_ROOT; };
 		4F78DB5E13B6462B0032E0F3 /* IPlugEffect.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugEffect.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.component; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F79A34C146304CD00744AED /* IPlugProcessAS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugProcessAS.cpp; sourceTree = "<group>"; };
+		4F79A34D146304CD00744AED /* IPlugProcessAS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugProcessAS.h; sourceTree = "<group>"; };
 		4F7F5C0C13E95DDC002918FD /* IPlugEffect-RTAS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-RTAS-Info.plist"; path = "resources/IPlugEffect-RTAS-Info.plist"; sourceTree = "<group>"; };
 		4F7F5C6813E95EC8002918FD /* IPlugEffect.dpm */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.dpm; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7F5C6F13E95FB2002918FD /* IPlugRTAS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugRTAS.cpp; path = ../../WDL/IPlug/IPlugRTAS.cpp; sourceTree = SOURCE_ROOT; };
@@ -1261,6 +1264,8 @@
 				4F7F5CA413E9607A002918FD /* IPlugGroup.h */,
 				4F7F5CA513E9607A002918FD /* IPlugProcess.cpp */,
 				4F7F5CA613E9607A002918FD /* IPlugProcess.h */,
+				4F79A34C146304CD00744AED /* IPlugProcessAS.cpp */,
+				4F79A34D146304CD00744AED /* IPlugProcessAS.h */,
 				4F7F5CA713E9607A002918FD /* IPlugProcessRTAS.cpp */,
 				4F7F5CA813E9607A002918FD /* IPlugProcessRTAS.h */,
 				4F7F5CAA13E9607A002918FD /* ProcessInterface.h */,
@@ -1694,7 +1699,7 @@
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugEffect" */;
-			compatibilityVersion = "Xcode 3.0";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -2019,6 +2024,7 @@
 				4F7F5CB213E9607A002918FD /* IPlugProcess.cpp in Sources */,
 				4F7F5CB313E9607A002918FD /* IPlugProcessRTAS.cpp in Sources */,
 				4FDA440713F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
+				4F79A34E146304CD00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2231,7 +2237,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2245,7 +2251,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST2-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
@@ -2276,7 +2282,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST2-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -2294,6 +2300,7 @@
 					"$(COCOA_DEFS)",
 					"$(DEBUG_DEFS)",
 				);
+				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
@@ -2310,7 +2317,7 @@
 					"$(GCC_CFLAGS)",
 				);
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				SDKROOT = "$(BASE_SDK)";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Debug;
@@ -2325,6 +2332,7 @@
 					"$(COCOA_DEFS)",
 					"$(RELEASE_DEFS)",
 				);
+				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -2344,7 +2352,7 @@
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				SDKROOT = "$(BASE_SDK)";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Release;
@@ -2352,14 +2360,14 @@
 		4F20EF30132C69FE0030E34C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2373,8 +2381,8 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST2-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
@@ -2386,8 +2394,7 @@
 		4F20EF31132C69FE0030E34C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
@@ -2407,7 +2414,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST2-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -2420,14 +2427,13 @@
 		4F20EF32132C69FE0030E34C /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2441,7 +2447,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST2-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
@@ -2452,7 +2458,7 @@
 		4F3AE1DD12C0E5E2001FD7A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AU_FOLDER)";
@@ -2460,7 +2466,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2475,11 +2481,11 @@
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
-				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-bundle";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
@@ -2496,8 +2502,7 @@
 		4F3AE1DE12C0E5E2001FD7A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -2529,7 +2534,7 @@
 				OTHER_LDFLAGS = "-bundle";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
@@ -2548,8 +2553,7 @@
 		4F3AE1DF12C0E5E2001FD7A4 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -2557,7 +2561,7 @@
 				EXPORTED_SYMBOLS_FILE = IPlugEffect.exp;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2599,7 +2603,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2618,7 +2622,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST3-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
@@ -2654,7 +2658,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST3-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -2672,7 +2676,7 @@
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2691,7 +2695,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST3-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
@@ -2710,7 +2714,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2732,7 +2736,7 @@
 				OTHER_LDFLAGS = "-bundle";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
@@ -2784,7 +2788,7 @@
 				OTHER_LDFLAGS = "-bundle";
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
@@ -2811,7 +2815,7 @@
 				EXPORTED_SYMBOLS_FILE = IPlugEffect.exp;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2851,7 +2855,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				PRODUCT_NAME = "AllOSX_32&64_intel";
 			};
 			name = Debug;
@@ -2884,7 +2888,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(RTAS_DEFS)",
 					"$(COCOA_DEFS)",
@@ -2917,7 +2921,7 @@
 					"$(inherited)",
 					"\"-LlibPluginLibrary\"",
 				);
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "$(MacBag)";
 				WARNING_CFLAGS = (
@@ -2963,7 +2967,7 @@
 				);
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -2986,7 +2990,7 @@
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(RTAS_FOLDER)";
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(RTAS_DEFS)",
 					"$(inherited)",
@@ -3015,7 +3019,7 @@
 					"$(inherited)",
 					"\"-LlibPluginLibrary\"",
 				);
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "$(MacBag)";
@@ -3030,15 +3034,14 @@
 		4F9828DD140A9EB700F3FCC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3057,7 +3060,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST3-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
@@ -3068,8 +3071,7 @@
 		4F9828DE140A9EB700F3FCC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
@@ -3094,7 +3096,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST3-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
@@ -3106,14 +3108,13 @@
 		4F9828DF140A9EB700F3FCC1 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3132,7 +3133,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST3-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
@@ -3143,15 +3144,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(APP_FOLDER)";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3174,7 +3174,7 @@
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -3183,8 +3183,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -3208,7 +3207,7 @@
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -3238,7 +3237,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Tracer;
@@ -3252,6 +3251,7 @@
 					"$(COCOA_DEFS)",
 					"$(TRACER_DEFS)",
 				);
+				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
@@ -3268,7 +3268,7 @@
 					"$(GCC_CFLAGS)",
 				);
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+				SDKROOT = "$(BASE_SDK)";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Tracer;
@@ -3282,7 +3282,7 @@
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
 				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3296,7 +3296,7 @@
 				INFOPLIST_FILE = "resources/IPlugEffect-VST2-Info.plist";
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(PROJECT_NAME)";
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;

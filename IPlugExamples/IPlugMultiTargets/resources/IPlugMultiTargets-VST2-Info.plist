@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.0.0, Copyright DEFAULT_MFR, 2011</string>
+	<string>1.0.0, Copyright AcmeInc, 2011</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.DEFAULT_MFR.vst.$(PROJECT_NAME)</string>
+	<string>com.AcmeInc.vst.${EXECUTABLE_NAME}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

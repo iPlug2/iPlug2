@@ -1,0 +1,51 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugMultiChannel-rtas", "IPlugMultiChannel-rtas.vcproj", "{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{679358EF-E932-4A20-AAAA-75E46481F30A} = {679358EF-E932-4A20-AAAA-75E46481F30A}
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062} = {C24F7CF9-95DA-4603-A05A-D11FE38E3062}
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F} = {D2CE28FF-63B8-48BC-936D-33F365B4053F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlugInLib", "..\..\PT9_SDK\AlturaPorts\TDMPlugIns\PlugInLibrary\WinBuild\PlugInLib.vcproj", "{D2CE28FF-63B8-48BC-936D-33F365B4053F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlug_vs2005", "..\..\WDL\IPlug\IPlug_vs2005.vcproj", "{C24F7CF9-95DA-4603-A05A-D11FE38E3062}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lice_vs2005", "..\..\WDL\IPlug\lice_vs2005.vcproj", "{679358EF-E932-4A20-AAAA-75E46481F30A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		Tracer|Win32 = Tracer|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Debug|Win32.Build.0 = Debug|Win32
+		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Release|Win32.ActiveCfg = Release|Win32
+		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Release|Win32.Build.0 = Release|Win32
+		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Tracer|Win32.ActiveCfg = Tracer|Win32
+		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Tracer|Win32.Build.0 = Tracer|Win32
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Debug|Win32.Build.0 = Debug|Win32
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Release|Win32.ActiveCfg = Release|Win32
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Release|Win32.Build.0 = Release|Win32
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Tracer|Win32.ActiveCfg = Release|Win32
+		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Tracer|Win32.Build.0 = Release|Win32
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062}.Debug|Win32.Build.0 = Debug|Win32
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062}.Release|Win32.ActiveCfg = Release|Win32
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062}.Release|Win32.Build.0 = Release|Win32
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062}.Tracer|Win32.ActiveCfg = Tracer|Win32
+		{C24F7CF9-95DA-4603-A05A-D11FE38E3062}.Tracer|Win32.Build.0 = Tracer|Win32
+		{679358EF-E932-4A20-AAAA-75E46481F30A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{679358EF-E932-4A20-AAAA-75E46481F30A}.Debug|Win32.Build.0 = Debug|Win32
+		{679358EF-E932-4A20-AAAA-75E46481F30A}.Release|Win32.ActiveCfg = Release|Win32
+		{679358EF-E932-4A20-AAAA-75E46481F30A}.Release|Win32.Build.0 = Release|Win32
+		{679358EF-E932-4A20-AAAA-75E46481F30A}.Tracer|Win32.ActiveCfg = Release|Win32
+		{679358EF-E932-4A20-AAAA-75E46481F30A}.Tracer|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

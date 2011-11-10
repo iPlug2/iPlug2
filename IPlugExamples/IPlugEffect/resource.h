@@ -1,9 +1,9 @@
-#define PLUG_MFR "DEFAULT_MFR"
+#define PLUG_MFR "AcmeInc"
 #define PLUG_NAME "IPlugEffect"
 
 #define PLUG_CLASS_NAME IPlugEffect
 
-#define BUNDLE_MFR "DEFAULT_MFR"
+#define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_NAME "IPlugEffect"
 
 #define PLUG_ENTRY IPlugEffect_Entry
@@ -26,7 +26,7 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "DEFAULT_MFR\nDEFAULT_MFR\nAcme\n"
+#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugEffect\nIPEF"
 #define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 

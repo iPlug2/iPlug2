@@ -52,7 +52,7 @@ def replacestrs(filename, s, r):
 		sys.stdout.write(line)
 
 def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
-	global tabs, newsubfolder
+#	global tabs, newsubfolder
 	for f in os.listdir(dir):
 		fullpath = os.path.join(dir, f)
 		
@@ -175,8 +175,8 @@ def main():
 		copytree(input, output, ignore=ignore_patterns('*.exe', '*.dmg', '*.pkg', '*.mpkg', '*.svn', '*.ncb', '*.suo', '*.sdf', 'build-*', '*.layout', '*.depend', '.DS_Store' ))
 		cpath = os.path.join(os.getcwd(), output)
 
-		#replace DEFAULT_MFR name strings
-		for dir in dirwalk(cpath, input, output, "DEFAULT_MFR", manufacturer):
+		#replace manufacturer name strings
+		for dir in dirwalk(cpath, input, output, "AcmeInc", manufacturer):
 			pass
 		
 		#xcuserfile = output + "/" + output + ".xcodeproj/oli.pbxuser"

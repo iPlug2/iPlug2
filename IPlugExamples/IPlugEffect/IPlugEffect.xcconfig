@@ -1,6 +1,10 @@
+#include "../../common.xcconfig"
 
 //------------------------------
 // Global settings
+
+// the basename of the vst, vst3, app, component
+BINARY_NAME = IPlugEffect
 
 // path to WDL folder
 WDL_PATH = $(SRCROOT)/../../WDL
@@ -8,46 +12,17 @@ IPLUG_PATH = $(WDL_PATH)/IPlug
 
 MacBag = $(SRCROOT)/../../PT9_SDK/MacBag
 
-ADDITIONAL_INCLUDES = /// $(SRCROOT)/../../../MyDSP/
+ADDITIONAL_INCLUDES = // $(SRCROOT)/../../../MyDSP/
 
 VST3_SDK = $(SRCROOT)/../../VST3_SDK/
 
 // for jack headers
 //ADDITIONAL_APP_INCLUDES = /usr/local/include
 
-// Which comipler to use
-COMPILER = 4.2 // 4.0 = GCC 4.0, 4.2
-
-// which sdk to target
-BASE_SDK = macosx10.5 // macosx10.4, macosx10.5, macosx10.6
-//SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk
-//SDKROOT = /Developer/SDKs/MacOSX10.5.sdk
-//SDKROOT = /Developer/SDKs/MacOSX10.6.sdk
-
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings
 
 //------------------------------
-
-// Where to build the plugins / app ...
-
-// build to current user's plugin folder
-//VST_FOLDER = ~/Library/Audio/Plug-Ins/VST   	
-//AU_FOLDER = ~/Library/Audio/Plug-Ins/Components
-//RTAS_FOLDER = ~/Library/Application Support/Digidesign/Plug-Ins
-//APP_FOLDER = ~/Applications
-//VST3_FOLDER = ~/Library/Audio/Plug-Ins/VST3
-
-// build to system plugin folder
-VST_FOLDER = /Library/Audio/Plug-Ins/VST
-VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
-AU_FOLDER = /Library/Audio/Plug-Ins/Components
-//RTAS_FOLDER = /Applications/Digidesign/ProTools_902_3PDev/ProTools_3PDev/Plug-Ins
-RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
-APP_FOLDER = /Applications
-
-//------------------------------
-
 // Preprocessor definitions
 
 // Preprocessor definitions for all VST builds
@@ -89,5 +64,5 @@ RELEASE_OPTIMIZE = 3 //0,1,2,3,s
 
 //------------------------------
 // Debug build options
-//DEBUG_OPTIMIZE = 0 //0,1,2,3,s
+DEBUG_OPTIMIZE = 0 //0,1,2,3,s
 

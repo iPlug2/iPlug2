@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;SA_API;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\MyDSP;..\..\ASIO_SDK;..\..\WDL;..\..\WDL\lice;..\..\WDL\rtaudiomidi;..\..\WDL\IPlug</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4250;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>IPlug.lib;lice.lib;dsound.lib;winmm.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -1,0 +1,28 @@
+// this file sets the compiler and base SDK for the IPlug and lice library xcode projects
+
+// Which compiler to use
+COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
+//COMPILER = com.apple.compilers.llvmgcc42 // use this with xcode4/lion
+
+// which osx sdk to compile against
+BASE_SDK = macosx10.5 
+//BASE_SDK = macosx10.6
+
+// Where to build the plugins / app ...
+
+// build to current user's plugin folder
+//VST_FOLDER = ~/Library/Audio/Plug-Ins/VST   	
+//AU_FOLDER = ~/Library/Audio/Plug-Ins/Components
+//RTAS_FOLDER = ~/Library/Application Support/Digidesign/Plug-Ins
+//APP_FOLDER = ~/Applications
+//VST3_FOLDER = ~/Library/Audio/Plug-Ins/VST3
+
+// build to system plugin folder
+// you need to explicitly add write permissions to put stuff here
+
+VST_FOLDER = /Library/Audio/Plug-Ins/VST
+VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
+AU_FOLDER = /Library/Audio/Plug-Ins/Components
+//RTAS_FOLDER = /Applications/Digidesign/ProTools_3PDev/Plug-Ins
+RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
+APP_FOLDER = /Applications

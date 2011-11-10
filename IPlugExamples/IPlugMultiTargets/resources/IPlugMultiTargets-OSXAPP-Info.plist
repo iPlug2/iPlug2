@@ -7,11 +7,11 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.0.0, Copyright DEFAULT_MFR, 2011</string>
+	<string>1.0.0, Copyright AcmeInc, 2011</string>
 	<key>CFBundleIconFile</key>
 	<string>${PRODUCT_NAME}.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.DEFAULT_MFR.standalone.${PRODUCT_NAME}</string>
+	<string>com.AcmeInc.standalone.${PRODUCT_NAME}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

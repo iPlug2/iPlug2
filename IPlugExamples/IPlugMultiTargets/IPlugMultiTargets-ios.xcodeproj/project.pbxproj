@@ -29,7 +29,6 @@
 		4FDBEF7B13BB837300F1C193 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDBEF6813BB837300F1C193 /* Log.cpp */; };
 		4FDBEF7D13BB837300F1C193 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDBEF6C13BB837300F1C193 /* IPlugStructs.cpp */; };
 		4FDBEF7E13BB837300F1C193 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDBEF6E13BB837300F1C193 /* IParam.cpp */; };
-		4FDBEF8913BB83E100F1C193 /* IPlugMultiTargets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 4FDBEF8813BB83E100F1C193 /* IPlugMultiTargets.xcconfig */; };
 		4FDBF02113BB8C4500F1C193 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDBF02013BB8C4500F1C193 /* AudioToolbox.framework */; };
 		4FDEA27813D8DBD700775B8B /* MIRadioButtonGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDEA27513D8DBD700775B8B /* MIRadioButtonGroup.m */; };
 		4FDEA27913D8DBD700775B8B /* radio-off.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FDEA27613D8DBD700775B8B /* radio-off.png */; };
@@ -308,7 +307,6 @@
 				4F86104413BB802B00BE2BB0 /* FlipsideView.xib in Resources */,
 				4F86104613BB802B00BE2BB0 /* MainView.xib in Resources */,
 				4F86104713BB802B00BE2BB0 /* MainWindow.xib in Resources */,
-				4FDBEF8913BB83E100F1C193 /* IPlugMultiTargets.xcconfig in Resources */,
 				4FCD349513BC71F200F82822 /* IPlugMultiTargets-icon57x57.png in Resources */,
 				4FDEA27913D8DBD700775B8B /* radio-off.png in Resources */,
 				4FDEA27A13D8DBD700775B8B /* radio-on.png in Resources */,

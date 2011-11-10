@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="IPlugControls"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
+		AdditionalIncludeDirectories=".\;.\..\..\WDL\IPlug\RTAS;.\..\..\WDL\IPlug\;.\..\..\WDL"
+		PreprocessorDefinitions="RTAS_API;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="comdlg32.lib uuid.lib msimg32.lib odbc32.lib odbccp32.lib user32.lib gdi32.lib advapi32.lib shell32.lib"
+		OutputFile="$(OutDir)\IPlugControls.dpm"
+		IgnoreDefaultLibraryNames="libcmt.lib, msvprt.lib"
+	/>
+	<Tool
+		Name="VCPostBuildEventTool"
+		CommandLine=""
+	/>
+	<UserMacro
+		Name="PluginsPath"
+		Value="&quot;C:\Program Files\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+</VisualStudioPropertySheet>

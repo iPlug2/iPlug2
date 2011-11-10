@@ -6,7 +6,7 @@
 		activeExecutable = 4FD16A0A13B63081001D0217 /* App */;
 		activeTarget = 4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */;
 		addToTargets = (
-			4F3E69071409747300C4D749 /* VST3_32_intel */,
+			4F7F5C4213E95EC8002918FD /* RTAS_32_intel */,
 		);
 		breakpoints = (
 		);
@@ -20,7 +20,7 @@
 			4F8F27C7131A78AE007A37CF /* Garageband */,
 			4FF6D80F12B28631001E9114 /* Live */,
 			4FF6D80D12B285DC001E9114 /* Reaper */,
-			4F7F5D0713E9676F002918FD /* ProTools9 Dev */,
+			4F7F5D0713E9676F002918FD /* ProTools Dev */,
 			4F4AD1B61409A2BB0068A6D4 /* VST3TestHost */,
 			4F2BB0CF141402D500564FFC /* Studio One */,
 		);
@@ -82,7 +82,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					341,
+					1117,
 					20,
 					48,
 					43,
@@ -156,7 +156,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					325,
+					1208,
 					60,
 					20,
 					48,
@@ -173,8 +173,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 339518757;
-			PBXWorkspaceStateSaveDate = 339518757;
+			PBXPerProjectTemplateStateSaveDate = 342033582;
+			PBXWorkspaceStateSaveDate = 342033582;
+		};
+		perUserProjectItems = {
+			4F79A34F146304D800744AED /* PBXBookmark */ = 4F79A34F146304D800744AED /* PBXBookmark */;
+			4F79A350146304D800744AED /* PBXTextBookmark */ = 4F79A350146304D800744AED /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -966,6 +970,27 @@
 	4F78DAF113B643600032E0F3 /* All */ = {
 		activeExec = 0;
 	};
+	4F79A34D146304CD00744AED /* IPlugProcessAS.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1280, 728}}";
+			sepNavSelRange = "{506, 0}";
+			sepNavVisRange = "{0, 1359}";
+		};
+	};
+	4F79A34F146304D800744AED /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 4F79A34D146304CD00744AED /* IPlugProcessAS.h */;
+	};
+	4F79A350146304D800744AED /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F79A34D146304CD00744AED /* IPlugProcessAS.h */;
+		name = "IPlugProcessAS.h: 21";
+		rLen = 0;
+		rLoc = 506;
+		rType = 0;
+		vrLen = 1359;
+		vrLoc = 0;
+	};
 	4F7F5C4213E95EC8002918FD /* RTAS_32_intel */ = {
 		activeExec = 0;
 	};
@@ -1088,7 +1113,7 @@
 			sepNavVisRange = "{0, 3887}";
 		};
 	};
-	4F7F5D0713E9676F002918FD /* ProTools9 Dev */ = {
+	4F7F5D0713E9676F002918FD /* ProTools Dev */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
 		);
@@ -1125,23 +1150,23 @@
 		);
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
-		launchableReference = 4F7F5D0813E9676F002918FD /* Pro Tools */;
+		launchableReference = 4F7F5D0813E9676F002918FD /* Pro Tools.app */;
 		libgmallocEnabled = 0;
-		name = "ProTools9 Dev";
+		name = "ProTools Dev";
 		savedGlobals = {
 		};
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
-		startupPath = "/Applications/Digidesign/ProTools_902_3PDev/Pro Tools";
+		startupPath = "/Applications/Digidesign/ProTools_3PDev/Pro Tools.app";
 		variableFormatDictionary = {
 		};
 	};
-	4F7F5D0813E9676F002918FD /* Pro Tools */ = {
+	4F7F5D0813E9676F002918FD /* Pro Tools.app */ = {
 		isa = PBXFileReference;
 		lastKnownFileType = folder;
-		name = "Pro Tools";
-		path = "/Applications/Digidesign/ProTools_902_3PDev/Pro Tools";
+		name = "Pro Tools.app";
+		path = "/Applications/Digidesign/ProTools_3PDev/Pro Tools.app";
 		sourceTree = "<absolute>";
 	};
 	4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {

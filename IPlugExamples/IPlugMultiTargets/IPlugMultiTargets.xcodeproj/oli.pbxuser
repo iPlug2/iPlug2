@@ -3,10 +3,10 @@
 	089C1669FE841209C02AAC07 /* Project object */ = {
 		activeArchitecturePreference = i386;
 		activeBuildConfigurationName = Release;
-		activeExecutable = 4F7F5D0713E9676F002918FD /* ProTools9 Dev */;
+		activeExecutable = 4F7F5D0713E9676F002918FD /* ProTools Dev */;
 		activeTarget = 4F7F5C4213E95EC8002918FD /* RTAS_32_intel */;
 		addToTargets = (
-			4F3E69071409747300C4D749 /* VST3_32_intel */,
+			4F7F5C4213E95EC8002918FD /* RTAS_32_intel */,
 		);
 		breakpoints = (
 		);
@@ -20,7 +20,7 @@
 			4F8F27C7131A78AE007A37CF /* Garageband */,
 			4FF6D80F12B28631001E9114 /* Live */,
 			4FF6D80D12B285DC001E9114 /* Reaper */,
-			4F7F5D0713E9676F002918FD /* ProTools9 Dev */,
+			4F7F5D0713E9676F002918FD /* ProTools Dev */,
 			4F4AD1B61409A2BB0068A6D4 /* VST3TestHost */,
 		);
 		perUserDictionary = {
@@ -172,67 +172,18 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 339518769;
-			PBXWorkspaceStateSaveDate = 339518769;
+			PBXPerProjectTemplateStateSaveDate = 342033510;
+			PBXWorkspaceStateSaveDate = 342033510;
 		};
 		perUserProjectItems = {
-			4F01BBAB1438B92400FF94C5 /* PBXTextBookmark */ = 4F01BBAB1438B92400FF94C5 /* PBXTextBookmark */;
-			4F01BBAC1438B92400FF94C5 /* PBXTextBookmark */ = 4F01BBAC1438B92400FF94C5 /* PBXTextBookmark */;
-			4F09615B1438BFF800880A17 /* PBXTextBookmark */ = 4F09615B1438BFF800880A17 /* PBXTextBookmark */;
-			4F09615C1438BFF800880A17 /* PBXTextBookmark */ = 4F09615C1438BFF800880A17 /* PBXTextBookmark */;
-			4FB26076143CA57200AC408E /* PBXTextBookmark */ = 4FB26076143CA57200AC408E /* PBXTextBookmark */;
-			4FB26082143CB38600AC408E /* PlistBookmark */ = 4FB26082143CB38600AC408E /* PlistBookmark */;
-			4FB26083143CB38600AC408E /* PlistBookmark */ = 4FB26083143CB38600AC408E /* PlistBookmark */;
-			4FB26084143CB38600AC408E /* PlistBookmark */ = 4FB26084143CB38600AC408E /* PlistBookmark */;
-			4FB26085143CB38600AC408E /* PlistBookmark */ = 4FB26085143CB38600AC408E /* PlistBookmark */;
-			4FB26086143CB38600AC408E /* PlistBookmark */ = 4FB26086143CB38600AC408E /* PlistBookmark */;
-			4FB26087143CB38600AC408E /* PlistBookmark */ = 4FB26087143CB38600AC408E /* PlistBookmark */;
+			4F79A3111463048300744AED /* PBXBookmark */ = 4F79A3111463048300744AED /* PBXBookmark */;
+			4F79A3121463048300744AED /* PBXTextBookmark */ = 4F79A3121463048300744AED /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
 			OBJROOT = "$(SYMROOT)";
 			SYMROOT = "$(PROJECT_DIRECTORY)build-mac";
 		};
-	};
-	4F01BBAB1438B92400FF94C5 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 1001";
-		rLen = 0;
-		rLoc = 30515;
-		rType = 0;
-		vrLen = 1467;
-		vrLoc = 29248;
-	};
-	4F01BBAC1438B92400FF94C5 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA113B6327C001D0217 /* app_dialog.cpp */;
-		name = "app_dialog.cpp: 547";
-		rLen = 0;
-		rLoc = 20753;
-		rType = 0;
-		vrLen = 892;
-		vrLoc = 19908;
-	};
-	4F09615B1438BFF800880A17 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiTargets.cpp */;
-		name = "IPlugMultiTargets.cpp: 265";
-		rLen = 0;
-		rLoc = 7291;
-		rType = 0;
-		vrLen = 764;
-		vrLoc = 7090;
-	};
-	4F09615C1438BFF800880A17 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
-		name = "resource.h: 16";
-		rLen = 0;
-		rLoc = 470;
-		rType = 0;
-		vrLen = 1589;
-		vrLoc = 0;
 	};
 	4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {
 		uiCtxt = {
@@ -980,6 +931,27 @@
 	4F78DAF113B643600032E0F3 /* All */ = {
 		activeExec = 0;
 	};
+	4F79A30E1463047900744AED /* IPlugProcessAS.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1136, 2392}}";
+			sepNavSelRange = "{361, 0}";
+			sepNavVisRange = "{0, 938}";
+		};
+	};
+	4F79A3111463048300744AED /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 4F79A30E1463047900744AED /* IPlugProcessAS.cpp */;
+	};
+	4F79A3121463048300744AED /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4F79A30E1463047900744AED /* IPlugProcessAS.cpp */;
+		name = "IPlugProcessAS.cpp: 15";
+		rLen = 0;
+		rLoc = 361;
+		rType = 0;
+		vrLen = 938;
+		vrLoc = 0;
+	};
 	4F7F5C4213E95EC8002918FD /* RTAS_32_intel */ = {
 		activeExec = 0;
 	};
@@ -1102,7 +1074,7 @@
 			sepNavVisRange = "{0, 3887}";
 		};
 	};
-	4F7F5D0713E9676F002918FD /* ProTools9 Dev */ = {
+	4F7F5D0713E9676F002918FD /* ProTools Dev */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
 		);
@@ -1139,23 +1111,23 @@
 		);
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
-		launchableReference = 4F7F5D0813E9676F002918FD /* Pro Tools */;
+		launchableReference = 4F7F5D0813E9676F002918FD /* Pro Tools.app */;
 		libgmallocEnabled = 0;
-		name = "ProTools9 Dev";
+		name = "ProTools Dev";
 		savedGlobals = {
 		};
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
-		startupPath = "/Applications/Digidesign/ProTools_902_3PDev/Pro Tools";
+		startupPath = "/Applications/Digidesign/ProTools_3PDev/Pro Tools.app";
 		variableFormatDictionary = {
 		};
 	};
-	4F7F5D0813E9676F002918FD /* Pro Tools */ = {
+	4F7F5D0813E9676F002918FD /* Pro Tools.app */ = {
 		isa = PBXFileReference;
 		lastKnownFileType = folder;
-		name = "Pro Tools";
-		path = "/Applications/Digidesign/ProTools_902_3PDev/Pro Tools";
+		name = "Pro Tools.app";
+		path = "/Applications/Digidesign/ProTools_3PDev/Pro Tools.app";
 		sourceTree = "<absolute>";
 	};
 	4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {
@@ -1203,82 +1175,6 @@
 	};
 	4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */ = {
 		activeExec = 0;
-	};
-	4FB26076143CA57200AC408E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16C9E13B6327C001D0217 /* app_resource.h */;
-		name = "app_resource.h: 30";
-		rLen = 0;
-		rLoc = 1069;
-		rType = 0;
-		vrLen = 1260;
-		vrLoc = 0;
-	};
-	4FB26082143CB38600AC408E /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F3E693A1409747300C4D749 /* IPlugMultiTargets-VST3-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-VST3-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775807;
-	};
-	4FB26083143CB38600AC408E /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1513B647E50097A67E /* IPlugMultiTargets-VST2-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-VST2-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775807;
-	};
-	4FB26084143CB38600AC408E /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F7F5C0C13E95DDC002918FD /* IPlugMultiTargets-RTAS-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-RTAS-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775807;
-	};
-	4FB26085143CB38600AC408E /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1413B647E50097A67E /* IPlugMultiTargets-OSXAPP-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-OSXAPP-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775807;
-	};
-	4FB26086143CB38600AC408E /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-AU-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775807;
-	};
-	4FB26087143CB38600AC408E /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1313B647E50097A67E /* IPlugMultiTargets-AU-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugMultiTargets/resources/IPlugMultiTargets-AU-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775807;
 	};
 	4FB3624E13B648FE00DB6B76 /* main.m */ = {
 		uiCtxt = {

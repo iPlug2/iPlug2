@@ -22,7 +22,7 @@ def main():
       
   
   FullVersionStr = MajorStr + "." + MinorStr + "." + BugfixStr
-  CFBundleGetInfoString = FullVersionStr + ", Copyright DEFAULT_MFR, 2011"
+  CFBundleGetInfoString = FullVersionStr + ", Copyright AcmeInc, 2011"
   CFBundleVersion = FullVersionStr
   
   print "update_version.py - setting version to " + FullVersionStr
