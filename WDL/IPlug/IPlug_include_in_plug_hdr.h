@@ -1,7 +1,7 @@
 #ifndef _IPLUG_INCLUDE_HDR_
 #define _IPLUG_INCLUDE_HDR_
 
-// Include this file in the main header for your plugin, 
+// Include this file in the main header for your plugin,
 // after #defining either VST_API or AU_API.
 #include <stdio.h>
 #include "IPlugOSDetect.h"
@@ -33,7 +33,11 @@
 
 #ifdef OS_WIN
   #include "IGraphicsWin.h"
-  #define EXPORT __declspec(dllexport)
+  #ifdef __MINGW32__
+    #define EXPORT __attribute__ ((visibility("default")))
+  #else
+    #define EXPORT __declspec(dllexport)
+  #endif
 #elif defined OS_OSX
   #include "IGraphicsMac.h"
   #define EXPORT __attribute__ ((visibility("default")))

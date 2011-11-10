@@ -1,12 +1,15 @@
 #ifndef _IPLUG_INCLUDE_SRC_
 #define _IPLUG_INCLUDE_SRC_
 
-// Include this file in the main source for your plugin, 
+// Include this file in the main source for your plugin,
 // after #including the main header for your plugin.
 
 #if defined OS_WIN
   HINSTANCE gHInstance = 0;
   #ifdef VST_API //TODO check
+  #ifdef __MINGW32__
+  extern "C"
+  #endif
   BOOL WINAPI DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
   {
     gHInstance = hDllInst;
@@ -17,7 +20,7 @@
   IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(pPlug, w, h, FPS);
-    
+
     pGraphics->SetHInstance(gHInstance);
     return pGraphics;
   }
@@ -27,7 +30,7 @@
     IGraphicsMac* pGraphics = new IGraphicsMac(pPlug, w, h, FPS);
     pGraphics->SetBundleID(BUNDLE_ID);
     return pGraphics;
-  }   
+  }
 #elif defined OS_IOS
   IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
   {
@@ -35,19 +38,19 @@
   }
 #else
   #error "No OS defined!"
-#endif 
+#endif
 
 #if defined VST_API
   extern "C"
   {
     EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
-    {    
+    {
       static WDL_Mutex sMutex;
       WDL_MutexLock lock(&sMutex);
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
       IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
-      if (pPlug) { 
+      if (pPlug) {
         pPlug->EnsureDefaultPreset();
         pPlug->mAEffect.numPrograms = IPMAX(pPlug->mAEffect.numPrograms, 1);
         return &(pPlug->mAEffect);
@@ -82,20 +85,20 @@ unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 using namespace Steinberg::Vst;
 
 // called after library was loaded
-bool InitModule ()   
+bool InitModule ()
 {
   #ifdef OS_WIN
 	extern void* moduleHandle;
 	gHInstance = (HINSTANCE) moduleHandle;
   #endif
 
-	return true; 
+	return true;
 }
 
 // called after library is unloaded
 bool DeinitModule ()
 {
-	return true; 
+	return true;
 }
 
 IPlug* MakePlug()
@@ -103,7 +106,7 @@ IPlug* MakePlug()
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugInstanceInfo instanceInfo;
-  
+
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 
@@ -112,10 +115,10 @@ static FUnknown* createInstance (void*) {
 }
 
 // Company Information
-BEGIN_FACTORY_DEF (PLUG_MFR, MFR_URL, MFR_EMAIL)  
+BEGIN_FACTORY_DEF (PLUG_MFR, MFR_URL, MFR_EMAIL)
 
 DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
-            PClassInfo::kManyInstances,                         // cardinality 
+            PClassInfo::kManyInstances,                         // cardinality
             kVstAudioEffectClass,                               // the component category (don't change this)
             PLUG_NAME,                                          // plug-in name
             Vst::kSimpleModeSupported,                          // kSimpleModeSupported because we can't split the gui and plugin
@@ -154,7 +157,7 @@ END_FACTORY
     WDL_MutexLock lock(&sMutex);
     IPlugInstanceInfo instanceInfo;
     instanceInfo.magic = 67;
-    
+
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #elif defined SA_API
@@ -164,7 +167,7 @@ END_FACTORY
     static WDL_Mutex sMutex;
     WDL_MutexLock lock(&sMutex);
     IPlugInstanceInfo instanceInfo;
-    
+
     #if defined OS_WIN
       instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
       instanceInfo.mMidiOutChan = pMidiOutChan;
@@ -175,7 +178,7 @@ END_FACTORY
     #elif defined OS_IOS
       instanceInfo.mIOSBundleID.Set(BUNDLE_ID);
       instanceInfo.mIOSLink = (IOSLink*) ioslink;
-    #endif 
+    #endif
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }
