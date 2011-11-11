@@ -82,7 +82,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1077,
+					1062,
 					20,
 					48,
 					43,
@@ -173,14 +173,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 342033473;
-			PBXWorkspaceStateSaveDate = 342033473;
+			PBXPerProjectTemplateStateSaveDate = 342713502;
+			PBXWorkspaceStateSaveDate = 342713502;
 		};
 		perUserProjectItems = {
-			4F79A2EB1463045F00744AED /* PBXBookmark */ = 4F79A2EB1463045F00744AED /* PBXBookmark */;
-			4F79A2EC1463045F00744AED /* PBXTextBookmark */ = 4F79A2EC1463045F00744AED /* PBXTextBookmark */;
-			4FE8DAEF145AEE3F004334E4 /* PlistBookmark */ = 4FE8DAEF145AEE3F004334E4 /* PlistBookmark */;
-			4FE8DB05145AEE57004334E4 /* PBXTextBookmark */ = 4FE8DB05145AEE57004334E4 /* PBXTextBookmark */;
+			4FCF9AF9146D64CE006AF626 /* PBXTextBookmark */ = 4FCF9AF9146D64CE006AF626 /* PBXTextBookmark */;
+			4FCF9AFA146D64CE006AF626 /* PBXTextBookmark */ = 4FCF9AFA146D64CE006AF626 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -388,20 +386,6 @@
 			sepNavIntBoundsRect = "{{0, 0}, {1606, 1391}}";
 			sepNavSelRange = "{2589, 11}";
 			sepNavVisRange = "{1757, 2670}";
-		};
-	};
-	4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1539, 8697}}";
-			sepNavSelRange = "{9298, 14}";
-			sepNavVisRange = "{8713, 788}";
-		};
-	};
-	4F4AD008140996A10068A6D4 /* vsteditcontroller.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1289, 4199}}";
-			sepNavSelRange = "{6547, 10}";
-			sepNavVisRange = "{5621, 1599}";
 		};
 	};
 	4F4AD00C140996A10068A6D4 /* vstparameters.cpp */ = {
@@ -974,24 +958,10 @@
 	};
 	4F79A2E91463044F00744AED /* IPlugProcessAS.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1240, 741}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1240, 728}}";
 			sepNavSelRange = "{361, 0}";
-			sepNavVisRange = "{0, 1485}";
+			sepNavVisRange = "{0, 1422}";
 		};
-	};
-	4F79A2EB1463045F00744AED /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = 4F79A2E91463044F00744AED /* IPlugProcessAS.h */;
-	};
-	4F79A2EC1463045F00744AED /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F79A2E91463044F00744AED /* IPlugProcessAS.h */;
-		name = "IPlugProcessAS.h: 18";
-		rLen = 0;
-		rLoc = 361;
-		rType = 0;
-		vrLen = 1485;
-		vrLoc = 0;
 	};
 	4F7F5C4213E95EC8002918FD /* RTAS_32_intel */ = {
 		activeExec = 0;
@@ -1232,6 +1202,26 @@
 			sepNavWindowFrame = "{{15, 10}, {1135, 1163}}";
 		};
 	};
+	4FCF9AF9146D64CE006AF626 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 110";
+		rLen = 0;
+		rLoc = 3669;
+		rType = 0;
+		vrLen = 2053;
+		vrLoc = 340;
+	};
+	4FCF9AFA146D64CE006AF626 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 30";
+		rLen = 0;
+		rLoc = 871;
+		rType = 0;
+		vrLen = 2053;
+		vrLoc = 340;
+	};
 	4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */ = {
 		activeExec = 0;
 		executables = (
@@ -1456,34 +1446,6 @@
 	4FE33FF410B4519D00B5FB70 /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
-	};
-	4FE8DAEF145AEE3F004334E4 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 4F23BA1313B647E50097A67E /* IPlugOpenGL-AU-Info.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/oli/Dev/MyPlugins/IPlugExamples/IPlugOpenGL/resources/IPlugOpenGL-AU-Info.plist";
-		rLen = 0;
-		rLoc = 9223372036854775808;
-	};
-	4FE8DB03145AEE48004334E4 /* pngread.c */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = sourcecode.c.c;
-		name = pngread.c;
-		path = /Users/oli/Dev/MyPlugins/WDL/IPlug/../libpng/pngread.c;
-		sourceTree = "<absolute>";
-	};
-	4FE8DB05145AEE57004334E4 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FE8DB03145AEE48004334E4 /* pngread.c */;
-		name = "pngread.c: 157";
-		rLen = 0;
-		rLoc = 4634;
-		rType = 0;
-		vrLen = 1268;
-		vrLoc = 4371;
 	};
 	4FF016F4134E14E2001447BA /* mutex.h */ = {
 		uiCtxt = {
@@ -1744,8 +1706,8 @@
 	52FBBED30D0CF143001C8B8A /* resource.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1517, 1534}}";
-			sepNavSelRange = "{3669, 0}";
-			sepNavVisRange = "{206, 2157}";
+			sepNavSelRange = "{871, 0}";
+			sepNavVisRange = "{340, 2053}";
 			sepNavWindowFrame = "{{15, 4}, {1416, 1024}}";
 		};
 	};

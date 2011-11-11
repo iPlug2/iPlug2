@@ -427,7 +427,6 @@
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstbus.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.cpp" />
-    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />

@@ -89,7 +89,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					356,
+					1096,
 					20,
 					48,
 					43,
@@ -180,8 +180,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 342033391;
-			PBXWorkspaceStateSaveDate = 342033391;
+			PBXPerProjectTemplateStateSaveDate = 342713151;
+			PBXWorkspaceStateSaveDate = 342713151;
+		};
+		perUserProjectItems = {
+			4FCF9ADF146D6364006AF626 /* PBXTextBookmark */ = 4FCF9ADF146D6364006AF626 /* PBXTextBookmark */;
+			4FCF9AE0146D6364006AF626 /* PBXTextBookmark */ = 4FCF9AE0146D6364006AF626 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -389,20 +393,6 @@
 			sepNavIntBoundsRect = "{{0, 0}, {1606, 1391}}";
 			sepNavSelRange = "{2589, 11}";
 			sepNavVisRange = "{1757, 2670}";
-		};
-	};
-	4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1539, 8697}}";
-			sepNavSelRange = "{9298, 14}";
-			sepNavVisRange = "{8713, 788}";
-		};
-	};
-	4F4AD008140996A10068A6D4 /* vsteditcontroller.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1289, 4199}}";
-			sepNavSelRange = "{6547, 10}";
-			sepNavVisRange = "{5621, 1599}";
 		};
 	};
 	4F4AD00C140996A10068A6D4 /* vstparameters.cpp */ = {
@@ -1212,6 +1202,26 @@
 			sepNavWindowFrame = "{{15, 10}, {1135, 1163}}";
 		};
 	};
+	4FCF9ADF146D6364006AF626 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 411;
+		vrLoc = 0;
+	};
+	4FCF9AE0146D6364006AF626 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 10";
+		rLen = 0;
+		rLoc = 216;
+		rType = 0;
+		vrLen = 2176;
+		vrLoc = 0;
+	};
 	4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */ = {
 		activeExec = 0;
 		executables = (
@@ -1709,9 +1719,9 @@
 	};
 	52FBBED30D0CF143001C8B8A /* resource.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1517, 1495}}";
-			sepNavSelRange = "{3109, 0}";
-			sepNavVisRange = "{2192, 1892}";
+			sepNavIntBoundsRect = "{{0, 0}, {1517, 1430}}";
+			sepNavSelRange = "{216, 0}";
+			sepNavVisRange = "{0, 2176}";
 			sepNavWindowFrame = "{{15, 4}, {1416, 1024}}";
 		};
 	};

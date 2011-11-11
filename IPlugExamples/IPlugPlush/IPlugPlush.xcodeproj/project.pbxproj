@@ -74,7 +74,6 @@
 		4F4AD049140996A10068A6D4 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD001140996A10068A6D4 /* vstbus.cpp */; };
 		4F4AD04A140996A10068A6D4 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD003140996A10068A6D4 /* vstcomponent.cpp */; };
 		4F4AD04B140996A10068A6D4 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */; };
-		4F4AD04C140996A10068A6D4 /* vsteditcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */; };
 		4F4AD04D140996A10068A6D4 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD009140996A10068A6D4 /* vstinitiids.cpp */; };
 		4F4AD04E140996A10068A6D4 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */; };
 		4F4AD04F140996A10068A6D4 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00C140996A10068A6D4 /* vstparameters.cpp */; };
@@ -314,7 +313,6 @@
 		4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD001140996A10068A6D4 /* vstbus.cpp */; };
 		4F9828CB140A9EB700F3FCC1 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD003140996A10068A6D4 /* vstcomponent.cpp */; };
 		4F9828CC140A9EB700F3FCC1 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */; };
-		4F9828CD140A9EB700F3FCC1 /* vsteditcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */; };
 		4F9828CE140A9EB700F3FCC1 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD009140996A10068A6D4 /* vstinitiids.cpp */; };
 		4F9828CF140A9EB700F3FCC1 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */; };
 		4F9828D0140A9EB700F3FCC1 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00C140996A10068A6D4 /* vstparameters.cpp */; };
@@ -621,8 +619,6 @@
 		4F4AD004140996A10068A6D4 /* vstcomponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstcomponent.h; sourceTree = "<group>"; };
 		4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstcomponentbase.cpp; sourceTree = "<group>"; };
 		4F4AD006140996A10068A6D4 /* vstcomponentbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstcomponentbase.h; sourceTree = "<group>"; };
-		4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vsteditcontroller.cpp; sourceTree = "<group>"; };
-		4F4AD008140996A10068A6D4 /* vsteditcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsteditcontroller.h; sourceTree = "<group>"; };
 		4F4AD009140996A10068A6D4 /* vstinitiids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstinitiids.cpp; sourceTree = "<group>"; };
 		4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstnoteexpressiontypes.cpp; sourceTree = "<group>"; };
 		4F4AD00B140996A10068A6D4 /* vstnoteexpressiontypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstnoteexpressiontypes.h; sourceTree = "<group>"; };
@@ -920,6 +916,7 @@
 				4FEDAF64144DBBF200CEF4AF /* I3DControl.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugPlush.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugPlush.cpp */,
+				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
@@ -982,7 +979,6 @@
 				4FD16C9D13B6327C001D0217 /* OSX App Wrapper */,
 				526F9C010D7DC7D700562CF8 /* IPlugPlush.exp */,
 				4FCF15AF133124D1009A6277 /* IPlugPlush.xcconfig */,
-				089C167CFE841241C02AAC07 /* Resources */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -1064,8 +1060,6 @@
 				4F4AD004140996A10068A6D4 /* vstcomponent.h */,
 				4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */,
 				4F4AD006140996A10068A6D4 /* vstcomponentbase.h */,
-				4F4AD007140996A10068A6D4 /* vsteditcontroller.cpp */,
-				4F4AD008140996A10068A6D4 /* vsteditcontroller.h */,
 				4F4AD009140996A10068A6D4 /* vstinitiids.cpp */,
 				4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */,
 				4F4AD00B140996A10068A6D4 /* vstnoteexpressiontypes.h */,
@@ -2117,7 +2111,6 @@
 				4F4AD049140996A10068A6D4 /* vstbus.cpp in Sources */,
 				4F4AD04A140996A10068A6D4 /* vstcomponent.cpp in Sources */,
 				4F4AD04B140996A10068A6D4 /* vstcomponentbase.cpp in Sources */,
-				4F4AD04C140996A10068A6D4 /* vsteditcontroller.cpp in Sources */,
 				4F4AD04D140996A10068A6D4 /* vstinitiids.cpp in Sources */,
 				4F4AD04E140996A10068A6D4 /* vstnoteexpressiontypes.cpp in Sources */,
 				4F4AD04F140996A10068A6D4 /* vstparameters.cpp in Sources */,
@@ -2240,7 +2233,6 @@
 				4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */,
 				4F9828CB140A9EB700F3FCC1 /* vstcomponent.cpp in Sources */,
 				4F9828CC140A9EB700F3FCC1 /* vstcomponentbase.cpp in Sources */,
-				4F9828CD140A9EB700F3FCC1 /* vsteditcontroller.cpp in Sources */,
 				4F9828CE140A9EB700F3FCC1 /* vstinitiids.cpp in Sources */,
 				4F9828CF140A9EB700F3FCC1 /* vstnoteexpressiontypes.cpp in Sources */,
 				4F9828D0140A9EB700F3FCC1 /* vstparameters.cpp in Sources */,
