@@ -820,12 +820,13 @@ void IGraphicsWin::PluginPath(WDL_String* pPath)
 void IGraphicsWin::DesktopPath(WDL_String* pPath)
 {
   TCHAR strPath[MAX_PATH_LEN];
-  
+#ifndef __MINGW_H
   // Get the special folder path.
   SHGetSpecialFolderPath( 0,       // Hwnd
                          strPath, // String buffer.
                          CSIDL_DESKTOP, // CSLID of folder
                          FALSE );
+#endif
   
   pPath->Set(strPath, MAX_PATH_LEN);
 }
