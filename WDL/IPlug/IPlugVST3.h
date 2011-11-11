@@ -4,7 +4,6 @@
 
 #include "IPlugBase.h"
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
-#include "public.sdk/source/vst/vsteditcontroller.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vsttypes.h"
 #include "IMidiQueue.h"
