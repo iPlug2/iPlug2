@@ -246,17 +246,7 @@
 		4F78DAB913B640530032E0F3 /* RtError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C113B63A700032E0F3 /* RtError.h */; };
 		4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C313B63A700032E0F3 /* RtMidi.h */; };
 		4F78DABB13B640620032E0F3 /* IPlugStandalone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9EA13B63BE90032E0F3 /* IPlugStandalone.h */; };
-		4F79A2B71463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
 		4F79A2B81463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
-		4F79A2B91463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
-		4F79A2BA1463040B00744AED /* IPlugProcessAS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F79A2B61463040B00744AED /* IPlugProcessAS.h */; };
-		4F79A2BB1463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
-		4F79A2BC1463040B00744AED /* IPlugProcessAS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F79A2B61463040B00744AED /* IPlugProcessAS.h */; };
-		4F79A2BD1463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
-		4F79A2BE1463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
-		4F79A2BF1463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
-		4F79A2C01463040B00744AED /* IPlugProcessAS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F79A2B61463040B00744AED /* IPlugProcessAS.h */; };
-		4F79A2C11463040B00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */; };
 		4F7F5C4613E95EC8002918FD /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F7F5C4913E95EC8002918FD /* IPlugPlush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugPlush.cpp */; };
 		4F7F5C5013E95EC8002918FD /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -1353,8 +1343,6 @@
 		4F7F5C9913E9607A002918FD /* RTAS */ = {
 			isa = PBXGroup;
 			children = (
-				4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */,
-				4F79A2B61463040B00744AED /* IPlugProcessAS.h */,
 				4F7F5CB713E96082002918FD /* include */,
 				4F7F5D2413E9681E002918FD /* IPlugRTAS.r */,
 				4F7F5C9F13E9607A002918FD /* EditorInterface.h */,
@@ -1367,6 +1355,8 @@
 				4F7F5CA613E9607A002918FD /* IPlugProcess.h */,
 				4F7F5CA713E9607A002918FD /* IPlugProcessRTAS.cpp */,
 				4F7F5CA813E9607A002918FD /* IPlugProcessRTAS.h */,
+				4F79A2B51463040B00744AED /* IPlugProcessAS.cpp */,
+				4F79A2B61463040B00744AED /* IPlugProcessAS.h */,
 				4F7F5CAA13E9607A002918FD /* ProcessInterface.h */,
 				4F7F5CAB13E9607A002918FD /* CommonDebugSettings.xcconfig */,
 				4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */,
@@ -1562,7 +1552,6 @@
 				4FEDAF65144DBBF200CEF4AF /* I3DControl.h in Headers */,
 				4FEDAFA6144DBC3500CEF4AF /* pl_pf_tex.h in Headers */,
 				4FEDAFAC144DBC3500CEF4AF /* plush.h in Headers */,
-				4F79A2BA1463040B00744AED /* IPlugProcessAS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1607,7 +1596,6 @@
 				4FEDAF66144DBBF200CEF4AF /* I3DControl.h in Headers */,
 				4FEDAFB1144DBC3500CEF4AF /* pl_pf_tex.h in Headers */,
 				4FEDAFB7144DBC3500CEF4AF /* plush.h in Headers */,
-				4F79A2BC1463040B00744AED /* IPlugProcessAS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1657,7 +1645,6 @@
 				4FEDAF67144DBBF200CEF4AF /* I3DControl.h in Headers */,
 				4FEDAFCE144DBC3500CEF4AF /* pl_pf_tex.h in Headers */,
 				4FEDAFD4144DBC3500CEF4AF /* plush.h in Headers */,
-				4F79A2C01463040B00744AED /* IPlugProcessAS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2046,7 +2033,6 @@
 				4FEDAFBE144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAFBF144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAFC0144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2BD1463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2080,7 +2066,6 @@
 				4FEDAFA9144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAFAA144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAFAB144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2B91463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2129,7 +2114,6 @@
 				4FEDAF96144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAF97144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAF98144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2B71463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2163,7 +2147,6 @@
 				4FEDAFB4144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAFB5144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAFB6144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2BB1463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2251,7 +2234,6 @@
 				4FEDAFDB144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAFDC144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAFDD144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2C11463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2298,7 +2280,6 @@
 				4FEDAFD1144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAFD2144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAFD3144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2BF1463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2330,7 +2311,6 @@
 				4FEDAFC7144DBC3500CEF4AF /* pl_read_cob.cpp in Sources */,
 				4FEDAFC8144DBC3500CEF4AF /* pl_read_jaw.cpp in Sources */,
 				4FEDAFC9144DBC3500CEF4AF /* pl_spline.cpp in Sources */,
-				4F79A2BE1463040B00744AED /* IPlugProcessAS.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
