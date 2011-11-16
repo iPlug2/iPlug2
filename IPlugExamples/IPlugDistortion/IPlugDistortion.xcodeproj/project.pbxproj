@@ -87,6 +87,14 @@
 		4F55733B12C7F49C003A4AD1 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F55733C12C7F49C003A4AD1 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F55733D12C7F49C003A4AD1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
+		4F7309B71474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309B81474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309B91474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309BA1474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309BB1474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309BC1474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309BD1474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
+		4F7309BE1474053900EC48A1 /* besselfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7309B61474053900EC48A1 /* besselfilter.cpp */; };
 		4F78D70B13B637340032E0F3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D62313B637200032E0F3 /* CoreFoundation.framework */; };
 		4F78D7D013B637790032E0F3 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */; };
 		4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F7E65807B2D6F200F64583 /* CoreData.framework */; };
@@ -574,6 +582,7 @@
 		4F4AD03E140996A10068A6D4 /* vsttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsttypes.h; sourceTree = "<group>"; };
 		4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = ../../VST3_SDK/base/mac/base.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F55734412C7F49C003A4AD1 /* IPlugDistortion.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugDistortion.component; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F7309B61474053900EC48A1 /* besselfilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = besselfilter.cpp; path = ../../WDL/besselfilter.cpp; sourceTree = SOURCE_ROOT; };
 		4F78D62313B637200032E0F3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		4F78D89613B639100032E0F3 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
@@ -865,6 +874,7 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4F7309B61474053900EC48A1 /* besselfilter.cpp */,
 				4FEDAE87144DB26B00CEF4AF /* besselfilter.h */,
 				4F7F5C9913E9607A002918FD /* RTAS */,
 				4FD16C9D13B6327C001D0217 /* OSX App Wrapper */,
@@ -1891,6 +1901,7 @@
 				4F78D9C913B63BA50032E0F3 /* IControl.cpp in Sources */,
 				4F78D9F313B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
 				4FDA440C13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
+				4F7309B91474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1915,6 +1926,7 @@
 				4F78DA0A13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
 				4FDA440813F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4FA88B921444E4C4006CB8DA /* dfx-au-utilities.c in Sources */,
+				4F7309BC1474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1954,6 +1966,7 @@
 				4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */,
 				4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */,
 				4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */,
+				4F7309BD1474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1978,6 +1991,7 @@
 				4F78DA0213B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
 				4FDA440A13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4FA88B941444E4C4006CB8DA /* dfx-au-utilities.c in Sources */,
+				4F7309B81474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2008,6 +2022,7 @@
 				4F7F5CB313E9607A002918FD /* IPlugProcessRTAS.cpp in Sources */,
 				4FDA440713F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4F79A374146304F200744AED /* IPlugProcessAS.cpp in Sources */,
+				4F7309B71474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2047,6 +2062,7 @@
 				4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */,
 				4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */,
 				4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */,
+				4F7309BE1474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2084,6 +2100,7 @@
 				4FD16CA313B6327D001D0217 /* app_dialog.cpp in Sources */,
 				4FB3624F13B648FE00DB6B76 /* main.m in Sources */,
 				4FDA440E13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
+				4F7309BB1474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2106,6 +2123,7 @@
 				4F78D9E913B63BA50032E0F3 /* IControl.cpp in Sources */,
 				4F78D9EF13B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
 				4FDA440D13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
+				4F7309BA1474053900EC48A1 /* besselfilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
