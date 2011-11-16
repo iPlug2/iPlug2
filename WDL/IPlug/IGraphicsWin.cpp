@@ -865,38 +865,53 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
   
-  if (CSTR_NOT_EMPTY(extensions)) {
-    static char extStr[256];
-    static char defExtStr[16];
-    int i, j, p;
+  if (CSTR_NOT_EMPTY(extensions)) 
+  {
+      char extStr[256];
+      char defExtStr[16];
+      int i, p, n = strlen(extensions);
+      bool seperator = true;
 
-    for (j = 0, p = 0; j < strlen(extensions); ++j) {
-        extStr[p++] = extensions[j++];
-    }
-    extStr[p++] = '\0';
-
-    std::vector<std::string> exts = SplitStr(extensions);
-    for (i = 0, p = 0; i < exts.size(); ++i) {
-        const std::string& ext = exts[i];
-        if (i) {
+      for (i = 0, p = 0; i < n; ++i) 
+      {
+        if (seperator) 
+        {
+          if (p) 
+          {
             extStr[p++] = ';';
+          }
+          seperator = false;
+          extStr[p++] = '*';
+          extStr[p++] = '.';
         }
-        extStr[p++] = '*';
-        extStr[p++] = '.';
-        for (j = 0; j < ext.size(); ++j) {
-            extStr[p++] = ext[j];
+        
+        if (extensions[i] == ' ') 
+        {
+          seperator = true;
         }
-    }
-    extStr[p++] = '\0';
-    extStr[p++] = '\0';
-    ofn.lpstrFilter = extStr;
+        else 
+        {
+          extStr[p++] = extensions[i];
+        }
+      }
+      extStr[p++] = '\0';
 
-    strcpy(defExtStr, exts.front().c_str());
-    ofn.lpstrDefExt = defExtStr;
-  }
+      strcpy(&extStr[p], extStr);
+      extStr[p + p] = '\0';
+      ofn.lpstrFilter = extStr;
+
+      for (i = 0, p = 0; i < n && extensions[i] != ' '; ++i) 
+      {
+        defExtStr[p++] = extensions[i];
+      }
+
+      defExtStr[p++] = '\0';
+      ofn.lpstrDefExt = defExtStr;
+    }
 
     bool rc = false;
-    switch (action) {
+    switch (action) 
+    {
         case kFileSave:
             ofn.Flags |= OFN_OVERWRITEPROMPT;
             rc = GetSaveFileName(&ofn);

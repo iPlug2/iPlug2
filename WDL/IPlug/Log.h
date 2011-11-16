@@ -5,14 +5,10 @@
 #undef max
 
 #include <stdarg.h>
-#include <vector>
-#include <string>
 #include "Containers.h"
-
 #include "IPlugOSDetect.h"
 
 #if defined OS_WIN
-
   #include <stdio.h>
   #include <ctype.h>
 
@@ -66,14 +62,7 @@ struct Timer
 	bool Every(double sec);
 };
 
-// Not yet ported to WDL.
-// Snarf the whole file into a StrVector.
-//StrVector ReadFileIntoStr(WDL_String* pFileName);
-//int WriteBufferToFile(const DBuffer& buf, WDL_String* pFileName);
-// Split line into fields.  Whitespace is treated as contiguous.
-std::vector<std::string> SplitStr(const char* line);
 void ToLower(char* cDest, const char* cSrc);
-
 const char* CurrentTime();
 void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr);
 const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr);

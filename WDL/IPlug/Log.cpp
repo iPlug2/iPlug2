@@ -133,29 +133,6 @@ bool IsWhitespace(char c)
 	return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
 }
 
-// Needs rewriting for WDL.
-std::vector<std::string> SplitStr(const char* line)
-{
-	std::string field;
-	std::vector<std::string> fields;
-
-	for (int i = 0; i < strlen(line); ++i)
-  {
-    if (!IsWhitespace(line[i])) {
-			field.push_back(line[i]);
-		}
-		else
-      if (!field.empty()) {
-			fields.push_back(field);
-			field.clear();
-		}
-	}
-	if (!field.empty()) {
-		fields.push_back(field);
-	}
-	return fields;
-}
-
 void ToLower(char* cDest, const char* cSrc)
 {
   int i, n = (int) strlen(cSrc);
