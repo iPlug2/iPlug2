@@ -374,6 +374,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
     <ClCompile Include="IPlugDistortion.cpp" />
   </ItemGroup>
   <ItemGroup>

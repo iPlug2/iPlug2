@@ -67,6 +67,7 @@
     </ClInclude>
     <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">
@@ -91,6 +92,9 @@
       <Filter>Source Files\App Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="IPlugDistortion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

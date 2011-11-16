@@ -707,6 +707,10 @@
 			</Filter>
 		</Filter>
 		<File
+			RelativePath="..\..\WDL\besselfilter.cpp"
+			>
+		</File>
+		<File
 			RelativePath="IPlugDistortion-rtas.def"
 			>
 		</File>

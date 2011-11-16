@@ -23,9 +23,6 @@
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.cpp">
       <Filter>public.sdk\vst</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.cpp">
-      <Filter>public.sdk\vst</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp">
       <Filter>public.sdk\vst</Filter>
     </ClCompile>
@@ -42,6 +39,7 @@
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp">
       <Filter>public.sdk\vst</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugDistortion.h" />
