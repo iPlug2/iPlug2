@@ -1,15 +1,16 @@
 iplug-todo
 
-ALL - resource importing like cinder
-ALL - text entry dimensions / text size
+ALL - more flexible resource importing (not just png resources)
+ALL - fix text entry dimensions / text size
 ALL - freetype based font renderer, import .ttf files
 ALL - test keyboard input
-ALL - submenus
+ALL - popupmenu submenus
 ALL - resize graphics
 ALL - drag & drop area
 ALL - OS tooltips?
 ALL - make consistent code style
 ALL - make side chain/multi-channel definitions consistent/easier
+ALL - save fxp/fxb with chunks
 
 Examples:
 
@@ -20,7 +21,7 @@ AU wrapper:
 
 - mono output busess, i.e. for a drumsynth
 - preset changing in logic?
-- fix bypassing, so it copies input to output
+- auval "preset name not retained" message
 
 VST3 wrapper:
 
@@ -53,10 +54,10 @@ Standalone wrapper:
 - make it work with variable i/o count
 - make it work with non-gui plugins
 - transport & tempo generator
-- missing funtions in IPlugStandalone.h
-- windows midi - sendmidimsg cause a crash
+- missing functions in IPlugStandalone.h
+- windows midi - sendmidimsg() crash
 - windows midi - MS Built in GS Synth crashes when selected in prefs (XP)
-- state persistance - save fxp & option
+- state persistence - save fxp & option
 - look again at JACK client osx
 - get latency and display
 - improve MIDI output timing (portmidi instead of RTMidi?)
@@ -64,3 +65,4 @@ Standalone wrapper:
 IOS wrapper:
 
 - make it work better on device
+- see if it works with IOS 5 sdk / float remoteIO
