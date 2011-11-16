@@ -30,11 +30,6 @@
 		4F20EECB132C69FE0030E34C /* IPlugMultiChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiChannel.cpp */; };
 		4F20EF2D132C69FE0030E34C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F20EF2E132C69FE0030E34C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
-		4F23B9E913B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F23B9F313B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F23B9FD13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F23BA0213B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F23BA0C13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F3AE17B12C0E5E2001FD7A4 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* resource.h */; };
 		4F3AE17C12C0E5E2001FD7A4 /* IPlugMultiChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED20D0CF13D001C8B8A /* IPlugMultiChannel.h */; };
 		4F3AE1A312C0E5E2001FD7A4 /* IPlugMultiChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiChannel.cpp */; };
@@ -44,7 +39,6 @@
 		4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F3AE1D812C0E5E2001FD7A4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F3AE1D912C0E5E2001FD7A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
-		4F3E690C1409747300C4D749 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F3E69111409747300C4D749 /* IPlugMultiChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiChannel.cpp */; };
 		4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F3E69131409747300C4D749 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
@@ -247,7 +241,6 @@
 		4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C313B63A700032E0F3 /* RtMidi.h */; };
 		4F78DABB13B640620032E0F3 /* IPlugStandalone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9EA13B63BE90032E0F3 /* IPlugStandalone.h */; };
 		4F79A34E146304CD00744AED /* IPlugProcessAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F79A34C146304CD00744AED /* IPlugProcessAS.cpp */; };
-		4F7F5C4613E95EC8002918FD /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F7F5C4913E95EC8002918FD /* IPlugMultiChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiChannel.cpp */; };
 		4F7F5C5013E95EC8002918FD /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F7F5C5113E95EC8002918FD /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
@@ -279,7 +272,6 @@
 		4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2913E97794004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F9828B6140A9EB700F3FCC1 /* IPlugMultiChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMultiChannel.cpp */; };
 		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
@@ -504,7 +496,6 @@
 		1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F20EF33132C69FE0030E34C /* IPlugMultiChannel.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMultiChannel.vst; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F23B9E413B647A00097A67E /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = knob.png; path = resources/img/knob.png; sourceTree = "<group>"; };
 		4F23BA1313B647E50097A67E /* IPlugMultiChannel-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiChannel-AU-Info.plist"; path = "resources/IPlugMultiChannel-AU-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1413B647E50097A67E /* IPlugMultiChannel-OSXAPP-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiChannel-OSXAPP-Info.plist"; path = "resources/IPlugMultiChannel-OSXAPP-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IPlugMultiChannel-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMultiChannel-VST2-Info.plist"; path = "resources/IPlugMultiChannel-VST2-Info.plist"; sourceTree = "<group>"; };
@@ -832,7 +823,6 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				4FD16A0213B6303B001D0217 /* img */,
 				4F7F5C0C13E95DDC002918FD /* IPlugMultiChannel-RTAS-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugMultiChannel-AU-Info.plist */,
 				4F23BA1413B647E50097A67E /* IPlugMultiChannel-OSXAPP-Info.plist */,
@@ -1307,14 +1297,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4FD16A0213B6303B001D0217 /* img */ = {
-			isa = PBXGroup;
-			children = (
-				4F23B9E413B647A00097A67E /* knob.png */,
-			);
-			name = img;
-			sourceTree = "<group>";
-		};
 		4FD16C9D13B6327C001D0217 /* OSX App Wrapper */ = {
 			isa = PBXGroup;
 			children = (
@@ -1758,7 +1740,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F23B9F313B647A00097A67E /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1766,7 +1747,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F23BA0C13B647A00097A67E /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1774,7 +1754,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F3E690C1409747300C4D749 /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1782,7 +1761,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F23BA0213B647A00097A67E /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1790,7 +1768,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F7F5C4613E95EC8002918FD /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1798,7 +1775,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1809,7 +1785,6 @@
 				4F78D88613B6382B0032E0F3 /* IPlugMultiChannel.icns in Resources */,
 				4F78D89913B639100032E0F3 /* InfoPlist.strings in Resources */,
 				4F78D89A13B639100032E0F3 /* MainMenu.xib in Resources */,
-				4F23B9FD13B647A00097A67E /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1817,7 +1792,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F23B9E913B647A00097A67E /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
