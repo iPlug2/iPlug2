@@ -14,8 +14,9 @@ ALL - save fxp/fxb with chunks
 
 Examples:
 
-- fix IPlugDistortion standalone app (besselfilter.h problem)
-- IPlugPolySynth, IPlugSideChain, IPlugMultiChannel
+- IPlugPolySynth
+- IPlugSideChain
+- IPlugMultiChannel
 
 AU wrapper:
 
