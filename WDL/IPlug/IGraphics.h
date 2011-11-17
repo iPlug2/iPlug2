@@ -61,6 +61,13 @@ public:
   virtual bool WindowIsOpen() { return (GetWindow()); }
   virtual const char* GetGUIAPI() { return ""; };
 
+  // helper
+  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, int x, int y)
+  {
+    IRECT tempRect = IRECT(x,y,x,y);
+    return CreateIPopupMenu(pMenu, &tempRect);
+  }
+  
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect) = 0;
   virtual void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString = "", IParam* pParam = 0) = 0;
 
