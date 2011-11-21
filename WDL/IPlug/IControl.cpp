@@ -103,8 +103,8 @@ void IControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
 	SetDirty();
 }
 
-#define PARAM_EDIT_W 42
-#define PARAM_EDIT_H 21
+#define PARAM_EDIT_W 30
+#define PARAM_EDIT_H 16
 
 void IControl::PromptUserInput()
 {
@@ -117,7 +117,7 @@ void IControl::PromptUserInput()
 		else // text entry
 		{
 			int cX = (int) mRECT.MW(), cY = (int) mRECT.MH();
-			IRECT txtRECT = IRECT(cX - PARAM_EDIT_W/2, cY - (PARAM_EDIT_H / 2), mRECT.R, cY + (PARAM_EDIT_H / 2)  ); 
+			IRECT txtRECT = IRECT(cX - (float) PARAM_EDIT_W/2., cY - (PARAM_EDIT_H / 2.), cX + (float) PARAM_EDIT_W/2., cY + (PARAM_EDIT_H / 2.)  ); 
 			mPlug->GetGUI()->PromptUserInput(this, mPlug->GetParam(mParamIdx), &txtRECT );
 		}
 
