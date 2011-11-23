@@ -1,4 +1,4 @@
-## WDL / IPlug - Oli Larkin Edition
+WDL / IPlug - Oli Larkin Edition
 
 IPlug is a simple-to-use C++ framework for developing cross platform audio plugins and targeting multiple plugin APIs with the same code. 
 Originally developed by Schwa/Cockos, IPlug has been enhanced by various contributors. IPlug depends on WDL, and that is why this project is called WDL-OL.
@@ -7,11 +7,13 @@ This version of IPlug targets VST2, VST3, AudioUnit and RTAS APIs. It can also p
 This version of WDL/IPlug shares the same license as the Cockos edition. Several of the added features are based on the work of other people.
 See individual source code files for any extra license information.
 
-[Cockos WDL Home](http://www.cockos.com/wdl/)
+http://www.cockos.com/wdl
 
-Discuss WDL on [the WDL forum](http://forum.cockos.com/forumdisplay.php?f=32)
+Discuss WDL on the WDL forum http://forum.cockos.com/forumdisplay.php?f=32
 
-## Cockos WDL License
+--------------------------------------------
+
+Cockos WDL License
 
 Copyright (C) 2005 and later Cockos Incorporated
 
@@ -27,9 +29,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 WDL includes the following 3rd party libraries (which are all similarly licensed):
 
-* [JNetLib](http://www.nullsoft.com/free/jnetlib)
-* [LibPNG](http://www.libpng.org/pub/png)
-* [GifLib](http://sourceforge.net/projects/libungif)
-* [JPEGLib](http://www.ijg.org/)
-* [zlib](http://www.zlib.net/)
+* JNetLib http://www.nullsoft.com/free/jnetlib
+* LibPNG http://www.libpng.org/pub/png
+* GifLib http://sourceforge.net/projects/libungif
+* JPEGLib http://www.ijg.org
+* zlib http://www.zlib.net
 
