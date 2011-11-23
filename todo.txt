@@ -17,6 +17,9 @@ Examples:
 - IPlugPolySynth
 - IPlugSideChain
 - IPlugMultiChannel
+- IPlugOpenGL on win, fix on mac
+- IPlugChunks still needs some work
+- IPlugControls - some controls not finished
 
 AU wrapper:
 
