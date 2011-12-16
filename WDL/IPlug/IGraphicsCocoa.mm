@@ -524,7 +524,7 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   //[[mTextFieldView cell] setDrawsBackground:NO];
   [mTextFieldView setAllowsEditingTextAttributes:NO];
   [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
-  [mTextFieldView setTextColor:ToNSColor(&pText->mColor)];
+  //[mTextFieldView setTextColor:ToNSColor(&pText->mColor)];
   
   //if ([mTextFieldView frame].size.height > areaRect.size.height)
   
