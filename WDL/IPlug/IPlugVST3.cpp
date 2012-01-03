@@ -28,6 +28,8 @@ IPlugVST3::~IPlugVST3()
 
 tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 {
+  TRACE;
+  
   tresult result = SingleComponentEffect::initialize (context);
   
   if (result == kResultOk)
@@ -115,6 +117,7 @@ tresult PLUGIN_API IPlugVST3::terminate  ()
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
 {
+  TRACE;
   //inputs
   AudioBus* bus = getAudioInput(0);
   
@@ -176,6 +179,8 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
 
 tresult PLUGIN_API IPlugVST3::setActive (TBool state)
 {
+  TRACE;
+  
   OnActivate((bool) state);
   
   // TODO: check if in/out config is supported?
@@ -184,19 +189,23 @@ tresult PLUGIN_API IPlugVST3::setActive (TBool state)
 
 tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
 {
+  TRACE;
+  
   mSampleRate = newSetup.sampleRate;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   Reset();
   
   processSetup = newSetup;
 
-  return kResultOk;
+  //return kResultOk;
   
-  //return SingleComponentEffect::setupProcessing (newSetup); // don't think we want this because we want to be able to support 64bit (see method)
+  return SingleComponentEffect::setupProcessing (newSetup);
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 { 
+  TRACE_PROCESS;
+  
   IMutexLock lock(this); // TODO: is this the best place to lock the mutex?
   
   memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
@@ -307,14 +316,15 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         mSideChainIsConnected = false;
       }
     }
-    else {
+    else 
+    {
       AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
     }
     
     AttachOutputBuffers(0, data.outputs[0].numChannels, out);
     ProcessBuffers(0.0f, data.numSamples);
   }
-  else if (processSetup.symbolicSampleSize == kSample64)
+  else if (processSetup.symbolicSampleSize == kSample64) // TODO: parity for double precision
   {
     double** in  = data.inputs[0].channelBuffers64;
     double** out = data.outputs[0].channelBuffers64;
