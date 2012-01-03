@@ -336,7 +336,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pText
     // Fill the menu
     for (int i = 0; i < n; ++i) {
       const char* str = pParam->GetDisplayText(i);
-      // TODO: what if two parmeters have the same text?
+      // TODO: what if two parameters have the same text?
       if (!strcmp(str, currentText)) // strings are equal
         menu.AddItem( new IPopupMenuItem(str, IPopupMenuItem::kChecked), -1 );
       else // not equal
@@ -363,7 +363,9 @@ IBitmap IGraphics::LoadIBitmap(int ID, const char* name, int nStates)
   if (!lb)
   {
     lb = OSLoadBitmap(ID, name);
-    bool imgResourceFound = (lb);
+#ifndef NDEBUG
+    bool imgResourceFound = lb;
+#endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     s_bitmapCache.Add(lb, ID);
   }
