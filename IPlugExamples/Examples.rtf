@@ -110,7 +110,7 @@ The IPlugEffect project is the main starting project, and if you wish to support
 \b \cf0 XCode4
 \b0 \
 \
-If you wish to use xcode4, you may need to change the COMPILER and BASE_SDK build settings in common.xcconfig. LLVM3 compiler does not currently work.\
+If you wish to use xcode4, you may need to change the COMPILER and BASE_SDK build settings in common.xcconfig. LLVM3 compiler does not currently work. You must not let xcode4 "validate project settings" because this will try and upgrade the compiler.\
 \
 COMPILER = com.apple.compilers.llvmgcc42\
 BASE_SDK = macosx10.6\
