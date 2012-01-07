@@ -13,7 +13,6 @@
 # see http://www.voidspace.org.uk/python/articles/command_line.shtml
 # this involves adding the python folder e.g. C:\Python27\ to your %PATH% environment variable
 # to get the debugging setup on mac, you have to rename IPlugEffect/IPlugEffect.xcodeproj/oli.pbxuser to match your OSX username,
-# the script asks you if you want to do this
 
 # USAGE:
 # duplicate.py [inputprojectname] [outputprojectname] [manufacturername]
@@ -32,7 +31,10 @@ from os.path import join
 #tabs = 0
 #newsubfolder = False
 
-VERSION = "0.7.2"
+VERSION = "0.7.3"
+
+# binary files that we don't want to do find and replace inside
+FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
 
 def checkdirname(name, searchproject):
 	"check if directory name matches with the given pattern"
@@ -111,17 +113,20 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
 			
 			filename = os.path.basename(fullpath)
 			newfilename = filename.replace(searchproject, replaceproject)
-			print tabstring + 'Replacing project name strings in file', filename
-			replacestrs(fullpath, searchproject, replaceproject)
-			
-			print tabstring + 'Replacing captitalized project name strings in file', filename
-			replacestrs(fullpath, searchproject.upper(), replaceproject.upper())
-			
-			print tabstring + 'Replacing manufacturer name strings in file', filename
-			replacestrs(fullpath, searchman, replaceman)
-			
 			base, extension = os.path.splitext(filename)
-	
+			
+			if (not(extension in FILTERED_FILE_EXTENSIONS)):
+				print tabstring + 'Replacing project name strings in file', filename
+				replacestrs(fullpath, searchproject, replaceproject)
+				
+				print tabstring + 'Replacing captitalized project name strings in file', filename
+				replacestrs(fullpath, searchproject.upper(), replaceproject.upper())
+				
+				print tabstring + 'Replacing manufacturer name strings in file', filename
+				replacestrs(fullpath, searchman, replaceman)
+			else:
+				print tabstring + 'NOT replacing name strings in file', filename
+			
 			if filename != newfilename:
 				print tabstring + 'Renaming file ' + filename + ' to ' + newfilename
 				os.rename(fullpath, os.path.join(dir, newfilename))
