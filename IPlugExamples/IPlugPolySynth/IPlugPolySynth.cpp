@@ -12,17 +12,17 @@ const int kNumPrograms = 8;
 #define TABLE_SIZE 512
 
 #ifndef M_PI
-#define M_PI  (3.14159265)
+#define M_PI 3.14159265
 #endif
 
 #define GAIN_FACTOR 0.2;
 
 enum EParams
 {
-  kAmpEGAttack = 0,
-	kAmpEGDecay,
-	kAmpEGSustain,
-	kAmpEGRelease,
+  kAttack = 0,
+	kDecay,
+	kSustain,
+	kRelease,
   kNumParams
 };
 
@@ -40,18 +40,20 @@ IPlugPolySynth::IPlugPolySynth(IPlugInstanceInfo instanceInfo)
   
   for (int i = 0; i < TABLE_SIZE; i++) 
   {
-    mTable[i] = sin(i/TABLE_SIZE * 2. * M_PI);
+    mTable[i] = sin( i/double(TABLE_SIZE) * 2. * M_PI);
+    //printf("mTable[%i] %f\n", i, mTable[i]);
   }
   
-  mOsc = new WTOsc(mTable, TABLE_SIZE);
+  mOsc = new CWTOsc(mTable, TABLE_SIZE);
+  mEnv = new CADSREnvL();
   
   memset(mKeyStatus, 0, 128 * sizeof(bool));
     
   //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kAmpEGAttack)->InitDouble("Amp Attack", ATTACK_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
-	GetParam(kAmpEGDecay)->InitDouble("Amp Decay", DECAY_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
-	GetParam(kAmpEGSustain)->InitDouble("Amp Sustain", 1., 0., 1., 0.001);
-	GetParam(kAmpEGRelease)->InitDouble("Amp Release", RELEASE_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
+  GetParam(kAttack)->InitDouble("Amp Attack", ATTACK_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
+	GetParam(kDecay)->InitDouble("Amp Decay", DECAY_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
+	GetParam(kSustain)->InitDouble("Amp Sustain", 1., 0., 1., 0.001);
+	GetParam(kRelease)->InitDouble("Amp Release", RELEASE_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
   
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachBackground(BG_ID, BG_FN);
@@ -79,6 +81,7 @@ IPlugPolySynth::IPlugPolySynth(IPlugInstanceInfo instanceInfo)
 IPlugPolySynth::~IPlugPolySynth() 
 {
   delete mOsc;
+  delete mEnv;
   delete [] mTable;
 }
 
@@ -104,8 +107,10 @@ int IPlugPolySynth::FindFreeVoice()
       level = summed;  
       quietestVoice = v; 
     }
+    
   }
   
+  DBGMSG("stealing voice %i\n", quietestVoice);
   return quietestVoice;
 }
 
@@ -117,12 +122,13 @@ void IPlugPolySynth::NoteOnOff(IMidiMsg* pMsg)
   int velocity = pMsg->Velocity(); 
   int note = pMsg->NoteNumber(); 
   
-  if (status == IMidiMsg::kNoteOn && velocity)
+  if (status == IMidiMsg::kNoteOn && velocity) // Note on
   {    
     v = FindFreeVoice(); // or quietest
     mVS[v].mKey = note;
-    
-    //TODO
+    mVS[v].mOsc_ctx.mPhaseIncr = (1./mSampleRate) * midi2CPS(note);
+    mVS[v].mEnv_ctx.mLevel = (double) velocity / 127.;
+    mVS[v].mEnv_ctx.mStage = kStageAttack;
     
     mActiveVoices++;
   }
@@ -135,9 +141,9 @@ void IPlugPolySynth::NoteOnOff(IMidiMsg* pMsg)
         if (mVS[v].GetBusy()) 
         {
           mVS[v].mKey = -1;
-          
-          // TODO
-          
+          mVS[v].mEnv_ctx.mStage = kStageRelease;
+          mVS[v].mEnv_ctx.mReleaseLevel = mVS[v].mEnv_ctx.mPrev;
+
           return;
         }
       }
@@ -176,7 +182,7 @@ void IPlugPolySynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
     double* out2 = outputs[1];
     
     double output;
-    VoiceState* vs;
+    CVoiceState* vs;
 
     for (int s = 0; s < nFrames; ++s)
     {      
@@ -214,7 +220,7 @@ void IPlugPolySynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
         
         if (vs->GetBusy())
         {
-          //TODO
+          output += mOsc->process(&vs->mOsc_ctx) * mEnv->process(&vs->mEnv_ctx);
         }
       }
       
@@ -226,12 +232,9 @@ void IPlugPolySynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
   
     mMidiQueue.Flush(nFrames);
 	}
-	else // empty block
-	{
-    //zeroStereoBlock(outputs, nFrames);
-	}
-  
-  mMidiQueue.Flush(nFrames);
+//	else // empty block
+//	{
+//	}
 }
 
 void IPlugPolySynth::Reset()
@@ -241,24 +244,30 @@ void IPlugPolySynth::Reset()
 
   mSampleRate = GetSampleRate();
   mMidiQueue.Resize(GetBlockSize());
-  mOsc->setSampleRate(mSampleRate);
+  mEnv->setSampleRate(mSampleRate);
 }
 
 void IPlugPolySynth::OnParamChange(int paramIdx)
 {
   IMutexLock lock(this);
   
-//  switch (paramIdx)
-//  {
-//    case kGainL:
-//      mGainL = GetParam(kGainL)->DBToAmp();
-//      break;
-//    case kGainR:
-//      mGainR = GetParam(kGainR)->DBToAmp();
-//      break;
-//    default:
-//      break;
-//  }
+  switch (paramIdx)
+  {
+		case kAttack:
+      mEnv->setStageTime(kStageAttack, GetParam(kAttack)->Value());
+			break;
+		case kDecay:
+      mEnv->setStageTime(kStageDecay, GetParam(kDecay)->Value());
+			break;
+		case kSustain:
+			mEnv->setSustainLevel( GetParam(kSustain)->Value() );
+			break;
+		case kRelease:
+      mEnv->setStageTime(kStageRelease, GetParam(kRelease)->Value());
+			break;
+    default:
+      break;
+  }
 }
 
 void IPlugPolySynth::ProcessMidiMsg(IMidiMsg* pMsg)

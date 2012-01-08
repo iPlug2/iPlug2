@@ -28,6 +28,7 @@ public:
   int GetNumKeys();
   bool GetKeyStatus(int key);
   void ProcessMidiMsg(IMidiMsg* pMsg);
+  void NoteOnOff(IMidiMsg* pMsg);
 
 private:
   
@@ -46,8 +47,9 @@ private:
 
   double mSampleRate;
 
-  VoiceState mVS[MAX_VOICES];
-  WTOsc* mOsc;
+  CVoiceState mVS[MAX_VOICES];
+  CWTOsc* mOsc;
+  CADSREnvL* mEnv;
   double* mTable;
 };
 
