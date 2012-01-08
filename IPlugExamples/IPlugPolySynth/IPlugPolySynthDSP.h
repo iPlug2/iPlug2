@@ -48,51 +48,51 @@ inline double calcIncrFromTimeLinear(double timeMS, double sr)
 
 struct CWTOscState
 {
-	double mPhase;        // float phase (goes between 0. and 1.)
-	double mPhaseIncr;		// freq * mPhaseStep
-	
-	CWTOscState()
-	{
-		mPhase = 0.;
+  double mPhase;        // float phase (goes between 0. and 1.)
+  double mPhaseIncr;    // freq * mPhaseStep
+  
+  CWTOscState()
+  {
+    mPhase = 0.;
     mPhaseIncr = 0.;
-	}
-	
+  }
+  
 } WDL_FIXALIGN;
 
 class CWTOsc 
-{	
+{ 
 protected:
-	const double* mLUT;           // pointer to waveform lookup table, const because the oscilator doesn't change the table data
-	unsigned long int mLUTSize;		// wavetable size
-	unsigned long int mLUTSizeM;  // wavetable Mask (size -1)
-	double mLUTSizeF;             // float version
+  const double* mLUT;           // pointer to waveform lookup table, const because the oscilator doesn't change the table data
+  unsigned long int mLUTSize;   // wavetable size
+  unsigned long int mLUTSizeM;  // wavetable Mask (size -1)
+  double mLUTSizeF;             // float version
 
-public: 	
-			
-	CWTOsc(const double* LUT, unsigned long int LUTSize) 
-	{
-		setLUT(LUT, LUTSize);
-	} 
-	
-	~CWTOsc() {}
-	
-	void setLUT(const double* LUT, unsigned long int LUTSize)
-	{
-		mLUTSize = LUTSize;
-		mLUTSizeM = LUTSize-1;
-		mLUTSizeF = (double) LUTSize;
-		mLUT = LUT;
-	}
-	
-	inline double process(CWTOscState* pState)
-	{
-		pState->mPhase = wrap(pState->mPhase, 0., 1.);
-		const double output = lerp(pState->mPhase * mLUTSizeF, mLUT, mLUTSizeM);
-		pState->mPhase += pState->mPhaseIncr;
-		
-		return output;
-	}
-	
+public:   
+      
+  CWTOsc(const double* LUT, unsigned long int LUTSize) 
+  {
+    setLUT(LUT, LUTSize);
+  } 
+  
+  ~CWTOsc() {}
+  
+  void setLUT(const double* LUT, unsigned long int LUTSize)
+  {
+    mLUTSize = LUTSize;
+    mLUTSizeM = LUTSize-1;
+    mLUTSizeF = (double) LUTSize;
+    mLUT = LUT;
+  }
+  
+  inline double process(CWTOscState* pState)
+  {
+    pState->mPhase = wrap(pState->mPhase, 0., 1.);
+    const double output = lerp(pState->mPhase * mLUTSizeF, mLUT, mLUTSizeM);
+    pState->mPhase += pState->mPhaseIncr;
+    
+    return output;
+  }
+  
 } WDL_FIXALIGN;
 
 enum EADSREnvStage 
@@ -107,7 +107,7 @@ enum EADSREnvStage
 struct CADSREnvLState
 {
   double mEnvValue;          // current value of the envelope
-  int	mStage;                // idle, attack, decay, sustain, release
+  int mStage;                // idle, attack, decay, sustain, release
   double mLevel;             // envelope depth
   double mPrev;
   double mReleaseLevel;
@@ -149,7 +149,7 @@ public:
     const double incr = calcIncrFromTimeLinear(fastClip(timeMS, MIN_ENV_TIME_MS, MAX_ENV_TIME_MS), mSampleRate);
     
     switch(stage)
-    {					
+    {         
       case kStageAttack:
         mAttackIncr = incr;
         break;
@@ -185,7 +185,7 @@ public:
         result = pS->mEnvValue;
         break;
       case kStageAttack:
-        pS->mEnvValue += mAttackIncr;		
+        pS->mEnvValue += mAttackIncr;   
         if (pS->mEnvValue > ENV_VALUE_HIGH || mAttackIncr == 0.)
         {
           pS->mStage = kStageDecay;
@@ -211,7 +211,7 @@ public:
         if(pS->mEnvValue < ENV_VALUE_LOW || mReleaseIncr == 0.)
         {
           pS->mStage = kIdle;
-          pS->mEnvValue = 0.0;	
+          pS->mEnvValue = 0.0;  
         }
         result = pS->mEnvValue * pS->mReleaseLevel;
         break;
