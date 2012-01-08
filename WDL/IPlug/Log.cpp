@@ -210,7 +210,9 @@ const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const
   {
     static int sTrace = 0;
     if (sTrace++ < MAX_LOG_LINES) {
+#ifndef TRACETOSTDOUT
       static LogFile sLogFile;
+#endif
       static WDL_Mutex sLogMutex;      
       char str[TXTLEN];
       VARARGS_TO_STR(str);
