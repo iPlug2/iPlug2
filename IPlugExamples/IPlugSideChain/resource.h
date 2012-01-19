@@ -34,12 +34,9 @@
 
 #ifdef RTAS_API
   // RTAS can only have a mono sc input
-  #define PLUG_CHANNEL_IO "3-2"
+  // at the moment this is required instead of "2-2 3-2"
+  #define PLUG_CHANNEL_IO "3-2" 
   #define PLUG_SC_CHANS 1
-
-#elif defined VST3_API
-  #define PLUG_CHANNEL_IO "4-2"
-  #define PLUG_SC_CHANS 2
 
 #else // AU & VST2
   #define PLUG_CHANNEL_IO "2-2 4-2"

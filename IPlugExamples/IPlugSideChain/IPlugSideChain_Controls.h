@@ -13,7 +13,7 @@ public:
   bool Draw(IGraphics* pGraphics)
   {
     //IRECT(mRECT.L, mRECT.T, mRECT.W , mRECT.T + (mValue * mRECT.H));
-    pGraphics->FillIRect(&COLOR_RED, &mRECT);
+    pGraphics->FillIRect(&COLOR_BLACK, &mRECT);
     
     //pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
     

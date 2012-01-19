@@ -19,6 +19,8 @@ public:
 private:
   
   double mGain;
+  double mPrevL, mPrevR, mPrevLS, mPrevRS;
+  int mMeterIdx_L, mMeterIdx_R, mMeterIdx_LS, mMeterIdx_RS;
 };
 
 #endif

@@ -5,6 +5,8 @@
 
 const int kNumPrograms = 1;
 
+const double METER_ATTACK = 0.6, METER_DECAY = 0.05;
+
 enum EParams
 {
   kGain = 0,
@@ -18,11 +20,36 @@ enum ELayout
 
   kGainX = 100,
   kGainY = 100,
+  
+  kMeterL_X = 10,
+  kMeterL_Y = 10,
+  kMeterL_W = 8,
+  kMeterL_H = 50,
+
+  kMeterR_X = 20,
+  kMeterR_Y = 10,
+  kMeterR_W = 8,
+  kMeterR_H = 50,
+
+  kMeterLS_X = 30,
+  kMeterLS_Y = 10,
+  kMeterLS_W = 8,
+  kMeterLS_H = 50,
+
+  kMeterRS_X = 40,
+  kMeterRS_Y = 10,
+  kMeterRS_W = 8,
+  kMeterRS_H = 50,
+  
   kKnobFrames = 60
 };
 
 IPlugSideChain::IPlugSideChain(IPlugInstanceInfo instanceInfo)
 :	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
+, mPrevL(0.0)
+, mPrevR(0.0)
+, mPrevLS(0.0)
+, mPrevRS(0.0)
 {
   TRACE;
   
@@ -35,6 +62,12 @@ IPlugSideChain::IPlugSideChain(IPlugInstanceInfo instanceInfo)
   IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
   IText text = IText(14);
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20), kGain, &knob, &text));
+  
+  mMeterIdx_L = pGraphics->AttachControl(new IPeakMeterVert(this, MakeIRect(kMeterL)));
+	mMeterIdx_R = pGraphics->AttachControl(new IPeakMeterVert(this, MakeIRect(kMeterR)));
+  mMeterIdx_LS = pGraphics->AttachControl(new IPeakMeterVert(this, MakeIRect(kMeterLS)));
+	mMeterIdx_RS = pGraphics->AttachControl(new IPeakMeterVert(this, MakeIRect(kMeterRS)));  
+  
   AttachGraphics(pGraphics);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset((char *) "-", kNumPrograms);
@@ -46,20 +79,127 @@ void IPlugSideChain::ProcessDoubleReplacing(double** inputs, double** outputs, i
 {
   // Mutex is already locked for us.
   
-  double* in1 = inputs[0];
-  double* in2 = inputs[1];
-  double* out1 = outputs[0];
-  double* out2 = outputs[1];
-  
-  //double samplesPerBeat = GetSamplesPerBeat();
-  //double samplePos = (double) GetSamplePos();
-  //double tempo = GetTempo();
-  
-  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
+  if(IsSideChainConnected()) // Some hosts will connect all a plugins input pins (e.g. Live), even if no audio is routed to the sidechain input
   {
-    *out1 = *in1 * mGain;
-    *out2 = *in2 * mGain;
-  }	
+#ifdef RTAS_API
+    double* in1 = inputs[0];
+    double* in2 = inputs[1];
+    double* scin1 = inputs[2];
+    
+    double* out1 = outputs[0];
+    double* out2 = outputs[1];
+    
+    double peakL = 0.0, peakR = 0.0, peakLS = 0.0;
+    
+    for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++scin1, ++out1, ++out2)
+    {
+      *out1 = *in1 * mGain;
+      *out2 = *in2 * mGain;
+      
+      peakL = IPMAX(peakL, fabs(*in1));
+      peakR = IPMAX(peakR, fabs(*in2));
+      peakLS = IPMAX(peakLS, fabs(*scin1));
+    }	
+    
+    double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+    double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+    double xLS = (peakLS < mPrevLS ? METER_DECAY : METER_ATTACK);
+    
+    peakL = peakL * xL + mPrevL * (1.0 - xL);
+    peakR = peakR * xR + mPrevR * (1.0 - xR);
+    peakLS = peakLS * xLS + mPrevLS * (1.0 - xLS);
+    
+    mPrevL = peakL;
+    mPrevR = peakR;
+    mPrevLS = peakLS;
+    
+    if (GetGUI()) 
+    {
+      GetGUI()->SetControlFromPlug(mMeterIdx_L, peakL);
+      GetGUI()->SetControlFromPlug(mMeterIdx_R, peakR);
+      GetGUI()->SetControlFromPlug(mMeterIdx_LS, peakLS);
+    }
+    
+#else
+    double* in1 = inputs[0];
+    double* in2 = inputs[1];
+    double* scin1 = inputs[2];
+    double* scin2 = inputs[3];
+    
+    double* out1 = outputs[0];
+    double* out2 = outputs[1];
+    
+    double peakL = 0.0, peakR = 0.0, peakLS = 0.0, peakRS = 0.0;
+    
+    for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++scin1, ++scin2, ++out1, ++out2)
+    {
+      *out1 = *in1 * mGain;
+      *out2 = *in2 * mGain;
+      
+      peakL = IPMAX(peakL, fabs(*in1));
+      peakR = IPMAX(peakR, fabs(*in2));
+      peakLS = IPMAX(peakLS, fabs(*scin1));
+      peakRS = IPMAX(peakRS, fabs(*scin2));
+    }	
+    
+    double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+    double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+    double xLS = (peakLS < mPrevLS ? METER_DECAY : METER_ATTACK);
+    double xRS = (peakRS < mPrevRS ? METER_DECAY : METER_ATTACK);
+    
+    peakL = peakL * xL + mPrevL * (1.0 - xL);
+    peakR = peakR * xR + mPrevR * (1.0 - xR);
+    peakLS = peakLS * xLS + mPrevLS * (1.0 - xLS);
+    peakRS = peakRS * xRS + mPrevRS * (1.0 - xRS); 
+    
+    mPrevL = peakL;
+    mPrevR = peakR;
+    mPrevLS = peakLS;
+    mPrevRS = peakRS; 
+    
+    if (GetGUI()) 
+    {
+      GetGUI()->SetControlFromPlug(mMeterIdx_L, peakL);
+      GetGUI()->SetControlFromPlug(mMeterIdx_R, peakR);
+      GetGUI()->SetControlFromPlug(mMeterIdx_LS, peakLS);
+      GetGUI()->SetControlFromPlug(mMeterIdx_RS, peakRS);
+    }
+#endif
+  }
+  else 
+  {
+    double* in1 = inputs[0];
+    double* in2 = inputs[1];
+    double* out1 = outputs[0];
+    double* out2 = outputs[1];
+    
+    double peakL = 0.0, peakR = 0.0;
+    
+    for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
+    {
+      *out1 = *in1 * mGain;
+      *out2 = *in2 * mGain;
+      
+      peakL = IPMAX(peakL, fabs(*in1));
+      peakR = IPMAX(peakR, fabs(*in2));
+    }	
+    
+    double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+    double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+    
+    peakL = peakL * xL + mPrevL * (1.0 - xL);
+    peakR = peakR * xR + mPrevR * (1.0 - xR);
+    
+    mPrevL = peakL;
+    mPrevR = peakR;
+    
+    if (GetGUI()) 
+    {
+      GetGUI()->SetControlFromPlug(mMeterIdx_L, peakL);
+      GetGUI()->SetControlFromPlug(mMeterIdx_R, peakR);
+    }
+  }
+
 }
 
 void IPlugSideChain::Reset()
