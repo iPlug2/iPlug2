@@ -15,7 +15,8 @@
 WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan,
                       const char *uniquestring, // identify 
                       int shmsize, // bytes, whoever opens first decides
-                      int timeout_sec
+                      int timeout_sec,
+                      int extra_flags // unused on win32
 
                     )
 {
@@ -31,7 +32,7 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan,
   m_file=INVALID_HANDLE_VALUE;
   m_filemap=NULL;
   m_mem=NULL;
-  m_events[0]=m_events[1]=NULL;
+  m_lockmutex=m_events[0]=m_events[1]=NULL;
 
   m_whichChan=whichChan ? 1 : 0;
 
@@ -44,41 +45,56 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan,
   m_tempfn.Append(uniquestring);
   m_tempfn.Append(".tmp");
 
+  WDL_String tmp;
+  if (!(GetVersion()&0x80000000)) tmp.Set("Global\\WDL_SHM_");
+  else tmp.Set("WDL_SHM_");
+  tmp.Append(uniquestring);
+  int tmp_l = strlen(tmp.Get());
 
-  HANDLE mutex=NULL;
-
-  {
-    WDL_String tmp;
-    tmp.Set("WDL_SHM_");
-    tmp.Append(uniquestring);
-    tmp.Append(".mutex");
-    mutex = CreateMutex(NULL,FALSE,tmp.Get());
-  }
+  tmp.Append(".m");
+  HANDLE mutex = CreateMutex(NULL,FALSE,tmp.Get());
 
   if (mutex) WaitForSingleObject(mutex,INFINITE);
 
-  DeleteFile(m_tempfn.Get()); // this is designed to fail if another process has it locked
+  tmp.Get()[tmp_l]=0;
+  tmp.Append(whichChan?".l1":".l0");
+  m_lockmutex = CreateMutex(NULL,FALSE,tmp.Get());
+  if (m_lockmutex)
+  {
+    if (WaitForSingleObject(m_lockmutex,100) == WAIT_OBJECT_0)
+    {
+      DeleteFile(m_tempfn.Get()); // this is designed to fail if another process has it locked
 
-  m_file=CreateFile(m_tempfn.Get(),GENERIC_READ|GENERIC_WRITE,
-        FILE_SHARE_READ|FILE_SHARE_WRITE ,
-        NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_TEMPORARY,NULL);
+      m_file=CreateFile(m_tempfn.Get(),GENERIC_READ|GENERIC_WRITE,
+                        FILE_SHARE_READ|FILE_SHARE_WRITE ,
+                        NULL,whichChan ? OPEN_EXISTING : OPEN_ALWAYS,FILE_ATTRIBUTE_TEMPORARY,NULL);
+    }
+    else
+    {
+      CloseHandle(m_lockmutex);
+      m_lockmutex=0;
+    }
+  }
   
   int mapsize;
   if (m_file != INVALID_HANDLE_VALUE && 
         ((mapsize=GetFileSize(m_file,NULL)) < SHM_HDRSIZE+SHM_MINSIZE*2 || 
           mapsize == 0xFFFFFFFF))
   {
-    WDL_HeapBuf tmp;
-    memset(tmp.Resize(shmsize*2 + SHM_HDRSIZE),0,shmsize*2 + SHM_HDRSIZE);
-    ((int *)tmp.Get())[0] = shmsize;
-    DWORD d;
-    WriteFile(m_file,tmp.Get(),tmp.GetSize(),&d,NULL);
-  }
+    char buf[4096];
+    memset(buf,0,sizeof(buf));
+    *(int *)buf=shmsize;
 
-  if (mutex) 
-  {
-    ReleaseMutex(mutex);
-    CloseHandle(mutex);
+    int sz=shmsize*2 + SHM_HDRSIZE;
+    while (sz>0)
+    {
+      DWORD d;
+      int a = sz;
+      if (a>sizeof(buf))a=sizeof(buf);
+      WriteFile(m_file,buf,a,&d,NULL);
+      sz-=a;
+      *(int *)buf = 0;
+    }
   }
 
   if (m_file!=INVALID_HANDLE_VALUE)
@@ -88,15 +104,19 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan,
   {
     m_mem=(unsigned char *)MapViewOfFile(m_filemap,FILE_MAP_WRITE,0,0,0);
 
-    WDL_String tmp;
-    if (!(GetVersion()&0x80000000)) tmp.Set("Global\\WDL_SHM_");
-    else tmp.Set("WDL_SHM_");
-    tmp.Append(uniquestring);
+    tmp.Get()[tmp_l]=0;
     tmp.Append(".1");
     m_events[0]=CreateEvent(NULL,false,false,tmp.Get());
     tmp.Get()[strlen(tmp.Get())-1]++; 
     m_events[1]=CreateEvent(NULL,false,false,tmp.Get());
   }
+
+  if (mutex) 
+  {
+    ReleaseMutex(mutex);
+    CloseHandle(mutex);
+  }
+
 }
 
 
@@ -109,6 +129,11 @@ WDL_SHM_Connection::~WDL_SHM_Connection()
 
   if (m_events[0]) CloseHandle(m_events[0]);
   if (m_events[1]) CloseHandle(m_events[1]);
+  if (m_lockmutex)
+  {
+    ReleaseMutex(m_lockmutex);
+    CloseHandle(m_lockmutex);
+  }
 }
 
 bool WDL_SHM_Connection::WantSendKeepAlive() { return false; }
@@ -227,7 +252,9 @@ static void sigpipehandler(int sig) { }
 WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan, // first created must be whichChan=0
                       const char *uniquestring, // identify 
                       int shmsize, 
-                      int timeout_sec)
+                      int timeout_sec,
+                      int extra_flags // set 1 for lockfile use on master
+                      )
 {
   m_sockbufsize = shmsize;
   if (m_sockbufsize<16384) m_sockbufsize=16384;
@@ -250,14 +277,14 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan, // first created must be 
   m_tempfn.Set("/tmp/WDL_SHM.");
   m_tempfn.Append(uniquestring);
   m_tempfn.Append(".tmp");
-
-  if (!whichChan) unlink(m_tempfn.Get());
+  
 
   m_sockaddr=malloc(sizeof(struct sockaddr_un) + strlen(m_tempfn.Get()));
-  m_listen_socket=0;
-  m_socket=0;
-  m_isConnected=false;
+  m_lockhandle=-1;
+  m_listen_socket=-1;
+  m_socket=-1;
   m_waitevt=0;
+  m_whichChan = whichChan;
 
   struct sockaddr_un *addr = (struct sockaddr_un *)m_sockaddr;
   addr->sun_family = AF_UNIX;
@@ -268,52 +295,86 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan, // first created must be 
     addr->sun_len=l;
   #endif
 
-  int s = socket(AF_UNIX,SOCK_STREAM,0);
-  if (s==-1) return;
-
   if (!whichChan)
   {
-    bind(s,(struct sockaddr*)addr,SUN_LEN(addr));
-    listen(s,1);
-
-    m_listen_socket = s;
-    m_isConnected=false;
-    
-    fcntl(s, F_SETFL, fcntl(s,F_GETFL) | O_NONBLOCK); 
+    if (extra_flags & 1)
+    {
+      m_lockfn.Set(m_tempfn.Get());
+      m_lockfn.Append(".lock");
+      m_lockhandle = open(m_lockfn.Get(),O_RDWR|O_CREAT,0666);
+      if (m_lockhandle < 0) return; // error getting lockfile, fail
+      if (flock(m_lockhandle,LOCK_NB|LOCK_EX) < 0)
+      {
+        close(m_lockhandle);
+        m_lockhandle=-1;
+        return; // could not lock
+      }
+    }
+    acquireListener();
+    if (m_listen_socket<0) return;
   }
   else
   {
-    m_socket = s;
-    fcntl(s, F_SETFL, fcntl(s,F_GETFL) | O_NONBLOCK);
+    struct stat sbuf;
+    if (stat(addr->sun_path,&sbuf))
+    {
+      return; // fail
+    }
+
+    int s = socket(AF_UNIX,SOCK_STREAM,0);
+    if (s<0) return;
 
     int bsz=m_sockbufsize;
     setsockopt(s,SOL_SOCKET,SO_SNDBUF,(char *)&bsz,sizeof(bsz));
     bsz=m_sockbufsize;
     setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char *)&bsz,sizeof(bsz));
     
-    m_isConnected = !connect(s,(struct sockaddr*)addr,SUN_LEN(addr));
+    if (connect(s,(struct sockaddr*)addr,SUN_LEN(addr))) 
+    {
+      close(s);
+    }
+    else
+    {
+      fcntl(s, F_SETFL, fcntl(s,F_GETFL) | O_NONBLOCK);
+      m_socket=s;
+
+      // clean up the filesystem, our connection has been made
+      unlink(m_tempfn.Get());
+    }
   } 
 
-  if (m_socket || m_listen_socket)
-  { 
+  if (m_socket>=0 || m_listen_socket>=0)
+  {
     SWELL_InternalObjectHeader_SocketEvent *se = (SWELL_InternalObjectHeader_SocketEvent*)malloc(sizeof(SWELL_InternalObjectHeader_SocketEvent));
     memset(se,0,sizeof(SWELL_InternalObjectHeader_SocketEvent));
     se->hdr.type = INTERNAL_OBJECT_EXTERNALSOCKET;
     se->hdr.count = 1;
-    se->socket[0]=m_socket? m_socket : m_listen_socket;
+    se->socket[0]=m_socket>=0? m_socket : m_listen_socket;
     m_waitevt = (HANDLE)se;
   }
 }
 
 WDL_SHM_Connection::~WDL_SHM_Connection()
 {
-  if (m_socket) close(m_socket);
-  if (m_listen_socket) close(m_listen_socket);
-  free(m_waitevt); // don't CloseHandle(), since its just referencing our socket
-  free(m_sockaddr);
+  if (m_listen_socket>=0 || m_socket>=0)
+  {
+    if (m_socket>=0) close(m_socket);
+    if (m_listen_socket>=0) close(m_listen_socket);
 
-  if (m_tempfn.Get()[0]) unlink(m_tempfn.Get());
+    // only delete temp socket file if the master and successfully had something open
+    if (!m_whichChan && m_tempfn.Get()[0]) unlink(m_tempfn.Get());
+  }
+
+  free(m_waitevt); // don't CloseHandle(), since it's just referencing our socket
+  free(m_sockaddr);
   free(m_rdbuf);
+
+  if (m_lockhandle>=0)
+  {
+    flock(m_lockhandle,LOCK_UN);
+    close(m_lockhandle);
+    unlink(m_lockfn.Get());
+  }
 }
 
 bool WDL_SHM_Connection::WantSendKeepAlive() 
@@ -324,51 +385,43 @@ bool WDL_SHM_Connection::WantSendKeepAlive()
 
 int WDL_SHM_Connection::Run()
 {
-  if (!m_isConnected) 
+  if (m_socket < 0)
   {
-    if (m_listen_socket)
+    if (m_listen_socket < 0) return -1;
+
+    struct sockaddr_un remote={0,};
+    socklen_t t = sizeof(struct sockaddr_un);
+    int s = accept(m_listen_socket,(struct sockaddr *)&remote,&t);
+    if (s>=0)
     {
-      struct sockaddr_un remote={0,};
-      socklen_t t = sizeof(struct sockaddr_un);
-      int s;
-      if ((s=accept(m_listen_socket,(struct sockaddr *)&remote,&t))>0)
-      {
-        close(m_listen_socket); 
-        m_listen_socket=0;
-        m_socket=s;
+      close(m_listen_socket);
+      m_listen_socket=-1;
 
-        fcntl(s, F_SETFL, fcntl(s,F_GETFL) | O_NONBLOCK); // nonblocking
+      fcntl(s, F_SETFL, fcntl(s,F_GETFL) | O_NONBLOCK); // nonblocking
 
-        int bsz=m_sockbufsize;
-        setsockopt(s,SOL_SOCKET,SO_SNDBUF,(char *)&bsz,sizeof(bsz));
-        bsz=m_sockbufsize;
-        setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char *)&bsz,sizeof(bsz));
+      int bsz=m_sockbufsize;
+      setsockopt(s,SOL_SOCKET,SO_SNDBUF,(char *)&bsz,sizeof(bsz));
+      bsz=m_sockbufsize;
+      setsockopt(s,SOL_SOCKET,SO_RCVBUF,(char *)&bsz,sizeof(bsz));
 
-        if (m_waitevt)
-        { 
-          SWELL_InternalObjectHeader_SocketEvent *se = (SWELL_InternalObjectHeader_SocketEvent*)m_waitevt;
-          se->socket[0]=s;
-        }
-        m_isConnected=true;
+      if (m_waitevt)
+      { 
+        SWELL_InternalObjectHeader_SocketEvent *se = (SWELL_InternalObjectHeader_SocketEvent*)m_waitevt;
+        se->socket[0]=s;
       }
+      m_socket=s;
     }
-    else if (m_socket)
+    else 
     {
-      fd_set f;
-      FD_ZERO(&f);
-      FD_SET(m_socket,&f);
-      struct timeval tv={0,};
-      m_isConnected = select(m_socket+1,NULL,&f,NULL,&tv) > 0 && FD_ISSET(m_socket,&f);
+      if (m_timeout_sec>0 && time(NULL) > m_timeout_sec+m_last_recvt) 
+      {
+        if (m_timeout_cnt >= 2) return -1;
+        m_timeout_cnt++;
+        m_last_recvt=time(NULL);
+      }
+      return 0;
     }
-    if (!m_isConnected && m_timeout_sec>0 && time(NULL) > m_timeout_sec+m_last_recvt) 
-    {
-      if (m_timeout_cnt >= 2) return -1;
-      m_timeout_cnt++;
-      m_last_recvt=time(NULL);
-    }
-    if (!m_isConnected) return 0;
   }
-  if (!m_socket) return -1;
 
   bool sendcnt=false;
   bool recvcnt=false;
@@ -384,7 +437,7 @@ int WDL_SHM_Connection::Run()
         hadAct=true;
         recvcnt=true;
       }
-      else if (n<0&&errno!=EAGAIN) { close(m_socket); m_socket=0; return -1; }
+      else if (n<0&&errno!=EAGAIN) goto abortClose;
       else break;
     }
     while (send_queue.Available()>0)
@@ -398,7 +451,7 @@ int WDL_SHM_Connection::Run()
         sendcnt=true;
         send_queue.Advance(n); 
       }
-      else if (n<0&&errno!=EAGAIN) { close(m_socket); m_socket=0; return -1; }
+      else if (n<0&&errno!=EAGAIN) goto abortClose;
       else break;
     }
     if (!hadAct) break;  
@@ -424,5 +477,42 @@ int WDL_SHM_Connection::Run()
   }
   
   return sendcnt||recvcnt;
+
+abortClose:
+  if (m_whichChan) return -1;
+
+  acquireListener();
+  recv_queue.Clear();
+  send_queue.Clear();
+  if (m_waitevt)
+  { 
+    SWELL_InternalObjectHeader_SocketEvent *se = (SWELL_InternalObjectHeader_SocketEvent*)m_waitevt;
+    se->socket[0]=m_listen_socket;
+  }
+  close(m_socket); 
+  m_socket=-1; 
+
+  return m_listen_socket >= 0 ? 0 : -1; 
+}
+
+void WDL_SHM_Connection::acquireListener()
+{
+  // only ever called from whichChan==0
+  if (m_listen_socket>=0) return; // no need to re-open
+
+  unlink(m_tempfn.Get());
+
+  int s = socket(AF_UNIX,SOCK_STREAM,0);
+  if (s<0) return;
+  struct sockaddr_un *addr = (struct sockaddr_un *)m_sockaddr;
+  if (bind(s,(struct sockaddr*)addr,SUN_LEN(addr)) < 0 || listen(s,1) < 0)
+  {
+    close(s);
+  }
+  else
+  {
+    fcntl(s, F_SETFL, fcntl(s,F_GETFL) | O_NONBLOCK); 
+    m_listen_socket = s;
+  }
 }
 #endif

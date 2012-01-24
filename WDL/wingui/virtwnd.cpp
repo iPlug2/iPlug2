@@ -149,7 +149,7 @@ void WDL_VWnd_Painter::DoPaintBackground(LICE_IBitmap *bmOut, int bgcolor, const
         {
           int x,y,Red,Green,Blue;
         }
-        vert[2]={0,};
+        vert[2]={{0,},};
 
         double sr=GetRValue(bgcolor);
         double sg=GetGValue(bgcolor);
@@ -905,6 +905,20 @@ void WDL_VWnd::OnMouseMove(int xpos, int ypos)
     RECT r;
     wnd->GetPosition(&r);
     wnd->OnMouseMove(xpos-r.left,ypos-r.top);
+  }
+}
+
+void WDL_VWnd::OnCaptureLost()
+{
+  int oldcap=m_captureidx;
+  m_captureidx=-1;
+  if (m_children)
+  {
+    WDL_VWnd *wnd=m_children->Get(oldcap);
+    if (wnd) 
+    {
+      wnd->OnCaptureLost();
+    }
   }
 }
 
