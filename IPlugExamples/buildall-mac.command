@@ -12,7 +12,7 @@ do
 	if [ -d "$file/$file.xcodeproj" ]
 	then
 		echo "building $file/$file.xcodeproj All targets"
-		xcodebuild -project "$file/$file.xcodeproj" -target "All" -configuration Release
+		xcodebuild -project "$file/$file.xcodeproj" -target "All" -configuration Release 2> ./build_errors.log
 # 		echo "building $file/$file.xcodeproj VST"
 # 		xcodebuild -project "$file/$file.xcodeproj" -target "VST_32&64_intel" -configuration Release
 # 		echo "building $file/$file.xcodeproj AU"
