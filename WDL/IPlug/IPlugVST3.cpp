@@ -19,9 +19,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
   SetOutputChannelConnections(0, NOutChannels(), true);
 }
 
-IPlugVST3::~IPlugVST3()
-{
-}
+IPlugVST3::~IPlugVST3() {}
 
 #pragma mark -
 #pragma mark AudioEffect overrides
@@ -34,8 +32,8 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   
   if (result == kResultOk)
   {
-    addAudioInput (STR16("Audio Input"), getSpeakerArrForChans(NInChannels()) );
-    addAudioOutput (STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
+    addAudioInput(STR16("Audio Input"), getSpeakerArrForChans(NInChannels()-mScChans) );
+    addAudioOutput(STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
     
     if (mScChans == 1)
       addAudioInput(STR16("Sidechain Input"), SpeakerArr::kMono, kAux, 0);
@@ -45,12 +43,13 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       addAudioInput(STR16("Sidechain Input"), SpeakerArr::kStereo, kAux, 0);
     }
         
-    if(mDoesMidi) {
+    if(mDoesMidi) 
+    {
       addEventInput (STR16("MIDI In"), 1);
       addEventOutput(STR16("MIDI Out"), 1);
     }
     
-    for (int i=0;i<NParams();i++)
+    for (int i=0; i<NParams(); i++)
     {
       IParam *p = GetParam(i);
       
@@ -183,7 +182,6 @@ tresult PLUGIN_API IPlugVST3::setActive (TBool state)
   
   OnActivate((bool) state);
   
-  // TODO: check if in/out config is supported?
   return SingleComponentEffect::setActive (state);  
 }
 
