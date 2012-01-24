@@ -6,6 +6,9 @@
 */
 
 
+#ifndef __LICE_CPP_IMPLEMENTED__
+#define __LICE_CPP_IMPLEMENTED__
+
 #include "lice.h"
 #include <math.h>
 #include <stdio.h> // only included in case we need to debug with sprintf etc
@@ -97,6 +100,8 @@ bool LICE_MemBitmap::resize(int w, int h)
 }
 
 
+
+#ifndef _LICE_NO_SYSBITMAPS_
 
 LICE_SysBitmap::LICE_SysBitmap(int w, int h)
 {
@@ -198,6 +203,8 @@ bool LICE_SysBitmap::resize(int w, int h)
   return true;
 }
 
+#endif // _LICE_NO_SYSBITMAPS_
+
 
 
 #ifndef LICE_NO_BLIT_SUPPORT
@@ -206,7 +213,7 @@ void LICE_Copy(LICE_IBitmap *dest, LICE_IBitmap *src) // resizes dest
   if (src&&dest)
   {
     dest->resize(src->getWidth(),src->getHeight());
-    LICE_Blit(dest,src,NULL,0,0,1.0,LICE_BLIT_MODE_COPY);
+    LICE_Blit(dest,src,0,0,NULL,1.0,LICE_BLIT_MODE_COPY);
   }
 }
 #endif
@@ -844,7 +851,10 @@ void LICE_Blit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, RECT *
         LICE_pixel *rd = (LICE_pixel *)psrc;
         LICE_pixel *wr = (LICE_pixel *)pdest;
         while (a-->0)
-          *wr++ = ((*wr>>1)&0x7f7f7f7f)+((*rd++>>1)&0x7f7f7f7f);
+        {
+          *wr = ((*wr>>1)&0x7f7f7f7f)+((*rd++>>1)&0x7f7f7f7f);
+          wr++;
+        }
 
         pdest+=dest_span;
         psrc += src_span;
@@ -2154,3 +2164,5 @@ unsigned short _LICE_RGB2HSV_invtab[256]={ // 65536/idx - 1
   0x0107, 0x0106, 0x0105, 0x0104, 0x0103, 0x0102, 0x0101, 0x0100,
 };
 
+
+#endif//__LICE_CPP_IMPLEMENTED__

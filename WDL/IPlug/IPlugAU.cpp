@@ -683,7 +683,10 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_OfflineRender);              // 37,
+    case kAudioUnitProperty_OfflineRender: {              // 37,
+      mIsOffline = (*((UInt32*) pData) != 0);
+      return noErr; 
+    } 
     case kAudioUnitProperty_ParameterStringFromValue: {   // 33,
       *pDataSize = sizeof(AudioUnitParameterStringFromValue);
       if (pData && scope == kAudioUnitScope_Global) {
@@ -1423,7 +1426,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
 : IPlugBase(nParams, channelIOStr, nPresets,
   effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency,
   plugDoesMidi, plugDoesChunks, plugIsInst),
-  mCI(0), mBypassed(false), mRenderTimestamp(-1.0), mTempo(DEFAULT_TEMPO), mActive(false)
+  mCI(0), mBypassed(false), mIsOffline(false), mRenderTimestamp(-1.0), mTempo(DEFAULT_TEMPO), mActive(false)
 {
   Trace(TRACELOC, "%s", effectName);
 
@@ -1542,6 +1545,11 @@ void IPlugAU::InformHostOfProgramChange()
 {
 	//InformListeners(kAudioUnitProperty_CurrentPreset, kAudioUnitScope_Global);
 	InformListeners(kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global);
+}
+
+bool IPlugAU::IsRenderingOffline()
+{
+  return mIsOffline;
 }
 
 // Samples since start of project.

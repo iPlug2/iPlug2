@@ -1745,7 +1745,7 @@ void GetClientRect(HWND hwnd, RECT *r)
   RECT tr=*r;
   SendMessage(hwnd,WM_NCCALCSIZE,FALSE,(LPARAM)&tr);
   r->right = r->left + (tr.right-tr.left);
-  r->bottom=r->top + (tr.bottom-tr.top);
+  r->bottom = r->top + (tr.bottom-tr.top);
 }
 
 
@@ -3161,6 +3161,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
   else if (!stricmp(classname, "SysListView32")||!stricmp(classname, "SysListView32_LB"))
   {
     SWELL_ListView *obj = [[SWELL_ListView alloc] init];
+    [obj setColumnAutoresizingStyle:NSTableViewNoColumnAutoresizing];
     [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setDataSource:obj];
     obj->style=style;
@@ -3627,6 +3628,8 @@ int ListView_GetColumnWidth(HWND h, int pos)
   
   NSTableColumn *col=v->m_cols->Get(pos);
   if (!col) return 0;
+  
+  if ([col isHidden]) return 0;
   return (int) floor(0.5+[col width]);
 }
 
@@ -3641,7 +3644,8 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   [col setEditable:NO];
   // [col setResizingMask:2];  // user resizable, this seems to be the default
   
-  [col setWidth:lvc->cx];
+  if (!lvc->cx) [col setHidden:YES];
+  else [col setWidth:lvc->cx];
   
   if (lvc->fmt == LVCFMT_CENTER) [[col headerCell] setAlignment:NSCenterTextAlignment];
   else if (lvc->fmt == LVCFMT_RIGHT) [[col headerCell] setAlignment:NSRightTextAlignment];
@@ -4092,8 +4096,35 @@ int ListView_GetSelectionMark(HWND h)
   return [tv selectedRow];
 }
 
-void ListView_SetColumnWidth(HWND h, int colpos, int wid)
+int SWELL_GetListViewHeaderHeight(HWND h)
 {
+  if (!h) return 0;
+  if (![(id)h isKindOfClass:[SWELL_ListView class]]) return 0;
+  
+  SWELL_ListView* tv=(SWELL_ListView*)h;
+  NSTableHeaderView* hv=[tv headerView];
+  NSRect r=[hv bounds];
+  return (int)(r.size.height+0.5);
+}
+
+void ListView_SetColumnWidth(HWND h, int pos, int wid)
+{
+  if (!h || ![(id)h isKindOfClass:[SWELL_ListView class]]) return;
+  SWELL_ListView *v=(SWELL_ListView *)h;
+  if (!v->m_cols || pos < 0 || pos >= v->m_cols->GetSize()) return;
+  
+  NSTableColumn *col=v->m_cols->Get(pos);
+  if (!col) return;
+  
+  if (!wid)
+  {
+    [col setHidden:YES];
+  }
+  else 
+  {
+    [col setHidden:NO];
+    [col setWidth:wid];
+  }
 }
 
 BOOL ListView_GetColumnOrderArray(HWND h, int cnt, int* arr)
@@ -4523,7 +4554,7 @@ HWND SetCapture(HWND hwnd)
   m_fakeCapture=hwnd;
   m_capChangeNotify = hwnd && [(id)hwnd respondsToSelector:@selector(swellCapChangeNotify)] && [(SWELL_hwndChild*)hwnd swellCapChangeNotify];
 
-  if (ocn && oc) SendMessage(oc,WM_CAPTURECHANGED,0,(LPARAM)hwnd);
+  if (ocn && oc && oc != hwnd) SendMessage(oc,WM_CAPTURECHANGED,0,(LPARAM)hwnd);
   return oc;
 }
 
