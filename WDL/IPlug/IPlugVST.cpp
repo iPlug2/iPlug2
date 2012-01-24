@@ -205,6 +205,11 @@ void IPlugVST::ResizeGraphics(int w, int h)
   }
 }
 
+bool IPlugVST::IsRenderingOffline()
+{ 
+  return mHostCallback(&mAEffect, audioMasterGetCurrentProcessLevel, 0, 0, 0, 0.0f) == kVstProcessLevelOffline;
+}
+
 void IPlugVST::SetLatency(int samples)
 {
     mAEffect.initialDelay = samples;
