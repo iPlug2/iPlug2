@@ -191,15 +191,15 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
 {
   TRACE;
   
+  if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
+
   mSampleRate = newSetup.sampleRate;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   Reset();
   
   processSetup = newSetup;
-
-  //return kResultOk;
   
-  return SingleComponentEffect::setupProcessing (newSetup);
+  return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
@@ -208,7 +208,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   
   IMutexLock lock(this); // TODO: is this the best place to lock the mutex?
   
-  memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
+  if(data.processContext)
+    memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
   
   //process parameters
   IParameterChanges* paramChanges = data.inputParameterChanges;
@@ -284,57 +285,62 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   
   if (processSetup.symbolicSampleSize == kSample32)
   {
-    float** in  = data.inputs[0].channelBuffers32;
-    float** out = data.outputs[0].channelBuffers32;
-    
     if (mScChans) 
     {
-      float** side = data.inputs[1].channelBuffers32;
-
-      if (getAudioInput(1)->isActive()) 
+      if (getAudioInput(1)->isActive()) // Sidechain is active
       {
-        int totalNInputs = data.inputs[0].numChannels + data.inputs[1].numChannels;
-        
-        float** allInputs = new float*[totalNInputs];
-
-        for (int i = 0; i < data.inputs[0].numChannels; i ++) {
-          allInputs[i] = in[i];
-        }
-        
-        for (int i = 0; i < data.inputs[1].numChannels; i ++) {
-          allInputs[i + data.inputs[0].numChannels] = side[i];
-        }
-        
-        AttachInputBuffers(0, totalNInputs, allInputs, data.numSamples);
-        mSideChainIsConnected = true;
-        
-        delete [] allInputs;
+        SetInputChannelConnections(0, NInChannels(), true);
       }
       else 
       {
-        AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
-        mSideChainIsConnected = false;
+        SetInputChannelConnections(0, NInChannels(), true);
+        SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
       }
     }
     else 
     {
-      AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
+      SetInputChannelConnections(0, data.inputs[0].numChannels, true);
+      SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
     }
     
-    AttachOutputBuffers(0, data.outputs[0].numChannels, out);
-    ProcessBuffers(0.0f, data.numSamples);
+    AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers32, data.numSamples);
+    
+    SetOutputChannelConnections(0, data.outputs[0].numChannels, true);
+    SetOutputChannelConnections(data.outputs[0].numChannels, NOutChannels() - data.outputs[0].numChannels, false);
+    
+    AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers32);
+    
+    ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
   }
-  else if (processSetup.symbolicSampleSize == kSample64) // TODO: parity for double precision
+  else if (processSetup.symbolicSampleSize == kSample64)
   {
-    double** in  = data.inputs[0].channelBuffers64;
-    double** out = data.outputs[0].channelBuffers64;
+    if (mScChans) 
+    {
+      if (getAudioInput(1)->isActive()) // Sidechain is active
+      {
+        SetInputChannelConnections(0, NInChannels(), true);
+      }
+      else 
+      {
+        SetInputChannelConnections(0, NInChannels(), true);
+        SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
+      }
+    }
+    else 
+    {
+      SetInputChannelConnections(0, data.inputs[0].numChannels, true);
+      SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
+    }
     
-    AttachInputBuffers(0, data.inputs[0].numChannels, in, data.numSamples);
-    AttachOutputBuffers(0, data.outputs[0].numChannels, out);
+    AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
     
-    ProcessBuffers(0.0, data.numSamples);
-  } 
-  
+    SetOutputChannelConnections(0, data.outputs[0].numChannels, true);
+    SetOutputChannelConnections(data.outputs[0].numChannels, NOutChannels() - data.outputs[0].numChannels, false);
+    
+    AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers64);
+    
+    ProcessBuffers(0.0, data.numSamples); // process buffers double precision
+  }  
   // Midi Out
 //  if (mDoesMidi) {
 //    IEventList eventList = data.outputEvents;
@@ -351,6 +357,24 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 //  }
   
   return kResultOk; 
+}
+
+tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize) 
+{
+  tresult retval = kResultFalse;
+  
+  switch (symbolicSampleSize) 
+  {
+    case kSample32:
+    case kSample64:
+      retval = kResultTrue;
+      break;
+    default:
+      retval = kResultFalse;
+      break;
+  }
+  
+  return retval;
 }
 
 #pragma mark -
