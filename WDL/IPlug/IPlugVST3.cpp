@@ -70,7 +70,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                                                   p->GetMin(), 
                                                   p->GetMax(), 
                                                   p->GetDefault(),
-                                                  p->GetStep(),
+                                                  0, // continuous
                                                   flags);
           
           param->setPrecision (p->GetPrecision());
