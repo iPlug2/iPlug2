@@ -41,8 +41,8 @@ public:
 //  tresult PLUGIN_API getState(IBStream* state);
   virtual tresult PLUGIN_API setState(IBStream* state)  {return kNotImplemented;}
   virtual tresult PLUGIN_API getState(IBStream* state)  {return kNotImplemented;}
-   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize);
-  
+  tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize);
+
   // IEditController
   IPlugView* PLUGIN_API createView (const char* name);
   tresult PLUGIN_API setEditorState (IBStream* state);
@@ -57,6 +57,8 @@ public:
   virtual void InformHostOfParamChange(int idx, double normalizedValue);
   virtual void EndInformHostOfParamChange(int idx);
   virtual void InformHostOfProgramChange() {};
+  
+  virtual bool IsRenderingOffline() { return (processSetup.processMode == kOffline); }
   
   virtual int GetSamplePos();
   virtual double GetTempo();
