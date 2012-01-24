@@ -107,7 +107,8 @@ public:
   int NOutChannels() { return mOutChannels.GetSize(); }
   bool IsInChannelConnected(int chIdx);
   bool IsOutChannelConnected(int chIdx);
-      
+  
+  virtual bool IsRenderingOffline() { return false; };
 	virtual int GetSamplePos() = 0;   // Samples since start of project.
 	virtual double GetTempo() = 0;
 	double GetSamplesPerBeat();
