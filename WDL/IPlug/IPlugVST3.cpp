@@ -117,62 +117,106 @@ tresult PLUGIN_API IPlugVST3::terminate  ()
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
 {
   TRACE;
-  //inputs
-  AudioBus* bus = getAudioInput(0);
   
-  if (bus && bus->getArrangement() != inputs[0])
-  {
-    if (inputs[0] == SpeakerArr::kMono)
+  SetInputChannelConnections(0, NInChannels(), false);
+  SetOutputChannelConnections(0, NOutChannels(), false);
+  
+	if (numIns == 1 && numOuts == 1)
+	{
+		if (inputs[0] == SpeakerArr::kMono && outputs[0] == SpeakerArr::kMono)
+		{
+			AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
+			if (bus)
+			{
+				if (bus->getArrangement () != SpeakerArr::kMono)
+				{
+					removeAudioBusses ();
+					addAudioInput  (USTRING ("Mono In"),  SpeakerArr::kMono);
+					addAudioOutput (USTRING ("Mono Out"), SpeakerArr::kMono);
+				}
+        
+				return kResultOk;
+			}
+		}
+		else if (inputs[0] == SpeakerArr::kStereo && outputs[0] == SpeakerArr::kStereo)
+		{
+			AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
+			if (bus)
+			{
+				if (bus->getArrangement () != SpeakerArr::kStereo)
+				{
+					removeAudioBusses ();
+					addAudioInput  (USTRING ("Stereo In"),  SpeakerArr::kStereo);
+					addAudioOutput (USTRING ("Stereo Out"), SpeakerArr::kStereo);
+				}
+        
+				return kResultOk;
+			}
+		}
+    else // TODO different channel IO. quad etc
     {
-      //re-create the busses..
-      audioInputs.remove(bus);
-      
-      if (mScChans)
+      return kResultFalse;
+    }
+
+	}
+  // the first input is the Main Input and the second is the SideChain Input
+	if (mScChans && numIns == 2 && numOuts == 1)
+  {
+    // the host wants Mono => Mono (or 1 channel -> 1 channel)
+    if (SpeakerArr::getChannelCount (inputs[0]) == 1 && SpeakerArr::getChannelCount (outputs[0]) == 1 && mScChans == 1)
+    {
+      AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
+      if (bus)
       {
-        bus = getAudioInput(0);
-        if (bus && bus->getArrangement() != inputs[1]) //sidechain SpeakerArr:: must match the input SpeakerArr::
+        // check if we are Mono => Mono, if not we need to recreate the busses
+        if (bus->getArrangement () != inputs[0])
         {
-          audioInputs.remove(bus);
+          removeAudioBusses ();
+          addAudioInput  (STR16 ("Mono In"),  inputs[0]);
+          addAudioOutput (STR16 ("Mono Out"), inputs[0]);
+          
+          // recreate the Mono SideChain input bus
+          addAudioInput  (STR16 ("Mono Aux In"), SpeakerArr::kMono, kAux, 0);
         }
+        return kResultOk;
       }
-      
-      addAudioInput(USTRING ("Mono In"),  SpeakerArr::kMono);
-      addAudioInput(USTRING ("Mono Sidechain In"), SpeakerArr::kMono, kAux, 0);
-      
-      //disconnect the unused pins, don't worry about sidechain yet - it will get done at process()
-      SetInputChannelConnections(1, NInChannels(), false);
-      mSideChainIsConnected = false;
     }
-  }
-  
-  //outputs
-  bus = getAudioOutput(0);
-  if (bus && bus->getArrangement() != outputs[0])
-  {
-    if (outputs[0] == SpeakerArr::kMono)
+    // the host wants something else than Mono => Mono, in this case we are always Stereo => Stereo
+    else
     {
-      audioOutputs.remove(bus);
-      addAudioOutput(USTRING ("Mono Out"),  SpeakerArr::kMono);
-      
-      //disconnect the unused pin
-      SetOutputChannelConnections(1, NOutChannels(), false);
+      AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
+      if (bus)
+      {
+        tresult result = kResultFalse;
+        
+        // the host wants 2->2 (could be LsRs -> LsRs)
+        if (SpeakerArr::getChannelCount (inputs[0]) == 2 && SpeakerArr::getChannelCount (outputs[0]) == 2  && mScChans == 1)
+        {
+          removeAudioBusses ();
+          addAudioInput  (STR16 ("Stereo In"),  inputs[0]);
+          addAudioOutput (STR16 ("Stereo Out"), outputs[0]);
+          
+          // recreate the Mono SideChain input bus
+          addAudioInput  (STR16 ("Mono Aux In"), SpeakerArr::kMono, kAux, 0);
+          
+          result = kResultTrue;		
+        }
+        // the host want something different than 1->1 or 2->2 : in this case we want stereo
+        else if (bus->getArrangement () != SpeakerArr::kStereo && mScChans == 2)
+        {
+          removeAudioBusses ();
+          addAudioInput  (STR16 ("Stereo In"),  SpeakerArr::kStereo);
+          addAudioOutput (STR16 ("Stereo Out"), SpeakerArr::kStereo);
+          
+          addAudioInput  (STR16 ("Stereo Aux In"), SpeakerArr::kStereo, kAux, 0);
+          
+          result = kResultFalse;
+        }
+        
+        return result;
+      }
     }
   }
-  
-  if (mScChans)
-  {
-    if (getAudioInput(0)->getArrangement() == inputs[0] && 
-        getAudioOutput(0)->getArrangement() == outputs[0] && 
-        getAudioInput(1)->getArrangement() == inputs[1])
-      return kResultOk;
-  }
-  else 
-  {
-    if (getAudioInput(0)->getArrangement() == inputs[0] && 
-        getAudioOutput(0)->getArrangement() == outputs[0])
-      return kResultOk;
-  }
-  
   return kResultFalse;
 }
 
@@ -294,14 +338,15 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         SetInputChannelConnections(0, NInChannels(), true);
         SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
       }
+      AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
+      AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
     }
     else 
     {
       SetInputChannelConnections(0, data.inputs[0].numChannels, true);
       SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
+      AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers32, data.numSamples);
     }
-    
-    AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers32, data.numSamples);
     
     SetOutputChannelConnections(0, data.outputs[0].numChannels, true);
     SetOutputChannelConnections(data.outputs[0].numChannels, NOutChannels() - data.outputs[0].numChannels, false);
@@ -323,15 +368,16 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         SetInputChannelConnections(0, NInChannels(), true);
         SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
       }
+      AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
+      AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
     }
     else 
     {
       SetInputChannelConnections(0, data.inputs[0].numChannels, true);
       SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
+      AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
     }
-    
-    AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
-    
+        
     SetOutputChannelConnections(0, data.outputs[0].numChannels, true);
     SetOutputChannelConnections(data.outputs[0].numChannels, NOutChannels() - data.outputs[0].numChannels, false);
     
