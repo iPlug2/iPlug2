@@ -8,7 +8,7 @@
 #include "pluginterfaces/vst/vsttypes.h"
 //#include "IMidiQueue.h"
 
-#include "public.sdk/source/vst/vstpresetfile.h"
+//#include "public.sdk/source/vst/vstpresetfile.h"
 
 
 struct IPlugInstanceInfo
@@ -92,7 +92,8 @@ public:
 
   virtual void ResizeGraphics(int w, int h) {} // TODO
 
-  void DumpFactoryPresets(const char* path, int a, int b, int c, int d);  // TODO
+  // call it like DumpFactoryPresets("/Users/oli/Desktop/",  GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4);
+//  void DumpFactoryPresets(const char* path, int a, int b, int c, int d);  // TODO
   
   enum 
   {
