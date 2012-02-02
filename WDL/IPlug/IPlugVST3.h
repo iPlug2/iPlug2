@@ -6,7 +6,10 @@
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vsttypes.h"
-#include "IMidiQueue.h"
+//#include "IMidiQueue.h"
+
+#include "public.sdk/source/vst/vstpresetfile.h"
+
 
 struct IPlugInstanceInfo
 {
@@ -18,6 +21,7 @@ using namespace Vst;
 class IPlugVST3View;
 
 class IPlugVST3 :  public IPlugBase
+                  ,public IUnitInfo
                   ,public SingleComponentEffect
 {
 public:
@@ -53,6 +57,27 @@ public:
   tresult PLUGIN_API getParamStringByValue (ParamID tag, ParamValue valueNormalized, String128 string);
   tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized);
   
+  //IUnitInfo
+  int32 PLUGIN_API getUnitCount() { return 1; }
+  tresult PLUGIN_API getUnitInfo (int32 unitIndex, UnitInfo& info);
+  int32 PLUGIN_API getProgramListCount();
+  tresult PLUGIN_API getProgramListInfo (int32 listIndex, ProgramListInfo& info);
+  tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name);
+	
+  virtual tresult PLUGIN_API getProgramInfo (ProgramListID listId, 
+                                             int32 programIndex, 
+                                             Steinberg::Vst::CString attributeId /*in*/, 
+                                             String128 attributeValue /*out*/) {return kNotImplemented;}
+  
+	virtual tresult PLUGIN_API hasProgramPitchNames(ProgramListID listId, int32 programIndex) {return kNotImplemented;}
+  virtual tresult PLUGIN_API getProgramPitchName(ProgramListID listId, int32 programIndex, int16 midiPitch, String128 name /*out*/) {return kNotImplemented;}
+  virtual UnitID PLUGIN_API getSelectedUnit () {return kRootUnitId;}
+  virtual tresult PLUGIN_API selectUnit (UnitID unitId) {return kNotImplemented;}
+  virtual tresult PLUGIN_API getUnitByBus (MediaType type, BusDirection dir, int32 busIndex,
+                                           int32 channel, UnitID& unitId /*out*/) {return kNotImplemented;}
+  virtual tresult PLUGIN_API setUnitProgramData (int32 listOrUnitId, int32 programIndex, IBStream* data) {return kNotImplemented;}
+  
+  //IPlugBase
   virtual void BeginInformHostOfParamChange(int idx);
   virtual void InformHostOfParamChange(int idx, double normalizedValue);
   virtual void EndInformHostOfParamChange(int idx);
@@ -65,12 +90,33 @@ public:
   virtual void GetTimeSig(int* pNum, int* pDenom);
   virtual void GetTime(ITimeInfo* pTimeInfo);
 
-  virtual void ResizeGraphics(int w, int h) {} //TODO
+  virtual void ResizeGraphics(int w, int h) {} // TODO
 
+  void DumpFactoryPresets(const char* path, int a, int b, int c, int d);  // TODO
+  
+  enum 
+  {
+		kBypassParam = 'bpas',
+		kPresetParam = 'prst',
+//		kModWheelParam = 'modw',
+//		kBreathParam = 'brth',
+//		kCtrler3Param = 'ct03',
+//		kExpressionParam = 'expr',
+//		kPitchBendParam = 'pitb',
+//		kSustainParam = 'sust',
+//		kAftertouchParam = 'aftt',
+	};
+  
+  OBJ_METHODS (IPlugVST3, SingleComponentEffect)
+	DEFINE_INTERFACES
+  DEF_INTERFACE (IUnitInfo)
+	END_DEFINE_INTERFACES (SingleComponentEffect)
+	REFCOUNT_METHODS(SingleComponentEffect)
+  
 protected:
   virtual void HostSpecificInit() {} //TODO
-  virtual bool SendMidiMsg(IMidiMsg* pMsg);
-  virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) {return true;} //TODO
+  virtual bool SendMidiMsg(IMidiMsg* pMsg) {return false;}  //TODO
+  virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) {return false;} //TODO
   
   virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
 private:
@@ -86,9 +132,8 @@ private:
   SpeakerArrangement getSpeakerArrForChans(int32 chans);
   
   int mScChans;
-  bool mSideChainIsConnected;
-  bool mDoesMidi;
-  IMidiQueue mMidiOutputQueue;
+  bool mDoesMidi, mBypassed;
+//  IMidiQueue mMidiOutputQueue;
   ProcessContext mProcessContext;
   TArray <IPlugVST3View*> viewsArray;
   

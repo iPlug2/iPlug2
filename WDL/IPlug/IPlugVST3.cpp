@@ -11,15 +11,17 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
            int vendorVersion, int uniqueID, int mfrID, int latency, 
            bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, int plugScChans)
 : IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency, plugDoesMidi, plugDoesChunks, plugIsInst)
+,mDoesMidi(plugDoesMidi)
+,mScChans(plugScChans)
+,mBypassed(false)
 { 
-  mDoesMidi = plugDoesMidi;
-  mScChans = plugScChans;
-  mSideChainIsConnected = false;
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
 }
 
-IPlugVST3::~IPlugVST3() {}
+IPlugVST3::~IPlugVST3() 
+{
+}
 
 #pragma mark -
 #pragma mark AudioEffect overrides
@@ -32,11 +34,14 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   
   if (result == kResultOk)
   {
+    // add io buses with the maximum i/o to start with
     addAudioInput(STR16("Audio Input"), getSpeakerArrForChans(NInChannels()-mScChans) );
     addAudioOutput(STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
     
     if (mScChans == 1)
+    {
       addAudioInput(STR16("Sidechain Input"), SpeakerArr::kMono, kAux, 0);
+    }
     else if (mScChans >= 2)
     {
       mScChans = 2;
@@ -47,6 +52,27 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     {
       addEventInput (STR16("MIDI In"), 1);
       addEventOutput(STR16("MIDI Out"), 1);
+    }
+    
+    if (NPresets()) 
+    {
+      parameters.addParameter(new Parameter(STR16("Preset"), 
+                                            kPresetParam, 
+                                            STR16(""), 
+                                            0, 
+                                            NPresets(), 
+                                            ParameterInfo::kIsProgramChange));
+    }
+    
+    if(!mIsInst)
+    {
+      StringListParameter * bypass = new StringListParameter(STR16("Bypass"), 
+                                                             kBypassParam, 
+                                                             0, 
+                                                             ParameterInfo::kCanAutomate | ParameterInfo::kIsBypass | ParameterInfo::kIsList);
+      bypass->appendString(STR16("off"));
+      bypass->appendString(STR16("on"));
+      parameters.addParameter(bypass);
     }
     
     for (int i=0; i<NParams(); i++)
@@ -118,112 +144,65 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
 {
   TRACE;
   
+  // disconnect all io pins, they will be reconnected in process
   SetInputChannelConnections(0, NInChannels(), false);
   SetOutputChannelConnections(0, NOutChannels(), false);
   
-	if (numIns == 1 && numOuts == 1)
-	{
-		if (inputs[0] == SpeakerArr::kMono && outputs[0] == SpeakerArr::kMono)
-		{
-			AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
-			if (bus)
-			{
-				if (bus->getArrangement () != SpeakerArr::kMono)
-				{
-					removeAudioBusses ();
-					addAudioInput  (USTRING ("Mono In"),  SpeakerArr::kMono);
-					addAudioOutput (USTRING ("Mono Out"), SpeakerArr::kMono);
-				}
-        
-				return kResultOk;
-			}
-		}
-		else if (inputs[0] == SpeakerArr::kStereo && outputs[0] == SpeakerArr::kStereo)
-		{
-			AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
-			if (bus)
-			{
-				if (bus->getArrangement () != SpeakerArr::kStereo)
-				{
-					removeAudioBusses ();
-					addAudioInput  (USTRING ("Stereo In"),  SpeakerArr::kStereo);
-					addAudioOutput (USTRING ("Stereo Out"), SpeakerArr::kStereo);
-				}
-        
-				return kResultOk;
-			}
-		}
-    else // TODO different channel IO. quad etc
-    {
-      return kResultFalse;
-    }
+  int32 reqNumInputChannels = SpeakerArr::getChannelCount(inputs[0]);  //requested # input channels
+  int32 reqNumOutputChannels = SpeakerArr::getChannelCount(outputs[0]);//requested # output channels
 
-	}
-  // the first input is the Main Input and the second is the SideChain Input
-	if (mScChans && numIns == 2 && numOuts == 1)
+  // legal io doesn't consider sidechain inputs
+  if (!LegalIO(reqNumInputChannels, reqNumOutputChannels)) 
   {
-    // the host wants Mono => Mono (or 1 channel -> 1 channel)
-    if (SpeakerArr::getChannelCount (inputs[0]) == 1 && SpeakerArr::getChannelCount (outputs[0]) == 1 && mScChans == 1)
-    {
-      AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
-      if (bus)
-      {
-        // check if we are Mono => Mono, if not we need to recreate the busses
-        if (bus->getArrangement () != inputs[0])
-        {
-          removeAudioBusses ();
-          addAudioInput  (STR16 ("Mono In"),  inputs[0]);
-          addAudioOutput (STR16 ("Mono Out"), inputs[0]);
-          
-          // recreate the Mono SideChain input bus
-          addAudioInput  (STR16 ("Mono Aux In"), SpeakerArr::kMono, kAux, 0);
-        }
-        return kResultOk;
-      }
-    }
-    // the host wants something else than Mono => Mono, in this case we are always Stereo => Stereo
-    else
-    {
-      AudioBus* bus = FCast<AudioBus> (audioInputs.at(0));
-      if (bus)
-      {
-        tresult result = kResultFalse;
-        
-        // the host wants 2->2 (could be LsRs -> LsRs)
-        if (SpeakerArr::getChannelCount (inputs[0]) == 2 && SpeakerArr::getChannelCount (outputs[0]) == 2  && mScChans == 1)
-        {
-          removeAudioBusses ();
-          addAudioInput  (STR16 ("Stereo In"),  inputs[0]);
-          addAudioOutput (STR16 ("Stereo Out"), outputs[0]);
-          
-          // recreate the Mono SideChain input bus
-          addAudioInput  (STR16 ("Mono Aux In"), SpeakerArr::kMono, kAux, 0);
-          
-          result = kResultTrue;		
-        }
-        // the host want something different than 1->1 or 2->2 : in this case we want stereo
-        else if (bus->getArrangement () != SpeakerArr::kStereo && mScChans == 2)
-        {
-          removeAudioBusses ();
-          addAudioInput  (STR16 ("Stereo In"),  SpeakerArr::kStereo);
-          addAudioOutput (STR16 ("Stereo Out"), SpeakerArr::kStereo);
-          
-          addAudioInput  (STR16 ("Stereo Aux In"), SpeakerArr::kStereo, kAux, 0);
-          
-          result = kResultFalse;
-        }
-        
-        return result;
-      }
-    }
+    return kResultFalse;
   }
+  
+  // handle input
+  AudioBus* bus = FCast<AudioBus>(audioInputs.at(0));
+
+  // if existing input bus has a different number of channels to the input bus being connected
+  if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumInputChannels)
+  {
+    audioInputs.remove(bus);
+    addAudioInput(USTRING("Input"), getSpeakerArrForChans(reqNumInputChannels));
+  }
+  
+  // handle output
+  bus = FCast<AudioBus>(audioOutputs.at(0));
+  // if existing output bus has a different number of channels to the output bus being connected
+  if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumOutputChannels)
+  {
+    audioOutputs.remove(bus);
+    addAudioOutput(USTRING("Output"), getSpeakerArrForChans(reqNumOutputChannels));
+  }
+
+  if (!mScChans && numIns == 1) // No sidechain, every thing OK
+  {
+    return kResultTrue;
+  }
+
+  if (mScChans && numIns == 2) // numIns = num Input BUSes
+  {
+    int32 reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
+
+    bus = FCast<AudioBus>(audioInputs.at(1));
+
+    if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumSideChainChannels)
+    {
+      audioInputs.remove(bus);
+      addAudioInput(USTRING("Sidechain Input"), getSpeakerArrForChans(reqNumSideChainChannels), kAux, 0); // either mono or stereo
+    }
+    
+    return kResultTrue;
+  }
+
   return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::setActive (TBool state)
 {
   TRACE;
-  
+    
   OnActivate((bool) state);
   
   return SingleComponentEffect::setActive (state);  
@@ -236,6 +215,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
   mSampleRate = newSetup.sampleRate;
+  mBypassed = false;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   Reset();
   
@@ -274,18 +254,33 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
         {
           int idx = paramQueue->getParameterId();
-          if (idx >= 0 && idx < NParams()) 
+          
+          switch (idx) 
           {
-            GetParam(idx)->SetNormalized((double)value);
-            if (GetGUI()) GetGUI()->SetParameterFromPlug(idx, (double)value, true);
-            OnParamChange(idx);
+            case kBypassParam:
+              mBypassed = (value > 0.5);
+              break;
+            case kPresetParam:
+              RestorePreset(FromNormalizedParam(value, 0, NPresets(),1.));
+              break;
+              //TODO pitch bend, modwheel etc
+            default:
+              if (idx >= 0 && idx < NParams()) 
+              {
+                GetParam(idx)->SetNormalized((double)value);
+                if (GetGUI()) GetGUI()->SetParameterFromPlug(idx, (double)value, true);
+                OnParamChange(idx);
+              }              
+              break;
           }
+          
         }
       }
     }
   }
   
-  if(mDoesMidi) {
+  if(mDoesMidi) 
+  {
     //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;
     if (eventList) 
@@ -353,7 +348,14 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     
     AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers32);
     
-    ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
+    if (mBypassed) 
+    {
+      PassThroughBuffers(0.0f, data.numSamples);
+    }
+    else 
+    {
+      ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
+    }
   }
   else if (processSetup.symbolicSampleSize == kSample64)
   {
@@ -383,7 +385,15 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     
     AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers64);
     
-    ProcessBuffers(0.0, data.numSamples); // process buffers double precision
+    if (mBypassed) 
+    {
+      PassThroughBuffers(0.0, data.numSamples);
+    }
+    else 
+    {
+      ProcessBuffers(0.0, data.numSamples); // process buffers double precision
+    }
+
   }  
   // Midi Out
 //  if (mDoesMidi) {
@@ -573,7 +583,8 @@ AudioBus* IPlugVST3::getAudioOutput (int32 index)
 // TODO: more speaker arrs
 SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
 {
-  switch (chans) {
+  switch (chans) 
+  {
     case 1:
       return SpeakerArr::kMono;
     case 2:
@@ -590,6 +601,49 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
       return SpeakerArr::kEmpty;
       break;
   }
+}
+
+#pragma mark -
+#pragma mark IUnitInfo
+
+tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
+{
+  info.id = kRootUnitId;
+  info.parentUnitId = kNoParentUnitId;
+  info.programListId = kPresetParam;
+
+  UString name(info.name, 128);
+  name.fromAscii("Factory Presets");
+  
+  return kResultTrue;
+}
+
+int32 PLUGIN_API IPlugVST3::getProgramListCount()
+{
+	return (NPresets() > 0);
+}
+
+tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/)
+{
+	if (listIndex == 0)
+	{
+		info.id = kPresetParam;
+		info.programCount = (int32) NPresets();
+		UString name(info.name, 128);
+		name.fromAscii("Factory Presets");
+		return kResultTrue;
+	}
+	return kResultFalse;
+}
+
+tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
+{
+	if (listId == kPresetParam)
+	{
+		Steinberg::UString(name, 128).fromAscii(GetPresetName(programIndex));
+		return kResultTrue;
+	}
+	return kResultFalse;
 }
 
 #pragma mark -
@@ -650,19 +704,32 @@ int IPlugVST3::GetSamplePos()
   return (int) mProcessContext.projectTimeSamples;
 }
 
-// Only add note messages, because vst3 can't handle others
-bool IPlugVST3::SendMidiMsg(IMidiMsg* pMsg)
-{
-  int status = pMsg->StatusMsg();
+void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
+{ 
+  FUID pluginGuid;
+  pluginGuid.from4Int(a,b,c,d);
   
-  switch (status)
+  for (int i = 0; i< NPresets(); i++) 
   {
-    case IMidiMsg::kNoteOn:
-    case IMidiMsg::kNoteOff:
-      mMidiOutputQueue.Add(pMsg);
-      return true;
-    default:
-      return false;
+    WDL_String fileName(path, strlen(path));
+    fileName.Append(GetPresetName(i), strlen(GetPresetName(i)));
+    fileName.Append(".vstpreset", strlen(".vstpreset"));
+        
+    WDL_String xmlMetaData("", strlen(""));
+    
+    IBStream* stream = FileStream::open(fileName.Get(), "wb");
+    
+    RestorePreset(i);
+        
+    PresetFile::savePreset(stream, 
+                           pluginGuid, // HOW to get class id?
+                           this,
+                           this,
+                           xmlMetaData.Get(),
+                           xmlMetaData.GetLength()
+                           );
+                           
+
   }
 }
 
