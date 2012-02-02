@@ -704,34 +704,34 @@ int IPlugVST3::GetSamplePos()
   return (int) mProcessContext.projectTimeSamples;
 }
 
-void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
-{ 
-  FUID pluginGuid;
-  pluginGuid.from4Int(a,b,c,d);
-  
-  for (int i = 0; i< NPresets(); i++) 
-  {
-    WDL_String fileName(path, strlen(path));
-    fileName.Append(GetPresetName(i), strlen(GetPresetName(i)));
-    fileName.Append(".vstpreset", strlen(".vstpreset"));
-        
-    WDL_String xmlMetaData("", strlen(""));
-    
-    IBStream* stream = FileStream::open(fileName.Get(), "wb");
-    
-    RestorePreset(i);
-        
-    PresetFile::savePreset(stream, 
-                           pluginGuid, // HOW to get class id?
-                           this,
-                           this,
-                           xmlMetaData.Get(),
-                           xmlMetaData.GetLength()
-                           );
-                           
-
-  }
-}
+//void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
+//{ 
+//  FUID pluginGuid;
+//  pluginGuid.from4Int(a,b,c,d);
+//  
+//  for (int i = 0; i< NPresets(); i++) 
+//  {
+//    WDL_String fileName(path, strlen(path));
+//    fileName.Append(GetPresetName(i), strlen(GetPresetName(i)));
+//    fileName.Append(".vstpreset", strlen(".vstpreset"));
+//        
+//    WDL_String xmlMetaData("", strlen(""));
+//    
+//    IBStream* stream = FileStream::open(fileName.Get(), "w");
+//    
+//    RestorePreset(i);
+//        
+//    PresetFile::savePreset(stream, 
+//                           pluginGuid,
+//                           this,
+//                           this,
+//                           xmlMetaData.Get(),
+//                           xmlMetaData.GetLength()
+//                           );
+//                           
+//
+//  }
+//}
 
 #pragma mark -
 #pragma mark IPlugVST3View
