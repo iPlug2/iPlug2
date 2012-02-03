@@ -153,7 +153,6 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
           return noErr;
         }
       }
-#pragma mark possibly memory leak (auval leaks test)
       PtrListAddFromStack(&(_this->mPropertyListeners), &listener);
       return noErr;
     }
@@ -191,7 +190,6 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AURenderCallbackStruct acs;
       acs.inputProc = GET_COMP_PARAM(AURenderCallback, 1, 2);
       acs.inputProcRefCon = GET_COMP_PARAM(void*, 0, 2);
-#pragma mark possibly memory leak (auval leaks test)
       PtrListAddFromStack(&(_this->mRenderNotify), &acs);
       return noErr;
     }
@@ -1319,8 +1317,10 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
           }
           default: 
           {
+#ifndef NDEBUG // TODO: what is this?
             bool inputBusAssessed = false;
             assert(inputBusAssessed);   // InputBus.mConnected should be false, we didn't correctly assess the input connections.
+#endif
           }
         }
         if (r != noErr) 
