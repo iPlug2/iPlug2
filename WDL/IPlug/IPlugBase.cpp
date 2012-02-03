@@ -412,11 +412,16 @@ void IPlugBase::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 {
   // Mutex is already locked.
   int i, nIn = mInChannels.GetSize(), nOut = mOutChannels.GetSize();
-  for (i = 0; i < nIn; ++i) {
-    memcpy(outputs[i], inputs[i], nFrames * sizeof(double));
+  int j = 0;
+  for (i = 0; i < nOut; ++i) {
+    if (i < nIn) {
+      memcpy(outputs[i], inputs[i], nFrames * sizeof(double));
+      j++;
+    }
   }
-  for (/* same i */; i < nOut; ++i) {
-    memset(outputs[i], 0, nFrames * sizeof(double));
+  // zero remaining outs
+  for (/* same j */; j < nOut; ++j) {
+    memset(outputs[j], 0, nFrames * sizeof(double));
   }
 }
 
