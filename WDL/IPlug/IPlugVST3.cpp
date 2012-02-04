@@ -780,8 +780,15 @@ tresult PLUGIN_API IPlugVST3View::onSize (ViewRect* newSize)
 
 tresult PLUGIN_API IPlugVST3View::getSize (ViewRect* size) 
 {
-  *size = ViewRect(0, 0, mPlug->GetGUI()->Width(), mPlug->GetGUI()->Height());
-  return kResultTrue;
+  if (mPlug->GetGUI()) 
+  {
+    *size = ViewRect(0, 0, mPlug->GetGUI()->Width(), mPlug->GetGUI()->Height());
+    
+    return kResultTrue;
+  }
+  else {
+    return kResultFalse;
+  }
 }
 
 tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
