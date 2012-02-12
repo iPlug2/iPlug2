@@ -40,7 +40,6 @@ public:
   // Should be called only by the graphics object when it resizes itself.
   void ResizeGraphics(int w, int h);
 
-  // Whether the plugin is being used for offline rendering
   bool IsRenderingOffline();
 
 protected:
