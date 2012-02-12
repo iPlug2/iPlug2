@@ -636,6 +636,15 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         }
         return 0xbeef;
       }
+      
+      if (idx == kVstParameterUsesIntStep){
+        if (value >= 0 && value < _this->NParams()) {
+          if (_this->GetParam(value)->Type() != IParam::kTypeDouble) {
+            return 0xbeef;
+          }
+        }
+      }
+      
       return 0;
     }
     case effGetProgram: {
