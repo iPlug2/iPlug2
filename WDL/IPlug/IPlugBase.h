@@ -122,10 +122,8 @@ public:
   // Should be called only by the graphics object when it resizes itself.
   virtual void ResizeGraphics(int w, int h) = 0;
   
-  // Not fully supported.  A call back from the host saying the user has resized the window.
-  // If the plugin supports different sizes, it may wish to resize.
 #ifndef OS_IOS
-  virtual void UserResizedWindow(IRECT* pR) {}
+  virtual void OnWindowResize() {}
 #endif
   void EnsureDefaultPreset();
   virtual bool HostRequestingAboutBox(); // implement this to trigger your custom about box from a standalone
