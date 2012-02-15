@@ -170,11 +170,13 @@ IGraphics::~IGraphics()
 
 void IGraphics::Resize(int w, int h)
 {
-  // The OS implementation class has to do all the work, then call up to here.
   mWidth = w;
   mHeight = h;
   ReleaseMouseCapture();
   mControls.Empty(true);
+  DELETE_NULL(mDrawBitmap);
+	DELETE_NULL(mTmpBitmap);
+  PrepDraw();
   mPlug->ResizeGraphics(w, h);
 }
 
