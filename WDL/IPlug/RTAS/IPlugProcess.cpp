@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "IPlugGroup.h"
 #include "FicPluginEnums.h"
+//#include "FicProcessTokens.h" 
 #include "CDAEError.h"
 #include "IPlugProcess.h"
 #include "CNoResourceView.h"
@@ -358,3 +359,15 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
   else 
     return CEffectProcess::GetChunk(chunkID, chunk); // Not our chunk
 }
+
+//void IPlugProcess::ResizeGraphics(int w, int h)
+//{
+//  Rect plugInRect;
+//  
+//  fOurPlugInView->GetRect(&plugInRect);
+//  plugInRect.right += 200;
+//  plugInRect.bottom += 200;
+//  fOurPlugInView->SetRect(&plugInRect);
+//  SSetProcessWindowResizeToken theToken(fRootNameId,fRootNameId);
+//  FicSDSDispatchToken (&theToken);
+//}
