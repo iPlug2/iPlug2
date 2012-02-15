@@ -144,6 +144,7 @@ EHost IPlugRTAS::GetHost()
 // TODO: ResizeGraphics() ??
 void IPlugRTAS::ResizeGraphics(int w, int h)
 {
+  //mRTAS->ResizeGraphics(w, h);
 }
 
 void IPlugRTAS::Created(class IPlugProcess *r)

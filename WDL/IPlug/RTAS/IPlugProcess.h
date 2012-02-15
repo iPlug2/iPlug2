@@ -60,6 +60,8 @@ public:
                        bool *pTransportRunning,
                        bool *pTransportCycle) = 0;
   
+//  void ResizeGraphics(int w, int h);
+  
   virtual IGraphics* getGraphics() 
   {
     if (mPlug) 
