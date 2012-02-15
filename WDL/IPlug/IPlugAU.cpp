@@ -1647,6 +1647,16 @@ EHost IPlugAU::GetHost()
   return host;
 }
 
+void IPlugAU::ResizeGraphics(int w, int h)
+{
+  IGraphics* pGraphics = GetGUI();
+  
+  if (pGraphics) 
+  {
+    OnWindowResize();
+  }
+}
+
 void IPlugAU::HostSpecificInit()
 {
 //  EHost host = GetHost();
