@@ -479,9 +479,7 @@ void IGraphicsWin::Resize(int w, int h)
 {
   int dw = w - Width(), dh = h - Height();
   IGraphics::Resize(w, h);
-  if (mDrawBitmap) {
-    mDrawBitmap->resize(w, h);
-  }
+
   if (WindowIsOpen()) {
     HWND pParent = 0, pGrandparent = 0;
     int w = 0, h = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;

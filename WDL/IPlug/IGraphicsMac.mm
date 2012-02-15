@@ -249,9 +249,6 @@ bool IGraphicsMac::WindowIsOpen()
 void IGraphicsMac::Resize(int w, int h)
 {
   IGraphics::Resize(w, h);
-  if (mDrawBitmap) {
-    mDrawBitmap->resize(w, h);
-  } 
   
 #ifndef IPLUG_NO_CARBON_SUPPORT
   if (mGraphicsCarbon) {
