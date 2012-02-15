@@ -167,8 +167,7 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 	if (mGraphics)
 	{
 		IRECT tmpRect = ToIRECT(mGraphics, &rect);
-		if (mGraphics) mGraphics->Draw(&tmpRect);
-
+		mGraphics->Draw(&tmpRect);
 	}
 }
 
