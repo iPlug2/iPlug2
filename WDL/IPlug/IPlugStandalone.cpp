@@ -1,8 +1,9 @@
 #include "IPlugStandalone.h"
 #ifndef OS_IOS
   #include "IGraphics.h"
+  extern HWND gHWND;
 #endif
-#include <stdio.h>
+
 
 IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, 
                                  int nParams, 
@@ -81,11 +82,16 @@ void IPlugStandalone::GetTimeSig(int* pNum, int* pDenom)
 
 }
 
-// TODO: ResizeGraphics()
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
   IGraphics* pGraphics = GetGUI();
+#ifdef SA_API
+  RECT r;
+  GetWindowRect(gHWND, &r); 
+  SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height(), pGraphics->Width(), pGraphics->Height(), 0);
+#endif
   if (pGraphics) {
+    OnWindowResize();
   }
 }
 
@@ -140,14 +146,12 @@ void IPlugStandalone::HostSpecificInit()
 void IPlugStandalone::LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
 {
   IMutexLock lock(this);
-  //WDL_MutexLock lock(&mMutex);
   ProcessSingleReplacing(inputs, outputs, nFrames);
 }
 #else
 void IPlugStandalone::LockMutexAndProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   IMutexLock lock(this);
-  //WDL_MutexLock lock(&mMutex);
   ProcessDoubleReplacing(inputs, outputs, nFrames);
 }
 #endif
