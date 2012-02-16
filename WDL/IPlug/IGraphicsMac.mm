@@ -248,6 +248,8 @@ bool IGraphicsMac::WindowIsOpen()
 
 void IGraphicsMac::Resize(int w, int h)
 {
+  if (w == Width() && h == Height()) return;
+  
   IGraphics::Resize(w, h);
   
 #ifndef IPLUG_NO_CARBON_SUPPORT
