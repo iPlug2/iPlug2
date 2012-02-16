@@ -15,21 +15,14 @@ enum ELayout
 {
   kWidth = GUI_WIDTH,
   kHeight = GUI_HEIGHT,
-
-  kGainX = 100,
-  kGainY = 100,
+  
   kKnobFrames = 60
 };
 
 IPlugGUIResize::IPlugGUIResize(IPlugInstanceInfo instanceInfo)
-:	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
+:	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
-
-  //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
-  GetParam(kGain)->SetShape(2.);
-
 
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   CreateControls(pGraphics, 0);
@@ -45,13 +38,13 @@ void IPlugGUIResize::CreateControls(IGraphics* pGraphics, int size)
 {
   switch(size)
   {
-    case 0:
+    case 0: // could change the positioning of the controls by storing a size index when the button is clicked
       pGraphics->AttachPanelBackground(&COLOR_RED);
-      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20)));
+      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 10, 80, 30), "mini", 100, 100 ));
+      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 35, 80, 55), "medium", 200, 200 ));
+      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 60, 80, 80), "big", 500, 500 ));
       break;
     case 1:
-      pGraphics->AttachPanelBackground(&COLOR_RED);
-      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(kGainX+100, kGainY, kGainX + 48, kGainY + 48 + 20)));
     default:
       break;
   }
@@ -66,14 +59,10 @@ void IPlugGUIResize::ProcessDoubleReplacing(double** inputs, double** outputs, i
   double* out1 = outputs[0];
   double* out2 = outputs[1];
 
-  //double samplesPerBeat = GetSamplesPerBeat();
-  //double samplePos = (double) GetSamplePos();
-  //double tempo = GetTempo();
-
   for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
   {
-    *out1 = *in1 * mGain;
-    *out2 = *in2 * mGain;
+    *out1 = *in1;
+    *out2 = *in2;
   }
 }
 
@@ -89,15 +78,15 @@ void IPlugGUIResize::OnParamChange(int paramIdx)
 {
   IMutexLock lock(this);
 
-  switch (paramIdx)
-  {
-    case kGain:
-      mGain = GetParam(kGain)->Value() / 100.;;
-      break;
-
-    default:
-      break;
-  }
+//  switch (paramIdx)
+//  {
+//    case kGain:
+//      mGain = GetParam(kGain)->Value() / 100.;;
+//      break;
+//
+//    default:
+//      break;
+//  }
 }
 
 void IPlugGUIResize::OnWindowResize()
