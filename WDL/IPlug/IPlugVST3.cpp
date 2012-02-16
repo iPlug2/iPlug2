@@ -135,8 +135,9 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
 tresult PLUGIN_API IPlugVST3::terminate  ()
 {
-  viewsArray.removeAll ();
-  
+  TRACE;
+
+  viewsArray.removeAll ();  
   return SingleComponentEffect::terminate ();
 }
 
@@ -228,7 +229,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 { 
   TRACE_PROCESS;
   
-  IMutexLock lock(this); // TODO: is this the best place to lock the mutex?
+  IMutexLock lock(this);
   
   if(data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
@@ -438,8 +439,8 @@ IPlugView* PLUGIN_API IPlugVST3::createView (const char* name)
 {
   if (name && strcmp (name, "editor") == 0)
   {
-    IPlugVST3View* view = new IPlugVST3View (this);
-    addDependentView (view);
+    IPlugVST3View* view = new IPlugVST3View(this);
+    addDependentView(view);
     return view;
   }
   
@@ -530,18 +531,18 @@ tresult PLUGIN_API IPlugVST3::getParamValueByString (ParamID tag, TChar* string,
   return SingleComponentEffect::getParamValueByString (tag, string, valueNormalized);
 }
 
-void IPlugVST3::addDependentView (IPlugVST3View* view)
+void IPlugVST3::addDependentView(IPlugVST3View* view)
 {
-  viewsArray.add (view);
+  viewsArray.add(view);
 }
 
-void IPlugVST3::removeDependentView (IPlugVST3View* view)
+void IPlugVST3::removeDependentView(IPlugVST3View* view)
 {
   for (int32 i = 0; i < viewsArray.total (); i++)
   {
-    if (viewsArray.at (i) == view)
+    if (viewsArray.at(i) == view)
     {
-      viewsArray.removeAt (i);
+      viewsArray.removeAt(i);
       break;
     }
   }
@@ -604,7 +605,7 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
 }
 
 #pragma mark -
-#pragma mark IUnitInfo
+#pragma mark IUnitInfo overrides
 
 tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
 {
@@ -651,7 +652,9 @@ tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 program
 
 void IPlugVST3::BeginInformHostOfParamChange(int idx)
 {
-  if (GetParam(idx)->GetCanAutomate()) 
+  TRACE;
+  
+  if (GetParam(idx)->GetCanAutomate()) // TODO are these checks SANE?
   {
     beginEdit(idx);
   }
@@ -704,6 +707,14 @@ int IPlugVST3::GetSamplePos()
   return (int) mProcessContext.projectTimeSamples;
 }
 
+void IPlugVST3::ResizeGraphics(int w, int h)
+{
+  if (GetGUI()) 
+  {
+    viewsArray.at(0)->resize(w, h);
+  }
+}
+
 //void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
 //{ 
 //  FUID pluginGuid;
@@ -737,12 +748,10 @@ int IPlugVST3::GetSamplePos()
 #pragma mark IPlugVST3View
 IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
 : mPlug(pPlug)
-{  
-  rect.right = 700;
-  rect.bottom = 300;
-  
+, mExpectingNewSize(false)
+{
   if (mPlug)
-    mPlug->addRef();
+    mPlug->addRef();  
 }
 
 IPlugVST3View::~IPlugVST3View ()
@@ -754,7 +763,7 @@ IPlugVST3View::~IPlugVST3View ()
   }
 }
 
-tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported (FIDString type)
+tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 {
   if(mPlug->GetGUI()) // for no editor plugins
   {
@@ -773,13 +782,28 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported (FIDString type)
   return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3View::onSize (ViewRect* newSize)
+tresult PLUGIN_API IPlugVST3View::onSize(ViewRect* newSize)
 {
-  return CPluginView::onSize (newSize);
+  TRACE;
+
+	if (newSize)
+  {
+		rect = *newSize;
+    
+    if (mExpectingNewSize) 
+    {
+      mPlug->OnWindowResize();
+      mExpectingNewSize = false;
+    }
+  }
+  
+	return kResultTrue;
 }
 
-tresult PLUGIN_API IPlugVST3View::getSize (ViewRect* size) 
+tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size) 
 {
+  TRACE;
+
   if (mPlug->GetGUI()) 
   {
     *size = ViewRect(0, 0, mPlug->GetGUI()->Width(), mPlug->GetGUI()->Height());
@@ -818,4 +842,13 @@ tresult PLUGIN_API IPlugVST3View::removed ()
   }
   
   return CPluginView::removed ();
+}
+
+void IPlugVST3View::resize(int w, int h)
+{
+  TRACE;
+
+  ViewRect newSize = ViewRect(0, 0, w, h);
+  mExpectingNewSize = true;
+  plugFrame->resizeView(this, &newSize);
 }

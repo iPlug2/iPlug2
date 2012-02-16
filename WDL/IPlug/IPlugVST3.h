@@ -13,6 +13,7 @@
 
 struct IPlugInstanceInfo
 {
+  // not needed
 };
 
 using namespace Steinberg;
@@ -90,7 +91,7 @@ public:
   virtual void GetTimeSig(int* pNum, int* pDenom);
   virtual void GetTime(ITimeInfo* pTimeInfo);
 
-  virtual void ResizeGraphics(int w, int h) {} // TODO
+  virtual void ResizeGraphics(int w, int h);
 
   // call it like DumpFactoryPresets("/Users/oli/Desktop/",  GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4);
 //  void DumpFactoryPresets(const char* path, int a, int b, int c, int d);  // TODO
@@ -137,7 +138,7 @@ private:
 //  IMidiQueue mMidiOutputQueue;
   ProcessContext mProcessContext;
   TArray <IPlugVST3View*> viewsArray;
-  
+    
   friend class IPlugVST3View;
 };
 
@@ -152,19 +153,22 @@ public:
   ~IPlugVST3View ();
   
   // CPluginView overides
-  tresult PLUGIN_API attached (void* parent, FIDString type);
-  tresult PLUGIN_API removed ();
+  tresult PLUGIN_API attached(void* parent, FIDString type);
+  tresult PLUGIN_API removed();
 
   // for steinberg hardware that has a wheel
   //tresult PLUGIN_API findParameter (int32 xPos, int32 yPos, ParamID& resultTag /*out*/);
   
   // IPlugView overides
-  tresult PLUGIN_API onSize (ViewRect* newSize);
-  tresult PLUGIN_API getSize (ViewRect* size);
-  tresult PLUGIN_API isPlatformTypeSupported (FIDString type);
+  tresult PLUGIN_API onSize(ViewRect* newSize);
+  tresult PLUGIN_API getSize(ViewRect* size);
+  tresult PLUGIN_API isPlatformTypeSupported(FIDString type);
+
+  void resize(int w, int h);
   
 protected:
   IPlugVST3* mPlug;
+  bool mExpectingNewSize;
 };
 
 #endif
