@@ -84,15 +84,15 @@ void IPlugStandalone::GetTimeSig(int* pNum, int* pDenom)
 
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
+  #ifndef OS_IOS
   IGraphics* pGraphics = GetGUI();
-#ifdef SA_API
-  RECT r;
-  GetWindowRect(gHWND, &r); 
-  SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height(), pGraphics->Width(), pGraphics->Height(), 0);
-#endif
   if (pGraphics) {
+    RECT r;
+    GetWindowRect(gHWND, &r); 
+    SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height(), pGraphics->Width(), pGraphics->Height(), 0);
     OnWindowResize();
   }
+  #endif
 }
 
 void IPlugStandalone::SetSampleRate(double sampleRate)
