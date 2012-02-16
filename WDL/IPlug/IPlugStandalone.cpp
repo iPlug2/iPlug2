@@ -82,6 +82,12 @@ void IPlugStandalone::GetTimeSig(int* pNum, int* pDenom)
 
 }
 
+#ifdef OS_OSX
+#define TITLEBAR_BODGE 22
+#else
+#define TITLEBAR_BODGE 0
+#endif
+
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
   #ifndef OS_IOS
@@ -89,7 +95,7 @@ void IPlugStandalone::ResizeGraphics(int w, int h)
   if (pGraphics) {
     RECT r;
     GetWindowRect(gHWND, &r); 
-    SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height(), pGraphics->Width(), pGraphics->Height(), 0);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height() - TITLEBAR_BODGE, pGraphics->Width(), pGraphics->Height() + TITLEBAR_BODGE, 0);
     OnWindowResize();
   }
   #endif
