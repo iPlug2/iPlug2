@@ -355,7 +355,6 @@ public:
 	bool Draw(IGraphics* pGraphics);
 
 protected:
-//	IText mText;
 	WDL_String mStr;
 };
 
