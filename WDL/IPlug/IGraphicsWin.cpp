@@ -484,8 +484,8 @@ void IGraphicsWin::Resize(int w, int h)
 
   if (WindowIsOpen()) {
     HWND pParent = 0, pGrandparent = 0;
-    int w = 0, h = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
-    GetWindowSize(mPlugWnd, &w, &h);
+    int plugW = 0, plugH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
+    GetWindowSize(mPlugWnd, &plugW, &plugH);
     if (IsChildWindow(mPlugWnd)) {
       pParent = GetParent(mPlugWnd);
       GetWindowSize(pParent, &parentW, &parentH);
@@ -494,15 +494,22 @@ void IGraphicsWin::Resize(int w, int h)
         GetWindowSize(pGrandparent, &grandparentW, &grandparentH);
       }
     }
-    SetWindowPos(mPlugWnd, 0, 0, 0, w + dw, h + dh, SETPOS_FLAGS);
-    if (pParent) {
-      SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
-    }
-    if (pGrandparent) {
-      SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
+    SetWindowPos(mPlugWnd, 0, 0, 0, plugW + dw, plugH + dh, SETPOS_FLAGS);
+    
+    if(mPlug->GetAPI() != kAPIVST3)
+    {
+      if(pParent) 
+      {
+        SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
+      }
+
+      if(pGrandparent) 
+      {
+        SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
+      }
     }
           
-    RECT r = { 0, 0, w, h };
+    RECT r = { 0, 0, Width(), Height() };
     InvalidateRect(mPlugWnd, &r, FALSE);
   }
 }
