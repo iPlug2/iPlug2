@@ -477,6 +477,8 @@ void IGraphicsWin::ForceEndUserEdit()
 
 void IGraphicsWin::Resize(int w, int h)
 {
+  if (w == Width() && h == Height()) return;
+
   int dw = w - Width(), dh = h - Height();
   IGraphics::Resize(w, h);
 
