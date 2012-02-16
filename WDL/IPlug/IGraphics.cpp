@@ -169,7 +169,7 @@ IGraphics::~IGraphics()
 }
 
 void IGraphics::Resize(int w, int h)
-{
+{  
   mWidth = w;
   mHeight = h;
   ReleaseMouseCapture();
@@ -738,8 +738,10 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
 		mMouseCapture = c;
 		mMouseX = x;
 		mMouseY = y;
+        
     IControl* pControl = mControls.Get(c);
 		pControl->OnMouseDown(x, y, pMod);
+    pControl = mControls.Get(c); // needed if the mouse message caused a resize/rebuild
     int paramIdx = pControl->ParamIdx();
     if (paramIdx >= 0) {
       mPlug->BeginInformHostOfParamChange(paramIdx);
@@ -754,6 +756,7 @@ void IGraphics::OnMouseUp(int x, int y, IMouseMod* pMod)
 	if (c >= 0) {
     IControl* pControl = mControls.Get(c);
 		pControl->OnMouseUp(x, y, pMod);
+    pControl = mControls.Get(c); // needed if the mouse message caused a resize/rebuild
     int paramIdx = pControl->ParamIdx();
     if (paramIdx >= 0) {
       mPlug->EndInformHostOfParamChange(paramIdx);
