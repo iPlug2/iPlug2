@@ -20,7 +20,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, int nParams, const char* chan
   bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, int plugScChans)
 : IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName,
     vendorVersion, uniqueID, mfrID, latency,
-    plugDoesMidi, plugDoesChunks, plugIsInst),
+    plugDoesMidi, plugDoesChunks, plugIsInst, kAPIVST2),
     mDoesMidi(plugDoesMidi), mHostCallback(instanceInfo.mVSTHostCallback), mHostSpecificInitDone(false)
 {
   Trace(TRACELOC, "%s", effectName);

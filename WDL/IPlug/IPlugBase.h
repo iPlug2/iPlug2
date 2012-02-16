@@ -27,7 +27,7 @@ public:
 	IPlugBase(int nParams, const char* channelIOStr, int nPresets,
 		const char* effectName, const char* productName, const char* mfrName,
 		int vendorVersion, int uniqueID, int mfrID, int latency, 
-    bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst);
+    bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, EAPI plugAPI);
 
   // ----------------------------------------
   // Your plugin class implements these.
@@ -115,6 +115,7 @@ public:
 	virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
 	virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
   virtual EHost GetHost() { return mHost; }
+  virtual EAPI GetAPI() { return mAPI; }
 	int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetHostVersionStr(char* str);
   
@@ -236,6 +237,7 @@ private:
   char mEffectName[MAX_EFFECT_NAME_LEN], mProductName[MAX_EFFECT_NAME_LEN], mMfrName[MAX_EFFECT_NAME_LEN];
   int mUniqueID, mMfrID, mVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
   
+  EAPI mAPI;
   EHost mHost;
   int mHostVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 protected:

@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+enum EAPI {
+  kAPIVST2 = 0,
+  kAPIVST3 = 1,
+  kAPIAU = 2,
+  kAPIRTAS = 3,
+  kAPISA = 4
+};
+
 enum EHost {
   kHostUninit = -1,
   kHostUnknown = 0,

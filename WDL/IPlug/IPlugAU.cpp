@@ -1425,7 +1425,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
   bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst, int plugScChans)
 : IPlugBase(nParams, channelIOStr, nPresets,
   effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency,
-  plugDoesMidi, plugDoesChunks, plugIsInst),
+  plugDoesMidi, plugDoesChunks, plugIsInst, kAPIAU),
   mCI(0), mBypassed(false), mIsOffline(false), mRenderTimestamp(-1.0), mTempo(DEFAULT_TEMPO), mActive(false)
 {
   Trace(TRACELOC, "%s", effectName);
