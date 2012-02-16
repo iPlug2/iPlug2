@@ -3,14 +3,22 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 
-class IGUIResizeButton : public IInvisibleSwitchControl  
+class IGUIResizeButton : public IControl  
 {
 private:
+  int mResizeWidth;
+  int mResizeHeight;
+  WDL_String mStr;
   
 public:
-  IGUIResizeButton(IPlugBase* pPlug, IRECT pR)
-	:	IInvisibleSwitchControl(pPlug, pR, -1)
+  IGUIResizeButton(IPlugBase* pPlug, IRECT pR, const char* label, int w, int h)
+	:	IControl(pPlug, pR)
   {
+    mResizeWidth = w;
+    mResizeHeight = h;
+    mStr.Set(label);
+    mText.mColor = COLOR_WHITE;
+    mText.mSize = 24;
 	}
 	
 	~IGUIResizeButton() {}
@@ -18,12 +26,13 @@ public:
   bool Draw(IGraphics* pGraphics)
   {
     pGraphics->FillIRect(&COLOR_BLACK, &mRECT, &mBlend);
-    return true;
+    char* cStr = mStr.Get();
+    return pGraphics->DrawIText(&mText, cStr, &mRECT);
   }
   
 	void OnMouseDown(int x, int y, IMouseMod* pMod)
 	{
-    mPlug->GetGUI()->Resize(640, 480);
+    mPlug->GetGUI()->Resize(mResizeWidth, mResizeHeight);
 	}
 };
 
@@ -42,9 +51,7 @@ public:
   
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
   
-private:
-  
-  double mGain;
+private:  
 };
 
 #endif
