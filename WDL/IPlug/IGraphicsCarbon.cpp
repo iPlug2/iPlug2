@@ -612,14 +612,13 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
     // Get the host's window rect within the screen
     Rect wrct;
     GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
+
+    HIViewRef contentView;
+    HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
+    HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
     
     int xpos = wrct.left + rct.origin.x + pAreaRect->L;
     int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
-    
-    // vstgui does something with these methods
-    // HIViewRef contentView;
-    // HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
-    // HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
     
     int32_t PopUpMenuItem = PopUpMenuSelect (menuRef, ypos, xpos, 0);//popUpItem);
 
