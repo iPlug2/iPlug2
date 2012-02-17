@@ -159,7 +159,7 @@ void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
 }
 #endif
 
-void IGraphicsMac::AttachSubWindow (void* hostWindowRef)
+void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
 {
   CocoaAutoReleasePool pool;
   
@@ -192,7 +192,7 @@ void IGraphicsMac::AttachSubWindow (void* hostWindowRef)
   
   [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
   [hostWindow orderFront: nil];
-  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.5];
+  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.1];
   
   mHostNSWindow = (void*) hostWindow;
 }
