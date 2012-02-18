@@ -15,14 +15,16 @@
 			4FD16A0A13B63081001D0217 /* App */,
 			4F647528132A790E00D7E58C /* Auval */,
 			4F30A3F21117540400C237CE /* Aulab */,
-			4FF2407313FAB21200E40631 /* AudioMulch */,
-			4FF6D80B12B285AF001E9114 /* Cubase */,
 			4F8F27C7131A78AE007A37CF /* Garageband */,
+			4F94D77514EFB6B100DBF4C9 /* Logic */,
 			4FF6D80F12B28631001E9114 /* Live */,
 			4FF6D80D12B285DC001E9114 /* Reaper */,
-			4F7F5D0713E9676F002918FD /* ProTools Dev */,
-			4F4AD1B61409A2BB0068A6D4 /* VST3TestHost */,
+			4FF6D80B12B285AF001E9114 /* Cubase */,
+			4FF2407313FAB21200E40631 /* AudioMulch */,
 			4F2BB0CF141402D500564FFC /* Studio One */,
+			4F4AD1B61409A2BB0068A6D4 /* VST3TestHost */,
+			4F94D78014EFB6F800DBF4C9 /* VST3validator */,
+			4F7F5D0713E9676F002918FD /* ProTools Dev */,
 		);
 		perUserDictionary = {
 			"PBXConfiguration.PBXBreakpointsDataSource.v1:1CA1AED706398EBD00589147" = {
@@ -69,7 +71,7 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					22,
 					300,
-					572,
+					910,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXExecutablesDataSource_ActiveFlagID,
@@ -82,7 +84,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1022,
+					866,
 					20,
 					48,
 					43,
@@ -173,82 +175,19 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 348506527;
-			PBXWorkspaceStateSaveDate = 348506527;
+			PBXPerProjectTemplateStateSaveDate = 351278745;
+			PBXWorkspaceStateSaveDate = 351278745;
 		};
 		perUserProjectItems = {
-			4F15830914C568330082B684 = 4F15830914C568330082B684 /* PBXTextBookmark */;
-			4F15830C14C570200082B684 = 4F15830C14C570200082B684 /* PBXTextBookmark */;
-			4F15830D14C570200082B684 = 4F15830D14C570200082B684 /* PBXTextBookmark */;
-			4F15830E14C570200082B684 = 4F15830E14C570200082B684 /* PBXTextBookmark */;
-			4F15830F14C570200082B684 = 4F15830F14C570200082B684 /* PBXTextBookmark */;
-			4F9CDECF14C5C9F4005AE29E /* PBXTextBookmark */ = 4F9CDECF14C5C9F4005AE29E /* PBXTextBookmark */;
-			4F9CDED014C5C9F4005AE29E /* PBXTextBookmark */ = 4F9CDED014C5C9F4005AE29E /* PBXTextBookmark */;
-			4F9CDED114C5C9F4005AE29E /* PBXTextBookmark */ = 4F9CDED114C5C9F4005AE29E /* PBXTextBookmark */;
-			4F9CDEE014C5CA04005AE29E /* XCBuildMessageTextBookmark */ = 4F9CDEE014C5CA04005AE29E /* XCBuildMessageTextBookmark */;
-			4F9CDEE214C5CA04005AE29E /* PBXTextBookmark */ = 4F9CDEE214C5CA04005AE29E /* PBXTextBookmark */;
-			4F9CDEE614C5CA1C005AE29E /* PBXTextBookmark */ = 4F9CDEE614C5CA1C005AE29E /* PBXTextBookmark */;
-			4F9CDEE714C5CA1C005AE29E /* PBXTextBookmark */ = 4F9CDEE714C5CA1C005AE29E /* PBXTextBookmark */;
-			4F9CDEE814C5CA1C005AE29E /* PBXTextBookmark */ = 4F9CDEE814C5CA1C005AE29E /* PBXTextBookmark */;
-			4F9CDEEC14C5CA27005AE29E /* PBXTextBookmark */ = 4F9CDEEC14C5CA27005AE29E /* PBXTextBookmark */;
-			4F9CDEEE14C5CA66005AE29E /* PBXTextBookmark */ = 4F9CDEEE14C5CA66005AE29E /* PBXTextBookmark */;
-			4F9CDEEF14C5CAEB005AE29E /* PBXTextBookmark */ = 4F9CDEEF14C5CAEB005AE29E /* PBXTextBookmark */;
+			4F496CD614EFBCA0003D6ADA /* PBXTextBookmark */ = 4F496CD614EFBCA0003D6ADA /* PBXTextBookmark */;
+			4FDC6C7A14EFBD69002683DF /* PBXTextBookmark */ = 4FDC6C7A14EFBD69002683DF /* PBXTextBookmark */;
+			4FE4A92E14F016C8007A5F42 /* PBXTextBookmark */ = 4FE4A92E14F016C8007A5F42 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
 			OBJROOT = "$(SYMROOT)";
 			SYMROOT = "$(PROJECT_DIRECTORY)build-mac";
 		};
-	};
-	4F15830914C568330082B684 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */;
-		name = "IPlugEffect.h: 12";
-		rLen = 0;
-		rLoc = 209;
-		rType = 0;
-		vrLen = 1410;
-		vrLoc = 0;
-	};
-	4F15830C14C570200082B684 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */;
-		name = "IPlugEffect.cpp: 49";
-		rLen = 83;
-		rLoc = 1098;
-		rType = 0;
-		vrLen = 1429;
-		vrLoc = 357;
-	};
-	4F15830D14C570200082B684 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D9FB13B63CD90032E0F3 /* IPlugAU.h */;
-		name = "IPlugAU.h: 52";
-		rLen = 0;
-		rLoc = 1849;
-		rType = 0;
-		vrLen = 2066;
-		vrLoc = 0;
-	};
-	4F15830E14C570200082B684 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D9FC13B63CD90032E0F3 /* IPlugAU.cpp */;
-		name = "IPlugAU.cpp: 974";
-		rLen = 33;
-		rLoc = 37960;
-		rType = 0;
-		vrLen = 1702;
-		vrLoc = 37072;
-	};
-	4F15830F14C570200082B684 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D9FC13B63CD90032E0F3 /* IPlugAU.cpp */;
-		name = "IPlugAU.cpp: 1234";
-		rLen = 0;
-		rLoc = 46748;
-		rType = 0;
-		vrLen = 2042;
-		vrLoc = 45790;
 	};
 	4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {
 		uiCtxt = {
@@ -269,7 +208,23 @@
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
+		comments = "/Applications/Studio One.app";
 		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "Executable Runner";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -309,6 +264,7 @@
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
+		comments = "/Developer/Applications/Audio/AU Lab.app";
 		configStateDict = {
 			"PBXLSLaunchAction-0" = {
 				PBXLSLaunchAction = 0;
@@ -383,6 +339,16 @@
 			sepNavSelRange = "{393, 10}";
 			sepNavVisRange = "{0, 452}";
 		};
+	};
+	4F496CD614EFBCA0003D6ADA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */;
+		name = "IPlugEffect.h: 20";
+		rLen = 0;
+		rLoc = 531;
+		rType = 0;
+		vrLen = 1275;
+		vrLoc = 0;
 	};
 	4F4ACFF7140996A10068A6D4 /* pluginview.cpp */ = {
 		uiCtxt = {
@@ -491,9 +457,9 @@
 	};
 	4F4AD01B140996A10068A6D4 /* fstrdefs.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {727, 3406}}";
-			sepNavSelRange = "{2485, 0}";
-			sepNavVisRange = "{2075, 1002}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 3536}}";
+			sepNavSelRange = "{2463, 0}";
+			sepNavVisRange = "{1776, 1379}";
 		};
 	};
 	4F4AD01C140996A10068A6D4 /* ftypes.h */ = {
@@ -761,9 +727,9 @@
 	};
 	4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {943, 2782}}";
-			sepNavSelRange = "{3124, 0}";
-			sepNavVisRange = "{0, 1312}";
+			sepNavIntBoundsRect = "{{0, 0}, {1138, 2795}}";
+			sepNavSelRange = "{1035, 54}";
+			sepNavVisRange = "{0, 1499}";
 		};
 	};
 	4F78D8E913B63BA40032E0F3 /* IControl.h */ = {
@@ -839,16 +805,16 @@
 	};
 	4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1120, 5863}}";
-			sepNavSelRange = "{2158, 35}";
-			sepNavVisRange = "{1903, 1253}";
+			sepNavIntBoundsRect = "{{0, 0}, {1138, 6487}}";
+			sepNavSelRange = "{866, 0}";
+			sepNavVisRange = "{127, 1123}";
 		};
 	};
 	4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1275, 13481}}";
-			sepNavSelRange = "{3508, 0}";
-			sepNavVisRange = "{2979, 1163}";
+			sepNavIntBoundsRect = "{{0, 0}, {1195, 13455}}";
+			sepNavSelRange = "{3895, 0}";
+			sepNavVisRange = "{2731, 1486}";
 		};
 	};
 	4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */ = {
@@ -1159,6 +1125,7 @@
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
+		comments = "can be PT9Dev, 10Dev, whatever, install here /Applications/AVID/ProTools_3PDev/Pro Tools.app";
 		configStateDict = {
 			"PBXLSLaunchAction-0" = {
 				PBXLSLaunchAction = 0;
@@ -1196,7 +1163,7 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
-		startupPath = "/Applications/Digidesign/ProTools_3PDev/Pro Tools.app";
+		startupPath = "/Applications/AVID/ProTools_3PDev/Pro Tools.app";
 		variableFormatDictionary = {
 		};
 	};
@@ -1204,7 +1171,7 @@
 		isa = PBXFileReference;
 		lastKnownFileType = folder;
 		name = "Pro Tools.app";
-		path = "/Applications/Digidesign/ProTools_3PDev/Pro Tools.app";
+		path = "/Applications/AVID/ProTools_3PDev/Pro Tools.app";
 		sourceTree = "<absolute>";
 	};
 	4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {
@@ -1250,135 +1217,102 @@
 		path = /Applications/GarageBand.app;
 		sourceTree = "<absolute>";
 	};
+	4F94D77514EFB6B100DBF4C9 /* Logic */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 4F94D77614EFB6B100DBF4C9 /* Logic Pro.app */;
+		libgmallocEnabled = 0;
+		name = Logic;
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		startupPath = "<<ProjectDirectory>>";
+	};
+	4F94D77614EFB6B100DBF4C9 /* Logic Pro.app */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = wrapper.application;
+		name = "Logic Pro.app";
+		path = "/Applications/Logic Pro.app";
+		sourceTree = "<absolute>";
+	};
+	4F94D78014EFB6F800DBF4C9 /* VST3validator */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+			YES,
+		);
+		argumentStrings = (
+			IPlugEffect.vst3,
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		comments = "comes with the VST3 sdk, install in /usr/local/bin/vstvalidator. Remember to change arguments to match pluginname.vst3";
+		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "Executable Runner";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 4F94D78114EFB6F800DBF4C9 /* vstvalidator */;
+		libgmallocEnabled = 0;
+		name = VST3validator;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		startupPath = "<<ProductDirectory>>";
+	};
+	4F94D78114EFB6F800DBF4C9 /* vstvalidator */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = "compiled.mach-o.executable";
+		name = vstvalidator;
+		path = /usr/local/bin/vstvalidator;
+		sourceTree = "<absolute>";
+	};
 	4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */ = {
 		activeExec = 0;
-	};
-	4F9CDECF14C5C9F4005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F78D9FC13B63CD90032E0F3 /* IPlugAU.cpp */;
-		name = "IPlugAU.cpp: 1234";
-		rLen = 0;
-		rLoc = 46748;
-		rType = 0;
-		vrLen = 2017;
-		vrLoc = 45790;
-	};
-	4F9CDED014C5C9F4005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 991";
-		rLen = 0;
-		rLoc = 30751;
-		rType = 0;
-		vrLen = 2269;
-		vrLoc = 28446;
-	};
-	4F9CDED114C5C9F4005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 267";
-		rLen = 0;
-		rLoc = 7543;
-		rType = 0;
-		vrLen = 1583;
-		vrLoc = 6504;
-	};
-	4F9CDEE014C5CA04005AE29E /* XCBuildMessageTextBookmark */ = {
-		isa = PBXTextBookmark;
-		comments = "Unused variable 'h'";
-		fRef = 4F9CDEE114C5CA04005AE29E /* lice_line.cpp */;
-		fallbackIsa = XCBuildMessageTextBookmark;
-		rLen = 1;
-		rLoc = 192;
-		rType = 1;
-	};
-	4F9CDEE114C5CA04005AE29E /* lice_line.cpp */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = sourcecode.cpp.cpp;
-		name = lice_line.cpp;
-		path = /Users/oli/Dev/MyPlugins/WDL/IPlug/../lice/lice_line.cpp;
-		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {7033, 19851}}";
-			sepNavSelRange = "{4438, 0}";
-			sepNavVisRange = "{3480, 5476}";
-		};
-	};
-	4F9CDEE214C5CA04005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F9CDEE314C5CA04005AE29E /* lice_line.cpp */;
-		name = "lice_line.cpp: 193";
-		rLen = 0;
-		rLoc = 4438;
-		rType = 0;
-		vrLen = 633;
-		vrLoc = 4067;
-	};
-	4F9CDEE314C5CA04005AE29E /* lice_line.cpp */ = {
-		isa = PBXFileReference;
-		name = lice_line.cpp;
-		path = /Users/oli/Dev/MyPlugins/WDL/IPlug/../lice/lice_line.cpp;
-		sourceTree = "<absolute>";
-	};
-	4F9CDEE614C5CA1C005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F9CDEE114C5CA04005AE29E /* lice_line.cpp */;
-		name = "lice_line.cpp: 193";
-		rLen = 0;
-		rLoc = 4438;
-		rType = 0;
-		vrLen = 5476;
-		vrLoc = 3480;
-	};
-	4F9CDEE714C5CA1C005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 267";
-		rLen = 0;
-		rLoc = 7543;
-		rType = 0;
-		vrLen = 1897;
-		vrLoc = 6504;
-	};
-	4F9CDEE814C5CA1C005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 261";
-		rLen = 0;
-		rLoc = 7445;
-		rType = 0;
-		vrLen = 1902;
-		vrLoc = 6504;
-	};
-	4F9CDEEC14C5CA27005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 261";
-		rLen = 0;
-		rLoc = 7443;
-		rType = 0;
-		vrLen = 1901;
-		vrLoc = 6504;
-	};
-	4F9CDEEE14C5CA66005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 252";
-		rLen = 0;
-		rLoc = 7104;
-		rType = 0;
-		vrLen = 1970;
-		vrLoc = 6996;
-	};
-	4F9CDEEF14C5CAEB005AE29E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */;
-		name = "app_main.cpp: 280";
-		rLen = 0;
-		rLoc = 7858;
-		rType = 0;
-		vrLen = 1971;
-		vrLoc = 6506;
 	};
 	4FB3624E13B648FE00DB6B76 /* main.m */ = {
 		uiCtxt = {
@@ -1606,6 +1540,16 @@
 			sepNavVisRange = "{0, 599}";
 		};
 	};
+	4FDC6C7A14EFBD69002683DF /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 7";
+		rLen = 0;
+		rLoc = 154;
+		rType = 0;
+		vrLen = 1878;
+		vrLoc = 0;
+	};
 	4FE33FF310B4519D00B5FB70 /* Source Control */ = {
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
@@ -1619,6 +1563,16 @@
 	4FE33FF410B4519D00B5FB70 /* Code sense */ = {
 		isa = PBXCodeSenseManager;
 		indexTemplatePath = "";
+	};
+	4FE4A92E14F016C8007A5F42 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 7";
+		rLen = 0;
+		rLoc = 154;
+		rType = 0;
+		vrLen = 1878;
+		vrLoc = 0;
 	};
 	4FF016F4134E14E2001447BA /* mutex.h */ = {
 		uiCtxt = {
@@ -1656,44 +1610,7 @@
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 0;
-		configStateDict = {
-		};
-		customDataFormattersEnabled = 1;
-		dataTipCustomDataFormattersEnabled = 1;
-		dataTipShowTypeColumn = 1;
-		dataTipSortType = 0;
-		debuggerPlugin = GDBDebugging;
-		disassemblyDisplayState = 0;
-		dylibVariantSuffix = "";
-		enableDebugStr = 1;
-		environmentEntries = (
-		);
-		executableSystemSymbolLevel = 0;
-		executableUserSymbolLevel = 0;
-		launchableReference = 4FF2407413FAB21200E40631 /* AudioMulch.app */;
-		libgmallocEnabled = 0;
-		name = AudioMulch;
-		savedGlobals = {
-		};
-		showTypeColumn = 0;
-		sourceDirectories = (
-		);
-	};
-	4FF2407413FAB21200E40631 /* AudioMulch.app */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = wrapper.application;
-		name = AudioMulch.app;
-		path = "/Applications/AudioMulch 2.1.1/AudioMulch.app";
-		sourceTree = "<absolute>";
-	};
-	4FF6D80B12B285AF001E9114 /* Cubase */ = {
-		isa = PBXExecutable;
-		activeArgIndices = (
-		);
-		argumentStrings = (
-		);
-		autoAttachOnCrash = 1;
-		breakpointsEnabled = 1;
+		comments = "install here /Applications/AudioMulch/AudioMulch.app";
 		configStateDict = {
 			"PBXLSLaunchAction-0" = {
 				PBXLSLaunchAction = 0;
@@ -1723,7 +1640,61 @@
 		);
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
-		launchableReference = 4FF6D80C12B285AF001E9114 /* Cubase 5.app */;
+		launchableReference = 4FF2407413FAB21200E40631 /* AudioMulch.app */;
+		libgmallocEnabled = 0;
+		name = AudioMulch;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	4FF2407413FAB21200E40631 /* AudioMulch.app */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = wrapper.application;
+		name = AudioMulch.app;
+		path = /Applications/AudioMulch/AudioMulch.app;
+		sourceTree = "<absolute>";
+	};
+	4FF6D80B12B285AF001E9114 /* Cubase */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		comments = "Cubase 6";
+		configStateDict = {
+			"PBXLSLaunchAction-0" = {
+				PBXLSLaunchAction = 0;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXLSRunLaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = "Executable Runner";
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.runConfig;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 4FF6D80C12B285AF001E9114 /* Cubase 6.app */;
 		libgmallocEnabled = 0;
 		name = Cubase;
 		savedGlobals = {
@@ -1735,10 +1706,10 @@
 		variableFormatDictionary = {
 		};
 	};
-	4FF6D80C12B285AF001E9114 /* Cubase 5.app */ = {
+	4FF6D80C12B285AF001E9114 /* Cubase 6.app */ = {
 		isa = PBXFileReference;
 		lastKnownFileType = wrapper.application;
-		name = "Cubase 5.app";
+		name = "Cubase 6.app";
 		path = "/Applications/Cubase 6.app";
 		sourceTree = "<absolute>";
 	};
@@ -1750,6 +1721,7 @@
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
+		comments = /Applications/REAPER.app;
 		configStateDict = {
 			"PBXLSLaunchAction-0" = {
 				PBXLSLaunchAction = 0;
@@ -1806,6 +1778,7 @@
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
+		comments = /Applications/Live/Live.app;
 		configStateDict = {
 			"PBXLSLaunchAction-0" = {
 				PBXLSLaunchAction = 0;
@@ -1863,24 +1836,24 @@
 	};
 	52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1280, 1144}}";
-			sepNavSelRange = "{1098, 83}";
-			sepNavVisRange = "{357, 1429}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 1183}}";
+			sepNavSelRange = "{137, 0}";
+			sepNavVisRange = "{0, 1335}";
 			sepNavWindowFrame = "{{15, 109}, {1089, 914}}";
 		};
 	};
 	52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1280, 1040}}";
-			sepNavSelRange = "{209, 0}";
-			sepNavVisRange = "{0, 1410}";
+			sepNavIntBoundsRect = "{{0, 0}, {1200, 1040}}";
+			sepNavSelRange = "{531, 0}";
+			sepNavVisRange = "{0, 1275}";
 		};
 	};
 	52FBBED30D0CF143001C8B8A /* resource.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1517, 1430}}";
-			sepNavSelRange = "{1146, 0}";
-			sepNavVisRange = "{340, 1971}";
+			sepNavIntBoundsRect = "{{0, 0}, {1517, 1443}}";
+			sepNavSelRange = "{154, 0}";
+			sepNavVisRange = "{0, 1878}";
 			sepNavWindowFrame = "{{15, 4}, {1416, 1024}}";
 		};
 	};

@@ -27,7 +27,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					487,
+					1010,
 					20,
 					48,
 					43,
@@ -66,23 +66,42 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 335543615;
-			PBXWorkspaceStateSaveDate = 335543615;
+			PBXPerProjectTemplateStateSaveDate = 349906725;
+			PBXWorkspaceStateSaveDate = 349906725;
 		};
 		perUserProjectItems = {
-			4F744CD814000EF4002FAD90 /* PBXTextBookmark */ = 4F744CD814000EF4002FAD90 /* PBXTextBookmark */;
-			4F744CD914000EF4002FAD90 /* PBXTextBookmark */ = 4F744CD914000EF4002FAD90 /* PBXTextBookmark */;
-			4F744CDA14000EF4002FAD90 /* PBXTextBookmark */ = 4F744CDA14000EF4002FAD90 /* PBXTextBookmark */;
-			4FDA44C013F40126000B4551 /* PBXTextBookmark */ = 4FDA44C013F40126000B4551 /* PBXTextBookmark */;
-			4FDA44C113F40126000B4551 /* PBXTextBookmark */ = 4FDA44C113F40126000B4551 /* PBXTextBookmark */;
-			4FDA44C213F40126000B4551 /* PBXTextBookmark */ = 4FDA44C213F40126000B4551 /* PBXTextBookmark */;
-			4FDA44C313F40126000B4551 /* PBXTextBookmark */ = 4FDA44C313F40126000B4551 /* PBXTextBookmark */;
-			4FDA44C513F40126000B4551 /* PBXTextBookmark */ = 4FDA44C513F40126000B4551 /* PBXTextBookmark */;
+			4F202CCB14DB2B950040F6E0 /* PBXTextBookmark */ = 4F202CCB14DB2B950040F6E0 /* PBXTextBookmark */;
+			4F202CCC14DB2B950040F6E0 /* PBXBookmark */ = 4F202CCC14DB2B950040F6E0 /* PBXBookmark */;
+			4F202CCD14DB2B950040F6E0 /* PBXTextBookmark */ = 4F202CCD14DB2B950040F6E0 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4F86100A13BB7F4B00BE2BB0 /* Source Control */;
 		userBuildSettings = {
 			SYMROOT = "$(PROJECT_FOLDER)build-ios";
 		};
+	};
+	4F202CCB14DB2B950040F6E0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FDBEF4613BB829800F1C193 /* IPlugIOSAudio.h */;
+		name = "IPlugIOSAudio.h: 43";
+		rLen = 14;
+		rLoc = 1949;
+		rType = 0;
+		vrLen = 2079;
+		vrLoc = 0;
+	};
+	4F202CCC14DB2B950040F6E0 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 4FDBEF4713BB829800F1C193 /* IPlugIOSAudio.mm */;
+	};
+	4F202CCD14DB2B950040F6E0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4FDBEF4713BB829800F1C193 /* IPlugIOSAudio.mm */;
+		name = "IPlugIOSAudio.mm: 24";
+		rLen = 0;
+		rLoc = 1016;
+		rType = 0;
+		vrLen = 1927;
+		vrLoc = 0;
 	};
 	4F6144A913C0807D005EF88C /* IOSLink.h */ = {
 		uiCtxt = {
@@ -97,36 +116,6 @@
 			sepNavSelRange = "{246, 0}";
 			sepNavVisRange = "{0, 246}";
 		};
-	};
-	4F744CD814000EF4002FAD90 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FDBEF5613BB835700F1C193 /* IPlugMultiTargets.h */;
-		name = "IPlugMultiTargets.h: 34";
-		rLen = 77;
-		rLoc = 634;
-		rType = 0;
-		vrLen = 410;
-		vrLoc = 483;
-	};
-	4F744CD914000EF4002FAD90 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FDBEF5513BB835700F1C193 /* IPlugMultiTargets.cpp */;
-		name = "IPlugMultiTargets.cpp: 105";
-		rLen = 0;
-		rLoc = 3298;
-		rType = 0;
-		vrLen = 270;
-		vrLoc = 0;
-	};
-	4F744CDA14000EF4002FAD90 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4FDBEF5513BB835700F1C193 /* IPlugMultiTargets.cpp */;
-		name = "IPlugMultiTargets.cpp: 89";
-		rLen = 0;
-		rLoc = 2737;
-		rType = 0;
-		vrLen = 1046;
-		vrLoc = 2594;
 	};
 	4F86100113BB7F4A00BE2BB0 /* IOSAPP */ = {
 		isa = PBXExecutable;
@@ -232,68 +221,18 @@
 			sepNavWindowFrame = "{{107, 29}, {1416, 1060}}";
 		};
 	};
-	4FDA44C013F40126000B4551 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F86103613BB802B00BE2BB0 /* IPlugMultiTargetsAppDelegate.h */;
-		name = "IPlugMultiTargetsAppDelegate.h: 13";
-		rLen = 0;
-		rLoc = 302;
-		rType = 0;
-		vrLen = 405;
-		vrLoc = 0;
-	};
-	4FDA44C113F40126000B4551 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F86103913BB802B00BE2BB0 /* MainViewController.h */;
-		name = "MainViewController.h: 10";
-		rLen = 0;
-		rLoc = 265;
-		rType = 0;
-		vrLen = 620;
-		vrLoc = 0;
-	};
-	4FDA44C213F40126000B4551 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F6144AA13C0807D005EF88C /* IOSLink.mm */;
-		name = "IOSLink.mm: 10";
-		rLen = 0;
-		rLoc = 246;
-		rType = 0;
-		vrLen = 246;
-		vrLoc = 0;
-	};
-	4FDA44C313F40126000B4551 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F86103713BB802B00BE2BB0 /* IPlugMultiTargetsAppDelegate.mm */;
-		name = "IPlugMultiTargetsAppDelegate.mm: 53";
-		rLen = 0;
-		rLoc = 1306;
-		rType = 0;
-		vrLen = 1105;
-		vrLoc = 98;
-	};
-	4FDA44C513F40126000B4551 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F86103A13BB802B00BE2BB0 /* MainViewController.mm */;
-		name = "MainViewController.mm: 129";
-		rLen = 0;
-		rLoc = 3221;
-		rType = 0;
-		vrLen = 1495;
-		vrLoc = 2687;
-	};
 	4FDBEF4613BB829800F1C193 /* IPlugIOSAudio.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1525, 1625}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1188, 1651}}";
 			sepNavSelRange = "{1949, 14}";
-			sepNavVisRange = "{1986, 1971}";
+			sepNavVisRange = "{0, 2079}";
 		};
 	};
 	4FDBEF4713BB829800F1C193 /* IPlugIOSAudio.mm */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1326, 5265}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 1958}";
+			sepNavIntBoundsRect = "{{0, 0}, {1209, 5486}}";
+			sepNavSelRange = "{1016, 0}";
+			sepNavVisRange = "{0, 1927}";
 			sepNavWindowFrame = "{{38, 92}, {1416, 1060}}";
 		};
 	};
