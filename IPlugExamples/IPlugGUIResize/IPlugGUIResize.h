@@ -34,6 +34,11 @@ public:
 	{
     mPlug->GetGUI()->Resize(mResizeWidth, mResizeHeight);
 	}
+  
+//  bool IsDirty()
+//  {
+//    return true;
+//  }
 };
 
 class IPlugGUIResize : public IPlug

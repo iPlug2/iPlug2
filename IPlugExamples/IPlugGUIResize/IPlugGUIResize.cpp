@@ -15,8 +15,6 @@ enum ELayout
 {
   kWidth = GUI_WIDTH,
   kHeight = GUI_HEIGHT,
-  
-  kKnobFrames = 60
 };
 
 IPlugGUIResize::IPlugGUIResize(IPlugInstanceInfo instanceInfo)
@@ -26,6 +24,7 @@ IPlugGUIResize::IPlugGUIResize(IPlugInstanceInfo instanceInfo)
 
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   CreateControls(pGraphics, 0);
+
   AttachGraphics(pGraphics);
 
   //MakePreset("preset 1", ... );
@@ -40,8 +39,8 @@ void IPlugGUIResize::CreateControls(IGraphics* pGraphics, int size)
   {
     case 0: // could change the positioning of the controls by storing a size index when the button is clicked
       pGraphics->AttachPanelBackground(&COLOR_RED);
-      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 10, 80, 30), "mini", 100, 100 ));
-      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 35, 80, 55), "medium", 200, 200 ));
+      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 10, 80, 30), "mini", 152, 152 ));
+      pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 35, 80, 55), "medium", 300, 300 ));
       pGraphics->AttachControl(new IGUIResizeButton(this, IRECT(10, 60, 80, 80), "big", 500, 500 ));
       break;
     case 1:

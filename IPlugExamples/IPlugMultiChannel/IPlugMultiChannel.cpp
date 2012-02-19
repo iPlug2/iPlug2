@@ -11,16 +11,6 @@ enum EParams
   kNumParams
 };
 
-enum ELayout
-{
-  kWidth = GUI_WIDTH,
-  kHeight = GUI_HEIGHT,
-
-  kGainX = 100,
-  kGainY = 100,
-  kKnobFrames = 60
-};
-
 IPlugMultiChannel::IPlugMultiChannel(IPlugInstanceInfo instanceInfo)
 :	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
@@ -30,16 +20,6 @@ IPlugMultiChannel::IPlugMultiChannel(IPlugInstanceInfo instanceInfo)
   GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
   GetParam(kGain)->SetShape(2.);
 
-//  IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
-//  pGraphics->AttachPanelBackground(&COLOR_RED);
-//
-//  IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
-//  IText text = IText(14);
-//  pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX, kGainY, kGainX + 48, kGainY + 48 + 20), kGain, &knob, &text));
-//
-//  AttachGraphics(pGraphics);
-
-  //MakePreset("preset 1", ... );
   MakeDefaultPreset((char *) "-", kNumPrograms);
 }
 
@@ -48,8 +28,25 @@ IPlugMultiChannel::~IPlugMultiChannel() {}
 void IPlugMultiChannel::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   // Mutex is already locked for us.
+  double* in1 = inputs[0];
+  double* in2 = inputs[1];
+  double* in3 = inputs[2];
+  double* in4 = inputs[3];
+  
+  double* out1 = outputs[0];
+  double* out2 = outputs[1];
+  double* out3 = outputs[2];
+  double* out4 = outputs[3];
+  
+  //TODO: implement different loops depending on connected I/O
 
-  //printf("%i %i %i %i\n", IsInChannelConnected(0), IsInChannelConnected(1), IsInChannelConnected(2), IsInChannelConnected(3));
+  for (int s=0; s<nFrames; s++) 
+  {
+    out1[s] = in1[s] * mGain;
+    out2[s] = in2[s] * mGain;
+    out3[s] = in3[s] * mGain;
+    out4[s] = in4[s] * mGain;
+  }
 }
 
 void IPlugMultiChannel::Reset()
