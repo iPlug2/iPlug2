@@ -32,7 +32,11 @@ public:
   {
     WDL_String presetFilePath;
     mPlug->GetGUI()->DesktopPath(&presetFilePath);
+#ifdef OS_WIN
     presetFilePath.Append("\\IPlugChunksPreset.txt");
+#else //OSX
+    presetFilePath.Append("IPlugChunksPreset.txt");
+#endif
     mPlug->DumpPresetBlob(presetFilePath.Get());
   }
   
