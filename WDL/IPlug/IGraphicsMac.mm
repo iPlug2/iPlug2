@@ -96,20 +96,21 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
 {
   CGContextRef pCGC = 0;
   CGRect r = CGRectMake(0, 0, Width(), Height());
-  if (mGraphicsCocoa) {
+  
+  if (mGraphicsCocoa) 
+  {
     pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];  // Leak?
     NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
     pCGC = (CGContextRef) [gc graphicsPort];    
   }
 #ifndef IPLUG_NO_CARBON_SUPPORT
-  else
-  if (mGraphicsCarbon) {
+  else if (mGraphicsCarbon) 
+  {
     pCGC = mGraphicsCarbon->GetCGContext();
-    mGraphicsCarbon->OffsetContentRect(&r);
-    // Flipping is handled in IGraphicsCarbon.
   }
 #endif
-  if (!pCGC) {
+  if (!pCGC) 
+  {
     return false;
   }
   
@@ -152,8 +153,7 @@ void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
   CloseWindow();
   WindowRef pWnd = (WindowRef) pParentWnd;
   ControlRef pControl = (ControlRef) pParentControl;
-  // On 10.5 or later we could have used HICocoaViewCreate, but for 10.4 we have to support Carbon explicitly.
-  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);
+  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);  
   return mGraphicsCarbon->GetView();
 }
 #endif
@@ -463,8 +463,6 @@ void IGraphicsMac::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
 #ifndef IPLUG_NO_CARBON_SUPPORT
 	else if (mGraphicsCarbon)
 	{
-    //CGRect areaRect = ToCGRect(Height(), pTextRect);
-//    return mGraphicsCarbon->CreateTextEntry(pMenu, pControl, pParam, pText, pString, areaRect);
     mGraphicsCarbon->CreateTextEntry(pControl, pText, pTextRect, pString, pParam);
 	}
 #endif
