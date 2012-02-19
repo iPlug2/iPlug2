@@ -30,11 +30,10 @@ public:
   
   void OnMouseDown(int x, int y, IMouseMod* pMod)
   {
-    char presetFilePath[100];
-    char* home = getenv("HOME");
-    sprintf(presetFilePath, "%s/Desktop/%s", home, "IPlugChunksPreset.txt");
-    
-    mPlug->DumpPresetBlob(presetFilePath);
+    WDL_String presetFilePath;
+    mPlug->GetGUI()->DesktopPath(&presetFilePath);
+    presetFilePath.Append("\\IPlugChunksPreset.txt");
+    mPlug->DumpPresetBlob(presetFilePath.Get());
   }
   
 };
