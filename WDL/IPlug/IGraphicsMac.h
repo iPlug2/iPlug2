@@ -70,6 +70,9 @@ public:
 	bool WindowIsOpen();
   void Resize(int w, int h);
   
+  void HideMouseCursor();
+  void ShowMouseCursor();
+  
   void ForceEndUserEdit();
   
   const char* GetGUIAPI();
@@ -91,7 +94,6 @@ public:
 
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
-  
 protected:
   
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
@@ -104,7 +106,7 @@ private:
   void* mGraphicsCocoa;   // Can't forward-declare IGraphicsCocoa because it's an obj-C object.
 
   WDL_String mBundleID;
-  
+
 public: //TODO: make this private
   void* mHostNSWindow;
 
