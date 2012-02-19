@@ -719,10 +719,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\IPlugOpenGL_controls.h"
-			>
-		</File>
-		<File
 			RelativePath=".\resource.h"
 			>
 		</File>

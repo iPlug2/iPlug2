@@ -370,7 +370,6 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="IPlugControls.h" />
-    <ClInclude Include="IPlugControls_controls.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

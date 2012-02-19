@@ -723,10 +723,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\IPlugDistortion_controls.h"
-			>
-		</File>
-		<File
 			RelativePath=".\resource.h"
 			>
 		</File>

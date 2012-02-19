@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="IPlugEffect.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IPlugEffect.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{73c42a7b-9067-43b6-8a5c-e4a01db15c5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{8b3a2b65-992d-47e3-9f66-3ccc969a7df1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IPlugEffect.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

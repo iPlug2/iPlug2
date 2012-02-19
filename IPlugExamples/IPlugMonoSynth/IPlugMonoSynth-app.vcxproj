@@ -337,7 +337,6 @@
     <ClInclude Include="app_wrapper\app_main.h" />
     <ClInclude Include="app_wrapper\app_resource.h" />
     <ClInclude Include="IPlugMonoSynth.h" />
-    <ClInclude Include="IPlugMonoSynth_controls.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
