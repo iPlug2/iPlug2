@@ -13,7 +13,6 @@ public:
   //virtual void Idle() {};
   virtual void Draw(long left, long top, long right, long bottom) {};
   virtual void GetRect(short *left, short *top, short *right, short *bottom) = 0;
-//  virtual void SetRect(short left, short top, short right, short bottom) = 0;
   virtual void SetRect(short left, short top, short right, short bottom) {};
 
   virtual void SetControlHighlight(long controlIndex, short isHighlighted, short color) = 0;

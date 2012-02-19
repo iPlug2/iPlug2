@@ -23,7 +23,6 @@ public:
   bool Open(void *hwin);
   bool Close(void);
   void GetRect(short *left, short *top, short *right, short *bottom);
-  //void SetRect(short left, short top, short right, short bottom);
   ProcessInterface *GetProcessPtr() { return (ProcessInterface*)mProcess; }
   void SetControlHighlight(long controlIndex, short isHighlighted, short color);
   void GetControlIndexFromPoint(long x, long y, long *aControlIndex);
@@ -53,7 +52,6 @@ public:
   long UpdateGraphicControl(long index, long value);
   void Draw(long left, long top, long right, long bottom);
   void GetRect(short *left, short *top, short *right, short *bottom);
-  //void SetRect(short left, short top, short right, short bottom);
   ProcessInterface *GetProcessPtr() { return (ProcessInterface*)mProcess; }
   void SetControlHighlight(long controlIndex, short isHighlighted, short color);
   void GetControlIndexFromPoint(long x, long y, long *aControlIndex);

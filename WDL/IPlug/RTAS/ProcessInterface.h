@@ -11,7 +11,7 @@ public:
   virtual long GetControlValue(long aControlIndex, long *aValue) = 0;
   virtual long GetControlDefaultValue(long aControlIndex, long* aValue) = 0;
 
-  virtual void setEditor(void *editor) = 0;
+  virtual void SetEditor(void *editor) = 0;
 
   virtual int ProcessTouchControl (long aControlIndex) = 0;
   virtual int ProcessReleaseControl (long aControlIndex) = 0;

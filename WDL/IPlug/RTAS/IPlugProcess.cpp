@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "IPlugGroup.h"
 #include "FicPluginEnums.h"
-//#include "FicProcessTokens.h" 
+#include "FicProcessTokens.h" 
 #include "CDAEError.h"
 #include "IPlugProcess.h"
 #include "CNoResourceView.h"
@@ -18,15 +18,12 @@
 #include "IPlugCustomUI.h"
 
 IPlugProcess::IPlugProcess(OSType type)
-:
-mCustomUI(0)
-,mNoUIView(0)
-,mModuleHandle(0)
-,mPlug(NULL)
-,mDirectMidiInterface(NULL)
-,mPluginID(type)
-//,mLeftOffset(0)
-//,mTopOffset(0)
+: mCustomUI(0)
+, mNoUIView(0)
+, mModuleHandle(0)
+, mPlug(NULL)
+, mDirectMidiInterface(NULL)
+, mPluginID(type)
 {
   TRACE;
 
@@ -183,7 +180,7 @@ CPlugInView* IPlugProcess::CreateCPlugInView()
       mNoUIView = (IPlugDigiView *) ui->AddView2("!NoUIView[('NoID')]", 0, 0, mPluginWinRect.right, mPluginWinRect.bottom, false);
       
       if( mNoUIView )
-        mNoUIView->SetCustomUI( mCustomUI );
+        mNoUIView->SetCustomUI(mCustomUI);
     }
     catch(...)
     {
@@ -209,13 +206,11 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
 #if WINDOWS_VERSION
       windowPtr = (void*)ASI_GethWnd((WindowPtr)mMainPort);
 #elif MAC_VERSION
-      windowPtr = (void*) GetWindowFromPort( mMainPort ); // WindowRef for Carbon, not GrafPtr (quickdraw)
+      windowPtr = (void*)GetWindowFromPort(mMainPort); // WindowRef for Carbon, not GrafPtr (quickdraw)
 #endif
-      
       mCustomUI->Open(windowPtr);
-        
+      mNeedToDirty = true;
 #if WINDOWS_VERSION
-      // added for Staley to overcome Windows re-draw issues  - DLM
       mCustomUI->Draw(mPluginWinRect.left, mPluginWinRect.top, mPluginWinRect.right, mPluginWinRect.bottom);
 #endif
     }
@@ -235,7 +230,7 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
   TRACE;
   
   if (!IsValidControlIndex(idx)) return;
-  if (idx==mMasterBypassIndex)  return;
+  if (idx == mMasterBypassIndex)  return;
     
   mPlug->SetParameter(idx);
 }
@@ -360,14 +355,9 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
     return CEffectProcess::GetChunk(chunkID, chunk); // Not our chunk
 }
 
-//void IPlugProcess::ResizeGraphics(int w, int h)
-//{
-//  Rect plugInRect;
-//  
-//  fOurPlugInView->GetRect(&plugInRect);
-//  plugInRect.right += 200;
-//  plugInRect.bottom += 200;
-//  fOurPlugInView->SetRect(&plugInRect);
-//  SSetProcessWindowResizeToken theToken(fRootNameId,fRootNameId);
-//  FicSDSDispatchToken (&theToken);
-//}
+void IPlugProcess::ResizeGraphics(int w, int h)
+{
+  mPlug->OnWindowResize();
+  SSetProcessWindowResizeToken theToken(fRootNameId, fRootNameId);
+  FicSDSDispatchToken (&theToken);
+}

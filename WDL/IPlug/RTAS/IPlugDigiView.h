@@ -12,8 +12,8 @@ public:
 
   virtual void SetCustomUI(EditorInterface *customUI) { mCustomUI = customUI; }
 
-  virtual void DrawContents(Rect* drawRect) {}
-  virtual void DrawBackground(Rect* drawRect) {}
+//  virtual void DrawContents(Rect* drawRect) {}
+//  virtual void DrawBackground(Rect* drawRect) {}
   
 protected:
   EditorInterface    *mCustomUI;        // pointer to UI interface
