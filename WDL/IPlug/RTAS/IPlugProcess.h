@@ -22,21 +22,21 @@ public:
   virtual void SetViewPort(GrafPtr aPort);
   virtual void GetViewRect(Rect *viewRect);
   virtual void DoTokenIdle(void);
-  long SetControlValue (long aControlIndex, long aValue);
+  long SetControlValue(long aControlIndex, long aValue);
   long GetControlValue(long aControlIndex, long *aValue);
   long GetControlDefaultValue(long aControlIndex, long* aValue);
   CPlugInView* CreateCPlugInView();
-  ComponentResult SetControlHighliteInfo (long controlIndex, short isHighlighted, short color);
-  ComponentResult ChooseControl (Point aLocalCoord, long *aControlIndex);
+  ComponentResult SetControlHighliteInfo(long controlIndex, short isHighlighted, short color);
+  ComponentResult ChooseControl(Point aLocalCoord, long *aControlIndex);
   //ComponentResult DoCustomPlugInSettingsFile	(	char * 	settingsFolder	 ); //TODO
 
   virtual ComponentResult GetChunkSize(OSType chunkID, long *size);
   virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   
-  void setEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
-  virtual int ProcessTouchControl (long aControlIndex);
-  virtual int ProcessReleaseControl (long aControlIndex);
+  void SetEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
+  virtual int ProcessTouchControl(long aControlIndex);
+  virtual int ProcessReleaseControl(long aControlIndex);
   virtual void ProcessDoIdle();
   virtual void* ProcessGetModuleHandle() { return mModuleHandle; }
   virtual short ProcessUseResourceFile() { return fProcessType->GetProcessGroup()->UseResourceFile(); }
@@ -44,7 +44,15 @@ public:
   
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
   
-  virtual IPlugRTAS* getPlug()  { return mPlug; }
+  virtual IPlugRTAS* GetPlug()  { return mPlug; }
+  virtual IGraphics* GetGraphics() 
+  {
+    if (mPlug) 
+      return mPlug->GetGUI(); 
+    
+    return 0;
+  }
+  
   virtual int GetBlockSize() = 0;
   virtual double GetTempo()  = 0;
   virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
@@ -60,33 +68,23 @@ public:
                        bool *pTransportRunning,
                        bool *pTransportCycle) = 0;
   
-//  void ResizeGraphics(int w, int h);
-  
-  virtual IGraphics* getGraphics() 
-  {
-    if (mPlug) 
-      return mPlug->GetGUI(); 
-    
-    return 0;
-  }
+  void ResizeGraphics(int w, int h);
   
 protected:
   virtual void EffectInit();
   virtual void ConnectSidechain(void);
   virtual void DisconnectSidechain(void);
-  
+
 protected:
   UInt32            mLastMeterTicks;
-  GrafPtr           mMainPort;    // Mac-based GrafPtr
-  EditorInterface   *mCustomUI;   // pointer to UI interface
+  GrafPtr           mMainPort;
+  EditorInterface   *mCustomUI;
   Rect              mPluginWinRect;
   IPlugDigiView     *mNoUIView;
   IPlugRTAS         *mPlug;
   void              *mModuleHandle;
   DirectMidiPlugInInterface* mDirectMidiInterface;
   OSType mPluginID;
-//	short				mLeftOffset;
-//	short				mTopOffset;
 };
 
 #endif  // __IPLUGPROCESS__

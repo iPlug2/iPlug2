@@ -9,6 +9,8 @@
 #include "../IGraphics.h"
 #include "../IControl.h"
 
+#define RTAS_COCOA_GUI 0
+
 IPlugCustomUI* CreateIPlugCustomUI(void *processPtr)
 {
   return new IPlugCustomUI(processPtr);
@@ -16,11 +18,13 @@ IPlugCustomUI* CreateIPlugCustomUI(void *processPtr)
 
 #if MAC_VERSION
 
-IPlugCustomUI::IPlugCustomUI(void *processPtr) : EditorInterface(processPtr), 
-  mGraphics(0), mLocalWindow(0)
+IPlugCustomUI::IPlugCustomUI(void *processPtr) 
+: EditorInterface(processPtr)
+, mGraphics(0)
+, mLocalWindow(0)
 {
-  mPlug=((IPlugProcess*)processPtr)->getPlug();
-  mGraphics=((IPlugProcess*)processPtr)->getGraphics();
+  mPlug = ((IPlugProcess*)processPtr)->GetPlug();
+  mGraphics = ((IPlugProcess*)processPtr)->GetGraphics();
 }
 
 IPlugCustomUI::~IPlugCustomUI()
@@ -36,23 +40,18 @@ void IPlugCustomUI::GetRect(short *left, short *top, short *right, short *bottom
   *bottom = mGraphics->Height();
 }
 
-//#define TSSSetRect SetRect
-//#undef SetRect
-//void IPlugCustomUI::SetRect(short left, short top, short right, short bottom)
-//#define SetRect TSSSetRect
-//#undef TSSSetRect
-//{
-//  //mGraphics->Resize(right -left, bottom-top);
-//}
-
 bool IPlugCustomUI::Open(void *winPtr)
 {
   mLocalWindow = (WindowRef) winPtr;
 
   if(mGraphics)
   {
+#if RTAS_COCOA_GUI
     mGraphics->AttachSubWindow(winPtr);
-    
+#else
+    mGraphics->OpenWindow(winPtr, 0);
+    mGraphics->SetAllControlsDirty(); // in order to redraw controls on resize
+#endif
     mPlug->OnGUIOpen();
   }
 
@@ -63,7 +62,10 @@ bool IPlugCustomUI::Close()
 {
   if(mLocalWindow && mGraphics)
   {
+    mGraphics->CloseWindow();
+#if RTAS_COCOA_GUI
     mGraphics->RemoveSubWindow();
+#endif
     mLocalWindow = 0;
   }
   return true;
@@ -93,8 +95,15 @@ LRESULT CALLBACK IPlugMainWindow(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-IPlugCustomUI::IPlugCustomUI(void *processPtr) : EditorInterface(processPtr), 
-  mGraphics(0), mHeaderHeight(0), mHeaderWidth(0),mPlugInWndHINST(0), mLocalPIWin(0), mLocalWindowID(0), mPluginWindow(NULL)
+IPlugCustomUI::IPlugCustomUI(void *processPtr)
+: EditorInterface(processPtr)
+, mGraphics(0)
+, mHeaderHeight(0)
+, mHeaderWidth(0)
+, mPlugInWndHINST(0)
+, mLocalPIWin(0)
+, mLocalWindowID(0)
+, mPluginWindow(NULL)
 {
   if( mProcess )
     hInstance = ((ProcessInterface*)mProcess)->ProcessGetModuleHandle();  // necessary to load resources from dll
@@ -238,7 +247,7 @@ bool IPlugCustomUI::Close()
   
   if( mLocalPIWin )
   {
-      // OL - This is nessecary to avoid a collision in the PTSDK
+  // OL - This is nessecary to avoid a collision in the PTSDK
   #ifdef CloseWindow
     #define tempCloseWindow CloseWindow
     #undef CloseWindow
@@ -267,11 +276,6 @@ void IPlugCustomUI::GetRect(short *left, short *top, short *right, short *bottom
 
   mPIRect.left=*left; mPIRect.right=*right; mPIRect.top=*top; mPIRect.bottom=*bottom;
 }
-
-//void IPlugCustomUI::SetRect(short left, short top, short right, short bottom)
-//{
-  //mGraphics->Resize(right -left, bottom-top);
-//}
 
 long IPlugCustomUI::UpdateGraphicControl(long index, long value)
 {

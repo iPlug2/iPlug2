@@ -223,10 +223,6 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       
       switch (eventKind)
       {
-//        case kEventWindowActivated:
-//        {
-//          break;
-//        }
         case kEventWindowDeactivated:
         {          
           if (_this->mTextFieldView) 
@@ -412,8 +408,7 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
     
     { kEventClassKeyboard, kEventRawKeyDown },
     
-    { kEventClassWindow, kEventWindowDeactivated }//,
-    //{ kEventClassWindow, kEventWindowActivated }
+    { kEventClassWindow, kEventWindowDeactivated }
   };
   
   InstallWindowEventHandler(mWindow, CarbonEventHandler, GetEventTypeCount(windowEvents), windowEvents, this, &mWindowHandler);  
@@ -469,11 +464,6 @@ IGraphicsCarbon::~IGraphicsCarbon()
   mView = 0;
   DisposeRgn(mRgn);
 }
-
-//void IGraphicsCarbon::OffsetContentRect(CGRect* pR)
-//{
-//  *pR = CGRectOffset(*pR, (float) mContentXOffset, (float) mContentYOffset);
-//}
 
 bool IGraphicsCarbon::Resize(int w, int h)
 {
