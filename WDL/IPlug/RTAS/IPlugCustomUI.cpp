@@ -111,8 +111,8 @@ IPlugCustomUI::IPlugCustomUI(void *processPtr)
   mPlugInWndHINST = (HINSTANCE) hInstance;
   memset(&mLocalWinClass, 0, sizeof(WNDCLASSEX));
 
-  mPlug=((IPlugProcess*)processPtr)->getPlug();
-  mGraphics=((IPlugProcess*)processPtr)->getGraphics();
+  mPlug = ((IPlugProcess*)processPtr)->GetPlug();
+  mGraphics = ((IPlugProcess*)processPtr)->GetGraphics();
 
   Init();
 }
