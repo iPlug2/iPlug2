@@ -77,8 +77,9 @@ public:
   
   const char* GetGUIAPI();
 
-	void HostPath(WDL_String* pPath); 
+  void HostPath(WDL_String* pPath); 
   void PluginPath(WDL_String* pPath);
+  void DesktopPath(WDL_String* pPath);
 
 	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
