@@ -372,7 +372,6 @@
     <ClInclude Include="..\..\WDL\plush2\plush.h" />
     <ClInclude Include="..\..\WDL\plush2\pl_pf_tex.h" />
     <ClInclude Include="IPlugPlush.h" />
-    <ClInclude Include="IPlugPlush_controls.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

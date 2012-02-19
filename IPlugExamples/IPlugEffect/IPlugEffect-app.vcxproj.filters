@@ -23,9 +23,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h">
       <Filter>Source Files\3rd Party\RtAudioMidi</Filter>
     </ClInclude>
@@ -59,14 +56,14 @@
     <ClInclude Include="app_wrapper\app_resource.h">
       <Filter>Source Files\App Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="IPlugEffect.h">
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="IPlugEffect_controls.h">
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="IPlugEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">
@@ -90,9 +87,7 @@
     <ClCompile Include="app_wrapper\app_main.cpp">
       <Filter>Source Files\App Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="IPlugEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc">

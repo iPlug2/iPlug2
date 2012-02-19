@@ -62,9 +62,6 @@
     <ClInclude Include="IPlugPolySynth.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="IPlugPolySynth_controls.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
   </ItemGroup>

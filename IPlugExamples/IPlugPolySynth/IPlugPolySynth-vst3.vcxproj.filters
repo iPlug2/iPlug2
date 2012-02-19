@@ -23,9 +23,6 @@
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.cpp">
       <Filter>public.sdk\vst</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.cpp">
-      <Filter>public.sdk\vst</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp">
       <Filter>public.sdk\vst</Filter>
     </ClCompile>
@@ -45,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugPolySynth.h" />
-    <ClInclude Include="IPlugPolySynth_controls.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\falignpop.h">
       <Filter>pluginterfaces\base</Filter>

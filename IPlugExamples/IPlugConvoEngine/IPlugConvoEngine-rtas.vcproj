@@ -735,10 +735,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\IPlugConvoEngine_controls.h"
-			>
-		</File>
-		<File
 			RelativePath=".\resource.h"
 			>
 		</File>

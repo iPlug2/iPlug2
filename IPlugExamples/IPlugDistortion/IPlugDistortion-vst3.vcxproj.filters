@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugDistortion.h" />
-    <ClInclude Include="IPlugDistortion_controls.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\falignpop.h">
       <Filter>pluginterfaces\base</Filter>
