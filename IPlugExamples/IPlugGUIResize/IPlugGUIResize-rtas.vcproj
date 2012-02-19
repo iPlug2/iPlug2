@@ -719,10 +719,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\IPlugGUIResize_controls.h"
-			>
-		</File>
-		<File
 			RelativePath=".\resource.h"
 			>
 		</File>

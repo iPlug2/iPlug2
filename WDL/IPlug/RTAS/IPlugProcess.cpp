@@ -356,6 +356,7 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 
 void IPlugProcess::ResizeGraphics(int w, int h)
 {
+  mCustomUI->Close();
   mPlug->OnWindowResize();
   SSetProcessWindowResizeToken theToken(fRootNameId, fRootNameId);
   FicSDSDispatchToken (&theToken);
