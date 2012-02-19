@@ -12,33 +12,33 @@ private:
   
 public:
   IGUIResizeButton(IPlugBase* pPlug, IRECT pR, const char* label, int w, int h)
-	:	IControl(pPlug, pR)
+  :	IControl(pPlug, pR)
   {
     mResizeWidth = w;
     mResizeHeight = h;
     mStr.Set(label);
     mText.mColor = COLOR_WHITE;
     mText.mSize = 24;
-	}
-	
-	~IGUIResizeButton() {}
-	
+  }
+
+  ~IGUIResizeButton() {}
+
   bool Draw(IGraphics* pGraphics)
   {
     pGraphics->FillIRect(&COLOR_BLACK, &mRECT, &mBlend);
     char* cStr = mStr.Get();
     return pGraphics->DrawIText(&mText, cStr, &mRECT);
   }
-  
-	void OnMouseDown(int x, int y, IMouseMod* pMod)
-	{
+
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
     mPlug->GetGUI()->Resize(mResizeWidth, mResizeHeight);
-	}
-  
-//  bool IsDirty()
-//  {
-//    return true;
-//  }
+  }
+
+  //bool IsDirty()
+  //{
+  //  return true;
+  //}
 };
 
 class IPlugGUIResize : public IPlug

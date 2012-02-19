@@ -482,21 +482,28 @@ void IGraphicsWin::Resize(int w, int h)
   int dw = w - Width(), dh = h - Height();
   IGraphics::Resize(w, h);
 
-  if (WindowIsOpen()) {
+  if (WindowIsOpen()) 
+  {
     HWND pParent = 0, pGrandparent = 0;
     int plugW = 0, plugH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
     GetWindowSize(mPlugWnd, &plugW, &plugH);
-    if (IsChildWindow(mPlugWnd)) {
+    
+    if (IsChildWindow(mPlugWnd)) 
+    {
       pParent = GetParent(mPlugWnd);
       GetWindowSize(pParent, &parentW, &parentH);
-      if (IsChildWindow(pParent)) {
+      
+      if (IsChildWindow(pParent)) 
+      {
         pGrandparent = GetParent(pParent);
         GetWindowSize(pGrandparent, &grandparentW, &grandparentH);
       }
     }
+
     SetWindowPos(mPlugWnd, 0, 0, 0, plugW + dw, plugH + dh, SETPOS_FLAGS);
     
-    if(mPlug->GetAPI() != kAPIVST3)
+    // don't want to touch the host window in VST3 or RTAS
+    if(mPlug->GetAPI() != kAPIVST3 && mPlug->GetAPI() != kAPIRTAS)
     {
       if(pParent) 
       {

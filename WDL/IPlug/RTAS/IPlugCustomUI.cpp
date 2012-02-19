@@ -213,7 +213,7 @@ bool IPlugCustomUI::Open(void *winPtr)
     #undef tempShowWindow
   #endif
 
-  InvalidateRect(mLocalPIWin,NULL,false);
+  InvalidateRect(mLocalPIWin, NULL, false);
   UpdateWindow(mLocalPIWin);
 
   short prevRes = 0;
