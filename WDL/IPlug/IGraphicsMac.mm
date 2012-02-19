@@ -7,7 +7,6 @@
 	#include "IGraphicsCarbon.h"
 #endif
 #include "../swell/swell-internal.h"
-//#include "Hosts.h"
 
 struct CocoaAutoReleasePool
 {
@@ -262,6 +261,28 @@ void IGraphicsMac::Resize(int w, int h)
     NSSize size = { w, h };
     [(IGRAPHICS_COCOA*) mGraphicsCocoa setFrameSize: size ];
   }  
+}
+
+void IGraphicsMac::HideMouseCursor()
+{
+	if (!mCursorHidden)
+	{
+		if (CGDisplayHideCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = true;
+		NSPoint mouse = [NSEvent mouseLocation];
+		mHiddenMousePointX = mouse.x;
+		mHiddenMousePointY = CGDisplayPixelsHigh(CGMainDisplayID())-mouse.y; //get current mouse position
+	}
+}
+
+void IGraphicsMac::ShowMouseCursor()
+{
+	if (mCursorHidden)
+	{
+		CGPoint point; point.x = mHiddenMousePointX; point.y = mHiddenMousePointY;
+		CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
+		
+		if (CGDisplayShowCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = false;
+	}
 }
 
 void IGraphicsMac::ForceEndUserEdit()

@@ -19,6 +19,10 @@ public:
   void ForceEndUserEdit();
 
   void Resize(int w, int h);
+  
+  void HideMouseCursor();
+  void ShowMouseCursor();
+  
   bool DrawScreen(IRECT* pR);  
   
   void* OpenWindow(void* pParentWnd);

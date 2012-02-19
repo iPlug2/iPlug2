@@ -151,6 +151,9 @@ public:
   void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
   bool OnKeyDown(int x, int y, int key);
   
+  virtual void HideMouseCursor() {};
+  virtual void ShowMouseCursor() {};
+
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();
   
@@ -186,6 +189,8 @@ protected:
   WDL_PtrList<IControl> mControls;
   IPlugBase* mPlug;
   IRECT mDrawRECT;
+  bool mCursorHidden;
+  int mHiddenMousePointX, mHiddenMousePointY;
 
   bool CanHandleMouseOver() { return mHandleMouseOver; }
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;

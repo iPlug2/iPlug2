@@ -514,6 +514,31 @@ void IGraphicsWin::Resize(int w, int h)
   }
 }
 
+void IGraphicsWin::HideMouseCursor()
+{
+	if (!mCursorHidden)
+	{
+		POINT p;
+		GetCursorPos(&p);
+		
+		mHiddenMousePoint.x = p.x;
+		mHiddenMousePoint.y = p.y;
+		
+		ShowCursor(false);
+		mCursorHidden=true;
+	}
+}
+
+void IGraphicsWin::ShowMouseCursor()
+{
+	if (mCursorHidden)
+	{
+		SetCursorPos(mHiddenMousePoint.x, mHiddenMousePoint.y);
+		ShowCursor(true);
+		mCursorHidden=false;
+	}
+}
+
 bool IGraphicsWin::DrawScreen(IRECT* pR)
 {
   PAINTSTRUCT ps;
