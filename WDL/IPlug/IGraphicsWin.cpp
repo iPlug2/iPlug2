@@ -521,8 +521,8 @@ void IGraphicsWin::HideMouseCursor()
 		POINT p;
 		GetCursorPos(&p);
 		
-		mHiddenMousePoint.x = p.x;
-		mHiddenMousePoint.y = p.y;
+		mHiddenMousePointX = p.x;
+		mHiddenMousePointY = p.y;
 		
 		ShowCursor(false);
 		mCursorHidden=true;
@@ -533,7 +533,7 @@ void IGraphicsWin::ShowMouseCursor()
 {
 	if (mCursorHidden)
 	{
-		SetCursorPos(mHiddenMousePoint.x, mHiddenMousePoint.y);
+		SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
 		ShowCursor(true);
 		mCursorHidden=false;
 	}
