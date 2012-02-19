@@ -337,6 +337,13 @@ void IGraphicsMac::PluginPath(WDL_String* pPath)
   }
 }
 
+void IGraphicsMac::DesktopPath(WDL_String* pPath)
+{
+  char* home = getenv("HOME");
+  pPath->Set(home);
+  pPath->Append("/Desktop/");
+}
+
 // extensions = "txt wav" for example
 void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
 {
