@@ -86,7 +86,7 @@ IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
     bool channelIOStrValid = sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2;
     assert(channelIOStrValid);
 #else
-    sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2;
+    sscanf(channelIOStr, "%d-%d", &nIn, &nOut);
 #endif
     nInputs = IPMAX(nInputs, nIn);
     nOutputs = IPMAX(nOutputs, nOut);
