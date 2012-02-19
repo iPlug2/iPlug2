@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "IPlugGroup.h"
 #include "FicPluginEnums.h"
-#include "FicProcessTokens.h" 
+#include "FicProcessTokens.h"
 #include "CDAEError.h"
 #include "IPlugProcess.h"
 #include "CNoResourceView.h"
@@ -209,7 +209,6 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
       windowPtr = (void*)GetWindowFromPort(mMainPort); // WindowRef for Carbon, not GrafPtr (quickdraw)
 #endif
       mCustomUI->Open(windowPtr);
-      mNeedToDirty = true;
 #if WINDOWS_VERSION
       mCustomUI->Draw(mPluginWinRect.left, mPluginWinRect.top, mPluginWinRect.right, mPluginWinRect.bottom);
 #endif
