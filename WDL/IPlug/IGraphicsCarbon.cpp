@@ -71,58 +71,59 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
         } 
       }
     }
-    case kEventClassControl: {
-      switch (eventKind) {          
-        case kEventControlDraw: {
+    case kEventClassControl: 
+    {
+      switch (eventKind) 
+      {          
+        case kEventControlDraw: 
+        {
           int gfxW = pGraphicsMac->Width(), gfxH = pGraphicsMac->Height();
+          
           IRECT r = GetRegionRect(pEvent, gfxW, gfxH);  
           
           CGrafPtr port = 0;
-          if (_this->mIsComposited) {
+          
+          if (_this->mIsComposited) 
+          {
             GetEventParameter(pEvent, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(CGContextRef), 0, &(_this->mCGC));         
             CGContextTranslateCTM(_this->mCGC, 0, gfxH);
             CGContextScaleCTM(_this->mCGC, 1.0, -1.0);     
             pGraphicsMac->Draw(&r);
           }
-          else {
+          else
+					{
+						GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
+						QDBeginCGContext(port, &(_this->mCGC));
+						
+						RgnHandle clipRegion = NewRgn();
+						GetPortClipRegion(port, clipRegion);
+						
+						Rect portBounds;
+						GetPortBounds(port, &portBounds);
+						
+						int offsetW = 0;
             
-            int ctlH = r.H();
-            _this->mContentYOffset = ctlH - gfxH;
+						if ((portBounds.right - portBounds.left) >= gfxW)
+						{
+							offsetW = 0.5 * ((portBounds.right - portBounds.left) - gfxW);
+						}
             
-            GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
-            QDBeginCGContext(port, &(_this->mCGC));        
-            
-            //r.R = r.T = r.R = r.B = 0;
-            //r.L = r.T = r.R = r.B = 0;
-            if(pGraphicsMac->IsDirty(&r))
-            {            
-              //printf("%i %i %i %i\n", r.L, r.T, r.R, r.B);
-              pGraphicsMac->Draw(&r);
-            }
-          }       
-            
-          if (port) {
-            CGContextFlush(_this->mCGC);
-            QDEndCGContext(port, &(_this->mCGC));
-          }
-                     
-          return noErr;
-        }  
-        case kEventControlBoundsChanged: {        
-          int gfxW = pGraphicsMac->Width(), gfxH = pGraphicsMac->Height();
-          IRECT r = GetControlRect(pEvent, gfxW, gfxH);
-          //pGraphicsMac->GetPlug()->UserResizedWindow(&r);
-          return noErr;
-        }        
-        case kEventControlDispose: {
-          // kComponentCloseSelect call should already have done this for us (and deleted mGraphicsMac, for that matter).
-          // pGraphicsMac->CloseWindow();
+						CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, -portBounds.top);
+						
+						r.L = r.T = r.R = r.B = 0;
+						pGraphicsMac->IsDirty(&r);
+						pGraphicsMac->Draw(&r);
+						
+            //CGContextFlush(_this->mCGC);
+						QDEndCGContext(port, &(_this->mCGC));						
+					}      
           return noErr;
         }
       }
       break;
     }
-    case kEventClassMouse: {
+    case kEventClassMouse: 
+    {
       HIPoint hp;
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
       HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
@@ -136,8 +137,14 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       if (button == kEventMouseButtonPrimary && (mods & cmdKey)) button = kEventMouseButtonSecondary;
       IMouseMod mmod(true, button == kEventMouseButtonSecondary, (mods & shiftKey), (mods & controlKey), (mods & optionKey));
       
-      switch (eventKind) {
-        case kEventMouseDown: {
+      #ifdef RTAS_API // TODO: this is surely wrong here but without it, the mouse messages are initially offset in PT by the plugin window header
+      CallNextEventHandler(pHandlerCall, pEvent);
+      #endif
+         
+      switch (eventKind) 
+      {
+        case kEventMouseDown: 
+        {
           if (_this->mTextFieldView)
           {
             HIViewRef view;
@@ -145,59 +152,81 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
             if (view == _this->mTextFieldView) break;
             _this->EndUserInput(true);
           }
-
-          CallNextEventHandler(pHandlerCall, pEvent);   // Activates the window, if inactive.
+          
+          #ifndef RTAS_API
+          CallNextEventHandler(pHandlerCall, pEvent); // Activates the window, if inactive.
+          #endif
           
           UInt32 clickCount = 0;
           GetEventParameter(pEvent, kEventParamClickCount, typeUInt32, 0, sizeof(UInt32), 0, &clickCount);
-          if (clickCount > 1) {
+          
+          if (clickCount > 1) 
+          {
             pGraphicsMac->OnMouseDblClick(x, y, &mmod);
           }
           else
           {        
             pGraphicsMac->OnMouseDown(x, y, &mmod);
           }
+          
           return noErr;
         }
-        case kEventMouseUp: {
+          
+        case kEventMouseUp: 
+        {
           pGraphicsMac->OnMouseUp(x, y, &mmod);
           return noErr;
         }
-        case kEventMouseMoved: {
+          
+        case kEventMouseMoved: 
+        {
           _this->mPrevX = x;
           _this->mPrevY = y;
           pGraphicsMac->OnMouseOver(x, y, &mmod);
           return noErr;
         }
-        case kEventMouseDragged: {
-      
-    if (!_this->mTextFieldView)
-      pGraphicsMac->OnMouseDrag(x, y, &mmod);
+          
+        case kEventMouseDragged: 
+        {
+          if (!_this->mTextFieldView)
+            pGraphicsMac->OnMouseDrag(x, y, &mmod);
           return noErr; 
         }
-        case kEventMouseWheelMoved: {
+          
+        case kEventMouseWheelMoved: 
+        {
           EventMouseWheelAxis axis;
           GetEventParameter(pEvent, kEventParamMouseWheelAxis, typeMouseWheelAxis, 0, sizeof(EventMouseWheelAxis), 0, &axis);
-          if (axis == kEventMouseWheelAxisY) {
+          
+          if (axis == kEventMouseWheelAxisY) 
+          {
             int d;
             GetEventParameter(pEvent, kEventParamMouseWheelDelta, typeSInt32, 0, sizeof(SInt32), 0, &d);
         
-        if (_this->mTextFieldView) _this->EndUserInput(false);
+            if (_this->mTextFieldView) _this->EndUserInput(false);
       
-        pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
+            pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
             return noErr;
           }
         }   
       }
+
       break;    
     }
+
     case kEventClassWindow:
     {
       WindowRef window;
+      
       if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
         break;
+      
       switch (eventKind)
       {
+//        case kEventWindowActivated:
+//        {
+//          break;
+//        }
         case kEventWindowDeactivated:
         {          
           if (_this->mTextFieldView) 
@@ -208,6 +237,7 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       break;
     }
   }
+  
   return eventNotHandledErr;
 }    
 
@@ -215,18 +245,19 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
 pascal void IGraphicsCarbon::CarbonTimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon)
 {
   IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
+  
   IRECT r;
-  if (_this->mGraphicsMac->IsDirty(&r)) {
-    if (_this->mIsComposited) {
-		CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
+  
+  if (_this->mGraphicsMac->IsDirty(&r)) 
+  {
+    if (_this->mIsComposited) 
+    {
+      CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
       HIViewSetNeedsDisplayInRect(_this->mView, &tmp , true);
     }
-    else {
-      //int h = _this->mGraphicsMac->Height();
-      //SetRectRgn(_this->mRgn, r.L, h - r.B, r.R, h - r.T);
-      UpdateControls(_this->mWindow, 0);// _this->mRgn);
-      //UpdateControls(_this->mWindow, _this->mRgn);
-
+    else 
+    {
+      UpdateControls(_this->mWindow, 0);
     }
   } 
 }
@@ -328,8 +359,17 @@ void ResizeWindow(WindowRef pWindow, int w, int h)
 }
 
 IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl)
-: mGraphicsMac(pGraphicsMac), mWindow(pWindow), mView(0), mTimer(0), mControlHandler(0), mWindowHandler(0), mCGC(0),
-  mContentXOffset(0), mContentYOffset(0), mTextFieldView(0), mParamEditHandler(0), mEdControl(0), mEdParam(0)
+: mGraphicsMac(pGraphicsMac)
+, mWindow(pWindow)
+, mView(0)
+, mTimer(0)
+, mControlHandler(0)
+, mWindowHandler(0)
+, mCGC(0)
+, mTextFieldView(0)
+, mParamEditHandler(0)
+, mEdControl(0)
+, mEdParam(0)
 { 
   TRACE;
   
@@ -337,7 +377,6 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
   r.left = r.top = 0;
   r.right = pGraphicsMac->Width();
   r.bottom = pGraphicsMac->Height();   
-  //ResizeWindow(pWindow, r.right, r.bottom);
 
   mPrevX = 0;
   mPrevY = 0;
@@ -348,54 +387,65 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
   mRgn = NewRgn();  
  
   UInt32 features =  kControlSupportsFocus | kControlHandlesTracking | kControlSupportsEmbedding;
-  if (mIsComposited) {
+  
+  if (mIsComposited) 
+  {
     features |= kHIViewIsOpaque | kHIViewFeatureDoesNotUseSpecialParts;
   }
+  
   CreateUserPaneControl(pWindow, &r, features, &mView);    
   
-  const EventTypeSpec controlEvents[] = {	
-    //{ kEventClassControl, kEventControlInitialize },
-    //{kEventClassControl, kEventControlGetOptimalBounds},    
-    //{ kEventClassControl, kEventControlHitTest },
-    { kEventClassControl, kEventControlClick },
+  const EventTypeSpec controlEvents[] = 
+  {	
     { kEventClassControl, kEventControlDraw },
-    { kEventClassControl, kEventControlDispose },
-    { kEventClassControl, kEventControlBoundsChanged }
   };
+  
   InstallControlEventHandler(mView, CarbonEventHandler, GetEventTypeCount(controlEvents), controlEvents, this, &mControlHandler);
   
-  const EventTypeSpec windowEvents[] = {
+  const EventTypeSpec windowEvents[] = 
+  {
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
     { kEventClassMouse, kEventMouseMoved },
     { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseWheelMoved },
+    
     { kEventClassKeyboard, kEventRawKeyDown },
-    { kEventClassWindow, kEventWindowDeactivated }
+    
+    { kEventClassWindow, kEventWindowDeactivated }//,
+    //{ kEventClassWindow, kEventWindowActivated }
   };
+  
   InstallWindowEventHandler(mWindow, CarbonEventHandler, GetEventTypeCount(windowEvents), windowEvents, this, &mWindowHandler);  
   
-  //double t = 2.0*kEventDurationSecond/(double)pGraphicsMac->FPS();
-  double t = kEventDurationSecond/(double)pGraphicsMac->FPS();
-  OSStatus s = InstallEventLoopTimer(GetMainEventLoop(), 0.0, t, CarbonTimerHandler, this, &mTimer);
+  double t = kEventDurationSecond / (double) pGraphicsMac->FPS();
   
-  if (mIsComposited) {
-    if (!pParentControl) {
+  OSStatus s = InstallEventLoopTimer(GetMainEventLoop(), 0., t, CarbonTimerHandler, this, &mTimer);
+  
+  if (mIsComposited) 
+  {
+    if (!pParentControl) 
+    {
       HIViewRef hvRoot = HIViewGetRoot(pWindow);
       s = HIViewFindByID(hvRoot, kHIViewWindowContentID, &pParentControl); 
-    }  
+    }
+    
     s = HIViewAddSubview(pParentControl, mView);
   }
-  else {
-    if (!pParentControl) {
-      if (GetRootControl(pWindow, &pParentControl) != noErr) {
+  else 
+  {
+    if (!pParentControl) 
+    {
+      if (GetRootControl(pWindow, &pParentControl) != noErr) 
+      {
         CreateRootControl(pWindow, &pParentControl);
       }
     }
     s = EmbedControl(mView, pParentControl); 
   }
 
-  if (s == noErr) {
+  if (s == noErr) 
+  {
     SizeControl(mView, r.right, r.bottom);  // offset?
   }
 }
@@ -420,10 +470,10 @@ IGraphicsCarbon::~IGraphicsCarbon()
   DisposeRgn(mRgn);
 }
 
-void IGraphicsCarbon::OffsetContentRect(CGRect* pR)
-{
-  *pR = CGRectOffset(*pR, (float) mContentXOffset, (float) mContentYOffset);
-}
+//void IGraphicsCarbon::OffsetContentRect(CGRect* pR)
+//{
+//  *pR = CGRectOffset(*pR, (float) mContentXOffset, (float) mContentYOffset);
+//}
 
 bool IGraphicsCarbon::Resize(int w, int h)
 {
@@ -461,8 +511,6 @@ void IGraphicsCarbon::EndUserInput(bool commit)
   
   if (mIsComposited)
   {
-    //IRECT* pR = mEdControl->GetRECT();
-    //HIViewSetNeedsDisplayInRect(mView, &CGRectMake(pR->L, pR->T, pR->W(), pR->H()), true);
     HIViewSetNeedsDisplay(mView, true);
   }
   else
@@ -602,9 +650,6 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
 	//	int32_t popUpItem = 1;
 	//	int32_t PopUpMenuItem = PopUpMenuItem = PopUpMenuSelect(menuRef, gy, gx, popUpItem);
 		
-    
-    // TODO: this seems like a convoluted way to get the popup x/y position
-    
     // Get the plugin gui frame rect within the host's window
     HIRect rct;
     HIViewGetFrame(this->mView, &rct);

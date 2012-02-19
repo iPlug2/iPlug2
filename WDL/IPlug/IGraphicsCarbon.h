@@ -17,7 +17,6 @@ public:
   CGContextRef GetCGContext() { return mCGC; }
   bool GetIsComposited() {return mIsComposited;}
 
-  void OffsetContentRect(CGRect* pR);
   bool Resize(int w, int h);
 
 	IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
@@ -29,7 +28,6 @@ private:
   
   IGraphicsMac* mGraphicsMac;
   bool mIsComposited;
-  int mContentXOffset, mContentYOffset;
   RgnHandle mRgn;
   WindowRef mWindow;
   ControlRef mView; // was HIViewRef
