@@ -12,7 +12,12 @@ public:
 
   virtual void SetCustomUI(EditorInterface *customUI) { mCustomUI = customUI; }
 
-//  virtual void DrawContents(Rect* drawRect) {}
+  virtual void DrawContents(Rect* drawRect) 
+  {
+    if(mCustomUI)
+      mCustomUI->Draw(drawRect->left, drawRect->top, drawRect->right, drawRect->bottom);
+  }
+  
 //  virtual void DrawBackground(Rect* drawRect) {}
   
 protected:

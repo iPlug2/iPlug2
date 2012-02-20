@@ -26,7 +26,8 @@ public:
   ProcessInterface *GetProcessPtr() { return (ProcessInterface*)mProcess; }
   void SetControlHighlight(long controlIndex, short isHighlighted, short color);
   void GetControlIndexFromPoint(long x, long y, long *aControlIndex);
-  
+  void Draw(long left, long top, long right, long bottom);
+
 protected:
   WindowRef mLocalWindow; // carbon PT window
 

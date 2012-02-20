@@ -177,7 +177,7 @@ CPlugInView* IPlugProcess::CreateCPlugInView()
       ui = new CNoResourceView;
       ui->SetSize(mPluginWinRect.right, mPluginWinRect.bottom);
       
-      mNoUIView = (IPlugDigiView *) ui->AddView2("!NoUIView[('NoID')]", 0, 0, mPluginWinRect.right, mPluginWinRect.bottom, false);
+      mNoUIView = (IPlugDigiView *) ui->AddView2("!IPlugDigiView[('NoID')]", 0, 0, mPluginWinRect.right, mPluginWinRect.bottom, false);
       
       if( mNoUIView )
         mNoUIView->SetCustomUI(mCustomUI);

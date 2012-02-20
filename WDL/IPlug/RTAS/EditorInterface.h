@@ -11,7 +11,7 @@ public:
   virtual bool Close(void) = 0;
   //virtual long UpdateGraphicControl(long index, long value) = 0;
   //virtual void Idle() {};
-  virtual void Draw(long left, long top, long right, long bottom) {};
+  virtual void Draw(long left, long top, long right, long bottom) = 0;
   virtual void GetRect(short *left, short *top, short *right, short *bottom) = 0;
   virtual void SetRect(short left, short top, short right, short bottom) {};
 
