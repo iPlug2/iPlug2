@@ -50,7 +50,7 @@ bool IPlugCustomUI::Open(void *winPtr)
     mGraphics->AttachSubWindow(winPtr);
 #else
     mGraphics->OpenWindow(winPtr, 0);
-    mGraphics->SetAllControlsDirty(); // in order to redraw controls on resize
+    mGraphics->SetAllControlsDirty();
 #endif
     mPlug->OnGUIOpen();
   }
@@ -79,6 +79,14 @@ void IPlugCustomUI::SetControlHighlight(long controlIndex, short isHighlighted, 
 void IPlugCustomUI::GetControlIndexFromPoint(long x, long y, long *aControlIndex)
 {
   *aControlIndex = 0;
+}
+
+void IPlugCustomUI::Draw(long left, long top, long right, long bottom)
+{
+  if (mGraphics)
+  { 
+    mGraphics->SetAllControlsDirty();
+  }
 }
 
 #pragma mark -
