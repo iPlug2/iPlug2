@@ -155,6 +155,12 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           
           #ifndef RTAS_API
           CallNextEventHandler(pHandlerCall, pEvent); // Activates the window, if inactive.
+          #else // RTAS triple click
+          if (mmod.L && mmod.R && mmod.C && (pGraphicsMac->GetParamIdxForPTAutomation(x, y) > -1)) 
+          {
+            return CallNextEventHandler(pHandlerCall, pEvent);
+            //return noErr;
+          }
           #endif
           
           UInt32 clickCount = 0;
