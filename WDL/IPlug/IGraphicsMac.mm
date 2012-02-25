@@ -191,12 +191,13 @@ void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
   
   [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
   [hostWindow orderFront: nil];
-  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.1];
+  [hostWindow display];
+  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.05];
   
   mHostNSWindow = (void*) hostWindow;
 }
 
-void IGraphicsMac::RemoveSubWindow ()
+void IGraphicsMac::RemoveSubWindow()
 {
   CocoaAutoReleasePool pool;
   
