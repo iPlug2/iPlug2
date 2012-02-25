@@ -25,332 +25,6 @@ IRECT GetControlRect(EventRef pEvent, int gfxW, int gfxH)
   return IRECT(0, 0, gfxW, gfxH);
 }
 
-// static 
-pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
-{
-  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
-  IGraphicsMac* pGraphicsMac = _this->mGraphicsMac;
-  UInt32 eventClass = GetEventClass(pEvent);
-  UInt32 eventKind = GetEventKind(pEvent);
-  
-  switch (eventClass) {
-    case kEventClassKeyboard:
-    { 
-      switch (eventKind) { 
-        case kEventRawKeyDown:{
-
-          if (_this->mTextFieldView)
-            return eventNotHandledErr;
-          
-          bool handle = true;
-          int key;     
-          UInt32 k;
-          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
-
-          char c;
-          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(char), NULL, &c);
-
-          if (k == 49) key = KEY_SPACE;
-          else if (k == 125) key = KEY_DOWNARROW;
-          else if (k == 126) key = KEY_UPARROW;
-          else if (k == 123) key = KEY_LEFTARROW;
-          else if (k == 124) key = KEY_RIGHTARROW;
-          else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
-          else if (c >= 'A' && c <= 'Z') key = KEY_ALPHA_A+c-'A';
-          else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
-          else handle = false;
-
-          if(handle)
-            handle = pGraphicsMac->OnKeyDown(_this->mPrevX, _this->mPrevY, key);
-          
-          if(handle)
-            return noErr;
-          else
-            return eventNotHandledErr;
-
-        } 
-      }
-    }
-    case kEventClassControl: 
-    {
-      switch (eventKind) 
-      {          
-        case kEventControlDraw: 
-        {
-          int gfxW = pGraphicsMac->Width(), gfxH = pGraphicsMac->Height();
-          
-          IRECT r = GetRegionRect(pEvent, gfxW, gfxH);  
-          
-          CGrafPtr port = 0;
-          
-          if (_this->mIsComposited) 
-          {
-            GetEventParameter(pEvent, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(CGContextRef), 0, &(_this->mCGC));         
-            CGContextTranslateCTM(_this->mCGC, 0, gfxH);
-            CGContextScaleCTM(_this->mCGC, 1.0, -1.0);     
-            pGraphicsMac->Draw(&r);
-          }
-          else
-					{
-						GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
-						QDBeginCGContext(port, &(_this->mCGC));
-						
-						RgnHandle clipRegion = NewRgn();
-						GetPortClipRegion(port, clipRegion);
-						
-						Rect portBounds;
-						GetPortBounds(port, &portBounds);
-						
-						int offsetW = 0;
-            
-						if ((portBounds.right - portBounds.left) >= gfxW)
-						{
-							offsetW = 0.5 * ((portBounds.right - portBounds.left) - gfxW);
-						}
-            
-						CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, -portBounds.top);
-						
-						r.L = r.T = r.R = r.B = 0;
-						pGraphicsMac->IsDirty(&r);
-						pGraphicsMac->Draw(&r);
-						
-            //CGContextFlush(_this->mCGC);
-						QDEndCGContext(port, &(_this->mCGC));						
-					}      
-          return noErr;
-        }
-      }
-      break;
-    }
-    case kEventClassMouse: 
-    {
-      HIPoint hp;
-      GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
-      HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
-      int x = (int) hp.x - 2;
-      int y = (int) hp.y - 3;
-
-      UInt32 mods;
-      GetEventParameter(pEvent, kEventParamKeyModifiers, typeUInt32, 0, sizeof(UInt32), 0, &mods);
-      EventMouseButton button;
-      GetEventParameter(pEvent, kEventParamMouseButton, typeMouseButton, 0, sizeof(EventMouseButton), 0, &button);
-      if (button == kEventMouseButtonPrimary && (mods & cmdKey)) button = kEventMouseButtonSecondary;
-      IMouseMod mmod(true, button == kEventMouseButtonSecondary, (mods & shiftKey), (mods & controlKey), (mods & optionKey));
-      
-      #ifdef RTAS_API // TODO: this is surely wrong here but without it, the mouse messages are initially offset in PT by the plugin window header
-      CallNextEventHandler(pHandlerCall, pEvent);
-      #endif
-         
-      switch (eventKind) 
-      {
-        case kEventMouseDown: 
-        {
-          if (_this->mTextFieldView)
-          {
-            HIViewRef view;
-            HIViewGetViewForMouseEvent(_this->mView, pEvent, &view);
-            if (view == _this->mTextFieldView) break;
-            _this->EndUserInput(true);
-          }
-          
-          #ifndef RTAS_API
-          CallNextEventHandler(pHandlerCall, pEvent); // Activates the window, if inactive.
-          #else // RTAS triple click
-          if (mmod.L && mmod.R && mmod.C && (pGraphicsMac->GetParamIdxForPTAutomation(x, y) > -1)) 
-          {
-            return CallNextEventHandler(pHandlerCall, pEvent);
-            //return noErr;
-          }
-          #endif
-          
-          UInt32 clickCount = 0;
-          GetEventParameter(pEvent, kEventParamClickCount, typeUInt32, 0, sizeof(UInt32), 0, &clickCount);
-          
-          if (clickCount > 1) 
-          {
-            pGraphicsMac->OnMouseDblClick(x, y, &mmod);
-          }
-          else
-          {        
-            pGraphicsMac->OnMouseDown(x, y, &mmod);
-          }
-          
-          return noErr;
-        }
-          
-        case kEventMouseUp: 
-        {
-          pGraphicsMac->OnMouseUp(x, y, &mmod);
-          return noErr;
-        }
-          
-        case kEventMouseMoved: 
-        {
-          _this->mPrevX = x;
-          _this->mPrevY = y;
-          pGraphicsMac->OnMouseOver(x, y, &mmod);
-          return noErr;
-        }
-          
-        case kEventMouseDragged: 
-        {
-          if (!_this->mTextFieldView)
-            pGraphicsMac->OnMouseDrag(x, y, &mmod);
-          return noErr; 
-        }
-          
-        case kEventMouseWheelMoved: 
-        {
-          EventMouseWheelAxis axis;
-          GetEventParameter(pEvent, kEventParamMouseWheelAxis, typeMouseWheelAxis, 0, sizeof(EventMouseWheelAxis), 0, &axis);
-          
-          if (axis == kEventMouseWheelAxisY) 
-          {
-            int d;
-            GetEventParameter(pEvent, kEventParamMouseWheelDelta, typeSInt32, 0, sizeof(SInt32), 0, &d);
-        
-            if (_this->mTextFieldView) _this->EndUserInput(false);
-      
-            pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
-            return noErr;
-          }
-        }   
-      }
-
-      break;    
-    }
-
-    case kEventClassWindow:
-    {
-      WindowRef window;
-      
-      if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
-        break;
-      
-      switch (eventKind)
-      {
-        case kEventWindowDeactivated:
-        {          
-          if (_this->mTextFieldView) 
-            _this->EndUserInput(false);          
-          break;
-        }
-      }
-      break;
-    }
-  }
-  
-  return eventNotHandledErr;
-}    
-
-// static 
-pascal void IGraphicsCarbon::CarbonTimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon)
-{
-  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
-  
-  IRECT r;
-  
-  if (_this->mGraphicsMac->IsDirty(&r)) 
-  {
-    if (_this->mIsComposited) 
-    {
-      CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
-      HIViewSetNeedsDisplayInRect(_this->mView, &tmp , true);
-    }
-    else 
-    {
-      UpdateControls(_this->mWindow, 0);
-    }
-  } 
-}
-
-// static
-pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
-{
-  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
-  UInt32 eventClass = GetEventClass(pEvent);
-  UInt32 eventKind = GetEventKind(pEvent);
-
-  switch (eventClass)
-  {
-//    case kEventClassControl:
-//		{
-//			switch (eventKind)
-//			{
-//				case kEventControlDraw:
-//				{
-//          // todo... maybe
-//          return noErr;
-//        }
-//      }
-//    }
-      
-    case kEventClassKeyboard:
-    {
-      switch (eventKind)
-      {
-        case kEventRawKeyDown:
-        case kEventRawKeyRepeat:
-        {
-          char c;
-          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
-          UInt32 k;
-          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
-                    
-          // trap enter key
-          if (c == 3 || c == 13) {
-            _this->EndUserInput(true);
-            return noErr;
-          }
-          
-          // pass arrow keys
-          if (k == 125 || k == 126 || k == 123 || k == 124) 
-            break;
-          
-          // pass delete keys
-          if (c == 8 || c == 127)
-            break;
-          
-          if (_this->mEdParam) {
-            switch ( _this->mEdParam->Type() ) 
-            {
-              case IParam::kTypeEnum:
-              case IParam::kTypeInt:
-              case IParam::kTypeBool:
-                if (c >= '0' && c <= '9') break;
-                else if (c == '-') break;
-                else if (c == '+') break;
-                else return noErr;
-              case IParam::kTypeDouble:
-                if (c >= '0' && c <= '9') break;
-                else if (c == '.') break;
-                else if (c == '-') break;
-                else if (c == '+') break;
-                else return noErr;
-              default:
-                break;
-            }
-          }
-          
-          // check the length of the text 
-          Str31  theText;
-          Size   textLength;            
-          
-          GetControlData(_this->mTextFieldView,kControlNoPart,kControlEditTextTextTag,
-                         sizeof(theText) -1,(Ptr) &theText[1],&textLength);
-          
-          if(textLength >= _this->mEdControl->GetTextEntryLength())
-            return noErr;
-          
-          break;
-        }
-      }
-      break;
-    }
-  }
-  return eventNotHandledErr;
-}
-
 void ResizeWindow(WindowRef pWindow, int w, int h)
 {
   Rect gr;  // Screen.
@@ -372,6 +46,9 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
 , mParamEditHandler(0)
 , mEdControl(0)
 , mEdParam(0)
+, mPrevX(0)
+, mPrevY(0)
+, mRgn(NewRgn())
 { 
   TRACE;
   
@@ -379,14 +56,10 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
   r.left = r.top = 0;
   r.right = pGraphicsMac->Width();
   r.bottom = pGraphicsMac->Height();   
-
-  mPrevX = 0;
-  mPrevY = 0;
   
   WindowAttributes winAttrs = 0;
   GetWindowAttributes(pWindow, &winAttrs);
   mIsComposited = (winAttrs & kWindowCompositingAttribute);
-  mRgn = NewRgn();  
  
   UInt32 features =  kControlSupportsFocus | kControlHandlesTracking | kControlSupportsEmbedding;
   
@@ -453,7 +126,6 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
 
 IGraphicsCarbon::~IGraphicsCarbon()
 {
-  // Called from IGraphicsMac::CloseWindow.
   if (mTextFieldView)
   {
     RemoveEventHandler(mParamEditHandler);
@@ -463,6 +135,7 @@ IGraphicsCarbon::~IGraphicsCarbon()
     mEdControl = 0;
     mEdParam = 0;
   }
+  
   RemoveEventLoopTimer(mTimer);
   RemoveEventHandler(mControlHandler);
   RemoveEventHandler(mWindowHandler);
@@ -473,9 +146,10 @@ IGraphicsCarbon::~IGraphicsCarbon()
 
 bool IGraphicsCarbon::Resize(int w, int h)
 {
-  if (mWindow && mView) {
+  if (mWindow && mView) 
+  {
     ResizeWindow(mWindow, w, h);
-	CGRect tmp = CGRectMake(0, 0, w, h);
+    CGRect tmp = CGRectMake(0, 0, w, h);
     return (HIViewSetFrame(mView, &tmp) == noErr);
   }
   return false;
@@ -595,44 +269,13 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
 //						CFRelease (submenu);
 //					}
 //				}
-				
-//				if (item->getIcon ())
-//				{
-//					IPlatformBitmap* platformBitmap = item->getIcon ()->getPlatformBitmap ();
-//					CGBitmap* cgBitmap = platformBitmap ? dynamic_cast<CGBitmap*> (platformBitmap) : 0;
-//					CGImageRef image = cgBitmap ? cgBitmap->getCGImage () : 0;
-//					if (image)
-//					{
-//						SetMenuItemIconHandle (menuRef, i, kMenuCGImageRefType, (Handle)image);
-//					}
-//				}
-				
-//				if (menuItem->getKeycode ())
-//				{
-//					SetItemCmd (menuRef, i, item->getKeycode ()[0]);
-//					UInt8 keyModifiers = 0;
-//					int32_t itemModifiers = item->getKeyModifiers ();
-//					if (itemModifiers & kShift)
-//						keyModifiers |= kMenuShiftModifier;
-//					if (!(itemModifiers & kControl))
-//						keyModifiers |= kMenuNoCommandModifier;
-//					if (itemModifiers & kAlt)
-//						keyModifiers |= kMenuOptionModifier;
-//					if (itemModifiers & kApple)
-//						keyModifiers |= kMenuControlModifier;
-//					
-//					SetMenuItemModifiers (menuRef, i, keyModifiers);
-//				}
-				
+								
 				CFRelease (itemString);
 			}
 		}
 		
 	//	if (pMenu->getStyle() & kCheckStyle && !multipleCheck)
 	//		CheckMenuItem (menuRef, pMenu->getCurrentIndex (true) + 1, true);
-		
-
-		
 	//	SetMenuItemRefCon(menuRef, 0, (int32_t)menu);
 	//	InsertMenu(menuRef, kInsertHierarchicalMenu);
 	}
@@ -699,13 +342,10 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 {
   ControlRef control = 0;
 
-  // TODO: Only composited carbon supports text entry
-
-	if (!pControl || mTextFieldView || !mIsComposited) return;
+	if (!pControl || mTextFieldView || !mIsComposited) return; // Only composited carbon supports text entry
   
   Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R }; // these adjustments should make it the same as the cocoa one
 
-  //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 }; // these adjustments should make it the same as the cocoa one
   if (CreateEditUnicodeTextControl(NULL, &r, NULL, false, NULL, &control) != noErr) return;
   
   HIViewAddSubview(mView, control);
@@ -736,29 +376,29 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextSelectionTag, sizeof(sel), &sel);
   }
   
-  int just = 0;
+  // not multiline
+	Boolean value = true;
+	SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextSingleLineTag, sizeof(value), (void *)&value);
+  
+  int align = 0;
   
   switch ( pText->mAlign ) 
   {
     case IText::kAlignNear:
-      just = teJustLeft;
+      align = teJustLeft;
       break;
     case IText::kAlignCenter:
-      just = teCenter;
+      align = teCenter;
       break;
     case IText::kAlignFar:
-      just = teJustRight;
+      align = teJustRight;
       break;
     default:
-      just = teCenter;
+      align = teCenter;
       break;
   }	
-  //CGContextSetShouldAntialias(mCGC, false);
 
-  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, just, 0, 0 };
-
-  //ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, 11., 0, 0, just, 0, 0 };
-  //font.font = ATSFontFamilyFindFromName(CFSTR("Monaco"), kATSOptionFlagsDefault);
+  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, align, 0, 0 };
   CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
   font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
   SetControlData(mTextFieldView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
@@ -771,6 +411,330 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
   
   mEdControl = pControl;
   mEdParam = pParam;
+}
+
+// static 
+pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
+{
+  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
+  IGraphicsMac* pGraphicsMac = _this->mGraphicsMac;
+  UInt32 eventClass = GetEventClass(pEvent);
+  UInt32 eventKind = GetEventKind(pEvent);
+  
+  switch (eventClass) {
+    case kEventClassKeyboard:
+    { 
+      switch (eventKind) { 
+        case kEventRawKeyDown:{
+          
+          if (_this->mTextFieldView)
+            return eventNotHandledErr;
+          
+          bool handle = true;
+          int key;     
+          UInt32 k;
+          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
+          
+          char c;
+          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(char), NULL, &c);
+          
+          if (k == 49) key = KEY_SPACE;
+          else if (k == 125) key = KEY_DOWNARROW;
+          else if (k == 126) key = KEY_UPARROW;
+          else if (k == 123) key = KEY_LEFTARROW;
+          else if (k == 124) key = KEY_RIGHTARROW;
+          else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
+          else if (c >= 'A' && c <= 'Z') key = KEY_ALPHA_A+c-'A';
+          else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
+          else handle = false;
+          
+          if(handle)
+            handle = pGraphicsMac->OnKeyDown(_this->mPrevX, _this->mPrevY, key);
+          
+          if(handle)
+            return noErr;
+          else
+            return eventNotHandledErr;
+          
+        } 
+      }
+    }
+    case kEventClassControl: 
+    {
+      switch (eventKind) 
+      {          
+        case kEventControlDraw: 
+        {
+          int gfxW = pGraphicsMac->Width(), gfxH = pGraphicsMac->Height();
+          
+          IRECT r = GetRegionRect(pEvent, gfxW, gfxH);  
+          
+          CGrafPtr port = 0;
+          
+          if (_this->mIsComposited) 
+          {
+            GetEventParameter(pEvent, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(CGContextRef), 0, &(_this->mCGC));         
+            CGContextTranslateCTM(_this->mCGC, 0, gfxH);
+            CGContextScaleCTM(_this->mCGC, 1.0, -1.0);     
+            pGraphicsMac->Draw(&r);
+          }
+          else
+					{
+						GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
+						QDBeginCGContext(port, &(_this->mCGC));
+						
+						RgnHandle clipRegion = NewRgn();
+						GetPortClipRegion(port, clipRegion);
+						
+						Rect portBounds;
+						GetPortBounds(port, &portBounds);
+						
+						int offsetW = 0;
+            
+						if ((portBounds.right - portBounds.left) >= gfxW)
+						{
+							offsetW = 0.5 * ((portBounds.right - portBounds.left) - gfxW);
+						}
+            
+						CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, -portBounds.top);
+						
+						r.L = r.T = r.R = r.B = 0;
+						pGraphicsMac->IsDirty(&r);
+						pGraphicsMac->Draw(&r);
+						
+            //CGContextFlush(_this->mCGC);
+						QDEndCGContext(port, &(_this->mCGC));						
+					}      
+          return noErr;
+        }
+      }
+      break;
+    }
+    case kEventClassMouse: 
+    {
+      HIPoint hp;
+      GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
+      HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
+      int x = (int) hp.x - 2;
+      int y = (int) hp.y - 3;
+      
+      UInt32 mods;
+      GetEventParameter(pEvent, kEventParamKeyModifiers, typeUInt32, 0, sizeof(UInt32), 0, &mods);
+      EventMouseButton button;
+      GetEventParameter(pEvent, kEventParamMouseButton, typeMouseButton, 0, sizeof(EventMouseButton), 0, &button);
+      if (button == kEventMouseButtonPrimary && (mods & cmdKey)) button = kEventMouseButtonSecondary;
+      IMouseMod mmod(true, button == kEventMouseButtonSecondary, (mods & shiftKey), (mods & controlKey), (mods & optionKey));
+      
+      switch (eventKind) 
+      {
+        case kEventMouseDown: 
+        {
+          if (_this->mTextFieldView)
+          {
+            HIViewRef view;
+            HIViewGetViewForMouseEvent(_this->mView, pEvent, &view);
+            
+            if (view == _this->mTextFieldView)
+              return eventNotHandledErr;
+            
+            _this->EndUserInput(true);
+          }
+          
+#ifdef RTAS_API // RTAS triple click
+          if (mmod.L && mmod.R && mmod.C && (pGraphicsMac->GetParamIdxForPTAutomation(x, y) > -1)) 
+          {
+            return CallNextEventHandler(pHandlerCall, pEvent);
+          }
+#else
+          CallNextEventHandler(pHandlerCall, pEvent);
+#endif
+          
+          UInt32 clickCount = 0;
+          GetEventParameter(pEvent, kEventParamClickCount, typeUInt32, 0, sizeof(UInt32), 0, &clickCount);
+          
+          if (clickCount > 1) 
+          {
+            pGraphicsMac->OnMouseDblClick(x, y, &mmod);
+          }
+          else
+          {        
+            pGraphicsMac->OnMouseDown(x, y, &mmod);
+          }
+          
+          return noErr;
+        }
+          
+        case kEventMouseUp: 
+        {
+          pGraphicsMac->OnMouseUp(x, y, &mmod);
+          return noErr;
+        }
+          
+        case kEventMouseMoved: 
+        {
+          _this->mPrevX = x;
+          _this->mPrevY = y;
+          pGraphicsMac->OnMouseOver(x, y, &mmod);
+          return noErr;
+        }
+          
+        case kEventMouseDragged: 
+        {
+          if (!_this->mTextFieldView)
+            pGraphicsMac->OnMouseDrag(x, y, &mmod);
+          return noErr; 
+        }
+          
+        case kEventMouseWheelMoved: 
+        {
+          EventMouseWheelAxis axis;
+          GetEventParameter(pEvent, kEventParamMouseWheelAxis, typeMouseWheelAxis, 0, sizeof(EventMouseWheelAxis), 0, &axis);
+          
+          if (axis == kEventMouseWheelAxisY) 
+          {
+            int d;
+            GetEventParameter(pEvent, kEventParamMouseWheelDelta, typeSInt32, 0, sizeof(SInt32), 0, &d);
+            
+            if (_this->mTextFieldView) _this->EndUserInput(false);
+            
+            pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
+            return noErr;
+          }
+        }   
+      }
+      
+      break;    
+    }
+      
+    case kEventClassWindow:
+    {
+      WindowRef window;
+      
+      if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
+        break;
+      
+      switch (eventKind)
+      {
+        case kEventWindowDeactivated:
+        {          
+          if (_this->mTextFieldView) 
+            _this->EndUserInput(false);          
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  return eventNotHandledErr;
+}    
+
+// static 
+pascal void IGraphicsCarbon::CarbonTimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon)
+{
+  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
+  
+  IRECT r;
+  
+  if (_this->mGraphicsMac->IsDirty(&r)) 
+  {
+    if (_this->mIsComposited) 
+    {
+      CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
+      HIViewSetNeedsDisplayInRect(_this->mView, &tmp , true);
+    }
+    else 
+    {
+      UpdateControls(_this->mWindow, 0);
+    }
+  } 
+}
+
+// static
+pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
+{
+  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
+  UInt32 eventClass = GetEventClass(pEvent);
+  UInt32 eventKind = GetEventKind(pEvent);
+  
+  switch (eventClass)
+  {
+      //    case kEventClassControl:
+      //		{
+      //			switch (eventKind)
+      //			{
+      //				case kEventControlDraw:
+      //				{
+      //          // todo... maybe
+      //          return noErr;
+      //        }
+      //      }
+      //    }
+      
+    case kEventClassKeyboard:
+    {
+      switch (eventKind)
+      {
+        case kEventRawKeyDown:
+        case kEventRawKeyRepeat:
+        {
+          char c;
+          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
+          UInt32 k;
+          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
+          
+          // trap enter key
+          if (c == 3 || c == 13) {
+            _this->EndUserInput(true);
+            return noErr;
+          }
+          
+          // pass arrow keys
+          if (k == 125 || k == 126 || k == 123 || k == 124) 
+            break;
+          
+          // pass delete keys
+          if (c == 8 || c == 127)
+            break;
+          
+          if (_this->mEdParam) {
+            switch ( _this->mEdParam->Type() ) 
+            {
+              case IParam::kTypeEnum:
+              case IParam::kTypeInt:
+              case IParam::kTypeBool:
+                if (c >= '0' && c <= '9') break;
+                else if (c == '-') break;
+                else if (c == '+') break;
+                else return noErr;
+              case IParam::kTypeDouble:
+                if (c >= '0' && c <= '9') break;
+                else if (c == '.') break;
+                else if (c == '-') break;
+                else if (c == '+') break;
+                else return noErr;
+              default:
+                break;
+            }
+          }
+          
+          // check the length of the text 
+          Str31  theText;
+          Size   textLength;            
+          
+          GetControlData(_this->mTextFieldView,kControlNoPart,kControlEditTextTextTag,
+                         sizeof(theText) -1,(Ptr) &theText[1],&textLength);
+          
+          if(textLength >= _this->mEdControl->GetTextEntryLength())
+            return noErr;
+          
+          break;
+        }
+      }
+      break;
+    }
+  }
+  return eventNotHandledErr;
 }
 
 #endif // IPLUG_NO_CARBON_SUPPORT

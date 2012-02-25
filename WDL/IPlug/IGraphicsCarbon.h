@@ -4,7 +4,7 @@
 #include <Carbon/Carbon.h>
 #include "IGraphicsMac.h"
 
-#ifndef IPLUG_NO_CARBON_SUPPORT
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 class IGraphicsCarbon
 {
@@ -37,7 +37,6 @@ private:
 
   ControlRef mTextFieldView;
   EventHandlerRef mParamEditHandler;
-  // Ed = being edited manually.
   IControl* mEdControl;
   IParam* mEdParam;
   int mPrevX, mPrevY;
@@ -49,5 +48,4 @@ public:
   static pascal OSStatus CarbonParamEditHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
 };
 
-#endif // IPLUG_NO_CARBON_SUPPORT
 #endif // _IGRAPHICSCARBON_
