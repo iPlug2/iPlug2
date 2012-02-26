@@ -231,3 +231,12 @@ void IPlugRTAS::SetParameter(int idx)
     OnParamChange(idx - kPTParamIdxOffset);
   }
 }
+
+void IPlugRTAS::SetSideChainConnected(bool connected) 
+{ 
+  if (connected != mSideChainIsConnected) 
+  {
+    ZeroScratchBuffers();
+    mSideChainIsConnected = connected;
+  }
+}

@@ -39,6 +39,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
 , mDoesMidi(plugDoesMidi)
 , mScChans(plugScChans)
 , mBypassed(false)
+, mSidechainActive(false)
 { 
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
@@ -176,7 +177,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   
   int32 reqNumInputChannels = SpeakerArr::getChannelCount(inputs[0]);  //requested # input channels
   int32 reqNumOutputChannels = SpeakerArr::getChannelCount(outputs[0]);//requested # output channels
-
+  
   // legal io doesn't consider sidechain inputs
   if (!LegalIO(reqNumInputChannels, reqNumOutputChannels)) 
   {
@@ -352,13 +353,21 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     {
       if (getAudioInput(1)->isActive()) // Sidechain is active
       {
+        mSidechainActive = true;
         SetInputChannelConnections(0, NInChannels(), true);
       }
       else 
       {
+        if (mSidechainActive) 
+        {
+          ZeroScratchBuffers();
+        }
+        mSidechainActive = false;
+        
         SetInputChannelConnections(0, NInChannels(), true);
         SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
       }
+      
       AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
       AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
     }

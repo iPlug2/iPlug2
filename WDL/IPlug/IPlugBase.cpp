@@ -405,6 +405,23 @@ void IPlugBase::ProcessBuffersAccumulating(float sampleType, int nFrames)
   }
 }
 
+void IPlugBase::ZeroScratchBuffers()
+{
+  int i, nIn = NInChannels(), nOut = NOutChannels();
+  
+  for (i = 0; i < nIn; ++i) 
+  {
+    InChannel* pInChannel = mInChannels.Get(i);
+    memset(pInChannel->mScratchBuf.Get(), 0, mBlockSize * sizeof(double));
+  }
+  
+  for (i = 0; i < nOut; ++i) 
+  {
+    OutChannel* pOutChannel = mOutChannels.Get(i);
+    memset(pOutChannel->mScratchBuf.Get(), 0, mBlockSize * sizeof(double));
+  }
+}
+
 // If latency changes after initialization (often not supported by the host).
 void IPlugBase::SetLatency(int samples)
 {

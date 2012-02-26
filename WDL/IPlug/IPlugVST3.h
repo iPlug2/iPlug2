@@ -144,7 +144,7 @@ private:
   SpeakerArrangement getSpeakerArrForChans(int32 chans);
   
   int mScChans;
-  bool mDoesMidi, mBypassed;
+  bool mDoesMidi, mBypassed, mSidechainActive;
 //  IMidiQueue mMidiOutputQueue;
   ProcessContext mProcessContext;
   TArray <IPlugVST3View*> viewsArray;
