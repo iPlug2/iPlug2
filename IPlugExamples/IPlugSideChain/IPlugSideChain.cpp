@@ -79,6 +79,46 @@ void IPlugSideChain::ProcessDoubleReplacing(double** inputs, double** outputs, i
 {
   // Mutex is already locked for us.
   
+#ifdef RTAS_API
+  double* in1 = inputs[0];
+  double* in2 = inputs[1];
+  double* scin1 = inputs[2];
+  
+  double* out1 = outputs[0];
+  double* out2 = outputs[1];
+  
+  double peakL = 0.0, peakR = 0.0, peakLS = 0.0;
+  
+  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++scin1, ++out1, ++out2)
+  {
+    *out1 = *in1 * mGain;
+    *out2 = *in2 * mGain;
+    
+    peakL = IPMAX(peakL, fabs(*in1));
+    peakR = IPMAX(peakR, fabs(*in2));
+    peakLS = IPMAX(peakLS, fabs(*scin1));
+  }	
+  
+  double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+  double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+  double xLS = (peakLS < mPrevLS ? METER_DECAY : METER_ATTACK);
+  
+  peakL = peakL * xL + mPrevL * (1.0 - xL);
+  peakR = peakR * xR + mPrevR * (1.0 - xR);
+  peakLS = peakLS * xLS + mPrevLS * (1.0 - xLS);
+  
+  mPrevL = peakL;
+  mPrevR = peakR;
+  mPrevLS = peakLS;
+  
+  if (GetGUI()) 
+  {
+    GetGUI()->SetControlFromPlug(mMeterIdx_L, peakL);
+    GetGUI()->SetControlFromPlug(mMeterIdx_R, peakR);
+    GetGUI()->SetControlFromPlug(mMeterIdx_LS, peakLS);
+  }
+  
+#else
   double* in1 = inputs[0];
   double* in2 = inputs[1];
   double* scin1 = inputs[2];
@@ -88,7 +128,7 @@ void IPlugSideChain::ProcessDoubleReplacing(double** inputs, double** outputs, i
   double* out2 = outputs[1];
   
   double peakL = 0.0, peakR = 0.0, peakLS = 0.0, peakRS = 0.0;
-  
+    
   for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++scin1, ++scin2, ++out1, ++out2)
   {
     *out1 = *in1 * mGain;
@@ -122,6 +162,7 @@ void IPlugSideChain::ProcessDoubleReplacing(double** inputs, double** outputs, i
     GetGUI()->SetControlFromPlug(mMeterIdx_LS, peakLS);
     GetGUI()->SetControlFromPlug(mMeterIdx_RS, peakRS);
   }
+#endif
 }
 
 void IPlugSideChain::Reset()
