@@ -431,7 +431,8 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         kAudioUnitParameterFlag_IsWritable;
         IParam* pParam = GetParam(element);
         
-        if(pParam == 0);
+        // without this S1 will crash when the AU is bypassed
+        if((pParam == 0) && (GetHost() == kHostStudioOne))
           return noErr;
         
         const char* paramName = pParam->GetNameForHost();
