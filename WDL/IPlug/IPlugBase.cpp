@@ -297,7 +297,7 @@ bool IPlugBase::IsInChannelConnected(int chIdx)
   return (chIdx < mInChannels.GetSize() && mInChannels.Get(chIdx)->mConnected);
 }
 
-bool IPlugBase:: IsOutChannelConnected(int chIdx) 
+bool IPlugBase::IsOutChannelConnected(int chIdx) 
 {
   return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected); 
 }
