@@ -153,11 +153,6 @@ bool IPlugStandalone::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   return false;
 }
 
-// TODO: HostSpecificInit()
-void IPlugStandalone::HostSpecificInit()
-{
-}
-
 #ifdef OS_IOS
 void IPlugStandalone::LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
 {

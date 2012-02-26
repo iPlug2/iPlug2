@@ -76,7 +76,6 @@ public:
 #endif
 
 protected:
-  void HostSpecificInit();
 	bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
 

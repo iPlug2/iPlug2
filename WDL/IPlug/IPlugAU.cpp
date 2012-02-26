@@ -1685,11 +1685,6 @@ void IPlugAU::ResizeGraphics(int w, int h)
   }
 }
 
-void IPlugAU::HostSpecificInit()
-{
-//  EHost host = GetHost();
-}
-
 void IPlugAU::SetBlockSize(int blockSize)
 {
   TRACE;
