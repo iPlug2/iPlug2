@@ -585,7 +585,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       *pWriteable = true;
       *pDataSize = sizeof(UInt32);
       if (pData) {
-        *((UInt32*) pData) = (mBypassed ? 1 : 0);
+        *((UInt32*) pData) = (mIsBypassed ? 1 : 0);
       }
       return noErr;
     }
@@ -657,7 +657,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return kAudioUnitErr_InvalidProperty;
     }
-    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags);// 32,
+    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags);// 32, //TODO: kAudioUnitProperty_SupportedChannelLayoutTags
     case kAudioUnitProperty_ParameterIDName: {           // 34,
       *pDataSize = sizeof(AudioUnitParameterIDName);
       if (pData && scope == kAudioUnitScope_Global) {
@@ -732,7 +732,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       if (IsInst()) {
         *pDataSize = sizeof(UInt32);
         if (pData) {
-          *((UInt32*) pData) = 1; //(mBypassed ? 1 : 0);
+          *((UInt32*) pData) = 1; //(mIsBypassed ? 1 : 0);
         }
         return noErr;
       }
@@ -860,7 +860,8 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19,
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect: {              // 21,
-      mBypassed = (*((UInt32*) pData) != 0);
+      mIsBypassed = (*((UInt32*) pData) != 0);
+      OnActivate(!mIsBypassed);
       Reset();
       return noErr;
     }
@@ -1265,7 +1266,7 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
       RenderCallback(pRN, &flags, pTimestamp, outputBusIdx, nFrames, pOutBufList);
     }
   }
-
+  
   double renderTimestamp = pTimestamp->mSampleTime;
   
   // Pull input buffers.
@@ -1363,7 +1364,7 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
     _this->AttachOutputBuffers(chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData));
   }
 
-  if (_this->mBypassed) 
+  if (_this->mIsBypassed) 
   {
     _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
   }
@@ -1450,7 +1451,6 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
             plugIsInst,
             kAPIAU)
 , mCI(0)
-, mBypassed(false)
 , mIsOffline(false)
 , mRenderTimestamp(-1.0)
 , mTempo(DEFAULT_TEMPO)

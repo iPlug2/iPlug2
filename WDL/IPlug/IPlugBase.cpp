@@ -80,6 +80,7 @@ IPlugBase::IPlugBase(int nParams,
 , mCurrentPresetIdx(0)
 , mIsInst(plugIsInst)
 , mAPI(plugAPI)
+, mIsBypassed(false)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
   

@@ -38,7 +38,6 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
 
 , mDoesMidi(plugDoesMidi)
 , mScChans(plugScChans)
-, mBypassed(false)
 , mSidechainActive(false)
 { 
   SetInputChannelConnections(0, NInChannels(), true);
@@ -242,7 +241,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
   mSampleRate = newSetup.sampleRate;
-  mBypassed = false;
+  mIsBypassed = false;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   Reset();
   
@@ -285,8 +284,16 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           switch (idx) 
           {
             case kBypassParam:
-              mBypassed = (value > 0.5);
+            {
+              bool bypassed = (value > 0.5);
+              if (bypassed != mIsBypassed) 
+              {
+                mIsBypassed = bypassed;
+                //OnActivate(!mIsBypassed);
+              }
+            
               break;
+            }
             case kPresetParam:
               RestorePreset(FromNormalizedParam(value, 0, NPresets(),1.));
               break;
@@ -383,7 +390,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     
     AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers32);
     
-    if (mBypassed) 
+    if (mIsBypassed) 
     {
       PassThroughBuffers(0.0f, data.numSamples);
     }
@@ -420,7 +427,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     
     AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers64);
     
-    if (mBypassed) 
+    if (mIsBypassed) 
     {
       PassThroughBuffers(0.0, data.numSamples);
     }

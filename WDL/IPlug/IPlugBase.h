@@ -118,6 +118,8 @@ public:
 	int GetBlockSize() { return mBlockSize; }
   int GetLatency() { return mLatency; }
   
+  bool GetIsBypassed() { return mIsBypassed; }
+  
   // In ProcessDoubleReplacing you are always guaranteed to get valid pointers 
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
@@ -255,8 +257,9 @@ private:
   EAPI mAPI;
   EHost mHost;
   int mHostVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
+  
 protected:
-  bool mStateChunks, mIsInst;
+  bool mStateChunks, mIsInst, mIsBypassed;
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
