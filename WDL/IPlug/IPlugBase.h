@@ -79,6 +79,13 @@ public:
   // Return the new chunk position (endPos).
 //	virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
 	virtual int UnserializeState(ByteChunk* pChunk, int startPos);
+  
+#ifndef OS_IOS
+  virtual void OnWindowResize() {}
+#endif
+  // implement this to trigger your custom about box, when someone clicks about in the menu of a standalone
+  virtual bool HostRequestingAboutBox();
+
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
@@ -133,12 +140,8 @@ public:
   // Tell the host that the graphics resized.
   // Should be called only by the graphics object when it resizes itself.
   virtual void ResizeGraphics(int w, int h) = 0;
-  
-#ifndef OS_IOS
-  virtual void OnWindowResize() {}
-#endif
+
   void EnsureDefaultPreset();
-  virtual bool HostRequestingAboutBox(); // implement this to trigger your custom about box from a standalone
 
 protected:
 
