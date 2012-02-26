@@ -1400,9 +1400,6 @@ IPlugAU::BusChannels* IPlugAU::GetBus(AudioUnitScope scope, AudioUnitElement bus
   return 0;
 }
 
-// Garageband doesn't always report tempo when the transport is stopped, so we need it to persist in the class.
-#define DEFAULT_TEMPO 120.0
-
 void IPlugAU::ClearConnections()
 {
   int nInBuses = mInBuses.GetSize();
