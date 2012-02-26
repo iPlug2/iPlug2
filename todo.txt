@@ -1,5 +1,6 @@
 iplug-todo
 
+ALL - lock free-ness
 ALL - more flexible resource importing (not just png resources)
 ALL - fix text entry dimensions / text size
 ALL - freetype based font renderer, import .ttf files
@@ -36,11 +37,12 @@ VST3 wrapper:
 
 RTAS wrapper:
 
-- MAC - apple+Q problems
+- MAC - apple+Q sometimes not passed to PT
+- Very occasionally the overlayed cocoa window gets stuck
 - WIN - sporadic redraw problem
 - check default PT behaviour for IControls
 - chunks
-- some key press passthrough lost
+- some key press passthrough lost?
 - audiosuite
 - presets list
 - close session frozen buffer (only happens when debugging?)
