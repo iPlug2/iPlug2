@@ -30,22 +30,23 @@ private:
   bool mIsComposited;
   RgnHandle mRgn;
   WindowRef mWindow;
-  ControlRef mView; // was HIViewRef
+  ControlRef mView;
+  ControlRef mTextEntryView;
   EventLoopTimerRef mTimer;
-  EventHandlerRef mControlHandler, mWindowHandler;
+  EventHandlerRef mControlHandler;
+  EventHandlerRef mWindowHandler;
+  EventHandlerRef mTextEntryHandler;
   CGContextRef mCGC;
 
-  ControlRef mTextFieldView;
-  EventHandlerRef mParamEditHandler;
   IControl* mEdControl;
   IParam* mEdParam;
   int mPrevX, mPrevY;
   
 public:
   
-  static pascal OSStatus CarbonEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
-  static pascal void CarbonTimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon);
-  static pascal OSStatus CarbonParamEditHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
+  static pascal OSStatus MainEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
+  static pascal void TimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon);
+  static pascal OSStatus TextEntryHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
 };
 
 #endif // _IGRAPHICSCARBON_

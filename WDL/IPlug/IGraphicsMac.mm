@@ -476,8 +476,7 @@ void IGraphicsMac::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
 #endif
 }
 
-bool IGraphicsMac::OpenURL(const char* url,
-  const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
 #pragma REMINDER("Warning and error messages for OpenURL not implemented")
   NSURL* pURL = 0;
