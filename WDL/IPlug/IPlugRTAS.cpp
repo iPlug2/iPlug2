@@ -3,10 +3,36 @@
 #include "CPluginControl_Continuous.h"
 #include "CPluginControl_Discrete.h"
 
-IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
-      const char* effectName, const char* productName, const char* mfrName,
-      int vendorVersion, int uniqueID, int mfrID, int latency, bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, int plugScChans)
-: IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName,vendorVersion, uniqueID, mfrID, latency, plugDoesMidi, plugDoesChunks, plugIsInst, kAPIRTAS)
+IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, 
+                     int nParams, 
+                     const char* channelIOStr, 
+                     int nPresets,
+                     const char* effectName,
+                     const char* productName,
+                     const char* mfrName,
+                     int vendorVersion,
+                     int uniqueID,
+                     int mfrID,
+                     int latency,
+                     bool plugDoesMidi,
+                     bool plugDoesChunks,
+                     bool plugIsInst,
+                     int plugScChans)
+: IPlugBase(nParams, 
+            channelIOStr,
+            nPresets,
+            effectName,
+            productName,
+            mfrName,
+            vendorVersion,
+            uniqueID,
+            mfrID,
+            latency,
+            plugDoesMidi,
+            plugDoesChunks,
+            plugIsInst,
+            kAPIRTAS)
+
 , mDoesMidi(plugDoesMidi)
 , mSideChainIsConnected(false)
 {
@@ -21,16 +47,13 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* ch
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 }
 
-void IPlugRTAS::SetNumInputs(int nInputs)
+void IPlugRTAS::SetIO(int nInputs, int nOutputs)
 {
   nInputs += mSideChainIsConnected;
   
   SetInputChannelConnections(0, nInputs, true);
   SetInputChannelConnections(nInputs, NInChannels() - nInputs, false);
-}
-
-void IPlugRTAS::SetNumOutputs(int nOutputs)
-{
+  
   SetOutputChannelConnections(0, nOutputs, true);
   SetOutputChannelConnections(nOutputs, NOutChannels() - nOutputs, false);
 }
@@ -43,6 +66,16 @@ void IPlugRTAS::ProcessAudio(float** inputs, float** outputs, int nFrames)
   AttachOutputBuffers(0, NOutChannels(), outputs);
   
   ProcessBuffers((float) 0.0, nFrames);
+}
+
+void IPlugRTAS::ProcessAudioBypassed(float** inputs, float** outputs, int nFrames)
+{
+  IMutexLock lock(this);
+  
+  AttachInputBuffers(0, NInChannels(), inputs, nFrames);
+  AttachOutputBuffers(0, NOutChannels(), outputs);
+  
+  PassThroughBuffers((float) 0.0, nFrames);
 }
 
 void IPlugRTAS::BeginInformHostOfParamChange(int idx)

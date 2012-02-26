@@ -120,8 +120,7 @@ void IPlugProcess::EffectInit()
       }
     }
     
-    mPlug->SetNumInputs(GetNumInputs());
-    mPlug->SetNumOutputs(GetNumOutputs());
+    mPlug->SetIO(GetNumInputs(), GetNumOutputs());
     mPlug->SetSampleRate(GetSampleRate());
     
     mPlug->Reset();

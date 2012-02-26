@@ -15,11 +15,21 @@ struct IPlugInstanceInfo
 class IPlugRTAS : public IPlugBase
 {
 public:
-  IPlugRTAS(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
-        const char* effectName, const char* productName, const char* mfrName,
-        int vendorVersion, int uniqueID, int mfrID, int latency = 0, 
-        bool plugDoesMidi = false, bool plugDoesChunks = false, 
-        bool plugIsInst = false, int plugScChans = 0);
+  IPlugRTAS(IPlugInstanceInfo instanceInfo, 
+            int nParams, 
+            const char* channelIOStr,
+            int nPresets,
+            const char* effectName,
+            const char* productName,
+            const char* mfrName,
+            int vendorVersion,
+            int uniqueID,
+            int mfrID,
+            int latency = 0,
+            bool plugDoesMidi = false,
+            bool plugDoesChunks = false,
+            bool plugIsInst = false,
+            int plugScChans = 0);
   
   void BeginInformHostOfParamChange(int idx);
   void InformHostOfParamChange(int idx, double normalizedValue);
@@ -39,9 +49,9 @@ public:
   class IPlugProcess *mRTAS;
   
   void ProcessAudio(float** inputs, float** outputs, int nFrames);
-  
-  void SetNumInputs(int nInputs); 
-  void SetNumOutputs(int nOutputs);
+  void ProcessAudioBypassed(float** inputs, float** outputs, int nFrames);
+
+  void SetIO(int nInputs, int nOutputs);
   
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate;} ;
   void SetBlockSize(int blockSize) { IPlugBase::SetBlockSize(blockSize);}
