@@ -430,6 +430,10 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           kAudioUnitParameterFlag_IsReadable |
         kAudioUnitParameterFlag_IsWritable;
         IParam* pParam = GetParam(element);
+        
+        if(pParam == 0);
+          return noErr;
+        
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = MakeCFString(pParam->GetNameForHost());
         strcpy(pInfo->name, paramName);   // Max 52.
