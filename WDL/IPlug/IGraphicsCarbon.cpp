@@ -42,8 +42,8 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
 , mControlHandler(0)
 , mWindowHandler(0)
 , mCGC(0)
-, mTextFieldView(0)
-, mParamEditHandler(0)
+, mTextEntryView(0)
+, mTextEntryHandler(0)
 , mEdControl(0)
 , mEdParam(0)
 , mPrevX(0)
@@ -75,7 +75,7 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
     { kEventClassControl, kEventControlDraw },
   };
   
-  InstallControlEventHandler(mView, CarbonEventHandler, GetEventTypeCount(controlEvents), controlEvents, this, &mControlHandler);
+  InstallControlEventHandler(mView, MainEventHandler, GetEventTypeCount(controlEvents), controlEvents, this, &mControlHandler);
   
   const EventTypeSpec windowEvents[] = 
   {
@@ -90,11 +90,11 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
     { kEventClassWindow, kEventWindowDeactivated }
   };
   
-  InstallWindowEventHandler(mWindow, CarbonEventHandler, GetEventTypeCount(windowEvents), windowEvents, this, &mWindowHandler);  
+  InstallWindowEventHandler(mWindow, MainEventHandler, GetEventTypeCount(windowEvents), windowEvents, this, &mWindowHandler);  
   
   double t = kEventDurationSecond / (double) pGraphicsMac->FPS();
   
-  OSStatus s = InstallEventLoopTimer(GetMainEventLoop(), 0., t, CarbonTimerHandler, this, &mTimer);
+  OSStatus s = InstallEventLoopTimer(GetMainEventLoop(), 0., t, TimerHandler, this, &mTimer);
   
   if (mIsComposited) 
   {
@@ -126,12 +126,12 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
 
 IGraphicsCarbon::~IGraphicsCarbon()
 {
-  if (mTextFieldView)
+  if (mTextEntryView)
   {
-    RemoveEventHandler(mParamEditHandler);
-    mParamEditHandler = 0;
-    HIViewRemoveFromSuperview(mTextFieldView);
-    mTextFieldView = 0;
+    RemoveEventHandler(mTextEntryHandler);
+    mTextEntryHandler = 0;
+    HIViewRemoveFromSuperview(mTextEntryView);
+    mTextEntryView = 0;
     mEdControl = 0;
     mEdParam = 0;
   }
@@ -157,13 +157,13 @@ bool IGraphicsCarbon::Resize(int w, int h)
 
 void IGraphicsCarbon::EndUserInput(bool commit)
 {
-  RemoveEventHandler(mParamEditHandler);
-  mParamEditHandler = 0;
+  RemoveEventHandler(mTextEntryHandler);
+  mTextEntryHandler = 0;
 
   if (commit)
   {
     CFStringRef str;
-    if (GetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str, NULL) == noErr)
+    if (GetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str, NULL) == noErr)
     {
       char txt[MAX_PARAM_LEN];
       CFStringGetCString(str, txt, MAX_PARAM_LEN, kCFStringEncodingUTF8);
@@ -176,8 +176,8 @@ void IGraphicsCarbon::EndUserInput(bool commit)
     }
   }
 
-  HIViewSetVisible(mTextFieldView, false);
-  HIViewRemoveFromSuperview(mTextFieldView);
+  HIViewSetVisible(mTextEntryView, false);
+  HIViewRemoveFromSuperview(mTextEntryView);
   
   if (mIsComposited)
   {
@@ -191,7 +191,7 @@ void IGraphicsCarbon::EndUserInput(bool commit)
   SetThemeCursor(kThemeArrowCursor);
   SetUserFocusWindow(kUserFocusAuto);
 
-  mTextFieldView = 0;
+  mTextEntryView = 0;
   mEdControl = 0;
   mEdParam = 0;
 }
@@ -342,7 +342,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 {
   ControlRef control = 0;
 
-	if (!pControl || mTextFieldView || !mIsComposited) return; // Only composited carbon supports text entry
+	if (!pControl || mTextEntryView || !mIsComposited) return; // Only composited carbon supports text entry
   
   Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R }; // these adjustments should make it the same as the cocoa one
 
@@ -357,8 +357,8 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     //,{ kEventClassControl, kEventControlDraw }
   };
   
-  InstallControlEventHandler(control, CarbonParamEditHandler, GetEventTypeCount(events), events, this, &mParamEditHandler);
-  mTextFieldView = control;
+  InstallControlEventHandler(control, TextEntryHandler, GetEventTypeCount(events), events, this, &mTextEntryHandler);
+  mTextEntryView = control;
   
   if (pString[0] != '\0')
   {
@@ -366,19 +366,19 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     
     if (str)
     {
-      SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str);
+      SetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str);
       CFRelease(str);
     }
     
     ControlEditTextSelectionRec sel;
     sel.selStart = 0;
     sel.selEnd = strlen(pString);
-    SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextSelectionTag, sizeof(sel), &sel);
+    SetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextSelectionTag, sizeof(sel), &sel);
   }
   
   // not multiline
 	Boolean value = true;
-	SetControlData(mTextFieldView, kControlEditTextPart, kControlEditTextSingleLineTag, sizeof(value), (void *)&value);
+	SetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextSingleLineTag, sizeof(value), (void *)&value);
   
   int align = 0;
   
@@ -401,12 +401,12 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
   ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, align, 0, 0 };
   CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
   font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
-  SetControlData(mTextFieldView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
+  SetControlData(mTextEntryView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
   CFRelease(str);
 
-  HIViewSetVisible(mTextFieldView, true);
-  HIViewAdvanceFocus(mTextFieldView, 0);
-  SetKeyboardFocus(mWindow, mTextFieldView, kControlEditTextPart);
+  HIViewSetVisible(mTextEntryView, true);
+  HIViewAdvanceFocus(mTextEntryView, 0);
+  SetKeyboardFocus(mWindow, mTextEntryView, kControlEditTextPart);
   SetUserFocusWindow(mWindow);
   
   mEdControl = pControl;
@@ -414,7 +414,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 }
 
 // static 
-pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
+pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
 {
   IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
   IGraphicsMac* pGraphicsMac = _this->mGraphicsMac;
@@ -427,7 +427,7 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       switch (eventKind) { 
         case kEventRawKeyDown:{
           
-          if (_this->mTextFieldView)
+          if (_this->mTextEntryView)
             return eventNotHandledErr;
           
           bool handle = true;
@@ -529,25 +529,25 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       {
         case kEventMouseDown: 
         {
-          if (_this->mTextFieldView)
+          if (_this->mTextEntryView)
           {
             HIViewRef view;
             HIViewGetViewForMouseEvent(_this->mView, pEvent, &view);
             
-            if (view == _this->mTextFieldView)
+            if (view == _this->mTextEntryView)
               return eventNotHandledErr;
             
             _this->EndUserInput(true);
           }
           
-#ifdef RTAS_API // RTAS triple click
+          #ifdef RTAS_API // RTAS triple click
           if (mmod.L && mmod.R && mmod.C && (pGraphicsMac->GetParamIdxForPTAutomation(x, y) > -1)) 
           {
             return CallNextEventHandler(pHandlerCall, pEvent);
           }
-#else
+          #endif
+          
           CallNextEventHandler(pHandlerCall, pEvent);
-#endif
           
           UInt32 clickCount = 0;
           GetEventParameter(pEvent, kEventParamClickCount, typeUInt32, 0, sizeof(UInt32), 0, &clickCount);
@@ -580,7 +580,7 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
           
         case kEventMouseDragged: 
         {
-          if (!_this->mTextFieldView)
+          if (!_this->mTextEntryView)
             pGraphicsMac->OnMouseDrag(x, y, &mmod);
           return noErr; 
         }
@@ -595,7 +595,7 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
             int d;
             GetEventParameter(pEvent, kEventParamMouseWheelDelta, typeSInt32, 0, sizeof(SInt32), 0, &d);
             
-            if (_this->mTextFieldView) _this->EndUserInput(false);
+            if (_this->mTextEntryView) _this->EndUserInput(false);
             
             pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
             return noErr;
@@ -617,7 +617,7 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
       {
         case kEventWindowDeactivated:
         {          
-          if (_this->mTextFieldView) 
+          if (_this->mTextEntryView) 
             _this->EndUserInput(false);          
           break;
         }
@@ -630,7 +630,7 @@ pascal OSStatus IGraphicsCarbon::CarbonEventHandler(EventHandlerCallRef pHandler
 }    
 
 // static 
-pascal void IGraphicsCarbon::CarbonTimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon)
+pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon)
 {
   IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
   
@@ -651,7 +651,7 @@ pascal void IGraphicsCarbon::CarbonTimerHandler(EventLoopTimerRef pTimer, void* 
 }
 
 // static
-pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
+pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
 {
   IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
   UInt32 eventClass = GetEventClass(pEvent);
@@ -718,12 +718,15 @@ pascal OSStatus IGraphicsCarbon::CarbonParamEditHandler(EventHandlerCallRef pHan
             }
           }
           
-          // check the length of the text 
-          Str31  theText;
+          Str31  theText; // TODO: check the actually limit here... 32 chars enough?
           Size   textLength;            
           
-          GetControlData(_this->mTextFieldView,kControlNoPart,kControlEditTextTextTag,
-                         sizeof(theText) -1,(Ptr) &theText[1],&textLength);
+          GetControlData(_this->mTextEntryView,
+                         kControlNoPart,
+                         kControlEditTextTextTag,
+                         sizeof(theText) -1,
+                         (Ptr) &theText[1],
+                         &textLength);
           
           if(textLength >= _this->mEdControl->GetTextEntryLength())
             return noErr;
