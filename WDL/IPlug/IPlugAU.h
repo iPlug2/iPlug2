@@ -85,7 +85,7 @@ private:
 
   WDL_String mOSXBundleID, mCocoaViewFactoryClassName;
   ComponentInstance mCI;
-  bool mActive, mBypassed, mIsOffline;
+  bool mActive, mIsOffline;
   double mRenderTimestamp, mTempo;
   HostCallbackInfo mHostCallbacks;
 
