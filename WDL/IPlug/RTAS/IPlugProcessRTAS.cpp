@@ -38,30 +38,22 @@ void IPlugProcessRTAS::HandleMIDI()
 void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
 {
   TRACE_PROCESS;
-  
-#if PLUG_DOES_MIDI
-  HandleMIDI();
-#endif
 
-  // Two possible cases for RTAS since ip==op for PT8 and below.
-  // TODO: do we need to call these here?
-  long ips=GetNumInputs();
-  long ops=GetNumOutputs();
+  long nInputs = GetNumInputs();
+  long nOutputs = GetNumOutputs();
+  //DBGMSG("Number of inputs: %d outputs: %d\n", nInputs, nOutputs);
+
+  mPlug->SetIO(nInputs, nOutputs);
   
   if (mBypassed)
   {
-    // TODO: implement delay of bypassed signal equal to mPlug->GetLatency();
-    if (ips>=1 && ops>=1) 
-      memcpy(outputs[0],inputs[0],frames*sizeof(float));
-    if (ips>=2 && ops>=2) 
-      memcpy(outputs[1],inputs[1],frames*sizeof(float));
+    mPlug->ProcessAudioBypassed(inputs, outputs, frames);
   }
   else if (mPlug)
-  {    
-    //DBGMSG("Number of inputs: %d outputs: %d, sip: %d\n", ips, ops, sip);
-    
-    mPlug->SetNumInputs(ips);
-    mPlug->SetNumOutputs(ops);
+  {
+#if PLUG_DOES_MIDI
+    HandleMIDI();
+#endif
     
     mPlug->ProcessAudio(inputs, outputs, frames);
   }

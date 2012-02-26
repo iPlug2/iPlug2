@@ -331,6 +331,7 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
 
 //#pragma REMINDER("lock mutex before calling into any IPlugBase processing functions")
 
+//TODO: implement a delay equivalent to mLatency for RTAS/AU/VST3 
 void IPlugBase::PassThroughBuffers(double sampleType, int nFrames) 
 {
   IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
