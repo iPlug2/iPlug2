@@ -211,6 +211,7 @@ protected:
   void ProcessBuffers(double sampleType, int nFrames);
   void ProcessBuffersAccumulating(float sampleType, int nFrames); 
 
+  void ZeroScratchBuffers();
 public:
   
 	void ModifyCurrentPreset(const char* name = 0);     // Sets the currently active preset to whatever current params are.
