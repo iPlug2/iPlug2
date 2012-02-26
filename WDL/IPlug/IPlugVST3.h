@@ -129,7 +129,6 @@ protected:
   virtual bool SendMidiMsg(IMidiMsg* pMsg) {return false;}  //TODO
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) {return false;} //TODO
   
-  virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
 private:
   
   // helper
