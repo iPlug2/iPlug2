@@ -20,10 +20,23 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
                                  bool plugDoesChunks, 
                                  bool plugIsInst,
                                  int plugScChans)
-: IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName,
-    vendorVersion, uniqueID, mfrID, latency,
-    plugDoesMidi, plugDoesChunks, plugIsInst, kAPISA),
-    mDoesMidi(plugDoesMidi)/*, mHostSpecificInitDone(false)*/
+: IPlugBase(nParams,
+            channelIOStr,
+            nPresets,
+            effectName,
+            productName,
+            mfrName,
+            vendorVersion,
+            uniqueID,
+            mfrID,
+            latency,
+            plugDoesMidi,
+            plugDoesChunks,
+            plugIsInst,
+            kAPISA)
+
+, mDoesMidi(plugDoesMidi)
+//, mHostSpecificInitDone(false)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
@@ -68,7 +81,7 @@ int IPlugStandalone::GetSamplePos()
 // TODO: GetTempo()
 double IPlugStandalone::GetTempo()
 {
-	return 120.;
+	return DEFAULT_TEMPO;
 }
 
 // TODO: GetTime()

@@ -1419,14 +1419,40 @@ void IPlugAU::ClearConnections()
 #pragma mark IPlugAU Constructor
 
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
-  int nParams, const char* channelIOStr, int nPresets,
-  const char* effectName, const char* productName, const char* mfrName,
-	int vendorVersion, int uniqueID, int mfrID, int latency,
-  bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst, int plugScChans)
-: IPlugBase(nParams, channelIOStr, nPresets,
-  effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency,
-  plugDoesMidi, plugDoesChunks, plugIsInst, kAPIAU),
-  mCI(0), mBypassed(false), mIsOffline(false), mRenderTimestamp(-1.0), mTempo(DEFAULT_TEMPO), mActive(false)
+                 int nParams,
+                 const char* channelIOStr,
+                 int nPresets,
+                 const char* effectName,
+                 const char* productName,
+                 const char* mfrName,
+                 int vendorVersion,
+                 int uniqueID,
+                 int mfrID,
+                 int latency,
+                 bool plugDoesMidi,
+                 bool plugDoesChunks,
+                 bool plugIsInst,
+                 int plugScChans)
+: IPlugBase(nParams,
+            channelIOStr,
+            nPresets,
+            effectName,
+            productName,
+            mfrName,
+            vendorVersion,
+            uniqueID,
+            mfrID,
+            latency,
+            plugDoesMidi,
+            plugDoesChunks,
+            plugIsInst,
+            kAPIAU)
+, mCI(0)
+, mBypassed(false)
+, mIsOffline(false)
+, mRenderTimestamp(-1.0)
+, mTempo(DEFAULT_TEMPO)
+, mActive(false)
 {
   Trace(TRACELOC, "%s", effectName);
 

@@ -53,13 +53,33 @@ void GetVersionStr(int version, char* str)
   #define MAX_PATH 1024
 #endif
 
-IPlugBase::IPlugBase(int nParams, const char* channelIOStr, int nPresets,
-	const char* effectName, const char* productName, const char* mfrName,
-	int vendorVersion, int uniqueID, int mfrID, int latency, 
-  bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, EAPI plugAPI)
-: mUniqueID(uniqueID), mMfrID(mfrID), mVersion(vendorVersion),
-  mSampleRate(DEFAULT_SAMPLE_RATE), mBlockSize(0), mLatency(latency), mHost(kHostUninit), mHostVersion(0),
-  mStateChunks(plugDoesChunks), mGraphics(0), mCurrentPresetIdx(0), mIsInst(plugIsInst), mAPI(plugAPI)
+IPlugBase::IPlugBase(int nParams, 
+                     const char* channelIOStr, 
+                     int nPresets,
+                     const char* effectName,
+                     const char* productName,
+                     const char* mfrName,
+                     int vendorVersion,
+                     int uniqueID,
+                     int mfrID,
+                     int latency, 
+                     bool plugDoesMidi,
+                     bool plugDoesChunks,
+                     bool plugIsInst,
+                     EAPI plugAPI)
+: mUniqueID(uniqueID)
+, mMfrID(mfrID)
+, mVersion(vendorVersion)
+, mSampleRate(DEFAULT_SAMPLE_RATE)
+, mBlockSize(0)
+, mLatency(latency)
+, mHost(kHostUninit)
+, mHostVersion(0)
+, mStateChunks(plugDoesChunks)
+, mGraphics(0)
+, mCurrentPresetIdx(0)
+, mIsInst(plugIsInst)
+, mAPI(plugAPI)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
   

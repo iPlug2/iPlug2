@@ -14,12 +14,21 @@ class IPlugVST : public IPlugBase
 {
 public:
 
-  // Use IPLUG_CTOR instead of calling directly (defined in IPlug_include_in_plug_src.h).
-	IPlugVST(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
-		const char* effectName, const char* productName, const char* mfrName,
-		int vendorVersion, int uniqueID, int mfrID, int latency = 0, 
-    bool plugDoesMidi = false, bool plugDoesChunks = false, 
-    bool plugIsInst = false, int plugScChans = 0);
+	IPlugVST(IPlugInstanceInfo instanceInfo,
+           int nParams,
+           const char* channelIOStr,
+           int nPresets,
+           const char* effectName,
+           const char* productName,
+           const char* mfrName,
+           int vendorVersion,
+           int uniqueID,
+           int mfrID,
+           int latency = 0,
+           bool plugDoesMidi = false,
+           bool plugDoesChunks = false,
+           bool plugIsInst = false,
+           int plugScChans = 0);
 
   // ----------------------------------------
   // See IPlugBase for the full list of methods that your plugin class can implement.
