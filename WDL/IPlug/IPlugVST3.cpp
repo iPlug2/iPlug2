@@ -6,14 +6,39 @@
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstevents.h"
 
-IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
-           const char* effectName, const char* productName, const char* mfrName,
-           int vendorVersion, int uniqueID, int mfrID, int latency, 
-           bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, int plugScChans)
-: IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency, plugDoesMidi, plugDoesChunks, plugIsInst, kAPIVST3)
-,mDoesMidi(plugDoesMidi)
-,mScChans(plugScChans)
-,mBypassed(false)
+IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
+                     int nParams,
+                     const char* channelIOStr,
+                     int nPresets,
+                     const char* effectName,
+                     const char* productName,
+                     const char* mfrName,
+                     int vendorVersion,
+                     int uniqueID,
+                     int mfrID,
+                     int latency,
+                     bool plugDoesMidi,
+                     bool plugDoesChunks,
+                     bool plugIsInst,
+                     int plugScChans)
+: IPlugBase(nParams,
+            channelIOStr,
+            nPresets,
+            effectName,
+            productName,
+            mfrName,
+            vendorVersion,
+            uniqueID,
+            mfrID,
+            latency,
+            plugDoesMidi,
+            plugDoesChunks,
+            plugIsInst,
+            kAPIVST3)
+
+, mDoesMidi(plugDoesMidi)
+, mScChans(plugScChans)
+, mBypassed(false)
 { 
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);

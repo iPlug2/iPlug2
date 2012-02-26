@@ -27,11 +27,21 @@ class IPlugVST3 :  public IPlugBase
 {
 public:
   
-  IPlugVST3(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets,
-        const char* effectName, const char* productName, const char* mfrName,
-        int vendorVersion, int uniqueID, int mfrID, int latency = 0, 
-        bool plugDoesMidi = false, bool plugDoesChunks = false, 
-        bool plugIsInst = false, int plugScChans = 0);
+  IPlugVST3(IPlugInstanceInfo instanceInfo,
+            int nParams,
+            const char* channelIOStr,
+            int nPresets,
+            const char* effectName,
+            const char* productName,
+            const char* mfrName,
+            int vendorVersion,
+            int uniqueID,
+            int mfrID,
+            int latency = 0,
+            bool plugDoesMidi = false,
+            bool plugDoesChunks = false,
+            bool plugIsInst = false,
+            int plugScChans = 0);
   
   virtual ~IPlugVST3();
   

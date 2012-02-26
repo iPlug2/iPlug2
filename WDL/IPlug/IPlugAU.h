@@ -29,11 +29,21 @@ class IPlugAU : public IPlugBase
 {
 public:
 
-  // Use IPLUG_CTOR instead of calling directly (defined in IPlug_include_in_plug_src.h).
-	IPlugAU(IPlugInstanceInfo instanceInfo, int nParams, const char* channelIOStr, int nPresets, 
-		const char* effectName, const char* productName, const char* mfrName,
-		int vendorVersion, int uniqueID, int mfrID, int latency, 
-          bool plugDoesMidi, bool plugDoesChunks,  bool plugIsInst, int plugScChans);
+	IPlugAU(IPlugInstanceInfo instanceInfo, 
+          int nParams, 
+          const char* channelIOStr, 
+          int nPresets,
+          const char* effectName,
+          const char* productName,
+          const char* mfrName,
+          int vendorVersion,
+          int uniqueID,
+          int mfrID,
+          int latency,
+          bool plugDoesMidi,
+          bool plugDoesChunks,
+          bool plugIsInst,
+          int plugScChans);
 
   virtual ~IPlugAU();
   
