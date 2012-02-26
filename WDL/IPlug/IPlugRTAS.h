@@ -61,7 +61,6 @@ public:
   void SetParameter(int idx); // Locks mutex first
 
 protected:
-  virtual void HostSpecificInit() {};
   bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   

@@ -126,7 +126,6 @@ public:
 	REFCOUNT_METHODS(SingleComponentEffect)
   
 protected:
-  virtual void HostSpecificInit() {} //TODO
   virtual bool SendMidiMsg(IMidiMsg* pMsg) {return false;}  //TODO
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) {return false;} //TODO
   

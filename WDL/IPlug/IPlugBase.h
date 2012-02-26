@@ -158,7 +158,7 @@ protected:
   void LimitToStereoIO();
   
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
-  virtual void HostSpecificInit() = 0;
+  virtual void HostSpecificInit() { return; };
 #ifndef OS_IOS
 	virtual void AttachGraphics(IGraphics* pGraphics);
 #endif
