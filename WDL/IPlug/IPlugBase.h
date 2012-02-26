@@ -14,6 +14,7 @@
 
 #define MAX_EFFECT_NAME_LEN 128
 #define DEFAULT_BLOCK_SIZE 1024
+#define DEFAULT_TEMPO 120.0
 
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 
