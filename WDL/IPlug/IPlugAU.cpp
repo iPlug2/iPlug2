@@ -576,7 +576,12 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return kAudioUnitErr_InvalidProperty;
     }
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19,
+    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19,   //TODO: kAudioUnitProperty_AudioChannelLayout
+//    case kAudioUnitProperty_AudioChannelLayout: {
+//      AudioChannelLayout layout;
+//      layout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
+//      return noErr;
+//    }
     case kAudioUnitProperty_TailTime: {                  // 20,   // listenable
       return GetProperty(kAudioUnitProperty_Latency, scope, element, pDataSize, pWriteable, pData);
     }
@@ -857,7 +862,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
     NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19,
+    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO: kAudioUnitProperty_AudioChannelLayout
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect: {              // 21,
       mIsBypassed = (*((UInt32*) pData) != 0);
@@ -891,7 +896,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     NO_OP(kAudioUnitProperty_InPlaceProcessing);         // 29,
     NO_OP(kAudioUnitProperty_ElementName);               // 30,
     NO_OP(kAudioUnitProperty_CocoaUI);                   // 31,
-    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags); // 32,
+    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags); // 32, TODO: kAudioUnitProperty_SupportedChannelLayoutTags
     NO_OP(kAudioUnitProperty_ParameterIDName);           // 34,
     NO_OP(kAudioUnitProperty_ParameterClumpName);        // 35,
     case kAudioUnitProperty_CurrentPreset:               // 28,
@@ -1239,6 +1244,7 @@ inline ComponentResult RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRend
   UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
   TRACE_PROCESS;
+  
   return pCB->inputProc(pCB->inputProcRefCon, pFlags, pTimestamp, inputBusIdx, nFrames, pOutBufList);
 }
 
