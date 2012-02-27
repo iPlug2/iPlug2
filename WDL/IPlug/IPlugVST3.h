@@ -70,15 +70,15 @@ public:
   
   //IUnitInfo
   int32 PLUGIN_API getUnitCount() { return 1; }
-  tresult PLUGIN_API getUnitInfo (int32 unitIndex, UnitInfo& info);
+  tresult PLUGIN_API getUnitInfo(int32 unitIndex, UnitInfo& info);
   int32 PLUGIN_API getProgramListCount();
-  tresult PLUGIN_API getProgramListInfo (int32 listIndex, ProgramListInfo& info);
+  tresult PLUGIN_API getProgramListInfo(int32 listIndex, ProgramListInfo& info);
   tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name);
 	
-  virtual tresult PLUGIN_API getProgramInfo (ProgramListID listId, 
-                                             int32 programIndex, 
-                                             Steinberg::Vst::CString attributeId /*in*/, 
-                                             String128 attributeValue /*out*/) {return kNotImplemented;}
+  virtual tresult PLUGIN_API getProgramInfo(ProgramListID listId, 
+                                            int32 programIndex, 
+                                            Steinberg::Vst::CString attributeId /*in*/, 
+                                            String128 attributeValue /*out*/) {return kNotImplemented;}
   
 	virtual tresult PLUGIN_API hasProgramPitchNames(ProgramListID listId, int32 programIndex) {return kNotImplemented;}
   virtual tresult PLUGIN_API getProgramPitchName(ProgramListID listId, int32 programIndex, int16 midiPitch, String128 name /*out*/) {return kNotImplemented;}
