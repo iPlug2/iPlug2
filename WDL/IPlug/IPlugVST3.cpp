@@ -59,10 +59,28 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   
   if (result == kResultOk)
   {
+    int maxInputs = getSpeakerArrForChans(NInChannels()-mScChans);
+    if(maxInputs < 0) maxInputs = 0;
+                                          
     // add io buses with the maximum i/o to start with
-    addAudioInput(STR16("Audio Input"), getSpeakerArrForChans(NInChannels()-mScChans) );
-    addAudioOutput(STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
+                         
+    if (maxInputs) 
+    {
+      addAudioInput(STR16("Audio Input"), maxInputs);
+    }
     
+    if(!mIsInst) // if effect, just add one output bus with max chan count
+    {
+      addAudioOutput(STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
+    }
+    else 
+    {
+      for (int i = 0; i < NOutChannels(); i+=2) 
+      {
+        addAudioOutput(STR16("Audio Output"), SpeakerArr::kStereo );
+      }
+    }
+
     if (mScChans == 1)
     {
       addAudioInput(STR16("Sidechain Input"), SpeakerArr::kMono, kAux, 0);
@@ -76,7 +94,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     if(mDoesMidi) 
     {
       addEventInput (STR16("MIDI In"), 1);
-      addEventOutput(STR16("MIDI Out"), 1);
+      //addEventOutput(STR16("MIDI Out"), 1);
     }
     
     if (NPresets()) 
