@@ -225,13 +225,13 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3::setActive (TBool state)
+tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
   TRACE;
     
   OnActivate((bool) state);
   
-  return SingleComponentEffect::setActive (state);  
+  return SingleComponentEffect::setActive(state);  
 }
 
 tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
