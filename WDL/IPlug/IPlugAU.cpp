@@ -1469,12 +1469,10 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
 
   mOSXBundleID.Set(instanceInfo.mOSXBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
-
-  int nInputs = NInChannels();
-  
-  if (plugScChans && nInputs) // effect with side chain input... 2 input buses
+    
+  if (plugScChans && NInChannels()) // effect with side chain input... 2 input buses
   {
-    int nNonScInputChans = nInputs - plugScChans;
+    int nNonScInputChans = NInChannels() - plugScChans;
     
     PtrListInitialize(&mInBusConnections, 2);
     PtrListInitialize(&mInBuses, 2);
@@ -1488,9 +1486,8 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     pInBus2->mNHostChannels = -1;
     pInBus2->mPlugChannelStartIdx = nNonScInputChans;
     pInBus2->mNPlugChannels = plugScChans;
-    
   }
-  else if (nInputs) // effect with no side chain... 1 bus
+  else if (NInChannels()) // effect with no side chain... 1 bus
   {
     PtrListInitialize(&mInBusConnections, 1);
     PtrListInitialize(&mInBuses, 1);
@@ -1498,37 +1495,36 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     BusChannels* pInBus = mInBuses.Get(0);
     pInBus->mNHostChannels = -1;
     pInBus->mPlugChannelStartIdx = 0;
-    pInBus->mNPlugChannels = nInputs;
+    pInBus->mNPlugChannels = NInChannels();
   }
-  else { // synth = no inputs
+  else { // synth = no inputs // TODO: support synths with SC inputs?
     PtrListInitialize(&mInBusConnections, 0);
     PtrListInitialize(&mInBuses, 0);
   }
   
-  if(plugIsInst)
+  if(plugIsInst) // TODO: support instruments with multichannel outputs, i.e. 5.1?
   {
-    int nOutputs = NOutChannels();
-    int nOutBuses = (int) ceil(nOutputs / 2.);
+    int nOutBuses = (int) ceil(NOutChannels() / 2.);
+    
     PtrListInitialize(&mOutBuses, nOutBuses);
     
     for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2) {
       BusChannels* pOutBus = mOutBuses.Get(i);
       pOutBus->mNHostChannels = -1;
       pOutBus->mPlugChannelStartIdx = startCh;
-      pOutBus->mNPlugChannels = MIN(nOutputs - startCh, 2);
+      pOutBus->mNPlugChannels = MIN(NOutChannels() - startCh, 2);
     }    
   }
   else 
   {
     // one output bus
-    int nOutputs = NOutChannels();
     int nOutBuses = 1;
     PtrListInitialize(&mOutBuses, nOutBuses);
     
     BusChannels* pOutBus = mOutBuses.Get(0);
     pOutBus->mNHostChannels = -1;
     pOutBus->mPlugChannelStartIdx = 0;
-    pOutBus->mNPlugChannels = nOutputs;
+    pOutBus->mNPlugChannels = NOutChannels();
   }
   
   AssessInputConnections();
