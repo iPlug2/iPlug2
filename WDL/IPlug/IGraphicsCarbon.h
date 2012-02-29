@@ -19,7 +19,7 @@ public:
 
   bool Resize(int w, int h);
 
-	IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
+  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
   void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
 
   void EndUserInput(bool commit);
@@ -31,7 +31,7 @@ private:
   RgnHandle mRgn;
   WindowRef mWindow;
   ControlRef mView;
-  ControlRef mTextEntryView;
+  TXNObject mTextEntryView;	
   EventLoopTimerRef mTimer;
   EventHandlerRef mControlHandler;
   EventHandlerRef mWindowHandler;
@@ -41,6 +41,7 @@ private:
   IControl* mEdControl;
   IParam* mEdParam;
   int mPrevX, mPrevY;
+  IRECT mTextEntryRect;
   
 public:
   
