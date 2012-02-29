@@ -56,6 +56,8 @@ struct IChannelBlend
 };
 
 const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
+const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
 
 #ifdef OS_WIN
   const char* const DEFAULT_FONT = "Verdana";
@@ -70,24 +72,45 @@ struct IText
 {
 	char mFont[FONT_LEN];
 	int mSize;
-	IColor mColor;
+	IColor mColor, mTextEntryBGColor, mTextEntryFGColor;
 	enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
 	enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
 	int mOrientation;   // Degrees ccwise from normal.
 	enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality;
 	LICE_IFont* mCached;
   
-	IText(int size = DEFAULT_TEXT_SIZE, const IColor* pColor = 0, char* font = 0,
-        EStyle style = kStyleNormal, EAlign align = kAlignCenter, int orientation = 0, EQuality quality = kQualityDefault)
-  :	mSize(size), mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR), //mFont(font ? font : DEFAULT_FONT),
-  mStyle(style), mAlign(align), mOrientation(orientation), mQuality(quality), mCached(0)
+	IText(int size = DEFAULT_TEXT_SIZE, 
+        const IColor* pColor = 0, 
+        char* font = 0,
+        EStyle style = kStyleNormal, 
+        EAlign align = kAlignCenter, 
+        int orientation = 0, 
+        EQuality quality = kQualityDefault,
+        const IColor* pTEBGColor = 0,
+        const IColor* pTEFGColor = 0) 
+  :	mSize(size)
+  , mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR)
+  , mStyle(style)
+  , mAlign(align)
+  , mOrientation(orientation)
+  , mQuality(quality)
+  , mCached(0)
+  , mTextEntryBGColor(pTEBGColor ? *pTEBGColor : DEFAULT_TEXT_ENTRY_BGCOLOR)
+  , mTextEntryFGColor(pTEFGColor ? *pTEFGColor : DEFAULT_TEXT_ENTRY_FGCOLOR)
   {
-    strcpy(mFont, (font ? font : DEFAULT_FONT));     
+    strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
   
   IText(const IColor* pColor) 
-	:	mSize(DEFAULT_TEXT_SIZE), mColor(*pColor), //mFont(DEFAULT_FONT), 
-  mStyle(kStyleNormal), mAlign(kAlignCenter), mOrientation(0), mQuality(kQualityDefault), mCached(0)
+	:	mSize(DEFAULT_TEXT_SIZE)
+  , mColor(*pColor)
+  , mStyle(kStyleNormal)
+  , mAlign(kAlignCenter)
+  , mOrientation(0)
+  , mQuality(kQualityDefault)
+  , mCached(0)
+  , mTextEntryBGColor(DEFAULT_TEXT_ENTRY_BGCOLOR)
+  , mTextEntryFGColor(DEFAULT_TEXT_ENTRY_FGCOLOR)
   {
     strcpy(mFont, DEFAULT_FONT);     
   }

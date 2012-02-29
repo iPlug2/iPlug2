@@ -31,8 +31,8 @@ NSString* ToNSString(const char* cStr);
 @interface COCOA_FORMATTER : NSFormatter
 {
 	NSCharacterSet *filterCharacterSet;
-	int				maxLength;
-	int				maxValue;
+	int maxLength;
+	int maxValue;
 }
 
 - (void) setAcceptableCharacterSet:(NSCharacterSet *) inCharacterSet;

@@ -476,7 +476,6 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   if (!pControl || mTextFieldView) return;
 
   mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
-//  [mTextFieldView setFont: [NSFont fontWithName: @"Monaco" size: 9.]];
   NSString* font = [NSString stringWithUTF8String: pText->mFont];
   [mTextFieldView setFont: [NSFont fontWithName:font size: (float) AdjustFontSize(pText->mSize)]];
 
@@ -520,18 +519,14 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   }
   
   [[mTextFieldView cell] setLineBreakMode: NSLineBreakByTruncatingTail];
-  //[[mTextFieldView cell] setDrawsBackground:NO];
   [mTextFieldView setAllowsEditingTextAttributes:NO];
   [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
-  //[mTextFieldView setTextColor:ToNSColor(&pText->mColor)];
-  
-  //if ([mTextFieldView frame].size.height > areaRect.size.height)
-  
+  [mTextFieldView setTextColor:ToNSColor(&pText->mTextEntryFGColor)];
+  [mTextFieldView setBackgroundColor:ToNSColor(&pText->mTextEntryBGColor)];
+
   [mTextFieldView setStringValue: ToNSString(pString)];
   [mTextFieldView setBordered: NO];
   [mTextFieldView setDelegate: self];
-  //[mTextFieldView setAutoresizingMask:NSViewMinYMargin];
-  //[mTextFieldView sizeToFit];
 
   [self addSubview: mTextFieldView];
   NSWindow* pWindow = [self window];
