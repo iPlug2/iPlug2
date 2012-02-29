@@ -432,7 +432,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         IParam* pParam = GetParam(element);
         
         // without this S1 will crash when the AU is bypassed
-        if((pParam == 0) && (GetHost() == kHostStudioOne))
+        if(!pParam) 
           return noErr;
         
         const char* paramName = pParam->GetNameForHost();
