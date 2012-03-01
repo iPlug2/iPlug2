@@ -358,11 +358,7 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
   }
 }
 
-void IGraphicsCarbon::CreateTextEntry(IControl* pControl, 
-                                             IText* pText, 
-                                             IRECT* pTextRect, 
-                                             const char* pString, 
-                                             IParam* pParam)
+void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
 {
   if (!pControl || mTextEntryView || !mIsComposited) return; // Only composited carbon supports text entry
   
@@ -399,20 +395,20 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl,
     mTextEntryView = txnObject;
     
     // Set the text to display by defualt
-    TXNSetData(mTextEntryView, kTXNTextData, pString, strlen(pString), kTXNStartOffset, kTXNEndOffset);
+    TXNSetData(mTextEntryView, kTXNTextData, pString, strlen(pString)/*+1*/, kTXNStartOffset, kTXNEndOffset); // center aligned text has problems with uneven string lengths
         
     RGBColor tc;
     tc.red = pText->mTextEntryFGColor.R * 257;
     tc.green = pText->mTextEntryFGColor.G * 257;
     tc.blue = pText->mTextEntryFGColor.B * 257;
         
-    TXNBackground txnBackground;
-    txnBackground.bgType         = kTXNBackgroundTypeRGB;
-    txnBackground.bg.color.red   = pText->mTextEntryBGColor.R * 257;
-    txnBackground.bg.color.green = pText->mTextEntryBGColor.G * 257;
-    txnBackground.bg.color.blue  = pText->mTextEntryBGColor.B * 257;
+    TXNBackground bg;
+    bg.bgType         = kTXNBackgroundTypeRGB;
+    bg.bg.color.red   = pText->mTextEntryBGColor.R * 257;
+    bg.bg.color.green = pText->mTextEntryBGColor.G * 257;
+    bg.bg.color.blue  = pText->mTextEntryBGColor.B * 257;
     
-    TXNSetBackground(mTextEntryView, &txnBackground);
+    TXNSetBackground(mTextEntryView, &bg);
     
     // Set justification
     SInt16 justification;
@@ -420,23 +416,20 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl,
     
     switch ( pText->mAlign ) 
     {
-      case IText::kAlignNear:
-        justification = kTXNFlushLeft;  
-        flushness = kATSUCenterAlignment;//kATSUStartAlignment;
-        break;
       case IText::kAlignCenter:
-        justification = kTXNCenter;  // seems to be buggy wrt dragging
+        justification = kTXNCenter;  // seems to be buggy wrt dragging and alignement with uneven string lengths
         flushness = kATSUCenterAlignment;
         break;
       case IText::kAlignFar:
-        justification = kTXNFlushRight; 
-        flushness = kATSUCenterAlignment;//kATSUEndAlignment;
+        justification = kTXNFlushRight;
+        flushness = kATSUEndAlignment;
         break;
+      case IText::kAlignNear:
       default:
-        justification = kTXNFlushDefault;   
-        flushness = kATSUCenterAlignment;
+        justification = kTXNFlushLeft;  
+        flushness = kATSUStartAlignment;
         break;
-    } 
+    }
         
     TXNControlTag controlTag[1];
     TXNControlData controlData[1];
@@ -444,20 +437,23 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl,
     controlData[0].sValue = justification;
     TXNSetTXNObjectControls(mTextEntryView, false, 1, controlTag, controlData);
     
-    // Set the font
-    short familyID;
-    ATSUFontID fontNameId;
+    ATSUFontID fontid = kATSUInvalidFontID;
     
-    Str255 fontName;
-    CopyCStringToPascal(pText->mFont, fontName); 
-    GetFNum(fontName, &familyID);
-    ATSUFONDtoFontID(familyID, 0, &fontNameId);
+    if (pText->mFont && pText->mFont[0])
+    {
+      ATSUFindFontFromName(pText->mFont, strlen(pText->mFont), 
+                           kFontFullName /* kFontFamilyName? */ ,
+                           (FontPlatformCode)kFontNoPlatform,
+                           kFontNoScriptCode,
+                           kFontNoLanguageCode,
+                           &fontid);
+    }
     
     // font
     TXNTypeAttributes attributes[3];
     attributes[0].tag = kATSUFontTag;
     attributes[0].size = sizeof(ATSUFontID);
-    attributes[0].data.dataPtr = &fontNameId;
+    attributes[0].data.dataPtr = &fontid;
     // size
     attributes[1].tag = kTXNQDFontSizeAttribute;
     attributes[1].size = kTXNFontSizeAttributeSize;
