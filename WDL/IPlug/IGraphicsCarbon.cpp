@@ -381,8 +381,8 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl,
   
   Rect rect = { rct.origin.y + pTextRect->T, 
                 rct.origin.x + pTextRect->L, 
-                rct.origin.y + pTextRect->B, 
-                rct.origin.x + pTextRect->R };
+                rct.origin.y + pTextRect->B + 1, 
+                rct.origin.x + pTextRect->R + 1};
   
   if (TXNNewObject(NULL, 
                    window, 
@@ -730,8 +730,8 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
       {
         tmp = CGRectMake(_this->mTextEntryRect.L, 
                                 _this->mTextEntryRect.T, 
-                                _this->mTextEntryRect.W(), 
-                                _this->mTextEntryRect.H());
+                                _this->mTextEntryRect.W() + 1, 
+                                _this->mTextEntryRect.H() + 1);
         HIViewSetNeedsDisplayInRect(_this->mView, &tmp , false);
       }
     }
