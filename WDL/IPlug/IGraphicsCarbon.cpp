@@ -482,10 +482,10 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl,
     // The event types
     const static EventTypeSpec eventTypes[] = 
     { 
-      //kEventMouseDragged
       { kEventClassMouse,    kEventMouseMoved }, 
       { kEventClassMouse,    kEventMouseDown }, 
       { kEventClassMouse,    kEventMouseUp }, 
+      { kEventClassMouse,    kEventMouseWheelMoved },
       { kEventClassWindow,   kEventWindowClosed },
       { kEventClassWindow,   kEventWindowDeactivated }, 
       { kEventClassWindow,   kEventWindowFocusRelinquish },
@@ -894,6 +894,8 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
         break;
         case kEventMouseMoved:
           TXNAdjustCursor(_this->mTextEntryView, NULL);
+          return noErr;
+        case kEventMouseWheelMoved:
           return noErr;
       }
       break;
