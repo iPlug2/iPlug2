@@ -4,6 +4,7 @@
 @synthesize midi;
 @synthesize mPluginInstance;
 
+
 - (IBAction)sliderValueChanged:(UISlider *)sender {
 
   int idx = 0;
@@ -47,10 +48,25 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+  scrollView = [[UIScrollView alloc] initWithFrame: CGRectMake(self.view.bounds.origin.x, 
+                                                               self.view.bounds.origin.y, 
+                                                               self.view.bounds.size.width, 
+                                                               self.view.bounds.size.height - 60)]; //OLI - RELEASE THIS IN DEALLOC
+  
+  scrollView.contentSize = CGSizeMake(scrollView.frame.size.width, 700);
+  
+  scrollView.backgroundColor = [UIColor lightGrayColor];
+  
+  [self.view addSubview:scrollView];
 
   sliders = [[NSMutableArray alloc] init];
   valueLabels = [[NSMutableArray alloc] init];
   nameLabels = [[NSMutableArray alloc] init];
+  
+  for (int i = 0; i< mPluginInstance->NParams(); i++) 
+  {
+    [self addSlider:i];
+  }
 
 }
 
@@ -93,26 +109,8 @@
 }
 
 - (void)dealloc {
-  
-  //TODO not sure if this is nessecary
-  
-  for (UISlider* slider in sliders)
-  {
-    [slider release];
-  }
-  
   [sliders release];
-  
-  for (UILabel* label in valueLabels)
-  {
-    [label release];
-  }
-  
-  for (UILabel* label in nameLabels)
-  {
-    [label release];
-  }
-  
+  [scrollView release];  
   [valueLabels release];
   [nameLabels release];
   [super dealloc];
@@ -126,17 +124,17 @@
   UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(10, (60 * idx) + 30, cgSize.width - 20, 30)];
   [slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
   [slider setValue:mPluginInstance->GetParam(idx)->GetNormalized()];
-  [self.view addSubview:slider];
-
+  [scrollView addSubview:slider];
   [sliders addObject: slider];
+  [slider release];
   
   UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(13, (60 * idx) + 12, 150, 20)];
   nameLabel.textColor = [UIColor whiteColor];
   nameLabel.backgroundColor = [UIColor clearColor];
   nameLabel.text = [NSString stringWithUTF8String:mPluginInstance->GetParam(idx)->GetNameForHost()];
-  [self.view addSubview:nameLabel];
-  
+  [scrollView addSubview:nameLabel];
   [nameLabels addObject: nameLabel];
+  [nameLabel release];
   
   UILabel *valueLabel = [[UILabel alloc] initWithFrame:CGRectMake(cgSize.width-180, (60 * idx) + 12, 150, 20)];
   valueLabel.textAlignment=UITextAlignmentRight;  
@@ -146,9 +144,11 @@
   valueLabel.text = [NSString stringWithUTF8String:buf];
   valueLabel.textColor = [UIColor whiteColor];
   valueLabel.backgroundColor = [UIColor clearColor];
-  [self.view addSubview:valueLabel];
-  
+  [scrollView addSubview:valueLabel];
   [valueLabels addObject: valueLabel];
+  [valueLabel release];
+  
+  scrollView.contentSize = CGSizeMake(scrollView.contentSize.width, scrollView.contentSize.height + 200);
 }
 
 

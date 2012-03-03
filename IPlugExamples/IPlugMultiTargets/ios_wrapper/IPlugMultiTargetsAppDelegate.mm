@@ -30,11 +30,6 @@
   mainViewController.midi = midi;
   mainViewController.mPluginInstance = mPluginInstance;
   
-  for (int i = 0; i< mPluginInstance->NParams(); i++) 
-  {
-    [mainViewController addSlider:i];
-  }
-  
   //display
   [self.window makeKeyAndVisible];
   [mIOSAudio play];
