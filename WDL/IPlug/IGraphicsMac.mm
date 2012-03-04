@@ -286,6 +286,58 @@ void IGraphicsMac::ShowMouseCursor()
 	}
 }
 
+int IGraphicsMac::ShowMessageBox(const char* pText, const char* pCaption, int type)
+{
+	int result = 0;
+	
+	CFStringRef defaultButtonTitle = NULL;
+	CFStringRef alternateButtonTitle = NULL;
+	CFStringRef otherButtonTitle = NULL;	
+  
+	CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, pText, 0, kCFAllocatorNull);
+	CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, pCaption, 0, kCFAllocatorNull);
+	
+	switch (type) 
+	{
+    case MB_OKCANCEL:
+      alternateButtonTitle = CFSTR("Cancel");
+      break;
+    case MB_YESNO:
+      defaultButtonTitle = CFSTR("Yes");
+      alternateButtonTitle = CFSTR("No");
+      break;
+    case MB_YESNOCANCEL:
+      defaultButtonTitle = CFSTR("Yes");
+      alternateButtonTitle = CFSTR("No");
+      otherButtonTitle = CFSTR("Cancel");
+      break;
+	}
+  
+	CFOptionFlags response = 0;
+	CFUserNotificationDisplayAlert(0, kCFUserNotificationNoteAlertLevel, NULL, NULL, NULL,
+                                 alertHeader, alertMessage,
+                                 defaultButtonTitle, alternateButtonTitle, otherButtonTitle,
+                                 &response);
+  
+	CFRelease(alertMessage);
+	CFRelease(alertHeader);
+	
+	switch (response) 
+	{
+		case kCFUserNotificationDefaultResponse:
+			result = IDOK;
+			break;
+		case kCFUserNotificationAlternateResponse:
+			result = IDNO;
+			break;
+		case kCFUserNotificationOtherResponse:
+			result = IDCANCEL;
+			break;
+	}
+	
+	return result;
+}
+
 void IGraphicsMac::ForceEndUserEdit()
 {
 #ifndef IPLUG_NO_CARBON_SUPPORT
@@ -440,6 +492,11 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
 
 bool IGraphicsMac::PromptForColor(IColor* pColor, char* prompt)
 {
+//  NSColorPanel *colorPanel = [NSColorPanel sharedColorPanel];
+//	[colorPanel setTarget:self]; // target??
+//	[colorPanel setAction:@selector(colorPanelAction:)];
+//	[NSApp orderFrontColorPanel:self];
+  
 	return false;
 }
 

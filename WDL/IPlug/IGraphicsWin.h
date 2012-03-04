@@ -22,6 +22,7 @@ public:
   
   void HideMouseCursor();
   void ShowMouseCursor();
+  int ShowMessageBox(const char* pText, const char* pCaption, int type);
   
   bool DrawScreen(IRECT* pR);  
   
@@ -40,7 +41,7 @@ public:
 
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
 
-    // Specialty use!
+  // Specialty use!
   void* GetWindow() { return mPlugWnd; }
   HWND GetParentWindow() { return mParentWnd; }
   HWND GetMainWnd();

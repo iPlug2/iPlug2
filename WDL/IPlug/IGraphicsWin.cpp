@@ -546,6 +546,11 @@ void IGraphicsWin::ShowMouseCursor()
 	}
 }
 
+int IGraphicsWin::ShowMessageBox(const char* pText, const char* pCaption, int type)
+{
+	return MessageBox(GetMainWnd(), pText, pCaption, type);
+}
+
 bool IGraphicsWin::DrawScreen(IRECT* pR)
 {
   PAINTSTRUCT ps;
@@ -799,17 +804,12 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
     default:                  editStyle = ES_CENTER; break;
   }
   
-//  if (!pControl->IsEditable()) editStyle |= ES_READONLY;
-//  if (pControl->IsSecure())
-//    editStyle |= ES_PASSWORD;
-//  else
-    editStyle |= ES_MULTILINE;
+  editStyle |= ES_MULTILINE;
   
   mParamEditWnd = CreateWindow("EDIT", pString, WS_CHILD | WS_VISIBLE | editStyle , 
                                pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1, 
                                mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
   
-  //HFONT font = CreateFont(p, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Verdana");
   HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
 
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
