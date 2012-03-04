@@ -73,6 +73,7 @@ public:
   void HideMouseCursor();
   void ShowMouseCursor();
   
+  int ShowMessageBox(const char* pText, const char* pCaption, int type);
   void ForceEndUserEdit();
   
   const char* GetGUIAPI();

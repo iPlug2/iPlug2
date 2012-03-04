@@ -60,6 +60,9 @@ public:
   virtual void Resize(int w, int h);
   virtual bool WindowIsOpen() { return (GetWindow()); }
   virtual const char* GetGUIAPI() { return ""; };
+  
+  // type can be MB_OKCANCEL/MB_YESNO/MB_YESNOCANCEL, return val is either IDOK, IDCANCEL or IDNO
+  virtual int ShowMessageBox(const char* pText, const char* pCaption, int type) = 0;
 
   // helper
   IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, int x, int y)
