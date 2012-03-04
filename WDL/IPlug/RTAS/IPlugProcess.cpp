@@ -16,10 +16,11 @@
 #include "CPluginControl_List.h"
 #include "../IGraphics.h"
 #include "IPlugCustomUI.h"
+#include "Fic.h"
 
 IPlugProcess::IPlugProcess(OSType type)
 : mCustomUI(0)
-, mNoUIView(0)
+, mView(0)
 , mModuleHandle(0)
 , mPlug(NULL)
 , mDirectMidiInterface(NULL)
@@ -38,13 +39,9 @@ IPlugProcess::IPlugProcess(OSType type)
 #endif
   
   mPlug = MakePlug();
-  
-  if (mPlug != NULL)
-  {
 #if PLUG_DOES_STATE_CHUNKS
-    AddChunk(mPluginID, PLUG_MFR);
+  AddChunk(mPluginID, PLUG_MFR);
 #endif
-  }
 }
 
 IPlugProcess::~IPlugProcess(void)
@@ -52,7 +49,7 @@ IPlugProcess::~IPlugProcess(void)
   if(mCustomUI)
     DELETE_NULL(mCustomUI);
 
-  mNoUIView = NULL;
+  mView = NULL;
   
   DirectMidi_FreeClient((void*)mDirectMidiInterface);
   
@@ -176,10 +173,10 @@ CPlugInView* IPlugProcess::CreateCPlugInView()
       ui = new CNoResourceView;
       ui->SetSize(mPluginWinRect.right, mPluginWinRect.bottom);
       
-      mNoUIView = (IPlugDigiView *) ui->AddView2("!IPlugDigiView[('NoID')]", 0, 0, mPluginWinRect.right, mPluginWinRect.bottom, false);
+      mView = (IPlugDigiView *) ui->AddView2("!IPlugDigiView[('NoID')]", 0, 0, mPluginWinRect.right, mPluginWinRect.bottom, false);
       
-      if( mNoUIView )
-        mNoUIView->SetCustomUI(mCustomUI);
+      if( mView )
+        mView->SetCustomUI(mCustomUI);
     }
     catch(...)
     {
@@ -217,8 +214,8 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
     if(mCustomUI)
       mCustomUI->Close();
     
-    if( mNoUIView )
-      mNoUIView->SetEnable(false);
+    if( mView )
+      mView->SetEnable(false);
   }
   return;
 }
@@ -359,4 +356,18 @@ void IPlugProcess::ResizeGraphics(int w, int h)
   mPlug->OnWindowResize();
   SSetProcessWindowResizeToken theToken(fRootNameId, fRootNameId);
   FicSDSDispatchToken (&theToken);
+}
+
+int IPlugProcess::GetHostVersion()
+{
+  //0xVVRM: PT
+  //0xVVVVRRMM: IPLUG
+  
+  short version = FicGetVersion();
+  
+  int pVer = version & 0xFF00;
+  int pMaj = version & 0x00F0;
+  int pMin = version & 0x000F;
+  
+  return ((pVer << 4) * 10) + (pMaj << 4) + (pMin << 4);
 }

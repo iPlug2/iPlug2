@@ -9,7 +9,6 @@ const int kPTParamIdxOffset = 2;
 
 struct IPlugInstanceInfo
 {
-  int magic;
 };
 
 class IPlugRTAS : public IPlugBase
@@ -36,17 +35,15 @@ public:
   void EndInformHostOfParamChange(int idx);
   void InformHostOfProgramChange();
   
-  int GetSamplePos();   // Samples since start of project.
+  int GetSamplePos();
   double GetTempo();
   void GetTimeSig(int* pNum, int* pDenom);  
   void GetTime(ITimeInfo* pTimeInfo);
   
-  EHost GetHost();  // GetHostVersion() is inherited.
-
   void ResizeGraphics(int w, int h);
+  EHost GetHost();  // GetHostVersion() is inherited.
   
-  void Created(class IPlugProcess *r);
-  class IPlugProcess *mRTAS;
+  void Created(class IPlugProcess* pProcess);
   
   void ProcessAudio(float** inputs, float** outputs, int nFrames);
   void ProcessAudioBypassed(float** inputs, float** outputs, int nFrames);
@@ -68,6 +65,7 @@ private:
   bool mDoesMidi;
   bool mHasSideChain, mSideChainIsConnected;
   int mSideChainConnectionNum;
+  class IPlugProcess *mProcess;
 };
 
 IPlugRTAS* MakePlug();
