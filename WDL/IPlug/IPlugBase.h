@@ -134,6 +134,8 @@ public:
 	double GetSamplesPerBeat();
 	virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
 	virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
+  
+  // Generally you don't want to call these from your plugin constructor, but from HostSpecificInit()
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
 	int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
