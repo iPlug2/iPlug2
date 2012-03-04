@@ -167,6 +167,7 @@ int IPlugBase::GetHostVersion(bool decimal)
 
 void IPlugBase::GetHostVersionStr(char* str)
 {
+  GetHost();
   GetVersionStr(mHostVersion, str);
 }
 

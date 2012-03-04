@@ -156,7 +156,6 @@ END_FACTORY
     static WDL_Mutex sMutex;
     WDL_MutexLock lock(&sMutex);
     IPlugInstanceInfo instanceInfo;
-    instanceInfo.magic = 67;
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }

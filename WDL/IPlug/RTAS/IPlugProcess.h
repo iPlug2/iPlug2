@@ -69,18 +69,19 @@ public:
                        bool *pTransportCycle) = 0;
   
   void ResizeGraphics(int w, int h);
-  
+  virtual int GetHostVersion();
+
 protected:
   virtual void EffectInit();
-  virtual void ConnectSidechain(void);
-  virtual void DisconnectSidechain(void);
+  virtual void ConnectSidechain();
+  virtual void DisconnectSidechain();
 
 protected:
   UInt32            mLastMeterTicks;
   GrafPtr           mMainPort;
   EditorInterface   *mCustomUI;
   Rect              mPluginWinRect;
-  IPlugDigiView     *mNoUIView;
+  IPlugDigiView     *mView;
   IPlugRTAS         *mPlug;
   void              *mModuleHandle;
   DirectMidiPlugInInterface* mDirectMidiInterface;
