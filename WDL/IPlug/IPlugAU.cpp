@@ -369,6 +369,7 @@ ComponentResult IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, voi
 }
 
 #define ASSERT_SCOPE(reqScope) if (scope != reqScope) { return kAudioUnitErr_InvalidProperty; }
+#define ASSERT_ELEMENT(numElements) if (element >= numElements) { return kAudioUnitErr_InvalidElement; }
 #define ASSERT_INPUT_OR_GLOBAL_SCOPE \
   if (scope != kAudioUnitScope_Input && scope != kAudioUnitScope_Global) { \
     return kAudioUnitErr_InvalidProperty; \
@@ -421,6 +422,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     }
     case kAudioUnitProperty_ParameterInfo: {             // 4,  listenable
       ASSERT_SCOPE(kAudioUnitScope_Global);
+      ASSERT_ELEMENT(NParams());
       *pDataSize = sizeof(AudioUnitParameterInfo);
       if (pData) {
         AudioUnitParameterInfo* pInfo = (AudioUnitParameterInfo*) pData;
@@ -430,11 +432,6 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           kAudioUnitParameterFlag_IsReadable |
         kAudioUnitParameterFlag_IsWritable;
         IParam* pParam = GetParam(element);
-        
-        // without this S1 will crash when the AU is bypassed
-        if(!pParam) 
-          return noErr;
-        
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = MakeCFString(pParam->GetNameForHost());
         strcpy(pInfo->name, paramName);   // Max 52.
@@ -543,6 +540,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     case kAudioUnitProperty_ParameterValueStrings: {     // 16,
       ASSERT_SCOPE(kAudioUnitScope_Global);
+      ASSERT_ELEMENT(NParams());
       IParam* pParam = GetParam(element);
       int n = pParam->GetNDisplayTexts();
       if (!n) {
