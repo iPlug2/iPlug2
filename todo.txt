@@ -1,22 +1,22 @@
 iplug-todo
 
 ALL - lock free-ness
+ALL - GetHostVersionStr() etc are not reliable, especially with AU
 ALL - more flexible resource importing (not just png resources)
 ALL - fix text entry dimensions / text size
 ALL - freetype based font renderer, import .ttf files
 ALL - test keyboard input
 ALL - popupmenu submenus
-ALL - resize graphics
 ALL - drag & drop area
 ALL - OS tooltips?
-ALL - make consistent code style
+ALL - make consistent code style. tabs/spaces m_blah mBlah etc
 ALL - make side chain/multi-channel definitions consistent/easier
 ALL - save fxp/fxb with chunks
 
 Examples:
 
 - IPlugPolySynth
-- IPlugSideChain
+- IPlugDrumSynth
 - IPlugMultiChannel
 - IPlugOpenGL on win, fix on mac
 - IPlugChunks still needs some work
@@ -24,23 +24,22 @@ Examples:
 
 AU wrapper:
 
-- mono output busess, i.e. for a drumsynth
-- preset changing in logic?
+- multiple output busess, i.e. for a drumsynth
+- sidechain input - seems to kind of work in logic, works in live, not in studio one
+- preset changing from inside the plugin doesn't consistently update logic's GUI
 - auval "preset name not retained" message
 
 VST3 wrapper:
 
 - midi output
-- pitch bend parameters
-- sidechain
-- presets list?
+- pitch bend & other common MIDI CC parameters
+- check presets list (doesn't work in S1)
 
 RTAS wrapper:
 
 - MAC - apple+Q sometimes not passed to PT
 - Very occasionally the overlayed cocoa window gets stuck
 - WIN - sporadic redraw problem
-- check default PT behaviour for IControls
 - chunks
 - some key press passthrough lost?
 - audiosuite
@@ -50,6 +49,7 @@ RTAS wrapper:
 
 Standalone wrapper:
 
+- edit to use IPlugBase buffer attaching code
 - some keys not received by windows standalone...arrow keys for example DLGC_WANTARROWS
 - how to change audio devices without hanging the main loop?
 - change ASIO device fails
@@ -70,5 +70,6 @@ Standalone wrapper:
 
 IOS wrapper:
 
+- edit to use IPlugBase buffer attaching code
 - make it work better on device
 - see if it works with IOS 5 sdk / float remoteIO
