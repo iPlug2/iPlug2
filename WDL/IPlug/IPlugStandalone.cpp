@@ -36,7 +36,6 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
             kAPISA)
 
 , mDoesMidi(plugDoesMidi)
-//, mHostSpecificInitDone(false)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
@@ -44,7 +43,7 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
   SetOutputChannelConnections(0, NOutChannels(), true);  
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("standalone", vendorVersion); // TODO:vendor version correct?
+  SetHost("standalone", vendorVersion);
   
 #ifdef OS_IOS
   mIOSLink = instanceInfo.mIOSLink;

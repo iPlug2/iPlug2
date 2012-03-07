@@ -914,8 +914,12 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       case kAudioUnitProperty_AUHostIdentifier: {          // 46,
         AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
         CStrLocal hostStr(pHostID->hostName);
-        int hostVer = (pHostID->hostVersion.majorRev << 16) + (pHostID->hostVersion.minorAndBugRev << 8);
+        int hostVer = (pHostID->hostVersion.majorRev << 16) 
+                    + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
+                    + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
+
         SetHost(hostStr.mCStr, hostVer);
+        OnHostIdentified();
         return noErr;
       }
       NO_OP(kAudioUnitProperty_MIDIOutputCallbackInfo);   // 47,
@@ -1663,6 +1667,7 @@ EHost IPlugAU::GetHost()
       CFStringRef id = CFBundleGetIdentifier(mainBundle);
       if (id) {
         CStrLocal str(id);
+        //CFStringRef versStr = (CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
         SetHost(str.mCStr, 0);
         host = IPlugBase::GetHost();
       }
@@ -1673,6 +1678,12 @@ EHost IPlugAU::GetHost()
     }
   }
   return host;
+}
+
+void IPlugAU::HostSpecificInit()
+{
+  GetHost();
+  OnHostIdentified(); // might get called again
 }
 
 void IPlugAU::ResizeGraphics(int w, int h)

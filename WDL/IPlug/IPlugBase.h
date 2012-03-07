@@ -86,6 +86,9 @@ public:
   // implement this to trigger your custom about box, when someone clicks about in the menu of a standalone
   virtual bool HostRequestingAboutBox();
 
+  // implement this to do something specific when IPlug is aware of the host
+  // may get called multiple times
+  virtual void OnHostIdentified() { return; };
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
@@ -134,8 +137,6 @@ public:
 	double GetSamplesPerBeat();
 	virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
 	virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
-  
-  // Generally you don't want to call these from your plugin constructor, but from HostSpecificInit()
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
 	int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
