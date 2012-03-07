@@ -68,7 +68,7 @@ public:
   void ResizeGraphics(int w, int h);
   void SetSampleRate(double sampleRate);
   void SetBlockSize(int blockSize); 
- 
+
 #ifdef OS_IOS
   void LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames);
 #else

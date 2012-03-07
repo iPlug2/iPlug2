@@ -306,6 +306,8 @@ void IPlugVST::HostSpecificInit()
     // looks at mAEffect IO count before identifying itself.  
     mAEffect.numInputs = mInputSpkrArr.numChannels = NInChannels();
     mAEffect.numOutputs = mOutputSpkrArr.numChannels = NOutChannels();
+    
+    OnHostIdentified();
   }
 }
 

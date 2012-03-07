@@ -169,7 +169,7 @@ EHost IPlugRTAS::GetHost()
 {
   EHost host = IPlugBase::GetHost();
   if (host == kHostUninit) {
-    SetHost("Pro Tools", mProcess->GetHostVersion());
+    SetHost("ProTools", mProcess->GetHostVersion());
     host = IPlugBase::GetHost();
   }
   return host;
@@ -183,11 +183,9 @@ void IPlugRTAS::ResizeGraphics(int w, int h)
 void IPlugRTAS::Created(class IPlugProcess* pProcess)
 {	
   mProcess = pProcess;
-  
-	HostSpecificInit();
 	PruneUninitializedPresets();
-	
 	SetBlockSize(mProcess->GetBlockSize());
+  OnHostIdentified();
 }
 
 // TODO: SendMidiMsg()
