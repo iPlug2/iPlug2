@@ -1,8 +1,5 @@
 #include "resource.h"
 
-TEXT_WHITE_ID     PNG TEXT_WHITE_FN
-TEXT_BLACK_ID     PNG TEXT_BLACK_FN
-
 #ifdef SA_API
 //Standalone stuff
 #include <windows.h>
