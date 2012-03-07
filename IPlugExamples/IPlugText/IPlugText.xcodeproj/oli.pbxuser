@@ -84,7 +84,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Target_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					866,
+					1062,
 					20,
 					48,
 					43,
@@ -175,13 +175,14 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 351255351;
-			PBXWorkspaceStateSaveDate = 351255351;
+			PBXPerProjectTemplateStateSaveDate = 352852663;
+			PBXWorkspaceStateSaveDate = 352852663;
 		};
 		perUserProjectItems = {
-			4F496CD614EFBCA0003D6ADA /* PBXTextBookmark */ = 4F496CD614EFBCA0003D6ADA /* PBXTextBookmark */;
-			4F496CD714EFBCA0003D6ADA /* PBXTextBookmark */ = 4F496CD714EFBCA0003D6ADA /* PBXTextBookmark */;
-			4F496CDC14EFBCA0003D6ADA /* PBXTextBookmark */ = 4F496CDC14EFBCA0003D6ADA /* PBXTextBookmark */;
+			4F65E4CB1507DA3D00B9CF08 /* PBXTextBookmark */ = 4F65E4CB1507DA3D00B9CF08 /* PBXTextBookmark */;
+			4FE045F715081AD200B7347E /* PBXTextBookmark */ = 4FE045F715081AD200B7347E /* PBXTextBookmark */;
+			4FE045F815081AD200B7347E /* PBXBookmark */ = 4FE045F815081AD200B7347E /* PBXBookmark */;
+			4FE045F915081AD200B7347E /* PBXTextBookmark */ = 4FE045F915081AD200B7347E /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -339,36 +340,6 @@
 			sepNavSelRange = "{393, 10}";
 			sepNavVisRange = "{0, 452}";
 		};
-	};
-	4F496CD614EFBCA0003D6ADA /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED20D0CF13D001C8B8A /* IPlugText.h */;
-		name = "IPlugText.h: 20";
-		rLen = 0;
-		rLoc = 531;
-		rType = 0;
-		vrLen = 1275;
-		vrLoc = 0;
-	};
-	4F496CD714EFBCA0003D6ADA /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
-		name = "resource.h: 34";
-		rLen = 0;
-		rLoc = 1146;
-		rType = 0;
-		vrLen = 2102;
-		vrLoc = 244;
-	};
-	4F496CDC14EFBCA0003D6ADA /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
-		name = "resource.h: 34";
-		rLen = 0;
-		rLoc = 1146;
-		rType = 0;
-		vrLen = 1914;
-		vrLoc = 0;
 	};
 	4F4ACFF7140996A10068A6D4 /* pluginview.cpp */ = {
 		uiCtxt = {
@@ -674,6 +645,16 @@
 		name = "arch -i386 -ppc";
 		path = /usr/bin/auvaltool;
 		sourceTree = "<absolute>";
+	};
+	4F65E4CB1507DA3D00B9CF08 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED20D0CF13D001C8B8A /* IPlugText.h */;
+		name = "IPlugText.h: 5";
+		rLen = 0;
+		rLoc = 84;
+		rType = 0;
+		vrLen = 369;
+		vrLoc = 0;
 	};
 	4F78D89613B639100032E0F3 /* English */ = {
 		uiCtxt = {
@@ -1007,13 +988,6 @@
 	};
 	4F78DAF113B643600032E0F3 /* All */ = {
 		activeExec = 0;
-	};
-	4F79A34D146304CD00744AED /* IPlugProcessAS.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1280, 728}}";
-			sepNavSelRange = "{506, 0}";
-			sepNavVisRange = "{0, 1359}";
-		};
 	};
 	4F7F5C4213E95EC8002918FD /* RTAS_32_intel */ = {
 		activeExec = 0;
@@ -1560,6 +1534,30 @@
 			sepNavVisRange = "{0, 599}";
 		};
 	};
+	4FE045F715081AD200B7347E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED00D0CF139001C8B8A /* IPlugText.cpp */;
+		name = "IPlugText.cpp: 37";
+		rLen = 237;
+		rLoc = 737;
+		rType = 0;
+		vrLen = 1218;
+		vrLoc = 0;
+	};
+	4FE045F815081AD200B7347E /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+	};
+	4FE045F915081AD200B7347E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 88";
+		rLen = 9;
+		rLoc = 3170;
+		rType = 0;
+		vrLen = 1278;
+		vrLoc = 2871;
+	};
 	4FE33FF310B4519D00B5FB70 /* Source Control */ = {
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
@@ -1651,6 +1649,7 @@
 	};
 	4FF2407413FAB21200E40631 /* AudioMulch.app */ = {
 		isa = PBXFileReference;
+		lastKnownFileType = wrapper.application;
 		name = AudioMulch.app;
 		path = /Applications/AudioMulch/AudioMulch.app;
 		sourceTree = "<absolute>";
@@ -1835,24 +1834,24 @@
 	};
 	52FBBED00D0CF139001C8B8A /* IPlugText.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1200, 1183}}";
-			sepNavSelRange = "{137, 0}";
-			sepNavVisRange = "{0, 1335}";
+			sepNavIntBoundsRect = "{{0, 0}, {1240, 1508}}";
+			sepNavSelRange = "{737, 237}";
+			sepNavVisRange = "{0, 1218}";
 			sepNavWindowFrame = "{{15, 109}, {1089, 914}}";
 		};
 	};
 	52FBBED20D0CF13D001C8B8A /* IPlugText.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1200, 1040}}";
-			sepNavSelRange = "{531, 0}";
-			sepNavVisRange = "{0, 1275}";
+			sepNavIntBoundsRect = "{{0, 0}, {1240, 561}}";
+			sepNavSelRange = "{84, 0}";
+			sepNavVisRange = "{0, 369}";
 		};
 	};
 	52FBBED30D0CF143001C8B8A /* resource.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1517, 1534}}";
-			sepNavSelRange = "{1146, 0}";
-			sepNavVisRange = "{0, 1914}";
+			sepNavIntBoundsRect = "{{0, 0}, {1517, 1495}}";
+			sepNavSelRange = "{3170, 9}";
+			sepNavVisRange = "{2871, 1278}";
 			sepNavWindowFrame = "{{15, 4}, {1416, 1024}}";
 		};
 	};

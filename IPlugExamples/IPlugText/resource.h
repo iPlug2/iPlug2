@@ -84,12 +84,10 @@
 #define PLUG_DOES_STATE_CHUNKS 0
 
 // Unique IDs for each image resource.
-#define KNOB_ID       101
 #define TEXT_WHITE_ID  102
 #define TEXT_BLACK_ID  103
 
 // Image resource locations for this plug.
-#define KNOB_FN       "resources/img/knob.png"
 #define TEXT_WHITE_FN   "resources/img/font-white.png"
 #define TEXT_BLACK_FN   "resources/img/font-black.png"
 
