@@ -36,10 +36,12 @@ enum EHost {
   kHostBias,
   kHostSAWStudio,
   kHostLogic,
+  kHostGarageBand,
   kHostDigitalPerformer,
   kHostStandalone,
   kHostAudioMulch,
-  kHostStudioOne
+  kHostStudioOne,
+  kHostVST3TestHost
   
   // These hosts don't report the host name:
   // EnergyXT2
@@ -47,6 +49,7 @@ enum EHost {
 };
 
 EHost LookUpHost(const char* host);
+void GetHostNameStr(EHost host, char* pHostName);
 
 #endif
         
