@@ -60,11 +60,7 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 #if RTAS_COCOA_GUI
     mGraphics->AttachSubWindow(winPtr);
 #else
-  #if MAC_VERSION
-    mGraphics->OpenWindow(winPtr, 0, leftOffset, topOffset);
-  #else
-    mGraphics->OpenWindow(winPtr);
-  #endif
+    mGraphics->OpenWindow(winPtr, leftOffset, topOffset);
     mGraphics->SetAllControlsDirty();
 #endif
     mPlug->OnGUIOpen();
@@ -176,7 +172,7 @@ bool IPlugCustomUI::Init()
   return true;
 }
 
-bool IPlugCustomUI::Open(void *winPtr)
+bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 {
   mPluginWindow = (HWND)winPtr;
   
