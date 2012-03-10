@@ -10,13 +10,17 @@
 #include "../IControl.h"
 
 // IPlug RTAS can use either carbon or an overlayed cocoa window . Each has its advantages and disadvantages!
-// Cocoa steals some keypresses, e.g. apple-Q and may rarely result in stuck windows when rapidly opening closing the gui
-// Carbon doesn't support text entry because PT uses a non-composited carbon window. 
-// Carbon GUI resizing sometimes results in controls not being redrawn. 
-// Currently it has a problem with the initial mouse position being offset until the first click
+// Cocoa steals some keypresses from PT, e.g. apple-Q 
+// Cocoa may rarely result in the overlayed window getting stuck when rapidly opening closing the gui
+
+// Carbon doesn't support text entry because PT uses a archaic non-composited carbon window 
+// and I haven't been able to figure out how to draw the text entry box in non-composited windows without flicker
+// Carbon GUI resizing sometimes results in controls not being redrawn
+// Carbon has a problem with the initial mouse position being offset until the first click, which is remedied by a horrible hack
+// Carbon does not get key events at all
 
 #ifndef RTAS_COCOA_GUI
-#define RTAS_COCOA_GUI 1
+#define RTAS_COCOA_GUI 0
 #endif
 
 IPlugCustomUI* CreateIPlugCustomUI(void *processPtr)

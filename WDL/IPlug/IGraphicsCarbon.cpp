@@ -506,12 +506,14 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
   UInt32 eventClass = GetEventClass(pEvent);
   UInt32 eventKind = GetEventKind(pEvent);
   
-  switch (eventClass) {
+  switch (eventClass) 
+  {
     case kEventClassKeyboard:
     { 
-      switch (eventKind) { 
-        case kEventRawKeyDown:{
-          
+      switch (eventKind) 
+      { 
+        case kEventRawKeyDown:
+        {
           if (_this->mTextEntryView)
             return eventNotHandledErr;
           
@@ -587,7 +589,6 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             pGraphicsMac->IsDirty(&r);
             pGraphicsMac->Draw(&r);
             
-            //CGContextFlush(_this->mCGC);
             QDEndCGContext(port, &(_this->mCGC));           
           }      
           return noErr;
@@ -597,6 +598,11 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
     }
     case kEventClassMouse: 
     {
+      // This is a horrible hack - without it the mouse position does not get offset correctly, until a mousedown
+      #ifdef RTAS_API
+      CallNextEventHandler(pHandlerCall, pEvent);
+      #endif
+      
       HIPoint hp;
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
       HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
@@ -689,7 +695,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
     {
       WindowRef window;
       
-      if (GetEventParameter (pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
+      if (GetEventParameter(pEvent, kEventParamDirectObject, typeWindowRef, NULL, sizeof (WindowRef), NULL, &window) != noErr)
         break;
       
       switch (eventKind)
