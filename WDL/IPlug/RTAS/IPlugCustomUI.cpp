@@ -60,7 +60,7 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 #if RTAS_COCOA_GUI
     mGraphics->AttachSubWindow(winPtr);
 #else
-    mGraphics->OpenWindow(winPtr, leftOffset, topOffset);
+    mGraphics->OpenWindow(winPtr, 0, leftOffset, topOffset);
     mGraphics->SetAllControlsDirty();
 #endif
     mPlug->OnGUIOpen();
