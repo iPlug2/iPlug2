@@ -23,6 +23,10 @@ IPlugMouseTest::IPlugMouseTest(IPlugInstanceInfo instanceInfo)
 {
   TRACE;
 
+    //arguments are: name, defaultVal, minVal, maxVal, step, label
+  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->SetShape(2.);
+
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(&COLOR_RED);
 
