@@ -127,9 +127,9 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 }
 
 #ifndef IPLUG_NO_CARBON_SUPPORT
-void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl)
+void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl, short leftOffset, short topOffset)
 {
-  return OpenCarbonWindow(pWindow, pControl);
+  return OpenCarbonWindow(pWindow, pControl, leftOffset, topOffset);
 }
 #endif
 
@@ -147,13 +147,13 @@ void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
 }
 
 #ifndef IPLUG_NO_CARBON_SUPPORT
-void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
+void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl, short leftOffset, short topOffset)
 {
   TRACE;
   CloseWindow();
   WindowRef pWnd = (WindowRef) pParentWnd;
   ControlRef pControl = (ControlRef) pParentControl;
-  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);  
+  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl, leftOffset, topOffset);  
   return mGraphicsCarbon->GetView();
 }
 #endif
@@ -322,7 +322,7 @@ int IGraphicsMac::ShowMessageBox(const char* pText, const char* pCaption, int ty
 	CFRelease(alertMessage);
 	CFRelease(alertHeader);
 	
-	switch (response) 
+	switch (response) // TODO: check the return type, what about IDYES
 	{
 		case kCFUserNotificationDefaultResponse:
 			result = IDOK;

@@ -20,7 +20,7 @@ public:
   IPlugCustomUI(void *processPtr);
   ~IPlugCustomUI();
 
-  bool Open(void *hwin);
+  bool Open(void *hwin, short leftOffset, short topOffset);
   bool Close(void);
   void GetRect(short *left, short *top, short *right, short *bottom);
   ProcessInterface *GetProcessPtr() { return (ProcessInterface*)mProcess; }
@@ -47,7 +47,7 @@ public:
   IPlugCustomUI(void *processPtr);
   ~IPlugCustomUI();
 
-  bool Open(void *hwin);
+  bool Open(void *hwin, short leftOffset, short topOffset);
   bool Close(void);
   bool Init();
   long UpdateGraphicControl(long index, long value);

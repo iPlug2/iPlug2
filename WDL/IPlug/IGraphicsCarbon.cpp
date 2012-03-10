@@ -34,7 +34,11 @@ void ResizeWindow(WindowRef pWindow, int w, int h)
   SetWindowBounds(pWindow, kWindowContentRgn, &gr); 
 }
 
-IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl)
+IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, 
+                                 WindowRef pWindow, 
+                                 ControlRef pParentControl, 
+                                 short leftOffset, 
+                                 short topOffset)
 : mGraphicsMac(pGraphicsMac)
 , mWindow(pWindow)
 , mView(0)
@@ -49,6 +53,8 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, 
 , mPrevX(0)
 , mPrevY(0)
 , mRgn(NewRgn())
+, mLeftOffset(leftOffset)
+, mTopOffset(topOffset)
 { 
   TRACE;
   
@@ -598,16 +604,24 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
     }
     case kEventClassMouse: 
     {
-      // This is a horrible hack - without it the mouse position does not get offset correctly, until a mousedown
-      #ifdef RTAS_API
-      CallNextEventHandler(pHandlerCall, pEvent);
-      #endif
-      
       HIPoint hp;
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
+      
+      #ifdef RTAS_API
+      // Header offset
+      hp.x -= _this->GetLeftOffset();
+      hp.y -= _this->GetTopOffset();
+      // Title bar offset
+      Rect bounds;
+      GetWindowBounds(_this->mWindow, kWindowTitleBarRgn, &bounds);   
+      hp.y -= bounds.bottom - bounds.top;
+      int x = (int) hp.x;
+      int y = (int) hp.y;
+      #else
       HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
       int x = (int) hp.x - 2;
       int y = (int) hp.y - 3;
+      #endif
       
       UInt32 mods;
       GetEventParameter(pEvent, kEventParamKeyModifiers, typeUInt32, 0, sizeof(UInt32), 0, &mods);

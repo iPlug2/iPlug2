@@ -81,6 +81,8 @@ protected:
   GrafPtr           mMainPort;
   EditorInterface   *mCustomUI;
   Rect              mPluginWinRect;
+  short             mLeftOffset;
+  short             mTopOffset;
   IPlugDigiView     *mView;
   IPlugRTAS         *mPlug;
   void              *mModuleHandle;

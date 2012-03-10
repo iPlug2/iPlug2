@@ -7,7 +7,7 @@ public:
   EditorInterface(void *processPtr) : mProcess(processPtr) {}
   virtual ~EditorInterface(void) {}
 
-  virtual bool Open(void *winPtr) = 0;
+  virtual bool Open(void *winPtr, short leftOffset, short topOffset) = 0;
   virtual bool Close(void) = 0;
   //virtual long UpdateGraphicControl(long index, long value) = 0;
   //virtual void Idle() {};
