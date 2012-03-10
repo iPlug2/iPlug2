@@ -1,0 +1,81 @@
+#include "IPlugMouseTest.h"
+#include "IPlug_include_in_plug_src.h"
+#include "IControl.h"
+#include "resource.h"
+
+const int kNumPrograms = 1;
+
+enum EParams
+{
+  kGain = 0,
+  kNumParams
+};
+
+enum ELayout
+{
+  kWidth = GUI_WIDTH,
+  kHeight = GUI_HEIGHT,
+  kKnobFrames = 60
+};
+
+IPlugMouseTest::IPlugMouseTest(IPlugInstanceInfo instanceInfo)
+:	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
+{
+  TRACE;
+
+  IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight, 30);
+  pGraphics->AttachPanelBackground(&COLOR_RED);
+
+  pGraphics->AttachControl(new IXYPad(this, IRECT(0, 0, kWidth, kHeight), 10));
+
+  pGraphics->HandleMouseOver(true);
+  AttachGraphics(pGraphics);
+
+  //MakePreset("preset 1", ... );
+  MakeDefaultPreset((char *) "-", kNumPrograms);
+}
+
+IPlugMouseTest::~IPlugMouseTest() {}
+
+void IPlugMouseTest::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
+{
+  // Mutex is already locked for us.
+
+  double* in1 = inputs[0];
+  double* in2 = inputs[1];
+  double* out1 = outputs[0];
+  double* out2 = outputs[1];
+
+  //double samplesPerBeat = GetSamplesPerBeat();
+  //double samplePos = (double) GetSamplePos();
+  //double tempo = GetTempo();
+
+  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
+  {
+    *out1 = *in1 * mGain;
+    *out2 = *in2 * mGain;
+  }
+}
+
+void IPlugMouseTest::Reset()
+{
+  TRACE;
+  IMutexLock lock(this);
+
+  //double sr = GetSampleRate();
+}
+
+void IPlugMouseTest::OnParamChange(int paramIdx)
+{
+  IMutexLock lock(this);
+
+//  switch (paramIdx)
+//  {
+//    case kGain:
+//      mGain = GetParam(kGain)->Value() / 100.;;
+//      break;
+//
+//    default:
+//      break;
+//  }
+}

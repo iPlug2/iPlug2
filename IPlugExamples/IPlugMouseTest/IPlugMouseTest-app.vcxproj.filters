@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\App Wrapper">
+      <UniqueIdentifier>{6a6c24bd-7110-4436-97af-07990da17abf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rd Party">
+      <UniqueIdentifier>{53c21200-60b2-4254-885e-b9130e4a751c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rd Party\RtAudioMidi">
+      <UniqueIdentifier>{ef87c677-1479-44bc-aef8-7ba960ef233d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rd Party\RtAudioMidi\ASIO_SDK">
+      <UniqueIdentifier>{b91b9db4-5584-4959-a395-7394ba3cf5a3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\rtaudiomidi\RtError.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\rtaudiomidi\RtMidi.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ASIO_SDK\asiosys.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ASIO_SDK\ginclude.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ASIO_SDK\iasiodrv.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ASIO_SDK\asio.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ASIO_SDK\asiodrivers.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ASIO_SDK\asiolist.h">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="app_wrapper\app_main.h">
+      <Filter>Source Files\App Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="app_wrapper\app_resource.h">
+      <Filter>Source Files\App Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IPlugMouseTest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">
+      <Filter>Source Files\3rd Party\RtAudioMidi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\rtaudiomidi\RtMidi.cpp">
+      <Filter>Source Files\3rd Party\RtAudioMidi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ASIO_SDK\asio.cpp">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ASIO_SDK\asiodrivers.cpp">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ASIO_SDK\asiolist.cpp">
+      <Filter>Source Files\3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="app_wrapper\app_dialog.cpp">
+      <Filter>Source Files\App Wrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="app_wrapper\app_main.cpp">
+      <Filter>Source Files\App Wrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="IPlugMouseTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IPlugMouseTest.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\IPlugMouseTest.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
