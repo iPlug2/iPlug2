@@ -20,9 +20,9 @@ const int kNumPrograms = 8;
 enum EParams
 {
   kAttack = 0,
-	kDecay,
-	kSustain,
-	kRelease,
+  kDecay,
+  kSustain,
+  kRelease,
   kNumParams
 };
 
@@ -51,9 +51,9 @@ IPlugPolySynth::IPlugPolySynth(IPlugInstanceInfo instanceInfo)
     
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kAttack)->InitDouble("Amp Attack", ATTACK_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
-	GetParam(kDecay)->InitDouble("Amp Decay", DECAY_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
-	GetParam(kSustain)->InitDouble("Amp Sustain", 1., 0., 1., 0.001);
-	GetParam(kRelease)->InitDouble("Amp Release", RELEASE_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
+  GetParam(kDecay)->InitDouble("Amp Decay", DECAY_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
+  GetParam(kSustain)->InitDouble("Amp Sustain", 1., 0., 1., 0.001);
+  GetParam(kRelease)->InitDouble("Amp Release", RELEASE_DEFAULT, TIME_MIN, TIME_MAX, 0.001);
   
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachBackground(BG_ID, BG_FN);
@@ -177,7 +177,7 @@ void IPlugPolySynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
   }
   
   if (mActiveVoices > 0 || !mMidiQueue.Empty()) // block not empty
-	{    
+  {    
     double* out1 = outputs[0];
     double* out2 = outputs[1];
     
@@ -231,10 +231,10 @@ void IPlugPolySynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
     }
   
     mMidiQueue.Flush(nFrames);
-	}
-//	else // empty block
-//	{
-//	}
+  }
+//  else // empty block
+//  {
+//  }
 }
 
 void IPlugPolySynth::Reset()
@@ -253,18 +253,18 @@ void IPlugPolySynth::OnParamChange(int paramIdx)
   
   switch (paramIdx)
   {
-		case kAttack:
+    case kAttack:
       mEnv->setStageTime(kStageAttack, GetParam(kAttack)->Value());
-			break;
-		case kDecay:
+      break;
+    case kDecay:
       mEnv->setStageTime(kStageDecay, GetParam(kDecay)->Value());
-			break;
-		case kSustain:
-			mEnv->setSustainLevel( GetParam(kSustain)->Value() );
-			break;
-		case kRelease:
+      break;
+    case kSustain:
+      mEnv->setSustainLevel( GetParam(kSustain)->Value() );
+      break;
+    case kRelease:
       mEnv->setStageTime(kStageRelease, GetParam(kRelease)->Value());
-			break;
+      break;
     default:
       break;
   }
