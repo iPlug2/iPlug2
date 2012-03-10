@@ -10,12 +10,14 @@ class IGraphicsCarbon
 {
 public:
   
-  IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl);
+  IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl, short leftOffset, short topOffset);
   ~IGraphicsCarbon();
   
   ControlRef GetView() { return mView; }
   CGContextRef GetCGContext() { return mCGC; }
   bool GetIsComposited() {return mIsComposited;}
+  short GetLeftOffset() { return mLeftOffset; }
+  short GetTopOffset() { return mTopOffset; }
 
   bool Resize(int w, int h);
 
@@ -23,7 +25,7 @@ public:
   void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
 
   void EndUserInput(bool commit);
-  
+
 private:
   
   IGraphicsMac* mGraphicsMac;
@@ -42,7 +44,8 @@ private:
   IParam* mEdParam;
   int mPrevX, mPrevY;
   IRECT mTextEntryRect;
-  
+  short mLeftOffset, mTopOffset; // only for RTAS
+
 public:
   
   static pascal OSStatus MainEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);

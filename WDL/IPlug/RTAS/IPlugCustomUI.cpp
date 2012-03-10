@@ -16,7 +16,6 @@
 // Carbon doesn't support text entry because PT uses a archaic non-composited carbon window 
 // and I haven't been able to figure out how to draw the text entry box in non-composited windows without flicker
 // Carbon GUI resizing sometimes results in controls not being redrawn
-// Carbon has a problem with the initial mouse position being offset until the first click, which is remedied by a horrible hack
 // Carbon does not get key events at all
 
 #ifndef RTAS_COCOA_GUI
@@ -52,7 +51,7 @@ void IPlugCustomUI::GetRect(short *left, short *top, short *right, short *bottom
   *bottom = mGraphics->Height();
 }
 
-bool IPlugCustomUI::Open(void *winPtr)
+bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 {
   mLocalWindow = (WindowRef) winPtr;
 
@@ -61,7 +60,11 @@ bool IPlugCustomUI::Open(void *winPtr)
 #if RTAS_COCOA_GUI
     mGraphics->AttachSubWindow(winPtr);
 #else
-    mGraphics->OpenWindow(winPtr, 0);
+  #if MAC_VERSION
+    mGraphics->OpenWindow(winPtr, 0, leftOffset, topOffset);
+  #else
+    mGraphics->OpenWindow(winPtr);
+  #endif
     mGraphics->SetAllControlsDirty();
 #endif
     mPlug->OnGUIOpen();

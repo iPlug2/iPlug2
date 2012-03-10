@@ -55,12 +55,12 @@ public:
 
   void* OpenWindow(void* pWindow);
 #ifndef IPLUG_NO_CARBON_SUPPORT
-  void* OpenWindow(void* pWindow, void* pControl);
+  void* OpenWindow(void* pWindow, void* pControl, short leftOffset = 0, short topOffset = 0);
 #endif
   
 	void* OpenCocoaWindow(void* pParentView);  
 #ifndef IPLUG_NO_CARBON_SUPPORT
-  void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
+  void* OpenCarbonWindow(void* pParentWnd, void* pParentControl, short leftOffset, short topOffset);
 #endif
   
   void AttachSubWindow(void* hostWindowRef);

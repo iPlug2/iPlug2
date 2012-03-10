@@ -25,6 +25,8 @@ IPlugProcess::IPlugProcess(OSType type)
 , mPlug(NULL)
 , mDirectMidiInterface(NULL)
 , mPluginID(type)
+, mLeftOffset(0)
+, mTopOffset(0)
 {
   TRACE;
 
@@ -199,18 +201,29 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
   if(mMainPort) {
     if(mCustomUI) {
       void *windowPtr = NULL;
-#if WINDOWS_VERSION
+      #if WINDOWS_VERSION
       windowPtr = (void*)ASI_GethWnd((WindowPtr)mMainPort);
-#elif MAC_VERSION
+      #elif MAC_VERSION
       windowPtr = (void*)GetWindowFromPort(mMainPort); // WindowRef for Carbon, not GrafPtr (quickdraw)
-#endif
-      mCustomUI->Open(windowPtr);
-#if WINDOWS_VERSION
+      
+      // https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
+      Rect aRect;
+      GetPortBounds(aPort, &aRect);
+      if ((aRect.left <= 0 && aRect.top <= 0) &&    // Sanity check
+          (mLeftOffset == 0 && mTopOffset == 0))    // Skip if offset was already set
+      {
+        mLeftOffset = -aRect.left;
+        mTopOffset = -aRect.top;
+      }
+      #endif
+      mCustomUI->Open(windowPtr, mLeftOffset, mTopOffset);
+      #if WINDOWS_VERSION
       mCustomUI->Draw(mPluginWinRect.left, mPluginWinRect.top, mPluginWinRect.right, mPluginWinRect.bottom);
-#endif
+      #endif
     }
   }
-  else {
+  else 
+  {
     if(mCustomUI)
       mCustomUI->Close();
     
