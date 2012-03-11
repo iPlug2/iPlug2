@@ -374,7 +374,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pText
   
 }
 
-IBitmap IGraphics::LoadIBitmap(int ID, const char* name, int nStates)
+IBitmap IGraphics::LoadIBitmap(int ID, const char* name, int nStates, bool framesAreHoriztonal)
 {
   LICE_IBitmap* lb = s_bitmapCache.Find(ID); 
   if (!lb)
@@ -386,7 +386,7 @@ IBitmap IGraphics::LoadIBitmap(int ID, const char* name, int nStates)
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     s_bitmapCache.Add(lb, ID);
   }
-  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates);
+  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
 }
 
 void IGraphics::RetainBitmap(IBitmap* pBitmap)
@@ -589,11 +589,21 @@ LICE_pixel* IGraphics::GetBits()
 
 bool IGraphics::DrawBitmap(IBitmap* pBitmap, IRECT* pR, int bmpState, const IChannelBlend* pBlend)
 {
-	int srcY = 0;
-	if (pBitmap->N > 1 && bmpState > 1) {
-		srcY = int(0.5 + (double) pBitmap->H * (double) (bmpState - 1) / (double) pBitmap->N);
+	int srcX = 0; 
+  int srcY = 0;
+  
+	if (pBitmap->N > 1 && bmpState > 1) 
+  {
+    if (pBitmap->mFramesAreHorizontal) 
+    {
+      srcX = int(0.5 + (double) pBitmap->W * (double) (bmpState - 1) / (double) pBitmap->N);
+    }
+    else 
+    {
+      srcY = int(0.5 + (double) pBitmap->H * (double) (bmpState - 1) / (double) pBitmap->N);
+    }
 	}
-	return DrawBitmap(pBitmap, pR, 0, srcY, pBlend);    
+	return DrawBitmap(pBitmap, pR, srcX, srcY, pBlend);    
 }
 
 bool IGraphics::DrawRect(const IColor* pColor, IRECT* pR)
