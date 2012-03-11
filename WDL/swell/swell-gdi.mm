@@ -173,17 +173,20 @@ void DeleteObject(HGDIOBJ pen)
 
   if (HGDIOBJ_VALID(p))
   {
-    if (p->type == TYPE_PEN || p->type == TYPE_BRUSH || p->type == TYPE_FONT || p->type == TYPE_BITMAP)
+    if (--p->additional_refcnt < 0)
     {
-      if (p->type == TYPE_PEN || p->type == TYPE_BRUSH)
-        if (p->wid<0) return;
-      if (p->color) CGColorRelease(p->color);
-      if (p->fontdict) [p->fontdict release];
-      if (p->font_style) ATSUDisposeStyle(p->font_style);
-      if (p->wid && p->bitmapptr) [p->bitmapptr release]; 
-      GDP_OBJECT_DELETE(p);
+      if (p->type == TYPE_PEN || p->type == TYPE_BRUSH || p->type == TYPE_FONT || p->type == TYPE_BITMAP)
+      {
+        if (p->type == TYPE_PEN || p->type == TYPE_BRUSH)
+          if (p->wid<0) return;
+        if (p->color) CGColorRelease(p->color);
+        if (p->fontdict) [p->fontdict release];
+        if (p->font_style) ATSUDisposeStyle(p->font_style);
+        if (p->wid && p->bitmapptr) [p->bitmapptr release]; 
+        GDP_OBJECT_DELETE(p);
+      }
+      // JF> don't free unknown objects, this shouldn't ever happen anyway: else free(p);
     }
-    else free(p);
   }
 }
 
@@ -1384,6 +1387,16 @@ void SWELL_FillDialogBackground(HDC hdc, RECT *r, int level)
   }
 }
 
+HGDIOBJ SWELL_CloneGDIObject(HGDIOBJ a)
+{
+  if (HGDIOBJ_VALID(a))
+  {
+    a->additional_refcnt++;
+    return a;
+  }
+  return NULL;
+}
+
 
 HBITMAP CreateBitmap(int width, int height, int numplanes, int bitsperpixel, unsigned char* bits)
 {
@@ -1417,6 +1430,75 @@ HBITMAP CreateBitmap(int width, int height, int numplanes, int bitsperpixel, uns
   obj->wid = 1; // need free
   obj->bitmapptr = img;
   return obj;
+}
+
+
+HIMAGELIST ImageList_CreateEx()
+{
+  return (HIMAGELIST)new WDL_PtrList<HGDIOBJ__>;
+}
+
+BOOL ImageList_Remove(HIMAGELIST list, int idx)
+{
+  WDL_PtrList<HGDIOBJ__>* imglist=(WDL_PtrList<HGDIOBJ__>*)list;
+  if (imglist && idx < imglist->GetSize())
+  {
+    if (idx < 0) 
+    {
+      int x,n=imglist->GetSize();
+      for (x=0;x<n;x++)
+      {
+        HGDIOBJ__ *a = imglist->Get(x);
+        if (a) DeleteObject(a);
+      }
+      imglist->Empty();
+    }
+    else 
+    {
+      HGDIOBJ__ *a = imglist->Get(idx);
+      imglist->Set(idx, NULL); 
+      if (a) DeleteObject(a);
+    }
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+void ImageList_Destroy(HIMAGELIST list)
+{
+  if (!list) return;
+  ImageList_Remove(list, -1);
+  delete (WDL_PtrList<HGDIOBJ__>*)list;
+}
+
+int ImageList_ReplaceIcon(HIMAGELIST list, int offset, HICON image)
+{
+  if (!image || !list) return -1;
+  WDL_PtrList<HGDIOBJ__> *l=(WDL_PtrList<HGDIOBJ__> *)list;
+
+  HGDIOBJ__ *imgsrc = (HGDIOBJ__*)image;
+  if (!HGDIOBJ_VALID(imgsrc,TYPE_BITMAP)) return -1;
+
+  HGDIOBJ__* icon=GDP_OBJECT_NEW();
+  icon->type=TYPE_BITMAP;
+  icon->wid=1;
+  icon->bitmapptr = imgsrc->bitmapptr; // no need to duplicate it, can just retain a copy
+  [icon->bitmapptr retain];
+  image = (HICON) icon;
+
+  if (offset<0||offset>=l->GetSize()) 
+  {
+    l->Add(image); 
+    offset=l->GetSize()-1;
+  }
+  else
+  {
+    HICON old=l->Get(offset); 
+    l->Set(offset,image);
+    if (old) DeleteObject(old);
+  }
+  return offset;
 }
 
 

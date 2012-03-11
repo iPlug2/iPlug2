@@ -129,14 +129,17 @@ void DeleteObject(HGDIOBJ pen)
   if (HGDIOBJ_VALID(pen))
   {
     HGDIOBJ__ *p=(HGDIOBJ__ *)pen;
-    if (p->type == TYPE_PEN || p->type == TYPE_BRUSH || p->type == TYPE_FONT || p->type == TYPE_BITMAP)
+    if (--p->additional_refcnt < 0)
     {
-      if (p->type == TYPE_PEN || p->type == TYPE_BRUSH)
-        if (p->wid<0) return;
+      if (p->type == TYPE_PEN || p->type == TYPE_BRUSH || p->type == TYPE_FONT || p->type == TYPE_BITMAP)
+      {
+        if (p->type == TYPE_PEN || p->type == TYPE_BRUSH)
+          if (p->wid<0) return;
 
-      GDP_OBJECT_DELETE(p);
+        GDP_OBJECT_DELETE(p);
+      }
+      // JF> don't free unknown objects, this should never happen anyway: else free(p);
     }
-    else free(p);
   }
 }
 
@@ -569,6 +572,16 @@ void SWELL_FillDialogBackground(HDC hdc, RECT *r, int level)
 {
 }
 
+HGDIOBJ SWELL_CloneGDIObject(HGDIOBJ a)
+{
+  if (HGDIOBJ_VALID(a))
+  {
+    a->additional_refcnt++;
+    return a;
+  }
+  return NULL;
+}
+
 HDC BeginPaint(HWND hwnd, PAINTSTRUCT *ps)
 {
   if (!ps) return 0;
@@ -588,6 +601,76 @@ HICON CreateIconIndirect(ICONINFO* iconinfo)
 {
   return NULL;
 }
+HIMAGELIST ImageList_CreateEx()
+{
+  return (HIMAGELIST)new WDL_PtrList<HGDIOBJ__>;
+}
+BOOL ImageList_Remove(HIMAGELIST list, int idx)
+{
+  WDL_PtrList<HGDIOBJ__>* imglist=(WDL_PtrList<HGDIOBJ__>*)list;
+  if (imglist && idx < imglist->GetSize())
+  {
+    if (idx < 0) 
+    {
+      int x,n=imglist->GetSize();
+      for (x=0;x<n;x++)
+      {
+        HGDIOBJ__ *a = imglist->Get(x);
+        if (a) DeleteObject(a);
+      }
+      imglist->Empty();
+    }
+    else 
+    {
+      HGDIOBJ__ *a = imglist->Get(idx);
+      imglist->Set(idx, NULL); 
+      if (a) DeleteObject(a);
+    }
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+void ImageList_Destroy(HIMAGELIST list)
+{
+  if (!list) return;
+  WDL_PtrList<HGDIOBJ__> *p=(WDL_PtrList<HGDIOBJ__>*)list;
+  ImageList_Remove(list,-1);
+  delete p;
+}
+
+int ImageList_ReplaceIcon(HIMAGELIST list, int offset, HICON image)
+{
+  if (!image || !list) return -1;
+  WDL_PtrList<HGDIOBJ__> *l=(WDL_PtrList<HGDIOBJ__> *)list;
+
+  HGDIOBJ__ *imgsrc = (HGDIOBJ__*)image;
+  if (!HGDIOBJ_VALID(imgsrc,TYPE_BITMAP)) return -1;
+
+  HGDIOBJ__* icon=GDP_OBJECT_NEW();
+  icon->type=TYPE_BITMAP;
+  icon->wid=1;
+  // todo: copy underlying image
+
+  image = (HICON) icon;
+
+  if (offset<0||offset>=l->GetSize()) 
+  {
+    l->Add(image);
+    offset=l->GetSize()-1;
+  }
+  else
+  {
+    HICON old=l->Get(offset);
+    l->Set(offset,image);
+    if (old) DeleteObject(old);
+  }
+  return offset;
+}
+
+
+
 
 #endif
 #endif // !SWELL_LICE_GDI
