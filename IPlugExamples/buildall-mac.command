@@ -1,5 +1,9 @@
 #! /bin/sh
 
+#bash shell script to build all the plugin projects in this directory for OSX. 
+#you may need to modify this if you don't have the RTAS SDK, or only want to build vst2 etc
+#since the build will cancel if there are any errors
+
 BASEDIR=$(dirname $0)
 
 cd $BASEDIR
@@ -23,7 +27,19 @@ do
 # 		xcodebuild -project "$file/$file.xcodeproj" -target "VST3_32&64_intel" -configuration Release
 # 		echo "building $file/$file.xcodeproj RTAS"
 # 		xcodebuild -project "$file/$file.xcodeproj" -target "RTAS_32_intel" -configuration Release
+
+    if [ -s build_errors.log ]
+    then
+      echo "build failed due to following errors:"
+      echo ""
+      cat build_errors.log
+      exit 1
+    else
+     rm  build_errors.log
+    fi
+
 	fi
 done
+
 
 echo "done"
