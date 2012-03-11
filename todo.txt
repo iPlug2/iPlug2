@@ -37,11 +37,9 @@ VST3 wrapper:
 
 RTAS wrapper:
 
-- MAC - apple+Q sometimes not passed to PT
-- Very occasionally the overlayed cocoa window gets stuck
-- WIN - sporadic redraw problem
 - chunks
-- some key press passthrough lost?
+- keycatcher doesn't work (OSX)
+- text entries disabled (OSX)
 - audiosuite
 - presets list
 - close session frozen buffer (only happens when debugging?)
