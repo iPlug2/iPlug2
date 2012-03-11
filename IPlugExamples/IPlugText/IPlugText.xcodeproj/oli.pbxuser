@@ -175,14 +175,15 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 352852663;
-			PBXWorkspaceStateSaveDate = 352852663;
+			PBXPerProjectTemplateStateSaveDate = 353153202;
+			PBXWorkspaceStateSaveDate = 353153202;
 		};
 		perUserProjectItems = {
-			4F65E4CB1507DA3D00B9CF08 /* PBXTextBookmark */ = 4F65E4CB1507DA3D00B9CF08 /* PBXTextBookmark */;
-			4FE045F715081AD200B7347E /* PBXTextBookmark */ = 4FE045F715081AD200B7347E /* PBXTextBookmark */;
-			4FE045F815081AD200B7347E /* PBXBookmark */ = 4FE045F815081AD200B7347E /* PBXBookmark */;
-			4FE045F915081AD200B7347E /* PBXTextBookmark */ = 4FE045F915081AD200B7347E /* PBXTextBookmark */;
+			4F4FACE2150CB0BA00F90156 /* PBXTextBookmark */ = 4F4FACE2150CB0BA00F90156 /* PBXTextBookmark */;
+			4F65E4CB1507DA3D00B9CF08 = 4F65E4CB1507DA3D00B9CF08 /* PBXTextBookmark */;
+			4FE045F715081AD200B7347E = 4FE045F715081AD200B7347E /* PBXTextBookmark */;
+			4FE045F815081AD200B7347E = 4FE045F815081AD200B7347E /* PBXBookmark */;
+			4FE045F915081AD200B7347E = 4FE045F915081AD200B7347E /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -583,6 +584,16 @@
 		name = VST3PluginTestHost.app;
 		path = /Applications/VST3PluginTestHost.app;
 		sourceTree = "<absolute>";
+	};
+	4F4FACE2150CB0BA00F90156 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 87";
+		rLen = 0;
+		rLoc = 3150;
+		rType = 0;
+		vrLen = 1275;
+		vrLoc = 2871;
 	};
 	4F5572DB12C7F49C003A4AD1 /* AU_32_intel */ = {
 		activeExec = 0;
@@ -1849,9 +1860,9 @@
 	};
 	52FBBED30D0CF143001C8B8A /* resource.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1517, 1495}}";
-			sepNavSelRange = "{3170, 9}";
-			sepNavVisRange = "{2871, 1278}";
+			sepNavIntBoundsRect = "{{0, 0}, {1517, 1508}}";
+			sepNavSelRange = "{3150, 0}";
+			sepNavVisRange = "{2871, 1275}";
 			sepNavWindowFrame = "{{15, 4}, {1416, 1024}}";
 		};
 	};

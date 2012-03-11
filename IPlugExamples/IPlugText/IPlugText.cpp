@@ -54,8 +54,8 @@ IPlugText::IPlugText(IPlugInstanceInfo instanceInfo)
 	IText textProps5(60, &COLOR_BLUE, "Courier", IText::kStyleNormal, IText::kAlignCenter, 0, IText::kQualityDefault);
 	pGraphics->AttachControl(new ITextControl(this, tmpRect5, &textProps5, "hello iplug!"));
   
-  IBitmap blackText = pGraphics->LoadIBitmap(TEXT_BLACK_ID, TEXT_BLACK_FN, 95);
-  IBitmap whiteText = pGraphics->LoadIBitmap(TEXT_WHITE_ID, TEXT_WHITE_FN, 95);
+  IBitmap blackText = pGraphics->LoadIBitmap(TEXT_BLACK_ID, TEXT_BLACK_FN, 95, true);
+  IBitmap whiteText = pGraphics->LoadIBitmap(TEXT_WHITE_ID, TEXT_WHITE_FN, 95, true);
 
   IRECT tmpRect6(10, 250, 400, 170);
   pGraphics->AttachControl(new IBitmapTextControl(this, tmpRect6, &blackText, "i'm bitmap monospace text"));
