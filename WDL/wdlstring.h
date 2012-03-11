@@ -41,10 +41,10 @@
 class WDL_String
 {
 public:
-  WDL_String(int hbgran) : m_hb(hbgran WDL_HEAPBUF_TRACEPARM("WDL_String(4)"))
+  explicit WDL_String(int hbgran) : m_hb(hbgran WDL_HEAPBUF_TRACEPARM("WDL_String(4)"))
   {
   }
-  WDL_String(const char *initial=NULL, int initial_len=0) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String"))
+  explicit WDL_String(const char *initial=NULL, int initial_len=0) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String"))
   {
     if (initial) Set(initial,initial_len);
   }
@@ -227,53 +227,52 @@ public:
     }
   }
 #endif
-
-  void WDL_STRING_PREFIX SetFormatted(int maxlen, const char* fmt, ...) 
+  void WDL_STRING_PREFIX SetAppendFormattedArgs(bool append, int maxlen, const char* fmt, va_list arglist) 
 #ifdef WDL_STRING_INTF_ONLY
     ; 
 #else
   {
-    char* b= (char*) m_hb.Resize(maxlen+1,false);
-    if (m_hb.GetSize() != maxlen+1) return;
-
-  	va_list arglist;
-		va_start(arglist, fmt);
-    #ifdef _WIN32
-		int written = _vsnprintf(b, maxlen, fmt, arglist);
-    #else
-		int written = vsnprintf(b, maxlen, fmt, arglist);
-    #endif
-    if (written < 0) written = 0;
-		va_end(arglist);
-    b[written] = '\0';
-
-    m_hb.Resize(written+1,false);
-	}
-#endif
-
-  void WDL_STRING_PREFIX AppendFormatted(int maxlen, const char* fmt, ...) 
-#ifdef WDL_STRING_INTF_ONLY
-    ; 
-#else
-  {
-    int offs=GetLength();
+    int offs = append ? GetLength() : 0;
     char* b= (char*) m_hb.Resize(offs+maxlen+1,false)+offs;
     if (m_hb.GetSize() != offs+maxlen+1) return;
 
-  	va_list arglist;
-		va_start(arglist, fmt);
     #ifdef _WIN32
-		int written = _vsnprintf(b, maxlen, fmt, arglist);
+		  int written = _vsnprintf(b, maxlen+1, fmt, arglist);
+      if (written < 0 || written>=maxlen) b[written=b[0]?maxlen:0]=0;
     #else
-		int written = vsnprintf(b, maxlen, fmt, arglist);
+		  int written = vsnprintf(b, maxlen+1, fmt, arglist);
+      if (written > maxlen) written=maxlen;
     #endif
-    if (written < 0) written = 0;
-		va_end(arglist);
-    b[written] = '\0';
 
-    m_hb.Resize(offs + written +1,false);
+    m_hb.Resize(offs + written + 1,false);
 	}
 #endif
+
+
+  void WDL_VARARG_WARN(printf,3,4) WDL_STRING_PREFIX SetFormatted(int maxlen, const char *fmt, ...) 
+#ifdef WDL_STRING_INTF_ONLY
+    ; 
+#else
+  {
+    va_list arglist;
+    va_start(arglist, fmt);
+    SetAppendFormattedArgs(false,maxlen,fmt,arglist);
+    va_end(arglist);
+  }
+#endif
+
+  void WDL_VARARG_WARN(printf,3,4) WDL_STRING_PREFIX AppendFormatted(int maxlen, const char* fmt, ...) 
+#ifdef WDL_STRING_INTF_ONLY
+    ; 
+#else
+  {
+    va_list arglist;
+    va_start(arglist, fmt);
+    SetAppendFormattedArgs(true,maxlen,fmt,arglist);
+    va_end(arglist);
+  }
+#endif
+
 
   void WDL_STRING_PREFIX Ellipsize(int minlen, int maxlen)
 #ifdef WDL_STRING_INTF_ONLY

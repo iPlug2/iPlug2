@@ -2115,6 +2115,10 @@ int ListView_GetSelectionMark(HWND h)
   if (!h) return 0;
   return 0;
 }
+int SWELL_GetListViewHeaderHeight(HWND h)
+{
+  return 0;
+}
 
 void ListView_SetColumnWidth(HWND h, int colpos, int wid)
 {
@@ -2160,6 +2164,10 @@ void ListView_SortItems(HWND hwnd, PFNLVCOMPARE compf, LPARAM parm)
 bool ListView_DeleteColumn(HWND h, int pos)
 {
   return false;
+}
+int ListView_GetCountPerPage(HWND h)
+{
+  return 1;
 }
 
 HWND ChildWindowFromPoint(HWND h, POINT p)
@@ -2581,38 +2589,6 @@ UINT RegisterClipboardFormat(const char *desc)
 
 
 
-HIMAGELIST ImageList_CreateEx()
-{
-  return (HIMAGELIST)new WDL_PtrList<HGDIOBJ__>;
-}
-
-void ImageList_Destroy(HIMAGELIST list)
-{
-  if (!list) return;
-  WDL_PtrList<HGDIOBJ__> *p=(WDL_PtrList<HGDIOBJ__>*)list;
-  // dont delete images, since the caller is responsible!
-  delete p;
-}
-
-int ImageList_ReplaceIcon(HIMAGELIST list, int offset, HICON image)
-{
-  if (!image || !list) return -1;
-  WDL_PtrList<HGDIOBJ__> *l=(WDL_PtrList<HGDIOBJ__> *)list;
-  if (offset<0||offset>=l->GetSize()) 
-  {
-    l->Add(image);
-    offset=l->GetSize()-1;
-  }
-  else
-  {
-    HICON old=l->Get(offset);
-    l->Set(offset,image);
-  }
-  return offset;
-}
-
-
-
 ///////// PostMessage emulation
 
 BOOL PostMessage(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -2957,6 +2933,26 @@ BOOL ListView_SetColumnOrderArray(HWND h, int cnt, int* arr)
 {
   return FALSE;
 }
+HWND ListView_GetHeader(HWND h)
+{
+  return 0;
+}
+
+int Header_GetItemCount(HWND h)
+{
+  return 0;
+}
+
+BOOL Header_GetItem(HWND h, int col, HDITEM* hi)
+{
+  return FALSE;
+}
+
+BOOL Header_SetItem(HWND h, int col, HDITEM* hi)
+{
+  return FALSE;
+}
+
 
 BOOL EnumChildWindows(HWND hwnd, BOOL (*cwEnumFunc)(HWND,LPARAM),LPARAM lParam)
 {
@@ -2970,6 +2966,25 @@ BOOL EnumChildWindows(HWND hwnd, BOOL (*cwEnumFunc)(HWND,LPARAM),LPARAM lParam)
     }
   }
   return TRUE;
+}
+void SWELL_GetDesiredControlSize(HWND hwnd, RECT *r)
+{
+}
+
+BOOL SWELL_IsGroupBox(HWND hwnd)
+{
+  //todo
+  return FALSE;
+}
+BOOL SWELL_IsButton(HWND hwnd)
+{
+  //todo
+  return FALSE;
+}
+BOOL SWELL_IsStaticText(HWND hwnd)
+{
+  //todo
+  return FALSE;
 }
 
 

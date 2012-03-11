@@ -5,6 +5,15 @@
 
 #ifdef SWELL_TARGET_OSX
 
+#if 0
+  // at some point we should enable this and use it in most SWELL APIs that call Cocoa code...
+  #define SWELL_BEGIN_TRY @try { 
+  #define SWELL_END_TRY(x) } @catch (NSException *ex) { NSLog(@"SWELL exception in %s:%d :: %@:%@\n",__FILE__,__LINE__,[ex name], [ex reason]); x }
+#else
+  #define SWELL_BEGIN_TRY
+  #define SWELL_END_TRY(x)
+#endif
+
 #define __SWELL_PREFIX_CLASSNAME3(a,b) a##b
 #define __SWELL_PREFIX_CLASSNAME2(a,b) __SWELL_PREFIX_CLASSNAME3(a,b)
 #define __SWELL_PREFIX_CLASSNAME(cname) __SWELL_PREFIX_CLASSNAME2(SWELL_APP_PREFIX,cname)
@@ -269,6 +278,7 @@ struct HTREEITEM__
   NSOpenGLContext *m_glctx;
   char m_isdirty; // &1=self needs redraw, &2=children may need redraw
   id m_lastTopLevelOwner; // save a copy of the owner, if any
+  id m_access_cacheptrs[6];
 }
 - (id)initChild:(SWELL_DialogResourceIndex *)resstate Parent:(NSView *)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par;
 - (LRESULT)onSwellMessage:(UINT)msg p1:(WPARAM)wParam p2:(LPARAM)lParam;
@@ -433,6 +443,8 @@ struct HTREEITEM__
 struct HGDIOBJ__
 {
   int type;
+
+  int additional_refcnt; // refcnt of 0 means one owner (if >0, additional owners)
   
   // used by pen/brush
   CGColorRef color;
@@ -569,6 +581,8 @@ struct HMENU__
 struct HGDIOBJ__
 {
   int type;
+  int additional_refcnt; // refcnt of 0 means one owner (if >0, additional owners)
+
   int color;
   int wid;
   struct HGDIOBJ__ *_next;

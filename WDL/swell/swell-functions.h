@@ -465,8 +465,13 @@ SWELL_API_DEFINE(void, ListView_SortItems,(HWND hwnd, PFNLVCOMPARE compf, LPARAM
 SWELL_API_DEFINE(bool, ListView_GetItemRect,(HWND h, int item, RECT *r, int code))
 SWELL_API_DEFINE(bool, ListView_Scroll,(HWND h, int xscroll, int yscroll))
 SWELL_API_DEFINE(int, ListView_GetTopIndex,(HWND h))
+SWELL_API_DEFINE(int, ListView_GetCountPerPage,(HWND h))
 SWELL_API_DEFINE(BOOL, ListView_SetColumnOrderArray,(HWND h, int cnt, int* arr))
 SWELL_API_DEFINE(BOOL, ListView_GetColumnOrderArray,(HWND h, int cnt, int* arr))
+SWELL_API_DEFINE(HWND, ListView_GetHeader,(HWND h))
+SWELL_API_DEFINE(int, Header_GetItemCount,(HWND h))
+SWELL_API_DEFINE(BOOL, Header_GetItem,(HWND h, int col, HDITEM* hi))
+SWELL_API_DEFINE(BOOL, Header_SetItem,(HWND h, int col, HDITEM* hi))
 
 SWELL_API_DEFINE(int, SWELL_GetListViewHeaderHeight, (HWND h))
 
@@ -474,6 +479,7 @@ SWELL_API_DEFINE(int, SWELL_GetListViewHeaderHeight, (HWND h))
 #define ImageList_Create(x,y,a,b,c) ImageList_CreateEx();
 #endif
 SWELL_API_DEFINE(HIMAGELIST, ImageList_CreateEx,())
+SWELL_API_DEFINE(BOOL, ImageList_Remove, (HIMAGELIST list, int idx))
 SWELL_API_DEFINE(int, ImageList_ReplaceIcon,(HIMAGELIST list, int offset, HICON image))
 SWELL_API_DEFINE(void, ImageList_Destroy, (HIMAGELIST))
 /*
@@ -910,6 +916,7 @@ SWELL_API_DEFINE(void, SWELL_SetClipRegion,(HDC ctx, RECT *r))
 SWELL_API_DEFINE(void, SWELL_PopClipRegion,(HDC ctx))
 
 
+
 /* 
 ** GDI emulation functions
 ** todo: document
@@ -1002,6 +1009,8 @@ SWELL_API_DEFINE(void, SWELL_FlushWindow,(HWND))
             
 SWELL_API_DEFINE(void, SWELL_FillDialogBackground,(HDC hdc, RECT *r, int level))
 
+SWELL_API_DEFINE(HGDIOBJ,SWELL_CloneGDIObject,(HGDIOBJ a))
+
 SWELL_API_DEFINE(int, GetSystemMetrics, (int))
 
 SWELL_API_DEFINE(BOOL, DragQueryPoint,(HDROP,LPPOINT))
@@ -1066,5 +1075,14 @@ SWELL_API_DEFINE(void,SWELL_RunMessageLoop,())
 #ifdef __APPLE__
 SWELL_API_DEFINE(void,SWELL_GenerateGUID,(void *g))
 #endif
+
+SWELL_API_DEFINE(BOOL,EnumChildWindows,(HWND hwnd, BOOL (*cwEnumFunc)(HWND,LPARAM),LPARAM lParam))
+
+
+SWELL_API_DEFINE(BOOL,SWELL_IsGroupBox,(HWND))
+SWELL_API_DEFINE(BOOL,SWELL_IsButton,(HWND))
+SWELL_API_DEFINE(BOOL,SWELL_IsStaticText,(HWND))
+SWELL_API_DEFINE(void,SWELL_GetDesiredControlSize,(HWND hwnd, RECT *r))
+
 
 #endif // _WDL_SWELL_H_API_DEFINED_

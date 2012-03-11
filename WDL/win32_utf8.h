@@ -20,10 +20,12 @@ WDL_WIN32_UTF8_IMPL BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str);
 WDL_WIN32_UTF8_IMPL BOOL SetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPCTSTR lpString);
 WDL_WIN32_UTF8_IMPL int GetWindowTextUTF8(HWND hWnd, LPTSTR lpString, int nMaxCount);
 WDL_WIN32_UTF8_IMPL UINT GetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPTSTR lpString, int nMaxCount);
+WDL_WIN32_UTF8_IMPL int MessageBoxUTF8(HWND hwnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT fl);
 
 WDL_WIN32_UTF8_IMPL BOOL CreateDirectoryUTF8(LPCTSTR path, LPSECURITY_ATTRIBUTES attr);
 WDL_WIN32_UTF8_IMPL BOOL DeleteFileUTF8(LPCTSTR path);
 WDL_WIN32_UTF8_IMPL BOOL MoveFileUTF8(LPCTSTR existfn, LPCTSTR newfn);
+WDL_WIN32_UTF8_IMPL BOOL CopyFileUTF8(LPCTSTR existfn, LPCTSTR newfn, BOOL fie);
 WDL_WIN32_UTF8_IMPL DWORD GetCurrentDirectoryUTF8(DWORD nBufferLength, LPTSTR lpBuffer);
 WDL_WIN32_UTF8_IMPL BOOL SetCurrentDirectoryUTF8(LPCTSTR path);
 WDL_WIN32_UTF8_IMPL BOOL RemoveDirectoryUTF8(LPCTSTR path);
@@ -41,6 +43,7 @@ WDL_WIN32_UTF8_IMPL BOOL GetSaveFileNameUTF8(LPOPENFILENAME lpofn);
 
 WDL_WIN32_UTF8_IMPL HINSTANCE ShellExecuteUTF8(HWND hwnd, LPCTSTR lpOp, LPCTSTR lpFile, LPCTSTR lpParm, LPCTSTR lpDir, INT nShowCmd);
 
+WDL_WIN32_UTF8_IMPL BOOL InsertMenuUTF8(HMENU hMenu, UINT uPosition, UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR str);
 WDL_WIN32_UTF8_IMPL BOOL InsertMenuItemUTF8( HMENU hMenu,UINT uItem, BOOL fByPosition, LPMENUITEMINFO lpmii);
 WDL_WIN32_UTF8_IMPL BOOL SetMenuItemInfoUTF8(HMENU hMenu, UINT uItem, BOOL fByPosition,LPMENUITEMINFO lpmii);
 WDL_WIN32_UTF8_IMPL BOOL GetMenuItemInfoUTF8(HMENU hMenu, UINT uItem,BOOL fByPosition,LPMENUITEMINFO lpmii);
@@ -56,6 +59,8 @@ WDL_WIN32_UTF8_IMPL BOOL WDL_HasUTF8(const char *_str);
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookComboBox(HWND h);
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookListView(HWND h);
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookListBox(HWND h);
+WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookTreeView(HWND h);
+WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookTabCtrl(HWND h);
 
 WDL_WIN32_UTF8_IMPL LPSTR GetCommandParametersUTF8();
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDISPINFO 
@@ -80,6 +85,11 @@ WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDI
 #undef GetDlgItemText
 #endif
 #define GetDlgItemText GetDlgItemTextUTF8
+
+#ifdef MessageBox
+#undef MessageBox
+#endif
+#define MessageBox MessageBoxUTF8
 
 #ifdef DragQueryFile
 #undef DragQueryFile
@@ -117,6 +127,11 @@ WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDI
 #endif
 #define MoveFile MoveFileUTF8
 
+#ifdef CopyFile
+#undef CopyFile
+#endif
+#define CopyFile CopyFileUTF8
+
 #ifdef GetCurrentDirectory
 #undef GetCurrentDirectory
 #endif
@@ -139,6 +154,11 @@ WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDI
 #endif
 #define CreateFile CreateFileUTF8
 
+
+#ifdef InsertMenu
+#undef InsertMenu
+#endif
+#define InsertMenu InsertMenuUTF8
 
 #ifdef InsertMenuItem
 #undef InsertMenuItem
@@ -168,6 +188,9 @@ WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDI
 #define fopenUTF8 fopen
 #define WDL_UTF8_HookComboBox(x)
 #define WDL_UTF8_HookListView(x)
+#define WDL_UTF8_HookListBox(x)
+#define WDL_UTF8_HookTreeView(x)
+#define WDL_UTF8_HookTabCtrl(x)
 #define WDL_UTF8_ListViewConvertDispInfoToW(x)
 
 #endif

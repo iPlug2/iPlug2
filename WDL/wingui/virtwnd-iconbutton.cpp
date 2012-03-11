@@ -26,6 +26,11 @@
 #include "virtwnd-controls.h"
 #include "../lice/lice.h"
 
+#ifdef _WIN32
+#define WDL_WIN32_UTF8_IMPL static
+#include "../win32_utf8.c"
+#endif
+
 WDL_VirtualIconButton::WDL_VirtualIconButton()
 {
   m_alpha=1.0;
@@ -53,6 +58,7 @@ WDL_VirtualIconButton::~WDL_VirtualIconButton()
   if (m_ownsicon && m_iconCfg)
   {
     delete m_iconCfg->image;
+    delete m_iconCfg->olimage;
     delete m_iconCfg;
   }
 }
@@ -78,14 +84,59 @@ void WDL_VirtualIconButton::SetIcon(WDL_VirtualIconButton_SkinConfig *cfg, float
 { 
   if (m_iconCfg != cfg || m_alpha != alpha) 
   {
+    bool combineRects=false;
+    RECT r;
+    if (m_iconCfg && m_iconCfg != cfg && m_iconCfg->olimage)
+    {
+      combineRects=true;
+      GetPositionPaintExtent(&r);
+      if (WantsPaintOver())
+      {
+        RECT r3;
+        GetPositionPaintOverExtent(&r3);
+        if (r3.left<r.left) r.left=r3.left;
+        if (r3.top<r.top) r.top=r3.top;
+        if (r3.right>r.right) r.right=r3.right;
+        if (r3.bottom>r.bottom) r.bottom=r3.bottom;
+      }
+    }
     if (m_ownsicon && m_iconCfg && m_iconCfg != cfg)
     {
       delete m_iconCfg->image;
+      delete m_iconCfg->olimage;
       delete m_iconCfg;
     }
     m_alpha=alpha; 
     m_iconCfg=cfg;
-    RequestRedraw(NULL); 
+
+    if (combineRects)
+    {
+      RECT r3;
+      GetPositionPaintExtent(&r3);
+      if (r3.left<r.left) r.left=r3.left;
+      if (r3.top<r.top) r.top=r3.top;
+      if (r3.right>r.right) r.right=r3.right;
+      if (r3.bottom>r.bottom) r.bottom=r3.bottom;
+
+      if (WantsPaintOver())
+      {
+        GetPositionPaintOverExtent(&r3);
+        if (r3.left<r.left) r.left=r3.left;
+        if (r3.top<r.top) r.top=r3.top;
+        if (r3.right>r.right) r.right=r3.right;
+        if (r3.bottom>r.bottom) r.bottom=r3.bottom;
+      }
+
+      r.left -= m_position.left;
+      r.right -= m_position.left;
+      r.top -= m_position.top;
+      r.bottom -= m_position.top;
+      RequestRedraw(&r);
+    }
+    else
+    {
+      RequestRedraw(NULL); 
+    }
   }
   m_ownsicon = buttonownsicon;
  }
