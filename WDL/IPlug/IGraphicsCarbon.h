@@ -6,6 +6,14 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+// The text entry can be implemented either using a HIViewControl or the older MLTE
+// MLTE is more customisable and doesn't have to have a blue focus rim, but
+// text doesn't centre properly and when you select the text and drag it behaves strangely
+
+#ifndef USE_MLTE
+  #define USE_MLTE 0
+#endif
+
 class IGraphicsCarbon
 {
 public:
@@ -32,18 +40,23 @@ private:
   bool mIsComposited;
   RgnHandle mRgn;
   WindowRef mWindow;
-  ControlRef mView;
-  TXNObject mTextEntryView;	
+  ControlRef mView;  
   EventLoopTimerRef mTimer;
   EventHandlerRef mControlHandler;
   EventHandlerRef mWindowHandler;
   EventHandlerRef mTextEntryHandler;
   CGContextRef mCGC;
 
+#if USE_MLTE
+  TXNObject mTextEntryView;
+  IRECT mTextEntryRect;
+#else
+  ControlRef mTextEntryView;
+#endif
+  
   IControl* mEdControl;
   IParam* mEdParam;
   int mPrevX, mPrevY;
-  IRECT mTextEntryRect;
   short mLeftOffset, mTopOffset; // only for RTAS
 
 public:

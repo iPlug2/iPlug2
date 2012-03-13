@@ -137,9 +137,13 @@ IGraphicsCarbon::~IGraphicsCarbon()
     RemoveEventHandler(mTextEntryHandler);
     mTextEntryHandler = 0;
     
+#if USE_MLTE
     TXNFocus(mTextEntryView, false);
     TXNClear(mTextEntryView);
     TXNDeleteObject(mTextEntryView);
+#else
+    HIViewRemoveFromSuperview(mTextEntryView);
+#endif
     
     mTextEntryView = 0;
     mEdControl = 0;
@@ -163,63 +167,6 @@ bool IGraphicsCarbon::Resize(int w, int h)
     return (HIViewSetFrame(mView, &tmp) == noErr);
   }
   return false;
-}
-
-void IGraphicsCarbon::EndUserInput(bool commit)
-{
-  if (mTextEntryHandler) 
-  {
-    RemoveEventHandler(mTextEntryHandler);
-    mTextEntryHandler = 0;
-  }
-  else {
-    return;
-  }
-  
-  if (commit) 
-  {
-    // Get the text
-    CharsHandle textHandle;
-    TXNGetDataEncoded(mTextEntryView, kTXNStartOffset, kTXNEndOffset, &textHandle, kTXNTextData);
-    
-    // Check that we have some worthwhile data
-    if (textHandle != NULL && GetHandleSize(textHandle) > 0)
-    {
-      const long textLength = GetHandleSize(textHandle);
-      char txt[257];
-      strncpy(txt, *textHandle, (textLength > 255) ? 255 : textLength);
-      txt[(textLength > 255) ? 255 : textLength] = '\0';
-      
-      if (mEdParam) 
-        mGraphicsMac->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
-      else
-        mEdControl->TextFromTextEntry(txt);
-    }
-  }
-  
-  if (mTextEntryView)
-  {
-    TXNFocus(mTextEntryView, false);
-    TXNClear(mTextEntryView);
-    TXNDeleteObject(mTextEntryView);
-    mTextEntryView = 0;
-  }
-  
-  if (mIsComposited)
-  {
-    HIViewSetNeedsDisplay(mView, true);
-  }
-  else
-  {
-    mEdControl->SetDirty(false);
-    mEdControl->Redraw();
-  }
-  
-  SetThemeCursor(kThemeArrowCursor);
-  SetUserFocusWindow(kUserFocusAuto);
-
-  mEdControl = 0;
-  mEdParam = 0;
 }
 
 IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
@@ -361,146 +308,6 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
   }
   else {
     return 0;
-  }
-}
-
-void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
-{
-  if (!pControl || mTextEntryView || !mIsComposited) return; // Only composited carbon supports text entry
-  
-  WindowRef window = mWindow;
-  TXNFrameOptions txnFrameOptions = kTXNMonostyledTextMask | kTXNDisableDragAndDropMask | kTXNSingleLineOnlyMask;
-  TXNObject txnObject = 0;
-  TXNFrameID frameID = 0;
-  TXNObjectRefcon txnObjectRefCon = 0;
-
-  HIRect rct;
-  HIViewGetFrame(this->mView, &rct);
-
-  HIViewRef contentView;
-  HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
-  HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
-  
-  Rect rect = { rct.origin.y + pTextRect->T, 
-                rct.origin.x + pTextRect->L, 
-                rct.origin.y + pTextRect->B + 1, 
-                rct.origin.x + pTextRect->R + 1};
-  
-  if (TXNNewObject(NULL, 
-                   window, 
-                   &rect, 
-                   txnFrameOptions, 
-                   kTXNTextEditStyleFrameType, 
-                   kTXNSingleStylePerTextDocumentResType, 
-                   kTXNMacOSEncoding, 
-                   &txnObject, 
-                   &frameID, 
-                   txnObjectRefCon) == noErr)
-  {
-    TXNSetFrameBounds(txnObject, rect.top, rect.left, rect.bottom, rect.right, frameID);
-    mTextEntryView = txnObject;
-    
-    // Set the text to display by defualt
-    TXNSetData(mTextEntryView, kTXNTextData, pString, strlen(pString)/*+1*/, kTXNStartOffset, kTXNEndOffset); // center aligned text has problems with uneven string lengths
-        
-    RGBColor tc;
-    tc.red = pText->mTextEntryFGColor.R * 257;
-    tc.green = pText->mTextEntryFGColor.G * 257;
-    tc.blue = pText->mTextEntryFGColor.B * 257;
-        
-    TXNBackground bg;
-    bg.bgType         = kTXNBackgroundTypeRGB;
-    bg.bg.color.red   = pText->mTextEntryBGColor.R * 257;
-    bg.bg.color.green = pText->mTextEntryBGColor.G * 257;
-    bg.bg.color.blue  = pText->mTextEntryBGColor.B * 257;
-    
-    TXNSetBackground(mTextEntryView, &bg);
-    
-    // Set justification
-    SInt16 justification;
-    Fract flushness;
-    
-    switch ( pText->mAlign ) 
-    {
-      case IText::kAlignCenter:
-        justification = kTXNCenter;  // seems to be buggy wrt dragging and alignement with uneven string lengths
-        flushness = kATSUCenterAlignment;
-        break;
-      case IText::kAlignFar:
-        justification = kTXNFlushRight;
-        flushness = kATSUEndAlignment;
-        break;
-      case IText::kAlignNear:
-      default:
-        justification = kTXNFlushLeft;  
-        flushness = kATSUStartAlignment;
-        break;
-    }
-        
-    TXNControlTag controlTag[1];
-    TXNControlData controlData[1];
-    controlTag[0] = kTXNJustificationTag;
-    controlData[0].sValue = justification;
-    TXNSetTXNObjectControls(mTextEntryView, false, 1, controlTag, controlData);
-    
-    ATSUFontID fontid = kATSUInvalidFontID;
-    
-    if (pText->mFont && pText->mFont[0])
-    {
-      ATSUFindFontFromName(pText->mFont, strlen(pText->mFont), 
-                           kFontFullName /* kFontFamilyName? */ ,
-                           (FontPlatformCode)kFontNoPlatform,
-                           kFontNoScriptCode,
-                           kFontNoLanguageCode,
-                           &fontid);
-    }
-    
-    // font
-    TXNTypeAttributes attributes[3];
-    attributes[0].tag = kATSUFontTag;
-    attributes[0].size = sizeof(ATSUFontID);
-    attributes[0].data.dataPtr = &fontid;
-    // size
-    attributes[1].tag = kTXNQDFontSizeAttribute;
-    attributes[1].size = kTXNFontSizeAttributeSize;
-    attributes[1].data.dataValue = pText->mSize << 16;
-    // color
-    attributes[2].tag = kTXNQDFontColorAttribute;
-    attributes[2].size = kTXNQDFontColorAttributeSize;
-    attributes[2].data.dataPtr = &tc;
-    
-    // Finally set the attributes
-    TXNSetTypeAttributes(mTextEntryView, 3, attributes, kTXNStartOffset, kTXNEndOffset);
-    
-    // Ensure focus remains consistent
-    SetUserFocusWindow(window);
-    AdvanceKeyboardFocus(window);
-    
-    // Set the focus to the edit window
-    TXNFocus(txnObject, true);
-    TXNSelectAll(mTextEntryView);
-    TXNShowSelection(mTextEntryView, true);
-    
-    // The event types
-    const static EventTypeSpec eventTypes[] = 
-    { 
-      { kEventClassMouse,    kEventMouseMoved }, 
-      { kEventClassMouse,    kEventMouseDown }, 
-      { kEventClassMouse,    kEventMouseUp }, 
-      { kEventClassMouse,    kEventMouseWheelMoved },
-      { kEventClassWindow,   kEventWindowClosed },
-      { kEventClassWindow,   kEventWindowDeactivated }, 
-      { kEventClassWindow,   kEventWindowFocusRelinquish },
-      { kEventClassKeyboard, kEventRawKeyDown }, 
-      { kEventClassKeyboard, kEventRawKeyRepeat }
-    };
-    
-    // Install the event handler
-    InstallWindowEventHandler(window, TextEntryHandler, GetEventTypeCount(eventTypes), eventTypes, this, &mTextEntryHandler);
-    
-    mEdControl = pControl;
-    mEdParam = pParam;
-    mTextEntryRect = *pTextRect;
   }
 }
 
@@ -742,6 +549,7 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
       CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
       HIViewSetNeedsDisplayInRect(_this->mView, &tmp , true); // invalidate everything that is set dirty
       
+      #if USE_MTLE
       if (_this->mTextEntryView) // validate the text entry rect, otherwise, flicker
       {
         tmp = CGRectMake(_this->mTextEntryRect.L, 
@@ -750,13 +558,216 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
                                 _this->mTextEntryRect.H() + 1);
         HIViewSetNeedsDisplayInRect(_this->mView, &tmp , false);
       }
+      #endif
     }
     else 
     { 
-      // TODO: make this more efficient and able to handle the text entry
       UpdateControls(_this->mWindow, 0);
     }
   } 
+}
+
+#pragma mark -
+#pragma mark MLTE text entry methods
+
+#if MLTE
+
+void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+{
+  if (!pControl || mTextEntryView || !mIsComposited) return; // Only composited carbon supports text entry
+  
+  WindowRef window = mWindow;
+  TXNFrameOptions txnFrameOptions = kTXNMonostyledTextMask | kTXNDisableDragAndDropMask | kTXNSingleLineOnlyMask;
+  TXNObject txnObject = 0;
+  TXNFrameID frameID = 0;
+  TXNObjectRefcon txnObjectRefCon = 0;
+  
+  HIRect rct;
+  HIViewGetFrame(this->mView, &rct);
+  
+  HIViewRef contentView;
+  HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
+  HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
+  
+  Rect rect = { rct.origin.y + pTextRect->T, 
+    rct.origin.x + pTextRect->L, 
+    rct.origin.y + pTextRect->B + 1, 
+    rct.origin.x + pTextRect->R + 1};
+  
+  if (TXNNewObject(NULL, 
+                   window, 
+                   &rect, 
+                   txnFrameOptions, 
+                   kTXNTextEditStyleFrameType, 
+                   kTXNSingleStylePerTextDocumentResType, 
+                   kTXNMacOSEncoding, 
+                   &txnObject, 
+                   &frameID, 
+                   txnObjectRefCon) == noErr)
+  {
+    TXNSetFrameBounds(txnObject, rect.top, rect.left, rect.bottom, rect.right, frameID);
+    mTextEntryView = txnObject;
+    
+    // Set the text to display by defualt
+    TXNSetData(mTextEntryView, kTXNTextData, pString, strlen(pString)/*+1*/, kTXNStartOffset, kTXNEndOffset); // center aligned text has problems with uneven string lengths
+    
+    RGBColor tc;
+    tc.red = pText->mTextEntryFGColor.R * 257;
+    tc.green = pText->mTextEntryFGColor.G * 257;
+    tc.blue = pText->mTextEntryFGColor.B * 257;
+    
+    TXNBackground bg;
+    bg.bgType         = kTXNBackgroundTypeRGB;
+    bg.bg.color.red   = pText->mTextEntryBGColor.R * 257;
+    bg.bg.color.green = pText->mTextEntryBGColor.G * 257;
+    bg.bg.color.blue  = pText->mTextEntryBGColor.B * 257;
+    
+    TXNSetBackground(mTextEntryView, &bg);
+    
+    // Set justification
+    SInt16 justification;
+    Fract flushness;
+    
+    switch ( pText->mAlign ) 
+    {
+      case IText::kAlignCenter:
+        justification = kTXNCenter;  // seems to be buggy wrt dragging and alignement with uneven string lengths
+        flushness = kATSUCenterAlignment;
+        break;
+      case IText::kAlignFar:
+        justification = kTXNFlushRight;
+        flushness = kATSUEndAlignment;
+        break;
+      case IText::kAlignNear:
+      default:
+        justification = kTXNFlushLeft;  
+        flushness = kATSUStartAlignment;
+        break;
+    }
+    
+    TXNControlTag controlTag[1];
+    TXNControlData controlData[1];
+    controlTag[0] = kTXNJustificationTag;
+    controlData[0].sValue = justification;
+    TXNSetTXNObjectControls(mTextEntryView, false, 1, controlTag, controlData);
+    
+    ATSUFontID fontid = kATSUInvalidFontID;
+    
+    if (pText->mFont && pText->mFont[0])
+    {
+      ATSUFindFontFromName(pText->mFont, strlen(pText->mFont), 
+                           kFontFullName /* kFontFamilyName? */ ,
+                           (FontPlatformCode)kFontNoPlatform,
+                           kFontNoScriptCode,
+                           kFontNoLanguageCode,
+                           &fontid);
+    }
+    
+    // font
+    TXNTypeAttributes attributes[3];
+    attributes[0].tag = kATSUFontTag;
+    attributes[0].size = sizeof(ATSUFontID);
+    attributes[0].data.dataPtr = &fontid;
+    // size
+    attributes[1].tag = kTXNQDFontSizeAttribute;
+    attributes[1].size = kTXNFontSizeAttributeSize;
+    attributes[1].data.dataValue = pText->mSize << 16;
+    // color
+    attributes[2].tag = kTXNQDFontColorAttribute;
+    attributes[2].size = kTXNQDFontColorAttributeSize;
+    attributes[2].data.dataPtr = &tc;
+    
+    // Finally set the attributes
+    TXNSetTypeAttributes(mTextEntryView, 3, attributes, kTXNStartOffset, kTXNEndOffset);
+    
+    // Ensure focus remains consistent
+    SetUserFocusWindow(window);
+    AdvanceKeyboardFocus(window);
+    
+    // Set the focus to the edit window
+    TXNFocus(txnObject, true);
+    TXNSelectAll(mTextEntryView);
+    TXNShowSelection(mTextEntryView, true);
+    
+    // The event types
+    const static EventTypeSpec eventTypes[] = 
+    { 
+      { kEventClassMouse,    kEventMouseMoved }, 
+      { kEventClassMouse,    kEventMouseDown }, 
+      { kEventClassMouse,    kEventMouseUp }, 
+      { kEventClassMouse,    kEventMouseWheelMoved },
+      { kEventClassWindow,   kEventWindowClosed },
+      { kEventClassWindow,   kEventWindowDeactivated }, 
+      { kEventClassWindow,   kEventWindowFocusRelinquish },
+      { kEventClassKeyboard, kEventRawKeyDown }, 
+      { kEventClassKeyboard, kEventRawKeyRepeat }
+    };
+    
+    // Install the event handler
+    InstallWindowEventHandler(window, TextEntryHandler, GetEventTypeCount(eventTypes), eventTypes, this, &mTextEntryHandler);
+    
+    mEdControl = pControl;
+    mEdParam = pParam;
+    mTextEntryRect = *pTextRect;
+  }
+}
+
+void IGraphicsCarbon::EndUserInput(bool commit)
+{
+  if (mTextEntryHandler) 
+  {
+    RemoveEventHandler(mTextEntryHandler);
+    mTextEntryHandler = 0;
+  }
+  else
+  {
+    return;
+  }
+  
+  if (commit) 
+  {
+    // Get the text
+    CharsHandle textHandle;
+    TXNGetDataEncoded(mTextEntryView, kTXNStartOffset, kTXNEndOffset, &textHandle, kTXNTextData);
+    
+    // Check that we have some worthwhile data
+    if (textHandle != NULL && GetHandleSize(textHandle) > 0)
+    {
+      const long textLength = GetHandleSize(textHandle);
+      char txt[257];
+      strncpy(txt, *textHandle, (textLength > 255) ? 255 : textLength);
+      txt[(textLength > 255) ? 255 : textLength] = '\0';
+      
+      if (mEdParam) 
+        mGraphicsMac->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
+      else
+        mEdControl->TextFromTextEntry(txt);
+    }
+  }
+  
+  if (mTextEntryView)
+  {
+    TXNFocus(mTextEntryView, false);
+    TXNClear(mTextEntryView);
+    TXNDeleteObject(mTextEntryView);
+    mTextEntryView = 0;
+  }
+  
+  if (mIsComposited)
+  {
+    HIViewSetNeedsDisplay(mView, true);
+  }
+  else
+  {
+    mEdControl->SetDirty(false);
+    mEdControl->Redraw();
+  }
+  
+  SetThemeCursor(kThemeArrowCursor);
+  SetUserFocusWindow(kUserFocusAuto);
+  
+  mEdControl = 0;
+  mEdParam = 0;
 }
 
 // static
@@ -937,4 +948,201 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
   return eventNotHandledErr;
 }
 
+#else
+
+#pragma mark -
+#pragma mark HIView text entry methods
+
+void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+{
+  ControlRef control = 0;
+    
+	if (!pControl || mTextEntryView || !mIsComposited) return;
+  
+  Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R }; // these adjustments should make it the same as the cocoa one
+  
+  //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 }; // these adjustments should make it the same as the cocoa one
+  if (CreateEditUnicodeTextControl(NULL, &r, NULL, false, NULL, &control) != noErr) return;
+  
+  HIViewAddSubview(mView, control);
+  
+  const EventTypeSpec events[] = 
+  {
+    { kEventClassKeyboard, kEventRawKeyDown },
+    { kEventClassKeyboard, kEventRawKeyRepeat }
+  };
+  
+  InstallControlEventHandler(control, TextEntryHandler, GetEventTypeCount(events), events, this, &mTextEntryHandler);
+  mTextEntryView = control;
+  
+  if (pString[0] != '\0')
+  {
+    CFStringRef str = CFStringCreateWithCString(NULL, pString, kCFStringEncodingUTF8);
+    
+    if (str)
+    {
+      SetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str);
+      CFRelease(str);
+    }
+    
+    ControlEditTextSelectionRec sel;
+    sel.selStart = 0;
+    sel.selEnd = strlen(pString);
+    SetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextSelectionTag, sizeof(sel), &sel);
+  }
+  
+  int just = 0;
+  
+  switch ( pText->mAlign ) 
+  {
+    case IText::kAlignNear:
+      just = teJustLeft;
+      break;
+    case IText::kAlignCenter:
+      just = teCenter;
+      break;
+    case IText::kAlignFar:
+      just = teJustRight;
+      break;
+    default:
+      just = teCenter;
+      break;
+  }	
+  
+  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, just, 0, 0 };
+  
+  CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
+  font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
+  SetControlData(mTextEntryView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
+  CFRelease(str);
+  
+  Boolean singleLineStyle = true;
+  SetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextSingleLineTag, sizeof (Boolean), &singleLineStyle);
+  
+  HIViewSetVisible(mTextEntryView, true);
+  HIViewAdvanceFocus(mTextEntryView, 0);
+  SetKeyboardFocus(mWindow, mTextEntryView, kControlEditTextPart);
+  SetUserFocusWindow(mWindow);
+  
+  mEdControl = pControl;
+  mEdParam = pParam;
+}
+
+void IGraphicsCarbon::EndUserInput(bool commit)
+{
+  RemoveEventHandler(mTextEntryHandler);
+  mTextEntryHandler = 0;
+  
+  if (commit)
+  {
+    CFStringRef str;
+    if (GetControlData(mTextEntryView, kControlEditTextPart, kControlEditTextCFStringTag, sizeof(str), &str, NULL) == noErr)
+    {
+      char txt[MAX_PARAM_LEN];
+      CFStringGetCString(str, txt, MAX_PARAM_LEN, kCFStringEncodingUTF8);
+      CFRelease(str);
+      
+      if (mEdParam) 
+        mGraphicsMac->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
+      else
+        mEdControl->TextFromTextEntry(txt);
+    }
+  }
+  
+  HIViewSetVisible(mTextEntryView, false);
+  HIViewRemoveFromSuperview(mTextEntryView);
+  
+  if (mIsComposited)
+  {
+    //IRECT* pR = mEdControl->GetRECT();
+    //HIViewSetNeedsDisplayInRect(mView, &CGRectMake(pR->L, pR->T, pR->W(), pR->H()), true);
+    HIViewSetNeedsDisplay(mView, true);
+  }
+  else
+  {
+    mEdControl->SetDirty(false);
+    mEdControl->Redraw();
+  }
+  SetThemeCursor(kThemeArrowCursor);
+  SetUserFocusWindow(kUserFocusAuto);
+  
+  mTextEntryView = 0;
+  mEdControl = 0;
+  mEdParam = 0;
+}
+
+pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon)
+{
+  IGraphicsCarbon* _this = (IGraphicsCarbon*) pGraphicsCarbon;
+  UInt32 eventClass = GetEventClass(pEvent);
+  UInt32 eventKind = GetEventKind(pEvent);
+  
+  switch (eventClass)
+  { 
+    case kEventClassKeyboard:
+    {
+      switch (eventKind)
+      {
+        case kEventRawKeyDown:
+        case kEventRawKeyRepeat:
+        {
+          char c;
+          GetEventParameter(pEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
+          UInt32 k;
+          GetEventParameter(pEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &k);
+          
+          // trap enter key
+          if (c == 3 || c == 13) {
+            _this->EndUserInput(true);
+            return noErr;
+          }
+          
+          // pass arrow keys
+          if (k == 125 || k == 126 || k == 123 || k == 124) 
+            break;
+          
+          // pass delete keys
+          if (c == 8 || c == 127)
+            break;
+          
+          if (_this->mEdParam) {
+            switch ( _this->mEdParam->Type() ) 
+            {
+              case IParam::kTypeEnum:
+              case IParam::kTypeInt:
+              case IParam::kTypeBool:
+                if (c >= '0' && c <= '9') break;
+                else if (c == '-') break;
+                else if (c == '+') break;
+                else return noErr;
+              case IParam::kTypeDouble:
+                if (c >= '0' && c <= '9') break;
+                else if (c == '.') break;
+                else if (c == '-') break;
+                else if (c == '+') break;
+                else return noErr;
+              default:
+                break;
+            }
+          }
+          
+          // check the length of the text 
+          Str31  theText;
+          Size   textLength;            
+          
+          GetControlData(_this->mTextEntryView,kControlNoPart,kControlEditTextTextTag,
+                         sizeof(theText) -1,(Ptr) &theText[1],&textLength);
+          
+          if(textLength >= _this->mEdControl->GetTextEntryLength())
+            return noErr;
+          
+          break;
+        }
+      }
+      break;
+    }
+  }
+  return eventNotHandledErr;
+}
+#endif
 #endif // IPLUG_NO_CARBON_SUPPORT
