@@ -270,13 +270,18 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
     Rect wrct;
     GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
 
+#ifdef RTAS_API
+    int xpos = wrct.left + this->GetLeftOffset() + pAreaRect->L;
+    int ypos = wrct.top + this->GetTopOffset() + pAreaRect->B + 5;
+#else
     HIViewRef contentView;
-    HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
+    HIViewFindByID(HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
     HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
     
     int xpos = wrct.left + rct.origin.x + pAreaRect->L;
     int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
-    
+#endif
+
     int32_t PopUpMenuItem = PopUpMenuSelect (menuRef, ypos, xpos, 0);//popUpItem);
 
     short result = LoWord(PopUpMenuItem) - 1; 
