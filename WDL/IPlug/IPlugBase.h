@@ -153,6 +153,9 @@ protected:
   // ----------------------------------------
   // Useful stuff for your plugin class to call, implemented here or in the API class, or partly in both.
 
+  void SetInputLabel(int idx, const char* pLabel);
+  void SetOutputLabel(int idx, const char* pLabel);
+
   struct ChannelIO 
   { 
     int mIn, mOut; 
@@ -261,26 +264,12 @@ private:
   EHost mHost;
   int mHostVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
   
-protected:
-  bool mStateChunks, mIsInst, mIsBypassed;
-  double mSampleRate;
-  int mBlockSize, mLatency;
-  WDL_String mPreviousPath; // for saving/loading fxps
-  WDL_PtrList<IParam> mParams;
-
-private:
-	IGraphics* mGraphics;
-
-  WDL_PtrList<IPreset> mPresets;
-  int mCurrentPresetIdx;
-
-  WDL_TypedBuf<double*> mInData, mOutData;
-  
   struct InChannel 
   {
     bool mConnected;
     double** mSrc;   // Points into mInData.
     WDL_TypedBuf<double> mScratchBuf;
+    WDL_String mLabel;
   };
   
   struct OutChannel 
@@ -289,10 +278,25 @@ private:
     double** mDest;  // Points into mOutData.
     float* mFDest;
     WDL_TypedBuf<double> mScratchBuf;
+    WDL_String mLabel;
   };
   
+protected:
+  bool mStateChunks, mIsInst, mIsBypassed;
+  double mSampleRate;
+  int mBlockSize, mLatency;
+  WDL_String mPreviousPath; // for saving/loading fxps
+  WDL_PtrList<IParam> mParams;
   WDL_PtrList<InChannel> mInChannels;
   WDL_PtrList<OutChannel> mOutChannels;
+  
+private:
+	IGraphics* mGraphics;
+
+  WDL_PtrList<IPreset> mPresets;
+  int mCurrentPresetIdx;
+
+  WDL_TypedBuf<double*> mInData, mOutData;
 };
 
 #endif

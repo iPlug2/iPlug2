@@ -556,7 +556,16 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         {
           pp->flags |= kVstPinIsStereo;
         }
-        sprintf(pp->label, "Input %d", idx + 1);
+        
+        if (_this->mInChannels.Get(idx)->mLabel.GetLength()) 
+        {
+          sprintf(pp->label, "%s", _this->mInChannels.Get(idx)->mLabel.Get());
+        }
+        else 
+        {
+          sprintf(pp->label, "Input %d", idx + 1);
+        }
+        
         return 1;
       }
       return 0;
@@ -569,7 +578,16 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         {
 			  	pp->flags |= kVstPinIsStereo;
 			  }
-		    sprintf(pp->label, "Output %d", idx + 1);
+        
+        if (_this->mOutChannels.Get(idx)->mLabel.GetLength()) 
+        {
+          sprintf(pp->label, "%s", _this->mOutChannels.Get(idx)->mLabel.Get());
+        }
+        else 
+        {
+          sprintf(pp->label, "Output %d", idx + 1);
+        }
+        
 		    return 1;
 	    }
 	    return 0;
