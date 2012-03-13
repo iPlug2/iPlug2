@@ -906,6 +906,20 @@ void IPlugBase::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
+void IPlugBase::SetInputLabel(int idx, const char* pLabel)
+{
+  if (idx >= 0 && idx < NInChannels()) {
+    mInChannels.Get(idx)->mLabel.Set(pLabel);
+  }
+}
+
+void IPlugBase::SetOutputLabel(int idx, const char* pLabel)
+{
+  if (idx >= 0 && idx < NOutChannels()) {
+    mOutChannels.Get(idx)->mLabel.Set(pLabel);
+  }
+}
+
 const int kFXPVersionNum = 1;
 const int kFXBVersionNum = 2;
 
