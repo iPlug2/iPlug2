@@ -431,7 +431,7 @@ bool InitialiseAudio(unsigned int inId,
   gIOVS = iovs; // gIOVS may get changed by stream
   gSigVS = atoi(gState->mAudioSigVS); // This is done here so that it changes when the callback is stopped
   
-  DBGMSG("\ntrying to start audio stream @ %i sr, %i iovs, %i sigvs\nindev = %i:%s\noutdev = %i:%s", sr, iovs, gSigVS, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str());
+  DBGMSG("\ntrying to start audio stream @ %i sr, %i iovs, %i sigvs\nindev = %i:%s\noutdev = %i:%s\n", sr, iovs, gSigVS, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str());
   
   RtAudio::StreamOptions options;
   options.flags = RTAUDIO_NONINTERLEAVED;
