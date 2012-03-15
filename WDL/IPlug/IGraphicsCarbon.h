@@ -29,6 +29,7 @@ public:
 
   bool Resize(int w, int h);
 
+  MenuRef CreateMenu(IPopupMenu* pMenu);
   IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
   void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
 

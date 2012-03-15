@@ -142,7 +142,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             pGraphics->mParamEditMsg = kUpdate;
           }
           else 
-			      UpdateWindow(hWnd);
+                  UpdateWindow(hWnd);
         }
       }
       return 0;
@@ -161,14 +161,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->mEdControl = 0;
         pGraphics->mDefEditProc = 0;
         pGraphics->mParamEditMsg = kNone;
-		//force full redraw when closing text entry
-		RECT r = { 0, 0, pGraphics->Width(), pGraphics->Height() };
-		InvalidateRect(hWnd, &r, FALSE);
-		UpdateWindow(hWnd);
+        //force full redraw when closing text entry
+        RECT r = { 0, 0, pGraphics->Width(), pGraphics->Height() };
+        InvalidateRect(hWnd, &r, FALSE);
+        UpdateWindow(hWnd);
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
-#ifdef RTAS_API
+      #ifdef RTAS_API
       // pass ctrl-start-alt-click or ctrl-start-click to host window (Pro Tools)
       if ((IsControlKeyDown() && IsOptionKeyDown() && IsCommandKeyDown() ) || (IsControlKeyDown() && IsCommandKeyDown()))
       {
@@ -206,7 +206,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         return 0;       
       }
-#endif
+      #endif
       pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
       return 0;
       
@@ -314,7 +314,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->CloseWindow();
       return 0;
     }
-#ifdef RTAS_API
+    #ifdef RTAS_API
     case WM_MEASUREITEM : {
       HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
       LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
@@ -325,13 +325,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
       return result;
     }
-#endif
-	case WM_SETFOCUS: {
+    #endif
+    case WM_SETFOCUS: {
         return 0;
     }
     case WM_KILLFOCUS: {
-		return 0;
-	}
+        return 0;
+    }
   }
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -347,28 +347,28 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       case WM_CHAR: {
         // limit to numbers for text entry on appropriate parameters
         if(pGraphics->mEdParam) {
-	        char c = wParam;
+            char c = wParam;
 
           if(c == 0x08) break; // backspace
 
-	        switch ( pGraphics->mEdParam->Type() ) 
-	        {
-	          case IParam::kTypeEnum:
-	          case IParam::kTypeInt:
+            switch ( pGraphics->mEdParam->Type() ) 
+            {
+              case IParam::kTypeEnum:
+              case IParam::kTypeInt:
             case IParam::kTypeBool:
-		          if (c >= '0' && c <= '9') break;
+                  if (c >= '0' && c <= '9') break;
               else if (c == '-') break;
               else if (c == '+') break;
-		          else return 0;
-	          case IParam::kTypeDouble:
-		          if (c >= '0' && c <= '9') break;
+                  else return 0;
+              case IParam::kTypeDouble:
+                  if (c >= '0' && c <= '9') break;
               else if (c == '-') break;
               else if (c == '+') break;
-		          else if (c == '.') break;
-		          else return 0;
-	          default:
-		          break;
-	        }
+                  else if (c == '.') break;
+                  else return 0;
+              default:
+                  break;
+            }
         }
         break; 
       }
@@ -438,9 +438,9 @@ LICE_IBitmap* IGraphicsWin::OSLoadBitmap(int ID, const char* name)
   ++ext;
 
   if (!stricmp(ext, "png")) return _LICE::LICE_LoadPNGFromResource(mHInstance, ID, 0);
-#ifdef IPLUG_JPEG_SUPPORT
+  #ifdef IPLUG_JPEG_SUPPORT
   if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg")) return _LICE::LICE_LoadJPGFromResource(mHInstance, ID, 0);
-#endif
+  #endif
 
   return 0;
 }
@@ -523,32 +523,32 @@ void IGraphicsWin::Resize(int w, int h)
 
 void IGraphicsWin::HideMouseCursor()
 {
-	if (!mCursorHidden)
-	{
-		POINT p;
-		GetCursorPos(&p);
-		
-		mHiddenMousePointX = p.x;
-		mHiddenMousePointY = p.y;
-		
-		ShowCursor(false);
-		mCursorHidden=true;
-	}
+    if (!mCursorHidden)
+    {
+        POINT p;
+        GetCursorPos(&p);
+        
+        mHiddenMousePointX = p.x;
+        mHiddenMousePointY = p.y;
+        
+        ShowCursor(false);
+        mCursorHidden=true;
+    }
 }
 
 void IGraphicsWin::ShowMouseCursor()
 {
-	if (mCursorHidden)
-	{
-		SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
-		ShowCursor(true);
-		mCursorHidden=false;
-	}
+    if (mCursorHidden)
+    {
+        SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
+        ShowCursor(true);
+        mCursorHidden=false;
+    }
 }
 
 int IGraphicsWin::ShowMessageBox(const char* pText, const char* pCaption, int type)
 {
-	return MessageBox(GetMainWnd(), pText, pCaption, type);
+    return MessageBox(GetMainWnd(), pText, pCaption, type);
 }
 
 bool IGraphicsWin::DrawScreen(IRECT* pR)
@@ -674,119 +674,166 @@ void IGraphicsWin::CloseWindow()
   }
 }
 
-IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu* pMenu)
 {
-  ReleaseMouseCapture();
-  
-  int numItems = pMenu->GetNItems();
+  long oldIDx = offsetIdx;
+  offsetIdx += pMenu->GetNItems();
 
-  POINT cPos;
-  
-  cPos.x = pAreaRect->L;
-  cPos.y = pAreaRect->B;
+  if (idx < offsetIdx)
+  {
+    idxInMenu = idx - oldIDx;
+    return pMenu;
+  }
+    
+  IPopupMenu* menu = 0;
 
-  ClientToScreen(mPlugWnd, &cPos);
+  for(int i = 0; i< pMenu->GetNItems();i++)
+  {
+    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+    if(menuItem->GetSubmenu())
+    {
+      menu = GetItemMenu(idx, idxInMenu, offsetIdx, menuItem->GetSubmenu());
 
+      if(menu)
+        break;
+    }
+  }
+
+  return menu;
+}
+
+HMENU IGraphicsWin::CreateMenu(IPopupMenu* pMenu, long* offsetIdx)
+{
   HMENU hMenu = CreatePopupMenu();
 
   int flags = 0;
-  
-  if(numItems && hMenu)
-  {
-    for(int i = 0; i< numItems;i++)
-    {
-      IPopupMenuItem* menuItem = pMenu->GetItem(i);
+  long idxSubmenu = 0;
+  long offset = *offsetIdx;
+  long nItems = pMenu->GetNItems();
+  *offsetIdx += nItems;
+  long inc = 0;
 
-      if (menuItem->GetIsSeparator())
+  for(int i = 0; i< nItems; i++)
+  {
+    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+
+    if (menuItem->GetIsSeparator())
+    {
+      AppendMenu (hMenu, MF_SEPARATOR, 0, 0);
+    }
+    else
+    {
+      const char* str = menuItem->GetText();
+      char* titleWithPrefixNumbers = 0;
+        
+      if (pMenu->GetPrefix())
       {
-        AppendMenu (hMenu, MF_SEPARATOR, 0, 0);
+        titleWithPrefixNumbers = (char*)malloc(strlen(str) + 50);
+
+        switch (pMenu->GetPrefix())
+        {
+          case 1:
+          {
+            sprintf(titleWithPrefixNumbers, "%1d: %s", i+1, str); break;
+          }
+          case 2:
+          {
+            sprintf(titleWithPrefixNumbers, "%02d: %s", i+1, str); break;
+          }
+          case 3:
+          {
+            sprintf(titleWithPrefixNumbers, "%03d: %s", i+1, str); break;
+          }
+        }
+      }
+
+      const char* entryText (titleWithPrefixNumbers ? titleWithPrefixNumbers : str);
+        
+      flags = MF_STRING;
+      //if (nItems < 160 && pMenu->getNbItemsPerColumn () > 0 && inc && !(inc % _menu->getNbItemsPerColumn ()))
+      //  flags |= MF_MENUBARBREAK;
+
+      if (menuItem->GetSubmenu())
+      {
+        HMENU submenu = CreateMenu(menuItem->GetSubmenu(), offsetIdx);
+        if (submenu)
+        {
+          AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText);
+        }
       }
       else
       {
-        const char* str = menuItem->GetText();
-        char* titleWithPrefixNumbers = 0;
-        
-        if (pMenu->GetPrefix())
-        {
-          titleWithPrefixNumbers = (char*)malloc(strlen(str) + 50);
-
-          switch (pMenu->GetPrefix())
-          {
-            case 1:
-            {
-              sprintf(titleWithPrefixNumbers, "%1d: %s", i+1, str); break;
-            }
-            case 2:
-            {
-              sprintf(titleWithPrefixNumbers, "%02d: %s", i+1, str); break;
-            }
-            case 3:
-            {
-              sprintf(titleWithPrefixNumbers, "%03d: %s", i+1, str); break;
-            }
-          }
-        }
-
-        const char* entryText (titleWithPrefixNumbers ? titleWithPrefixNumbers : str);
-        
-        flags = MF_STRING;
-        //if (nbEntries < 160 && _menu->getNbItemsPerColumn () > 0 && inc && !(inc % _menu->getNbItemsPerColumn ()))
-        //  flags |= MF_MENUBARBREAK;
-
-        if (menuItem->GetSubmenu())
-        {
-        //  HMENU submenu = createMenu (item->getSubmenu (), offsetIdx);
-        //  if (submenu)
-        //  {
-         //   AppendMenu (menu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText);
-         // }
-        }
+        if (menuItem->GetEnabled())
+          flags |= MF_ENABLED;
         else
-        {
-          if (menuItem->GetEnabled())
-            flags |= MF_ENABLED;
-          else
-            flags |= MF_GRAYED;
-          if (menuItem->GetIsTitle())
-            flags |= MF_DISABLED;
-          //if (multipleCheck && menuItem->GetChecked())
-           // flags |= MF_CHECKED;
-          if (menuItem->GetChecked())
-            flags |= MF_CHECKED;
-          else
-            flags |= MF_UNCHECKED;
-          //if (!(flags & MF_CHECKED))
-          //  flags |= MF_UNCHECKED;
+          flags |= MF_GRAYED;
+        if (menuItem->GetIsTitle())
+          flags |= MF_DISABLED;
+        if (menuItem->GetChecked())
+          flags |= MF_CHECKED;
+        else
+          flags |= MF_UNCHECKED;
           
-          AppendMenu(hMenu, flags, i+1, entryText);
-          
-        }
+        AppendMenu(hMenu, flags, offset + inc, entryText);    
+      }
 
-        if(titleWithPrefixNumbers)
-          FREE_NULL(titleWithPrefixNumbers);
+      if(titleWithPrefixNumbers)
+        FREE_NULL(titleWithPrefixNumbers);
+    }
+    inc++;
+  }
+
+  return hMenu;
+}
+
+IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+{
+  ReleaseMouseCapture();
+
+  long offsetIdx = 0;  
+  HMENU hMenu = CreateMenu(pMenu, &offsetIdx);
+  IPopupMenu* result = 0;
+  
+  if(hMenu)
+  {
+    POINT cPos;
+  
+    cPos.x = pAreaRect->L;
+    cPos.y = pAreaRect->B;
+
+    ClientToScreen(mPlugWnd, &cPos);
+
+    if (TrackPopupMenu(hMenu, 
+                       TPM_LEFTALIGN,
+                      cPos.x,
+                      cPos.y,
+                      0,
+                      mPlugWnd,
+                      0))
+    {
+      MSG msg;
+            if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
+      {
+        if (HIWORD(msg.wParam) == 0)
+                {
+                    long res = LOWORD(msg.wParam);
+                    if (res != -1)
+                    {
+                        long idx = 0;
+                        offsetIdx = 0;
+                        IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, pMenu);
+                        if(resultMenu)
+                        {
+                            result = resultMenu;
+                            result->SetChosenItemIdx(idx);
+                        }
+                    }
+                }
       }
     }
-    
-    int itemChosen = TrackPopupMenu(hMenu, TPM_LEFTALIGN/*|TPM_VCENTERALIGN*/|TPM_NONOTIFY|TPM_RETURNCMD, cPos.x, cPos.y, 0, mPlugWnd, 0);
-
-//    IPopupMenu* chosenMenu;
-
- 
-
-    if (itemChosen > 0)
-    {
-      pMenu->SetChosenItemIdx(itemChosen - 1);
-      DestroyMenu(hMenu);
-      return pMenu;
-    }
-    else 
-    {
-      DestroyMenu(hMenu);
-      return 0;
-    }
+    DestroyMenu(hMenu);
   }
-  else 
-  return 0;
+  return result;
 }
 
 void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)

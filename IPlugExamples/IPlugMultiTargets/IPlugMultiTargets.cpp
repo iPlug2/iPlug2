@@ -64,8 +64,8 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IKnobMultiControlText(this, IRECT(kGainX + 75, kGainY, kGainX + 48 + 75, kGainY + 48 + 20), kGainR, &knob, &text));
   pGraphics->AttachControl(new ITempoDisplay(this, IRECT(300, 10, kWidth, 20), &text, &mTimeInfo));
   
- // pGraphics->AttachControl(new IPopUpMenuControl(this, IRECT(10, 100, 60, 115), kMode));
-  pGraphics->AttachControl(new ITestPopupMenu(this, IRECT(10, 100, 60, 115)));
+  pGraphics->AttachControl(new ITestPopupMenu(this, IRECT(410, 100, 460, 115)));
+  pGraphics->AttachControl(new ITestPopupMenuB(this, IRECT(470, 100, 520, 115)));
 
   pGraphics->AttachKeyCatcher(new IKeyCatcher(this, IRECT(0, 0, kWidth, kHeight)));
   
@@ -185,19 +185,19 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
     *out1 = sin( 2. * M_PI * mFreq * mPhase / mSampleRate ) * mGainLSmoother.Process(mGainL * mNoteGain);
     *out2 = sin( 2. * M_PI * mFreq * 1.01 * (mPhase++) / mSampleRate ) * mGainRSmoother.Process(mGainR * mNoteGain);
     
-  	peakL = IPMAX(peakL, fabs(*out1));
-		peakR = IPMAX(peakR, fabs(*out2));
-	}
+    peakL = IPMAX(peakL, fabs(*out1));
+    peakR = IPMAX(peakR, fabs(*out2));
+  }
   
-	const double METER_ATTACK = 0.6, METER_DECAY = 0.05;
-	double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
-	double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+  const double METER_ATTACK = 0.6, METER_DECAY = 0.05;
+  double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+  double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
   
-	peakL = peakL * xL + mPrevL * (1.0 - xL);
-	peakR = peakR * xR + mPrevR * (1.0 - xR);
+  peakL = peakL * xL + mPrevL * (1.0 - xL);
+  peakR = peakR * xR + mPrevR * (1.0 - xR);
   
-	mPrevL = peakL;
-	mPrevR = peakR;
+  mPrevL = peakL;
+  mPrevR = peakR;
   
   if (GetGUI())
   {

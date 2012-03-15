@@ -34,6 +34,10 @@ void ResizeWindow(WindowRef pWindow, int w, int h)
   SetWindowBounds(pWindow, kWindowContentRgn, &gr); 
 }
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
+typedef UInt32 URefCon;
+#endif
+
 IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac, 
                                  WindowRef pWindow, 
                                  ControlRef pParentControl, 
@@ -169,26 +173,26 @@ bool IGraphicsCarbon::Resize(int w, int h)
   return false;
 }
 
-IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+MenuRef IGraphicsCarbon::CreateMenu(IPopupMenu* pMenu)
 {
   MenuRef menuRef = 0;
   ResID menuID = UniqueID ('MENU');
-
+  
   int numItems = pMenu->GetNItems();
   
   if (numItems && CreateNewMenu(menuID, kMenuAttrCondenseSeparators, &menuRef) == noErr)
-  {
-//    bool multipleCheck = menu->getStyle () & (kMultipleCheckStyle & ~kCheckStyle);
-
+  {    
     for (int i = 0; i < numItems; ++i)
     { 
       IPopupMenuItem* menuItem = pMenu->GetItem(i);
       
       if (menuItem->GetIsSeparator())
+      {
         AppendMenuItemTextWithCFString(menuRef, CFSTR(""), kMenuItemAttrSeparator, 0, NULL);
+      }
       else
       {
-        CFStringRef itemString = CFStringCreateWithCString (NULL, menuItem->GetText(), kCFStringEncodingUTF8);
+        CFStringRef itemString = CFStringCreateWithCString(NULL, menuItem->GetText(), kCFStringEncodingUTF8);
         
         if (pMenu->GetPrefix())
         {
@@ -197,16 +201,16 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
           switch (pMenu->GetPrefix())
           {
             case 0: 
-              prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR(""),i+1); break;
+              prefixString = CFStringCreateWithFormat(NULL, 0, CFSTR(""),i+1); break;
             case 1:
-              prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR("%1d: "),i+1); break;
+              prefixString = CFStringCreateWithFormat(NULL, 0, CFSTR("%1d: "),i+1); break;
             case 2:
-              prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR("%02d: "),i+1); break;
+              prefixString = CFStringCreateWithFormat(NULL, 0, CFSTR("%02d: "),i+1); break;
             case 3:
-              prefixString = CFStringCreateWithFormat (NULL, 0, CFSTR("%03d: "),i+1); break;
+              prefixString = CFStringCreateWithFormat(NULL, 0, CFSTR("%03d: "),i+1); break;
           }
           
-          CFMutableStringRef newItemString = CFStringCreateMutable (0, 0);
+          CFMutableStringRef newItemString = CFStringCreateMutable(0, 0);
           CFStringAppend (newItemString, prefixString);
           CFStringAppend (newItemString, itemString);
           CFRelease (itemString);
@@ -218,71 +222,79 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
           continue;
         
         MenuItemAttributes itemAttribs = kMenuItemAttrIgnoreMeta;
+        
         if (!menuItem->GetEnabled())
+        {
           itemAttribs |= kMenuItemAttrDisabled;
+        }
+        
         if (menuItem->GetIsTitle())
+        {
           itemAttribs |= kMenuItemAttrSectionHeader;
+        }
         
         InsertMenuItemTextWithCFString(menuRef, itemString, i, itemAttribs, 0);
-                
+        
         if (menuItem->GetChecked())
         {
-          //MacCheckMenuItem(menuRef, i, true);
           CheckMenuItem(menuRef, i+1, true);
         }
-//        if (menuItem->GetChecked() && multipleCheck)
-//          CheckMenuItem (menuRef, i, true);
         
-//        if (menuItem->GetSubmenu())
-//        {
-//          MenuRef submenu = createMenu (menuItem->GetSubmenu());
-//          if (submenu)
-//          {
-//            SetMenuItemHierarchicalMenu (menuRef, i, submenu);
-//            CFRelease (submenu);
-//          }
-//        }
-                
+        if (menuItem->GetSubmenu())
+        {
+          MenuRef submenu = CreateMenu(menuItem->GetSubmenu());
+          
+          if (submenu)
+          {
+            SetMenuItemHierarchicalMenu(menuRef, i+1, submenu);
+            CFRelease (submenu);
+          }
+        }
+        
         CFRelease (itemString);
       }
     }
     
-  //  if (pMenu->getStyle() & kCheckStyle && !multipleCheck)
-  //    CheckMenuItem (menuRef, pMenu->getCurrentIndex (true) + 1, true);
-  //  SetMenuItemRefCon(menuRef, 0, (int32_t)menu);
-  //  InsertMenu(menuRef, kInsertHierarchicalMenu);
+    //  if (pMenu->getStyle() & kCheckStyle && !multipleCheck)
+    //    CheckMenuItem (menuRef, pMenu->getCurrentIndex (true) + 1, true);
+    SetMenuItemRefCon(menuRef, 0, (int32_t)pMenu);
+    //swell collision
+    #undef InsertMenu
+    InsertMenu(menuRef, kInsertHierarchicalMenu);
+    #define InsertMenu SWELL_InsertMenu
   }
+  
+  return menuRef;
+}
+
+IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+{
+  // Get the plugin gui frame rect within the host's window
+  HIRect rct;
+  HIViewGetFrame(this->mView, &rct);
+  
+  // Get the host's window rect within the screen
+  Rect wrct;
+  GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
+  
+#ifdef RTAS_API
+  int xpos = wrct.left + this->GetLeftOffset() + pAreaRect->L;
+  int ypos = wrct.top + this->GetTopOffset() + pAreaRect->B + 5;
+#else
+  HIViewRef contentView;
+  HIViewFindByID(HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
+  HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
+  
+  int xpos = wrct.left + rct.origin.x + pAreaRect->L;
+  int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
+#endif  
+  
+  MenuRef menuRef = CreateMenu(pMenu);
 
   if (menuRef)
   {
-    CalcMenuSize(menuRef);
-  //  SInt16 menuWidth = GetMenuWidth(menuRef);
-  //  if (menuWidth < optionMenu->getViewSize().getWidth())
-  //    SetMenuWidth(menuRef, optionMenu->getViewSize().getWidth());
-  //  int32_t popUpItem = 1;
-  //  int32_t PopUpMenuItem = PopUpMenuItem = PopUpMenuSelect(menuRef, gy, gx, popUpItem);
-    
-    // Get the plugin gui frame rect within the host's window
-    HIRect rct;
-    HIViewGetFrame(this->mView, &rct);
-    
-    // Get the host's window rect within the screen
-    Rect wrct;
-    GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
-
-#ifdef RTAS_API
-    int xpos = wrct.left + this->GetLeftOffset() + pAreaRect->L;
-    int ypos = wrct.top + this->GetTopOffset() + pAreaRect->B + 5;
-#else
-    HIViewRef contentView;
-    HIViewFindByID(HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
-    HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
-    
-    int xpos = wrct.left + rct.origin.x + pAreaRect->L;
-    int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
-#endif
-
-    int32_t PopUpMenuItem = PopUpMenuSelect (menuRef, ypos, xpos, 0);//popUpItem);
+    int32_t popUpItem = 1;    
+    int32_t PopUpMenuItem = PopUpMenuSelect(menuRef, ypos, xpos, popUpItem);
 
     short result = LoWord(PopUpMenuItem) - 1; 
     short menuIDResult = HiWord(PopUpMenuItem);
@@ -290,28 +302,23 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
     
     if (menuIDResult != 0)
     {
-      //MenuRef usedMenuRef = GetMenuHandle(menuIDResult);
-      
-      //if (usedMenuRef)
-      //{
-      //  if (GetMenuItemRefCon(usedMenuRef, 0, (URefCon*)&resultMenu) == noErr)
-      //  {
-        //  popupResult.menu = resultMenu;
-        //  popupResult.index = result;
-          
-          //printf("result = %i", result);
-          
-          resultMenu = pMenu;
+      MenuRef usedMenuRef = GetMenuHandle(menuIDResult);
+
+      if (usedMenuRef)
+      {
+        if (GetMenuItemRefCon(usedMenuRef, 0, (URefCon*)&resultMenu) == noErr)
+        {
           resultMenu->SetChosenItemIdx(result);
-      //  }
-      //}
+        }
+      }
     }
     
     CFRelease(menuRef);
     
     return resultMenu;
   }
-  else {
+  else 
+  {
     return 0;
   }
 }
@@ -448,6 +455,11 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
         {
           if (_this->mTextEntryView)
           {
+            #if !(USE_MLTE)
+            HIViewRef view;
+            HIViewGetViewForMouseEvent(_this->mView, pEvent, &view);
+            if (view == _this->mTextEntryView) break;
+            #endif
             _this->EndUserInput(true);
           }
           
@@ -575,7 +587,7 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
 #pragma mark -
 #pragma mark MLTE text entry methods
 
-#if MLTE
+#if USE_MLTE
 
 void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
 {
@@ -595,9 +607,9 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
   HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
   
   Rect rect = { rct.origin.y + pTextRect->T, 
-    rct.origin.x + pTextRect->L, 
-    rct.origin.y + pTextRect->B + 1, 
-    rct.origin.x + pTextRect->R + 1};
+                rct.origin.x + pTextRect->L, 
+                rct.origin.y + pTextRect->B + 1, 
+                rct.origin.x + pTextRect->R + 1};
   
   if (TXNNewObject(NULL, 
                    window, 
@@ -668,7 +680,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
                            &fontid);
     }
     
-    // font
+    // font (NOT working)
     TXNTypeAttributes attributes[3];
     attributes[0].tag = kATSUFontTag;
     attributes[0].size = sizeof(ATSUFontID);
@@ -962,11 +974,13 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 {
   ControlRef control = 0;
     
-	if (!pControl || mTextEntryView || !mIsComposited) return;
+  if (!pControl || mTextEntryView || !mIsComposited) return;
   
-  Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R }; // these adjustments should make it the same as the cocoa one
+  Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R };
   
-  //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 }; // these adjustments should make it the same as the cocoa one
+  // these adjustments should make it the same as the cocoa one, i.e. the same size as the pTextRect, but with the extra blue rim often this is too small
+  //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 };
+
   if (CreateEditUnicodeTextControl(NULL, &r, NULL, false, NULL, &control) != noErr) return;
   
   HIViewAddSubview(mView, control);
@@ -1012,12 +1026,12 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     default:
       just = teCenter;
       break;
-  }	
+  } 
   
   ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, just, 0, 0 };
-  
   CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
   font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
+ 
   SetControlData(mTextEntryView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);
   CFRelease(str);
   
@@ -1135,8 +1149,12 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
           Str31  theText;
           Size   textLength;            
           
-          GetControlData(_this->mTextEntryView,kControlNoPart,kControlEditTextTextTag,
-                         sizeof(theText) -1,(Ptr) &theText[1],&textLength);
+          GetControlData(_this->mTextEntryView,
+                         kControlNoPart,
+                         kControlEditTextTextTag,
+                         sizeof(theText) -1,
+                         (Ptr) &theText[1],
+                         &textLength);
           
           if(textLength >= _this->mEdControl->GetTextEntryLength())
             return noErr;
@@ -1149,5 +1167,5 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
   }
   return eventNotHandledErr;
 }
-#endif
+#endif // USE_MLTE
 #endif // IPLUG_NO_CARBON_SUPPORT
