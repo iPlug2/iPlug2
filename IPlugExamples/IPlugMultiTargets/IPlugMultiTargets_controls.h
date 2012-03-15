@@ -1,15 +1,21 @@
 class ITestPopupMenu : public IControl
 {
 private:
-  IPopupMenu mMenu;
+  IPopupMenu mMainMenu, mSubMenu;
 
 public:
   ITestPopupMenu(IPlugBase *pPlug, IRECT pR)
   : IControl(pPlug, pR, -1)
   {
-    mMenu.AddItem( new IPopupMenuItem("first item"));
-    mMenu.AddItem( new IPopupMenuItem("second item"));
-    mMenu.AddItem( new IPopupMenuItem("third item"));
+    mMainMenu.AddItem("first item");
+    mMainMenu.AddItem("second item");
+    mMainMenu.AddItem("third item");
+    
+    mSubMenu.AddItem("first item");
+    mSubMenu.AddItem("second item");
+    mSubMenu.AddItem("third item");
+    
+    mMainMenu.AddItem("sub menu", &mSubMenu);
   }
   
   bool Draw(IGraphics* pGraphics)
@@ -26,12 +32,75 @@ public:
   }
   
   void doPopupMenu()
-  {    
-    if(mPlug->GetGUI()->CreateIPopupMenu(&mMenu, &mRECT))
+  {
+    IPopupMenu* selectedMenu = mPlug->GetGUI()->CreateIPopupMenu(&mMainMenu, &mRECT);
+    
+    if (selectedMenu == &mMainMenu) 
     {
-      int itemChosen = mMenu.GetChosenItemIdx();
+      int itemChosen = selectedMenu->GetChosenItemIdx();
+      selectedMenu->CheckItemAlone(itemChosen);
+      DBGMSG("item chosen, main menu %i\n", itemChosen);
+    }
+    else if (selectedMenu == &mSubMenu)
+    {
+      int itemChosen = selectedMenu->GetChosenItemIdx();
+      selectedMenu->CheckItemAlone(itemChosen);
+      DBGMSG("item chosen, sub menu %i\n", itemChosen);
+    }
+    else 
+    {
+      DBGMSG("nothing chosen\n");
+    }
+  }
+};
+
+class ITestPopupMenuB : public IControl
+{
+private:
+  IPopupMenu mMainMenu;
+  
+public:
+  ITestPopupMenuB(IPlugBase *pPlug, IRECT pR)
+  : IControl(pPlug, pR, -1)
+  {
+    mMainMenu.SetMultiCheck(true);
+    mMainMenu.AddItem("first item");
+    mMainMenu.AddItem("second item");
+    mMainMenu.AddItem("third item");
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  {     
+    return pGraphics->FillIRect(&COLOR_WHITE, &mRECT);;
+  }
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
+    doPopupMenu();
+    
+    Redraw(); // seems to need this
+    SetDirty();
+  }
+  
+  void doPopupMenu()
+  {
+    IPopupMenu* selectedMenu = mPlug->GetGUI()->CreateIPopupMenu(&mMainMenu, &mRECT);
+    
+    if(selectedMenu) 
+    {
+      int idx = selectedMenu->GetChosenItemIdx();
+      selectedMenu->CheckItem(idx, !selectedMenu->IsItemChecked(idx));
       
-      DBGMSG("item chosen %i\n", itemChosen);
+      WDL_String checkedItems;
+      
+      checkedItems.Append("checked: ", 1024);
+      
+      for (int i = 0; i < selectedMenu->GetNItems(); i++) 
+      {
+        checkedItems.AppendFormatted(1024, "%i ", selectedMenu->IsItemChecked(i));
+      }
+            
+      DBGMSG("%s\n", checkedItems.Get());
     }
   }
 };
@@ -89,9 +158,9 @@ public:
     {
       const char* str = mPlug->GetPresetName(i);
       if (i == currentPresetIdx)
-        menu.AddItem( new IPopupMenuItem(str, IPopupMenuItem::kChecked), -1 );
+        menu.AddItem(str, -1, IPopupMenuItem::kChecked);
       else      
-        menu.AddItem( new IPopupMenuItem(str), -1 );
+        menu.AddItem(str);
     }
     
     menu.SetPrefix(2);

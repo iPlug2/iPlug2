@@ -2,7 +2,7 @@
 #define _IGRAPHICSMAC_
 
 #if defined(__APPLE__) && defined(__LP64__) && !defined(IPLUG_NO_CARBON_SUPPORT)
-	#define IPLUG_NO_CARBON_SUPPORT
+  #define IPLUG_NO_CARBON_SUPPORT
 #endif
 
 #include "IGraphics.h"
@@ -14,7 +14,7 @@
 #endif
 
 #ifndef IPLUG_NO_CARBON_SUPPORT
-	class IGraphicsCarbon;
+  class IGraphicsCarbon;
 #endif
 
 #ifndef COCOA_PREFIX 
@@ -38,7 +38,8 @@
 #define CONCAT(cname) CONCAT2(cname,COCOA_PREFIX,API)
 
 #define IGRAPHICS_COCOA CONCAT(IGraphicsCocoa_)
-#define DUMMY_COCOA_VIEW CONCAT(DummyCocoaView_)
+#define IGRAPHICS_NSMENU CONCAT(IGraphicsNSMenu_)
+#define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 #define COCOA_FORMATTER CONCAT(CocoaFormatter_)
 
@@ -46,8 +47,8 @@ class IGraphicsMac : public IGraphics
 {
 public:
 
-	IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS);
-	virtual ~IGraphicsMac();
+  IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS);
+  virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
   
@@ -58,7 +59,7 @@ public:
   void* OpenWindow(void* pWindow, void* pControl, short leftOffset = 0, short topOffset = 0);
 #endif
   
-	void* OpenCocoaWindow(void* pParentView);  
+  void* OpenCocoaWindow(void* pParentView);  
 #ifndef IPLUG_NO_CARBON_SUPPORT
   void* OpenCarbonWindow(void* pParentWnd, void* pParentControl, short leftOffset, short topOffset);
 #endif
@@ -66,8 +67,8 @@ public:
   void AttachSubWindow(void* hostWindowRef);
   void RemoveSubWindow();
 
-	void CloseWindow();
-	bool WindowIsOpen();
+  void CloseWindow();
+  bool WindowIsOpen();
   void Resize(int w, int h);
   
   void HideMouseCursor();
@@ -82,17 +83,17 @@ public:
   void PluginPath(WDL_String* pPath);
   void DesktopPath(WDL_String* pPath);
 
-	void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
+  void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
-	
-	IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect);
+  
+  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect);
   void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam );
 
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
 
-	void* GetWindow();
+  void* GetWindow();
 
-	int mIdleTicks;
+  int mIdleTicks;
 
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
@@ -155,7 +156,7 @@ inline CGRect ToCGRect(int h, IRECT* pR)
 
 inline int AdjustFontSize(int size)
 {
-	return int(0.9 * (double)size);
+  return int(0.9 * (double)size);
 }
 
 #endif
