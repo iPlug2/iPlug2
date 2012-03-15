@@ -299,17 +299,19 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return 0;
     }
 
-  /*  case WM_CTLCOLOREDIT: {
-      // An edit control just opened.
+    case WM_CTLCOLOREDIT: {
+
+      if(!pGraphics->mEdControl)
+         return 0;
+
+      IText* pText = pGraphics->mEdControl->GetText();
       HDC dc = (HDC) wParam;
-      SetBkColor (dc, RGB(0, 0, 0));
-      SetTextColor(dc, RGB(255, 255, 255));
-      SetBkMode(dc,OPAQUE); 
-      //SetDCBrushColor(dc, RGB(255, 0, 0));
+      SetBkColor(dc, RGB(pText->mTextEntryBGColor.R, pText->mTextEntryBGColor.G, pText->mTextEntryBGColor.B));
+      SetTextColor(dc, RGB(pText->mTextEntryFGColor.R, pText->mTextEntryFGColor.G, pText->mTextEntryFGColor.B));
+      SetBkMode(dc, OPAQUE); 
       return (BOOL)GetStockObject(DC_BRUSH);
-      //return 0;
     }
-   */
+
     case WM_CLOSE: {
       pGraphics->CloseWindow();
       return 0;
@@ -854,7 +856,7 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
   editStyle |= ES_MULTILINE;
   
   mParamEditWnd = CreateWindow("EDIT", pString, WS_CHILD | WS_VISIBLE | editStyle , 
-                               pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1, 
+                               pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H() + 2, 
                                mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
   
   HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
