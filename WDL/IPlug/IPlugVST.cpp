@@ -190,21 +190,27 @@ void IPlugVST::GetTime(ITimeInfo* pTimeInfo)
 EHost IPlugVST::GetHost() 
 {
   EHost host = IPlugBase::GetHost();
-  if (host == kHostUninit) {
-    char vendorStr[256], productStr[256];
+  
+  if (host == kHostUninit) 
+  {
+    char productStr[256];
     productStr[0] = '\0';
     int version = 0;
     mHostCallback(&mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
-    if (CSTR_NOT_EMPTY(vendorStr) || CSTR_NOT_EMPTY(productStr)) {
+    
+    if (CSTR_NOT_EMPTY(productStr)) 
+    {
       int decVer = mHostCallback(&mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
       int ver = decVer / 10000;
       int rmaj = (decVer - 10000 * ver) / 100;
       int rmin = (decVer - 10000 * ver - 100 * rmaj);
       version = (ver << 16) + (rmaj << 8) + rmin;
     }
+    
     SetHost(productStr, version);
     host = IPlugBase::GetHost();    
   }
+  
   return host;
 }
 
