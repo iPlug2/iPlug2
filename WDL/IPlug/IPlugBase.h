@@ -89,6 +89,9 @@ public:
   // implement this to do something specific when IPlug is aware of the host
   // may get called multiple times
   virtual void OnHostIdentified() { return; };
+  
+  virtual void PopupHostContextMenuForParam(int param, int x, int y) { return; }; //only for VST3, call it from the GUI
+  
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
