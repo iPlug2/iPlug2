@@ -139,7 +139,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
         case IParam::kTypeDouble:
         case IParam::kTypeInt:
         {
-          Parameter* param = new RangeParameter ( STR16(p->GetNameForHost()), 
+          Parameter* param = new RangeParameter( STR16(p->GetNameForHost()), 
                                                   i, 
                                                   STR16(p->GetLabelForHost()), 
                                                   p->GetMin(), 
@@ -149,7 +149,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                                                   flags);
           
           param->setPrecision (p->GetPrecision());
-          parameters.addParameter (param);
+          parameters.addParameter(param);
 
           break;
         }
@@ -170,7 +170,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
             param->appendString(STR16(p->GetDisplayText(j)));
           }
           
-          parameters.addParameter (param);
+          parameters.addParameter(param);
           break; 
         }
         default:
@@ -780,6 +780,27 @@ void IPlugVST3::ResizeGraphics(int w, int h)
   if (GetGUI()) 
   {
     viewsArray.at(0)->resize(w, h);
+  }
+}
+
+void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)
+{
+  if (componentHandler == 0 || viewsArray.at(0) == 0)
+    return;
+  
+  FUnknownPtr<IComponentHandler3>handler(componentHandler);
+  
+  if (handler == 0)
+    return;
+  
+  ParamID p = param;
+  
+  IContextMenu* menu = handler->createContextMenu(viewsArray.at(0), &p);
+  
+  if (menu)
+  {
+    menu->popup((UCoord) x,(UCoord) y);
+    menu->release();
   }
 }
 
