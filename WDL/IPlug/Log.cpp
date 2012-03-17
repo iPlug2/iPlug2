@@ -180,7 +180,8 @@ void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String*
 
 const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr)
 {
-    static WDL_String str(cStr);
+    static WDL_String str;
+    str.Set(cStr);
     WDL_String tStr;
     CompileTimestamp(Mmm_dd_yyyy, hh_mm_ss, &tStr);
     str.Append(" ");
