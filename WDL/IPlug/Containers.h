@@ -22,6 +22,7 @@
 
 #define FREE_NULL(p) {free(p);p=0;}
 #define DELETE_NULL(p) {delete(p); p=0;}
+#define DELETE_ARRAY(p) {delete[](p); (p)=0;}
 #define IPMIN(x,y) ((x)<(y)?(x):(y))
 #define IPMAX(x,y) ((x)<(y)?(y):(x))
 #define BOUNDED(x,lo,hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
