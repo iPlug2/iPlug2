@@ -143,7 +143,8 @@ const char* IParam::GetNameForHost()
 
 const char* IParam::GetLabelForHost()
 {
-  return mLabel;
+    const char* displayText = GetDisplayText((int) mValue);
+    return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel;
 }
 
 int IParam::GetNDisplayTexts()
