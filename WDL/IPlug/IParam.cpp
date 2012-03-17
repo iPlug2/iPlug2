@@ -130,9 +130,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
 	}*/
 	else
 	{
-		char fmt[16];
-		sprintf(fmt, "%%.%df", mDisplayPrecision);
-		sprintf(rDisplay, fmt, displayValue);
+        sprintf(rDisplay, "%.*f", mDisplayPrecision, displayValue);
 	}
 }
 
