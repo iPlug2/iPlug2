@@ -60,9 +60,13 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   String128 hostNameS128;
   char hostNameCString[128];
   FUnknownPtr<IHostApplication>app(context);
-  app->getName(hostNameS128);
-  Steinberg::UString(hostNameS128, 128).toAscii(hostNameCString, 128);
-  SetHost(hostNameCString, 0); // Can't get version in VST3
+  
+  if (app) 
+  {
+    app->getName(hostNameS128);
+    Steinberg::UString(hostNameS128, 128).toAscii(hostNameCString, 128);
+    SetHost(hostNameCString, 0); // Can't get version in VST3
+  }
   
   if (result == kResultOk)
   {
