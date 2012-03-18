@@ -759,16 +759,33 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
 	ReleaseMouseCapture();
   int c = GetMouseControlIdx(x, y);
-	if (c >= 0) {
+	if (c >= 0) 
+  {
 		mMouseCapture = c;
 		mMouseX = x;
 		mMouseY = y;
         
     IControl* pControl = mControls.Get(c);
-		pControl->OnMouseDown(x, y, pMod);
-    pControl = mControls.Get(c); // needed if the mouse message caused a resize/rebuild
     int paramIdx = pControl->ParamIdx();
-    if (paramIdx >= 0) {
+    
+#ifdef VST3_API // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
+    if (mPlug->GetAPI() == kAPIVST3) 
+    {
+      if (pMod->R && paramIdx >= 0) 
+      {
+        mPlug->PopupHostContextMenuForParam(paramIdx, x, y);
+        return;
+      }
+    }
+#endif
+		pControl->OnMouseDown(x, y, pMod);
+    
+    // need to do these things again in case the mouse message caused a resize/rebuild
+    pControl = mControls.Get(c);
+    paramIdx = pControl->ParamIdx();
+
+    if (paramIdx >= 0)
+    {
       mPlug->BeginInformHostOfParamChange(paramIdx);
     }    
   }
