@@ -768,7 +768,7 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
     IControl* pControl = mControls.Get(c);
     int paramIdx = pControl->ParamIdx();
     
-#ifdef VST3_API // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
+#ifdef VST3_API || OS_WIN // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
     if (mPlug->GetAPI() == kAPIVST3) 
     {
       if (pMod->R && paramIdx >= 0) 
