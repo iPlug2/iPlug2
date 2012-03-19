@@ -843,7 +843,6 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
   if (!pControl || mParamEditWnd) return;
   
   DWORD editStyle;
-
   
   switch ( pText->mAlign ) 
   {
@@ -856,7 +855,7 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
   editStyle |= ES_MULTILINE;
   
   mParamEditWnd = CreateWindow("EDIT", pString, WS_CHILD | WS_VISIBLE | editStyle , 
-                               pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H() + 2, 
+                               pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1, 
                                mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
   
   HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
