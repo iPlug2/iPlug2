@@ -28,13 +28,14 @@ AU wrapper:
 - sidechain input - seems to kind of work in logic, works in live, not in studio one
 - preset changing from inside the plugin doesn't consistently update logic's GUI
 - auval "preset name not retained" message
+- SendMidiMsg
 
 VST3 wrapper:
 
 - midi output
 - pitch bend & other common MIDI CC parameters
 - check presets list (doesn't work in S1)
-- 
+- multi-output
 
 RTAS wrapper:
 
