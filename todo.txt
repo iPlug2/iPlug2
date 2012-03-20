@@ -12,6 +12,7 @@ ALL - make consistent code style. tabs/spaces m_blah mBlah etc
 ALL - make side chain/multi-channel definitions consistent/easier
 ALL - save fxp/fxb with chunks
 ALL - carbon non-composited text entry
+ALL - set up MSVC projects to handle compilation on x64 or x86 WRT VST3 binary copying, debugging executable etc
 
 Examples:
 
