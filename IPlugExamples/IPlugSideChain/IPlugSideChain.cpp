@@ -68,6 +68,22 @@ IPlugSideChain::IPlugSideChain(IPlugInstanceInfo instanceInfo)
   mMeterIdx_LS = pGraphics->AttachControl(new IPeakMeterVert(this, MakeIRect(kMeterLS)));
 	mMeterIdx_RS = pGraphics->AttachControl(new IPeakMeterVert(this, MakeIRect(kMeterRS)));  
   
+  if (GetAPI() == kAPIVST2) // for VST2 we name individual outputs
+  {
+    SetInputLabel(0, "main input L");
+    SetInputLabel(1, "main input R");
+    SetInputLabel(2, "sc input L");
+    SetInputLabel(3, "sc input R");
+    SetOutputLabel(0, "output L");
+    SetOutputLabel(1, "output R");
+  }
+  else // for AU and VST3 we name buses
+  {
+    SetInputBusLabel(0, "main input");
+    SetInputBusLabel(1, "sc input");
+    SetOutputBusLabel(0, "output");
+  }
+
   AttachGraphics(pGraphics);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset((char *) "-", kNumPrograms);
@@ -78,6 +94,13 @@ IPlugSideChain::~IPlugSideChain() {}
 void IPlugSideChain::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   // Mutex is already locked for us.
+  
+  bool in1ic = IsInChannelConnected(0);
+  bool in2ic = IsInChannelConnected(1);
+  bool in3ic = IsInChannelConnected(2);
+  bool in4ic = IsInChannelConnected(3);
+  
+  printf("%i %i %i %i, ------------------------- \n", in1ic, in2ic, in3ic, in4ic);
   
 #ifdef RTAS_API
   double* in1 = inputs[0];
@@ -128,7 +151,20 @@ void IPlugSideChain::ProcessDoubleReplacing(double** inputs, double** outputs, i
   double* out2 = outputs[1];
   
   double peakL = 0.0, peakR = 0.0, peakLS = 0.0, peakRS = 0.0;
-    
+  
+//Stupid hack because logic connects the sidechain bus to the main bus when no sidechain is connected
+//see coreaudio mailing list
+#ifdef AU_API
+  if (GetHost() == kHostLogic) 
+  {
+    if(!memcmp(in1, scin1, nFrames * sizeof(double)))
+    {
+      memset(scin1, 0, nFrames * sizeof(double));
+      memset(scin2, 0, nFrames * sizeof(double));
+    }
+  }
+#endif
+  
   for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++scin1, ++scin2, ++out1, ++out2)
   {
     *out1 = *in1 * mGain;
