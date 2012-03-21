@@ -1,3 +1,6 @@
+// disable unknown pragmas warning MSVC
+#pragma warning (disable : 4068 )
+
 #include "IPlugVST3.h"
 #include "IGraphics.h"
 #include <stdio.h>
@@ -42,6 +45,21 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
 { 
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
+  
+  // initialize the bus labels
+  SetInputBusLabel(0, "main input");
+  
+  if (mScChans)
+    SetInputBusLabel(1, "aux input");
+  
+  int busNum = 1;
+  char label[32];
+
+  for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only 
+  {
+    sprintf(label, "output %i", busNum++);
+    SetOutputBusLabel(i, label);
+  }
 }
 
 IPlugVST3::~IPlugVST3() 
@@ -57,14 +75,14 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   
   tresult result = SingleComponentEffect::initialize(context);
   
-  String128 hostNameS128;
+  String128 tmpStringBuf;
   char hostNameCString[128];
   FUnknownPtr<IHostApplication>app(context);
   
   if (app) 
   {
-    app->getName(hostNameS128);
-    Steinberg::UString(hostNameS128, 128).toAscii(hostNameCString, 128);
+    app->getName(tmpStringBuf);
+    Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
     SetHost(hostNameCString, 0); // Can't get version in VST3
   }
   
@@ -77,29 +95,29 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                          
     if (maxInputs) 
     {
-      addAudioInput(STR16("Audio Input"), maxInputs);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(0), 128);
+      addAudioInput(tmpStringBuf, maxInputs);
     }
     
     if(!mIsInst) // if effect, just add one output bus with max chan count
     {
-      addAudioOutput(STR16("Audio Output"), getSpeakerArrForChans(NOutChannels()) );
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0), 128);
+      addAudioOutput(tmpStringBuf, getSpeakerArrForChans(NOutChannels()) );
     }
     else 
     {
       for (int i = 0; i < NOutChannels(); i+=2) 
       {
-        addAudioOutput(STR16("Audio Output"), SpeakerArr::kStereo );
+        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(i), 128);
+        addAudioOutput(tmpStringBuf, SpeakerArr::kStereo );
       }
     }
 
-    if (mScChans == 1)
+    if (mScChans)
     {
-      addAudioInput(STR16("Sidechain Input"), SpeakerArr::kMono, kAux, 0);
-    }
-    else if (mScChans >= 2)
-    {
-      mScChans = 2;
-      addAudioInput(STR16("Sidechain Input"), SpeakerArr::kStereo, kAux, 0);
+      if (mScChans > 2) mScChans = 2;
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1), 128);
+      addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans));
     }
         
     if(mDoesMidi) 
