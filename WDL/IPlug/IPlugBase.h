@@ -156,8 +156,15 @@ protected:
   // ----------------------------------------
   // Useful stuff for your plugin class to call, implemented here or in the API class, or partly in both.
 
+  // for labelling individual inputs/outputs (VST2)
   void SetInputLabel(int idx, const char* pLabel);
   void SetOutputLabel(int idx, const char* pLabel);
+  // for labelling bus inputs/outputs (AU/VST3)
+  void SetInputBusLabel(int idx, const char* pLabel);
+  void SetOutputBusLabel(int idx, const char* pLabel);
+  
+  char* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx)->Get(); }
+  char* GetOutputBusLabel(int idx) { return mOutputBusLabels.Get(idx)->Get(); }
 
   struct ChannelIO 
   { 
@@ -285,6 +292,8 @@ private:
   };
   
 protected:
+  
+  // TODO: most of this should be private, not protected
   bool mStateChunks, mIsInst, mIsBypassed;
   double mSampleRate;
   int mBlockSize, mLatency;
@@ -292,7 +301,7 @@ protected:
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<InChannel> mInChannels;
   WDL_PtrList<OutChannel> mOutChannels;
-  
+
 private:
 	IGraphics* mGraphics;
 
@@ -300,6 +309,8 @@ private:
   int mCurrentPresetIdx;
 
   WDL_TypedBuf<double*> mInData, mOutData;
+  WDL_PtrList<WDL_String> mInputBusLabels;
+  WDL_PtrList<WDL_String> mOutputBusLabels;
 };
 
 #endif
