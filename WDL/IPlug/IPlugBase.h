@@ -159,6 +159,10 @@ protected:
   // for labelling individual inputs/outputs (VST2)
   void SetInputLabel(int idx, const char* pLabel);
   void SetOutputLabel(int idx, const char* pLabel);
+  
+  const WDL_String* GetInputLabel(int idx) { return &(mInChannels.Get(idx)->mLabel); }
+  const WDL_String* GetOutputLabel(int idx) { return &(mOutChannels.Get(idx)->mLabel); }
+  
   // for labelling bus inputs/outputs (AU/VST3)
   void SetInputBusLabel(int idx, const char* pLabel);
   void SetOutputBusLabel(int idx, const char* pLabel);
@@ -171,6 +175,7 @@ protected:
     int mIn, mOut; 
     ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
   };
+  
   WDL_PtrList<ChannelIO> mChannelIO;
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
@@ -292,16 +297,12 @@ private:
   };
   
 protected:
-  
-  // TODO: most of this should be private, not protected
+  // TODO: probably this stuff should be private, not protected
   bool mStateChunks, mIsInst, mIsBypassed;
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
   WDL_PtrList<IParam> mParams;
-  WDL_PtrList<InChannel> mInChannels;
-  WDL_PtrList<OutChannel> mOutChannels;
-
 private:
 	IGraphics* mGraphics;
 
@@ -309,6 +310,8 @@ private:
   int mCurrentPresetIdx;
 
   WDL_TypedBuf<double*> mInData, mOutData;
+  WDL_PtrList<InChannel> mInChannels;
+  WDL_PtrList<OutChannel> mOutChannels;
   WDL_PtrList<WDL_String> mInputBusLabels;
   WDL_PtrList<WDL_String> mOutputBusLabels;
 };
