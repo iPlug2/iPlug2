@@ -103,6 +103,7 @@ private:
   struct BusChannels {
     bool mConnected;
     int mNHostChannels, mNPlugChannels, mPlugChannelStartIdx;
+//    AudioChannelLayout mChannelLayout;
   };
   WDL_PtrList<BusChannels> mInBuses, mOutBuses;
   BusChannels* GetBus(AudioUnitScope scope, AudioUnitElement busIdx);
@@ -130,6 +131,10 @@ private:
   };
   WDL_PtrList<PropertyListener> mPropertyListeners;
   
+  UInt32 GetTagForNumChannels(int numChannels);
+  UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* outTags);
+//  UInt32 GetAudioChannelLayout(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayout* outLayoutPtr, Boolean* pWriteable);
+  
   ComponentResult GetPropertyInfo(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
     UInt32* pDataSize, Boolean* pWriteable);
   ComponentResult GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
@@ -141,7 +146,6 @@ private:
   ComponentResult SetState(CFPropertyListRef pPropList);
   void InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope);
 	
-
 public:
 
   static ComponentResult IPlugAUEntry(ComponentParameters *params, void* pVPlug);
