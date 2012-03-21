@@ -154,6 +154,8 @@ IPlugBase::~IPlugBase()
   mInChannels.Empty(true);
   mOutChannels.Empty(true);
   mChannelIO.Empty(true);
+  mInputBusLabels.Empty(true);
+  mOutputBusLabels.Empty(true);
 }
 
 int IPlugBase::GetHostVersion(bool decimal)
@@ -350,8 +352,6 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
     }
   }
 }
-
-//#pragma REMINDER("lock mutex before calling into any IPlugBase processing functions")
 
 //TODO: implement a delay equivalent to mLatency for RTAS/AU/VST3 
 void IPlugBase::PassThroughBuffers(double sampleType, int nFrames) 
@@ -632,7 +632,7 @@ void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
 void IPlugBase::EnsureDefaultPreset()
 {
   TRACE;
-  MakeDefaultPreset("Empty", mPresets.GetSize()); // TODO : is this correct?
+  MakeDefaultPreset("Empty", mPresets.GetSize()); // TODO: is this correct?
 /*  if (!(mPresets.GetSize())) {
     mPresets.Add(new IPreset(0));
     MakeDefaultPreset();
@@ -917,6 +917,32 @@ void IPlugBase::SetOutputLabel(int idx, const char* pLabel)
 {
   if (idx >= 0 && idx < NOutChannels()) {
     mOutChannels.Get(idx)->mLabel.Set(pLabel);
+  }
+}
+
+void IPlugBase::SetInputBusLabel(int idx, const char* pLabel)
+{
+  if (idx >= 0 && idx < 2) // only possible to have two input buses
+  {
+    if (mInputBusLabels.Get(idx)) 
+    {
+      mInputBusLabels.Delete(idx, true);
+    }
+    
+    mInputBusLabels.Insert(idx, new WDL_String(pLabel, strlen(pLabel)));
+  }
+}
+
+void IPlugBase::SetOutputBusLabel(int idx, const char* pLabel)
+{
+  if (idx >= 0)
+  {
+    if (mOutputBusLabels.Get(idx)) 
+    {
+      mOutputBusLabels.Delete(idx, true);
+    }
+    
+    mOutputBusLabels.Insert(idx, new WDL_String(pLabel, strlen(pLabel)));
   }
 }
 
