@@ -728,7 +728,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           case kAudioUnitScope_Input:
           {
             if (element == 0 || element == 1) {
-              *(CFStringRef *)pData = MakeCFString(GetInputBusLabel(element));
+              *(CFStringRef *)pData = MakeCFString(GetInputBusLabel(element)->Get());
               return noErr;
             }
             else
@@ -736,12 +736,8 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           }
           case kAudioUnitScope_Output:
           {
-            //if (element < mOutputBusLabels.GetSize()) {
-              *(CFStringRef *)pData = MakeCFString(GetOutputBusLabel(element));
-              return noErr;
-            //}
-            //else
-            //  return kAudioUnitErr_InvalidElement;
+            *(CFStringRef *)pData = MakeCFString(GetOutputBusLabel(element)->Get());
+            return noErr;
           }
           default:
             return kAudioUnitErr_InvalidScope;
