@@ -167,8 +167,8 @@ protected:
   void SetInputBusLabel(int idx, const char* pLabel);
   void SetOutputBusLabel(int idx, const char* pLabel);
   
-  char* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx)->Get(); }
-  char* GetOutputBusLabel(int idx) { return mOutputBusLabels.Get(idx)->Get(); }
+  const WDL_String* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx); }
+  const WDL_String* GetOutputBusLabel(int idx) { return mOutputBusLabels.Get(idx); }
 
   struct ChannelIO 
   { 
@@ -210,6 +210,7 @@ protected:
 #ifndef OS_IOS
   virtual void RedrawParamControls();  // Called after restoring state.
 #endif
+  
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
   
@@ -302,13 +303,14 @@ protected:
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
-  WDL_PtrList<IParam> mParams;
 private:
-	IGraphics* mGraphics;
-
-  WDL_PtrList<IPreset> mPresets;
+  
   int mCurrentPresetIdx;
 
+	IGraphics* mGraphics;
+
+  WDL_PtrList<IParam> mParams;
+  WDL_PtrList<IPreset> mPresets;
   WDL_TypedBuf<double*> mInData, mOutData;
   WDL_PtrList<InChannel> mInChannels;
   WDL_PtrList<OutChannel> mOutChannels;

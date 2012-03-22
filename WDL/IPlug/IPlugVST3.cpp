@@ -95,20 +95,20 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                          
     if (maxInputs) 
     {
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(0), 128);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(0)->Get(), 128);
       addAudioInput(tmpStringBuf, maxInputs);
     }
     
     if(!mIsInst) // if effect, just add one output bus with max chan count
     {
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0), 128);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
       addAudioOutput(tmpStringBuf, getSpeakerArrForChans(NOutChannels()) );
     }
     else 
     {
       for (int i = 0; i < NOutChannels(); i+=2) 
       {
-        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(i), 128);
+        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(i)->Get(), 128);
         addAudioOutput(tmpStringBuf, SpeakerArr::kStereo );
       }
     }
@@ -116,7 +116,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     if (mScChans)
     {
       if (mScChans > 2) mScChans = 2;
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1), 128);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
       addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans));
     }
         
