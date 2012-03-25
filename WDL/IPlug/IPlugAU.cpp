@@ -1651,6 +1651,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     pInBus->mNPlugChannels = NInChannels();
     
     SetInputBusLabel(0, "input");
+    SetInputBusLabel(1, "aux input"); // Ableton Live seems to think a 4-2 audiounit has a sidechain input, even if it is not meant to, so name it just in case
   }
   else { // synth = no inputs // TODO: support synths with SC inputs?
     PtrListInitialize(&mInBusConnections, 0);
