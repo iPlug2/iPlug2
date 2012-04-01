@@ -106,9 +106,9 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     }
     else 
     {
-      for (int i = 0; i < NOutChannels(); i+=2) 
+      for (int i = 0, busIdx = 0; i < NOutChannels(); i+=2, busIdx++) 
       {
-        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(i)->Get(), 128);
+        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(busIdx)->Get(), 128);
         addAudioOutput(tmpStringBuf, SpeakerArr::kStereo );
       }
     }
@@ -207,12 +207,12 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   return result;
 }
 
-tresult PLUGIN_API IPlugVST3::terminate  ()
+tresult PLUGIN_API IPlugVST3::terminate ()
 {
   TRACE;
 
-  viewsArray.removeAll ();  
-  return SingleComponentEffect::terminate ();
+  viewsArray.removeAll();  
+  return SingleComponentEffect::terminate();
 }
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
@@ -338,13 +338,12 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               if (bypassed != mIsBypassed) 
               {
                 mIsBypassed = bypassed;
-                //OnActivate(!mIsBypassed);
               }
             
               break;
             }
             case kPresetParam:
-              RestorePreset(FromNormalizedParam(value, 0, NPresets(),1.));
+              RestorePreset(FromNormalizedParam(value, 0, NPresets(), 1.));
               break;
               //TODO pitch bend, modwheel etc
             default:
@@ -396,12 +395,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     }
   }
   
-  //process audio
-  if (data.numInputs == 0 || data.numOutputs == 0)
-  {
-    // nothing to do
-    return kResultOk;
-  }
+#pragma mark process single precision
   
   if (processSetup.symbolicSampleSize == kSample32)
   {
@@ -414,11 +408,11 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       }
       else 
       {
-        if (mSidechainActive) 
+        if (mSidechainActive)
         {
           ZeroScratchBuffers();
+          mSidechainActive = false;
         }
-        mSidechainActive = false;
         
         SetInputChannelConnections(0, NInChannels(), true);
         SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
@@ -427,66 +421,77 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
       AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
     }
-    else 
+    else if(data.numInputs)
     {
       SetInputChannelConnections(0, data.inputs[0].numChannels, true);
       SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
       AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers32, data.numSamples);
     }
     
-    SetOutputChannelConnections(0, data.outputs[0].numChannels, true);
-    SetOutputChannelConnections(data.outputs[0].numChannels, NOutChannels() - data.outputs[0].numChannels, false);
-    
-    AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers32);
+    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++) 
+    {
+      int busChannels = data.outputs[outBus].numChannels;
+      SetOutputChannelConnections(chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
+      SetOutputChannelConnections(chanOffset + busChannels, NOutChannels() - (chanOffset + busChannels), false);
+      AttachOutputBuffers(chanOffset, busChannels, data.outputs[outBus].channelBuffers32);
+      chanOffset += busChannels;
+    }
     
     if (mIsBypassed) 
-    {
       PassThroughBuffers(0.0f, data.numSamples);
-    }
     else 
-    {
       ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
-    }
   }
+  
+#pragma mark process double precision
+
   else if (processSetup.symbolicSampleSize == kSample64)
   {
     if (mScChans) 
     {
       if (getAudioInput(1)->isActive()) // Sidechain is active
       {
+        mSidechainActive = true;
         SetInputChannelConnections(0, NInChannels(), true);
       }
       else 
       {
+        if (mSidechainActive)
+        {
+          ZeroScratchBuffers();
+          mSidechainActive = false;
+        }
+        
         SetInputChannelConnections(0, NInChannels(), true);
         SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
       }
-      AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
-      AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
+      
+      AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers64, data.numSamples);
+      AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers64, data.numSamples);
     }
-    else 
+    else if(data.numInputs)
     {
       SetInputChannelConnections(0, data.inputs[0].numChannels, true);
       SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
       AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
     }
-        
-    SetOutputChannelConnections(0, data.outputs[0].numChannels, true);
-    SetOutputChannelConnections(data.outputs[0].numChannels, NOutChannels() - data.outputs[0].numChannels, false);
     
-    AttachOutputBuffers(0, NOutChannels(), data.outputs[0].channelBuffers64);
+    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++) 
+    {
+      int busChannels = data.outputs[outBus].numChannels;
+      SetOutputChannelConnections(chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
+      SetOutputChannelConnections(chanOffset + busChannels, NOutChannels() - (chanOffset + busChannels), false);
+      AttachOutputBuffers(chanOffset, busChannels, data.outputs[outBus].channelBuffers64);
+      chanOffset += busChannels;
+    }
     
     if (mIsBypassed) 
-    {
       PassThroughBuffers(0.0, data.numSamples);
-    }
     else 
-    {
       ProcessBuffers(0.0, data.numSamples); // process buffers double precision
-    }
+  }
 
-  }  
-  // Midi Out
+// Midi Out
 //  if (mDoesMidi) {
 //    IEventList eventList = data.outputEvents;
 //    
@@ -628,7 +633,7 @@ void IPlugVST3::addDependentView(IPlugVST3View* view)
 
 void IPlugVST3::removeDependentView(IPlugVST3View* view)
 {
-  for (int32 i = 0; i < viewsArray.total (); i++)
+  for (int32 i = 0; i < viewsArray.total(); i++)
   {
     if (viewsArray.at(i) == view)
     {
@@ -683,7 +688,7 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
     case 3:
       return SpeakerArr::k30Music;
     case 4:
-      return SpeakerArr::k40Music;
+      return SpeakerArr::kBFormat1stOrder;
     case 5:
       return SpeakerArr::k50;
     case 6:
@@ -865,12 +870,12 @@ IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
     mPlug->addRef();  
 }
 
-IPlugVST3View::~IPlugVST3View ()
+IPlugVST3View::~IPlugVST3View()
 {
   if (mPlug)
   {
     mPlug->removeDependentView (this);
-    mPlug->release ();
+    mPlug->release();
   }
 }
 
@@ -921,7 +926,8 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
     
     return kResultTrue;
   }
-  else {
+  else 
+  {
     return kResultFalse;
   }
 }
@@ -940,11 +946,14 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
       mPlug->GetGUI()->OpenWindow(parent, 0);
 #endif
     mPlug->OnGUIOpen();
+    
+    return kResultTrue;
   }
-  return kResultTrue;
+  
+  return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3View::removed ()
+tresult PLUGIN_API IPlugVST3View::removed()
 {
   if (mPlug->GetGUI()) 
   {
@@ -952,7 +961,7 @@ tresult PLUGIN_API IPlugVST3View::removed ()
     mPlug->GetGUI()->CloseWindow(); 
   }
   
-  return CPluginView::removed ();
+  return CPluginView::removed();
 }
 
 void IPlugVST3View::resize(int w, int h)
