@@ -814,10 +814,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return noErr;
     }
-    case kAudioUnitProperty_OfflineRender: {              // 37,
-      mIsOffline = (*((UInt32*) pData) != 0);
-      return noErr; 
-    } 
+    NO_OP(kAudioUnitProperty_OfflineRender);             // 37,
     case kAudioUnitProperty_ParameterStringFromValue: {   // 33,
       *pDataSize = sizeof(AudioUnitParameterStringFromValue);
       if (pData && scope == kAudioUnitScope_Global) {
@@ -1028,7 +1025,10 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       RestorePreset(presetIdx);
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_OfflineRender);             // 37,
+    case kAudioUnitProperty_OfflineRender: {              // 37,
+      mIsOffline = (*((UInt32*) pData) != 0);
+      return noErr; 
+    } 
     NO_OP(kAudioUnitProperty_ParameterStringFromValue);  // 33,
     NO_OP(kAudioUnitProperty_ParameterValueFromString);  // 38,
     NO_OP(kAudioUnitProperty_IconLocation);              // 39,
