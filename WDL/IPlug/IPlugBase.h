@@ -25,7 +25,7 @@ class IPlugBase
 public:
       
   // Use IPLUG_CTOR instead of calling directly (defined in IPlug_include_in_plug_src.h).
-	IPlugBase(int nParams,
+  IPlugBase(int nParams,
             const char* channelIOStr,
             int nPresets,
             const char* effectName,
@@ -47,38 +47,38 @@ public:
   virtual ~IPlugBase();
 
   // Implementations should set a mutex lock like in the no-op!
-	virtual void Reset() { TRACE; IMutexLock lock(this); }
-	virtual void OnParamChange(int paramIdx) { IMutexLock lock(this); }
-	
-	// Default passthrough.  Inputs and outputs are [nChannel][nSample].
+  virtual void Reset() { TRACE; IMutexLock lock(this); }
+  virtual void OnParamChange(int paramIdx) { IMutexLock lock(this); }
+  
+  // Default passthrough.  Inputs and outputs are [nChannel][nSample].
   // Mutex is already locked.
-	virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-	virtual void ProcessSingleReplacing(float** inputs, float** outputs, int nFrames);
+  virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
+  virtual void ProcessSingleReplacing(float** inputs, float** outputs, int nFrames);
 
-	// In case the audio processing thread needs to do anything when the GUI opens
-	// (like for example, set some state dependent initial values for controls).
-	virtual void OnGUIOpen() { TRACE; }
-	virtual void OnGUIClose() { TRACE; }
+  // In case the audio processing thread needs to do anything when the GUI opens
+  // (like for example, set some state dependent initial values for controls).
+  virtual void OnGUIOpen() { TRACE; }
+  virtual void OnGUIClose() { TRACE; }
 
-	// This is an idle call from the audio processing thread, as opposed to 
-	// IGraphics::OnGUIIdle which is called from the GUI thread.
+  // This is an idle call from the audio processing thread, as opposed to 
+  // IGraphics::OnGUIIdle which is called from the GUI thread.
   // Only active if USE_IDLE_CALLS is defined.
-	virtual void OnIdle() {}
+  virtual void OnIdle() {}
 
   // Not usually needed ... Reset is called on activate regardless of whether this is implemented.
   // Also different hosts have different interpretations of "activate".
   // Implementations should set a mutex lock like in the no-op!  
   virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
     
-	virtual void ProcessMidiMsg(IMidiMsg* pMsg);
-	virtual bool MidiNoteName(int noteNumber, char* rName) { *rName = '\0'; return false; }
+  virtual void ProcessMidiMsg(IMidiMsg* pMsg);
+  virtual bool MidiNoteName(int noteNumber, char* rName) { *rName = '\0'; return false; }
 
   // Implementations should set a mutex lock.
-//	virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
-	virtual bool SerializeState(ByteChunk* pChunk);
+//  virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
+  virtual bool SerializeState(ByteChunk* pChunk);
   // Return the new chunk position (endPos).
-//	virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
-	virtual int UnserializeState(ByteChunk* pChunk, int startPos);
+//  virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
+  virtual int UnserializeState(ByteChunk* pChunk, int startPos);
   
 #ifndef OS_IOS
   virtual void OnWindowResize() {}
@@ -96,8 +96,8 @@ public:
   // Your plugin class, or a control class, can call these functions.
 
   int NParams() { return mParams.GetSize(); }
-	IParam* GetParam(int idx) { return mParams.Get(idx); }
-	IGraphics* GetGUI() { return mGraphics; }
+  IParam* GetParam(int idx) { return mParams.Get(idx); }
+  IGraphics* GetGUI() { return mGraphics; }
   
   const char* GetEffectName() { return mEffectName; }
   int GetEffectVersion(bool decimal);   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
@@ -108,20 +108,20 @@ public:
   int GetUniqueID() { return mUniqueID; }
   int GetMfrID() { return mMfrID; }
 
-	void SetParameterFromGUI(int idx, double normalizedValue);
+  void SetParameterFromGUI(int idx, double normalizedValue);
   // If a parameter change comes from the GUI, midi, or external input,
   // the host needs to be informed in case the changes are being automated.
   virtual void BeginInformHostOfParamChange(int idx) = 0;
   virtual void InformHostOfParamChange(int idx, double normalizedValue) = 0;
   virtual void EndInformHostOfParamChange(int idx) = 0;
 
-	virtual void InformHostOfProgramChange() = 0;
+  virtual void InformHostOfProgramChange() = 0;
   // ----------------------------------------
   // Useful stuff for your plugin class or an outsider to call, 
   // most of which is implemented by the API class.
 
   double GetSampleRate() { return mSampleRate; }
-	int GetBlockSize() { return mBlockSize; }
+  int GetBlockSize() { return mBlockSize; }
   int GetLatency() { return mLatency; }
   
   bool GetIsBypassed() { return mIsBypassed; }
@@ -135,14 +135,14 @@ public:
   bool IsOutChannelConnected(int chIdx);
   
   virtual bool IsRenderingOffline() { return false; };
-	virtual int GetSamplePos() = 0;   // Samples since start of project.
-	virtual double GetTempo() = 0;
-	double GetSamplesPerBeat();
-	virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
-	virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
+  virtual int GetSamplePos() = 0;   // Samples since start of project.
+  virtual double GetTempo() = 0;
+  double GetSamplesPerBeat();
+  virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
+  virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
-	int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
+  int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetHostVersionStr(char* str);
   
   // Tell the host that the graphics resized.
@@ -183,13 +183,13 @@ protected:
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() { return; };
 #ifndef OS_IOS
-	virtual void AttachGraphics(IGraphics* pGraphics);
+  virtual void AttachGraphics(IGraphics* pGraphics);
 #endif
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); 
   // If latency changes after initialization (often not supported by the host).
   virtual void SetLatency(int samples);
-	virtual bool SendMidiMsg(IMidiMsg* pMsg) = 0;
+  virtual bool SendMidiMsg(IMidiMsg* pMsg) = 0;
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) = 0;
   bool IsInst() { return mIsInst; }
     
@@ -214,7 +214,7 @@ protected:
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
   
-  void OnParamReset();	// Calls OnParamChange(each param) + Reset().
+  void OnParamReset();  // Calls OnParamChange(each param) + Reset().
 
   void PruneUninitializedPresets();
 
@@ -242,18 +242,18 @@ protected:
   void ZeroScratchBuffers();
 public:
   
-	void ModifyCurrentPreset(const char* name = 0);     // Sets the currently active preset to whatever current params are.
-	int NPresets() { return mPresets.GetSize(); }
-	int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
-	bool RestorePreset(int idx);
-	bool RestorePreset(const char* name);
-	const char* GetPresetName(int idx);
+  void ModifyCurrentPreset(const char* name = 0);     // Sets the currently active preset to whatever current params are.
+  int NPresets() { return mPresets.GetSize(); }
+  int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
+  bool RestorePreset(int idx);
+  bool RestorePreset(const char* name);
+  const char* GetPresetName(int idx);
   
-	// Dump the current state as source code for a call to MakePresetFromNamedParams.
-	void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
+  // Dump the current state as source code for a call to MakePresetFromNamedParams.
+  void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
   void DumpPresetBlob(const char* filename); 
   
-	virtual void PresetsChangedByHost() {} // does nothing by default
+  virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
 #ifndef OS_IOS  
   bool SaveProgramAsFXP(const char* defaultFileName = "");
@@ -303,12 +303,11 @@ protected:
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
+  
 private:
   
   int mCurrentPresetIdx;
-
-	IGraphics* mGraphics;
-
+  IGraphics* mGraphics;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;
   WDL_TypedBuf<double*> mInData, mOutData;
