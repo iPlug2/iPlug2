@@ -117,7 +117,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     {
       if (mScChans > 2) mScChans = 2;
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
-      addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans));
+      addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans), kAux, 0);
     }
         
     if(mDoesMidi) 
