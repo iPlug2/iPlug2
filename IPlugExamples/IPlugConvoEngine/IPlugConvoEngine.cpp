@@ -40,8 +40,10 @@ enum EParams
 };
 
 IPlugConvoEngine::IPlugConvoEngine(IPlugInstanceInfo instanceInfo):
-IPLUG_CTOR(kNumParams, 0, instanceInfo),
-mSampleRate(0.)
+IPLUG_CTOR(kNumParams, 0, instanceInfo)
+, mSampleRate(0.)
+, mWet(1.)
+, mDry(0.)
 {
 	TRACE;
   
