@@ -906,16 +906,12 @@ void IGraphicsWin::PluginPath(WDL_String* pPath)
 
 void IGraphicsWin::DesktopPath(WDL_String* pPath)
 {
+#ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
-#ifndef __MINGW_H
-  // Get the special folder path.
-  SHGetSpecialFolderPath( 0,       // Hwnd
-                         strPath, // String buffer.
-                         CSIDL_DESKTOP, // CSLID of folder
-                         FALSE );
-#endif
+  SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
   
   pPath->Set(strPath, MAX_PATH_LEN);
+#endif
 }
 
 void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
