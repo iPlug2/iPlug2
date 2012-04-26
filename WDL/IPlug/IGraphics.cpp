@@ -745,8 +745,15 @@ bool IGraphics::Draw(IRECT* pR)
     }
   }
 
+#ifdef SHOW_CONTROL_BOUNDARIES
+  for (int j = 1; j < mControls.GetSize(); j++) 
+  {
+    IControl* pControl = mControls.Get(j);
+    DrawRect(&COLOR_RED, pControl->GetRECT());
+  }
+#endif
+  
   return DrawScreen(pR);
-
 }
 
 void IGraphics::SetStrictDrawing(bool strict)
