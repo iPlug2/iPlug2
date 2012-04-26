@@ -397,6 +397,12 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   
 #pragma mark process single precision
   
+  if (data.numInputs == 0 || data.numOutputs == 0)
+  {
+    // nothing to do
+    return kResultOk;
+  }
+  
   if (processSetup.symbolicSampleSize == kSample32)
   {
     if (mScChans) 
@@ -421,7 +427,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
       AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
     }
-    else if(data.numInputs)
+    else
     {
       SetInputChannelConnections(0, data.inputs[0].numChannels, true);
       SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
@@ -469,7 +475,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers64, data.numSamples);
       AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers64, data.numSamples);
     }
-    else if(data.numInputs)
+    else
     {
       SetInputChannelConnections(0, data.inputs[0].numChannels, true);
       SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
