@@ -1492,7 +1492,7 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
     }
     _this->AttachOutputBuffers(chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData));
   }
-
+  
   int lastConnectedOutputBus = -1;
   
   for(int i = 0; i < _this->mOutBuses.GetSize();i++)
@@ -1510,13 +1510,13 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
   if (outputBusIdx == lastConnectedOutputBus) 
   {
     int busIdx1based = outputBusIdx+1;
-  
-    if (busIdx1based < _this->mOutBuses.GetSize()) 
+    
+    if (busIdx1based < _this->mOutBuses.GetSize() 
+        && (_this->GetHost() != kHostAbletonLive)) // Live does not handle buses properly, gives us just one bus
     {
       int totalNumChans = _this->mOutBuses.GetSize() * 2; // stereo only for the time being
       int nConnected = busIdx1based * 2; 
       _this->SetOutputChannelConnections(nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses 
-
     }
     
     if (_this->mIsBypassed) 
