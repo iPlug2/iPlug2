@@ -1672,7 +1672,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
       pOutBus->mPlugChannelStartIdx = startCh;
       pOutBus->mNPlugChannels = MIN(NOutChannels() - startCh, 2);
       
-      sprintf(label, "output %i", i);
+      sprintf(label, "output %i", i+1);
       SetOutputBusLabel(i, label);
     }    
   }
