@@ -132,7 +132,7 @@ private:
   WDL_PtrList<PropertyListener> mPropertyListeners;
   
   UInt32 GetTagForNumChannels(int numChannels);
-  UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* outTags);
+  UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags);
 //  UInt32 GetAudioChannelLayout(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayout* outLayoutPtr, Boolean* pWriteable);
   
   ComponentResult GetPropertyInfo(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,

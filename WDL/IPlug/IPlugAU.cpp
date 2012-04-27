@@ -381,7 +381,7 @@ ComponentResult IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, voi
 //  return 0;
 //}
 
-//TODO: support more tags?
+//TODO: support more tags
 
 UInt32 IPlugAU::GetTagForNumChannels(int numChannels)
 {
@@ -405,32 +405,67 @@ UInt32 IPlugAU::GetTagForNumChannels(int numChannels)
   }
 }
 
-UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* outTags)
+UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags)
 {
   switch(scope) 
   {
 		case kAudioUnitScope_Input:
     {
-      if (!mInBuses.Get(0))
+      if (!mInBuses.Get(0)) // no inputs = synth
         return 0;
       
-			if (outTags) 
+      if (element == 0 ) // main input
       {
-        outTags[0] = GetTagForNumChannels(mInBuses.Get(element)->mNPlugChannels);
+        bool canDoMono = LegalIO(1, -1);
+        bool canDoStereo = LegalIO(2, -1); // TODO: does LegalIO account for SC?
+        
+        if (canDoMono && canDoStereo) 
+        {
+          if(tags) 
+          {
+            tags[0] = GetTagForNumChannels(1);
+            tags[1] = GetTagForNumChannels(2);
+          }
+          
+          return 2;
+        }
+        else if (canDoMono)
+        {
+          if(tags) 
+          {
+            tags[0] = GetTagForNumChannels(1);
+          }
+          
+          return 1;
+        }
+        else if (canDoStereo)
+        {
+          if(tags) 
+          {
+            tags[0] = GetTagForNumChannels(2);
+          }
+          
+          return 1;
+        }
+      }
+      else if (element == 1 ) // aux input
+      {
+        if(tags) 
+        {
+          tags[0] = GetTagForNumChannels(mInBuses.Get(element)->mNPlugChannels);
+        }
+        
         return 1;
-			}
-      else
-        return 0;		
+      }	
     }
 		case kAudioUnitScope_Output:
     {
-			if (outTags) 
+			if(tags) 
       {
-        outTags[0] = GetTagForNumChannels(mOutBuses.Get(element)->mNPlugChannels);
-        return 1;
+        tags[0] = GetTagForNumChannels(mOutBuses.Get(element)->mNPlugChannels);
 			}
-      else
-        return 0;
+      
+      return 1;
     }
     default:
       return 0;
@@ -645,14 +680,20 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     }
 #pragma mark GET kAudioUnitProperty_AudioChannelLayout
     case kAudioUnitProperty_AudioChannelLayout: {
-      
-//      if (!pData) // GetPropertyInfo
+//      
+//      *pWriteable = false;
+//      *pDataSize = sizeof(AudioChannelLayout);
+//      
+//      if (pData) 
 //      {
-//      }
-//      else // GetProperty
-//      {
+//        AudioChannelLayout* pLayout = (AudioChannelLayout*) pData;
+//        pLayout->mNumberChannelDescriptions = 0;
+//        pLayout->mChannelBitmap = 0;
+//        pLayout->mChannelLayoutTag = GetTagForNumChannels(1);
 //      }
 //      
+//      return noErr;
+      
       return kAudioUnitErr_InvalidPropertyValue; // TODO: this is clearly wrong
     }
     case kAudioUnitProperty_TailTime: {                  // 20,   // listenable
@@ -763,10 +804,23 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
 #pragma mark GET kAudioUnitProperty_SupportedChannelLayoutTags
     case kAudioUnitProperty_SupportedChannelLayoutTags:
     {
+//      if (!pData) // GetPropertyInfo
+//      {
+//        *pDataSize = sizeof(AudioChannelLayoutTag);
+//        *pWriteable = true;
+//        return noErr;
+//      }
+//      else // GetProperty
+//      {
+//        AudioChannelLayoutTag* ptr = pData ? static_cast<AudioChannelLayoutTag*>(pData) : NULL;
+//        
+//        ptr[0] = kAudioChannelLayoutTag_UseChannelDescriptions;
+//        return noErr;
+//      }
       if (!pData) // GetPropertyInfo
       {
         UInt32 numLayouts = GetChannelLayoutTags(scope, element, NULL);
-                
+
         if (numLayouts) 
         {
           *pDataSize = numLayouts * sizeof(AudioChannelLayoutTag);
