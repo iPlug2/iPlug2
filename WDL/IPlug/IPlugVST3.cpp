@@ -52,14 +52,22 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
   if (mScChans)
     SetInputBusLabel(1, "aux input");
   
-  int busNum = 1;
-  char label[32];
-
-  for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only 
+  if (IsInst()) 
   {
-    sprintf(label, "output %i", busNum++);
-    SetOutputBusLabel(i, label);
+    int busNum = 0;
+    char label[32];
+
+    for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only 
+    {
+      sprintf(label, "output %i", busNum+1);
+      SetOutputBusLabel(busNum++, label);
+    }
   }
+  else {
+    SetOutputBusLabel(0, "Output");
+  }
+
+
 }
 
 IPlugVST3::~IPlugVST3() 
@@ -397,43 +405,40 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   
 #pragma mark process single precision
   
-  if (data.numInputs == 0 || data.numOutputs == 0)
-  {
-    // nothing to do
-    return kResultOk;
-  }
-  
   if (processSetup.symbolicSampleSize == kSample32)
   {
-    if (mScChans) 
+    if (data.numInputs)
     {
-      if (getAudioInput(1)->isActive()) // Sidechain is active
+      if (mScChans) 
       {
-        mSidechainActive = true;
-        SetInputChannelConnections(0, NInChannels(), true);
-      }
-      else 
-      {
-        if (mSidechainActive)
+        if (getAudioInput(1)->isActive()) // Sidechain is active
         {
-          ZeroScratchBuffers();
-          mSidechainActive = false;
+          mSidechainActive = true;
+          SetInputChannelConnections(0, NInChannels(), true);
+        }
+        else 
+        {
+          if (mSidechainActive)
+          {
+            ZeroScratchBuffers();
+            mSidechainActive = false;
+          }
+          
+          SetInputChannelConnections(0, NInChannels(), true);
+          SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
         }
         
-        SetInputChannelConnections(0, NInChannels(), true);
-        SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
+        AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
+        AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
       }
-      
-      AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
-      AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
+      else
+      {
+        SetInputChannelConnections(0, data.inputs[0].numChannels, true);
+        SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
+        AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers32, data.numSamples);
+      }
     }
-    else
-    {
-      SetInputChannelConnections(0, data.inputs[0].numChannels, true);
-      SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
-      AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers32, data.numSamples);
-    }
-    
+
     for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++) 
     {
       int busChannels = data.outputs[outBus].numChannels;
@@ -453,33 +458,36 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
   else if (processSetup.symbolicSampleSize == kSample64)
   {
-    if (mScChans) 
+    if (data.numInputs)
     {
-      if (getAudioInput(1)->isActive()) // Sidechain is active
+      if (mScChans) 
       {
-        mSidechainActive = true;
-        SetInputChannelConnections(0, NInChannels(), true);
-      }
-      else 
-      {
-        if (mSidechainActive)
+        if (getAudioInput(1)->isActive()) // Sidechain is active
         {
-          ZeroScratchBuffers();
-          mSidechainActive = false;
+          mSidechainActive = true;
+          SetInputChannelConnections(0, NInChannels(), true);
+        }
+        else 
+        {
+          if (mSidechainActive)
+          {
+            ZeroScratchBuffers();
+            mSidechainActive = false;
+          }
+          
+          SetInputChannelConnections(0, NInChannels(), true);
+          SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
         }
         
-        SetInputChannelConnections(0, NInChannels(), true);
-        SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
+        AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers64, data.numSamples);
+        AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers64, data.numSamples);
       }
-      
-      AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers64, data.numSamples);
-      AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers64, data.numSamples);
-    }
-    else
-    {
-      SetInputChannelConnections(0, data.inputs[0].numChannels, true);
-      SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
-      AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
+      else
+      {
+        SetInputChannelConnections(0, data.inputs[0].numChannels, true);
+        SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - data.inputs[0].numChannels, false);
+        AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
+      }
     }
     
     for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++) 
