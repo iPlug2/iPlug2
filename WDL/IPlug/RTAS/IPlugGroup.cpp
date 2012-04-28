@@ -74,10 +74,7 @@ static EPlugIn_StemFormat getStemFormatForChans(const int numChans)
       return ePlugIn_StemFormat_7dot1DTS;
     default:
       return ePlugIn_StemFormat_Generic;
-      break;
   }
-  
-  return ePlugIn_StemFormat_Generic;
 }
 
 IPlugGroup::IPlugGroup(void)
