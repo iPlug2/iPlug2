@@ -503,9 +503,6 @@ void IPlugBase::MakeDefaultPreset(char* name, int nPresets)
     if (pPreset) {
       pPreset->mInitialized = true;
       strcpy(pPreset->mName, (name ? name : "Empty"));
-      //strcpy(pPreset->mName, (name ? name : "Default"));
-      //store the plugin version number in the preset
-      //pPreset->mVersion = GetEffectVersion(true);      
       SerializeParams(&(pPreset->mChunk)); 
     }
   }
@@ -535,9 +532,6 @@ void IPlugBase::MakePreset(char* name, ...)
   if (pPreset) {
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
-    
-    //store the plugin version number in the preset
-    //pPreset->mVersion = GetEffectVersion(true);
 	  
     int i, n = mParams.GetSize();
 	
@@ -560,9 +554,6 @@ void IPlugBase::MakePresetFromNamedParams(char* name, int nParamsNamed, ...)
   if (pPreset) {
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
-	  
-    //store the plugin version number in the preset
-    //pPreset->mVersion = GetEffectVersion(true);
 
     int i = 0, n = mParams.GetSize();
 
@@ -717,9 +708,6 @@ void IPlugBase::ModifyCurrentPreset(const char* name)
     {
       strcpy(pPreset->mName, name);
     }
-	  
-    //store the plugin version number in the preset
-    //pPreset->mVersion = GetEffectVersion(true);
   }
 }
 
@@ -728,12 +716,6 @@ bool IPlugBase::SerializeState(ByteChunk* pChunk)
 	TRACE;
 	IMutexLock lock(this);
 	
-	//int version = GetEffectVersion(true);
-	
- // Trace(TRACELOC, "storing version", version);
-
-//	pChunk->Put(&version);
-	
 	return SerializeParams(pChunk);
 }
 
@@ -741,12 +723,6 @@ int IPlugBase::UnserializeState(ByteChunk* pChunk, int startPos)
 {
   TRACE;
 	IMutexLock lock(this);
-	
-//	int version;
-	
-//	startPos = pChunk->Get<int>(&version, startPos);
-	
-//	Trace(TRACELOC, "version from state %i", version);
 	
 	return UnserializeParams(pChunk, startPos);
 }
@@ -759,7 +735,6 @@ bool IPlugBase::SerializePresets(ByteChunk* pChunk)
   for (int i = 0; i < n && savedOK; ++i) {
     IPreset* pPreset = mPresets.Get(i);
     pChunk->PutStr(pPreset->mName);
-    //pChunk->Put(&(pPreset->mVersion));
 	  
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
 
@@ -780,8 +755,7 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
     IPreset* pPreset = mPresets.Get(i);
     pos = pChunk->GetStr(&name, pos);
     strcpy(pPreset->mName, name.Get());
-//	  pos = pChunk->Get(&(pPreset->mVersion), pos);
-//    Trace(TRACELOC, "version in preset %i: %i", i, pPreset->mVersion);
+
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
 
     pos = pChunk->GetBool(&(pPreset->mInitialized), pos);
