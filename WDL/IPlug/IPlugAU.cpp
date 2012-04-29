@@ -3,7 +3,6 @@
 #include "Log.h"
 #include "Hosts.h"
 
-//#include "/Developer/Examples/CoreAudio/PublicUtility/CAStreamBasicDescription.h"
 #include "dfx/dfx-au-utilities.h"
 
 #define kAudioUnitRemovePropertyListenerWithUserDataSelect 0x0012
@@ -368,6 +367,99 @@ ComponentResult IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, voi
   }
 }
 
+//TODO: support more tags
+
+UInt32 IPlugAU::GetTagForNumChannels(int numChannels)
+{
+  switch (numChannels) 
+  {
+    case 1:
+      return kAudioChannelLayoutTag_Mono;
+    case 2:
+      return kAudioChannelLayoutTag_Stereo;
+//    case 4:
+//      return kAudioChannelLayoutTag_Ambisonic_B_Format;
+//    case 6:
+//      return kAudioChannelLayoutTag_AudioUnit_5_1;
+//    case 7:
+//      return kAudioChannelLayoutTag_AudioUnit_6_1;
+//    case 8:
+//      return kAudioChannelLayoutTag_AudioUnit_7_1;
+    case 0:
+    default:
+      return kAudioChannelLayoutTag_Unknown;
+  }
+}
+
+UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags)
+{
+  switch(scope) 
+  {
+		case kAudioUnitScope_Input:
+    {
+      if (!mInBuses.Get(0)) // no inputs = synth
+        return 0;
+      
+      // this stuff is not currently needed 
+      
+//      if (element == 0 ) // main input
+//      {
+//        bool canDoMono = LegalIO(1, -1);
+//        bool canDoStereo = LegalIO(2, -1);
+//        
+//        if (canDoMono && canDoStereo) 
+//        {
+//          if(tags) 
+//          {
+//            tags[0] = GetTagForNumChannels(1);
+//            tags[1] = GetTagForNumChannels(2);
+//          }
+//          
+//          return 2;
+//        }
+//        else if (canDoMono)
+//        {
+//          if(tags) 
+//          {
+//            tags[0] = GetTagForNumChannels(1);
+//          }
+//          
+//          return 1;
+//        }
+//        else if (canDoStereo)
+//        {
+//          if(tags) 
+//          {
+//            tags[0] = GetTagForNumChannels(2);
+//          }
+//          
+//          return 1;
+//        }
+//      }
+//      else if (element == 1 ) // aux input
+//      {
+//        if(tags) 
+//        {
+//          tags[0] = GetTagForNumChannels(mInBuses.Get(element)->mNPlugChannels);
+//        }
+//        
+//        return 1;
+//      }	
+    }
+		case kAudioUnitScope_Output:
+    {
+			if(tags) 
+      {
+        tags[0] = GetTagForNumChannels(mOutBuses.Get(element)->mNPlugChannels);
+			}
+      
+      return 1;
+    }
+    default:
+      return 0;
+  }
+}
+
 #define ASSERT_SCOPE(reqScope) if (scope != reqScope) { return kAudioUnitErr_InvalidProperty; }
 #define ASSERT_ELEMENT(numElements) if (element >= numElements) { return kAudioUnitErr_InvalidElement; }
 #define ASSERT_INPUT_OR_GLOBAL_SCOPE \
@@ -515,7 +607,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     case kAudioUnitProperty_SupportedNumChannels: {      // 13,
       ASSERT_SCOPE(kAudioUnitScope_Global);
       int n = mChannelIO.GetSize();
-		*pDataSize = n * sizeof(AUChannelInfo);
+      *pDataSize = n * sizeof(AUChannelInfo);
       if (pData) {
         AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
         for (int i = 0; i < n; ++i, ++pChInfo) {
@@ -574,12 +666,10 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return kAudioUnitErr_InvalidProperty;
     }
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19,   //TODO: kAudioUnitProperty_AudioChannelLayout
-//    case kAudioUnitProperty_AudioChannelLayout: {
-//      AudioChannelLayout layout;
-//      layout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
-//      return noErr;
-//    }
+#pragma mark GET kAudioUnitProperty_AudioChannelLayout
+    case kAudioUnitProperty_AudioChannelLayout: {
+      return kAudioUnitErr_InvalidPropertyValue; // TODO: this seems wrong but works
+    }
     case kAudioUnitProperty_TailTime: {                  // 20,   // listenable
       return GetProperty(kAudioUnitProperty_Latency, scope, element, pDataSize, pWriteable, pData);
     }
@@ -644,7 +734,32 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       return noErr;
     }
     NO_OP(kAudioUnitProperty_InPlaceProcessing);          // 29,
-    NO_OP(kAudioUnitProperty_ElementName);                // 30,
+    case kAudioUnitProperty_ElementName: {
+      *pDataSize = sizeof(CFStringRef);
+      *pWriteable = false;
+      if (pData) {
+        switch(scope) 
+        {
+          case kAudioUnitScope_Input:
+          {
+            if (element == 0 || element == 1) {
+              *(CFStringRef *)pData = MakeCFString(GetInputBusLabel(element)->Get());
+              return noErr;
+            }
+            else
+              return kAudioUnitErr_InvalidElement;
+          }
+          case kAudioUnitScope_Output:
+          {
+            *(CFStringRef *)pData = MakeCFString(GetOutputBusLabel(element)->Get());
+            return noErr;
+          }
+          default:
+            return kAudioUnitErr_InvalidScope;
+        }
+      }
+      return kAudioUnitErr_InvalidProperty;
+    }
     case kAudioUnitProperty_CocoaUI: {                    // 31,
       if (GetGUI() && IGraphicsMac::GetUserOSVersion() >= 0x1050) {
         *pDataSize = sizeof(AudioUnitCocoaViewInfo);  // Just one view.
@@ -660,7 +775,36 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return kAudioUnitErr_InvalidProperty;
     }
-    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags);// 32, //TODO: kAudioUnitProperty_SupportedChannelLayoutTags
+#pragma mark GET kAudioUnitProperty_SupportedChannelLayoutTags
+    case kAudioUnitProperty_SupportedChannelLayoutTags:
+    {
+      // kAudioUnitProperty_SupportedChannelLayoutTags is only needed for multi-output bus instruments 
+      if (!IsInst() || (mOutBuses.GetSize()==1))
+        return kAudioUnitErr_InvalidProperty;
+
+      if (!pData) // GetPropertyInfo
+      {
+        UInt32 numLayouts = GetChannelLayoutTags(scope, element, NULL);
+
+        if (numLayouts) 
+        {
+          *pDataSize = numLayouts * sizeof(AudioChannelLayoutTag);
+          *pWriteable = true;
+          return noErr;
+        }
+      }
+      else // GetProperty
+      {
+        AudioChannelLayoutTag* ptr = pData ? static_cast<AudioChannelLayoutTag*>(pData) : NULL;
+
+        if (GetChannelLayoutTags(scope, element, ptr))
+        {
+          return noErr;
+        }
+      }
+      
+      return kAudioUnitErr_InvalidProperty;
+    }
     case kAudioUnitProperty_ParameterIDName: {           // 34,
       *pDataSize = sizeof(AudioUnitParameterIDName);
       if (pData && scope == kAudioUnitScope_Global) {
@@ -689,10 +833,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return noErr;
     }
-    case kAudioUnitProperty_OfflineRender: {              // 37,
-      mIsOffline = (*((UInt32*) pData) != 0);
-      return noErr; 
-    } 
+    NO_OP(kAudioUnitProperty_OfflineRender);             // 37,
     case kAudioUnitProperty_ParameterStringFromValue: {   // 33,
       *pDataSize = sizeof(AudioUnitParameterStringFromValue);
       if (pData && scope == kAudioUnitScope_Global) {
@@ -860,7 +1001,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
     NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO: kAudioUnitProperty_AudioChannelLayout
+    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect: {              // 21,
       mIsBypassed = (*((UInt32*) pData) != 0);
@@ -894,7 +1035,7 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     NO_OP(kAudioUnitProperty_InPlaceProcessing);         // 29,
     NO_OP(kAudioUnitProperty_ElementName);               // 30,
     NO_OP(kAudioUnitProperty_CocoaUI);                   // 31,
-    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags); // 32, TODO: kAudioUnitProperty_SupportedChannelLayoutTags
+    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags); // 32,
     NO_OP(kAudioUnitProperty_ParameterIDName);           // 34,
     NO_OP(kAudioUnitProperty_ParameterClumpName);        // 35,
     case kAudioUnitProperty_CurrentPreset:               // 28,
@@ -903,7 +1044,10 @@ ComponentResult IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       RestorePreset(presetIdx);
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_OfflineRender);             // 37,
+    case kAudioUnitProperty_OfflineRender: {              // 37,
+      mIsOffline = (*((UInt32*) pData) != 0);
+      return noErr; 
+    } 
     NO_OP(kAudioUnitProperty_ParameterStringFromValue);  // 33,
     NO_OP(kAudioUnitProperty_ParameterValueFromString);  // 38,
     NO_OP(kAudioUnitProperty_IconLocation);              // 39,
@@ -1254,7 +1398,7 @@ inline ComponentResult RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRend
 ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp,
   UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
-  Trace(TRACELOC, "%d:%d:%d", outputBusIdx, pOutBufList->mNumberBuffers, nFrames);
+  TRACE_PROCESS(TRACELOC, "%d:%d:%d", outputBusIdx, pOutBufList->mNumberBuffers, nFrames);
 
   IPlugAU* _this = (IPlugAU*) pPlug;
   
@@ -1326,16 +1470,11 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
               pInBufList->mBuffers[b].mData = pScratchInput;
             }
             
-            r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i /* 0 */, nFrames, pInBufList);
+            r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i, nFrames, pInBufList);
             break;
           }
           default: 
-          {
-#ifndef NDEBUG // TODO: what is this?
-            bool inputBusAssessed = false;
-            assert(inputBusAssessed);   // InputBus.mConnected should be false, we didn't correctly assess the input connections.
-#endif
-          }
+            break;
         }
         if (r != noErr) 
         {
@@ -1353,13 +1492,14 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
 
   BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
   
+  // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
   if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers) 
   {
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
     int nConnected = IPMIN(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
     int nUnconnected = IPMAX(pOutBus->mNPlugChannels - nConnected, 0);
     _this->SetOutputChannelConnections(startChannelIdx, nConnected, true);
-    _this->SetOutputChannelConnections(startChannelIdx + nConnected, nUnconnected, false);
+    _this->SetOutputChannelConnections(startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
     pOutBus->mConnected = true;
   }
 
@@ -1371,14 +1511,41 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
     }
     _this->AttachOutputBuffers(chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData));
   }
-
-  if (_this->mIsBypassed) 
+  
+  int lastConnectedOutputBus = -1;
+  
+  for(int i = 0; i < _this->mOutBuses.GetSize();i++)
   {
-    _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
+    if(!_this->mOutBuses.Get(i)->mConnected)
+    {
+      break;
+    }
+    else 
+    {
+      lastConnectedOutputBus++;
+    }  
   }
-  else 
+  
+  if (outputBusIdx == lastConnectedOutputBus) 
   {
-    _this->ProcessBuffers((AudioSampleType) 0, nFrames);
+    int busIdx1based = outputBusIdx+1;
+    
+    if (busIdx1based < _this->mOutBuses.GetSize() 
+        && (_this->GetHost() != kHostAbletonLive)) // Live does not handle buses properly, gives us just one bus
+    {
+      int totalNumChans = _this->mOutBuses.GetSize() * 2; // stereo only for the time being
+      int nConnected = busIdx1based * 2; 
+      _this->SetOutputChannelConnections(nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses 
+    }
+    
+    if (_this->mIsBypassed) 
+    {
+      _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
+    }
+    else 
+    {
+      _this->ProcessBuffers((AudioSampleType) 0, nFrames);
+    }
   }
 
   if (nRenderNotify) 
@@ -1488,6 +1655,9 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     pInBus2->mNHostChannels = -1;
     pInBus2->mPlugChannelStartIdx = nNonScInputChans;
     pInBus2->mNPlugChannels = plugScChans;
+    
+    SetInputBusLabel(0, "main input");
+    SetInputBusLabel(1, "aux input");
   }
   else if (NInChannels()) // effect with no side chain... 1 bus
   {
@@ -1498,6 +1668,9 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     pInBus->mNHostChannels = -1;
     pInBus->mPlugChannelStartIdx = 0;
     pInBus->mNPlugChannels = NInChannels();
+    
+    SetInputBusLabel(0, "input");
+    SetInputBusLabel(1, "aux input"); // Ableton Live seems to think a 4-2 audiounit has a sidechain input, even if it is not meant to, so name it just in case
   }
   else { // synth = no inputs // TODO: support synths with SC inputs?
     PtrListInitialize(&mInBusConnections, 0);
@@ -1509,12 +1682,17 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     int nOutBuses = (int) ceil(NOutChannels() / 2.);
     
     PtrListInitialize(&mOutBuses, nOutBuses);
+    char label[32];
     
-    for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2) {
+    for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2) 
+    {
       BusChannels* pOutBus = mOutBuses.Get(i);
       pOutBus->mNHostChannels = -1;
       pOutBus->mPlugChannelStartIdx = startCh;
       pOutBus->mNPlugChannels = MIN(NOutChannels() - startCh, 2);
+      
+      sprintf(label, "output %i", i+1);
+      SetOutputBusLabel(i, label);
     }    
   }
   else 
@@ -1527,6 +1705,8 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     pOutBus->mNHostChannels = -1;
     pOutBus->mPlugChannelStartIdx = 0;
     pOutBus->mNPlugChannels = NOutChannels();
+    
+    SetOutputBusLabel(0, "output");
   }
   
   AssessInputConnections();
@@ -1733,14 +1913,14 @@ void IPlugAU::SetLatency(int samples)
   IPlugBase::SetLatency(samples);
 }
 
+// TODO: SendMidiMsg
 bool IPlugAU::SendMidiMsg(IMidiMsg* pMsg)
 {
   // I believe AU passes midi messages through automatically.
   // For the case where we're generating midi messages, we'll use AUMIDIOutputCallback.
   // See AudioUnitProperties.h.
-  if (mMidiCallback.midiOutputCallback) {
-      // Todo.
-  }
+//  if (mMidiCallback.midiOutputCallback) {
+//  }
   return false;
 }
 
