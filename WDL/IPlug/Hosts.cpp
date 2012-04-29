@@ -74,6 +74,9 @@ EHost LookUpHost(const char* inHost)
   if (strstr(host, "protools")) {
 		return kHostProTools;
 	}
+  if (strstr(host, "ardour")) {
+		return kHostArdour;
+	}
   if (strstr(host, "standalone")) {
 		return kHostStandalone;
 	}
@@ -149,6 +152,9 @@ void GetHostNameStr(EHost host, char* pHostName)
       break;
     case kHostDigitalPerformer:
       strcpy(pHostName, "DigitalPerformer");
+      break;
+    case kHostArdour:
+      strcpy(pHostName, "Ardour");
       break;
     case kHostStandalone:
       strcpy(pHostName, "Standalone");

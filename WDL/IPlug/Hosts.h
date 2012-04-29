@@ -41,7 +41,8 @@ enum EHost {
   kHostStandalone,
   kHostAudioMulch,
   kHostStudioOne,
-  kHostVST3TestHost
+  kHostVST3TestHost,
+  kHostArdour
   
   // These hosts don't report the host name:
   // EnergyXT2
