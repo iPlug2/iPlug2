@@ -45,10 +45,13 @@ IPlugCustomUI::~IPlugCustomUI()
   
 void IPlugCustomUI::GetRect(short *left, short *top, short *right, short *bottom)
 {
-  *left = 0;
-  *right = mGraphics->Width();
-  *top = 0;
-  *bottom = mGraphics->Height();
+  if (mGraphics) 
+  {
+    *left = 0;
+    *right = mGraphics->Width();
+    *top = 0;
+    *bottom = mGraphics->Height();
+  }
 }
 
 bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
