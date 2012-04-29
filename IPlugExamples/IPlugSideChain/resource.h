@@ -72,13 +72,13 @@
 // vst3 stuff
 #define MFR_URL "www.olilarkin.co.uk"
 #define MFR_EMAIL "spam@me.com"
-#define EFFECT_TYPE_VST3 kFx
+#define EFFECT_TYPE_VST3 "Fx"
 
-/* kFxAnalyzer, kFxDelay, kFxDistortion, kFxDynamics, kFxEQ, kFxFilter,
-kFx, kFxInstrument, kFxInstrumentExternal, kFxSpatial, kFxGenerator,
-kFxMastering, kFxModulation, kFxPitchShift, kFxRestoration, kFxReverb,
-kFxSurround, kFxTools, kInstrument, kInstrumentDrum, kInstrumentSampler,
-kInstrumentSynth, kInstrumentSynthSample, kInstrumentExternal, kSpatial,
-kSpatialFx, kOnlyRealTime, kOnlyOfflineProcess, kMono, kStereo,
-kSurround
+/* "Fx|Analyzer"", "Fx|Delay", "Fx|Distortion", "Fx|Dynamics", "Fx|EQ", "Fx|Filter",
+"Fx", "Fx|Instrument", "Fx|InstrumentExternal", "Fx|Spatial", "Fx|Generator",
+"Fx|Mastering", "Fx|Modulation", "Fx|PitchShift", "Fx|Restoration", "Fx|Reverb",
+"Fx|Surround", "Fx|Tools", "Instrument", "Instrument|Drum", "Instrument|Sampler",
+"Instrument|Synth", "Instrument|Synth|Sampler", "Instrument|External", "Spatial",
+"Spatial|Fx", "OnlyRT", "OnlyOfflineProcess", "Mono", "Stereo",
+"Surround"
 */
