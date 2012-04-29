@@ -122,7 +122,7 @@ DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
             kVstAudioEffectClass,                               // the component category (don't change this)
             PLUG_NAME,                                          // plug-in name
             Vst::kSimpleModeSupported,                          // kSimpleModeSupported because we can't split the gui and plugin
-            Vst::PlugType::EFFECT_TYPE_VST3,                    // Subcategory for this plug-in
+            EFFECT_TYPE_VST3,                                   // Subcategory for this plug-in
             VST3_VER_STR,                                       // plug-in version
             kVstVersionString,                                  // the VST 3 SDK version (dont changed this, use always this define)
             createInstance)                                     // function pointer called when this component should be instantiated
