@@ -490,9 +490,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         InitializeVSTChunk(pChunk);
         bool savedOK = true;
         if (isBank) {
-          _this->ModifyCurrentPreset();
+          //_this->ModifyCurrentPreset();
           savedOK = _this->SerializePresets(pChunk);
-          //savedOK = _this->SerializeState(pChunk);
         }
         else {
           savedOK = _this->SerializeState(pChunk);
@@ -515,7 +514,6 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         isBank &= (iplugVer >= 0x010000);
         if (isBank) {
           pos = _this->UnserializePresets(pChunk, pos);
-          //pos = _this->UnserializeState(pChunk, pos);
         }
         else {
           pos = _this->UnserializeState(pChunk, pos);
@@ -705,7 +703,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       return _this->GetCurrentPresetIdx();
     }
     case effSetProgram: {
-      if (!(_this->DoesStateChunks())) {
+      if (_this->DoesStateChunks() == false) {
         _this->ModifyCurrentPreset(); // TODO: test, something is funny about this http://forum.cockos.com/showpost.php?p=485113&postcount=22
       }
       _this->RestorePreset((int) value);
