@@ -190,13 +190,16 @@ protected:
   virtual bool SendMidiMsg(IMidiMsg* pMsg) = 0;
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) = 0;
   bool IsInst() { return mIsInst; }
-    
+  
+  // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(char* name = 0, int nPresets = 1);
   // MakePreset(name, param1, param2, ..., paramN)
   void MakePreset(char* name, ...);
   // MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
   // nParamsNamed may be less than the total number of params.
   void MakePresetFromNamedParams(char* name, int nParamsNamed, ...);
+  
+  // Use these methods with chunks-based plugins
   void MakePresetFromChunk(char* name, ByteChunk* pChunk);
   void MakePresetFromBlob(char* name, const char* blob, int sizeOfChunk);
 
