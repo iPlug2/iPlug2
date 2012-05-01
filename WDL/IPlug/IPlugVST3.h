@@ -55,8 +55,7 @@ public:
   tresult PLUGIN_API process(ProcessData& data);
 //  tresult PLUGIN_API setState(IBStream* state);
 //  tresult PLUGIN_API getState(IBStream* state);
-  virtual tresult PLUGIN_API setState(IBStream* state)  {return kNotImplemented;}
-  virtual tresult PLUGIN_API getState(IBStream* state)  {return kNotImplemented;}
+//  tresult PLUGIN_API setComponentState(IBStream *state);
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize);
 
   // IEditController
