@@ -503,7 +503,7 @@ void IPlugBase::MakeDefaultPreset(char* name, int nPresets)
     if (pPreset) {
       pPreset->mInitialized = true;
       strcpy(pPreset->mName, (name ? name : "Empty"));
-      SerializeParams(&(pPreset->mChunk)); 
+      SerializeState(&(pPreset->mChunk)); 
     }
   }
 }
@@ -655,10 +655,10 @@ bool IPlugBase::RestorePreset(int idx)
     if (!(pPreset->mInitialized)) {
       pPreset->mInitialized = true;
       MakeDefaultUserPresetName(&mPresets, pPreset->mName);
-      restoredOK = SerializeParams(&(pPreset->mChunk)); 
+      restoredOK = SerializeState(&(pPreset->mChunk)); 
     }
     else {
-      restoredOK = (UnserializeParams(&(pPreset->mChunk), 0) > 0);
+      restoredOK = (UnserializeState(&(pPreset->mChunk), 0) > 0);
     }
 
     if (restoredOK) {
@@ -702,29 +702,13 @@ void IPlugBase::ModifyCurrentPreset(const char* name)
     
     Trace(TRACELOC, "%d %s", mCurrentPresetIdx, pPreset->mName);
     
-    SerializeParams(&(pPreset->mChunk));
+    SerializeState(&(pPreset->mChunk));
 
     if (CSTR_NOT_EMPTY(name)) 
     {
       strcpy(pPreset->mName, name);
     }
   }
-}
-
-bool IPlugBase::SerializeState(ByteChunk* pChunk)
-{
-	TRACE;
-	IMutexLock lock(this);
-	
-	return SerializeParams(pChunk);
-}
-
-int IPlugBase::UnserializeState(ByteChunk* pChunk, int startPos)
-{
-  TRACE;
-	IMutexLock lock(this);
-	
-	return UnserializeParams(pChunk, startPos);
 }
 
 bool IPlugBase::SerializePresets(ByteChunk* pChunk)
@@ -760,10 +744,10 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
 
     pos = pChunk->GetBool(&(pPreset->mInitialized), pos);
     if (pPreset->mInitialized) {
-      pos = UnserializeParams(pChunk, pos);
+      pos = UnserializeState(pChunk, pos);
       if (pos > 0) {
         pPreset->mChunk.Clear();
-        SerializeParams(&(pPreset->mChunk));
+        SerializeState(&(pPreset->mChunk));
       }
     }
   }
