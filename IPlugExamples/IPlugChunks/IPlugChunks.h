@@ -10,8 +10,12 @@
  
  A step sequenced volume control / tarnce gate
  
+ Using chunks allows you to store arbitary data (e.g. a hidden, non-automatable parameter, a filepath etc) in the plugin's state, 
+ i.e. when you save a preset to a file or when you save the project in your host
  
- */
+ You need to override SerializeState / UnserializeState and set PLUG_DOES_STATE_CHUNKS 1 in resource.h
+  
+*/
 
 
 #define NUM_SLIDERS 16
@@ -28,15 +32,9 @@ public:
   void OnParamChange(int paramIdx);
   
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
+   
   bool SerializeState(ByteChunk* pChunk);
 	int UnserializeState(ByteChunk* pChunk, int startPos);
-  
-  bool SerializeParams(ByteChunk* pChunk);
-  int UnserializeParams(ByteChunk* pChunk, int startPos);
-  
-  //bool SerializePresets(ByteChunk* pChunk);
-  //int UnserializePresets(ByteChunk* pChunk, int startPos);
   
   void PresetsChangedByHost();
   

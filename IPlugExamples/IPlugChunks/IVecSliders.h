@@ -81,6 +81,12 @@ public:
     SnapToMouse(x, y);
   }
   
+  void OnMouseUp(int x, int y, IMouseMod* pMod)
+  {
+    //TODO: check this isn't going to cause problems... this will happen from the gui thread
+    mPlug->ModifyCurrentPreset();
+  }
+  
   void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
   {
     SnapToMouse(x, y);
@@ -111,7 +117,6 @@ public:
       mSteps[sliderTest] = 1. - BOUNDED(yValue, 0., 1.);
       mSliderThatChanged = sliderTest;
       mPlug->OnParamChange(mParamIdx);
-
     }
     else {
       mSliderThatChanged = -1;
@@ -144,9 +149,7 @@ public:
     
     SetDirty(); 
   }
-  
-  //bool IsDirty() { return true;}
-  
+    
 private:
   IColor mBgColor, mFgColor, mHlColor;
   int mNumSliders;
@@ -211,9 +214,7 @@ public:
     
     SetDirty(); 
   }
-  
-//  bool IsDirty() { return true;}
-  
+    
 private:
   IColor mBgColor, mFgColor;
   int mHandleWidth;

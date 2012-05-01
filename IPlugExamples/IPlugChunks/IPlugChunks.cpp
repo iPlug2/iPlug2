@@ -10,16 +10,16 @@ const int kNumPrograms = 8;
 // An enumerated list for all the parameters of the plugin
 enum EParams 
 {
-	kGain = 0,
-	kNumParams, // the last element is used to store the total number of parameters
+  kGain = 0,
+  kNumParams, // the last element is used to store the total number of parameters
 };
 
 const int kDummyParamForMultislider = -2;
 
 enum ELayout
 {
-	kW = 400,
-	kH = 300
+  kW = 400,
+  kH = 300
 };
 
 class ITempPresetSaveButtonControl : public IPanelControl 
@@ -43,245 +43,157 @@ public:
 };
 
 IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
-:	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
+: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
-	TRACE;
+  TRACE;
   
   memset(mSteps, 0, NUM_SLIDERS * sizeof(double));
-	
+  
   // Define parameter ranges, display units, labels.
-	//arguments are: name, defaultVal, minVal, maxVal, step, label
-	GetParam(kGain)->InitDouble("Gain", 0.0, -70.0, 12.0, 0.1, "dB");
-	
-  MakePresetFromBlob("hellomunkey","AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAADA9SjkPwAAAFC4HuU/AAAAQOF65D8AAADQzMzkPwAAAFC4HuU/AAAA0KNw5T8AAABgj8LlPwAAAGCPwuU/AAAA4HoU5j8AAABgj8LlPwAAAGBmZuY/AAAAcD0K5z8AAAAAAAAAAA==", 136);
-  MakePresetFromBlob("test", "AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA/AAAA2KNw7T8AAACQwvXoPwAAACCF6+E/AAAAAK5H0T8AAAAAAADQPwAAAACkcM0/AAAAgEfhyj8AAACAPQrHPwAAAAAzM8M/AAAAAD0Ktz8AAAAAAAAAAA==", 136);
-  MakePresetFromBlob("mondkfjsdjf", "AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAAAA4HqEPwAAAADgeoQ/AAAAAOB6hD8AAAAA4HqEPwAAAADgeoQ/AAAAAOB6hD8AAABgj8LlPwAAAADgeoQ/AAAAAOB6hD8AAAAAUriuPwAAAADgeoQ/AAAAAOB6hD8AAMwehUtRwA==", 136);
-  MakePresetFromBlob("hello4","AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAADA9SjkPwAAAFC4HuU/AAAAQOF65D8AAADQzMzkPwAAAFC4HuU/AAAA0KNw5T8AAABgj8LlPwAAAGCPwuU/AAAA4HoU5j8AAABgj8LlPwAAAGBmZuY/AAAAcD0K5z8AAAAAAAAAAA==", 136);
-  MakePresetFromBlob("hello5","AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAADA9SjkPwAAAFC4HuU/AAAAQOF65D8AAADQzMzkPwAAAFC4HuU/AAAA0KNw5T8AAABgj8LlPwAAAGCPwuU/AAAA4HoU5j8AAABgj8LlPwAAAGBmZuY/AAAAcD0K5z8AAAAAAAAAAA==", 136);
-  MakePresetFromBlob("hello6","AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAADA9SjkPwAAAFC4HuU/AAAAQOF65D8AAADQzMzkPwAAAFC4HuU/AAAA0KNw5T8AAABgj8LlPwAAAGCPwuU/AAAA4HoU5j8AAABgj8LlPwAAAGBmZuY/AAAAcD0K5z8AAAAAAAAAAA==", 136);
-  MakePresetFromBlob("hello7","AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAADA9SjkPwAAAFC4HuU/AAAAQOF65D8AAADQzMzkPwAAAFC4HuU/AAAA0KNw5T8AAABgj8LlPwAAAGCPwuU/AAAA4HoU5j8AAABgj8LlPwAAAGBmZuY/AAAAcD0K5z8AAAAAAAAAAA==", 136);
-  MakePresetFromBlob("hello8","AAAAEK5H4T8AAAAghevhPwAAAKBwPeI/AAAAMDMz4z8AAADA9SjkPwAAAFC4HuU/AAAAQOF65D8AAADQzMzkPwAAAFC4HuU/AAAA0KNw5T8AAABgj8LlPwAAAGCPwuU/AAAA4HoU5j8AAABgj8LlPwAAAGBmZuY/AAAAcD0K5z8AAAAAAAAAAA==", 136);
+  //arguments are: name, defaultVal, minVal, maxVal, step, label
+  GetParam(kGain)->InitDouble("Gain", 0.0, -70.0, 12.0, 0.1, "dB");
+  
+  MakePresetFromBlob("Ramp Up", "AAAAAJqZqT8AAAAAmpm5PwAAAIA9Csc/AAAAAAAA0D8AAABA4XrUPwAAAIDC9dg/AAAAwMzM3D8AAAAQ16PgPwAAALBH4eI/AAAA0MzM5D8AAADwUbjmPwAAAAjXo+g/AAAAKFyP6j8AAADMzMzsPwAAAOxRuO4/AAAAAAAA8D8AAAAAAAC8Pg==", 136);
+  MakePresetFromBlob("Ramp Down", "AAAA7FG47j8AAABI4XrsPwAAALBH4eo/AAAAGK5H6T8AAABwPQrnPwAAANDMzOQ/AAAAwB6F4z8AAAAghevhPwAAAAB7FN4/AAAAgOtR2D8AAABAuB7VPwAAAACuR9E/AAAAgEfhyj8AAAAAhevBPwAAAABSuK4/AAAAAOB6hD8AAAAAAAC8Pg==", 136);
+  MakePresetFromBlob("Triangle", "AAAAAIXrwT8AAACAR+HKPwAAAEBcj9I/AAAAgBSu1z8AAADA9SjcPwAAABDXo+A/AAAAsEfh4j8AAABQuB7lPwAAAGBmZuY/AAAAMDMz4z8AAAAAAADgPwAAAMD1KNw/AAAAQI/C1T8AAAAArkfRPwAAAICPwsU/AAAAAJqZuT8AAAAAAAAAAA==", 136);
+  MakePresetFromBlob("Inv Triangle", "AAAAAAAA8D8AAABQuB7tPwAAAKBwPeo/AAAAcD0K5z8AAABA4XrkPwAAAJDC9eA/AAAAwEfh2j8AAABAj8LVPwAAAECPwtU/AAAAwMzM3D8AAAAghevhPwAAANDMzOQ/AAAAgBSu5z8AAACYmZnpPwAAAFyPwu0/AAAAAAAA8D8AAAAAAAAAAA==", 136);
+  MakePresetFromBlob("Da Endz", "AAAAAAAA8D8AAAAA4HqEPwAAAADgeoQ/AAAAAOB6hD8AAAAA4HqEPwAAAADgeoQ/AAAAAOB6hD8AAAAA4HqEPwAAAADgeoQ/AAAAAOB6hD8AAAAA4HqEPwAAAADgeoQ/AAAAAOB6hD8AAAAA4HqEPwAAAADgeoQ/AAAAAAAA8D8AAAAAAAAAAA==", 136);
+  MakePresetFromBlob("Alternate", "AAAAAAAA8D8AAAAA4HqEPwAAAAAAAPA/AAAAAOB6hD8AAAAAAADwPwAAAADgeoQ/AAAAAAAA8D8AAAAA4HqEPwAAAAAAAPA/AAAAAOB6hD8AAAAAAADwPwAAAADgeoQ/AAAAAAAA8D8AAAAA4HqEPwAAAAAAAPA/AAAAAOB6hD8AAAAAAAAAAA==", 136);
+  MakePresetFromBlob("Alt Ramp Down", "AAAAAAAA8D8AAAAA4HqEPwAAALgehes/AAAAAOB6hD8AAACI61HoPwAAAADgeoQ/AAAAQArX4z8AAAAA4HqEPwAAAAAAAOA/AAAAAOB6hD8AAABAuB7VPwAAAADgeoQ/AAAAAKRwzT8AAAAA4HqEPwAAAAAzM8M/AAAAAOB6hD8AAAAAAAAAAA==", 136);
+  MakePresetFromBlob("Alt Ramp Up", "AAAAgJmZyT8AAAAA4HqEPwAAAIBmZtY/AAAAAOB6hD8AAAAAKVzfPwAAAADgeoQ/AAAAMFyP4j8AAAAA4HqEPwAAAEDheuQ/AAAAAOB6hD8AAADwKFznPwAAAADgeoQ/AAAAIIXr6T8AAAAA4HqEPwAAANijcO0/AAAAAOB6hD8AAAAAAAAAAA==", 136);
 
-	IGraphics* pGraphics = MakeGraphics(this, kW, kH);
-	pGraphics->AttachPanelBackground(&COLOR_BLUE);
-	
-	mMSlider = new MultiSliderControlV(this, IRECT(10, 10, 170, 110), kDummyParamForMultislider, NUM_SLIDERS, 10, &COLOR_WHITE, &COLOR_BLACK, &COLOR_RED);
+  IGraphics* pGraphics = MakeGraphics(this, kW, kH);
+  pGraphics->AttachPanelBackground(&COLOR_BLUE);
+  
+  mMSlider = new MultiSliderControlV(this, IRECT(10, 10, 170, 110), kDummyParamForMultislider, NUM_SLIDERS, 10, &COLOR_WHITE, &COLOR_BLACK, &COLOR_RED);
   pGraphics->AttachControl(mMSlider);
   pGraphics->AttachControl(new IVSliderControl(this, IRECT(200, 10, 220, 110), kGain, 20, &COLOR_WHITE, &COLOR_GREEN));
 
   pGraphics->AttachControl(new ITempPresetSaveButtonControl(this, IRECT(350, 250, 390, 290)));
-  
-	AttachGraphics(pGraphics);
+    
+  AttachGraphics(pGraphics);
 }
 
-// the destructor, where you free any memory you allocated
 IPlugChunks::~IPlugChunks() {}
 
 void IPlugChunks::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-	// Mutex is already locked for us.
-	
-	double* in1 = inputs[0];
-	double* in2 = inputs[1];
-	double* out1 = outputs[0];
-	double* out2 = outputs[1];
-	
-	int samplesPerBeat = (int) GetSamplesPerBeat();
-	int samplePos = (int) GetSamplePos();
-	
-	int count = mCount;
-	int prevcount = mPrevCount;
-	
-	for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2) 
-	{
+  // Mutex is already locked for us.
+  
+  double* in1 = inputs[0];
+  double* in2 = inputs[1];
+  double* out1 = outputs[0];
+  double* out2 = outputs[1];
+  
+  int samplesPerBeat = (int) GetSamplesPerBeat();
+  int samplePos = (int) GetSamplePos();
+  
+  int count = mCount;
+  int prevcount = mPrevCount;
+  
+  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2) 
+  {
     int mod = (samplePos + s) % (samplesPerBeat * BEAT_DIV);
     
-		count = mod / (samplesPerBeat / BEAT_DIV);
+    count = mod / (samplesPerBeat / BEAT_DIV);
     
-   if (count >= NUM_SLIDERS) {
+    if (count >= NUM_SLIDERS) {
      count = 0;
-   }
+    }
     
-		if (count != prevcount) 
-		{
-			if (GetGUI()) 
-			{
-				mMSlider->SetHighlight(count);
-			}
-		}
-		
-		prevcount = count;
-		
-		*out1 = *in1 * mSteps[count] * mGain;
-		*out2 = *in2 * mSteps[count] * mGain;
-	}
-	
-	mCount = count;
-	mPrevCount = prevcount;
-	
+    if (count != prevcount) 
+    {
+      if (GetGUI()) 
+      {
+        mMSlider->SetHighlight(count);
+      }
+    }
+    
+    prevcount = count;
+    
+    *out1 = *in1 * mSteps[count] * mGain;
+    *out2 = *in2 * mSteps[count] * mGain;
+  }
+  
+  mCount = count;
+  mPrevCount = prevcount;
+  
 }
 
 void IPlugChunks::Reset()
 {
-	TRACE;
-	IMutexLock lock(this);
-	
-	mCount = 0;
-	mPrevCount = ULONG_MAX;
+  TRACE;
+  IMutexLock lock(this);
+  
+  mCount = 0;
+  mPrevCount = ULONG_MAX;
 }
-
 
 void IPlugChunks::OnParamChange(int paramIdx)
 {
-	IMutexLock lock(this);
-	
-	switch (paramIdx)
-	{
+  TRACE;
+
+  IMutexLock lock(this);
+  
+  switch (paramIdx)
+  {
     case kDummyParamForMultislider:
-      //could also get entire array
       mMSlider->GetLatestChange(mSteps);
-      ModifyCurrentPreset();
       break;
-		case kGain:
-			mGain = GetParam(kGain)->DBToAmp();
-			break;
-			
-		default:
-			break;
-	}
+    case kGain:
+      mGain = GetParam(kGain)->DBToAmp();
+      break;
+      
+    default:
+      break;
+  }
 }
 
-bool IPlugChunks::SerializeParams(ByteChunk* pChunk)
-{
-  TRACE;
-  WDL_MutexLock lock(&mMutex);
-  bool savedOK = true;
-  int i;
-  double v;
-  
-  // added this to serialize the slider state
-  for (i = 0; i< NUM_SLIDERS && savedOK; i++) {
-    v =  mSteps[i];
-    savedOK &= (pChunk->Put(&v) > 0);
-  }
-  
-  int n = mParams.GetSize();
-  for (i = 0; i < n && savedOK; ++i) {
-    IParam* pParam = mParams.Get(i);
-    v = pParam->Value();
-    savedOK &= (pChunk->Put(&v) > 0);
-  }
-  return savedOK;
-}
-
-int IPlugChunks::UnserializeParams(ByteChunk* pChunk, int startPos)
-{
-  TRACE;
-  WDL_MutexLock lock(&mMutex);
-  int i, n = mParams.GetSize(), pos = startPos;
-  double v = 0.0;
-  
-  // added this to unserialize the slider state
-  for (i = 0; i< NUM_SLIDERS; i++) {
-    v = 0.0;
-    pos = pChunk->Get(&v, pos);
-    mSteps[i] = v;
-  }
-  
-  for (i = 0; i < n && pos >= 0; ++i) {
-    IParam* pParam = mParams.Get(i);
-    double v = 0.0;
-    Trace(TRACELOC, "%d %s", i, pParam->GetNameForHost());
-    pos = pChunk->Get(&v, pos);
-    pParam->Set(v);
-  }
-  
-  OnParamReset();
-  return pos;
-}
-
+// this over-ridden method is called when the host is trying to store the plug-in state and needs to get the current data from your algorithm
 bool IPlugChunks::SerializeState(ByteChunk* pChunk)
 {
   TRACE;
-	IMutexLock lock(this);
-	
-  int i;
+  IMutexLock lock(this);
   double v;
-  bool savedOK = true;
-  // added this to serialize the slider state
-  for (i = 0; i< NUM_SLIDERS && savedOK; i++) {
+  
+  // serialize the multi-slider state state before serializing the regular params 
+  for (int i = 0; i< NUM_SLIDERS; i++) 
+  {
     v =  mSteps[i];
-    savedOK &= (pChunk->Put(&v) > 0);
+    pChunk->Put(&v);
   }
   
-  if (savedOK) {
-    return IPlugBase::SerializeParams(pChunk);
-  }
-  else {
-    return false;
-  }
+  return IPlugBase::SerializeParams(pChunk); // must remember to call SerializeParams at the end
 }
 
+// this over-ridden method is called when the host is trying to load the plug-in state and you need to unpack the data into your algorithm
 int IPlugChunks::UnserializeState(ByteChunk* pChunk, int startPos)
 {
   TRACE;
-	IMutexLock lock(this);
-	
-  // added this to unserialize the slider state
-  for (int i = 0; i< NUM_SLIDERS; i++) {
-    double v = 0.0;
+  IMutexLock lock(this);
+  double v = 0.0;
+  
+  // unserialize the multi-slider state before unserializing the regular params 
+  for (int i = 0; i< NUM_SLIDERS; i++) 
+  {
+    v = 0.0;
     startPos = pChunk->Get(&v, startPos);
     mSteps[i] = v;
   }
   
-	return IPlugBase::UnserializeParams(pChunk, startPos);
+  // update values in control, will set dirty
+  if(mMSlider)
+    mMSlider->SetState(mSteps);
+  
+  return IPlugBase::UnserializeParams(pChunk, startPos); // must remember to call UnserializeParams at the end
 }
-
-/*
-bool IPlugChunks::SerializePresets(ByteChunk* pChunk)
-{
-  TRACE;
-  bool savedOK = true;
-  int n = mPresets.GetSize();
-  for (int i = 0; i < n && savedOK; ++i) {
-    IPreset* pPreset = mPresets.Get(i);
-    pChunk->PutStr(pPreset->mName);
-    pChunk->PutBool(pPreset->mInitialized);
-    if (pPreset->mInitialized) {
-      savedOK &= (pChunk->PutChunk(&(pPreset->mChunk)) > 0);
-    }
-  }
-  return savedOK;
-}
-
-int IPlugChunks::UnserializePresets(ByteChunk* pChunk, int startPos)
-{
-  TRACE;
-  WDL_String name;
-  int n = mPresets.GetSize(), pos = startPos;
-  for (int i = 0; i < n && pos >= 0; ++i) {
-    IPreset* pPreset = mPresets.Get(i);
-    pos = pChunk->GetStr(&name, pos);
-    strcpy(pPreset->mName, name.Get());
-    pos = pChunk->GetBool(&(pPreset->mInitialized), pos);
-    if (pPreset->mInitialized) {
-      pos = UnserializeParams(pChunk, pos);
-      if (pos > 0) {
-        pPreset->mChunk.Clear();
-        SerializeParams(&(pPreset->mChunk));
-      }
-    }
-  }
-  RestorePreset(mCurrentPresetIdx);
-  return pos;
-}
-*/
 
 void IPlugChunks::PresetsChangedByHost()
 {
+  TRACE;
   IMutexLock lock(this);
 
-  if (mMSlider)
+  if(mMSlider)
     mMSlider->SetState(mSteps);
   
   if(GetGUI())

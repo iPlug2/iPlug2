@@ -46,7 +46,7 @@ DEBUG_DEFS = _DEBUG
 RELEASE_DEFS = NDEBUG //DEMO_VERSION
 
 // Preprocessor definitions for all Tracer builds
-TRACER_DEFS = TRACER_BUILD
+TRACER_DEFS = NDEBUG TRACER_BUILD
 
 // Preprocessor definitions for cocoa uniqueness (all builds)
 // If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too
