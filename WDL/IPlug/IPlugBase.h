@@ -73,12 +73,10 @@ public:
   virtual void ProcessMidiMsg(IMidiMsg* pMsg);
   virtual bool MidiNoteName(int noteNumber, char* rName) { *rName = '\0'; return false; }
 
-  // Implementations should set a mutex lock.
-//  virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
-  virtual bool SerializeState(ByteChunk* pChunk);
-  // Return the new chunk position (endPos).
-//  virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
-  virtual int UnserializeState(ByteChunk* pChunk, int startPos);
+  // Implementations should set a mutex lock and call SerializeParams() after custom data is serialized
+  virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
+  // Return the new chunk position (endPos). Implementations should set a mutex lock and call UnserializeParams() after custom data is unserialized
+  virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
   
 #ifndef OS_IOS
   virtual void OnWindowResize() {}
@@ -203,10 +201,11 @@ protected:
   void MakePresetFromBlob(char* name, const char* blob, int sizeOfChunk);
 
   bool DoesStateChunks() { return mStateChunks; }
-  // Will append if the chunk is already started.
-  virtual bool SerializeParams(ByteChunk* pChunk);
-  // Returns the new chunk position (endPos).
-  virtual int UnserializeParams(ByteChunk* pChunk, int startPos);
+  
+  // Will append if the chunk is already started
+  bool SerializeParams(ByteChunk* pChunk);
+  int UnserializeParams(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos)
+  
 #ifndef OS_IOS
   virtual void RedrawParamControls();  // Called after restoring state.
 #endif
@@ -218,10 +217,9 @@ protected:
 
   void PruneUninitializedPresets();
 
-  virtual bool SerializePresets(ByteChunk* pChunk);
-  // Returns the new chunk position (endPos).
-  virtual int UnserializePresets(ByteChunk* pChunk, int startPos);
-
+  // Unserialize / SerializePresets - Only used by VST2
+  bool SerializePresets(ByteChunk* pChunk);
+  int UnserializePresets(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos).
 
   // Set connection state for n channels.
   // If a channel is connected, we expect a call to attach the buffers before each process call.
@@ -305,7 +303,6 @@ protected:
   WDL_String mPreviousPath; // for saving/loading fxps
   
 private:
-  
   int mCurrentPresetIdx;
   IGraphics* mGraphics;
   WDL_PtrList<IParam> mParams;
