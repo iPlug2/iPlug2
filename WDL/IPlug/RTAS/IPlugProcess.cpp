@@ -121,7 +121,7 @@ void IPlugProcess::EffectInit()
     
     mPlug->SetIO(GetNumInputs(), GetNumOutputs());
     mPlug->SetSampleRate(GetSampleRate());
-    
+    mPlug->RestorePreset(0);
     mPlug->Reset();
   }
 }
@@ -332,7 +332,7 @@ ComponentResult IPlugProcess::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 {
   TRACE;
   
-  //called when project is loaded from save
+  //called when project is loaded from save or a program is loaded
   if (chunkID == mPluginID) {
     const int dataSize = chunk->fSize - sizeof(SFicPlugInChunkHeader);
     
@@ -349,7 +349,7 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 {
   TRACE;
   
-  //called when project is saved
+  //called when project / program is saved
   if (chunkID == mPluginID) {
     ByteChunk IPlugChunk;
     if (mPlug->SerializeState(&IPlugChunk)) {
