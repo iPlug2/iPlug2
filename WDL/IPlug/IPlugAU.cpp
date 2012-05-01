@@ -1258,13 +1258,8 @@ ComponentResult IPlugAU::GetState(CFPropertyListRef* ppPropList)
   PutStrInDict(pDict, kAUPresetNameKey, GetPresetName(GetCurrentPresetIdx()));
 
   ByteChunk chunk;
-  if (DoesStateChunks()) {
-    if (SerializeState(&chunk)) {
-      PutDataInDict(pDict, kAUPresetDataKey, &chunk);
-    }
-  }
-  else {
-    SerializeParams(&chunk);
+  
+  if (SerializeState(&chunk)) {
     PutDataInDict(pDict, kAUPresetDataKey, &chunk);
   }
 
@@ -1302,15 +1297,8 @@ ComponentResult IPlugAU::SetState(CFPropertyListRef pPropList)
     return kAudioUnitErr_InvalidPropertyValue;
   }
 
-  if (DoesStateChunks()) {
-    if (!UnserializeState(&chunk, 0)) {
-      return kAudioUnitErr_InvalidPropertyValue;
-    }
-  }
-  else {
-    if (!UnserializeParams(&chunk, 0)) {
-      return kAudioUnitErr_InvalidPropertyValue;
-    }
+  if (!UnserializeState(&chunk, 0)) {
+    return kAudioUnitErr_InvalidPropertyValue;
   }
 
   RedrawParamControls();
