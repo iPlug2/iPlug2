@@ -72,6 +72,8 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new ITempPresetSaveButtonControl(this, IRECT(350, 250, 390, 290)));
     
   AttachGraphics(pGraphics);
+  
+  RestorePreset(0);
 }
 
 IPlugChunks::~IPlugChunks() {}
@@ -159,7 +161,7 @@ bool IPlugChunks::SerializeState(ByteChunk* pChunk)
   // serialize the multi-slider state state before serializing the regular params 
   for (int i = 0; i< NUM_SLIDERS; i++) 
   {
-    v =  mSteps[i];
+    v = mSteps[i];
     pChunk->Put(&v);
   }
   
