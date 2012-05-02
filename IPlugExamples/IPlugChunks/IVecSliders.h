@@ -37,7 +37,7 @@ public:
     for(int i=0; i<numSliders;i++)
     {
       int lpos = (i * sliderWidth);
-      mSteps[i] = i * (1. / numSliders);
+      mSteps[i] = 0.;
 
       mSliderBounds[i] = new IRECT(mRECT.L + lpos , mRECT.T, mRECT.L + lpos + sliderWidth, mRECT.B);
     }
