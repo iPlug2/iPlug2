@@ -414,6 +414,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             
             QDEndCGContext(port, &(_this->mCGC));
             
+            DisposeRgn(clipRegion);
           }      
           return noErr;
         }
