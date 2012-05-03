@@ -39,7 +39,7 @@ private:
   
   IGraphicsMac* mGraphicsMac;
   bool mIsComposited;
-  RgnHandle mRgn;
+//  RgnHandle mRgn;
   WindowRef mWindow;
   ControlRef mView;  
   EventLoopTimerRef mTimer;
