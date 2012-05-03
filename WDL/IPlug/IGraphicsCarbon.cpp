@@ -427,19 +427,30 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
       
       #ifdef RTAS_API
-      // Header offset
-      hp.x -= _this->GetLeftOffset();
-      hp.y -= _this->GetTopOffset();
-      // Title bar offset
-      Rect bounds;
-      GetWindowBounds(_this->mWindow, kWindowTitleBarRgn, &bounds);   
-      hp.y -= bounds.bottom - bounds.top;
-      int x = (int) hp.x;
-      int y = (int) hp.y;
-      #else
-      HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
-      int x = (int) hp.x - 2;
-      int y = (int) hp.y - 3;
+        // Header offset
+        hp.x -= _this->GetLeftOffset();
+        hp.y -= _this->GetTopOffset();
+        
+        Rect bounds;
+        GetWindowBounds(_this->mWindow, kWindowTitleBarRgn, &bounds);   
+        
+        // adjust x mouse coord if the gui is less wide than the window
+        int windowWidth = (bounds.right - bounds.left);
+        
+        if (windowWidth > pGraphicsMac->Width()) {
+          hp.x -= (int) floor((windowWidth - pGraphicsMac->Width()) / 2.);
+        }
+        
+        // Title bar Y offset
+        hp.y -= bounds.bottom - bounds.top;
+        
+        int x = (int) hp.x;
+        int y = (int) hp.y;
+      
+      #else // NOT RTAS
+        HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
+        int x = (int) hp.x - 2;
+        int y = (int) hp.y - 3;
       #endif
       
       UInt32 mods;
