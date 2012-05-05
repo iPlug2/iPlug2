@@ -42,12 +42,88 @@ public:
   
 };
 
+class PresetFunctionsMenu : public IPanelControl
+{
+public:
+	PresetFunctionsMenu(IPlugBase *pPlug, IRECT pR) 
+  : IPanelControl(pPlug, pR, &COLOR_BLUE)
+  {}
+	
+	bool Draw(IGraphics* pGraphics)
+	{	
+		pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+
+    int ax = mRECT.R - 8;
+    int ay = mRECT.T + 4;
+    int bx = ax + 4;
+    int by = ay;
+    int cx = ax + 2;
+    int cy = ay + 2;
+    
+    pGraphics->FillTriangle(&COLOR_GRAY, ax , ay, bx, by, cx, cy, &mBlend);
+    
+		return true;
+	}
+  
+	void OnMouseDown(int x, int y, IMouseMod* pMod)
+	{
+		if (pMod->L) {
+			doPopupMenu();
+		}
+		
+    Redraw(); // seems to need this
+		SetDirty();
+	}
+	
+	void doPopupMenu()
+	{
+		IPopupMenu menu;
+		
+		IGraphics* gui = mPlug->GetGUI();
+    
+    menu.AddItem("Save Program...");
+    menu.AddItem("Save Bank...");
+    menu.AddSeparator();
+    menu.AddItem("Load Program...");
+    menu.AddItem("Load Bank...");
+    
+		if(gui->CreateIPopupMenu(&menu, &mRECT))
+		{
+			int itemChosen = menu.GetChosenItemIdx();
+      
+      //printf("chosen %i /n", itemChosen);
+			switch (itemChosen) 
+      {
+        case 0: //Save Program
+          char disp[MAX_PRESET_NAME_LEN];
+          strcpy(disp, mPlug->GetPresetName(mPlug->GetCurrentPresetIdx()));
+          mPlug->SaveProgramAsFXP(disp);
+          break;
+        case 1: //Save Bank
+          mPlug->SaveBankAsFXB("IPlugChunks Bank");
+          break;
+        case 3: //Load Preset
+          mPlug->LoadProgramFromFXP();
+          break;
+        case 4: // Load Bank
+          mPlug->LoadBankFromFXB();
+          break;
+        default:
+          break;
+      }
+		}
+	}
+};
+
 IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
   TRACE;
-  
-  memset(mSteps, 0, NUM_SLIDERS * sizeof(double));
+    
+  for(int i=0; i<NUM_SLIDERS;i++)
+  {
+    mSteps[i] = (double) i / (double) NUM_SLIDERS;
+  }
   
   // Define parameter ranges, display units, labels.
   //arguments are: name, defaultVal, minVal, maxVal, step, label
@@ -66,14 +142,16 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachPanelBackground(&COLOR_BLUE);
   
   mMSlider = new MultiSliderControlV(this, IRECT(10, 10, 170, 110), kDummyParamForMultislider, NUM_SLIDERS, 10, &COLOR_WHITE, &COLOR_BLACK, &COLOR_RED);
+  mMSlider->SetState(mSteps);
+
   pGraphics->AttachControl(mMSlider);
   pGraphics->AttachControl(new IVSliderControl(this, IRECT(200, 10, 220, 110), kGain, 20, &COLOR_WHITE, &COLOR_GREEN));
 
-  pGraphics->AttachControl(new ITempPresetSaveButtonControl(this, IRECT(350, 250, 390, 290)));
-    
-  AttachGraphics(pGraphics);
+  //pGraphics->AttachControl(new ITempPresetSaveButtonControl(this, IRECT(350, 250, 390, 290)));
+  pGraphics->AttachControl(new PresetFunctionsMenu(this, IRECT(350, 250, 390, 290))); 
   
-  RestorePreset(0);
+  AttachGraphics(pGraphics);
+  //RestorePreset(0);
 }
 
 IPlugChunks::~IPlugChunks() {}
