@@ -2,6 +2,7 @@
 #define _IPLUGBASE_
 
 #define IPLUG_VERSION 0x010000
+#define IPLUG_VERSION_MAGIC 'pfft'
 
 #include "Containers.h"
 #include "IPlugStructs.h"
@@ -177,6 +178,9 @@ protected:
   WDL_PtrList<ChannelIO> mChannelIO;
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
+  
+  void InitializeVSTChunk(ByteChunk* pChunk);
+  int GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos);
   
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() { return; };

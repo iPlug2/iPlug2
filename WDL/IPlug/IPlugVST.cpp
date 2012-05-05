@@ -317,27 +317,6 @@ void IPlugVST::HostSpecificInit()
   }
 }
 
-#define IPLUG_VERSION_MAGIC 'pfft'
-
-void InitializeVSTChunk(ByteChunk* pChunk)
-{
-  pChunk->Clear();
-  int magic = IPLUG_VERSION_MAGIC;
-  pChunk->Put(&magic);
-  int ver = IPLUG_VERSION;
-  pChunk->Put(&ver);
-}
-
-int GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos)
-{
-  int magic = 0, ver = 0;
-  int pos = pChunk->Get(&magic, *pPos);
-  if (pos > *pPos && magic == IPLUG_VERSION_MAGIC) {
-    *pPos = pChunk->Get(&ver, pos);
-  }
-  return ver;
-}
-
 VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt)
 {
 	// VSTDispatcher is an IPlugVST class member, we can access anything in IPlugVST from here.
@@ -487,7 +466,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (ppData) {
         bool isBank = (!idx);
         ByteChunk* pChunk = (isBank ? &(_this->mBankState) : &(_this->mState));
-        InitializeVSTChunk(pChunk);
+        _this->InitializeVSTChunk(pChunk);
         bool savedOK = true;
         if (isBank) {
           //_this->ModifyCurrentPreset();
@@ -510,7 +489,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         pChunk->Resize(value);
         memcpy(pChunk->GetBytes(), ptr, value);
         int pos = 0;
-        int iplugVer = GetIPlugVerFromChunk(pChunk, &pos);
+        int iplugVer = _this->GetIPlugVerFromChunk(pChunk, &pos);
         isBank &= (iplugVer >= 0x010000);
         if (isBank) {
           pos = _this->UnserializePresets(pChunk, pos);

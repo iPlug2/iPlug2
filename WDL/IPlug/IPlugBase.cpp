@@ -1364,3 +1364,23 @@ bool IPlugBase:: LoadBankFromFXB()
   return false;
 }
 #endif
+#endif
+
+void IPlugBase::InitializeVSTChunk(ByteChunk* pChunk)
+{
+  pChunk->Clear();
+  int magic = IPLUG_VERSION_MAGIC;
+  pChunk->Put(&magic);
+  int ver = IPLUG_VERSION;
+  pChunk->Put(&ver);
+}
+
+int IPlugBase::GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos)
+{
+  int magic = 0, ver = 0;
+  int pos = pChunk->Get(&magic, *pPos);
+  if (pos > *pPos && magic == IPLUG_VERSION_MAGIC) {
+    *pPos = pChunk->Get(&ver, pos);
+  }
+  return ver;
+}
