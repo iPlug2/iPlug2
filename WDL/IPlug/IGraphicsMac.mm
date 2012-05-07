@@ -8,6 +8,8 @@
 #endif
 #include "../swell/swell-internal.h"
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 struct CocoaAutoReleasePool
 {
   NSAutoreleasePool* mPool;
