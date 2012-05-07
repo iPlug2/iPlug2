@@ -142,7 +142,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             pGraphics->mParamEditMsg = kUpdate;
           }
           else 
-                  UpdateWindow(hWnd);
+            UpdateWindow(hWnd);
         }
       }
       return 0;
