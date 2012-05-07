@@ -5,6 +5,8 @@
 #undef max
 
 #include <stdarg.h>
+#include <stdint.h>
+
 #include "Containers.h"
 #include "IPlugOSDetect.h"
 
@@ -16,9 +18,9 @@
   void DBGMSG(const char *format, ...);
 #endif
 
-  #define SYS_THREAD_ID (int) GetCurrentThreadId()
+  #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
 #elif defined __APPLE__ // TODO: check on ios
-  #define SYS_THREAD_ID (int) pthread_self()
+  #define SYS_THREAD_ID (intptr_t) pthread_self()
 
 #ifndef NDEBUG
   #define DBGMSG(...) printf(__VA_ARGS__)
