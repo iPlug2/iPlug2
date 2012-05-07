@@ -191,11 +191,11 @@ const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const
 
 #if defined TRACER_BUILD
 
-  int GetOrdinalThreadID(int sysThreadID)
+  intptr_t GetOrdinalThreadID(intptr_t sysThreadID)
   {
-    static WDL_TypedBuf<int> sThreadIDs;
+    static WDL_TypedBuf<intptr_t> sThreadIDs;
     int i, n = sThreadIDs.GetSize();
-    int* pThreadID = sThreadIDs.Get();
+    intptr_t* pThreadID = sThreadIDs.Get();
     for (i = 0; i < n; ++i, ++pThreadID) {
       if (sysThreadID == *pThreadID) {
         return i;
@@ -219,13 +219,11 @@ const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const
       VARARGS_TO_STR(str);
 		
 #ifdef TRACETOSTDOUT
-      printf("[%d:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+      printf("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
 #else
-  #ifndef __LP64__ // TODO: fix
-        WDL_MutexLock lock(&sLogMutex);
-        fprintf(sLogFile.mFP, "[%d:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
-        fflush(sLogFile.mFP);
-  #endif
+      WDL_MutexLock lock(&sLogMutex);
+      fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+      fflush(sLogFile.mFP);
 #endif
     }
   }
