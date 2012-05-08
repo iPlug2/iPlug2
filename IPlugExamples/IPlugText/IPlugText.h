@@ -6,17 +6,17 @@
 class IPlugText : public IPlug
 {
 public:
-  
+
   IPlugText(IPlugInstanceInfo instanceInfo);
   ~IPlugText();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
+
 private:
-  
+
   double mGain;
 };
 

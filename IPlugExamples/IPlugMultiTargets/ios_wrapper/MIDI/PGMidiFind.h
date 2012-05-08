@@ -15,10 +15,10 @@
 - (PGMidiDestination*) findDestinationCalled:(NSString*)name;
 
 - (void)               findMatchingSource:(PGMidiSource**)source
-                           andDestination:(PGMidiDestination**)destination;
+andDestination:(PGMidiDestination**)destination;
 
 - (void)               findMatchingSource:(PGMidiSource**)source
-                           andDestination:(PGMidiDestination**)destination
-                               avoidNames:(NSArray*)namesToAvoid;
+andDestination:(PGMidiDestination**)destination
+avoidNames:(NSArray*)namesToAvoid;
 
 @end

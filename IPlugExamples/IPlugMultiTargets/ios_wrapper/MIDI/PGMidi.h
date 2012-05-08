@@ -19,10 +19,10 @@
 /// @see PGMidiDestination
 @interface PGMidiConnection : NSObject
 {
-    PGMidi                  *midi;
-    MIDIEndpointRef          endpoint;
-    NSString                *name;
-    BOOL                     isNetworkSession;
+  PGMidi                  *midi;
+  MIDIEndpointRef          endpoint;
+  NSString                *name;
+  BOOL                     isNetworkSession;
 }
 @property (nonatomic,readonly) PGMidi          *midi;
 @property (nonatomic,readonly) MIDIEndpointRef  endpoint;
@@ -66,7 +66,7 @@
 /// @see PGMidiSourceDelegate
 @interface PGMidiSource : PGMidiConnection
 {
-    id<PGMidiSourceDelegate> delegate;
+  id<PGMidiSourceDelegate> delegate;
 }
 @property (nonatomic,assign)   id<PGMidiSourceDelegate> delegate;
 @end
@@ -102,11 +102,11 @@
 /// @see PGMidiDelegate
 @interface PGMidi : NSObject
 {
-    MIDIClientRef      client;
-    MIDIPortRef        outputPort;
-    MIDIPortRef        inputPort;
-    id<PGMidiDelegate> delegate;
-    NSMutableArray    *sources, *destinations;
+  MIDIClientRef      client;
+  MIDIPortRef        outputPort;
+  MIDIPortRef        inputPort;
+  id<PGMidiDelegate> delegate;
+  NSMutableArray    *sources, *destinations;
 }
 
 @property (nonatomic,assign)   id<PGMidiDelegate> delegate;

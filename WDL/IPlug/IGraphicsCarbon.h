@@ -17,10 +17,10 @@
 class IGraphicsCarbon
 {
 public:
-  
+
   IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl, short leftOffset, short topOffset);
   ~IGraphicsCarbon();
-  
+
   ControlRef GetView() { return mView; }
   CGContextRef GetCGContext() { return mCGC; }
   bool GetIsComposited() {return mIsComposited;}
@@ -36,12 +36,12 @@ public:
   void EndUserInput(bool commit);
 
 private:
-  
+
   IGraphicsMac* mGraphicsMac;
   bool mIsComposited;
 //  RgnHandle mRgn;
   WindowRef mWindow;
-  ControlRef mView;  
+  ControlRef mView;
   EventLoopTimerRef mTimer;
   EventHandlerRef mControlHandler;
   EventHandlerRef mWindowHandler;
@@ -54,14 +54,14 @@ private:
 #else
   ControlRef mTextEntryView;
 #endif
-  
+
   IControl* mEdControl;
   IParam* mEdParam;
   int mPrevX, mPrevY;
   short mLeftOffset, mTopOffset; // only for RTAS
 
 public:
-  
+
   static pascal OSStatus MainEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
   static pascal void TimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon);
   static pascal OSStatus TextEntryHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);

@@ -15,29 +15,29 @@
 class IPlugPolySynth : public IPlug
 {
 public:
-  
+
   IPlugPolySynth(IPlugInstanceInfo instanceInfo);
   ~IPlugPolySynth();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
 
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
   bool HostRequestingAboutBox();
-  
+
   int GetNumKeys();
   bool GetKeyStatus(int key);
   void ProcessMidiMsg(IMidiMsg* pMsg);
   void NoteOnOff(IMidiMsg* pMsg);
 
 private:
-  
+
   void NoteOnOffPoly(IMidiMsg* pMsg);
   int FindFreeVoice();
-  
+
   IBitmapOverlayControl* mAboutBox;
   IControl* mKeyboard;
-  
+
   IMidiQueue mMidiQueue;
 
   int mActiveVoices;
@@ -55,9 +55,9 @@ private:
 
 enum ELayout
 {
-  kWidth = GUI_WIDTH,  // width of plugin window 
+  kWidth = GUI_WIDTH,  // width of plugin window
   kHeight = GUI_HEIGHT, // height of plugin window
-  
+
   kKeybX = 1,
   kKeybY = 233,
 

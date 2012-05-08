@@ -1,33 +1,31 @@
 #include "IBitmapMonoText.h"
 
-void DrawBitmapedText(IGraphics* pGraphics, 
-                             IBitmap* pTextBitmap, 
-                             IRECT* controlRect, 
-                             IText* pItext, 
-                             IChannelBlend* pBlend, 
-                             const char* str, 
-                             bool vCenter,
-                             bool multiline,
-                             int charWidth, 
-                             int charHeight)
-{    
-  if (CSTR_NOT_EMPTY(str)) 
+void DrawBitmapedText(IGraphics* pGraphics,
+                      IBitmap* pTextBitmap,
+                      IRECT* controlRect,
+                      IText* pItext,
+                      IChannelBlend* pBlend,
+                      const char* str,
+                      bool vCenter,
+                      bool multiline,
+                      int charWidth,
+                      int charHeight)
+{
+  if (CSTR_NOT_EMPTY(str))
   {
     int len = strlen(str);
-    
-    int basicYOffset;
-    
-    if (vCenter) 
+
+    int basicYOffset, basicXOffset;
+
+    if (vCenter)
       basicYOffset = controlRect->T + ((controlRect->H() - charHeight) / 2);
     else
       basicYOffset = controlRect->T;
-
-    int basicXOffset;
-    if (pItext->mAlign == IText::kAlignCenter) 
+    
+    if (pItext->mAlign == IText::kAlignCenter)
       basicXOffset = controlRect->L + ((controlRect->W() - (len * charWidth)) / 2);
-    else {
+    else
       basicXOffset = controlRect->L + charWidth;
-    }
 
     int widthAsOneLine = charWidth * len;
     int lineWidth = controlRect->W() - (charWidth * 2);
@@ -36,12 +34,12 @@ void DrawBitmapedText(IGraphics* pGraphics,
 
     int nLines;
     int stridx = 0;
-    
+
     int lineCount;
 
     if(multiline)
     {
-      if (widthAsOneLine > lineWidth) 
+      if (widthAsOneLine > lineWidth)
       {
         lineCount = lineWidth / charWidth;
         nLines = widthAsOneLine / lineWidth;
@@ -58,41 +56,43 @@ void DrawBitmapedText(IGraphics* pGraphics,
       lineCount = lineWidth / charWidth;
     }
     //int newlines = 0;
-    
-    for(int line=0;line<=nLines;line++)
+
+    for(int line=0; line<=nLines; line++)
     {
       int yOffset = basicYOffset + line * charHeight;
 
-      for(int linepos=0;linepos<lineCount;linepos++)
-      {			
+      for(int linepos=0; linepos<lineCount; linepos++)
+      {
         if (str[stridx] == '\0') return;
 //        else if(str[stridx] == '\n')
 //        {
 //          yOffset = basicYOffset + line * charHeight;
 //        }
-        
-        int frameOffset = (int) str[stridx++] - 31;	// calculate which frame to look up	
-        
+
+        int frameOffset = (int) str[stridx++] - 31;	// calculate which frame to look up
+
         int xOffset = (linepos * charWidth) + basicXOffset;		// calculate xOffset for character we're drawing
         IRECT charRect = IRECT(xOffset, yOffset, xOffset + charWidth, yOffset + charHeight);
         pGraphics->DrawBitmap(pTextBitmap, &charRect, frameOffset, pBlend);
-      }    
+      }
     }
   }
 }
 
 void IBitmapTextControl::SetTextFromPlug(char* str)
 {
-	if (strcmp(mStr.Get(), str)) {
-		SetDirty(false);
-		mStr.Set(str);
-	}
+  if (strcmp(mStr.Get(), str))
+  {
+    SetDirty(false);
+    mStr.Set(str);
+  }
 }
 
 bool IBitmapTextControl::Draw(IGraphics* pGraphics)
 {
   char* cStr = mStr.Get();
-	if (CSTR_NOT_EMPTY(cStr)) {
+  if (CSTR_NOT_EMPTY(cStr))
+  {
     DrawBitmapedText(pGraphics, &mTextBitmap, &mRECT, &mText, &mBlend, cStr, true, false, mCharWidth, mCharHeight);
   }
   return true;

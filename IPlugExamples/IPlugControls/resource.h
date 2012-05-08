@@ -80,7 +80,7 @@
 #define PLUG_LATENCY 0
 #define PLUG_IS_INST 0
 
- // if this is 0 RTAS can't get tempo info
+// if this is 0 RTAS can't get tempo info
 #define PLUG_DOES_MIDI 0
 
 #define PLUG_DOES_STATE_CHUNKS 0
@@ -122,9 +122,9 @@
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
 #ifdef SA_API
-  #ifndef OS_IOS
-    #include "app_wrapper/app_resource.h"
-  #endif
+#ifndef OS_IOS
+#include "app_wrapper/app_resource.h"
+#endif
 #endif
 
 // vst3 stuff

@@ -15,35 +15,35 @@ public:
   IPlugProcessRTAS(OSType type);
   // TODO" should these be virtual or not?
   virtual ~IPlugProcessRTAS() {}
-  
+
   virtual ComponentResult IsControlAutomatable(long aControlIndex, short *aItIsP);
   virtual ComponentResult GetDelaySamplesLong(long* aNumSamples);
 
   virtual int GetBlockSize() { return mBlockSize; }
-  
+
   virtual double GetTempo();
   virtual void GetTimeSig(int* pNum, int* pDenom);
   virtual int GetSamplePos();
-  virtual void GetTime( double *pSamplePos, 
-                double *pTempo, 
-                double *pMusicalPos, 
-                double *pLastBar,
-                int* pNum, 
-                int* pDenom,
-                double *pCycleStart,
-                double *pCycleEnd,
-                bool *pTransportRunning,
-                bool *pTransportCycle);
-  
+  virtual void GetTime( double *pSamplePos,
+                        double *pTempo,
+                        double *pMusicalPos,
+                        double *pLastBar,
+                        int* pNum,
+                        int* pDenom,
+                        double *pCycleStart,
+                        double *pCycleEnd,
+                        bool *pTransportRunning,
+                        bool *pTransportCycle);
+
 protected:
-  virtual void GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators); 
+  virtual void GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators);
   virtual void RenderAudio(float** inputs, float** outputs, long frames);
-  
+
 private:
   void HandleMIDI();
   int mBlockSize;
 
-// TODO: Meters? 
+// TODO: Meters?
 // SFloat32 mMeterVal[EffectLayerDef::MAX_NUM_CONNECTIONS];
 // SFloat32 mMeterMin[EffectLayerDef::MAX_NUM_CONNECTIONS];
 };

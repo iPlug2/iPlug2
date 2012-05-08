@@ -4,41 +4,41 @@
 #include "IPlugOSDetect.h"
 
 /*
- 
+
  Standalone osx/win app wrapper for iPlug, using SWELL
  License: free to use but donations very much appreciated
  Oli Larkin 2011
- 
+
  Notes:
- 
+
  App settings are stored in a .ini file. The location is as follows:
- 
+
  Windows7: C:\Users\USERNAME\AppData\Local\IPlugMonoSynth\settings.ini
  Windows XP/Vista: C:\Documents and Settings\USERNAME\Local Settings\Application Data\IPlugMonoSynth\settings.ini
  OSX: /Users/USERNAME/Library/Application\ Support/IPlugMonoSynth/settings.ini
- 
+
 */
 
 #ifdef OS_WIN
-  #include <windows.h>
-  #include <commctrl.h>
-//  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
+#include <windows.h>
+#include <commctrl.h>
+//  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds )
 
-  #define DEFAULT_INPUT_DEV "Default Device"
-  #define DEFAULT_OUTPUT_DEV "Default Device"
+#define DEFAULT_INPUT_DEV "Default Device"
+#define DEFAULT_OUTPUT_DEV "Default Device"
 
-  #define DAC_DS 0
-  #define DAC_ASIO 1
+#define DAC_DS 0
+#define DAC_ASIO 1
 
 #else if defined OS_OSX
-  #include "swell.h"
+#include "swell.h"
 //  #include <unistd.h>
-  #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
-  #define DEFAULT_INPUT_DEV "Built-in Input"
-  #define DEFAULT_OUTPUT_DEV "Built-in Output"
+#define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
+#define DEFAULT_INPUT_DEV "Built-in Input"
+#define DEFAULT_OUTPUT_DEV "Built-in Output"
 
-  #define DAC_COREAUDIO 0
-  #define DAC_JACK 1
+#define DAC_COREAUDIO 0
+#define DAC_JACK 1
 #endif
 
 #include "wdltypes.h"
@@ -51,12 +51,12 @@
 
 typedef unsigned short UInt16;
 
-struct AppState 
+struct AppState
 {
   // on osx core audio 0 or jack 1
   // on windows DS 0 or ASIO 1
   UInt16 mAudioDriverType;
-  
+
   // strings
   char mAudioInDev[100];
   char mAudioOutDev[100];
@@ -73,10 +73,10 @@ struct AppState
   // strings containing the names of the midi devices
   char mMidiInDev[100];
   char mMidiOutDev[100];
-  
+
   UInt16 mMidiInChan;
   UInt16 mMidiOutChan;
-  
+
   AppState():
     mAudioDriverType(0), // DS / CoreAudio by default
     mAudioInChanL(1),
@@ -99,23 +99,23 @@ struct AppState
 
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern HINSTANCE gHINST; 
+extern HINSTANCE gHINST;
 extern HWND gHWND;
-extern UINT gScrollMessage; 
+extern UINT gScrollMessage;
 extern IPlug* gPluginInstance; // The iplug plugin instance
 
 extern std::string GetAudioDeviceName(int idx);
 extern int GetAudioDeviceID(char* deviceNameToTest);
 
 extern void ProbeAudioIO();
-extern bool InitialiseAudio(unsigned int inId, 
-                            unsigned int outId, 
-                            unsigned int sr, 
-                            unsigned int iovs, 
+extern bool InitialiseAudio(unsigned int inId,
+                            unsigned int outId,
+                            unsigned int sr,
+                            unsigned int iovs,
                             unsigned int chnls,
                             unsigned int inChanL,
                             unsigned int outChanL
-                            );
+                           );
 
 extern bool AudioSettingsInStateAreEqual(AppState* os, AppState* ns);
 extern bool MIDISettingsInStateAreEqual(AppState* os, AppState* ns);

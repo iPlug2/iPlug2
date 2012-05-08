@@ -4,8 +4,9 @@
 
 @protocol FlipsideViewControllerDelegate;
 
-@interface FlipsideViewController : UIViewController {
-	id <FlipsideViewControllerDelegate> delegate;
+@interface FlipsideViewController : UIViewController
+{
+  id <FlipsideViewControllerDelegate> delegate;
 //  MIRadioButtonGroup *midiInputList;
 //  MIRadioButtonGroup *midiOutputList;
   PGMidi *midi;

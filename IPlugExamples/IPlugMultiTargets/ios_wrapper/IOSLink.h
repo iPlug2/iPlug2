@@ -9,7 +9,7 @@ class IOSLink
 {
 public:
   IOSLink(void* appDelegate);
-  
+
   void SendMidiMsg(IMidiMsg* pMsg);
 
 private:

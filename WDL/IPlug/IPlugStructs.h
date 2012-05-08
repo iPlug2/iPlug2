@@ -5,36 +5,35 @@
 #include "IPlugOSDetect.h"
 
 #ifndef OS_IOS
-
 #include "../swell/swell.h"
 #include "../lice/lice_text.h"
 
 enum EFileAction { kFileOpen, kFileSave };
 
-struct IBitmap 
+struct IBitmap
 {
-	void* mData;
-	int W, H, N;		// N = number of states (for multibitmaps).
+  void* mData;
+  int W, H, N;    // N = number of states (for multibitmaps).
   bool mFramesAreHorizontal;
-	IBitmap(void* pData = 0, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false) 
-  : mData(pData)
-  , W(w)
-  , H(h)
-  , N(n)
-  , mFramesAreHorizontal(framesAreHorizontal)
+  IBitmap(void* pData = 0, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false)
+    : mData(pData)
+    , W(w)
+    , H(h)
+    , N(n)
+    , mFramesAreHorizontal(framesAreHorizontal)
   {}
-	
-	inline int frameHeight() const { return H / N; }
+
+  inline int frameHeight() const { return H / N; }
 };
 
-struct IColor 
+struct IColor
 {
-	int A, R, G, B;
-	IColor(int a = 255, int r = 0, int g = 0, int b = 0) : A(a), R(r), G(g), B(b) {} 
-    bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
-    bool operator!=(const IColor& rhs) { return !operator==(rhs); }
-    bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
-    void Clamp() { A = IPMIN(A, 255); R = IPMIN(R, 255); G = IPMIN(G, 255); B = IPMIN(B, 255); }
+  int A, R, G, B;
+  IColor(int a = 255, int r = 0, int g = 0, int b = 0) : A(a), R(r), G(g), B(b) {}
+  bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
+  bool operator!=(const IColor& rhs) { return !operator==(rhs); }
+  bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
+  void Clamp() { A = IPMIN(A, 255); R = IPMIN(R, 255); G = IPMIN(G, 255); B = IPMIN(B, 255); }
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -47,19 +46,20 @@ const IColor COLOR_BLUE(255, 0, 0, 255);
 const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
-struct IChannelBlend 
+struct IChannelBlend
 {
-	enum EBlendMethod {
-		kBlendNone,		// Copy over whatever is already there, but look at src alpha.
-		kBlendClobber,	// Copy completely over whatever is already there.
-		kBlendAdd,
-        kBlendColorDodge,
-		// etc
-	};
-	EBlendMethod mMethod;
-	float mWeight;
+  enum EBlendMethod
+  {
+    kBlendNone,   // Copy over whatever is already there, but look at src alpha.
+    kBlendClobber,  // Copy completely over whatever is already there.
+    kBlendAdd,
+    kBlendColorDodge,
+    // etc
+  };
+  EBlendMethod mMethod;
+  float mWeight;
 
-	IChannelBlend(EBlendMethod method = kBlendNone, float weight = 1.0f) : mMethod(method), mWeight(weight) {}
+  IChannelBlend(EBlendMethod method = kBlendNone, float weight = 1.0f) : mMethod(method), mWeight(weight) {}
 };
 
 const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
@@ -67,64 +67,64 @@ const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
 
 #ifdef OS_WIN
-  const char* const DEFAULT_FONT = "Verdana";
-  const int DEFAULT_TEXT_SIZE = 12;
+const char* const DEFAULT_FONT = "Verdana";
+const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_OSX
-  const char* const DEFAULT_FONT = "Monaco";
-  const int DEFAULT_TEXT_SIZE = 10;
+const char* const DEFAULT_FONT = "Monaco";
+const int DEFAULT_TEXT_SIZE = 10;
 #endif
 const int FONT_LEN = 32;
 
 struct IText
 {
-	char mFont[FONT_LEN];
-	int mSize;
-	IColor mColor, mTextEntryBGColor, mTextEntryFGColor;
-	enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
-	enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
-	int mOrientation;   // Degrees ccwise from normal.
-	enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality;
-	LICE_IFont* mCached;
-  
-	IText(int size = DEFAULT_TEXT_SIZE, 
-        const IColor* pColor = 0, 
+  char mFont[FONT_LEN];
+  int mSize;
+  IColor mColor, mTextEntryBGColor, mTextEntryFGColor;
+  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
+  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
+  int mOrientation;   // Degrees ccwise from normal.
+  enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality;
+  LICE_IFont* mCached;
+
+  IText(int size = DEFAULT_TEXT_SIZE,
+        const IColor* pColor = 0,
         char* font = 0,
-        EStyle style = kStyleNormal, 
-        EAlign align = kAlignCenter, 
-        int orientation = 0, 
+        EStyle style = kStyleNormal,
+        EAlign align = kAlignCenter,
+        int orientation = 0,
         EQuality quality = kQualityDefault,
         const IColor* pTEBGColor = 0,
-        const IColor* pTEFGColor = 0) 
-  :	mSize(size)
-  , mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR)
-  , mStyle(style)
-  , mAlign(align)
-  , mOrientation(orientation)
-  , mQuality(quality)
-  , mCached(0)
-  , mTextEntryBGColor(pTEBGColor ? *pTEBGColor : DEFAULT_TEXT_ENTRY_BGCOLOR)
-  , mTextEntryFGColor(pTEFGColor ? *pTEFGColor : DEFAULT_TEXT_ENTRY_FGCOLOR)
+        const IColor* pTEFGColor = 0)
+    : mSize(size)
+    , mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR)
+    , mStyle(style)
+    , mAlign(align)
+    , mOrientation(orientation)
+    , mQuality(quality)
+    , mCached(0)
+    , mTextEntryBGColor(pTEBGColor ? *pTEBGColor : DEFAULT_TEXT_ENTRY_BGCOLOR)
+    , mTextEntryFGColor(pTEFGColor ? *pTEFGColor : DEFAULT_TEXT_ENTRY_FGCOLOR)
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
-  
-  IText(const IColor* pColor) 
-	:	mSize(DEFAULT_TEXT_SIZE)
-  , mColor(*pColor)
-  , mStyle(kStyleNormal)
-  , mAlign(kAlignCenter)
-  , mOrientation(0)
-  , mQuality(kQualityDefault)
-  , mCached(0)
-  , mTextEntryBGColor(DEFAULT_TEXT_ENTRY_BGCOLOR)
-  , mTextEntryFGColor(DEFAULT_TEXT_ENTRY_FGCOLOR)
+
+  IText(const IColor* pColor)
+    : mSize(DEFAULT_TEXT_SIZE)
+    , mColor(*pColor)
+    , mStyle(kStyleNormal)
+    , mAlign(kAlignCenter)
+    , mOrientation(0)
+    , mQuality(kQualityDefault)
+    , mCached(0)
+    , mTextEntryBGColor(DEFAULT_TEXT_ENTRY_BGCOLOR)
+    , mTextEntryFGColor(DEFAULT_TEXT_ENTRY_FGCOLOR)
   {
-    strcpy(mFont, DEFAULT_FONT);     
+    strcpy(mFont, DEFAULT_FONT);
   }
-  
+
   //   bool operator==(const IText& rhs) const;
   //   bool operator!=(const IText& rhs) const { return !operator==(rhs); }
-  //	bool operator<(const IText& rhs) const;	// For sorting.
+  //  bool operator<(const IText& rhs) const; // For sorting.
 };
 
 // these are macros to shorten the instantiation of IControls
@@ -134,32 +134,32 @@ struct IText
 #define MakeIRectHOffset(a, xoffs) IRECT(a##_X + xoffs, a##_Y, a##_X + a##_W + xoffs, a##_Y + a##_H)
 #define MakeIRectVOffset(a, yoffs) IRECT(a##_X, a##_Y + yoffs, a##_X + a##_W, a##_Y + a##_H + yoffs)
 
-struct IRECT 
-{ 
-	int L, T, R, B;
+struct IRECT
+{
+  int L, T, R, B;
 
-	IRECT() { L = T = R = B = 0; }
-	IRECT(int l, int t, int r, int b) : L(l), R(r), T(t), B(b) {} 
-	IRECT(int x, int y, IBitmap* pBitmap) : L(x), T(y), R(x + pBitmap->W), B(y + pBitmap->H / pBitmap->N) {}
+  IRECT() { L = T = R = B = 0; }
+  IRECT(int l, int t, int r, int b) : L(l), R(r), T(t), B(b) {}
+  IRECT(int x, int y, IBitmap* pBitmap) : L(x), T(y), R(x + pBitmap->W), B(y + pBitmap->H / pBitmap->N) {}
 
-	bool Empty() const 
+  bool Empty() const
   {
-		return (L == 0 && T == 0 && R == 0 && B == 0); 
-	}
-  
-  void Clear() 
-  {
-      L = T = R = B = 0;
+    return (L == 0 && T == 0 && R == 0 && B == 0);
   }
-  
-  bool operator==(const IRECT& rhs) const 
+
+  void Clear()
   {
-      return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
+    L = T = R = B = 0;
   }
-  
-  bool operator!=(const IRECT& rhs) const 
+
+  bool operator==(const IRECT& rhs) const
   {
-      return !(*this == rhs);
+    return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
+  }
+
+  bool operator!=(const IRECT& rhs) const
+  {
+    return !(*this == rhs);
   }
 
   inline int W() const { return R - L; }
@@ -167,120 +167,127 @@ struct IRECT
   inline float MW() const { return 0.5f * (float) (L + R); }
   inline float MH() const { return 0.5f * (float) (T + B); }
 
-	inline IRECT Union(IRECT* pRHS) 
+  inline IRECT Union(IRECT* pRHS)
   {
-		if (Empty()) { return *pRHS; }
-		if (pRHS->Empty()) { return *this; }
-		return IRECT(IPMIN(L, pRHS->L), IPMIN(T, pRHS->T), IPMAX(R, pRHS->R), IPMAX(B, pRHS->B));
-	}
-  
-	inline IRECT Intersect(IRECT* pRHS) 
+    if (Empty()) { return *pRHS; }
+    if (pRHS->Empty()) { return *this; }
+    return IRECT(IPMIN(L, pRHS->L), IPMIN(T, pRHS->T), IPMAX(R, pRHS->R), IPMAX(B, pRHS->B));
+  }
+
+  inline IRECT Intersect(IRECT* pRHS)
   {
-		if (Intersects(pRHS)) {
-			return IRECT(IPMAX(L, pRHS->L), IPMAX(T, pRHS->T), IPMIN(R, pRHS->R), IPMIN(B, pRHS->B));
-		}
-		return IRECT();
-	}
-  
-	inline bool Intersects(IRECT* pRHS) 
+    if (Intersects(pRHS))
+    {
+      return IRECT(IPMAX(L, pRHS->L), IPMAX(T, pRHS->T), IPMIN(R, pRHS->R), IPMIN(B, pRHS->B));
+    }
+    return IRECT();
+  }
+
+  inline bool Intersects(IRECT* pRHS)
   {
-		return (!Empty() && !pRHS->Empty() && R >= pRHS->L && L < pRHS->R && B >= pRHS->T && T < pRHS->B);
-	}
-  
-	inline bool Contains(IRECT* pRHS) 
+    return (!Empty() && !pRHS->Empty() && R >= pRHS->L && L < pRHS->R && B >= pRHS->T && T < pRHS->B);
+  }
+
+  inline bool Contains(IRECT* pRHS)
   {
-		return (!Empty() && !pRHS->Empty() && pRHS->L >= L && pRHS->R <= R && pRHS->T >= T && pRHS->B <= B);
-	}
-  
-	inline bool Contains(int x, int y) 
+    return (!Empty() && !pRHS->Empty() && pRHS->L >= L && pRHS->R <= R && pRHS->T >= T && pRHS->B <= B);
+  }
+
+  inline bool Contains(int x, int y)
   {
-		return (!Empty() && x >= L && x < R && y >= T && y < B);
-	}
-  
-  inline void Constrain(int* x, int* y) 
+    return (!Empty() && x >= L && x < R && y >= T && y < B);
+  }
+
+  inline void Constrain(int* x, int* y)
   {
-    if (*x < L) 
+    if (*x < L)
     {
       *x = L;
     }
-    else if (*x > R) 
+    else if (*x > R)
     {
       *x = R;
     }
-    
-    if (*y < T) 
+
+    if (*y < T)
     {
       *y = T;
     }
-    else if (*y > B) 
+    else if (*y > B)
     {
       *y = B;
     }
-	}
-  
-  inline IRECT SubRectVertical(int numSlices, int sliceIdx) 
+  }
+
+  inline IRECT SubRectVertical(int numSlices, int sliceIdx)
   {
     int heightOfSubRect = (H() / numSlices);
     int t = heightOfSubRect * sliceIdx;
-    
-    return IRECT(L, T + t, R, T + t + heightOfSubRect);
-	}
 
-  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) 
+    return IRECT(L, T + t, R, T + t + heightOfSubRect);
+  }
+
+  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx)
   {
     int widthOfSubRect = (W() / numSlices);
     int l = widthOfSubRect * sliceIdx;
-    
+
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
-	}
-  
-  void Clank(IRECT* pRHS) 
+  }
+
+  void Clank(IRECT* pRHS)
   {
-    if (L < pRHS->L) {
+    if (L < pRHS->L)
+    {
       R = IPMIN(pRHS->R - 1, R + pRHS->L - L);
       L = pRHS->L;
     }
-    if (T < pRHS->T) {
+    if (T < pRHS->T)
+    {
       B = IPMIN(pRHS->B - 1, B + pRHS->T - T);
       T = pRHS->T;
     }
-    if (R >= pRHS->R) {
+    if (R >= pRHS->R)
+    {
       L = IPMAX(pRHS->L, L - (R - pRHS->R + 1));
       R = pRHS->R - 1;
     }
-    if (B >= pRHS->B) {
+    if (B >= pRHS->B)
+    {
       T = IPMAX(pRHS->T, T - (B - pRHS->B + 1));
       B = pRHS->B - 1;
     }
   }
 };
 
-struct IMouseMod 
+struct IMouseMod
 {
-	bool L, R, S, C, A;
-	IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-    : L(l), R(r), S(s), C(c), A(a) {} 
+  bool L, R, S, C, A;
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
+    : L(l), R(r), S(s), C(c), A(a) {}
 };
 
 #endif // !OS_IOS
 
 struct IMidiMsg
 {
-	int mOffset;
-	BYTE mStatus, mData1, mData2;
+  int mOffset;
+  BYTE mStatus, mData1, mData2;
 
-  enum EStatusMsg {
-		kNone = 0,
-		kNoteOff = 8,
-		kNoteOn = 9,
-		kPolyAftertouch = 10,
-		kControlChange = 11,
-		kProgramChange = 12,
-		kChannelAftertouch = 13,
-		kPitchWheel = 14
-	};
+  enum EStatusMsg
+  {
+    kNone = 0,
+    kNoteOff = 8,
+    kNoteOn = 9,
+    kPolyAftertouch = 10,
+    kControlChange = 11,
+    kProgramChange = 12,
+    kChannelAftertouch = 13,
+    kPitchWheel = 14
+  };
 
-  enum EControlChangeMsg {
+  enum EControlChangeMsg
+  {
     kModWheel = 1,
     kBreathController = 2,
     kUndefined003 = 3,
@@ -357,17 +364,17 @@ struct IMidiMsg
     kAllNotesOff = 123
   };
 
-	IMidiMsg(int offs = 0, BYTE s = 0, BYTE d1 = 0, BYTE d2 = 0) : mOffset(offs), mStatus(s), mData1(d1), mData2(d2) {}
+  IMidiMsg(int offs = 0, BYTE s = 0, BYTE d1 = 0, BYTE d2 = 0) : mOffset(offs), mStatus(s), mData1(d1), mData2(d2) {}
 
-	void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel=0);
-	void MakeNoteOffMsg(int noteNumber, int offset, int channel=0);
-	void MakePitchWheelMsg(double value, int channel=0);    // Value in [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
-	void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel=0);           //  Value in [0, 1].
-	int Channel(); // returns [0, 15] for midi channels 1 ... 16 
-	
-	EStatusMsg StatusMsg() const;
-	int NoteNumber() const;		  // Returns [0, 128), -1 if NA.
-	int Velocity() const;		    // Returns [0, 128), -1 if NA.
+  void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel=0);
+  void MakeNoteOffMsg(int noteNumber, int offset, int channel=0);
+  void MakePitchWheelMsg(double value, int channel=0);  // Value in [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
+  void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel=0);           //  Value in [0, 1].
+  int Channel(); // returns [0, 15] for midi channels 1 ... 16
+
+  EStatusMsg StatusMsg() const;
+  int NoteNumber() const;     // Returns [0, 128), -1 if NA.
+  int Velocity() const;       // Returns [0, 128), -1 if NA.
   int Program() const;        // Returns [0, 128), -1 if NA.
   double PitchWheel() const;  // Returns [-1.0, 1.0], zero if NA.
   EControlChangeMsg ControlChangeIdx() const;
@@ -377,7 +384,7 @@ struct IMidiMsg
   void LogMsg();
 };
 
-struct ITimeInfo 
+struct ITimeInfo
 {
   double mTempo;
   double mSamplePos;
@@ -385,13 +392,13 @@ struct ITimeInfo
   double mLastBar;
   double mCycleStart;
   double mCycleEnd;
-  
+
   int mNumerator;
   int mDenominator;
-  
+
   bool mTransportIsRunning;
   bool mTransportLoopEnabled;
-  
+
   ITimeInfo()
   {
     mSamplePos = mSamplePos = mTempo = mPPQPos = mLastBar = mCycleStart = mCycleEnd = -1.0;
@@ -408,19 +415,17 @@ struct IPreset
 {
   bool mInitialized;
   char mName[MAX_PRESET_NAME_LEN];
-  //int mVersion; // the effect version with which the preset was made
 
   ByteChunk mChunk;
 
   IPreset(int idx)
-  : mInitialized(false)
+    : mInitialized(false)
   {
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
-//    sprintf(mName, "- %d -", idx+1);
   }
 };
 
-enum 
+enum
 {
   KEY_SPACE,
   KEY_UPARROW,

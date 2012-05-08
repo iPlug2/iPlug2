@@ -37,7 +37,7 @@ MyPlug.h:
 class MyPlug: public IPlug
 {
 protected:
-	IMidiQueue mMidiQueue;
+  IMidiQueue mMidiQueue;
 }
 
 
@@ -45,32 +45,32 @@ MyPlug.cpp:
 
 void MyPlug::Reset()
 {
-	mMidiQueue.Resize(GetBlockSize());
+  mMidiQueue.Resize(GetBlockSize());
 }
 
 void MyPlug::ProcessMidiMsg(IMidiMsg* pMsg)
 {
-	mMidiQueue.Add(pMsg);
+  mMidiQueue.Add(pMsg);
 }
 
 void MyPlug::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-	for (int offset = 0; offset < nFrames; ++offset)
-	{
-		while (!mMidiQueue.Empty())
-		{
-			IMidiMsg* pMsg = mMidiQueue.Peek();
-			if (pMsg->mOffset > offset) break;
+  for (int offset = 0; offset < nFrames; ++offset)
+  {
+    while (!mMidiQueue.Empty())
+    {
+      IMidiMsg* pMsg = mMidiQueue.Peek();
+      if (pMsg->mOffset > offset) break;
 
-			// To-do: Handle the MIDI message
+      // To-do: Handle the MIDI message
 
-			mMidiQueue.Remove();
-		}
+      mMidiQueue.Remove();
+    }
 
-		// To-do: Process audio
+    // To-do: Process audio
 
-	}
-	mMidiQueue.Flush(nFrames);
+  }
+  mMidiQueue.Flush(nFrames);
 }
 
 */
@@ -79,123 +79,122 @@ void MyPlug::ProcessDoubleReplacing(double** inputs, double** outputs, int nFram
 class IMidiQueue
 {
 public:
-	IMidiQueue(int size = DEFAULT_BLOCK_SIZE): mBuf(NULL), mSize(0), mGrow(Granulize(size)), mFront(0), mBack(0) { Expand(); }
-	~IMidiQueue() {	free(mBuf); }
+  IMidiQueue(int size = DEFAULT_BLOCK_SIZE): mBuf(NULL), mSize(0), mGrow(Granulize(size)), mFront(0), mBack(0) { Expand(); }
+  ~IMidiQueue() { free(mBuf); }
 
-	// Adds a MIDI message add the back of the queue. If the queue is full,
-	// it will automatically expand itself.
-	void Add(IMidiMsg* pMsg)
-	{
-		if (mBack >= mSize)
-		{
-			if (mFront > 0)
-				Compact();
-			else
-				if (!Expand()) return;
-		}
+  // Adds a MIDI message add the back of the queue. If the queue is full,
+  // it will automatically expand itself.
+  void Add(IMidiMsg* pMsg)
+  {
+    if (mBack >= mSize)
+    {
+      if (mFront > 0)
+        Compact();
+      else if (!Expand()) return;
+    }
 
-		#ifndef DONT_SORT_IMIDIQUEUE
-		// Insert the MIDI message at the right offset.
-		if (mBack > mFront && pMsg->mOffset < mBuf[mBack - 1].mOffset)
-		{
-			int i = mBack - 2;
-			while (i >= mFront && pMsg->mOffset < mBuf[i].mOffset) --i;
-			i++;
-			memmove(&mBuf[i + 1], &mBuf[i], (mBack - i) * sizeof(IMidiMsg));
-			mBuf[i] = *pMsg;
-		}
-		else
-		#endif
-			mBuf[mBack] = *pMsg;
-		++mBack;
-	}
+#ifndef DONT_SORT_IMIDIQUEUE
+    // Insert the MIDI message at the right offset.
+    if (mBack > mFront && pMsg->mOffset < mBuf[mBack - 1].mOffset)
+    {
+      int i = mBack - 2;
+      while (i >= mFront && pMsg->mOffset < mBuf[i].mOffset) --i;
+      i++;
+      memmove(&mBuf[i + 1], &mBuf[i], (mBack - i) * sizeof(IMidiMsg));
+      mBuf[i] = *pMsg;
+    }
+    else
+#endif
+      mBuf[mBack] = *pMsg;
+    ++mBack;
+  }
 
-	// Removes a MIDI message from the front of the queue (but does *not*
-	// free up its space until Compact() is called).
-	inline void Remove() { ++mFront; }
+  // Removes a MIDI message from the front of the queue (but does *not*
+  // free up its space until Compact() is called).
+  inline void Remove() { ++mFront; }
 
-	// Returns true if the queue is empty.
-	inline bool Empty() const { return mFront == mBack; }
+  // Returns true if the queue is empty.
+  inline bool Empty() const { return mFront == mBack; }
 
-	// Returns the number of MIDI messages in the queue.
-	inline int ToDo() const { return mBack - mFront; }
+  // Returns the number of MIDI messages in the queue.
+  inline int ToDo() const { return mBack - mFront; }
 
-	// Returns the number of MIDI messages for which memory has already been
-	// allocated.
-	inline int GetSize() const { return mSize; }
+  // Returns the number of MIDI messages for which memory has already been
+  // allocated.
+  inline int GetSize() const { return mSize; }
 
-	// Returns the "next" MIDI message (all the way in the front of the
-	// queue), but does *not* remove it from the queue.
-	inline IMidiMsg* Peek() const { return &mBuf[mFront]; }
+  // Returns the "next" MIDI message (all the way in the front of the
+  // queue), but does *not* remove it from the queue.
+  inline IMidiMsg* Peek() const { return &mBuf[mFront]; }
 
-	// Moves back MIDI messages all the way to the front of the queue, thus
-	// freeing up space at the back, and updates the sample offset of the
-	// remaining MIDI messages by substracting nFrames.
-	inline void Flush(int nFrames)
-	{
-		// Move everything all the way to the front.
-		if (mFront > 0) Compact();
+  // Moves back MIDI messages all the way to the front of the queue, thus
+  // freeing up space at the back, and updates the sample offset of the
+  // remaining MIDI messages by substracting nFrames.
+  inline void Flush(int nFrames)
+  {
+    // Move everything all the way to the front.
+    if (mFront > 0) Compact();
 
-		// Update the sample offset.
-		for (int i = 0; i < mBack; ++i) mBuf[i].mOffset -= nFrames;
-	}
+    // Update the sample offset.
+    for (int i = 0; i < mBack; ++i) mBuf[i].mOffset -= nFrames;
+  }
 
-	// Clears the queue.
-	inline void Clear() { mFront = mBack = 0; }
+  // Clears the queue.
+  inline void Clear() { mFront = mBack = 0; }
 
-	// Resizes (grows or shrinks) the queue, returns the new size.
-	int Resize(int size)
-	{
-		if (mFront > 0) Compact();
-		mGrow = size = Granulize(size);
-		// Don't shrink below the number of currently queued MIDI messages.
-		if (size < mBack) size = Granulize(mBack);
-		if (size == mSize) return mSize;
+  // Resizes (grows or shrinks) the queue, returns the new size.
+  int Resize(int size)
+  {
+    if (mFront > 0) Compact();
+    mGrow = size = Granulize(size);
+    // Don't shrink below the number of currently queued MIDI messages.
+    if (size < mBack) size = Granulize(mBack);
+    if (size == mSize) return mSize;
 
-		void* buf = realloc(mBuf, size * sizeof(IMidiMsg));
-		if (!buf) return mSize;
+    void* buf = realloc(mBuf, size * sizeof(IMidiMsg));
+    if (!buf) return mSize;
 
-		mBuf = (IMidiMsg*)buf;
-		mSize = size;
-		return size;
-	}
+    mBuf = (IMidiMsg*)buf;
+    mSize = size;
+    return size;
+  }
 
 protected:
-	// Automatically expands the queue.
-	bool Expand()
-	{
-		if (!mGrow) return false;
-		int size = (mSize / mGrow + 1) * mGrow;
+  // Automatically expands the queue.
+  bool Expand()
+  {
+    if (!mGrow) return false;
+    int size = (mSize / mGrow + 1) * mGrow;
 
-		void* buf = realloc(mBuf, size * sizeof(IMidiMsg));
-		if (!buf) return false;
+    void* buf = realloc(mBuf, size * sizeof(IMidiMsg));
+    if (!buf) return false;
 
-		mBuf = (IMidiMsg*)buf;
-		mSize = size;
-		return true;
-	}
+    mBuf = (IMidiMsg*)buf;
+    mSize = size;
+    return true;
+  }
 
-	// Moves everything all the way to the front.
-	inline void Compact()
-	{
-		mBack -= mFront;
-		if (mBack > 0) memmove(&mBuf[0], &mBuf[mFront], mBack * sizeof(IMidiMsg));
-		mFront = 0;
-	}
+  // Moves everything all the way to the front.
+  inline void Compact()
+  {
+    mBack -= mFront;
+    if (mBack > 0) memmove(&mBuf[0], &mBuf[mFront], mBack * sizeof(IMidiMsg));
+    mFront = 0;
+  }
 
-	// Rounds the MIDI queue size up to the next 4 kB memory page size.
-	inline int Granulize(int size) const
-	{
-		int bytes = size * sizeof(IMidiMsg);
-		int rest = bytes % 4096;
-		if (rest) size = (bytes - rest + 4096) / sizeof(IMidiMsg);
-		return size;
-	}
+  // Rounds the MIDI queue size up to the next 4 kB memory page size.
+  inline int Granulize(int size) const
+  {
+    int bytes = size * sizeof(IMidiMsg);
+    int rest = bytes % 4096;
+    if (rest) size = (bytes - rest + 4096) / sizeof(IMidiMsg);
+    return size;
+  }
 
-	IMidiMsg* mBuf;
+  IMidiMsg* mBuf;
 
-	int mSize, mGrow;
-	int mFront, mBack;
+  int mSize, mGrow;
+  int mFront, mBack;
 } WDL_FIXALIGN;
 
 

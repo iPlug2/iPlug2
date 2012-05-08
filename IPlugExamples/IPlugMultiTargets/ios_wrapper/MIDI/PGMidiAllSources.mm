@@ -17,28 +17,28 @@
 
 - (void) dealloc
 {
-    self.midi = nil;
-    [super dealloc];
+  self.midi = nil;
+  [super dealloc];
 }
 
 @synthesize midi, delegate;
 
 - (void) setMidi:(PGMidi *)newMidi
 {
-    midi.delegate = nil;
-    for (PGMidiSource *source in midi.sources) source.delegate = nil;
+  midi.delegate = nil;
+  for (PGMidiSource *source in midi.sources) source.delegate = nil;
 
-    midi = newMidi;
+  midi = newMidi;
 
-    midi.delegate = self;
-    for (PGMidiSource *source in midi.sources) source.delegate = self;
+  midi.delegate = self;
+  for (PGMidiSource *source in midi.sources) source.delegate = self;
 }
 
 #pragma mark PGMidiDelegate
 
 - (void) midi:(PGMidi*)midi sourceAdded:(PGMidiSource *)source
 {
-    source.delegate = self;
+  source.delegate = self;
 }
 
 - (void) midi:(PGMidi*)midi sourceRemoved:(PGMidiSource *)source {}
@@ -49,7 +49,7 @@
 
 - (void) midiSource:(PGMidiSource*)input midiReceived:(const MIDIPacketList *)packetList
 {
-    [delegate midiSource:input midiReceived:packetList];
+[delegate midiSource:input midiReceived:packetList];
 }
 
 @end

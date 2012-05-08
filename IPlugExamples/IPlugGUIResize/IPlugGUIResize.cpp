@@ -18,7 +18,7 @@ enum ELayout
 };
 
 IPlugGUIResize::IPlugGUIResize(IPlugInstanceInfo instanceInfo)
-:	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+  :	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
 

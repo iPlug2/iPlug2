@@ -1,6 +1,6 @@
 #if WINDOWS_VERSION
-	#include <windows.h>
-	#include "Mac2Win.H"
+  #include <windows.h>
+  #include "Mac2Win.H"
 #endif
 
 #include "IPlugProcessRTAS.h"
@@ -11,8 +11,8 @@
 #include "PlugInUtils.h"
 
 IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
-:IPlugProcess(type)
-, mBlockSize(GetMaximumRTASQuantum()) 
+  :IPlugProcess(type)
+  , mBlockSize(GetMaximumRTASQuantum())
 {
   mPlug->Created(this);
 }
@@ -24,7 +24,7 @@ void IPlugProcessRTAS::HandleMIDI()
     for (int nodeIdx=0; nodeIdx < mDirectMidiInterface->directMidiParamBlkPtr->mNumMidiNodes; ++nodeIdx)
     {
       DirectMidiNode * node = mDirectMidiInterface->directMidiParamBlkPtr->mNodeArray[nodeIdx];
-      
+
       for (int i=0; i < node->mBufferSize; ++i)
       {
         DirectMidiPacket* iMessage = node->mBuffer+i;
@@ -44,28 +44,28 @@ void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
   //DBGMSG("Number of inputs: %d outputs: %d\n", nInputs, nOutputs);
 
   mPlug->SetIO(nInputs, nOutputs);
-  
+
   if (mBypassed)
   {
     mPlug->ProcessAudioBypassed(inputs, outputs, frames);
   }
   else if (mPlug)
   {
-#if PLUG_DOES_MIDI
+    #if PLUG_DOES_MIDI
     HandleMIDI();
-#endif
-    
+    #endif
+
     mPlug->ProcessAudio(inputs, outputs, frames);
   }
-  
-// TODO: Meters?  
-  
+
+// TODO: Meters?
+
 //  for(int i = 0; i < GetNumOutputs(); i++)
 //	{
 //		float* outSamples = outputs[i];
-//		
+//
 //		for (int j = 0; j<frames; j++)
-//		{      
+//		{
 //			if ( fabsf(outSamples[j]) > mMeterVal[i] )
 //				mMeterVal[i] = fabsf(outSamples[j]);
 //		}
@@ -75,42 +75,43 @@ void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
 void IPlugProcessRTAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators)
 {
 // TODO: Meters?
-  
+
 //	SFloat32 currentVal = 0.0;
-//  
-//	for (int i = 0; i < GetNumOutputs(); i++) 
+//
+//	for (int i = 0; i < GetNumOutputs(); i++)
 //	{
 //		currentVal = mMeterVal[i];
-//		
+//
 //		if(currentVal < mMeterMin[i])
 //			currentVal = mMeterMin[i];
 //		mMeterMin[i] = currentVal * 0.7;
-//		
+//
 //		if (fabsf(currentVal) > 1.0)
-//		{ 
+//		{
 //			currentVal = -1.0;
 //			clipIndicators[i] = true;
-//			fClipped = true;	
-//		} 
+//			fClipped = true;
+//		}
 //		else {
 //			currentVal *= k32BitPosMax;
 //			clipIndicators[i] = false;
 //		}
-//		
+//
 //		allMeters[i] = currentVal;
 //		mMeterVal[i] = 0;
 //  }
-  
-  for (int i = 0; i < GetNumOutputs(); i++) 
-	{
-		clipIndicators[i] = false;
-		allMeters[i] = 0;
-	}
+
+  for (int i = 0; i < GetNumOutputs(); i++)
+  {
+    clipIndicators[i] = false;
+    allMeters[i] = 0;
+  }
 }
 
 int IPlugProcessRTAS::GetSamplePos()
 {
-  if (mDirectMidiInterface) {
+  if (mDirectMidiInterface)
+  {
     Cmn_Int64 samplePos;
     mDirectMidiInterface->GetCurrentRTASSampleLocation(&samplePos);
     return (int) samplePos;
@@ -121,7 +122,8 @@ int IPlugProcessRTAS::GetSamplePos()
 
 double IPlugProcessRTAS::GetTempo()
 {
-  if (mDirectMidiInterface) {
+  if (mDirectMidiInterface)
+  {
     Cmn_Float64 t;
     mDirectMidiInterface->GetCurrentTempo(&t);
     return (double) t;
@@ -136,38 +138,39 @@ void IPlugProcessRTAS::GetTimeSig(int* pNum, int* pDenom)
     mDirectMidiInterface->GetCurrentMeter((Cmn_Int32*) pNum,(Cmn_Int32*) pDenom);
 }
 
-void IPlugProcessRTAS::GetTime( double *pSamplePos, 
-                                double *pTempo, 
-                                double *pMusicalPos, 
+void IPlugProcessRTAS::GetTime( double *pSamplePos,
+                                double *pTempo,
+                                double *pMusicalPos,
                                 double *pLastBar,
-                                int* pNum, 
+                                int* pNum,
                                 int* pDenom,
                                 double *pCycleStart,
                                 double *pCycleEnd,
                                 bool *pTransportRunning,
                                 bool *pTransportCycle)
 {
-  if (mDirectMidiInterface) {
+  if (mDirectMidiInterface)
+  {
     Cmn_Int64 samplePos;
     Cmn_Bool transportRunning;
     Cmn_Int64 ticks = 0;
 
     mDirectMidiInterface->GetCurrentRTASSampleLocation(&samplePos);
     *pSamplePos = (double) samplePos;
-    
+
     mDirectMidiInterface->GetCurrentTempo((Cmn_Float64*) pTempo);
     mDirectMidiInterface->GetCurrentMeter((Cmn_Int32*) pNum,(Cmn_Int32*) pDenom);
     mDirectMidiInterface->IsTransportPlaying(&transportRunning);
     *pTransportRunning = (bool) transportRunning;
-    
+
     if (transportRunning)
       mDirectMidiInterface->GetCurrentRTASSampleLocation (&samplePos);
     else
       mDirectMidiInterface->GetCurrentTDMSampleLocation (&samplePos);
-    
+
     mDirectMidiInterface->GetCustomTickPosition (&ticks, samplePos);
     *pMusicalPos = ticks / 960000.0;
-    
+
     // TODO: how to get these?
     *pLastBar = 0.;
     *pTransportCycle = false;
@@ -179,16 +182,16 @@ void IPlugProcessRTAS::GetTime( double *pSamplePos,
 ComponentResult IPlugProcessRTAS::IsControlAutomatable(long aControlIndex, short *aItIsP)
 {
   TRACE;
-  
+
   if (aControlIndex == 1) // master bypass
-    *aItIsP = 1; 
+    *aItIsP = 1;
   else
     *aItIsP = mPlug->GetParam(aControlIndex-kPTParamIdxOffset)->GetCanAutomate() ? 1 : 0;
-  
+
   return noErr;
 }
 
-// this is dynamic in PT9 > 
+// this is dynamic in PT9 >
 ComponentResult IPlugProcessRTAS::GetDelaySamplesLong(long* aNumSamples)
 {
   *aNumSamples = (long) mPlug->GetLatency();

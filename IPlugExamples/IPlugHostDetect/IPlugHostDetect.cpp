@@ -18,20 +18,20 @@ enum ELayout
 };
 
 IPlugHostDetect::IPlugHostDetect(IPlugInstanceInfo instanceInfo)
-:	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+  :	IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
 
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachPanelBackground(&COLOR_GRAY);
 
-  IRECT tmpRect(10, 10, 200, 50);  
-	IText textProps(40, &COLOR_ORANGE, "Arial", IText::kStyleNormal, IText::kAlignCenter, 0, IText::kQualityDefault);
-  mHostNameControl = new ITextControl(this, tmpRect, &textProps, ""); 
+  IRECT tmpRect(10, 10, 200, 50);
+  IText textProps(40, &COLOR_ORANGE, "Arial", IText::kStyleNormal, IText::kAlignCenter, 0, IText::kQualityDefault);
+  mHostNameControl = new ITextControl(this, tmpRect, &textProps, "");
   pGraphics->AttachControl(mHostNameControl);
 
   tmpRect = IRECT(tmpRect.L, tmpRect.T+40, tmpRect.R, tmpRect.B+40);
-	mHostVersionControl = new ITextControl(this, tmpRect, &textProps, ""); 
+  mHostVersionControl = new ITextControl(this, tmpRect, &textProps, "");
   pGraphics->AttachControl(mHostVersionControl);
 
   AttachGraphics(pGraphics);
@@ -49,7 +49,7 @@ void IPlugHostDetect::Reset()
 {
   TRACE;
   IMutexLock lock(this);
-  
+
   //double sr = GetSampleRate();
 }
 
@@ -62,7 +62,7 @@ void IPlugHostDetect::OnHostIdentified()
 {
   char hostText[128];
   GetHostNameStr(GetHost(), hostText);
-  mHostNameControl->SetTextFromPlug(hostText);  
+  mHostNameControl->SetTextFromPlug(hostText);
   GetHostVersionStr(hostText);
   mHostVersionControl->SetTextFromPlug(hostText);
 }

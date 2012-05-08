@@ -23,23 +23,23 @@ enum EParams
 };
 
 IPlugMonoSynth::IPlugMonoSynth(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), 
-  mGainL(1.),
-  mGainR(1.),
-  mNoteGain(0.),
-  mPhase(0),
-  mSampleRate(44100.),
-  mFreq(440.),
-  mNumKeys(0),
-  mKey(-1),
-  mPrevL(0.0),
-  mPrevR(0.0)
+  : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo),
+    mGainL(1.),
+    mGainR(1.),
+    mNoteGain(0.),
+    mPhase(0),
+    mSampleRate(44100.),
+    mFreq(440.),
+    mNumKeys(0),
+    mKey(-1),
+    mPrevL(0.0),
+    mPrevR(0.0)
 
 {
   TRACE;
-  
+
   memset(mKeyStatus, 0, 128 * sizeof(bool));
-    
+
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGainL)->InitDouble("GainL", -12.0, -70.0, 12.0, 0.1, "dB");
   GetParam(kGainR)->InitDouble("GainR", -12.0, -70.0, 12.0, 0.1, "dB");
@@ -50,21 +50,21 @@ IPlugMonoSynth::IPlugMonoSynth(IPlugInstanceInfo instanceInfo)
   GetParam(kMode)->SetDisplayText(3, "d");
   GetParam(kMode)->SetDisplayText(4, "e");
   GetParam(kMode)->SetDisplayText(5, "f");
-  
+
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachBackground(BG_ID, BG_FN);
-  
+
   IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
   IText text = IText(14);
   IBitmap regular = pGraphics->LoadIBitmap(WHITE_KEY_ID, WHITE_KEY_FN, 6);
   IBitmap sharp   = pGraphics->LoadIBitmap(BLACK_KEY_ID, BLACK_KEY_FN);
-  
+
   //                    C#     D#          F#      G#      A#
   int coords[12] = { 0, 7, 12, 20, 24, 36, 43, 48, 56, 60, 69, 72 };
   mKeyboard = new IKeyboardControl(this, kKeybX, kKeybY, 48, 5, &regular, &sharp, coords);
-  
+
   pGraphics->AttachControl(mKeyboard);
-    
+
   IBitmap about = pGraphics->LoadIBitmap(ABOUTBOX_ID, ABOUTBOX_FN);
   mAboutBox = new IBitmapOverlayControl(this, 100, 100, &about, IRECT(540, 250, 680, 290));
   pGraphics->AttachControl(mAboutBox);
@@ -84,42 +84,44 @@ void IPlugMonoSynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
   double* out1 = outputs[0];
   double* out2 = outputs[1];
   double peakL = 0.0, peakR = 0.0;
-  
+
   GetTime(&mTimeInfo);
-  
+
   IKeyboardControl* pKeyboard = (IKeyboardControl*) mKeyboard;
-  
+
   if (pKeyboard->GetKey() != mKey)
   {
     IMidiMsg msg;
-    
-    if (mKey >= 0) {
+
+    if (mKey >= 0)
+    {
       msg.MakeNoteOffMsg(mKey + 48, 0, 0);
       mMidiQueue.Add(&msg);
     }
-    
+
     mKey = pKeyboard->GetKey();
-    
-    if (mKey >= 0) {
+
+    if (mKey >= 0)
+    {
       msg.MakeNoteOnMsg(mKey + 48, pKeyboard->GetVelocity(), 0, 0);
       mMidiQueue.Add(&msg);
     }
   }
-  
+
   for (int offset = 0; offset < nFrames; ++offset, ++in1, ++in2, ++out1, ++out2)
   {
     while (!mMidiQueue.Empty())
     {
       IMidiMsg* pMsg = mMidiQueue.Peek();
       if (pMsg->mOffset > offset) break;
-      
+
       // TODO: make this work on win sa
-      #if !defined(OS_WIN) && !defined(SA_API)
-        SendMidiMsg(pMsg);
-      #endif
-      
+#if !defined(OS_WIN) && !defined(SA_API)
+      SendMidiMsg(pMsg);
+#endif
+
       int status = pMsg->StatusMsg();
-      
+
       switch (status)
       {
         case IMidiMsg::kNoteOn:
@@ -138,39 +140,39 @@ void IPlugMonoSynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
           {
             if (pMsg->NoteNumber() == mNote)
               mNote = -1;
-            
+
             mNoteGain = 0.;
           }
           break;
         }
       }
-      
+
       mMidiQueue.Remove();
     }
-    
+
     *out1 = sin( 2. * M_PI * mFreq * mPhase / mSampleRate ) * mGainLSmoother.Process(mGainL * mNoteGain);
     *out2 = sin( 2. * M_PI * mFreq * 1.01 * (mPhase++) / mSampleRate ) * mGainRSmoother.Process(mGainR * mNoteGain);
-    
-  	peakL = IPMAX(peakL, fabs(*out1));
-		peakR = IPMAX(peakR, fabs(*out2));
-	}
-  
-	const double METER_ATTACK = 0.6, METER_DECAY = 0.05;
-	double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
-	double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
-  
-	peakL = peakL * xL + mPrevL * (1.0 - xL);
-	peakR = peakR * xR + mPrevR * (1.0 - xR);
-  
-	mPrevL = peakL;
-	mPrevR = peakR;
-  
+
+    peakL = IPMAX(peakL, fabs(*out1));
+    peakR = IPMAX(peakR, fabs(*out2));
+  }
+
+  const double METER_ATTACK = 0.6, METER_DECAY = 0.05;
+  double xL = (peakL < mPrevL ? METER_DECAY : METER_ATTACK);
+  double xR = (peakR < mPrevR ? METER_DECAY : METER_ATTACK);
+
+  peakL = peakL * xL + mPrevL * (1.0 - xL);
+  peakR = peakR * xR + mPrevR * (1.0 - xR);
+
+  mPrevL = peakL;
+  mPrevR = peakR;
+
   if (GetGUI())
   {
     GetGUI()->SetControlFromPlug(mMeterIdx_L, peakL);
     GetGUI()->SetControlFromPlug(mMeterIdx_R, peakR);
   }
-  
+
   mMidiQueue.Flush(nFrames);
 }
 
@@ -178,7 +180,7 @@ void IPlugMonoSynth::Reset()
 {
   TRACE;
   IMutexLock lock(this);
-  
+
   mPhase = 0;
   mNoteGain = 0.;
   mSampleRate = GetSampleRate();
@@ -188,7 +190,7 @@ void IPlugMonoSynth::Reset()
 void IPlugMonoSynth::OnParamChange(int paramIdx)
 {
   IMutexLock lock(this);
-  
+
   switch (paramIdx)
   {
     case kGainL:
@@ -205,7 +207,7 @@ void IPlugMonoSynth::OnParamChange(int paramIdx)
 void IPlugMonoSynth::ProcessMidiMsg(IMidiMsg* pMsg)
 {
   int status = pMsg->StatusMsg();
-  
+
   // filter only note messages
   switch (status)
   {
@@ -220,7 +222,7 @@ void IPlugMonoSynth::ProcessMidiMsg(IMidiMsg* pMsg)
     default:
       return; // if !note message, nothing gets added to the queue
   }
-  
+
   mKeyboard->SetDirty();
   mMidiQueue.Add(pMsg);
 }
@@ -243,7 +245,8 @@ bool IPlugMonoSynth::GetKeyStatus(int key)
 bool IPlugMonoSynth::HostRequestingAboutBox()
 {
   IMutexLock lock(this);
-  if(GetGUI()) {
+  if(GetGUI())
+  {
     // get the IBitmapOverlay to show
     mAboutBox->SetValueFromPlug(1.);
     mAboutBox->Hide(false);

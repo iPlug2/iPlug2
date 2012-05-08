@@ -3,11 +3,12 @@
 
 @class PGMidi;
 
-@interface MainViewController : UIViewController <FlipsideViewControllerDelegate> {
+@interface MainViewController : UIViewController <FlipsideViewControllerDelegate>
+{
   NSMutableArray *sliders;
   NSMutableArray *nameLabels;
   NSMutableArray *valueLabels;
-  
+
   UIScrollView *scrollView;
 
   PGMidi *midi;

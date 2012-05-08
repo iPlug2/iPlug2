@@ -33,14 +33,14 @@
 // if you want to do anything unusual re i/o you need to #ifdef PLUG_CHANNEL_IO and PLUG_SC_CHANS depending on the api because they all do it differently...
 
 #ifdef RTAS_API
-  // RTAS can only have a mono sc input
-  // at the moment this is required instead of "2-2 3-2"
-  #define PLUG_CHANNEL_IO "3-2" 
-  #define PLUG_SC_CHANS 1
+// RTAS can only have a mono sc input
+// at the moment this is required instead of "2-2 3-2"
+#define PLUG_CHANNEL_IO "3-2"
+#define PLUG_SC_CHANS 1
 
 #else // AU & VST2
-  #define PLUG_CHANNEL_IO "2-2 4-2"
-  #define PLUG_SC_CHANS 2
+#define PLUG_CHANNEL_IO "2-2 4-2"
+#define PLUG_SC_CHANS 2
 #endif
 
 
@@ -64,9 +64,9 @@
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
 #ifdef SA_API
-  #ifndef OS_IOS
-    #include "app_wrapper/app_resource.h"
-  #endif
+#ifndef OS_IOS
+#include "app_wrapper/app_resource.h"
+#endif
 #endif
 
 // vst3 stuff

@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum EAPI {
+enum EAPI
+{
   kAPIVST2 = 0,
   kAPIVST3 = 1,
   kAPIAU = 2,
@@ -12,7 +13,8 @@ enum EAPI {
   kAPISA = 4
 };
 
-enum EHost {
+enum EHost
+{
   kHostUninit = -1,
   kHostUnknown = 0,
   kHostReaper,
@@ -43,7 +45,7 @@ enum EHost {
   kHostStudioOne,
   kHostVST3TestHost,
   kHostArdour
-  
+
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost
@@ -53,6 +55,5 @@ EHost LookUpHost(const char* host);
 void GetHostNameStr(EHost host, char* pHostName);
 
 #endif
-        
 
-  
+

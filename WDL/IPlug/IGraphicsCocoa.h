@@ -4,13 +4,13 @@
 #import <AudioUnit/AUCocoaUIView.h>
 #include "IGraphicsMac.h"
 
-inline NSRect ToNSRect(IGraphics* pGraphics, IRECT* pR) 
+inline NSRect ToNSRect(IGraphics* pGraphics, IRECT* pR)
 {
   int B = pGraphics->Height() - pR->B;
-  return NSMakeRect(pR->L, B-1, pR->W()+1, pR->H()+1); 
+  return NSMakeRect(pR->L, B-1, pR->W()+1, pR->H()+1);
 }
 
-inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR) 
+inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
 {
   int x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
   return IRECT(x, gh - (y + h), x + w, gh - y);
@@ -52,7 +52,7 @@ NSString* ToNSString(const char* cStr);
 // Dummy view class used to receive Menu Events inline
 @interface IGRAPHICS_MENU_RCVR : NSView
 {
-    NSMenuItem* nsMenuItem;
+  NSMenuItem* nsMenuItem;
 }
 - (void) OnMenuSelection:(id)sender;
 - (NSMenuItem*) MenuItem;

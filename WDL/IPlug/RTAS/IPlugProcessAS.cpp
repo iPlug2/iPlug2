@@ -1,6 +1,6 @@
 #if WINDOWS_VERSION
-	#include <windows.h>
-	#include "Mac2Win.H"
+  #include <windows.h>
+  #include "Mac2Win.H"
 #endif
 
 #include "IPlugProcessAS.h"
@@ -10,8 +10,9 @@
 //#include "CPluginControl_Continuous.h"
 
 IPlugProcessAS::IPlugProcessAS(OSType type)
-: IPlugProcess(type)
-{//  for(int i = 0; i< EffectLayerDef::MAX_NUM_CONNECTIONS; i++)
+  : IPlugProcess(type)
+{
+  //  for(int i = 0; i< EffectLayerDef::MAX_NUM_CONNECTIONS; i++)
 //  {
 //    mMeterVal[i] = 0.0;
 //    mMeterMin[i] = 0.0;
@@ -36,7 +37,7 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //
 //  SFloat32 defaultInputVal = 0.0;
 //  double  a,b;
-//  
+//
 //  for(int i = 0;i< GetNumOutputs(); i++) // One pass through loop for each output channel.
 //  {
 //    DAEConnectionPtr outputConnection = GetOutputConnection(i);
@@ -45,9 +46,9 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //      SFloat32 *inputBuf;
 //      SFloat32 gain = SFloat32(mGain[i]);
 //      SFloat32 *outputBuf = (SFloat32 *)outputConnection->mBuffer;
-//      
+//
 //      DAEConnectionPtr inputConnection = GetInputConnection(i);
-//      
+//
 //      if (!inputConnection) // no input connection use default value of zero.
 //      {
 //        bufferIncrement = 0;      // don't increment!
@@ -61,20 +62,20 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //        inputBuf = (SFloat32 *)inputConnection->mBuffer;
 //        totalInputSamples = inputConnection->mNumSamplesInBuf;
 //      }
-//      
+//
 //      CurrentInputSamples = totalInputSamples;
-//      
-//      // Just in case the audio buffer is smaller than the count to update the meter for AS 
+//
+//      // Just in case the audio buffer is smaller than the count to update the meter for AS
 //      if (updateMeterInterval > totalInputSamples)
 //        updateMeterInterval = totalInputSamples/2;
-//      
+//
 //      if (isMasterBypassed) {
 //        while (CurrentInputSamples--) {
 //          *outputBuf = *inputBuf;
 //          outputBuf++;
 //          inputBuf += bufferIncrement;
 //        }
-//      } else {      
+//      } else {
 //        // Go through the input buffer and perform our gain.
 //        while (CurrentInputSamples--)
 //        {
@@ -83,7 +84,7 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //          b = gain * a;
 //          *outputBuf = float(b);// mGain * (*inputBuf);
 //        //  *outputBuf = SFloat32(inSample);
-//          
+//
 //          if ( fabs(*outputBuf) > mMeterVal[i] ) mMeterVal[i] = fabs(*outputBuf);
 //
 //          // For RTAS (& TDM), meter updating is done in DoTokenIdle.
@@ -95,7 +96,7 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //              updateMeterCounter = 0;
 //            }
 //          }
-//          
+//
 //          outputBuf++;
 //          inputBuf += bufferIncrement;
 //        }
@@ -106,14 +107,14 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //    } // end if(outputConnection)
 //
 //  } // end for loop
-//  
+//
 //  // Get the current number of samples analyzed and pass this info
 //  // back to the DAE application so it knows how much we've processed.
-//  // This is a global position keeper, it should be incremented by the 
-//  // number of samples processed on a single track.  Not the total processed 
+//  // This is a global position keeper, it should be incremented by the
+//  // number of samples processed on a single track.  Not the total processed
 //  // by all tracks.
 //  return totalInputSamples;
-  
+
   return 0;
 }
 
@@ -125,43 +126,43 @@ UInt32 IPlugProcessAS::ProcessAudio(bool isMasterBypassed)
 //      gain = dynamic_cast<CPluginControl_Continuous*>(GetControl(controlIndex))->GetContinuous();
 //      mGain[controlIndex - kControl_GainMono] = gain;
 //  }
-//  
+//
 //}
 
 void IPlugProcessAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators)
 {
-  // TODO: Meters?
-  
-  //	SFloat32 currentVal = 0.0;
-  //  
-  //	for (int i = 0; i < GetNumOutputs(); i++) 
-  //	{
-  //		currentVal = mMeterVal[i];
-  //		
-  //		if(currentVal < mMeterMin[i])
-  //			currentVal = mMeterMin[i];
-  //		mMeterMin[i] = currentVal * 0.7;
-  //		
-  //		if (fabsf(currentVal) > 1.0)
-  //		{ 
-  //			currentVal = -1.0;
-  //			clipIndicators[i] = true;
-  //			fClipped = true;	
-  //		} 
-  //		else {
-  //			currentVal *= k32BitPosMax;
-  //			clipIndicators[i] = false;
-  //		}
-  //		
-  //		allMeters[i] = currentVal;
-  //		mMeterVal[i] = 0;
-  //  }
-  
-  for (int i = 0; i < GetNumOutputs(); i++) 
-	{
-		clipIndicators[i] = false;
-		allMeters[i] = 0;
-	}
+// TODO: Meters?
+
+//	SFloat32 currentVal = 0.0;
+//
+//	for (int i = 0; i < GetNumOutputs(); i++)
+//	{
+//		currentVal = mMeterVal[i];
+//
+//		if(currentVal < mMeterMin[i])
+//			currentVal = mMeterMin[i];
+//		mMeterMin[i] = currentVal * 0.7;
+//
+//		if (fabsf(currentVal) > 1.0)
+//		{
+//			currentVal = -1.0;
+//			clipIndicators[i] = true;
+//			fClipped = true;
+//		}
+//		else {
+//			currentVal *= k32BitPosMax;
+//			clipIndicators[i] = false;
+//		}
+//
+//		allMeters[i] = currentVal;
+//		mMeterVal[i] = 0;
+//  }
+
+  for (int i = 0; i < GetNumOutputs(); i++)
+  {
+    clipIndicators[i] = false;
+    allMeters[i] = 0;
+  }
 }
 
 //void IPlugProcessAS::SetViewOrigin (Point anOrigin)
@@ -176,5 +177,5 @@ void IPlugProcessAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicator
 //
 //  mLeftOffset = ourPlugInViewRect.left;
 //  mTopOffset = ourPlugInViewRect.top;
-//  
+//
 //}
