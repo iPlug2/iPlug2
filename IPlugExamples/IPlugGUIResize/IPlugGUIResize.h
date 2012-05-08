@@ -3,16 +3,16 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 
-class IGUIResizeButton : public IControl  
+class IGUIResizeButton : public IControl
 {
 private:
   int mResizeWidth;
   int mResizeHeight;
   WDL_String mStr;
-  
+
 public:
   IGUIResizeButton(IPlugBase* pPlug, IRECT pR, const char* label, int w, int h)
-  :	IControl(pPlug, pR)
+    :	IControl(pPlug, pR)
   {
     mResizeWidth = w;
     mResizeHeight = h;
@@ -44,19 +44,19 @@ public:
 class IPlugGUIResize : public IPlug
 {
 public:
-  
+
   IPlugGUIResize(IPlugInstanceInfo instanceInfo);
   ~IPlugGUIResize();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
   void OnWindowResize();
-  
+
   void CreateControls(IGraphics* pGraphics, int size);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
-private:  
+
+private:
 };
 
 #endif

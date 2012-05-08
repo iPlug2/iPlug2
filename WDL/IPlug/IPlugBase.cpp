@@ -1,7 +1,7 @@
 #include "IPlugBase.h"
 #ifndef OS_IOS
-  #include "IGraphics.h"
-  #include "IControl.h"
+#include "IGraphics.h"
+#include "IControl.h"
 #endif
 #include <math.h>
 #include <stdio.h>
@@ -13,17 +13,18 @@
   #ifdef WIN32
     typedef int VstInt32;
   #else
-  #include <stdint.h>
+    #include <stdint.h>
     typedef int32_t VstInt32;
   #endif
 #endif
 
 const double DEFAULT_SAMPLE_RATE = 44100.0;
 
-template <class SRC, class DEST> 
+template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
-  for (int i = 0; i < n; ++i, ++pDest, ++pSrc) {
+  for (int i = 0; i < n; ++i, ++pDest, ++pSrc)
+  {
     *pDest = (DEST) *pSrc;
   }
 }
@@ -37,9 +38,9 @@ void GetVersionParts(int version, int* pVer, int* pMaj, int* pMin)
 
 int GetDecimalVersion(int version)
 {
- int ver, rmaj, rmin;
- GetVersionParts(version, &ver, &rmaj, &rmin);
- return 10000 * ver + 100 * rmaj + rmin;
+  int ver, rmaj, rmin;
+  GetVersionParts(version, &ver, &rmaj, &rmin);
+  return 10000 * ver + 100 * rmaj + rmin;
 }
 
 void GetVersionStr(int version, char* str)
@@ -53,8 +54,8 @@ void GetVersionStr(int version, char* str)
   #define MAX_PATH 1024
 #endif
 
-IPlugBase::IPlugBase(int nParams, 
-                     const char* channelIOStr, 
+IPlugBase::IPlugBase(int nParams,
+                     const char* channelIOStr,
                      int nPresets,
                      const char* effectName,
                      const char* productName,
@@ -62,35 +63,37 @@ IPlugBase::IPlugBase(int nParams,
                      int vendorVersion,
                      int uniqueID,
                      int mfrID,
-                     int latency, 
+                     int latency,
                      bool plugDoesMidi,
                      bool plugDoesChunks,
                      bool plugIsInst,
                      EAPI plugAPI)
-: mUniqueID(uniqueID)
-, mMfrID(mfrID)
-, mVersion(vendorVersion)
-, mSampleRate(DEFAULT_SAMPLE_RATE)
-, mBlockSize(0)
-, mLatency(latency)
-, mHost(kHostUninit)
-, mHostVersion(0)
-, mStateChunks(plugDoesChunks)
-, mGraphics(0)
-, mCurrentPresetIdx(0)
-, mIsInst(plugIsInst)
-, mAPI(plugAPI)
-, mIsBypassed(false)
+  : mUniqueID(uniqueID)
+  , mMfrID(mfrID)
+  , mVersion(vendorVersion)
+  , mSampleRate(DEFAULT_SAMPLE_RATE)
+  , mBlockSize(0)
+  , mLatency(latency)
+  , mHost(kHostUninit)
+  , mHostVersion(0)
+  , mStateChunks(plugDoesChunks)
+  , mGraphics(0)
+  , mCurrentPresetIdx(0)
+  , mIsInst(plugIsInst)
+  , mAPI(plugAPI)
+  , mIsBypassed(false)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
-  
+
   mPreviousPath.Set("", MAX_PATH);
-  
-  for (int i = 0; i < nParams; ++i) {
+
+  for (int i = 0; i < nParams; ++i)
+  {
     mParams.Add(new IParam);
   }
 
-  for (int i = 0; i < nPresets; ++i) {
+  for (int i = 0; i < nPresets; ++i)
+  {
     mPresets.Add(new IPreset(i));
   }
 
@@ -99,8 +102,8 @@ IPlugBase::IPlugBase(int nParams,
   strcpy(mMfrName, mfrName);
 
   int nInputs = 0, nOutputs = 0;
-  
-  while (channelIOStr) 
+
+  while (channelIOStr)
   {
     int nIn = 0, nOut = 0;
 #ifndef NDEBUG
@@ -113,7 +116,9 @@ IPlugBase::IPlugBase(int nParams,
     nOutputs = IPMAX(nOutputs, nOut);
     mChannelIO.Add(new ChannelIO(nIn, nOut));
     channelIOStr = strstr(channelIOStr, " ");
-    if (channelIOStr) {
+    
+    if (channelIOStr)
+    {
       ++channelIOStr;
     }
   }
@@ -122,18 +127,18 @@ IPlugBase::IPlugBase(int nParams,
   mOutData.Resize(nOutputs);
 
   double** ppInData = mInData.Get();
-  
-  for (int i = 0; i < nInputs; ++i, ++ppInData) 
+
+  for (int i = 0; i < nInputs; ++i, ++ppInData)
   {
     InChannel* pInChannel = new InChannel;
     pInChannel->mConnected = false;
     pInChannel->mSrc = ppInData;
     mInChannels.Add(pInChannel);
   }
-  
+
   double** ppOutData = mOutData.Get();
-  
-  for (int i = 0; i < nOutputs; ++i, ++ppOutData) 
+
+  for (int i = 0; i < nOutputs; ++i, ++ppOutData)
   {
     OutChannel* pOutChannel = new OutChannel;
     pOutChannel->mConnected = false;
@@ -144,10 +149,10 @@ IPlugBase::IPlugBase(int nParams,
 }
 
 IPlugBase::~IPlugBase()
-{ 
+{
   TRACE;
 #ifndef OS_IOS
-	DELETE_NULL(mGraphics);
+  DELETE_NULL(mGraphics);
 #endif
   mParams.Empty(true);
   mPresets.Empty(true);
@@ -161,11 +166,12 @@ IPlugBase::~IPlugBase()
 int IPlugBase::GetHostVersion(bool decimal)
 {
   GetHost();
-  if (decimal) {
+  if (decimal)
+  {
     return GetDecimalVersion(mHostVersion);
-  }    
+  }
   return mHostVersion;
-} 
+}
 
 void IPlugBase::GetHostVersionStr(char* str)
 {
@@ -177,22 +183,29 @@ bool IPlugBase::LegalIO(int nIn, int nOut)
 {
   bool legal = false;
   int i, n = mChannelIO.GetSize();
-  for (i = 0; i < n && !legal; ++i) {
+  
+  for (i = 0; i < n && !legal; ++i)
+  {
     ChannelIO* pIO = mChannelIO.Get(i);
     legal = ((nIn < 0 || nIn == pIO->mIn) && (nOut < 0 || nOut == pIO->mOut));
   }
+  
   Trace(TRACELOC, "%d:%d:%s", nIn, nOut, (legal ? "legal" : "illegal"));
-  return legal;  
+  return legal;
 }
 
 void IPlugBase::LimitToStereoIO()
 {
   int nIn = NInChannels(), nOut = NOutChannels();
-  if (nIn > 2) {
+  
+  if (nIn > 2)
+  {
     SetInputChannelConnections(2, nIn - 2, false);
   }
-  if (nOut > 2) {
-    SetOutputChannelConnections(2, nOut - 2, true);  
+  
+  if (nOut > 2)
+  {
+    SetOutputChannelConnections(2, nOut - 2, true);
   }
 }
 
@@ -200,7 +213,7 @@ void IPlugBase::SetHost(const char* host, int version)
 {
   mHost = LookUpHost(host);
   mHostVersion = version;
-  
+
   char vStr[32];
   GetVersionStr(version, vStr);
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr);
@@ -208,45 +221,55 @@ void IPlugBase::SetHost(const char* host, int version)
 #ifndef OS_IOS
 void IPlugBase::AttachGraphics(IGraphics* pGraphics)
 {
-	if (pGraphics) {
+  if (pGraphics)
+  {
     WDL_MutexLock lock(&mMutex);
     int i, n = mParams.GetSize();
-		for (i = 0; i < n; ++i) {
-			pGraphics->SetParameterFromPlug(i, GetParam(i)->GetNormalized(), true);
-		}
+    
+    for (i = 0; i < n; ++i)
+    {
+      pGraphics->SetParameterFromPlug(i, GetParam(i)->GetNormalized(), true);
+    }
+    
     pGraphics->PrepDraw();
-		mGraphics = pGraphics;
-	}
+    mGraphics = pGraphics;
+  }
 }
 #endif
-bool IPlugBase::HostRequestingAboutBox() {return false;}
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
-int IPlugBase::GetEffectVersion(bool decimal)   
+int IPlugBase::GetEffectVersion(bool decimal)
 {
   if (decimal)
+  {
     return GetDecimalVersion(mVersion);
+  }
   else
+  {
     return mVersion;
+  }
 }
 
 void IPlugBase::GetEffectVersionStr(char* str)
 {
   GetVersionStr(mVersion, str);
-  #if defined _DEBUG
-    strcat(str, "D");
-  #elif defined TRACER_BUILD
-    strcat(str, "T");
-  #endif
+#if defined _DEBUG
+  strcat(str, "D");
+#elif defined TRACER_BUILD
+  strcat(str, "T");
+#endif
 }
 
 double IPlugBase::GetSamplesPerBeat()
 {
-	double tempo = GetTempo();
-	if (tempo > 0.0) {
-		return GetSampleRate() * 60.0 / tempo;	
-	}
-	return 0.0;
+  double tempo = GetTempo();
+  
+  if (tempo > 0.0)
+  {
+    return GetSampleRate() * 60.0 / tempo;
+  }
+  
+  return 0.0;
 }
 
 void IPlugBase::SetSampleRate(double sampleRate)
@@ -256,18 +279,24 @@ void IPlugBase::SetSampleRate(double sampleRate)
 
 void IPlugBase::SetBlockSize(int blockSize)
 {
-  if (blockSize != mBlockSize) {
+  if (blockSize != mBlockSize)
+  {
     int i, nIn = NInChannels(), nOut = NOutChannels();
-    for (i = 0; i < nIn; ++i) {
+    
+    for (i = 0; i < nIn; ++i)
+    {
       InChannel* pInChannel = mInChannels.Get(i);
       pInChannel->mScratchBuf.Resize(blockSize);
       memset(pInChannel->mScratchBuf.Get(), 0, blockSize * sizeof(double));
     }
-    for (i = 0; i < nOut; ++i) {
+    
+    for (i = 0; i < nOut; ++i)
+    {
       OutChannel* pOutChannel = mOutChannels.Get(i);
       pOutChannel->mScratchBuf.Resize(blockSize);
       memset(pOutChannel->mScratchBuf.Get(), 0, blockSize * sizeof(double));
     }
+    
     mBlockSize = blockSize;
   }
 }
@@ -275,10 +304,14 @@ void IPlugBase::SetBlockSize(int blockSize)
 void IPlugBase::SetInputChannelConnections(int idx, int n, bool connected)
 {
   int iEnd = IPMIN(idx + n, mInChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i) {
+  
+  for (int i = idx; i < iEnd; ++i)
+  {
     InChannel* pInChannel = mInChannels.Get(i);
     pInChannel->mConnected = connected;
-    if (!connected) {
+    
+    if (!connected)
+    {
       *(pInChannel->mSrc) = pInChannel->mScratchBuf.Get();
     }
   }
@@ -287,31 +320,38 @@ void IPlugBase::SetInputChannelConnections(int idx, int n, bool connected)
 void IPlugBase::SetOutputChannelConnections(int idx, int n, bool connected)
 {
   int iEnd = IPMIN(idx + n, mOutChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i) {
+  
+  for (int i = idx; i < iEnd; ++i)
+  {
     OutChannel* pOutChannel = mOutChannels.Get(i);
     pOutChannel->mConnected = connected;
-    if (!connected) {
+    
+    if (!connected)
+    {
       *(pOutChannel->mDest) = pOutChannel->mScratchBuf.Get();
-    } 
+    }
   }
 }
 
-bool IPlugBase::IsInChannelConnected(int chIdx) 
-{ 
+bool IPlugBase::IsInChannelConnected(int chIdx)
+{
   return (chIdx < mInChannels.GetSize() && mInChannels.Get(chIdx)->mConnected);
 }
 
-bool IPlugBase::IsOutChannelConnected(int chIdx) 
+bool IPlugBase::IsOutChannelConnected(int chIdx)
 {
-  return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected); 
+  return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected);
 }
 
 void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
 {
   int iEnd = IPMIN(idx + n, mInChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i) {
+  
+  for (int i = idx; i < iEnd; ++i)
+  {
     InChannel* pInChannel = mInChannels.Get(i);
-    if (pInChannel->mConnected) {
+    if (pInChannel->mConnected)
+    {
       *(pInChannel->mSrc) = *(ppData++);
     }
   }
@@ -320,22 +360,26 @@ void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
 void IPlugBase::AttachInputBuffers(int idx, int n, float** ppData, int nFrames)
 {
   int iEnd = IPMIN(idx + n, mInChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i) {
+  for (int i = idx; i < iEnd; ++i)
+  {
     InChannel* pInChannel = mInChannels.Get(i);
-    if (pInChannel->mConnected) {
+    if (pInChannel->mConnected)
+    {
       double* pScratch = pInChannel->mScratchBuf.Get();
       CastCopy(pScratch, *(ppData++), nFrames);
       *(pInChannel->mSrc) = pScratch;
     }
   }
 }
- 
+
 void IPlugBase::AttachOutputBuffers(int idx, int n, double** ppData)
 {
   int iEnd = IPMIN(idx + n, mOutChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i) {
+  for (int i = idx; i < iEnd; ++i)
+  {
     OutChannel* pOutChannel = mOutChannels.Get(i);
-    if (pOutChannel->mConnected) {
+    if (pOutChannel->mConnected)
+    {
       *(pOutChannel->mDest) = *(ppData++);
     }
   }
@@ -344,35 +388,40 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, double** ppData)
 void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
 {
   int iEnd = IPMIN(idx + n, mOutChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i) {
+  for (int i = idx; i < iEnd; ++i)
+  {
     OutChannel* pOutChannel = mOutChannels.Get(i);
-    if (pOutChannel->mConnected) {
+    if (pOutChannel->mConnected)
+    {
       *(pOutChannel->mDest) = pOutChannel->mScratchBuf.Get();
       pOutChannel->mFDest = *(ppData++);
     }
   }
 }
 
-//TODO: implement a delay equivalent to mLatency for RTAS/AU/VST3 
-void IPlugBase::PassThroughBuffers(double sampleType, int nFrames) 
+//TODO: implement a delay equivalent to mLatency for RTAS/AU/VST3
+void IPlugBase::PassThroughBuffers(double sampleType, int nFrames)
 {
   IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
 }
 
-void IPlugBase::PassThroughBuffers(float sampleType, int nFrames) 
+void IPlugBase::PassThroughBuffers(float sampleType, int nFrames)
 {
   IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
   OutChannel** ppOutChannel = mOutChannels.GetList();
-  for (i = 0; i < n; ++i, ++ppOutChannel) {
+  
+  for (i = 0; i < n; ++i, ++ppOutChannel)
+  {
     OutChannel* pOutChannel = *ppOutChannel;
-    if (pOutChannel->mConnected) {
+    if (pOutChannel->mConnected)
+    {
       CastCopy(pOutChannel->mFDest, *(pOutChannel->mDest), nFrames);
     }
   }
 }
 
-void IPlugBase::ProcessBuffers(double sampleType, int nFrames) 
+void IPlugBase::ProcessBuffers(double sampleType, int nFrames)
 {
   ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
 }
@@ -382,12 +431,16 @@ void IPlugBase::ProcessBuffers(float sampleType, int nFrames)
   ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
   OutChannel** ppOutChannel = mOutChannels.GetList();
-  for (i = 0; i < n; ++i, ++ppOutChannel) {
+  
+  for (i = 0; i < n; ++i, ++ppOutChannel)
+  {
     OutChannel* pOutChannel = *ppOutChannel;
-    if (pOutChannel->mConnected) {
+    
+    if (pOutChannel->mConnected)
+    {
       CastCopy(pOutChannel->mFDest, *(pOutChannel->mDest), nFrames);
     }
-  }   
+  }
 }
 
 void IPlugBase::ProcessBuffersAccumulating(float sampleType, int nFrames)
@@ -395,12 +448,17 @@ void IPlugBase::ProcessBuffersAccumulating(float sampleType, int nFrames)
   ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
   OutChannel** ppOutChannel = mOutChannels.GetList();
-  for (i = 0; i < n; ++i, ++ppOutChannel) {
-    OutChannel* pOutChannel = *ppOutChannel;  
-    if (pOutChannel->mConnected) {
+  
+  for (i = 0; i < n; ++i, ++ppOutChannel)
+  {
+    OutChannel* pOutChannel = *ppOutChannel;
+    if (pOutChannel->mConnected)
+    {
       float* pDest = pOutChannel->mFDest;
       double* pSrc = *(pOutChannel->mDest);
-      for (int j = 0; j < nFrames; ++j, ++pDest, ++pSrc) { 
+      
+      for (int j = 0; j < nFrames; ++j, ++pDest, ++pSrc)
+      {
         *pDest += (float) *pSrc;
       }
     }
@@ -410,14 +468,14 @@ void IPlugBase::ProcessBuffersAccumulating(float sampleType, int nFrames)
 void IPlugBase::ZeroScratchBuffers()
 {
   int i, nIn = NInChannels(), nOut = NOutChannels();
-  
-  for (i = 0; i < nIn; ++i) 
+
+  for (i = 0; i < nIn; ++i)
   {
     InChannel* pInChannel = mInChannels.Get(i);
     memset(pInChannel->mScratchBuf.Get(), 0, mBlockSize * sizeof(double));
   }
-  
-  for (i = 0; i < nOut; ++i) 
+
+  for (i = 0; i < nOut; ++i)
   {
     OutChannel* pOutChannel = mOutChannels.Get(i);
     memset(pOutChannel->mScratchBuf.Get(), 0, mBlockSize * sizeof(double));
@@ -436,15 +494,16 @@ void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)
   WDL_MutexLock lock(&mMutex);
   GetParam(idx)->SetNormalized(normalizedValue);
   InformHostOfParamChange(idx, normalizedValue);
-	OnParamChange(idx);
+  OnParamChange(idx);
 }
 
 void IPlugBase::OnParamReset()
 {
-	for (int i = 0; i < mParams.GetSize(); ++i) {
-		OnParamChange(i);
-	}
-	//Reset();
+  for (int i = 0; i < mParams.GetSize(); ++i)
+  {
+    OnParamChange(i);
+  }
+  //Reset();
 }
 
 // Default passthrough.
@@ -453,14 +512,17 @@ void IPlugBase::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
   // Mutex is already locked.
   int i, nIn = mInChannels.GetSize(), nOut = mOutChannels.GetSize();
   int j = 0;
-  for (i = 0; i < nOut; ++i) {
-    if (i < nIn) {
+  for (i = 0; i < nOut; ++i)
+  {
+    if (i < nIn)
+    {
       memcpy(outputs[i], inputs[i], nFrames * sizeof(double));
       j++;
     }
   }
   // zero remaining outs
-  for (/* same j */; j < nOut; ++j) {
+  for (/* same j */; j < nOut; ++j)
+  {
     memset(outputs[j], 0, nFrames * sizeof(double));
   }
 }
@@ -470,10 +532,12 @@ void IPlugBase::ProcessSingleReplacing(float** inputs, float** outputs, int nFra
 {
   // Mutex is already locked.
   int i, nIn = mInChannels.GetSize(), nOut = mOutChannels.GetSize();
-  for (i = 0; i < nIn; ++i) {
+  for (i = 0; i < nIn; ++i)
+  {
     memcpy(outputs[i], inputs[i], nFrames * sizeof(float));
   }
-  for (/* same i */; i < nOut; ++i) {
+  for (/* same i */; i < nOut; ++i)
+  {
     memset(outputs[i], 0, nFrames * sizeof(float));
   }
 }
@@ -481,15 +545,17 @@ void IPlugBase::ProcessSingleReplacing(float** inputs, float** outputs, int nFra
 // Default passthrough.
 void IPlugBase::ProcessMidiMsg(IMidiMsg* pMsg)
 {
-	SendMidiMsg(pMsg);
+  SendMidiMsg(pMsg);
 }
 
 IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
 {
   int n = pPresets->GetSize();
-  for (int i = 0; i < n; ++i) {
+  for (int i = 0; i < n; ++i)
+  {
     IPreset* pPreset = pPresets->Get(i);
-    if (!(pPreset->mInitialized)) {
+    if (!(pPreset->mInitialized))
+    {
       return pPreset;
     }
   }
@@ -498,12 +564,14 @@ IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
 
 void IPlugBase::MakeDefaultPreset(char* name, int nPresets)
 {
-  for (int i = 0; i < nPresets; ++i) {
+  for (int i = 0; i < nPresets; ++i)
+  {
     IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
-    if (pPreset) {
+    if (pPreset)
+    {
       pPreset->mInitialized = true;
       strcpy(pPreset->mName, (name ? name : "Empty"));
-      SerializeState(&(pPreset->mChunk)); 
+      SerializeState(&(pPreset->mChunk));
     }
   }
 }
@@ -529,16 +597,18 @@ void IPlugBase::MakeDefaultPreset(char* name, int nPresets)
 void IPlugBase::MakePreset(char* name, ...)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
-  if (pPreset) {
+  if (pPreset)
+  {
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
-	  
+
     int i, n = mParams.GetSize();
-	
+
     double v = 0.0;
     va_list vp;
     va_start(vp, name);
-    for (i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i)
+    {
       GET_PARAM_FROM_VARARG(GetParam(i)->Type(), vp, v);
       pPreset->mChunk.Put(&v);
     }
@@ -551,7 +621,8 @@ void IPlugBase::MakePresetFromNamedParams(char* name, int nParamsNamed, ...)
 {
   TRACE;
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
-  if (pPreset) {
+  if (pPreset)
+  {
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
 
@@ -560,13 +631,15 @@ void IPlugBase::MakePresetFromNamedParams(char* name, int nParamsNamed, ...)
     WDL_TypedBuf<double> vals;
     vals.Resize(n);
     double* pV = vals.Get();
-    for (i = 0; i < n; ++i, ++pV) {
+    for (i = 0; i < n; ++i, ++pV)
+    {
       *pV = PARAM_UNINIT;
     }
 
     va_list vp;
     va_start(vp, nParamsNamed);
-    for (int i = 0; i < nParamsNamed; ++i) {
+    for (int i = 0; i < nParamsNamed; ++i)
+    {
       int paramIdx = (int) va_arg(vp, int);
       // This assert will fire if any of the passed-in param values do not match
       // the type that the param was initialized with (int for bool, int, enum; double for double).
@@ -576,8 +649,10 @@ void IPlugBase::MakePresetFromNamedParams(char* name, int nParamsNamed, ...)
     va_end(vp);
 
     pV = vals.Get();
-    for (int i = 0; i < n; ++i, ++pV) {
-      if (*pV == PARAM_UNINIT) {      // Any that weren't explicitly set, use the defaults.
+    for (int i = 0; i < n; ++i, ++pV)
+    {
+      if (*pV == PARAM_UNINIT)        // Any that weren't explicitly set, use the defaults.
+      {
         *pV = GetParam(i)->Value();
       }
       pPreset->mChunk.Put(pV);
@@ -588,10 +663,11 @@ void IPlugBase::MakePresetFromNamedParams(char* name, int nParamsNamed, ...)
 void IPlugBase::MakePresetFromChunk(char* name, ByteChunk* pChunk)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
-  if (pPreset) {
+  if (pPreset)
+  {
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
-    
+
     pPreset->mChunk.PutChunk(pChunk);
   }
 }
@@ -601,7 +677,7 @@ void IPlugBase::MakePresetFromBlob(char* name, const char* blob, int sizeOfChunk
   ByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
   base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
-  
+
   MakePresetFromChunk(name, &presetChunk);
 }
 
@@ -611,9 +687,11 @@ void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
 {
   int nDefaultNames = 0;
   int n = pPresets->GetSize();
-  for (int i = 0; i < n; ++i) {
+  for (int i = 0; i < n; ++i)
+  {
     IPreset* pPreset = pPresets->Get(i);
-    if (strstr(pPreset->mName, DEFAULT_USER_PRESET_NAME)) {
+    if (strstr(pPreset->mName, DEFAULT_USER_PRESET_NAME))
+    {
       ++nDefaultNames;
     }
   }
@@ -630,12 +708,15 @@ void IPlugBase::PruneUninitializedPresets()
 {
   TRACE;
   int i = 0;
-  while (i < mPresets.GetSize()) {
+  while (i < mPresets.GetSize())
+  {
     IPreset* pPreset = mPresets.Get(i);
-    if (pPreset->mInitialized) {
+    if (pPreset->mInitialized)
+    {
       ++i;
     }
-    else {
+    else
+    {
       mPresets.Delete(i, true);
     }
   }
@@ -643,21 +724,25 @@ void IPlugBase::PruneUninitializedPresets()
 
 bool IPlugBase::RestorePreset(int idx)
 {
-	TRACE;
+  TRACE;
   bool restoredOK = false;
-  if (idx >= 0 && idx < mPresets.GetSize()) {
+  if (idx >= 0 && idx < mPresets.GetSize())
+  {
     IPreset* pPreset = mPresets.Get(idx);
 
-    if (!(pPreset->mInitialized)) {
+    if (!(pPreset->mInitialized))
+    {
       pPreset->mInitialized = true;
       MakeDefaultUserPresetName(&mPresets, pPreset->mName);
-      restoredOK = SerializeState(&(pPreset->mChunk)); 
+      restoredOK = SerializeState(&(pPreset->mChunk));
     }
-    else {
+    else
+    {
       restoredOK = (UnserializeState(&(pPreset->mChunk), 0) > 0);
     }
 
-    if (restoredOK) {
+    if (restoredOK)
+    {
       mCurrentPresetIdx = idx;
       PresetsChangedByHost();
 #ifndef OS_IOS
@@ -670,11 +755,14 @@ bool IPlugBase::RestorePreset(int idx)
 
 bool IPlugBase::RestorePreset(const char* name)
 {
-  if (CSTR_NOT_EMPTY(name)) {
+  if (CSTR_NOT_EMPTY(name))
+  {
     int n = mPresets.GetSize();
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       IPreset* pPreset = mPresets.Get(i);
-      if (!strcmp(pPreset->mName, name)) {
+      if (!strcmp(pPreset->mName, name))
+      {
         return RestorePreset(i);
       }
     }
@@ -684,7 +772,8 @@ bool IPlugBase::RestorePreset(const char* name)
 
 const char* IPlugBase::GetPresetName(int idx)
 {
-  if (idx >= 0 && idx < mPresets.GetSize()) {
+  if (idx >= 0 && idx < mPresets.GetSize())
+  {
     return mPresets.Get(idx)->mName;
   }
   return "";
@@ -692,15 +781,16 @@ const char* IPlugBase::GetPresetName(int idx)
 
 void IPlugBase::ModifyCurrentPreset(const char* name)
 {
-  if (mCurrentPresetIdx >= 0 && mCurrentPresetIdx < mPresets.GetSize()) {
+  if (mCurrentPresetIdx >= 0 && mCurrentPresetIdx < mPresets.GetSize())
+  {
     IPreset* pPreset = mPresets.Get(mCurrentPresetIdx);
     pPreset->mChunk.Clear();
-    
+
     Trace(TRACELOC, "%d %s", mCurrentPresetIdx, pPreset->mName);
-    
+
     SerializeState(&(pPreset->mChunk));
 
-    if (CSTR_NOT_EMPTY(name)) 
+    if (CSTR_NOT_EMPTY(name))
     {
       strcpy(pPreset->mName, name);
     }
@@ -712,14 +802,16 @@ bool IPlugBase::SerializePresets(ByteChunk* pChunk)
   TRACE;
   bool savedOK = true;
   int n = mPresets.GetSize();
-  for (int i = 0; i < n && savedOK; ++i) {
+  for (int i = 0; i < n && savedOK; ++i)
+  {
     IPreset* pPreset = mPresets.Get(i);
     pChunk->PutStr(pPreset->mName);
-	  
+
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
 
     pChunk->PutBool(pPreset->mInitialized);
-    if (pPreset->mInitialized) {
+    if (pPreset->mInitialized)
+    {
       savedOK &= (pChunk->PutChunk(&(pPreset->mChunk)) > 0);
     }
   }
@@ -731,7 +823,8 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
   TRACE;
   WDL_String name;
   int n = mPresets.GetSize(), pos = startPos;
-  for (int i = 0; i < n && pos >= 0; ++i) {
+  for (int i = 0; i < n && pos >= 0; ++i)
+  {
     IPreset* pPreset = mPresets.Get(i);
     pos = pChunk->GetStr(&name, pos);
     strcpy(pPreset->mName, name.Get());
@@ -739,9 +832,11 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
 
     pos = pChunk->GetBool(&(pPreset->mInitialized), pos);
-    if (pPreset->mInitialized) {
+    if (pPreset->mInitialized)
+    {
       pos = UnserializeState(pChunk, pos);
-      if (pos > 0) {
+      if (pos > 0)
+      {
         pPreset->mChunk.Clear();
         SerializeState(&(pPreset->mChunk));
       }
@@ -754,11 +849,12 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
 bool IPlugBase::SerializeParams(ByteChunk* pChunk)
 {
   TRACE;
-  
+
   WDL_MutexLock lock(&mMutex);
   bool savedOK = true;
   int i, n = mParams.GetSize();
-  for (i = 0; i < n && savedOK; ++i) {
+  for (i = 0; i < n && savedOK; ++i)
+  {
     IParam* pParam = mParams.Get(i);
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
     double v = pParam->Value();
@@ -770,10 +866,11 @@ bool IPlugBase::SerializeParams(ByteChunk* pChunk)
 int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
 {
   TRACE;
-  
+
   WDL_MutexLock lock(&mMutex);
   int i, n = mParams.GetSize(), pos = startPos;
-  for (i = 0; i < n && pos >= 0; ++i) {
+  for (i = 0; i < n && pos >= 0; ++i)
+  {
     IParam* pParam = mParams.Get(i);
     double v = 0.0;
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
@@ -786,9 +883,11 @@ int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
 #ifndef OS_IOS
 void IPlugBase::RedrawParamControls()
 {
-  if (mGraphics) {
+  if (mGraphics)
+  {
     int i, n = mParams.GetSize();
-    for (i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i)
+    {
       double v = mParams.Get(i)->Value();
       mGraphics->SetParameterFromPlug(i, v, false);
     }
@@ -799,7 +898,8 @@ void IPlugBase::DirtyParameters()
 {
   WDL_MutexLock lock(&mMutex);
 
-  for (int p = 0; p < NParams(); p++) {
+  for (int p = 0; p < NParams(); p++)
+  {
     double normalizedValue = GetParam(p)->GetNormalized();
     InformHostOfParamChange(p, normalizedValue);
   }
@@ -807,22 +907,25 @@ void IPlugBase::DirtyParameters()
 
 void IPlugBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
 {
- // static bool sDumped = false;
-	bool sDumped = false;
+// static bool sDumped = false;
+  bool sDumped = false;
 
-  if (!sDumped) {
+  if (!sDumped)
+  {
     sDumped = true;
     int i, n = NParams();
     FILE* fp = fopen(filename, "w");
     fprintf(fp, "  MakePresetFromNamedParams(\"name\", %d", n);
-    for (i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i)
+    {
       IParam* pParam = GetParam(i);
       char paramVal[32];
-      switch (pParam->Type()) {
+      switch (pParam->Type())
+      {
         case IParam::kTypeBool:
           sprintf(paramVal, "%s", (pParam->Bool() ? "true" : "false"));
           break;
-        case IParam::kTypeInt: 
+        case IParam::kTypeInt:
           sprintf(paramVal, "%d", pParam->Int());
           break;
         case IParam::kTypeEnum:
@@ -837,7 +940,7 @@ void IPlugBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNam
     }
     fprintf(fp, ");\n");
     fclose(fp);
-  } 
+  }
 }
 
 #ifndef MAX_BLOB_LENGTH
@@ -848,28 +951,30 @@ void IPlugBase::DumpPresetBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   fprintf(fp, "MakePresetFromBlob(\"name\", \"");
-  
+
   char buf[MAX_BLOB_LENGTH];
-  
+
   ByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
   BYTE* byteStart = pPresetChunk->GetBytes();
-  
+
   base64encode(byteStart, buf, pPresetChunk->Size());
-  
+
   fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   fclose(fp);
 }
 
 void IPlugBase::SetInputLabel(int idx, const char* pLabel)
 {
-  if (idx >= 0 && idx < NInChannels()) {
+  if (idx >= 0 && idx < NInChannels())
+  {
     mInChannels.Get(idx)->mLabel.Set(pLabel);
   }
 }
 
 void IPlugBase::SetOutputLabel(int idx, const char* pLabel)
 {
-  if (idx >= 0 && idx < NOutChannels()) {
+  if (idx >= 0 && idx < NOutChannels())
+  {
     mOutChannels.Get(idx)->mLabel.Set(pLabel);
   }
 }
@@ -878,11 +983,11 @@ void IPlugBase::SetInputBusLabel(int idx, const char* pLabel)
 {
   if (idx >= 0 && idx < 2) // only possible to have two input buses
   {
-    if (mInputBusLabels.Get(idx)) 
+    if (mInputBusLabels.Get(idx))
     {
       mInputBusLabels.Delete(idx, true);
     }
-    
+
     mInputBusLabels.Insert(idx, new WDL_String(pLabel, strlen(pLabel)));
   }
 }
@@ -891,11 +996,11 @@ void IPlugBase::SetOutputBusLabel(int idx, const char* pLabel)
 {
   if (idx >= 0)
   {
-    if (mOutputBusLabels.Get(idx)) 
+    if (mOutputBusLabels.Get(idx))
     {
       mOutputBusLabels.Delete(idx, true);
     }
-    
+
     mOutputBusLabels.Insert(idx, new WDL_String(pLabel, strlen(pLabel)));
   }
 }
@@ -905,7 +1010,7 @@ const int kFXBVersionNum = 2;
 
 // confusing... bytechunk will force storage as little endian on big endian platforms,
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
-// regardless of the endianness of the host, and on big endian hosts it will get swapped back to 
+// regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
 #ifndef OS_IOS
 bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
@@ -914,13 +1019,13 @@ bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
   {
     WDL_String fileName(defaultFileName, strlen(defaultFileName));
     mGraphics->PromptForFile(&fileName, kFileSave, &mPreviousPath, "fxp");
-    
-    if (fileName.GetLength()) 
+
+    if (fileName.GetLength())
     {
       FILE* fp = fopen(fileName.Get(), "wb");
-      
+
       ByteChunk pgm;
-      
+
       VstInt32 chunkMagic = WDL_bswap32('CcnK');
       VstInt32 byteSize = 0;
       VstInt32 fxpMagic;
@@ -931,22 +1036,22 @@ bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
       char prgName[28];
       memset(prgName, 0, 28);
       strcpy(prgName, GetPresetName(GetCurrentPresetIdx()));
-      
+
       pgm.Put(&chunkMagic);
-      
-      if (DoesStateChunks()) 
+
+      if (DoesStateChunks())
       {
         ByteChunk state;
         VstInt32 chunkSize;
-        
+
         fxpMagic = WDL_bswap32('FPCh');
-        
+
         InitializeVSTChunk(&state);
         SerializeState(&state);
-        
+
         chunkSize = WDL_bswap32(state.Size());
         byteSize = WDL_bswap32(state.Size() + 60);
-        
+
         pgm.Put(&byteSize);
         pgm.Put(&fxpMagic);
         pgm.Put(&fxpVersion);
@@ -957,9 +1062,9 @@ bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
         pgm.Put(&chunkSize);
         pgm.PutBytes(state.GetBytes(), state.Size());
       }
-      else 
+      else
       {
-        fxpMagic = WDL_bswap32('FxCk');               
+        fxpMagic = WDL_bswap32('FxCk');
         //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
         pgm.Put(&byteSize);
         pgm.Put(&fxpMagic);
@@ -968,18 +1073,19 @@ bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
         pgm.Put(&pluginVersion);
         pgm.Put(&numParams);
         pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
-        
-        for (int i = 0; i< NParams(); i++) {
+
+        for (int i = 0; i< NParams(); i++)
+        {
           WDL_EndianFloat v32;
           v32.f = (float) mParams.Get(i)->GetNormalized();
           unsigned int swapped = WDL_bswap32(v32.int32);
           pgm.Put(&swapped);
         }
       }
-      
+
       fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
       fclose(fp);
-      
+
       return true;
     }
   }
@@ -993,12 +1099,12 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
     WDL_String fileName(defaultFileName, strlen(defaultFileName));
     mGraphics->PromptForFile(&fileName, kFileSave, &mPreviousPath, "fxb");
 
-    if (fileName.GetLength()) 
+    if (fileName.GetLength())
     {
       FILE* fp = fopen(fileName.Get(), "wb");
-            
+
       ByteChunk bnk;
-      
+
       VstInt32 chunkMagic = WDL_bswap32('CcnK');
       VstInt32 byteSize = 0;
       VstInt32 fxbMagic;
@@ -1009,22 +1115,22 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
       VstInt32 currentPgm = WDL_bswap32(GetCurrentPresetIdx());
       char future[124];
       memset(future, 0, 124);
-      
+
       bnk.Put(&chunkMagic);
-      
+
       if (DoesStateChunks())
       {
         ByteChunk state;
         VstInt32 chunkSize;
-        
+
         fxbMagic = WDL_bswap32('FBCh');
-        
+
         InitializeVSTChunk(&state);
         SerializePresets(&state);
-        
+
         chunkSize = WDL_bswap32(state.Size());
         byteSize = WDL_bswap32(160 + state.Size() );
-        
+
         bnk.Put(&byteSize);
         bnk.Put(&fxbMagic);
         bnk.Put(&fxbVersion);
@@ -1033,14 +1139,14 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
         bnk.Put(&numPgms);
         bnk.Put(&currentPgm);
         bnk.PutBytes(&future, 124);
-        
+
         bnk.Put(&chunkSize);
         bnk.PutBytes(state.GetBytes(), state.Size());
       }
-      else 
+      else
       {
-        fxbMagic = WDL_bswap32('FxBk');    
-        
+        fxbMagic = WDL_bswap32('FxBk');
+
         bnk.Put(&byteSize);
         bnk.Put(&fxbMagic);
         bnk.Put(&fxbVersion);
@@ -1048,20 +1154,20 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
         bnk.Put(&pluginVersion);
         bnk.Put(&numPgms);
         bnk.Put(&currentPgm);
-        bnk.PutBytes(&future, 124);        
-        
-        VstInt32 fxpMagic = WDL_bswap32('FxCk'); 
+        bnk.PutBytes(&future, 124);
+
+        VstInt32 fxpMagic = WDL_bswap32('FxCk');
         VstInt32 fxpVersion = WDL_bswap32(kFXPVersionNum);
         VstInt32 numParams = WDL_bswap32(NParams());
-        
-        for (int p = 0; p < NPresets(); p++) 
+
+        for (int p = 0; p < NPresets(); p++)
         {
           IPreset* pPreset = mPresets.Get(p);
-          
+
           char prgName[28];
           memset(prgName, 0, 28);
           strcpy(prgName, pPreset->mName);
-          
+
           bnk.Put(&chunkMagic);
           //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
           bnk.Put(&byteSize);
@@ -1071,14 +1177,14 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
           bnk.Put(&pluginVersion);
           bnk.Put(&numParams);
           bnk.PutBytes(prgName, 28);
-          
+
           int pos = 0;
-          
-          for (int i = 0; i< NParams(); i++) 
+
+          for (int i = 0; i< NParams(); i++)
           {
-            double v = 0.0;            
+            double v = 0.0;
             pos = pPreset->mChunk.Get(&v, pos);
-            
+
             WDL_EndianFloat v32;
             v32.f = (float) mParams.Get(i)->GetNormalized(v);
             unsigned int swapped = WDL_bswap32(v32.int32);
@@ -1086,10 +1192,10 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
           }
         }
       }
-      
+
       fwrite(bnk.GetBytes(), bnk.Size(), 1, fp);
       fclose(fp);
-      
+
       return true;
     }
   }
@@ -1102,25 +1208,25 @@ bool IPlugBase::LoadProgramFromFXP()
   {
     WDL_String fileName;
     mGraphics->PromptForFile(&fileName, kFileOpen, &mPreviousPath, "fxp");
-    
-    if (fileName.GetLength()) 
+
+    if (fileName.GetLength())
     {
       FILE* fp = fopen(fileName.Get(), "rb");
-      
-      if (fp) 
+
+      if (fp)
       {
         ByteChunk pgm;
         long fileSize;
-        
+
         fseek(fp , 0 , SEEK_END);
         fileSize = ftell(fp);
         rewind(fp);
-        
+
         pgm.Resize(fileSize);
         fread(pgm.GetBytes(), fileSize, 1, fp);
 
-        fclose(fp);    
-        
+        fclose(fp);
+
         int pos = 0;
 
         VstInt32 chunkMagic;
@@ -1131,7 +1237,7 @@ bool IPlugBase::LoadProgramFromFXP()
         VstInt32 pluginVersion;
         VstInt32 numParams;
         char prgName[28];
-        
+
         pos = pgm.Get(&chunkMagic, pos);
         chunkMagic = WDL_bswap_if_le(chunkMagic);
         pos = pgm.Get(&byteSize, pos);
@@ -1147,19 +1253,19 @@ bool IPlugBase::LoadProgramFromFXP()
         pos = pgm.Get(&numParams, pos);
         numParams = WDL_bswap_if_le(numParams);
         pos = pgm.GetBytes(prgName, 28, pos);
-        
+
         if (chunkMagic != 'CcnK') return false;
         if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
         if (pluginID != GetUniqueID()) return false;
         //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
         if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
-        if (DoesStateChunks() && fxpMagic == 'FPCh') 
+        if (DoesStateChunks() && fxpMagic == 'FPCh')
         {
           VstInt32 chunkSize;
           pos = pgm.Get(&chunkSize, pos);
           chunkSize = WDL_bswap_if_le(chunkSize);
-          
+
           GetIPlugVerFromChunk(&pgm, &pos);
           UnserializeState(&pgm, pos);
           ModifyCurrentPreset(prgName);
@@ -1167,16 +1273,16 @@ bool IPlugBase::LoadProgramFromFXP()
 
           return true;
         }
-        else if (fxpMagic == 'FxCk') 
+        else if (fxpMagic == 'FxCk')
         {
-          for (int i = 0; i< NParams(); i++) 
+          for (int i = 0; i< NParams(); i++)
           {
-            WDL_EndianFloat v32;  
+            WDL_EndianFloat v32;
             pos = pgm.Get(&v32.int32, pos);
             v32.int32 = WDL_bswap_if_le(v32.int32);
             mParams.Get(i)->SetNormalized((double) v32.f);
           }
-          
+
           ModifyCurrentPreset(prgName);
           RestorePreset(GetCurrentPresetIdx());
           InformHostOfProgramChange();
@@ -1195,27 +1301,27 @@ bool IPlugBase::LoadBankFromFXB()
   {
     WDL_String fileName;
     mGraphics->PromptForFile(&fileName, kFileOpen, &mPreviousPath, "fxb");
-    
-    if (fileName.GetLength()) 
+
+    if (fileName.GetLength())
     {
       FILE* fp = fopen(fileName.Get(), "rb");
-      
-      if (fp) 
+
+      if (fp)
       {
         ByteChunk bnk;
         long fileSize;
-        
+
         fseek(fp , 0 , SEEK_END);
         fileSize = ftell(fp);
         rewind(fp);
-        
+
         bnk.Resize(fileSize);
         fread(bnk.GetBytes(), fileSize, 1, fp);
-        
-        fclose(fp);    
-        
+
+        fclose(fp);
+
         int pos = 0;
-            
+
         VstInt32 chunkMagic;
         VstInt32 byteSize = 0;
         VstInt32 fxbMagic;
@@ -1226,7 +1332,7 @@ bool IPlugBase::LoadBankFromFXB()
         VstInt32 currentPgm;
         char future[124];
         memset(future, 0, 124);
-        
+
         pos = bnk.Get(&chunkMagic, pos);
         chunkMagic = WDL_bswap_if_le(chunkMagic);
         pos = bnk.Get(&byteSize, pos);
@@ -1244,26 +1350,26 @@ bool IPlugBase::LoadBankFromFXB()
         pos = bnk.Get(&currentPgm, pos);
         currentPgm = WDL_bswap_if_le(currentPgm);
         pos = bnk.GetBytes(future, 124, pos);
-        
+
         if (chunkMagic != 'CcnK') return false;
         //if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
         if (pluginID != GetUniqueID()) return false;
         //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
         //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
-        
-        if (DoesStateChunks() && fxbMagic == 'FBCh') 
+
+        if (DoesStateChunks() && fxbMagic == 'FBCh')
         {
           VstInt32 chunkSize;
           pos = bnk.Get(&chunkSize, pos);
           chunkSize = WDL_bswap_if_le(chunkSize);
-          
+
           GetIPlugVerFromChunk(&bnk, &pos);
           UnserializePresets(&bnk, pos);
           //RestorePreset(currentPgm);
           InformHostOfProgramChange();
           return true;
         }
-        else if (fxbMagic == 'FxBk') 
+        else if (fxbMagic == 'FxBk')
         {
           VstInt32 chunkMagic;
           VstInt32 byteSize;
@@ -1272,51 +1378,51 @@ bool IPlugBase::LoadBankFromFXB()
           VstInt32 pluginID;
           VstInt32 pluginVersion;
           VstInt32 numParams;
-          char prgName[28];            
-          
-          for(int i = 0;i<numPgms;i++)
+          char prgName[28];
+
+          for(int i = 0; i<numPgms; i++)
           {
             pos = bnk.Get(&chunkMagic, pos);
             chunkMagic = WDL_bswap_if_le(chunkMagic);
-            
+
             pos = bnk.Get(&byteSize, pos);
             byteSize = WDL_bswap_if_le(byteSize);
-            
+
             pos = bnk.Get(&fxpMagic, pos);
             fxpMagic = WDL_bswap_if_le(fxpMagic);
-            
+
             pos = bnk.Get(&fxpVersion, pos);
             fxpVersion = WDL_bswap_if_le(fxpVersion);
-            
+
             pos = bnk.Get(&pluginID, pos);
             pluginID = WDL_bswap_if_le(pluginID);
-            
+
             pos = bnk.Get(&pluginVersion, pos);
             pluginVersion = WDL_bswap_if_le(pluginVersion);
-            
+
             pos = bnk.Get(&numParams, pos);
             numParams = WDL_bswap_if_le(numParams);
-            
+
             if (chunkMagic != 'CcnK') return false;
             if (fxpMagic != 'FxCk') return false;
             if (fxpVersion != kFXPVersionNum) return false;
             if (numParams != NParams()) return false;
-            
+
             pos = bnk.GetBytes(prgName, 28, pos);
-            
+
             RestorePreset(i);
-            
-            for (int j = 0; j< NParams(); j++) 
+
+            for (int j = 0; j< NParams(); j++)
             {
-              WDL_EndianFloat v32;  
+              WDL_EndianFloat v32;
               pos = bnk.Get(&v32.int32, pos);
               v32.int32 = WDL_bswap_if_le(v32.int32);
               mParams.Get(j)->SetNormalized((double) v32.f);
             }
-            
+
             ModifyCurrentPreset(prgName);
           }
-          
+
           RestorePreset(currentPgm);
           InformHostOfProgramChange();
 
@@ -1343,7 +1449,8 @@ int IPlugBase::GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos)
 {
   int magic = 0, ver = 0;
   int pos = pChunk->Get(&magic, *pPos);
-  if (pos > *pPos && magic == IPLUG_VERSION_MAGIC) {
+  if (pos > *pPos && magic == IPLUG_VERSION_MAGIC)
+  {
     *pPos = pChunk->Get(&ver, pos);
   }
   return ver;

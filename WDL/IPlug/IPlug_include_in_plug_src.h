@@ -111,7 +111,7 @@ IPlug* MakePlug()
 }
 
 static FUnknown* createInstance (void*) {
-	return (IAudioProcessor*) MakePlug();
+  return (IAudioProcessor*) MakePlug();
 }
 
 // Company Information

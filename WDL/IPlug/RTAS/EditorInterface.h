@@ -20,7 +20,6 @@ public:
   
 protected:
   void* mProcess;
-
 };
 
 #endif //_EDITOR_INTERFACE_H_

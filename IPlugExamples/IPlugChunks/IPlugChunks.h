@@ -5,16 +5,16 @@
 #include "IVecSliders.h"
 
 /*
- 
+
  IPlugChunks - an example of storing data in chunks, and custom IControl classes
- 
+
  A step sequenced volume control / tarnce gate
- 
- Using chunks allows you to store arbitary data (e.g. a hidden, non-automatable parameter, a filepath etc) in the plugin's state, 
+
+ Using chunks allows you to store arbitary data (e.g. a hidden, non-automatable parameter, a filepath etc) in the plugin's state,
  i.e. when you save a preset to a file or when you save the project in your host
- 
+
  You need to override SerializeState / UnserializeState and set PLUG_DOES_STATE_CHUNKS 1 in resource.h
-  
+
 */
 
 
@@ -24,28 +24,28 @@
 class IPlugChunks : public IPlug
 {
 public:
-  
+
   IPlugChunks(IPlugInstanceInfo instanceInfo);
   ~IPlugChunks();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-   
+
   bool SerializeState(ByteChunk* pChunk);
-	int UnserializeState(ByteChunk* pChunk, int startPos);
-  
+  int UnserializeState(ByteChunk* pChunk, int startPos);
+
   void PresetsChangedByHost();
-  
+
 private:
-  
+
   double mSteps[NUM_SLIDERS];
-  
+
   double mGain;
-	unsigned long mCount, mPrevCount;
-	
-	MultiSliderControlV *mMSlider;
+  unsigned long mCount, mPrevCount;
+
+  MultiSliderControlV *mMSlider;
 };
 
 #endif

@@ -6,17 +6,17 @@
 class IPlugMultiChannel : public IPlug
 {
 public:
-  
+
   IPlugMultiChannel(IPlugInstanceInfo instanceInfo);
   ~IPlugMultiChannel();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
+
 private:
-  
+
   double mGain;
 };
 

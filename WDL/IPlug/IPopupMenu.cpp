@@ -15,12 +15,12 @@ void IPopupMenuItem::SetChecked(bool state)
 IPopupMenuItem* IPopupMenu::GetItem(int index)
 {
   int nItems = GetNItems();
-  
-  if (index >= 0 && index < nItems) 
+
+  if (index >= 0 && index < nItems)
   {
     return mMenuItems.Get(index);
   }
-  else 
+  else
   {
     return 0;
   }
@@ -33,7 +33,7 @@ const char* IPopupMenu::GetItemText(int index)
 
 IPopupMenuItem* IPopupMenu::AddItem(IPopupMenuItem* item, int index)
 {
-  if (index == -1) 
+  if (index == -1)
   {
     mMenuItems.Add(item); // add it to the end
   }
@@ -80,7 +80,7 @@ void IPopupMenu::SetPrefix(int count)
 bool IPopupMenu::CheckItem(int index, bool state)
 {
   IPopupMenuItem* item = mMenuItems.Get(index);
-  
+
   if (item)
   {
     item->SetChecked(state);
@@ -91,7 +91,7 @@ bool IPopupMenu::CheckItem(int index, bool state)
 
 void IPopupMenu::CheckItemAlone(int index)
 {
-  for (int i = 0; i < mMenuItems.GetSize(); i++) 
+  for (int i = 0; i < mMenuItems.GetSize(); i++)
   {
     mMenuItems.Get(i)->SetChecked(i == index);
   }
@@ -105,6 +105,6 @@ bool IPopupMenu::IsItemChecked(int index)
   {
     return item->GetChecked();
   }
-  
+
   return false;
 }

@@ -1,5 +1,5 @@
 #if WINDOWS_VERSION
-  #include <windows.h>
+#include <windows.h>
 #endif
 
 #include "EditorInterface.h"
@@ -10,16 +10,16 @@
 #include "../IControl.h"
 
 // IPlug RTAS can use either carbon or an overlayed cocoa window . Each has its advantages and disadvantages!
-// Cocoa steals some keypresses from PT, e.g. apple-Q 
+// Cocoa steals some keypresses from PT, e.g. apple-Q
 // Cocoa may rarely result in the overlayed window getting stuck when rapidly opening closing the gui
 
-// Carbon doesn't support text entry because PT uses a archaic non-composited carbon window 
+// Carbon doesn't support text entry because PT uses a archaic non-composited carbon window
 // and I haven't been able to figure out how to draw the text entry box in non-composited windows without flicker
 // Carbon GUI resizing sometimes results in controls not being redrawn
 // Carbon does not get key events at all
 
 #ifndef RTAS_COCOA_GUI
-#define RTAS_COCOA_GUI 0
+  #define RTAS_COCOA_GUI 0
 #endif
 
 IPlugCustomUI* CreateIPlugCustomUI(void *processPtr)
@@ -29,10 +29,10 @@ IPlugCustomUI* CreateIPlugCustomUI(void *processPtr)
 
 #if MAC_VERSION
 
-IPlugCustomUI::IPlugCustomUI(void *processPtr) 
-: EditorInterface(processPtr)
-, mGraphics(0)
-, mLocalWindow(0)
+IPlugCustomUI::IPlugCustomUI(void *processPtr)
+  : EditorInterface(processPtr)
+  , mGraphics(0)
+  , mLocalWindow(0)
 {
   mPlug = ((IPlugProcess*)processPtr)->GetPlug();
   mGraphics = ((IPlugProcess*)processPtr)->GetGraphics();
@@ -42,10 +42,10 @@ IPlugCustomUI::~IPlugCustomUI()
 {
   mGraphics = 0;
 }
-  
+
 void IPlugCustomUI::GetRect(short *left, short *top, short *right, short *bottom)
 {
-  if (mGraphics) 
+  if (mGraphics)
   {
     *left = 0;
     *right = mGraphics->Width();
@@ -60,12 +60,12 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 
   if(mGraphics)
   {
-#if RTAS_COCOA_GUI
+    #if RTAS_COCOA_GUI
     mGraphics->AttachSubWindow(winPtr);
-#else
+    #else
     mGraphics->OpenWindow(winPtr, 0, leftOffset, topOffset);
     mGraphics->SetAllControlsDirty();
-#endif
+    #endif
     mPlug->OnGUIOpen();
   }
 
@@ -77,9 +77,9 @@ bool IPlugCustomUI::Close()
   if(mLocalWindow && mGraphics)
   {
     mGraphics->CloseWindow();
-#if RTAS_COCOA_GUI
+    #if RTAS_COCOA_GUI
     mGraphics->RemoveSubWindow();
-#endif
+    #endif
     mLocalWindow = 0;
   }
   return true;
@@ -98,7 +98,7 @@ void IPlugCustomUI::GetControlIndexFromPoint(long x, long y, long *aControlIndex
 void IPlugCustomUI::Draw(long left, long top, long right, long bottom)
 {
   if (mGraphics)
-  { 
+  {
     mGraphics->SetAllControlsDirty();
   }
 }
@@ -118,14 +118,14 @@ LRESULT CALLBACK IPlugMainWindow(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 }
 
 IPlugCustomUI::IPlugCustomUI(void *processPtr)
-: EditorInterface(processPtr)
-, mGraphics(0)
-, mHeaderHeight(0)
-, mHeaderWidth(0)
-, mPlugInWndHINST(0)
-, mLocalPIWin(0)
-, mLocalWindowID(0)
-, mPluginWindow(NULL)
+  : EditorInterface(processPtr)
+  , mGraphics(0)
+  , mHeaderHeight(0)
+  , mHeaderWidth(0)
+  , mPlugInWndHINST(0)
+  , mLocalPIWin(0)
+  , mLocalWindowID(0)
+  , mPluginWindow(NULL)
 {
   if( mProcess )
     hInstance = ((ProcessInterface*)mProcess)->ProcessGetModuleHandle();  // necessary to load resources from dll
@@ -149,7 +149,7 @@ IPlugCustomUI::~IPlugCustomUI()
 }
 
 bool IPlugCustomUI::Init()
-{ 
+{
   mLocalWinClass.cbSize     = sizeof(WNDCLASSEX);
   mLocalWinClass.style      = CS_HREDRAW | CS_VREDRAW;
   mLocalWinClass.lpfnWndProc    = IPlugMainWindow;
@@ -178,7 +178,7 @@ bool IPlugCustomUI::Init()
 bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 {
   mPluginWindow = (HWND)winPtr;
-  
+
   if(!mPluginWindow)
     return false;
 
@@ -203,19 +203,19 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 
   // Create Window - starts message pump
   mLocalPIWin = CreateWindowEx(
-    0,        // extended class style
-    mLocalWinClass.lpszClassName, // class name 
-    "IPlugCustomUI",        // window name 
-    WS_CHILD | WS_VISIBLE,    // window style WS_EX_TRANSPARENT?
-    PILeft,     // horizontal position of window
-    PITop,      // vertical position of window
-    PIWidth,    // window width
-    PIHeight,   // window height
-    mPluginWindow,  // handle to parent or owner window
-    NULL,         // menu handle or child identifier
-    NULL, // handle to application instance; ignored in NT/2000/XP
-    NULL);  // window-creation data
-    
+                  0,        // extended class style
+                  mLocalWinClass.lpszClassName, // class name
+                  "IPlugCustomUI",        // window name
+                  WS_CHILD | WS_VISIBLE,    // window style WS_EX_TRANSPARENT?
+                  PILeft,     // horizontal position of window
+                  PITop,      // vertical position of window
+                  PIWidth,    // window width
+                  PIHeight,   // window height
+                  mPluginWindow,  // handle to parent or owner window
+                  NULL,         // menu handle or child identifier
+                  NULL, // handle to application instance; ignored in NT/2000/XP
+                  NULL);  // window-creation data
+
   if(!mLocalPIWin)
   {
     DWORD err = GetLastError();
@@ -229,7 +229,7 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
     #define tempShowWindow ShowWindow
     #undef ShowWindow
   #endif
-      ShowWindow(mLocalPIWin, SW_SHOWNORMAL);
+  ShowWindow(mLocalPIWin, SW_SHOWNORMAL);
   #ifdef tempShowWindow
     #define ShowWindow tempShowWindow
     #undef tempShowWindow
@@ -239,7 +239,7 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
   UpdateWindow(mLocalPIWin);
 
   short prevRes = 0;
-  
+
   if(mProcess)
     prevRes = ((ProcessInterface*)mProcess)->ProcessUseResourceFile();
 
@@ -248,7 +248,7 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
     mGraphics->OpenWindow((void*)mLocalPIWin);
     mPlug->OnGUIOpen();
   }
-    
+
   if(mProcess)
     ((ProcessInterface*)mProcess)->ProcessRestoreResourceFile(prevRes);
 
@@ -258,7 +258,7 @@ bool IPlugCustomUI::Open(void *winPtr, short leftOffset, short topOffset)
 void IPlugCustomUI::Draw(long left, long top, long right, long bottom)
 {
   if (mGraphics)
-  { 
+  {
     mGraphics->SetAllControlsDirty();
   }
 }
@@ -266,26 +266,26 @@ void IPlugCustomUI::Draw(long left, long top, long right, long bottom)
 bool IPlugCustomUI::Close()
 {
   bool result = false;
-  
+
   if( mLocalPIWin )
   {
-  // OL - This is nessecary to avoid a collision in the PTSDK
-  #ifdef CloseWindow
-    #define tempCloseWindow CloseWindow
-    #undef CloseWindow
-  #endif
+    // OL - This is nessecary to avoid a collision in the PTSDK
+    #ifdef CloseWindow
+      #define tempCloseWindow CloseWindow
+      #undef CloseWindow
+    #endif
 
-  if( mGraphics )
+    if( mGraphics )
       mGraphics->CloseWindow();
 
-  #ifdef CloseWindow
-    #define CloseWindow tempCloseWindow
-    #undef CloseWindow
-  #endif
+    #ifdef CloseWindow
+      #define CloseWindow tempCloseWindow
+      #undef CloseWindow
+    #endif
 
     result = DestroyWindow(mLocalPIWin);
   }
-  
+
   return result;
 }
 

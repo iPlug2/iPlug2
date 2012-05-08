@@ -11,39 +11,40 @@
 #include "IPlugOSDetect.h"
 
 #if defined OS_WIN
-  #include <stdio.h>
-  #include <ctype.h>
+#include <stdio.h>
+#include <ctype.h>
 
 #ifndef NDEBUG
-  void DBGMSG(const char *format, ...);
+void DBGMSG(const char *format, ...);
 #endif
 
-  #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
+#define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
+
 #elif defined __APPLE__ // TODO: check on ios
-  #define SYS_THREAD_ID (intptr_t) pthread_self()
+#define SYS_THREAD_ID (intptr_t) pthread_self()
 
 #ifndef NDEBUG
-  #define DBGMSG(...) printf(__VA_ARGS__)
+#define DBGMSG(...) printf(__VA_ARGS__)
 #endif
 
-#else 
-  #error "No OS defined!"
+#else
+#error "No OS defined!"
 #endif
 
 #if defined TRACER_BUILD
-  #define TRACE Trace(TRACELOC, "");
-//  #define TRACE_PROCESS Trace(TRACELOC, "");
-  #define TRACE_PROCESS
+#define TRACE Trace(TRACELOC, "");
+//#define TRACE_PROCESS Trace(TRACELOC, "");
+#define TRACE_PROCESS
 #else
-  #define TRACE
-  #define TRACE_PROCESS
+#define TRACE
+#define TRACE_PROCESS
 #endif
 
 #define TRACELOC __FUNCTION__,__LINE__
 void Trace(const char* funcName, int line, const char* fmtStr, ...);
 
 #ifdef NDEBUG
-  #define DBGMSG
+#define DBGMSG
 #endif
 
 // To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
@@ -57,11 +58,11 @@ const char* AUScopeStr(int scope);
 
 struct Timer
 {
-	int mT;
-	Timer();
+  int mT;
+  Timer();
 
-	// Returns true every sec seconds.
-	bool Every(double sec);
+  // Returns true every sec seconds.
+  bool Every(double sec);
 };
 
 void ToLower(char* cDest, const char* cSrc);

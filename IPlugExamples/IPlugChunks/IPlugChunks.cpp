@@ -8,7 +8,7 @@
 const int kNumPrograms = 8;
 
 // An enumerated list for all the parameters of the plugin
-enum EParams 
+enum EParams
 {
   kGain = 0,
   kNumParams, // the last element is used to store the total number of parameters
@@ -22,12 +22,12 @@ enum ELayout
   kH = 300
 };
 
-class ITempPresetSaveButtonControl : public IPanelControl 
+class ITempPresetSaveButtonControl : public IPanelControl
 {
 public:
-  ITempPresetSaveButtonControl(IPlugBase *pPlug, IRECT pR) 
-  : IPanelControl(pPlug, pR, &COLOR_RED) {}
-  
+  ITempPresetSaveButtonControl(IPlugBase *pPlug, IRECT pR)
+    : IPanelControl(pPlug, pR, &COLOR_RED) {}
+
   void OnMouseDown(int x, int y, IMouseMod* pMod)
   {
     WDL_String presetFilePath;
@@ -39,19 +39,19 @@ public:
 #endif
     mPlug->DumpPresetBlob(presetFilePath.Get());
   }
-  
+
 };
 
 class PresetFunctionsMenu : public IPanelControl
 {
 public:
-	PresetFunctionsMenu(IPlugBase *pPlug, IRECT pR) 
-  : IPanelControl(pPlug, pR, &COLOR_BLUE)
+  PresetFunctionsMenu(IPlugBase *pPlug, IRECT pR)
+    : IPanelControl(pPlug, pR, &COLOR_BLUE)
   {}
-	
-	bool Draw(IGraphics* pGraphics)
-	{	
-		pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+
+  bool Draw(IGraphics* pGraphics)
+  {
+    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
 
     int ax = mRECT.R - 8;
     int ay = mRECT.T + 4;
@@ -59,40 +59,41 @@ public:
     int by = ay;
     int cx = ax + 2;
     int cy = ay + 2;
-    
+
     pGraphics->FillTriangle(&COLOR_GRAY, ax , ay, bx, by, cx, cy, &mBlend);
-    
-		return true;
-	}
-  
-	void OnMouseDown(int x, int y, IMouseMod* pMod)
-	{
-		if (pMod->L) {
-			doPopupMenu();
-		}
-		
+
+    return true;
+  }
+
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
+    if (pMod->L)
+    {
+      doPopupMenu();
+    }
+
     Redraw(); // seems to need this
-		SetDirty();
-	}
-	
-	void doPopupMenu()
-	{
-		IPopupMenu menu;
-		
-		IGraphics* gui = mPlug->GetGUI();
-    
+    SetDirty();
+  }
+
+  void doPopupMenu()
+  {
+    IPopupMenu menu;
+
+    IGraphics* gui = mPlug->GetGUI();
+
     menu.AddItem("Save Program...");
     menu.AddItem("Save Bank...");
     menu.AddSeparator();
     menu.AddItem("Load Program...");
     menu.AddItem("Load Bank...");
-    
-		if(gui->CreateIPopupMenu(&menu, &mRECT))
-		{
-			int itemChosen = menu.GetChosenItemIdx();
-      
+
+    if(gui->CreateIPopupMenu(&menu, &mRECT))
+    {
+      int itemChosen = menu.GetChosenItemIdx();
+
       //printf("chosen %i /n", itemChosen);
-			switch (itemChosen) 
+      switch (itemChosen)
       {
         case 0: //Save Program
           char disp[MAX_PRESET_NAME_LEN];
@@ -111,24 +112,24 @@ public:
         default:
           break;
       }
-		}
-	}
+    }
+  }
 };
 
 IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
+  : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
   TRACE;
-    
-  for(int i=0; i<NUM_SLIDERS;i++)
+
+  for(int i=0; i<NUM_SLIDERS; i++)
   {
     mSteps[i] = (double) i / (double) NUM_SLIDERS;
   }
-  
+
   // Define parameter ranges, display units, labels.
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGain)->InitDouble("Gain", 0.0, -70.0, 12.0, 0.1, "dB");
-  
+
   MakePresetFromBlob("Ramp Up", "AAAAAJqZqT8AAAAAmpm5PwAAAIA9Csc/AAAAAAAA0D8AAABA4XrUPwAAAIDC9dg/AAAAwMzM3D8AAAAQ16PgPwAAALBH4eI/AAAA0MzM5D8AAADwUbjmPwAAAAjXo+g/AAAAKFyP6j8AAADMzMzsPwAAAOxRuO4/AAAAAAAA8D8AAAAAAAC8Pg==", 136);
   MakePresetFromBlob("Ramp Down", "AAAA7FG47j8AAABI4XrsPwAAALBH4eo/AAAAGK5H6T8AAABwPQrnPwAAANDMzOQ/AAAAwB6F4z8AAAAghevhPwAAAAB7FN4/AAAAgOtR2D8AAABAuB7VPwAAAACuR9E/AAAAgEfhyj8AAAAAhevBPwAAAABSuK4/AAAAAOB6hD8AAAAAAAC8Pg==", 136);
   MakePresetFromBlob("Triangle", "AAAAAIXrwT8AAACAR+HKPwAAAEBcj9I/AAAAgBSu1z8AAADA9SjcPwAAABDXo+A/AAAAsEfh4j8AAABQuB7lPwAAAGBmZuY/AAAAMDMz4z8AAAAAAADgPwAAAMD1KNw/AAAAQI/C1T8AAAAArkfRPwAAAICPwsU/AAAAAJqZuT8AAAAAAAAAAA==", 136);
@@ -140,7 +141,7 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
 
   IGraphics* pGraphics = MakeGraphics(this, kW, kH);
   pGraphics->AttachPanelBackground(&COLOR_BLUE);
-  
+
   mMSlider = new MultiSliderControlV(this, IRECT(10, 10, 170, 110), kDummyParamForMultislider, NUM_SLIDERS, 10, &COLOR_WHITE, &COLOR_BLACK, &COLOR_RED);
   mMSlider->SetState(mSteps);
 
@@ -148,8 +149,8 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IVSliderControl(this, IRECT(200, 10, 220, 110), kGain, 20, &COLOR_WHITE, &COLOR_GREEN));
 
   //pGraphics->AttachControl(new ITempPresetSaveButtonControl(this, IRECT(350, 250, 390, 290)));
-  pGraphics->AttachControl(new PresetFunctionsMenu(this, IRECT(350, 250, 390, 290))); 
-  
+  pGraphics->AttachControl(new PresetFunctionsMenu(this, IRECT(350, 250, 390, 290)));
+
   AttachGraphics(pGraphics);
   //RestorePreset(0);
 }
@@ -159,52 +160,53 @@ IPlugChunks::~IPlugChunks() {}
 void IPlugChunks::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   // Mutex is already locked for us.
-  
+
   double* in1 = inputs[0];
   double* in2 = inputs[1];
   double* out1 = outputs[0];
   double* out2 = outputs[1];
-  
+
   int samplesPerBeat = (int) GetSamplesPerBeat();
   int samplePos = (int) GetSamplePos();
-  
+
   int count = mCount;
   int prevcount = mPrevCount;
-  
-  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2) 
+
+  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
   {
     int mod = (samplePos + s) % (samplesPerBeat * BEAT_DIV);
-    
+
     count = mod / (samplesPerBeat / BEAT_DIV);
-    
-    if (count >= NUM_SLIDERS) {
-     count = 0;
-    }
-    
-    if (count != prevcount) 
+
+    if (count >= NUM_SLIDERS)
     {
-      if (GetGUI()) 
+      count = 0;
+    }
+
+    if (count != prevcount)
+    {
+      if (GetGUI())
       {
         mMSlider->SetHighlight(count);
       }
     }
-    
+
     prevcount = count;
-    
+
     *out1 = *in1 * mSteps[count] * mGain;
     *out2 = *in2 * mSteps[count] * mGain;
   }
-  
+
   mCount = count;
   mPrevCount = prevcount;
-  
+
 }
 
 void IPlugChunks::Reset()
 {
   TRACE;
   IMutexLock lock(this);
-  
+
   mCount = 0;
   mPrevCount = ULONG_MAX;
 }
@@ -214,7 +216,7 @@ void IPlugChunks::OnParamChange(int paramIdx)
   TRACE;
 
   IMutexLock lock(this);
-  
+
   switch (paramIdx)
   {
     case kDummyParamForMultislider:
@@ -223,7 +225,7 @@ void IPlugChunks::OnParamChange(int paramIdx)
     case kGain:
       mGain = GetParam(kGain)->DBToAmp();
       break;
-      
+
     default:
       break;
   }
@@ -235,14 +237,14 @@ bool IPlugChunks::SerializeState(ByteChunk* pChunk)
   TRACE;
   IMutexLock lock(this);
   double v;
-  
-  // serialize the multi-slider state state before serializing the regular params 
-  for (int i = 0; i< NUM_SLIDERS; i++) 
+
+  // serialize the multi-slider state state before serializing the regular params
+  for (int i = 0; i< NUM_SLIDERS; i++)
   {
     v = mSteps[i];
     pChunk->Put(&v);
   }
-  
+
   return IPlugBase::SerializeParams(pChunk); // must remember to call SerializeParams at the end
 }
 
@@ -252,19 +254,19 @@ int IPlugChunks::UnserializeState(ByteChunk* pChunk, int startPos)
   TRACE;
   IMutexLock lock(this);
   double v = 0.0;
-  
-  // unserialize the multi-slider state before unserializing the regular params 
-  for (int i = 0; i< NUM_SLIDERS; i++) 
+
+  // unserialize the multi-slider state before unserializing the regular params
+  for (int i = 0; i< NUM_SLIDERS; i++)
   {
     v = 0.0;
     startPos = pChunk->Get(&v, startPos);
     mSteps[i] = v;
   }
-  
+
   // update values in control, will set dirty
   if(mMSlider)
     mMSlider->SetState(mSteps);
-  
+
   return IPlugBase::UnserializeParams(pChunk, startPos); // must remember to call UnserializeParams at the end
 }
 
@@ -275,7 +277,7 @@ void IPlugChunks::PresetsChangedByHost()
 
   if(mMSlider)
     mMSlider->SetState(mSteps);
-  
+
   if(GetGUI())
     GetGUI()->SetAllControlsDirty();
 }

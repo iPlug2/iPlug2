@@ -17,7 +17,7 @@ class IPlugProcess :  virtual public CEffectProcess, ProcessInterface
 public:
   IPlugProcess(OSType type);
   virtual ~IPlugProcess();
-  
+
   // overrides
   virtual void SetViewPort(GrafPtr aPort);
   virtual void GetViewRect(Rect *viewRect);
@@ -33,7 +33,7 @@ public:
   virtual ComponentResult GetChunkSize(OSType chunkID, long *size);
   virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
-  
+
   void SetEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
   virtual int ProcessTouchControl(long aControlIndex);
   virtual int ProcessReleaseControl(long aControlIndex);
@@ -41,33 +41,33 @@ public:
   virtual void* ProcessGetModuleHandle() { return mModuleHandle; }
   virtual short ProcessUseResourceFile() { return fProcessType->GetProcessGroup()->UseResourceFile(); }
   virtual void ProcessRestoreResourceFile(short resFile) { fProcessType->GetProcessGroup()->RestoreResourceFile(resFile); }
-  
+
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
-  
+
   virtual IPlugRTAS* GetPlug()  { return mPlug; }
-  virtual IGraphics* GetGraphics() 
+  virtual IGraphics* GetGraphics()
   {
-    if (mPlug) 
-      return mPlug->GetGUI(); 
-    
+    if (mPlug)
+      return mPlug->GetGUI();
+
     return 0;
   }
-  
+
   virtual int GetBlockSize() = 0;
   virtual double GetTempo()  = 0;
   virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
   virtual int GetSamplePos() = 0;
-  virtual void GetTime( double *pSamplePos, 
-                       double *pTempo, 
-                       double *pMusicalPos, 
-                       double *pLastBar,
-                       int* pNum, 
-                       int* pDenom,
-                       double *pCycleStart,
-                       double *pCycleEnd,
-                       bool *pTransportRunning,
-                       bool *pTransportCycle) = 0;
-  
+  virtual void GetTime( double *pSamplePos,
+                        double *pTempo,
+                        double *pMusicalPos,
+                        double *pLastBar,
+                        int* pNum,
+                        int* pDenom,
+                        double *pCycleStart,
+                        double *pCycleEnd,
+                        bool *pTransportRunning,
+                        bool *pTransportCycle) = 0;
+
   void ResizeGraphics(int w, int h);
   virtual int GetHostVersion();
 

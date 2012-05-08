@@ -10,29 +10,28 @@
 class IGraphicsWin : public IGraphics
 {
 public:
-
   IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS);
   virtual ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
-  
+
   void ForceEndUserEdit();
 
   void Resize(int w, int h);
-  
+
   void HideMouseCursor();
   void ShowMouseCursor();
   int ShowMessageBox(const char* pText, const char* pCaption, int type);
-  
-  bool DrawScreen(IRECT* pR);  
-  
+
+  bool DrawScreen(IRECT* pR);
+
   void* OpenWindow(void* pParentWnd);
   void CloseWindow();
   bool WindowIsOpen() { return (mPlugWnd); }
 
-  void HostPath(WDL_String* pPath); 
+  void HostPath(WDL_String* pPath);
   void PluginPath(WDL_String* pPath);
-  void DesktopPath(WDL_String* pPath); 
+  void DesktopPath(WDL_String* pPath);
 
   void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
@@ -72,7 +71,6 @@ private:
   WDL_String mMainWndClassName;
 
 public:
-
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);

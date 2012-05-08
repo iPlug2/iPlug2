@@ -6,17 +6,17 @@
 class IPlugPlush : public IPlug
 {
 public:
-  
+
   IPlugPlush(IPlugInstanceInfo instanceInfo);
   ~IPlugPlush();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
+
 private:
-  
+
   double mGain;
 };
 

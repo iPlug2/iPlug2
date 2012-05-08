@@ -3,9 +3,9 @@
 #include "CPluginControl_Continuous.h"
 #include "CPluginControl_Discrete.h"
 
-IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo, 
-                     int nParams, 
-                     const char* channelIOStr, 
+IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo,
+                     int nParams,
+                     const char* channelIOStr,
                      int nPresets,
                      const char* effectName,
                      const char* productName,
@@ -18,43 +18,43 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo,
                      bool plugDoesChunks,
                      bool plugIsInst,
                      int plugScChans)
-: IPlugBase(nParams, 
-            channelIOStr,
-            nPresets,
-            effectName,
-            productName,
-            mfrName,
-            vendorVersion,
-            uniqueID,
-            mfrID,
-            latency,
-            plugDoesMidi,
-            plugDoesChunks,
-            plugIsInst,
-            kAPIRTAS)
+  : IPlugBase(nParams,
+              channelIOStr,
+              nPresets,
+              effectName,
+              productName,
+              mfrName,
+              vendorVersion,
+              uniqueID,
+              mfrID,
+              latency,
+              plugDoesMidi,
+              plugDoesChunks,
+              plugIsInst,
+              kAPIRTAS)
 
-, mDoesMidi(plugDoesMidi)
-, mSideChainIsConnected(false)
+  , mDoesMidi(plugDoesMidi)
+  , mSideChainIsConnected(false)
 {
   Trace(TRACELOC, "%s", effectName);
-    
+
   int nInputs = NInChannels(), nOutputs = NOutChannels();
-  
+
   SetInputChannelConnections(0, nInputs, true);
   SetOutputChannelConnections(0, nOutputs, true);
-  
+
   mHasSideChain = (plugScChans > 0);
-    
+
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 }
 
 void IPlugRTAS::SetIO(int nInputs, int nOutputs)
 {
   nInputs += mSideChainIsConnected;
-  
+
   SetInputChannelConnections(0, nInputs, true);
   SetInputChannelConnections(nInputs, NInChannels() - nInputs, false);
-  
+
   SetOutputChannelConnections(0, nOutputs, true);
   SetOutputChannelConnections(nOutputs, NOutChannels() - nOutputs, false);
 }
@@ -62,30 +62,30 @@ void IPlugRTAS::SetIO(int nInputs, int nOutputs)
 void IPlugRTAS::ProcessAudio(float** inputs, float** outputs, int nFrames)
 {
   IMutexLock lock(this);
-  
+
   AttachInputBuffers(0, NInChannels(), inputs, nFrames);
   AttachOutputBuffers(0, NOutChannels(), outputs);
-  
+
   ProcessBuffers((float) 0.0, nFrames);
 }
 
 void IPlugRTAS::ProcessAudioBypassed(float** inputs, float** outputs, int nFrames)
 {
   IMutexLock lock(this);
-  
+
   AttachInputBuffers(0, NInChannels(), inputs, nFrames);
   AttachOutputBuffers(0, NOutChannels(), outputs);
-  
+
   PassThroughBuffers((float) 0.0, nFrames);
 }
 
 void IPlugRTAS::BeginInformHostOfParamChange(int idx)
 {
   if (!mProcess) return;
-  
+
   idx += kPTParamIdxOffset;
 
-  if(mProcess->IsValidControlIndex(idx)) 
+  if(mProcess->IsValidControlIndex(idx))
   {
     mProcess->ProcessTouchControl(idx);
   }
@@ -93,26 +93,30 @@ void IPlugRTAS::BeginInformHostOfParamChange(int idx)
 
 void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue) // actually we don't use normalized value
 {
-  if (!mProcess) 
-    return;
+  if (!mProcess) return;
   
   IParam* pParam = GetParam(idx);
 
   idx += kPTParamIdxOffset;
-  
-  if ( mProcess->IsValidControlIndex(idx) ) 
-  { 
-    switch (pParam->Type()) {
-      case IParam::kTypeDouble: {
+
+  if ( mProcess->IsValidControlIndex(idx) )
+  {
+    switch (pParam->Type())
+    {
+      case IParam::kTypeDouble:
+      {
         CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(mProcess->GetControl(idx));
         mProcess->SetControlValue(idx, control->ConvertContinuousToControl( pParam->Value() ));
-        break; }
+        break;
+      }
       case IParam::kTypeInt:
       case IParam::kTypeEnum:
-      case IParam::kTypeBool: {
+      case IParam::kTypeBool:
+      {
         CPluginControl_Discrete *control = dynamic_cast<CPluginControl_Discrete*>(mProcess->GetControl(idx));
         mProcess->SetControlValue(idx, control->ConvertDiscreteToControl( pParam->Int() ));
-        break; }
+        break;
+      }
       default:
         break;
     }
@@ -122,18 +126,18 @@ void IPlugRTAS::InformHostOfParamChange(int idx, double normalizedValue) // actu
 void IPlugRTAS::EndInformHostOfParamChange(int idx)
 {
   if (!mProcess) return;
-  
+
   idx+=kPTParamIdxOffset;
-  
-  if ( mProcess->IsValidControlIndex(idx) ) 
+
+  if ( mProcess->IsValidControlIndex(idx) )
   {
-    mProcess->ProcessReleaseControl(idx);    
+    mProcess->ProcessReleaseControl(idx);
   }
 }
 
 void IPlugRTAS::InformHostOfProgramChange()
 {
-  for (int i = 0; i< NParams(); i++) 
+  for (int i = 0; i< NParams(); i++)
   {
     BeginInformHostOfParamChange(i);
     InformHostOfParamChange(i, 0.); // don't used normalized value
@@ -156,19 +160,20 @@ void IPlugRTAS::GetTimeSig(int* pNum, int* pDenom)
   mProcess->GetTimeSig(pNum, pDenom);
 }
 
-void IPlugRTAS::GetTime(ITimeInfo* pTimeInfo) 
+void IPlugRTAS::GetTime(ITimeInfo* pTimeInfo)
 {
-  mProcess->GetTime(&pTimeInfo->mSamplePos, &pTimeInfo->mTempo, 
-                 &pTimeInfo->mPPQPos, &pTimeInfo->mLastBar,
-                 &pTimeInfo->mNumerator, &pTimeInfo->mDenominator,
-                 &pTimeInfo->mCycleStart, &pTimeInfo->mCycleEnd,
-                 &pTimeInfo->mTransportIsRunning, &pTimeInfo->mTransportLoopEnabled);
+  mProcess->GetTime(&pTimeInfo->mSamplePos, &pTimeInfo->mTempo,
+                    &pTimeInfo->mPPQPos, &pTimeInfo->mLastBar,
+                    &pTimeInfo->mNumerator, &pTimeInfo->mDenominator,
+                    &pTimeInfo->mCycleStart, &pTimeInfo->mCycleEnd,
+                    &pTimeInfo->mTransportIsRunning, &pTimeInfo->mTransportLoopEnabled);
 }
 
 EHost IPlugRTAS::GetHost()
 {
   EHost host = IPlugBase::GetHost();
-  if (host == kHostUninit) {
+  if (host == kHostUninit)
+  {
     SetHost("ProTools", mProcess->GetHostVersion());
     host = IPlugBase::GetHost();
   }
@@ -181,59 +186,64 @@ void IPlugRTAS::ResizeGraphics(int w, int h)
 }
 
 void IPlugRTAS::Created(class IPlugProcess* pProcess)
-{	
+{
   mProcess = pProcess;
-	PruneUninitializedPresets();
-	SetBlockSize(mProcess->GetBlockSize());
+  PruneUninitializedPresets();
+  SetBlockSize(mProcess->GetBlockSize());
   OnHostIdentified();
 }
 
-// TODO: SendMidiMsg()
+// TODO: SendMidiMsg/s()
 bool IPlugRTAS::SendMidiMsg(IMidiMsg* pMsg)
 {
   return false;
 }
-// TODO: SendMidiMsgs()
+
 bool IPlugRTAS::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
 {
   return false;
 }
 
 void IPlugRTAS::SetParameter(int idx)
-{  
-  if ( mProcess->IsValidControlIndex(idx) ) 
-  { 
+{
+  if ( mProcess->IsValidControlIndex(idx) )
+  {
     IParam* pParam = GetParam(idx - kPTParamIdxOffset);
     double value;
 
-    switch (pParam->Type()) {
-      case IParam::kTypeDouble: {
+    switch (pParam->Type())
+    {
+      case IParam::kTypeDouble:
+      {
         CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(mProcess->GetControl(idx));
         value = control->GetContinuous();
-        break; }
+        break;
+      }
       case IParam::kTypeInt:
       case IParam::kTypeEnum:
-      case IParam::kTypeBool: {
+      case IParam::kTypeBool:
+      {
         CPluginControl_Discrete *control = dynamic_cast<CPluginControl_Discrete*>(mProcess->GetControl(idx));
         value = (double) control->GetDiscrete();
-        break; }
+        break;
+      }
       default:
         break;
     }
-    
+
     IMutexLock lock(this);
 
-    if (GetGUI()) 
+    if (GetGUI())
       GetGUI()->SetParameterFromPlug(idx - kPTParamIdxOffset, value, false);
-    
+
     pParam->Set(value);
     OnParamChange(idx - kPTParamIdxOffset);
   }
 }
 
-void IPlugRTAS::SetSideChainConnected(bool connected) 
-{ 
-  if (connected != mSideChainIsConnected) 
+void IPlugRTAS::SetSideChainConnected(bool connected)
+{
+  if (connected != mSideChainIsConnected)
   {
     ZeroScratchBuffers();
     mSideChainIsConnected = connected;

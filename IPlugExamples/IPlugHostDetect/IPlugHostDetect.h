@@ -6,17 +6,17 @@
 class IPlugHostDetect : public IPlug
 {
 public:
-  
+
   IPlugHostDetect(IPlugInstanceInfo instanceInfo);
   ~IPlugHostDetect();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
   void OnHostIdentified();
-  
-private:  
+
+private:
   ITextControl* mHostNameControl;
   ITextControl* mHostVersionControl;
 };

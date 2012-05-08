@@ -4,57 +4,55 @@
   extern HWND gHWND;
 #endif
 
-
-IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, 
-                                 int nParams, 
-                                 const char* channelIOStr, 
+IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
+                                 int nParams,
+                                 const char* channelIOStr,
                                  int nPresets,
-                                 const char* effectName, 
-                                 const char* productName, 
+                                 const char* effectName,
+                                 const char* productName,
                                  const char* mfrName,
-                                 int vendorVersion, 
-                                 int uniqueID, 
-                                 int mfrID, 
+                                 int vendorVersion,
+                                 int uniqueID,
+                                 int mfrID,
                                  int latency,
-                                 bool plugDoesMidi, 
-                                 bool plugDoesChunks, 
+                                 bool plugDoesMidi,
+                                 bool plugDoesChunks,
                                  bool plugIsInst,
                                  int plugScChans)
-: IPlugBase(nParams,
-            channelIOStr,
-            nPresets,
-            effectName,
-            productName,
-            mfrName,
-            vendorVersion,
-            uniqueID,
-            mfrID,
-            latency,
-            plugDoesMidi,
-            plugDoesChunks,
-            plugIsInst,
-            kAPISA)
+  : IPlugBase(nParams,
+              channelIOStr,
+              nPresets,
+              effectName,
+              productName,
+              mfrName,
+              vendorVersion,
+              uniqueID,
+              mfrID,
+              latency,
+              plugDoesMidi,
+              plugDoesChunks,
+              plugIsInst,
+              kAPISA)
 
-, mDoesMidi(plugDoesMidi)
+  , mDoesMidi(plugDoesMidi)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
   SetInputChannelConnections(0, NInChannels(), true);
-  SetOutputChannelConnections(0, NOutChannels(), true);  
-  
+  SetOutputChannelConnections(0, NOutChannels(), true);
+
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("standalone", vendorVersion);
-  
+
 #ifdef OS_IOS
   mIOSLink = instanceInfo.mIOSLink;
 #else
   mMidiOutChan = instanceInfo.mMidiOutChan;
   mMidiOut = instanceInfo.mRTMidiOut;
 #endif
-  
 }
 
-// TODO: BeginInformHostOfParamChange etc, maybe needed for ios state persistance? 
+// TODO: BeginInformHostOfParamChange etc, maybe needed for ios state persistance?
 void IPlugStandalone::BeginInformHostOfParamChange(int idx)
 {
 }
@@ -73,14 +71,14 @@ void IPlugStandalone::InformHostOfProgramChange()
 
 // TODO: GetSamplePos()
 int IPlugStandalone::GetSamplePos()
-{ 
-	return 0;
+{
+  return 0;
 }
 
 // TODO: GetTempo()
 double IPlugStandalone::GetTempo()
 {
-	return DEFAULT_TEMPO;
+  return DEFAULT_TEMPO;
 }
 
 // TODO: GetTime()
@@ -96,18 +94,19 @@ void IPlugStandalone::GetTimeSig(int* pNum, int* pDenom)
 
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
-  #ifndef OS_IOS
+#ifndef OS_IOS
   IGraphics* pGraphics = GetGUI();
-  if (pGraphics) {
-    #ifdef OS_OSX
-    #define TITLEBAR_BODGE 22
+  if (pGraphics)
+  {
+#ifdef OS_OSX
+#define TITLEBAR_BODGE 22
     RECT r;
-    GetWindowRect(gHWND, &r); 
+    GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height() - TITLEBAR_BODGE, pGraphics->Width(), pGraphics->Height() + TITLEBAR_BODGE, 0);
-    #endif
+#endif
     OnWindowResize();
   }
-  #endif
+#endif
 }
 
 void IPlugStandalone::SetSampleRate(double sampleRate)
@@ -125,25 +124,26 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
 #ifdef OS_IOS
   mIOSLink->SendMidiMsg(pMsg);
 #else
-  if (mMidiOut) 
+  if (mMidiOut)
   {
     IMidiMsg newMsg = *pMsg;
-    
+
     // if the midi channel out filter is set, reassign the status byte appropriately
-    if (!*mMidiOutChan == 0) {
+    if (!*mMidiOutChan == 0)
+    {
       newMsg.mStatus = (*mMidiOutChan)-1 | ((unsigned int) newMsg.StatusMsg() << 4) ;
     }
-    
+
     std::vector<unsigned char> message;
     message.push_back( newMsg.mStatus );
     message.push_back( newMsg.mData1 );
     message.push_back( newMsg.mData2 );
-    
+
     mMidiOut->sendMessage( &message );
     return true;
   }
 #endif
-	return false;
+  return false;
 }
 
 // TODO: SendMidiMsgs()

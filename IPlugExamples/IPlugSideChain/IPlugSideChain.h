@@ -7,17 +7,17 @@
 class IPlugSideChain : public IPlug
 {
 public:
-  
+
   IPlugSideChain(IPlugInstanceInfo instanceInfo);
   ~IPlugSideChain();
-  
+
   void Reset();
   void OnParamChange(int paramIdx);
-  
+
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
+
 private:
-  
+
   double mGain;
   double mPrevL, mPrevR, mPrevLS, mPrevRS;
   int mMeterIdx_L, mMeterIdx_R, mMeterIdx_LS, mMeterIdx_RS;

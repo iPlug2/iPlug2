@@ -40,7 +40,7 @@
 #define PLUG_IS_INST 1
 
 // if this is 0 RTAS can't get tempo info
-#define PLUG_DOES_MIDI 1 
+#define PLUG_DOES_MIDI 1
 
 #define PLUG_DOES_STATE_CHUNKS 0
 
@@ -64,15 +64,15 @@
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
 #ifdef SA_API
-  #ifndef OS_IOS
-    #include "app_wrapper/app_resource.h"
-  #endif
+#ifndef OS_IOS
+#include "app_wrapper/app_resource.h"
+#endif
 #endif
 
 // vst3 stuff
 #define MFR_URL "www.olilarkin.co.uk"
 #define MFR_EMAIL "spam@me.com"
-#define EFFECT_TYPE_VST3 "Instrument" 
+#define EFFECT_TYPE_VST3 "Instrument"
 
 /* "Fx|Analyzer"", "Fx|Delay", "Fx|Distortion", "Fx|Dynamics", "Fx|EQ", "Fx|Filter",
 "Fx", "Fx|Instrument", "Fx|InstrumentExternal", "Fx|Spatial", "Fx|Generator",

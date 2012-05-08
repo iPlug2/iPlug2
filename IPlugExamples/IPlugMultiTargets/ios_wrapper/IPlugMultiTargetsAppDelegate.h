@@ -9,13 +9,14 @@
 @class MainViewController;
 @class PGMidi;
 
-@interface IPlugMultiTargetsAppDelegate : NSObject <UIApplicationDelegate, PGMidiDelegate, PGMidiSourceDelegate> {
-    UIWindow *window;
-    MainViewController *mainViewController;
-    IPlugIOSAudio *mIOSAudio;
-    IPlug *mPluginInstance;
-    PGMidi *midi;
-    IOSLink *mLink;
+@interface IPlugMultiTargetsAppDelegate : NSObject <UIApplicationDelegate, PGMidiDelegate, PGMidiSourceDelegate>
+{
+  UIWindow *window;
+  MainViewController *mainViewController;
+  IPlugIOSAudio *mIOSAudio;
+  IPlug *mPluginInstance;
+  PGMidi *midi;
+  IOSLink *mLink;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;

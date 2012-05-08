@@ -56,7 +56,7 @@ public:
   ProcessInterface *GetProcessPtr() { return (ProcessInterface*)mProcess; }
   void SetControlHighlight(long controlIndex, short isHighlighted, short color);
   void GetControlIndexFromPoint(long x, long y, long *aControlIndex);
- 
+
   HWND GetParentHWND() { return mPluginWindow; }
 protected:
   HINSTANCE mPlugInWndHINST;  // plug-in's HINSTANCE

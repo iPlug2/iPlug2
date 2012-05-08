@@ -4,7 +4,7 @@
 #include "IPlugBase.h"
 #include "IGraphics.h"
 
-// A control is anything on the GUI, it could be a static bitmap, or 
+// A control is anything on the GUI, it could be a static bitmap, or
 // something that moves or changes.  The control could manipulate
 // bitmaps or do run-time vector drawing, or whatever.
 //
@@ -19,9 +19,9 @@ class IControl
 public:
   // If paramIdx is > -1, this control will be associated with a plugin parameter.
   IControl(IPlugBase* pPlug, IRECT pR, int paramIdx = -1, IChannelBlend blendMethod = IChannelBlend::kBlendNone)
-  : mPlug(pPlug), mRECT(pR), mTargetRECT(pR), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
-        mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false), 
-  mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN) {}
+    : mPlug(pPlug), mRECT(pR), mTargetRECT(pR), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
+      mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
+      mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN) {}
 
   virtual ~IControl() {}
 
@@ -36,7 +36,7 @@ public:
   virtual void OnMouseOver(int x, int y, IMouseMod* pMod) {}
   virtual void OnMouseOut() {}
 
-  // By default, mouse double click has its own handler.  A control can set mDblAsSingleClick to true to change, 
+  // By default, mouse double click has its own handler.  A control can set mDblAsSingleClick to true to change,
   // which maps double click to single click for this control (and also causes the mouse to be
   // captured by the control on double click).
   bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
@@ -51,10 +51,10 @@ public:
   virtual void SetValueFromPlug(double value);
   void SetValueFromUserInput(double value);
   double GetValue() { return mValue; }
-  
+
   IText* GetText() { return &mText; }
   int GetTextEntryLength() { return mTextEntryLength; }
-  void SetText(IText* txt) { mText = *txt; }  
+  void SetText(IText* txt) { mText = *txt; }
   IRECT* GetRECT() { return &mRECT; }       // The draw area for this control.
   IRECT* GetTargetRECT() { return &mTargetRECT; } // The mouse target area (default = draw area).
   void SetTargetArea(IRECT pR) { mTargetRECT = pR; }
@@ -67,7 +67,7 @@ public:
   bool IsGrayed() { return mGrayed; }
 
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
-  
+
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(int x, int y) { return mTargetRECT.Contains(x, y); }
 
@@ -83,7 +83,7 @@ public:
   // Redraw() prevents the control from being cleaned immediately after drawing.
   void Redraw() { mRedraw = true; }
 
-  // This is an idle call from the GUI thread, as opposed to 
+  // This is an idle call from the GUI thread, as opposed to
   // IPlugBase::OnIdle which is called from the audio processing thread.
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
@@ -106,10 +106,10 @@ class IPanelControl : public IControl
 {
 public:
   IPanelControl(IPlugBase *pPlug, IRECT pR, const IColor* pColor)
-  : IControl(pPlug, pR), mColor(*pColor) {}
-  
+    : IControl(pPlug, pR), mColor(*pColor) {}
+
   bool Draw(IGraphics* pGraphics);
-  
+
 private:
   IColor mColor;
 };
@@ -119,12 +119,12 @@ class IBitmapControl : public IControl
 {
 public:
   IBitmapControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap,
-    IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone) 
-  : IControl(pPlug, IRECT(x, y, pBitmap), paramIdx, blendMethod), mBitmap(*pBitmap) {}
+                 IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+    : IControl(pPlug, IRECT(x, y, pBitmap), paramIdx, blendMethod), mBitmap(*pBitmap) {}
 
   IBitmapControl(IPlugBase* pPlug, int x, int y, IBitmap* pBitmap,
-        IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IControl(pPlug, IRECT(x, y, pBitmap), -1, blendMethod), mBitmap(*pBitmap) {}
+                 IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+    : IControl(pPlug, IRECT(x, y, pBitmap), -1, blendMethod), mBitmap(*pBitmap) {}
 
   virtual ~IBitmapControl() {}
 
@@ -139,8 +139,8 @@ class ISwitchControl : public IBitmapControl
 {
 public:
   ISwitchControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap,
-    IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IBitmapControl(pPlug, x, y, paramIdx, pBitmap, blendMethod) {}
+                 IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+    : IBitmapControl(pPlug, x, y, paramIdx, pBitmap, blendMethod) {}
   ~ISwitchControl() {}
 
   void OnMouseDblClick(int x, int y, IMouseMod* pMod);
@@ -164,7 +164,7 @@ class IRadioButtonsControl : public IControl
 {
 public:
   IRadioButtonsControl(IPlugBase* pPlug, IRECT pR, int paramIdx, int nButtons, IBitmap* pBitmap,
-      EDirection direction = kVertical);
+                       EDirection direction = kVertical);
   ~IRadioButtonsControl() {}
 
   void OnMouseDown(int x, int y, IMouseMod* pMod);
@@ -180,7 +180,7 @@ class IContactControl : public ISwitchControl
 {
 public:
   IContactControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap)
-  : ISwitchControl(pPlug, x, y, paramIdx, pBitmap) {}
+    : ISwitchControl(pPlug, x, y, paramIdx, pBitmap) {}
   ~IContactControl() {}
 
   void OnMouseUp(int x, int y, IMouseMod* pMod);
@@ -190,8 +190,8 @@ public:
 class IFaderControl : public IControl
 {
 public:
-  IFaderControl(IPlugBase* pPlug, int x, int y, int len, int paramIdx, IBitmap* pBitmap, 
-    EDirection direction = kVertical);  
+  IFaderControl(IPlugBase* pPlug, int x, int y, int len, int paramIdx, IBitmap* pBitmap,
+                EDirection direction = kVertical);
   ~IFaderControl() {}
 
   int GetLength() const { return mLen; }
@@ -200,7 +200,7 @@ public:
   // Size of the handle in terms of the control value.
   double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
   // Where is the handle right now?
-  IRECT GetHandleRECT(double value = -1.0) const;  
+  IRECT GetHandleRECT(double value = -1.0) const;
 
   virtual void OnMouseDown(int x, int y, IMouseMod* pMod);
   virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod);
@@ -221,8 +221,8 @@ class IKnobControl : public IControl
 {
 public:
   IKnobControl(IPlugBase* pPlug, IRECT pR, int paramIdx, EDirection direction = kVertical,
-    double gearing = DEFAULT_GEARING)
-  : IControl(pPlug, pR, paramIdx), mDirection(direction), mGearing(gearing) {}
+               double gearing = DEFAULT_GEARING)
+    : IControl(pPlug, pR, paramIdx), mDirection(direction), mGearing(gearing) {}
   virtual ~IKnobControl() {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
@@ -237,10 +237,10 @@ protected:
 class IKnobLineControl : public IKnobControl
 {
 public:
-  IKnobLineControl(IPlugBase* pPlug, IRECT pR, int paramIdx, 
-      const IColor* pColor, double innerRadius = 0.0, double outerRadius = 0.0,
-      double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, 
-      EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
+  IKnobLineControl(IPlugBase* pPlug, IRECT pR, int paramIdx,
+                   const IColor* pColor, double innerRadius = 0.0, double outerRadius = 0.0,
+                   double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI,
+                   EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IKnobLineControl() {}
 
   bool Draw(IGraphics* pGraphics);
@@ -255,10 +255,10 @@ class IKnobRotaterControl : public IKnobControl
 {
 public:
   IKnobRotaterControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap,
-    double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, 
-    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(pPlug, IRECT(x, y, pBitmap), paramIdx, direction, gearing), 
-    mBitmap(*pBitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
+                      double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0,
+                      EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    : IKnobControl(pPlug, IRECT(x, y, pBitmap), paramIdx, direction, gearing),
+      mBitmap(*pBitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
   ~IKnobRotaterControl() {}
 
   bool Draw(IGraphics* pGraphics);
@@ -274,8 +274,8 @@ class IKnobMultiControl : public IKnobControl
 {
 public:
   IKnobMultiControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap,
-    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(pPlug, IRECT(x, y, pBitmap), paramIdx, direction, gearing), mBitmap(*pBitmap) {}
+                    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    : IKnobControl(pPlug, IRECT(x, y, pBitmap), paramIdx, direction, gearing), mBitmap(*pBitmap) {}
   ~IKnobMultiControl() {}
 
   bool Draw(IGraphics* pGraphics);
@@ -289,12 +289,12 @@ private:
 class IKnobRotatingMaskControl : public IKnobControl
 {
 public:
-  IKnobRotatingMaskControl(IPlugBase* pPlug, int x, int y, int paramIdx, 
-    IBitmap* pBase, IBitmap* pMask, IBitmap* pTop, 
-    double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, 
-    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(pPlug, IRECT(x, y, pBase), paramIdx, direction, gearing),
-    mBase(*pBase), mMask(*pMask), mTop(*pTop), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
+  IKnobRotatingMaskControl(IPlugBase* pPlug, int x, int y, int paramIdx,
+                           IBitmap* pBase, IBitmap* pMask, IBitmap* pTop,
+                           double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI,
+                           EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    : IKnobControl(pPlug, IRECT(x, y, pBase), paramIdx, direction, gearing),
+      mBase(*pBase), mMask(*pMask), mTop(*pTop), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
   ~IKnobRotatingMaskControl() {}
 
   bool Draw(IGraphics* pGraphics);
@@ -310,10 +310,10 @@ class IBitmapOverlayControl : public ISwitchControl
 {
 public:
   IBitmapOverlayControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap, IRECT pTargetArea)
-  : ISwitchControl(pPlug, x, y, paramIdx, pBitmap), mTargetArea(pTargetArea) {}
+    : ISwitchControl(pPlug, x, y, paramIdx, pBitmap), mTargetArea(pTargetArea) {}
 
   IBitmapOverlayControl(IPlugBase* pPlug, int x, int y, IBitmap* pBitmap, IRECT pTargetArea)
-  : ISwitchControl(pPlug, x, y, -1, pBitmap), mTargetArea(pTargetArea) {}
+    : ISwitchControl(pPlug, x, y, -1, pBitmap), mTargetArea(pTargetArea) {}
 
   ~IBitmapOverlayControl() {}
 
@@ -328,7 +328,7 @@ class ITextControl : public IControl
 {
 public:
   ITextControl(IPlugBase* pPlug, IRECT pR, IText* pText, const char* str = "")
-  : IControl(pPlug, pR)
+    : IControl(pPlug, pR)
   {
     mText = *pText;
     mStr.Set(str);
@@ -358,7 +358,7 @@ public:
   bool Draw(IGraphics* pGraphics);
 
 protected:
-    bool mShowParamLabel;
+  bool mShowParamLabel;
 };
 
 #define MAX_URL_LEN 256
@@ -381,17 +381,17 @@ protected:
 // - Although its numeric mValue is not meaningful, it needs to be associated with a plugin parameter
 // so it can inform the plug when the file selection has changed. If the associated plugin parameter is
 // declared after kNumParams in the EParams enum, the parameter will be a dummy for this purpose only.
-// - Because it puts up a modal window, it needs to redraw itself twice when it's dirty, 
+// - Because it puts up a modal window, it needs to redraw itself twice when it's dirty,
 // because moving the modal window will clear the first dirty state.
 class IFileSelectorControl : public IControl
 {
 public:
   enum EFileSelectorState { kFSNone, kFSSelecting, kFSDone };
 
-  IFileSelectorControl(IPlugBase* pPlug, IRECT pR, int paramIdx, IBitmap* pBitmap, 
-    EFileAction action, char* dir = "", char* extensions = "")     // extensions = "txt wav" for example.
-  : IControl(pPlug, pR, paramIdx), mBitmap(*pBitmap), 
-    mFileAction(action), mDir(dir), mExtensions(extensions), mState(kFSNone) {}
+  IFileSelectorControl(IPlugBase* pPlug, IRECT pR, int paramIdx, IBitmap* pBitmap,
+                       EFileAction action, char* dir = "", char* extensions = "")     // extensions = "txt wav" for example.
+    : IControl(pPlug, pR, paramIdx), mBitmap(*pBitmap),
+      mFileAction(action), mDir(dir), mExtensions(extensions), mState(kFSNone) {}
   ~IFileSelectorControl() {}
 
   void OnMouseDown(int x, int y, IMouseMod* pMod);

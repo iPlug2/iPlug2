@@ -13,8 +13,8 @@
 
 @interface PGMidiAllSources : NSObject
 {
-    PGMidi                  *midi;
-    id<PGMidiSourceDelegate> delegate;
+  PGMidi                  *midi;
+  id<PGMidiSourceDelegate> delegate;
 }
 
 @property (nonatomic,assign) PGMidi *midi;

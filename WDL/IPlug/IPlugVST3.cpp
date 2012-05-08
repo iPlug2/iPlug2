@@ -24,55 +24,54 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
                      bool plugDoesChunks,
                      bool plugIsInst,
                      int plugScChans)
-: IPlugBase(nParams,
-            channelIOStr,
-            nPresets,
-            effectName,
-            productName,
-            mfrName,
-            vendorVersion,
-            uniqueID,
-            mfrID,
-            latency,
-            plugDoesMidi,
-            plugDoesChunks,
-            plugIsInst,
-            kAPIVST3)
+  : IPlugBase(nParams,
+              channelIOStr,
+              nPresets,
+              effectName,
+              productName,
+              mfrName,
+              vendorVersion,
+              uniqueID,
+              mfrID,
+              latency,
+              plugDoesMidi,
+              plugDoesChunks,
+              plugIsInst,
+              kAPIVST3)
 
-, mDoesMidi(plugDoesMidi)
-, mScChans(plugScChans)
-, mSidechainActive(false)
-{ 
+  , mDoesMidi(plugDoesMidi)
+  , mScChans(plugScChans)
+  , mSidechainActive(false)
+{
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
-  
+
   // initialize the bus labels
   SetInputBusLabel(0, "main input");
-  
+
   if (mScChans)
+  {
     SetInputBusLabel(1, "aux input");
-  
-  if (IsInst()) 
+  }
+
+  if (IsInst())
   {
     int busNum = 0;
     char label[32];
 
-    for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only 
+    for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only
     {
       sprintf(label, "output %i", busNum+1);
       SetOutputBusLabel(busNum++, label);
     }
   }
-  else {
+  else
+  {
     SetOutputBusLabel(0, "Output");
   }
-
-
 }
 
-IPlugVST3::~IPlugVST3() 
-{
-}
+IPlugVST3::~IPlugVST3() {}
 
 #pragma mark -
 #pragma mark AudioEffect overrides
@@ -80,41 +79,41 @@ IPlugVST3::~IPlugVST3()
 tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 {
   TRACE;
-  
+
   tresult result = SingleComponentEffect::initialize(context);
-  
+
   String128 tmpStringBuf;
   char hostNameCString[128];
   FUnknownPtr<IHostApplication>app(context);
-  
-  if (app) 
+
+  if (app)
   {
     app->getName(tmpStringBuf);
     Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
     SetHost(hostNameCString, 0); // Can't get version in VST3
   }
-  
+
   if (result == kResultOk)
   {
     int maxInputs = getSpeakerArrForChans(NInChannels()-mScChans);
     if(maxInputs < 0) maxInputs = 0;
-                                          
+
     // add io buses with the maximum i/o to start with
-                         
-    if (maxInputs) 
+
+    if (maxInputs)
     {
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(0)->Get(), 128);
       addAudioInput(tmpStringBuf, maxInputs);
     }
-    
+
     if(!mIsInst) // if effect, just add one output bus with max chan count
     {
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
       addAudioOutput(tmpStringBuf, getSpeakerArrForChans(NOutChannels()) );
     }
-    else 
+    else
     {
-      for (int i = 0, busIdx = 0; i < NOutChannels(); i+=2, busIdx++) 
+      for (int i = 0, busIdx = 0; i < NOutChannels(); i+=2, busIdx++)
       {
         Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(busIdx)->Get(), 128);
         addAudioOutput(tmpStringBuf, SpeakerArr::kStereo );
@@ -127,91 +126,93 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
       addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans), kAux, 0);
     }
-        
-    if(mDoesMidi) 
+
+    if(mDoesMidi)
     {
       addEventInput (STR16("MIDI In"), 1);
       //addEventOutput(STR16("MIDI Out"), 1);
     }
-    
-    if (NPresets()) 
+
+    if (NPresets())
     {
-      parameters.addParameter(new Parameter(STR16("Preset"), 
-                                            kPresetParam, 
-                                            STR16(""), 
-                                            0, 
-                                            NPresets(), 
+      parameters.addParameter(new Parameter(STR16("Preset"),
+                                            kPresetParam,
+                                            STR16(""),
+                                            0,
+                                            NPresets(),
                                             ParameterInfo::kIsProgramChange));
     }
-    
+
     if(!mIsInst)
     {
-      StringListParameter * bypass = new StringListParameter(STR16("Bypass"), 
-                                                             kBypassParam, 
-                                                             0, 
-                                                             ParameterInfo::kCanAutomate | ParameterInfo::kIsBypass | ParameterInfo::kIsList);
+      StringListParameter * bypass = new StringListParameter(STR16("Bypass"),
+                                                            kBypassParam,
+                                                            0,
+                                                            ParameterInfo::kCanAutomate | ParameterInfo::kIsBypass | ParameterInfo::kIsList);
       bypass->appendString(STR16("off"));
       bypass->appendString(STR16("on"));
       parameters.addParameter(bypass);
     }
-    
+
     for (int i=0; i<NParams(); i++)
     {
       IParam *p = GetParam(i);
-      
+
       int32 flags = 0;
-      
-      if (p->GetCanAutomate()) {
+
+      if (p->GetCanAutomate())
+      {
         flags |= ParameterInfo::kCanAutomate;
       }
-            
-      switch (p->Type()) {
+
+      switch (p->Type())
+      {
         case IParam::kTypeDouble:
         case IParam::kTypeInt:
         {
-          Parameter* param = new RangeParameter( STR16(p->GetNameForHost()), 
-                                                  i, 
-                                                  STR16(p->GetLabelForHost()), 
-                                                  p->GetMin(), 
-                                                  p->GetMax(), 
-                                                  p->GetDefault(),
-                                                  0, // continuous
-                                                  flags);
-          
+          Parameter* param = new RangeParameter( STR16(p->GetNameForHost()),
+                                                 i,
+                                                 STR16(p->GetLabelForHost()),
+                                                 p->GetMin(),
+                                                 p->GetMax(),
+                                                 p->GetDefault(),
+                                                 0, // continuous
+                                                 flags);
+
           param->setPrecision (p->GetPrecision());
           parameters.addParameter(param);
 
           break;
         }
         case IParam::kTypeEnum:
-        case IParam::kTypeBool: 
+        case IParam::kTypeBool:
         {
-          StringListParameter* param = new StringListParameter (STR16(p->GetNameForHost()), 
-                                                                i,
-                                                                STR16(p->GetLabelForHost()),
-                                                                flags | ParameterInfo::kIsList);
-          
+          StringListParameter* param = new StringListParameter (STR16(p->GetNameForHost()),
+              i,
+              STR16(p->GetLabelForHost()),
+              flags | ParameterInfo::kIsList);
+
           int nDisplayTexts = p->GetNDisplayTexts();
-          
+
           assert(nDisplayTexts);
 
-          for (int j=0; j<nDisplayTexts; j++) 
+          for (int j=0; j<nDisplayTexts; j++)
           {
             param->appendString(STR16(p->GetDisplayText(j)));
           }
-          
+
           parameters.addParameter(param);
-          break; 
+          break;
         }
         default:
           break;
       }
-      
+
     }
   }
-  
+
   OnHostIdentified();
-  
+
   return result;
 }
 
@@ -219,27 +220,27 @@ tresult PLUGIN_API IPlugVST3::terminate ()
 {
   TRACE;
 
-  viewsArray.removeAll();  
+  viewsArray.removeAll();
   return SingleComponentEffect::terminate();
 }
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
 {
   TRACE;
-  
+
   // disconnect all io pins, they will be reconnected in process
   SetInputChannelConnections(0, NInChannels(), false);
   SetOutputChannelConnections(0, NOutChannels(), false);
-  
+
   int32 reqNumInputChannels = SpeakerArr::getChannelCount(inputs[0]);  //requested # input channels
   int32 reqNumOutputChannels = SpeakerArr::getChannelCount(outputs[0]);//requested # output channels
-  
+
   // legal io doesn't consider sidechain inputs
-  if (!LegalIO(reqNumInputChannels, reqNumOutputChannels)) 
+  if (!LegalIO(reqNumInputChannels, reqNumOutputChannels))
   {
     return kResultFalse;
   }
-  
+
   // handle input
   AudioBus* bus = FCast<AudioBus>(audioInputs.at(0));
 
@@ -249,7 +250,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
     audioInputs.remove(bus);
     addAudioInput(USTRING("Input"), getSpeakerArrForChans(reqNumInputChannels));
   }
-  
+
   // handle output
   bus = FCast<AudioBus>(audioOutputs.at(0));
   // if existing output bus has a different number of channels to the output bus being connected
@@ -275,7 +276,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
       audioInputs.remove(bus);
       addAudioInput(USTRING("Sidechain Input"), getSpeakerArrForChans(reqNumSideChainChannels), kAux, 0); // either mono or stereo
     }
-    
+
     return kResultTrue;
   }
 
@@ -285,46 +286,46 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
   TRACE;
-    
+
   OnActivate((bool) state);
-  
-  return SingleComponentEffect::setActive(state);  
+
+  return SingleComponentEffect::setActive(state);
 }
 
 tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
 {
   TRACE;
-  
+
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
   mSampleRate = newSetup.sampleRate;
   mIsBypassed = false;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   Reset();
-  
+
   processSetup = newSetup;
-  
+
   return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
-{ 
+{
   TRACE_PROCESS;
-  
+
   IMutexLock lock(this);
-  
+
   if(data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
-  
+
   //process parameters
   IParameterChanges* paramChanges = data.inputParameterChanges;
   if (paramChanges)
   {
     int32 numParamsChanged = paramChanges->getParameterCount();
-    
+
     //it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
     //for now we just grab the last one
-    
+
     for (int32 i = 0; i < numParamsChanged; i++)
     {
       IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
@@ -333,21 +334,21 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         int32 numPoints = paramQueue->getPointCount();
         int32 offsetSamples;
         double value;
-        
+
         if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
         {
           int idx = paramQueue->getParameterId();
-          
-          switch (idx) 
+
+          switch (idx)
           {
             case kBypassParam:
             {
               bool bypassed = (value > 0.5);
-              if (bypassed != mIsBypassed) 
+              if (bypassed != mIsBypassed)
               {
                 mIsBypassed = bypassed;
               }
-            
+
               break;
             }
             case kPresetParam:
@@ -355,25 +356,25 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               break;
               //TODO pitch bend, modwheel etc
             default:
-              if (idx >= 0 && idx < NParams()) 
+              if (idx >= 0 && idx < NParams())
               {
                 GetParam(idx)->SetNormalized((double)value);
                 if (GetGUI()) GetGUI()->SetParameterFromPlug(idx, (double)value, true);
                 OnParamChange(idx);
-              }              
+              }
               break;
           }
-          
+
         }
       }
     }
   }
-  
-  if(mDoesMidi) 
+
+  if(mDoesMidi)
   {
     //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;
-    if (eventList) 
+    if (eventList)
     {
       int32 numEvent = eventList->getEventCount();
       for (int32 i=0; i<numEvent; i++)
@@ -390,7 +391,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               ProcessMidiMsg(&msg);
               break;
             }
-              
+
             case Event::kNoteOffEvent:
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
@@ -402,32 +403,32 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       }
     }
   }
-  
+
 #pragma mark process single precision
-  
+
   if (processSetup.symbolicSampleSize == kSample32)
   {
     if (data.numInputs)
     {
-      if (mScChans) 
+      if (mScChans)
       {
         if (getAudioInput(1)->isActive()) // Sidechain is active
         {
           mSidechainActive = true;
           SetInputChannelConnections(0, NInChannels(), true);
         }
-        else 
+        else
         {
           if (mSidechainActive)
           {
             ZeroScratchBuffers();
             mSidechainActive = false;
           }
-          
+
           SetInputChannelConnections(0, NInChannels(), true);
           SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
         }
-        
+
         AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
         AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
       }
@@ -439,7 +440,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       }
     }
 
-    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++) 
+    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
     {
       int busChannels = data.outputs[outBus].numChannels;
       SetOutputChannelConnections(chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
@@ -447,38 +448,38 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       AttachOutputBuffers(chanOffset, busChannels, data.outputs[outBus].channelBuffers32);
       chanOffset += busChannels;
     }
-    
-    if (mIsBypassed) 
+
+    if (mIsBypassed)
       PassThroughBuffers(0.0f, data.numSamples);
-    else 
+    else
       ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
   }
-  
+
 #pragma mark process double precision
 
   else if (processSetup.symbolicSampleSize == kSample64)
   {
     if (data.numInputs)
     {
-      if (mScChans) 
+      if (mScChans)
       {
         if (getAudioInput(1)->isActive()) // Sidechain is active
         {
           mSidechainActive = true;
           SetInputChannelConnections(0, NInChannels(), true);
         }
-        else 
+        else
         {
           if (mSidechainActive)
           {
             ZeroScratchBuffers();
             mSidechainActive = false;
           }
-          
+
           SetInputChannelConnections(0, NInChannels(), true);
           SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
         }
-        
+
         AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers64, data.numSamples);
         AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers64, data.numSamples);
       }
@@ -489,8 +490,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         AttachInputBuffers(0, NInChannels(), data.inputs[0].channelBuffers64, data.numSamples);
       }
     }
-    
-    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++) 
+
+    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
     {
       int busChannels = data.outputs[outBus].numChannels;
       SetOutputChannelConnections(chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
@@ -498,29 +499,29 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       AttachOutputBuffers(chanOffset, busChannels, data.outputs[outBus].channelBuffers64);
       chanOffset += busChannels;
     }
-    
-    if (mIsBypassed) 
+
+    if (mIsBypassed)
       PassThroughBuffers(0.0, data.numSamples);
-    else 
+    else
       ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
 
 // Midi Out
 //  if (mDoesMidi) {
 //    IEventList eventList = data.outputEvents;
-//    
-//    if (eventList) 
+//
+//    if (eventList)
 //    {
 //      Event event;
-//      
+//
 //      while (!mMidiOutputQueue.Empty()) {
 //        //TODO: parse events and add
 //        eventList.addEvent(event);
 //      }
 //    }
 //  }
-  
-  return kResultOk; 
+
+  return kResultOk;
 }
 
 //tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
@@ -530,7 +531,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 //
 //  ByteChunk chunk;
 //  SerializeState(&chunk); // to get the size
-//  
+//
 //  if (chunk.Size() > 0)
 //  {
 //    state->read(chunk.GetBytes(), chunk.Size());
@@ -538,7 +539,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 //    RedrawParamControls();
 //    return kResultOk;
 //  }
-//  
+//
 //  return kResultFalse;
 //}
 //
@@ -548,13 +549,13 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 //  WDL_MutexLock lock(&mMutex);
 //
 //  ByteChunk chunk;
-//  
+//
 //  if (SerializeState(&chunk))
 //  {
 //    state->write(chunk.GetBytes(), chunk.Size());
 //    return kResultOk;
 //  }
-//  
+//
 //  return kResultFalse;
 //}
 
@@ -562,10 +563,10 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 //{
 //  TRACE;
 //  WDL_MutexLock lock(&mMutex);
-//  
+//
 //  ByteChunk chunk;
 //  SerializeState(&chunk); // to get the size
-//  
+//
 //  if (chunk.Size() > 0)
 //  {
 //    state->read(chunk.GetBytes(), chunk.Size());
@@ -573,15 +574,15 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 //    RedrawParamControls();
 //    return kResultOk;
 //  }
-//  
+//
 //  return kResultFalse;
 //}
 
-tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize) 
+tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 {
   tresult retval = kResultFalse;
-  
-  switch (symbolicSampleSize) 
+
+  switch (symbolicSampleSize)
   {
     case kSample32:
     case kSample64:
@@ -591,7 +592,7 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
       retval = kResultFalse;
       break;
   }
-  
+
   return retval;
 }
 
@@ -606,7 +607,7 @@ IPlugView* PLUGIN_API IPlugVST3::createView (const char* name)
     addDependentView(view);
     return view;
   }
-  
+
   return 0;
 }
 
@@ -617,7 +618,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 
   ByteChunk chunk;
   SerializeState(&chunk); // to get the size
-  
+
   if (chunk.Size() > 0)
   {
     state->read(chunk.GetBytes(), chunk.Size());
@@ -625,7 +626,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
     RedrawParamControls();
     return kResultOk;
   }
-  
+
   return kResultFalse;
 }
 
@@ -635,7 +636,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   WDL_MutexLock lock(&mMutex);
 
   ByteChunk chunk;
-  
+
   if (SerializeState(&chunk))
   {
     state->write(chunk.GetBytes(), chunk.Size());
@@ -646,45 +647,45 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
 {
-  IParam* param = GetParam(tag);  
-  
+  IParam* param = GetParam(tag);
+
   if (param)
   {
     return param->GetNormalized(plainValue);
   }
-  
+
   return plainValue;
 }
 
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
-  IParam* param = GetParam(tag);  
-  
+  IParam* param = GetParam(tag);
+
   if (param)
   {
     return param->GetNormalized();
   }
-  
+
   return 0.0;
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  IParam* param = GetParam(tag);  
-  
+  IParam* param = GetParam(tag);
+
   if (param)
   {
     param->SetNormalized(value);
     return kResultOk;
   }
-  
+
   return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valueNormalized, String128 string)
 {
   IParam* param = GetParam(tag);
-  
+
   if (param)
   {
     char disp [MAX_PARAM_NAME_LEN];
@@ -692,7 +693,7 @@ tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valu
     Steinberg::UString(string, 128).fromAscii(disp);
     return kResultTrue;
   }
-  
+
   return kResultFalse;
 }
 
@@ -721,7 +722,7 @@ void IPlugVST3::removeDependentView(IPlugVST3View* view)
 tresult IPlugVST3::beginEdit(ParamID tag)
 {
   if (componentHandler)
-    return componentHandler->beginEdit(tag); 
+    return componentHandler->beginEdit(tag);
   return kResultFalse;
 }
 
@@ -754,7 +755,7 @@ AudioBus* IPlugVST3::getAudioOutput (int32 index)
 // TODO: more speaker arrs
 SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
 {
-  switch (chans) 
+  switch (chans)
   {
     case 1:
       return SpeakerArr::kMono;
@@ -785,36 +786,36 @@ tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
 
   UString name(info.name, 128);
   name.fromAscii("Factory Presets");
-  
+
   return kResultTrue;
 }
 
 int32 PLUGIN_API IPlugVST3::getProgramListCount()
 {
-	return (NPresets() > 0);
+  return (NPresets() > 0);
 }
 
 tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/)
 {
-	if (listIndex == 0)
-	{
-		info.id = kPresetParam;
-		info.programCount = (int32) NPresets();
-		UString name(info.name, 128);
-		name.fromAscii("Factory Presets");
-		return kResultTrue;
-	}
-	return kResultFalse;
+  if (listIndex == 0)
+  {
+    info.id = kPresetParam;
+    info.programCount = (int32) NPresets();
+    UString name(info.name, 128);
+    name.fromAscii("Factory Presets");
+    return kResultTrue;
+  }
+  return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
 {
-	if (listId == kPresetParam)
-	{
-		Steinberg::UString(name, 128).fromAscii(GetPresetName(programIndex));
-		return kResultTrue;
-	}
-	return kResultFalse;
+  if (listId == kPresetParam)
+  {
+    Steinberg::UString(name, 128).fromAscii(GetPresetName(programIndex));
+    return kResultTrue;
+  }
+  return kResultFalse;
 }
 
 #pragma mark -
@@ -823,7 +824,7 @@ tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 program
 void IPlugVST3::BeginInformHostOfParamChange(int idx)
 {
   Trace(TRACELOC, "%d", idx);
-  
+
   if (GetParam(idx)->GetCanAutomate()) // TODO are these checks SANE?
   {
     beginEdit(idx);
@@ -831,10 +832,10 @@ void IPlugVST3::BeginInformHostOfParamChange(int idx)
 }
 
 void IPlugVST3::InformHostOfParamChange(int idx, double normalizedValue)
-{ 
+{
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
 
-  if (GetParam(idx)->GetCanAutomate()) 
+  if (GetParam(idx)->GetCanAutomate())
   {
     performEdit(idx, normalizedValue);
   }
@@ -844,7 +845,7 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
 {
   Trace(TRACELOC, "%d", idx);
 
-  if (GetParam(idx)->GetCanAutomate()) 
+  if (GetParam(idx)->GetCanAutomate())
   {
     endEdit(idx);
   }
@@ -883,7 +884,7 @@ int IPlugVST3::GetSamplePos()
 
 void IPlugVST3::ResizeGraphics(int w, int h)
 {
-  if (GetGUI()) 
+  if (GetGUI())
   {
     viewsArray.at(0)->resize(w, h);
   }
@@ -893,16 +894,16 @@ void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)
 {
   if (componentHandler == 0 || viewsArray.at(0) == 0)
     return;
-  
+
   FUnknownPtr<IComponentHandler3>handler(componentHandler);
-  
+
   if (handler == 0)
     return;
-  
+
   ParamID p = param;
-  
+
   IContextMenu* menu = handler->createContextMenu(viewsArray.at(0), &p);
-  
+
   if (menu)
   {
     menu->popup((UCoord) x,(UCoord) y);
@@ -911,30 +912,30 @@ void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)
 }
 
 //void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
-//{ 
+//{
 //  FUID pluginGuid;
 //  pluginGuid.from4Int(a,b,c,d);
-//  
-//  for (int i = 0; i< NPresets(); i++) 
+//
+//  for (int i = 0; i< NPresets(); i++)
 //  {
 //    WDL_String fileName(path, strlen(path));
 //    fileName.Append(GetPresetName(i), strlen(GetPresetName(i)));
 //    fileName.Append(".vstpreset", strlen(".vstpreset"));
-//        
+//
 //    WDL_String xmlMetaData("", strlen(""));
-//    
+//
 //    IBStream* stream = FileStream::open(fileName.Get(), "w");
-//    
+//
 //    RestorePreset(i);
-//        
-//    PresetFile::savePreset(stream, 
+//
+//    PresetFile::savePreset(stream,
 //                           pluginGuid,
 //                           this,
 //                           this,
 //                           xmlMetaData.Get(),
 //                           xmlMetaData.GetLength()
 //                           );
-//                           
+//
 //
 //  }
 //}
@@ -942,11 +943,11 @@ void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)
 #pragma mark -
 #pragma mark IPlugVST3View
 IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
-: mPlug(pPlug)
-, mExpectingNewSize(false)
+  : mPlug(pPlug)
+  , mExpectingNewSize(false)
 {
   if (mPlug)
-    mPlug->addRef();  
+    mPlug->addRef();
 }
 
 IPlugVST3View::~IPlugVST3View()
@@ -962,18 +963,18 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 {
   if(mPlug->GetGUI()) // for no editor plugins
   {
-    #ifdef OS_WIN
+#ifdef OS_WIN
     if (strcmp (type, kPlatformTypeHWND) == 0)
       return kResultTrue;
-    
-    #elif defined OS_OSX
+
+#elif defined OS_OSX
     if (strcmp (type, kPlatformTypeNSView) == 0)
       return kResultTrue;
     else if (strcmp (type, kPlatformTypeHIView) == 0)
       return kResultTrue;
-    #endif
+#endif
   }
-  
+
   return kResultFalse;
 }
 
@@ -981,31 +982,31 @@ tresult PLUGIN_API IPlugVST3View::onSize(ViewRect* newSize)
 {
   TRACE;
 
-	if (newSize)
+  if (newSize)
   {
-		rect = *newSize;
-    
-    if (mExpectingNewSize) 
+    rect = *newSize;
+
+    if (mExpectingNewSize)
     {
       mPlug->OnWindowResize();
       mExpectingNewSize = false;
     }
   }
-  
-	return kResultTrue;
+
+  return kResultTrue;
 }
 
-tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size) 
+tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 {
   TRACE;
 
-  if (mPlug->GetGUI()) 
+  if (mPlug->GetGUI())
   {
     *size = ViewRect(0, 0, mPlug->GetGUI()->Width(), mPlug->GetGUI()->Height());
-    
+
     return kResultTrue;
   }
-  else 
+  else
   {
     return kResultFalse;
   }
@@ -1013,7 +1014,7 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 
 tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
 {
-  if (mPlug->GetGUI()) 
+  if (mPlug->GetGUI())
   {
 #ifdef OS_WIN
     if (strcmp (type, kPlatformTypeHWND) == 0)
@@ -1025,21 +1026,21 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
       mPlug->GetGUI()->OpenWindow(parent, 0);
 #endif
     mPlug->OnGUIOpen();
-    
+
     return kResultTrue;
   }
-  
+
   return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3View::removed()
 {
-  if (mPlug->GetGUI()) 
+  if (mPlug->GetGUI())
   {
     mPlug->OnGUIClose();
-    mPlug->GetGUI()->CloseWindow(); 
+    mPlug->GetGUI()->CloseWindow();
   }
-  
+
   return CPluginView::removed();
 }
 
