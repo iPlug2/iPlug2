@@ -7,7 +7,7 @@
 #define TRACETOSTDOUT
 
 #ifdef _WIN32
-#define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions
+  #define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions
 #ifndef NDEBUG
 void DBGMSG(const char *format, ...)
 {
@@ -33,7 +33,7 @@ void DBGMSG(const char *format, ...)
 #endif
 
 #else
-#define LOGFILE "IPlugLog.txt" // will get put on Desktop
+  #define LOGFILE "IPlugLog.txt" // will get put on Desktop
 #endif
 
 const int TXTLEN = 1024;

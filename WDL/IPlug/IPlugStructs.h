@@ -67,12 +67,13 @@ const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
 
 #ifdef OS_WIN
-const char* const DEFAULT_FONT = "Verdana";
-const int DEFAULT_TEXT_SIZE = 12;
+  const char* const DEFAULT_FONT = "Verdana";
+  const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_OSX
-const char* const DEFAULT_FONT = "Monaco";
-const int DEFAULT_TEXT_SIZE = 10;
+  const char* const DEFAULT_FONT = "Monaco";
+  const int DEFAULT_TEXT_SIZE = 10;
 #endif
+
 const int FONT_LEN = 32;
 
 struct IText

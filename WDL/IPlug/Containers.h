@@ -2,13 +2,13 @@
 #define _CONTAINERS_
 
 #ifdef WIN32
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-#undef WINVER
-#define WINVER 0x0501
-#pragma warning(disable:4018 4267)	// size_t/signed/unsigned mismatch..
-#pragma warning(disable:4800)		// if (pointer) ...
-#pragma warning(disable:4805)		// Compare bool and BOOL.
+  #undef _WIN32_WINNT
+  #define _WIN32_WINNT 0x0501
+  #undef WINVER
+  #define WINVER 0x0501
+  #pragma warning(disable:4018 4267)	// size_t/signed/unsigned mismatch..
+  #pragma warning(disable:4800)		// if (pointer) ...
+  #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
 
 #include <math.h>

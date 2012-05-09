@@ -78,9 +78,9 @@ public:
   // Return the new chunk position (endPos). Implementations should set a mutex lock and call UnserializeParams() after custom data is unserialized
   virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
 
-#ifndef OS_IOS
+  #ifndef OS_IOS
   virtual void OnWindowResize() {}
-#endif
+  #endif
   // implement this to trigger your custom about box, when someone clicks about in the menu of a standalone
   virtual bool HostRequestingAboutBox() { return false; }
 
@@ -183,9 +183,9 @@ protected:
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() { return; };
-#ifndef OS_IOS
+  #ifndef OS_IOS
   virtual void AttachGraphics(IGraphics* pGraphics);
-#endif
+  #endif
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize);
   // If latency changes after initialization (often not supported by the host).
@@ -212,9 +212,9 @@ protected:
   bool SerializeParams(ByteChunk* pChunk);
   int UnserializeParams(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos)
 
-#ifndef OS_IOS
+  #ifndef OS_IOS
   virtual void RedrawParamControls();  // Called after restoring state.
-#endif
+  #endif
 
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
@@ -258,12 +258,12 @@ public:
 
   virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
-#ifndef OS_IOS
+  #ifndef OS_IOS
   bool SaveProgramAsFXP(const char* defaultFileName = "");
   bool SaveBankAsFXB(const char* defaultFileName = "");
   bool LoadProgramFromFXP();
   bool LoadBankFromFXB();
-#endif
+  #endif
   WDL_Mutex mMutex;
 
   struct IMutexLock

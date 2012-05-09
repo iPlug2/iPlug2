@@ -1016,15 +1016,15 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
 {
   if (mPlug->GetGUI())
   {
-#ifdef OS_WIN
+    #ifdef OS_WIN
     if (strcmp (type, kPlatformTypeHWND) == 0)
       mPlug->GetGUI()->OpenWindow(parent);
-#elif defined OS_OSX
+    #elif defined OS_OSX
     if (strcmp (type, kPlatformTypeNSView) == 0)
       mPlug->GetGUI()->OpenWindow(parent);
     else // Carbon
       mPlug->GetGUI()->OpenWindow(parent, 0);
-#endif
+    #endif
     mPlug->OnGUIOpen();
 
     return kResultTrue;

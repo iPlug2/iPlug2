@@ -399,9 +399,9 @@ IBitmap IGraphics::LoadIBitmap(int ID, const char* name, int nStates, bool frame
   if (!lb)
   {
     lb = OSLoadBitmap(ID, name);
-#ifndef NDEBUG
+    #ifndef NDEBUG
     bool imgResourceFound = lb;
-#endif
+    #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     s_bitmapCache.Add(lb, ID);
   }
@@ -781,13 +781,13 @@ bool IGraphics::Draw(IRECT* pR)
     }
   }
 
-#ifdef SHOW_CONTROL_BOUNDARIES
+  #ifdef SHOW_CONTROL_BOUNDARIES
   for (int j = 1; j < mControls.GetSize(); j++)
   {
     IControl* pControl = mControls.Get(j);
     DrawRect(&COLOR_RED, pControl->GetRECT());
   }
-#endif
+  #endif
 
   return DrawScreen(pR);
 }
@@ -811,7 +811,7 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
     IControl* pControl = mControls.Get(c);
     int paramIdx = pControl->ParamIdx();
 
-#if defined OS_WIN || defined VST3_API  // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
+    #if defined OS_WIN || defined VST3_API  // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
     if (mPlug->GetAPI() == kAPIVST3)
     {
       if (pMod->R && paramIdx >= 0)
@@ -821,7 +821,7 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
         return;
       }
     }
-#endif
+    #endif
     pControl->OnMouseDown(x, y, pMod);
 
     // need to do these things again in case the mouse message caused a resize/rebuild
@@ -1064,22 +1064,22 @@ LICE_IFont* IGraphics::CacheFont(IText* pTxt)
     int q;
     if (pTxt->mQuality == IText::kQualityDefault)
       q = DEFAULT_QUALITY;
-#ifdef CLEARTYPE_QUALITY
+    #ifdef CLEARTYPE_QUALITY
     else if (pTxt->mQuality == IText::kQualityClearType)
       q = CLEARTYPE_QUALITY;
     else if (pTxt->mQuality == IText::kQualityAntiAliased)
-#else
+    #else
     else if (pTxt->mQuality != IText::kQualityNonAntiAliased)
-#endif
+    #endif
       q = ANTIALIASED_QUALITY;
     else // if (pTxt->mQuality == IText::kQualityNonAntiAliased)
       q = NONANTIALIASED_QUALITY;
 
-#ifdef __APPLE__
+    #ifdef __APPLE__
     bool resized = false;
-Resize:
+    Resize:
     if (h < 2) h = 2;
-#endif
+    #endif
     HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, pTxt->mFont);
     if (!hFont)
     {
@@ -1087,14 +1087,14 @@ Resize:
       return 0;
     }
     font->SetFromHFont(hFont, LICE_FONT_FLAG_OWNS_HFONT | LICE_FONT_FLAG_FORCE_NATIVE);
-#ifdef __APPLE__
+    #ifdef __APPLE__
     if (!resized && font->GetLineHeight() != h)
     {
       h = int((double)(h * h) / (double)font->GetLineHeight() + 0.5);
       resized = true;
       goto Resize;
     }
-#endif
+    #endif
     s_fontCache.Add(font, pTxt);
   }
   pTxt->mCached = font;

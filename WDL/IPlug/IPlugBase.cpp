@@ -151,9 +151,9 @@ IPlugBase::IPlugBase(int nParams,
 IPlugBase::~IPlugBase()
 {
   TRACE;
-#ifndef OS_IOS
+  #ifndef OS_IOS
   DELETE_NULL(mGraphics);
-#endif
+  #endif
   mParams.Empty(true);
   mPresets.Empty(true);
   mInChannels.Empty(true);
@@ -745,9 +745,9 @@ bool IPlugBase::RestorePreset(int idx)
     {
       mCurrentPresetIdx = idx;
       PresetsChangedByHost();
-#ifndef OS_IOS
+      #ifndef OS_IOS
       RedrawParamControls();
-#endif
+      #endif
     }
   }
   return restoredOK;

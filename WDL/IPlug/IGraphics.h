@@ -8,10 +8,10 @@
 
 // Specialty stuff for calling in to Reaper for Lice functionality.
 #ifdef REAPER_SPECIAL
-#include "../IPlugExt/ReaperExt.h"
-#define _LICE ReaperExt
+  #include "../IPlugExt/ReaperExt.h"
+  #define _LICE ReaperExt
 #else
-#define _LICE
+  #define _LICE
 #endif
 
 #define MAX_PARAM_LEN 32
