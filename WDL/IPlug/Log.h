@@ -32,19 +32,19 @@ void DBGMSG(const char *format, ...);
 #endif
 
 #if defined TRACER_BUILD
-#define TRACE Trace(TRACELOC, "");
-//#define TRACE_PROCESS Trace(TRACELOC, "");
-#define TRACE_PROCESS
+  #define TRACE Trace(TRACELOC, "");
+//  #define TRACE_PROCESS Trace(TRACELOC, "");
+  #define TRACE_PROCESS
 #else
-#define TRACE
-#define TRACE_PROCESS
+  #define TRACE
+  #define TRACE_PROCESS
 #endif
 
 #define TRACELOC __FUNCTION__,__LINE__
 void Trace(const char* funcName, int line, const char* fmtStr, ...);
 
 #ifdef NDEBUG
-#define DBGMSG
+  #define DBGMSG
 #endif
 
 // To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);

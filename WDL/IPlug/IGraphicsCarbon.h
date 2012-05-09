@@ -48,12 +48,12 @@ private:
   EventHandlerRef mTextEntryHandler;
   CGContextRef mCGC;
 
-#if USE_MLTE
+  #if USE_MLTE
   TXNObject mTextEntryView;
   IRECT mTextEntryRect;
-#else
+  #else
   ControlRef mTextEntryView;
-#endif
+  #endif
 
   IControl* mEdControl;
   IParam* mEdParam;

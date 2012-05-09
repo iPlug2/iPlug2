@@ -337,17 +337,16 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
   {
     case effEditIdle:
     case __effIdleDeprecated:
-#ifdef USE_IDLE_CALLS
+    #ifdef USE_IDLE_CALLS
     _this->OnIdle();
-#endif
-      return 0;
+    #endif
+    return 0;
   }
 
   Trace(TRACELOC, "%d(%s):%d:%d", opCode, VSTOpcodeStr(opCode), idx, (int) value);
 
   switch (opCode)
   {
-
     case effOpen:
     {
       _this->HostSpecificInit();
@@ -449,19 +448,20 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effEditOpen:
     {
       IGraphics* pGraphics = _this->GetGUI();
+      
       if (pGraphics)
       {
-#ifdef _WIN32
-        if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
-#else   // OSX, check if we are in a Cocoa VST host
-#if defined(__LP64__)
-        if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
-#else
-        bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
-        if (iscocoa && !pGraphics->OpenWindow(ptr)) pGraphics=0;
-        if (!iscocoa && !pGraphics->OpenWindow(ptr, 0)) pGraphics=0;
-#endif
-#endif
+        #ifdef _WIN32
+          if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
+        #else   // OSX, check if we are in a Cocoa VST host
+          #if defined(__LP64__)
+          if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
+          #else
+          bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
+          if (iscocoa && !pGraphics->OpenWindow(ptr)) pGraphics=0;
+          if (!iscocoa && !pGraphics->OpenWindow(ptr, 0)) pGraphics=0;
+          #endif
+        #endif
         if (pGraphics)
         {
           _this->OnGUIOpen();

@@ -142,13 +142,13 @@ IGraphicsCarbon::~IGraphicsCarbon()
     RemoveEventHandler(mTextEntryHandler);
     mTextEntryHandler = 0;
 
-#if USE_MLTE
+    #if USE_MLTE
     TXNFocus(mTextEntryView, false);
     TXNClear(mTextEntryView);
     TXNDeleteObject(mTextEntryView);
-#else
+    #else
     HIViewRemoveFromSuperview(mTextEntryView);
-#endif
+    #endif
 
     mTextEntryView = 0;
     mEdControl = 0;
@@ -260,9 +260,9 @@ MenuRef IGraphicsCarbon::CreateMenu(IPopupMenu* pMenu)
     //    CheckMenuItem (menuRef, pMenu->getCurrentIndex (true) + 1, true);
     SetMenuItemRefCon(menuRef, 0, (int32_t)pMenu);
     //swell collision
-#undef InsertMenu
+    #undef InsertMenu
     InsertMenu(menuRef, kInsertHierarchicalMenu);
-#define InsertMenu SWELL_InsertMenu
+    #define InsertMenu SWELL_InsertMenu
   }
 
   return menuRef;
@@ -278,17 +278,17 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
   Rect wrct;
   GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
 
-#ifdef RTAS_API
+  #ifdef RTAS_API
   int xpos = wrct.left + this->GetLeftOffset() + pAreaRect->L;
   int ypos = wrct.top + this->GetTopOffset() + pAreaRect->B + 5;
-#else
+  #else
   HIViewRef contentView;
   HIViewFindByID(HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
   HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
 
   int xpos = wrct.left + rct.origin.x + pAreaRect->L;
   int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
-#endif
+  #endif
 
   MenuRef menuRef = CreateMenu(pMenu);
 
@@ -427,7 +427,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
       HIPoint hp;
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
 
-#ifdef RTAS_API
+      #ifdef RTAS_API
       // Header offset
       hp.x -= _this->GetLeftOffset();
       hp.y -= _this->GetTopOffset();
@@ -449,11 +449,11 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
       int x = (int) hp.x;
       int y = (int) hp.y;
 
-#else // NOT RTAS
+      #else // NOT RTAS
       HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
       int x = (int) hp.x - 2;
       int y = (int) hp.y - 3;
-#endif
+      #endif
 
       UInt32 mods;
       GetEventParameter(pEvent, kEventParamKeyModifiers, typeUInt32, 0, sizeof(UInt32), 0, &mods);
@@ -468,20 +468,20 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
         {
           if (_this->mTextEntryView)
           {
-#if !(USE_MLTE)
+            #if !(USE_MLTE)
             HIViewRef view;
             HIViewGetViewForMouseEvent(_this->mView, pEvent, &view);
             if (view == _this->mTextEntryView) break;
-#endif
+            #endif
             _this->EndUserInput(true);
           }
 
-#ifdef RTAS_API // RTAS triple click
+          #ifdef RTAS_API // RTAS triple click
           if (mmod.L && mmod.R && mmod.C && (pGraphicsMac->GetParamIdxForPTAutomation(x, y) > -1))
           {
             return CallNextEventHandler(pHandlerCall, pEvent);
           }
-#endif
+          #endif
 
           CallNextEventHandler(pHandlerCall, pEvent);
 
@@ -579,7 +579,7 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
       CGRect tmp = CGRectMake(r.L, r.T, r.W(), r.H());
       HIViewSetNeedsDisplayInRect(_this->mView, &tmp , true); // invalidate everything that is set dirty
 
-#if USE_MTLE
+      #if USE_MTLE
       if (_this->mTextEntryView) // validate the text entry rect, otherwise, flicker
       {
         tmp = CGRectMake(_this->mTextEntryRect.L,
@@ -588,7 +588,7 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
                          _this->mTextEntryRect.H() + 1);
         HIViewSetNeedsDisplayInRect(_this->mView, &tmp , false);
       }
-#endif
+      #endif
     }
     else
     {
@@ -933,12 +933,12 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
           TXNGetViewRect (_this->mTextEntryView, &rect);
 
           //swell collision
-#undef PtInRect
-#define MacPtInRect PtInRect
+          #undef PtInRect
+          #define MacPtInRect PtInRect
           // Handle the click as necessary
           if (PtInRect(point, &rect))
           {
-#define PtInRect(r,p) SWELL_PtInRect(r,p)
+            #define PtInRect(r,p) SWELL_PtInRect(r,p)
             EventRecord eventRecord;
             if (eventKind == kEventMouseDown && ConvertEventRefToEventRecord(pEvent, &eventRecord))
             {
@@ -1188,5 +1188,6 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
   }
   return eventNotHandledErr;
 }
+
 #endif // USE_MLTE
 #endif // IPLUG_NO_CARBON_SUPPORT

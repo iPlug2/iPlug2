@@ -5,7 +5,7 @@
 #include <Shlobj.h>
 
 #ifdef RTAS_API
-#include "PlugInUtils.h"
+  #include "PlugInUtils.h"
 #endif
 
 #pragma warning(disable:4244) // Pointer size cast mismatch.
@@ -299,10 +299,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if (!handle)
       {
-#ifdef RTAS_API
+        #ifdef RTAS_API
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
         SendMessage(rootHWnd, WM_KEYDOWN, wParam, lParam);
-#endif
+        #endif
         return DefWindowProc(hWnd, msg, wParam, lParam);
       }
       else
@@ -479,9 +479,9 @@ LICE_IBitmap* IGraphicsWin::OSLoadBitmap(int ID, const char* name)
   ++ext;
 
   if (!stricmp(ext, "png")) return _LICE::LICE_LoadPNGFromResource(mHInstance, ID, 0);
-#ifdef IPLUG_JPEG_SUPPORT
+  #ifdef IPLUG_JPEG_SUPPORT
   if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg")) return _LICE::LICE_LoadJPGFromResource(mHInstance, ID, 0);
-#endif
+  #endif
 
   return 0;
 }
@@ -964,12 +964,12 @@ void IGraphicsWin::PluginPath(WDL_String* pPath)
 
 void IGraphicsWin::DesktopPath(WDL_String* pPath)
 {
-#ifndef __MINGW_H // TODO: alternative for gcc?
+  #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
   SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
 
   pPath->Set(strPath, MAX_PATH_LEN);
-#endif
+  #endif
 }
 
 void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)

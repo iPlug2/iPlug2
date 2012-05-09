@@ -32,7 +32,6 @@
     IOSLink* mIOSLink;
     unsigned short* mMidiOutChan; // 0 = any, 1 = midi chan 1
   };
-  
 #endif
 
 class IPlugStandalone : public IPlugBase
@@ -69,11 +68,11 @@ public:
   void SetSampleRate(double sampleRate);
   void SetBlockSize(int blockSize);
 
-#ifdef OS_IOS
+  #ifdef OS_IOS
   void LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames);
-#else
+  #else
   void LockMutexAndProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-#endif
+  #endif
 
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);
@@ -82,12 +81,12 @@ protected:
 private:
   bool mDoesMidi;
 
-#ifdef OS_IOS
+  #ifdef OS_IOS
   IOSLink* mIOSLink;
-#else // OSX or WIN
+  #else // OSX or WIN
   RtMidiOut* mMidiOut;
   unsigned short* mMidiOutChan;
-#endif
+  #endif
 };
 
 IPlugStandalone* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan, void* pIOSLink =  NULL);

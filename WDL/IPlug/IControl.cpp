@@ -73,30 +73,30 @@ void IControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 
 void IControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
 {
-#ifdef RTAS_API
+  #ifdef RTAS_API
   PromptUserInput();
-#else
+  #else
   if (mDefaultValue >= 0.0)
   {
     mValue = mDefaultValue;
     SetDirty();
   }
-#endif
+  #endif
 }
 
 void IControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
 {
-#ifdef RTAS_API
+  #ifdef RTAS_API
   if (pMod->C)
   {
     mValue += 0.001 * d;
   }
-#else
+  #else
   if (pMod->C || pMod->S)
   {
     mValue += 0.001 * d;
   }
-#endif
+  #endif
   else
   {
     mValue += 0.01 * d;
@@ -222,7 +222,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBase* pPlug, IRECT pR, int param
 
 void IRadioButtonsControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
-#ifdef RTAS_API
+  #ifdef RTAS_API
   if (pMod->A)
   {
     if (mDefaultValue >= 0.0)
@@ -233,12 +233,12 @@ void IRadioButtonsControl::OnMouseDown(int x, int y, IMouseMod* pMod)
     }
   }
   else
-#endif
-    if (pMod->R)
-    {
-      PromptUserInput();
-      return;
-    }
+  #endif
+  if (pMod->R)
+  {
+    PromptUserInput();
+    return;
+  }
 
   int i, n = mRECTs.GetSize();
 
@@ -318,7 +318,7 @@ IRECT IFaderControl::GetHandleRECT(double value) const
 
 void IFaderControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
-#ifdef RTAS_API
+  #ifdef RTAS_API
   if (pMod->A)
   {
     if (mDefaultValue >= 0.0)
@@ -329,12 +329,12 @@ void IFaderControl::OnMouseDown(int x, int y, IMouseMod* pMod)
     }
   }
   else
-#endif
-    if (pMod->R)
-    {
-      PromptUserInput();
-      return;
-    }
+  #endif
+  if (pMod->R)
+  {
+    PromptUserInput();
+    return;
+  }
 
   return SnapToMouse(x, y);
 }
@@ -366,15 +366,15 @@ bool IFaderControl::Draw(IGraphics* pGraphics)
 void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
 {
   double gearing = mGearing;
-#ifdef RTAS_API
-#ifdef OS_WIN
-  if (pMod->C) gearing *= 10.0;
-#else
-  if (pMod->R) gearing *= 10.0;
-#endif
-#else
-  if (pMod->C || pMod->S) gearing *= 10.0;
-#endif
+  #ifdef RTAS_API
+    #ifdef OS_WIN
+      if (pMod->C) gearing *= 10.0;
+    #else
+      if (pMod->R) gearing *= 10.0;
+    #endif
+  #else
+    if (pMod->C || pMod->S) gearing *= 10.0;
+  #endif
   if (mDirection == kVertical)
   {
     mValue += (double) dY / (double) (mRECT.T - mRECT.B) / gearing;
