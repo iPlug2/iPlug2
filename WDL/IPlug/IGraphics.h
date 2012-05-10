@@ -23,7 +23,6 @@ class IParam;
 class IGraphics
 {
 public:
-
   void PrepDraw();    // Called once, when the IGraphics class is attached to the IPlug class.
 
   bool IsDirty(IRECT* pR);        // Ask the plugin what needs to be redrawn.

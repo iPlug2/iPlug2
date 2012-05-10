@@ -17,7 +17,6 @@ void DrawBitmapedText(IGraphics* pGraphics,
 class IBitmapTextControl : public IControl
 {
 public:
-
   IBitmapTextControl(IPlugBase* pPlug, IRECT pR, IBitmap* pBitmap, const char* str = "", IText* pText = 0, int charWidth = 6, int charHeight = 12)
     : IControl(pPlug, pR)
     , mTextBitmap(*pBitmap)
@@ -31,9 +30,11 @@ public:
 
     mStr.Set(str);
   }
+  
   ~IBitmapTextControl() {}
 
   void SetTextFromPlug(char* str);
+  
   void ClearTextFromPlug()
   {
     SetTextFromPlug( (char *) "");
