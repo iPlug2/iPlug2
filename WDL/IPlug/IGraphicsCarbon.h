@@ -17,7 +17,6 @@
 class IGraphicsCarbon
 {
 public:
-
   IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl, short leftOffset, short topOffset);
   ~IGraphicsCarbon();
 
@@ -36,7 +35,6 @@ public:
   void EndUserInput(bool commit);
 
 private:
-
   IGraphicsMac* mGraphicsMac;
   bool mIsComposited;
 //  RgnHandle mRgn;
@@ -61,7 +59,6 @@ private:
   short mLeftOffset, mTopOffset; // only for RTAS
 
 public:
-
   static pascal OSStatus MainEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
   static pascal void TimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon);
   static pascal OSStatus TextEntryHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
