@@ -47,7 +47,7 @@
 //#define KNOB_FN       "resources/img/knob.png"
 
 // GUI default dimensions
-#define GUI_WIDTH   300
+#define GUI_WIDTH   400
 #define GUI_HEIGHT  300
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
