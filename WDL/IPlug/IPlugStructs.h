@@ -123,9 +123,6 @@ struct IText
     strcpy(mFont, DEFAULT_FONT);
   }
 
-  //   bool operator==(const IText& rhs) const;
-  //   bool operator!=(const IText& rhs) const { return !operator==(rhs); }
-  //  bool operator<(const IText& rhs) const; // For sorting.
 };
 
 // these are macros to shorten the instantiation of IControls
