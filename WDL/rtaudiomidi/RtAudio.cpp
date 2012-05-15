@@ -1005,21 +1005,21 @@ bool RtApiCore :: probeDeviceOpen( unsigned int device, StreamMode mode, unsigne
     }
 
     // Now wait until the reported nominal rate is what we just set.
-    UInt32 microCounter = 0;
-    while ( reportedRate != nominalRate ) {
-      microCounter += 5000;
-      if ( microCounter > 5000000 ) break;
-      usleep( 5000 );
-    }
+//    UInt32 microCounter = 0;
+//    while ( reportedRate != nominalRate ) {
+//      microCounter += 5000;
+//      if ( microCounter > 5000000 ) break;
+//      usleep( 5000 );
+//    }
 
     // Remove the property listener.
     AudioObjectRemovePropertyListener( id, &tmp, rateListener, (void *) &reportedRate );
 
-    if ( microCounter > 5000000 ) {
-      errorStream_ << "RtApiCore::probeDeviceOpen: timeout waiting for sample rate update for device (" << device << ").";
-      errorText_ = errorStream_.str();
-      return FAILURE;
-    }
+//    if ( microCounter > 5000000 ) {
+//      errorStream_ << "RtApiCore::probeDeviceOpen: timeout waiting for sample rate update for device (" << device << ").";
+//      errorText_ = errorStream_.str();
+//      return FAILURE;
+//    }
   }
 
   // Now set the stream format for all streams.  Also, check the
