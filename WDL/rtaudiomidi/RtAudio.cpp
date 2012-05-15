@@ -38,7 +38,7 @@
 */
 /************************************************************************/
 
-// RtAudio: Version 4.0.9
+// RtAudio: Version 4.0.10
 
 #include "RtAudio.h"
 #include <iostream>
@@ -3664,13 +3664,9 @@ unsigned int RtApiDs :: getDeviceCount( void )
   std::vector< int > indices;
   for ( unsigned int i=0; i<dsDevices.size(); i++ )
     if ( dsDevices[i].found == false ) indices.push_back( i );
-
-  unsigned int nErased;
-  unsigned int i;
-
-  for (nErased=0,i=0 ; i<indices.size(); i++, nErased++ ) {
-    dsDevices.erase( dsDevices.begin()-nErased );
-  }
+  unsigned int nErased = 0;
+  for ( unsigned int i=0; i<indices.size(); i++ )
+    dsDevices.erase( dsDevices.begin()-nErased++ );
 
   return dsDevices.size();
 }
