@@ -117,8 +117,12 @@ void IControl::PromptUserInput()
     }
     else // text entry
     {
-      int cX = (int) mRECT.MW(), cY = (int) mRECT.MH();
-      IRECT txtRECT = IRECT(cX - (float) PARAM_EDIT_W/2., cY - (PARAM_EDIT_H / 2.), cX + (float) PARAM_EDIT_W/2., cY + (PARAM_EDIT_H / 2.)  );
+      int cX = (int) mRECT.MW();
+      int cY = (int) mRECT.MH();
+      int halfW = int(float(PARAM_EDIT_W)/2.f);
+      int halfH = int(float(PARAM_EDIT_H)/2.f);
+
+      IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       mPlug->GetGUI()->PromptUserInput(this, mPlug->GetParam(mParamIdx), &txtRECT );
     }
 
