@@ -85,9 +85,10 @@ void IPlugProcess::EffectInit()
         case IParam::kTypeBool:
         {
           std::vector<std::string> displayTexts;
+          
           for (int j=0; j<p->GetNDisplayTexts(); j++)
           {
-            displayTexts.push_back(p->GetDisplayText(j));
+            displayTexts.push_back(p->GetDisplayTextAtIdx(j));
           }
 
           assert(displayTexts.size());
