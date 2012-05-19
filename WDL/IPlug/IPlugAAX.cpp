@@ -154,13 +154,12 @@ AAX_Result IPlugAAX::EffectInit()
       {
         param = new AAX_CParameter<float>(paramID.Get(), 
                                           AAX_CString(p->GetNameForHost()), 
-                                          p->GetDefault(), 
-                                          AAX_CLinearTaperDelegate<float>(p->GetMin(), p->GetMax()), 
+                                          (float)p->GetDefault(), 
+                                          AAX_CLinearTaperDelegate<float>((float)p->GetMin(), (float)p->GetMax()), 
                                           AAX_CNumberDisplayDelegate<float>(), 
                                           p->GetCanAutomate());
         
-        //param->SetNumberOfSteps(256);
-        param->SetNumberOfSteps((p->GetMax() - p->GetMin()) / p->GetStep()); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
+        param->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
         param->SetType(AAX_eParameterType_Continuous);
 
         break;
@@ -169,12 +168,12 @@ AAX_Result IPlugAAX::EffectInit()
       {
         param = new AAX_CParameter<int>(paramID.Get(), 
                                         AAX_CString(p->GetNameForHost()), 
-                                        p->GetDefault(), 
-                                        AAX_CLinearTaperDelegate<int>(p->GetMin(), p->GetMax()), 
+                                        (int)p->GetDefault(), 
+                                        AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
                                         AAX_CNumberDisplayDelegate<int>(), 
                                         p->GetCanAutomate());
         
-        param->SetNumberOfSteps((p->GetMin() - p->GetMax()) / p->GetStep());
+        param->SetNumberOfSteps(128);
         param->SetType(AAX_eParameterType_Continuous);
 
         break;
@@ -194,10 +193,10 @@ AAX_Result IPlugAAX::EffectInit()
           displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)) );
         }
         
-        param = new AAX_CParameter<int32_t>(paramID.Get(), 
+        param = new AAX_CParameter<int>(paramID.Get(), 
                                             AAX_CString(p->GetNameForHost()), 
-                                            p->GetDefault(), 
-                                            AAX_CLinearTaperDelegate<int>(p->GetMin(), p->GetMax()), 
+                                            (int)p->GetDefault(), 
+                                            AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
                                             AAX_CStringDisplayDelegate<int>(displayTexts),
                                             p->GetCanAutomate());
         
@@ -409,21 +408,27 @@ void IPlugAAX::GetTime(ITimeInfo* pTimeInfo)
 {
   mTransport->GetCurrentTempo(&pTimeInfo->mTempo);
   mTransport->IsTransportPlaying(&pTimeInfo->mTransportIsRunning);
-  mTransport->GetCurrentMeter(&pTimeInfo->mNumerator, &pTimeInfo->mDenominator);
+  int32_t num, denom;
+  mTransport->GetCurrentMeter(&num, &denom);
+  pTimeInfo->mNumerator = (int) num;
+  pTimeInfo->mDenominator = (int) denom;
   int64_t ppqPos, samplePos, cStart, cEnd;
   mTransport->GetCurrentTickPosition(&ppqPos);
   pTimeInfo->mPPQPos = (double) ppqPos;
   mTransport->GetCurrentNativeSampleLocation(&samplePos);
   pTimeInfo->mSamplePos = (double) samplePos;
   mTransport->GetCurrentLoopPosition(&pTimeInfo->mTransportLoopEnabled, &cStart, &cEnd);
-  pTimeInfo->mCycleStart = cStart;
-  pTimeInfo->mCycleEnd = cEnd;
+  pTimeInfo->mCycleStart = (double) cStart;
+  pTimeInfo->mCycleEnd = (double) cEnd;
   //pTimeInfo->mLastBar ??
 }
 
 void IPlugAAX::GetTimeSig(int* pNum, int* pDenom)
 {
-  mTransport->GetCurrentMeter(pNum, pDenom);
+  int32_t num, denom;
+  mTransport->GetCurrentMeter(&num, &denom);
+  *pNum = (int) num;
+  *pDenom = (int) denom;
 }
 
 void IPlugAAX::ResizeGraphics(int w, int h)

@@ -128,68 +128,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-			>
-			<File
-				RelativePath="lice.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice.h"
-				>
-			</File>
-			<File
-				RelativePath="lice_arc.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_bezier.h"
-				>
-			</File>
-			<File
-				RelativePath="lice_colorspace.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_combine.h"
-				>
-			</File>
-			<File
-				RelativePath="lice_extended.h"
-				>
-			</File>
-			<File
-				RelativePath="lice_image.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_line.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_palette.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_png.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_texgen.cpp"
-				>
-			</File>
-			<File
-				RelativePath="lice_text.h"
-				>
-			</File>
-			<File
-				RelativePath="lice_textnew.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="libpng"
 			>
 			<File
@@ -389,6 +327,62 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="lice.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice.h"
+			>
+		</File>
+		<File
+			RelativePath="lice_arc.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_bezier.h"
+			>
+		</File>
+		<File
+			RelativePath="lice_colorspace.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_combine.h"
+			>
+		</File>
+		<File
+			RelativePath="lice_extended.h"
+			>
+		</File>
+		<File
+			RelativePath="lice_image.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_line.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_palette.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_png.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_texgen.cpp"
+			>
+		</File>
+		<File
+			RelativePath="lice_text.h"
+			>
+		</File>
+		<File
+			RelativePath="lice_textnew.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
