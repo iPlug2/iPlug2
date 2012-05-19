@@ -121,13 +121,15 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
   if (mNegateDisplay) displayValue = -displayValue;
 
   if (mDisplayPrecision == 0)
-    sprintf(rDisplay, "%d", int(displayValue));
-  /*else if(mSignDisplay)
   {
-    char fmt[16];
-    sprintf(fmt, "%%+.%df", mDisplayPrecision);
-    sprintf(rDisplay, fmt, displayValue);
-  }*/
+    sprintf(rDisplay, "%d", int(displayValue));
+  }
+//   else if(mSignDisplay)
+//   {
+//     char fmt[16];
+//     sprintf(fmt, "%%+.%df", mDisplayPrecision);
+//     sprintf(rDisplay, fmt, displayValue);
+//   }
   else
   {
     sprintf(rDisplay, "%.*f", mDisplayPrecision, displayValue);
@@ -165,6 +167,17 @@ const char* IParam::GetDisplayText(int value)
     }
   }
   return "";
+}
+
+const char* IParam::GetDisplayTextAtIdx(int idx, int* value)
+{
+  DisplayText* pDT = mDisplayTexts.Get()+idx;
+  
+  if (value) 
+  {
+    *value = pDT->mValue;
+  }
+  return pDT->mText;
 }
 
 bool IParam::MapDisplayText(char* str, int* pValue)
