@@ -3,13 +3,13 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <VST2_32_HOST_PATH>$(ProgramFiles)\vsthost\vsthost.exe</VST2_32_HOST_PATH>
-    <VST2_64_HOST_PATH>$(ProgramFiles)\vsthost\vsthost.exe</VST2_64_HOST_PATH>
+    <VST2_64_HOST_PATH>$(ProgramW6432)\vsthost\vsthost.exe</VST2_64_HOST_PATH>
     <VST3_32_HOST_PATH>$(ProgramFiles)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe</VST3_32_HOST_PATH>
-    <VST3_64_HOST_PATH>$(ProgramFiles)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe</VST3_64_HOST_PATH>
+    <VST3_64_HOST_PATH>$(ProgramW6432)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe</VST3_64_HOST_PATH>
     <VST3_32_PATH>$(CommonProgramFiles)\VST3</VST3_32_PATH>
-    <VST3_64_PATH>$(CommonProgramFiles)\VST3</VST3_64_PATH>
+    <VST3_64_PATH>$(CommonProgramW6432)\VST3</VST3_64_PATH>
     <WDL_PATH>$(ProjectDir)..\..\WDL</WDL_PATH>
-    <x64_LIB_PATHS>$(ProgramFiles)\Microsoft SDKs\Windows\v7.1\Lib\x64</x64_LIB_PATHS>
+    <x64_LIB_PATHS>$(ProgramW6432)\Microsoft SDKs\Windows\v7.1\Lib\x64</x64_LIB_PATHS>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
@@ -47,7 +47,6 @@
     </BuildMacro>
     <BuildMacro Include="x64_LIB_PATHS">
       <Value>$(x64_LIB_PATHS)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
 </Project>
