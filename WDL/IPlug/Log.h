@@ -5,30 +5,24 @@
 #undef max
 
 #include <stdarg.h>
-#include <stdint.h>
+#ifndef _MSC_VER
+  #include <stdint.h>
+#endif
 
 #include "Containers.h"
 #include "IPlugOSDetect.h"
 
 #if defined OS_WIN
-#include <stdio.h>
-#include <ctype.h>
-
-#ifndef NDEBUG
-void DBGMSG(const char *format, ...);
-#endif
-
-#define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
+  #include <stdio.h>
+  #include <ctype.h>
+  void DBGMSG(const char *format, ...);
+  #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
 
 #elif defined __APPLE__ // TODO: check on ios
-#define SYS_THREAD_ID (intptr_t) pthread_self()
-
-#ifndef NDEBUG
-#define DBGMSG(...) printf(__VA_ARGS__)
-#endif
-
+  #define SYS_THREAD_ID (intptr_t) pthread_self()
+  #define DBGMSG(...) printf(__VA_ARGS__)
 #else
-#error "No OS defined!"
+  #error "No OS defined!"
 #endif
 
 #if defined TRACER_BUILD
@@ -42,10 +36,6 @@ void DBGMSG(const char *format, ...);
 
 #define TRACELOC __FUNCTION__,__LINE__
 void Trace(const char* funcName, int line, const char* fmtStr, ...);
-
-#ifdef NDEBUG
-  #define DBGMSG
-#endif
 
 // To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
 // To simply create a trace entry in the log:    TRACE;
