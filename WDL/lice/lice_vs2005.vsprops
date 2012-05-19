@@ -12,6 +12,10 @@
 		DisableSpecificWarnings="4996;4250;4018;4267"
 	/>
 	<Tool
+		Name="VCLibrarianTool"
+		OutputFile="$(OutDir)\lice.lib"
+	/>
+	<Tool
 		Name="VCLinkerTool"
 		OutputFile="$(OutDir)\lice.lib"
 	/>

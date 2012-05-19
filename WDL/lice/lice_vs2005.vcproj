@@ -52,7 +52,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\lice.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -134,59 +133,59 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\lice\lice.cpp"
+				RelativePath="lice.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice.h"
+				RelativePath="lice.h"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_arc.cpp"
+				RelativePath="lice_arc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_bezier.h"
+				RelativePath="lice_bezier.h"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_colorspace.cpp"
+				RelativePath="lice_colorspace.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_combine.h"
+				RelativePath="lice_combine.h"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_extended.h"
+				RelativePath="lice_extended.h"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_image.cpp"
+				RelativePath="lice_image.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_line.cpp"
+				RelativePath="lice_line.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_palette.cpp"
+				RelativePath="lice_palette.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_png.cpp"
+				RelativePath="lice_png.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_texgen.cpp"
+				RelativePath="lice_texgen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_text.h"
+				RelativePath="lice_text.h"
 				>
 			</File>
 			<File
-				RelativePath="..\lice\lice_textnew.cpp"
+				RelativePath="lice_textnew.cpp"
 				>
 			</File>
 		</Filter>
