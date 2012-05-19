@@ -2,8 +2,16 @@
 
 # this script will update the versions in plist and installer files to match that in resource.h
 
-import plistlib, os, datetime, fileinput, sys, string
+import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
+
+def replacestrs(filename, s, r):
+	files = glob.glob(filename)
+	
+	for line in fileinput.input(files,inplace=1):
+		string.find(line, s)
+		line = line.replace(s, r)
+		sys.stdout.write(line)
 
 def main():
 
@@ -34,6 +42,7 @@ def main():
   vst2['CFBundleVersion'] = CFBundleVersion
   vst2['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(vst2, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
   plistpath = scriptpath + "/resources/IPlugEffect-AU-Info.plist"
   au = plistlib.readPlist(plistpath)
@@ -41,6 +50,7 @@ def main():
   au['CFBundleVersion'] = CFBundleVersion
   au['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(au, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
   plistpath = scriptpath + "/resources/IPlugEffect-VST3-Info.plist"
   vst3 = plistlib.readPlist(plistpath)
@@ -48,6 +58,7 @@ def main():
   vst3['CFBundleVersion'] = CFBundleVersion
   vst3['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(vst3, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
   plistpath = scriptpath + "/resources/IPlugEffect-OSXAPP-Info.plist"
   app = plistlib.readPlist(plistpath)
@@ -55,13 +66,15 @@ def main():
   app['CFBundleVersion'] = CFBundleVersion
   app['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(app, plistpath)
-
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
 #   plistpath = scriptpath + "/resources/IPlugEffect-IOSAPP-Info.plist"
 #   iosapp = plistlib.readPlist(plistpath)
 #   iosapp['CFBundleGetInfoString'] = CFBundleGetInfoString
 #   iosapp['CFBundleVersion'] = CFBundleVersion
 #   iosapp['CFBundleShortVersionString'] = CFBundleVersion
 #   plistlib.writePlist(iosapp, plistpath)
+#   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
   print "Updating Mac Installer version info..."
   
