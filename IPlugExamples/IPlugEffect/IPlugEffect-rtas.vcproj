@@ -28,9 +28,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Performing Custom Build Step"
-				CommandLine="copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile &quot;$(TargetPath)&quot;.rsr&#x0D;&#x0A;"
-				Outputs="$(TargetPath).rsr"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -117,10 +114,6 @@
 			<Tool
 				Name="VCWebDeploymentTool"
 			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
-			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -136,9 +129,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Performing Custom Build Step"
-				CommandLine="copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile &quot;$(TargetPath)&quot;.rsr&#x0D;&#x0A;"
-				Outputs="$(TargetPath).rsr"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -226,10 +216,6 @@
 			/>
 			<Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -246,9 +232,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Performing Custom Build Step"
-				CommandLine="copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile &quot;$(TargetPath)&quot;.rsr&#x0D;&#x0A;"
-				Outputs="$(TargetPath).rsr"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -336,10 +319,6 @@
 			/>
 			<Tool
 				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

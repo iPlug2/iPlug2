@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlugInLib", "..\..\PT9_SDK\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlug_vs2005", "..\..\WDL\IPlug\IPlug_vs2005.vcproj", "{C24F7CF9-95DA-4603-A05A-D11FE38E3062}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lice_vs2005", "..\..\WDL\IPlug\lice_vs2005.vcproj", "{679358EF-E932-4A20-AAAA-75E46481F30A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lice_vs2005", "..\..\WDL\lice\lice_vs2005.vcproj", "{679358EF-E932-4A20-AAAA-75E46481F30A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

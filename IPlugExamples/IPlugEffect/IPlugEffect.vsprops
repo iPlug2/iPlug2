@@ -11,14 +11,21 @@
 		PreprocessorDefinitions="RTAS_API;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 	/>
 	<Tool
+		Name="VCCustomBuildTool"
+		Description="Copying default .rsr file"
+		CommandLine="copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile &quot;$(TargetPath)&quot;.rsr&#x0D;&#x0A;"
+		Outputs="$(TargetPath).rsr"
+	/>
+	<Tool
 		Name="VCLinkerTool"
 		AdditionalDependencies="comdlg32.lib uuid.lib msimg32.lib odbc32.lib odbccp32.lib user32.lib gdi32.lib advapi32.lib shell32.lib"
-		OutputFile="$(OutDir)\IPlugEffect.dpm"
+		OutputFile="$(OutDir)IPlugEffect.dpm"
 		IgnoreDefaultLibraryNames="libcmt.lib, msvprt.lib"
 	/>
 	<Tool
 		Name="VCPostBuildEventTool"
-		CommandLine=""
+		Description="Copying dpm and rsr to $(PluginsPath)"
+		CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 	/>
 	<UserMacro
 		Name="PluginsPath"
