@@ -1,6 +1,7 @@
 *.ipch
 *.lnk
 *.exe
+*.opensdf
 *.sdf
 *.zip
 *.suo
