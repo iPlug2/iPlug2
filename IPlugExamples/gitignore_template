@@ -1,5 +1,6 @@
 *.exe
 *.sdf
+*.opensdf
 *.zip
 *.suo
 *.ncb
