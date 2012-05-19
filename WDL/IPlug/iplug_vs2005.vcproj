@@ -52,7 +52,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\iPlug.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -108,7 +107,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\iPlug.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -164,7 +162,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\iPlug.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
