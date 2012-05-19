@@ -4,6 +4,10 @@
 
 const float GRAYED_ALPHA = 0.25f;
 
+#if defined(RTAS_API) || defined(AAX_API)
+  #define PROTOOLS
+#endif
+
 void IControl::SetValueFromPlug(double value)
 {
   if (mDefaultValue < 0.0)
@@ -62,7 +66,7 @@ void IControl::GrayOut(bool gray)
 void IControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
 
-#ifdef RTAS_API
+#ifdef PROTOOLS
   if (pMod->A && mDefaultValue >= 0.0)
   {
     mValue = mDefaultValue;
@@ -73,7 +77,7 @@ void IControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 
 void IControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
 {
-  #ifdef RTAS_API
+#ifdef PROTOOLS
   PromptUserInput();
   #else
   if (mDefaultValue >= 0.0)
@@ -86,7 +90,7 @@ void IControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
 
 void IControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
 {
-  #ifdef RTAS_API
+#ifdef PROTOOLS
   if (pMod->C)
   {
     mValue += 0.001 * d;
@@ -226,8 +230,8 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBase* pPlug, IRECT pR, int param
 
 void IRadioButtonsControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
-  #ifdef RTAS_API
-  if (pMod->A)
+#ifdef PROTOOLS
+  if (pMod->A) 
   {
     if (mDefaultValue >= 0.0)
     {
@@ -322,8 +326,8 @@ IRECT IFaderControl::GetHandleRECT(double value) const
 
 void IFaderControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 {
-  #ifdef RTAS_API
-  if (pMod->A)
+#ifdef PROTOOLS
+  if (pMod->A) 
   {
     if (mDefaultValue >= 0.0)
     {
@@ -370,7 +374,8 @@ bool IFaderControl::Draw(IGraphics* pGraphics)
 void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
 {
   double gearing = mGearing;
-  #ifdef RTAS_API
+  
+  #ifdef PROTOOLS
     #ifdef OS_WIN
       if (pMod->C) gearing *= 10.0;
     #else
@@ -379,6 +384,7 @@ void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
   #else
     if (pMod->C || pMod->S) gearing *= 10.0;
   #endif
+  
   if (mDirection == kVertical)
   {
     mValue += (double) dY / (double) (mRECT.T - mRECT.B) / gearing;

@@ -27,6 +27,8 @@
   #define API _au
 #elif defined(RTAS_API)
   #define API _rtas
+#elif defined(AAX_API)
+  #define API _aax
 #elif defined(VST3_API)
   #define API _vst3
 #elif defined(SA_API)

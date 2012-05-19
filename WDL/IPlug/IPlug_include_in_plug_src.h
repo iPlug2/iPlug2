@@ -159,6 +159,15 @@ END_FACTORY
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+#elif defined AAX_API
+  IPlug* MakePlug()
+  {
+    static WDL_Mutex sMutex;
+    WDL_MutexLock lock(&sMutex);
+    IPlugInstanceInfo instanceInfo;
+    
+    return new PLUG_CLASS_NAME(instanceInfo);
+  }
 #elif defined SA_API
   //IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan)
   IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan, void* ioslink)
