@@ -177,7 +177,7 @@ def main():
 		#	rmtree(output)
 				
 		print "copying " + input + " folder to " + output
-		copytree(input, output, ignore=ignore_patterns('*.exe', '*.dmg', '*.pkg', '*.mpkg', '*.svn', '*.ncb', '*.suo', '*.sdf', 'build-*', '*.layout', '*.depend', '.DS_Store' ))
+		copytree(input, output, ignore=ignore_patterns('*.exe', '*.dmg', '*.pkg', '*.mpkg', '*.svn', '*.ncb', '*.suo', '*sdf', 'ipch', 'build-*', '*.layout', '*.depend', '.DS_Store' ))
 		cpath = os.path.join(os.getcwd(), output)
 
 		#replace manufacturer name strings
