@@ -34,7 +34,7 @@ void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtA
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR,CB_ADDSTRING,0,(LPARAM)buf);
   }
 
-  int sridx = SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSR);
+  LRESULT sridx = SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSR);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR,CB_SETCURSEL, sridx, 0);
 }
 
@@ -158,7 +158,7 @@ void PopulateAudioDialogs(HWND hwndDlg)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IOVS,CB_ADDSTRING,0,(LPARAM)kIOVSOptions[i].c_str());
   }
 
-  int iovsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioIOVS);
+  LRESULT iovsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioIOVS);
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_SETCURSEL, iovsidx, 0);
 
   //Populate SIGVS combobox
@@ -167,7 +167,7 @@ void PopulateAudioDialogs(HWND hwndDlg)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SIGVS,CB_ADDSTRING,0,(LPARAM)kSIGVSOptions[i].c_str());
   }
 
-  int sigvsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSigVS);
+  LRESULT sigvsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSigVS);
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_SETCURSEL, sigvsidx, 0);
 }
 
@@ -182,7 +182,7 @@ bool PopulateMidiDialogs(HWND hwndDlg)
       SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_ADDSTRING,0,(LPARAM)gMIDIInputDevNames[i].c_str());
     }
 
-    int indevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiInDev);
+    LRESULT indevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiInDev);
 
     // if the midi port name wasn't found update the ini file, and set to off
     if(indevidx == -1)
@@ -199,7 +199,7 @@ bool PopulateMidiDialogs(HWND hwndDlg)
       SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_ADDSTRING,0,(LPARAM)gMIDIOutputDevNames[i].c_str());
     }
 
-    int outdevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiOutDev);
+    LRESULT outdevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiOutDev);
 
     // if the midi port name wasn't found update the ini file, and set to off
     if(outdevidx == -1)
@@ -553,20 +553,13 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           return 0;
         case ID_PREFERENCES:
         {
-          int ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, PreferencesDlgProc);
+          INT_PTR ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, PreferencesDlgProc);
 
           if(ret == IDOK)
           {
             UpdateINI();
           }
-          else if(ret == IDCANCEL)
-          {
-            // nothing changed
-          }
-          else if(ret == -1)
-          {
-            // nothing changed
-          }
+
           return 0;
         }
       }
