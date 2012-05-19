@@ -45,10 +45,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=""
+				AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_DEBUG;PNG_DEBUG"
+				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				PreprocessorDefinitions="RTAS_API;_DEBUG;PNG_DEBUG"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -80,7 +80,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
+				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -114,6 +116,9 @@
 			<Tool
 				Name="VCWebDeploymentTool"
 			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -146,12 +151,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=""
+				AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
 				Optimization="3"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NDEBUG;NDEBUG"
+				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				PreprocessorDefinitions="RTAS_API;NDEBUG"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -183,7 +188,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
+				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -216,6 +223,9 @@
 			/>
 			<Tool
 				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
@@ -249,11 +259,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=""
+				AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
 				Optimization="3"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
 				PreprocessorDefinitions="NDEBUG;NDEBUG"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -286,7 +296,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
+				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -320,21 +332,16 @@
 			<Tool
 				Name="VCWebDeploymentTool"
 			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
 		<Filter
-			Name="Resources"
-			>
-			<File
-				RelativePath=".\IPlugEffect.rc"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Digi Libs"
+			Name="Libs"
 			>
 			<Filter
 				Name="Release"
@@ -474,215 +481,187 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="WDL"
+			Name="IPlug"
 			>
+			<File
+				RelativePath="..\..\WDL\IPlug\Containers.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\Hosts.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\Hosts.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IBitmapMonoText.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IBitmapMonoText.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IGraphics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IGraphics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IGraphicsWin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IGraphicsWin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IKeyboardControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IMidiQueue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IParam.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IParam.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlug_include_in_plug_src.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugBase.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugOSDetect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugRTAS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugRTAS.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugStructs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPlugStructs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPopupMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\IPopupMenu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\Log.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\WDL\IPlug\Log.h"
+				>
+			</File>
 			<Filter
-				Name="IPlug"
+				Name="RTAS"
 				>
 				<File
-					RelativePath="..\..\WDL\IPlug\IGraphicsWin.cpp"
+					RelativePath="..\..\WDL\IPlug\RTAS\EditorInterface.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\WDL\IPlug\IGraphicsWin.h"
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugCustomUI.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h"
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugCustomUI.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\WDL\IPlug\IPlug_include_in_plug_src.h"
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugDigiView.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\WDL\IPlug\IPlugOSDetect.h"
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugGroup.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\WDL\IPlug\IPlugRTAS.cpp"
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugGroup.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\WDL\IPlug\IPlugRTAS.h"
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcess.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcess.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\WDL\IPlug\RTAS\ProcessInterface.h"
 					>
 				</File>
 				<Filter
-					Name="RTAS"
+					Name="include"
 					>
 					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\EditorInterface.h"
+						RelativePath="..\..\WDL\IPlug\RTAS\digicode.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugCustomUI.cpp"
+						RelativePath="..\..\WDL\IPlug\RTAS\digicode1.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugCustomUI.h"
+						RelativePath="..\..\WDL\IPlug\RTAS\digicode2.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugDigiView.h"
+						RelativePath="..\..\WDL\IPlug\RTAS\digicode3.cpp"
 						>
 					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugGroup.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugGroup.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcess.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcess.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\WDL\IPlug\RTAS\ProcessInterface.h"
-						>
-					</File>
-					<Filter
-						Name="include"
-						>
-						<File
-							RelativePath="..\..\WDL\IPlug\RTAS\digicode.h"
-							>
-						</File>
-						<File
-							RelativePath="..\..\WDL\IPlug\RTAS\digicode1.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\WDL\IPlug\RTAS\digicode2.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\WDL\IPlug\RTAS\digicode3.cpp"
-							>
-						</File>
-					</Filter>
 				</Filter>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="WDL Libs"
-			>
-			<Filter
-				Name="Debug"
-				>
-				<File
-					RelativePath="..\..\WDL\IPlug\build-win_vs2005\Win32\Debug\IPlug.lib"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\WDL\IPlug\build-win_vs2005\Win32\Debug\lice.lib"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="Release"
-				>
-				<File
-					RelativePath="..\..\WDL\IPlug\build-win_vs2005\Win32\Release\IPlug.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\WDL\IPlug\build-win_vs2005\Win32\Release\lice.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="Tracer"
-				>
-				<File
-					RelativePath="..\..\wdl\iplug\build-win_vs2005\win32\tracer\IPlug.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
 			</Filter>
 		</Filter>
 		<File
@@ -695,6 +674,10 @@
 		</File>
 		<File
 			RelativePath=".\IPlugEffect.h"
+			>
+		</File>
+		<File
+			RelativePath=".\IPlugEffect.rc"
 			>
 		</File>
 		<File

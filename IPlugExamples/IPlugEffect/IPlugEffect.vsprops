@@ -6,9 +6,8 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
-		AdditionalIncludeDirectories=".\;.\..\..\WDL\IPlug\RTAS;.\..\..\WDL\IPlug\;.\..\..\WDL"
-		PreprocessorDefinitions="RTAS_API;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		AdditionalIncludeDirectories=".;.\..\..\WDL\IPlug;.\..\..\WDL"
+		PreprocessorDefinitions="_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 	/>
 	<Tool
 		Name="VCCustomBuildTool"
@@ -19,7 +18,6 @@
 	<Tool
 		Name="VCLinkerTool"
 		AdditionalDependencies="comdlg32.lib uuid.lib msimg32.lib odbc32.lib odbccp32.lib user32.lib gdi32.lib advapi32.lib shell32.lib"
-		OutputFile="$(OutDir)IPlugEffect.dpm"
 		IgnoreDefaultLibraryNames="libcmt.lib, msvprt.lib"
 	/>
 	<Tool
@@ -29,6 +27,26 @@
 	/>
 	<UserMacro
 		Name="PluginsPath"
-		Value="&quot;C:\Program Files\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="BINARY_NAME"
+		Value="IPlugEffect"
+	/>
+	<UserMacro
+		Name="RTAS_DEFINES"
+		Value="RTAS_API"
+	/>
+	<UserMacro
+		Name="AAX_INCLUDES"
+		Value="&quot;$(ProjectDir)..\..\AAX_SDK\Interfaces&quot;;&quot;$(ProjectDir)..\..\AAX_SDK\Interfaces\ACF&quot;;&quot;$(ProjectDir)..\..\AAX_SDK\Interfaces\C99Compatibility&quot;"
+	/>
+	<UserMacro
+		Name="AAX_DEFINES"
+		Value="AAX_API"
+	/>
+	<UserMacro
+		Name="RTAS_INCLUDES"
+		Value=".\..\..\WDL\IPlug\RTAS"
 	/>
 </VisualStudioPropertySheet>
