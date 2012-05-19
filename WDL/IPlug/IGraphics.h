@@ -14,6 +14,24 @@
   #define _LICE
 #endif
 
+#ifdef AAX_API
+#include "AAX_IViewContainer.h"
+
+static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod* pMod)
+{
+	uint32_t aax_mods = 0;
+	
+	if (pMod->A) aax_mods |= AAX_eModifiers_Option;
+	if (pMod->C) aax_mods |= AAX_eModifiers_Control;
+	if (pMod->R) aax_mods |= AAX_eModifiers_Command; // TODO: ??
+	if (pMod->S) aax_mods |= AAX_eModifiers_Shift;
+	if (pMod->R) aax_mods |= AAX_eModifiers_SecondaryButton;
+  
+	return aax_mods;
+}
+
+#endif
+
 #define MAX_PARAM_LEN 32
 
 class IPlugBase;
@@ -160,6 +178,10 @@ public:
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();
 
+#ifdef AAX_API
+  void SetViewContainer(AAX_IViewContainer* viewContainer) { mAAXViewContainer = viewContainer; }
+  AAX_IViewContainer* GetViewContainer() { return mAAXViewContainer; }
+#endif
 //  void DisplayControlValue(IControl* pControl);
 
   // For efficiency, mouseovers/mouseouts are ignored unless you explicity say you can handle them.
@@ -199,6 +221,10 @@ protected:
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;
   LICE_SysBitmap* mDrawBitmap;
   LICE_IFont* CacheFont(IText* pTxt);
+  
+#ifdef AAX_API
+  AAX_IViewContainer* mAAXViewContainer;  
+#endif
 
 private:
   LICE_MemBitmap* mTmpBitmap;

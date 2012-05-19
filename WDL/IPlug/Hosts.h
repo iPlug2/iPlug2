@@ -10,7 +10,8 @@ enum EAPI
   kAPIVST3 = 1,
   kAPIAU = 2,
   kAPIRTAS = 3,
-  kAPISA = 4
+  kAPIAAX = 4,
+  kAPISA = 5
 };
 
 enum EHost

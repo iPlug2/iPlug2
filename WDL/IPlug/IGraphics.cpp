@@ -1,5 +1,4 @@
 #include "IGraphics.h"
-//#include "IControl.h"
 
 #define DEFAULT_FPS 25
 
@@ -346,13 +345,13 @@ void IGraphics::SetAllControlsDirty()
 //{
 //  int i, n = mControls.GetSize();
 //  IControl** ppControl = mControls.GetList();
-//	for (i = 0; i < n; ++i, ++ppControl) {
+//  for (i = 0; i < n; ++i, ++ppControl) {
 //    IControl* pControl = *ppControl;
 //    if (pControl->ParamIdx() == paramIdx) {
 //      pControl->SetValueFromUserInput(normalizedValue);
 //      // Could be more than one, don't break until we check them all.
 //    }
-//	}
+//  }
 //}
 
 void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pTextRect)
@@ -822,8 +821,24 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
       }
     }
     #endif
+    
+    #ifdef AAX_API
+    uint32_t mods = GetAAXModifiersFromIMouseMod(pMod);
+    
+    if (mAAXViewContainer && paramIdx >= 0)
+    {
+      WDL_String paramID;
+      paramID.SetFormatted(32, "%i", paramIdx+1);
+      
+      if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), mods) == AAX_SUCCESS)
+      {
+        return; // event handled by PT
+      }
+    }
+    #endif
+        
     pControl->OnMouseDown(x, y, pMod);
-
+    
     // need to do these things again in case the mouse message caused a resize/rebuild
     pControl = mControls.Get(c);
     paramIdx = pControl->ParamIdx();
