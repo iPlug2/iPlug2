@@ -155,7 +155,7 @@
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>echo Post-Build: copying 32bit binary to "$(VST3_32_PATH)\IPlugEffect.vst3" ...
+      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
 copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
     </PostBuildEvent>
@@ -176,7 +176,7 @@ copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>echo Post-Build: copying 32bit binary to "$(VST3_64_PATH)\IPlugEffect.vst3" ...
+      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
 if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEffect.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
       <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
     </PostBuildEvent>
@@ -202,7 +202,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEf
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>echo Post-Build: copying 32bit binary to "$(VST3_32_PATH)\IPlugEffect.vst3" ...
+      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
 copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
     </PostBuildEvent>
@@ -228,7 +228,7 @@ copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>echo Post-Build: copying 32bit binary to "$(VST3_64_PATH)\IPlugEffect.vst3" ...
+      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
 if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEffect.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
       <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
     </PostBuildEvent>
@@ -253,7 +253,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEf
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>echo Post-Build: copying 32bit binary to "$(VST3_32_PATH)\IPlugEffect.vst3" ...
+      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
 copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
     </PostBuildEvent>
@@ -278,7 +278,7 @@ copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>echo Post-Build: copying 32bit binary to "$(VST3_64_PATH)\IPlugEffect.vst3" ...
+      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
 if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEffect.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
       <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
     </PostBuildEvent>
