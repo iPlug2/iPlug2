@@ -1069,11 +1069,12 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
   if (rc)
   {
     char drive[_MAX_DRIVE];
+    #ifndef __MINGW_H // TODO: alternative for gcc
     if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
     {
       pDir->SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
     }
-
+    #endif
     pFilename->Set(ofn.lpstrFile);
   }
 }
