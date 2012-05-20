@@ -6,8 +6,8 @@ COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
 //COMPILER = com.apple.compilers.llvm.clang.1_0 // NOT currently working using the Apple LLVM Compiler 3.0
 
 // which osx sdk to compile against
-BASE_SDK = macosx10.5 
-//BASE_SDK = macosx10.6
+//BASE_SDK = macosx10.5 // doesn't seem to link AAX Library in release builds
+BASE_SDK = macosx10.6
 //BASE_SDK = macosx10.7 // Plugins with a Carbon GUI do not work with the 10.7 sdk (so you probably want to use 10.6 or earlier) 
 
 // Where to build the plugins / app ...
