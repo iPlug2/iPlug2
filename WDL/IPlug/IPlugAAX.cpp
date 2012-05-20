@@ -194,11 +194,11 @@ AAX_Result IPlugAAX::EffectInit()
         }
         
         param = new AAX_CParameter<int>(paramID.Get(), 
-                                            AAX_CString(p->GetNameForHost()), 
-                                            (int)p->GetDefault(), 
-                                            AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
-                                            AAX_CStringDisplayDelegate<int>(displayTexts),
-                                            p->GetCanAutomate());
+                                        AAX_CString(p->GetNameForHost()), 
+                                        (int)p->GetDefault(), 
+                                        AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
+                                        AAX_CStringDisplayDelegate<int>(displayTexts),
+                                        p->GetCanAutomate());
         
         param->SetNumberOfSteps(nTexts);
         param->SetType(AAX_eParameterType_Discrete);
@@ -406,20 +406,26 @@ double IPlugAAX::GetTempo()
 
 void IPlugAAX::GetTime(ITimeInfo* pTimeInfo)
 {
+  int32_t num, denom;
+  int64_t ppqPos, samplePos, cStart, cEnd;
+
   mTransport->GetCurrentTempo(&pTimeInfo->mTempo);
   mTransport->IsTransportPlaying(&pTimeInfo->mTransportIsRunning);
-  int32_t num, denom;
+  
   mTransport->GetCurrentMeter(&num, &denom);
   pTimeInfo->mNumerator = (int) num;
   pTimeInfo->mDenominator = (int) denom;
-  int64_t ppqPos, samplePos, cStart, cEnd;
+  
   mTransport->GetCurrentTickPosition(&ppqPos);
   pTimeInfo->mPPQPos = (double) ppqPos;
+  
   mTransport->GetCurrentNativeSampleLocation(&samplePos);
   pTimeInfo->mSamplePos = (double) samplePos;
+  
   mTransport->GetCurrentLoopPosition(&pTimeInfo->mTransportLoopEnabled, &cStart, &cEnd);
   pTimeInfo->mCycleStart = (double) cStart;
   pTimeInfo->mCycleEnd = (double) cEnd;
+  
   //pTimeInfo->mLastBar ??
 }
 
