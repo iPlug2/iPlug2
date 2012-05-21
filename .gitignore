@@ -2,6 +2,7 @@
 *.lnk
 *.exe
 *.opensdf
+*.cache
 *.sdf
 *.zip
 *.suo
