@@ -15,11 +15,23 @@ BUG_FIX=$(($VERSION & 0x000000FF))
 
 FULL_VERSION=$MAJOR_VERSION"."$MINOR_VERSION"."$BUG_FIX
 
-VST2="/Library/Audio/Plug-Ins/VST/IPlugEffect.vst"
-VST3="/Library/Audio/Plug-Ins/VST3/IPlugEffect.vst3"
-APP="/Applications/IPlugEffect.app"
-AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugEffect.component"
-RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
+VST2=`echo | grep VST_FOLDER ../../common.xcconfig`
+VST2=${VST2//\VST_FOLDER = }/IPlugEffect.vst
+
+VST3=`echo | grep VST3_FOLDER ../../common.xcconfig`
+VST3=${VST3//\VST3_FOLDER = }/IPlugEffect.vst3
+
+AU=`echo | grep AU_FOLDER ../../common.xcconfig`
+AU=${AU//\AU_FOLDER = }/IPlugEffect.component
+
+APP=`echo | grep APP_FOLDER ../../common.xcconfig`
+APP=${APP//\APP_FOLDER = }/IPlugEffect.app
+
+RTAS=`echo | grep RTAS_FOLDER ../../common.xcconfig`
+RTAS=${RTAS//\RTAS_FOLDER = }/IPlugEffect.dpm
+
+AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
+AAX=${AAX//\AAX_FOLDER = }/IPlugEffect.aaxplugin
 
 echo "making IPlugEffect version $FULL_VERSION mac distribution..."
 echo ""
@@ -44,9 +56,9 @@ then
 fi
 
 #remove existing AU
-if [ -d $AUDIOUNIT ] 
+if [ -d $AU ] 
 then
-  sudo rm -R $AUDIOUNIT
+  sudo rm -R $AU
 fi
 
 #remove existing VST2
@@ -61,11 +73,16 @@ then
   rm -R $VST3
 fi
 
-
 #remove existing RTAS
 if [ -d "${RTAS}" ] 
 then
   sudo rm -R "${RTAS}"
+fi
+
+#remove existing AAX
+if [ -d "${AAX}" ] 
+then
+  sudo rm -R "${AAX}"
 fi
 
 xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release
@@ -74,14 +91,15 @@ xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target
 #icon stuff - http://maxao.free.fr/telechargements/setfileicon.gz
 echo "setting icons"
 echo ""
-setfileicon resources/IPlugEffect.icns $AUDIOUNIT
+setfileicon resources/IPlugEffect.icns $AU
 setfileicon resources/IPlugEffect.icns $VST2
 setfileicon resources/IPlugEffect.icns $VST3
 setfileicon resources/IPlugEffect.icns "${RTAS}"
+setfileicon resources/IPlugEffect.icns "${AAX}"
 
 #appstore stuff
 
-# echo "code signing app"
+# echo "code signing app for appstore"
 # echo ""
 # codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
 #  
@@ -91,6 +109,12 @@ setfileicon resources/IPlugEffect.icns "${RTAS}"
 #      --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
 #      --product "/Applications/IPlugEffect.app/Contents/Info.plist" installer/IPlugEffect.pkg
 
+#10.8 Gatekeeper/Developer ID stuff
+
+#echo "code sign app for Gatekeeper on 10.8"
+#echo ""
+#codesign -f -s "Developer ID Application: Oliver Larkin" $APP
+
 # installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
 
 sudo sudo rm -R -f installer/IPlugEffect-mac.dmg
@@ -98,6 +122,12 @@ sudo sudo rm -R -f installer/IPlugEffect-mac.dmg
 echo "building installer"
 echo ""
 freeze installer/IPlugEffect.packproj
+
+#echo "code sign installer for Gatekeeper on 10.8"
+#echo ""
+#mkdir installer/build-mac/signed/
+#this product sign doesn't seem to work
+#productsign --sign "Developer ID Installer: Oliver Larkin" "installer/build-mac/IPlugEffect Installer.mpkg" "installer/build-mac/signed/IPlugEffect Installer.mpkg"
 
 # dmg, uses dmgcanvas http://www.araelium.com/dmgcanvas/
 
@@ -116,17 +146,18 @@ else
   fi
   
   hdiutil convert installer/IPlugEffect.dmg -format UDZO -o installer/IPlugEffect-mac.dmg
-  sudo sudo rm -R -f installer/IPlugEffect.dmg
+  sudo rm -R -f installer/IPlugEffect.dmg
 fi
 
-sudo sudo rm -R -f installer/build-mac/
+sudo rm -R -f installer/build-mac/
 
 # echo "copying binaries..."
 # echo ""
-# cp -R $AUDIOUNIT installer/dist/IPlugEffect.component
+# cp -R $AU installer/dist/IPlugEffect.component
 # cp -R $VST2 installer/dist/IPlugEffect.vst
 # cp -R $VST3 installer/dist/IPlugEffect.vst3
 # cp -R $RTAS installer/dist/IPlugEffect.dpm
+# cp -R $AAX installer/dist/IPlugEffect.dpm
 # cp -R $APP installer/dist/IPlugEffect.app
 # 
 # echo "zipping binaries..."
