@@ -22,12 +22,12 @@
 	/>
 	<Tool
 		Name="VCPostBuildEventTool"
-		Description="Copying dpm and rsr to $(PluginsPath)"
-		CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
+		Description=""
+		CommandLine=""
 	/>
 	<UserMacro
-		Name="PluginsPath"
-		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+		Name="AAX_PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
 	/>
 	<UserMacro
 		Name="BINARY_NAME"
@@ -39,7 +39,7 @@
 	/>
 	<UserMacro
 		Name="AAX_INCLUDES"
-		Value="&quot;$(ProjectDir)..\..\AAX_SDK\Interfaces&quot;;&quot;$(ProjectDir)..\..\AAX_SDK\Interfaces\ACF&quot;;&quot;$(ProjectDir)..\..\AAX_SDK\Interfaces\C99Compatibility&quot;"
+		Value=".\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\AAX_SDK\Interfaces\C99Compatibility;.\..\..\WDL\IPlug\AAX"
 	/>
 	<UserMacro
 		Name="AAX_DEFINES"
@@ -48,5 +48,9 @@
 	<UserMacro
 		Name="RTAS_INCLUDES"
 		Value=".\..\..\WDL\IPlug\RTAS"
+	/>
+	<UserMacro
+		Name="PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
 	/>
 </VisualStudioPropertySheet>

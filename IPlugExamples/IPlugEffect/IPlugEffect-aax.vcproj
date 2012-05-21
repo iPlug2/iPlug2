@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
+				CommandLine="DEL /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\AAX_SDK\Interfaces\C99Compatibility;.\..\..\WDL\IPlug\AAX"
+				AdditionalIncludeDirectories="$(AAX_INCLUDES)"
 				PreprocessorDefinitions="$(AAX_DEFINES);_DEBUG;WIN32;_WINDOWS;WINDOWS_VERSION;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
@@ -55,7 +55,7 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile="$(IntDir)/DemoGain.pch"
-				BrowseInformation="1"
+				BrowseInformation="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="0"
@@ -108,7 +108,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				Description="Copying AAX plugin folder to $(AAX_PLUGINS_PATH)"
+				CommandLine="xcopy /E /Y /i .\build-win-aax\bin\$(BINARY_NAME).aaxplugin $(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"
 			/>
 		</Configuration>
 		<Configuration
@@ -120,7 +121,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
+				CommandLine="DEL /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -140,7 +141,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\AAX_SDK\Interfaces\C99Compatibility;.\..\..\WDL\IPlug\AAX"
+				AdditionalIncludeDirectories="$(AAX_INCLUDES)"
 				PreprocessorDefinitions="$(AAX_DEFINES);WIN32;NDEBUG;_WINDOWS;WINDOWS_VERSION;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
@@ -149,7 +150,7 @@
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=""
 				ProgramDataBaseFileName="$(IntDir)/vc70.pdb"
-				BrowseInformation="1"
+				BrowseInformation="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="0"
@@ -200,7 +201,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				Description="Copying AAX plugin folder to $(AAX_PLUGINS_PATH)"
+				CommandLine="xcopy /E /Y /i .\build-win-aax\bin\$(BINARY_NAME).aaxplugin $(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"
 			/>
 		</Configuration>
 		<Configuration
