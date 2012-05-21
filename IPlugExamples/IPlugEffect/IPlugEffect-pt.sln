@@ -1,9 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
+# Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-rtas", "IPlugEffect-rtas.vcproj", "{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}"
 	ProjectSection(ProjectDependencies) = postProject
-		{679358EF-E932-4A20-AAAA-75E46481F30A} = {679358EF-E932-4A20-AAAA-75E46481F30A}
 		{D2CE28FF-63B8-48BC-936D-33F365B4053F} = {D2CE28FF-63B8-48BC-936D-33F365B4053F}
+		{679358EF-E932-4A20-AAAA-75E46481F30A} = {679358EF-E932-4A20-AAAA-75E46481F30A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlugInLib", "..\..\PT9_SDK\AlturaPorts\TDMPlugIns\PlugInLibrary\WinBuild\PlugInLib.vcproj", "{D2CE28FF-63B8-48BC-936D-33F365B4053F}"
@@ -12,8 +12,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lice_vs2005", "..\..\WDL\li
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-aax", "IPlugEffect-aax.vcproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53} = {5E3D286E-BF0D-446A-AFEF-E800F283CE53}
 		{679358EF-E932-4A20-AAAA-75E46481F30A} = {679358EF-E932-4A20-AAAA-75E46481F30A}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AAXLibrary", "..\..\AAX_SDK\Libs\AAXLibrary\WinBuild\AAXLibrary.vcproj", "{5E3D286E-BF0D-446A-AFEF-E800F283CE53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +49,12 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Release|Win32.Build.0 = Release|Win32
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|Win32.ActiveCfg = Release|Win32
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|Win32.Build.0 = Release|Win32
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Debug|Win32.Build.0 = Debug|Win32
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Release|Win32.ActiveCfg = Release|Win32
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Release|Win32.Build.0 = Release|Win32
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Tracer|Win32.ActiveCfg = Debug|Win32
+		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Tracer|Win32.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

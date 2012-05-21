@@ -37,21 +37,21 @@ msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64
 REM - START RTAS VS2005
 
 REM - this is bit clumsy, oh well
-if exist "%ProgramFiles(x86)%" (goto 64-Bit-rtas) else (goto 32-Bit-rtas)
+if exist "%ProgramFiles(x86)%" (goto 64-Bit-pt) else (goto 32-Bit-pt)
 
-:32-Bit-rtas
+:32-Bit-pt
 echo 32-Bit O/S detected
 call "%ProgramFiles%\Microsoft Visual Studio 8\VC\vcvarsall.bat"
-goto END-rtas
+goto END-pt
 
-:64-Bit-rtas
+:64-Bit-pt
 echo 64-Bit Host O/S detected
 call "%ProgramFiles(x86)%\Microsoft Visual Studio 8\VC\vcvarsall.bat"
-goto END-rtas
+goto END-pt
 
-:END-rtas
+:END-pt
 
-msbuild IPlugEffect-rtas.sln /p:configuration=release
+msbuild IPlugEffect-pt.sln /p:configuration=release
 
 REM - Make Installer (InnoSetup)
 
@@ -68,7 +68,7 @@ goto END-is
 :END-is
 
 REM - ZIP
-"%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst3\win32\bin\IPlugEffect.vst3 .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
+"%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst3\win32\bin\IPlugEffect.vst3 .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-pt\bin\IPlugEffect.dpm .\build-win-pt\bin\IPlugEffect.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
 REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win-app\x64\bin\IPlugEffect.exe .\build-win-vst3\x64\bin\IPlugEffect.vst3 .\build-win-vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo off
