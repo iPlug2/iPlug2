@@ -28,7 +28,12 @@
 // ProTools stuff
 #define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugEffect\nIPEF"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define EFFECT_TYPE_DIGI "Effect"
+
+/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+"Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+instrument determined by PLUG _IS _INST
+*/
 
 #define PLUG_CHANNEL_IO "1-1 2-2"
 
@@ -52,9 +57,9 @@
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
 #ifdef SA_API
-#ifndef OS_IOS
-#include "app_wrapper/app_resource.h"
-#endif
+  #ifndef OS_IOS
+    #include "app_wrapper/app_resource.h"
+  #endif
 #endif
 
 // vst3 stuff
