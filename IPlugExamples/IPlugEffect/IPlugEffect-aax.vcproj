@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="DEL /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
+				CommandLine="DEL /Q /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -121,7 +121,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="DEL /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
+				CommandLine="DEL /Q /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
