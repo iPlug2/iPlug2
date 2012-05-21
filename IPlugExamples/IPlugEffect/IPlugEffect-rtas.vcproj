@@ -89,7 +89,7 @@
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PluginsPath)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -118,8 +118,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PluginsPath)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr"
+				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr"
 			/>
 		</Configuration>
 		<Configuration
@@ -199,7 +199,7 @@
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PluginsPath)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -228,8 +228,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PluginsPath)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr"
+				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr"
 			/>
 		</Configuration>
 		<Configuration
@@ -309,7 +309,7 @@
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PluginsPath)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -338,8 +338,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PluginsPath)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PluginsPath)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PluginsPath)\IPlugEffect.dpm.rsr"
+				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr"
 			/>
 		</Configuration>
 	</Configurations>
