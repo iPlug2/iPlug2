@@ -7,7 +7,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories=".;.\..\..\WDL\IPlug;.\..\..\WDL"
-		PreprocessorDefinitions="_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		PreprocessorDefinitions="_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 	/>
 	<Tool
 		Name="VCCustomBuildTool"
@@ -22,7 +22,6 @@
 	/>
 	<Tool
 		Name="VCPostBuildEventTool"
-		Description=""
 		CommandLine=""
 	/>
 	<UserMacro
@@ -34,7 +33,7 @@
 		Value="IPlugEffect"
 	/>
 	<UserMacro
-		Name="RTAS_DEFINES"
+		Name="RTAS_DEFS"
 		Value="RTAS_API"
 	/>
 	<UserMacro
@@ -42,7 +41,7 @@
 		Value=".\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\AAX_SDK\Interfaces\C99Compatibility;.\..\..\WDL\IPlug\AAX"
 	/>
 	<UserMacro
-		Name="AAX_DEFINES"
+		Name="AAX_DEFS"
 		Value="AAX_API"
 	/>
 	<UserMacro
@@ -52,5 +51,17 @@
 	<UserMacro
 		Name="PLUGINS_PATH"
 		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="RELEASE_DEFS"
+		Value="NDEBUG"
+	/>
+	<UserMacro
+		Name="DEBUG_DEFS"
+		Value="_DEBUG"
+	/>
+	<UserMacro
+		Name="TRACER_DEFS"
+		Value="TRACER_BUILD;NDEBUG"
 	/>
 </VisualStudioPropertySheet>

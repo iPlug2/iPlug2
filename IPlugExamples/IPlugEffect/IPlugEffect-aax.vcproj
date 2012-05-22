@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="DEL /Q /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
+				CommandLine="DEL /Q /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(AAX_INCLUDES)"
-				PreprocessorDefinitions="$(AAX_DEFINES);_DEBUG;WIN32;_WINDOWS;WINDOWS_VERSION;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0"
+				PreprocessorDefinitions="$(AAX_DEFS);$(DEBUG_DEFS)"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
@@ -121,7 +121,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="DEL /Q /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico"
+				CommandLine="DEL /Q /F /S .\build-win-aax\bin\$(BINARY_NAME).aaxplugin\&#x0D;&#x0A;CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -140,12 +140,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="$(AAX_INCLUDES)"
-				PreprocessorDefinitions="$(AAX_DEFINES);WIN32;NDEBUG;_WINDOWS;WINDOWS_VERSION;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="$(AAX_DEFS);$(RELEASE_DEFS)"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=""

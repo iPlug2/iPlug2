@@ -37,7 +37,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
+				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
@@ -47,18 +47,21 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
 				Optimization="0"
+				InlineFunctionExpansion="1"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
-				PreprocessorDefinitions="RTAS_API;_DEBUG;PNG_DEBUG"
+				PreprocessorDefinitions="$(RTAS_DEFS);NDEBUG"
 				ExceptionHandling="2"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				AssemblerListingLocation="$(IntDir)/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)/"
-				BrowseInformation="1"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -71,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
+				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -86,7 +89,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="libcmtd.lib"
+				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
@@ -119,7 +122,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -158,10 +161,11 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
-				PreprocessorDefinitions="RTAS_API;NDEBUG"
+				PreprocessorDefinitions="$(RTAS_DEFS);$(RELEASE_DEFS)"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
+				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
@@ -198,10 +202,7 @@
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
-				GenerateMapFile="true"
-				MapFileName="$(IntDir)\$(TargetName).map"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
 			/>
@@ -229,7 +230,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -268,10 +269,11 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
-				PreprocessorDefinitions="NDEBUG;NDEBUG"
+				PreprocessorDefinitions="$(RTAS_DEFS);$(TRACER_DEFS)"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
+				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
@@ -339,7 +341,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -349,142 +351,22 @@
 		<Filter
 			Name="Libs"
 			>
-			<Filter
-				Name="Release"
+			<File
+				RelativePath="..\..\PT9_SDK\WinBag\Release\lib\DAE.lib"
 				>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Release\lib\DAE.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Release\lib\DigiExt.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Release\lib\DSI.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Release\lib\PlugInLib.lib"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="Debug"
+			</File>
+			<File
+				RelativePath="..\..\PT9_SDK\WinBag\Release\lib\DigiExt.lib"
 				>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Debug\lib\DAE.lib"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Debug\lib\DigiExt.lib"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Debug\lib\DSI.lib"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\PT9_SDK\WinBag\Debug\lib\PlugInLib.lib"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Tracer|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
+			</File>
+			<File
+				RelativePath="..\..\PT9_SDK\WinBag\Release\lib\DSI.lib"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PT9_SDK\WinBag\Release\lib\PlugInLib.lib"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="IPlug"
