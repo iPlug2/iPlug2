@@ -4,6 +4,10 @@ BASEDIR=$(dirname $0)
 
 cd $BASEDIR
 
+#---------------------------------------------------------------------------------------------------------
+
+#variables
+
 VERSION=`echo | grep PLUG_VER resource.h`
 VERSION=${VERSION//\#define PLUG_VER }
 VERSION=${VERSION//\'}
@@ -40,16 +44,20 @@ AAX=${AAX//\AAX_FOLDER = }/IPlugEffect.aaxplugin
 PKG='installer/build-mac/IPlugEffect Installer.pkg'
 PKG_US='installer/build-mac/IPlugEffect Installer.unsigned.pkg'
 
-#CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
-#CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
+CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
+CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
 
 echo "making IPlugEffect version $FULL_VERSION mac distribution..."
 echo ""
+
+#---------------------------------------------------------------------------------------------------------
 
 ./update_version.py
 
 #could use touch to force a rebuild
 #touch blah.h
+
+#---------------------------------------------------------------------------------------------------------
 
 #remove existing dist folder
 #if [ -d installer/dist ] 
@@ -90,9 +98,13 @@ then
   sudo rm -f -R "${AAX}"
 fi
 
-# build project. Change target to build individual formats 
+#---------------------------------------------------------------------------------------------------------
+
+# build xcode project. Change target to build individual formats 
 xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release
 #xcodebuild -project IPlugEffect-ios.xcodeproj -xcconfig IPlugEffect.xcconfig -target "IOSAPP" -configuration Release
+
+#---------------------------------------------------------------------------------------------------------
 
 #icon stuff - http://maxao.free.fr/telechargements/setfileicon.gz
 echo "setting icons"
@@ -102,6 +114,8 @@ setfileicon resources/IPlugEffect.icns $VST2
 setfileicon resources/IPlugEffect.icns $VST3
 setfileicon resources/IPlugEffect.icns "${RTAS}"
 setfileicon resources/IPlugEffect.icns "${AAX}"
+
+#---------------------------------------------------------------------------------------------------------
 
 #ProTools stuff
 
@@ -115,6 +129,8 @@ AAX="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
 
 echo "TODO: codesign AAX binary"
 
+#---------------------------------------------------------------------------------------------------------
+
 #appstore stuff
 
 # echo "code signing app for appstore"
@@ -127,29 +143,34 @@ echo "TODO: codesign AAX binary"
 #      --sign "3rd Party Mac Developer Installer: ""${CERT_ID}" \
 #      --product "/Applications/IPlugEffect.app/Contents/Info.plist" installer/IPlugEffect.pkg
 
+#---------------------------------------------------------------------------------------------------------
+
 #10.8 Gatekeeper/Developer ID stuff
 
-echo "code sign app for Gatekeeper on 10.8"
-echo ""
-codesign -f -s "Developer ID Application: ""${CERT_ID}" $APP
+#echo "code sign app for Gatekeeper on 10.8"
+#echo ""
+#codesign -f -s "Developer ID Application: ""${CERT_ID}" $APP
+
+#---------------------------------------------------------------------------------------------------------
 
 # installer, uses Packages http://s.sudre.free.fr/Software/Packages/about.html
-
 sudo sudo rm -R -f installer/IPlugEffect-mac.dmg
 
 echo "building installer"
 echo ""
 packagesbuild installer/IPlugEffect.pkgproj
 
-echo "code sign installer for Gatekeeper on 10.8"
-echo ""
-mv "${PKG}" "${PKG_US}"
-productsign --sign "Developer ID Installer: ""${CERT_ID}" "${PKG_US}" "${PKG}"
+#echo "code sign installer for Gatekeeper on 10.8"
+#echo ""
+#mv "${PKG}" "${PKG_US}"
+#productsign --sign "Developer ID Installer: ""${CERT_ID}" "${PKG_US}" "${PKG}"
                    
 #rm -R -f "${PKG_US}"
 
 #set installer icon
 setfileicon resources/IPlugEffect.icns "${PKG}"
+
+#---------------------------------------------------------------------------------------------------------
 
 # dmg, can use dmgcanvas http://www.araelium.com/dmgcanvas/ to make a nice dmg
 
@@ -173,6 +194,9 @@ fi
 
 sudo rm -R -f installer/build-mac/
 
+#---------------------------------------------------------------------------------------------------------
+# zip
+
 # echo "copying binaries..."
 # echo ""
 # cp -R $AU installer/dist/IPlugEffect.component
@@ -186,5 +210,7 @@ sudo rm -R -f installer/build-mac/
 # echo ""
 # ditto -c -k installer/dist installer/IPlugEffect-mac.zip
 # rm -R installer/dist
+
+#---------------------------------------------------------------------------------------------------------
 
 echo "done"
