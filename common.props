@@ -9,7 +9,7 @@
     <VST3_32_PATH>$(CommonProgramFiles)\VST3</VST3_32_PATH>
     <VST3_64_PATH>$(CommonProgramW6432)\VST3</VST3_64_PATH>
     <WDL_PATH>$(ProjectDir)..\..\WDL</WDL_PATH>
-    <x64_LIB_PATHS>$(ProgramW6432)\Microsoft SDKs\Windows\v7.1\Lib\x64</x64_LIB_PATHS>
+    <x64_LIB_PATHS>$(ProgramW6432)\Microsoft SDKs\Windows\v7.1\Lib\x64;$(ProgramFiles)\Microsoft SDKs\Windows\v7.1\Lib\x64</x64_LIB_PATHS>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
