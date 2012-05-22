@@ -6,12 +6,12 @@ import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 def replacestrs(filename, s, r):
-	files = glob.glob(filename)
-	
-	for line in fileinput.input(files,inplace=1):
-		string.find(line, s)
-		line = line.replace(s, r)
-		sys.stdout.write(line)
+  files = glob.glob(filename)
+  
+  for line in fileinput.input(files,inplace=1):
+    string.find(line, s)
+    line = line.replace(s, r)
+    sys.stdout.write(line)
 
 def main():
 
@@ -78,21 +78,12 @@ def main():
 
   print "Updating Mac Installer version info..."
   
-  plistpath = scriptpath + "/installer/IPlugEffect.packproj"
+  plistpath = scriptpath + "/installer/IPlugEffect.pkgproj"
   installer = plistlib.readPlist(plistpath)
-  installer['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersionStr
-  installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
-  installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(MajorStr)
-  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(MinorStr)
   
-  for x in range(0,5):
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersionStr
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMajorVersion'] = int(MajorStr)
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMinorVersion'] = int(MinorStr) 
-
+  for x in range(0,6):
+    installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = FullVersionStr
+  
   plistlib.writePlist(installer, plistpath)
 
   print "Updating Windows Installer version info..."
