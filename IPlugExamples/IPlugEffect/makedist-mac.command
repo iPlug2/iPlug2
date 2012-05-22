@@ -37,6 +37,9 @@ RTAS=${RTAS//\RTAS_FOLDER = }/IPlugEffect.dpm
 AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
 AAX=${AAX//\AAX_FOLDER = }/IPlugEffect.aaxplugin
 
+PKG='installer/build-mac/IPlugEffect Installer.pkg'
+PKG_US='installer/build-mac/IPlugEffect Installer.unsigned.pkg'
+
 echo "making IPlugEffect version $FULL_VERSION mac distribution..."
 echo ""
 
@@ -131,21 +134,23 @@ echo "TODO: codesign AAX binary"
 #echo ""
 #codesign -f -s "Developer ID Application: Oliver Larkin" $APP
 
-# installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
+# installer, uses Packages http://s.sudre.free.fr/Software/Packages/about.html
 
 sudo sudo rm -R -f installer/IPlugEffect-mac.dmg
 
 echo "building installer"
 echo ""
-freeze installer/IPlugEffect.packproj
+packagesbuild installer/IPlugEffect.pkgproj
 
 #echo "code sign installer for Gatekeeper on 10.8"
 #echo ""
-#mkdir installer/build-mac/signed/
-#this productsign doesn't seem to work
-#productsign --sign "Developer ID Installer: Oliver Larkin" \
-#                   "installer/build-mac/IPlugEffect Installer.mpkg" \
-#                   "installer/build-mac/signed/IPlugEffect Installer.mpkg"
+#mv "${PKG}" "${PKG_US}"
+#productsign --sign "Developer ID Installer: Oliver Larkin" "${PKG_US}" "${PKG}"
+                   
+#rm -R -f "${PKG_US}"
+
+#set installer icon
+setfileicon resources/IPlugEffect.icns "${PKG}"
 
 # dmg, can use dmgcanvas http://www.araelium.com/dmgcanvas/ to make a nice dmg
 
