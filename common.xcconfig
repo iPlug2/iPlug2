@@ -17,11 +17,12 @@ MACOSX_DEPLOYMENT_TARGET = 10.5
 
 // build to system plugin folder
 // you need to explicitly add write permissions to put stuff here
+// you can also build to the user plugin folder, but the installer scripts assume that the binarys are in the system folder
+// RTAS and AAX folders should be the location of the PT Dev build plug-ins folders
 
 VST_FOLDER = /Library/Audio/Plug-Ins/VST
 VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
 AU_FOLDER = /Library/Audio/Plug-Ins/Components
-// /Applications/Avid/ProTools_3PDev/Plug-Ins
-RTAS_FOLDER = /Library/Application Support/Digidesign/Plug-Ins
-AAX_FOLDER = /Library/Application Support/Avid/Audio/Plug-Ins
+RTAS_FOLDER = /Applications/Avid/ProTools_3PDev/Plug-Ins
+AAX_FOLDER = /Applications/Avid/ProTools_3PDev/Plug-Ins
 APP_FOLDER = /Applications

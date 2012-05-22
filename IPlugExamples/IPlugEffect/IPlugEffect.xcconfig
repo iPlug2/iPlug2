@@ -3,7 +3,7 @@
 //------------------------------
 // Global settings
 
-// the basename of the vst, vst3, app, component
+// the basename of the vst, vst3, app, component, dpm, aaxplugin
 BINARY_NAME = IPlugEffect
 
 // path to WDL folder
