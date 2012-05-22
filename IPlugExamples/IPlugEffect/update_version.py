@@ -85,7 +85,8 @@ def main():
     installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = FullVersionStr
   
   plistlib.writePlist(installer, plistpath)
-
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
   print "Updating Windows Installer version info..."
   
   for line in fileinput.input(scriptpath + "/installer/IPlugEffect.iss",inplace=1):
