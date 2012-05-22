@@ -40,6 +40,9 @@ AAX=${AAX//\AAX_FOLDER = }/IPlugEffect.aaxplugin
 PKG='installer/build-mac/IPlugEffect Installer.pkg'
 PKG_US='installer/build-mac/IPlugEffect Installer.unsigned.pkg'
 
+#CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
+#CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
+
 echo "making IPlugEffect version $FULL_VERSION mac distribution..."
 echo ""
 
@@ -56,42 +59,38 @@ echo ""
 
 #mkdir installer/dist
 
-#remove existing App
+#remove existing binaries
 if [ -d $APP ] 
 then
   sudo rm -f -R -f $APP
 fi
 
-#remove existing AU
 if [ -d $AU ] 
 then
   sudo rm -f -R $AU
 fi
 
-#remove existing VST2
 if [ -d $VST2 ] 
 then
   sudo rm -f -R $VST2
 fi
 
-#remove existing VST3
 if [ -d $VST3 ] 
 then
-  rm -f -R $VST3
+  sudo rm -f -R $VST3
 fi
 
-#remove existing RTAS
 if [ -d "${RTAS}" ] 
 then
   sudo rm -f -R "${RTAS}"
 fi
 
-#remove existing AAX
 if [ -d "${AAX}" ] 
 then
   sudo rm -f -R "${AAX}"
 fi
 
+# build project. Change target to build individual formats 
 xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release
 #xcodebuild -project IPlugEffect-ios.xcodeproj -xcconfig IPlugEffect.xcconfig -target "IOSAPP" -configuration Release
 
@@ -120,19 +119,19 @@ echo "TODO: codesign AAX binary"
 
 # echo "code signing app for appstore"
 # echo ""
-# codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
+# codesign -f -s "3rd Party Mac Developer Application: ""${CERT_ID}" $APP
 #  
 # echo "building pkg for app store"
 # productbuild \
 #      --component $APP /Applications \
-#      --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
+#      --sign "3rd Party Mac Developer Installer: ""${CERT_ID}" \
 #      --product "/Applications/IPlugEffect.app/Contents/Info.plist" installer/IPlugEffect.pkg
 
 #10.8 Gatekeeper/Developer ID stuff
 
-#echo "code sign app for Gatekeeper on 10.8"
-#echo ""
-#codesign -f -s "Developer ID Application: Oliver Larkin" $APP
+echo "code sign app for Gatekeeper on 10.8"
+echo ""
+codesign -f -s "Developer ID Application: ""${CERT_ID}" $APP
 
 # installer, uses Packages http://s.sudre.free.fr/Software/Packages/about.html
 
@@ -142,10 +141,10 @@ echo "building installer"
 echo ""
 packagesbuild installer/IPlugEffect.pkgproj
 
-#echo "code sign installer for Gatekeeper on 10.8"
-#echo ""
-#mv "${PKG}" "${PKG_US}"
-#productsign --sign "Developer ID Installer: Oliver Larkin" "${PKG_US}" "${PKG}"
+echo "code sign installer for Gatekeeper on 10.8"
+echo ""
+mv "${PKG}" "${PKG_US}"
+productsign --sign "Developer ID Installer: ""${CERT_ID}" "${PKG_US}" "${PKG}"
                    
 #rm -R -f "${PKG_US}"
 
