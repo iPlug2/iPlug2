@@ -36,8 +36,8 @@ REM - SET CMDLINE_DEFINES="DEMO_VERSION"
 REM - Could build individual projects like this:
 REM - msbuild IPlugEffect-app.vcxproj /p:configuration=release /p:platform=win32
 
-msbuild IPlugEffect.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win-errors.log;errorsonly 
-msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win-errors.log;errorsonly;append
+msbuild IPlugEffect.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
+msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
 REM - START RTAS VS2005
 
@@ -57,7 +57,8 @@ goto END-pt
 
 :END-pt
 
-msbuild IPlugEffect-pt.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /logger:fileLogger,Microsoft.Build.Engine;LogFile=build-win-errors.log;append /v:quiet
+REM - seems it's not possible to print only errors with vs2005 msbuild
+msbuild IPlugEffect-pt.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /logger:fileLogger,Microsoft.Build.Engine;LogFile=build-win.log;append /v:quiet
 
 echo TODO: sign aax binary
 
@@ -85,6 +86,6 @@ REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\bu
 echo ------------------------------------------------------------------
 echo Printing log file to console...
 
-type build-win-errors.log
+type build-win.log
 
 pause
