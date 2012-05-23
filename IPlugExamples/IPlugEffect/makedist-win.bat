@@ -1,13 +1,21 @@
+echo off
+
 REM - batch file to build 32&64 bit VS2010 VST/APP project and VS2005 RTAS project and zip the resulting binaries
+REM - updating version numbers requires python and python path added to %PATH% env variable 
 REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
 REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
 
-echo "making IPlugEffect win distribution..."
+echo Making IPlugEffect win distribution...
 
-echo "updating version numbers"
+echo ------------------------------------------------------------------
+echo Updating version numbers...
+
 call python update_version.py
 
 REM - START VST2/VST3/APP VS2010
+
+echo ------------------------------------------------------------------
+echo "Building VST2/VST3/APP (VS2010)..."
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
@@ -26,36 +34,37 @@ REM - set preprocessor macros like this, for instance to enable demo build:
 REM - SET CMDLINE_DEFINES="DEMO_VERSION"
 
 REM - Could build individual projects like this:
-REM - msbuild IPlugEffect.vcxproj /p:configuration=release /p:platform=win32
 REM - msbuild IPlugEffect-app.vcxproj /p:configuration=release /p:platform=win32
-REM - msbuild IPlugEffect.vcxproj /p:configuration=release /p:platform=x64
-REM - msbuild IPlugEffect-app.vcxproj /p:configuration=release /p:platform=x64
 
-msbuild IPlugEffect.sln /p:configuration=release /p:platform=win32
-msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64
+msbuild IPlugEffect.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win-errors.log;errorsonly 
+msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win-errors.log;errorsonly;append
 
 REM - START RTAS VS2005
+
+echo ------------------------------------------------------------------
+echo Building RTAS/AAX Plugins (VS2005)...
 
 REM - this is bit clumsy, oh well
 if exist "%ProgramFiles(x86)%" (goto 64-Bit-pt) else (goto 32-Bit-pt)
 
 :32-Bit-pt
-echo 32-Bit O/S detected
 call "%ProgramFiles%\Microsoft Visual Studio 8\VC\vcvarsall.bat"
 goto END-pt
 
 :64-Bit-pt
-echo 64-Bit Host O/S detected
 call "%ProgramFiles(x86)%\Microsoft Visual Studio 8\VC\vcvarsall.bat"
 goto END-pt
 
 :END-pt
 
-msbuild IPlugEffect-pt.sln /p:configuration=release
+msbuild IPlugEffect-pt.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /logger:fileLogger,Microsoft.Build.Engine;LogFile=build-win-errors.log;append /v:quiet
 
-echo "todo: sign aax binary"
+echo TODO: sign aax binary
 
 REM - Make Installer (InnoSetup)
+
+echo ------------------------------------------------------------------
+echo Making Installer...
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit-is) else (goto 32-Bit-is)
 
@@ -73,5 +82,9 @@ REM - ZIP
 REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst3\win32\bin\IPlugEffect.vst3 .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin .\installer\license.rtf .\installer\readmewin.rtf
 REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win-app\x64\bin\IPlugEffect.exe .\build-win-vst3\x64\bin\IPlugEffect.vst3 .\build-win-vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
 
-echo off
+echo ------------------------------------------------------------------
+echo Printing log file to console...
+
+type build-win-errors.log
+
 pause
