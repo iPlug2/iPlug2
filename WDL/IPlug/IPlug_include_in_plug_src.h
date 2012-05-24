@@ -6,7 +6,7 @@
 
 #if defined OS_WIN
   HINSTANCE gHInstance = 0;
-  #ifdef VST_API //TODO check
+  #if defined(VST_API) || defined(AAX_API) //TODO check
   #ifdef __MINGW32__
   extern "C"
   #endif
