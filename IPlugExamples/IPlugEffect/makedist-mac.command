@@ -101,8 +101,18 @@ fi
 #---------------------------------------------------------------------------------------------------------
 
 # build xcode project. Change target to build individual formats 
-xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release
+xcodebuild -project IPlugEffect.xcodeproj -xcconfig IPlugEffect.xcconfig -target "All" -configuration Release 2> ./build-mac.log
 #xcodebuild -project IPlugEffect-ios.xcodeproj -xcconfig IPlugEffect.xcconfig -target "IOSAPP" -configuration Release
+
+if [ -s build-mac.log ]
+then
+  echo "build failed due to following errors:"
+  echo ""
+  cat build-mac.log
+  exit 1
+else
+ rm build-mac.log
+fi
 
 #---------------------------------------------------------------------------------------------------------
 
