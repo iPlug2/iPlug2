@@ -178,7 +178,7 @@ protected:
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
 
-  void InitializeVSTChunk(ByteChunk* pChunk);
+  void InitChunkWithIPlugVer(ByteChunk* pChunk);
   int GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos);
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
@@ -302,12 +302,12 @@ private:
 protected:
   // TODO: probably this stuff should be private, not protected
   bool mStateChunks, mIsInst, mIsBypassed;
+  int mCurrentPresetIdx;
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
 
 private:
-  int mCurrentPresetIdx;
   IGraphics* mGraphics;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;

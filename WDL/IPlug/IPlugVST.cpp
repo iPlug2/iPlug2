@@ -491,8 +491,9 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       {
         bool isBank = (!idx);
         ByteChunk* pChunk = (isBank ? &(_this->mBankState) : &(_this->mState));
-        _this->InitializeVSTChunk(pChunk);
+        _this->InitChunkWithIPlugVer(pChunk);
         bool savedOK = true;
+        
         if (isBank)
         {
           //_this->ModifyCurrentPreset();
@@ -502,6 +503,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         {
           savedOK = _this->SerializeState(pChunk);
         }
+        
         if (savedOK && pChunk->Size())
         {
           *ppData = pChunk->GetBytes();
@@ -521,6 +523,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         int pos = 0;
         int iplugVer = _this->GetIPlugVerFromChunk(pChunk, &pos);
         isBank &= (iplugVer >= 0x010000);
+        
         if (isBank)
         {
           pos = _this->UnserializePresets(pChunk, pos);
@@ -530,6 +533,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           pos = _this->UnserializeState(pChunk, pos);
           _this->ModifyCurrentPreset();
         }
+        
         if (pos >= 0)
         {
           _this->RedrawParamControls();

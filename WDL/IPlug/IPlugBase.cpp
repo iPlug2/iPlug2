@@ -1046,7 +1046,7 @@ bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
 
         fxpMagic = WDL_bswap32('FPCh');
 
-        InitializeVSTChunk(&state);
+        InitChunkWithIPlugVer(&state);
         SerializeState(&state);
 
         chunkSize = WDL_bswap32(state.Size());
@@ -1125,7 +1125,7 @@ bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
 
         fxbMagic = WDL_bswap32('FBCh');
 
-        InitializeVSTChunk(&state);
+        InitChunkWithIPlugVer(&state);
         SerializePresets(&state);
 
         chunkSize = WDL_bswap32(state.Size());
@@ -1436,7 +1436,7 @@ bool IPlugBase::LoadBankFromFXB()
 
 #endif
 
-void IPlugBase::InitializeVSTChunk(ByteChunk* pChunk)
+void IPlugBase::InitChunkWithIPlugVer(ByteChunk* pChunk)
 {
   pChunk->Clear();
   int magic = IPLUG_VERSION_MAGIC;
