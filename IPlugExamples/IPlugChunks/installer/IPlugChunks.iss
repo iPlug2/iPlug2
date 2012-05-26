@@ -22,6 +22,7 @@ Name: "vst2_64"; Description: "64-bit VST2 Plugin (.dll)"; Types: full custom; C
 Name: "vst3_32"; Description: "32-bit VST3 Plugin (.vst3)"; Types: full custom;
 Name: "vst3_64"; Description: "64-bit VST3 Plugin (.vst3)"; Types: full custom; Check: Is64BitInstallMode;
 Name: "rtas_32"; Description: "32-bit RTAS Plugin (.dpm)"; Types: full custom;
+Name: "aax_32"; Description: "32-bit AAX Plugin (.aaxplugin)"; Types: full custom;
 Name: "manual"; Description: "User guide"; Types: full custom; Flags: fixed
 
 [Files]
@@ -38,6 +39,9 @@ Source: "..\build-win-vst3\x64\bin\IPlugChunks.vst3"; DestDir: "{cf64}\VST3\"; C
 
 Source: "..\build-win-rtas\bin\IPlugChunks.dpm"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
 Source: "..\build-win-rtas\bin\IPlugChunks.dpm.rsr"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
+
+Source: "..\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\"; Components:aax_32;
+;Source: "..\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Resources\IPlugChunks.xml"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\"; Components:aax_32;
 
 Source: "..\manual\IPlugChunks_manual.pdf"; DestDir: "{app}"
 Source: "changelog.txt"; DestDir: "{app}"

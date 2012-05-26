@@ -2,8 +2,16 @@
 
 # this script will update the versions in plist and installer files to match that in resource.h
 
-import plistlib, os, datetime, fileinput, sys, string
+import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
+
+def replacestrs(filename, s, r):
+  files = glob.glob(filename)
+  
+  for line in fileinput.input(files,inplace=1):
+    string.find(line, s)
+    line = line.replace(s, r)
+    sys.stdout.write(line)
 
 def main():
 
@@ -34,6 +42,7 @@ def main():
   vst2['CFBundleVersion'] = CFBundleVersion
   vst2['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(vst2, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
   plistpath = scriptpath + "/resources/IPlugChunks-AU-Info.plist"
   au = plistlib.readPlist(plistpath)
@@ -41,6 +50,7 @@ def main():
   au['CFBundleVersion'] = CFBundleVersion
   au['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(au, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
   plistpath = scriptpath + "/resources/IPlugChunks-VST3-Info.plist"
   vst3 = plistlib.readPlist(plistpath)
@@ -48,6 +58,7 @@ def main():
   vst3['CFBundleVersion'] = CFBundleVersion
   vst3['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(vst3, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
   plistpath = scriptpath + "/resources/IPlugChunks-OSXAPP-Info.plist"
   app = plistlib.readPlist(plistpath)
@@ -55,33 +66,27 @@ def main():
   app['CFBundleVersion'] = CFBundleVersion
   app['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(app, plistpath)
-
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
 #   plistpath = scriptpath + "/resources/IPlugChunks-IOSAPP-Info.plist"
 #   iosapp = plistlib.readPlist(plistpath)
 #   iosapp['CFBundleGetInfoString'] = CFBundleGetInfoString
 #   iosapp['CFBundleVersion'] = CFBundleVersion
 #   iosapp['CFBundleShortVersionString'] = CFBundleVersion
 #   plistlib.writePlist(iosapp, plistpath)
+#   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
   print "Updating Mac Installer version info..."
   
-  plistpath = scriptpath + "/installer/IPlugChunks.packproj"
+  plistpath = scriptpath + "/installer/IPlugChunks.pkgproj"
   installer = plistlib.readPlist(plistpath)
-  installer['Hierarchy']['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersionStr
-  installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
-  installer['Hierarchy']['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMajorVersion'] = int(MajorStr)
-  installer['Hierarchy']['Attributes']['Settings']['Version']['IFMinorVersion'] = int(MinorStr)
   
-  for x in range(0,5):
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Description']['International']['IFPkgDescriptionVersion'] = FullVersionStr
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleGetInfoString'] = CFBundleGetInfoString
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Display Information']['CFBundleShortVersionString'] = CFBundleVersion
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMajorVersion'] = int(MajorStr)
-    installer['Hierarchy']['Attributes']['Components'][x]['Attributes']['Settings']['Version']['IFMinorVersion'] = int(MinorStr) 
-
+  for x in range(0,6):
+    installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = FullVersionStr
+  
   plistlib.writePlist(installer, plistpath)
-
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
   print "Updating Windows Installer version info..."
   
   for line in fileinput.input(scriptpath + "/installer/IPlugChunks.iss",inplace=1):

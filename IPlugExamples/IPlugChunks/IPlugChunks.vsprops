@@ -6,14 +6,18 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalOptions="@..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt"
-		AdditionalIncludeDirectories=".\;.\..\..\WDL\IPlug\RTAS;.\..\..\WDL\IPlug\;.\..\..\WDL"
-		PreprocessorDefinitions="RTAS_API;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		AdditionalIncludeDirectories=".;.\..\..\WDL\IPlug;.\..\..\WDL"
+		PreprocessorDefinitions="_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+	/>
+	<Tool
+		Name="VCCustomBuildTool"
+		Description="Copying default .rsr file"
+		CommandLine="copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile &quot;$(TargetPath)&quot;.rsr&#x0D;&#x0A;"
+		Outputs="$(TargetPath).rsr"
 	/>
 	<Tool
 		Name="VCLinkerTool"
 		AdditionalDependencies="comdlg32.lib uuid.lib msimg32.lib odbc32.lib odbccp32.lib user32.lib gdi32.lib advapi32.lib shell32.lib"
-		OutputFile="$(OutDir)\IPlugChunks.dpm"
 		IgnoreDefaultLibraryNames="libcmt.lib, msvprt.lib"
 	/>
 	<Tool
@@ -21,7 +25,43 @@
 		CommandLine=""
 	/>
 	<UserMacro
-		Name="PluginsPath"
-		Value="&quot;C:\Program Files\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+		Name="AAX_PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="BINARY_NAME"
+		Value="IPlugChunks"
+	/>
+	<UserMacro
+		Name="RTAS_DEFS"
+		Value="RTAS_API"
+	/>
+	<UserMacro
+		Name="AAX_INCLUDES"
+		Value=".\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\AAX_SDK\Interfaces\C99Compatibility;.\..\..\WDL\IPlug\AAX"
+	/>
+	<UserMacro
+		Name="AAX_DEFS"
+		Value="AAX_API"
+	/>
+	<UserMacro
+		Name="RTAS_INCLUDES"
+		Value=".\..\..\WDL\IPlug\RTAS"
+	/>
+	<UserMacro
+		Name="PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="RELEASE_DEFS"
+		Value="NDEBUG"
+	/>
+	<UserMacro
+		Name="DEBUG_DEFS"
+		Value="_DEBUG"
+	/>
+	<UserMacro
+		Name="TRACER_DEFS"
+		Value="TRACER_BUILD;NDEBUG"
 	/>
 </VisualStudioPropertySheet>
