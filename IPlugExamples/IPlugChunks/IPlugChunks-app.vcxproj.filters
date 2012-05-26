@@ -1,97 +1,82 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="app">
+      <UniqueIdentifier>{6a6c24bd-7110-4436-97af-07990da17abf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3rd Party">
-      <UniqueIdentifier>{53c21200-60b2-4254-885e-b9130e4a751c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="3rd Party\RtAudioMidi">
+    <Filter Include="app\RtAudioMidi">
       <UniqueIdentifier>{ef87c677-1479-44bc-aef8-7ba960ef233d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3rd Party\RtAudioMidi\ASIO_SDK">
+    <Filter Include="app\ASIO_SDK">
       <UniqueIdentifier>{b91b9db4-5584-4959-a395-7394ba3cf5a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="App Wrapper">
-      <UniqueIdentifier>{6a6c24bd-7110-4436-97af-07990da17abf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h">
-      <Filter>3rd Party\RtAudioMidi</Filter>
+      <Filter>app\RtAudioMidi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtError.h">
-      <Filter>3rd Party\RtAudioMidi</Filter>
+      <Filter>app\RtAudioMidi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtMidi.h">
-      <Filter>3rd Party\RtAudioMidi</Filter>
+      <Filter>app\RtAudioMidi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ASIO_SDK\asiosys.h">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ASIO_SDK\ginclude.h">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ASIO_SDK\iasiodrv.h">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ASIO_SDK\asio.h">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ASIO_SDK\asiodrivers.h">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ASIO_SDK\asiolist.h">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClInclude>
     <ClInclude Include="app_wrapper\app_main.h">
-      <Filter>App Wrapper</Filter>
+      <Filter>app</Filter>
     </ClInclude>
-    <ClInclude Include="app_wrapper\app_resource.h">
-      <Filter>App Wrapper</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
-    <ClInclude Include="IVecSliders.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="IPlugChunks.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlugStandalone.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app_wrapper\app_resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">
-      <Filter>3rd Party\RtAudioMidi</Filter>
+      <Filter>app\RtAudioMidi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtMidi.cpp">
-      <Filter>3rd Party\RtAudioMidi</Filter>
+      <Filter>app\RtAudioMidi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ASIO_SDK\asio.cpp">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ASIO_SDK\asiodrivers.cpp">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ASIO_SDK\asiolist.cpp">
-      <Filter>3rd Party\RtAudioMidi\ASIO_SDK</Filter>
+      <Filter>app\ASIO_SDK</Filter>
     </ClCompile>
     <ClCompile Include="app_wrapper\app_dialog.cpp">
-      <Filter>App Wrapper</Filter>
+      <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="app_wrapper\app_main.cpp">
-      <Filter>App Wrapper</Filter>
+      <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="IPlugChunks.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IPlugStandalone.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="IPlugChunks.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\IPlugChunks.ico">
-      <Filter>Resource Files</Filter>
-    </None>
+    <ResourceCompile Include="IPlugChunks.rc" />
   </ItemGroup>
 </Project>
