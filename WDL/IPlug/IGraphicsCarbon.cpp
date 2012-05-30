@@ -436,12 +436,12 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
       GetWindowBounds(_this->mWindow, kWindowTitleBarRgn, &bounds);
 
       // adjust x mouse coord if the gui is less wide than the window
-      int windowWidth = (bounds.right - bounds.left);
-
-      if (windowWidth > pGraphicsMac->Width())
-      {
-        hp.x -= (int) floor((windowWidth - pGraphicsMac->Width()) / 2.);
-      }
+//      int windowWidth = (bounds.right - bounds.left);
+//
+//      if (windowWidth > pGraphicsMac->Width())
+//      {
+//        hp.x -= (int) floor((windowWidth - pGraphicsMac->Width()) / 2.);
+//      }
 
       // Title bar Y offset
       hp.y -= bounds.bottom - bounds.top;
