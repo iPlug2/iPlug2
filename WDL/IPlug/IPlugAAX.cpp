@@ -2,9 +2,11 @@
 
 #include "AAX_CBinaryTaperDelegate.h"
 #include "AAX_CBinaryDisplayDelegate.h"
-//#include "AAX_CStateTaperDelegate.h"
 #include "AAX_CStringDisplayDelegate.h"
 #include "AAX_CLinearTaperDelegate.h"
+
+// custom taper for IParam::kTypeDouble
+#include "AAX/AAX_CIPlugTaperDelegate.h"
 #include "AAX_CNumberDisplayDelegate.h"
 
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
@@ -152,11 +154,11 @@ AAX_Result IPlugAAX::EffectInit()
     {
       case IParam::kTypeDouble:
       {
-        param = new AAX_CParameter<float>(paramID.Get(), 
+        param = new AAX_CParameter<double>(paramID.Get(), 
                                           AAX_CString(p->GetNameForHost()), 
-                                          (float)p->GetDefault(), 
-                                          AAX_CLinearTaperDelegate<float>((float)p->GetMin(), (float)p->GetMax()), 
-                                          AAX_CNumberDisplayDelegate<float>(), 
+                                          p->GetDefault(), 
+                                          AAX_CIPlugTaperDelegate<double>(p->GetMin(), p->GetMax(), p->GetShape()), 
+                                          AAX_CNumberDisplayDelegate<double>(), 
                                           p->GetCanAutomate());
         
         param->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
@@ -273,8 +275,8 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
 //  AAX_CMidiPacket* globalBufferPtr = globalBuffer->mBuffer;
 //  uint32_t global_packets = globalBuffer->mBufferSize;
   
-//  AAX_IMIDINode* transportNode = ioRenderInfo->mTransportNode;
-//  mTransport = transportNode->GetTransport();
+  AAX_IMIDINode* transportNode = ioRenderInfo->mTransportNode;
+  mTransport = transportNode->GetTransport();
 
   int32_t numSamples = *(ioRenderInfo->mNumSamples);
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
@@ -299,65 +301,116 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
   }
 }
 
-//AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
-//{
-//  TRACE;
-//  
-//  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
-//  
-//  if (chunkID == _this->GetUniqueID()) 
-//  {
-//    ByteChunk IPlugChunk;
-//    
-//    if (_this->SerializeState(&IPlugChunk))
-//    {
-//      *oSize = IPlugChunk.Size();
-//    }
-//    
-//    return AAX_SUCCESS;
-//  }
-//  else 
-//  {
-//    return AAX_ERROR_INVALID_CHUNK_ID;
-//  }
-//}
-//
-//AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const
-//{
-//  TRACE;
-//  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
-//
-//  //called when project is saved
-//  if (chunkID == _this->GetUniqueID()) 
-//  {
-//    ByteChunk IPlugChunk;
-//    
-//    if (_this->SerializeState(&IPlugChunk)) 
-//    {
-//      oChunk->fSize = IPlugChunk.Size();
-//      memcpy(oChunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
-//      return AAX_SUCCESS;
-//    }
-//  }
-//  
-//  return AAX_ERROR_INVALID_CHUNK_ID;
-//}
-//
-//AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChunk )
-//{
-//  TRACE;
-//  
-//  //called when project is loaded from save
-//  if (chunkID == GetUniqueID())
-//  {    
-//    ByteChunk IPlugChunk;
-//    IPlugChunk.PutBytes(iChunk->fData, iChunk->fSize);  
-//    UnserializeState(&IPlugChunk, 0);
-//    return AAX_SUCCESS;
-//  }
-//  
-//  return AAX_ERROR_INVALID_CHUNK_ID;
-//}
+AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID * chunkID )  const 
+{
+  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
+
+	if (index != 0)
+	{
+		*chunkID = AAX_CTypeID(0);
+		return AAX_ERROR_INVALID_CHUNK_INDEX;
+	}
+	
+	*chunkID = _this->GetUniqueID();
+  
+	return AAX_SUCCESS;	
+}
+
+AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
+{
+  TRACE;
+  
+  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
+  
+  if (chunkID == _this->GetUniqueID()) 
+  {
+    ByteChunk IPlugChunk;
+    
+    _this->InitChunkWithIPlugVer(&IPlugChunk);
+    
+    if (_this->SerializeState(&IPlugChunk))
+    {
+      *oSize = IPlugChunk.Size();
+    }
+    
+    return AAX_SUCCESS;
+  }
+  else 
+  {
+    *oSize = 0;
+    return AAX_ERROR_INVALID_CHUNK_ID;
+  }
+}
+
+AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const
+{
+  TRACE;
+  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
+
+  //called when project is saved
+  if (chunkID == _this->GetUniqueID()) 
+  {
+    ByteChunk IPlugChunk;
+    
+    _this->InitChunkWithIPlugVer(&IPlugChunk);
+    
+    if (_this->SerializeState(&IPlugChunk)) 
+    {
+      oChunk->fSize = IPlugChunk.Size();
+      memcpy(oChunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
+      return AAX_SUCCESS;
+    }
+  }
+  
+  return AAX_ERROR_INVALID_CHUNK_ID;
+}
+
+AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChunk )
+{
+  TRACE;
+  
+  if (chunkID == GetUniqueID())
+  {    
+    ByteChunk IPlugChunk;
+    IPlugChunk.PutBytes(iChunk->fData, iChunk->fSize);
+    int pos = 0;
+    GetIPlugVerFromChunk(&IPlugChunk, &pos);
+    pos = UnserializeState(&IPlugChunk, pos);
+
+    RedrawParamControls(); //TODO: what about icontrols not linked to params how do they get redrawn - setdirty via UnserializeState()?
+    mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the compare light 
+    
+    return AAX_SUCCESS;
+  }
+  
+  return AAX_ERROR_INVALID_CHUNK_ID;
+}
+
+AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CBoolean * aIsEqualP ) const 
+{
+  TRACE;
+
+  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
+
+	if (aChunkP->fChunkID != _this->GetUniqueID()) 
+	{
+		*aIsEqualP = true;
+		return AAX_SUCCESS; 
+	}
+  
+	*aIsEqualP = true;
+  
+  ByteChunk IPlugChunk;
+  _this->InitChunkWithIPlugVer(&IPlugChunk);
+  _this->SerializeState(&IPlugChunk);
+
+  if(memcmp(IPlugChunk.GetBytes(), aChunkP->fData, IPlugChunk.Size()) != 0)
+  {
+    *aIsEqualP = false;
+  }
+  
+  return AAX_SUCCESS;
+}  
 
 void IPlugAAX::BeginInformHostOfParamChange(int idx)
 {
