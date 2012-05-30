@@ -62,10 +62,12 @@ public:
   AAX_Result EffectInit();
   void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo);
   
-//  AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const ;
-//  AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const ;   
-//  AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChunk );
-    
+  AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID * chunkID ) const;
+  AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const ;
+  AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const ;   
+  AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChunk );
+  AAX_Result CompareActiveChunk(const AAX_SPlugInChunk * iChunk, AAX_CBoolean * oIsEqual )  const ;
+  
   // IPlugBase Overrides
   void BeginInformHostOfParamChange(int idx);
   void InformHostOfParamChange(int idx, double normalizedValue);
