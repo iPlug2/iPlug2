@@ -492,13 +492,18 @@ void IPlugAAX::GetTimeSig(int* pNum, int* pDenom)
 
 void IPlugAAX::ResizeGraphics(int w, int h)
 {
-  if (GetGUI()) 
+  IGraphics* pGraphics = GetGUI();
+  
+  if (pGraphics)
   {
     AAX_Point oEffectViewSize;
     oEffectViewSize.horz = (float) w;
     oEffectViewSize.vert = (float) h;
-    GetGUI()->GetViewContainer()->SetViewSize(oEffectViewSize);
+    pGraphics->GetViewContainer()->SetViewSize(oEffectViewSize);
+
+    OnWindowResize();
   }
+
 }
 
 void IPlugAAX::SetLatency(int latency)
