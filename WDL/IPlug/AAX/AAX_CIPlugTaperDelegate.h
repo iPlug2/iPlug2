@@ -4,9 +4,9 @@
 #include "IParam.h"
 
 #include "AAX_ITaperDelegate.h"
-#include "AAX.h"	//for types
+#include "AAX.h"
 
-#include <cmath>	//for floor()
+#include <cmath>
 
 template <typename T, int32_t RealPrecision=1000>
 class AAX_CIPlugTaperDelegate : public AAX_ITaperDelegate<T>

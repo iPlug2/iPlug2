@@ -6,6 +6,8 @@
 		activeExecutable = 4F7F5D0713E9676F002918FD /* ProTools Dev */;
 		activeTarget = 4F78DAF113B643600032E0F3 /* All */;
 		addToTargets = (
+			4F4CC3E31549BA8600A9EA21 /* AAX_32_intel */,
+			4FB600121567CB0A0020189A /* AAX_32&64_intel */,
 		);
 		breakpoints = (
 		);
@@ -174,13 +176,13 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 360080924;
-			PBXWorkspaceStateSaveDate = 360080924;
+			PBXPerProjectTemplateStateSaveDate = 360084463;
+			PBXWorkspaceStateSaveDate = 360084463;
 		};
 		perUserProjectItems = {
-			4F6CFD1F1576678A003A368E /* PBXTextBookmark */ = 4F6CFD1F1576678A003A368E /* PBXTextBookmark */;
-			4F6CFD481576694C003A368E /* PBXTextBookmark */ = 4F6CFD481576694C003A368E /* PBXTextBookmark */;
-			4F6CFD4A1576694D003A368E /* PBXTextBookmark */ = 4F6CFD4A1576694D003A368E /* PBXTextBookmark */;
+			4F4F73AC157673FA00C124E3 /* PBXTextBookmark */ = 4F4F73AC157673FA00C124E3 /* PBXTextBookmark */;
+			4F4F73AD157673FA00C124E3 /* PBXTextBookmark */ = 4F4F73AD157673FA00C124E3 /* PBXTextBookmark */;
+			4F4F73B5157673FA00C124E3 /* PBXTextBookmark */ = 4F4F73B5157673FA00C124E3 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 4FE33FF310B4519D00B5FB70 /* Source Control */;
 		userBuildSettings = {
@@ -641,6 +643,43 @@
 			sepNavVisRange = "{3056, 1189}";
 		};
 	};
+	4F4F73791576739300C124E3 /* AAX_CIPlugTaperDelegate.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1095, 1248}}";
+			sepNavSelRange = "{1356, 0}";
+			sepNavVisRange = "{797, 2109}";
+		};
+	};
+	4F4F73AC157673FA00C124E3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */;
+		name = "IPlugEffect.h: 9";
+		rLen = 0;
+		rLoc = 164;
+		rType = 0;
+		vrLen = 366;
+		vrLoc = 0;
+	};
+	4F4F73AD157673FA00C124E3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 39";
+		rLen = 0;
+		rLoc = 1145;
+		rType = 0;
+		vrLen = 1788;
+		vrLoc = 0;
+	};
+	4F4F73B5157673FA00C124E3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
+		name = "resource.h: 8";
+		rLen = 0;
+		rLoc = 160;
+		rType = 0;
+		vrLen = 1788;
+		vrLoc = 0;
+	};
 	4F5572DB12C7F49C003A4AD1 /* AU_32_intel */ = {
 		activeExec = 0;
 	};
@@ -702,47 +741,6 @@
 		name = "arch -i386 -ppc";
 		path = /usr/bin/auvaltool;
 		sourceTree = "<absolute>";
-	};
-	4F6CFD1415766725003A368E /* lice_line.cpp */ = {
-		isa = PBXFileReference;
-		name = lice_line.cpp;
-		path = /Users/oli/Dev/MyPlugins/WDL/lice/../lice/lice_line.cpp;
-		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {7033, 19708}}";
-			sepNavSelRange = "{4670, 0}";
-			sepNavVisRange = "{4067, 4831}";
-		};
-	};
-	4F6CFD1F1576678A003A368E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4F6CFD1415766725003A368E /* lice_line.cpp */;
-		name = "lice_line.cpp: 203";
-		rLen = 0;
-		rLoc = 4670;
-		rType = 0;
-		vrLen = 5423;
-		vrLoc = 3671;
-	};
-	4F6CFD481576694C003A368E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
-		name = "resource.h: 13";
-		rLen = 0;
-		rLoc = 325;
-		rType = 0;
-		vrLen = 1818;
-		vrLoc = 0;
-	};
-	4F6CFD4A1576694D003A368E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 52FBBED30D0CF143001C8B8A /* resource.h */;
-		name = "resource.h: 39";
-		rLen = 0;
-		rLoc = 1145;
-		rType = 0;
-		vrLen = 1818;
-		vrLoc = 0;
 	};
 	4F78D89613B639100032E0F3 /* English */ = {
 		uiCtxt = {
@@ -1915,24 +1913,24 @@
 	};
 	52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1482, 1170}}";
-			sepNavSelRange = "{1827, 0}";
-			sepNavVisRange = "{0, 1176}";
+			sepNavIntBoundsRect = "{{0, 0}, {1095, 1105}}";
+			sepNavSelRange = "{195, 0}";
+			sepNavVisRange = "{0, 1520}";
 			sepNavWindowFrame = "{{15, 109}, {1089, 914}}";
 		};
 	};
 	52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1482, 647}}";
-			sepNavSelRange = "{198, 0}";
-			sepNavVisRange = "{0, 369}";
+			sepNavIntBoundsRect = "{{0, 0}, {1095, 868}}";
+			sepNavSelRange = "{164, 0}";
+			sepNavVisRange = "{0, 366}";
 		};
 	};
 	52FBBED30D0CF143001C8B8A /* resource.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1095, 1079}}";
-			sepNavSelRange = "{1145, 0}";
-			sepNavVisRange = "{0, 1818}";
+			sepNavSelRange = "{160, 0}";
+			sepNavVisRange = "{0, 1788}";
 			sepNavWindowFrame = "{{15, 4}, {1416, 1024}}";
 		};
 	};
