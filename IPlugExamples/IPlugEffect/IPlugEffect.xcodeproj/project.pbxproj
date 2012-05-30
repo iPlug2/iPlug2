@@ -567,14 +567,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libAAXLibrary.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = AAXLibrary;
 		};
 		4FF7B0FE156A831000E6CB12 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4B00D06910E022FD00816F7B /* AAXLibrary_ParameterManager_UnitTest */;
+			remoteGlobalIDString = 4B00D06910E022FD00816F7B;
 			remoteInfo = AAXLibrary_UnitTest;
 		};
 /* End PBXContainerItemProxy section */
@@ -2536,7 +2536,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
 				ZERO_LINK = YES;
 			};
@@ -2569,7 +2568,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Release;
@@ -2578,6 +2576,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				EXECUTABLE_EXTENSION = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(COCOA_DEFS)",
@@ -2609,6 +2608,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				EXECUTABLE_EXTENSION = "";
 				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2667,7 +2667,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 				ZERO_LINK = YES;
@@ -2701,7 +2700,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 			};
@@ -2732,7 +2730,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 			};
@@ -2775,7 +2772,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -2826,7 +2822,6 @@
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -2869,7 +2864,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -2907,7 +2901,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 				ZERO_LINK = YES;
 			};
@@ -2945,7 +2938,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Release;
@@ -2980,7 +2972,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
@@ -3035,7 +3026,6 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3099,7 +3089,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3159,7 +3148,6 @@
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3209,7 +3197,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
 			};
@@ -3263,7 +3250,6 @@
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 ppc ppc64 ppc7400 ppc970 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -3310,7 +3296,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
 			};
@@ -3349,6 +3334,7 @@
 			baseConfigurationReference = 4F7F5CAB13E9607A002918FD /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
 				ARCHS = i386;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(RTAS_FOLDER)";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -3382,6 +3368,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 				);
+				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -3389,7 +3376,7 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "$(MacBag)";
+				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3403,6 +3390,7 @@
 			baseConfigurationReference = 4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				ARCHS = i386;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(RTAS_FOLDER)";
@@ -3431,13 +3419,14 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "$(MacBag)";
+				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3451,6 +3440,7 @@
 			baseConfigurationReference = 4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				ARCHS = i386;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -3480,6 +3470,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -3488,7 +3479,7 @@
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				SYMROOT = "$(MacBag)";
+				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3528,7 +3519,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 				ZERO_LINK = YES;
 			};
@@ -3566,7 +3556,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Release;
@@ -3601,7 +3590,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
@@ -3656,7 +3644,6 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3719,7 +3706,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3778,7 +3764,6 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3893,6 +3878,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				EXECUTABLE_EXTENSION = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(COCOA_DEFS)",
@@ -3945,7 +3931,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Tracer;
