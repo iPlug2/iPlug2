@@ -5,15 +5,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>EXECUTABLE_NAME</string>
+	<string>BINARY_NAME</string>
 	<key>CFBundleGetInfoString</key>
 	<string>VERSION_STR, DIGI_COPYRIGHT</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.rtas.PRODUCT_NAME</string>
+	<string>com.AcmeInc.rtas.BINARY_NAME</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>PRODUCT_NAME</string>
+	<string>BINARY_NAME</string>
 	<key>CFBundlePackageType</key>
 	<string>TDMw</string>
 	<key>CFBundleShortVersionString</key>
