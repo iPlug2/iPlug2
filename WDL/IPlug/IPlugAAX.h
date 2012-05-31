@@ -10,7 +10,7 @@
 
 #include "AAX_Push8ByteStructAlignment.h"
 
-const int kPTParamIdxOffset = 1;
+const int kAAXParamIdxOffset = 1;
 
 struct IPlugInstanceInfo
 {
@@ -55,6 +55,8 @@ public:
                   bool plugIsInst = false,
                   int plugScChans = 0);
   
+  ~IPlugAAX();
+  
   AAX_Result UpdateParameterNormalizedValue (AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource );
   
   // AAX_CIPlugParameters Overrides
@@ -92,6 +94,7 @@ private:
   AAX_CParameter<bool>* mBypassParameter;
   AAX_ITransport* mTransport;
   bool mDoesMidi;
+  WDL_PtrList<WDL_String> mParamIDs;
 };
 
 IPlugAAX* MakePlug();
