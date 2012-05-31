@@ -62,7 +62,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated (const char* iParameterID)
 {
   AAX_Result err = AAX_ERROR_INVALID_PARAMETER_ID;
   
-  int paramIdx = atoi(iParameterID) - kPTParamIdxOffset;
+  int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
   
   if ((mGraphics) && (paramIdx >= 0)) 
   {
@@ -127,6 +127,11 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
   SetHost("ProTools", vendorVersion); // TODO:vendor version correct?  
 }
 
+IPlugAAX::~IPlugAAX()
+{
+  mParamIDs.Empty(true);
+}
+
 AAX_Result IPlugAAX::EffectInit()
 { 
   TRACE;
@@ -142,19 +147,21 @@ AAX_Result IPlugAAX::EffectInit()
   mBypassParameter->SetNumberOfSteps( 2 );
   mBypassParameter->SetType( AAX_eParameterType_Discrete );
   mParameterManager.AddParameter(mBypassParameter);
-    
+      
   for (int i=0;i<NParams();i++)
   {
     IParam *p = GetParam(i);
     AAX_IParameter* param = 0;
-    WDL_String paramID;
-    paramID.SetFormatted(32, "%i", i+1);
+    
+    WDL_String* paramID = new WDL_String("_", 1);
+    paramID->SetFormatted(32, "%i", i+kAAXParamIdxOffset);
+    mParamIDs.Add(paramID);
     
     switch (p->Type()) 
     {
       case IParam::kTypeDouble:
       {
-        param = new AAX_CParameter<double>(paramID.Get(), 
+        param = new AAX_CParameter<double>(paramID->Get(), 
                                           AAX_CString(p->GetNameForHost()), 
                                           p->GetDefault(), 
                                           AAX_CIPlugTaperDelegate<double>(p->GetMin(), p->GetMax(), p->GetShape()), 
@@ -168,7 +175,7 @@ AAX_Result IPlugAAX::EffectInit()
       }
       case IParam::kTypeInt:
       {
-        param = new AAX_CParameter<int>(paramID.Get(), 
+        param = new AAX_CParameter<int>(paramID->Get(), 
                                         AAX_CString(p->GetNameForHost()), 
                                         (int)p->GetDefault(), 
                                         AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
@@ -195,7 +202,7 @@ AAX_Result IPlugAAX::EffectInit()
           displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)) );
         }
         
-        param = new AAX_CParameter<int>(paramID.Get(), 
+        param = new AAX_CParameter<int>(paramID->Get(), 
                                         AAX_CString(p->GetNameForHost()), 
                                         (int)p->GetDefault(), 
                                         AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
@@ -235,7 +242,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue (AAX_CParamID iParameterID, 
   // Store the value into the parameter.
   parameter->UpdateNormalizedValue(iValue);
   
-  int paramIdx = atoi(iParameterID) - kPTParamIdxOffset;
+  int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
   
   if ((paramIdx >= 0) && (paramIdx < NParams())) 
   {
@@ -423,28 +430,19 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CB
 void IPlugAAX::BeginInformHostOfParamChange(int idx)
 {
   TRACE;
-
-  WDL_String paramID;
-  paramID.SetFormatted(32, "%i", idx+1);
-  TouchParameter(paramID.Get());
+  TouchParameter(mParamIDs.Get(idx)->Get());
 }
 
 void IPlugAAX::InformHostOfParamChange(int idx, double normalizedValue)
 {
   TRACE;
-
-  WDL_String paramID;
-  paramID.SetFormatted(32, "%i", idx+1);
-  SetParameterNormalizedValue(paramID.Get(), normalizedValue );
+  SetParameterNormalizedValue(mParamIDs.Get(idx)->Get(), normalizedValue );
 }
 
 void IPlugAAX::EndInformHostOfParamChange(int idx)
 {
   TRACE;
-
-  WDL_String paramID;
-  paramID.SetFormatted(32, "%i", idx+1);
-  ReleaseParameter(paramID.Get());
+  ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
 void IPlugAAX::InformHostOfProgramChange()
