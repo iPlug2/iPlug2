@@ -16,6 +16,8 @@ AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 
 void AAX_CEffectGUI_IPLUG::CreateViewContents() 
 {
+  TRACE;
+  
   IGraphics* gui = ((IPlugAAX*) GetEffectParameters())->GetGUI();
   
   if (gui) 
@@ -30,6 +32,8 @@ void AAX_CEffectGUI_IPLUG::CreateViewContents()
 
 void AAX_CEffectGUI_IPLUG::CreateViewContainer()
 {
+  TRACE;
+  
   void* winPtr = GetViewContainerPtr();
   
   if (winPtr && mGraphics)
@@ -47,7 +51,7 @@ void AAX_CEffectGUI_IPLUG::DeleteViewContainer()
   }
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize( AAX_Point *oEffectViewSize ) const
+AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
 {
   if (mGraphics)
   {
@@ -71,7 +75,6 @@ AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated (const char* iParameterID)
     
     if (err == AAX_SUCCESS)
     {
-      //TODO: does this happen twice?
       mGraphics->SetParameterFromPlug(paramIdx, normalizedValue, true);
     }
   }
@@ -229,13 +232,14 @@ AAX_Result IPlugAAX::EffectInit()
   return AAX_SUCCESS;
 }
 
-AAX_Result IPlugAAX::UpdateParameterNormalizedValue (AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource )
+AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource )
 {
   TRACE;
   
   AAX_Result  result = AAX_SUCCESS;
   
-  AAX_IParameter* parameter = mParameterManager.GetParameterByID( iParameterID );
+  AAX_IParameter* parameter = mParameterManager.GetParameterByID(iParameterID);
+    
   if (parameter == 0)
     return AAX_ERROR_INVALID_PARAMETER_ID;
   
@@ -391,7 +395,12 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
     int pos = 0;
     GetIPlugVerFromChunk(&IPlugChunk, &pos);
     pos = UnserializeState(&IPlugChunk, pos);
-
+    
+    for (int i = 0; i< NParams(); i++)
+    {
+      SetParameterNormalizedValue(mParamIDs.Get(i)->Get(), GetParam(i)->GetNormalized() );
+    }
+    
     RedrawParamControls(); //TODO: what about icontrols not linked to params how do they get redrawn - setdirty via UnserializeState()?
     mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the compare light 
     
