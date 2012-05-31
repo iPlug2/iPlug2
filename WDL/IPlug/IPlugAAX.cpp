@@ -116,7 +116,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
 
 , AAX_CIPlugParameters()
 , mTransport(0)
-//, mDoesMidi(plugDoesMidi)
+, mDoesMidi(plugDoesMidi)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
@@ -264,16 +264,24 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
   
-  // Setup MIDI node pointers
-//  AAX_IMIDINode* midiIn = ioRenderInfo->mInputNode;
-//  AAX_CMidiStream* midiBuffer = midiIn->GetNodeBuffer();
-//  AAX_CMidiPacket* midiBufferPtr = midiBuffer->mBuffer;
-//  uint32_t packets_count = midiBuffer->mBufferSize;
-//  
-//  AAX_IMIDINode* globalNode = ioRenderInfo->mGlobalNode;
-//  AAX_CMidiStream* globalBuffer = globalNode->GetNodeBuffer();
-//  AAX_CMidiPacket* globalBufferPtr = globalBuffer->mBuffer;
-//  uint32_t global_packets = globalBuffer->mBufferSize;
+  if (mDoesMidi) 
+  {
+    AAX_IMIDINode* midiIn = ioRenderInfo->mInputNode;
+    AAX_CMidiStream* midiBuffer = midiIn->GetNodeBuffer();
+    AAX_CMidiPacket* midiBufferPtr = midiBuffer->mBuffer;
+    uint32_t packets_count = midiBuffer->mBufferSize;
+    
+    // Setup MIDI Out node pointers 
+//		AAX_IMIDINode* midiNodeOut = instance->mMIDINodeOutP;
+//		AAX_CMidiStream* midiBufferOut = midiNodeOut->GetNodeBuffer();
+//		AAX_CMidiPacket* midiBufferOutPtr = midiBufferOut->mBuffer;
+        
+    for (int i = 0; i<packets_count; i++, midiBufferPtr++) 
+    {
+      IMidiMsg msg(midiBufferPtr->mTimestamp, midiBufferPtr->mData[0], midiBufferPtr->mData[1], midiBufferPtr->mData[2]);
+      ProcessMidiMsg(&msg);
+    }
+  }
   
   AAX_IMIDINode* transportNode = ioRenderInfo->mTransportNode;
   mTransport = transportNode->GetTransport();
