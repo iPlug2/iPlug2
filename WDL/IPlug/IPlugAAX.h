@@ -62,6 +62,7 @@ public:
   AAX_Result EffectInit();
   void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo);
   
+  // AAX_CEffectParameters Overrides
   AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID * chunkID ) const;
   AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const ;
   AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const ;   
@@ -90,6 +91,7 @@ protected:
 private:
   AAX_CParameter<bool>* mBypassParameter;
   AAX_ITransport* mTransport;
+  bool mDoesMidi;
 };
 
 IPlugAAX* MakePlug();

@@ -101,8 +101,8 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
       setupInfo.mInputMIDINodeName = "Midi Input";
       setupInfo.mInputMIDIChannelMask = 0x0001;
-      setupInfo.mNeedsGlobalMIDI = PLUG_DOES_MIDI;
-      setupInfo.mGlobalMIDIEventMask = 0x3;
+//      setupInfo.mNeedsGlobalMIDI = PLUG_DOES_MIDI;
+//      setupInfo.mGlobalMIDIEventMask = 0x3;
       setupInfo.mNeedsTransport = true;
       setupInfo.mLatency = PLUG_LATENCY;
             
