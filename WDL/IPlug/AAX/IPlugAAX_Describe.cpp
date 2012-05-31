@@ -48,9 +48,29 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   if ( effectDescriptor == NULL )
     return AAX_ERROR_NULL_OBJECT;
 
-  // Effect identifiers
-  err |= effectDescriptor->AddName(PLUG_NAME);
-  //TODO: call a couple of times with PLUG_NAME_DIGI
+  WDL_String subStr;
+
+  char *plugNameStr = PLUG_NAME_DIGI;
+    
+  while (plugNameStr)
+  {
+    int span = strcspn(plugNameStr, "\n");
+    
+    if (span)
+    {
+      subStr.Set(plugNameStr, span);
+      err |= effectDescriptor->AddName(subStr.Get());
+      outCollection->AddPackageName(subStr.Get());
+      plugNameStr = strstr(plugNameStr, "\n");
+      
+      if (plugNameStr)
+        ++plugNameStr;
+    }
+    else
+    {
+      break;
+    }
+  }
   
   AAX_EPlugInCategory category;
   if (PLUG_IS_INST) category = AAX_ePlugInCategory_SWGenerators;
@@ -85,7 +105,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       if (nIn > 1)
         nIn -= nSIn;
       
-      AAX_CTypeID typeId = PLUG_UNIQUE_ID + 1 + ioConfigIdx;
+      AAX_CTypeID typeId = PLUG_UNIQUE_ID + ioConfigIdx;
 
       // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
       AAX_SIPlugSetupInfo setupInfo;
@@ -95,7 +115,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mProductID = PLUG_UNIQUE_ID;
       setupInfo.mPluginID = typeId;
       #if PLUG_DOES_OFFLINE
-      setupInfo.mAudioSuiteID = typeId+1;
+      setupInfo.mAudioSuiteID = PLUG_UNIQUE_ID + 100 + ioConfigIdx;
       #endif
       setupInfo.mCanBypass = true;
       setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
@@ -130,12 +150,27 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       ++channelIOStr;
   }
   
-  outCollection->SetManufacturerName(PLUG_MFR);
-  //TODO: call a couple of times with PLUG_MFR_DIGI
-
-  outCollection->AddPackageName(PLUG_NAME);
-  //TODO: call a couple of times with PLUG_NAME_DIGI
-
+  char *mfrNameStr = PLUG_MFR_DIGI;
+  
+  while (mfrNameStr)
+  {
+    int span = strcspn(mfrNameStr, "\n");
+    
+    if (span)
+    {
+      subStr.Set(mfrNameStr, span);
+      outCollection->SetManufacturerName(subStr.Get());
+      mfrNameStr = strstr(mfrNameStr, "\n");
+      
+      if (mfrNameStr)
+        ++mfrNameStr;
+    }
+    else
+    {
+      break;
+    }
+  }
+  
   outCollection->SetPackageVersion(PLUG_VER);   
   
   return err;
