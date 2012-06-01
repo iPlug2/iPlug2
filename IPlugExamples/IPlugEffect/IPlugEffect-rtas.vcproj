@@ -49,7 +49,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				AdditionalIncludeDirectories="$(RTAS_INCLUDES)"
 				PreprocessorDefinitions="$(RTAS_DEFS);NDEBUG"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -92,7 +92,7 @@
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(RTAS_PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -121,8 +121,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
+				Description="Copying dpm and rsr to $(RTAS_PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(RTAS_PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(RTAS_PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -160,7 +160,7 @@
 				Optimization="3"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				AdditionalIncludeDirectories="$(RTAS_INCLUDES)"
 				PreprocessorDefinitions="$(RTAS_DEFS);$(RELEASE_DEFS)"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -229,8 +229,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
+				Description="Copying dpm and rsr to $(RTAS_PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(RTAS_PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(RTAS_PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -268,7 +268,7 @@
 				Optimization="3"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				AdditionalIncludeDirectories="$(RTAS_INCLUDES)"
 				PreprocessorDefinitions="$(RTAS_DEFS);$(TRACER_DEFS)"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -311,7 +311,7 @@
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugEffect-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(RTAS_PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -340,8 +340,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
+				Description="Copying dpm and rsr to $(RTAS_PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(RTAS_PLUGINS_PATH)\IPlugEffect.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(RTAS_PLUGINS_PATH)\IPlugEffect.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
