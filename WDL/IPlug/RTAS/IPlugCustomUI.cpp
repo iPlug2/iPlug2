@@ -306,6 +306,7 @@ long IPlugCustomUI::UpdateGraphicControl(long index, long value)
 
 void IPlugCustomUI::SetControlHighlight(long controlIndex, short isHighlighted, short color)
 {
+  // TODO
 }
 
 void IPlugCustomUI::GetControlIndexFromPoint(long x, long y, long *aControlIndex)

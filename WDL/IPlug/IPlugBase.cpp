@@ -82,6 +82,7 @@ IPlugBase::IPlugBase(int nParams,
   , mIsInst(plugIsInst)
   , mAPI(plugAPI)
   , mIsBypassed(false)
+  , mDelay(0)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
 
@@ -125,7 +126,7 @@ IPlugBase::IPlugBase(int nParams,
 
   mInData.Resize(nInputs);
   mOutData.Resize(nOutputs);
-
+  
   double** ppInData = mInData.Get();
 
   for (int i = 0; i < nInputs; ++i, ++ppInData)
@@ -161,6 +162,11 @@ IPlugBase::~IPlugBase()
   mChannelIO.Empty(true);
   mInputBusLabels.Empty(true);
   mOutputBusLabels.Empty(true);
+ 
+  if (mDelay) 
+  {
+    DELETE_NULL(mDelay);
+  }
 }
 
 int IPlugBase::GetHostVersion(bool decimal)
@@ -399,15 +405,23 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
   }
 }
 
-//TODO: implement a delay equivalent to mLatency for RTAS/AU/VST3
 void IPlugBase::PassThroughBuffers(double sampleType, int nFrames)
 {
-  IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  if (mLatency && mDelay) 
+  {
+    mDelay->ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
+  }
+  else 
+  {
+    IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  }
 }
 
 void IPlugBase::PassThroughBuffers(float sampleType, int nFrames)
 {
-  IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  // for 32 bit buffers, first run the delay (if mLatency) on the 64bit IPlug buffers
+  PassThroughBuffers(0., nFrames);
+  
   int i, n = NOutChannels();
   OutChannel** ppOutChannel = mOutChannels.GetList();
   
@@ -486,6 +500,11 @@ void IPlugBase::ZeroScratchBuffers()
 void IPlugBase::SetLatency(int samples)
 {
   mLatency = samples;
+  
+  if (mDelay) 
+  {
+    mDelay->SetDelayTime(mLatency);
+  }
 }
 
 void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)

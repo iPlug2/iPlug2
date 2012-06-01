@@ -9,6 +9,7 @@
 #include "IParam.h"
 #include "Hosts.h"
 #include "Log.h"
+#include "NChanDelay.h"
 
 // Uncomment to enable IPlug::OnIdle() and IGraphics::OnGUIIdle().
 // #define USE_IDLE_CALLS
@@ -251,6 +252,8 @@ public:
   bool RestorePreset(int idx);
   bool RestorePreset(const char* name);
   const char* GetPresetName(int idx);
+  
+  //TODO: dirty state for AAX update with chunks
 
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
   void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
@@ -306,6 +309,7 @@ protected:
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
+  NChanDelayLine* mDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
 
 private:
   IGraphics* mGraphics;

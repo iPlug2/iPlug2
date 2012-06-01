@@ -42,7 +42,7 @@ public:
 
   void ResizeGraphics(int w, int h);
   EHost GetHost();  // GetHostVersion() is inherited.
-
+  
   void Created(class IPlugProcess* pProcess);
 
   void ProcessAudio(float** inputs, float** outputs, int nFrames);
@@ -50,9 +50,9 @@ public:
 
   void SetIO(int nInputs, int nOutputs);
 
-  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate;} ;
-  void SetBlockSize(int blockSize) { IPlugBase::SetBlockSize(blockSize);}
-
+  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; } ;
+  void SetBlockSize(int blockSize) { IPlugBase::SetBlockSize(blockSize); }
+  
   void SetSideChainConnected(bool connected);
 
   void SetParameter(int idx); // Locks mutex first
