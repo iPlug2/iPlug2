@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories=".;.\..\..\WDL\IPlug;.\..\..\WDL"
+		AdditionalIncludeDirectories=".;.\..\..\WDL\IPlug;.\..\..\WDL;$(ADDITIONAL_INCLUDES)"
 		PreprocessorDefinitions="_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 	/>
 	<Tool
@@ -25,32 +25,36 @@
 		CommandLine=""
 	/>
 	<UserMacro
-		Name="AAX_PLUGINS_PATH"
-		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
-	/>
-	<UserMacro
 		Name="BINARY_NAME"
 		Value="IPlugEffect"
 	/>
 	<UserMacro
-		Name="RTAS_DEFS"
-		Value="RTAS_API"
+		Name="RTAS_PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="AAX_RTAS_PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="ADDITIONAL_INCLUDES"
+		Value="$(ProjectDir)\..\..\..\MyDSP\"
 	/>
 	<UserMacro
 		Name="AAX_INCLUDES"
 		Value=".\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\AAX_SDK\Interfaces\C99Compatibility;.\..\..\WDL\IPlug\AAX"
 	/>
 	<UserMacro
-		Name="AAX_DEFS"
-		Value="AAX_API"
-	/>
-	<UserMacro
 		Name="RTAS_INCLUDES"
 		Value=".\..\..\WDL\IPlug\RTAS"
 	/>
 	<UserMacro
-		Name="PLUGINS_PATH"
-		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+		Name="RTAS_DEFS"
+		Value="RTAS_API"
+	/>
+	<UserMacro
+		Name="AAX_DEFS"
+		Value="AAX_API"
 	/>
 	<UserMacro
 		Name="RELEASE_DEFS"
