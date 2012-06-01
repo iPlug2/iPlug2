@@ -39,6 +39,12 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo,
   Trace(TRACELOC, "%s", effectName);
 
   int nInputs = NInChannels(), nOutputs = NOutChannels();
+  
+  if (nInputs) 
+  {
+    mDelay = new NChanDelayLine(nInputs, nOutputs);
+    mDelay->SetDelayTime(latency);
+  }
 
   SetInputChannelConnections(0, nInputs, true);
   SetOutputChannelConnections(0, nOutputs, true);
