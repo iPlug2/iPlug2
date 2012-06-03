@@ -124,7 +124,13 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
   SetInputChannelConnections(0, NInChannels(), true);
-  SetOutputChannelConnections(0, NOutChannels(), true);  
+  SetOutputChannelConnections(0, NOutChannels(), true);
+  
+  if (NInChannels()) 
+  {
+    mDelay = new NChanDelayLine(NInChannels(), NOutChannels());
+    mDelay->SetDelayTime(latency);
+  }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("ProTools", vendorVersion); // TODO:vendor version correct?  
@@ -524,6 +530,8 @@ void IPlugAAX::ResizeGraphics(int w, int h)
 void IPlugAAX::SetLatency(int latency)
 {
   Controller()->SetSignalLatency(latency);
+  
+  IPlugBase::SetLatency(latency); // will update delay time
 }
 
 // TODO: SendMidiMsg()
