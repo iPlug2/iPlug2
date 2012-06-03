@@ -2982,7 +2982,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
@@ -2997,7 +2997,7 @@
 					"$(COCOA_DEFS)",
 					"$(DEBUG_DEFS)",
 					"$(AAX_DEFS)",
-					"$(inherited)",
+					"_DEBUG=1",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -3035,7 +3035,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = i386;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -3049,7 +3049,7 @@
 					"$(COCOA_DEFS)",
 					"$(RELEASE_DEFS)",
 					"$(AAX_DEFS)",
-					"$(inherited)",
+					"_NDEBUG=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
@@ -3091,7 +3091,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = i386;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3106,7 +3106,7 @@
 					"$(COCOA_DEFS)",
 					"$(TRACER_DEFS)",
 					"$(AAX_DEFS)",
-					"$(inherited)",
+					"_NDEBUG=1",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -3356,6 +3356,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 				);
+				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
@@ -3411,6 +3412,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -3466,6 +3468,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -3594,7 +3597,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
@@ -3652,7 +3655,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -3712,7 +3715,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
