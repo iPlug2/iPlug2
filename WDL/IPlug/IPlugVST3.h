@@ -94,6 +94,7 @@ public:
   virtual void GetTime(ITimeInfo* pTimeInfo);
 
   virtual void ResizeGraphics(int w, int h);
+  void SetLatency(int samples);
 
   void PopupHostContextMenuForParam(int param, int x, int y);
 

@@ -45,6 +45,12 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
 {
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
+  
+  if (NInChannels()) 
+  {
+    mDelay = new NChanDelayLine(NInChannels(), NOutChannels());
+    mDelay->SetDelayTime(latency);
+  }
 
   // initialize the bus labels
   SetInputBusLabel(0, "main input");
@@ -888,6 +894,14 @@ void IPlugVST3::ResizeGraphics(int w, int h)
   {
     viewsArray.at(0)->resize(w, h);
   }
+}
+
+void IPlugVST3::SetLatency(int latency)
+{
+  FUnknownPtr<IComponentHandler>handler(componentHandler);
+  handler->restartComponent (kLatencyChanged);
+  
+  IPlugBase::SetLatency(latency); // will update delay time
 }
 
 void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)
