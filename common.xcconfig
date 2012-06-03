@@ -1,4 +1,6 @@
+// common.xcconfig
 // this file sets the compiler and base SDK for the IPlug projects and the lice library xcode projects
+// along with some other global build variables
 
 // this is used for Developer ID / Appstore code-signing and is used in the makedist-mac shell script
 CERTIFICATE_ID = Oliver Larkin
@@ -16,7 +18,14 @@ BASE_SDK = macosx10.5 // doesn't seem to link AAX Library (compiled against 10.6
 // the minimum OS to support
 MACOSX_DEPLOYMENT_TARGET = 10.5
 
-// Where to build the plugins / app ...
+// Where the SDKs etc are located in relation to the plugin xcode project
+WDL_PATH = $(SRCROOT)/../../WDL
+IPLUG_PATH = $(WDL_PATH)/IPlug
+VST3_SDK = $(SRCROOT)/../../VST3_SDK
+PT9_SDK = $(SRCROOT)/../../PT9_SDK
+AAX_SDK = $(SRCROOT)/../../AAX_SDK
+
+// Where to build the plugins / app bundles ...
 
 // build to system plugin folder
 // you need to explicitly add write permissions to put stuff here
