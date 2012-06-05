@@ -266,6 +266,20 @@ void IPlugBase::GetEffectVersionStr(char* str)
 #endif
 }
 
+const char* IPlugBase::GetAPIString()
+{
+  switch (GetAPI()) 
+  {
+    case kAPIVST2: return "VST2";
+    case kAPIVST3: return "VST3";
+    case kAPIAU: return "AU";
+    case kAPIRTAS: return "RTAS";
+    case kAPIAAX: return "AAX";
+    case kAPISA: return "Standalone";
+    default: return "";
+  }
+}
+
 double IPlugBase::GetSamplesPerBeat()
 {
   double tempo = GetTempo();

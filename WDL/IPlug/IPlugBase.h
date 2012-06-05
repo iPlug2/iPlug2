@@ -142,6 +142,7 @@ public:
   virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
+  const char* GetAPIString();
   int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetHostVersionStr(char* str);
 
