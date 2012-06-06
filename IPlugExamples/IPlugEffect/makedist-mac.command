@@ -2,6 +2,9 @@
 
 BASEDIR=$(dirname $0)
 
+# AAX codesigning requires ashelper tool in /usr/local/bin and aax.key/.crt in ./../../../Certificates/
+
+
 cd $BASEDIR
 
 #---------------------------------------------------------------------------------------------------------
@@ -137,8 +140,8 @@ echo "copying AAX bundle from 3PDev to main AAX folder"
 sudo cp -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
 AAX="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
 
-echo "TODO: codesign AAX binary"
-
+echo "code sign AAX binary"
+sudo ashelper -f "${AAX}/Contents/MacOS/IPlugEffect" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX}/Contents/MacOS/IPlugEffect"
 #---------------------------------------------------------------------------------------------------------
 
 #appstore stuff
