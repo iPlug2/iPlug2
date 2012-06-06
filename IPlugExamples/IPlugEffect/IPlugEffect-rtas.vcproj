@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)build-win-rtas\bin\"
+			OutputDirectory="$(SolutionDir)build-win-rtas\bin"
 			IntermediateDirectory="$(SolutionDir)build-win-rtas\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\IPlugEffect.vsprops"
@@ -82,7 +82,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070"
 				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
@@ -127,7 +127,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)build-win-rtas\bin\"
+			OutputDirectory="$(SolutionDir)build-win-rtas\bin"
 			IntermediateDirectory="$(SolutionDir)build-win-rtas\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\IPlugEffect.vsprops"
@@ -193,7 +193,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070"
 				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
@@ -235,7 +235,7 @@
 		</Configuration>
 		<Configuration
 			Name="Tracer|Win32"
-			OutputDirectory="$(SolutionDir)build-win-rtas\bin\"
+			OutputDirectory="$(SolutionDir)build-win-rtas\bin"
 			IntermediateDirectory="$(SolutionDir)build-win-rtas\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\IPlugEffect.vsprops"
@@ -301,7 +301,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070"
 				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
