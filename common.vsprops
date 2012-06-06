@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="common"
+	>
+	<UserMacro
+		Name="RTAS_PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+	<UserMacro
+		Name="AAX_PLUGINS_PATH"
+		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
+	/>
+</VisualStudioPropertySheet>
