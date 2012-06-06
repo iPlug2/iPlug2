@@ -133,11 +133,11 @@ setfileicon resources/IPlugEffect.icns "${AAX}"
 #ProTools stuff
 
 echo "copying RTAS bundle from 3PDev to main RTAS folder"
-sudo cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
+sudo cp -p -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
 RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
 
 echo "copying AAX bundle from 3PDev to main AAX folder"
-sudo cp -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
+sudo cp -p -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
 AAX="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
 
 echo "code sign AAX binary"
