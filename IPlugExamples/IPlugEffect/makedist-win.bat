@@ -4,6 +4,7 @@ REM - batch file to build 32&64 bit VS2010 VST/APP project and VS2005 RTAS proje
 REM - updating version numbers requires python and python path added to %PATH% env variable 
 REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
 REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
+REM - AAX codesigning requires ashelper tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
 echo Making IPlugEffect win distribution...
 
@@ -60,7 +61,10 @@ goto END-pt
 REM - seems it's not possible to print only errors with vs2005 msbuild
 msbuild IPlugEffect-pt.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /logger:fileLogger,Microsoft.Build.Engine;LogFile=build-win.log;append /v:quiet
 
-echo TODO: sign aax binary
+echo ------------------------------------------------------------------
+echo Code sign aax binary...
+
+call ashelper -f .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin
 
 REM - Make Installer (InnoSetup)
 
