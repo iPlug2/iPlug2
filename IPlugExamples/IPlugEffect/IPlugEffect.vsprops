@@ -30,10 +30,10 @@
 	/>
 	<UserMacro
 		Name="RTAS_PLUGINS_PATH"
-		Value="&quot;$(ProgramFiles)\Digidesign\ProTools_3PDev\dae\Plug-Ins&quot;"
+		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
 	/>
 	<UserMacro
-		Name="AAX_RTAS_PLUGINS_PATH"
+		Name="AAX_PLUGINS_PATH"
 		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
 	/>
 	<UserMacro
