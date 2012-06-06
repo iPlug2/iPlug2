@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="IPlugEffect"
+	InheritedPropertySheets=".\..\..\common.vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -27,14 +28,6 @@
 	<UserMacro
 		Name="BINARY_NAME"
 		Value="IPlugEffect"
-	/>
-	<UserMacro
-		Name="RTAS_PLUGINS_PATH"
-		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
-	/>
-	<UserMacro
-		Name="AAX_PLUGINS_PATH"
-		Value="&quot;$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins&quot;"
 	/>
 	<UserMacro
 		Name="ADDITIONAL_INCLUDES"
