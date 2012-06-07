@@ -1098,9 +1098,13 @@ void IGraphicsCarbon::EndUserInput(bool commit)
   }
   else
   {
-    mEdControl->SetDirty(false);
-    mEdControl->Redraw();
+    if (mEdControl) 
+    {
+      mEdControl->SetDirty(false);
+      mEdControl->Redraw();
+    }
   }
+  
   SetThemeCursor(kThemeArrowCursor);
   SetUserFocusWindow(kUserFocusAuto);
 
