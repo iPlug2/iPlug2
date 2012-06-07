@@ -4,6 +4,7 @@ REM - batch file to build 32&64 bit VS2010 VST/APP project and VS2005 RTAS proje
 REM - updating version numbers requires python and python path added to %PATH% env variable 
 REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
 REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
+REM - AAX codesigning requires ashelper tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
 echo Making IPlugChunks win distribution...
 
@@ -60,7 +61,9 @@ goto END-pt
 REM - seems it's not possible to print only errors with vs2005 msbuild
 msbuild IPlugChunks-pt.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /logger:fileLogger,Microsoft.Build.Engine;LogFile=build-win.log;append /v:quiet
 
-echo TODO: sign aax binary
+echo ------------------------------------------------------------------
+echo Code sign aax binary...
+call ashelper -f .\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin
 
 REM - Make Installer (InnoSetup)
 
@@ -80,7 +83,7 @@ goto END-is
 :END-is
 
 REM - ZIP
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-32bit.zip .\build-win-app\win32\bin\IPlugChunks.exe .\build-win-vst3\win32\bin\IPlugChunks.vst3 .\build-win-vst2\win32\bin\IPlugChunks.dll .\build-win-rtas\bin\IPlugChunks.dpm .\build-win-rtas\bin\IPlugChunks.dpm.rsr .\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-32bit.zip .\build-win-app\win32\bin\IPlugChunks.exe .\build-win-vst3\win32\bin\IPlugChunks.vst3 .\build-win-vst2\win32\bin\IPlugChunks.dll .\build-win-rtas\bin\IPlugChunks.dpm .\build-win-rtas\bin\IPlugChunks.dpm.rsr .\build-win-aax\bin\IPlugChunks.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
 REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-64bit.zip .\build-win-app\x64\bin\IPlugChunks.exe .\build-win-vst3\x64\bin\IPlugChunks.vst3 .\build-win-vst2\x64\bin\IPlugChunks.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo ------------------------------------------------------------------
