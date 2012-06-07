@@ -63,7 +63,6 @@ msbuild IPlugEffect-pt.sln /p:configuration=release /p:platform=win32 /nologo /n
 
 echo ------------------------------------------------------------------
 echo Code sign aax binary...
-
 call ashelper -f .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin
 
 REM - Make Installer (InnoSetup)
@@ -84,7 +83,7 @@ goto END-is
 :END-is
 
 REM - ZIP
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst3\win32\bin\IPlugEffect.vst3 .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst3\win32\bin\IPlugEffect.vst3 .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\build-win-aax\bin\IPlugEffect.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
 REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win-app\x64\bin\IPlugEffect.exe .\build-win-vst3\x64\bin\IPlugEffect.vst3 .\build-win-vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo ------------------------------------------------------------------
