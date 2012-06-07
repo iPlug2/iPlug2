@@ -52,6 +52,11 @@ public:
 
     return 0;
   }
+  
+  virtual void DirtyState()
+  {
+    fNumPlugInChanges++;
+  }
 
   virtual int GetBlockSize() = 0;
   virtual double GetTempo()  = 0;

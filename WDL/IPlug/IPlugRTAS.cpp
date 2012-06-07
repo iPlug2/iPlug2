@@ -255,3 +255,8 @@ void IPlugRTAS::SetSideChainConnected(bool connected)
     mSideChainIsConnected = connected;
   }
 }
+
+void IPlugRTAS::DirtyPTCompareState() 
+{ 
+  mProcess->DirtyState(); 
+}
