@@ -164,9 +164,9 @@ void IPlugProcessRTAS::GetTime( double *pSamplePos,
     *pTransportRunning = (bool) transportRunning;
 
     if (transportRunning)
-      mDirectMidiInterface->GetCurrentRTASSampleLocation (&samplePos);
+      mDirectMidiInterface->GetCurrentRTASSampleLocation(&samplePos);
     else
-      mDirectMidiInterface->GetCurrentTDMSampleLocation (&samplePos);
+      mDirectMidiInterface->GetCurrentTDMSampleLocation(&samplePos);
 
     mDirectMidiInterface->GetCustomTickPosition (&ticks, samplePos);
     *pMusicalPos = ticks / 960000.0;

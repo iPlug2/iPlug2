@@ -208,9 +208,9 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
     if(mCustomUI)
     {
       void *windowPtr = NULL;
-#if WINDOWS_VERSION
+      #if WINDOWS_VERSION
       windowPtr = (void*)ASI_GethWnd((WindowPtr)mMainPort);
-#elif MAC_VERSION
+      #elif MAC_VERSION
       windowPtr = (void*)GetWindowFromPort(mMainPort); // WindowRef for Carbon, not GrafPtr (quickdraw)
 
       // https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
@@ -222,11 +222,11 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
         mLeftOffset = -aRect.left;
         mTopOffset = -aRect.top;
       }
-#endif
+      #endif
       mCustomUI->Open(windowPtr, mLeftOffset, mTopOffset);
-#if WINDOWS_VERSION
+      #if WINDOWS_VERSION
       mCustomUI->Draw(mPluginWinRect.left, mPluginWinRect.top, mPluginWinRect.right, mPluginWinRect.bottom);
-#endif
+      #endif
     }
   }
   else
