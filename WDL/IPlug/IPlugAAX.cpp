@@ -263,7 +263,8 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, d
   // Now the control has changed
   result = mPacketDispatcher.SetDirty(iParameterID);
   
-  ++mNumPlugInChanges;
+  mNumPlugInChanges++;
+  
   return result;
 }
 
@@ -351,7 +352,7 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
   {
     ByteChunk IPlugChunk;
     
-    _this->InitChunkWithIPlugVer(&IPlugChunk);
+    //_this->InitChunkWithIPlugVer(&IPlugChunk);
     
     if (_this->SerializeState(&IPlugChunk))
     {
@@ -377,7 +378,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) c
   {
     ByteChunk IPlugChunk;
     
-    _this->InitChunkWithIPlugVer(&IPlugChunk);
+    //_this->InitChunkWithIPlugVer(&IPlugChunk);
     
     if (_this->SerializeState(&IPlugChunk)) 
     {
@@ -399,7 +400,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
     ByteChunk IPlugChunk;
     IPlugChunk.PutBytes(iChunk->fData, iChunk->fSize);
     int pos = 0;
-    GetIPlugVerFromChunk(&IPlugChunk, &pos);
+    //GetIPlugVerFromChunk(&IPlugChunk, &pos);
     pos = UnserializeState(&IPlugChunk, pos);
     
     for (int i = 0; i< NParams(); i++)
@@ -431,7 +432,7 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CB
 	*aIsEqualP = true;
   
   ByteChunk IPlugChunk;
-  _this->InitChunkWithIPlugVer(&IPlugChunk);
+  //_this->InitChunkWithIPlugVer(&IPlugChunk);
   _this->SerializeState(&IPlugChunk);
 
   if(memcmp(IPlugChunk.GetBytes(), aChunkP->fData, IPlugChunk.Size()) != 0)
@@ -524,7 +525,6 @@ void IPlugAAX::ResizeGraphics(int w, int h)
 
     OnWindowResize();
   }
-
 }
 
 void IPlugAAX::SetLatency(int latency)

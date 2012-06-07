@@ -14,6 +14,7 @@ const int kAAXParamIdxOffset = 1;
 
 struct IPlugInstanceInfo
 {
+  // not used
 };
 
 class AAX_CEffectGUI_IPLUG : public AAX_CEffectGUI
@@ -85,6 +86,7 @@ public:
   void ResizeGraphics(int w, int h);
 
   void SetLatency(int samples);
+  void DirtyPTCompareState() { mNumPlugInChanges++; }
   
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);

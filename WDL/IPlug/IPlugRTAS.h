@@ -56,6 +56,8 @@ public:
   void SetSideChainConnected(bool connected);
 
   void SetParameter(int idx); // Locks mutex first
+  
+  void DirtyPTCompareState();
 
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);

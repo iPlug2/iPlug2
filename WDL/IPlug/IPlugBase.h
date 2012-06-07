@@ -254,7 +254,7 @@ public:
   bool RestorePreset(const char* name);
   const char* GetPresetName(int idx);
   
-  //TODO: dirty state for AAX update with chunks
+  virtual void DirtyPTCompareState() {}; // needed in chunks based plugins to tell PT a non-indexed param changed and to turn on the compare light
 
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
   void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
