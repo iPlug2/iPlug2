@@ -2,6 +2,9 @@
 
 BASEDIR=$(dirname $0)
 
+# AAX codesigning requires ashelper tool in /usr/local/bin and aax.key/.crt in ./../../../Certificates/
+
+
 cd $BASEDIR
 
 #---------------------------------------------------------------------------------------------------------
@@ -130,15 +133,15 @@ setfileicon resources/IPlugChunks.icns "${AAX}"
 #ProTools stuff
 
 echo "copying RTAS bundle from 3PDev to main RTAS folder"
-sudo cp -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugChunks.dpm"
+sudo cp -p -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugChunks.dpm"
 RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugChunks.dpm"
 
 echo "copying AAX bundle from 3PDev to main AAX folder"
-sudo cp -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugChunks.aaxplugin"
+sudo cp -p -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugChunks.aaxplugin"
 AAX="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugChunks.aaxplugin"
 
-echo "TODO: codesign AAX binary"
-
+echo "code sign AAX binary"
+sudo ashelper -f "${AAX}/Contents/MacOS/IPlugChunks" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX}/Contents/MacOS/IPlugChunks"
 #---------------------------------------------------------------------------------------------------------
 
 #appstore stuff

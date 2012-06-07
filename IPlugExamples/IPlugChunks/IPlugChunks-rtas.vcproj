@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)build-win-rtas\bin\"
+			OutputDirectory="$(SolutionDir)build-win-rtas\bin"
 			IntermediateDirectory="$(SolutionDir)build-win-rtas\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\IPlugChunks.vsprops"
@@ -49,11 +49,11 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				AdditionalIncludeDirectories="$(RTAS_INCLUDES)"
 				PreprocessorDefinitions="$(RTAS_DEFS);NDEBUG"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -82,7 +82,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070"
 				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
@@ -92,7 +92,7 @@
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugChunks-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(RTAS_PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -121,13 +121,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugChunks.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugChunks.dpm.rsr&#x0D;&#x0A;"
+				Description="Copying dpm and rsr to $(RTAS_PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(RTAS_PLUGINS_PATH)\IPlugChunks.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(RTAS_PLUGINS_PATH)\IPlugChunks.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)build-win-rtas\bin\"
+			OutputDirectory="$(SolutionDir)build-win-rtas\bin"
 			IntermediateDirectory="$(SolutionDir)build-win-rtas\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\IPlugChunks.vsprops"
@@ -160,11 +160,11 @@
 				Optimization="3"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				AdditionalIncludeDirectories="$(RTAS_INCLUDES)"
 				PreprocessorDefinitions="$(RTAS_DEFS);$(RELEASE_DEFS)"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -193,7 +193,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070"
 				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
@@ -229,13 +229,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugChunks.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugChunks.dpm.rsr&#x0D;&#x0A;"
+				Description="Copying dpm and rsr to $(RTAS_PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(RTAS_PLUGINS_PATH)\IPlugChunks.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(RTAS_PLUGINS_PATH)\IPlugChunks.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Tracer|Win32"
-			OutputDirectory="$(SolutionDir)build-win-rtas\bin\"
+			OutputDirectory="$(SolutionDir)build-win-rtas\bin"
 			IntermediateDirectory="$(SolutionDir)build-win-rtas\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\IPlugChunks.vsprops"
@@ -268,11 +268,11 @@
 				Optimization="3"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="&quot;$(RTAS_INCLUDES)&quot;"
+				AdditionalIncludeDirectories="$(RTAS_INCLUDES)"
 				PreprocessorDefinitions="$(RTAS_DEFS);$(TRACER_DEFS)"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -301,7 +301,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE"
+				AdditionalOptions="/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070"
 				AdditionalDependencies="wininet.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(BINARY_NAME).dpm"
@@ -311,7 +311,7 @@
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="IPlugChunks-rtas.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PLUGINS_PATH)\$(TargetName).pdb"
+				ProgramDatabaseFile="$(RTAS_PLUGINS_PATH)\$(TargetName).pdb"
 				GenerateMapFile="true"
 				MapFileName="$(IntDir)\$(TargetName).map"
 				SubSystem="2"
@@ -340,8 +340,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying dpm and rsr to $(PLUGINS_PATH)"
-				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(PLUGINS_PATH)\IPlugChunks.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(PLUGINS_PATH)\IPlugChunks.dpm.rsr&#x0D;&#x0A;"
+				Description="Copying dpm and rsr to $(RTAS_PLUGINS_PATH)"
+				CommandLine="copy /Y &quot;$(TargetPath)&quot; $(RTAS_PLUGINS_PATH)\IPlugChunks.dpm&#x0D;&#x0A;copy /Y &quot;$(TargetPath)&quot;.rsr $(RTAS_PLUGINS_PATH)\IPlugChunks.dpm.rsr&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

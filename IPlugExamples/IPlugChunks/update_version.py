@@ -30,7 +30,9 @@ def main():
       
   
   FullVersionStr = MajorStr + "." + MinorStr + "." + BugfixStr
-  CFBundleGetInfoString = FullVersionStr + ", Copyright AcmeInc, 2011"
+  
+  today = datetime.date.today()
+  CFBundleGetInfoString = FullVersionStr + ", Copyright AcmeInc, " + str(today.year)
   CFBundleVersion = FullVersionStr
   
   print "update_version.py - setting version to " + FullVersionStr
@@ -66,6 +68,22 @@ def main():
   app['CFBundleVersion'] = CFBundleVersion
   app['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(app, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
+  plistpath = scriptpath + "/resources/IPlugChunks-RTAS-Info.plist"
+  rtas = plistlib.readPlist(plistpath)
+  rtas['CFBundleGetInfoString'] = CFBundleGetInfoString
+  rtas['CFBundleVersion'] = CFBundleVersion
+  rtas['CFBundleShortVersionString'] = CFBundleVersion
+  plistlib.writePlist(rtas, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
+  plistpath = scriptpath + "/resources/IPlugChunks-AAX-Info.plist"
+  aax = plistlib.readPlist(plistpath)
+  aax['CFBundleGetInfoString'] = CFBundleGetInfoString
+  aax['CFBundleVersion'] = CFBundleVersion
+  aax['CFBundleShortVersionString'] = CFBundleVersion
+  plistlib.writePlist(aax, plistpath)
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
 #   plistpath = scriptpath + "/resources/IPlugChunks-IOSAPP-Info.plist"

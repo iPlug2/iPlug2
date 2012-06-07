@@ -659,6 +659,7 @@
 		4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX.cpp; path = ../../WDL/IPlug/IPlugAAX.cpp; sourceTree = SOURCE_ROOT; };
 		4F4CC4261549BED600A9EA21 /* IPlugAAX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX.h; path = ../../WDL/IPlug/IPlugAAX.h; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../WDL/IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
+		4F4F73791576739300C124E3 /* AAX_CIPlugTaperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAX_CIPlugTaperDelegate.h; path = ../../WDL/IPlug/AAX/AAX_CIPlugTaperDelegate.h; sourceTree = SOURCE_ROOT; };
 		4F55734412C7F49C003A4AD1 /* IPlugChunks.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugChunks.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F78D62313B637200032E0F3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
@@ -738,6 +739,7 @@
 		4F7F5CF613E96564002918FD /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; name = IPlugRTAS.r; path = ../../WDL/IPlug/RTAS/IPlugRTAS.r; sourceTree = "<group>"; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4F9397F81581486600DDD386 /* IVecSliders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVecSliders.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugChunks.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugChunks.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
@@ -913,6 +915,7 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
+				4F9397F81581486600DDD386 /* IVecSliders.h */,
 				52FBBED30D0CF143001C8B8A /* resource.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugChunks.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugChunks.cpp */,
@@ -1194,6 +1197,7 @@
 				4F4CC4261549BED600A9EA21 /* IPlugAAX.h */,
 				4F017360154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp */,
 				4F017361154D4BFC0034BE1A /* AAX_CIPlugParameters.h */,
+				4F4F73791576739300C124E3 /* AAX_CIPlugTaperDelegate.h */,
 				4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */,
 			);
 			name = AAX;
@@ -2060,6 +2064,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
+			showEnvVarsInLog = 0;
 		};
 		4F744D4C14005ADA002FAD90 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2074,6 +2079,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2506,7 +2512,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
 				ZERO_LINK = YES;
 			};
@@ -2539,7 +2544,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Release;
@@ -2548,6 +2552,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugChunks.xcconfig */;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				EXECUTABLE_EXTENSION = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(COCOA_DEFS)",
@@ -2562,7 +2567,7 @@
 					"$(ADDITIONAL_INCLUDES)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_GROUP = admin;
 				INSTALL_OWNER = root;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -2579,6 +2584,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugChunks.xcconfig */;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				EXECUTABLE_EXTENSION = "";
 				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2596,7 +2602,7 @@
 					"$(ADDITIONAL_INCLUDES)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_GROUP = admin;
 				INSTALL_OWNER = root;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -2637,7 +2643,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 				ZERO_LINK = YES;
@@ -2671,7 +2676,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 			};
@@ -2702,7 +2706,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 			};
@@ -2730,7 +2733,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AU-Info.plist";
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
@@ -2745,7 +2748,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -2779,7 +2781,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AU-Info.plist";
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
@@ -2796,7 +2798,6 @@
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -2825,7 +2826,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AU-Info.plist";
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
@@ -2839,7 +2840,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -2877,7 +2877,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 				ZERO_LINK = YES;
 			};
@@ -2915,7 +2914,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Release;
@@ -2950,7 +2948,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
@@ -2959,7 +2956,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
@@ -2974,7 +2971,7 @@
 					"$(COCOA_DEFS)",
 					"$(DEBUG_DEFS)",
 					"$(AAX_DEFS)",
-					"$(inherited)",
+					"_DEBUG=1",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -2987,17 +2984,7 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AAX-Info.plist";
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"\"PRODUCT_NAME=$(PRODUCT_NAME)\"",
-					"\"EXECUTABLE_NAME=$(EXECUTABLE_NAME)\"",
-					"\"DYLIB_CURRENT_VERSION=$(DYLIB_CURRENT_VERSION)\"",
-					"\"VERSION_NUM=$(VERSION_NUM)\"",
-					"\"VERSION_STR=$(VERSION_STR)\"",
-					"\"CURRENT_YEAR=$(CURRENT_YEAR)\"",
-					"\"DIGI_COPYRIGHT=$(DIGI_COPYRIGHT)\"",
-					"\"DIGI_COMPANY_STRING=$(DIGI_COMPANY_STRING)\"",
-				);
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3005,7 +2992,6 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3019,7 +3005,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = i386;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -3033,7 +3019,7 @@
 					"$(COCOA_DEFS)",
 					"$(RELEASE_DEFS)",
 					"$(AAX_DEFS)",
-					"$(inherited)",
+					"_NDEBUG=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
@@ -3047,17 +3033,7 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AAX-Info.plist";
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"\"PRODUCT_NAME=$(PRODUCT_NAME)\"",
-					"\"EXECUTABLE_NAME=$(EXECUTABLE_NAME)\"",
-					"\"DYLIB_CURRENT_VERSION=$(DYLIB_CURRENT_VERSION)\"",
-					"\"VERSION_NUM=$(VERSION_NUM)\"",
-					"\"VERSION_STR=$(VERSION_STR)\"",
-					"\"CURRENT_YEAR=$(CURRENT_YEAR)\"",
-					"\"DIGI_COPYRIGHT=$(DIGI_COPYRIGHT)\"",
-					"\"DIGI_COMPANY_STRING=$(DIGI_COMPANY_STRING)\"",
-				);
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3069,7 +3045,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3082,7 +3057,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = i386;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3097,7 +3072,7 @@
 					"$(COCOA_DEFS)",
 					"$(TRACER_DEFS)",
 					"$(AAX_DEFS)",
-					"$(inherited)",
+					"_NDEBUG=1",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -3110,17 +3085,7 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AAX-Info.plist";
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"\"PRODUCT_NAME=$(PRODUCT_NAME)\"",
-					"\"EXECUTABLE_NAME=$(EXECUTABLE_NAME)\"",
-					"\"DYLIB_CURRENT_VERSION=$(DYLIB_CURRENT_VERSION)\"",
-					"\"VERSION_NUM=$(VERSION_NUM)\"",
-					"\"VERSION_STR=$(VERSION_STR)\"",
-					"\"CURRENT_YEAR=$(CURRENT_YEAR)\"",
-					"\"DIGI_COPYRIGHT=$(DIGI_COPYRIGHT)\"",
-					"\"DIGI_COMPANY_STRING=$(DIGI_COMPANY_STRING)\"",
-				);
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3129,7 +3094,6 @@
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3161,7 +3125,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AU-Info.plist";
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
@@ -3179,7 +3143,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
 			};
@@ -3212,7 +3175,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AU-Info.plist";
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
@@ -3233,7 +3196,6 @@
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				VALID_ARCHS = "i386 ppc ppc64 ppc7400 ppc970 x86_64";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
@@ -3262,7 +3224,7 @@
 				GENERATE_PKGINFO_FILE = YES;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AU-Info.plist";
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = Bundle;
@@ -3280,7 +3242,6 @@
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = component;
 				ZERO_LINK = NO;
 			};
@@ -3319,6 +3280,7 @@
 			baseConfigurationReference = 4F7F5CAB13E9607A002918FD /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
 				ARCHS = i386;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(RTAS_FOLDER)";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -3347,11 +3309,14 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-RTAS-Info.plist";
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 				);
+				MacBag = "$(PT9_SDK)/MacBag";
+				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "-fno-inline";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -3359,7 +3324,7 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "$(MacBag)";
+				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3373,6 +3338,7 @@
 			baseConfigurationReference = 4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				ARCHS = i386;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(RTAS_FOLDER)";
@@ -3396,18 +3362,21 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-RTAS-Info.plist";
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MacBag = "$(PT9_SDK)/MacBag";
+				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "$(MacBag)";
+				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3421,6 +3390,7 @@
 			baseConfigurationReference = 4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				ARCHS = i386;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -3445,11 +3415,14 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-RTAS-Info.plist";
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MacBag = "$(PT9_SDK)/MacBag";
+				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -3458,7 +3431,7 @@
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				SYMROOT = "$(MacBag)";
+				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3498,7 +3471,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 				ZERO_LINK = YES;
 			};
@@ -3536,7 +3508,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Release;
@@ -3571,7 +3542,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
@@ -3580,7 +3550,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
@@ -3608,17 +3578,7 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AAX-Info.plist";
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"\\\"PRODUCT_NAME=$(PRODUCT_NAME)\\\"",
-					"\\\"EXECUTABLE_NAME=$(EXECUTABLE_NAME)\\\"",
-					"\\\"DYLIB_CURRENT_VERSION=$(DYLIB_CURRENT_VERSION)\\\"",
-					"\\\"VERSION_NUM=$(VERSION_NUM)\\\"",
-					"\\\"VERSION_STR=$(VERSION_STR)\\\"",
-					"\\\"CURRENT_YEAR=$(CURRENT_YEAR)\\\"",
-					"\\\"DIGI_COPYRIGHT=$(DIGI_COPYRIGHT)\\\"",
-					"\\\"DIGI_COMPANY_STRING=$(DIGI_COMPANY_STRING)\\\"",
-				);
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3626,7 +3586,6 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3640,7 +3599,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -3668,17 +3627,7 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AAX-Info.plist";
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"\\\"PRODUCT_NAME=$(PRODUCT_NAME)\\\"",
-					"\\\"EXECUTABLE_NAME=$(EXECUTABLE_NAME)\\\"",
-					"\\\"DYLIB_CURRENT_VERSION=$(DYLIB_CURRENT_VERSION)\\\"",
-					"\\\"VERSION_NUM=$(VERSION_NUM)\\\"",
-					"\\\"VERSION_STR=$(VERSION_STR)\\\"",
-					"\\\"CURRENT_YEAR=$(CURRENT_YEAR)\\\"",
-					"\\\"DIGI_COPYRIGHT=$(DIGI_COPYRIGHT)\\\"",
-					"\\\"DIGI_COMPANY_STRING=$(DIGI_COMPANY_STRING)\\\"",
-				);
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3689,7 +3638,6 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = YES;
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3702,7 +3650,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
-				AAX_SDK_ROOT = "$(SRCROOT)/../../AAX_SDK";
+				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3730,17 +3678,7 @@
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugChunks-AAX-Info.plist";
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "";
-				INFOPLIST_PREPROCESSOR_DEFINITIONS = (
-					"\\\"PRODUCT_NAME=$(PRODUCT_NAME)\\\"",
-					"\\\"EXECUTABLE_NAME=$(EXECUTABLE_NAME)\\\"",
-					"\\\"DYLIB_CURRENT_VERSION=$(DYLIB_CURRENT_VERSION)\\\"",
-					"\\\"VERSION_NUM=$(VERSION_NUM)\\\"",
-					"\\\"VERSION_STR=$(VERSION_STR)\\\"",
-					"\\\"CURRENT_YEAR=$(CURRENT_YEAR)\\\"",
-					"\\\"DIGI_COPYRIGHT=$(DIGI_COPYRIGHT)\\\"",
-					"\\\"DIGI_COMPANY_STRING=$(DIGI_COMPANY_STRING)\\\"",
-				);
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3748,7 +3686,6 @@
 				);
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3863,6 +3800,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugChunks.xcconfig */;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				EXECUTABLE_EXTENSION = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(COCOA_DEFS)",
@@ -3877,7 +3815,7 @@
 					"$(ADDITIONAL_INCLUDES)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_PREPROCESS = YES;
+				INFOPLIST_PREPROCESS = NO;
 				INSTALL_GROUP = admin;
 				INSTALL_OWNER = root;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -3915,7 +3853,6 @@
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				SYMROOT = "build-mac";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Tracer;

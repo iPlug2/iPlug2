@@ -85,6 +85,7 @@ public:
   {
     //TODO: check this isn't going to cause problems... this will happen from the gui thread
     mPlug->ModifyCurrentPreset();
+    mPlug->DirtyPTCompareState();
   }
 
   void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)

@@ -26,22 +26,21 @@ Name: "aax_32"; Description: "32-bit AAX Plugin (.aaxplugin)"; Types: full custo
 Name: "manual"; Description: "User guide"; Types: full custom; Flags: fixed
 
 [Files]
-Source: "..\build-win-app\Win32\bin\IPlugChunks.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode; Components:app;
-Source: "..\build-win-app\x64\bin\IPlugChunks.exe"; DestDir: "{app}"; Check: Is64BitInstallMode; Components:app;
+Source: "..\build-win-app\Win32\bin\IPlugChunks.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode; Components:app; Flags: ignoreversion;
+Source: "..\build-win-app\x64\bin\IPlugChunks.exe"; DestDir: "{app}"; Check: Is64BitInstallMode; Components:app; Flags: ignoreversion;
 
-Source: "..\build-win-vst2\Win32\bin\IPlugChunks.dll"; DestDir: {code:GetVST2Dir_32}; Check: not Is64BitInstallMode; Components:vst2_32;
-Source: "..\build-win-vst2\Win32\bin\IPlugChunks.dll"; DestDir: {code:GetVST2Dir_32}; Check: Is64BitInstallMode; Components:vst2_32;
-Source: "..\build-win-vst2\x64\bin\IPlugChunks.dll"; DestDir: {code:GetVST2Dir_64}; Check: Is64BitInstallMode; Components:vst2_64;
+Source: "..\build-win-vst2\Win32\bin\IPlugChunks.dll"; DestDir: {code:GetVST2Dir_32}; Check: not Is64BitInstallMode; Components:vst2_32; Flags: ignoreversion;
+Source: "..\build-win-vst2\Win32\bin\IPlugChunks.dll"; DestDir: {code:GetVST2Dir_32}; Check: Is64BitInstallMode; Components:vst2_32; Flags: ignoreversion;
+Source: "..\build-win-vst2\x64\bin\IPlugChunks.dll"; DestDir: {code:GetVST2Dir_64}; Check: Is64BitInstallMode; Components:vst2_64; Flags: ignoreversion;
 
-Source: "..\build-win-vst3\Win32\bin\IPlugChunks.vst3"; DestDir: "{cf}\VST3\"; Check: not Is64BitInstallMode; Components:vst3_32;
-Source: "..\build-win-vst3\Win32\bin\IPlugChunks.vst3"; DestDir: "{cf32}\VST3\"; Check: Is64BitInstallMode; Components:vst3_32;
-Source: "..\build-win-vst3\x64\bin\IPlugChunks.vst3"; DestDir: "{cf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64;
+Source: "..\build-win-vst3\Win32\bin\IPlugChunks.vst3"; DestDir: "{cf}\VST3\"; Check: not Is64BitInstallMode; Components:vst3_32; Flags: ignoreversion;
+Source: "..\build-win-vst3\Win32\bin\IPlugChunks.vst3"; DestDir: "{cf32}\VST3\"; Check: Is64BitInstallMode; Components:vst3_32; Flags: ignoreversion;
+Source: "..\build-win-vst3\x64\bin\IPlugChunks.vst3"; DestDir: "{cf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64; Flags: ignoreversion;
 
-Source: "..\build-win-rtas\bin\IPlugChunks.dpm"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
-Source: "..\build-win-rtas\bin\IPlugChunks.dpm.rsr"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32;
+Source: "..\build-win-rtas\bin\IPlugChunks.dpm"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32; Flags: ignoreversion;
+Source: "..\build-win-rtas\bin\IPlugChunks.dpm.rsr"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32; Flags: ignoreversion;
 
-Source: "..\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\"; Components:aax_32;
-;Source: "..\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Resources\IPlugChunks.xml"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\"; Components:aax_32;
+Source: "..\build-win-aax\bin\IPlugChunks.aaxplugin\*.*"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\IPlugChunks.aaxplugin\"; Components:aax_32; Flags: ignoreversion recursesubdirs;
 
 Source: "..\manual\IPlugChunks_manual.pdf"; DestDir: "{app}"
 Source: "changelog.txt"; DestDir: "{app}"
