@@ -39,10 +39,12 @@ APP=${APP//\APP_FOLDER = }/IPlugEffect.app
 # Dev build folder
 RTAS=`echo | grep RTAS_FOLDER ../../common.xcconfig`
 RTAS=${RTAS//\RTAS_FOLDER = }/IPlugEffect.dpm
+RTAS_FINAL="/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
 
 # Dev build folder
 AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
 AAX=${AAX//\AAX_FOLDER = }/IPlugEffect.aaxplugin
+AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
 
 PKG='installer/build-mac/IPlugEffect Installer.pkg'
 PKG_US='installer/build-mac/IPlugEffect Installer.unsigned.pkg'
@@ -96,9 +98,19 @@ then
   sudo rm -f -R "${RTAS}"
 fi
 
+if [ -d "${RTAS_FINAL}" ] 
+then
+  sudo rm -f -R "${RTAS_FINAL}"
+fi
+
 if [ -d "${AAX}" ] 
 then
   sudo rm -f -R "${AAX}"
+fi
+
+if [ -d "${AAX_FINAL}" ] 
+then
+  sudo rm -f -R "${AAX_FINAL}"
 fi
 
 #---------------------------------------------------------------------------------------------------------
@@ -133,15 +145,13 @@ setfileicon resources/IPlugEffect.icns "${AAX}"
 #ProTools stuff
 
 echo "copying RTAS bundle from 3PDev to main RTAS folder"
-sudo cp -p -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
-RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugEffect.dpm"
+sudo cp -p -R "${RTAS}" "${RTAS_FINAL}"
 
 echo "copying AAX bundle from 3PDev to main AAX folder"
-sudo cp -p -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
-AAX="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugEffect.aaxplugin"
+sudo cp -p -R "${AAX}" "${AAX_FINAL}"
 
 echo "code sign AAX binary"
-sudo ashelper -f "${AAX}/Contents/MacOS/IPlugEffect" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX}/Contents/MacOS/IPlugEffect"
+sudo ashelper -f "${AAX_FINAL}/Contents/MacOS/IPlugEffect" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX_FINAL}/Contents/MacOS/IPlugEffect"
 #---------------------------------------------------------------------------------------------------------
 
 #appstore stuff
