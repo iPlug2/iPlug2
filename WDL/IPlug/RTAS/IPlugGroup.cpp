@@ -29,21 +29,6 @@ static CEffectProcess* NewProcessRTAS()
 //  return new IPlugProcessAS(plugid + 100);
 //}
 
-//static CEffectProcess* NewProcessRTASMono()
-//{
-//  return new IPlugProcessRTAS(plugid);
-//}
-//
-//static CEffectProcess* NewProcessRTASStereo()
-//{
-//  return new IPlugProcessRTAS(plugid+1);
-//}
-//
-//static CEffectProcess* NewProcessRTASMono2Stereo()
-//{
-//  return new IPlugProcessRTAS(plugid+2);
-//}
-
 #if WINDOWS_VERSION
   extern void *hInstance;
   extern HINSTANCE gHInstance;

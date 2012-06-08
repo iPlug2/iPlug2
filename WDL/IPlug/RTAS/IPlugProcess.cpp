@@ -41,9 +41,6 @@ IPlugProcess::IPlugProcess(OSType type)
 #endif
 
   mPlug = MakePlug();
-#if PLUG_DOES_STATE_CHUNKS
-  AddChunk(mPluginID, PLUG_MFR);
-#endif
 }
 
 IPlugProcess::~IPlugProcess(void)
@@ -246,7 +243,7 @@ void IPlugProcess::UpdateControlValueInAlgorithm (long idx)
 
   if (!IsValidControlIndex(idx)) return;
   if (idx == mMasterBypassIndex)  return;
-
+  
   mPlug->SetParameter(idx);
 }
 
@@ -318,22 +315,42 @@ void IPlugProcess::DisconnectSidechain(void)
   mPlug->SetSideChainConnected(false);
 }
 
+ComponentResult IPlugProcess::GetIndexedChunkID(long index, OSType *chunkID)
+{
+  if (index == 1) 
+  {
+    *chunkID = mPluginID;
+  }
+  else 
+  {
+    return 1;
+  }
+
+	return noErr;
+}
+
+ComponentResult IPlugProcess::GetNumChunks(long *numChunks)
+{
+	*numChunks = 1;
+	return noErr;
+}
+
 ComponentResult IPlugProcess::GetChunkSize(OSType chunkID, long *size)
 {
   TRACE;
 
   if (chunkID == mPluginID)
   {
-    *size = sizeof(SFicPlugInChunkHeader);
     ByteChunk IPlugChunk;
 
     if (mPlug->SerializeState(&IPlugChunk))
+    {
       *size = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
-
-    return noErr;
+      return noErr;
+    }
   }
-  else
-    return CEffectProcess::GetChunkSize(chunkID, size); // Not our chunk
+  
+  return 1; // error
 }
 
 ComponentResult IPlugProcess::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
@@ -342,15 +359,44 @@ ComponentResult IPlugProcess::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 
   if (chunkID == mPluginID)
   {
-    const int dataSize = chunk->fSize - sizeof(SFicPlugInChunkHeader);
+    int dataSize = chunk->fSize - sizeof(SFicPlugInChunkHeader);
 
     ByteChunk IPlugChunk;
     IPlugChunk.PutBytes(chunk->fData, dataSize);
     mPlug->UnserializeState(&IPlugChunk, 0);
+    
+    for (int i = 0; i< mPlug->NParams(); i++)
+    {
+      IParam *p = mPlug->GetParam(i);
+      int idx = i+kPTParamIdxOffset;
+      
+      switch (p->Type())
+      {
+        case IParam::kTypeDouble:
+        {
+          CPluginControl_Continuous *control = dynamic_cast<CPluginControl_Continuous*>(GetControl(idx));
+          SetControlValue(idx, control->ConvertContinuousToControl( p->Value() ));
+          break;
+        }
+        case IParam::kTypeInt:
+        case IParam::kTypeEnum:
+        case IParam::kTypeBool:
+        {
+          CPluginControl_Discrete *control = dynamic_cast<CPluginControl_Discrete*>(GetControl(idx));
+          SetControlValue(idx, control->ConvertDiscreteToControl( p->Int() ));
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    
+    fNumPlugInChanges++;
+    
     return noErr;
   }
-  else
-    return CEffectProcess::SetChunk(chunkID, chunk); // Not our chunk
+
+  return 1; // error
 }
 
 ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
@@ -360,16 +406,40 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
   if (chunkID == mPluginID)
   {
     ByteChunk IPlugChunk;
+    
     if (mPlug->SerializeState(&IPlugChunk))
     {
       chunk->fSize = IPlugChunk.Size() + sizeof(SFicPlugInChunkHeader);
       memcpy(chunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
       return noErr;
     }
-    return 1;
   }
-  else
-    return CEffectProcess::GetChunk(chunkID, chunk); // Not our chunk
+
+  return 1;
+}
+
+ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean *isEqual)
+{
+  TRACE;
+  
+	if (chunk->fChunkID != mPluginID)
+  {
+    return 1;
+	}
+  
+	*isEqual = true;
+  
+  ByteChunk IPlugChunk;
+  //_this->InitChunkWithIPlugVer(&IPlugChunk);
+  mPlug->SerializeState(&IPlugChunk);
+
+  //TODO: why the fuck does this allways return false
+  if(memcmp(IPlugChunk.GetBytes(), chunk->fData, IPlugChunk.Size()) != 0)
+  {
+    *isEqual = false;
+  }
+  
+  return noErr;
 }
 
 void IPlugProcess::ResizeGraphics(int w, int h)

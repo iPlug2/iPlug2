@@ -28,12 +28,14 @@ public:
   CPlugInView* CreateCPlugInView();
   ComponentResult SetControlHighliteInfo(long controlIndex, short isHighlighted, short color);
   ComponentResult ChooseControl(Point aLocalCoord, long *aControlIndex);
-  //ComponentResult DoCustomPlugInSettingsFile	(	char * 	settingsFolder	 ); //TODO
 
+  virtual ComponentResult GetIndexedChunkID(long index, OSType *chunkID);
+  virtual ComponentResult GetNumChunks(long *numChunks);
   virtual ComponentResult GetChunkSize(OSType chunkID, long *size);
   virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
-
+  virtual ComponentResult CompareActiveChunk(SFicPlugInChunk *chunk, Boolean *isEqual);
+  
   void SetEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
   virtual int ProcessTouchControl(long aControlIndex);
   virtual int ProcessReleaseControl(long aControlIndex);
