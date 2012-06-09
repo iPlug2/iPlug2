@@ -373,7 +373,6 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) c
   TRACE;
   IPlugAAX* _this = const_cast<IPlugAAX*>(this);
 
-  //called when project is saved
   if (chunkID == _this->GetUniqueID()) 
   {
     ByteChunk IPlugChunk;
