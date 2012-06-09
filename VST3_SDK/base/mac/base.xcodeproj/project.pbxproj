@@ -401,6 +401,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9FC562BA0E373E6E00886555 /* debug.xcconfig */;
 			buildSettings = {
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = ../../;
 				PRODUCT_NAME = base;
