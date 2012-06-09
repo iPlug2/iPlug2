@@ -323,7 +323,7 @@ ComponentResult IPlugProcess::GetIndexedChunkID(long index, OSType *chunkID)
   }
   else 
   {
-    return 1;
+    return kChunkRangeErr;
   }
 
 	return noErr;
@@ -350,7 +350,7 @@ ComponentResult IPlugProcess::GetChunkSize(OSType chunkID, long *size)
     }
   }
   
-  return 1; // error
+  return kChunkRangeErr;
 }
 
 ComponentResult IPlugProcess::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
@@ -396,7 +396,7 @@ ComponentResult IPlugProcess::SetChunk(OSType chunkID, SFicPlugInChunk *chunk)
     return noErr;
   }
 
-  return 1; // error
+  return kChunkRangeErr;
 }
 
 ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
@@ -415,7 +415,7 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
     }
   }
 
-  return 1;
+  return kChunkRangeErr;
 }
 
 ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean *isEqual)
@@ -424,7 +424,7 @@ ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean
   
 	if (chunk->fChunkID != mPluginID)
   {
-    return 1;
+    return kChunkRangeErr;
 	}
   
 	*isEqual = true;
@@ -433,7 +433,17 @@ ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean
   //_this->InitChunkWithIPlugVer(&IPlugChunk);
   mPlug->SerializeState(&IPlugChunk);
 
-  //TODO: why the fuck does this allways return false
+  unsigned char* startIPlug = IPlugChunk.GetBytes();
+  unsigned char* startPT = (unsigned char*) chunk->fData;
+  
+  for (int i = 0; i< IPlugChunk.Size(); i++) 
+  {
+    if (startIPlug[i] != startPT[i]) 
+    {
+      printf("byte %i doesn't match: IPlugChunk: %x PTChunk: %x\n", i, startIPlug[i], startPT[i]);
+    }
+  }
+  
   if(memcmp(IPlugChunk.GetBytes(), chunk->fData, IPlugChunk.Size()) != 0)
   {
     *isEqual = false;
