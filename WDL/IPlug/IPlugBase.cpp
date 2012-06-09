@@ -524,10 +524,14 @@ void IPlugBase::SetLatency(int samples)
 void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
+#ifndef PROTOOLS
   WDL_MutexLock lock(&mMutex);
   GetParam(idx)->SetNormalized(normalizedValue);
   InformHostOfParamChange(idx, normalizedValue);
   OnParamChange(idx);
+#else
+  InformHostOfParamChange(idx, normalizedValue);
+#endif
 }
 
 void IPlugBase::OnParamReset()
