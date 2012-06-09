@@ -4,10 +4,6 @@
 
 const float GRAYED_ALPHA = 0.25f;
 
-#if defined(RTAS_API) || defined(AAX_API)
-  #define PROTOOLS
-#endif
-
 void IControl::SetValueFromPlug(double value)
 {
   if (mDefaultValue < 0.0)
