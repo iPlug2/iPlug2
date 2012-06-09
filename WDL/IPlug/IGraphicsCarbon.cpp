@@ -411,6 +411,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
 
             CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, -portBounds.top);
 
+            r = IRECT(0,0,pGraphicsMac->Width(), pGraphicsMac->Height());
             pGraphicsMac->Draw(&r); // Carbon non-composited will redraw everything, the IRECT passed here is the entire plugin-gui
 
             QDEndCGContext(port, &(_this->mCGC));
