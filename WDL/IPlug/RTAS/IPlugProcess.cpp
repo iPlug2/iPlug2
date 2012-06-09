@@ -421,7 +421,7 @@ ComponentResult IPlugProcess::GetChunk(OSType chunkID, SFicPlugInChunk *chunk)
 ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean *isEqual)
 {
   TRACE;
-  
+
 	if (chunk->fChunkID != mPluginID)
   {
     return kChunkRangeErr;
@@ -429,25 +429,26 @@ ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean
   
 	*isEqual = true;
   
-  ByteChunk IPlugChunk;
-  //_this->InitChunkWithIPlugVer(&IPlugChunk);
-  mPlug->SerializeState(&IPlugChunk);
-
-  unsigned char* startIPlug = IPlugChunk.GetBytes();
-  unsigned char* startPT = (unsigned char*) chunk->fData;
+  // TODO: - fix chunk comparision for compare light
+  // for some reason the chunk serialized by IPlug is allways different to the data stored in the SFicPlugInChunk
+  // this is probably todo with byte alignment
   
-  for (int i = 0; i< IPlugChunk.Size(); i++) 
-  {
-    if (startIPlug[i] != startPT[i]) 
-    {
-      printf("byte %i doesn't match: IPlugChunk: %x PTChunk: %x\n", i, startIPlug[i], startPT[i]);
-    }
-  }
-  
-  if(memcmp(IPlugChunk.GetBytes(), chunk->fData, IPlugChunk.Size()) != 0)
-  {
-    *isEqual = false;
-  }
+//  ByteChunk IPlugChunk;
+//  //mPlug->InitChunkWithIPlugVer(&IPlugChunk);
+//  mPlug->SerializeState(&IPlugChunk);
+//
+//  unsigned char* startIPlug = IPlugChunk.GetBytes();
+//  unsigned char* startPT = (unsigned char*) chunk->fData;
+//  
+//  for (int i = 0; i< IPlugChunk.Size(); i++) 
+//  {
+//    printf("byte %i: IPlugChunk: %x PTChunk: %x\n", i, startIPlug[i], startPT[i]);
+//  }
+//  
+//  if(memcmp(IPlugChunk.GetBytes(), chunk->fData, IPlugChunk.Size()) != 0)
+//  {
+//    *isEqual = false;
+//  }
   
   return noErr;
 }
