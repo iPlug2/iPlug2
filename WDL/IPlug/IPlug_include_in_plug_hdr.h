@@ -23,10 +23,12 @@
   #include "IPlugRTAS.h"
   typedef IPlugRTAS IPlug;
   #define API_EXT "rtas"
+  #define PROTOOLS
 #elif AAX_API
   #include "IPlugAAX.h"
   typedef IPlugAAX IPlug;
   #define API_EXT "aax"
+  #define PROTOOLS
 #elif defined SA_API
   #include "IPlugStandalone.h"
   typedef IPlugStandalone IPlug;
