@@ -107,7 +107,7 @@ public:
   int GetUniqueID() { return mUniqueID; }
   int GetMfrID() { return mMfrID; }
 
-  void SetParameterFromGUI(int idx, double normalizedValue);
+  virtual void SetParameterFromGUI(int idx, double normalizedValue);
   // If a parameter change comes from the GUI, midi, or external input,
   // the host needs to be informed in case the changes are being automated.
   virtual void BeginInformHostOfParamChange(int idx) = 0;

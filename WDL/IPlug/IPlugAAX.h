@@ -78,6 +78,8 @@ public:
   void EndInformHostOfParamChange(int idx);
   void InformHostOfProgramChange();
   
+  void SetParameterFromGUI(int idx, double normalizedValue);
+    
   int GetSamplePos();
   double GetTempo();
   void GetTimeSig(int* pNum, int* pDenom);

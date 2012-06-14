@@ -521,17 +521,14 @@ void IPlugBase::SetLatency(int samples)
   }
 }
 
+// this is over-ridden for VST3 and AAX formats
 void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
-#ifndef PROTOOLS
   WDL_MutexLock lock(&mMutex);
   GetParam(idx)->SetNormalized(normalizedValue);
   InformHostOfParamChange(idx, normalizedValue);
   OnParamChange(idx);
-#else
-  InformHostOfParamChange(idx, normalizedValue);
-#endif
 }
 
 void IPlugBase::OnParamReset()
