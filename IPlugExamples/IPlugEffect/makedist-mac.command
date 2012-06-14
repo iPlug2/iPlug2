@@ -158,7 +158,7 @@ sudo ashelper -f "${AAX_FINAL}/Contents/MacOS/IPlugEffect" -l ../../../Certifica
 
 # echo "code signing app for appstore"
 # echo ""
-# codesign -f -s "3rd Party Mac Developer Application: ""${CERT_ID}" $APP
+# codesign -f -s "3rd Party Mac Developer Application: ""${CERT_ID}" $APP --entitlements resources/IPlugEffect.entitlements
 #  
 # echo "building pkg for app store"
 # productbuild \
