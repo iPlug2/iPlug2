@@ -30,6 +30,8 @@
 #define IDC_BUTTON_ASIO             40022
 #define IDC_CB_MONO_INPUT           40023
 
+#define IDAPPLY                     40024
+
 // some options for the app
 
 #define ENABLE_SYSEX 0

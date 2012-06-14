@@ -271,9 +271,13 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
       switch (LOWORD(wParam))
       {
         case IDOK:
+          // TODO: check if state is the same as what is currently set
+          TryToChangeAudio();
           EndDialog(hwndDlg, IDOK); // INI file will be changed see MainDialogProc
           break;
-
+        case IDAPPLY:
+          TryToChangeAudio();
+          break;
         case IDCANCEL:
           EndDialog(hwndDlg, IDCANCEL);
 
@@ -285,7 +289,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
             TryToChangeAudioDriverType();
             ProbeAudioIO();
-            TryToChangeAudio();
           }
 
           break;
@@ -310,7 +313,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
               gState->mAudioOutChanL = 1;
               gState->mAudioOutChanR = 2;
 
-              TryToChangeAudio();
               PopulateAudioDialogs(hwndDlg);
             }
           }
@@ -326,7 +328,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioInChanL = 1;
             gState->mAudioInChanR = 2;
 
-            TryToChangeAudio();
             PopulateDriverSpecificControls(hwndDlg);
           }
           break;
@@ -341,7 +342,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioOutChanL = 1;
             gState->mAudioOutChanR = 2;
 
-            TryToChangeAudio();
             PopulateDriverSpecificControls(hwndDlg);
           }
           break;
@@ -355,8 +355,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioInChanR = gState->mAudioInChanL + 1;
             SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, gState->mAudioInChanR - 1, 0);
             //
-
-            TryToChangeAudio();
           }
           break;
 
@@ -375,8 +373,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioOutChanR = gState->mAudioOutChanL + 1;
             SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, gState->mAudioOutChanR - 1, 0);
             //
-
-            TryToChangeAudio();
           }
           break;
 
@@ -412,8 +408,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
               SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_GETLBTEXT, iovsidx, (LPARAM) gState->mAudioIOVS);
               SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_GETLBTEXT, sigvsidx, (LPARAM) gState->mAudioSigVS);
             }
-
-            TryToChangeAudio();
           }
           break;
         case IDC_COMBO_AUDIO_SR:
@@ -421,19 +415,17 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
           {
             int idx = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SR, CB_GETCURSEL, 0, 0);
             SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SR, CB_GETLBTEXT, idx, (LPARAM) gState->mAudioSR);
-
-            TryToChangeAudio();
           }
           break;
 
         case IDC_BUTTON_ASIO:
           if (HIWORD(wParam) == BN_CLICKED)
-#ifdef OS_OSX
+            #ifdef OS_OSX
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
-#elif defined OS_WIN
+            #elif defined OS_WIN
             if( gState->mAudioDriverType == DAC_ASIO )
               ASIOControlPanel();
-#endif
+            #endif
           break;
 
         case IDC_COMBO_MIDI_IN_DEV:

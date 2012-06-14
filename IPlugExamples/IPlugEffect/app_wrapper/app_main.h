@@ -35,7 +35,7 @@
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 
   #define DAC_COREAUDIO 0
-  #define DAC_JACK 1
+//  #define DAC_JACK 1
 #endif
 
 #include "wdltypes.h"
