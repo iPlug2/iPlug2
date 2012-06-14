@@ -8,7 +8,10 @@
 #include "IGraphics.h"
 #include "../swell/swell.h"
 
-#define _UINT32 // this is necessary to get VST3 to compile with the 10.6 SDK due to a conflict
+#ifdef VST3_API
+  #define _UINT32 // this is necessary to get VST3 to compile with the 10.6 SDK due to a conflict
+#endif
+
 #include <Carbon/Carbon.h>
 
 #ifndef DEFAULT_PATH_OSX
