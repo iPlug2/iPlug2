@@ -350,6 +350,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             case kBypassParam:
             {
               bool bypassed = (value > 0.5);
+              
               if (bypassed != mIsBypassed)
               {
                 mIsBypassed = bypassed;
@@ -646,9 +647,16 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   if (SerializeState(&chunk))
   {
     state->write(chunk.GetBytes(), chunk.Size());
-    return kResultOk;
   }
-  return kResultFalse;
+  else
+  {
+    return kResultFalse;
+  }  
+  
+  int32 toSaveBypass = mIsBypassed ? 1 : 0;
+  state->write(&toSaveBypass, sizeof (int32));  
+
+  return kResultOk;
 }
 
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
@@ -665,6 +673,15 @@ ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue 
 
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
+  if (tag == kBypassParam) 
+  {
+    return (ParamValue) mIsBypassed;
+  }
+//   else if (tag == kPresetParam) 
+//   {
+//     return (ParamValue) ToNormalizedParam(mCurrentPresetIdx, 0, NPresets(), 1.);
+//   }
+
   IParam* param = GetParam(tag);
 
   if (param)
