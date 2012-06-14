@@ -33,6 +33,7 @@ public:
 
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
   void SetDisplayText(int value, const char* text);
+  void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; };
 
   // The higher the shape, the more resolution around host value zero.
   void SetShape(double shape);
@@ -74,8 +75,6 @@ public:
   const int GetPrecision() {return mDisplayPrecision;}
 
   bool GetCanAutomate() { return mCanAutomate; };
-  void SetCanAutomate() { mCanAutomate = true; };
-  void KillAutomation() { mCanAutomate = false; };
 
 private:
   // All we store is the readable values.
