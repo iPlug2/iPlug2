@@ -8,14 +8,11 @@ ALL - improve text entry dimensions / text size
 ALL - freetype based font renderer, import .ttf files
 ALL - drag & drop area
 ALL - OS tooltips?
-ALL - make consistent code style. tabs/spaces m_blah mBlah etc
 ALL - carbon non-composited text entry
 ALL - carbon non-composited doesn't just draw the dirty area of the GUI, it always redraws the entire GUI
-ALL - set up MSVC projects to handle compilation on x64 or x86 WRT VST3 binary copying, debugging executable etc
 
 Examples:
 
-- Fix MSVC project build order and paths of IPlug.lib, Lice.lib etc for tracer builds
 - IPlugPolySynth
 - IPlugDrumSynth
 - IPlugMultiChannel
@@ -38,13 +35,20 @@ VST3 wrapper:
 
 RTAS wrapper:
 
+- compare light disabled
+- multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances
 - auxiliary output stems for instruments with multiple outs
-- chunks
 - keycatcher doesn't work (OSX)
 - text entries disabled (OSX)
 - audiosuite
 - presets list
 - close session frozen buffer (only happens when debugging?)
+- SendMidiMsg/s
+
+AAX wrapper:
+
+- multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances
+- auxiliary output stems for instruments with multiple outs
 - SendMidiMsg/s
 
 Standalone wrapper:
