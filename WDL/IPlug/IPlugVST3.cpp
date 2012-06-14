@@ -711,7 +711,7 @@ tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valu
 
   if (param)
   {
-    char disp [MAX_PARAM_NAME_LEN];
+    char disp[MAX_PARAM_NAME_LEN];
     param->GetDisplayForHost(valueNormalized, true, disp);
     Steinberg::UString(string, 128).fromAscii(disp);
     return kResultTrue;
@@ -803,6 +803,7 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
 
 tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
 {
+#ifdef VST3_PRESET_LIST
   info.id = kRootUnitId;
   info.parentUnitId = kNoParentUnitId;
   info.programListId = kPresetParam;
@@ -811,11 +812,18 @@ tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
   name.fromAscii("Factory Presets");
 
   return kResultTrue;
+#else
+  return kResultFalse;
+#endif
 }
 
 int32 PLUGIN_API IPlugVST3::getProgramListCount()
 {
+#ifdef VST3_PRESET_LIST
   return (NPresets() > 0);
+#else
+  return 0;
+#endif
 }
 
 tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/)
