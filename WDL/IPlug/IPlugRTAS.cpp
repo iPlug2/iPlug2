@@ -212,6 +212,8 @@ bool IPlugRTAS::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
 
 void IPlugRTAS::SetParameter(int idx)
 {
+  TRACE;
+  
   if ( mProcess->IsValidControlIndex(idx) )
   {
     IParam* pParam = GetParam(idx - kPTParamIdxOffset);
