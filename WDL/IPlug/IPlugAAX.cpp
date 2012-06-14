@@ -470,6 +470,13 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
 
 void IPlugAAX::InformHostOfProgramChange()
 {
+  // NA
+}
+
+void IPlugAAX::SetParameterFromGUI(int idx, double normalizedValue)
+{
+  Trace(TRACELOC, "%d:%f", idx, normalizedValue);
+  InformHostOfParamChange(idx, normalizedValue);
 }
 
 int IPlugAAX::GetSamplePos()

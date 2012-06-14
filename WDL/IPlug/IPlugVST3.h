@@ -85,6 +85,8 @@ public:
   virtual void InformHostOfParamChange(int idx, double normalizedValue);
   virtual void EndInformHostOfParamChange(int idx);
   virtual void InformHostOfProgramChange() {};
+  
+  virtual void SetParameterFromGUI(int idx, double normalizedValue);
 
   virtual bool IsRenderingOffline() { return (processSetup.processMode == kOffline); }
 
