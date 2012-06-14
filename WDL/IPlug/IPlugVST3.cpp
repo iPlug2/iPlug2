@@ -830,31 +830,19 @@ tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 program
 void IPlugVST3::BeginInformHostOfParamChange(int idx)
 {
   Trace(TRACELOC, "%d", idx);
-
-  if (GetParam(idx)->GetCanAutomate()) // TODO are these checks SANE?
-  {
-    beginEdit(idx);
-  }
+  beginEdit(idx);
 }
 
 void IPlugVST3::InformHostOfParamChange(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
-
-  if (GetParam(idx)->GetCanAutomate())
-  {
-    performEdit(idx, normalizedValue);
-  }
+  performEdit(idx, normalizedValue);
 }
 
 void IPlugVST3::EndInformHostOfParamChange(int idx)
 {
   Trace(TRACELOC, "%d", idx);
-
-  if (GetParam(idx)->GetCanAutomate())
-  {
-    endEdit(idx);
-  }
+  endEdit(idx);
 }
 
 void IPlugVST3::SetParameterFromGUI(int idx, double normalizedValue)
