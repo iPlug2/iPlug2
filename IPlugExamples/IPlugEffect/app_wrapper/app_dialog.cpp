@@ -536,12 +536,12 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           DestroyWindow(hwndDlg);
           return 0;
         case ID_ABOUT:
-          gPluginInstance->HostRequestingAboutBox();
-
-          //char version[50];
-          //sprintf(version, "acme audio, 2011");
-          //MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
-
+          if(!gPluginInstance->HostRequestingAboutBox())
+          {
+            char version[50];
+            sprintf(version, BUNDLE_MFR"\nBuilt on "__DATE__);
+            MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
+          }
           return 0;
         case ID_PREFERENCES:
         {
