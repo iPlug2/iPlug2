@@ -26,7 +26,7 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
+#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme"
 #define PLUG_NAME_DIGI "IPlugEffect\nIPEF"
 #define EFFECT_TYPE_DIGI "Effect"
 
