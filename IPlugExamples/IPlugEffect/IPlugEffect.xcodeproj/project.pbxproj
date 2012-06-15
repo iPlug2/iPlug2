@@ -295,6 +295,7 @@
 		4F7F5CB313E9607A002918FD /* IPlugProcessRTAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7F5CA713E9607A002918FD /* IPlugProcessRTAS.cpp */; };
 		4F7F5CF713E96564002918FD /* System.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7F5CF613E96564002918FD /* System.framework */; };
 		4F7F5D2C13E9686E002918FD /* IPlugRTAS.r in Rez */ = {isa = PBXBuildFile; fileRef = 4F7F5D2413E9681E002918FD /* IPlugRTAS.r */; };
+		4F8B6766158B4F74002FC25B /* libPluginLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B674F158B4F53002FC25B /* libPluginLibrary.a */; };
 		4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2613E9776E004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2713E97781004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
@@ -366,7 +367,6 @@
 		4FB6002C1567CB0A0020189A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4FB600551567CBF90020189A /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4FC206BF13F44B99002A30AC /* libPluginLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC206BE13F44B99002A30AC /* libPluginLibrary.a */; };
 		4FD16CA213B6327D001D0217 /* app_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */; };
 		4FD16CA313B6327D001D0217 /* app_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA113B6327C001D0217 /* app_dialog.cpp */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
@@ -475,15 +475,29 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libAAXLibrary.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = AAXLibrary;
 		};
 		4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4B00D06910E022FD00816F7B /* AAXLibrary_ParameterManager_UnitTest */;
+			remoteGlobalIDString = 4B00D06910E022FD00816F7B;
 			remoteInfo = AAXLibrary_UnitTest;
+		};
+		4F8B674E158B4F53002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B65B09B30860FB0800FE2E6A /* libPluginLibrary.a */;
+			remoteInfo = "Plugin Library";
+		};
+		4F8B6764158B4F67002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B65B09B20860FB0800FE2E6A /* Plugin Library */;
+			remoteInfo = "Plugin Library";
 		};
 		4F8D4BCB13E97664004F7633 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -755,13 +769,13 @@
 		4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = CommonReleaseSettings.xcconfig; path = ../../PT9_SDK/AlturaPorts/TDMPlugIns/common/Mac/CommonReleaseSettings.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F7F5CF613E96564002918FD /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; name = IPlugRTAS.r; path = ../../WDL/IPlug/RTAS/IPlugRTAS.r; sourceTree = "<group>"; };
+		4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PluginLibrary.xcodeproj; path = ../../PT9_SDK/AlturaPorts/TDMPlugIns/PlugInLibrary/MacBuild/PluginLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FB3624E13B648FE00DB6B76 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = app_wrapper/main.m; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FC206BE13F44B99002A30AC /* libPluginLibrary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPluginLibrary.a; path = ../../PT9_SDK/MacBag/Libs/Release/libPluginLibrary.a; sourceTree = SOURCE_ROOT; };
 		4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16C9E13B6327C001D0217 /* app_resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_resource.h; path = app_wrapper/app_resource.h; sourceTree = "<group>"; };
@@ -871,7 +885,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FC206BF13F44B99002A30AC /* libPluginLibrary.a in Frameworks */,
+				4F8B6766158B4F74002FC25B /* libPluginLibrary.a in Frameworks */,
 				4F8D4C2913E97794004F7633 /* lice32.a in Frameworks */,
 				4F7F5C6213E95EC8002918FD /* Cocoa.framework in Frameworks */,
 				4F7F5C6313E95EC8002918FD /* Carbon.framework in Frameworks */,
@@ -1443,7 +1457,7 @@
 		4F7F5CEB13E9651F002918FD /* RTAS Plugin */ = {
 			isa = PBXGroup;
 			children = (
-				4FC206BE13F44B99002A30AC /* libPluginLibrary.a */,
+				4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */,
 				4F7F5CF613E96564002918FD /* System.framework */,
 			);
 			name = "RTAS Plugin";
@@ -1454,6 +1468,14 @@
 			children = (
 				4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */,
 				4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4F8B6748158B4F53002FC25B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F8B674F158B4F53002FC25B /* libPluginLibrary.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1801,6 +1823,7 @@
 			);
 			dependencies = (
 				4F8D4C3813E9783A004F7633 /* PBXTargetDependency */,
+				4F8B6765158B4F67002FC25B /* PBXTargetDependency */,
 			);
 			name = RTAS_32_intel;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1915,6 +1938,10 @@
 					ProductGroup = 4F8D4BC513E97664004F7633 /* Products */;
 					ProjectRef = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
 				},
+				{
+					ProductGroup = 4F8B6748158B4F53002FC25B /* Products */;
+					ProjectRef = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -1953,6 +1980,13 @@
 			fileType = "compiled.mach-o.executable";
 			path = AAXLibrary_ParameterManager_UnitTest;
 			remoteRef = 4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4F8B674F158B4F53002FC25B /* libPluginLibrary.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libPluginLibrary.a;
+			remoteRef = 4F8B674E158B4F53002FC25B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		4F8D4BCC13E97664004F7633 /* lice.a */ = {
@@ -2449,6 +2483,11 @@
 			isa = PBXTargetDependency;
 			target = 4F3AE17812C0E5E2001FD7A4 /* AU_32&64_intel */;
 			targetProxy = 4F78DAF913B6436B0032E0F3 /* PBXContainerItemProxy */;
+		};
+		4F8B6765158B4F67002FC25B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Plugin Library";
+			targetProxy = 4F8B6764158B4F67002FC25B /* PBXContainerItemProxy */;
 		};
 		4F8D4C2D13E977CD004F7633 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
