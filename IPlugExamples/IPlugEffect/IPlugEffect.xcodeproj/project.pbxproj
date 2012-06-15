@@ -409,7 +409,6 @@
 		4FF016FC134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
 		4FF0171A134E153A001447BA /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF01719134E153A001447BA /* heapbuf.h */; };
 		4FF0171B134E153A001447BA /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF01719134E153A001447BA /* heapbuf.h */; };
-		4FF7B103156A834A00E6CB12 /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */; };
 		52C4DB190D0E51270007A920 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		52FBBED10D0CF139001C8B8A /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
@@ -471,6 +470,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F3AE17812C0E5E2001FD7A4;
 			remoteInfo = "AU_32&64_intel";
+		};
+		4F8B6722158B4EB2002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libAAXLibrary.a */;
+			remoteInfo = AAXLibrary;
+		};
+		4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4B00D06910E022FD00816F7B /* AAXLibrary_ParameterManager_UnitTest */;
+			remoteInfo = AAXLibrary_UnitTest;
 		};
 		4F8D4BCB13E97664004F7633 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -569,20 +582,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = "lice_32&64_intel";
-		};
-		4FF7B0FC156A831000E6CB12 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = AAXLibrary;
-		};
-		4FF7B0FE156A831000E6CB12 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4B00D06910E022FD00816F7B;
-			remoteInfo = AAXLibrary_UnitTest;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -795,7 +794,7 @@
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
 		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../common.xcconfig; sourceTree = SOURCE_ROOT; };
-		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = /Users/oli/Dev/MyPlugins/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = "<absolute>"; };
+		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		526F9C010D7DC7D700562CF8 /* IPlugEffect.exp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.exports; path = IPlugEffect.exp; sourceTree = "<group>"; };
 		52C4DB180D0E51270007A920 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		52E41CB90D14C2A900A0943B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -848,7 +847,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FF7B103156A834A00E6CB12 /* libAAXLibrary.a in Frameworks */,
 				4F4CC3F91549BA8600A9EA21 /* lice32.a in Frameworks */,
 				4F4CC3FA1549BA8600A9EA21 /* Cocoa.framework in Frameworks */,
 				4F4CC3FB1549BA8600A9EA21 /* Carbon.framework in Frameworks */,
@@ -1451,6 +1449,15 @@
 			name = "RTAS Plugin";
 			sourceTree = "<group>";
 		};
+		4F8B671E158B4EB2002FC25B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */,
+				4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4F8D4BC513E97664004F7633 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1545,15 +1552,6 @@
 				4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */,
 			);
 			name = WDL;
-			sourceTree = "<group>";
-		};
-		4FF7B0F4156A831000E6CB12 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */,
-				4FF7B0FF156A831000E6CB12 /* AAXLibrary_ParameterManager_UnitTest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1906,7 +1904,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 4FF7B0F4156A831000E6CB12 /* Products */;
+					ProductGroup = 4F8B671E158B4EB2002FC25B /* Products */;
 					ProjectRef = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 				},
 				{
@@ -1943,6 +1941,20 @@
 			remoteRef = 4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libAAXLibrary.a;
+			remoteRef = 4F8B6722158B4EB2002FC25B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = AAXLibrary_ParameterManager_UnitTest;
+			remoteRef = 4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		4F8D4BCC13E97664004F7633 /* lice.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1962,20 +1974,6 @@
 			fileType = archive.ar;
 			path = libbase32.a;
 			remoteRef = 4FA708BE158B47F000BFC572 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libAAXLibrary.a;
-			remoteRef = 4FF7B0FC156A831000E6CB12 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4FF7B0FF156A831000E6CB12 /* AAXLibrary_ParameterManager_UnitTest */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = AAXLibrary_ParameterManager_UnitTest;
-			remoteRef = 4FF7B0FE156A831000E6CB12 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
