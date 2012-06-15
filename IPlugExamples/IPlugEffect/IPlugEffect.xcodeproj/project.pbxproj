@@ -428,14 +428,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* AAXLibrary */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = AAXLibrary;
 		};
 		4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* AAXLibrary */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = AAXLibrary;
 		};
 		4F3E69091409747300C4D749 /* PBXContainerItemProxy */ = {
@@ -3403,7 +3403,6 @@
 					"$(DEBUG_DEFS)",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
