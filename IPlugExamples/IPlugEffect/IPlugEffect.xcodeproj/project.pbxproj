@@ -46,6 +46,8 @@
 		4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F3AE1D812C0E5E2001FD7A4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F3AE1D912C0E5E2001FD7A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
+		4F3B0B3D158B505F001B0CEF /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */; };
+		4F3B0B44158B50A5001B0CEF /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */; };
 		4F3E690C1409747300C4D749 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F3E69111409747300C4D749 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -422,6 +424,20 @@
 			remoteGlobalIDString = 4F4CC3E31549BA8600A9EA21;
 			remoteInfo = AAX_32_intel;
 		};
+		4F3B0B3E158B506F001B0CEF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* AAXLibrary */;
+			remoteInfo = AAXLibrary;
+		};
+		4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* AAXLibrary */;
+			remoteInfo = AAXLibrary;
+		};
 		4F3E69091409747300C4D749 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
@@ -489,14 +505,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = B65B09B30860FB0800FE2E6A /* libPluginLibrary.a */;
+			remoteGlobalIDString = B65B09B30860FB0800FE2E6A;
 			remoteInfo = "Plugin Library";
 		};
 		4F8B6764158B4F67002FC25B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = B65B09B20860FB0800FE2E6A /* Plugin Library */;
+			remoteGlobalIDString = B65B09B20860FB0800FE2E6A;
 			remoteInfo = "Plugin Library";
 		};
 		4F8D4BCB13E97664004F7633 /* PBXContainerItemProxy */ = {
@@ -861,6 +877,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F3B0B3D158B505F001B0CEF /* libAAXLibrary.a in Frameworks */,
 				4F4CC3F91549BA8600A9EA21 /* lice32.a in Frameworks */,
 				4F4CC3FA1549BA8600A9EA21 /* Cocoa.framework in Frameworks */,
 				4F4CC3FB1549BA8600A9EA21 /* Carbon.framework in Frameworks */,
@@ -908,6 +925,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F3B0B44158B50A5001B0CEF /* libAAXLibrary.a in Frameworks */,
 				4FB600551567CBF90020189A /* lice.a in Frameworks */,
 				4FB6002C1567CB0A0020189A /* Cocoa.framework in Frameworks */,
 				4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */,
@@ -1782,6 +1800,7 @@
 			);
 			dependencies = (
 				4F4CC3E41549BA8600A9EA21 /* PBXTargetDependency */,
+				4F3B0B3F158B506F001B0CEF /* PBXTargetDependency */,
 			);
 			name = AAX_32_intel;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1863,6 +1882,7 @@
 			);
 			dependencies = (
 				4FB600501567CB990020189A /* PBXTargetDependency */,
+				4F3B0B43158B509A001B0CEF /* PBXTargetDependency */,
 			);
 			name = "AAX_32&64_intel";
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -2453,6 +2473,16 @@
 			isa = PBXTargetDependency;
 			target = 4F4CC3E31549BA8600A9EA21 /* AAX_32_intel */;
 			targetProxy = 4F1A5FD115682B44001E12B4 /* PBXContainerItemProxy */;
+		};
+		4F3B0B3F158B506F001B0CEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AAXLibrary;
+			targetProxy = 4F3B0B3E158B506F001B0CEF /* PBXContainerItemProxy */;
+		};
+		4F3B0B43158B509A001B0CEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AAXLibrary;
+			targetProxy = 4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */;
 		};
 		4F3E69081409747300C4D749 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
