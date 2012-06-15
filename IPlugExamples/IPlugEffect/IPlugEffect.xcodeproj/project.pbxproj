@@ -85,7 +85,6 @@
 		4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD016140996A10068A6D4 /* conststringtable.cpp */; };
 		4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
 		4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
-		4F4AD2001409A5A90068A6D4 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F4CC3E71549BA8600A9EA21 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F4CC3E91549BA8600A9EA21 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F4CC3EA1549BA8600A9EA21 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -339,6 +338,7 @@
 		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4FA708D9158B49E500BFC572 /* libbase32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA708BF158B47F000BFC572 /* libbase32.a */; };
 		4FA88B921444E4C4006CB8DA /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
 		4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
 		4FA88B941444E4C4006CB8DA /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
@@ -435,13 +435,6 @@
 			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = base;
-		};
-		4F4AD1F71409A5820068A6D4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = base;
 		};
 		4F4CC3E51549BA8600A9EA21 /* PBXContainerItemProxy */ = {
@@ -555,6 +548,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
 			remoteInfo = "VST3_32&64_intel";
+		};
+		4FA708BE158B47F000BFC572 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4FA708BC158B47D200BFC572;
+			remoteInfo = base_32;
+		};
+		4FA708D4158B498C00BFC572 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FA7087C158B47D200BFC572;
+			remoteInfo = base_32_intel;
 		};
 		4FB6004F1567CB990020189A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -830,7 +837,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F4AD2001409A5A90068A6D4 /* libbase.a in Frameworks */,
+				4FA708D9158B49E500BFC572 /* libbase32.a in Frameworks */,
 				4F3E69221409747300C4D749 /* lice32.a in Frameworks */,
 				4F3E69231409747300C4D749 /* Cocoa.framework in Frameworks */,
 				4F3E69241409747300C4D749 /* Carbon.framework in Frameworks */,
@@ -1196,6 +1203,7 @@
 			isa = PBXGroup;
 			children = (
 				4F4AD1F61409A56A0068A6D4 /* libbase.a */,
+				4FA708BF158B47F000BFC572 /* libbase32.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1734,7 +1742,7 @@
 			);
 			dependencies = (
 				4F3E69081409747300C4D749 /* PBXTargetDependency */,
-				4F4AD1F81409A5820068A6D4 /* PBXTargetDependency */,
+				4FA708D5158B498C00BFC572 /* PBXTargetDependency */,
 			);
 			name = VST3_32_intel;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1949,6 +1957,13 @@
 			remoteRef = 4F8D4C1613E976A7004F7633 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		4FA708BF158B47F000BFC572 /* libbase32.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbase32.a;
+			remoteRef = 4FA708BE158B47F000BFC572 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -2091,7 +2106,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
+			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\techo deleting \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\techo deleting \"$HOME/Library/Caches/com.apple.audiounits.cache\"\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
 			showEnvVarsInLog = 0;
 		};
 		4F744D4C14005ADA002FAD90 /* ShellScript */ = {
@@ -2412,11 +2427,6 @@
 			name = lice_32_intel;
 			targetProxy = 4F3E69091409747300C4D749 /* PBXContainerItemProxy */;
 		};
-		4F4AD1F81409A5820068A6D4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = base;
-			targetProxy = 4F4AD1F71409A5820068A6D4 /* PBXContainerItemProxy */;
-		};
 		4F4CC3E41549BA8600A9EA21 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = lice_32_intel;
@@ -2486,6 +2496,11 @@
 			isa = PBXTargetDependency;
 			target = 4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
+		};
+		4FA708D5158B498C00BFC572 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = base_32_intel;
+			targetProxy = 4FA708D4158B498C00BFC572 /* PBXContainerItemProxy */;
 		};
 		4FB600501567CB990020189A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
