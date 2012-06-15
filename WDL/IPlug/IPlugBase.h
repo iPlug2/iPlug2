@@ -82,7 +82,7 @@ public:
   #ifndef OS_IOS
   virtual void OnWindowResize() {}
   #endif
-  // implement this to trigger your custom about box, when someone clicks about in the menu of a standalone
+  // implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone
   virtual bool HostRequestingAboutBox() { return false; }
 
   // implement this to do something specific when IPlug is aware of the host
