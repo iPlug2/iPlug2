@@ -35,8 +35,7 @@ VST3 wrapper:
 
 RTAS wrapper:
 
-- compare light disabled
-- multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances
+- multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances (likely PT issue)
 - auxiliary output stems for instruments with multiple outs
 - keycatcher doesn't work (OSX)
 - text entries disabled (OSX)

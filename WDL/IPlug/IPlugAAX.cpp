@@ -434,14 +434,6 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CB
   //_this->InitChunkWithIPlugVer(&IPlugChunk);
   _this->SerializeState(&IPlugChunk);
   
-//  unsigned char* startIPlug = IPlugChunk.GetBytes();
-//  unsigned char* startPT = (unsigned char*) aChunkP->fData;
-//  
-//  for (int i = 0; i< IPlugChunk.Size(); i++) 
-//  {
-//    printf("byte %i: IPlugChunk: %x PTChunk: %x\n", i, startIPlug[i], startPT[i]);
-//  }
-  
   if(memcmp(IPlugChunk.GetBytes(), aChunkP->fData, IPlugChunk.Size()) != 0)
   {
     *aIsEqualP = false;
