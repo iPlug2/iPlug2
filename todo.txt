@@ -10,6 +10,7 @@ ALL - drag & drop area
 ALL - OS tooltips?
 ALL - carbon non-composited text entry
 ALL - carbon non-composited doesn't just draw the dirty area of the GUI, it always redraws the entire GUI
+ALL - Sysex?
 
 Examples:
 
@@ -23,15 +24,14 @@ AU wrapper:
 
 - preset changing from inside the plugin doesn't consistently update logic's GUI
 - auval "preset name not retained" message
-- SendMidiMsg
+- SendMidiMsg()
 - possibility of instruments with multichannel output, e.g. 5.1
 - possibility of instruments with side-chain inputs
 
 VST3 wrapper:
 
-- midi output
+- SendMidiMsg()
 - pitch bend & other common MIDI CC parameters
-- check presets list (doesn't work in S1)
 
 RTAS wrapper:
 
