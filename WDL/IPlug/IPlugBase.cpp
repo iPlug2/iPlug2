@@ -914,6 +914,7 @@ int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
   OnParamReset();
   return pos;
 }
+
 #ifndef OS_IOS
 void IPlugBase::RedrawParamControls()
 {

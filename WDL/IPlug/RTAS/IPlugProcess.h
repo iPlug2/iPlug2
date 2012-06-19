@@ -35,7 +35,7 @@ public:
   virtual ComponentResult SetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   virtual ComponentResult GetChunk(OSType chunkID, SFicPlugInChunk *chunk);
   virtual ComponentResult CompareActiveChunk(SFicPlugInChunk *chunk, Boolean *isEqual);
-  
+
   void SetEditor(void *editor) { mCustomUI = (EditorInterface*)editor; };
   virtual int ProcessTouchControl(long aControlIndex);
   virtual int ProcessReleaseControl(long aControlIndex);

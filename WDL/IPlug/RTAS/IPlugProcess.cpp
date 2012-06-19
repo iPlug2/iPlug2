@@ -427,28 +427,7 @@ ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean
     return kChunkRangeErr;
 	}
   
-	*isEqual = true;
-  
-  // TODO: - fix chunk comparision for compare light
-  // for some reason the chunk serialized by IPlug is allways different to the data stored in the SFicPlugInChunk
-  // this is probably todo with byte alignment
-  
-//  ByteChunk IPlugChunk;
-//  //mPlug->InitChunkWithIPlugVer(&IPlugChunk);
-//  mPlug->SerializeState(&IPlugChunk);
-//
-//  unsigned char* startIPlug = IPlugChunk.GetBytes();
-//  unsigned char* startPT = (unsigned char*) chunk->fData;
-//  
-//  for (int i = 0; i< IPlugChunk.Size(); i++) 
-//  {
-//    printf("byte %i: IPlugChunk: %x PTChunk: %x\n", i, startIPlug[i], startPT[i]);
-//  }
-//  
-//  if(memcmp(IPlugChunk.GetBytes(), chunk->fData, IPlugChunk.Size()) != 0)
-//  {
-//    *isEqual = false;
-//  }
+	*isEqual = mPlug->CompareState((const unsigned char*) chunk->fData);
   
   return noErr;
 }
