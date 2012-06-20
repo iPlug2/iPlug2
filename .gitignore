@@ -31,7 +31,8 @@ Projects/*
 Icon?
 .DS_Stor*
 
-
+/WDL/IPlug/IPlug.vcxproj.user
+/WDL/lice/lice.vcxproj.user
 /WDL/IPlug/doc/
 /WorkProjects/
 IPlugExamples/build_errors.log
