@@ -98,9 +98,9 @@ static unsigned int genrand_int32(void)
 
 
 //---------------------------------------------------------------------------------------------------------------
-EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F *f)
+EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f)
 {
-  EEL_F x=floor(*f);
+  EEL_F x=floor(f);
   if (x < 1.0) x=1.0;
  
 #ifdef NSEEL_EEL1_COMPAT_MODE 
@@ -114,6 +114,7 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F *f)
 //---------------------------------------------------------------------------------------------------------------
 
 
+#ifndef EEL_TARGET_PORTABLE
 
 #ifdef __ppc__
 #include "asm-nseel-ppc-gcc.c"
@@ -129,3 +130,4 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F *f)
   #endif
 #endif
 
+#endif

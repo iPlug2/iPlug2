@@ -3,6 +3,7 @@
 #include "ptrlist.h"
 #include "win32_utf8.h"
 
+
 Win7FileDialog::Win7FileDialog(const char *name, int issave)
 {
   m_dlgid = 0;
@@ -78,6 +79,11 @@ void Win7FileDialog::setDefaultExtension(const char *ext)
   m_fod->SetDefaultExtension(tmp);
   free(tmp);
 #endif
+}
+
+void Win7FileDialog::setFileTypeIndex(int i)
+{
+  m_fod->SetFileTypeIndex(i);
 }
 
 void Win7FileDialog::setFolder(const char *folder, int def)

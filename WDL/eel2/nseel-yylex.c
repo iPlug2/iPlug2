@@ -26,6 +26,21 @@
 #include "ns-eel-int.h"
 
 
+#ifndef NSEEL_USE_OLD_PARSER
+
+#   define YYMALLOC malloc
+#   define YYFREE free
+
+int nseellex(void * yylval_param,void * yylloc_param ,void *yyscanner);
+void nseelerror(void *pos,compileContext *ctx, const char *str);
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "y.tab.c"
+
+#else
+
 #define NBPW		 16
 #define EOF			(-1)
 
@@ -45,16 +60,25 @@ static int tst__b(register int c, char tab[])
   return (tab[(c >> 3) & 037] & (1 << (c & 07)) );
 }
 
+
+int nseel_gettokenlen(compileContext *ctx, int lltbsiz)
+{
+  char *lp;
+  int tp=0;
+  for (lp = ctx->llbuf; lp < ctx->llend && tp < lltbsiz; tp++, lp++);
+  return tp;
+
+}
+
 int nseel_gettoken(compileContext *ctx, char *lltb, int lltbsiz)
 {
-        register char *lp, *tp, *ep;
+  char *lp, *tp, *ep;
 
-        tp = lltb;
-        ep = tp+lltbsiz-1;
-        for (lp = ctx->llbuf; lp < ctx->llend && tp < ep;)
-                *tp++ = *lp++;
-        *tp = 0;
-        return(tp-lltb);
+  tp = lltb;
+  ep = tp+lltbsiz-1;
+  for (lp = ctx->llbuf; lp < ctx->llend && tp < ep;) *tp++ = *lp++;
+  *tp = 0;
+  return(tp-lltb);
 }
 
 
@@ -115,7 +139,7 @@ void nseel_llinit(compileContext *ctx)
 {
    ctx->llp1 = ctx->llp2 = ctx->llend = ctx->llbuf;
    ctx->llebuf = ctx->llbuf + sizeof(ctx->llbuf);
-   ctx->lleof = ctx->yyline = 0;
+   ctx->lleof = 0;
 }
 
 
@@ -161,3 +185,5 @@ static int llset(compileContext *ctx)
         ctx->llp2 = lp1;
         return(ctx->lleof && lp1 == ctx->llbuf);
 }
+
+#endif

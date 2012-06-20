@@ -29,6 +29,7 @@ typedef unsigned long long WDL_UINT64;
 #else
 #include <stdint.h>
 typedef intptr_t INT_PTR;
+typedef uintptr_t UINT_PTR;
 #endif
 
 #if defined(__ppc__) || !defined(__cplusplus)
@@ -47,6 +48,10 @@ typedef bool WDL_bool;
 #define DWLP_MSGRESULT DWL_MSGRESULT
 #define SetWindowLongPtr(a,b,c) SetWindowLong(a,b,c)
 #define GetWindowLongPtr(a,b) GetWindowLong(a,b)
+#define SetWindowLongPtrW(a,b,c) SetWindowLongW(a,b,c)
+#define GetWindowLongPtrW(a,b) GetWindowLongW(a,b)
+#define SetWindowLongPtrA(a,b,c) SetWindowLongA(a,b,c)
+#define GetWindowLongPtrA(a,b) GetWindowLongA(a,b)
 
 #define GCLP_WNDPROC GCL_WNDPROC
 #define GCLP_HICON GCL_HICON

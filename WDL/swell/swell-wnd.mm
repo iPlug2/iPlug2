@@ -26,6 +26,7 @@
 #ifndef SWELL_PROVIDED_BY_APP
 
 #import <Cocoa/Cocoa.h>
+#import <objc/objc-runtime.h>
 #include "swell.h"
 #include "../mutex.h"
 #include "../ptrlist.h"
@@ -33,6 +34,8 @@
 
 #include "swell-dlggen.h"
 #include "swell-internal.h"
+
+
 
 static LRESULT sendSwellMessage(id obj, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -819,7 +822,6 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
           }
         }
         if (msg==LB_ADDSTRING) wParam=cnt;
-        else if (wParam < 0) wParam=0;
         else if (wParam > cnt) wParam=cnt;
         LVITEM lvi={LVIF_TEXT,wParam,0,0,0,(char *)lParam};
         ListView_InsertItem(hwnd,&lvi);
@@ -841,7 +843,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
         return [self selectedRow];
       case LB_SETCURSEL:
       {
-        if (wParam>=0 && wParam<ListView_GetItemCount(hwnd))
+        if (wParam<ListView_GetItemCount(hwnd))
         {
           [self selectRowIndexes:[NSIndexSet indexSetWithIndex:wParam] byExtendingSelection:NO];        
         }
@@ -1278,15 +1280,26 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
 
 static bool IsWindowImpl(NSView *ch, NSView *par)
 {
-  if (!par) return false;
+  if (!par || ![par isKindOfClass:[NSView class]]) return false;
+
   NSArray *ar = [par subviews];
   if (!ar) return false;
   [ar retain];
   int x,n=[ar count];
   for (x=0;x<n;x++)
-    if ([ar objectAtIndex:x] == ch) return true;
+    if ([ar objectAtIndex:x] == ch) 
+    {
+      [ar release];
+      return true;
+    }
+
   for (x=0;x<n;x++)
-    if (IsWindowImpl(ch,[ar objectAtIndex:x])) return true;
+    if (IsWindowImpl(ch,[ar objectAtIndex:x])) 
+    {
+      [ar release];
+      return true;
+    }
+
   [ar release];
   return false;
 }
@@ -1301,11 +1314,37 @@ bool IsWindow(HWND hwnd)
   int x,n=[ch count];
   for(x=0;x<n; x ++)
   {
-    NSWindow *w = [ch objectAtIndex:x]; 
-    if (w == (NSWindow *)hwnd || [w contentView] == (NSView *)hwnd) return true;
+    @try { 
+      NSWindow *w = [ch objectAtIndex:x]; 
+      if (w == (NSWindow *)hwnd || [w contentView] == (NSView *)hwnd) 
+      {
+        [ch release];
+        return true;
+      }
+    }
+    @catch (NSException *ex) { 
+    }
+    @catch (id ex) {
+    }
   }
   for(x=0;x<n; x ++)
-    if (IsWindowImpl((NSView*)hwnd,[[ch objectAtIndex:x] contentView])) return true;
+  {
+    @try { 
+      NSWindow *w = [ch objectAtIndex:x];
+      if (w && 
+          // only validate children of our windows (maybe an option for this?)
+          ([w isKindOfClass:[SWELL_ModelessWindow class]] || [w isKindOfClass:[SWELL_ModalDialog class]]) &&
+          IsWindowImpl((NSView*)hwnd,[w contentView])) 
+      {
+        [ch release];
+        return true;
+      }
+    } 
+    @catch (NSException *ex) { 
+    }
+    @catch (id ex) {
+    }
+  }
   [ch release];
 
   SWELL_END_TRY(;)
@@ -1513,7 +1552,7 @@ void DestroyWindow(HWND hwnd)
   id pid=(id)hwnd;
   if ([pid isKindOfClass:[NSView class]])
   {
-    KillTimer(hwnd,-1);
+    KillTimer(hwnd,~(UINT_PTR)0);
     sendSwellMessage((id)pid,WM_DESTROY,0,0);
       
     NSWindow *pw = [(NSView *)pid window];
@@ -1537,7 +1576,7 @@ void DestroyWindow(HWND hwnd)
   }
   else if ([pid isKindOfClass:[NSWindow class]])
   {
-    KillTimer(hwnd,-1);
+    KillTimer(hwnd,~(UINT_PTR)0);
     sendSwellMessage([(id)pid contentView],WM_DESTROY,0,0);
     sendSwellMessage((id)pid,WM_DESTROY,0,0);
       
@@ -2050,7 +2089,7 @@ HWND SetParent(HWND hwnd, HWND newPar)
     
       NSWindow *oldwnd = [tv window];
       id oldown = NULL;
-      if ([oldwnd respondsToSelector:@selector(swellGetOwner)]) oldown=[oldwnd swellGetOwner];
+      if ([oldwnd respondsToSelector:@selector(swellGetOwner)]) oldown=[(SWELL_ModelessWindow*)oldwnd swellGetOwner];
 
       if ([tv isKindOfClass:[SWELL_hwndChild class]]) ((SWELL_hwndChild*)tv)->m_lastTopLevelOwner = oldown;
     
@@ -3222,7 +3261,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
       h+=6;
     }
     [obj setTag:idx];
-    [obj setDelegate:obj];
+    [obj setDelegate:(id)obj];
     [obj setAllowsTruncatedLabels:YES];
     [obj setNotificationWindow:ACTIONTARGET];
     [obj setHidden:NO];
@@ -3237,7 +3276,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     SWELL_ListView *obj = [[SWELL_ListView alloc] init];
     [obj setColumnAutoresizingStyle:NSTableViewNoColumnAutoresizing];
     [obj setFocusRingType:NSFocusRingTypeNone];
-    [obj setDataSource:obj];
+    [obj setDataSource:(id)obj];
     obj->style=style;
 
     BOOL isLB=!stricmp(classname, "SysListView32_LB");
@@ -3286,7 +3325,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     {
       LVCOLUMN lvc={0,};
       lvc.cx=(int)ceil(max(tr.size.width,300.0));
-      lvc.pszText="";
+      lvc.pszText=(char*)"";
       ListView_InsertColumn((HWND)obj,0,&lvc);
       if (isLB && (style & LBS_OWNERDRAWFIXED))
       {
@@ -3308,7 +3347,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
   {
     SWELL_TreeView *obj = [[SWELL_TreeView alloc] init];
     [obj setFocusRingType:NSFocusRingTypeNone];
-    [obj setDataSource:obj];
+    [obj setDataSource:(id)obj];
     obj->style=style;
     id target=ACTIONTARGET;
     [obj setHeaderView:nil];    
@@ -3703,7 +3742,7 @@ int ListView_GetColumnWidth(HWND h, int pos)
   NSTableColumn *col=v->m_cols->Get(pos);
   if (!col) return 0;
   
-  if ([col respondsToSelector:@selector(isHidden)] && [col isHidden]) return 0;
+  if ([col respondsToSelector:@selector(isHidden)] && [(SWELL_TableColumnExtensions*)col isHidden]) return 0;
   return (int) floor(0.5+[col width]);
 }
 
@@ -3721,7 +3760,7 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   [col setEditable:NO];
   // [col setResizingMask:2];  // user resizable, this seems to be the default
   
-  if (!lvc->cx && [col respondsToSelector:@selector(setHidden:)]) [col setHidden:YES];
+  if (!lvc->cx && [col respondsToSelector:@selector(setHidden:)]) [(SWELL_TableColumnExtensions*)col setHidden:YES];
   else [col setWidth:lvc->cx];
   
   if (lvc->fmt == LVCFMT_CENTER) [[col headerCell] setAlignment:NSCenterTextAlignment];
@@ -3777,11 +3816,11 @@ void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
   {
     if (!lvc->cx)
     {
-      if ([col respondsToSelector:@selector(setHidden:)])  [col setHidden:YES];
+      if ([col respondsToSelector:@selector(setHidden:)])  [(SWELL_TableColumnExtensions*)col setHidden:YES];
     }
     else 
     {
-      if ([col respondsToSelector:@selector(setHidden:)])  [col setHidden:NO];
+      if ([col respondsToSelector:@selector(setHidden:)])  [(SWELL_TableColumnExtensions*)col setHidden:NO];
       [col setWidth:lvc->cx];
     }
   }
@@ -3916,7 +3955,7 @@ int ListView_GetNextItem(HWND h, int istart, int flags)
     
     if (flags==LVNI_SELECTED)
     {
-      int orig_start=istart;
+      //int orig_start=istart;
       if (istart++<0)istart=0;
       int n = [tv numberOfRows];
       while (istart < n)
@@ -4218,11 +4257,11 @@ void ListView_SetColumnWidth(HWND h, int pos, int wid)
   
   if (!wid)
   {
-    if ([col respondsToSelector:@selector(setHidden:)])  [col setHidden:YES];
+    if ([col respondsToSelector:@selector(setHidden:)])  [(SWELL_TableColumnExtensions*)col setHidden:YES];
   }
   else 
   {
-    if ([col respondsToSelector:@selector(setHidden:)])  [col setHidden:NO];
+    if ([col respondsToSelector:@selector(setHidden:)])  [(SWELL_TableColumnExtensions*)col setHidden:NO];
     [col setWidth:wid];
   }
 }
@@ -4331,7 +4370,9 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
   pinf->iItem=-1;
   
   // rowAtPoint will return a row even if it is scrolled out of the clip view
-  NSScrollView* sv=NavigateUpScrollClipViews(tv);
+  NSScrollView* sv=(NSScrollView *)NavigateUpScrollClipViews(tv);
+  if (![sv isKindOfClass:[NSScrollView class]] && ![sv isKindOfClass:[NSClipView class]]) sv=NULL;
+  
   NSRect r=[sv documentVisibleRect];
   int x=pinf->pt.x-r.origin.x;
   int y=pinf->pt.y-r.origin.y;
@@ -4846,7 +4887,7 @@ void SWELL_BroadcastMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     NSView *v = [[ch objectAtIndex:x] contentView];
     if (v && [v respondsToSelector:@selector(onSwellMessage:p1:p2:)])
     {
-      [v onSwellMessage:uMsg p1:wParam p2:lParam];
+      [(SWELL_hwndChild *)v onSwellMessage:uMsg p1:wParam p2:lParam];
       
       if (uMsg == WM_DISPLAYCHANGE)
         InvalidateRect((HWND)v,NULL,FALSE);
@@ -4989,7 +5030,7 @@ bool OpenClipboard(HWND hwndDlg)
 
 void CloseClipboard() // frees any remaining items in clipboard
 {
-  m_clip_recs.Empty(true,GlobalFree);
+  m_clip_recs.Empty(GlobalFree);
   
   if (m_clipsPending.GetSize())
   {
@@ -5503,7 +5544,6 @@ HTREEITEM TreeView_GetRoot(HWND hwnd)
 HTREEITEM TreeView_GetChild(HWND hwnd, HTREEITEM item)
 {
   if (!hwnd || ![(id)hwnd isKindOfClass:[SWELL_TreeView class]]) return NULL;
-  SWELL_TreeView *tv=(SWELL_TreeView*)hwnd;
 
   HTREEITEM__ *titem=(HTREEITEM__ *)item;
   if (!titem) return TreeView_GetRoot(hwnd);
@@ -6065,6 +6105,35 @@ BOOL SWELL_IsStaticText(HWND hwnd)
   if (hwnd && [(id)hwnd isKindOfClass:[NSTextField class]]) return TRUE;
   //todo
   return FALSE;
+}
+
+
+bool SWELL_SetAppAutoHideMenuAndDock(int ah) 
+{
+  static char _init;
+  static NSUInteger _defpres;
+  if (!_init)
+  {
+    _init=-1;
+    SInt32 v=0x1040;
+    Gestalt(gestaltSystemVersion,&v);
+    if (v>=0x1060)
+    {
+      _init=1;
+      _defpres = [(SWELL_AppExtensions*)[NSApplication sharedApplication] presentationOptions];
+    }
+  }
+  if (_init > 0)
+  {
+    const int NSApplicationPresentationAutoHideDock               = (1 <<  0),
+              NSApplicationPresentationHideDock = (1<<1),
+              NSApplicationPresentationAutoHideMenuBar            = (1 <<  2);
+
+    if (ah>0) [(SWELL_AppExtensions*)[NSApplication sharedApplication] setPresentationOptions:((ah>=2?NSApplicationPresentationHideDock:NSApplicationPresentationAutoHideDock)|NSApplicationPresentationAutoHideMenuBar)];
+    else [(SWELL_AppExtensions*)[NSApplication sharedApplication] setPresentationOptions:_defpres];
+    return true;
+  }
+  return false;
 }
 
 #endif

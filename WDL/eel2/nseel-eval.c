@@ -25,298 +25,120 @@
 #include <string.h>
 #include <ctype.h>
 #include "ns-eel-int.h"
+#include "../wdlcstring.h"
 
-#define NSEEL_VARS_MALLOC_CHUNKSIZE 8
-#define NSEEL_GLOBALVAR_BASE (1<<24)
+#ifndef NSEEL_USE_OLD_PARSER
 
-#ifndef NSEEL_MAX_VARIABLE_NAMELEN
-#define NSEEL_MAX_VARIABLE_NAMELEN 8
-#endif
+  #ifdef NSEEL_SUPER_MINIMAL_LEXER
 
-#define strnicmp(x,y,z) strncasecmp(x,y,z)
-
-
-#define INTCONST 1
-#define DBLCONST 2
-#define HEXCONST 3
-#define VARIABLE 4
-#define OTHER    5
-
-EEL_F nseel_globalregs[100];
-
-//------------------------------------------------------------------------------
-void *nseel_compileExpression(compileContext *ctx, char *exp)
-{
-  ctx->errVar=0;
-  nseel_llinit(ctx);
-  if (!nseel_yyparse(ctx,exp) && !ctx->errVar)
+  int nseellex(opcodeRec **output, YYLTYPE * yylloc_param, compileContext *scctx)
   {
-    return (void*)ctx->result;
-  }
-  return 0;
-}
+    int rv,toklen=0;
+    *output = 0;
+    while ((rv=scctx->rdbuf[0]) && (rv== ' ' || rv=='\t' || rv == '\r' || rv == '\n')) scctx->rdbuf++;
 
-//------------------------------------------------------------------------------
-void nseel_setLastVar(compileContext *ctx)
-{
-  nseel_gettoken(ctx,ctx->lastVar, sizeof(ctx->lastVar));
-}
-
-void NSEEL_VM_enumallvars(NSEEL_VMCTX ctx, int (*func)(const char *name, EEL_F *val, void *ctx), void *userctx)
-{
-  compileContext *tctx = (compileContext *) ctx;
-  int wb;
-  if (!tctx) return;
-
-  for (wb = 0; wb < tctx->varTable_numBlocks; wb ++)
-  {
-    int ti;
-    int namepos=0;
-    for (ti = 0; ti < NSEEL_VARS_PER_BLOCK; ti ++)
-    {        
-      char *p=tctx->varTable_Names[wb]+namepos;
-      if (!*p) break;
-
-
-      if (!func(p,&tctx->varTable_Values[wb][ti],userctx)) 
-        break;
-
-      namepos += NSEEL_MAX_VARIABLE_NAMELEN;
-    }
-    if (ti < NSEEL_VARS_PER_BLOCK)
-      break;
-  }
-}
-
-
-
-static INT_PTR register_var(compileContext *ctx, const char *name, EEL_F **ptr)
-{
-  int wb;
-  int ti=0;
-  int i=0;
-  char *nameptr;
-  for (wb = 0; wb < ctx->varTable_numBlocks; wb ++)
-  {
-    int namepos=0;
-    for (ti = 0; ti < NSEEL_VARS_PER_BLOCK; ti ++)
-    {        
-      if (!ctx->varTable_Names[wb][namepos] || !strnicmp(ctx->varTable_Names[wb]+namepos,name,NSEEL_MAX_VARIABLE_NAMELEN))
+    if (rv)
+    {
+      char buf[NSEEL_MAX_VARIABLE_NAMELEN*2];
+      int l;
+      char *ss = scctx->rdbuf++;
+      if (isalpha(rv) || rv == '_')
       {
-        break;
+        while ((rv=scctx->rdbuf[0]) && (isalnum(rv) || rv == '_' || rv == '.')) scctx->rdbuf++;
+        l = scctx->rdbuf - ss + 1;
+        if (l > sizeof(buf)) l=sizeof(buf);
+        lstrcpyn_safe(buf,ss,l);      
+
+        rv=0;
+        *output = nseel_lookup(scctx,&rv,buf);
       }
-      namepos += NSEEL_MAX_VARIABLE_NAMELEN;
-      i++;
-    }
-    if (ti < NSEEL_VARS_PER_BLOCK)
-      break;
-  }
-  if (wb == ctx->varTable_numBlocks)
-  {
-    ti=0;
-    // add new block
-    if (!(ctx->varTable_numBlocks&(NSEEL_VARS_MALLOC_CHUNKSIZE-1)) || !ctx->varTable_Values || !ctx->varTable_Names )
-    {
-      ctx->varTable_Values = (EEL_F **)realloc(ctx->varTable_Values,(ctx->varTable_numBlocks+NSEEL_VARS_MALLOC_CHUNKSIZE) * sizeof(EEL_F *));
-      ctx->varTable_Names = (char **)realloc(ctx->varTable_Names,(ctx->varTable_numBlocks+NSEEL_VARS_MALLOC_CHUNKSIZE) * sizeof(char *));
-    }
-    ctx->varTable_numBlocks++;
-
-    ctx->varTable_Values[wb] = (EEL_F *)calloc(sizeof(EEL_F),NSEEL_VARS_PER_BLOCK);
-    ctx->varTable_Names[wb] = (char *)calloc(NSEEL_MAX_VARIABLE_NAMELEN,NSEEL_VARS_PER_BLOCK);
-  }
-
-  nameptr=ctx->varTable_Names[wb]+ti*NSEEL_MAX_VARIABLE_NAMELEN;
-  if (!nameptr[0])
-  {
-    strncpy(nameptr,name,NSEEL_MAX_VARIABLE_NAMELEN);
-  }
-  if (ptr) *ptr = ctx->varTable_Values[wb] + ti;
-  return i;
-}
-
-//------------------------------------------------------------------------------
-INT_PTR nseel_setVar(compileContext *ctx, INT_PTR varNum)
-{
-  if (varNum < 0) // adding new var
-  {
-    char *var=ctx->lastVar;
-    if (!strnicmp(var,"reg",3) && strlen(var) == 5 && isdigit(var[3]) && isdigit(var[4]))
-    {
-      int i,x=atoi(var+3);
-      if (x < 0 || x > 99) x=0;
-      i=NSEEL_GLOBALVAR_BASE+x;
-      return i;
-    }
-
-    return register_var(ctx,ctx->lastVar,NULL);
-
-  }
-
-  // setting/getting oldvar
-
-  if (varNum >= NSEEL_GLOBALVAR_BASE && varNum < NSEEL_GLOBALVAR_BASE+100)
-  {
-    return varNum;
-  }
-
-  {
-    int wb,ti;
-    char *nameptr;
-    if (varNum < 0 || varNum >= ctx->varTable_numBlocks*NSEEL_VARS_PER_BLOCK) return -1;
-
-    wb=varNum/NSEEL_VARS_PER_BLOCK;
-    ti=(varNum%NSEEL_VARS_PER_BLOCK);
-    nameptr=ctx->varTable_Names[wb]+ti*NSEEL_MAX_VARIABLE_NAMELEN;
-    if (!nameptr[0]) 
-    {
-      strncpy(nameptr,ctx->lastVar,NSEEL_MAX_VARIABLE_NAMELEN);
-    }  
-    return varNum;  
-  }
-
-}
-
-//------------------------------------------------------------------------------
-INT_PTR nseel_getVar(compileContext *ctx, INT_PTR i)
-{
-  if (i >= 0 && i < (NSEEL_VARS_PER_BLOCK*ctx->varTable_numBlocks))
-    return nseel_createCompiledValue(ctx,0, ctx->varTable_Values[i/NSEEL_VARS_PER_BLOCK] + i%NSEEL_VARS_PER_BLOCK); 
-  if (i >= NSEEL_GLOBALVAR_BASE && i < NSEEL_GLOBALVAR_BASE+100) 
-    return nseel_createCompiledValue(ctx,0, nseel_globalregs+i-NSEEL_GLOBALVAR_BASE);
-
-  return nseel_createCompiledValue(ctx,0, NULL);
-}
-
-
-
-//------------------------------------------------------------------------------
-EEL_F *NSEEL_VM_regvar(NSEEL_VMCTX _ctx, const char *var)
-{
-  compileContext *ctx = (compileContext *)_ctx;
-  EEL_F *r;
-  if (!ctx) return 0;
-
-  if (!strnicmp(var,"reg",3) && strlen(var) == 5 && isdigit(var[3]) && isdigit(var[4]))
-  {
-    int x=atoi(var+3);
-    if (x < 0 || x > 99) x=0;
-    return nseel_globalregs + x;
-  }
-
-  register_var(ctx,var,&r);
-
-  return r;
-}
-
-//------------------------------------------------------------------------------
-INT_PTR nseel_translate(compileContext *ctx, int type)
-{
-  int v;
-  int n;
-  *ctx->yytext = 0;
-  nseel_gettoken(ctx,ctx->yytext, sizeof(ctx->yytext));
-
-  switch (type)
-  {
-    case INTCONST: return nseel_createCompiledValue(ctx,(EEL_F)atoi(ctx->yytext), NULL);
-    case DBLCONST: return nseel_createCompiledValue(ctx,(EEL_F)atof(ctx->yytext), NULL);
-    case HEXCONST:
-      v=0;
-      n=0;
-      while (1)
+      else if ((rv >= '0' && rv <= '9') || (rv == '.' && (scctx->rdbuf[0] >= '0' && scctx->rdbuf[0] <= '9')))
       {
-        int a=ctx->yytext[n++];
-        if (a >= '0' && a <= '9') v=(v<<4)+a-'0';
-        else if (a >= 'A' && a <= 'F') v=(v<<4)+10+a-'A';
-        else if (a >= 'a' && a <= 'f') v=(v<<4)+10+a-'a';
-        else break;
-      }
-		return nseel_createCompiledValue(ctx,(EEL_F)v, NULL);
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-INT_PTR nseel_lookup(compileContext *ctx, int *typeOfObject)
-{
-  int i;
-  nseel_gettoken(ctx,ctx->yytext, sizeof(ctx->yytext));
-
-  if (!strnicmp(ctx->yytext,"reg",3) && strlen(ctx->yytext) == 5 && isdigit(ctx->yytext[3]) && isdigit(ctx->yytext[4]) && (i=atoi(ctx->yytext+3))>=0 && i<100)
-  {
-    *typeOfObject=IDENTIFIER;
-    return i+NSEEL_GLOBALVAR_BASE;
-  }
-
-
-  {
-    int wb;
-    int ti=0;
-    i=0;
-    for (wb = 0; wb < ctx->varTable_numBlocks; wb ++)
-    {
-      int namepos=0;
-      for (ti = 0; ti < NSEEL_VARS_PER_BLOCK; ti ++)
-      {        
-        if (!ctx->varTable_Names[wb][namepos]) break;
-
-        if (!strnicmp(ctx->varTable_Names[wb]+namepos,ctx->yytext,NSEEL_MAX_VARIABLE_NAMELEN))
+        if (rv == '0' && (scctx->rdbuf[0] == 'x' || scctx->rdbuf[0] == 'X'))
         {
-          *typeOfObject = IDENTIFIER;
-          return i;
+          scctx->rdbuf++;
+          while ((rv=scctx->rdbuf[0]) && ((rv>='0' && rv<='9') || (rv>='a' && rv<='f') || (rv>='A' && rv<='F'))) scctx->rdbuf++;
+          // this allows 0x, whereas the lex version will not parse that as a token
         }
-
-        namepos += NSEEL_MAX_VARIABLE_NAMELEN;
-        i++;
-      }
-      if (ti < NSEEL_VARS_PER_BLOCK) break;
-    }
-  }
-
-
-  {
-    const char *nptr = ctx->yytext;
-#ifdef NSEEL_EEL1_COMPAT_MODE
-    if (!strcasecmp(nptr,"if")) nptr="_if";
-    else if (!strcasecmp(nptr,"bnot")) nptr="_not";
-    else if (!strcasecmp(nptr,"assign")) nptr="_set";
-    else if (!strcasecmp(nptr,"equal")) nptr="_equal";
-    else if (!strcasecmp(nptr,"below")) nptr="_below";
-    else if (!strcasecmp(nptr,"above")) nptr="_above";
-    else if (!strcasecmp(nptr,"megabuf")) nptr="_mem";
-    else if (!strcasecmp(nptr,"gmegabuf")) nptr="_gmem";
-#endif
-
-    for (i=0;nseel_getFunctionFromTable(i);i++)
-    {
-      functionType *f=nseel_getFunctionFromTable(i);
-      if (!strcasecmp(f->name, nptr))
-      {
-        switch (f->nParams)
+        else
         {
-          case 1: *typeOfObject = FUNCTION1; break;
-          case 2: *typeOfObject = FUNCTION2; break;
-          case 3: *typeOfObject = FUNCTION3; break;
-          default: *typeOfObject = IDENTIFIER; break;
+          int pcnt=rv == '.';
+          while ((rv=scctx->rdbuf[0]) && ((rv>='0' && rv<='9') || (rv == '.' && !pcnt++))) scctx->rdbuf++;       
         }
-        return i;
+        l = scctx->rdbuf - ss + 1;
+        if (l > sizeof(buf)) l=sizeof(buf);
+        lstrcpyn_safe(buf,ss,l);
+        *output = nseel_translate(scctx,buf);
+        rv=VALUE;
       }
+      toklen = scctx->rdbuf - ss;
     }
+  
+    yylloc_param->first_column = scctx->rdbuf - scctx->rdbuf_start - toklen;
+    return rv;
   }
-  *typeOfObject = IDENTIFIER;
-  nseel_setLastVar(ctx);
-  return nseel_setVar(ctx,-1);
-}
+  void nseelerror(YYLTYPE *pos,compileContext *ctx, const char *str)
+  {
+    ctx->errVar=pos->first_column>0?pos->first_column:1;
+  }
+#else
+
+  int nseel_gets(compileContext *ctx, char *buf, size_t sz)
+  {
+    int n=0;
+    if (ctx->inputbufferptr) while (n < sz)
+    {
+      char c=ctx->inputbufferptr[0];
+      if (!c) break;
+      if (c == '/' && ctx->inputbufferptr[1] == '*')
+      {
+        ctx->inputbufferptr+=2; // skip /*
+
+        while (ctx->inputbufferptr[0] && (ctx->inputbufferptr[0]  != '*' || ctx->inputbufferptr[1] != '/'))  ctx->inputbufferptr++;
+        if (ctx->inputbufferptr[0]) ctx->inputbufferptr+=2; // skip */
+        continue;
+      }
+
+      ctx->inputbufferptr++;
+      buf[n++] = c;
+    }
+    return n;
+
+  }
 
 
+  //#define EEL_TRACE_LEX
 
-//---------------------------------------------------------------------------
-void nseel_count(compileContext *ctx)
-{
-  nseel_gettoken(ctx,ctx->yytext, sizeof(ctx->yytext));
-  ctx->colCount+=strlen(ctx->yytext);
-}
+  #ifdef EEL_TRACE_LEX
+  #define nseellex nseellex2
+
+  #endif
+  #include "lex.nseel.c"
+
+  #ifdef EEL_TRACE_LEX
+
+  #undef nseellex
+
+  int nseellex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param , yyscan_t yyscanner)
+  {
+    int a=nseellex2(yylval_param,yylloc_param,yyscanner);
+
+    char buf[512];
+    sprintf(buf,"tok: %c (%d)\n",a,a);
+    OutputDebugString(buf);
+    return a;
+  }
+  #endif//EEL_TRACE_LEX
+
+
+  void nseelerror(YYLTYPE *pos,compileContext *ctx, const char *str)
+  {
+    ctx->errVar=pos->first_column>0?pos->first_column:1;
+    ctx->errVar_l = pos->first_line;
+  }
+#endif // !NSEEL_SUPER_MINIMAL_LEXER
+
+#else
 
 //---------------------------------------------------------------------------
 int nseel_yyerror(compileContext *ctx)
@@ -324,3 +146,6 @@ int nseel_yyerror(compileContext *ctx)
   ctx->errVar = ctx->colCount;
   return 0;
 }
+
+
+#endif
