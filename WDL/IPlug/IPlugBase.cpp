@@ -915,6 +915,25 @@ int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
   return pos;
 }
 
+bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
+{
+  bool isEqual = true;
+  
+  const double* data = (const double*) incomingState + startPos;
+  
+  // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
+  // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
+  for (int i = 0; i < NParams(); i++)
+  {
+    float v = GetParam(i)->Value();
+    float vi = *(data++);
+    
+    isEqual &= (fabsf(v - vi) < 0.00001);
+  }
+  
+  return isEqual;
+}
+
 #ifndef OS_IOS
 void IPlugBase::RedrawParamControls()
 {

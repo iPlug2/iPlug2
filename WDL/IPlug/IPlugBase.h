@@ -79,8 +79,8 @@ public:
   // Return the new chunk position (endPos). Implementations should set a mutex lock and call UnserializeParams() after custom data is unserialized
   virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
   
-  // Only used by RTAS, override in plugins that do chunks
-  virtual bool CompareState(const unsigned char* incomingState) { return true; }
+  // Only used by RTAS & AAX, override in plugins that do chunks
+  virtual bool CompareState(const unsigned char* incomingState, int startPos);
   
   #ifndef OS_IOS
   virtual void OnWindowResize() {}
