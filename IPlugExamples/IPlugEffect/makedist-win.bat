@@ -16,7 +16,7 @@ call python update_version.py
 REM - START VST2/VST3/APP VS2010
 
 echo ------------------------------------------------------------------
-echo "Building VST2/VST3/APP (VS2010)..."
+echo Building VST2/VST3/APP (VS2010)...
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
