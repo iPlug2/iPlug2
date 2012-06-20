@@ -427,7 +427,7 @@ ComponentResult IPlugProcess::CompareActiveChunk(SFicPlugInChunk *chunk, Boolean
     return kChunkRangeErr;
 	}
   
-	*isEqual = mPlug->CompareState((const unsigned char*) chunk->fData);
+	*isEqual = mPlug->CompareState((const unsigned char*) chunk->fData, 0);
   
   return noErr;
 }

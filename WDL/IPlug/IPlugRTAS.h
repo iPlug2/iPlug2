@@ -59,7 +59,6 @@ public:
   void SetParameter(int idx); // Locks mutex first
   
   void DirtyPTCompareState();
-  virtual bool CompareState(const unsigned char* incomingState);
 
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);

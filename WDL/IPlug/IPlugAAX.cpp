@@ -428,17 +428,8 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CB
 		return AAX_SUCCESS; 
 	}
   
-	*aIsEqualP = true;
-  
-  ByteChunk IPlugChunk;
-  //_this->InitChunkWithIPlugVer(&IPlugChunk);
-  _this->SerializeState(&IPlugChunk);
-  
-  if(memcmp(IPlugChunk.GetBytes(), aChunkP->fData, IPlugChunk.Size()) != 0)
-  {
-    *aIsEqualP = false;
-  }
-  
+	*aIsEqualP = _this->CompareState((const unsigned char*) aChunkP->fData, 0);
+    
   return AAX_SUCCESS;
 }  
 
