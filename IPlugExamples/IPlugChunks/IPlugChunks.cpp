@@ -270,6 +270,17 @@ int IPlugChunks::UnserializeState(ByteChunk* pChunk, int startPos)
   return IPlugBase::UnserializeParams(pChunk, startPos); // must remember to call UnserializeParams at the end
 }
 
+bool IPlugChunks::CompareState(const unsigned char* incomingState, int startPos)
+{
+  bool isEqual = true;
+  const double* data = (const double*) incomingState;
+  startPos = NUM_SLIDERS * sizeof(double);
+  isEqual = (memcmp(data, mSteps, startPos) == 0);
+  isEqual &= IPlugBase::CompareState(incomingState, startPos); // fuzzy compare regular params
+  
+  return isEqual;
+}
+
 void IPlugChunks::PresetsChangedByHost()
 {
   TRACE;

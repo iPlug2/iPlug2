@@ -35,7 +35,8 @@ public:
 
   bool SerializeState(ByteChunk* pChunk);
   int UnserializeState(ByteChunk* pChunk, int startPos);
-
+  bool CompareState(const unsigned char* incomingState, int startPos);
+  
   void PresetsChangedByHost();
 
 private:
