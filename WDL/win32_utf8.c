@@ -688,6 +688,7 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   {
     SetWindowLongPtr(hwnd, GWLP_WNDPROC,(INT_PTR)oldproc);
     RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP);
+    RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
   }
   else if (msg == CB_ADDSTRING || msg == CB_INSERTSTRING || msg == LB_ADDSTRING || msg == LB_INSERTSTRING)
   {
@@ -697,7 +698,8 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
       MBTOWIDE(wbuf,str);
       if (wbuf_ok)
       {
-        LRESULT rv=CallWindowProcW(oldproc,hwnd,msg,wParam,(LPARAM)wbuf);
+        WNDPROC oldprocW = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
+        LRESULT rv=CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg,wParam,(LPARAM)wbuf);
         MBTOWIDE_FREE(wbuf);
         return rv;
       }
@@ -707,11 +709,12 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   }
   else if (msg == CB_GETLBTEXT && lParam)
   {
-    int l = CallWindowProcW(oldproc,hwnd,CB_GETLBTEXTLEN,wParam,0)+1;
+    WNDPROC oldprocW = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
+    int l = CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,CB_GETLBTEXTLEN,wParam,0)+1;
     WIDETOMB_ALLOC(tmp,l);
     if (tmp)
     {
-      int rv=CallWindowProcW(oldproc,hwnd,msg,wParam,(LPARAM)tmp)+1;
+      int rv=CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg,wParam,(LPARAM)tmp)+1;
       if (rv>=0)
       {
         *(char *)lParam=0;
@@ -725,7 +728,8 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   }
   else if (msg == CB_GETLBTEXTLEN)
   {
-    return CallWindowProcW(oldproc,hwnd,msg,wParam,lParam) * 3 + 32; // make sure caller allocates a lot extra
+    WNDPROC oldprocW = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
+    return CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg,wParam,lParam) * 3 + 32; // make sure caller allocates a lot extra
   }
 
   return CallWindowProc(oldproc,hwnd,msg,wParam,lParam);
@@ -734,6 +738,7 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 void WDL_UTF8_HookComboBox(HWND h)
 {
   if (!h||GetVersion()>=0x80000000||GetProp(h,WDL_UTF8_OLDPROCPROP)) return;
+  SetProp(h,WDL_UTF8_OLDPROCPROP "W",(HANDLE)GetWindowLongPtrW(h,GWLP_WNDPROC));
   SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)cb_newProc));
 }
 
@@ -852,7 +857,7 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   }
   else if (msg == LVM_INSERTCOLUMNA || msg==LVM_SETCOLUMNA)
   {
-    LPLVCOLUMN pCol = (LPLVCOLUMN) lParam;
+    LPLVCOLUMNA pCol = (LPLVCOLUMNA) lParam;
     char *str;
     if (pCol && (str=pCol->pszText) && (pCol->mask & LVCF_TEXT) && WDL_HasUTF8(str))
     {
@@ -871,7 +876,7 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   }
   else if (msg == LVM_INSERTITEMA || msg == LVM_SETITEMA || msg == LVM_SETITEMTEXTA) 
   {
-    LPLVITEM pItem = (LPLVITEM) lParam;
+    LPLVITEMA pItem = (LPLVITEMA) lParam;
     char *str;
     if (pItem && (str=pItem->pszText) && (msg==LVM_SETITEMTEXTA || (pItem->mask&LVIF_TEXT)) && WDL_HasUTF8(str))
     {
@@ -891,7 +896,7 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   }
   else if (msg==LVM_GETITEMA||msg==LVM_GETITEMTEXTA)
   {
-    LPLVITEM pItem = (LPLVITEM) lParam;
+    LPLVITEMA pItem = (LPLVITEMA) lParam;
     char *obuf;
     if (pItem && (msg == LVM_GETITEMTEXTA || (pItem->mask & LVIF_TEXT)) && (obuf=pItem->pszText) && pItem->cchTextMax > 3)
     {

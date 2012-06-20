@@ -24,12 +24,14 @@
 
 #include "ns-eel-int.h"
 
+#ifdef NSEEL_USE_OLD_PARSER
 
 #define LEXSKIP		(-1)
 
 static int _lmovb(struct lextab *lp, int c, int st)
 {
         int base;
+        if (c == '.' && st >= 15 && st < 30) c='_'; // if in a token, treat . as _ (should probably modify llnext instead)
 
         while ((base = lp->llbase[st]+c) > lp->llnxtmax ||
                         (lp->llcheck[base] & 0377) != st) {
@@ -44,34 +46,43 @@ static int _lmovb(struct lextab *lp, int c, int st)
         return(lp->llnext[base]&0377);
 }
 
-#define INTCONST 1
-#define DBLCONST 2
-#define HEXCONST 3
-#define VARIABLE 4
-#define OTHER    5
-
 static int _Alextab(compileContext *ctx, int __na__)		 
 {
 	// fucko: JF> 17 -> 19?
   
    if (__na__ >= 0 && __na__ <= 17) 
-	   nseel_count(ctx);
+   {     
+     ctx->colCount+=nseel_gettokenlen(ctx,256);
+   }
    switch (__na__)
    {
       case 0:           
-        *ctx->yytext = 0;
-        nseel_gettoken(ctx,ctx->yytext, sizeof(ctx->yytext));
-        if (ctx->yytext[0] < '0' || ctx->yytext[0] > '9') // not really a hex value, lame
         {
-          nseel_setLastVar(ctx); ctx->yylval = nseel_lookup(ctx,&__na__); return __na__;
+          char tmp[NSEEL_MAX_VARIABLE_NAMELEN*2];
+          nseel_gettoken(ctx,tmp, sizeof(tmp));
+          if (tmp[0] < '0' || tmp[0] > '9') // not sure where this logic came from
+          {
+            ctx->yylval = nseel_lookup(ctx,&__na__,tmp); 
+            return __na__;
+          }
         }
-        ctx->yylval = nseel_translate(ctx,HEXCONST); 
-      return VALUE;
-      case 1:   ctx->yylval = nseel_translate(ctx,INTCONST); return VALUE; 
-      case 2:   ctx->yylval = nseel_translate(ctx,INTCONST); return VALUE; 
-      case 3:   ctx->yylval = nseel_translate(ctx,DBLCONST); return VALUE; 
+      case 1:
+      case 2:
+      case 3:
+        {
+          char tmp[NSEEL_MAX_VARIABLE_NAMELEN*2];
+          nseel_gettoken(ctx,tmp, sizeof(tmp));
+          ctx->yylval = nseel_translate(ctx,tmp); 
+          return VALUE; 
+        }
       case 4:
-      case 5:   nseel_setLastVar(ctx); ctx->yylval = nseel_lookup(ctx,&__na__); return __na__;
+      case 5:   
+        {
+          char tmp[NSEEL_MAX_VARIABLE_NAMELEN*2];
+          nseel_gettoken(ctx,tmp, sizeof(tmp));
+          ctx->yylval = nseel_lookup(ctx,&__na__,tmp); 
+          return __na__;
+        }
       case 6:   return '+';
       case 7:   return '-';
       case 8:   return '*'; 
@@ -275,3 +286,5 @@ struct lextab nseel_lextab =	{
 			};
 
  
+
+#endif

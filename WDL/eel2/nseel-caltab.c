@@ -24,13 +24,7 @@
 
 #include "ns-eel-int.h"
 
-#define	VALUE	258
-#define	IDENTIFIER	259
-#define	FUNCTION1	260
-#define	FUNCTION2	261
-#define	FUNCTION3	262
-#define	UMINUS	263
-#define	UPLUS	264
+#ifdef NSEEL_USE_OLD_PARSER
 
 #define YYERROR(x) nseel_yyerror(ctx)
        
@@ -338,11 +332,7 @@ case 1:
 case 2:
 //#ln 34 "cal.y"
 {                                {
-                                 YYSTYPE i = nseel_setVar(ctx,yyvsp[-2]);
-                                 YYSTYPE v=nseel_getVar(ctx,i);
-
-                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_ASSIGN, v, yyvsp[0]);
-                                 ctx->result = yyval;
+                                 ctx->result = yyval = yyvsp[0]; // unused!
                                  }
                        ;
     break;}
@@ -352,7 +342,7 @@ case 3:
     break;}
 case 4:
 //#ln 55 "cal.y"
-{       yyval = nseel_getVar(ctx,yyvsp[0]);;
+{       yyval = yyvsp[0];;
     break;}
 case 5:
 //#ln 57 "cal.y"
@@ -368,39 +358,39 @@ case 7:
     break;}
 case 8:
 //#ln 66 "cal.y"
-{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_MULTIPLY, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createSimpleCompiledFunction(ctx,FN_MULTIPLY, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 9:
 //#ln 72 "cal.y"
-{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_DIVIDE, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createSimpleCompiledFunction(ctx,FN_DIVIDE, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 10:
 //#ln 78 "cal.y"
-{                                  yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_MODULO, yyvsp[-2], yyvsp[0]);
+{                                  yyval = nseel_createSimpleCompiledFunction(ctx,FN_JOIN_STATEMENTS, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 11:
 //#ln 84 "cal.y"
-{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_ADD, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createSimpleCompiledFunction(ctx,FN_ADD, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 12:
 //#ln 90 "cal.y"
-{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_SUB, yyvsp[-2], yyvsp[0]);
+{                                 yyval = nseel_createSimpleCompiledFunction(ctx,FN_SUB, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 13:
 //#ln 96 "cal.y"
-{                                  yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_AND, yyvsp[-2], yyvsp[0]);
+{                                  yyval = nseel_createSimpleCompiledFunction(ctx,FN_AND, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 14:
 //#ln 102 "cal.y"
-{                                  yyval = nseel_createCompiledFunction2(ctx,MATH_SIMPLE, FN_OR, yyvsp[-2], yyvsp[0]);
+{                                  yyval = nseel_createSimpleCompiledFunction(ctx,FN_OR, 2, yyvsp[-2], yyvsp[0]);
     break;}
 case 15:
 //#ln 108 "cal.y"
-{                                  yyval = nseel_createCompiledFunction1(ctx,MATH_SIMPLE, FN_UMINUS, yyvsp[0]);
+{                                  yyval = nseel_createSimpleCompiledFunction(ctx,FN_UMINUS, 1, yyvsp[0], 0);
     break;}
 case 16:
 //#ln 114 "cal.y"
-{                                 yyval = nseel_createCompiledFunction1(ctx,MATH_SIMPLE, FN_UPLUS, yyvsp[0]);
+{                                 yyval = nseel_createSimpleCompiledFunction(ctx,FN_UPLUS, 1, yyvsp[0], 0);
     break;}
 case 17:
 //#ln 120 "cal.y"
@@ -408,15 +398,15 @@ case 17:
     break;}
 case 18:
 //#ln 125 "cal.y"
-{                                  yyval = nseel_createCompiledFunction1(ctx,MATH_FN, yyvsp[-3], yyvsp[-1]);
+{                                  yyval = nseel_setCompiledFunctionCallParameters(yyvsp[-3], yyvsp[-1], 0, 0);
     break;}
 case 19:
 //#ln 131 "cal.y"
-{                                 yyval = nseel_createCompiledFunction2(ctx,MATH_FN, yyvsp[-5], yyvsp[-3], yyvsp[-1]);
+{                                 yyval = nseel_setCompiledFunctionCallParameters(yyvsp[-5], yyvsp[-3], yyvsp[-1], 0);
     break;}
 case 20:
 //#ln 137 "cal.y"
-{                                 yyval = nseel_createCompiledFunction3(ctx,MATH_FN, yyvsp[-7], yyvsp[-5], yyvsp[-3], yyvsp[-1]);
+{                                 yyval = nseel_setCompiledFunctionCallParameters(yyvsp[-7], yyvsp[-5], yyvsp[-3], yyvsp[-1]);
     break;}
 }
    /* the action file gets copied in in place of this dollarsign */
@@ -551,3 +541,5 @@ yyerrhandle:
   yystate = yyn;
   goto yynewstate;
 }
+
+#endif

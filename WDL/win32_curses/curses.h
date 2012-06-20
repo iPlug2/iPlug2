@@ -78,11 +78,16 @@ typedef struct win32CursesCtx
 
   int colortab[COLOR_PAIRS << NUM_ATTRBITS][2];
 
+  int m_cursor_state; // blinky
+  int m_cursor_state_lx,m_cursor_state_ly; // used to detect changes and reset m_cursor_state
+
   // callbacks/config available for user
   int want_getch_runmsgpump; // set to 1 to cause getch() to run the message pump, 2 to cause it to be blocking (waiting for keychar)
 
   void (*ui_run)(struct win32CursesCtx *ctx);
   void *user_data;
+
+  LRESULT (*onMouseMessage)(void *user_data, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 } win32CursesCtx;
 
 extern win32CursesCtx g_curses_context; // declare this if you need it

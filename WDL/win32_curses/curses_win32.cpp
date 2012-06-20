@@ -11,7 +11,13 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#define CURSOR_BLINK_TIMER_MS 400
+#define CURSOR_BLINK_TIMER 2
+#define CURSOR_BLINK_TIMER_ZEROEVERY 3
 
+#ifndef WIN32_CURSES_CURSORTYPE
+#define WIN32_CURSES_CURSORTYPE 1 // 1 for vertical bar, 2 for horz bar, 0 for block
+#endif
 #define WIN32CURSES_CLASS_NAME "WDLCursesWindow"
 
 #define WIN32_CONSOLE_KBQUEUE
@@ -234,11 +240,28 @@ static void m_reinit_framebuffer(win32CursesCtx *ctx)
     ctx->m_framebuffer=(unsigned char *)realloc(ctx->m_framebuffer,2*ctx->lines*ctx->cols);
     if (ctx->m_framebuffer) memset(ctx->m_framebuffer,0,2*ctx->lines*ctx->cols);
 }
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL 0x20A
+#endif
 
 LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 {
   win32CursesCtx *ctx = (win32CursesCtx*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
 
+#ifdef _WIN32
+
+  static int Scroll_Message;
+  if (!Scroll_Message)
+  {
+    Scroll_Message = (int)RegisterWindowMessage("MSWHEEL_ROLLMSG");
+    if (!Scroll_Message) Scroll_Message=-1;
+  }
+  if (Scroll_Message > 0 && uMsg == (UINT)Scroll_Message)
+  {
+    uMsg=WM_MOUSEWHEEL;
+    wParam<<=16; 
+  }
+#endif
 
   if (ctx)switch (uMsg)
   {
@@ -272,8 +295,15 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			ctx->m_need_redraw=1;
 		}
 	return 0;
+  case WM_RBUTTONDOWN:
   case WM_LBUTTONDOWN:
     SetFocus(hwnd);
+  case WM_LBUTTONUP:
+  case WM_RBUTTONUP:
+  case WM_CAPTURECHANGED:
+  case WM_MOUSEMOVE:
+  case WM_MOUSEWHEEL:
+    if (ctx && ctx->onMouseMessage) return ctx->onMouseMessage(ctx->user_data,hwnd,uMsg,wParam,lParam);
   return 0;
 #ifdef _WIN32
   case WM_GETDLGCODE:
@@ -284,6 +314,14 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   return 0;
 #endif
   case WM_TIMER:
+    if (wParam==CURSOR_BLINK_TIMER && ctx)
+    {
+      int la = ctx->m_cursor_state;
+      ctx->m_cursor_state= (ctx->m_cursor_state+1)%CURSOR_BLINK_TIMER_ZEROEVERY;
+      
+      if (!!ctx->m_cursor_state != !!la)
+        __move(ctx,ctx->m_cursor_y,ctx->m_cursor_x,1);// refresh cursor
+    }
 #ifdef WIN32_CONSOLE_KBQUEUE
     if (wParam == 1)
     {
@@ -297,10 +335,17 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 #endif
   return 0;
     case WM_CREATE:
+
+      // this only is called on osx or from standalone, it seems, since on win32 ctx isnt set up yet
       ctx->m_hwnd=hwnd;
-#ifdef WIN32_CONSOLE_KBQUEUE
-      SetTimer(hwnd,1,33,NULL);
-#endif
+      #ifdef WIN32_CONSOLE_KBQUEUE
+         SetTimer(hwnd,1,33,NULL);
+      #endif
+      #ifndef _WIN32
+	      m_reinit_framebuffer(ctx);
+	      ctx->m_need_redraw=1;
+      #endif
+      SetTimer(hwnd,CURSOR_BLINK_TIMER,CURSOR_BLINK_TIMER_MS,NULL);
     return 0;
     case WM_ERASEBKGND:
     return 0;
@@ -325,7 +370,7 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 #ifdef _WIN32
             SetTextAlign(hdc,TA_TOP|TA_LEFT);
 #endif
-            char *ptr=(char*)ctx->m_framebuffer;
+            const char *ptr=(const char*)ctx->m_framebuffer;
             RECT updr=r;
 
 			      r.left /= ctx->m_font_w;
@@ -343,89 +388,129 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			      if (r.left < 0) r.left=0;
 			      if (r.right > ctx->cols) r.right=ctx->cols;
 
-#ifndef _WIN32
-            HBRUSH curbgbr=NULL;
+            HBRUSH bgbrushes[COLOR_PAIRS << NUM_ATTRBITS];
+            for(y=0;y<sizeof(bgbrushes)/sizeof(bgbrushes[0]);y++) bgbrushes[y] = CreateSolidBrush(ctx->colortab[y][1]);
+
+#ifdef _WIN32
+            int win_cv=(GetVersion()&0xFF);
 #endif
-                    
-            if (ctx->m_framebuffer) for (y = r.top; y < r.bottom; y ++, ypos+=ctx->m_font_h)
+
+            int cstate=ctx->m_cursor_state;
+            if (ctx->m_cursor_y != ctx->m_cursor_state_ly ||
+                ctx->m_cursor_x != ctx->m_cursor_state_lx)
             {
-              int x,xpos;
-				      xpos = r.left * ctx->m_font_w;
+              ctx->m_cursor_state_lx=ctx->m_cursor_x;
+              ctx->m_cursor_state_ly=ctx->m_cursor_y;
+              ctx->m_cursor_state=0;
+              cstate=1;
+            }
+                    
+            if (ctx->m_framebuffer) for (y = r.top; y < r.bottom; y ++, ypos+=ctx->m_font_h, ptr += ctx->cols*2)
+            {
+              int x = r.left,xpos = r.left * ctx->m_font_w;
 
-				      char *p = ptr + r.left*2;
-				      ptr += ctx->cols*2;
+				      const char *p = ptr + r.left*2;
 
-              for (x = r.left; x < r.right; x ++, xpos+=ctx->m_font_w)
+              int defer_blanks=0;
+
+              for (;; x ++, xpos+=ctx->m_font_w, p += 2)
               {
-                char c=p[0];
-                char attr=p[1];
+                char c=' ',attr=0; 
+                
+                if (x < r.right)
+                {
+                  c=p[0];
+                  attr=p[1];
+                }
 
-				        if (attr != lattr)
+                bool isCursor = cstate && y == ctx->m_cursor_y && x == ctx->m_cursor_x;
+                bool isNotBlank = (isprint(c) && !isspace(c));
+
+                if (defer_blanks > 0 && (isNotBlank || isCursor || attr != lattr || x>=r.right))
+                {
+                  RECT tr={xpos - defer_blanks*ctx->m_font_w,ypos,xpos,ypos+ctx->m_font_h};
+                  FillRect(hdc,&tr,bgbrushes[lattr&((COLOR_PAIRS << NUM_ATTRBITS)-1)]);
+                  defer_blanks=0;
+                }
+
+                if (x>=r.right) break;
+
+#if WIN32_CURSES_CURSORTYPE == 0
+						    if (isCursor)
+						    {
+						      SetTextColor(hdc,ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][1]);
+						      SetBkColor(hdc,ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][0]);
+                  lattr = -1;
+						    }
+				        else 
+#endif // WIN32_CURSES_CURSORTYPE == 0
+                if (attr != lattr)
 				        {
 						      SetTextColor(hdc,ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][0]);
-                  int bgc=ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][1];
-#ifndef _WIN32
-                  if (curbgbr) DeleteObject(curbgbr);
-                  curbgbr=CreateSolidBrush(bgc);
-#endif
-						      SetBkColor(hdc,bgc);
+						      SetBkColor(hdc,ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][1]);
 					        lattr=attr;
 				        }
-						    int rf=0;
-						    if (y == ctx->m_cursor_y && x == ctx->m_cursor_x)
-						    {
-							    rf=1;
-						      SetTextColor(hdc,ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][1]);
-                  int bgc=ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][0];
-#ifndef _WIN32
-                  if (curbgbr) DeleteObject(curbgbr);
-                  curbgbr=CreateSolidBrush(bgc);
+
+                if (isNotBlank||isCursor)
+                {
+                  #ifdef _WIN32
+                    int txpos = xpos;
+                    if (win_cv >= 6) ++txpos; // absolutely no idea why this is needed
+                    TextOut(hdc,txpos,ypos,isNotBlank ? p : " ",1);
+                  #else
+                    RECT tr={xpos,ypos,xpos+32,ypos+32};
+                    HBRUSH br=bgbrushes[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)];
+#if WIN32_CURSES_CURSORTYPE == 0
+                    if (isCursor)
+                    {
+                      br = CreateSolidBrush(ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][0]);
+                      FillRect(hdc,&tr,br);
+                      DeleteObject(br);
+                    }
+                    else
 #endif
-						      SetBkColor(hdc,bgc);
-						    }
-#ifdef _WIN32
-                int txpos = xpos;
-                if ((GetVersion()&0xFF) >= 6) ++txpos; // absolutely no idea why this is needed
-                TextOut(hdc,txpos,ypos,isprint(c) && !isspace(c) ? p : " ",1);
-#else
-                RECT tr={xpos,ypos,xpos+32,ypos+32};
-                if (curbgbr) FillRect(hdc,&tr,curbgbr);
-                char tmp[2]={c,0};
-                DrawText(hdc,isprint(c) && !isspace(c) ?tmp : " ",-1,&tr,DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
+                    {
+                      FillRect(hdc,&tr,br);
+                    }
+                    char tmp[2]={c,0};
+                    DrawText(hdc,isprint(c) && !isspace(c) ?tmp : " ",-1,&tr,DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
+                  #endif
+#if WIN32_CURSES_CURSORTYPE > 0
+                  if (isCursor)
+                  {
+                    #if WIN32_CURSES_CURSORTYPE == 1
+                      RECT r={xpos,ypos,xpos+2,ypos+ctx->m_font_h};
+                    #elif WIN32_CURSES_CURSORTYPE == 2
+                      RECT r={xpos,ypos+ctx->m_font_h-2,xpos+ctx->m_font_w,ypos+ctx->m_font_h};
+                    #endif
+                    HBRUSH br=CreateSolidBrush(ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][0]);
+                    FillRect(hdc,&r,br);
+                    DeleteObject(br);
+                  }
 #endif
-						    if (rf)
-						    {
-						      SetTextColor(hdc,ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][0]);
-                  int bgc=ctx->colortab[attr&((COLOR_PAIRS << NUM_ATTRBITS)-1)][1];
-						      SetBkColor(hdc,bgc);
-#ifndef _WIN32
-                  if (curbgbr) DeleteObject(curbgbr);
-                  curbgbr=CreateSolidBrush(bgc);
-#endif
-						    }
-                p+=2;
+                }
+                else 
+                {
+                  defer_blanks++;
+                }
               }
             }
-#ifndef _WIN32
-            if (curbgbr) DeleteObject(curbgbr);
-#endif
             int rm=ctx->cols * ctx->m_font_w;
             int bm=ctx->lines * ctx->m_font_h;
             if (updr.right >= rm)
             {
               RECT tr={max(rm,updr.left),max(updr.top,0),updr.right,updr.bottom};
-              HBRUSH blackbr=CreateSolidBrush(RGB(0,0,0));
-              FillRect(hdc,&tr,blackbr);
-              DeleteObject(blackbr);
+              FillRect(hdc,&tr,bgbrushes[0]);
             }
             if (updr.bottom >= bm)
             {
               RECT tr={max(0,updr.left),max(updr.top,bm),updr.right,updr.bottom};
-              HBRUSH blackbr=CreateSolidBrush(RGB(0,0,0));
-              FillRect(hdc,&tr,blackbr);
-              DeleteObject(blackbr);
+              FillRect(hdc,&tr,bgbrushes[0]);
             }
+
+            for(y=0;y<sizeof(bgbrushes)/sizeof(bgbrushes[0]);y++) DeleteObject(bgbrushes[y]);
             SelectObject(hdc,oldf);
+
             EndPaint(hwnd,&ps);
           }
         }
@@ -589,6 +674,7 @@ void curses_setWindowContext(HWND hwnd, win32CursesCtx *ctx)
     free(ctx->m_framebuffer);
     ctx->m_framebuffer=0;
 
+    SetTimer(hwnd,CURSOR_BLINK_TIMER,CURSOR_BLINK_TIMER_MS,NULL);
     reInitializeContext(ctx);
     m_reinit_framebuffer(ctx);
     InvalidateRect(hwnd,NULL,FALSE);

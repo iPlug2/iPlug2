@@ -42,7 +42,6 @@ static int MacKeyCodeToVK(int code)
     case 71: return VK_NUMLOCK;
     case 75: return VK_DIVIDE;
     case 76: return VK_RETURN|0x8000;
-    case 27:
     case 78: return VK_SUBTRACT;
     case 81: return VK_SEPARATOR;
     case 82: return VK_NUMPAD0;
@@ -84,6 +83,7 @@ static int MacKeyCodeToVK(int code)
 
 bool IsRightClickEmulateEnabled();
 
+
 int SWELL_MacKeyToWindowsKey(void *nsevent, int *flags)
 {
   NSEvent *theEvent = (NSEvent *)nsevent;
@@ -102,48 +102,28 @@ int SWELL_MacKeyToWindowsKey(void *nsevent, int *flags)
   if (!code)
   {
     NSString *str=[theEvent charactersIgnoringModifiers];
-    const char *p=[str cStringUsingEncoding: NSASCIIStringEncoding];
-    if (!p) 
+//    if (!str || ![str length]) str=[theEvent characters];
+
+    if (!str || ![str length]) 
     {
-      return 0;
+      code = 1024+rawcode; // raw code
+      flag|=FVIRTKEY;
     }
-    code=toupper(*p);
-    if (code == 25 && (flag&FSHIFT)) code=VK_TAB;
-    if (isalnum(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
+    else
+    {
+      code=[str characterAtIndex:0];
+      if (code >= 'a' && code <= 'z') code+='A'-'a';
+      if (code == 25 && (flag&FSHIFT)) code=VK_TAB;
+      if (isalnum(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
+    }
   }
   else
   {
     flag|=FVIRTKEY;
     if (code==8) code='\b';
   }
-  if (flag & FSHIFT)
-  {
-    if (code=='[') { code='{'; flag&=~(FSHIFT|FVIRTKEY); }
-    else if (code==']') { code='}'; flag&=~(FSHIFT|FVIRTKEY); }
-  }
-    
-  //if (code == ' ' && flag==(FVIRTKEY) && (mod&NSControlKeyMask)) flag|=FCONTROL;
-    
+
   if (!(flag&FVIRTKEY)) flag&=~FSHIFT;
-  if (!flag)
-  {
-    // todo: some OS X API for this?
-    flag=FVIRTKEY|FSHIFT;
-    switch (code)
-    {
-      case '!': code='1'; break;
-      case '@': code='2'; break;
-      case '#': code='3'; break;
-      case '$': code='4'; break;
-      case '%': code='5'; break;
-      case '^': code='6'; break;
-      case '&': code='7'; break;
-      case '*': code='8'; break;
-      case '(': code='9'; break;
-      case ')': code='0'; break;
-      default: flag=0; break;
-    }
-  }
   
   if (flags) *flags=flag;
   return code;
@@ -153,9 +133,8 @@ int SWELL_KeyToASCII(int wParam, int lParam, int *newflags)
 {
   if (wParam >= '0' && wParam <= '9' && lParam == (FSHIFT|FVIRTKEY))
   {
-  // todo: some OS X API for this?
     *newflags = lParam&~(FSHIFT|FVIRTKEY);
-    switch (wParam) 
+    if (!(lParam & (FCONTROL|FLWIN))) switch (wParam) 
     {
       case '1': return '!';
       case '2': return '@';
