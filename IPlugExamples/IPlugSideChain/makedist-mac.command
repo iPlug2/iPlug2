@@ -2,7 +2,14 @@
 
 BASEDIR=$(dirname $0)
 
+# AAX codesigning requires ashelper tool in /usr/local/bin and aax.key/.crt in ./../../../Certificates/
+
+
 cd $BASEDIR
+
+#---------------------------------------------------------------------------------------------------------
+
+#variables
 
 VERSION=`echo | grep PLUG_VER resource.h`
 VERSION=${VERSION//\#define PLUG_VER }
@@ -15,19 +22,47 @@ BUG_FIX=$(($VERSION & 0x000000FF))
 
 FULL_VERSION=$MAJOR_VERSION"."$MINOR_VERSION"."$BUG_FIX
 
-VST2="/Library/Audio/Plug-Ins/VST/IPlugSideChain.vst"
-VST3="/Library/Audio/Plug-Ins/VST3/IPlugSideChain.vst3"
-APP="/Applications/IPlugSideChain.app"
-AUDIOUNIT="/Library/Audio/Plug-Ins/Components/IPlugSideChain.component"
-RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugSideChain.dpm"
+# work out the paths to the bundles
+
+VST2=`echo | grep VST_FOLDER ../../common.xcconfig`
+VST2=${VST2//\VST_FOLDER = }/IPlugSideChain.vst
+
+VST3=`echo | grep VST3_FOLDER ../../common.xcconfig`
+VST3=${VST3//\VST3_FOLDER = }/IPlugSideChain.vst3
+
+AU=`echo | grep AU_FOLDER ../../common.xcconfig`
+AU=${AU//\AU_FOLDER = }/IPlugSideChain.component
+
+APP=`echo | grep APP_FOLDER ../../common.xcconfig`
+APP=${APP//\APP_FOLDER = }/IPlugSideChain.app
+
+# Dev build folder
+RTAS=`echo | grep RTAS_FOLDER ../../common.xcconfig`
+RTAS=${RTAS//\RTAS_FOLDER = }/IPlugSideChain.dpm
+RTAS_FINAL="/Library/Application Support/Digidesign/Plug-Ins/IPlugSideChain.dpm"
+
+# Dev build folder
+AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
+AAX=${AAX//\AAX_FOLDER = }/IPlugSideChain.aaxplugin
+AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugSideChain.aaxplugin"
+
+PKG='installer/build-mac/IPlugSideChain Installer.pkg'
+PKG_US='installer/build-mac/IPlugSideChain Installer.unsigned.pkg'
+
+CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
+CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
 
 echo "making IPlugSideChain version $FULL_VERSION mac distribution..."
 echo ""
+
+#---------------------------------------------------------------------------------------------------------
 
 ./update_version.py
 
 #could use touch to force a rebuild
 #touch blah.h
+
+#---------------------------------------------------------------------------------------------------------
 
 #remove existing dist folder
 #if [ -d installer/dist ] 
@@ -37,69 +72,130 @@ echo ""
 
 #mkdir installer/dist
 
-#remove existing App
+#remove existing binaries
 if [ -d $APP ] 
 then
-  sudo rm -R -f $APP
+  sudo rm -f -R -f $APP
 fi
 
-#remove existing AU
-if [ -d $AUDIOUNIT ] 
+if [ -d $AU ] 
 then
-  sudo rm -R $AUDIOUNIT
+  sudo rm -f -R $AU
 fi
 
-#remove existing VST2
 if [ -d $VST2 ] 
 then
-  sudo rm -R $VST2
+  sudo rm -f -R $VST2
 fi
 
-#remove existing VST3
 if [ -d $VST3 ] 
 then
-  rm -R $VST3
+  sudo rm -f -R $VST3
 fi
 
-
-#remove existing RTAS
 if [ -d "${RTAS}" ] 
 then
-  sudo rm -R "${RTAS}"
+  sudo rm -f -R "${RTAS}"
 fi
 
-xcodebuild -project IPlugSideChain.xcodeproj -xcconfig IPlugSideChain.xcconfig -target "All" -configuration Release
+if [ -d "${RTAS_FINAL}" ] 
+then
+  sudo rm -f -R "${RTAS_FINAL}"
+fi
+
+if [ -d "${AAX}" ] 
+then
+  sudo rm -f -R "${AAX}"
+fi
+
+if [ -d "${AAX_FINAL}" ] 
+then
+  sudo rm -f -R "${AAX_FINAL}"
+fi
+
+#---------------------------------------------------------------------------------------------------------
+
+# build xcode project. Change target to build individual formats 
+xcodebuild -project IPlugSideChain.xcodeproj -xcconfig IPlugSideChain.xcconfig -target "All" -configuration Release 2> ./build-mac.log
 #xcodebuild -project IPlugSideChain-ios.xcodeproj -xcconfig IPlugSideChain.xcconfig -target "IOSAPP" -configuration Release
+
+if [ -s build-mac.log ]
+then
+  echo "build failed due to following errors:"
+  echo ""
+  cat build-mac.log
+  exit 1
+else
+ rm build-mac.log
+fi
+
+#---------------------------------------------------------------------------------------------------------
 
 #icon stuff - http://maxao.free.fr/telechargements/setfileicon.gz
 echo "setting icons"
 echo ""
-setfileicon resources/IPlugSideChain.icns $AUDIOUNIT
+setfileicon resources/IPlugSideChain.icns $AU
 setfileicon resources/IPlugSideChain.icns $VST2
 setfileicon resources/IPlugSideChain.icns $VST3
 setfileicon resources/IPlugSideChain.icns "${RTAS}"
+setfileicon resources/IPlugSideChain.icns "${AAX}"
+
+#---------------------------------------------------------------------------------------------------------
+
+#ProTools stuff
+
+echo "copying RTAS bundle from 3PDev to main RTAS folder"
+sudo cp -p -R "${RTAS}" "${RTAS_FINAL}"
+
+echo "copying AAX bundle from 3PDev to main AAX folder"
+sudo cp -p -R "${AAX}" "${AAX_FINAL}"
+
+echo "code sign AAX binary"
+sudo ashelper -f "${AAX_FINAL}/Contents/MacOS/IPlugSideChain" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX_FINAL}/Contents/MacOS/IPlugSideChain"
+#---------------------------------------------------------------------------------------------------------
 
 #appstore stuff
 
-# echo "code signing app"
+# echo "code signing app for appstore"
 # echo ""
-# codesign -f -s "3rd Party Mac Developer Application: Oliver Larkin" $APP
+# codesign -f -s "3rd Party Mac Developer Application: ""${CERT_ID}" $APP --entitlements resources/IPlugSideChain.entitlements
 #  
 # echo "building pkg for app store"
 # productbuild \
 #      --component $APP /Applications \
-#      --sign "3rd Party Mac Developer Installer: Oliver Larkin" \
+#      --sign "3rd Party Mac Developer Installer: ""${CERT_ID}" \
 #      --product "/Applications/IPlugSideChain.app/Contents/Info.plist" installer/IPlugSideChain.pkg
 
-# installer, uses iceberg http://s.sudre.free.fr/Software/Iceberg.html
+#---------------------------------------------------------------------------------------------------------
 
+#10.8 Gatekeeper/Developer ID stuff
+
+#echo "code sign app for Gatekeeper on 10.8"
+#echo ""
+#codesign -f -s "Developer ID Application: ""${CERT_ID}" $APP
+
+#---------------------------------------------------------------------------------------------------------
+
+# installer, uses Packages http://s.sudre.free.fr/Software/Packages/about.html
 sudo sudo rm -R -f installer/IPlugSideChain-mac.dmg
 
 echo "building installer"
 echo ""
-freeze installer/IPlugSideChain.packproj
+packagesbuild installer/IPlugSideChain.pkgproj
 
-# dmg, uses dmgcanvas http://www.araelium.com/dmgcanvas/
+#echo "code sign installer for Gatekeeper on 10.8"
+#echo ""
+#mv "${PKG}" "${PKG_US}"
+#productsign --sign "Developer ID Installer: ""${CERT_ID}" "${PKG_US}" "${PKG}"
+                   
+#rm -R -f "${PKG_US}"
+
+#set installer icon
+setfileicon resources/IPlugSideChain.icns "${PKG}"
+
+#---------------------------------------------------------------------------------------------------------
+
+# dmg, can use dmgcanvas http://www.araelium.com/dmgcanvas/ to make a nice dmg
 
 echo "building dmg"
 echo ""
@@ -116,22 +212,28 @@ else
   fi
   
   hdiutil convert installer/IPlugSideChain.dmg -format UDZO -o installer/IPlugSideChain-mac.dmg
-  sudo sudo rm -R -f installer/IPlugSideChain.dmg
+  sudo rm -R -f installer/IPlugSideChain.dmg
 fi
 
-sudo sudo rm -R -f installer/build-mac/
+sudo rm -R -f installer/build-mac/
+
+#---------------------------------------------------------------------------------------------------------
+# zip
 
 # echo "copying binaries..."
 # echo ""
-# cp -R $AUDIOUNIT installer/dist/IPlugSideChain.component
+# cp -R $AU installer/dist/IPlugSideChain.component
 # cp -R $VST2 installer/dist/IPlugSideChain.vst
 # cp -R $VST3 installer/dist/IPlugSideChain.vst3
 # cp -R $RTAS installer/dist/IPlugSideChain.dpm
+# cp -R $AAX installer/dist/IPlugSideChain.aaxplugin
 # cp -R $APP installer/dist/IPlugSideChain.app
 # 
 # echo "zipping binaries..."
 # echo ""
 # ditto -c -k installer/dist installer/IPlugSideChain-mac.zip
 # rm -R installer/dist
+
+#---------------------------------------------------------------------------------------------------------
 
 echo "done"

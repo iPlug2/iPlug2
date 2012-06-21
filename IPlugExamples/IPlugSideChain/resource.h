@@ -28,7 +28,12 @@
 // ProTools stuff
 #define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugSideChain\nIPSC"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define EFFECT_TYPE_DIGI "Effect"
+
+/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+ "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+ instrument determined by PLUG _IS _INST
+*/
 
 // if you want to do anything unusual re i/o you need to #ifdef PLUG_CHANNEL_IO and PLUG_SC_CHANS depending on the api because they all do it differently...
 
@@ -43,7 +48,6 @@
 #define PLUG_SC_CHANS 2
 #endif
 
-
 #define PLUG_LATENCY 0
 #define PLUG_IS_INST 0
 
@@ -53,20 +57,18 @@
 #define PLUG_DOES_STATE_CHUNKS 0
 
 // Unique IDs for each image resource.
-#define KNOB_ID       101
+#define KNOB_ID 101
 
 // Image resource locations for this plug.
-#define KNOB_FN       "resources/img/knob.png"
+#define KNOB_FN "resources/img/knob.png"
 
 // GUI default dimensions
-#define GUI_WIDTH   300
-#define GUI_HEIGHT  300
+#define GUI_WIDTH 300
+#define GUI_HEIGHT 300
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
-#ifdef SA_API
-#ifndef OS_IOS
+#if defined(SA_API) && !defined(OS_IOS)
 #include "app_wrapper/app_resource.h"
-#endif
 #endif
 
 // vst3 stuff

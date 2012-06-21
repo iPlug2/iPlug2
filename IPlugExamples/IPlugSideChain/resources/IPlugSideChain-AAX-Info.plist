@@ -9,20 +9,24 @@
 	<key>CFBundleGetInfoString</key>
 	<string>1.0.0, Copyright AcmeInc, 2012</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.vst3.${BINARY_NAME}</string>
+	<string>com.AcmeInc.aax.${BINARY_NAME}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>${BINARY_NAME}</string>
 	<key>CFBundlePackageType</key>
-	<string>BNDL</string>
+	<string>TDMw</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>Acme</string>
+	<string>PTul</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.5.0</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<string>true</string>
+	<key>LSPrefersCarbon</key>
+	<false/>
+	<key>NSAppleScriptEnabled</key>
+	<string>No</string>
 </dict>
 </plist>
