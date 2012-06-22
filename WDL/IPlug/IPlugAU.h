@@ -136,14 +136,30 @@ private:
   WDL_PtrList<PropertyListener> mPropertyListeners;
 
   UInt32 GetTagForNumChannels(int numChannels);
-  UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags);
+  
+  UInt32 GetChannelLayoutTags(AudioUnitScope scope, 
+                              AudioUnitElement element, 
+                              AudioChannelLayoutTag* tags);
 
-  ComponentResult GetPropertyInfo(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                                  UInt32* pDataSize, Boolean* pWriteable);
-  ComponentResult GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                              UInt32* pDataSize, Boolean* pWriteable, void* pData);
-  ComponentResult SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                              UInt32* pDataSize, const void* pData);
+  ComponentResult GetPropertyInfo(AudioUnitPropertyID propID, 
+                                  AudioUnitScope scope, 
+                                  AudioUnitElement element,
+                                  UInt32* pDataSize, 
+                                  Boolean* pWriteable);
+  
+  ComponentResult GetProperty(AudioUnitPropertyID propID, 
+                              AudioUnitScope scope, 
+                              AudioUnitElement element,
+                              UInt32* pDataSize, 
+                              Boolean* pWriteable, 
+                              void* pData);
+  
+  ComponentResult SetProperty(AudioUnitPropertyID propID, 
+                              AudioUnitScope scope,
+                              AudioUnitElement element,
+                              UInt32* pDataSize, 
+                              const void* pData);
+  
   ComponentResult GetProc(AudioUnitElement element, UInt32* pDataSize, void* pData);
   ComponentResult GetState(CFPropertyListRef* ppPropList);
   ComponentResult SetState(CFPropertyListRef pPropList);
@@ -152,12 +168,26 @@ private:
 public:
   static ComponentResult IPlugAUEntry(ComponentParameters *params, void* pVPlug);
   static ComponentResult IPlugAUCarbonViewEntry(ComponentParameters *params, void* pView);
-  static ComponentResult GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element,
+  
+  static ComponentResult GetParamProc(void* pPlug, 
+                                      AudioUnitParameterID paramID, 
+                                      AudioUnitScope scope, 
+                                      AudioUnitElement element,
                                       AudioUnitParameterValue* pValue);
-  static ComponentResult SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element,
-                                      AudioUnitParameterValue value, UInt32 offsetFrames);
-  static ComponentResult RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp,
-                                    UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pBufferList);
+  
+  static ComponentResult SetParamProc(void* pPlug, 
+                                      AudioUnitParameterID paramID, 
+                                      AudioUnitScope scope, 
+                                      AudioUnitElement element,
+                                      AudioUnitParameterValue value, 
+                                      UInt32 offsetFrames);
+  
+  static ComponentResult RenderProc(void* pPlug, 
+                                    AudioUnitRenderActionFlags* pFlags, 
+                                    const AudioTimeStamp* pTimestamp,
+                                    UInt32 outputBusIdx, 
+                                    UInt32 nFrames, 
+                                    AudioBufferList* pBufferList);
 };
 
 IPlugAU* MakePlug();
