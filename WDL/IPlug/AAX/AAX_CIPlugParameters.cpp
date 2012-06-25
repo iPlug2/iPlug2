@@ -12,8 +12,6 @@ AAX_Result AAX_CIPlugParameters::ResetFieldData (AAX_CFieldIndex iFieldIndex, vo
     //Set all of the private data variables.
     AAX_SIPlugPrivateData* privateData = static_cast <AAX_SIPlugPrivateData*> (oData);
     privateData->mIPlugParametersPtr = (AAX_CIPlugParameters*) this;
-    Controller()->GetInputStemFormat(&(privateData->mInputStemFormat));
-    Controller()->GetOutputStemFormat(&(privateData->mOutputStemFormat));
 
     return AAX_SUCCESS;
   }
@@ -48,6 +46,19 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   else
     err |= compDesc->AddPrivateData( transportNodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );  
   
+  
+  AAX_ASSERT(setupInfo.mNumAdditionalInputMIDINodes <= kMaxAdditionalMIDINodes);
+//    for (int32_t index=0; index < kMaxAdditionalMIDINodes; index++)
+//    {      
+//        AAX_CFieldIndex nodeID = AAX_FIELD_INDEX(AAX_SInstrumentRenderInfo, mAdditionalInputMIDINodes[index]);
+//        AAX_CString nodeName(setupInfo.mInputMIDINodeName);
+//        nodeName.AppendNumber(index+1);
+//        if (index < setupInfo.mNumAdditionalInputMIDINodes)
+//            err |= compDesc->AddMIDINode ( nodeID, AAX_eMIDINodeType_LocalInput, nodeName.CString(), setupInfo.mInputMIDIChannelMask );	
+//        else
+//            err |= compDesc->AddPrivateData( nodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );	//Just here to fill the port.  Not used.
+//    }
+  
   //Add outputs, meters, info, etc
   err |= compDesc->AddAudioIn( AAX_FIELD_INDEX (AAX_SIPlugRenderInfo, mAudioInputs) );
   err |= compDesc->AddAudioOut( AAX_FIELD_INDEX (AAX_SIPlugRenderInfo, mAudioOutputs) );              
@@ -57,14 +68,23 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   else
     err |= compDesc->AddPrivateData( AAX_FIELD_INDEX (AAX_SIPlugRenderInfo, mMeters), sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );  
   
+  //Add optional aux output stems.
+  for (int32_t index=0; index < setupInfo.mNumAuxOutputStems; index++)
+  {
+    err |= compDesc->AddAuxOutputStem (0 /*not used*/, setupInfo.mAuxOutputStemFormats[index], setupInfo.mAuxOutputStemNames[index] ); 
+  }
+  
   //Add pointer to the data model instance and other interesting information.
   err |= compDesc->AddPrivateData( AAX_FIELD_INDEX (AAX_SIPlugRenderInfo, mPrivateData), sizeof(AAX_SIPlugPrivateData), AAX_ePrivateDataOptions_DefaultOptions ); 
   
   //Additional properties on the algorithm
   AAX_IPropertyMap *  properties = compDesc->NewPropertyMap ();
 
-  //properties->AddProperty ( AAX_eProperty_UsesClientGUI, true );
+  // Host generated GUI or not.
+  if (setupInfo.mUseHostGeneratedGUI)
+    properties->AddProperty ( AAX_eProperty_UsesClientGUI, true );
   
+  // initial latency
   err |= properties->AddProperty( AAX_eProperty_LatencyContribution, setupInfo.mLatency);
 
   err |= properties->AddProperty ( AAX_eProperty_InputStemFormat, setupInfo.mInputStemFormat );

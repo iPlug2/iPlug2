@@ -70,9 +70,7 @@ T		AAX_CIPlugTaperDelegate<T, RealPrecision>::ConstrainRealValue(T value)	const
 
 template <typename T, int32_t RealPrecision>
 T		AAX_CIPlugTaperDelegate<T, RealPrecision>::NormalizedToReal(double normalizedValue) const
-{
-  //double doubleRealValue = normalizedValue * (double(mMaxValue) - double(mMinValue)) + double(mMinValue);
-  
+{  
   double doubleRealValue = FromNormalizedParam(normalizedValue, mMinValue, mMaxValue, mShape);
   
 	T realValue = (T)doubleRealValue;
@@ -87,7 +85,6 @@ template <typename T, int32_t RealPrecision>
 double	AAX_CIPlugTaperDelegate<T, RealPrecision>::RealToNormalized(T realValue) const
 {
 	realValue = ConstrainRealValue(realValue);
-//	double normalizedValue = (double(realValue) - double(mMinValue)) / (double(mMaxValue) - double(mMinValue));
   
   return ToNormalizedParam(realValue, mMinValue, mMaxValue, mShape);
 }
