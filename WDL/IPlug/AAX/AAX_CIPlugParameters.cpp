@@ -47,7 +47,7 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
     err |= compDesc->AddPrivateData( transportNodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );  
   
   
-  AAX_ASSERT(setupInfo.mNumAdditionalInputMIDINodes <= kMaxAdditionalMIDINodes);
+//  AAX_ASSERT(setupInfo.mNumAdditionalInputMIDINodes <= kMaxAdditionalMIDINodes);
 //    for (int32_t index=0; index < kMaxAdditionalMIDINodes; index++)
 //    {      
 //        AAX_CFieldIndex nodeID = AAX_FIELD_INDEX(AAX_SInstrumentRenderInfo, mAdditionalInputMIDINodes[index]);

@@ -12,7 +12,7 @@
 #include "AAX_IMIDINode.h"
 #include "AAX_IString.h"
 
-#define kMaxAdditionalMIDINodes 15
+//#define kMaxAdditionalMIDINodes 15
 #define kMaxAuxOutputStems  16
 
 struct AAX_SIPlugSetupInfo
@@ -24,7 +24,7 @@ struct AAX_SIPlugSetupInfo
   bool mNeedsInputMIDI;               // Does the IPlug use a local MIDI input node?
   const char* mInputMIDINodeName;     // Name of the MIDI input node, if used
   uint32_t mInputMIDIChannelMask;     // MIDI input node channel mask, if used
-	int32_t mNumAdditionalInputMIDINodes;// Number of additional input MIDI Nodes.  These will all share the same channelMask and base MIDINodeName, but the names will be appended with numbers 2,3,4,... 
+	//int32_t mNumAdditionalInputMIDINodes;// Number of additional input MIDI Nodes.  These will all share the same channelMask and base MIDINodeName, but the names will be appended with numbers 2,3,4,... 
   
   bool mNeedsTransport;               // Does the IPlug use the transport interface?
   const char* mTransportMIDINodeName; // Name of the MIDI transport node, if used
@@ -56,7 +56,7 @@ struct AAX_SIPlugSetupInfo
     mNeedsInputMIDI = false;
     mInputMIDINodeName = "InputMIDI";
     mInputMIDIChannelMask = 0xffff;
-    mNumAdditionalInputMIDINodes = 0;
+    //mNumAdditionalInputMIDINodes = 0;
     mNeedsTransport = false;
     mTransportMIDINodeName = "Transport";
     mNumMeters = 0;
@@ -100,7 +100,7 @@ struct AAX_SIPlugRenderInfo
   AAX_IMIDINode* mInputNode;      // Buffered local MIDI input node. Used for incoming MIDI messages directed to the IPlug.
   AAX_IMIDINode* mGlobalNode;     // Buffered global MIDI input node. Used for global events like beat updates in metronomes.
   AAX_IMIDINode* mTransportNode;  // Transport MIDI node.  Used for querying the state of the MIDI transport.
-  AAX_IMIDINode* mAdditionalInputMIDINodes[kMaxAdditionalMIDINodes];  // List of additional input MIDI nodes, if your plugin needs them.
+  //AAX_IMIDINode* mAdditionalInputMIDINodes[kMaxAdditionalMIDINodes];  // List of additional input MIDI nodes, if your plugin needs them.
 
   AAX_SIPlugPrivateData* mPrivateData; // Struct containing private data relating to the instance.  You should not need to use this data.
 
