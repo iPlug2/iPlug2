@@ -478,7 +478,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.DEFAULT_MFR.app.pkg.IPlugEffect</string>
+				<string>com.AcmeInc.app.pkg.IPlugEffect</string>
 				<key>NAME</key>
 				<string>Application</string>
 				<key>OVERWRITE_PERMISSIONS</key>
@@ -1014,7 +1014,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.DEFAULT_MFR.vst.pkg.IPlugEffect</string>
+				<string>com.AcmeInc.vst.pkg.IPlugEffect</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -1554,7 +1554,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.DEFAULT_MFR.vst3.pkg.IPlugEffect</string>
+				<string>com.AcmeInc.vst3.pkg.IPlugEffect</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -2094,7 +2094,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.DEFAULT_MFR.au.pkg.IPlugEffect</string>
+				<string>com.AcmeInc.au.pkg.IPlugEffect</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -2617,7 +2617,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.DEFAULT_MFR.rtas.pkg.IPlugEffect</string>
+				<string>com.AcmeInc.rtas.pkg.IPlugEffect</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -3157,7 +3157,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.DEFAULT_MFR.aax.pkg.IPlugEffect</string>
+				<string>com.AcmeInc.aax.pkg.IPlugEffect</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
