@@ -6,10 +6,10 @@ REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
 REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
 REM - AAX codesigning requires ashelper tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
-echo Making IPlugEffect win distribution...
+echo Making IPlugEffect win distribution ...
 
 echo ------------------------------------------------------------------
-echo Updating version numbers...
+echo Updating version numbers ...
 
 call python update_version.py
 
@@ -40,12 +40,13 @@ msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64 /nologo /nocons
 
 echo ------------------------------------------------------------------
 echo Code sign aax binary...
-call ashelper -f .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win-aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin
+call ashelper -f .\build-win\aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugEffect.aaxplugin\Contents\Win32\IPlugEffect.aaxplugin
+REM - call ashelper -f .\build-win\aax\bin\IPlugEffect.aaxplugin\Contents\x64\IPlugEffect.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugEffect.aaxplugin\Contents\x64\IPlugEffect.aaxplugin
 
 REM - Make Installer (InnoSetup)
 
 echo ------------------------------------------------------------------
-echo Making Installer...
+echo Making Installer ...
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit-is) else (goto 32-Bit-is)
 
@@ -60,8 +61,8 @@ goto END-is
 :END-is
 
 REM - ZIP
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win-app\win32\bin\IPlugEffect.exe .\build-win-vst3\win32\bin\IPlugEffect.vst3 .\build-win-vst2\win32\bin\IPlugEffect.dll .\build-win-rtas\bin\IPlugEffect.dpm .\build-win-rtas\bin\IPlugEffect.dpm.rsr .\build-win-aax\bin\IPlugEffect.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win-app\x64\bin\IPlugEffect.exe .\build-win-vst3\x64\bin\IPlugEffect.vst3 .\build-win-vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win\app\win32\bin\IPlugEffect.exe .\build-win\vst3\win32\bin\IPlugEffect.vst3 .\build-win\vst2\win32\bin\IPlugEffect.dll .\build-win\rtas\bin\IPlugEffect.dpm .\build-win\rtas\bin\IPlugEffect.dpm.rsr .\build-win\aax\bin\IPlugEffect.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win\app\x64\bin\IPlugEffect.exe .\build-win\vst3\x64\bin\IPlugEffect.vst3 .\build-win\vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo ------------------------------------------------------------------
 echo Printing log file to console...
