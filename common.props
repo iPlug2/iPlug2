@@ -10,8 +10,12 @@
     <VST3_64_PATH>$(CommonProgramW6432)\VST3</VST3_64_PATH>
     <WDL_PATH>$(ProjectDir)..\..\WDL</WDL_PATH>
     <x64_LIB_PATHS>$(ProgramW6432)\Microsoft SDKs\Windows\v7.1\Lib\x64;$(ProgramFiles)\Microsoft SDKs\Windows\v7.1\Lib\x64</x64_LIB_PATHS>
+    <RTAS_PLUGINS_PATH>$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins</RTAS_PLUGINS_PATH>
+    <AAX_PLUGINS_PATH>$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins</AAX_PLUGINS_PATH>
   </PropertyGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -47,6 +51,12 @@
     </BuildMacro>
     <BuildMacro Include="x64_LIB_PATHS">
       <Value>$(x64_LIB_PATHS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="RTAS_PLUGINS_PATH">
+      <Value>$(RTAS_PLUGINS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="AAX_PLUGINS_PATH">
+      <Value>$(AAX_PLUGINS_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
