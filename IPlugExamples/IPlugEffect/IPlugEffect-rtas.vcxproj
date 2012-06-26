@@ -49,14 +49,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win-rtas\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win-rtas\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\rtas\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\rtas\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win-rtas\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win-rtas\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\rtas\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\rtas\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win-rtas\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win-rtas\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\rtas\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\rtas\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">false</LinkIncremental>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dpm</TargetExt>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.dpm</TargetExt>
@@ -124,6 +124,11 @@
 copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
 </Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile "$(TargetPath)".rsr</Command>
+      <Outputs>$(TargetPath).rsr</Outputs>
+      <Message>Copying dummy rsr</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -184,6 +189,11 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
 copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
 </Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile "$(TargetPath)".rsr</Command>
+      <Outputs>$(TargetPath).rsr</Outputs>
+      <Message>Copying dummy rsr</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
     <Midl>
@@ -247,6 +257,11 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
 copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
 </Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile "$(TargetPath)".rsr</Command>
+      <Outputs>$(TargetPath).rsr</Outputs>
+      <Message>Copying dummy rsr</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DAE.lib" />
