@@ -32,7 +32,7 @@
 \cf0 \
 This folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects are working. Each folder contains scripts which automate the build process and package everything along with a pdf manual in an installer. The scripts also code sign binaries/installers and set icons where required.\
 \
-Projects are provided for Visual Studio 2010 and Xcode 3 or 4. Visual Studio 2005 projects are also included and are necessary only for building RTAS and AAX formats because the Avid RTAS libraries are built with VS2005 and are cannot be linked with 2010. You cannot downgrade the VS2010 projects to work with VS2008 or VS2005. There are also codeblocks projects for building VST2 plugins on windows but these are not maintained and will probably require some edits in order to compile. \
+Projects are provided for Visual Studio 2010 and Xcode 3 or 4. You cannot downgrade the VS2010 projects to work with VS2008 or VS2005. There are also codeblocks projects for building VST2 plugins on windows but these are not maintained and will probably require some edits in order to compile. \
 \
 To build 64 bit binaries on windows, using VS2010 express, you need to have installed the Windows SDK 7.1, if you have the pro version it should already be installed.\
 \
@@ -53,7 +53,6 @@ Windows\
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\li720\fi-720\ql\qnatural
 \ls3\ilvl0
 \b0 \cf0 {\listtext	\'95	}VS2010 Express c++ & Windows SDK 7.1 or VS2010 Professional\
-{\listtext	\'95	}VS2005 Express c++ & Platform SDK or VS2005 Professional (for RTAS & AAX)\
 {\listtext	\'95	}Python 2.x {\field{\*\fldinst{HYPERLINK "http://www.python.org/"}}{\fldrslt http://www.python.org/}}\
 {\listtext	\'95	}Innosetup {\field{\*\fldinst{HYPERLINK "http://www.jrsoftware.org/isinfo.php"}}{\fldrslt http://www.jrsoftware.org/isinfo.php}}\
 {\listtext	\'95	}7zip {\field{\*\fldinst{HYPERLINK "http://www.7-zip.org/"}}{\fldrslt http://www.7-zip.org/}} (if you want to zip instead of make an installer)\
@@ -199,22 +198,9 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \b PT_90_PlugInSDK.zip
 \b0  into the 
 \b PT9_SDK
-\b0  folder. Run config_SDK_for_Mac.command to develop on mac. On windows you need VS2005 to compile for RTAS.  You can find links to the VS2005 express version {\field{\*\fldinst{HYPERLINK "http://apdubey.blogspot.com/2009/04/microsoft-visual-studio-2005-express.html"}}{\fldrslt here}}. If you use the express version, you will also need the {\field{\*\fldinst{HYPERLINK "http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=3069"}}{\fldrslt Platform SDK}}. The easiest way to allow MSVC to find the platform sdk is:\
-\
-1. Create a directory 
-\b PlatformSDK
-\b0  under
-\b  %ProgramFiles%\\Microsoft Visual Studio 8\\VC
-\b0 \
-2. Copy the 
-\b bin
-\b0 , 
-\b include
-\b0  and 
-\b lib
-\b0  directories from the PSDK-installation into this directory. \
-\
-(info from {\field{\*\fldinst{HYPERLINK "http://social.msdn.microsoft.com/forums/en-US/vcgeneral/thread/2bfed529-fb6d-48a3-ad48-fc6301486646/"}}{\fldrslt this link}})\
+\b0  folder. Run 
+\b config_SDK_for_Mac.command 
+\b0 to develop on mac. \
 \
 - On windows, the debug builds of the RTAS plugin link against the release versions of the Digidesign PluginLib and define 
 \b NDEBUG
@@ -241,7 +227,7 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 
 \b0 \cf0 - Extract 
-\b AAX_SDK_1p0p5.zip
+\b AAX_SDK_1p0p6.zip
 \b0  to the 
 \b AAX_SDK
 \b0  folder\
@@ -253,6 +239,18 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \b0  setting in 
 \b AAX_Library.xcodeproj
 \b0  to macosx10.5\
+ \
+- Also modify 
+\b ExamplePlugIns/Common/Mac/CommonDebugSettings.xcconfig
+\b0  and 
+\b ExamplePlugIns/Common/Mac/CommonReleaseSettings.xcconfig
+\b0 ...\
+\
+GCC_VERSION = com.apple.compilers.gcc.4_2\
+SDKROOT = macosx10.5\
+MACOSX_DEPLOYMENT_TARGET = 10.5\
+\
+- comment out/fix error AAX_CInstrumentParameters.cpp:75: error: 'index' cannot appear in a constant-expression\
 \
 - In order to compile AAX binaries that run in the release build of ProTools, you will need to code-sign those binaries (see Avid docs)\
 \
