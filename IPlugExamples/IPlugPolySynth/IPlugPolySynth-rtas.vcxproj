@@ -299,6 +299,7 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClInclude Include="..\..\WDL\IPlug\RTAS\ProcessInterface.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\digicode.h" />
     <ClInclude Include="IPlugPolySynth.h" />
+    <ClInclude Include="IPlugPolySynthDSP.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

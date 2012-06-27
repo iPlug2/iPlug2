@@ -5,6 +5,8 @@
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp">
       <Filter>vst2</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugConvoEngine.h" />
@@ -12,6 +14,8 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h">
       <Filter>vst2</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\WDL\fft.h" />
+    <ClInclude Include="..\..\WDL\convoengine.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugConvoEngine.rc" />

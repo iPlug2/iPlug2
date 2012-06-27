@@ -496,6 +496,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <ClInclude Include="..\..\WDL\IPlug\AAX\AAX_CIPlugParameters.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugAAX.h" />
     <ClInclude Include="IPlugPolySynth.h" />
+    <ClInclude Include="IPlugPolySynthDSP.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,9 @@
     <Filter Include="Libs">
       <UniqueIdentifier>{57d1624e-a679-47da-bd3e-9609f02fdd7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="plush">
+      <UniqueIdentifier>{8b9d6c74-ce8d-40a1-beb9-86f4553360f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp">
@@ -54,6 +57,33 @@
     <ClCompile Include="IPlugPlush.cpp" />
     <ClCompile Include="..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>Libs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_spline.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_read_jaw.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_read_cob.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_read_3ds.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_putface.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_obj.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_math.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_make.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_cam.cpp">
+      <Filter>plush</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +143,13 @@
     </ClInclude>
     <ClInclude Include="IPlugPlush.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="I3DControl.h" />
+    <ClInclude Include="..\..\WDL\plush2\pl_pf_tex.h">
+      <Filter>plush</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\plush2\plush.h">
+      <Filter>plush</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugPlush.rc" />

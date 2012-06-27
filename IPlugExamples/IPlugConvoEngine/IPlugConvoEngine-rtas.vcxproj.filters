@@ -115,6 +115,8 @@
     </ClInclude>
     <ClInclude Include="IPlugConvoEngine.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\fft.h" />
+    <ClInclude Include="..\..\WDL\convoengine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp">
@@ -172,6 +174,8 @@
       <Filter>IPlug\RTAS\include</Filter>
     </ClCompile>
     <ClCompile Include="IPlugConvoEngine.cpp" />
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="IPlugConvoEngine-rtas.def" />

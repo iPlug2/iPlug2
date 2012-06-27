@@ -432,6 +432,8 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IBitmapMonoText.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IControl.cpp" />
@@ -477,6 +479,8 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\convoengine.h" />
+    <ClInclude Include="..\..\WDL\fft.h" />
     <ClInclude Include="..\..\WDL\IPlug\Containers.h" />
     <ClInclude Include="..\..\WDL\IPlug\Hosts.h" />
     <ClInclude Include="..\..\WDL\IPlug\IBitmapMonoText.h" />

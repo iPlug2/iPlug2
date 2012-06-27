@@ -55,6 +55,7 @@
     <ClCompile Include="..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>Libs</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\WDL\IPlug\Containers.h">
@@ -113,6 +114,7 @@
     </ClInclude>
     <ClInclude Include="IPlugDistortion.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugDistortion.rc" />

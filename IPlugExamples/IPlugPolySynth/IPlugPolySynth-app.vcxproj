@@ -271,6 +271,7 @@
     <ClInclude Include="app_wrapper\app_main.h" />
     <ClInclude Include="app_wrapper\app_resource.h" />
     <ClInclude Include="IPlugPolySynth.h" />
+    <ClInclude Include="IPlugPolySynthDSP.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

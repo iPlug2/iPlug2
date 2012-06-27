@@ -315,6 +315,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugDi
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h" />
     <ClInclude Include="IPlugDistortion.h" />
     <ClInclude Include="resource.h" />
@@ -332,6 +333,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugDi
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp" />
     <ClCompile Include="IPlugDistortion.cpp" />
   </ItemGroup>

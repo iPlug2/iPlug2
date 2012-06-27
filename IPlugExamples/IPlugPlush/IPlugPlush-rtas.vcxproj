@@ -298,6 +298,9 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\ProcessInterface.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\digicode.h" />
+    <ClInclude Include="..\..\WDL\plush2\plush.h" />
+    <ClInclude Include="..\..\WDL\plush2\pl_pf_tex.h" />
+    <ClInclude Include="I3DControl.h" />
     <ClInclude Include="IPlugPlush.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -320,6 +323,15 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode1.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode2.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode3.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_cam.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_make.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_math.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_obj.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_putface.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_read_3ds.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_read_cob.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_read_jaw.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_spline.cpp" />
     <ClCompile Include="IPlugPlush.cpp" />
   </ItemGroup>
   <ItemGroup>
