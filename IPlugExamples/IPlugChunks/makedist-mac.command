@@ -39,10 +39,12 @@ APP=${APP//\APP_FOLDER = }/IPlugChunks.app
 # Dev build folder
 RTAS=`echo | grep RTAS_FOLDER ../../common.xcconfig`
 RTAS=${RTAS//\RTAS_FOLDER = }/IPlugChunks.dpm
+RTAS_FINAL="/Library/Application Support/Digidesign/Plug-Ins/IPlugChunks.dpm"
 
 # Dev build folder
 AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
 AAX=${AAX//\AAX_FOLDER = }/IPlugChunks.aaxplugin
+AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugChunks.aaxplugin"
 
 PKG='installer/build-mac/IPlugChunks Installer.pkg'
 PKG_US='installer/build-mac/IPlugChunks Installer.unsigned.pkg'
@@ -96,9 +98,19 @@ then
   sudo rm -f -R "${RTAS}"
 fi
 
+if [ -d "${RTAS_FINAL}" ] 
+then
+  sudo rm -f -R "${RTAS_FINAL}"
+fi
+
 if [ -d "${AAX}" ] 
 then
   sudo rm -f -R "${AAX}"
+fi
+
+if [ -d "${AAX_FINAL}" ] 
+then
+  sudo rm -f -R "${AAX_FINAL}"
 fi
 
 #---------------------------------------------------------------------------------------------------------
@@ -133,22 +145,20 @@ setfileicon resources/IPlugChunks.icns "${AAX}"
 #ProTools stuff
 
 echo "copying RTAS bundle from 3PDev to main RTAS folder"
-sudo cp -p -R $RTAS "/Library/Application Support/Digidesign/Plug-Ins/IPlugChunks.dpm"
-RTAS="/Library/Application Support/Digidesign/Plug-Ins/IPlugChunks.dpm"
+sudo cp -p -R "${RTAS}" "${RTAS_FINAL}"
 
 echo "copying AAX bundle from 3PDev to main AAX folder"
-sudo cp -p -R $AAX "/Library/Application Support/Avid/Audio/Plug-Ins/IPlugChunks.aaxplugin"
-AAX="/Library/Application Support/Avid/Audio/Plug-Ins/IPlugChunks.aaxplugin"
+sudo cp -p -R "${AAX}" "${AAX_FINAL}"
 
 echo "code sign AAX binary"
-sudo ashelper -f "${AAX}/Contents/MacOS/IPlugChunks" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX}/Contents/MacOS/IPlugChunks"
+sudo ashelper -f "${AAX_FINAL}/Contents/MacOS/IPlugChunks" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX_FINAL}/Contents/MacOS/IPlugChunks"
 #---------------------------------------------------------------------------------------------------------
 
 #appstore stuff
 
 # echo "code signing app for appstore"
 # echo ""
-# codesign -f -s "3rd Party Mac Developer Application: ""${CERT_ID}" $APP
+# codesign -f -s "3rd Party Mac Developer Application: ""${CERT_ID}" $APP --entitlements resources/IPlugChunks.entitlements
 #  
 # echo "building pkg for app store"
 # productbuild \

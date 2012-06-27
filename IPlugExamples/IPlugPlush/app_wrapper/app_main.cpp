@@ -1,11 +1,10 @@
 #include "app_main.h"
 
 #ifdef OS_WIN
-#include <windows.h>
-#include <shlobj.h>
-#include <sys/stat.h>
+  #include <windows.h>
+  #include <shlobj.h>
+  #include <sys/stat.h>
 #endif
-
 
 HWND gHWND;
 
@@ -74,7 +73,7 @@ std::string GetAudioDeviceName(int idx)
 
   std::string deviceName = info.name;
 
-#ifdef OS_OSX
+  #ifdef OS_OSX
   size_t colonIdx = deviceName.rfind(": ");
 
   if(colonIdx != std::string::npos && deviceName.length() >= 2)
@@ -83,9 +82,9 @@ std::string GetAudioDeviceName(int idx)
   {
     return deviceName;
   }
-#else
+  #else
   return deviceName;
-#endif
+  #endif
 }
 
 // returns the rtaudio device ID, based on the (truncated) device name
@@ -99,14 +98,14 @@ int GetAudioDeviceID(char* deviceNameToTest)
   {
     info = gDAC->getDeviceInfo(i);
     std::string deviceName = info.name;
-#ifdef OS_OSX
+    #ifdef OS_OSX
     size_t colonIdx = deviceName.rfind(": ");
 
     if(colonIdx != std::string::npos && deviceName.length() >= 2)
     {
       deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
     }
-#endif
+    #endif
     if(!strcmp(deviceNameToTest, deviceName.c_str() ))
       return i;
   }
@@ -120,10 +119,10 @@ unsigned int GetMIDIInPortNumber(const char* nameToTest)
 
   if(!strcmp(nameToTest, "off")) return 0;
 
-#ifdef OS_OSX
+  #ifdef OS_OSX
   start = 2;
   if(!strcmp(nameToTest, "virtual input")) return 1;
-#endif
+  #endif
 
   for (int i = 0; i < gMidiIn->getPortCount(); i++)
   {
@@ -140,10 +139,10 @@ unsigned int GetMIDIOutPortNumber(const char* nameToTest)
 
   if(!strcmp(nameToTest, "off")) return 0;
 
-#ifdef OS_OSX
+  #ifdef OS_OSX
   start = 2;
   if(!strcmp(nameToTest, "virtual output")) return 1;
-#endif
+  #endif
 
   for (int i = 0; i < gMidiOut->getPortCount(); i++)
   {
@@ -191,9 +190,9 @@ void ProbeMidiIO()
 
     gMIDIInputDevNames.push_back("off");
 
-#ifndef _WIN32
+    #ifndef OS_WIN
     gMIDIInputDevNames.push_back("virtual input");
-#endif
+    #endif
 
     for (int i=0; i<nInputPorts; i++ )
     {
@@ -253,7 +252,6 @@ void MIDICallback( double deltatime, std::vector< unsigned char > *message, void
     {
       case 1:
         myMsg = new IMidiMsg(0, message->at(0), 0, 0);
-
         break;
       case 2:
         myMsg = new IMidiMsg(0, message->at(0), message->at(1), 0);
@@ -395,10 +393,6 @@ bool TryToChangeAudio()
   {
     return InitialiseAudio(inputID, outputID, samplerate, iovs, NUM_CHANNELS, gState->mAudioInChanL - 1, gState->mAudioOutChanL - 1);
   }
-  else
-  {
-    return false;
-  }
 
   return false;
 }
@@ -532,13 +526,13 @@ bool ChooseMidiInput(const char* pPortName)
     {
       return true;
     }
-#ifdef OS_WIN
+    #ifdef OS_WIN
     else
     {
       gMidiIn->openPort(port-1);
       return true;
     }
-#else
+    #else
     else if(port == 1)
     {
       std::string virtualMidiInputName = "To ";
@@ -551,7 +545,7 @@ bool ChooseMidiInput(const char* pPortName)
       gMidiIn->openPort(port-2);
       return true;
     }
-#endif
+    #endif
   }
 
   return false;
@@ -587,13 +581,13 @@ bool ChooseMidiOutput(const char* pPortName)
     {
       return true;
     }
-#ifdef OS_WIN
+    #ifdef OS_WIN
     else
     {
       gMidiOut->openPort(port-1);
       return true;
     }
-#else
+    #else
     else if(port == 1)
     {
       std::string virtualMidiOutputName = "From ";
@@ -606,7 +600,7 @@ bool ChooseMidiOutput(const char* pPortName)
       gMidiOut->openPort(port-2);
       return true;
     }
-#endif
+    #endif
   }
 
   return false;
@@ -880,7 +874,6 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       }
       else   // folder doesn't exist - make folder and make file
       {
-
         // http://blog.tremend.ro/2008/10/06/create-directories-in-c-using-mkdir-with-proper-permissions/
 
         mode_t process_mask = umask(0);
@@ -1043,6 +1036,7 @@ LTEXT           "Output Channel", IDC_STATIC, 200, 320, 100, 20
 COMBOBOX        IDC_COMBO_MIDI_OUT_CHAN, 200, 338, 90, 100, CBS_DROPDOWNLIST
 
 DEFPUSHBUTTON   "OK", IDOK, 192, 383, 50, 20
+PUSHBUTTON      "Apply", IDAPPLY, 132, 383, 50, 20
 PUSHBUTTON      "Cancel", IDCANCEL, 252, 383, 50, 20
 END
 SWELL_DEFINE_DIALOG_RESOURCE_END(IDD_DIALOG_PREF)

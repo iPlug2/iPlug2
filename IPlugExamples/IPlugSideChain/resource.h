@@ -26,16 +26,14 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
+#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme"
 #define PLUG_NAME_DIGI "IPlugSideChain\nIPSC"
 #define EFFECT_TYPE_DIGI "Effect"
 
 /* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
- "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
- instrument determined by PLUG _IS _INST
+"Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+instrument determined by PLUG _IS _INST
 */
-
-// if you want to do anything unusual re i/o you need to #ifdef PLUG_CHANNEL_IO and PLUG_SC_CHANS depending on the api because they all do it differently...
 
 #ifdef RTAS_API
 // RTAS can only have a mono sc input

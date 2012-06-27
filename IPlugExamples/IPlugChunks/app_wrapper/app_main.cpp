@@ -393,10 +393,6 @@ bool TryToChangeAudio()
   {
     return InitialiseAudio(inputID, outputID, samplerate, iovs, NUM_CHANNELS, gState->mAudioInChanL - 1, gState->mAudioOutChanL - 1);
   }
-  else
-  {
-    return false;
-  }
 
   return false;
 }
@@ -878,7 +874,6 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       }
       else   // folder doesn't exist - make folder and make file
       {
-
         // http://blog.tremend.ro/2008/10/06/create-directories-in-c-using-mkdir-with-proper-permissions/
 
         mode_t process_mask = umask(0);
@@ -1041,6 +1036,7 @@ LTEXT           "Output Channel", IDC_STATIC, 200, 320, 100, 20
 COMBOBOX        IDC_COMBO_MIDI_OUT_CHAN, 200, 338, 90, 100, CBS_DROPDOWNLIST
 
 DEFPUSHBUTTON   "OK", IDOK, 192, 383, 50, 20
+PUSHBUTTON      "Apply", IDAPPLY, 132, 383, 50, 20
 PUSHBUTTON      "Cancel", IDCANCEL, 252, 383, 50, 20
 END
 SWELL_DEFINE_DIALOG_RESOURCE_END(IDD_DIALOG_PREF)

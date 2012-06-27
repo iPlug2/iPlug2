@@ -6,8 +6,7 @@
 /*
 
  Standalone osx/win app wrapper for iPlug, using SWELL
- License: free to use but donations very much appreciated
- Oli Larkin 2011
+ Oli Larkin 2012
 
  Notes:
 
@@ -20,25 +19,23 @@
 */
 
 #ifdef OS_WIN
-#include <windows.h>
-#include <commctrl.h>
-//  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds )
+  #include <windows.h>
+  #include <commctrl.h>
 
-#define DEFAULT_INPUT_DEV "Default Device"
-#define DEFAULT_OUTPUT_DEV "Default Device"
+  #define DEFAULT_INPUT_DEV "Default Device"
+  #define DEFAULT_OUTPUT_DEV "Default Device"
 
-#define DAC_DS 0
-#define DAC_ASIO 1
-
+  #define DAC_DS 0
+  #define DAC_ASIO 1
 #else if defined OS_OSX
-#include "swell.h"
-//  #include <unistd.h>
-#define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
-#define DEFAULT_INPUT_DEV "Built-in Input"
-#define DEFAULT_OUTPUT_DEV "Built-in Output"
+  #include "swell.h"
+  #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
 
-#define DAC_COREAUDIO 0
-#define DAC_JACK 1
+  #define DEFAULT_INPUT_DEV "Built-in Input"
+  #define DEFAULT_OUTPUT_DEV "Built-in Output"
+
+  #define DAC_COREAUDIO 0
+//  #define DAC_JACK 1
 #endif
 
 #include "wdltypes.h"
@@ -144,7 +141,6 @@ extern std::vector<unsigned int> gAudioInputDevs;
 extern std::vector<unsigned int> gAudioOutputDevs;
 extern std::vector<std::string> gMIDIInputDevNames;
 extern std::vector<std::string> gMIDIOutputDevNames;
-
 
 #endif //_IPLUGAPP_APP_MAIN_H_
 

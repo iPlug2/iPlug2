@@ -28,10 +28,14 @@
 // ProTools stuff
 #define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
 #define PLUG_NAME_DIGI "IPlugChunks\nIPCH"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define EFFECT_TYPE_DIGI "Effect"
+
+/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+"Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+instrument determined by PLUG _IS _INST
+*/
 
 #define PLUG_CHANNEL_IO "1-1 2-2"
-
 #define PLUG_LATENCY 0
 #define PLUG_IS_INST 0
 

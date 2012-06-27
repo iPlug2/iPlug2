@@ -34,7 +34,7 @@ void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtA
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR,CB_ADDSTRING,0,(LPARAM)buf);
   }
 
-  int sridx = SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSR);
+  LRESULT sridx = SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSR);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SR,CB_SETCURSEL, sridx, 0);
 }
 
@@ -158,7 +158,7 @@ void PopulateAudioDialogs(HWND hwndDlg)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IOVS,CB_ADDSTRING,0,(LPARAM)kIOVSOptions[i].c_str());
   }
 
-  int iovsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioIOVS);
+  LRESULT iovsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioIOVS);
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_SETCURSEL, iovsidx, 0);
 
   //Populate SIGVS combobox
@@ -167,7 +167,7 @@ void PopulateAudioDialogs(HWND hwndDlg)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SIGVS,CB_ADDSTRING,0,(LPARAM)kSIGVSOptions[i].c_str());
   }
 
-  int sigvsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSigVS);
+  LRESULT sigvsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mAudioSigVS);
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_SETCURSEL, sigvsidx, 0);
 }
 
@@ -182,7 +182,7 @@ bool PopulateMidiDialogs(HWND hwndDlg)
       SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_ADDSTRING,0,(LPARAM)gMIDIInputDevNames[i].c_str());
     }
 
-    int indevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiInDev);
+    LRESULT indevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiInDev);
 
     // if the midi port name wasn't found update the ini file, and set to off
     if(indevidx == -1)
@@ -199,7 +199,7 @@ bool PopulateMidiDialogs(HWND hwndDlg)
       SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_ADDSTRING,0,(LPARAM)gMIDIOutputDevNames[i].c_str());
     }
 
-    int outdevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiOutDev);
+    LRESULT outdevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)gState->mMidiOutDev);
 
     // if the midi port name wasn't found update the ini file, and set to off
     if(outdevidx == -1)
@@ -271,9 +271,13 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
       switch (LOWORD(wParam))
       {
         case IDOK:
+          // TODO: check if state is the same as what is currently set
+          TryToChangeAudio();
           EndDialog(hwndDlg, IDOK); // INI file will be changed see MainDialogProc
           break;
-
+        case IDAPPLY:
+          TryToChangeAudio();
+          break;
         case IDCANCEL:
           EndDialog(hwndDlg, IDCANCEL);
 
@@ -285,7 +289,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
             TryToChangeAudioDriverType();
             ProbeAudioIO();
-            TryToChangeAudio();
           }
 
           break;
@@ -310,7 +313,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
               gState->mAudioOutChanL = 1;
               gState->mAudioOutChanR = 2;
 
-              TryToChangeAudio();
               PopulateAudioDialogs(hwndDlg);
             }
           }
@@ -326,7 +328,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioInChanL = 1;
             gState->mAudioInChanR = 2;
 
-            TryToChangeAudio();
             PopulateDriverSpecificControls(hwndDlg);
           }
           break;
@@ -341,7 +342,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioOutChanL = 1;
             gState->mAudioOutChanR = 2;
 
-            TryToChangeAudio();
             PopulateDriverSpecificControls(hwndDlg);
           }
           break;
@@ -355,8 +355,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioInChanR = gState->mAudioInChanL + 1;
             SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, gState->mAudioInChanR - 1, 0);
             //
-
-            TryToChangeAudio();
           }
           break;
 
@@ -375,8 +373,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             gState->mAudioOutChanR = gState->mAudioOutChanL + 1;
             SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, gState->mAudioOutChanR - 1, 0);
             //
-
-            TryToChangeAudio();
           }
           break;
 
@@ -412,8 +408,6 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
               SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IOVS, CB_GETLBTEXT, iovsidx, (LPARAM) gState->mAudioIOVS);
               SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_GETLBTEXT, sigvsidx, (LPARAM) gState->mAudioSigVS);
             }
-
-            TryToChangeAudio();
           }
           break;
         case IDC_COMBO_AUDIO_SR:
@@ -421,19 +415,17 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
           {
             int idx = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SR, CB_GETCURSEL, 0, 0);
             SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SR, CB_GETLBTEXT, idx, (LPARAM) gState->mAudioSR);
-
-            TryToChangeAudio();
           }
           break;
 
         case IDC_BUTTON_ASIO:
           if (HIWORD(wParam) == BN_CLICKED)
-#ifdef OS_OSX
+            #ifdef OS_OSX
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
-#elif defined OS_WIN
+            #elif defined OS_WIN
             if( gState->mAudioDriverType == DAC_ASIO )
               ASIOControlPanel();
-#endif
+            #endif
           break;
 
         case IDC_COMBO_MIDI_IN_DEV:
@@ -544,29 +536,22 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           DestroyWindow(hwndDlg);
           return 0;
         case ID_ABOUT:
-          gPluginInstance->HostRequestingAboutBox();
-
-          //char version[50];
-          //sprintf(version, "acme audio, 2011");
-          //MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
-
+          if(!gPluginInstance->HostRequestingAboutBox())
+          {
+            char version[50];
+            sprintf(version, BUNDLE_MFR"\nBuilt on "__DATE__);
+            MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
+          }
           return 0;
         case ID_PREFERENCES:
         {
-          int ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, PreferencesDlgProc);
+          INT_PTR ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, PreferencesDlgProc);
 
           if(ret == IDOK)
           {
             UpdateINI();
           }
-          else if(ret == IDCANCEL)
-          {
-            // nothing changed
-          }
-          else if(ret == -1)
-          {
-            // nothing changed
-          }
+
           return 0;
         }
       }

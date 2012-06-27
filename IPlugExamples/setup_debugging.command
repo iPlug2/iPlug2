@@ -2,8 +2,7 @@
 
 # this script will rename all the xcode oli.pbxuser
 # user settings to yourosxusername.pbxuser to provide 
-# the default debugging setup, and put build products 
-# in the correct place
+# the default debugging setup for Xcode 3
 
 import os, getpass, glob, shutil
  

@@ -1,59 +1,72 @@
-REM - batch file to build 32&64 bit VS2010 VST/APP project and VS2005 RTAS project and zip the resulting binaries
-REM - requires 7zip in C:\Program Files\7-Zip\7z.exe
+echo off
 
-echo "making IPlugPlush win distribution..."
+REM - batch file to build VS2010 project and zip the resulting binaries (or make installer)
+REM - updating version numbers requires python and python path added to %PATH% env variable 
+REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
+REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
+REM - AAX codesigning requires ashelper tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
-echo "updating version numbers"
+echo Making IPlugPlush win distribution ...
+
+echo ------------------------------------------------------------------
+echo Updating version numbers ...
+
 call python update_version.py
 
-REM - START VST2/APP VS2010
+echo ------------------------------------------------------------------
+echo Building ...
 
-if exist "%programfiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
+if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
 :32-Bit
 echo 32-Bit O/S detected
-call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+call "%ProgramFiles%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 goto END
 
 :64-Bit
 echo 64-Bit Host O/S detected
-call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+call "%ProgramFiles(x86)%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 goto END
 :END
-REM - msbuild IPlugPlush.vcxproj /p:configuration=release /p:platform=win32
+
+REM - set preprocessor macros like this, for instance to enable demo build:
+REM - SET CMDLINE_DEFINES="DEMO_VERSION"
+
+REM - Could build individual targets like this:
 REM - msbuild IPlugPlush-app.vcxproj /p:configuration=release /p:platform=win32
-REM - msbuild IPlugPlush.vcxproj /p:configuration=release /p:platform=x64
-REM - msbuild IPlugPlush-app.vcxproj /p:configuration=release /p:platform=x64
 
-msbuild IPlugPlush.sln /p:configuration=release /p:platform=win32
-msbuild IPlugPlush.sln /p:configuration=release /p:platform=x64
+msbuild IPlugPlush.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
+msbuild IPlugPlush.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-REM - START RTAS VS2005
-
-REM - this is bit in elegant, oh well
-if exist "%programfiles(x86)%" (goto 64-Bit-rtas) else (goto 32-Bit-rtas)
-
-:32-Bit-rtas
-echo 32-Bit O/S detected
-call "C:\Program Files\Microsoft Visual Studio 8\VC\vcvarsall.bat"
-goto END-rtas
-
-:64-Bit-rtas
-echo 64-Bit Host O/S detected
-call "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\vcvarsall.bat"
-goto END-rtas
-
-:END-rtas
-
-msbuild IPlugPlush-rtas.sln /p:configuration=release
+echo ------------------------------------------------------------------
+echo Code sign aax binary...
+call ashelper -f .\build-win\aax\bin\IPlugPlush.aaxplugin\Contents\Win32\IPlugPlush.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugPlush.aaxplugin\Contents\Win32\IPlugPlush.aaxplugin
+REM - call ashelper -f .\build-win\aax\bin\IPlugPlush.aaxplugin\Contents\x64\IPlugPlush.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugPlush.aaxplugin\Contents\x64\IPlugPlush.aaxplugin
 
 REM - Make Installer (InnoSetup)
 
-"C:\Program Files\Inno Setup 5\iscc" /cc ".\installer\IPlugPlush.iss"
+echo ------------------------------------------------------------------
+echo Making Installer ...
+
+if exist "%ProgramFiles(x86)%" (goto 64-Bit-is) else (goto 32-Bit-is)
+
+:32-Bit-is
+"%ProgramFiles%\Inno Setup 5\iscc" /cc ".\installer\IPlugPlush.iss"
+goto END-is
+
+:64-Bit-is
+"%ProgramFiles(x86)%\Inno Setup 5\iscc" /cc ".\installer\IPlugPlush.iss"
+goto END-is
+
+:END-is
 
 REM - ZIP
-REM - "C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugPlush-win-32bit.zip .\build-win-app\win32\bin\IPlugPlush.exe .\build-win-vst2\win32\bin\IPlugPlush.dll .\build-win-rtas\bin\IPlugPlush.dpm .\build-win-rtas\bin\IPlugPlush.dpm.rsr .\installer\license.rtf .\installer\readmewin.rtf
-REM - "C:\Program Files\7-Zip\7z.exe" a .\installer\IPlugPlush-win-64bit.zip .\build-win-app\x64\bin\IPlugPlush.exe .\build-win-vst2\x64\bin\IPlugPlush.dll .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugPlush-win-32bit.zip .\build-win\app\win32\bin\IPlugPlush.exe .\build-win\vst3\win32\bin\IPlugPlush.vst3 .\build-win\vst2\win32\bin\IPlugPlush.dll .\build-win\rtas\bin\IPlugPlush.dpm .\build-win\rtas\bin\IPlugPlush.dpm.rsr .\build-win\aax\bin\IPlugPlush.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugPlush-win-64bit.zip .\build-win\app\x64\bin\IPlugPlush.exe .\build-win\vst3\x64\bin\IPlugPlush.vst3 .\build-win\vst2\x64\bin\IPlugPlush.dll .\installer\license.rtf .\installer\readmewin.rtf
 
-echo off
+echo ------------------------------------------------------------------
+echo Printing log file to console...
+
+type build-win.log
+
 pause
