@@ -26,9 +26,14 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
-#define PLUG_NAME_DIGI "IPlugMultiChannel\nIPMC"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme"
+#define PLUG_NAME_DIGI "IPlugMultiChannel\nIPEF"
+#define EFFECT_TYPE_DIGI "SoundField"
+
+/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+"Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+instrument determined by PLUG _IS _INST
+*/
 
 #define PLUG_CHANNEL_IO "1-1 2-2 3-3 4-4"
 
@@ -40,21 +45,25 @@
 
 #define PLUG_DOES_STATE_CHUNKS 0
 
+// Unique IDs for each image resource.
+//#define KNOB_ID 101
+
+// Image resource locations for this plug.
+//#define KNOB_FN "resources/img/knob.png"
+
 // GUI default dimensions
-#define GUI_WIDTH   300
-#define GUI_HEIGHT  300
+#define GUI_WIDTH 300
+#define GUI_HEIGHT 300
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
-#ifdef SA_API
-#ifndef OS_IOS
+#if defined(SA_API) && !defined(OS_IOS)
 #include "app_wrapper/app_resource.h"
-#endif
 #endif
 
 // vst3 stuff
 #define MFR_URL "www.olilarkin.co.uk"
 #define MFR_EMAIL "spam@me.com"
-#define EFFECT_TYPE_VST3 "Fx"
+#define EFFECT_TYPE_VST3 "Fx|Spatial"
 
 /* "Fx|Analyzer"", "Fx|Delay", "Fx|Distortion", "Fx|Dynamics", "Fx|EQ", "Fx|Filter",
 "Fx", "Fx|Instrument", "Fx|InstrumentExternal", "Fx|Spatial", "Fx|Generator",

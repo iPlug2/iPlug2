@@ -21,14 +21,19 @@
 
 // http://service.steinberg.de/databases/plugin.nsf/plugIn?openForm
 // 4 chars, single quotes. At least one capital letter
-#define PLUG_UNIQUE_ID 'Iprg'
+#define PLUG_UNIQUE_ID 'Ipgr'
 // make sure this is not the same as BUNDLE_MFR
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
-#define PLUG_NAME_DIGI "IPlugGUIResize\nIPRG"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme"
+#define PLUG_NAME_DIGI "IPlugGUIResize\nIPGR"
+#define EFFECT_TYPE_DIGI "Effect"
+
+/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+"Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+instrument determined by PLUG _IS _INST
+*/
 
 #define PLUG_CHANNEL_IO "1-1 2-2"
 
@@ -41,20 +46,18 @@
 #define PLUG_DOES_STATE_CHUNKS 0
 
 // Unique IDs for each image resource.
-#define KNOB_ID       101
+//#define KNOB_ID 101
 
 // Image resource locations for this plug.
-#define KNOB_FN       "resources/img/knob.png"
+//#define KNOB_FN "resources/img/knob.png"
 
 // GUI default dimensions
-#define GUI_WIDTH   500
-#define GUI_HEIGHT  500
+#define GUI_WIDTH 500
+#define GUI_HEIGHT 500
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
-#ifdef SA_API
-#ifndef OS_IOS
+#if defined(SA_API) && !defined(OS_IOS)
 #include "app_wrapper/app_resource.h"
-#endif
 #endif
 
 // vst3 stuff

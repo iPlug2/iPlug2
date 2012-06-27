@@ -304,6 +304,9 @@
 		4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2913E97794004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4F91E5F1159B75D0007551B6 /* IPlugSideChain_Controls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F91E5F0159B75D0007551B6 /* IPlugSideChain_Controls.h */; };
+		4F91E5F2159B75D0007551B6 /* IPlugSideChain_Controls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F91E5F0159B75D0007551B6 /* IPlugSideChain_Controls.h */; };
+		4F91E5F3159B75D0007551B6 /* IPlugSideChain_Controls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F91E5F0159B75D0007551B6 /* IPlugSideChain_Controls.h */; };
 		4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F9828B6140A9EB700F3FCC1 /* IPlugSideChain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugSideChain.cpp */; };
 		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -787,6 +790,7 @@
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; name = IPlugRTAS.r; path = ../../WDL/IPlug/RTAS/IPlugRTAS.r; sourceTree = "<group>"; };
 		4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PluginLibrary.xcodeproj; path = ../../PT9_SDK/AlturaPorts/TDMPlugIns/PlugInLibrary/MacBuild/PluginLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4F91E5F0159B75D0007551B6 /* IPlugSideChain_Controls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugSideChain_Controls.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugSideChain.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugSideChain.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
@@ -965,6 +969,7 @@
 				52FBBED30D0CF143001C8B8A /* resource.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugSideChain.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugSideChain.cpp */,
+				4F91E5F0159B75D0007551B6 /* IPlugSideChain_Controls.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
@@ -1635,6 +1640,7 @@
 				4F3EE94913B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440913F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
 				4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */,
+				4F91E5F1159B75D0007551B6 /* IPlugSideChain_Controls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1676,6 +1682,7 @@
 				4F3EE94713B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440B13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
 				4FA88B951444E4C4006CB8DA /* dfx-au-utilities.h in Headers */,
+				4F91E5F2159B75D0007551B6 /* IPlugSideChain_Controls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1722,6 +1729,7 @@
 				4F78DAA613B640050032E0F3 /* IGraphics.h in Headers */,
 				4F3EE94613B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440F13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
+				4F91E5F3159B75D0007551B6 /* IPlugSideChain_Controls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

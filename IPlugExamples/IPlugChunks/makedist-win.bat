@@ -1,22 +1,20 @@
 echo off
 
-REM - batch file to build 32&64 bit VS2010 VST/APP project and VS2005 RTAS project and zip the resulting binaries
+REM - batch file to build VS2010 project and zip the resulting binaries (or make installer)
 REM - updating version numbers requires python and python path added to %PATH% env variable 
 REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
 REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
 REM - AAX codesigning requires ashelper tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
-echo Making IPlugChunks win distribution...
+echo Making IPlugChunks win distribution ...
 
 echo ------------------------------------------------------------------
-echo Updating version numbers...
+echo Updating version numbers ...
 
 call python update_version.py
 
-REM - START VST2/VST3/APP VS2010
-
 echo ------------------------------------------------------------------
-echo "Building VST2/VST3/APP (VS2010)..."
+echo Building ...
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
@@ -34,41 +32,21 @@ goto END
 REM - set preprocessor macros like this, for instance to enable demo build:
 REM - SET CMDLINE_DEFINES="DEMO_VERSION"
 
-REM - Could build individual projects like this:
+REM - Could build individual targets like this:
 REM - msbuild IPlugChunks-app.vcxproj /p:configuration=release /p:platform=win32
 
 msbuild IPlugChunks.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugChunks.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-REM - START RTAS VS2005
-
-echo ------------------------------------------------------------------
-echo Building RTAS/AAX Plugins (VS2005)...
-
-REM - this is bit clumsy, oh well
-if exist "%ProgramFiles(x86)%" (goto 64-Bit-pt) else (goto 32-Bit-pt)
-
-:32-Bit-pt
-call "%ProgramFiles%\Microsoft Visual Studio 8\VC\vcvarsall.bat"
-goto END-pt
-
-:64-Bit-pt
-call "%ProgramFiles(x86)%\Microsoft Visual Studio 8\VC\vcvarsall.bat"
-goto END-pt
-
-:END-pt
-
-REM - seems it's not possible to print only errors with vs2005 msbuild
-msbuild IPlugChunks-pt.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /logger:fileLogger,Microsoft.Build.Engine;LogFile=build-win.log;append /v:quiet
-
 echo ------------------------------------------------------------------
 echo Code sign aax binary...
-call ashelper -f .\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win-aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin
+call ashelper -f .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin
+REM - call ashelper -f .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\x64\IPlugChunks.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\x64\IPlugChunks.aaxplugin
 
 REM - Make Installer (InnoSetup)
 
 echo ------------------------------------------------------------------
-echo Making Installer...
+echo Making Installer ...
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit-is) else (goto 32-Bit-is)
 
@@ -83,8 +61,8 @@ goto END-is
 :END-is
 
 REM - ZIP
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-32bit.zip .\build-win-app\win32\bin\IPlugChunks.exe .\build-win-vst3\win32\bin\IPlugChunks.vst3 .\build-win-vst2\win32\bin\IPlugChunks.dll .\build-win-rtas\bin\IPlugChunks.dpm .\build-win-rtas\bin\IPlugChunks.dpm.rsr .\build-win-aax\bin\IPlugChunks.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-64bit.zip .\build-win-app\x64\bin\IPlugChunks.exe .\build-win-vst3\x64\bin\IPlugChunks.vst3 .\build-win-vst2\x64\bin\IPlugChunks.dll .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-32bit.zip .\build-win\app\win32\bin\IPlugChunks.exe .\build-win\vst3\win32\bin\IPlugChunks.vst3 .\build-win\vst2\win32\bin\IPlugChunks.dll .\build-win\rtas\bin\IPlugChunks.dpm .\build-win\rtas\bin\IPlugChunks.dpm.rsr .\build-win\aax\bin\IPlugChunks.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugChunks-win-64bit.zip .\build-win\app\x64\bin\IPlugChunks.exe .\build-win\vst3\x64\bin\IPlugChunks.vst3 .\build-win\vst2\x64\bin\IPlugChunks.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo ------------------------------------------------------------------
 echo Printing log file to console...

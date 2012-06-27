@@ -17,7 +17,7 @@
 
 // Format        0xMAJR.MN.BG - in HEX! so version 10.1.5 would be 0x000A0105
 #define PLUG_VER 0x00010000
-#define VST3_VER_STR "1.0.0" // for vst3
+#define VST3_VER_STR "1.0.0"
 
 // http://service.steinberg.de/databases/plugin.nsf/plugIn?openForm
 // 4 chars, single quotes. At least one capital letter
@@ -26,9 +26,14 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
+#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme"
 #define PLUG_NAME_DIGI "IPlugMultiTargets\nIPMT"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define EFFECT_TYPE_DIGI "Effect"
+
+/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+"Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
+instrument determined by PLUG _IS _INST
+*/
 
 #define PLUG_CHANNEL_IO "1-1 2-2"
 

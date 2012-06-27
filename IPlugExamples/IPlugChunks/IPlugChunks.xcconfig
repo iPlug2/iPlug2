@@ -46,7 +46,6 @@ TRACER_DEFS = TRACER_BUILD NDEBUG
 COCOA_DEFS = COCOA_PREFIX=vIPlugChunks SWELL_APP_PREFIX=Swell_vIPlugChunks SWELL_FORCE_COCOA_TEXT
 
 //------------------------------
-
 // Release build options
 
 //Enable/Disable Profiling code

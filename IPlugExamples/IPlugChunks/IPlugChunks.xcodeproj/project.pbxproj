@@ -41,6 +41,8 @@
 		4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F3AE1D812C0E5E2001FD7A4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F3AE1D912C0E5E2001FD7A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
+		4F3B0B3D158B505F001B0CEF /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */; };
+		4F3B0B44158B50A5001B0CEF /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */; };
 		4F3E69111409747300C4D749 /* IPlugChunks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugChunks.cpp */; };
 		4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F3E69131409747300C4D749 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
@@ -79,7 +81,6 @@
 		4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD016140996A10068A6D4 /* conststringtable.cpp */; };
 		4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
 		4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
-		4F4AD2001409A5A90068A6D4 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F4CC3E91549BA8600A9EA21 /* IPlugChunks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugChunks.cpp */; };
 		4F4CC3EA1549BA8600A9EA21 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F4CC3EB1549BA8600A9EA21 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
@@ -288,6 +289,7 @@
 		4F7F5CB313E9607A002918FD /* IPlugProcessRTAS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7F5CA713E9607A002918FD /* IPlugProcessRTAS.cpp */; };
 		4F7F5CF713E96564002918FD /* System.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7F5CF613E96564002918FD /* System.framework */; };
 		4F7F5D2C13E9686E002918FD /* IPlugRTAS.r in Rez */ = {isa = PBXBuildFile; fileRef = 4F7F5D2413E9681E002918FD /* IPlugRTAS.r */; };
+		4F8B6766158B4F74002FC25B /* libPluginLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B674F158B4F53002FC25B /* libPluginLibrary.a */; };
 		4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2613E9776E004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2713E97781004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
@@ -330,6 +332,7 @@
 		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4FA708D9158B49E500BFC572 /* libbase32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA708BF158B47F000BFC572 /* libbase32.a */; };
 		4FA88B921444E4C4006CB8DA /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
 		4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
 		4FA88B941444E4C4006CB8DA /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
@@ -356,7 +359,6 @@
 		4FB6002C1567CB0A0020189A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4FB600551567CBF90020189A /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4FC206BF13F44B99002A30AC /* libPluginLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC206BE13F44B99002A30AC /* libPluginLibrary.a */; };
 		4FD16CA213B6327D001D0217 /* app_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */; };
 		4FD16CA313B6327D001D0217 /* app_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA113B6327C001D0217 /* app_dialog.cpp */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
@@ -399,7 +401,6 @@
 		4FF016FC134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
 		4FF0171A134E153A001447BA /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF01719134E153A001447BA /* heapbuf.h */; };
 		4FF0171B134E153A001447BA /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF01719134E153A001447BA /* heapbuf.h */; };
-		4FF7B103156A834A00E6CB12 /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */; };
 		52C4DB190D0E51270007A920 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		52FBBED10D0CF139001C8B8A /* IPlugChunks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugChunks.cpp */; };
 		8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
@@ -413,6 +414,20 @@
 			remoteGlobalIDString = 4F4CC3E31549BA8600A9EA21;
 			remoteInfo = AAX_32_intel;
 		};
+		4F3B0B3E158B506F001B0CEF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = AAXLibrary;
+		};
+		4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = AAXLibrary;
+		};
 		4F3E69091409747300C4D749 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
@@ -425,13 +440,6 @@
 			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = base;
-		};
-		4F4AD1F71409A5820068A6D4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = base;
 		};
 		4F4CC3E51549BA8600A9EA21 /* PBXContainerItemProxy */ = {
@@ -468,6 +476,34 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F3AE17812C0E5E2001FD7A4;
 			remoteInfo = "AU_32&64_intel";
+		};
+		4F8B6722158B4EB2002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteInfo = AAXLibrary;
+		};
+		4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4B00D06910E022FD00816F7B;
+			remoteInfo = AAXLibrary_UnitTest;
+		};
+		4F8B674E158B4F53002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B65B09B30860FB0800FE2E6A;
+			remoteInfo = "Plugin Library";
+		};
+		4F8B6764158B4F67002FC25B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B65B09B20860FB0800FE2E6A;
+			remoteInfo = "Plugin Library";
 		};
 		4F8D4BCB13E97664004F7633 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -546,26 +582,26 @@
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
 			remoteInfo = "VST3_32&64_intel";
 		};
+		4FA708BE158B47F000BFC572 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4FA708BC158B47D200BFC572;
+			remoteInfo = base_32;
+		};
+		4FA708D4158B498C00BFC572 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FA7087C158B47D200BFC572;
+			remoteInfo = base_32_intel;
+		};
 		4FB6004F1567CB990020189A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = "lice_32&64_intel";
-		};
-		4FF7B0FC156A831000E6CB12 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = AAXLibrary;
-		};
-		4FF7B0FE156A831000E6CB12 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4B00D06910E022FD00816F7B;
-			remoteInfo = AAXLibrary_UnitTest;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -738,14 +774,13 @@
 		4F7F5CAC13E9607A002918FD /* CommonReleaseSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = CommonReleaseSettings.xcconfig; path = ../../PT9_SDK/AlturaPorts/TDMPlugIns/common/Mac/CommonReleaseSettings.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F7F5CF613E96564002918FD /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; name = IPlugRTAS.r; path = ../../WDL/IPlug/RTAS/IPlugRTAS.r; sourceTree = "<group>"; };
+		4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PluginLibrary.xcodeproj; path = ../../PT9_SDK/AlturaPorts/TDMPlugIns/PlugInLibrary/MacBuild/PluginLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
-		4F9397F81581486600DDD386 /* IVecSliders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVecSliders.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugChunks.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugChunks.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FB3624E13B648FE00DB6B76 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = app_wrapper/main.m; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugChunks.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugChunks.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FC206BE13F44B99002A30AC /* libPluginLibrary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPluginLibrary.a; path = ../../PT9_SDK/MacBag/Libs/Release/libPluginLibrary.a; sourceTree = SOURCE_ROOT; };
 		4FCF15AF133124D1009A6277 /* IPlugChunks.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = IPlugChunks.xcconfig; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugChunks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugChunks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16C9E13B6327C001D0217 /* app_resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_resource.h; path = app_wrapper/app_resource.h; sourceTree = "<group>"; };
@@ -778,7 +813,7 @@
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
 		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../common.xcconfig; sourceTree = SOURCE_ROOT; };
-		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = /Users/oli/Dev/MyPlugins/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = "<absolute>"; };
+		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		526F9C010D7DC7D700562CF8 /* IPlugChunks.exp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.exports; path = IPlugChunks.exp; sourceTree = "<group>"; };
 		52C4DB180D0E51270007A920 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		52E41CB90D14C2A900A0943B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -820,7 +855,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F4AD2001409A5A90068A6D4 /* libbase.a in Frameworks */,
+				4FA708D9158B49E500BFC572 /* libbase32.a in Frameworks */,
 				4F3E69221409747300C4D749 /* lice32.a in Frameworks */,
 				4F3E69231409747300C4D749 /* Cocoa.framework in Frameworks */,
 				4F3E69241409747300C4D749 /* Carbon.framework in Frameworks */,
@@ -831,7 +866,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FF7B103156A834A00E6CB12 /* libAAXLibrary.a in Frameworks */,
+				4F3B0B3D158B505F001B0CEF /* libAAXLibrary.a in Frameworks */,
 				4F4CC3F91549BA8600A9EA21 /* lice32.a in Frameworks */,
 				4F4CC3FA1549BA8600A9EA21 /* Cocoa.framework in Frameworks */,
 				4F4CC3FB1549BA8600A9EA21 /* Carbon.framework in Frameworks */,
@@ -856,7 +891,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FC206BF13F44B99002A30AC /* libPluginLibrary.a in Frameworks */,
+				4F8B6766158B4F74002FC25B /* libPluginLibrary.a in Frameworks */,
 				4F8D4C2913E97794004F7633 /* lice32.a in Frameworks */,
 				4F7F5C6213E95EC8002918FD /* Cocoa.framework in Frameworks */,
 				4F7F5C6313E95EC8002918FD /* Carbon.framework in Frameworks */,
@@ -879,6 +914,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F3B0B44158B50A5001B0CEF /* libAAXLibrary.a in Frameworks */,
 				4FB600551567CBF90020189A /* lice.a in Frameworks */,
 				4FB6002C1567CB0A0020189A /* Cocoa.framework in Frameworks */,
 				4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */,
@@ -915,7 +951,6 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
-				4F9397F81581486600DDD386 /* IVecSliders.h */,
 				52FBBED30D0CF143001C8B8A /* resource.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugChunks.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugChunks.cpp */,
@@ -939,6 +974,7 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FD16A0213B6303B001D0217 /* img */,
 				4F7F5C0C13E95DDC002918FD /* IPlugChunks-RTAS-Info.plist */,
 				4F4CC3811549B8A700A9EA21 /* IPlugChunks-AAX-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugChunks-AU-Info.plist */,
@@ -1186,6 +1222,7 @@
 			isa = PBXGroup;
 			children = (
 				4F4AD1F61409A56A0068A6D4 /* libbase.a */,
+				4FA708BF158B47F000BFC572 /* libbase32.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1427,10 +1464,27 @@
 		4F7F5CEB13E9651F002918FD /* RTAS Plugin */ = {
 			isa = PBXGroup;
 			children = (
-				4FC206BE13F44B99002A30AC /* libPluginLibrary.a */,
+				4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */,
 				4F7F5CF613E96564002918FD /* System.framework */,
 			);
 			name = "RTAS Plugin";
+			sourceTree = "<group>";
+		};
+		4F8B671E158B4EB2002FC25B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */,
+				4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4F8B6748158B4F53002FC25B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F8B674F158B4F53002FC25B /* libPluginLibrary.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		4F8D4BC513E97664004F7633 /* Products */ = {
@@ -1440,6 +1494,13 @@
 				4F8D4C1713E976A7004F7633 /* lice32.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4FD16A0213B6303B001D0217 /* img */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = img;
 			sourceTree = "<group>";
 		};
 		4FD16C9D13B6327C001D0217 /* OSX App Wrapper */ = {
@@ -1519,15 +1580,6 @@
 				4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */,
 			);
 			name = WDL;
-			sourceTree = "<group>";
-		};
-		4FF7B0F4156A831000E6CB12 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */,
-				4FF7B0FF156A831000E6CB12 /* AAXLibrary_ParameterManager_UnitTest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1716,7 +1768,7 @@
 			);
 			dependencies = (
 				4F3E69081409747300C4D749 /* PBXTargetDependency */,
-				4F4AD1F81409A5820068A6D4 /* PBXTargetDependency */,
+				4FA708D5158B498C00BFC572 /* PBXTargetDependency */,
 			);
 			name = VST3_32_intel;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1736,6 +1788,7 @@
 			);
 			dependencies = (
 				4F4CC3E41549BA8600A9EA21 /* PBXTargetDependency */,
+				4F3B0B3F158B506F001B0CEF /* PBXTargetDependency */,
 			);
 			name = AAX_32_intel;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1777,6 +1830,7 @@
 			);
 			dependencies = (
 				4F8D4C3813E9783A004F7633 /* PBXTargetDependency */,
+				4F8B6765158B4F67002FC25B /* PBXTargetDependency */,
 			);
 			name = RTAS_32_intel;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1816,6 +1870,7 @@
 			);
 			dependencies = (
 				4FB600501567CB990020189A /* PBXTargetDependency */,
+				4F3B0B43158B509A001B0CEF /* PBXTargetDependency */,
 			);
 			name = "AAX_32&64_intel";
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1880,7 +1935,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 4FF7B0F4156A831000E6CB12 /* Products */;
+					ProductGroup = 4F8B671E158B4EB2002FC25B /* Products */;
 					ProjectRef = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 				},
 				{
@@ -1890,6 +1945,10 @@
 				{
 					ProductGroup = 4F8D4BC513E97664004F7633 /* Products */;
 					ProjectRef = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
+				},
+				{
+					ProductGroup = 4F8B6748158B4F53002FC25B /* Products */;
+					ProjectRef = 4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1917,6 +1976,27 @@
 			remoteRef = 4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libAAXLibrary.a;
+			remoteRef = 4F8B6722158B4EB2002FC25B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = AAXLibrary_ParameterManager_UnitTest;
+			remoteRef = 4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4F8B674F158B4F53002FC25B /* libPluginLibrary.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libPluginLibrary.a;
+			remoteRef = 4F8B674E158B4F53002FC25B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		4F8D4BCC13E97664004F7633 /* lice.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1931,18 +2011,11 @@
 			remoteRef = 4F8D4C1613E976A7004F7633 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		4FF7B0FD156A831000E6CB12 /* libAAXLibrary.a */ = {
+		4FA708BF158B47F000BFC572 /* libbase32.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libAAXLibrary.a;
-			remoteRef = 4FF7B0FC156A831000E6CB12 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4FF7B0FF156A831000E6CB12 /* AAXLibrary_ParameterManager_UnitTest */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = AAXLibrary_ParameterManager_UnitTest;
-			remoteRef = 4FF7B0FE156A831000E6CB12 /* PBXContainerItemProxy */;
+			path = libbase32.a;
+			remoteRef = 4FA708BE158B47F000BFC572 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -2063,7 +2136,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
+			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\techo deleting \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\techo deleting \"$HOME/Library/Caches/com.apple.audiounits.cache\"\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
 			showEnvVarsInLog = 0;
 		};
 		4F744D4C14005ADA002FAD90 /* ShellScript */ = {
@@ -2379,15 +2452,20 @@
 			target = 4F4CC3E31549BA8600A9EA21 /* AAX_32_intel */;
 			targetProxy = 4F1A5FD115682B44001E12B4 /* PBXContainerItemProxy */;
 		};
+		4F3B0B3F158B506F001B0CEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AAXLibrary;
+			targetProxy = 4F3B0B3E158B506F001B0CEF /* PBXContainerItemProxy */;
+		};
+		4F3B0B43158B509A001B0CEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AAXLibrary;
+			targetProxy = 4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */;
+		};
 		4F3E69081409747300C4D749 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = lice_32_intel;
 			targetProxy = 4F3E69091409747300C4D749 /* PBXContainerItemProxy */;
-		};
-		4F4AD1F81409A5820068A6D4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = base;
-			targetProxy = 4F4AD1F71409A5820068A6D4 /* PBXContainerItemProxy */;
 		};
 		4F4CC3E41549BA8600A9EA21 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2413,6 +2491,11 @@
 			isa = PBXTargetDependency;
 			target = 4F3AE17812C0E5E2001FD7A4 /* AU_32&64_intel */;
 			targetProxy = 4F78DAF913B6436B0032E0F3 /* PBXContainerItemProxy */;
+		};
+		4F8B6765158B4F67002FC25B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Plugin Library";
+			targetProxy = 4F8B6764158B4F67002FC25B /* PBXContainerItemProxy */;
 		};
 		4F8D4C2D13E977CD004F7633 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2458,6 +2541,11 @@
 			isa = PBXTargetDependency;
 			target = 4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
+		};
+		4FA708D5158B498C00BFC572 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = base_32_intel;
+			targetProxy = 4FA708D4158B498C00BFC572 /* PBXContainerItemProxy */;
 		};
 		4FB600501567CB990020189A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3293,7 +3381,6 @@
 					"$(DEBUG_DEFS)",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;

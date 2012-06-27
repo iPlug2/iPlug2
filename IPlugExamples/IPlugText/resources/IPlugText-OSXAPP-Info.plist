@@ -5,17 +5,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>${BINARY_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.0.0, Copyright AcmeInc, 2011</string>
+	<string>1.0.0, Copyright AcmeInc, 2012</string>
 	<key>CFBundleIconFile</key>
-	<string>${PRODUCT_NAME}.icns</string>
+	<string>${BINARY_NAME}.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.standalone.${PRODUCT_NAME}</string>
+	<string>com.AcmeInc.standalone.${BINARY_NAME}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>${BINARY_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

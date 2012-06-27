@@ -2,52 +2,23 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="IPlugPlush.cpp" />
-    <ClCompile Include="..\..\WDL\plush2\pl_cam.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_spline.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_make.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_math.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_obj.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_putface.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_read_3ds.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_read_cob.cpp">
-      <Filter>Plush</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\WDL\plush2\pl_read_jaw.cpp">
-      <Filter>Plush</Filter>
+    <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp">
+      <Filter>vst2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="IPlugPlush.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="..\..\WDL\plush2\plush.h">
-      <Filter>Plush</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\WDL\plush2\pl_pf_tex.h">
-      <Filter>Plush</Filter>
+    <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h">
+      <Filter>vst2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugPlush.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Plush">
-      <UniqueIdentifier>{5df5c392-3559-4e81-baad-83eb45a7a571}</UniqueIdentifier>
+    <Filter Include="vst2">
+      <UniqueIdentifier>{ea16de74-9d15-4c60-ba09-d0924088d3e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -3,18 +3,10 @@
 //------------------------------
 // Global settings
 
-// the basename of the vst, vst3, app, component
+// the basename of the vst, vst3, app, component, dpm, aaxplugin
 BINARY_NAME = IPlugPolySynth
 
-// path to WDL folder
-WDL_PATH = $(SRCROOT)/../../WDL
-IPLUG_PATH = $(WDL_PATH)/IPlug
-
-MacBag = $(SRCROOT)/../../PT9_SDK/MacBag
-
-ADDITIONAL_INCLUDES = /// $(SRCROOT)/../../../MyDSP/
-
-VST3_SDK = $(SRCROOT)/../../VST3_SDK/
+ADDITIONAL_INCLUDES = // $(SRCROOT)/../../../MyDSP/
 
 // for jack headers
 //ADDITIONAL_APP_INCLUDES = /usr/local/include
@@ -35,6 +27,8 @@ AU_DEFS = AU_API
 
 RTAS_DEFS = RTAS_API
 
+AAX_DEFS = AAX_API
+
 APP_DEFS = SA_API __MACOSX_CORE__ //__UNIX_JACK__
 
 IOS_DEFS = SA_API
@@ -45,14 +39,13 @@ DEBUG_DEFS = _DEBUG
 RELEASE_DEFS = NDEBUG //DEMO_VERSION
 
 // Preprocessor definitions for all Tracer builds
-TRACER_DEFS = TRACER_BUILD
+TRACER_DEFS = TRACER_BUILD NDEBUG
 
 // Preprocessor definitions for cocoa uniqueness (all builds)
 // If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too
 COCOA_DEFS = COCOA_PREFIX=vIPlugPolySynth SWELL_APP_PREFIX=Swell_vIPlugPolySynth SWELL_FORCE_COCOA_TEXT
 
 //------------------------------
-
 // Release build options
 
 //Enable/Disable Profiling code
