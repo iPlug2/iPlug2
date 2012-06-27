@@ -48,6 +48,7 @@
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app_wrapper\app_resource.h" />
+    <ClInclude Include="IPlugPolySynthDSP.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">

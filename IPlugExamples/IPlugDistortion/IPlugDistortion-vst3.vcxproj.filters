@@ -41,6 +41,7 @@
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp">
       <Filter>vst3</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugDistortion.h" />
@@ -141,6 +142,7 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h">
       <Filter>vst3</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="vst3">

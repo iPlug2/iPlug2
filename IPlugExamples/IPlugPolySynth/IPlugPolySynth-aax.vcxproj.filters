@@ -113,6 +113,7 @@
     </ClInclude>
     <ClInclude Include="IPlugPolySynth.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="IPlugPolySynthDSP.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugPolySynth.rc" />

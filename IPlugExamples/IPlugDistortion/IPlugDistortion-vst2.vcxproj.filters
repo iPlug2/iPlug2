@@ -5,6 +5,7 @@
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp">
       <Filter>vst2</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugDistortion.h" />
@@ -12,6 +13,7 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h">
       <Filter>vst2</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugDistortion.rc" />

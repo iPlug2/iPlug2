@@ -317,6 +317,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugPo
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h" />
     <ClInclude Include="IPlugPolySynth.h" />
+    <ClInclude Include="IPlugPolySynthDSP.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

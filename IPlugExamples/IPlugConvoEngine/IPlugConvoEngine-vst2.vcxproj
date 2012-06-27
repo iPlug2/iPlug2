@@ -228,11 +228,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\convoengine.h" />
+    <ClInclude Include="..\..\WDL\fft.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h" />
     <ClInclude Include="IPlugConvoEngine.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp" />
     <ClCompile Include="IPlugConvoEngine.cpp" />
   </ItemGroup>

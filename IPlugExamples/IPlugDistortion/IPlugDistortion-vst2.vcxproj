@@ -228,11 +228,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h" />
     <ClInclude Include="IPlugDistortion.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp" />
     <ClCompile Include="IPlugDistortion.cpp" />
   </ItemGroup>

@@ -12,6 +12,7 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h">
       <Filter>vst2</Filter>
     </ClInclude>
+    <ClInclude Include="IPlugPolySynthDSP.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugPolySynth.rc" />

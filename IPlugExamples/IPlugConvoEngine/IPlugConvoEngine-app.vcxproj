@@ -264,6 +264,8 @@
     <ClInclude Include="..\..\ASIO_SDK\asiosys.h" />
     <ClInclude Include="..\..\ASIO_SDK\ginclude.h" />
     <ClInclude Include="..\..\ASIO_SDK\iasiodrv.h" />
+    <ClInclude Include="..\..\WDL\convoengine.h" />
+    <ClInclude Include="..\..\WDL\fft.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugStandalone.h" />
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h" />
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtError.h" />
@@ -277,6 +279,8 @@
     <ClCompile Include="..\..\ASIO_SDK\asio.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiodrivers.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiolist.cpp" />
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugStandalone.cpp" />
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp" />
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtMidi.cpp" />

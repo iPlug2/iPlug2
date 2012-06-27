@@ -41,6 +41,8 @@
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp">
       <Filter>vst3</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugConvoEngine.h" />
@@ -141,6 +143,8 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h">
       <Filter>vst3</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\WDL\fft.h" />
+    <ClInclude Include="..\..\WDL\convoengine.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="vst3">

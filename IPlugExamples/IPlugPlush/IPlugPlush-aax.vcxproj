@@ -445,6 +445,15 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <ClCompile Include="..\..\WDL\IPlug\AAX\AAX_CIPlugParameters.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugAAX.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\AAX\IPlugAAX_Describe.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_cam.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_make.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_math.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_obj.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_putface.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_read_3ds.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_read_cob.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_read_jaw.cpp" />
+    <ClCompile Include="..\..\WDL\plush2\pl_spline.cpp" />
     <ClCompile Include="IPlugPlush.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -495,6 +504,9 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <ClInclude Include="..\..\WDL\IPlug\Log.h" />
     <ClInclude Include="..\..\WDL\IPlug\AAX\AAX_CIPlugParameters.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugAAX.h" />
+    <ClInclude Include="..\..\WDL\plush2\plush.h" />
+    <ClInclude Include="..\..\WDL\plush2\pl_pf_tex.h" />
+    <ClInclude Include="I3DControl.h" />
     <ClInclude Include="IPlugPlush.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

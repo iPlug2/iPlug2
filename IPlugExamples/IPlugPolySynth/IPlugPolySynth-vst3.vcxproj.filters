@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h">
       <Filter>vst3</Filter>
     </ClInclude>
+    <ClInclude Include="IPlugPolySynthDSP.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="vst3">

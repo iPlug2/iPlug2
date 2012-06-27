@@ -55,6 +55,8 @@
     <ClCompile Include="..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>Libs</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\WDL\fft.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\WDL\IPlug\Containers.h">
@@ -113,6 +115,8 @@
     </ClInclude>
     <ClInclude Include="IPlugConvoEngine.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\fft.h" />
+    <ClInclude Include="..\..\WDL\convoengine.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugConvoEngine.rc" />

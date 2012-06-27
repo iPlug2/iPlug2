@@ -10,6 +10,9 @@
     <Filter Include="app\ASIO_SDK">
       <UniqueIdentifier>{b91b9db4-5584-4959-a395-7394ba3cf5a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="plush">
+      <UniqueIdentifier>{7a43a67c-b6c8-4afe-bc1a-034de5bcadf3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h">
@@ -48,6 +51,13 @@
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app_wrapper\app_resource.h" />
+    <ClInclude Include="..\..\WDL\plush2\pl_pf_tex.h">
+      <Filter>plush</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\plush2\plush.h">
+      <Filter>plush</Filter>
+    </ClInclude>
+    <ClInclude Include="I3DControl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp">
@@ -74,6 +84,33 @@
     <ClCompile Include="IPlugPlush.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugStandalone.cpp">
       <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_spline.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_read_jaw.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_read_cob.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_read_3ds.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_putface.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_obj.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_math.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_make.cpp">
+      <Filter>plush</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\plush2\pl_cam.cpp">
+      <Filter>plush</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

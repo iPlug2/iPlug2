@@ -273,6 +273,7 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <Library Include="..\..\PT9_SDK\WinBag\Release\lib\RTASClientLib.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\besselfilter.h" />
     <ClInclude Include="..\..\WDL\IPlug\Containers.h" />
     <ClInclude Include="..\..\WDL\IPlug\Hosts.h" />
     <ClInclude Include="..\..\WDL\IPlug\IBitmapMonoText.h" />
@@ -302,6 +303,7 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\WDL\besselfilter.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IBitmapMonoText.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IControl.cpp" />
