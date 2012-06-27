@@ -9,5 +9,6 @@ make the following mods to compile on 10.68 / Xcode 3.26
 GCC_VERSION = com.apple.compilers.gcc.4_2
 SDKROOT = macosx10.5
 MACOSX_DEPLOYMENT_TARGET = 10.5
+ARCHS = x86_64 i386
 
 - comment out/fix error AAX_CInstrumentParameters.cpp:75: error: 'index' cannot appear in a constant-expression
