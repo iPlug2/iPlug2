@@ -16,6 +16,8 @@
   #error "No OS defined!"
 #endif
 
-#define ARCH_64BIT _WIN64 || __LP64__
+#if defined(_WIN64) || defined(__LP64__)
+  #define ARCH_64BIT 
+#endif
 
 #endif // _IPLUG_OSDETECT_H_
