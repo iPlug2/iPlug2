@@ -630,6 +630,16 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
   {
     state->read(chunk.GetBytes(), chunk.Size());
     UnserializeState(&chunk, 0);
+    
+    int32 savedBypass = 0;
+    
+    if (state->read (&savedBypass, sizeof (int32)) != kResultOk)
+    {
+      return kResultFalse;
+    }
+    
+    mIsBypassed = (bool) savedBypass;
+    
     RedrawParamControls();
     return kResultOk;
   }
