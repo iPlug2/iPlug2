@@ -13,7 +13,7 @@
 {\list\listtemplateid9\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid801\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid9}
 {\list\listtemplateid10\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid901\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid10}}
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}{\listoverride\listid6\listoverridecount0\ls6}{\listoverride\listid7\listoverridecount0\ls7}{\listoverride\listid8\listoverridecount0\ls8}{\listoverride\listid9\listoverridecount0\ls9}{\listoverride\listid10\listoverridecount0\ls10}}
-\paperw11900\paperh16840\vieww18600\viewh21560\viewkind0
+\paperw11900\paperh16840\vieww18600\viewh20040\viewkind0
 \deftab720
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 
@@ -125,9 +125,9 @@ The IPlugEffect project is the main starting project, and if you wish to support
 \b \cf0 Xcode4
 \b0 \
 \
-If you wish to use xcode4, you may need to change the COMPILER and BASE_SDK build settings in 
+If you wish to use Xcode4, you may need to change the COMPILER and BASE_SDK build settings in 
 \b common.xcconfig
-\b0 . The LLVM3 compiler does not currently work with WDL. You must not let xcode4 "validate project settings" because this will try and upgrade the compiler. \
+\b0 . The LLVM3 compiler does not currently work with WDL. You must not let Xcode4 "validate project settings" because this will try and upgrade the compiler. \
 \
     
 \i COMPILER = com.apple.compilers.llvmgcc42\
@@ -296,7 +296,7 @@ ARCHS = x86_64 i386\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 
-\b0 \cf0 The template projects use static linking with the MSVC runtime libraries (/MT) for VST2, VST3 and standalone builds (/MD for RTAS and AAX). If you change that you may need to provide the MSVC distributables in your installer, google for "Microsoft Visual C++ 2010 Redistributable Package"\
+\b0 \cf0 The template projects use static linking with the MSVC2010 runtime libraries (/MT). If you change that you may need to provide the MSVC distributables in your installer, google for "Microsoft Visual C++ 2010 Redistributable Package"\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 
@@ -374,7 +374,7 @@ There is also a
 \b validate_audiounit.command
 \b0  shell script which will is a helper that runs auval with your plugins' unique IDs, and optionally performs the leaks test.\
 \
-The windows debug setups use {\field{\*\fldinst{HYPERLINK "http://www.hermannseib.com/english/vsthost.htm"}}{\fldrslt VSTHost}} for VST2 debugging, and VST3PluginTestHost for VST3 debugging (in Steinberg vst3.5 sdk)\
+The windows debug setups use {\field{\*\fldinst{HYPERLINK "http://www.hermannseib.com/english/savihost.htm"}}{\fldrslt SAVIHost}} for VST2 debugging, and VST3PluginTestHost for VST3 debugging (in Steinberg VST3.5 SDK)\
 \
 You should install VSTHost to 
 \b C:\\Program Files\\VSTHost\\vsthost.exe
