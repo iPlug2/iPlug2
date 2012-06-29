@@ -68,6 +68,10 @@ void IControl::OnMouseDown(int x, int y, IMouseMod* pMod)
     SetDirty();
   }
   #endif
+  
+  if (pMod->R) {
+		PromptUserInput();
+	}
 }
 
 void IControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
