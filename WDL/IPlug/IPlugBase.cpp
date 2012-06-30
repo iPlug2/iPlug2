@@ -280,6 +280,15 @@ const char* IPlugBase::GetAPIString()
   }
 }
 
+const char* IPlugBase::GetArchString()
+{
+#ifdef ARCH_64BIT
+  return "x64";
+#else
+  return "x86";
+#endif
+}
+
 double IPlugBase::GetSamplesPerBeat()
 {
   double tempo = GetTempo();
