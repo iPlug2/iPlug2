@@ -1,6 +1,10 @@
 #include "resource.h"
 
 KNOB_ID       PNG KNOB_FN
+BG_ID         PNG BG_FN
+ABOUTBOX_ID   PNG ABOUTBOX_FN
+WHITE_KEY_ID  PNG WHITE_KEY_FN
+BLACK_KEY_ID  PNG BLACK_KEY_FN
 
 #ifdef SA_API
 //Standalone stuff
