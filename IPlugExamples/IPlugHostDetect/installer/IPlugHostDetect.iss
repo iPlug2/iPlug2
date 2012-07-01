@@ -77,7 +77,7 @@ begin
       'Select the folder in which setup should install the 32-bit VST2 Plugin, then click Next.',
       False, '');
     VST2DirPage_32.Add('');
-    VST2DirPage_32.Values[0] := ExpandConstant('{reg:HKLM\SOFTWARE\VST,VSTPluginsPath|{pf32}\Steinberg\VSTPlugins}\');
+    VST2DirPage_32.Values[0] := ExpandConstant('{reg:HKLM\SOFTWARE\WOW6432NODE\VST,VSTPluginsPath|{pf32}\Steinberg\VSTPlugins}\');
   end else begin
     VST2DirPage_32 := CreateInputDirPage(wpSelectDir,
       'Confirm 32-Bit VST2 Plugin Directory', '',
