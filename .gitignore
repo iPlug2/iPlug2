@@ -19,6 +19,7 @@
 *.xcuserdata
 *.xcschememanagement.plist
 build-*
+/IPlugExamples/*/*.vcxproj.user
 
 VST3_SDK/*
 VST_SDK/*
