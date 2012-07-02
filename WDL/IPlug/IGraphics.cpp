@@ -537,10 +537,10 @@ bool IGraphics::RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* 
 
 bool IGraphics::FillRoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
-  float x1 = (float) pR->L;
-  float y1 = (float) pR->T;
-  float h = (float) pR->H();
-  float w = (float) pR->W();
+  int x1 = pR->L;
+  int y1 = pR->T;
+  int h = pR->H();
+  int w = pR->W();
   
   int mode = LiceBlendMode(pBlend);
   float weight = LiceWeight(pBlend);
@@ -549,10 +549,12 @@ bool IGraphics::FillRoundRect(const IColor* pColor, IRECT* pR, const IChannelBle
   _LICE::LICE_FillRect(mDrawBitmap, x1+cornerradius, y1, w-2*cornerradius, h, color, weight, mode);
   _LICE::LICE_FillRect(mDrawBitmap, x1, y1+cornerradius, cornerradius, h-2*cornerradius,color, weight, mode);
   _LICE::LICE_FillRect(mDrawBitmap, x1+w-cornerradius, y1+cornerradius, cornerradius, h-2*cornerradius, color, weight, mode);
-  _LICE::LICE_FillCircle(mDrawBitmap, x1+cornerradius, y1+cornerradius,cornerradius, color, weight, mode, aa);
-  _LICE::LICE_FillCircle(mDrawBitmap, x1+w-cornerradius-1, y1+h-cornerradius-1, cornerradius, color, weight, mode, aa);
-  _LICE::LICE_FillCircle(mDrawBitmap, x1+w-cornerradius-1, y1+cornerradius, cornerradius, color, weight, mode, aa);
-  _LICE::LICE_FillCircle(mDrawBitmap, x1+cornerradius, y1+h-cornerradius-1, cornerradius, color, weight, mode, aa);
+
+  //void LICE_FillCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel color, float alpha, int mode, bool aa)
+  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+cornerradius, (float) cornerradius, color, weight, mode, aa);
+  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+h-cornerradius-1, (float) cornerradius, color, weight, mode, aa);
+  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+cornerradius, (float) cornerradius, color, weight, mode, aa);
+  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+h-cornerradius-1, (float) cornerradius, color, weight, mode, aa);
   
   return true;
 }
@@ -1095,7 +1097,7 @@ bool IGraphics::DrawIText(IText* pTxt, char* str, IRECT* pR, bool measure)
     }
     else if (pTxt->mAlign == IText::kAlignCenter)
     {
-      pR->L = pR->MW() - (R.right/2.);
+      pR->L = (int) pR->MW() - (R.right/2);
       pR->R = pR->L + R.right;
     }
     else // (pTxt->mAlign == IText::kAlignFar)
