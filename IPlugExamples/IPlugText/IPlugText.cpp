@@ -51,8 +51,15 @@ IPlugText::IPlugText(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new ITextControl(this, tmpRect4, &textProps4, "hello iplug!"));
 
   IRECT tmpRect5(10, 100, 400, 170);
-  IText textProps5(60, &COLOR_BLUE, "Courier", IText::kStyleNormal, IText::kAlignCenter, 0, IText::kQualityDefault);
+  IText textProps5(50, &COLOR_BLUE, "Courier", IText::kStyleNormal, IText::kAlignCenter, 0, IText::kQualityDefault);
+  
+  pGraphics->MeasureIText(&textProps5, "hello iplug!", &tmpRect5); // get the bounds of the text and stick them in tmpRect5
+  pGraphics->AttachControl( new IPanelControl(this, tmpRect5, &COLOR_WHITE));
+  
+  tmpRect5 = IRECT(10, 100, 400, 170);
   pGraphics->AttachControl(new ITextControl(this, tmpRect5, &textProps5, "hello iplug!"));
+  
+  DBGMSG("text bounds = %i, %i, %i, %i\n", tmpRect5.L, tmpRect5.T, tmpRect5.R, tmpRect5.B);
 
   IBitmap blackText = pGraphics->LoadIBitmap(TEXT_BLACK_ID, TEXT_BLACK_FN, 95, true);
   IBitmap whiteText = pGraphics->LoadIBitmap(TEXT_WHITE_ID, TEXT_WHITE_FN, 95, true);
