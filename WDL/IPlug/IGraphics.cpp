@@ -1056,7 +1056,7 @@ void IGraphics::OnGUIIdle()
   }
 }
 
-bool IGraphics::DrawIText(IText* pTxt, char* str, IRECT* pR)
+bool IGraphics::DrawIText(IText* pTxt, char* str, IRECT* pR, bool measure)
 {
   if (!str || str[0] == '\0')
   {
@@ -1064,6 +1064,7 @@ bool IGraphics::DrawIText(IText* pTxt, char* str, IRECT* pR)
   }
 
   LICE_IFont* font = pTxt->mCached;
+  
   if (!font)
   {
     font = CacheFont(pTxt);
@@ -1082,8 +1083,35 @@ bool IGraphics::DrawIText(IText* pTxt, char* str, IRECT* pR)
   else // if (pTxt->mAlign == IText::kAlignFar)
     fmt |= DT_RIGHT;
 
-  RECT R = { pR->L, pR->T, pR->R, pR->B };
-  font->DrawText(mDrawBitmap, str, -1, &R, fmt);
+  if (measure) 
+  {
+    fmt |= DT_CALCRECT;
+    RECT R = {0,0,0,0};
+    font->DrawText(mDrawBitmap, str, -1, &R, fmt);
+    
+    if( pTxt->mAlign == IText::kAlignNear)
+    {
+      pR->R = R.right;
+    }
+    else if (pTxt->mAlign == IText::kAlignCenter)
+    {
+      pR->L = pR->MW() - (R.right/2.);
+      pR->R = pR->L + R.right;
+    }
+    else // (pTxt->mAlign == IText::kAlignFar)
+    {
+      pR->L = pR->R - R.right;
+      pR->R = pR->L + R.right;
+    }
+    
+    pR->B = pR->T + R.bottom;
+  }
+  else 
+  {
+    RECT R = { pR->L, pR->T, pR->R, pR->B };
+    font->DrawText(mDrawBitmap, str, -1, &R, fmt);
+  }
+
   return true;
 }
 
