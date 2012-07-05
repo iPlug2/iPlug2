@@ -35,6 +35,7 @@ VST3 wrapper:
 
 RTAS wrapper:
 
+- "continuous" gui controls linked to enumerated list parameters jump around
 - multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances (likely PT issue)
 - auxiliary output stems for instruments with multiple outs
 - keycatcher doesn't work (OSX)
@@ -46,6 +47,7 @@ RTAS wrapper:
 
 AAX wrapper:
 
+- "continuous" gui controls linked to enumerated list parameters jump around
 - multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances
 - auxiliary output stems for instruments with multiple outs
 - SendMidiMsg/s
