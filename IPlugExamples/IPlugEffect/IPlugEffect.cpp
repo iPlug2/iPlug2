@@ -80,7 +80,7 @@ void IPlugEffect::OnParamChange(int paramIdx)
   switch (paramIdx)
   {
     case kGain:
-      mGain = GetParam(kGain)->Value() / 100.;;
+      mGain = GetParam(kGain)->Value() / 100.;
       break;
 
     default:
