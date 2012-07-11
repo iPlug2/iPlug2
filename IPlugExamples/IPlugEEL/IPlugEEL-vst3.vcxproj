@@ -315,6 +315,12 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEE
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h" />
     <ClInclude Include="IPlugEEL.h" />
     <ClInclude Include="resource.h" />
@@ -332,11 +338,23 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEE
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp" />
     <ClCompile Include="IPlugEEL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEEL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\..\WDL\eel2\asm-nseel-x64.obj">
+      <FileType>Document</FileType>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

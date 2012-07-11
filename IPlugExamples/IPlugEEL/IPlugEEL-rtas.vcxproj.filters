@@ -13,6 +13,9 @@
     <Filter Include="IPlug\RTAS\include">
       <UniqueIdentifier>{13073ee3-c4e8-497c-b935-b091b14197c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EEL">
+      <UniqueIdentifier>{28c3cceb-0b0e-4981-9d3a-5f7005f210f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DAE.lib">
@@ -115,6 +118,24 @@
     </ClInclude>
     <ClInclude Include="IPlugEEL.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp">
@@ -172,6 +193,27 @@
       <Filter>IPlug\RTAS\include</Filter>
     </ClCompile>
     <ClCompile Include="IPlugEEL.cpp" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="IPlugEEL-rtas.def" />

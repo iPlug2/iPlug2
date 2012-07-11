@@ -228,16 +228,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h" />
     <ClInclude Include="IPlugEEL.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp" />
     <ClCompile Include="IPlugEEL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEEL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\..\WDL\eel2\asm-nseel-x64.obj">
+      <FileType>Document</FileType>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

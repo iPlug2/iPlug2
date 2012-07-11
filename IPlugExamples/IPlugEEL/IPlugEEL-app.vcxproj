@@ -264,6 +264,12 @@
     <ClInclude Include="..\..\ASIO_SDK\asiosys.h" />
     <ClInclude Include="..\..\ASIO_SDK\ginclude.h" />
     <ClInclude Include="..\..\ASIO_SDK\iasiodrv.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugStandalone.h" />
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h" />
     <ClInclude Include="..\..\WDL\rtaudiomidi\RtError.h" />
@@ -277,6 +283,13 @@
     <ClCompile Include="..\..\ASIO_SDK\asio.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiodrivers.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiolist.cpp" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugStandalone.cpp" />
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp" />
     <ClCompile Include="..\..\WDL\rtaudiomidi\RtMidi.cpp" />
@@ -286,6 +299,13 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEEL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\..\WDL\eel2\asm-nseel-x64.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

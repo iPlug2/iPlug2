@@ -10,6 +10,9 @@
     <Filter Include="Libs">
       <UniqueIdentifier>{57d1624e-a679-47da-bd3e-9609f02fdd7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EEL">
+      <UniqueIdentifier>{2032ee28-7113-40e3-970a-60c13fa72ba6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp">
@@ -54,6 +57,27 @@
     <ClCompile Include="IPlugEEL.cpp" />
     <ClCompile Include="..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>Libs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c">
+      <Filter>EEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c">
+      <Filter>EEL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +137,24 @@
     </ClInclude>
     <ClInclude Include="IPlugEEL.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h">
+      <Filter>EEL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEEL.rc" />
@@ -130,5 +172,10 @@
     <Library Include="..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
       <Filter>Libs</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\..\WDL\eel2\asm-nseel-x64.obj">
+      <Filter>EEL</Filter>
+    </Object>
   </ItemGroup>
 </Project>
