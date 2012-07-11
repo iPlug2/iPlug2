@@ -2,6 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControl.h"
 #include "resource.h"
+#include "IAutoGUI.h"
 
 const int kNumPrograms = 1;
 
@@ -19,7 +20,12 @@ IPlugMultiChannel::IPlugMultiChannel(IPlugInstanceInfo instanceInfo)
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
   GetParam(kGain)->SetShape(2.);
-
+  
+  IGraphics* pGraphics = MakeGraphics(this, GUI_WIDTH, GUI_HEIGHT);
+  IText textProps(12, &COLOR_BLACK, "Verdana", IText::kStyleNormal, IText::kAlignNear, 0, IText::kQualityNonAntiAliased);
+	GenerateKnobGUI(pGraphics, this, &textProps, &COLOR_WHITE, &COLOR_BLACK, 60, 70);
+  AttachGraphics(pGraphics);
+  
   MakeDefaultPreset((char *) "-", kNumPrograms);
 }
 
