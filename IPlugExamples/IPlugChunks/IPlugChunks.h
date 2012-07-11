@@ -15,6 +15,9 @@
 
  You need to override SerializeState / UnserializeState and set PLUG_DOES_STATE_CHUNKS 1 in resource.h
 
+ // WARNING - I'm not happy with how the multislider data is shared with the high priority thread
+ // need to rethink that
+ 
 */
 
 
