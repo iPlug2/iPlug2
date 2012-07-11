@@ -17,7 +17,7 @@ RtMidiOut *gMidiOut = 0;
 
 AppState *gState;
 AppState *gTempState;
-double *gBuffer = new double[1024];
+
 char *gINIPath = new char[200]; // path of ini file
 
 unsigned int gIOVS = 512;
