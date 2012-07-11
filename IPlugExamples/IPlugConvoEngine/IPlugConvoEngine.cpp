@@ -31,6 +31,7 @@
 
 #include "IPlugConvoEngine.h"
 #include "IPlug_include_in_plug_src.h"
+#include "IAutoGUI.h"
 
 enum EParams
 {
@@ -49,6 +50,11 @@ IPlugConvoEngine::IPlugConvoEngine(IPlugInstanceInfo instanceInfo):
 
   GetParam(kDry)->InitDouble("Dry", 1.,  0., 1., 0.001);
   GetParam(kWet)->InitDouble("Wet", 0.5, 0., 1., 0.001);
+  
+  IGraphics* pGraphics = MakeGraphics(this, GUI_WIDTH, GUI_HEIGHT);
+  IText textProps(12, &COLOR_BLACK, "Verdana", IText::kStyleNormal, IText::kAlignNear, 0, IText::kQualityNonAntiAliased);
+	GenerateKnobGUI(pGraphics, this, &textProps, &COLOR_WHITE, &COLOR_BLACK, 60, 70);
+  AttachGraphics(pGraphics);
 }
 
 void IPlugConvoEngine::OnParamChange(int paramIdx)

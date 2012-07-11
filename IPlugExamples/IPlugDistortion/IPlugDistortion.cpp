@@ -29,6 +29,7 @@
 
 #include "IPlugDistortion.h"
 #include "IPlug_include_in_plug_src.h"
+#include "IAutoGUI.h"
 
 #include <math.h>
 #include "../../WDL/denormal.h"
@@ -54,6 +55,11 @@ IPlugDistortion::IPlugDistortion(IPlugInstanceInfo instanceInfo):
   mDistortedDC = fast_tanh(mDC);
 
   GetParam(kDrive)->InitDouble("Drive", 0.5, 0., 1., 0.001);
+  
+  IGraphics* pGraphics = MakeGraphics(this, GUI_WIDTH, GUI_HEIGHT);
+  IText textProps(12, &COLOR_BLACK, "Verdana", IText::kStyleNormal, IText::kAlignNear, 0, IText::kQualityNonAntiAliased);
+	GenerateKnobGUI(pGraphics, this, &textProps, &COLOR_WHITE, &COLOR_BLACK, 60, 70);
+  AttachGraphics(pGraphics);
 }
 
 
