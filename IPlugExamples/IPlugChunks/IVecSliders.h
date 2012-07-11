@@ -117,7 +117,7 @@ public:
       //mHighlighted = sliderTest;
       mSteps[sliderTest] = 1. - BOUNDED(yValue, 0., 1.);
       mSliderThatChanged = sliderTest;
-      mPlug->OnParamChange(mParamIdx);
+      mPlug->OnParamChange(mParamIdx); // TODO: rethink this WRT threading
     }
     else
     {

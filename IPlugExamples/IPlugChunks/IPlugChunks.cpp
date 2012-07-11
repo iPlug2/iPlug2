@@ -120,11 +120,8 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
   : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
   TRACE;
-
-  for(int i=0; i<NUM_SLIDERS; i++)
-  {
-    mSteps[i] = (double) i / (double) NUM_SLIDERS;
-  }
+  
+  memset(mSteps, 0, NUM_SLIDERS*sizeof(double));
 
   // Define parameter ranges, display units, labels.
   //arguments are: name, defaultVal, minVal, maxVal, step, label
@@ -143,7 +140,6 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachPanelBackground(&COLOR_BLUE);
 
   mMSlider = new MultiSliderControlV(this, IRECT(10, 10, 170, 110), kDummyParamForMultislider, NUM_SLIDERS, 10, &COLOR_WHITE, &COLOR_BLACK, &COLOR_RED);
-  mMSlider->SetState(mSteps);
 
   pGraphics->AttachControl(mMSlider);
   pGraphics->AttachControl(new IVSliderControl(this, IRECT(200, 10, 220, 110), kGain, 20, &COLOR_WHITE, &COLOR_GREEN));
@@ -152,7 +148,9 @@ IPlugChunks::IPlugChunks(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new PresetFunctionsMenu(this, IRECT(350, 250, 390, 290)));
 
   AttachGraphics(pGraphics);
-  //RestorePreset(0);
+  
+  // call RestorePreset(0) here which will initialize the multislider in the gui and the mSteps array
+  RestorePreset(0);
 }
 
 IPlugChunks::~IPlugChunks() {}
@@ -225,7 +223,6 @@ void IPlugChunks::OnParamChange(int paramIdx)
     case kGain:
       mGain = GetParam(kGain)->DBToAmp();
       break;
-
     default:
       break;
   }
