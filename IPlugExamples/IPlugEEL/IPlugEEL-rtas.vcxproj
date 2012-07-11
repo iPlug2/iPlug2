@@ -273,6 +273,12 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <Library Include="..\..\PT9_SDK\WinBag\Release\lib\RTASClientLib.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h" />
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h" />
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h" />
     <ClInclude Include="..\..\WDL\IPlug\Containers.h" />
     <ClInclude Include="..\..\WDL\IPlug\Hosts.h" />
     <ClInclude Include="..\..\WDL\IPlug\IBitmapMonoText.h" />
@@ -302,6 +308,13 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c" />
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c" />
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IBitmapMonoText.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IControl.cpp" />
