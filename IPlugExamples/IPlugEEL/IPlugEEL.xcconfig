@@ -1,0 +1,61 @@
+#include "../../common.xcconfig"
+
+//------------------------------
+// Global settings
+
+// the basename of the vst, vst3, app, component, dpm, aaxplugin
+BINARY_NAME = IPlugEEL
+
+ADDITIONAL_INCLUDES = // $(SRCROOT)/../../../MyDSP/
+
+// for jack headers
+//ADDITIONAL_APP_INCLUDES = /usr/local/include
+
+// Flags to pass to compiler for all builds
+GCC_CFLAGS = -Wno-write-strings
+
+//------------------------------
+// Preprocessor definitions
+
+// Preprocessor definitions for all VST builds
+VST_DEFS = VST_API VST_FORCE_DEPRECATED
+
+VST3_DEFS = VST3_API
+
+// Preprocessor definitions for all AU builds
+AU_DEFS = AU_API
+
+RTAS_DEFS = RTAS_API
+
+AAX_DEFS = AAX_API
+
+APP_DEFS = SA_API __MACOSX_CORE__ //__UNIX_JACK__
+
+IOS_DEFS = SA_API
+// Preprocessor definitions for all Debug builds
+DEBUG_DEFS = _DEBUG
+
+// Preprocessor definitions for all Release builds
+RELEASE_DEFS = NDEBUG //DEMO_VERSION
+
+// Preprocessor definitions for all Tracer builds
+TRACER_DEFS = TRACER_BUILD NDEBUG
+
+// Preprocessor definitions for cocoa uniqueness (all builds)
+// If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too
+COCOA_DEFS = COCOA_PREFIX=vIPlugEEL SWELL_APP_PREFIX=Swell_vIPlugEEL SWELL_FORCE_COCOA_TEXT
+
+//------------------------------
+// Release build options
+
+//Enable/Disable Profiling code
+PROFILE = NO //NO, YES - enable this if you want to use shark to profile a plugin
+
+// GCC optimization level -
+// None: [-O0] Fast: [-O, -O1] Faster:[-O2] Fastest: [-O3] Fastest, smallest: Optimize for size. [-Os]
+RELEASE_OPTIMIZE = 3 //0,1,2,3,s
+
+//------------------------------
+// Debug build options
+DEBUG_OPTIMIZE = 0 //0,1,2,3,s
+
