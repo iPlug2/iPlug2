@@ -16,17 +16,14 @@
   #define PLUG_SC_CHANS 0
 #endif
 
-static OSType plugid = PLUG_UNIQUE_ID;
-
-// TODO: does plugid have to be different for different channel configs?
 static CEffectProcess* NewProcessRTAS()
 {
-  return new IPlugProcessRTAS(plugid);
+  return new IPlugProcessRTAS(PLUG_UNIQUE_ID);
 }
 
 //static CEffectProcess* NewProcessAS()
 //{
-//  return new IPlugProcessAS(plugid + 100);
+//  return new IPlugProcessAS(PLUG_UNIQUE_ID);
 //}
 
 #if WINDOWS_VERSION
@@ -134,7 +131,8 @@ void IPlugGroup::CreateEffectTypes(void)
       AS->AddGestalt(pluginGestalt_CanBypass);
       AS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
       //RTAS->AddGestalt(pluginGestalt_UsesCustomPlugInSettingsFile); // TODO
-      AS->AttachEffectProcessCreator(NewProcessAS);
+      
+      //AS->AttachEffectProcessCreator(NewProcessAS);
 
       AddEffectType (AS);
       #endif
