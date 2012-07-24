@@ -64,22 +64,24 @@ AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
 
 AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated (const char* iParameterID)
 {
-  AAX_Result err = AAX_ERROR_INVALID_PARAMETER_ID;
+//  AAX_Result err = AAX_ERROR_INVALID_PARAMETER_ID;
   
-  int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
-  
-  if ((mGraphics) && (paramIdx >= 0)) 
-  {
-    double  normalizedValue = 0;
-    err = GetEffectParameters()->GetParameterNormalizedValue( iParameterID, &normalizedValue );
-    
-    if (err == AAX_SUCCESS)
-    {
-      mGraphics->SetParameterFromPlug(paramIdx, normalizedValue, true);
-    }
-  }
-  
-  return err;
+//  int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
+//  
+//  if ((mGraphics) && (paramIdx >= 0)) 
+//  {
+//    double  normalizedValue = 0;
+//    err = GetEffectParameters()->GetParameterNormalizedValue( iParameterID, &normalizedValue );
+//    
+//    if (err == AAX_SUCCESS)
+//    {
+//      mGraphics->SetParameterFromPlug(paramIdx, normalizedValue, true);
+//    }
+//  }
+//  
+//  return err;
+
+  return AAX_SUCCESS;
 } 
 
 AAX_IEffectGUI* AAX_CALLBACK AAX_CEffectGUI_IPLUG::Create()
@@ -256,7 +258,15 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, d
   
   if ((paramIdx >= 0) && (paramIdx < NParams())) 
   {
+    IMutexLock lock(this);
+    
     GetParam(paramIdx)->SetNormalized(iValue);
+    
+    if (GetGUI())
+    {
+      GetGUI()->SetParameterFromPlug(paramIdx, iValue, true);
+    }
+    
     OnParamChange(paramIdx);      
   }
   
@@ -449,11 +459,6 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
 {
   TRACE;
   ReleaseParameter(mParamIDs.Get(idx)->Get());
-}
-
-void IPlugAAX::InformHostOfProgramChange()
-{
-  // NA
 }
 
 void IPlugAAX::SetParameterFromGUI(int idx, double normalizedValue)

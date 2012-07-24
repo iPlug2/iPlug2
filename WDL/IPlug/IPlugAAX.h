@@ -76,7 +76,7 @@ public:
   void BeginInformHostOfParamChange(int idx);
   void InformHostOfParamChange(int idx, double normalizedValue);
   void EndInformHostOfParamChange(int idx);
-  void InformHostOfProgramChange();
+  void InformHostOfProgramChange() { }; //NA
   
   void SetParameterFromGUI(int idx, double normalizedValue);
     
