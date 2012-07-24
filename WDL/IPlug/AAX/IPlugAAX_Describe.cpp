@@ -105,7 +105,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       if (nIn > 1)
         nIn -= nSIn;
       
-      AAX_CTypeID typeId = PLUG_UNIQUE_ID + ioConfigIdx;
+      AAX_CTypeID typeId = PLUG_TYPE_IDS[ioConfigIdx];
 
       // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
       AAX_SIPlugSetupInfo setupInfo;
@@ -115,7 +115,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mProductID = PLUG_UNIQUE_ID;
       setupInfo.mPluginID = typeId;
       #if PLUG_DOES_OFFLINE
-      setupInfo.mAudioSuiteID = PLUG_UNIQUE_ID + 100 + ioConfigIdx;
+      setupInfo.mAudioSuiteID = PLUG_TYPE_IDS_AS[ioConfigIdx];
       #endif
       setupInfo.mCanBypass = true;
       setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;

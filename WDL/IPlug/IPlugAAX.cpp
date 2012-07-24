@@ -62,7 +62,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
   return AAX_SUCCESS; 
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated (const char* iParameterID)
+AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(const char* iParameterID)
 {
 //  AAX_Result err = AAX_ERROR_INVALID_PARAMETER_ID;
   

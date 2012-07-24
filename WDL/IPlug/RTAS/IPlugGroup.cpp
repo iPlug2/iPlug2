@@ -110,9 +110,7 @@ void IPlugGroup::CreateEffectTypes(void)
       if (nIn > 1)
         nIn -= nSIn;
 
-      OSType typeId = plugid + ioConfigIdx;
-
-      CEffectType* RTAS = new CEffectTypeRTAS(typeId, productID, category);
+      CEffectType* RTAS = new CEffectTypeRTAS(PLUG_TYPE_IDS[ioConfigIdx], productID, category);
       RTAS->DefineTypeNames(PLUG_NAME_DIGI);
       RTAS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
       RTAS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
@@ -128,9 +126,7 @@ void IPlugGroup::CreateEffectTypes(void)
       AddEffectType (RTAS);
 
       #if PLUG_DOES_OFFLINE
-      typeId = plugid + 100 + ioConfigIdx;
-
-      CEffectType* AS = new CEffectTypeAS(typeId, productID, category);
+      CEffectType* AS = new CEffectTypeAS(PLUG_TYPE_IDS_AS[ioConfigIdx], productID, category);
       AS->DefineTypeNames(PLUG_NAME_DIGI);
       AS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
       AS->AddGestalt(pluginGestalt_UseSmallPreviewBuffer);
