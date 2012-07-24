@@ -1696,8 +1696,7 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
   {
     int busIdx1based = outputBusIdx+1;
 
-    if (busIdx1based < _this->mOutBuses.GetSize()
-        && (_this->GetHost() != kHostAbletonLive)) // Live does not handle buses properly, gives us just one bus
+    if (busIdx1based < _this->mOutBuses.GetSize() /*&& (_this->GetHost() != kHostAbletonLive)*/)
     {
       int totalNumChans = _this->mOutBuses.GetSize() * 2; // stereo only for the time being
       int nConnected = busIdx1based * 2;
