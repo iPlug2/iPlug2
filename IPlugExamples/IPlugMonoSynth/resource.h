@@ -26,9 +26,9 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
-#define PLUG_NAME_DIGI "IPlugMonoSynth\nIPMS"
-#define EFFECT_TYPE_DIGI "Effect"
+#define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme\n"
+#define PLUG_NAME_PT "IPlugMonoSynth\nIPMS"
+#define PLUG_TYPE_PT "Effect"
 
 #ifdef RTAS_API
 #define PLUG_CHANNEL_IO "1-1 2-2"

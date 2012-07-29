@@ -26,9 +26,9 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme"
-#define PLUG_NAME_DIGI "IPlugDistortion\nIPLD"
-#define EFFECT_TYPE_DIGI "Harmonic"
+#define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme"
+#define PLUG_NAME_PT "IPlugDistortion\nIPLD"
+#define PLUG_TYPE_PT "Harmonic"
 
 /* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
 "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
