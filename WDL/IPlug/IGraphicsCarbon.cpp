@@ -395,28 +395,30 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
           {
             GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
             QDBeginCGContext(port, &(_this->mCGC));
-
-            RgnHandle clipRegion = NewRgn();
-            GetPortClipRegion(port, clipRegion);
-
+            
+            //RgnHandle clipRegion = NewRgn();
+            //GetPortClipRegion(port, clipRegion);
+            
             Rect portBounds;
             GetPortBounds(port, &portBounds);
 
             int offsetW = 0;
-
+            int offsetH = -portBounds.top;
+            //int offsetH = (portBounds.bottom - portBounds.top) - gfxH; // this almost works with AS, but clip rect seems wrong when previewing/breaks RTAS
+            
             if ((portBounds.right - portBounds.left) >= gfxW)
             {
               offsetW = 0.5 * ((portBounds.right - portBounds.left) - gfxW);
             }
-
-            CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, -portBounds.top);
-
-            r = IRECT(0,0,pGraphicsMac->Width(), pGraphicsMac->Height());
+            
+            CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, offsetH);
+            
+            r = IRECT(0, 0, pGraphicsMac->Width(), pGraphicsMac->Height());
             pGraphicsMac->Draw(&r); // Carbon non-composited will redraw everything, the IRECT passed here is the entire plugin-gui
-
+            
             QDEndCGContext(port, &(_this->mCGC));
-
-            DisposeRgn(clipRegion);
+            
+            //DisposeRgn(clipRegion);
           }
           return noErr;
         }

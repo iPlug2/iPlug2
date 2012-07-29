@@ -205,17 +205,16 @@ void IPlugProcess::SetViewPort (GrafPtr aPort)
       #elif MAC_VERSION
       windowPtr = (void*)GetWindowFromPort(mMainPort); // WindowRef for Carbon, not GrafPtr (quickdraw)
 
-      // https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
-      Rect aRect;
-      GetPortBounds(aPort, &aRect);
-      if ((aRect.left <= 0 && aRect.top <= 0) &&    // Sanity check
-          (mLeftOffset == 0 && mTopOffset == 0))    // Skip if offset was already set
+      Rect portBounds;
+      GetPortBounds(aPort, &portBounds);
+      if ((portBounds.left <= 0 && portBounds.top <= 0) && (mLeftOffset == 0 && mTopOffset == 0))
       {
-        mLeftOffset = -aRect.left;
-        mTopOffset = -aRect.top;
+        mLeftOffset = -portBounds.left;
+        mTopOffset = -portBounds.top;
       }
       #endif
       mCustomUI->Open(windowPtr, mLeftOffset, mTopOffset);
+      
       #if WINDOWS_VERSION
       mCustomUI->Draw(mPluginWinRect.left, mPluginWinRect.top, mPluginWinRect.right, mPluginWinRect.bottom);
       #endif
