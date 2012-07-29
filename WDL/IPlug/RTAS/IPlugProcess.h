@@ -47,18 +47,9 @@ public:
   virtual void UpdateControlValueInAlgorithm(long aControlIndex);
 
   virtual IPlugRTAS* GetPlug()  { return mPlug; }
-  virtual IGraphics* GetGraphics()
-  {
-    if (mPlug)
-      return mPlug->GetGUI();
-
-    return 0;
-  }
+  virtual IGraphics* GetGraphics() { if (mPlug) return mPlug->GetGUI(); return 0; }
   
-  virtual void DirtyState()
-  {
-    fNumPlugInChanges++;
-  }
+  virtual void DirtyState() { fNumPlugInChanges++; }
 
   virtual int GetBlockSize() = 0;
   virtual double GetTempo()  = 0;

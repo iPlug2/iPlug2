@@ -12,7 +12,6 @@
 
 IPlugProcessRTAS::IPlugProcessRTAS(OSType type)
   :IPlugProcess(type)
-  , mBlockSize(GetMaximumRTASQuantum())
 {
   mPlug->Created(this);
 }
@@ -57,56 +56,16 @@ void IPlugProcessRTAS::RenderAudio(float** inputs, float** outputs, long frames)
 
     mPlug->ProcessAudio(inputs, outputs, frames);
   }
-
-// TODO: Meters?
-
-//  for(int i = 0; i < GetNumOutputs(); i++)
-//	{
-//		float* outSamples = outputs[i];
-//
-//		for (int j = 0; j<frames; j++)
-//		{
-//			if ( fabsf(outSamples[j]) > mMeterVal[i] )
-//				mMeterVal[i] = fabsf(outSamples[j]);
-//		}
-//	}
 }
 
-void IPlugProcessRTAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators)
-{
-// TODO: Meters?
-
-//	SFloat32 currentVal = 0.0;
-//
-//	for (int i = 0; i < GetNumOutputs(); i++)
-//	{
-//		currentVal = mMeterVal[i];
-//
-//		if(currentVal < mMeterMin[i])
-//			currentVal = mMeterMin[i];
-//		mMeterMin[i] = currentVal * 0.7;
-//
-//		if (fabsf(currentVal) > 1.0)
-//		{
-//			currentVal = -1.0;
-//			clipIndicators[i] = true;
-//			fClipped = true;
-//		}
-//		else {
-//			currentVal *= k32BitPosMax;
-//			clipIndicators[i] = false;
-//		}
-//
-//		allMeters[i] = currentVal;
-//		mMeterVal[i] = 0;
+//void IPlugProcessRTAS::GetMetersFromDSPorRTAS(long *allMeters, bool *clipIndicators)
+//{
+//  for (int i = 0; i < GetNumOutputs(); i++)
+//  {
+//    clipIndicators[i] = false;
+//    allMeters[i] = 0;
 //  }
-
-  for (int i = 0; i < GetNumOutputs(); i++)
-  {
-    clipIndicators[i] = false;
-    allMeters[i] = 0;
-  }
-}
+//}
 
 int IPlugProcessRTAS::GetSamplePos()
 {
@@ -129,7 +88,7 @@ double IPlugProcessRTAS::GetTempo()
     return (double) t;
   }
   else
-    return 0.0;
+    return 0.;
 }
 
 void IPlugProcessRTAS::GetTimeSig(int* pNum, int* pDenom)

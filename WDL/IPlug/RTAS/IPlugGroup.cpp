@@ -9,7 +9,7 @@
 #include "CEffectTypeAS.h"
 #include "CEffectTypeRTAS.h"
 #include "IPlugProcessRTAS.h"
-//#include "IPlugProcessAS.h"
+#include "IPlugProcessAS.h"
 #include "Resource.h"
 
 #ifndef PLUG_SC_CHANS
@@ -21,10 +21,10 @@ static CEffectProcess* NewProcessRTAS()
   return new IPlugProcessRTAS(PLUG_UNIQUE_ID);
 }
 
-//static CEffectProcess* NewProcessAS()
-//{
-//  return new IPlugProcessAS(PLUG_UNIQUE_ID);
-//}
+static CEffectProcess* NewProcessAS()
+{
+  return new IPlugProcessAS(PLUG_UNIQUE_ID);
+}
 
 #if WINDOWS_VERSION
   extern void *hInstance;
@@ -114,7 +114,6 @@ void IPlugGroup::CreateEffectTypes(void)
       RTAS->AddGestalt(pluginGestalt_CanBypass);
       RTAS->AddGestalt(pluginGestalt_SupportsVariableQuanta);
       RTAS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
-      //RTAS->AddGestalt(pluginGestalt_UsesCustomPlugInSettingsFile); // TODO
       RTAS->AttachEffectProcessCreator(NewProcessRTAS);
 
       if (nSIn)
@@ -130,9 +129,7 @@ void IPlugGroup::CreateEffectTypes(void)
       AS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
       AS->AddGestalt(pluginGestalt_CanBypass);
       AS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
-      //RTAS->AddGestalt(pluginGestalt_UsesCustomPlugInSettingsFile); // TODO
-      
-      //AS->AttachEffectProcessCreator(NewProcessAS);
+      AS->AttachEffectProcessCreator(NewProcessAS);
 
       AddEffectType (AS);
       #endif

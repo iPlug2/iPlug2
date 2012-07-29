@@ -98,7 +98,8 @@ void IPlugProcess::EffectInit()
 
     }
 
-    if (PLUG_DOES_MIDI)
+#if PLUG_DOES_MIDI
+    if (!IsAS())
     {
       ComponentResult result = noErr;
 
@@ -120,6 +121,7 @@ void IPlugProcess::EffectInit()
         requestedVersion--;
       }
     }
+#endif
 
     mPlug->SetIO(GetNumInputs(), GetNumOutputs());
     mPlug->SetSampleRate(GetSampleRate());
@@ -135,13 +137,6 @@ void IPlugProcess::DoTokenIdle (void)
 #ifdef USE_IDLE_CALLS
   mPlug->OnIdle();
 #endif
-
-  // Disable metering for AS during Preview mode because doidle is called too frequently during
-  // preview when the mouse is moving.
-//	if(!IsAS())
-//		UpdateMeters();
-//	else if (GetASPreviewState() == previewState_Off)
-//		UpdateMeters();
 }
 
 //  Tells Pro Tools what size view it should create for you.
