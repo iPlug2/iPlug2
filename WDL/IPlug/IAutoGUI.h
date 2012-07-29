@@ -226,7 +226,7 @@ void GenerateKnobGUI(IGraphics* pGraphics,
   {
     IRECT thisParamNameMaxBounds;
     tmpText.Set(pPlug->GetParam(p)->GetNameForHost());
-    pGraphics->DrawIText(pText, tmpText.Get(), &thisParamNameMaxBounds, true);
+    pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(&thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
@@ -235,7 +235,7 @@ void GenerateKnobGUI(IGraphics* pGraphics,
     {
       IRECT thisParamValueMaxBounds;
       tmpText.Set(pPlug->GetParam(p)->GetDisplayTextAtIdx(dt));
-      pGraphics->DrawIText(pText, tmpText.Get(), &thisParamValueMaxBounds, true);
+      pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(&thisParamValueMaxBounds);
     }
   }
@@ -295,13 +295,13 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   // Calculate max bounds
   WDL_String tmpText;
   IRECT paramNameMaxBounds;
-  IRECT paramValueMaxBounds = IRECT(0,0, 70, 10);  // the values here are a hack to make a minimum bounds 
+  IRECT paramValueMaxBounds = IRECT(0, 0, 70, 10);  // the values here are a hack to make a minimum bounds 
   
   for(int p = 0; p < pPlug->NParams(); p++)
   {
     IRECT thisParamNameMaxBounds;
     tmpText.Set(pPlug->GetParam(p)->GetNameForHost());
-    pGraphics->DrawIText(pText, tmpText.Get(), &thisParamNameMaxBounds, true);
+    pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(&thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
@@ -310,7 +310,7 @@ void GenerateSliderGUI(IGraphics* pGraphics,
     {
       IRECT thisParamValueMaxBounds;
       tmpText.Set(pPlug->GetParam(p)->GetDisplayTextAtIdx(dt));
-      pGraphics->DrawIText(pText, tmpText.Get(), &thisParamValueMaxBounds, true);
+      pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(&thisParamValueMaxBounds);
     }
   }
