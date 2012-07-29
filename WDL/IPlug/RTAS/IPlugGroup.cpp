@@ -121,7 +121,7 @@ void IPlugGroup::CreateEffectTypes(void)
 
       AddEffectType (RTAS);
 
-      #if PLUG_DOES_OFFLINE
+      #if PLUG_DOES_AUDIOSUITE
       CEffectType* AS = new CEffectTypeAS(PLUG_TYPE_IDS_AS[ioConfigIdx], productID, category);
       AS->DefineTypeNames(PLUG_NAME_DIGI);
       AS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
