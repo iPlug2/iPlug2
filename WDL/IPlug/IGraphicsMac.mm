@@ -124,6 +124,14 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
   return true;
 }
 
+bool IGraphicsMac::MeasureIText(IText* pTxt, char* str, IRECT* pR)
+{
+#ifdef SWELL_FORCE_COCOA_TEXT
+  CocoaAutoReleasePool pool;
+#endif
+  return DrawIText(pTxt, str, pR, true);
+}
+
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
   return OpenCocoaWindow(pParent);

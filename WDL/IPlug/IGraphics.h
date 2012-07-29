@@ -65,7 +65,7 @@ public:
   bool FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend);
 
   bool DrawIText(IText* pTxt, char* str, IRECT* pR, bool measure = false);
-  bool MeasureIText(IText* pTxt, char* str, IRECT* pR) { return DrawIText(pTxt, str, pR, true); } ;
+  virtual bool MeasureIText(IText* pTxt, char* str, IRECT* pR) { return DrawIText(pTxt, str, pR, true); } ;
 
   IColor GetPoint(int x, int y);
   void* GetData();
