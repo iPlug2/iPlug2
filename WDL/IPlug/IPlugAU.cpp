@@ -955,9 +955,9 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
         IParam* pParam = GetParam(pSFV->inParamID);
-        int v = (pSFV->inValue ? *(pSFV->inValue) : pParam->Int());
-        const char* str = pParam->GetDisplayText(v);
-        pSFV->outString = MakeCFString(str);
+        
+        pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamValueString);
+        pSFV->outString = MakeCFString((const char*) mParamValueString);
       }
       return noErr;
     }
@@ -1805,6 +1805,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
+  memset(mParamValueString, 0, MAX_PARAM_DISPLAY_LEN * sizeof(char));
 
   mOSXBundleID.Set(instanceInfo.mOSXBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());

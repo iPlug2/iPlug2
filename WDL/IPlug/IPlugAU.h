@@ -83,7 +83,9 @@ protected:
   void HostSpecificInit();
 
 private:
-  WDL_String mOSXBundleID, mCocoaViewFactoryClassName;
+  WDL_String mOSXBundleID;
+  WDL_String mCocoaViewFactoryClassName;
+  char mParamValueString[MAX_PARAM_DISPLAY_LEN];
   ComponentInstance mCI;
   bool mActive, mIsOffline;
   double mRenderTimestamp, mTempo;
