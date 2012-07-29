@@ -24,9 +24,9 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
-#define PLUG_MFR_DIGI "AcmeInc\nAcmeInc\nAcme\n"
-#define PLUG_NAME_DIGI "IPlugPolySynth\nIPPS"
-#define EFFECT_TYPE_DIGI "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
+#define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme\n"
+#define PLUG_NAME_PT "IPlugPolySynth\nIPPS"
+#define PLUG_TYPE_PT "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 
 #ifdef RTAS_API
 #define PLUG_CHANNEL_IO "1-1 2-2"
