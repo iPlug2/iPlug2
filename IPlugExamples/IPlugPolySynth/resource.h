@@ -33,7 +33,7 @@
 #define PLUG_TYPE_PT "Effect" // valid options "None" "EQ" "Dynamics" "PitchShift" "Reverb" "Delay" "Modulation" "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" instrument determined by PLUG _IS _INST
 #define PLUG_DOES_AUDIOSUITE 0
 
-#ifdef RTAS_API
+#if (defined(AAX_API) || defined(RTAS_API)) 
 #define PLUG_CHANNEL_IO "1-1 2-2"
 #else
 #define PLUG_CHANNEL_IO "0-1 0-2"

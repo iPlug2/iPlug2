@@ -34,7 +34,7 @@
 #define PLUG_NAME_PT "IPlugMonoSynth\nIPMS"
 #define PLUG_TYPE_PT "Effect"
 
-#ifdef RTAS_API
+#if (defined(AAX_API) || defined(RTAS_API)) 
 #define PLUG_CHANNEL_IO "1-1 2-2"
 #else
 #define PLUG_CHANNEL_IO "0-1 0-2"
