@@ -26,6 +26,10 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
+#if (defined(AAX_API) || defined(RTAS_API)) && !defined(_PIDS_)
+  #define _PIDS_
+  const int PLUG_TYPE_IDS[2] = {'MSN1', 'MSN2'};
+#endif
 #define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme\n"
 #define PLUG_NAME_PT "IPlugMonoSynth\nIPMS"
 #define PLUG_TYPE_PT "Effect"

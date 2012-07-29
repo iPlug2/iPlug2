@@ -26,11 +26,17 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
+#if (defined(AAX_API) || defined(RTAS_API)) && !defined(_PIDS_)
+  #define _PIDS_
+  const int PLUG_TYPE_IDS[4] = {'MCN1', 'MCN2', 'MCN3', 'MCN4'};
+  const int PLUG_TYPE_IDS_AS[4] = {'MCA1', 'MCA2', 'MCA3', 'MCA4'}; // AudioSuite
+#endif
 #define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme"
 #define PLUG_NAME_PT "IPlugMultiChannel\nIPEF"
 #define PLUG_TYPE_PT "SoundField"
+#define PLUG_DOES_AUDIOSUITE 1
 
-/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+/* PLUG_TYPE_PT can be "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
 "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
 instrument determined by PLUG _IS _INST
 */

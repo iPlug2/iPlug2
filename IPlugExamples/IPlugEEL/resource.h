@@ -26,11 +26,20 @@
 #define PLUG_MFR_ID 'Acme'
 
 // ProTools stuff
+
+// Unique IDs for each configuration of the plug-in
+#if (defined(AAX_API) || defined(RTAS_API)) && !defined(_PIDS_)
+  #define _PIDS_
+  const int PLUG_TYPE_IDS[2] = {'EEN1', 'EEN2'};
+  const int PLUG_TYPE_IDS_AS[2] = {'EEA1', 'EEA2'}; // AudioSuite
+#endif
+
 #define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme"
 #define PLUG_NAME_PT "IPlugEEL\nIPEE"
 #define PLUG_TYPE_PT "Effect"
+#define PLUG_DOES_AUDIOSUITE 1
 
-/* "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
+/* PLUG_TYPE_PT can be "None", "EQ", "Dynamics", "PitchShift", "Reverb", "Delay", "Modulation", 
 "Harmonic" "NoiseReduction" "Dither" "SoundField" "Effect" 
 instrument determined by PLUG _IS _INST
 */
