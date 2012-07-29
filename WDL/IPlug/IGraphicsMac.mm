@@ -126,7 +126,7 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
 
 bool IGraphicsMac::MeasureIText(IText* pTxt, char* str, IRECT* pR)
 {
-#ifdef SWELL_FORCE_COCOA_TEXT
+#ifdef SWELL_FORCE_COCOA_TEXT || ARCH_64BIT
   CocoaAutoReleasePool pool;
 #endif
   return DrawIText(pTxt, str, pR, true);
