@@ -4,7 +4,10 @@
 #include "Containers.h"
 #include <math.h>
 
-const int MAX_PARAM_NAME_LEN = 32;
+#define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
+#define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
+#define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
+#define MAX_PARAM_DISPLAY_PRECISION 6
 
 inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)
 {
@@ -82,7 +85,8 @@ private:
   EParamType mType;
   double mValue, mMin, mMax, mStep, mShape, mDefault;
   int mDisplayPrecision;
-  char mName[MAX_PARAM_NAME_LEN], mLabel[MAX_PARAM_NAME_LEN];
+  char mName[MAX_PARAM_NAME_LEN];
+  char mLabel[MAX_PARAM_LABEL_LEN];
   bool mNegateDisplay;
   bool mSignDisplay;
   bool mCanAutomate;
@@ -90,7 +94,7 @@ private:
   struct DisplayText
   {
     int mValue;
-    char mText[MAX_PARAM_NAME_LEN];
+    char mText[MAX_PARAM_DISPLAY_LEN];
   };
   
   WDL_TypedBuf<DisplayText> mDisplayTexts;
