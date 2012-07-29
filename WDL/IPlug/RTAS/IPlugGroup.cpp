@@ -66,8 +66,8 @@ IPlugGroup::IPlugGroup(void)
   gHInstance = (HINSTANCE)gThisModule;
   #endif
 
-  DefineManufacturerNamesAndID (PLUG_MFR_DIGI, PLUG_MFR_ID);
-  DefinePlugInNamesAndVersion(PLUG_NAME_DIGI, (PLUG_VER & 0xFFFF0000) >> 16);
+  DefineManufacturerNamesAndID (PLUG_MFR_PT, PLUG_MFR_ID);
+  DefinePlugInNamesAndVersion(PLUG_NAME_PT, (PLUG_VER & 0xFFFF0000) >> 16);
   AddGestalt(pluginGestalt_IsCacheable);
 }
 
@@ -79,18 +79,18 @@ void IPlugGroup::CreateEffectTypes(void)
   EPlugInCategory category = ePlugInCategory_Effect;
 
   if (PLUG_IS_INST) category = ePlugInCategory_SWGenerators;
-  else if(strcmp(EFFECT_TYPE_DIGI, "None") == 0) category = ePlugInCategory_None;
-  else if(strcmp(EFFECT_TYPE_DIGI, "EQ") == 0) category = ePlugInCategory_EQ;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Dynamics") == 0) category = ePlugInCategory_Dynamics;
-  else if(strcmp(EFFECT_TYPE_DIGI, "PitchShift") == 0) category = ePlugInCategory_PitchShift;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Reverb") == 0) category = ePlugInCategory_Reverb;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Delay") == 0) category = ePlugInCategory_Delay;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Modulation") == 0) category = ePlugInCategory_Modulation;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Harmonic") == 0) category = ePlugInCategory_Harmonic;
-  else if(strcmp(EFFECT_TYPE_DIGI, "NoiseReduction") == 0) category = ePlugInCategory_NoiseReduction;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Dither") == 0) category = ePlugInCategory_Dither;
-  else if(strcmp(EFFECT_TYPE_DIGI, "SoundField") == 0) category = ePlugInCategory_SoundField;
-  else if(strcmp(EFFECT_TYPE_DIGI, "Effect") == 0) category = ePlugInCategory_Effect;
+  else if(strcmp(PLUG_TYPE_PT, "None") == 0) category = ePlugInCategory_None;
+  else if(strcmp(PLUG_TYPE_PT, "EQ") == 0) category = ePlugInCategory_EQ;
+  else if(strcmp(PLUG_TYPE_PT, "Dynamics") == 0) category = ePlugInCategory_Dynamics;
+  else if(strcmp(PLUG_TYPE_PT, "PitchShift") == 0) category = ePlugInCategory_PitchShift;
+  else if(strcmp(PLUG_TYPE_PT, "Reverb") == 0) category = ePlugInCategory_Reverb;
+  else if(strcmp(PLUG_TYPE_PT, "Delay") == 0) category = ePlugInCategory_Delay;
+  else if(strcmp(PLUG_TYPE_PT, "Modulation") == 0) category = ePlugInCategory_Modulation;
+  else if(strcmp(PLUG_TYPE_PT, "Harmonic") == 0) category = ePlugInCategory_Harmonic;
+  else if(strcmp(PLUG_TYPE_PT, "NoiseReduction") == 0) category = ePlugInCategory_NoiseReduction;
+  else if(strcmp(PLUG_TYPE_PT, "Dither") == 0) category = ePlugInCategory_Dither;
+  else if(strcmp(PLUG_TYPE_PT, "SoundField") == 0) category = ePlugInCategory_SoundField;
+  else if(strcmp(PLUG_TYPE_PT, "Effect") == 0) category = ePlugInCategory_Effect;
 
   char *channelIOStr = PLUG_CHANNEL_IO;
 
@@ -108,7 +108,7 @@ void IPlugGroup::CreateEffectTypes(void)
         nIn -= nSIn;
 
       CEffectType* RTAS = new CEffectTypeRTAS(PLUG_TYPE_IDS[ioConfigIdx], productID, category);
-      RTAS->DefineTypeNames(PLUG_NAME_DIGI);
+      RTAS->DefineTypeNames(PLUG_NAME_PT);
       RTAS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
       RTAS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
       RTAS->AddGestalt(pluginGestalt_CanBypass);
@@ -123,7 +123,7 @@ void IPlugGroup::CreateEffectTypes(void)
 
       #if PLUG_DOES_AUDIOSUITE
       CEffectType* AS = new CEffectTypeAS(PLUG_TYPE_IDS_AS[ioConfigIdx], productID, category);
-      AS->DefineTypeNames(PLUG_NAME_DIGI);
+      AS->DefineTypeNames(PLUG_NAME_PT);
       AS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
       AS->AddGestalt(pluginGestalt_UseSmallPreviewBuffer);
       AS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
