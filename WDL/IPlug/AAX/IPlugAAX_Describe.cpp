@@ -114,7 +114,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mManufacturerID = PLUG_MFR_ID;
       setupInfo.mProductID = PLUG_UNIQUE_ID;
       setupInfo.mPluginID = typeId;
-      #if PLUG_DOES_OFFLINE
+      #if PLUG_DOES_AUDIOSUITE
       setupInfo.mAudioSuiteID = PLUG_TYPE_IDS_AS[ioConfigIdx];
       #endif
       setupInfo.mCanBypass = true;
