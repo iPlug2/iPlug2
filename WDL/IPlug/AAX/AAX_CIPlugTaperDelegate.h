@@ -8,22 +8,19 @@
 
 #include <cmath>
 
-template <typename T, int32_t RealPrecision=1000>
+template <typename T>
 class AAX_CIPlugTaperDelegate : public AAX_ITaperDelegate<T>
 {
 public: 
 	AAX_CIPlugTaperDelegate(T minValue=0, T maxValue=1, double shape = 1.);
 	
 	//Virtual AAX_ITaperDelegate Overrides
-	AAX_CIPlugTaperDelegate<T, RealPrecision>*	Clone() const;
+	AAX_CIPlugTaperDelegate<T>*	Clone() const;
 	T		GetMinimumValue()	const						{ return mMinValue; }
 	T		GetMaximumValue()	const						{ return mMaxValue; }
 	T		ConstrainRealValue(T value)	const;
 	T		NormalizedToReal(double normalizedValue) const;
 	double	RealToNormalized(T realValue) const;
-	
-protected:
-	T	Round(double iValue) const;
 
 private:
 	T	mMinValue;
@@ -31,17 +28,8 @@ private:
 	double mShape;
 };
 
-template <typename T, int32_t RealPrecision>
-T	AAX_CIPlugTaperDelegate<T, RealPrecision>::Round(double iValue) const
-{
-	if (RealPrecision > 0)
-		return static_cast<T>(floor(iValue * RealPrecision + 0.5) / RealPrecision);
-	else
-		return static_cast<T>(iValue);
-}
-
-template <typename T, int32_t RealPrecision>
-AAX_CIPlugTaperDelegate<T, RealPrecision>::AAX_CIPlugTaperDelegate(T minValue, T maxValue, double shape)  :  AAX_ITaperDelegate<T>(),
+template <typename T>
+AAX_CIPlugTaperDelegate<T>::AAX_CIPlugTaperDelegate(T minValue, T maxValue, double shape)  :  AAX_ITaperDelegate<T>(),
 	mMinValue(minValue),
 	mMaxValue(maxValue),
 	mShape(shape)
@@ -49,18 +37,15 @@ AAX_CIPlugTaperDelegate<T, RealPrecision>::AAX_CIPlugTaperDelegate(T minValue, T
 
 }
 
-template <typename T, int32_t RealPrecision>
-AAX_CIPlugTaperDelegate<T, RealPrecision>*		AAX_CIPlugTaperDelegate<T, RealPrecision>::Clone() const
+template <typename T>
+AAX_CIPlugTaperDelegate<T>*		AAX_CIPlugTaperDelegate<T>::Clone() const
 {
 	return new AAX_CIPlugTaperDelegate(*this);
 }
 
-template <typename T, int32_t RealPrecision>
-T		AAX_CIPlugTaperDelegate<T, RealPrecision>::ConstrainRealValue(T value)	const
+template <typename T>
+T		AAX_CIPlugTaperDelegate<T>::ConstrainRealValue(T value)	const
 {
-	if (RealPrecision)
-		value = Round(value);		//reduce the precision to get proper rounding behavior with integers.
-
 	if (value > mMaxValue)
 		return mMaxValue;
 	if (value < mMinValue)
@@ -68,21 +53,18 @@ T		AAX_CIPlugTaperDelegate<T, RealPrecision>::ConstrainRealValue(T value)	const
 	return value;		
 }
 
-template <typename T, int32_t RealPrecision>
-T		AAX_CIPlugTaperDelegate<T, RealPrecision>::NormalizedToReal(double normalizedValue) const
+template <typename T>
+T		AAX_CIPlugTaperDelegate<T>::NormalizedToReal(double normalizedValue) const
 {  
   double doubleRealValue = FromNormalizedParam(normalizedValue, mMinValue, mMaxValue, mShape);
   
 	T realValue = (T)doubleRealValue;
 	
-	if (RealPrecision)
-		realValue = Round(doubleRealValue);		//reduce the precision to get proper rounding behavior with integers.
-  
 	return ConstrainRealValue(realValue);
 }
 
-template <typename T, int32_t RealPrecision>
-double	AAX_CIPlugTaperDelegate<T, RealPrecision>::RealToNormalized(T realValue) const
+template <typename T>
+double	AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
 {
 	realValue = ConstrainRealValue(realValue);
   
