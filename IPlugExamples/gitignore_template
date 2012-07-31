@@ -16,7 +16,7 @@
 *.xcuserdata
 *.xcschememanagement.plist
 build-*
-
+ipch/*
 gui/*
 
 Icon?
