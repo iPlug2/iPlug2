@@ -934,8 +934,8 @@ bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
   // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
   for (int i = 0; i < NParams(); i++)
   {
-    float v = GetParam(i)->Value();
-    float vi = *(data++);
+    float v = (float) GetParam(i)->Value();
+    float vi = (float) *(data++);
     
     isEqual &= (fabsf(v - vi) < 0.00001);
   }
