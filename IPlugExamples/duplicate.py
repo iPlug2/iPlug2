@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Python shell script for Duplicating IPlug Projects
-# Oli Larkin 2011 http://www.olilarkin.co.uk
+# Oli Larkin 2012 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd
@@ -25,13 +25,13 @@
 from __future__ import generators
 
 import fileinput, glob, string, sys, os, re
-from shutil import copytree, ignore_patterns, rmtree
+from shutil import copy, copytree, ignore_patterns, rmtree
 from os.path import join
 
 #tabs = 0
 #newsubfolder = False
 
-VERSION = "0.7.3"
+VERSION = "0.7.4"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -202,6 +202,10 @@ def main():
 		#elif ans == "n":
 		#	print "\n not renaming the file " + xcuserfile + " debugging setup will be lost"
 		#	#print "\n not renaming the file " + vsuserfile
+		
+		print "\ncopying gitignore template into project folder"
+
+		copy('gitignore_template', output + "/.gitignore")
 
 		print "\ndone - don't forget to change PLUG_UNIQUE_ID and PLUG_MFR_ID in resource.h"
 		
