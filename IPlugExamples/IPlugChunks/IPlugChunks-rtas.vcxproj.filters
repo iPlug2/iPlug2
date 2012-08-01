@@ -115,6 +115,12 @@
     </ClInclude>
     <ClInclude Include="IPlugChunks.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessAS.h">
+      <Filter>IPlug\RTAS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessAS.cpp">
+      <Filter>IPlug\RTAS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp">

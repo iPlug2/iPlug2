@@ -297,6 +297,7 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugDigiView.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugGroup.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcess.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessAS.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\ProcessInterface.h" />
     <ClInclude Include="..\..\WDL\IPlug\RTAS\digicode.h" />
@@ -320,6 +321,7 @@ copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
     <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugCustomUI.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugGroup.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugProcess.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugProcessAS.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode1.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode2.cpp" />
