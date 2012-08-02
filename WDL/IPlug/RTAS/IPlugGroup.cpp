@@ -121,18 +121,18 @@ void IPlugGroup::CreateEffectTypes(void)
 
       AddEffectType (RTAS);
 
-      #if PLUG_DOES_AUDIOSUITE
-      CEffectType* AS = new CEffectTypeAS(PLUG_TYPE_IDS_AS[ioConfigIdx], productID, category);
-      AS->DefineTypeNames(PLUG_NAME_PT);
-      AS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
-      AS->AddGestalt(pluginGestalt_UseSmallPreviewBuffer);
-      AS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
-      AS->AddGestalt(pluginGestalt_CanBypass);
-      AS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
-      AS->AttachEffectProcessCreator(NewProcessAS);
-
-      AddEffectType (AS);
-      #endif
+//      #if PLUG_DOES_AUDIOSUITE
+//       CEffectType* AS = new CEffectTypeAS(PLUG_TYPE_IDS_AS[ioConfigIdx], productID, category);
+//       AS->DefineTypeNames(PLUG_NAME_PT);
+//       AS->DefineSampleRateSupport(eSupports48kAnd96kAnd192k);
+//       AS->AddGestalt(pluginGestalt_UseSmallPreviewBuffer);
+//       AS->DefineStemFormats(getStemFormatForChans(nIn), getStemFormatForChans(nOut));
+//       AS->AddGestalt(pluginGestalt_CanBypass);
+//       AS->AddGestalt(pluginGestalt_DoesNotUseDigiUI);
+//       AS->AttachEffectProcessCreator(NewProcessAS);
+// 
+//       AddEffectType (AS);
+//       #endif
       ioConfigIdx++;
     }
 
