@@ -287,8 +287,8 @@ void IContactControl::OnMouseUp(int x, int y, IMouseMod* pMod)
   SetDirty();
 }
 
-IFaderControl::IFaderControl(IPlugBase* pPlug, int x, int y, int len, int paramIdx, IBitmap* pBitmap, EDirection direction)
-  : IControl(pPlug, IRECT(), paramIdx), mLen(len), mBitmap(*pBitmap), mDirection(direction)
+IFaderControl::IFaderControl(IPlugBase* pPlug, int x, int y, int len, int paramIdx, IBitmap* pBitmap, EDirection direction, bool onlyHandle)
+  : IControl(pPlug, IRECT(), paramIdx), mLen(len), mBitmap(*pBitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
   if (direction == kVertical)
   {
@@ -369,6 +369,19 @@ bool IFaderControl::Draw(IGraphics* pGraphics)
 {
   IRECT r = GetHandleRECT();
   return pGraphics->DrawBitmap(&mBitmap, &r, 1, &mBlend);
+}
+
+bool IFaderControl::IsHit(int x, int y) 
+{
+  if(mOnlyHandle)
+  {
+    IRECT r = GetHandleRECT();
+    return r.Contains(x, y); 
+  }
+  else 
+  {
+    return mTargetRECT.Contains(x, y); 
+  }
 }
 
 void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)

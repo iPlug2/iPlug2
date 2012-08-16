@@ -191,7 +191,7 @@ class IFaderControl : public IControl
 {
 public:
   IFaderControl(IPlugBase* pPlug, int x, int y, int len, int paramIdx, IBitmap* pBitmap,
-                EDirection direction = kVertical);
+                EDirection direction = kVertical, bool onlyHandle = false);
   ~IFaderControl() {}
 
   int GetLength() const { return mLen; }
@@ -206,12 +206,15 @@ public:
   virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod);
 
   virtual bool Draw(IGraphics* pGraphics);
+  
+  virtual bool IsHit(int x, int y);
 
 protected:
   void SnapToMouse(int x, int y);
   int mLen, mHandleHeadroom;
   IBitmap mBitmap;
   EDirection mDirection;
+  bool mOnlyHandle; // if true only by clicking on the handle do you click the slider
 };
 
 const double DEFAULT_GEARING = 4.0;
