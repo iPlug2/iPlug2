@@ -203,27 +203,61 @@ void IInvisibleSwitchControl::OnMouseDown(int x, int y, IMouseMod* pMod)
 }
 
 IRadioButtonsControl::IRadioButtonsControl(IPlugBase* pPlug, IRECT pR, int paramIdx, int nButtons,
-    IBitmap* pBitmap, EDirection direction)
+    IBitmap* pBitmap, EDirection direction, bool reverse)
   :   IControl(pPlug, pR, paramIdx), mBitmap(*pBitmap)
 {
   mRECTs.Resize(nButtons);
-  int x = mRECT.L, y = mRECT.T, h = int((double) pBitmap->H / (double) pBitmap->N);
-  if (direction == kHorizontal)
+  int h = int((double) pBitmap->H / (double) pBitmap->N);
+  
+  if (reverse) 
   {
-    int dX = int((double) (pR.W() - nButtons * pBitmap->W) / (double) (nButtons - 1));
-    for (int i = 0; i < nButtons; ++i)
+    if (direction == kHorizontal)
     {
-      mRECTs.Get()[i] = IRECT(x, y, x + pBitmap->W, y + h);
-      x += pBitmap->W + dX;
+      int dX = int((double) (pR.W() - nButtons * pBitmap->W) / (double) (nButtons - 1));
+      int x = mRECT.R - pBitmap->W - dX;
+      int y = mRECT.T;
+      
+      for (int i = 0; i < nButtons; ++i)
+      {
+        mRECTs.Get()[i] = IRECT(x, y, x + pBitmap->W, y + h);
+        x -= pBitmap->W + dX;
+      }
     }
+    else
+    {
+      int dY = int((double) (pR.H() - nButtons * h) /  (double) (nButtons - 1));
+      int x = mRECT.L;
+      int y = mRECT.B - h - dY;
+      
+      for (int i = 0; i < nButtons; ++i)
+      {
+        mRECTs.Get()[i] = IRECT(x, y, x + pBitmap->W, y + h);
+        y -= h + dY;
+      }
+    }
+    
   }
   else
   {
-    int dY = int((double) (pR.H() - nButtons * h) /  (double) (nButtons - 1));
-    for (int i = 0; i < nButtons; ++i)
+    int x = mRECT.L, y = mRECT.T;
+    
+    if (direction == kHorizontal)
     {
-      mRECTs.Get()[i] = IRECT(x, y, x + pBitmap->W, y + h);
-      y += h + dY;
+      int dX = int((double) (pR.W() - nButtons * pBitmap->W) / (double) (nButtons - 1));
+      for (int i = 0; i < nButtons; ++i)
+      {
+        mRECTs.Get()[i] = IRECT(x, y, x + pBitmap->W, y + h);
+        x += pBitmap->W + dX;
+      }
+    }
+    else
+    {
+      int dY = int((double) (pR.H() - nButtons * h) /  (double) (nButtons - 1));
+      for (int i = 0; i < nButtons; ++i)
+      {
+        mRECTs.Get()[i] = IRECT(x, y, x + pBitmap->W, y + h);
+        y += h + dY;
+      }
     }
   }
 }

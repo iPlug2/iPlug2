@@ -164,7 +164,7 @@ class IRadioButtonsControl : public IControl
 {
 public:
   IRadioButtonsControl(IPlugBase* pPlug, IRECT pR, int paramIdx, int nButtons, IBitmap* pBitmap,
-                       EDirection direction = kVertical);
+                       EDirection direction = kVertical, bool reverse = false);
   ~IRadioButtonsControl() {}
 
   void OnMouseDown(int x, int y, IMouseMod* pMod);
