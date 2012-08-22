@@ -118,7 +118,8 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
   }
 
   HDC__ * srcCtx = (HDC__*) mDrawBitmap->getDC();
-  CGImageRef img = CGBitmapContextCreateImage(srcCtx->ctx);
+  CGImageRef img = CGBitmapContextCreateImage(srcCtx->ctx); 
+  r.size.width = mDrawBitmap->getRowSpan();
   CGContextDrawImage(pCGC, r, img);
   CGImageRelease(img);
   return true;
