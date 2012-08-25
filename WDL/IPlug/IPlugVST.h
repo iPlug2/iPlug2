@@ -54,8 +54,8 @@ protected:
   void HostSpecificInit();
   void AttachGraphics(IGraphics* pGraphics);
   void SetLatency(int samples);
-  bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
+	bool SendMidiMsg(IMidiMsg* pMsg);
+  bool SendSysEx(int offset, const BYTE* pData, int size);
   audioMasterCallback GetHostCallback();
 
 private:

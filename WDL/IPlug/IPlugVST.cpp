@@ -574,16 +574,16 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
               //#ifdef TRACER_BUILD
               //  msg.LogMsg();
               //#endif
-            }
-            else
-            {
-              _this->SendVSTEvent(pEvent); // Pass sysex messages through.
-            }
-          }
-        }
-        return 1;
-      }
-      return 0;
+				    }
+				    else if (pEvent->type == kVstSysExType) {
+				        VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
+				        _this->ProcessSysEx(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
+				    }
+			    }
+		    }
+		    return 1;
+	    }
+	    return 0;
     }
     case effCanBeAutomated:
     {

@@ -284,8 +284,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       _this->Reset();
       return noErr;
     }
-    case kMusicDeviceMIDIEventSelect:     // Ignore kMusicDeviceSysExSelect for now.
-    {
+    case kMusicDeviceMIDIEventSelect: {
       IMidiMsg msg;
       msg.mStatus = GET_COMP_PARAM(UInt32, 3, 4);
       msg.mData1 = GET_COMP_PARAM(UInt32, 2, 4);
@@ -294,9 +293,13 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       _this->ProcessMidiMsg(&msg);
       return noErr;
     }
-    NO_OP(kMusicDeviceSysExSelect);
-    case kMusicDevicePrepareInstrumentSelect:
-    {
+    case kMusicDeviceSysExSelect: {
+      UInt8* pData = GET_COMP_PARAM(UInt8*, 1, 2);
+      UInt32 dataSize = GET_COMP_PARAM(UInt32, 0, 2);
+      _this->ProcessSysEx(0, (const BYTE*)pData, dataSize);
+      return noErr;
+    }
+    case kMusicDevicePrepareInstrumentSelect: {
       return noErr;
     }
     case kMusicDeviceReleaseInstrumentSelect:
