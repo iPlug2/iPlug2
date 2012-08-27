@@ -7,7 +7,7 @@
 #define TRACETOSTDOUT
 
 #ifdef OS_WIN
-#define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions
+#define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions?
 
 void DBGMSG(const char *format, ...)
 {
@@ -31,7 +31,7 @@ void DBGMSG(const char *format, ...)
   OutputDebugString(buf);
 }
 
-#else
+#else // OSX
   #define LOGFILE "IPlugLog.txt" // will get put on Desktop
 #endif
 
@@ -225,7 +225,11 @@ void Trace(const char* funcName, int line, const char* format, ...)
     VARARGS_TO_STR(str);
 
 #ifdef TRACETOSTDOUT
+    #ifdef OS_WIN
+    DBGMSG("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+    #else
     printf("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+    #endif
 #else
     WDL_MutexLock lock(&sLogMutex);
     fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
