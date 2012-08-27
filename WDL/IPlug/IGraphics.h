@@ -19,15 +19,20 @@
 
   static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod* pMod)
   {
-	  uint32_t aax_mods = 0;
-  	
-	  if (pMod->A) aax_mods |= AAX_eModifiers_Option;
-	  if (pMod->C) aax_mods |= AAX_eModifiers_Control;
-	  if (pMod->R) aax_mods |= AAX_eModifiers_Command; // TODO: ??
-	  if (pMod->S) aax_mods |= AAX_eModifiers_Shift;
-	  if (pMod->R) aax_mods |= AAX_eModifiers_SecondaryButton;
+    uint32_t aax_mods = 0;
+
+    if (pMod->A) aax_mods |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+
+    #ifdef OS_WIN
+    if (pMod->C) aax_mods |= AAX_eModifiers_Command;
+    #else
+    if (pMod->C) aax_mods |= AAX_eModifiers_Control;
+    #endif
+    //if (pMod->R) aax_mods |= AAX_eModifiers_Command; // TODO: ??
+    if (pMod->S) aax_mods |= AAX_eModifiers_Shift;
+    if (pMod->R) aax_mods |= AAX_eModifiers_SecondaryButton;
     
-	  return aax_mods;
+    return aax_mods;
   }
 #endif
 
