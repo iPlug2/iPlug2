@@ -847,13 +847,18 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
     #endif
     
     #ifdef AAX_API
-    uint32_t mods = GetAAXModifiersFromIMouseMod(pMod);
-    
     if (mAAXViewContainer && paramIdx >= 0)
     {
+      uint32_t mods = GetAAXModifiersFromIMouseMod(pMod);
+      #ifdef OS_WIN
+      // required to get start/windows and alt keys
+      uint32_t aaxViewMods = 0;
+      mAAXViewContainer->GetModifiers(&aaxViewMods);
+      mods |= aaxViewMods;
+      #endif
       WDL_String paramID;
       paramID.SetFormatted(32, "%i", paramIdx+1);
-      
+
       if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), mods) == AAX_SUCCESS)
       {
         return; // event handled by PT
