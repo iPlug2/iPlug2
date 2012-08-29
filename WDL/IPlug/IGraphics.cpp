@@ -714,22 +714,6 @@ bool IGraphics::IsDirty(IRECT* pR)
   return dirty;
 }
 
-//void IGraphics::DisplayControlValue(IControl* pControl)
-//{
-//  char str[32];
-//  int paramIdx = pControl->ParamIdx();
-//  if (paramIdx >= 0) {
-//    IParam* pParam = mPlug->GetParam(paramIdx);
-//    pParam->GetDisplayForHost(str);
-//    IRECT r = *(pControl->GetRECT());
-//    r.L = r.MW() - 10;
-//    r.R = r.L + 20;
-//    r.T = r.MH() - 5;
-//    r.B = r.T + 10;
-//    DrawIText(&IText(), str, &r);
-//  }
-//}
-
 // The OS is announcing what needs to be redrawn,
 // which may be a larger area than what is strictly dirty.
 bool IGraphics::Draw(IRECT* pR)

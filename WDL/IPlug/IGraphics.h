@@ -145,6 +145,7 @@ public:
   int AttachControl(IControl* pControl);
 
   IControl* GetControl(int idx) { return mControls.Get(idx); }
+  int GetNControls() { return mControls.GetSize(); }
   void HideControl(int paramIdx, bool hide);
   void GrayOutControl(int paramIdx, bool gray);
 

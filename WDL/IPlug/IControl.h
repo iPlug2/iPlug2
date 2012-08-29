@@ -21,7 +21,8 @@ public:
   IControl(IPlugBase* pPlug, IRECT pR, int paramIdx = -1, IChannelBlend blendMethod = IChannelBlend::kBlendNone)
     : mPlug(pPlug), mRECT(pR), mTargetRECT(pR), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
       mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
-      mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN) {}
+      mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN), 
+      mValDisplayControl(0), mNameDisplayControl(0) {}
 
   virtual ~IControl() {}
 
@@ -72,6 +73,9 @@ public:
   virtual bool IsHit(int x, int y) { return mTargetRECT.Contains(x, y); }
 
   void SetBlendMethod(IChannelBlend::EBlendMethod blendMethod) { mBlend = IChannelBlend(blendMethod); }
+  
+  void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
+  void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
   virtual void SetDirty(bool pushParamToPlug = true);
   virtual void SetClean();
@@ -97,6 +101,8 @@ protected:
   double mValue, mDefaultValue, mClampLo, mClampHi;
   bool mDirty, mHide, mGrayed, mRedraw, mDisablePrompt, mClamped, mDblAsSingleClick, mMOWhenGreyed;
   IChannelBlend mBlend;
+  IControl* mValDisplayControl;
+  IControl* mNameDisplayControl;
 };
 
 enum EDirection { kVertical, kHorizontal };
