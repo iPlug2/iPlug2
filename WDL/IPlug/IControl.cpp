@@ -36,6 +36,19 @@ void IControl::SetDirty(bool pushParamToPlug)
   if (pushParamToPlug && mPlug && mParamIdx >= 0)
   {
     mPlug->SetParameterFromGUI(mParamIdx, mValue);
+    IParam* pParam = mPlug->GetParam(mParamIdx);
+    
+    if (mValDisplayControl) 
+    {
+      char str[32];
+      pParam->GetDisplayForHost(str);
+      ((ITextControl*)mValDisplayControl)->SetTextFromPlug(str);
+    }
+    
+    if (mNameDisplayControl) 
+    {
+      ((ITextControl*)mNameDisplayControl)->SetTextFromPlug((char*) pParam->GetNameForHost());
+    }
   }
 }
 
