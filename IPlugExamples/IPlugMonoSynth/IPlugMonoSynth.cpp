@@ -79,8 +79,8 @@ IPlugMonoSynth::~IPlugMonoSynth() {}
 void IPlugMonoSynth::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   // Mutex is already locked for us.
-  double* in1 = inputs[0];
-  double* in2 = inputs[1];
+//  double* in1 = inputs[0];
+//  double* in2 = inputs[1];
   double* out1 = outputs[0];
   double* out2 = outputs[1];
   double peakL = 0.0, peakR = 0.0;
@@ -108,7 +108,7 @@ void IPlugMonoSynth::ProcessDoubleReplacing(double** inputs, double** outputs, i
     }
   }
 
-  for (int offset = 0; offset < nFrames; ++offset, ++in1, ++in2, ++out1, ++out2)
+  for (int offset = 0; offset < nFrames; ++offset, /*++in1, ++in2,*/ ++out1, ++out2)
   {
     while (!mMidiQueue.Empty())
     {
