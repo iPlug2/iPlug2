@@ -2,7 +2,6 @@
 #include "stdio.h"
 #include "string.h"
 #include "time.h"
-#include <fstream>
 
 #define TRACETOSTDOUT
 
@@ -148,24 +147,27 @@ const char* CurrentTime()
   time_t t = time(0);
   tm* pT = localtime(&t);
 
-  char cStr[64];
-  strftime(cStr, 64, "%Y%m%d %H:%M ", pT);
+	char cStr[32];
+	strftime(cStr, 32, "%Y%m%d %H:%M ", pT);
 
-  char cTZ[64], tz[64];
-  strftime(cTZ, 64, "%Z", pT);
-  int i, j, nZ = strlen(cTZ);
-  for (i = 0, j = 0; i < nZ; ++i)
-  {
-    if (isupper(cTZ[i]))
-    {
-      tz[j++] = cTZ[i];
-    }
-  }
-  tz[j] = '\0';
-
-  static char sTimeStr[256];
+	int tz = 60 * pT->tm_hour + pT->tm_min;
+	int yday = pT->tm_yday;
+	pT = gmtime(&t);
+	tz -= 60 * pT->tm_hour + pT->tm_min;
+	yday -= pT->tm_yday;
+	if (yday != 0)
+	{
+		if (yday > 1) yday = -1;
+		else if (yday < -1) yday = 1;
+		tz += 24 * 60 * yday;
+	}
+	int i = strlen(cStr);
+	cStr[i++] = tz >= 0 ? '+' : '-';
+	if (tz < 0) tz = -tz;
+	sprintf(&cStr[i], "%02d%02d", tz / 60, tz % 60);
+  
+  static char sTimeStr[32];
   strcpy(sTimeStr, cStr);
-  strcat(sTimeStr, tz);
   return sTimeStr;
 }
 
