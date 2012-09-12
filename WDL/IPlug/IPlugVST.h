@@ -55,7 +55,7 @@ protected:
   void AttachGraphics(IGraphics* pGraphics);
   void SetLatency(int samples);
   bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendSysEx(int offset, const BYTE* pData, int size);
+  bool SendSysEx(ISysEx* pSysEx);
   audioMasterCallback GetHostCallback();
 
 private:

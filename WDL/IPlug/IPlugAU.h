@@ -78,10 +78,9 @@ public:
 protected:
   void SetBlockSize(int blockSize);
   void SetLatency(int samples);
-  bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
-  void HostSpecificInit();
-
+	bool SendMidiMsg(IMidiMsg* pMsg);
+  bool SendSysEx(ISysEx* pSysEx);
+  
 private:
   WDL_String mOSXBundleID;
   WDL_String mCocoaViewFactoryClassName;

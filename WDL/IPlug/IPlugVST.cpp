@@ -112,7 +112,7 @@ void IPlugVST::InformHostOfProgramChange()
 
 inline VstTimeInfo* GetTimeInfo(audioMasterCallback hostCallback, AEffect* pAEffect, int filter = 0)
 {
-#pragma warning(disable:4312)	// Pointer size cast mismatch.
+#pragma warning(disable:4312) // Pointer size cast mismatch.
   VstTimeInfo* pTI = (VstTimeInfo*) hostCallback(pAEffect, audioMasterGetTime, 0, filter, 0, 0);
 #pragma warning(default:4312)
   if (pTI && (!filter || (pTI->flags & filter)))
@@ -292,16 +292,16 @@ bool IPlugVST::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   return rc;
 }
 
-bool IPlugVST::SendSysEx(int offset, const BYTE* pData, int size)
+bool IPlugVST::SendSysEx(ISysEx* pSysEx)
 { 
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
 
   sysexEvent.type = kVstSysExType;
   sysexEvent.byteSize = sizeof(VstMidiSysexEvent);
-  sysexEvent.deltaFrames = offset;
-  sysexEvent.dumpBytes = size;
-  sysexEvent.sysexDump = (char*)pData;
+  sysexEvent.deltaFrames = pSysEx->mOffset;
+  sysexEvent.dumpBytes = pSysEx->mSize;
+  sysexEvent.sysexDump = (char*)pSysEx->mData;
 
   return SendVSTEvent((VstEvent*) &sysexEvent);
 }
@@ -588,16 +588,17 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
               //#ifdef TRACER_BUILD
               //  msg.LogMsg();
               //#endif
-				    }
-				    else if (pEvent->type == kVstSysExType) {
-				        VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
-				        _this->ProcessSysEx(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
-				    }
-			    }
-		    }
-		    return 1;
-	    }
-	    return 0;
+            }
+            else if (pEvent->type == kVstSysExType) {
+                VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
+                ISysEx sysex(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
+                _this->ProcessSysEx(&sysex);
+            }
+          }
+        }
+        return 1;
+      }
+      return 0;
     }
     case effCanBeAutomated:
     {

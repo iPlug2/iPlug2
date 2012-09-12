@@ -72,7 +72,7 @@ public:
   virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
 
   virtual void ProcessMidiMsg(IMidiMsg* pMsg);
-  virtual void ProcessSysEx(int offset, const BYTE* pData, int size) {}
+  virtual void ProcessSysEx(ISysEx* pSysEx) {}
 
   virtual bool MidiNoteName(int noteNumber, char* rName) { *rName = '\0'; return false; }
 
@@ -199,7 +199,7 @@ protected:
   virtual void SetLatency(int samples);
   virtual bool SendMidiMsg(IMidiMsg* pMsg) = 0;
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs) = 0;
-  virtual bool SendSysEx(int offset, const BYTE* pData, int size) { return false; }
+  virtual bool SendSysEx(ISysEx* pSysEx) { return false; }
   bool IsInst() { return mIsInst; }
 
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
