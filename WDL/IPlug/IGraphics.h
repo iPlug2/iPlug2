@@ -27,8 +27,8 @@
     if (pMod->C) aax_mods |= AAX_eModifiers_Command;
     #else
     if (pMod->C) aax_mods |= AAX_eModifiers_Control;
+    if (pMod->R) aax_mods |= AAX_eModifiers_Command;
     #endif
-    //if (pMod->R) aax_mods |= AAX_eModifiers_Command; // TODO: ??
     if (pMod->S) aax_mods |= AAX_eModifiers_Shift;
     if (pMod->R) aax_mods |= AAX_eModifiers_SecondaryButton;
     
