@@ -93,8 +93,8 @@ void PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 void PopulateDriverSpecificControls(HWND hwndDlg)
 {
 #ifdef OS_WIN
-  int dt = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
-  if(dt)   //ASIO
+  int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
+  if(driverType)   //ASIO
   {
     ComboBox_Enable(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_DEV), FALSE);
     Button_Enable(GetDlgItem(hwndDlg, IDC_BUTTON_ASIO), TRUE);
@@ -128,7 +128,13 @@ void PopulateDriverSpecificControls(HWND hwndDlg)
       outdevidx = i;
   }
 
-  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, indevidx, 0);
+#ifdef OS_WIN
+  if(driverType)
+    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, outdevidx, 0);
+  else
+#endif
+    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, indevidx, 0);
+
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_DEV,CB_SETCURSEL, outdevidx, 0);
 
   RtAudio::DeviceInfo inputDevInfo = gDAC->getDeviceInfo(gAudioInputDevs[indevidx]);
@@ -271,8 +277,10 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
       switch (LOWORD(wParam))
       {
         case IDOK:
-          // TODO: check if state is the same as what is currently set
-          TryToChangeAudio();
+          if(memcmp(gActiveState, gState, sizeof(AppState)) != 0) // if state is different try to change audio
+          {
+            TryToChangeAudio();
+          }
           EndDialog(hwndDlg, IDOK); // INI file will be changed see MainDialogProc
           break;
         case IDAPPLY:
@@ -289,6 +297,7 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
             TryToChangeAudioDriverType();
             ProbeAudioIO();
+            TryToChangeAudio();
           }
 
           break;
@@ -423,7 +432,7 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
             #ifdef OS_OSX
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
             #elif defined OS_WIN
-            if( gState->mAudioDriverType == DAC_ASIO )
+            if( gState->mAudioDriverType == DAC_ASIO && gDAC->isStreamRunning()) // TODO: still not right
               ASIOControlPanel();
             #endif
           break;

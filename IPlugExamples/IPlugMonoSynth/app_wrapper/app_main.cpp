@@ -17,6 +17,7 @@ RtMidiOut *gMidiOut = 0;
 
 AppState *gState;
 AppState *gTempState;
+AppState *gActiveState;
 
 char *gINIPath = new char[200]; // path of ini file
 
@@ -30,6 +31,7 @@ std::vector<unsigned int> gAudioInputDevs;
 std::vector<unsigned int> gAudioOutputDevs;
 std::vector<std::string> gMIDIInputDevNames;
 std::vector<std::string> gMIDIOutputDevNames;
+std::vector<std::string> gAudioIDDevNames;
 
 void UpdateINI()
 {
@@ -69,44 +71,17 @@ void UpdateINI()
 // returns the device name. Core Audio device names are truncated
 std::string GetAudioDeviceName(int idx)
 {
-  RtAudio::DeviceInfo info = gDAC->getDeviceInfo(idx);
-
-  std::string deviceName = info.name;
-
-  #ifdef OS_OSX
-  size_t colonIdx = deviceName.rfind(": ");
-
-  if(colonIdx != std::string::npos && deviceName.length() >= 2)
-    return deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
-  else
-  {
-    return deviceName;
-  }
-  #else
-  return deviceName;
-  #endif
+  return gAudioIDDevNames.at(idx);
 }
 
 // returns the rtaudio device ID, based on the (truncated) device name
 int GetAudioDeviceID(char* deviceNameToTest)
 {
-  int i;
+  TRACE;
 
-  RtAudio::DeviceInfo info;
-
-  for(i = 0; i < gDAC->getDeviceCount(); i++)
+  for(int i = 0; i < gAudioIDDevNames.size(); i++)
   {
-    info = gDAC->getDeviceInfo(i);
-    std::string deviceName = info.name;
-    #ifdef OS_OSX
-    size_t colonIdx = deviceName.rfind(": ");
-
-    if(colonIdx != std::string::npos && deviceName.length() >= 2)
-    {
-      deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
-    }
-    #endif
-    if(!strcmp(deviceNameToTest, deviceName.c_str() ))
+    if(!strcmp(deviceNameToTest, gAudioIDDevNames.at(i).c_str() ))
       return i;
   }
 
@@ -156,19 +131,35 @@ unsigned int GetMIDIOutPortNumber(const char* nameToTest)
 // find out which devices have input channels & which have output channels, add their ids to the lists
 void ProbeAudioIO()
 {
+  TRACE;
+
   RtAudio::DeviceInfo info;
 
   gAudioInputDevs.clear();
   gAudioOutputDevs.clear();
+  gAudioIDDevNames.clear();
 
-  unsigned int devices = gDAC->getDeviceCount();
+  unsigned int nDevices = gDAC->getDeviceCount();
 
-  for (int i=0; i<devices; i++)
+  for (int i=0; i<nDevices; i++)
   {
     info = gDAC->getDeviceInfo(i);
+    std::string deviceName = info.name;
+
+    #ifdef OS_OSX
+    size_t colonIdx = deviceName.rfind(": ");
+
+    if(colonIdx != std::string::npos && deviceName.length() >= 2)
+      deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
+
+    #endif
+
+    gAudioIDDevNames.push_back(deviceName);
 
     if ( info.probed == false )
-      std::cout << GetAudioDeviceName(i) << ": Probe Status = Unsuccessful\n";
+      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
+    else if ( !strcmp("Generic Low Latency ASIO Driver", deviceName.c_str() ))
+      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
     else
     {
       if(info.inputChannels > 0)
@@ -340,12 +331,12 @@ int AudioCallback(void *outputBuffer,
 
 bool TryToChangeAudioDriverType()
 {
+  TRACE;
+
   if (gDAC)
   {
     if (gDAC->isStreamOpen())
     {
-      if (gDAC->isStreamRunning())
-        gDAC->abortStream();
       gDAC->closeStream();
     }
 
@@ -372,6 +363,8 @@ bool TryToChangeAudioDriverType()
 
 bool TryToChangeAudio()
 {
+  TRACE;
+
   int inputID = -1;
   int outputID = -1;
 
@@ -406,14 +399,14 @@ bool InitialiseAudio(unsigned int inId,
                      unsigned int outChanL
                     )
 {
+  TRACE;
+
   if (gDAC->isStreamOpen())
   {
     if (gDAC->isStreamRunning())
     {
       try
       {
-        // Stop the stream
-        //gDAC->stopStream();
         gDAC->abortStream();
       }
       catch (RtError& e)
@@ -453,10 +446,11 @@ bool InitialiseAudio(unsigned int inId,
 
   try
   {
-    //gDAC->openStream( &oParams, NULL, RTAUDIO_FLOAT64, sr, &gIOVS, &AudioCallback, NULL, &options);
-    //gDAC->openStream( &oParams, &iParams, RTAUDIO_FLOAT64, sr, &gIOVS, &AudioCallback, NULL, NULL);
+    TRACE;
     gDAC->openStream( &oParams, &iParams, RTAUDIO_FLOAT64, sr, &gIOVS, &AudioCallback, NULL, &options);
     gDAC->startStream();
+
+    memcpy(gActiveState, gState, sizeof(AppState)); // copy state to active state
   }
   catch ( RtError& e )
   {
@@ -629,7 +623,7 @@ extern bool AttachGUI()
   return false;
 }
 
-void init()
+void Init()
 {
   TryToChangeAudioDriverType(); // will init RTAudio with an API type based on gState->mAudioDriverType
   ProbeAudioIO(); // find out what audio IO devs are available and put their IDs in the global variables gAudioInputDevs / gAudioOutputDevs
@@ -646,7 +640,7 @@ void init()
   TryToChangeAudio();
 }
 
-void cleanup()
+void Cleanup()
 {
   try
   {
@@ -667,6 +661,7 @@ void cleanup()
   delete gPluginInstance;
   delete gState;
   delete gTempState;
+  delete gActiveState;
   delete gMidiIn;
   delete gMidiOut;
   delete gDAC;
@@ -704,6 +699,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     gState = new AppState();
     gTempState = new AppState();
+    gActiveState = new AppState();
 
     if (SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, gINIPath ) != S_OK)
     {
@@ -760,7 +756,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       UpdateINI(); // will write file if doesn't exist
     }
 
-    init();
+    Init();
 
     CreateDialog(gHINST,MAKEINTRESOURCE(IDD_DIALOG_MAIN),GetDesktopWindow(),MainDlgProc);
 
@@ -806,7 +802,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
     if (gHWND) DestroyWindow(gHWND);
 
-    cleanup();
+    Cleanup();
 
     ReleaseMutex(hMutex);
   }
@@ -830,6 +826,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
       gState = new AppState();
       gTempState = new AppState();
+      gActiveState = new AppState();
 
       homeDir = getenv("HOME");
       sprintf(gINIPath, "%s/Library/Application Support/%s/", homeDir, BUNDLE_NAME);
@@ -891,7 +888,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #pragma mark loaded
     case SWELLAPP_LOADED:
     {
-      init();
+      Init();
 
       HMENU menu = SWELL_GetCurrentMenu();
 
@@ -958,7 +955,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_DESTROY:
 
       if (gHWND) DestroyWindow(gHWND);
-      cleanup();
+      Cleanup();
       break;
     case SWELLAPP_PROCESSMESSAGE: // can hook keyboard input here
       // parm1 = (MSG*), should we want it -- look in swell.h to see what the return values refer to

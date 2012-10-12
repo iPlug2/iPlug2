@@ -12,9 +12,9 @@
 
  App settings are stored in a .ini file. The location is as follows:
 
- Windows7: C:\Users\USERNAME\AppData\Local\IPlugGUIResize\settings.ini
- Windows XP/Vista: C:\Documents and Settings\USERNAME\Local Settings\Application Data\IPlugGUIResize\settings.ini
- OSX: /Users/USERNAME/Library/Application\ Support/IPlugGUIResize/settings.ini
+ Windows7: C:\Users\USERNAME\AppData\Local\EndlessSeries\settings.ini
+ Windows XP/Vista: C:\Documents and Settings\USERNAME\Local Settings\Application Data\EndlessSeries\settings.ini
+ OSX: /Users/USERNAME/Library/Application\ Support/EndlessSeries/settings.ini
 
 */
 
@@ -46,7 +46,7 @@
 
 #include "../IPlugGUIResize.h" // change this to match your iplug plugin .h file
 
-typedef unsigned short UInt16;
+//typedef unsigned short UInt16;
 
 struct AppState
 {
@@ -130,6 +130,7 @@ extern RtMidiOut *gMidiOut;
 
 extern AppState *gState;
 extern AppState *gTempState; // The state is copied here when the pref dialog is opened, and restored if cancel is pressed
+extern AppState *gActiveState; // When the audio driver is started the current state is copied here so that if OK is pressed after APPLY nothing is changed
 
 extern unsigned int gSigVS;
 extern unsigned int gBufIndex; // index for signal vector, loops from 0 to gSigVS
