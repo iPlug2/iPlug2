@@ -46,7 +46,7 @@
 
 #include "../IPlugEffect.h" // change this to match your iplug plugin .h file
 
-typedef unsigned short UInt16;
+//typedef unsigned short UInt16;
 
 struct AppState
 {
@@ -130,6 +130,7 @@ extern RtMidiOut *gMidiOut;
 
 extern AppState *gState;
 extern AppState *gTempState; // The state is copied here when the pref dialog is opened, and restored if cancel is pressed
+extern AppState *gActiveState; // When the audio driver is started the current state is copied here so that if OK is pressed after APPLY nothing is changed
 
 extern unsigned int gSigVS;
 extern unsigned int gBufIndex; // index for signal vector, loops from 0 to gSigVS
