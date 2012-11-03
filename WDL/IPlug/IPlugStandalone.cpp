@@ -52,46 +52,6 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
   #endif
 }
 
-// TODO: BeginInformHostOfParamChange etc, maybe needed for ios state persistance?
-void IPlugStandalone::BeginInformHostOfParamChange(int idx)
-{
-}
-
-void IPlugStandalone::InformHostOfParamChange(int idx, double normalizedValue)
-{
-}
-
-void IPlugStandalone::EndInformHostOfParamChange(int idx)
-{
-}
-
-void IPlugStandalone::InformHostOfProgramChange()
-{
-}
-
-// TODO: GetSamplePos()
-int IPlugStandalone::GetSamplePos()
-{
-  return 0;
-}
-
-// TODO: GetTempo()
-double IPlugStandalone::GetTempo()
-{
-  return DEFAULT_TEMPO;
-}
-
-// TODO: GetTime()
-void IPlugStandalone::GetTime(ITimeInfo* pTimeInfo)
-{
-}
-
-// TODO: GetTimeSig()
-void IPlugStandalone::GetTimeSig(int* pNum, int* pDenom)
-{
-
-}
-
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
   #ifndef OS_IOS
