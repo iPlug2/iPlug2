@@ -192,8 +192,7 @@ protected:
   #ifndef OS_IOS
   virtual void AttachGraphics(IGraphics* pGraphics);
   #endif
-  void SetSampleRate(double sampleRate);
-  virtual void SetBlockSize(int blockSize);
+
   // If latency changes after initialization (often not supported by the host).
   virtual void SetLatency(int samples);
   virtual bool SendMidiMsg(IMidiMsg* pMsg) = 0;
@@ -272,6 +271,10 @@ public:
   bool LoadProgramFromFXP();
   bool LoadBankFromFXB();
   #endif
+  
+  void SetSampleRate(double sampleRate);
+  virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
+  
   WDL_Mutex mMutex;
 
   struct IMutexLock

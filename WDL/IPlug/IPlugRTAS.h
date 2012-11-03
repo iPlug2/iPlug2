@@ -50,9 +50,6 @@ public:
   void ProcessAudioBypassed(float** inputs, float** outputs, int nFrames);
 
   void SetIO(int nInputs, int nOutputs);
-
-  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; } ;
-  void SetBlockSize(int blockSize) { IPlugBase::SetBlockSize(blockSize); }
   
   void SetSideChainConnected(bool connected);
 

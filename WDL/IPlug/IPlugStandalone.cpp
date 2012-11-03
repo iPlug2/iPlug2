@@ -109,16 +109,6 @@ void IPlugStandalone::ResizeGraphics(int w, int h)
   #endif
 }
 
-void IPlugStandalone::SetSampleRate(double sampleRate)
-{
-  mSampleRate = sampleRate;
-}
-
-void IPlugStandalone::SetBlockSize(int blockSize)
-{
-  mBlockSize = blockSize;
-}
-
 bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
 {
   #ifdef OS_IOS
