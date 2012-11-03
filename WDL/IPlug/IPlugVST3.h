@@ -76,9 +76,9 @@ public:
   virtual tresult PLUGIN_API hasProgramPitchNames(ProgramListID listId, int32 programIndex) {return kNotImplemented;}
   virtual tresult PLUGIN_API getProgramPitchName(ProgramListID listId, int32 programIndex, int16 midiPitch, String128 name) {return kNotImplemented;}
   virtual UnitID PLUGIN_API getSelectedUnit () {return kRootUnitId;}
-  virtual tresult PLUGIN_API selectUnit (UnitID unitId) {return kNotImplemented;}
-  virtual tresult PLUGIN_API getUnitByBus (MediaType type, BusDirection dir, int32 busIndex, int32 channel, UnitID& unitId) {return kNotImplemented;}
-  virtual tresult PLUGIN_API setUnitProgramData (int32 listOrUnitId, int32 programIndex, IBStream* data) {return kNotImplemented;}
+  virtual tresult PLUGIN_API selectUnit(UnitID unitId) {return kNotImplemented;}
+  virtual tresult PLUGIN_API getUnitByBus(MediaType type, BusDirection dir, int32 busIndex, int32 channel, UnitID& unitId) {return kNotImplemented;}
+  virtual tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) {return kNotImplemented;}
 
   //IPlugBase
   virtual void BeginInformHostOfParamChange(int idx);
