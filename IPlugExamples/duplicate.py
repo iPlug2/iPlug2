@@ -31,7 +31,7 @@ from os.path import join
 #tabs = 0
 #newsubfolder = False
 
-VERSION = "0.7.4"
+VERSION = "0.7.5"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -177,7 +177,7 @@ def main():
 		#	rmtree(output)
 				
 		print "copying " + input + " folder to " + output
-		copytree(input, output, ignore=ignore_patterns('*.exe', '*.dmg', '*.pkg', '*.mpkg', '*.svn', '*.ncb', '*.suo', '*sdf', 'ipch', 'build-*', '*.layout', '*.depend', '.DS_Store' ))
+		copytree(input, output, ignore=ignore_patterns('*.exe', '*.dmg', '*.pkg', '*.mpkg', '*.svn', '*.ncb', '*.suo', '*sdf', 'ipch', 'build-*', '*.layout', '*.depend', '.DS_Store', '*xcuserdata*' ))
 		cpath = os.path.join(os.getcwd(), output)
 
 		#replace manufacturer name strings
