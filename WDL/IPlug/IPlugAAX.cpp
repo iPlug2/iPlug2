@@ -8,6 +8,7 @@
 // custom taper for IParam::kTypeDouble
 #include "AAX/AAX_CIPlugTaperDelegate.h"
 #include "AAX_CNumberDisplayDelegate.h"
+#include "AAX_CUnitDisplayDelegateDecorator.h"
 
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 {
@@ -175,8 +176,8 @@ AAX_Result IPlugAAX::EffectInit()
         param = new AAX_CParameter<double>(paramID->Get(), 
                                           AAX_CString(p->GetNameForHost()), 
                                           p->GetDefault(), 
-                                          AAX_CIPlugTaperDelegate<double>(p->GetMin(), p->GetMax(), p->GetShape()), 
-                                          AAX_CNumberDisplayDelegate<double>(), 
+                                          AAX_CIPlugTaperDelegate<double>(p->GetMin(), p->GetMax(), p->GetShape()),
+                                          AAX_CUnitDisplayDelegateDecorator<double>( AAX_CNumberDisplayDelegate<double>(), AAX_CString(p->GetLabelForHost())), 
                                           p->GetCanAutomate());
         
         param->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
@@ -190,7 +191,7 @@ AAX_Result IPlugAAX::EffectInit()
                                         AAX_CString(p->GetNameForHost()), 
                                         (int)p->GetDefault(), 
                                         AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
-                                        AAX_CNumberDisplayDelegate<int>(), 
+                                        AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int>(), AAX_CString(p->GetLabelForHost())), 
                                         p->GetCanAutomate());
         
         param->SetNumberOfSteps(128);
