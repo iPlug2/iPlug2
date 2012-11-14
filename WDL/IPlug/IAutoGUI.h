@@ -243,11 +243,14 @@ void GenerateKnobGUI(IGraphics* pGraphics,
   paramNameMaxBounds = paramNameMaxBounds.Union(&paramValueMaxBounds);
   
   int width = IPMAX(paramNameMaxBounds.W(), minWidth);
+  
+  width = (width % 2 == 0) ? width : (width + 1); // make sure it's an even number, otherwise LICE draw errors
+  
   int height = IPMAX(paramNameMaxBounds.H(), minHeight);
   int row = 0;
   int column = 0;
   int xoffs = 2;
-
+  
   for(int p = 0; p < pPlug->NParams(); p++)
   {
     if ((((width + GAP) * column) + 2) + width >= w) 
