@@ -53,11 +53,11 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
   }
 
   // initialize the bus labels
-  SetInputBusLabel(0, "main input");
+  SetInputBusLabel(0, "Main Input");
 
   if (mScChans)
   {
-    SetInputBusLabel(1, "aux input");
+    SetInputBusLabel(1, "Aux Input");
   }
 
   if (IsInst())
@@ -67,7 +67,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
 
     for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only
     {
-      sprintf(label, "output %i", busNum+1);
+      sprintf(label, "Output %i", busNum+1);
       SetOutputBusLabel(busNum++, label);
     }
   }
@@ -135,8 +135,8 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
     if(mDoesMidi)
     {
-      addEventInput (STR16("MIDI In"), 1);
-      //addEventOutput(STR16("MIDI Out"), 1);
+      addEventInput (STR16("MIDI Input"), 1);
+      //addEventOutput(STR16("MIDI Output"), 1);
     }
 
     if (NPresets())
