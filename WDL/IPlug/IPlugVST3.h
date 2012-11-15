@@ -66,7 +66,7 @@ public:
   tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized);
 
   //IUnitInfo
-  int32 PLUGIN_API getUnitCount() { return 1; }
+  int32 PLUGIN_API getUnitCount();
   tresult PLUGIN_API getUnitInfo(int32 unitIndex, UnitInfo& info);
   int32 PLUGIN_API getProgramListCount();
   tresult PLUGIN_API getProgramListInfo(int32 listIndex, ProgramListInfo& info);

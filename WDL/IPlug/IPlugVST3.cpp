@@ -165,6 +165,26 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       IParam *p = GetParam(i);
 
       int32 flags = 0;
+      UnitID unitID = kRootUnitId;
+      
+      const char* paramGroupName = p->GetParamGroupForHost();
+
+      if (CSTR_NOT_EMPTY(paramGroupName))
+      {        
+        for(int i = 0; i< mParamGroups.GetSize(); i++)
+        {
+          if(strcmp(paramGroupName, mParamGroups.Get(i)) == 0)
+          {
+            unitID = i+1;
+          }
+        }
+        
+        if (unitID == kRootUnitId) // new unit, nothing found, so add it
+        {
+          mParamGroups.Add(paramGroupName);
+          unitID = mParamGroups.GetSize();
+        }
+      }
 
       if (p->GetCanAutomate())
       {
@@ -183,7 +203,8 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                                                  p->GetMax(),
                                                  p->GetDefault(),
                                                  0, // continuous
-                                                 flags);
+                                                 flags,
+                                                 unitID);
 
           param->setPrecision (p->GetPrecision());
           parameters.addParameter(param);
@@ -194,9 +215,10 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
         case IParam::kTypeBool:
         {
           StringListParameter* param = new StringListParameter (STR16(p->GetNameForHost()),
-              i,
-              STR16(p->GetLabelForHost()),
-              flags | ParameterInfo::kIsList);
+                                                                i,
+                                                                STR16(p->GetLabelForHost()),
+                                                                flags | ParameterInfo::kIsList,
+                                                                unitID);
 
           int nDisplayTexts = p->GetNDisplayTexts();
 
@@ -213,7 +235,6 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
         default:
           break;
       }
-
     }
   }
 
@@ -811,20 +832,43 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
 #pragma mark -
 #pragma mark IUnitInfo overrides
 
+int32 PLUGIN_API IPlugVST3::getUnitCount()
+{
+  TRACE;
+  
+  return mParamGroups.GetSize() + 1;
+}
+
 tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
 {
+  TRACE;
+  
+  if (unitIndex == 0) 
+  {
+    info.id = kRootUnitId;
+    info.parentUnitId = kNoParentUnitId;
+    UString name(info.name, 128);
+    name.fromAscii("Root Unit");
 #ifdef VST3_PRESET_LIST
-  info.id = kRootUnitId;
-  info.parentUnitId = kNoParentUnitId;
-  info.programListId = kPresetParam;
-
-  UString name(info.name, 128);
-  name.fromAscii("Factory Presets");
-
-  return kResultTrue;
+    info.programListId = kPresetParam;
 #else
-  return kResultFalse;
+    info.programListId = kNoProgramListId;
 #endif
+    return kResultTrue;
+  }
+  else if (unitIndex > 0 && mParamGroups.GetSize()) 
+  {
+    info.id = unitIndex;
+    info.parentUnitId = kRootUnitId;
+    info.programListId = kNoProgramListId;
+    
+    UString name(info.name, 128);
+    name.fromAscii(mParamGroups.Get(unitIndex-1));
+    
+    return kResultTrue;
+  }
+
+  return kResultFalse;
 }
 
 int32 PLUGIN_API IPlugVST3::getProgramListCount()
