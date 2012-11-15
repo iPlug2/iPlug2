@@ -626,6 +626,30 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         pInfo->minValue = vMin;
         pInfo->maxValue = vMax;
         pInfo->defaultValue = pParam->Value();
+        
+        const char* paramGroupName = pParam->GetParamGroupForHost();
+
+        if (CSTR_NOT_EMPTY(paramGroupName))
+        {
+          int clumpID = 0;
+          
+          for(int i = 0; i< mParamGroups.GetSize(); i++)
+          {
+            if(strcmp(paramGroupName, mParamGroups.Get(i)) == 0)
+            {
+              clumpID = i+1;
+            }
+          }
+          
+          if (clumpID == 0) // new clump
+          {
+            mParamGroups.Add(paramGroupName);
+            clumpID = mParamGroups.GetSize();
+          }
+          
+          pInfo->flags = pInfo->flags | kAudioUnitParameterFlag_HasClump;
+          pInfo->clumpID = clumpID;
+        }
       }
       return noErr;
     }
@@ -932,7 +956,21 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_ParameterClumpName);        // 35,
+    case kAudioUnitProperty_ParameterClumpName:          // 35,
+    {
+      *pDataSize = sizeof (AudioUnitParameterNameInfo);
+      if (pData && scope == kAudioUnitScope_Global)
+      {
+        AudioUnitParameterNameInfo* parameterNameInfo = (AudioUnitParameterNameInfo *) pData;
+        int clumpId = parameterNameInfo->inID;
+        
+        if (clumpId < 1)
+          return kAudioUnitErr_PropertyNotInUse;
+        
+        parameterNameInfo->outName = MakeCFString(mParamGroups.Get(clumpId-1));
+      }
+      return noErr;
+    }
     case kAudioUnitProperty_CurrentPreset:               // 28,
     case kAudioUnitProperty_PresentPreset:               // 36,       // listenable
     {

@@ -29,10 +29,10 @@ public:
 
   EParamType Type() { return mType; }
 
-  void InitBool(const char* name, bool defaultVal, const char* label = "");
-  void InitEnum(const char* name, int defaultVal, int nEnums);
-  void InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "");
+  void InitBool(const char* name, bool defaultVal, const char* label = "", const char* group = ""); // LABEL not used here
+  void InitEnum(const char* name, int defaultVal, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
+  void InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label = "", const char* group = "");
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "");
 
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
   void SetDisplayText(int value, const char* text);
@@ -63,7 +63,8 @@ public:
   void GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText = true);
   const char* GetNameForHost();
   const char* GetLabelForHost();
-
+  const char* GetParamGroupForHost();
+  
   int GetNDisplayTexts();
   const char* GetDisplayText(int value);
   const char* GetDisplayTextAtIdx(int idx, int* value = 0);
@@ -87,6 +88,7 @@ private:
   int mDisplayPrecision;
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
+  char mParamGroup[MAX_PARAM_LABEL_LEN];
   bool mNegateDisplay;
   bool mSignDisplay;
   bool mCanAutomate;

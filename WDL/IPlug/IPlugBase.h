@@ -311,13 +311,13 @@ private:
   };
 
 protected:
-  // TODO: probably this stuff should be private, not protected
   bool mStateChunks, mIsInst, mIsBypassed;
   int mCurrentPresetIdx;
   double mSampleRate;
   int mBlockSize, mLatency;
   WDL_String mPreviousPath; // for saving/loading fxps
   NChanDelayLine* mDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
+  WDL_PtrList<const char> mParamGroups;
 
 private:
   IGraphics* mGraphics;
