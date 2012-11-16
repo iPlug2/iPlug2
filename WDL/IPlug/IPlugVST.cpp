@@ -383,6 +383,20 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       }
       return 0;
     }
+      //could implement effGetParameterProperties to group parameters, but can't find a host that supports it
+//    case effGetParameterProperties:
+//    {
+//      if (idx >= 0 && idx < _this->NParams())
+//      {
+//        VstParameterProperties* props = (VstParameterProperties*) ptr;
+//        
+//        props->flags = kVstParameterSupportsDisplayCategory;
+//        props->category = idx+1;
+//        props->numParametersInCategory = 1;
+//        strcpy(props->categoryLabel, "test");
+//      }
+//      return 1;
+//    }
     case effString2Parameter:
     {
       if (idx >= 0 && idx < _this->NParams())
