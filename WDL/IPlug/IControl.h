@@ -91,13 +91,37 @@ public:
   // IPlugBase::OnIdle which is called from the audio processing thread.
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
-
+  
+  // a struct that contain a parameter index and normalized value
+  struct AuxParam 
+  {
+    double mValue;
+    int mParamIdx;
+    
+    AuxParam(int idx) : mParamIdx(idx)
+    {
+      assert(idx > -1); // no negative params please
+    }
+  };
+  
+  // return a pointer to the AuxParam instance at idx in the mAuxParams array
+  AuxParam* GetAuxParam(int idx);
+  // return the index of the auxillary parameter that holds the paramIdx
+  int AuxParamIdx(int paramIdx);
+  // add an auxilliary parameter linked to paramIdx
+  void AddAuxParam(int paramIdx);
+  void SetAuxParamValueFromPlug(int auxParamIdx, double value);
+  void SetAllAuxParamsFromGUI();
+  int NAuxParams() { return mAuxParams.GetSize(); }
+  
 protected:
   int mTextEntryLength;
   IText mText;
   IPlugBase* mPlug;
   IRECT mRECT, mTargetRECT;
   int mParamIdx;
+  
+  WDL_TypedBuf<AuxParam> mAuxParams;
   double mValue, mDefaultValue, mClampLo, mClampHi;
   bool mDirty, mHide, mGrayed, mRedraw, mDisablePrompt, mClamped, mDblAsSingleClick, mMOWhenGreyed;
   IChannelBlend mBlend;

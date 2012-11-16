@@ -318,6 +318,14 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
       pControl->SetValueFromPlug(value);
       // Could be more than one, don't break until we check them all.
     }
+    
+    // now look for any auxilliary parameters
+    int auxParamIdx = pControl->AuxParamIdx(paramIdx);
+    
+    if (auxParamIdx > -1) // there are aux params
+    {
+      pControl->SetAuxParamValueFromPlug(auxParamIdx, value);
+    }
   }
 }
 

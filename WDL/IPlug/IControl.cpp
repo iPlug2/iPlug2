@@ -156,6 +156,49 @@ void IControl::PromptUserInput(IRECT* pTextRect)
   }
 }
 
+IControl::AuxParam* IControl::GetAuxParam(int idx)
+{
+  assert(idx > -1 && idx < mAuxParams.GetSize());
+  return mAuxParams.Get() + idx;
+}
+
+int IControl::AuxParamIdx(int paramIdx)
+{
+  for (int i=0;i<mAuxParams.GetSize();i++)
+  {
+    if(GetAuxParam(i)->mParamIdx == paramIdx)
+      return i;
+  }
+  
+  return -1;
+}
+
+void IControl::AddAuxParam(int paramIdx)
+{
+  mAuxParams.Add(AuxParam(paramIdx));
+}
+
+void IControl::SetAuxParamValueFromPlug(int auxParamIdx, double value)
+{
+  AuxParam* auxParam = GetAuxParam(auxParamIdx);
+  
+  if (auxParam->mValue != value)
+  {
+    auxParam->mValue = value;
+    SetDirty(false);
+    Redraw();
+  }
+}
+
+void IControl::SetAllAuxParamsFromGUI()
+{
+  for (int i=0;i<mAuxParams.GetSize();i++)
+  {
+    AuxParam* auxParam = GetAuxParam(i);
+    mPlug->SetParameterFromGUI(auxParam->mParamIdx, auxParam->mValue);
+  }
+}
+
 bool IPanelControl::Draw(IGraphics* pGraphics)
 {
   pGraphics->FillIRect(&mColor, &mRECT, &mBlend);
