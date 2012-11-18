@@ -110,6 +110,8 @@
 		4F55733B12C7F49C003A4AD1 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F55733C12C7F49C003A4AD1 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F55733D12C7F49C003A4AD1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
+		4F593536165596CC005EEAF2 /* IPlugMouseTestDSP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F593535165596CC005EEAF2 /* IPlugMouseTestDSP.h */; };
+		4F593550165599B7005EEAF2 /* IPlugMouseTestControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F59354F165599B7005EEAF2 /* IPlugMouseTestControls.h */; };
 		4F78D70B13B637340032E0F3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D62313B637200032E0F3 /* CoreFoundation.framework */; };
 		4F78D7D013B637790032E0F3 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */; };
 		4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F7E65807B2D6F200F64583 /* CoreData.framework */; };
@@ -697,6 +699,8 @@
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../WDL/IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
 		4F4F73791576739300C124E3 /* AAX_CIPlugTaperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAX_CIPlugTaperDelegate.h; path = ../../WDL/IPlug/AAX/AAX_CIPlugTaperDelegate.h; sourceTree = SOURCE_ROOT; };
 		4F55734412C7F49C003A4AD1 /* IPlugMouseTest.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMouseTest.component; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F593535165596CC005EEAF2 /* IPlugMouseTestDSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugMouseTestDSP.h; sourceTree = "<group>"; };
+		4F59354F165599B7005EEAF2 /* IPlugMouseTestControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugMouseTestControls.h; sourceTree = "<group>"; };
 		4F78D62313B637200032E0F3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		4F78D89613B639100032E0F3 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
@@ -954,6 +958,8 @@
 				52FBBED30D0CF143001C8B8A /* resource.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugMouseTest.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugMouseTest.cpp */,
+				4F593535165596CC005EEAF2 /* IPlugMouseTestDSP.h */,
+				4F59354F165599B7005EEAF2 /* IPlugMouseTestControls.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
@@ -1710,6 +1716,8 @@
 				4F78DAA613B640050032E0F3 /* IGraphics.h in Headers */,
 				4F3EE94613B65A350097B791 /* IPlugOSDetect.h in Headers */,
 				4FDA440F13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
+				4F593536165596CC005EEAF2 /* IPlugMouseTestDSP.h in Headers */,
+				4F593550165599B7005EEAF2 /* IPlugMouseTestControls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
