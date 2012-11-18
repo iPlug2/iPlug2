@@ -110,7 +110,7 @@ public:
   int AuxParamIdx(int paramIdx);
   // add an auxilliary parameter linked to paramIdx
   void AddAuxParam(int paramIdx);
-  void SetAuxParamValueFromPlug(int auxParamIdx, double value);
+  virtual void SetAuxParamValueFromPlug(int auxParamIdx, double value); // can override if nessecary
   void SetAllAuxParamsFromGUI();
   int NAuxParams() { return mAuxParams.GetSize(); }
   
