@@ -924,12 +924,6 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
-void IPlugVST3::SetParameterFromGUI(int idx, double normalizedValue)
-{
-  Trace(TRACELOC, "%d:%f", idx, normalizedValue);
-  InformHostOfParamChange(idx, normalizedValue);
-}
-
 void IPlugVST3::GetTime(ITimeInfo* pTimeInfo)
 {
   //TODO: check these are all valid

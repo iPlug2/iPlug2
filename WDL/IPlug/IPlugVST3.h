@@ -79,15 +79,13 @@ public:
   virtual tresult PLUGIN_API selectUnit(UnitID unitId) {return kNotImplemented;}
   virtual tresult PLUGIN_API getUnitByBus(MediaType type, BusDirection dir, int32 busIndex, int32 channel, UnitID& unitId) {return kNotImplemented;}
   virtual tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) {return kNotImplemented;}
-
+  
   //IPlugBase
   virtual void BeginInformHostOfParamChange(int idx);
   virtual void InformHostOfParamChange(int idx, double normalizedValue);
   virtual void EndInformHostOfParamChange(int idx);
   virtual void InformHostOfProgramChange() {};
   
-  virtual void SetParameterFromGUI(int idx, double normalizedValue);
-
   virtual bool IsRenderingOffline() { return (processSetup.processMode == kOffline); }
 
   virtual int GetSamplePos();
