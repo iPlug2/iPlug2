@@ -10,6 +10,8 @@
 // MLTE is more customisable and doesn't have to have a blue focus rim, but
 // text doesn't centre properly and when you select the text and drag it behaves strangely
 
+// MLTE text entry code was adapted from expdigital's infinity api http://www.expdigital.co.uk/legacy2/developers.htm
+
 #ifndef USE_MLTE
   #define USE_MLTE 0
 #endif
