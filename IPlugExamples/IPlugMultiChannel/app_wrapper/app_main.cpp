@@ -285,11 +285,6 @@ int AudioCallback(void *outputBuffer,
   double* inputBufferD = (double*)inputBuffer;
   double* outputBufferD = (double*)outputBuffer;
 
-  int inRightOffset = 0;
-
-  if(!gState->mAudioInIsMono)
-    inRightOffset = nFrames;
-
   if (gVecElapsed > N_VECTOR_WAIT) // wait N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
   {
     for (int i=0; i<nFrames; i++)
@@ -298,8 +293,17 @@ int AudioCallback(void *outputBuffer,
 
       if (gBufIndex == 0)
       {
-        double* inputs[2] = {inputBufferD + i, inputBufferD + inRightOffset + i};
-        double* outputs[2] = {outputBufferD + i, outputBufferD + nFrames + i};
+        // TODO: this is horrible, sort it out
+        
+        double* inputs[4] = {inputBufferD + i, 
+                             inputBufferD + nFrames + i,
+                             inputBufferD + nFrames + nFrames + i,
+                             inputBufferD + nFrames + nFrames + nFrames + i};
+        
+        double* outputs[4] = {outputBufferD + i, 
+                              outputBufferD + nFrames + i,
+                              outputBufferD + nFrames + nFrames + i,
+                              outputBufferD + nFrames + nFrames + nFrames + i};
 
         gPluginInstance->LockMutexAndProcessDoubleReplacing(inputs, outputs, gSigVS);
       }
@@ -312,9 +316,13 @@ int AudioCallback(void *outputBuffer,
 
       outputBufferD[i] *= gFadeMult;
       outputBufferD[i + nFrames] *= gFadeMult;
+      outputBufferD[i + nFrames + nFrames] *= gFadeMult;
+      outputBufferD[i + nFrames + nFrames + nFrames] *= gFadeMult;
 
       outputBufferD[i] *= APP_MULT;
       outputBufferD[i + nFrames] *= APP_MULT;
+      outputBufferD[i + nFrames + nFrames] *= APP_MULT;
+      outputBufferD[i + nFrames + nFrames + nFrames] *= APP_MULT;
 
       gBufIndex++;
     }

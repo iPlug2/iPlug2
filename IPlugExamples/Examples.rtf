@@ -103,7 +103,7 @@ Mac
 {\listtext	\'95	}IPlugDistortion - demos Tale's bessel filter implementation for realtime oversampling (example by Tale)\
 {\listtext	\'95	}IPlugEEL - demonstrates using Cockos' EEL library for run-time expression evaluation \
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\li720\fi-720\ql\qnatural\pardirnatural
-\ls10\ilvl0\cf0 {\listtext	\'95	}IPlugMouseTest - ?\
+\ls10\ilvl0\cf0 {\listtext	\'95	}IPlugMouseTest - demonstrates an XY pad IControl which is linked to two plugin parameters\
 {\listtext	\'95	}IPlugDrumSynth - multi-output buses (TODO) \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 \cf0 \
@@ -279,6 +279,7 @@ ARCHS = x86_64 i386\
 - NOTE: IPlug on IOS doesn't use IGraphics or IControl etc\'85 you have to implement a new GUI using apple's UIKit, an example is provided which illustrates how to communicate with the normal IPlug code. If you're project is for multiple targets, you need to 
 \b #ifndef OS_ IOS
 \b0  around any code that uses IPlug's graphics facilities.\
+- Please note that IOS support is not heavily tested\
 \
 
 \b Windows Issues\

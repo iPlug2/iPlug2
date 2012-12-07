@@ -34,6 +34,14 @@ IPlugMultiChannel::~IPlugMultiChannel() {}
 void IPlugMultiChannel::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   // Mutex is already locked for us.
+
+//  bool in1ic = IsInChannelConnected(0);
+//  bool in2ic = IsInChannelConnected(1);
+//  bool in3ic = IsInChannelConnected(2);
+//  bool in4ic = IsInChannelConnected(3);
+//  
+//  DBGMSG("%i %i %i %i, ------------------------- \n", in1ic, in2ic, in3ic, in4ic);
+  
   double* in1 = inputs[0];
   double* in2 = inputs[1];
   double* in3 = inputs[2];
@@ -43,8 +51,6 @@ void IPlugMultiChannel::ProcessDoubleReplacing(double** inputs, double** outputs
   double* out2 = outputs[1];
   double* out3 = outputs[2];
   double* out4 = outputs[3];
-
-  //TODO: implement different loops depending on connected I/O
 
   for (int s=0; s<nFrames; s++)
   {
@@ -59,8 +65,6 @@ void IPlugMultiChannel::Reset()
 {
   TRACE;
   IMutexLock lock(this);
-
-  //double sr = GetSampleRate();
 }
 
 void IPlugMultiChannel::OnParamChange(int paramIdx)

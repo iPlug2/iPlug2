@@ -14,17 +14,18 @@ ALL - Sysex?
 
 Examples:
 
-- IPlugPolySynth
+- IPlugPolySynth - needs improvement
 - IPlugDrumSynth
-- IPlugMultiChannel
-- IPlugOpenGL on win, fix on mac
+- IPlugMultiChannel - standalone app doesn't work, due to stereo limitation
+- IPlugOpenGL - drawing not implemented on win
 - IPlugControls - some controls not finished
+- IPlugEEL - not finished
 
 AU wrapper:
 
 - preset changing from inside the plugin doesn't consistently update logic's GUI
 - auval "preset name not retained" message
-- SendMidiMsg()
+- SendMidiMsg() not implemented
 - possibility of instruments with multichannel output, e.g. 5.1
 - possibility of instruments with side-chain inputs
 
@@ -57,9 +58,6 @@ Standalone wrapper:
 - edit to use IPlugBase buffer attaching code
 - some keys not received by windows standalone...arrow keys for example DLGC_WANTARROWS
 - how to change audio devices without hanging the main loop?
-- change ASIO device fails
-- crash with midi on x64??
-- sometimes OSX controls need playing with to get the driver to restart
 - fade out audio stream when changing settings?
 - make it work with no audio input & look at PLUG_IS_INST
 - make it work with variable i/o count
