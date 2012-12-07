@@ -27,6 +27,136 @@
 #include "virtwnd-controls.h"
 #include "../lice/lice.h"
 
+void vwnd_slider_drawknobstack(LICE_IBitmap *drawbm, double val, WDL_VirtualWnd_BGCfg *knobimage, int ksw, int ksh, int ks_offs, int dx, int dy, int dw, int dh, double alpha)
+{
+  const bool v = knobimage->bgimage->getWidth() < knobimage->bgimage->getHeight();
+
+  const int ni=((v ? knobimage->bgimage->getHeight() : knobimage->bgimage->getWidth())-ks_offs*2) / (v ? ksh : ksw);
+
+  if (val<0.0)val=0.0;
+  else if (val>1.0)val=1.0;
+  int p=(int) (val * (ni-1));
+  if (p<0) p=0;
+  else if (p> ni-1) p=ni-1;
+
+  p *= (v ? ksh : ksw);
+
+  if (ks_offs && 
+      knobimage->bgimage_lt_out[0] > 0 &&
+      knobimage->bgimage_lt_out[1] > 0 && 
+      knobimage->bgimage_rb_out[0] > 0 &&
+      knobimage->bgimage_rb_out[1] > 0)
+  {
+    int l = knobimage->bgimage_lt_out[0]-1;
+    int t = knobimage->bgimage_lt_out[1]-1;
+    int r = knobimage->bgimage_rb_out[0]-1;
+    int b = knobimage->bgimage_rb_out[1]-1;
+
+    int ww = ksw - l - r;
+    if (ww > 0)
+    {
+      dx -= (dw * l) / ww;
+      dw = (dw * ksw) / ww;
+    }
+    int wh=ksh - t -b;
+    if (wh)
+    {
+      dy -= (dh * t) / wh;
+      dh = (dh * ksh) / wh;
+    }
+  }
+
+  LICE_ScaledBlit(drawbm,knobimage->bgimage,dx,dy,dw,dh,ks_offs + (v?0:p),ks_offs + (v?p:0),ksw,ksh,alpha,LICE_BLIT_USE_ALPHA|LICE_BLIT_FILTER_BILINEAR);
+}
+
+
+WDL_VirtualWnd_BGCfg *vwnd_slider_getknobimageforsize(WDL_VirtualWnd_BGCfg *knoblist, int nknoblist,int *vieww, int *viewh, int *ksw, int *ksh, int *ks_offs)
+{
+  if (!knoblist) return NULL;
+  WDL_VirtualWnd_BGCfg *knobimage=NULL;
+  int x;
+  int best_neww=*vieww, best_newh = *viewh;
+
+  double bestdiff=0;
+  double target_area_inv=1.0 / ((double)*vieww * *viewh);
+
+  double target_aspect_inv = *viewh / (double) *vieww;
+
+  for(x=0;x<nknoblist; x++)
+  {
+    if (knoblist[x].bgimage)
+    {
+      const int w=knoblist[x].bgimage->getWidth(), h=knoblist[x].bgimage->getHeight();
+      const bool isVS = w < h;
+
+      const int hasPink = knoblist[x].bgimage_lt[0] > 0 &&
+                  knoblist[x].bgimage_lt[1] > 0 &&
+                  knoblist[x].bgimage_rb[0] > 0 &&
+                  knoblist[x].bgimage_rb[1] > 0;
+
+      const int slice_w = isVS ? (w - hasPink*2) : 
+            hasPink && knoblist[x].bgimage_lt[0]>1 ? (knoblist[x].bgimage_lt[0]-1 + (knoblist[x].bgimage_lt_out[0]>1 ? knoblist[x].bgimage_lt_out[0]-1:0)) : 
+            (h-hasPink*2);
+      const int slice_h = !isVS ? (h - hasPink*2) : 
+            hasPink && knoblist[x].bgimage_lt[1]>1 ? (knoblist[x].bgimage_lt[1]-1  + (knoblist[x].bgimage_lt_out[1]>1 ? knoblist[x].bgimage_lt_out[1]-1:0)) : 
+            (w-hasPink*2);
+
+
+      int fmtw = slice_w, fmth=slice_h;
+      if (hasPink && 
+          knoblist[x].bgimage_lt_out[0] > 0 &&
+          knoblist[x].bgimage_lt_out[1] > 0 && 
+          knoblist[x].bgimage_rb_out[0] > 0 &&
+          knoblist[x].bgimage_rb_out[1] > 0)
+      {
+        int l = knoblist[x].bgimage_lt_out[0]-1;
+        int t = knoblist[x].bgimage_lt_out[1]-1;
+        int r = knoblist[x].bgimage_rb_out[0]-1;
+        int b = knoblist[x].bgimage_rb_out[1]-1;
+
+        if (fmtw > l+r) fmtw -= l+r;
+        if (fmth > b+t) fmth -= b+t;
+      }
+
+      // prioritize getting the aspect ratio right, then add target area differences -- this needs testing!
+      double diff = ((double)fmtw / fmth) * target_aspect_inv;
+      if (diff < 1.0) diff=1.0/diff;
+
+      double diff2 = ((fmtw * (double)fmth) * target_area_inv);
+      if (diff2 < 1.0) diff2=1.0/diff2;
+      
+      diff += diff2 * 0.01;     
+
+      if (slice_w > 0 && slice_h > 0 && (!knobimage || bestdiff > diff))
+      {
+        knobimage=&knoblist[x];
+        bestdiff=diff;
+        *ksw = slice_w;
+        *ksh = slice_h;
+        *ks_offs = hasPink;
+
+        int tmp=(fmtw * *viewh) / fmth;
+        if (tmp <= *vieww)
+        {
+          best_neww = tmp;
+          best_newh = *viewh;
+        }
+        else
+        {
+          best_neww = *vieww;
+          best_newh = (fmth * *vieww) / fmtw;
+        }
+      }
+    }
+  }
+  if (knobimage)
+  {
+    *vieww=best_neww;
+    *viewh=best_newh;
+  }
+  return knobimage;
+}
+
 
 WDL_VirtualSlider::WDL_VirtualSlider()
 {
@@ -44,6 +174,10 @@ WDL_VirtualSlider::WDL_VirtualSlider()
   m_captured=false;
   m_grayed = false;
   m_knobbg[0]=m_knobbg[1]=0;
+  m_knobstacks=0;
+  m_nknobstacks=0;
+  m_sendmsgonclick=false;
+  m_dblclickmsg=0;
 }
 
 WDL_VirtualSlider::~WDL_VirtualSlider()
@@ -150,6 +284,7 @@ void WDL_VirtualSlider::GetButtonSize(int *w, int *h)
   }
 }
 
+
 void WDL_VirtualSlider::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y, RECT *cliprect)
 {
   origin_x += m_position.left; // convert drawing origin to local coords
@@ -193,6 +328,8 @@ void WDL_VirtualSlider::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y
   if (isVert||wantKnob)
   {
     int pos = ((m_maxr-m_pos)*(viewh-bm_h2))/rsize; //viewh - bm_h2 - ((m_pos-m_minr) * (viewh - bm_h2))/rsize;
+
+    const int old_vieww=vieww, old_viewh=viewh, old_origin_x=origin_x, old_origin_y=origin_y;
 
     if (wantKnob)
     {
@@ -300,33 +437,47 @@ void WDL_VirtualSlider::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y
         LICE_Blit(drawbm,bm_image,xpos,ypos,&r,alpha,LICE_BLIT_MODE_COPY|LICE_BLIT_USE_ALPHA);    
       }
     }
-    else
+    else 
     {
-      LICE_pixel col  = m_knob_color ? m_knob_color : LICE_RGBA_FROMNATIVE(GSC(COLOR_3DHILIGHT),255);
-
-      float alpha = LICE_GETA(col)/255.0f;
-      int cx=origin_x+vieww/2;
-      int cy=origin_y+viewh/2;
-      float rd = vieww/2-4 + m_knob_lineextrasize;
-      float r2=rd*0.125f;
-      if (!back_image) LICE_Circle(drawbm, cx, cy, rd, col, alpha, LICE_BLIT_MODE_COPY, true);
+      int ksw=0,ksh=0;
+      WDL_VirtualWnd_BGCfg *knobimage = NULL;
+      int ks_offs=0;
+      int vw = old_vieww, vh=old_viewh;
+      knobimage = vwnd_slider_getknobimageforsize(m_knobstacks,m_nknobstacks,&vw,&vh,&ksw, &ksh,&ks_offs);
 
       float val;
-      
       int center=m_center;
       if (center < 0) center=WDL_STYLE_GetSliderDynamicCenterPos();
       if (center > m_minr && (m_pos < center || center >= m_maxr)) val = (m_pos-center) / (double)(center-m_minr);
       else val = (m_pos-center) / (double)(m_maxr-center);
-      #define KNOBANGLE_MAX (3.14159*7.0/8.0);
-      float a = val*KNOBANGLE_MAX;
-      float sina=sin(a);
-      float cosa=cos(a);
-      float x1=cx+r2*sina;
-      float y1=cy-r2*cosa;
-      float x2=cx+rd*sina;
-      float y2=cy-rd*cosa;
-      LICE_FLine(drawbm, x1, y1, x2, y2, col, alpha, LICE_BLIT_MODE_COPY, true);
 
+      if (knobimage && ksw>0 && ksh>0)
+      {
+        vwnd_slider_drawknobstack(drawbm,(val+1.0)*0.5,knobimage,ksw,ksh,ks_offs,
+          old_origin_x + (old_vieww - vw)/2,old_origin_y+(old_viewh - vh)/2,vw,vh,alpha
+          );
+      }
+      else
+      {
+        LICE_pixel col  = m_knob_color ? m_knob_color : LICE_RGBA_FROMNATIVE(GSC(COLOR_3DHILIGHT),255);
+
+        float alpha = LICE_GETA(col)/255.0f;
+        int cx=origin_x+vieww/2;
+        int cy=origin_y+viewh/2;
+        float rd = vieww/2-4 + m_knob_lineextrasize;
+        float r2=rd*0.125f;
+        if (!back_image) LICE_Circle(drawbm, cx, cy, rd, col, alpha, LICE_BLIT_MODE_COPY, true);
+      
+        #define KNOBANGLE_MAX (3.14159*7.0/8.0);
+        float a = val*KNOBANGLE_MAX;
+        float sina=sin(a);
+        float cosa=cos(a);
+        float x1=cx+r2*sina;
+        float y1=cy-r2*cosa;
+        float x2=cx+rd*sina;
+        float y2=cy-rd*cosa;
+        LICE_FLine(drawbm, x1, y1, x2, y2, col, alpha, LICE_BLIT_MODE_COPY, true);
+      }
     }
   }
   else
@@ -444,7 +595,7 @@ static int m_click_pos,m_last_y,m_last_x, m_last_precmode;
 
 int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
 {
-  if (m_grayed) return false;
+  if (m_grayed) return 0;
   m_needflush=0;
 
   if (m__iaccess) m__iaccess->OnFocused();
@@ -525,7 +676,7 @@ int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
           if (m__iaccess) m__iaccess->OnStateChange();
         }
       }
-      else return false;
+      else return 0;
     }
   }
   else
@@ -563,7 +714,7 @@ int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
           if (m__iaccess) m__iaccess->OnStateChange();
         }
       }
-      else return false;
+      else return 0;
     }
   }
 
@@ -788,6 +939,12 @@ bool WDL_VirtualSlider::OnMouseDblClick(int xpos, int ypos)
 {
   if (m_grayed) return false;
 
+  if (m_dblclickmsg)
+  {
+    SendCommand(m_dblclickmsg, 0, 0, this);
+    return true;
+  }
+
   bool isVert = GetIsVert();
   int pos=m_center;
   if (pos < 0) pos=WDL_STYLE_GetSliderDynamicCenterPos();
@@ -800,7 +957,7 @@ bool WDL_VirtualSlider::OnMouseDblClick(int xpos, int ypos)
     RequestRedraw(NULL);
     if (m__iaccess) m__iaccess->OnStateChange();
   }
-  
+
   m_captured=false;
   return true;
 }
@@ -865,23 +1022,78 @@ void WDL_VirtualSlider::GetPositionPaintExtent(RECT *r)
 {
   *r=m_position;
   bool isVert=GetIsVert();
+  bool wantKnob=m_knobbias > 0;
   LICE_IBitmap *bm_image=m_skininfo ? m_skininfo->thumbimage[isVert] : 0;
-  if (bm_image)
+  if (!bm_image && !wantKnob)
+  {
+    bm_image=WDL_STYLE_GetSliderBitmap2(isVert);
+  }
+  if (bm_image && !wantKnob)
   {
     int bm_w=bm_image->getWidth();
     int bm_h=bm_image->getHeight();
     int s=0;
     int bm_w2=bm_w;
     int bm_h2=bm_h;
-    bool wantKnob=false;
     AdjustThumbImageSize(m_position.right-m_position.left,m_position.bottom-m_position.top,m_skininfo,isVert,&bm_w,&bm_h,&s,&wantKnob,m_knobbias);
-    if (wantKnob) 
+
+    if (!wantKnob)
     {
+      int rsize=m_maxr-m_minr;
       int viewh=m_position.bottom-m_position.top;
       int vieww=m_position.right-m_position.left;
+
+      if (isVert)
+      {
+        if (bm_w > vieww)
+        {
+          r->left-=(bm_w-vieww)/2+1;
+          r->right+=(bm_w-vieww)/2+1;
+        }
+
+        int tadj=m_tl_extra;
+        int badj=m_br_extra;
+
+        int pos = viewh - bm_h - ((m_pos-m_minr) * (viewh - bm_h))/rsize-s;
+
+        if (-pos > tadj) tadj=-pos;
+        if (pos+bm_h2 > viewh+badj) badj=pos+bm_h2-viewh;
+
+        //m_tl_extra=m_br_extra=
+        r->top-=tadj; //s;
+        r->bottom += badj; //(bm_h2-bm_h)-s;
+      }
+      else
+      {
+        if (bm_h > viewh)
+        {
+          r->top-=(bm_h-viewh)/2+1;
+          r->bottom+=(bm_h-viewh)/2+1;
+        }
+
+        int ladj=m_tl_extra;
+        int radj=m_br_extra;
+
+        int pos = ((m_pos-m_minr) * (vieww - bm_w))/rsize - s;
+
+        if (-pos > ladj) ladj=-pos;
+        if (pos+bm_w2 > vieww+radj) radj=pos+bm_w2-vieww;
+
+        r->left-=ladj; //s;
+        r->right += radj; // (bm_w2-bm_w)-s;
+      }
+    }
+  }
+
+  if (wantKnob) 
+  {
+    const int viewh=m_position.bottom-m_position.top;
+    const int vieww=m_position.right-m_position.left;
+    {
       int sz= min(vieww,viewh);
-      int ox = (vieww-sz)/2;
-      int oy = (viewh-sz)/2;
+      int ox = m_position.left + (vieww-sz)/2;
+      int oy = m_position.top + (viewh-sz)/2;
+
       WDL_VirtualWnd_BGCfg *back_image = m_knobbg[sz>28];
       if (back_image && back_image->bgimage && 
           back_image->bgimage_lt_out[0]>0 &&
@@ -890,65 +1102,53 @@ void WDL_VirtualSlider::GetPositionPaintExtent(RECT *r)
           back_image->bgimage_rb_out[1]>0)
       {
         int tmp = ox - (back_image->bgimage_lt_out[0]-1);
-        if (tmp < 0) r->left+=tmp;
+        if (tmp < r->left) r->left=tmp;
         tmp = oy - (back_image->bgimage_lt_out[1]-1);
-        if (tmp < 0) r->top+=tmp;
+        if (tmp < r->top) r->top=tmp;
         tmp = ox+sz+(back_image->bgimage_rb_out[0]-1);
-        if (tmp > vieww) r->right += tmp-vieww;
+        if (tmp > r->right) r->right = tmp;
         tmp = oy+sz+(back_image->bgimage_rb_out[1]-1);
-        if (tmp > viewh) r->bottom += tmp-viewh;
-
+        if (tmp > r->bottom) r->bottom = tmp;
       }
-      return;
     }
 
-    int rsize=m_maxr-m_minr;
-    int viewh=m_position.bottom-m_position.top;
-    int vieww=m_position.right-m_position.left;
-
-    if (isVert)
     {
-      if (bm_w > vieww)
+      int kvw = vieww, kvh=viewh;
+      int ksw=0,ksh=0,kso=0;
+      WDL_VirtualWnd_BGCfg *knobimage=vwnd_slider_getknobimageforsize(m_knobstacks,m_nknobstacks,&kvw,&kvh,&ksw,&ksh,&kso);
+
+      if (knobimage && kso && ksw>0 && ksh>0 && 
+            knobimage->bgimage_lt_out[0] > 0 &&
+            knobimage->bgimage_lt_out[1] > 0 && 
+            knobimage->bgimage_rb_out[0] > 0 &&
+            knobimage->bgimage_rb_out[1] > 0)
       {
-        r->left-=(bm_w-vieww)/2+1;
-        r->right+=(bm_w-vieww)/2+1;
+        const int ox = m_position.left + (vieww - kvw)/2;
+        const int oy = m_position.top + (viewh - kvh)/2;
+
+        int ww = ksw - (knobimage->bgimage_lt_out[0]-1) - (knobimage->bgimage_rb_out[0]-1);
+        int wh = ksh - (knobimage->bgimage_lt_out[1]-1) - (knobimage->bgimage_rb_out[1]-1);
+        
+        if (ww > 0)
+        {
+          int tmp = ox - (kvw * (knobimage->bgimage_lt_out[0]-1))/ww;
+          if (tmp < r->left) r->left=tmp;
+          tmp = ox + kvw + (kvw * (knobimage->bgimage_rb_out[0]-1))/ww;
+          if (tmp > r->right) r->right=tmp;
+        }
+        if (wh > 0)
+        {
+          int tmp = oy - (kvh * (knobimage->bgimage_lt_out[1]-1))/wh;
+          if (tmp < r->top) r->top=tmp;
+          tmp = oy + kvh + (kvh * (knobimage->bgimage_rb_out[1]-1))/wh;
+          if (tmp > r->bottom) r->bottom=tmp;
+        }
       }
-
-      int tadj=m_tl_extra;
-      int badj=m_br_extra;
-
-      int pos = viewh - bm_h - ((m_pos-m_minr) * (viewh - bm_h))/rsize-s;
-
-      if (-pos > tadj) tadj=-pos;
-      if (pos+bm_h2 > viewh+badj) badj=pos+bm_h2-viewh;
-
-      //m_tl_extra=m_br_extra=
-      r->top-=tadj; //s;
-      r->bottom += badj; //(bm_h2-bm_h)-s;
-    }
-    else
-    {
-      if (bm_h > viewh)
-      {
-        r->top-=(bm_h-viewh)/2+1;
-        r->bottom+=(bm_h-viewh)/2+1;
-      }
-
-      int ladj=m_tl_extra;
-      int radj=m_br_extra;
-
-      int pos = ((m_pos-m_minr) * (vieww - bm_w))/rsize - s;
-
-      if (-pos > ladj) ladj=-pos;
-      if (pos+bm_w2 > vieww+radj) radj=pos+bm_w2-vieww;
-
-      r->left-=ladj; //s;
-      r->right += radj; // (bm_w2-bm_w)-s;
     }
   }
-  // expand paintextent by background image outer extent if necessary
-  if (m_skininfo && m_skininfo->bgimagecfg[isVert].bgimage)
+  else if (m_skininfo && m_skininfo->bgimagecfg[isVert].bgimage)
   {
+    // expand paintextent by background image outer extent if necessary
     WDL_VirtualWnd_BGCfg *b = &m_skininfo->bgimagecfg[isVert];
     if (b->bgimage_lt[0]>0 &&
         b->bgimage_lt[1]>0 &&

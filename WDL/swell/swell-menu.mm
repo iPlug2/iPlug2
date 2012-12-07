@@ -32,6 +32,21 @@
 #include "swell-internal.h"
 
 
+static void __filtnametobuf(char *out, const char *in, int outsz)
+{
+  while (*in && outsz>1)
+  {
+    if (*in == '\t') break;
+    if (*in == '&')
+    {
+      in++;
+    }
+    *out++=*in++;
+    outsz--;
+  }
+  *out=0;
+}
+
 
 
 bool SetMenuItemText(HMENU hMenu, int idx, int flag, const char *text)
@@ -59,7 +74,9 @@ bool SetMenuItemText(HMENU hMenu, int idx, int flag, const char *text)
     }
     return false;
   }
-  NSString *label=(NSString *)SWELL_CStringToCFString(text); 
+  char buf[1024];
+  __filtnametobuf(buf,text?text:"",sizeof(buf));
+  NSString *label=(NSString *)SWELL_CStringToCFString(buf);
   
   [item setTitle:label];
   if ([item hasSubmenu] && [item submenu]) [[item submenu] setTitle:label];
@@ -265,21 +282,6 @@ bool SetMenuItemModifier(HMENU hMenu, int idx, int flag, int code, unsigned int 
   return true;
 }
 
-static void __filtnametobuf(char *out, const char *in, int outsz)
-{
-  while (*in && outsz>1)
-  {
-    if (*in == '\t') break;
-    if (*in == '&')
-    {
-      in++;
-    }
-    *out++=*in++;
-    outsz--;
-  }
-  *out=0;
-}
-
 // #define SWELL_MENU_ACCOUNTING
 
 #ifdef SWELL_MENU_ACCOUNTING
@@ -379,6 +381,7 @@ void DestroyMenu(HMENU hMenu)
 {
   if (hMenu)
   {
+    SWELL_SetMenuDestination(hMenu,NULL);
     NSMenu *m=(NSMenu *)hMenu;
     [m release];
   }
@@ -430,6 +433,8 @@ bool DeleteMenu(HMENU hMenu, int idx, int flag)
   
   if ([item hasSubmenu])
   {
+    HMENU sm = (HMENU)[item submenu];
+    if (sm) SWELL_SetMenuDestination(sm,NULL);
     [m setSubmenu:nil forItem:item];
   }
   [m removeItem:item];
@@ -593,6 +598,12 @@ void SWELL_InsertMenu(HMENU menu, int pos, int flag, UINT_PTR idx, const char *s
     mi.fMask=MIIM_TYPE;
     mi.fType=MFT_SEPARATOR;
     mi.fState &= ~MF_SEPARATOR;
+  }
+  
+  if (flag&MF_BITMAP)
+  {
+    mi.fType=MFT_BITMAP;
+    mi.fState &= ~MF_BITMAP;
   }
     
   InsertMenuItem(menu,pos,(flag&MF_BYPOSITION) ?  TRUE : FALSE, &mi);
@@ -875,8 +886,6 @@ BOOL  SetMenu(HWND hwnd, HMENU menu)
 {
   if (!hwnd||![(id)hwnd respondsToSelector:@selector(swellSetMenu:)]) return FALSE;
   if (g_swell_terminating)  return FALSE;
-
-  SWELL_SetMenuDestination(menu,hwnd);
 
   [(id)hwnd swellSetMenu:(HMENU)menu];
   NSWindow *nswnd = (NSWindow *)hwnd;

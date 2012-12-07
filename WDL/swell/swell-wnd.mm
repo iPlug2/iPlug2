@@ -680,7 +680,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
     m_start_item_clickmode=0;
     if (m_start_item >=0 && (m_fastClickMask&(1<<m_start_subitem)))
     {
-      NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_CLICK}, m_start_item, m_start_subitem, 0, 0, 0, {pt.x, pt.y}, };
+      NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_CLICK}, m_start_item, m_start_subitem, 0, 0, 0, {(int)floor(pt.x), (int)floor(pt.y)}, };
       SWELL_ListView_Row *row=m_items->Get(nmlv.iItem);
       if (row)
         nmlv.lParam = row->m_param;
@@ -759,7 +759,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
     NSPoint pt=[theEvent locationInWindow];
     pt=[self convertPoint:pt fromView:nil];    
     int col = [self columnAtPoint:pt];
-    NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_CLICK}, [self rowAtPoint:pt], col, 0, 0, 0, {pt.x, pt.y}, };
+    NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_CLICK}, [self rowAtPoint:pt], col, 0, 0, 0, {(int)floor(pt.x), (int)floor(pt.y)}, };
     SWELL_ListView_Row *row=m_items->Get(nmlv.iItem);
     if (row) nmlv.lParam = row->m_param;
     SendMessage((HWND)[self target],WM_NOTIFY,[self tag],(LPARAM)&nmlv);
@@ -784,7 +784,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
       [self selectRowIndexes:rows byExtendingSelection:NO];
     }       
     
-    NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_RCLICK}, [self rowAtPoint:pt], [self columnAtPoint:pt], 0, 0, 0, {pt.x, pt.y}, };
+    NMLISTVIEW nmlv={{(HWND)self,[self tag], NM_RCLICK}, [self rowAtPoint:pt], [self columnAtPoint:pt], 0, 0, 0, {(int)floor(pt.x), (int)floor(pt.y)}, };
     if (SendMessage((HWND)[self target],WM_NOTIFY,nmlv.hdr.idFrom,(LPARAM)&nmlv)) wantContext=false;
   }
   if (wantContext)
@@ -1495,7 +1495,7 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     }
-    else if ((msg == EM_SETSEL || msg == EM_GETSEL) && ([obj isKindOfClass:[NSTextField class]]))
+    else if ((msg == EM_SETSEL || msg == EM_GETSEL || msg == EM_SETPASSWORDCHAR) && ([obj isKindOfClass:[NSTextField class]]))
     { 
       if (msg == EM_GETSEL)
       {
@@ -1522,6 +1522,11 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           if (lParam>sl) lParam=sl;      
           if (text) [text setSelectedRange:NSMakeRange(wParam, max(lParam-wParam,0))]; // and set the range
         }
+      }
+      else if (msg == EM_SETPASSWORDCHAR)
+      {
+        // not implemented, because it requires replacing obj within its parent window
+        // instead caller explicitly destroy the edit control and create a new one with ES_PASSWORD
       }
       return 0;
     }
@@ -5832,8 +5837,8 @@ bool SWELL_HandleMouseEvent(NSEvent *evt)
       NSView *hitv=[cview hitTest:lpt];
       lpt = [w convertBaseToScreen:lpt];
       
-      int xpos=(int)(lpt.x+0.5);
-      int ypos=(int)(lpt.y+0.5);
+      int xpos=(int)floor(lpt.x);
+      int ypos=(int)floor(lpt.y);
       
       while (hitv)
       {

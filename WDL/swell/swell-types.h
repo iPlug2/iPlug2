@@ -78,7 +78,7 @@ typedef uintptr_t UINT_PTR, *PUINT_PTR, ULONG_PTR, *PULONG_PTR, DWORD_PTR, *PDWO
 
 #ifndef LOWORD
 #define MAKEWORD(a, b)      ((unsigned short)(((BYTE)(a)) | ((WORD)((BYTE)(b))) << 8))
-#define MAKELONG(a, b)      ((long)(((unsigned short)(a)) | ((DWORD)((unsigned short)(b))) << 16))
+#define MAKELONG(a, b)      ((int)(((unsigned short)(a)) | ((DWORD)((unsigned short)(b))) << 16))
 #define MAKEWPARAM(l, h)      (WPARAM)MAKELONG(l, h)
 #define MAKELPARAM(l, h)      (LPARAM)MAKELONG(l, h)
 #define MAKELRESULT(l, h)     (LRESULT)MAKELONG(l, h)
@@ -854,29 +854,29 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define MIIM_TYPE 4
 #define MIIM_SUBMENU 8
 #define MIIM_DATA 16
-#define MFT_STRING 0
-#define MF_STRING 0
-#define MFT_SEPARATOR 1
-#define MFT_BITMAP 2
-#define MFT_RADIOCHECK 0 // todo this will need to get implemented
 
-#define MF_SEPARATOR        0x00000800L
-
-#define MF_UNCHECKED 0
 #define MF_ENABLED 0
 #define MF_GRAYED 1
-#define MF_DISABLED 1
-#define MF_CHECKED 4
+#define MF_DISABLED 2
+#define MF_STRING 0
+#define MF_BITMAP 4
+#define MF_UNCHECKED 0
+#define MF_CHECKED 8
 #define MF_POPUP 0x10
-
-#define MFS_UNCHECKED 0
-#define MFS_ENABLED 0
-#define MFS_GRAYED 1
-#define MFS_CHECKED 4
-
 #define MF_BYCOMMAND 0
-#define MF_BYPOSITION 0x100
+#define MF_BYPOSITION 0x400
+#define MF_SEPARATOR 0x800
 
+#define MFT_STRING MF_STRING
+#define MFT_BITMAP MF_BITMAP
+#define MFT_SEPARATOR MF_SEPARATOR
+#define MFT_RADIOCHECK 0x200
+
+#define MFS_GRAYED (MF_GRAYED|MF_DISABLED)
+#define MFS_DISABLED MFS_GRAYED
+#define MFS_CHECKED MF_CHECKED
+#define MFS_ENABLED MF_ENABLED
+#define MFS_UNCHECKED MF_UNCHECKED
 
 #define EN_CHANGE           0x0300
 #define STN_CLICKED         0
@@ -890,6 +890,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define WM_PAINT                        0x000F
 #define WM_CLOSE                        0x0010
 #define WM_ERASEBKGND                   0x0014
+#define WM_SHOWWINDOW                   0x0018
 #define WM_ACTIVATEAPP                  0x001C
 #define WM_SETCURSOR                    0x0020
 #define WM_MOUSEACTIVATE                0x0021
@@ -976,6 +977,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define EM_GETSEL               0xF0B0
 #define EM_SETSEL               0xF0B1
 #define EM_SCROLL               0xF0B5
+#define EM_SETPASSWORDCHAR      0xF0CC
 
 #define SB_HORZ             0
 #define SB_VERT             1
