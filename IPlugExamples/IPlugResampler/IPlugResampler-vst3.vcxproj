@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Tracer|Win32">
+      <Configuration>Tracer</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Tracer|x64">
+      <Configuration>Tracer</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{079FC65A-F0E5-4E97-B318-A16D1D0B89DF}</ProjectGuid>
+    <RootNamespace>IPlugResampler</RootNamespace>
+    <ProjectName>IPlugResampler-vst3</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>build-win\vst3\$(Platform)\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>build-win\vst3\$(Platform)\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>
+    </LinkIncremental>
+    <TargetExt>.vst3</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental />
+    <TargetExt>.vst3</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>build-win\vst3\$(Platform)\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>build-win\vst3\$(Platform)\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IntDir>build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.vst3</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.vst3</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
+    <OutDir>build-win\vst3\$(Platform)\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
+    <OutDir>build-win\vst3\$(Platform)\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
+    <IntDir>build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.vst3</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
+    <IntDir>build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.vst3</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>$(VST3_DEFS);$(DEBUG_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(VST3_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
+copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugResampler.vst3"</Command>
+      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>$(VST3_DEFS);$(DEBUG_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(VST3_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
+if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugResampler.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
+      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>$(VST3_DEFS);$(RELEASE_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(VST3_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
+copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugResampler.vst3"</Command>
+      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>$(VST3_DEFS);$(RELEASE_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(VST3_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
+if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugResampler.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
+      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>$(VST3_DEFS);$(TRACER_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(VST3_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(WDL_PATH)\lice\build-win\$(Platform)\Release\;..\..\VST3_SDK\base\win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
+copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugResampler.vst3"</Command>
+      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>$(VST3_DEFS);$(TRACER_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(VST3_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(x64_LIB_PATHS);$(WDL_PATH)\lice\build-win\$(Platform)\Release\;..\..\VST3_SDK\base\win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
+if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugResampler.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
+      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\falignpop.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\falignpush.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\fplatform.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ftypes.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\funknown.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ipluginbase.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\keycodes.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ustring.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\gui\iplugview.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstattributes.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstaudioprocessor.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstcomponent.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivsteditcontroller.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstevents.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivsthostapplication.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstmessage.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstmidicontrollers.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstparameterchanges.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstprocesscontext.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstunits.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\vstpresetkeys.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\vsttypes.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\common\pluginview.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstaudioeffect.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstbus.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h" />
+    <ClInclude Include="IPlugResampler.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\funknown.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\ustring.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\common\pluginview.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\main\dllmain.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstaudioeffect.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstbus.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp" />
+    <ClCompile Include="IPlugResampler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IPlugResampler.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Tracer|Win32">
+      <Configuration>Tracer</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}</ProjectGuid>
+    <RootNamespace>IPlugResampler-rtas</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="IPlugResampler.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\rtas\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\rtas\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\rtas\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\rtas\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\rtas\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\rtas\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">false</LinkIncremental>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dpm</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.dpm</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">.dpm</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(TargetName).tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>%40..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(RTAS_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>$(RTAS_DEFS);NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>digicode.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)$(BINARY_NAME).dpm</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvprt.lib</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>IPlugResampler-rtas.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(RTAS_PLUGINS_PATH)\$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying dpm and rsr to $(RTAS_PLUGINS_PATH)</Message>
+      <Command>copy /Y "$(TargetPath)" "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm"
+copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
+</Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile "$(TargetPath)".rsr</Command>
+      <Outputs>$(TargetPath).rsr</Outputs>
+      <Message>Copying dummy rsr</Message>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(TargetName).tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>%40..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(RTAS_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>$(RTAS_DEFS);$(RELEASE_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>digicode.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)$(BINARY_NAME).dpm</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvprt.lib</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>IPlugResampler-rtas.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying dpm and rsr to $(RTAS_PLUGINS_PATH)</Message>
+      <Command>copy /Y "$(TargetPath)" "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm"
+copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
+</Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile "$(TargetPath)".rsr</Command>
+      <Outputs>$(TargetPath).rsr</Outputs>
+      <Message>Copying dummy rsr</Message>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(IntDir)$(TargetName).tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>%40..\..\WDL\IPlug\RTAS\Paths_90_SDK.txt %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(RTAS_INCLUDES);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>$(RTAS_DEFS);$(TRACER_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>digicode.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 /FORCE:MULTIPLE /IGNORE:4006 /IGNORE:4070 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)$(BINARY_NAME).dpm</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;msvprt.lib</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>IPlugResampler-rtas.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(RTAS_PLUGINS_PATH)\$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copying dpm and rsr to $(RTAS_PLUGINS_PATH)</Message>
+      <Command>copy /Y "$(TargetPath)" "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm"
+copy /Y "$(TargetPath)".rsr "$(RTAS_PLUGINS_PATH)\$(BINARY_NAME).dpm.rsr"
+</Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy /Y ..\..\WDL\IPlug\RTAS\ResourceFile "$(TargetPath)".rsr</Command>
+      <Outputs>$(TargetPath).rsr</Outputs>
+      <Message>Copying dummy rsr</Message>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DAE.lib" />
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DigiExt.lib" />
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DSI.lib" />
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DSPManager.lib" />
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\DSPManagerClientLib.lib" />
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\PlugInLib.lib" />
+    <Library Include="..\..\PT9_SDK\WinBag\Release\lib\RTASClientLib.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\WDL\IPlug\Containers.h" />
+    <ClInclude Include="..\..\WDL\IPlug\Hosts.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IBitmapMonoText.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IControl.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IGraphics.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IGraphicsWin.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IKeyboardControl.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IMidiQueue.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IParam.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlugOSDetect.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlugRTAS.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPlugStructs.h" />
+    <ClInclude Include="..\..\WDL\IPlug\IPopupMenu.h" />
+    <ClInclude Include="..\..\WDL\IPlug\Log.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\EditorInterface.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugCustomUI.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugDigiView.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugGroup.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcess.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessAS.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\ProcessInterface.h" />
+    <ClInclude Include="..\..\WDL\IPlug\RTAS\digicode.h" />
+    <ClInclude Include="IPlugResampler.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IBitmapMonoText.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IControl.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IGraphics.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IParam.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IPlugBase.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IPlugRTAS.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IPlugStructs.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\IPopupMenu.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\Log.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugCustomUI.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugGroup.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugProcess.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugProcessAS.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\IPlugProcessRTAS.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode1.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode2.cpp" />
+    <ClCompile Include="..\..\WDL\IPlug\RTAS\digicode3.cpp" />
+    <ClCompile Include="IPlugResampler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IPlugResampler-rtas.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IPlugResampler.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PT9_SDK\AlturaPorts\TDMPlugIns\PlugInLibrary\WinBuild\PlugInLib.vcxproj">
+      <Project>{d2ce28ff-63b8-48bc-936d-33f365b4053f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
