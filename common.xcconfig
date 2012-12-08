@@ -25,6 +25,7 @@ VST3_SDK = $(SRCROOT)/../../VST3_SDK
 PT9_SDK = $(SRCROOT)/../../PT9_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
 
+SHARED_PRECOMPS_DIR = $(SRCROOT)/../PCH
 // Where to build the plugins / app bundles ...
 
 // build to system plugin folder
