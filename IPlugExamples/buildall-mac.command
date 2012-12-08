@@ -30,7 +30,7 @@ do
 
     if [ -s build_errors.log ]
     then
-      echo "build failed due to following errors:"
+      echo "build failed due to following errors in $file"
       echo ""
       cat build_errors.log
       exit 1
