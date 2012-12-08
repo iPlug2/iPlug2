@@ -6,7 +6,7 @@
 #include "resource.h"
 
 // this is a bit silly
-#define min MIN
+#define min IPMIN
 #include "../../WDL/resample.cpp"
 
 const int kNumPrograms = 1;
