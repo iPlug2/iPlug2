@@ -33,6 +33,11 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IAutoGUI.h"
 
+#ifdef OS_OSX
+// need xcode/gcc to treat this file as C++ for the Mac RTAS build
+#include "../../WDL/fft.c"
+#endif
+
 enum EParams
 {
   kDry,

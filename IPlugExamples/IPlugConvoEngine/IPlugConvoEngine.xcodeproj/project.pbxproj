@@ -33,30 +33,20 @@
 		4F20EF2D132C69FE0030E34C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F20EF2E132C69FE0030E34C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F2F08EA159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08EB159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08EC159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08ED159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08EE159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08EF159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08F0159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08F1159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08F2159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08F3159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08F4159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
 		4F2F08F5159B663C00936496 /* convoengine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2F08E7159B663C00936496 /* convoengine.h */; };
-		4F2F08F6159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08F7159B663C00936496 /* fft.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2F08E9159B663C00936496 /* fft.h */; };
 		4F2F08F8159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
 		4F2F08F9159B663C00936496 /* convoengine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2F08E7159B663C00936496 /* convoengine.h */; };
-		4F2F08FA159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08FB159B663C00936496 /* fft.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2F08E9159B663C00936496 /* fft.h */; };
 		4F2F08FC159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08FD159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F08FE159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
-		4F2F08FF159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F0900159B663C00936496 /* convoengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E6159B663C00936496 /* convoengine.cpp */; };
 		4F2F0901159B663C00936496 /* convoengine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2F08E7159B663C00936496 /* convoengine.h */; };
-		4F2F0902159B663C00936496 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F2F08E8159B663C00936496 /* fft.c */; };
 		4F2F0903159B663C00936496 /* fft.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2F08E9159B663C00936496 /* fft.h */; };
 		4F3AE17B12C0E5E2001FD7A4 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* resource.h */; };
 		4F3AE17C12C0E5E2001FD7A4 /* IPlugConvoEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED20D0CF13D001C8B8A /* IPlugConvoEngine.h */; };
@@ -2217,7 +2207,6 @@
 				4F78D9F313B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
 				4FDA440C13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4F2F08FC159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08FD159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2243,7 +2232,6 @@
 				4FDA440813F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4FA88B921444E4C4006CB8DA /* dfx-au-utilities.c in Sources */,
 				4F2F08F4159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08F6159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2284,7 +2272,6 @@
 				4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */,
 				4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */,
 				4F2F08EC159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08ED159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2311,7 +2298,6 @@
 				4F4CC4421549C15500A9EA21 /* IPlugAAX_Describe.cpp in Sources */,
 				4F017362154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp in Sources */,
 				4F2F08F0159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08F1159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2337,7 +2323,6 @@
 				4FDA440A13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4FA88B941444E4C4006CB8DA /* dfx-au-utilities.c in Sources */,
 				4F2F08F8159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08FA159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2369,7 +2354,6 @@
 				4FDA440713F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4F79A34E146304CD00744AED /* IPlugProcessAS.cpp in Sources */,
 				4F2F08EA159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08EB159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2410,7 +2394,6 @@
 				4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */,
 				4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */,
 				4F2F08EE159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08EF159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2437,7 +2420,6 @@
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
 				4FB600291567CB0A0020189A /* AAX_CIPlugParameters.cpp in Sources */,
 				4F2F08F2159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08F3159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2476,7 +2458,6 @@
 				4FB3624F13B648FE00DB6B76 /* main.m in Sources */,
 				4FDA440E13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4F2F0900159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F0902159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2500,7 +2481,6 @@
 				4F78D9EF13B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
 				4FDA440D13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 				4F2F08FE159B663C00936496 /* convoengine.cpp in Sources */,
-				4F2F08FF159B663C00936496 /* fft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
