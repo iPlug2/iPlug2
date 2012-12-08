@@ -41,10 +41,10 @@ public:
     pGraphics->DrawIText(&mText, mParamNameStr.Get(), &mParamNameRECT);
     
     // Draw Slider track
-    pGraphics->DrawLine(&mFGColor, mSliderRECT.L, mSliderRECT.MH(), mSliderRECT.R, mSliderRECT.MH(), &mBlend, false);
+    pGraphics->DrawLine(&mFGColor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
     
     // Draw Slider handle
-    float xPos = (float) mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1));
+    int xPos = int(mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1)));
   
     IRECT sliderHandleRect = IRECT(mSliderRECT.L + xPos, mRECT.T+4, mSliderRECT.L + xPos + SLIDER_HANDLE_WIDTH, mRECT.B-4);
     pGraphics->FillRoundRect(&mFGColor, &sliderHandleRect, &mBlend, 2, true);
@@ -113,8 +113,8 @@ public:
     mText = *pText;
     mText.mAlign = IText::kAlignCenter;
 
-    mMinAngle = (float) -0.75 * PI;
-    mMaxAngle = (float) 0.75 * PI;
+    mMinAngle = -0.75f * float(PI);
+    mMaxAngle = 0.75f * float(PI);
     
     mDisablePrompt = false;
     
@@ -150,7 +150,7 @@ public:
     float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
     float x2 = cx + (mOuterRadius) * sinV, y2 = cy - (mOuterRadius) * cosV;
 
-    pGraphics->FillCircle(&mBGColor, cx, cy, mOuterRadius - 5, &mBlend, true);
+    pGraphics->FillCircle(&mBGColor, (int) cx, (int) cy, mOuterRadius - 5, &mBlend, true);
     pGraphics->DrawArc(&mFGColor, cx, cy, mOuterRadius, mMinAngle, mMaxAngle, &mBlend, true);
     pGraphics->DrawArc(&mFGColor, cx, cy, mOuterRadius+1, mMinAngle, mMaxAngle, &mBlend, true);
 
