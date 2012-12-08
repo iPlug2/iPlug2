@@ -12,6 +12,8 @@
     <x64_LIB_PATHS>$(ProgramW6432)\Microsoft SDKs\Windows\v7.1\Lib\x64;$(ProgramFiles)\Microsoft SDKs\Windows\v7.1\Lib\x64</x64_LIB_PATHS>
     <RTAS_PLUGINS_PATH>$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins</RTAS_PLUGINS_PATH>
     <AAX_PLUGINS_PATH>$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins</AAX_PLUGINS_PATH>
+    <VST2_32_PATH>$(CommonProgramFiles)\VSTPlugins</VST2_32_PATH>
+    <VST2_64_PATH>$(CommonProgramW6432)\VSTPlugins</VST2_64_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -57,6 +59,12 @@
     </BuildMacro>
     <BuildMacro Include="AAX_PLUGINS_PATH">
       <Value>$(AAX_PLUGINS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST2_32_PATH">
+      <Value>$(VST2_32_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST2_64_PATH">
+      <Value>$(VST2_64_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
