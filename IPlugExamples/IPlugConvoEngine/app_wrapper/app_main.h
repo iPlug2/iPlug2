@@ -46,7 +46,7 @@
 
 #include "../IPlugConvoEngine.h" // change this to match your iplug plugin .h file
 
-//typedef unsigned short UInt16;
+typedef unsigned short UInt16;
 
 struct AppState
 {
