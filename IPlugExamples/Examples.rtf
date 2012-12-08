@@ -14,7 +14,7 @@
 {\list\listtemplateid10\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid901\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid10}
 {\list\listtemplateid11\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1001\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid11}}
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}{\listoverride\listid6\listoverridecount0\ls6}{\listoverride\listid7\listoverridecount0\ls7}{\listoverride\listid8\listoverridecount0\ls8}{\listoverride\listid9\listoverridecount0\ls9}{\listoverride\listid10\listoverridecount0\ls10}{\listoverride\listid11\listoverridecount0\ls11}}
-\paperw11900\paperh16840\vieww24280\viewh15760\viewkind0
+\paperw11900\paperh16840\vieww23220\viewh20660\viewkind0
 \deftab720
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 
@@ -105,6 +105,8 @@ Mac
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\li720\fi-720\ql\qnatural\pardirnatural
 \ls10\ilvl0\cf0 {\listtext	\'95	}IPlugMouseTest - demonstrates an XY pad IControl which is linked to two plugin parameters\
 {\listtext	\'95	}IPlugDrumSynth - multi-output buses (TODO) \
+{\listtext	\'95	}IPlugHostDetect - displays the host name and version (not very reliable at the moment)\
+{\listtext	\'95	}IPlugResampler - demonstrates using WDL_Resampler\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 \cf0 \
 The IPlugEffect project is the main starting project I use. If you are not interested in AAX, RTAS etc, I suggest you duplicate this and manually remove those targets to give you a new clean starting template with just your preferred formats in it.\
@@ -208,6 +210,8 @@ You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see V
 \b0 - On OSX you will probably need to update the AVID/Digidesign xcconfig files and modify the 
 \b SDKROOT 
 \b0 variable to macosx10.5, since it is set to 10.4u by default\
+\
+- On OSX, any C source code that you include (i.e. file extension is .c) can cause errors due to the RTAS precompiled header file getting compiled as C rather than C++. You can avoid this problem by renaming you .c file to .cpp or including it in a static library, or making a mycsourcecode.cpp file that has #include "mycsourcecode.c"\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\ql\qnatural
 
