@@ -54,7 +54,7 @@ protected:
   void HostSpecificInit();
   void AttachGraphics(IGraphics* pGraphics);
   void SetLatency(int samples);
-	bool SendMidiMsg(IMidiMsg* pMsg);
+  bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendSysEx(int offset, const BYTE* pData, int size);
   audioMasterCallback GetHostCallback();
 
@@ -81,7 +81,7 @@ private:
 
 public:
   static VstIntPtr VSTCALLBACK VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt);
-  static void VSTCALLBACK VSTProcess(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);	// Deprecated.
+  static void VSTCALLBACK VSTProcess(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);  // Deprecated.
   static void VSTCALLBACK VSTProcessReplacing(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);
   static void VSTCALLBACK VSTProcessDoubleReplacing(AEffect *pEffect, double **inputs, double **outputs, VstInt32 nFrames);
   static float VSTCALLBACK VSTGetParameter(AEffect *pEffect, VstInt32 idx);

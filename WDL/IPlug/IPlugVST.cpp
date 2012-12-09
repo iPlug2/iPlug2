@@ -292,6 +292,20 @@ bool IPlugVST::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   return rc;
 }
 
+bool IPlugVST::SendSysEx(int offset, const BYTE* pData, int size)
+{ 
+  VstMidiSysexEvent sysexEvent;
+  memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
+
+  sysexEvent.type = kVstSysExType;
+  sysexEvent.byteSize = sizeof(VstMidiSysexEvent);
+  sysexEvent.deltaFrames = offset;
+  sysexEvent.dumpBytes = size;
+  sysexEvent.sysexDump = (char*)pData;
+
+  return SendVSTEvent((VstEvent*) &sysexEvent);
+}
+
 audioMasterCallback IPlugVST::GetHostCallback()
 {
   return mHostCallback;
