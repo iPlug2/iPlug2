@@ -78,8 +78,8 @@ public:
 protected:
   void SetBlockSize(int blockSize);
   void SetLatency(int samples);
-	bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendSysEx(ISysEx* pSysEx);
+  bool SendMidiMsg(IMidiMsg* pMsg);
+  void HostSpecificInit();
   
 private:
   WDL_String mOSXBundleID;

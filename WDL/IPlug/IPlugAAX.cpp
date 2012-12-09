@@ -542,9 +542,3 @@ bool IPlugAAX::SendMidiMsg(IMidiMsg* pMsg)
 {
   return false;
 }
-
-// TODO: SendMidiMsgs()
-bool IPlugAAX::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
-{
-  return false;
-}

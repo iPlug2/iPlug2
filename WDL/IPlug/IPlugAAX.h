@@ -92,7 +92,6 @@ public:
   
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
 
 private:
   AAX_CParameter<bool>* mBypassParameter;

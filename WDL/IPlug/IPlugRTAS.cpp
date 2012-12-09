@@ -205,11 +205,6 @@ bool IPlugRTAS::SendMidiMsg(IMidiMsg* pMsg)
   return false;
 }
 
-bool IPlugRTAS::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
-{
-  return false;
-}
-
 void IPlugRTAS::SetParameter(int idx)
 {
   TRACE;

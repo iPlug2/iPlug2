@@ -1518,3 +1518,14 @@ int IPlugBase::GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos)
   }
   return ver;
 }
+
+bool IPlugBase::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
+{
+  bool rc = true;
+  int n = pMsgs->GetSize();
+  IMidiMsg* pMsg = pMsgs->Get();
+  for (int i = 0; i < n; ++i, ++pMsg) {
+    rc &= SendMidiMsg(pMsg);
+  }
+  return rc;
+}

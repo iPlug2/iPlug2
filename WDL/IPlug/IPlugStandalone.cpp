@@ -96,12 +96,6 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
   return false;
 }
 
-// TODO: SendMidiMsgs()
-bool IPlugStandalone::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
-{
-  return false;
-}
-
 #ifdef OS_IOS
 void IPlugStandalone::LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
 {

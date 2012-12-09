@@ -2155,16 +2155,3 @@ bool IPlugAU::SendMidiMsg(IMidiMsg* pMsg)
 {
   return false;
 }
-
-bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
-{
-  int i, n = pMsgs->GetSize();
-  IMidiMsg* pMsg = pMsgs->Get();
-  
-  for (i = 0; i < n; ++i, ++pMsg)
-  {
-    SendMidiMsg(pMsg);
-  }
-  
-  return true;
-}

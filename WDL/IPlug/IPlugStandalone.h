@@ -74,7 +74,6 @@ public:
 
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
 
 private:
   bool mDoesMidi;
