@@ -273,20 +273,28 @@ void IPlugPolySynth::OnParamChange(int paramIdx)
 void IPlugPolySynth::ProcessMidiMsg(IMidiMsg* pMsg)
 {
   int status = pMsg->StatusMsg();
-  // filter only note messages
+  int velocity = pMsg->Velocity();
+  
   switch (status)
   {
     case IMidiMsg::kNoteOn:
-      mKeyStatus[pMsg->NoteNumber()] = true;
-      mNumHeldKeys += 1;
-      break;
     case IMidiMsg::kNoteOff:
-      mKeyStatus[pMsg->NoteNumber()] = false;
-      mNumHeldKeys -= 1;
+      // filter only note messages
+      if (status == IMidiMsg::kNoteOn && velocity)
+      {
+        mKeyStatus[pMsg->NoteNumber()] = true;
+        mNumHeldKeys += 1;
+      }
+      else
+      {
+        mKeyStatus[pMsg->NoteNumber()] = false;
+        mNumHeldKeys -= 1;
+      }
       break;
     default:
       return; // if !note message, nothing gets added to the queue
   }
+  
 
   mKeyboard->SetDirty();
   mMidiQueue.Add(pMsg);

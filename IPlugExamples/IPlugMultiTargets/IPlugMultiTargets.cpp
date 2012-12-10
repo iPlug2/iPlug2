@@ -241,11 +241,10 @@ void IPlugMultiTargets::OnParamChange(int paramIdx)
 
 void IPlugMultiTargets::ProcessMidiMsg(IMidiMsg* pMsg)
 {
-#ifdef OS_IOS
-  // Handle the MIDI message.
   int status = pMsg->StatusMsg();
   int velocity = pMsg->Velocity();
-
+#ifdef OS_IOS
+  // Handle the MIDI message.
   switch (status)
   {
     case IMidiMsg::kNoteOn:
@@ -268,23 +267,26 @@ void IPlugMultiTargets::ProcessMidiMsg(IMidiMsg* pMsg)
   }
 #else
 
-  int status = pMsg->StatusMsg();
-
-  // filter only note messages
   switch (status)
   {
     case IMidiMsg::kNoteOn:
-      mKeyStatus[pMsg->NoteNumber()] = true;
-      mNumKeys += 1;
-      break;
     case IMidiMsg::kNoteOff:
-      mKeyStatus[pMsg->NoteNumber()] = false;
-      mNumKeys -= 1;
+      // filter only note messages
+      if (status == IMidiMsg::kNoteOn && velocity)
+      {
+        mKeyStatus[pMsg->NoteNumber()] = true;
+        mNumKeys += 1;
+      }
+      else
+      {
+        mKeyStatus[pMsg->NoteNumber()] = false;
+        mNumKeys -= 1;
+      }
       break;
     default:
       return; // if !note message, nothing gets added to the queue
   }
-
+  
   mKeyboard->SetDirty();
   mMidiQueue.Add(pMsg);
 #endif

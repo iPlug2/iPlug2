@@ -207,17 +207,23 @@ void IPlugMonoSynth::OnParamChange(int paramIdx)
 void IPlugMonoSynth::ProcessMidiMsg(IMidiMsg* pMsg)
 {
   int status = pMsg->StatusMsg();
+  int velocity = pMsg->Velocity();
 
-  // filter only note messages
   switch (status)
   {
     case IMidiMsg::kNoteOn:
-      mKeyStatus[pMsg->NoteNumber()] = true;
-      mNumKeys += 1;
-      break;
     case IMidiMsg::kNoteOff:
-      mKeyStatus[pMsg->NoteNumber()] = false;
-      mNumKeys -= 1;
+      // filter only note messages
+      if (status == IMidiMsg::kNoteOn && velocity)
+      {
+        mKeyStatus[pMsg->NoteNumber()] = true;
+        mNumKeys += 1;
+      }
+      else
+      {
+        mKeyStatus[pMsg->NoteNumber()] = false;
+        mNumKeys -= 1;
+      }
       break;
     default:
       return; // if !note message, nothing gets added to the queue
