@@ -6,9 +6,8 @@
 #ifdef OS_OSX
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/glu.h>
-#else
-//TODO
-#endif
+//#else
+//#endif
 
 class IOpenGLTestControl : public IControl
 {
@@ -280,7 +279,7 @@ public:
   }
 
 };
-
+#endif
 class IPlugOpenGL : public IPlug
 {
 public:
