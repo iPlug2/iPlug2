@@ -18,7 +18,7 @@
 				4F78DAFA13B6436B0032E0F3 /* PBXTargetDependency */,
 				4F8D4C6313E97B3D004F7633 /* PBXTargetDependency */,
 				4F9828F8140A9F0200F3FCC1 /* PBXTargetDependency */,
-				4F1A5FD215682B44001E12B4 /* PBXTargetDependency */,
+				4F789ED016763E47009EF688 /* PBXTargetDependency */,
 			);
 			name = All;
 			productName = "AllOSX_32&64_intel";
@@ -26,17 +26,14 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		4F017362154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F017360154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
-		4F1F1BEB135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F20EECB132C69FE0030E34C /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
 		4F20EF2D132C69FE0030E34C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F20EF2E132C69FE0030E34C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
-		4F23B9E913B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23B9F313B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23B9FD13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F23BA0213B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23BA0C13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
+		4F296BDA1678E6C800C0F5C2 /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
 		4F3AE17B12C0E5E2001FD7A4 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* resource.h */; };
 		4F3AE17C12C0E5E2001FD7A4 /* IPlugMonoSynth.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED20D0CF13D001C8B8A /* IPlugMonoSynth.h */; };
 		4F3AE1A312C0E5E2001FD7A4 /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
@@ -46,77 +43,9 @@
 		4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
 		4F3AE1D812C0E5E2001FD7A4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
 		4F3AE1D912C0E5E2001FD7A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
-		4F3B0B3D158B505F001B0CEF /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */; };
 		4F3B0B44158B50A5001B0CEF /* libAAXLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */; };
-		4F3E690C1409747300C4D749 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F3E69111409747300C4D749 /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
-		4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
-		4F3E69131409747300C4D749 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F3E69141409747300C4D749 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
-		4F3E69151409747300C4D749 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
-		4F3E69161409747300C4D749 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */; };
-		4F3E69171409747300C4D749 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */; };
-		4F3E69181409747300C4D749 /* IGraphicsCarbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */; };
-		4F3E69191409747300C4D749 /* IGraphicsCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */; };
-		4F3E691A1409747300C4D749 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
-		4F3E691B1409747300C4D749 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
-		4F3E691C1409747300C4D749 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
-		4F3E691D1409747300C4D749 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
-		4F3E69201409747300C4D749 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
-		4F3E69221409747300C4D749 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
-		4F3E69231409747300C4D749 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4F3E69241409747300C4D749 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
-		4F3E69491409759600C4D749 /* IPlugVST3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E69041409746500C4D749 /* IPlugVST3.cpp */; };
 		4F3EE94613B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
-		4F3EE94713B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
 		4F3EE94913B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
-		4F4AD043140996A10068A6D4 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFF5140996A10068A6D4 /* memorystream.cpp */; };
-		4F4AD044140996A10068A6D4 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFF7140996A10068A6D4 /* pluginview.cpp */; };
-		4F4AD046140996A10068A6D4 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFB140996A10068A6D4 /* macmain.cpp */; };
-		4F4AD047140996A10068A6D4 /* pluginfactoryvst3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFC140996A10068A6D4 /* pluginfactoryvst3.cpp */; };
-		4F4AD048140996A10068A6D4 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4ACFFF140996A10068A6D4 /* vstaudioeffect.cpp */; };
-		4F4AD049140996A10068A6D4 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD001140996A10068A6D4 /* vstbus.cpp */; };
-		4F4AD04A140996A10068A6D4 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD003140996A10068A6D4 /* vstcomponent.cpp */; };
-		4F4AD04B140996A10068A6D4 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD005140996A10068A6D4 /* vstcomponentbase.cpp */; };
-		4F4AD04D140996A10068A6D4 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD009140996A10068A6D4 /* vstinitiids.cpp */; };
-		4F4AD04E140996A10068A6D4 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00A140996A10068A6D4 /* vstnoteexpressiontypes.cpp */; };
-		4F4AD04F140996A10068A6D4 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00C140996A10068A6D4 /* vstparameters.cpp */; };
-		4F4AD050140996A10068A6D4 /* vstpresetfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD00E140996A10068A6D4 /* vstpresetfile.cpp */; };
-		4F4AD051140996A10068A6D4 /* vstrepresentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD010140996A10068A6D4 /* vstrepresentation.cpp */; };
-		4F4AD052140996A10068A6D4 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD012140996A10068A6D4 /* vstsinglecomponenteffect.cpp */; };
-		4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD016140996A10068A6D4 /* conststringtable.cpp */; };
-		4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
-		4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
-		4F4CC3E71549BA8600A9EA21 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
-		4F4CC3E91549BA8600A9EA21 /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
-		4F4CC3EA1549BA8600A9EA21 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
-		4F4CC3EB1549BA8600A9EA21 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F4CC3EC1549BA8600A9EA21 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
-		4F4CC3ED1549BA8600A9EA21 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
-		4F4CC3EE1549BA8600A9EA21 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */; };
-		4F4CC3EF1549BA8600A9EA21 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */; };
-		4F4CC3F01549BA8600A9EA21 /* IGraphicsCarbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */; };
-		4F4CC3F11549BA8600A9EA21 /* IGraphicsCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */; };
-		4F4CC3F21549BA8600A9EA21 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
-		4F4CC3F31549BA8600A9EA21 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
-		4F4CC3F41549BA8600A9EA21 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
-		4F4CC3F51549BA8600A9EA21 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
-		4F4CC3F71549BA8600A9EA21 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
-		4F4CC3F91549BA8600A9EA21 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
-		4F4CC3FA1549BA8600A9EA21 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4F4CC3FB1549BA8600A9EA21 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
-		4F4CC4151549BE4E00A9EA21 /* AAX_Exports.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC38A1549B91100A9EA21 /* AAX_Exports.cpp */; };
-		4F4CC4271549BED600A9EA21 /* IPlugAAX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */; };
-		4F4CC4421549C15500A9EA21 /* IPlugAAX_Describe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */; };
-		4F5572DE12C7F49C003A4AD1 /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* resource.h */; };
-		4F5572DF12C7F49C003A4AD1 /* IPlugMonoSynth.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED20D0CF13D001C8B8A /* IPlugMonoSynth.h */; };
-		4F55730612C7F49C003A4AD1 /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
-		4F55733812C7F49C003A4AD1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
-		4F55733912C7F49C003A4AD1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4F55733A12C7F49C003A4AD1 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D920D14C2D600A0943B /* AudioToolbox.framework */; };
-		4F55733B12C7F49C003A4AD1 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
-		4F55733C12C7F49C003A4AD1 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CC40D14C2B000A0943B /* CoreServices.framework */; };
-		4F55733D12C7F49C003A4AD1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
 		4F78D70B13B637340032E0F3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D62313B637200032E0F3 /* CoreFoundation.framework */; };
 		4F78D7D013B637790032E0F3 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */; };
 		4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F7E65807B2D6F200F64583 /* CoreData.framework */; };
@@ -130,8 +59,6 @@
 		4F78D8C513B63A700032E0F3 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8C213B63A700032E0F3 /* RtMidi.cpp */; };
 		4F78D8D913B63B5D0032E0F3 /* aeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8D213B63B5D0032E0F3 /* aeffect.h */; };
 		4F78D8DA13B63B5D0032E0F3 /* aeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8D313B63B5D0032E0F3 /* aeffectx.h */; };
-		4F78D8DF13B63B5D0032E0F3 /* aeffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8D213B63B5D0032E0F3 /* aeffect.h */; };
-		4F78D8E013B63B5D0032E0F3 /* aeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8D313B63B5D0032E0F3 /* aeffectx.h */; };
 		4F78D90A13B63BA50032E0F3 /* IPlugStandalone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EB13B63BA40032E0F3 /* IPlugStandalone.cpp */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F78D90C13B63BA50032E0F3 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
@@ -172,34 +99,6 @@
 		4F78D95F13B63BA50032E0F3 /* IGraphicsCarbon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90713B63BA50032E0F3 /* IGraphicsCarbon.h */; };
 		4F78D96013B63BA50032E0F3 /* IGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90813B63BA50032E0F3 /* IGraphics.h */; };
 		4F78D96113B63BA50032E0F3 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
-		4F78D98613B63BA50032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E613B63BA40032E0F3 /* IPlug_include_in_plug_hdr.h */; };
-		4F78D98813B63BA50032E0F3 /* IPlug_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */; };
-		4F78D98913B63BA50032E0F3 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E913B63BA40032E0F3 /* IControl.h */; };
-		4F78D98A13B63BA50032E0F3 /* IKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8EA13B63BA40032E0F3 /* IKeyboardControl.h */; };
-		4F78D98C13B63BA50032E0F3 /* IPlugBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8EC13B63BA40032E0F3 /* IPlugBase.h */; };
-		4F78D98D13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F78D98E13B63BA50032E0F3 /* IGraphicsMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8EE13B63BA50032E0F3 /* IGraphicsMac.h */; };
-		4F78D98F13B63BA50032E0F3 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
-		4F78D99113B63BA50032E0F3 /* Containers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8F113B63BA50032E0F3 /* Containers.h */; };
-		4F78D99213B63BA50032E0F3 /* Hosts.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8F213B63BA50032E0F3 /* Hosts.h */; };
-		4F78D99313B63BA50032E0F3 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
-		4F78D99513B63BA50032E0F3 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */; };
-		4F78D99613B63BA50032E0F3 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */; };
-		4F78D99713B63BA50032E0F3 /* IGraphicsCarbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */; };
-		4F78D99813B63BA50032E0F3 /* IGraphicsCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */; };
-		4F78D99913B63BA50032E0F3 /* IGraphicsCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8F913B63BA50032E0F3 /* IGraphicsCocoa.h */; };
-		4F78D99A13B63BA50032E0F3 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FA13B63BA50032E0F3 /* Log.h */; };
-		4F78D99B13B63BA50032E0F3 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
-		4F78D99C13B63BA50032E0F3 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FC13B63BA50032E0F3 /* IPopupMenu.h */; };
-		4F78D99D13B63BA50032E0F3 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
-		4F78D99E13B63BA50032E0F3 /* IPlugStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */; };
-		4F78D9A213B63BA50032E0F3 /* IPlug_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90213B63BA50032E0F3 /* IPlug_Prefix.pch */; };
-		4F78D9A313B63BA50032E0F3 /* IParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90313B63BA50032E0F3 /* IParam.h */; };
-		4F78D9A413B63BA50032E0F3 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
-		4F78D9A513B63BA50032E0F3 /* IMidiQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90513B63BA50032E0F3 /* IMidiQueue.h */; };
-		4F78D9A713B63BA50032E0F3 /* IGraphicsCarbon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90713B63BA50032E0F3 /* IGraphicsCarbon.h */; };
-		4F78D9A813B63BA50032E0F3 /* IGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90813B63BA50032E0F3 /* IGraphics.h */; };
-		4F78D9A913B63BA50032E0F3 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
 		4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F78D9BC13B63BA50032E0F3 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
 		4F78D9BD13B63BA50032E0F3 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
@@ -211,23 +110,7 @@
 		4F78D9C413B63BA50032E0F3 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
 		4F78D9C813B63BA50032E0F3 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
 		4F78D9C913B63BA50032E0F3 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
-		4F78D9DB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F78D9DC13B63BA50032E0F3 /* IPlugStructs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EF13B63BA50032E0F3 /* IPlugStructs.cpp */; };
-		4F78D9DD13B63BA50032E0F3 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
-		4F78D9DF13B63BA50032E0F3 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F513B63BA50032E0F3 /* IGraphicsMac.mm */; };
-		4F78D9E013B63BA50032E0F3 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */; };
-		4F78D9E113B63BA50032E0F3 /* IGraphicsCarbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F713B63BA50032E0F3 /* IGraphicsCarbon.cpp */; };
-		4F78D9E213B63BA50032E0F3 /* IGraphicsCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F813B63BA50032E0F3 /* IGraphicsCocoa.mm */; };
-		4F78D9E313B63BA50032E0F3 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
-		4F78D9E413B63BA50032E0F3 /* IPopupMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FD13B63BA50032E0F3 /* IPopupMenu.cpp */; };
-		4F78D9E813B63BA50032E0F3 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
-		4F78D9E913B63BA50032E0F3 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90913B63BA50032E0F3 /* IControl.cpp */; };
-		4F78D9EF13B63C6A0032E0F3 /* IPlugVST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D9EC13B63C6A0032E0F3 /* IPlugVST.cpp */; };
 		4F78D9F313B63C6A0032E0F3 /* IPlugVST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D9EC13B63C6A0032E0F3 /* IPlugVST.cpp */; };
-		4F78D9FF13B63CD90032E0F3 /* IPlugAU.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9FB13B63CD90032E0F3 /* IPlugAU.h */; };
-		4F78DA0013B63CD90032E0F3 /* IPlugAU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D9FC13B63CD90032E0F3 /* IPlugAU.cpp */; };
-		4F78DA0113B63CD90032E0F3 /* IPlugAU.r in Rez */ = {isa = PBXBuildFile; fileRef = 4F78D9FD13B63CD90032E0F3 /* IPlugAU.r */; };
-		4F78DA0213B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D9FE13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm */; };
 		4F78DA0713B63CD90032E0F3 /* IPlugAU.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9FB13B63CD90032E0F3 /* IPlugAU.h */; };
 		4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D9FC13B63CD90032E0F3 /* IPlugAU.cpp */; };
 		4F78DA0913B63CD90032E0F3 /* IPlugAU.r in Rez */ = {isa = PBXBuildFile; fileRef = 4F78D9FD13B63CD90032E0F3 /* IPlugAU.r */; };
@@ -299,51 +182,9 @@
 		4F7F5D2C13E9686E002918FD /* IPlugRTAS.r in Rez */ = {isa = PBXBuildFile; fileRef = 4F7F5D2413E9681E002918FD /* IPlugRTAS.r */; };
 		4F8B6766158B4F74002FC25B /* libPluginLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8B674F158B4F53002FC25B /* libPluginLibrary.a */; };
 		4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4F8D4C2613E9776E004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
-		4F8D4C2713E97781004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2913E97794004F7633 /* lice32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4C1713E976A7004F7633 /* lice32.a */; };
 		4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4F91E2BF159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2C0159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2C1159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2C2159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2C3159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2C4159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2C5159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2C6159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2C7159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2C8159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2C9159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2CA159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2CB159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2CC159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2CD159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2CE159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2CF159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2D0159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2D1159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2D2159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2D3159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2D4159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2D5159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2D6159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2D7159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2D8159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2D9159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2DA159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2DB159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2DC159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2DD159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2DE159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2DF159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2E0159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2E1159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2E2159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
-		4F91E2E3159B6BD7007551B6 /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BB159B6BD7007551B6 /* wk.png */; };
-		4F91E2E4159B6BD7007551B6 /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BC159B6BD7007551B6 /* bk.png */; };
-		4F91E2E5159B6BD7007551B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BD159B6BD7007551B6 /* bg.png */; };
-		4F91E2E6159B6BD7007551B6 /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F91E2BE159B6BD7007551B6 /* about.png */; };
 		4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F9828B6140A9EB700F3FCC1 /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
 		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -381,12 +222,8 @@
 		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4FA708D9158B49E500BFC572 /* libbase32.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA708BF158B47F000BFC572 /* libbase32.a */; };
-		4FA88B921444E4C4006CB8DA /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
 		4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
-		4FA88B941444E4C4006CB8DA /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
-		4FA88B951444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
-		4FB3624F13B648FE00DB6B76 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.m */; };
+		4FB3624F13B648FE00DB6B76 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.mm */; };
 		4FB600161567CB0A0020189A /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4FB600181567CB0A0020189A /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
 		4FB600191567CB0A0020189A /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -415,18 +252,12 @@
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
-		4FD16D1013B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
-		4FD16D1413B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D1513B634D2001D0217 /* swell-ini.cpp */; };
 		4FD16D1913B634E5001D0217 /* swell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D1713B634E5001D0217 /* swell.h */; };
-		4FD16D1B13B634E5001D0217 /* swell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D1713B634E5001D0217 /* swell.h */; };
 		4FD16D2413B6351C001D0217 /* swell-functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D2213B6351C001D0217 /* swell-functions.h */; };
-		4FD16D2613B6351C001D0217 /* swell-functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D2213B6351C001D0217 /* swell-functions.h */; };
 		4FD16D2D13B6353C001D0217 /* swell-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D2B13B6353C001D0217 /* swell-internal.h */; };
-		4FD16D2F13B6353C001D0217 /* swell-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D2B13B6353C001D0217 /* swell-internal.h */; };
 		4FD16D3213B6355A001D0217 /* swell-types.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D3013B6355A001D0217 /* swell-types.h */; };
-		4FD16D3413B6355A001D0217 /* swell-types.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D3013B6355A001D0217 /* swell-types.h */; };
 		4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3913B63582001D0217 /* swell-kb.mm */; };
 		4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3B13B6358C001D0217 /* swell-miscdlg.mm */; };
 		4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3D13B63595001D0217 /* swell-menu.mm */; };
@@ -434,56 +265,49 @@
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
 		4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; };
+		4FD40BEC16792E8000B2C76C /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE816792E8000B2C76C /* about.png */; };
+		4FD40BED16792E8000B2C76C /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE916792E8000B2C76C /* bg.png */; };
+		4FD40BEE16792E8000B2C76C /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEA16792E8000B2C76C /* bk.png */; };
+		4FD40BEF16792E8000B2C76C /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEB16792E8000B2C76C /* wk.png */; };
+		4FD40BF016792E8000B2C76C /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE816792E8000B2C76C /* about.png */; };
+		4FD40BF116792E8000B2C76C /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE916792E8000B2C76C /* bg.png */; };
+		4FD40BF216792E8000B2C76C /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEA16792E8000B2C76C /* bk.png */; };
+		4FD40BF316792E8000B2C76C /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEB16792E8000B2C76C /* wk.png */; };
+		4FD40BF416792E8000B2C76C /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE816792E8000B2C76C /* about.png */; };
+		4FD40BF516792E8000B2C76C /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE916792E8000B2C76C /* bg.png */; };
+		4FD40BF616792E8000B2C76C /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEA16792E8000B2C76C /* bk.png */; };
+		4FD40BF716792E8000B2C76C /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEB16792E8000B2C76C /* wk.png */; };
+		4FD40BF816792E8000B2C76C /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE816792E8000B2C76C /* about.png */; };
+		4FD40BF916792E8000B2C76C /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE916792E8000B2C76C /* bg.png */; };
+		4FD40BFA16792E8000B2C76C /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEA16792E8000B2C76C /* bk.png */; };
+		4FD40BFB16792E8000B2C76C /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEB16792E8000B2C76C /* wk.png */; };
+		4FD40BFC16792E8000B2C76C /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE816792E8000B2C76C /* about.png */; };
+		4FD40BFD16792E8000B2C76C /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE916792E8000B2C76C /* bg.png */; };
+		4FD40BFE16792E8000B2C76C /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEA16792E8000B2C76C /* bk.png */; };
+		4FD40BFF16792E8000B2C76C /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEB16792E8000B2C76C /* wk.png */; };
+		4FD40C0016792E8000B2C76C /* about.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE816792E8000B2C76C /* about.png */; };
+		4FD40C0116792E8000B2C76C /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BE916792E8000B2C76C /* bg.png */; };
+		4FD40C0216792E8000B2C76C /* bk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEA16792E8000B2C76C /* bk.png */; };
+		4FD40C0316792E8000B2C76C /* wk.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FD40BEB16792E8000B2C76C /* wk.png */; };
 		4FDA440713F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
 		4FDA440813F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
 		4FDA440913F3E4F2000B4551 /* IBitmapMonoText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */; };
-		4FDA440A13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
-		4FDA440B13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */; };
 		4FDA440C13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
-		4FDA440D13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
 		4FDA440E13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */; };
 		4FDA440F13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */; };
 		4FF016F7134E14E2001447BA /* mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F4134E14E2001447BA /* mutex.h */; };
 		4FF016F8134E14E2001447BA /* ptrlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F5134E14E2001447BA /* ptrlist.h */; };
 		4FF016F9134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
-		4FF016FA134E14E2001447BA /* mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F4134E14E2001447BA /* mutex.h */; };
-		4FF016FB134E14E2001447BA /* ptrlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F5134E14E2001447BA /* ptrlist.h */; };
-		4FF016FC134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
 		4FF0171A134E153A001447BA /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF01719134E153A001447BA /* heapbuf.h */; };
-		4FF0171B134E153A001447BA /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF01719134E153A001447BA /* heapbuf.h */; };
-		52C4DB190D0E51270007A920 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
-		52FBBED10D0CF139001C8B8A /* IPlugMonoSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugMonoSynth.cpp */; };
-		8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4F1A5FD115682B44001E12B4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F4CC3E31549BA8600A9EA21;
-			remoteInfo = AAX_32_intel;
-		};
-		4F3B0B3E158B506F001B0CEF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = AAXLibrary;
-		};
 		4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = AAXLibrary;
-		};
-		4F3E69091409747300C4D749 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F8D4BD513E976A7004F7633;
-			remoteInfo = lice_32_intel;
 		};
 		4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -492,19 +316,19 @@
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = base;
 		};
-		4F4CC3E51549BA8600A9EA21 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F8D4BD513E976A7004F7633;
-			remoteInfo = lice_32_intel;
-		};
 		4F678B6C13E984B200A6A9BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = "lice_32&64_intel";
+		};
+		4F789ECF16763E47009EF688 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FB600121567CB0A0020189A;
+			remoteInfo = "AAX_32&64_intel";
 		};
 		4F78DAF513B6436B0032E0F3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -590,20 +414,6 @@
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = "lice_32&64_intel";
 		};
-		4F8D4C3B13E97882004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F8D4BD513E976A7004F7633;
-			remoteInfo = lice_32_intel;
-		};
-		4F8D4C3D13E9788F004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F8D4BD513E976A7004F7633;
-			remoteInfo = lice_32_intel;
-		};
 		4F8D4C6213E97B3D004F7633 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
@@ -639,13 +449,6 @@
 			remoteGlobalIDString = 4FA708BC158B47D200BFC572;
 			remoteInfo = base_32;
 		};
-		4FA708D4158B498C00BFC572 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4FA7087C158B47D200BFC572;
-			remoteInfo = base_32_intel;
-		};
 		4FB6004F1567CB990020189A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
@@ -669,7 +472,6 @@
 		4F23BA1513B647E50097A67E /* IPlugMonoSynth-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugMonoSynth-VST2-Info.plist"; path = "resources/IPlugMonoSynth-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F3E69041409746500C4D749 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../WDL/IPlug/IPlugVST3.cpp; sourceTree = SOURCE_ROOT; };
 		4F3E69051409746500C4D749 /* IPlugVST3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3.h; path = ../../WDL/IPlug/IPlugVST3.h; sourceTree = SOURCE_ROOT; };
-		4F3E69291409747300C4D749 /* IPlugMonoSynth.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F3E693A1409747300C4D749 /* IPlugMonoSynth-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugMonoSynth-VST3-Info.plist"; path = "resources/IPlugMonoSynth-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3EE94513B65A350097B791 /* IPlugOSDetect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugOSDetect.h; path = ../../WDL/IPlug/IPlugOSDetect.h; sourceTree = SOURCE_ROOT; };
 		4F4ACFF5140996A10068A6D4 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
@@ -742,12 +544,10 @@
 		4F4CC38A1549B91100A9EA21 /* AAX_Exports.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AAX_Exports.cpp; path = ../../AAX_SDK/Interfaces/AAX_Exports.cpp; sourceTree = SOURCE_ROOT; };
 		4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = CommonDebugSettings.xcconfig; path = ../../AAX_SDK/ExamplePlugIns/Common/Mac/CommonDebugSettings.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = CommonReleaseSettings.xcconfig; path = ../../AAX_SDK/ExamplePlugIns/Common/Mac/CommonReleaseSettings.xcconfig; sourceTree = SOURCE_ROOT; };
-		4F4CC4001549BA8600A9EA21 /* IPlugMonoSynth.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX.cpp; path = ../../WDL/IPlug/IPlugAAX.cpp; sourceTree = SOURCE_ROOT; };
 		4F4CC4261549BED600A9EA21 /* IPlugAAX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX.h; path = ../../WDL/IPlug/IPlugAAX.h; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../WDL/IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
 		4F4F73791576739300C124E3 /* AAX_CIPlugTaperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAX_CIPlugTaperDelegate.h; path = ../../WDL/IPlug/AAX/AAX_CIPlugTaperDelegate.h; sourceTree = SOURCE_ROOT; };
-		4F55734412C7F49C003A4AD1 /* IPlugMonoSynth.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F78D62313B637200032E0F3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		4F78D89613B639100032E0F3 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
@@ -798,7 +598,6 @@
 		4F78D9FE13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_ViewFactory.mm; path = ../../WDL/IPlug/IPlugAU_ViewFactory.mm; sourceTree = SOURCE_ROOT; };
 		4F78DAEA13B642790032E0F3 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWin.cpp; path = ../../WDL/IPlug/IGraphicsWin.cpp; sourceTree = SOURCE_ROOT; };
 		4F78DAEB13B642790032E0F3 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../WDL/IPlug/IGraphicsWin.h; sourceTree = SOURCE_ROOT; };
-		4F78DB5E13B6462B0032E0F3 /* IPlugMonoSynth.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugMonoSynth.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F79A34C146304CD00744AED /* IPlugProcessAS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessAS.cpp; path = ../../WDL/IPlug/RTAS/IPlugProcessAS.cpp; sourceTree = "<group>"; };
 		4F79A34D146304CD00744AED /* IPlugProcessAS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessAS.h; path = ../../WDL/IPlug/RTAS/IPlugProcessAS.h; sourceTree = "<group>"; };
@@ -827,14 +626,10 @@
 		4F7F5D2413E9681E002918FD /* IPlugRTAS.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; name = IPlugRTAS.r; path = ../../WDL/IPlug/RTAS/IPlugRTAS.r; sourceTree = "<group>"; };
 		4F8B6747158B4F53002FC25B /* PluginLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PluginLibrary.xcodeproj; path = ../../PT9_SDK/AlturaPorts/TDMPlugIns/PlugInLibrary/MacBuild/PluginLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
-		4F91E2BB159B6BD7007551B6 /* wk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wk.png; path = resources/img/wk.png; sourceTree = "<group>"; };
-		4F91E2BC159B6BD7007551B6 /* bk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bk.png; path = resources/img/bk.png; sourceTree = "<group>"; };
-		4F91E2BD159B6BD7007551B6 /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bg.png; path = resources/img/bg.png; sourceTree = "<group>"; };
-		4F91E2BE159B6BD7007551B6 /* about.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = about.png; path = resources/img/about.png; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugMonoSynth.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
-		4FB3624E13B648FE00DB6B76 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = app_wrapper/main.m; sourceTree = "<group>"; };
+		4FB3624E13B648FE00DB6B76 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugMonoSynth.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugMonoSynth.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FCF15AF133124D1009A6277 /* IPlugMonoSynth.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = IPlugMonoSynth.xcconfig; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugMonoSynth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugMonoSynth.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -861,6 +656,10 @@
 		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
 		4FD290A8137C34D700CEBE7E /* IPlugMonoSynth.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IPlugMonoSynth.icns; path = resources/IPlugMonoSynth.icns; sourceTree = "<group>"; };
+		4FD40BE816792E8000B2C76C /* about.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = about.png; path = resources/img/about.png; sourceTree = "<group>"; };
+		4FD40BE916792E8000B2C76C /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bg.png; path = resources/img/bg.png; sourceTree = "<group>"; };
+		4FD40BEA16792E8000B2C76C /* bk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bk.png; path = resources/img/bk.png; sourceTree = "<group>"; };
+		4FD40BEB16792E8000B2C76C /* wk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wk.png; path = resources/img/wk.png; sourceTree = "<group>"; };
 		4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IBitmapMonoText.cpp; path = ../../WDL/IPlug/IBitmapMonoText.cpp; sourceTree = SOURCE_ROOT; };
 		4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IBitmapMonoText.h; path = ../../WDL/IPlug/IBitmapMonoText.h; sourceTree = SOURCE_ROOT; };
 		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
@@ -903,42 +702,6 @@
 				4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */,
 				4F3AE1D812C0E5E2001FD7A4 /* CoreServices.framework in Frameworks */,
 				4F3AE1D912C0E5E2001FD7A4 /* CoreAudio.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F3E69211409747300C4D749 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4FA708D9158B49E500BFC572 /* libbase32.a in Frameworks */,
-				4F3E69221409747300C4D749 /* lice32.a in Frameworks */,
-				4F3E69231409747300C4D749 /* Cocoa.framework in Frameworks */,
-				4F3E69241409747300C4D749 /* Carbon.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CC3F81549BA8600A9EA21 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F3B0B3D158B505F001B0CEF /* libAAXLibrary.a in Frameworks */,
-				4F4CC3F91549BA8600A9EA21 /* lice32.a in Frameworks */,
-				4F4CC3FA1549BA8600A9EA21 /* Cocoa.framework in Frameworks */,
-				4F4CC3FB1549BA8600A9EA21 /* Carbon.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F55733712C7F49C003A4AD1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F8D4C2713E97781004F7633 /* lice32.a in Frameworks */,
-				4F55733812C7F49C003A4AD1 /* Carbon.framework in Frameworks */,
-				4F55733912C7F49C003A4AD1 /* Cocoa.framework in Frameworks */,
-				4F55733A12C7F49C003A4AD1 /* AudioToolbox.framework in Frameworks */,
-				4F55733B12C7F49C003A4AD1 /* AudioUnit.framework in Frameworks */,
-				4F55733C12C7F49C003A4AD1 /* CoreServices.framework in Frameworks */,
-				4F55733D12C7F49C003A4AD1 /* CoreAudio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -990,16 +753,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		8D5B49B3048680CD000E48DA /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F8D4C2613E9776E004F7633 /* lice32.a in Frameworks */,
-				8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */,
-				52C4DB190D0E51270007A920 /* Carbon.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1030,12 +783,12 @@
 			isa = PBXGroup;
 			children = (
 				4FD16A0213B6303B001D0217 /* img */,
-				4F7F5C0C13E95DDC002918FD /* IPlugMonoSynth-RTAS-Info.plist */,
-				4F4CC3811549B8A700A9EA21 /* IPlugMonoSynth-AAX-Info.plist */,
-				4F23BA1313B647E50097A67E /* IPlugMonoSynth-AU-Info.plist */,
 				4F23BA1413B647E50097A67E /* IPlugMonoSynth-OSXAPP-Info.plist */,
 				4F23BA1513B647E50097A67E /* IPlugMonoSynth-VST2-Info.plist */,
 				4F3E693A1409747300C4D749 /* IPlugMonoSynth-VST3-Info.plist */,
+				4F23BA1313B647E50097A67E /* IPlugMonoSynth-AU-Info.plist */,
+				4F7F5C0C13E95DDC002918FD /* IPlugMonoSynth-RTAS-Info.plist */,
+				4F4CC3811549B8A700A9EA21 /* IPlugMonoSynth-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugMonoSynth.icns */,
 			);
 			name = Resources;
@@ -1057,12 +810,11 @@
 		19C28FB8FE9D52D311CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4FEBD2A01416385300BDCD2F /* VST3 */,
-				4F7F5CBA13E960B9002918FD /* RTAS */,
-				4F78DB4513B6458B0032E0F3 /* VST2 */,
-				4F78DB4613B645AD0032E0F3 /* AU */,
 				4FD16A0913B63081001D0217 /* IPlugMonoSynth.app */,
-				4F4CC4001549BA8600A9EA21 /* IPlugMonoSynth.aaxplugin */,
+				4F20EF33132C69FE0030E34C /* IPlugMonoSynth.vst */,
+				4F9828E0140A9EB700F3FCC1 /* IPlugMonoSynth.vst3 */,
+				4F78DB5F13B6462B0032E0F3 /* IPlugMonoSynth.component */,
+				4F7F5C6813E95EC8002918FD /* IPlugMonoSynth.dpm */,
 				4FB600331567CB0A0020189A /* IPlugMonoSynth.aaxplugin */,
 			);
 			name = Products;
@@ -1467,24 +1219,6 @@
 			name = "AU Plugin";
 			sourceTree = "<group>";
 		};
-		4F78DB4513B6458B0032E0F3 /* VST2 */ = {
-			isa = PBXGroup;
-			children = (
-				4F78DB5E13B6462B0032E0F3 /* IPlugMonoSynth.vst */,
-				4F20EF33132C69FE0030E34C /* IPlugMonoSynth.vst */,
-			);
-			name = VST2;
-			sourceTree = "<group>";
-		};
-		4F78DB4613B645AD0032E0F3 /* AU */ = {
-			isa = PBXGroup;
-			children = (
-				4F78DB5F13B6462B0032E0F3 /* IPlugMonoSynth.component */,
-				4F55734412C7F49C003A4AD1 /* IPlugMonoSynth.component */,
-			);
-			name = AU;
-			sourceTree = "<group>";
-		};
 		4F7F5C7213E95FB8002918FD /* RTAS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1504,14 +1238,6 @@
 				4F7F5CA713E9607A002918FD /* IPlugProcessRTAS.cpp */,
 				4F7F5CA813E9607A002918FD /* IPlugProcessRTAS.h */,
 				4F7F5CAA13E9607A002918FD /* ProcessInterface.h */,
-			);
-			name = RTAS;
-			sourceTree = "<group>";
-		};
-		4F7F5CBA13E960B9002918FD /* RTAS */ = {
-			isa = PBXGroup;
-			children = (
-				4F7F5C6813E95EC8002918FD /* IPlugMonoSynth.dpm */,
 			);
 			name = RTAS;
 			sourceTree = "<group>";
@@ -1554,10 +1280,10 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
-				4F91E2BB159B6BD7007551B6 /* wk.png */,
-				4F91E2BC159B6BD7007551B6 /* bk.png */,
-				4F91E2BD159B6BD7007551B6 /* bg.png */,
-				4F91E2BE159B6BD7007551B6 /* about.png */,
+				4FD40BE816792E8000B2C76C /* about.png */,
+				4FD40BE916792E8000B2C76C /* bg.png */,
+				4FD40BEA16792E8000B2C76C /* bk.png */,
+				4FD40BEB16792E8000B2C76C /* wk.png */,
 				4F23B9E413B647A00097A67E /* knob.png */,
 			);
 			name = img;
@@ -1566,7 +1292,7 @@
 		4FD16C9D13B6327C001D0217 /* OSX App Wrapper */ = {
 			isa = PBXGroup;
 			children = (
-				4FB3624E13B648FE00DB6B76 /* main.m */,
+				4FB3624E13B648FE00DB6B76 /* main.mm */,
 				4F78D89413B639100032E0F3 /* English.lproj */,
 				4FD16C9E13B6327C001D0217 /* app_resource.h */,
 				4FD16C9F13B6327C001D0217 /* app_main.h */,
@@ -1615,15 +1341,6 @@
 				4FD16D4313B635B2001D0217 /* swell.cpp */,
 			);
 			name = "Used by App";
-			sourceTree = "<group>";
-		};
-		4FEBD2A01416385300BDCD2F /* VST3 */ = {
-			isa = PBXGroup;
-			children = (
-				4F3E69291409747300C4D749 /* IPlugMonoSynth.vst3 */,
-				4F9828E0140A9EB700F3FCC1 /* IPlugMonoSynth.vst3 */,
-			);
-			name = VST3;
 			sourceTree = "<group>";
 		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
@@ -1686,47 +1403,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4F5572DC12C7F49C003A4AD1 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F5572DE12C7F49C003A4AD1 /* resource.h in Headers */,
-				4F5572DF12C7F49C003A4AD1 /* IPlugMonoSynth.h in Headers */,
-				4FF016FA134E14E2001447BA /* mutex.h in Headers */,
-				4FF016FB134E14E2001447BA /* ptrlist.h in Headers */,
-				4FF016FC134E14E2001447BA /* wdlstring.h in Headers */,
-				4FF0171B134E153A001447BA /* heapbuf.h in Headers */,
-				4F1F1BEB135B1F60003A5BB2 /* wdlendian.h in Headers */,
-				4FD16D1B13B634E5001D0217 /* swell.h in Headers */,
-				4FD16D2613B6351C001D0217 /* swell-functions.h in Headers */,
-				4FD16D2F13B6353C001D0217 /* swell-internal.h in Headers */,
-				4FD16D3413B6355A001D0217 /* swell-types.h in Headers */,
-				4F78D8DF13B63B5D0032E0F3 /* aeffect.h in Headers */,
-				4F78D8E013B63B5D0032E0F3 /* aeffectx.h in Headers */,
-				4F78D98613B63BA50032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */,
-				4F78D98813B63BA50032E0F3 /* IPlug_include_in_plug_src.h in Headers */,
-				4F78D98913B63BA50032E0F3 /* IControl.h in Headers */,
-				4F78D98A13B63BA50032E0F3 /* IKeyboardControl.h in Headers */,
-				4F78D98C13B63BA50032E0F3 /* IPlugBase.h in Headers */,
-				4F78D98E13B63BA50032E0F3 /* IGraphicsMac.h in Headers */,
-				4F78D99113B63BA50032E0F3 /* Containers.h in Headers */,
-				4F78D99213B63BA50032E0F3 /* Hosts.h in Headers */,
-				4F78D99913B63BA50032E0F3 /* IGraphicsCocoa.h in Headers */,
-				4F78D99A13B63BA50032E0F3 /* Log.h in Headers */,
-				4F78D99C13B63BA50032E0F3 /* IPopupMenu.h in Headers */,
-				4F78D99E13B63BA50032E0F3 /* IPlugStructs.h in Headers */,
-				4F78D9A213B63BA50032E0F3 /* IPlug_Prefix.pch in Headers */,
-				4F78D9A313B63BA50032E0F3 /* IParam.h in Headers */,
-				4F78D9A513B63BA50032E0F3 /* IMidiQueue.h in Headers */,
-				4F78D9A713B63BA50032E0F3 /* IGraphicsCarbon.h in Headers */,
-				4F78D9A813B63BA50032E0F3 /* IGraphics.h in Headers */,
-				4F78D9FF13B63CD90032E0F3 /* IPlugAU.h in Headers */,
-				4F3EE94713B65A350097B791 /* IPlugOSDetect.h in Headers */,
-				4FDA440B13F3E4F2000B4551 /* IBitmapMonoText.h in Headers */,
-				4FA88B951444E4C4006CB8DA /* dfx-au-utilities.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4F78DAAC13B640450032E0F3 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1776,9 +1452,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4F20EEC8132C69FE0030E34C /* VST2_32&64_intel */ = {
+		4F20EEC8132C69FE0030E34C /* VST2 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4F20EF2F132C69FE0030E34C /* Build configuration list for PBXNativeTarget "VST2_32&64_intel" */;
+			buildConfigurationList = 4F20EF2F132C69FE0030E34C /* Build configuration list for PBXNativeTarget "VST2" */;
 			buildPhases = (
 				4F20EEC9132C69FE0030E34C /* Resources */,
 				4F20EECA132C69FE0030E34C /* Sources */,
@@ -1789,15 +1465,15 @@
 			dependencies = (
 				4F8D4C2D13E977CD004F7633 /* PBXTargetDependency */,
 			);
-			name = "VST2_32&64_intel";
+			name = VST2;
 			productInstallPath = "$(HOME)/Library/Bundles";
 			productName = IPlugExample;
 			productReference = 4F20EF33132C69FE0030E34C /* IPlugMonoSynth.vst */;
 			productType = "com.apple.product-type.bundle";
 		};
-		4F3AE17812C0E5E2001FD7A4 /* AU_32&64_intel */ = {
+		4F3AE17812C0E5E2001FD7A4 /* AU */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4F3AE1DC12C0E5E2001FD7A4 /* Build configuration list for PBXNativeTarget "AU_32&64_intel" */;
+			buildConfigurationList = 4F3AE1DC12C0E5E2001FD7A4 /* Build configuration list for PBXNativeTarget "AU" */;
 			buildPhases = (
 				4F3AE17912C0E5E2001FD7A4 /* Headers */,
 				4F3AE1A212C0E5E2001FD7A4 /* Sources */,
@@ -1811,75 +1487,14 @@
 			dependencies = (
 				4F8D4C3A13E97859004F7633 /* PBXTargetDependency */,
 			);
-			name = "AU_32&64_intel";
+			name = AU;
 			productName = IPlugExampleAU;
 			productReference = 4F78DB5F13B6462B0032E0F3 /* IPlugMonoSynth.component */;
 			productType = "com.apple.product-type.bundle";
 		};
-		4F3E69071409747300C4D749 /* VST3_32_intel */ = {
+		4F7F5C4213E95EC8002918FD /* RTAS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4F3E69251409747300C4D749 /* Build configuration list for PBXNativeTarget "VST3_32_intel" */;
-			buildPhases = (
-				4F3E690A1409747300C4D749 /* Resources */,
-				4F3E69101409747300C4D749 /* Sources */,
-				4F3E69211409747300C4D749 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4F3E69081409747300C4D749 /* PBXTargetDependency */,
-				4FA708D5158B498C00BFC572 /* PBXTargetDependency */,
-			);
-			name = VST3_32_intel;
-			productInstallPath = "$(HOME)/Library/Bundles";
-			productName = IPlugExample;
-			productReference = 4F3E69291409747300C4D749 /* IPlugMonoSynth.vst3 */;
-			productType = "com.apple.product-type.bundle";
-		};
-		4F4CC3E31549BA8600A9EA21 /* AAX_32_intel */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4F4CC3FC1549BA8600A9EA21 /* Build configuration list for PBXNativeTarget "AAX_32_intel" */;
-			buildPhases = (
-				4F4CC3E61549BA8600A9EA21 /* Resources */,
-				4F4CC3E81549BA8600A9EA21 /* Sources */,
-				4F4CC3F81549BA8600A9EA21 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4F4CC3E41549BA8600A9EA21 /* PBXTargetDependency */,
-				4F3B0B3F158B506F001B0CEF /* PBXTargetDependency */,
-			);
-			name = AAX_32_intel;
-			productInstallPath = "$(HOME)/Library/Bundles";
-			productName = IPlugExample;
-			productReference = 4F4CC4001549BA8600A9EA21 /* IPlugMonoSynth.aaxplugin */;
-			productType = "com.apple.product-type.bundle";
-		};
-		4F5572DB12C7F49C003A4AD1 /* AU_32_intel */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4F55734012C7F49C003A4AD1 /* Build configuration list for PBXNativeTarget "AU_32_intel" */;
-			buildPhases = (
-				4F5572DC12C7F49C003A4AD1 /* Headers */,
-				4F55730512C7F49C003A4AD1 /* Sources */,
-				4F55733612C7F49C003A4AD1 /* Resources */,
-				4F55733712C7F49C003A4AD1 /* Frameworks */,
-				4F55733E12C7F49C003A4AD1 /* Rez */,
-				4F744D4714005A8C002FAD90 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4F8D4C3C13E97882004F7633 /* PBXTargetDependency */,
-			);
-			name = AU_32_intel;
-			productName = IPlugExampleAU;
-			productReference = 4F55734412C7F49C003A4AD1 /* IPlugMonoSynth.component */;
-			productType = "com.apple.product-type.bundle";
-		};
-		4F7F5C4213E95EC8002918FD /* RTAS_32_intel */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4F7F5C6413E95EC8002918FD /* Build configuration list for PBXNativeTarget "RTAS_32_intel" */;
+			buildConfigurationList = 4F7F5C6413E95EC8002918FD /* Build configuration list for PBXNativeTarget "RTAS" */;
 			buildPhases = (
 				4F7F5C4813E95EC8002918FD /* Sources */,
 				4F7F5C5F13E95EC8002918FD /* Frameworks */,
@@ -1892,15 +1507,15 @@
 				4F8D4C3813E9783A004F7633 /* PBXTargetDependency */,
 				4F8B6765158B4F67002FC25B /* PBXTargetDependency */,
 			);
-			name = RTAS_32_intel;
+			name = RTAS;
 			productInstallPath = "$(HOME)/Library/Bundles";
 			productName = IPlugExample;
 			productReference = 4F7F5C6813E95EC8002918FD /* IPlugMonoSynth.dpm */;
 			productType = "com.apple.product-type.bundle";
 		};
-		4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */ = {
+		4F9828AA140A9EB700F3FCC1 /* VST3 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4F9828DC140A9EB700F3FCC1 /* Build configuration list for PBXNativeTarget "VST3_32&64_intel" */;
+			buildConfigurationList = 4F9828DC140A9EB700F3FCC1 /* Build configuration list for PBXNativeTarget "VST3" */;
 			buildPhases = (
 				4F9828AF140A9EB700F3FCC1 /* Resources */,
 				4F9828B5140A9EB700F3FCC1 /* Sources */,
@@ -1912,15 +1527,15 @@
 				4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */,
 				4F9828F3140A9ED500F3FCC1 /* PBXTargetDependency */,
 			);
-			name = "VST3_32&64_intel";
+			name = VST3;
 			productInstallPath = "$(HOME)/Library/Bundles";
 			productName = IPlugExample;
 			productReference = 4F9828E0140A9EB700F3FCC1 /* IPlugMonoSynth.vst3 */;
 			productType = "com.apple.product-type.bundle";
 		};
-		4FB600121567CB0A0020189A /* AAX_32&64_intel */ = {
+		4FB600121567CB0A0020189A /* AAX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FB6002F1567CB0A0020189A /* Build configuration list for PBXNativeTarget "AAX_32&64_intel" */;
+			buildConfigurationList = 4FB6002F1567CB0A0020189A /* Build configuration list for PBXNativeTarget "AAX" */;
 			buildPhases = (
 				4FB600151567CB0A0020189A /* Resources */,
 				4FB600171567CB0A0020189A /* Sources */,
@@ -1932,15 +1547,15 @@
 				4FB600501567CB990020189A /* PBXTargetDependency */,
 				4F3B0B43158B509A001B0CEF /* PBXTargetDependency */,
 			);
-			name = "AAX_32&64_intel";
+			name = AAX;
 			productInstallPath = "$(HOME)/Library/Bundles";
 			productName = IPlugExample;
 			productReference = 4FB600331567CB0A0020189A /* IPlugMonoSynth.aaxplugin */;
 			productType = "com.apple.product-type.bundle";
 		};
-		4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */ = {
+		4FD16A0813B63081001D0217 /* APP */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "OSXAPP_32&64_intel" */;
+			buildConfigurationList = 4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */;
 			buildPhases = (
 				4F78DAAC13B640450032E0F3 /* Headers */,
 				4FD16A0513B63081001D0217 /* Resources */,
@@ -1952,35 +1567,19 @@
 			dependencies = (
 				4F678B6D13E984B200A6A9BB /* PBXTargetDependency */,
 			);
-			name = "OSXAPP_32&64_intel";
+			name = APP;
 			productName = "OSXAPP_32&64_intel";
 			productReference = 4FD16A0913B63081001D0217 /* IPlugMonoSynth.app */;
 			productType = "com.apple.product-type.application";
-		};
-		8D5B49AC048680CD000E48DA /* VST2_32_intel */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB913A08733D840010E9CD /* Build configuration list for PBXNativeTarget "VST2_32_intel" */;
-			buildPhases = (
-				8D5B49AF048680CD000E48DA /* Resources */,
-				8D5B49B1048680CD000E48DA /* Sources */,
-				8D5B49B3048680CD000E48DA /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4F8D4C3E13E9788F004F7633 /* PBXTargetDependency */,
-			);
-			name = VST2_32_intel;
-			productInstallPath = "$(HOME)/Library/Bundles";
-			productName = IPlugExample;
-			productReference = 4F78DB5E13B6462B0032E0F3 /* IPlugMonoSynth.vst */;
-			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
 			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugMonoSynth" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -2014,16 +1613,12 @@
 			projectRoot = "";
 			targets = (
 				4F78DAF113B643600032E0F3 /* All */,
-				4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */,
-				8D5B49AC048680CD000E48DA /* VST2_32_intel */,
-				4F20EEC8132C69FE0030E34C /* VST2_32&64_intel */,
-				4F5572DB12C7F49C003A4AD1 /* AU_32_intel */,
-				4F3AE17812C0E5E2001FD7A4 /* AU_32&64_intel */,
-				4F7F5C4213E95EC8002918FD /* RTAS_32_intel */,
-				4F3E69071409747300C4D749 /* VST3_32_intel */,
-				4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */,
-				4F4CC3E31549BA8600A9EA21 /* AAX_32_intel */,
-				4FB600121567CB0A0020189A /* AAX_32&64_intel */,
+				4FD16A0813B63081001D0217 /* APP */,
+				4F20EEC8132C69FE0030E34C /* VST2 */,
+				4F9828AA140A9EB700F3FCC1 /* VST3 */,
+				4F3AE17812C0E5E2001FD7A4 /* AU */,
+				4F7F5C4213E95EC8002918FD /* RTAS */,
+				4FB600121567CB0A0020189A /* AAX */,
 			);
 		};
 /* End PBXProject section */
@@ -2086,10 +1681,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F23B9F313B647A00097A67E /* knob.png in Resources */,
-				4F91E2CB159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2CC159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2CD159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2CE159B6BD7007551B6 /* about.png in Resources */,
+				4FD40BFC16792E8000B2C76C /* about.png in Resources */,
+				4FD40BFD16792E8000B2C76C /* bg.png in Resources */,
+				4FD40BFE16792E8000B2C76C /* bk.png in Resources */,
+				4FD40BFF16792E8000B2C76C /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2098,46 +1693,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F23BA0C13B647A00097A67E /* knob.png in Resources */,
-				4F91E2C3159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2C4159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2C5159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2C6159B6BD7007551B6 /* about.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F3E690A1409747300C4D749 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F3E690C1409747300C4D749 /* knob.png in Resources */,
-				4F91E2D7159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2D8159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2D9159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2DA159B6BD7007551B6 /* about.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CC3E61549BA8600A9EA21 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F4CC3E71549BA8600A9EA21 /* knob.png in Resources */,
-				4F91E2DF159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2E0159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2E1159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2E2159B6BD7007551B6 /* about.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F55733612C7F49C003A4AD1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F23BA0213B647A00097A67E /* knob.png in Resources */,
-				4F91E2C7159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2C8159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2C9159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2CA159B6BD7007551B6 /* about.png in Resources */,
+				4FD40BF416792E8000B2C76C /* about.png in Resources */,
+				4FD40BF516792E8000B2C76C /* bg.png in Resources */,
+				4FD40BF616792E8000B2C76C /* bk.png in Resources */,
+				4FD40BF716792E8000B2C76C /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2146,10 +1705,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F7F5C4613E95EC8002918FD /* knob.png in Resources */,
-				4F91E2BF159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2C0159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2C1159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2C2159B6BD7007551B6 /* about.png in Resources */,
+				4FD40BEC16792E8000B2C76C /* about.png in Resources */,
+				4FD40BED16792E8000B2C76C /* bg.png in Resources */,
+				4FD40BEE16792E8000B2C76C /* bk.png in Resources */,
+				4FD40BEF16792E8000B2C76C /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2158,10 +1717,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */,
-				4F91E2DB159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2DC159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2DD159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2DE159B6BD7007551B6 /* about.png in Resources */,
+				4FD40BF816792E8000B2C76C /* about.png in Resources */,
+				4FD40BF916792E8000B2C76C /* bg.png in Resources */,
+				4FD40BFA16792E8000B2C76C /* bk.png in Resources */,
+				4FD40BFB16792E8000B2C76C /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2170,10 +1729,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB600161567CB0A0020189A /* knob.png in Resources */,
-				4F91E2E3159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2E4159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2E5159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2E6159B6BD7007551B6 /* about.png in Resources */,
+				4FD40BF016792E8000B2C76C /* about.png in Resources */,
+				4FD40BF116792E8000B2C76C /* bg.png in Resources */,
+				4FD40BF216792E8000B2C76C /* bk.png in Resources */,
+				4FD40BF316792E8000B2C76C /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2185,22 +1744,10 @@
 				4F78D89913B639100032E0F3 /* InfoPlist.strings in Resources */,
 				4F78D89A13B639100032E0F3 /* MainMenu.xib in Resources */,
 				4F23B9FD13B647A00097A67E /* knob.png in Resources */,
-				4F91E2D3159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2D4159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2D5159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2D6159B6BD7007551B6 /* about.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8D5B49AF048680CD000E48DA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F23B9E913B647A00097A67E /* knob.png in Resources */,
-				4F91E2CF159B6BD7007551B6 /* wk.png in Resources */,
-				4F91E2D0159B6BD7007551B6 /* bk.png in Resources */,
-				4F91E2D1159B6BD7007551B6 /* bg.png in Resources */,
-				4F91E2D2159B6BD7007551B6 /* about.png in Resources */,
+				4FD40C0016792E8000B2C76C /* about.png in Resources */,
+				4FD40C0116792E8000B2C76C /* bg.png in Resources */,
+				4FD40C0216792E8000B2C76C /* bk.png in Resources */,
+				4FD40C0316792E8000B2C76C /* wk.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2215,14 +1762,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4F55733E12C7F49C003A4AD1 /* Rez */ = {
-			isa = PBXRezBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F78DA0113B63CD90032E0F3 /* IPlugAU.r in Rez */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4F7F5D3113E9688A002918FD /* Rez */ = {
 			isa = PBXRezBuildPhase;
 			buildActionMask = 2147483647;
@@ -2234,21 +1773,6 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4F744D4714005A8C002FAD90 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			comments = "reset audiounit caches";
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\techo deleting \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\techo deleting \"$HOME/Library/Caches/com.apple.audiounits.cache\"\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi\n\n";
-			showEnvVarsInLog = 0;
-		};
 		4F744D4C14005ADA002FAD90 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2309,95 +1833,7 @@
 				4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
 				4F78DA0A13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
 				4FDA440813F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
-				4FA88B921444E4C4006CB8DA /* dfx-au-utilities.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F3E69101409747300C4D749 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F3E69111409747300C4D749 /* IPlugMonoSynth.cpp in Sources */,
-				4F3E69121409747300C4D749 /* swell-gdi.mm in Sources */,
-				4F3E69131409747300C4D749 /* IPlugBase.cpp in Sources */,
-				4F3E69141409747300C4D749 /* IPlugStructs.cpp in Sources */,
-				4F3E69151409747300C4D749 /* Hosts.cpp in Sources */,
-				4F3E69161409747300C4D749 /* IGraphicsMac.mm in Sources */,
-				4F3E69171409747300C4D749 /* IGraphics.cpp in Sources */,
-				4F3E69181409747300C4D749 /* IGraphicsCarbon.cpp in Sources */,
-				4F3E69191409747300C4D749 /* IGraphicsCocoa.mm in Sources */,
-				4F3E691A1409747300C4D749 /* Log.cpp in Sources */,
-				4F3E691B1409747300C4D749 /* IPopupMenu.cpp in Sources */,
-				4F3E691C1409747300C4D749 /* IParam.cpp in Sources */,
-				4F3E691D1409747300C4D749 /* IControl.cpp in Sources */,
-				4F3E69201409747300C4D749 /* IBitmapMonoText.cpp in Sources */,
-				4F3E69491409759600C4D749 /* IPlugVST3.cpp in Sources */,
-				4F4AD043140996A10068A6D4 /* memorystream.cpp in Sources */,
-				4F4AD044140996A10068A6D4 /* pluginview.cpp in Sources */,
-				4F4AD046140996A10068A6D4 /* macmain.cpp in Sources */,
-				4F4AD047140996A10068A6D4 /* pluginfactoryvst3.cpp in Sources */,
-				4F4AD048140996A10068A6D4 /* vstaudioeffect.cpp in Sources */,
-				4F4AD049140996A10068A6D4 /* vstbus.cpp in Sources */,
-				4F4AD04A140996A10068A6D4 /* vstcomponent.cpp in Sources */,
-				4F4AD04B140996A10068A6D4 /* vstcomponentbase.cpp in Sources */,
-				4F4AD04D140996A10068A6D4 /* vstinitiids.cpp in Sources */,
-				4F4AD04E140996A10068A6D4 /* vstnoteexpressiontypes.cpp in Sources */,
-				4F4AD04F140996A10068A6D4 /* vstparameters.cpp in Sources */,
-				4F4AD050140996A10068A6D4 /* vstpresetfile.cpp in Sources */,
-				4F4AD051140996A10068A6D4 /* vstrepresentation.cpp in Sources */,
-				4F4AD052140996A10068A6D4 /* vstsinglecomponenteffect.cpp in Sources */,
-				4F4AD053140996A10068A6D4 /* conststringtable.cpp in Sources */,
-				4F4AD054140996A10068A6D4 /* funknown.cpp in Sources */,
-				4F4AD055140996A10068A6D4 /* ustring.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CC3E81549BA8600A9EA21 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F4CC3E91549BA8600A9EA21 /* IPlugMonoSynth.cpp in Sources */,
-				4F4CC3EA1549BA8600A9EA21 /* swell-gdi.mm in Sources */,
-				4F4CC3EB1549BA8600A9EA21 /* IPlugBase.cpp in Sources */,
-				4F4CC3EC1549BA8600A9EA21 /* IPlugStructs.cpp in Sources */,
-				4F4CC3ED1549BA8600A9EA21 /* Hosts.cpp in Sources */,
-				4F4CC3EE1549BA8600A9EA21 /* IGraphicsMac.mm in Sources */,
-				4F4CC3EF1549BA8600A9EA21 /* IGraphics.cpp in Sources */,
-				4F4CC3F01549BA8600A9EA21 /* IGraphicsCarbon.cpp in Sources */,
-				4F4CC3F11549BA8600A9EA21 /* IGraphicsCocoa.mm in Sources */,
-				4F4CC3F21549BA8600A9EA21 /* Log.cpp in Sources */,
-				4F4CC3F31549BA8600A9EA21 /* IPopupMenu.cpp in Sources */,
-				4F4CC3F41549BA8600A9EA21 /* IParam.cpp in Sources */,
-				4F4CC3F51549BA8600A9EA21 /* IControl.cpp in Sources */,
-				4F4CC3F71549BA8600A9EA21 /* IBitmapMonoText.cpp in Sources */,
-				4F4CC4151549BE4E00A9EA21 /* AAX_Exports.cpp in Sources */,
-				4F4CC4271549BED600A9EA21 /* IPlugAAX.cpp in Sources */,
-				4F4CC4421549C15500A9EA21 /* IPlugAAX_Describe.cpp in Sources */,
-				4F017362154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F55730512C7F49C003A4AD1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F55730612C7F49C003A4AD1 /* IPlugMonoSynth.cpp in Sources */,
-				4FD16D1013B634BF001D0217 /* swell-gdi.mm in Sources */,
-				4F78D98D13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
-				4F78D98F13B63BA50032E0F3 /* IPlugStructs.cpp in Sources */,
-				4F78D99313B63BA50032E0F3 /* Hosts.cpp in Sources */,
-				4F78D99513B63BA50032E0F3 /* IGraphicsMac.mm in Sources */,
-				4F78D99613B63BA50032E0F3 /* IGraphics.cpp in Sources */,
-				4F78D99713B63BA50032E0F3 /* IGraphicsCarbon.cpp in Sources */,
-				4F78D99813B63BA50032E0F3 /* IGraphicsCocoa.mm in Sources */,
-				4F78D99B13B63BA50032E0F3 /* Log.cpp in Sources */,
-				4F78D99D13B63BA50032E0F3 /* IPopupMenu.cpp in Sources */,
-				4F78D9A413B63BA50032E0F3 /* IParam.cpp in Sources */,
-				4F78D9A913B63BA50032E0F3 /* IControl.cpp in Sources */,
-				4F78DA0013B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
-				4F78DA0213B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
-				4FDA440A13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
-				4FA88B941444E4C4006CB8DA /* dfx-au-utilities.c in Sources */,
+				4F296BDA1678E6C800C0F5C2 /* dfx-au-utilities.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2527,79 +1963,42 @@
 				4F78DA5A13B63F150032E0F3 /* IPlugMonoSynth.cpp in Sources */,
 				4FD16CA213B6327D001D0217 /* app_main.cpp in Sources */,
 				4FD16CA313B6327D001D0217 /* app_dialog.cpp in Sources */,
-				4FB3624F13B648FE00DB6B76 /* main.m in Sources */,
+				4FB3624F13B648FE00DB6B76 /* main.mm in Sources */,
 				4FDA440E13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8D5B49B1048680CD000E48DA /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				52FBBED10D0CF139001C8B8A /* IPlugMonoSynth.cpp in Sources */,
-				4FD16D1413B634BF001D0217 /* swell-gdi.mm in Sources */,
-				4F78D9DB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
-				4F78D9DC13B63BA50032E0F3 /* IPlugStructs.cpp in Sources */,
-				4F78D9DD13B63BA50032E0F3 /* Hosts.cpp in Sources */,
-				4F78D9DF13B63BA50032E0F3 /* IGraphicsMac.mm in Sources */,
-				4F78D9E013B63BA50032E0F3 /* IGraphics.cpp in Sources */,
-				4F78D9E113B63BA50032E0F3 /* IGraphicsCarbon.cpp in Sources */,
-				4F78D9E213B63BA50032E0F3 /* IGraphicsCocoa.mm in Sources */,
-				4F78D9E313B63BA50032E0F3 /* Log.cpp in Sources */,
-				4F78D9E413B63BA50032E0F3 /* IPopupMenu.cpp in Sources */,
-				4F78D9E813B63BA50032E0F3 /* IParam.cpp in Sources */,
-				4F78D9E913B63BA50032E0F3 /* IControl.cpp in Sources */,
-				4F78D9EF13B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
-				4FDA440D13F3E4F2000B4551 /* IBitmapMonoText.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4F1A5FD215682B44001E12B4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4F4CC3E31549BA8600A9EA21 /* AAX_32_intel */;
-			targetProxy = 4F1A5FD115682B44001E12B4 /* PBXContainerItemProxy */;
-		};
-		4F3B0B3F158B506F001B0CEF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = AAXLibrary;
-			targetProxy = 4F3B0B3E158B506F001B0CEF /* PBXContainerItemProxy */;
-		};
 		4F3B0B43158B509A001B0CEF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = AAXLibrary;
 			targetProxy = 4F3B0B42158B509A001B0CEF /* PBXContainerItemProxy */;
-		};
-		4F3E69081409747300C4D749 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = lice_32_intel;
-			targetProxy = 4F3E69091409747300C4D749 /* PBXContainerItemProxy */;
-		};
-		4F4CC3E41549BA8600A9EA21 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = lice_32_intel;
-			targetProxy = 4F4CC3E51549BA8600A9EA21 /* PBXContainerItemProxy */;
 		};
 		4F678B6D13E984B200A6A9BB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "lice_32&64_intel";
 			targetProxy = 4F678B6C13E984B200A6A9BB /* PBXContainerItemProxy */;
 		};
+		4F789ED016763E47009EF688 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FB600121567CB0A0020189A /* AAX */;
+			targetProxy = 4F789ECF16763E47009EF688 /* PBXContainerItemProxy */;
+		};
 		4F78DAF613B6436B0032E0F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4FD16A0813B63081001D0217 /* OSXAPP_32&64_intel */;
+			target = 4FD16A0813B63081001D0217 /* APP */;
 			targetProxy = 4F78DAF513B6436B0032E0F3 /* PBXContainerItemProxy */;
 		};
 		4F78DAF813B6436B0032E0F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4F20EEC8132C69FE0030E34C /* VST2_32&64_intel */;
+			target = 4F20EEC8132C69FE0030E34C /* VST2 */;
 			targetProxy = 4F78DAF713B6436B0032E0F3 /* PBXContainerItemProxy */;
 		};
 		4F78DAFA13B6436B0032E0F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4F3AE17812C0E5E2001FD7A4 /* AU_32&64_intel */;
+			target = 4F3AE17812C0E5E2001FD7A4 /* AU */;
 			targetProxy = 4F78DAF913B6436B0032E0F3 /* PBXContainerItemProxy */;
 		};
 		4F8B6765158B4F67002FC25B /* PBXTargetDependency */ = {
@@ -2622,19 +2021,9 @@
 			name = "lice_32&64_intel";
 			targetProxy = 4F8D4C3913E97859004F7633 /* PBXContainerItemProxy */;
 		};
-		4F8D4C3C13E97882004F7633 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = lice_32_intel;
-			targetProxy = 4F8D4C3B13E97882004F7633 /* PBXContainerItemProxy */;
-		};
-		4F8D4C3E13E9788F004F7633 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = lice_32_intel;
-			targetProxy = 4F8D4C3D13E9788F004F7633 /* PBXContainerItemProxy */;
-		};
 		4F8D4C6313E97B3D004F7633 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4F7F5C4213E95EC8002918FD /* RTAS_32_intel */;
+			target = 4F7F5C4213E95EC8002918FD /* RTAS */;
 			targetProxy = 4F8D4C6213E97B3D004F7633 /* PBXContainerItemProxy */;
 		};
 		4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */ = {
@@ -2649,13 +2038,8 @@
 		};
 		4F9828F8140A9F0200F3FCC1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4F9828AA140A9EB700F3FCC1 /* VST3_32&64_intel */;
+			target = 4F9828AA140A9EB700F3FCC1 /* VST3 */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
-		};
-		4FA708D5158B498C00BFC572 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = base_32_intel;
-			targetProxy = 4FA708D4158B498C00BFC572 /* PBXContainerItemProxy */;
 		};
 		4FB600501567CB990020189A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2684,79 +2068,24 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		1DEB913B08733D840010E9CD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(VST_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST_DEFS)",
-					"$(inherited)",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST2-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				WRAPPER_EXTENSION = vst;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		1DEB913C08733D840010E9CD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(VST_FOLDER)";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST_DEFS)",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST2-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
-				WRAPPER_EXTENSION = vst;
-			};
-			name = Release;
-		};
 		1DEB913F08733D840010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugMonoSynth.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = YES;
 				EXECUTABLE_EXTENSION = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(DEBUG_DEFS)",
-				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(DEBUG_DEFS)";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "$(COCOA_DEFS)";
 				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
@@ -2768,12 +2097,20 @@
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_GROUP = admin;
 				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(ADDITIONAL_LIBRARY_PATHS)";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
 				);
 				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Debug;
@@ -2782,13 +2119,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugMonoSynth.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
 				EXECUTABLE_EXTENSION = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(RELEASE_DEFS)",
-				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(RELEASE_DEFS)";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "$(COCOA_DEFS)";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2803,13 +2145,18 @@
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_GROUP = admin;
 				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(ADDITIONAL_LIBRARY_PATHS)";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
+				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Release;
@@ -2817,64 +2164,27 @@
 		4F20EF30132C69FE0030E34C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(VST_DEFS)",
 					"$(inherited)",
 				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST2-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				VALID_ARCHS = "i386 x86_64";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
 		4F20EF31132C69FE0030E34C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(VST_DEFS)",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST2-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Release;
@@ -2882,29 +2192,13 @@
 		4F20EF32132C69FE0030E34C /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(VST_DEFS)",
 					"$(inherited)",
 				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST2-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				VALID_ARCHS = "i386 x86_64";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Tracer;
@@ -2912,536 +2206,66 @@
 		4F3AE1DD12C0E5E2001FD7A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AU_FOLDER)";
 				EXPORTED_SYMBOLS_FILE = IPlugMonoSynth.exp;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(AU_DEFS)",
 					"$(inherited)",
 				);
-				GCC_VERSION = "$(COMPILER)";
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-AU-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = Bundle;
-				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-bundle";
-				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
+				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
-					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
+					$CA_SDK/AudioUnits/AUPublic/AUBase,
 				);
-				SDKROOT = "$(BASE_SDK)";
-				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				VALID_ARCHS = "i386 x86_64";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = component;
-				ZERO_LINK = NO;
 			};
 			name = Debug;
 		};
 		4F3AE1DE12C0E5E2001FD7A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AU_FOLDER)";
 				EXPORTED_SYMBOLS_FILE = IPlugMonoSynth.exp;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_ENABLE_SSE42_EXTENSIONS = YES;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G4;
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(AU_DEFS)",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = "$(COMPILER)";
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-AU-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = Bundle;
-				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-bundle";
-				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
+				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
-					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
+					$CA_SDK/AudioUnits/AUPublic/AUBase,
 				);
-				SDKROOT = "$(BASE_SDK)";
-				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = component;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
 		4F3AE1DF12C0E5E2001FD7A4 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AU_FOLDER)";
 				EXPORTED_SYMBOLS_FILE = IPlugMonoSynth.exp;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(AU_DEFS)",
 					"$(inherited)",
 				);
-				GCC_VERSION = "$(COMPILER)";
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-AU-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = Bundle;
 				OTHER_LDFLAGS = "-bundle";
-				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
+				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
-				PRODUCT_NAME = IPlugMonoSynth;
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
-					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
+					$CA_SDK/AudioUnits/AUPublic/AUBase,
 				);
-				SDKROOT = "$(BASE_SDK)";
-				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				VALID_ARCHS = "i386 x86_64";
-				WRAPPER_EXTENSION = component;
-				ZERO_LINK = NO;
-			};
-			name = Tracer;
-		};
-		4F3E69261409747300C4D749 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(VST3_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST3_DEFS)",
-					"$(inherited)",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
-					"$(VST3_SDK)",
-				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST3-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				WRAPPER_EXTENSION = vst3;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		4F3E69271409747300C4D749 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(VST3_FOLDER)";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST3_DEFS)",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
-					"$(VST3_SDK)",
-				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST3-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
-				WRAPPER_EXTENSION = vst3;
-			};
-			name = Release;
-		};
-		4F3E69281409747300C4D749 /* Tracer */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(VST3_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST3_DEFS)",
-					"$(inherited)",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
-					"$(VST3_SDK)",
-				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST3-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				WRAPPER_EXTENSION = vst3;
-			};
-			name = Tracer;
-		};
-		4F4CC3FD1549BA8600A9EA21 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
-			buildSettings = {
-				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(AAX_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(DEBUG_DEFS)",
-					"$(AAX_DEFS)",
-					"_DEBUG=1",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
-					"$(inherited)",
-				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-AAX-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../AAX_SDK/Libs/Debug\"",
-				);
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				WARNING_CFLAGS = (
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = aaxplugin;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		4F4CC3FE1549BA8600A9EA21 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
-			buildSettings = {
-				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = i386;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DEPLOYMENT_POSTPROCESSING = NO;
-				DSTROOT = "$(AAX_FOLDER)";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(RELEASE_DEFS)",
-					"$(AAX_DEFS)",
-					"_NDEBUG=1",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
-					"$(inherited)",
-				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-AAX-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../AAX_SDK/Libs/Debug\"",
-				);
-				PREBINDING = YES;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
-				WARNING_CFLAGS = (
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = aaxplugin;
-			};
-			name = Release;
-		};
-		4F4CC3FF1549BA8600A9EA21 /* Tracer */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
-			buildSettings = {
-				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = i386;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DEPLOYMENT_POSTPROCESSING = NO;
-				DSTROOT = "$(AAX_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(TRACER_DEFS)",
-					"$(AAX_DEFS)",
-					"_NDEBUG=1",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
-					"$(inherited)",
-				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-AAX-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../../AAX_SDK/Libs/Debug\"",
-				);
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = NO;
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
-				WARNING_CFLAGS = (
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = aaxplugin;
-			};
-			name = Tracer;
-		};
-		4F55734112C7F49C003A4AD1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(AU_FOLDER)";
-				EXPORTED_SYMBOLS_FILE = IPlugMonoSynth.exp;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(AU_DEFS)",
-					"$(inherited)",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-AU-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = Bundle;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"$(GCC_CFLAGS)",
-				);
-				OTHER_LDFLAGS = "-bundle";
-				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
-				PREBINDING = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				REZ_SEARCH_PATHS = (
-					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
-					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
-				);
-				SDKROOT = "$(BASE_SDK)";
-				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				WRAPPER_EXTENSION = component;
-				ZERO_LINK = NO;
-			};
-			name = Debug;
-		};
-		4F55734212C7F49C003A4AD1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(AU_FOLDER)";
-				EXPORTED_SYMBOLS_FILE = IPlugMonoSynth.exp;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_ENABLE_SSE42_EXTENSIONS = YES;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G4;
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(AU_DEFS)",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = "$(COMPILER)";
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-AU-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = Bundle;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"$(GCC_CFLAGS)",
-				);
-				OTHER_LDFLAGS = "-bundle";
-				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
-				PREBINDING = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				REZ_SEARCH_PATHS = (
-					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
-					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
-				);
-				SDKROOT = "$(BASE_SDK)";
-				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
-				VALID_ARCHS = "i386 ppc ppc64 ppc7400 ppc970 x86_64";
-				WRAPPER_EXTENSION = component;
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		4F55734312C7F49C003A4AD1 /* Tracer */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(AU_FOLDER)";
-				EXPORTED_SYMBOLS_FILE = IPlugMonoSynth.exp;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G4;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(AU_DEFS)",
-					"$(inherited)",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-AU-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = Bundle;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"$(GCC_CFLAGS)",
-				);
-				OTHER_LDFLAGS = "-bundle";
-				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase";
-				PREBINDING = YES;
-				PRODUCT_NAME = IPlugMonoSynth;
-				REZ_SEARCH_PATHS = (
-					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
-					/Developer/Examples/CoreAudio/AudioUnits/AUPublic/AUBase,
-				);
-				SDKROOT = "$(BASE_SDK)";
-				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				WRAPPER_EXTENSION = component;
-				ZERO_LINK = NO;
 			};
 			name = Tracer;
 		};
@@ -3479,36 +2303,31 @@
 			buildSettings = {
 				ARCHS = i386;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(RTAS_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(RTAS_DEFS)",
-					"$(COCOA_DEFS)",
-					"$(DEBUG_DEFS)",
+					$DEBUG_DEFS,
+					"_DEBUG=1",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(inherited)",
+					"$(RTAS_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_PKGINFO_FILE = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-RTAS-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
+					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 				);
@@ -3519,9 +2338,10 @@
 					"$(inherited)",
 					"\"-LlibPluginLibrary\"",
 				);
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
 				SYMROOT = "build-mac";
+				VALID_ARCHS = i386;
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3536,11 +2356,9 @@
 			buildSettings = {
 				ARCHS = i386;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(RTAS_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(RTAS_DEFS)",
 					"$(inherited)",
 				);
@@ -3549,19 +2367,17 @@
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_PKGINFO_FILE = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-RTAS-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
+					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
@@ -3569,11 +2385,10 @@
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
 				SYMROOT = "build-mac";
+				VALID_ARCHS = i386;
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3588,33 +2403,26 @@
 			buildSettings = {
 				ARCHS = i386;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
-				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(RTAS_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(RTAS_DEFS)",
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(inherited)",
+					"$(RTAS_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_PKGINFO_FILE = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-RTAS-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
+					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
@@ -3625,10 +2433,9 @@
 					"$(inherited)",
 					"\"-LlibPluginLibrary\"",
 				);
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "build-mac";
+				VALID_ARCHS = i386;
 				WARNING_CFLAGS = (
 					"-Wno-reorder",
 					"-Wno-four-char-constants",
@@ -3640,71 +2447,35 @@
 		4F9828DD140A9EB700F3FCC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(VST3_DEFS)",
 					"$(inherited)",
 				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
+					"$(inherited)",
 					"$(VST3_SDK)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST3-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
 		4F9828DE140A9EB700F3FCC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(VST3_DEFS)",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
+					"$(inherited)",
 					"$(VST3_SDK)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST3-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Release;
@@ -3712,33 +2483,17 @@
 		4F9828DF140A9EB700F3FCC1 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(VST3_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(VST3_DEFS)",
 					"$(inherited)",
 				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
+					"$(inherited)",
 					"$(VST3_SDK)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST3-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
-				PRODUCT_NAME = "$(BINARY_NAME)";
-				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
@@ -3749,46 +2504,38 @@
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AAX_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(DEBUG_DEFS)",
+					$DEBUG_DEFS,
+					"_DEBUG=1",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(AAX_DEFS)",
 					"$(inherited)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GENERATE_PKGINFO_FILE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(IPLUG_PATH)",
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-AAX-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\\\"$(SRCROOT)/../../AAX_SDK/Libs/Debug\\\"",
+					"$(ADDITIONAL_LIBRARY_PATHS)",
+					"$(SRCROOT)/../../AAX_SDK/Libs/Debug",
 				);
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
@@ -3802,39 +2549,33 @@
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(AAX_FOLDER)";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(RELEASE_DEFS)",
+					$RELEASE_DEFS,
+					"_NDEBUG=1",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(AAX_DEFS)",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GENERATE_PKGINFO_FILE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(IPLUG_PATH)",
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-AAX-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\\\"$(SRCROOT)/../../AAX_SDK/Libs/Debug\\\"",
+					"$(ADDITIONAL_LIBRARY_PATHS)",
+					"$(SRCROOT)/../../AAX_SDK/Libs/Release",
 				);
 				PREBINDING = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
-				STRIP_INSTALLED_PRODUCT = YES;
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -3849,39 +2590,34 @@
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(AAX_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(TRACER_DEFS)",
+					$TRACER_DEFS,
+					"_NDEBUG=1",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(AAX_DEFS)",
 					"$(inherited)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
-				GENERATE_PKGINFO_FILE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(IPLUG_PATH)",
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-AAX-Info.plist";
-				INFOPLIST_PREPROCESS = NO;
-				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\\\"$(SRCROOT)/../../AAX_SDK/Libs/Debug\\\"",
+					"$(ADDITIONAL_LIBRARY_PATHS)",
+					"$(SRCROOT)/../../AAX_SDK/Libs/Release",
 				);
-				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
@@ -3894,29 +2630,16 @@
 		4FD16A0C13B63082001D0217 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(APP_FOLDER)";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(APP_DEFS)",
-					"$(COCOA_DEFS)",
-					"$(DEBUG_DEFS)",
+					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(IPLUG_PATH)",
-					"$(ADDITIONAL_INCLUDES)",
 					"$(ADDITIONAL_APP_INCLUDES)",
+					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-OSXAPP-Info.plist";
-				INSTALL_PATH = /;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -3924,8 +2647,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -3933,23 +2655,16 @@
 		4FD16A0D13B63082001D0217 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(APP_FOLDER)";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(RELEASE_DEFS)",
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(APP_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(ADDITIONAL_APP_INCLUDES)",
+					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-OSXAPP-Info.plist";
-				INSTALL_PATH = /;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -3957,30 +2672,24 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = "$(BINARY_NAME)";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
 		4FD16A0E13B63082001D0217 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(APP_FOLDER)";
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(TRACER_DEFS)",
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					"$(APP_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(ADDITIONAL_APP_INCLUDES)",
+					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugMonoSynth-OSXAPP-Info.plist";
-				INSTALL_PATH = /;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -3988,7 +2697,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = "$(BINARY_NAME)";
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Tracer;
@@ -3997,13 +2706,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FCF15AF133124D1009A6277 /* IPlugMonoSynth.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				DEPLOYMENT_LOCATION = YES;
 				EXECUTABLE_EXTENSION = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(COCOA_DEFS)",
-					"$(TRACER_DEFS)",
-				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(TRACER_DEFS)";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "$(COCOA_DEFS)";
 				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
@@ -4015,58 +2729,25 @@
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_GROUP = admin;
 				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(ADDITIONAL_LIBRARY_PATHS)";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
 				);
 				PREBINDING = NO;
-				SDKROOT = "$(BASE_SDK)";
-				WRAPPER_EXTENSION = "";
-			};
-			name = Tracer;
-		};
-		528359AA0D7F0C3A00577159 /* Tracer */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(VST_FOLDER)";
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlug_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST_DEFS)",
-					"$(inherited)",
-				);
-				GCC_VERSION = "$(COMPILER)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GENERATE_PKGINFO_FILE = YES;
-				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
-				INFOPLIST_FILE = "resources/IPlugMonoSynth-VST2-Info.plist";
-				INSTALL_PATH = /;
-				LIBRARY_SEARCH_PATHS = "";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK)";
-				WRAPPER_EXTENSION = vst;
+				SKIP_INSTALL = NO;
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
 			};
 			name = Tracer;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB913A08733D840010E9CD /* Build configuration list for PBXNativeTarget "VST2_32_intel" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1DEB913B08733D840010E9CD /* Debug */,
-				1DEB913C08733D840010E9CD /* Release */,
-				528359AA0D7F0C3A00577159 /* Tracer */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugMonoSynth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -4077,7 +2758,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4F20EF2F132C69FE0030E34C /* Build configuration list for PBXNativeTarget "VST2_32&64_intel" */ = {
+		4F20EF2F132C69FE0030E34C /* Build configuration list for PBXNativeTarget "VST2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4F20EF30132C69FE0030E34C /* Debug */,
@@ -4087,42 +2768,12 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4F3AE1DC12C0E5E2001FD7A4 /* Build configuration list for PBXNativeTarget "AU_32&64_intel" */ = {
+		4F3AE1DC12C0E5E2001FD7A4 /* Build configuration list for PBXNativeTarget "AU" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4F3AE1DD12C0E5E2001FD7A4 /* Debug */,
 				4F3AE1DE12C0E5E2001FD7A4 /* Release */,
 				4F3AE1DF12C0E5E2001FD7A4 /* Tracer */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4F3E69251409747300C4D749 /* Build configuration list for PBXNativeTarget "VST3_32_intel" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F3E69261409747300C4D749 /* Debug */,
-				4F3E69271409747300C4D749 /* Release */,
-				4F3E69281409747300C4D749 /* Tracer */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4F4CC3FC1549BA8600A9EA21 /* Build configuration list for PBXNativeTarget "AAX_32_intel" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F4CC3FD1549BA8600A9EA21 /* Debug */,
-				4F4CC3FE1549BA8600A9EA21 /* Release */,
-				4F4CC3FF1549BA8600A9EA21 /* Tracer */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4F55734012C7F49C003A4AD1 /* Build configuration list for PBXNativeTarget "AU_32_intel" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F55734112C7F49C003A4AD1 /* Debug */,
-				4F55734212C7F49C003A4AD1 /* Release */,
-				4F55734312C7F49C003A4AD1 /* Tracer */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -4137,7 +2788,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4F7F5C6413E95EC8002918FD /* Build configuration list for PBXNativeTarget "RTAS_32_intel" */ = {
+		4F7F5C6413E95EC8002918FD /* Build configuration list for PBXNativeTarget "RTAS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4F7F5C6513E95EC8002918FD /* Debug */,
@@ -4147,7 +2798,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4F9828DC140A9EB700F3FCC1 /* Build configuration list for PBXNativeTarget "VST3_32&64_intel" */ = {
+		4F9828DC140A9EB700F3FCC1 /* Build configuration list for PBXNativeTarget "VST3" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4F9828DD140A9EB700F3FCC1 /* Debug */,
@@ -4157,7 +2808,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4FB6002F1567CB0A0020189A /* Build configuration list for PBXNativeTarget "AAX_32&64_intel" */ = {
+		4FB6002F1567CB0A0020189A /* Build configuration list for PBXNativeTarget "AAX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FB600301567CB0A0020189A /* Debug */,
@@ -4167,7 +2818,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "OSXAPP_32&64_intel" */ = {
+		4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD16A0C13B63082001D0217 /* Debug */,

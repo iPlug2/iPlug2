@@ -2,7 +2,7 @@
 #define __IPLUGEFFECT__
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IVecSliders.h"
+#include "IPlugChunks_controls.h"
 
 /*
 

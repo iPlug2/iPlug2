@@ -54,10 +54,6 @@ void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int 
   double* out1 = outputs[0];
   double* out2 = outputs[1];
 
-  //double samplesPerBeat = GetSamplesPerBeat();
-  //double samplePos = (double) GetSamplePos();
-  //double tempo = GetTempo();
-
   for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
   {
     *out1 = *in1 * mGain;
@@ -69,8 +65,6 @@ void IPlugEffect::Reset()
 {
   TRACE;
   IMutexLock lock(this);
-
-  //double sr = GetSampleRate();
 }
 
 void IPlugEffect::OnParamChange(int paramIdx)
