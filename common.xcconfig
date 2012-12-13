@@ -16,7 +16,7 @@ BASE_SDK = macosx10.5
 //BASE_SDK = macosx10.7 // Plugins with a Carbon GUI do not work with the 10.7 or higher sdks
 
 // the minimum OS to support
-MACOSX_DEPLOYMENT_TARGET = 10.6
+MACOSX_DEPLOYMENT_TARGET = 10.5
 
 // Where the SDKs etc are located in relation to the plugin xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
@@ -24,8 +24,8 @@ IPLUG_PATH = $(WDL_PATH)/IPlug
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
 PT9_SDK = $(SRCROOT)/../../PT9_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
-//CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
-CA_SDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Extras/CoreAudio
+CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
+//CA_SDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Extras/CoreAudio
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES
