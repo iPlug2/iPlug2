@@ -1,4 +1,4 @@
-extract the VST3.5.1 SDK here, preserving the folder structure. You only need
+extract the VST3.5.2 SDK here, preserving the folder structure. You only need
 
 /base/source
 /pluginterfaces
