@@ -7,16 +7,16 @@ CERTIFICATE_ID = Oliver Larkin
 
 // Which compiler to use
 COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
-//COMPILER = com.apple.compilers.llvmgcc42 // use this with xcode4/lion
-//COMPILER = com.apple.compilers.llvm.clang.1_0 // NOT currently working using the Apple LLVM Compiler 3.0
+//COMPILER = com.apple.compilers.llvmgcc42 // use this 
+//COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4.x/10.7+ (YMMV)
 
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
-BASE_SDK = macosx10.5 // doesn't seem to link AAX Library (compiled against 10.6 by default) in release builds, so you must change the SDKROOT setting in AAX_Library.xcodeproj to macosx10.5
+BASE_SDK = macosx10.5
 //BASE_SDK = macosx10.6
-//BASE_SDK = macosx10.7 // Plugins with a Carbon GUI do not work with the 10.7 sdk (so you probably want to use 10.6 or earlier) 
+//BASE_SDK = macosx10.7 // Plugins with a Carbon GUI do not work with the 10.7 or higher sdks
 
 // the minimum OS to support
-MACOSX_DEPLOYMENT_TARGET = 10.5
+MACOSX_DEPLOYMENT_TARGET = 10.6
 
 // Where the SDKs etc are located in relation to the plugin xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
@@ -24,7 +24,8 @@ IPLUG_PATH = $(WDL_PATH)/IPlug
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
 PT9_SDK = $(SRCROOT)/../../PT9_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
-CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
+//CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
+CA_SDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Extras/CoreAudio
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES
