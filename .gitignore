@@ -16,11 +16,12 @@
 *.db
 *.LSOverride
 *.xcworkspace
-*.xcuserdata
+*xcuserdata*
 *.xcschememanagement.plist
 build-*
 /IPlugExamples/*/*.vcxproj.user
 
+PCH/*
 VST3_SDK/*
 VST_SDK/*
 PT9_SDK/*
