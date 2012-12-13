@@ -2368,9 +2368,12 @@ void SWELL_CarbonWndHost_SetWantAllKeys(void* carbonhost, bool want)
     // initWithWindowRef does not retain // MAKE SURE THIS IS NOT BAD TO DO
     //CFRetain(wndref);
 
-    m_cwnd = [[NSWindow alloc] initWithWindowRef:wndref];  
-    [m_cwnd setDelegate:(id<NSWindowDelegate>)self];    
-    
+    m_cwnd = [[NSWindow alloc] initWithWindowRef:wndref];
+#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1060
+    [m_cwnd setDelegate:(id<NSWindowDelegate>)self];
+#else
+    [m_cwnd setDelegate: self];
+#endif
     ShowWindow(wndref);
     
     //[[parent window] addChildWindow:m_cwnd ordered:NSWindowAbove];
