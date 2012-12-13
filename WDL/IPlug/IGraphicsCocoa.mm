@@ -567,7 +567,7 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 
   [mTextFieldView setStringValue: ToNSString(pString)];
   [mTextFieldView setBordered: NO];
-  [mTextFieldView setDelegate: self];
+  [mTextFieldView setDelegate: (id<NSTextFieldDelegate>) self];
 
   [self addSubview: mTextFieldView];
   NSWindow* pWindow = [self window];
