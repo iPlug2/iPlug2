@@ -6,7 +6,7 @@
 #endif
 
 // carbon support uses quickdraw methods that have been removed in SDKs > 10.6
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
+#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1060
   #define IPLUG_NO_CARBON_SUPPORT
   #warning Carbon GUIs disabled when compiling against 10.7 or higher sdk
 #endif
