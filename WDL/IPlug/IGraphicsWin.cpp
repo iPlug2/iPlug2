@@ -299,10 +299,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if (!handle)
       {
-        //#ifdef RTAS_API
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
         SendMessage(rootHWnd, WM_KEYDOWN, wParam, lParam);
-        //#endif
         return DefWindowProc(hWnd, msg, wParam, lParam);
       }
       else
