@@ -14,6 +14,7 @@
     <AAX_PLUGINS_PATH>$(ProgramFiles)\Avid\ProTools_3PDev\dae\Plug-Ins</AAX_PLUGINS_PATH>
     <VST2_32_PATH>$(CommonProgramFiles)\VSTPlugins</VST2_32_PATH>
     <VST2_64_PATH>$(CommonProgramW6432)\VSTPlugins</VST2_64_PATH>
+    <COPY_VST2>0</COPY_VST2>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -65,6 +66,9 @@
     </BuildMacro>
     <BuildMacro Include="VST2_64_PATH">
       <Value>$(VST2_64_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="COPY_VST2">
+      <Value>$(COPY_VST2)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
