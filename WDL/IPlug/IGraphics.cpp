@@ -349,18 +349,18 @@ void IGraphics::SetAllControlsDirty()
   }
 }
 
-//void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
-//{
-//  int i, n = mControls.GetSize();
-//  IControl** ppControl = mControls.GetList();
-//  for (i = 0; i < n; ++i, ++ppControl) {
-//    IControl* pControl = *ppControl;
-//    if (pControl->ParamIdx() == paramIdx) {
-//      pControl->SetValueFromUserInput(normalizedValue);
-//      // Could be more than one, don't break until we check them all.
-//    }
-//  }
-//}
+void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl) {
+    IControl* pControl = *ppControl;
+    if (pControl->ParamIdx() == paramIdx) {
+      pControl->SetValueFromUserInput(normalizedValue);
+      // Could be more than one, don't break until we check them all.
+    }
+  }
+}
 
 void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pTextRect)
 {

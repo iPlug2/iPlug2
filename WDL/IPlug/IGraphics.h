@@ -154,12 +154,12 @@ public:
   void SetParameterFromPlug(int paramIdx, double value, bool normalized);
   // For setting a control that does not have a parameter associated with it.
   void SetControlFromPlug(int controlIdx, double normalizedValue);
-
+  
   void SetAllControlsDirty();
 
   // This is for when the gui needs to change a control value that it can't redraw
   // for context reasons.  If the gui has redrawn the control, use IPlug::SetParameterFromGUI.
-//  void SetParameterFromGUI(int paramIdx, double normalizedValue);
+  void SetParameterFromGUI(int paramIdx, double normalizedValue);
 
   // Convenience wrappers.
   bool DrawBitmap(IBitmap* pBitmap, IRECT* pR, int bmpState = 1, const IChannelBlend* pBlend = 0);
