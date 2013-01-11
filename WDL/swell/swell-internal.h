@@ -623,8 +623,13 @@ struct HGDIOBJ__
 
   int color;
   int wid;
+
   struct HGDIOBJ__ *_next;
   bool _infreelist;
+#ifdef SWELL_FREETYPE
+  void *fontface; // FT_Face
+#endif
+
 };
 
 
