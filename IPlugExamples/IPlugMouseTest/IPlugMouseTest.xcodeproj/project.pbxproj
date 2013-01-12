@@ -2461,6 +2461,7 @@
 					"$(SRCROOT)/../../AAX_SDK/Libs/Debug",
 				);
 				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -2549,6 +2550,7 @@
 					"$(SRCROOT)/../../AAX_SDK/Libs/Release",
 				);
 				SDKROOT = "$(BASE_SDK)";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
