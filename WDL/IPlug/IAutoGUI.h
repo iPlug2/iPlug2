@@ -396,7 +396,7 @@ void GenerateSliderGUI(IGraphics* pGraphics,
                  const IColor *pBGColor, 
                  const IColor *pFGColor,
                  int colWidth = 300,
-                 bool tabs = false)
+                 int tabs = 0) // 0 = off, 1 = numbers, 2 = group name
 {
   pGraphics->AttachPanelBackground(pBGColor);
   
@@ -466,7 +466,13 @@ void GenerateSliderGUI(IGraphics* pGraphics,
       {
         thisTabRect = tabsRect.SubRectHorizontal(groupNames.GetSize(), groupIdx);
         thisGroup.Set(label);
-        sprintf(buf, "%i", groupIdx+1);
+        if (tabs == 1)
+        {
+          sprintf(buf, "%i", groupIdx+1);
+        }
+        else {
+          strcpy(buf, label);
+        }
         pTab = new AGTab(thisTabRect, buf);
         pTabsControl->AddTab(pTab);
         groupIdx++;
