@@ -305,6 +305,41 @@ private:
   WDL_String mParamNameStr, mParamValueStr;
 };
 
+class AGPresetSaveButtonControl : public IPanelControl
+{
+private:
+  const char** mParamNameStrings;
+  
+public:
+  AGPresetSaveButtonControl(IPlugBase *pPlug, IRECT pR, IText *pText, const char** pParamNameStrings)
+  : IPanelControl(pPlug, pR, &COLOR_RED)
+  , mParamNameStrings(pParamNameStrings)
+  {
+    mText = *pText;
+    mText.mAlign = IText::kAlignCenter;
+  }
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
+    WDL_String presetFilePath, desktopPath;
+    
+    mPlug->GetGUI()->DesktopPath(&desktopPath);
+    mPlug->GetGUI()->PromptForFile(&presetFilePath, kFileSave, &desktopPath, "txt");
+    
+    if (strcmp(presetFilePath.Get(), "") != 0) {
+      mPlug->DumpPresetSrcCode(presetFilePath.Get(), mParamNameStrings);
+    }
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  {
+    pGraphics->FillIRect(&mColor, &mRECT);
+    pGraphics->DrawIText(&mText, "Dump preset", &mRECT);
+    
+    return true;
+  }
+};
+
 #define WIDTH 48
 #define HEIGHT 50
 #define GAP 2
@@ -396,10 +431,11 @@ void GenerateSliderGUI(IGraphics* pGraphics,
                  const IColor *pBGColor, 
                  const IColor *pFGColor,
                  int colWidth = 300,
-                 int tabs = 0) // 0 = off, 1 = numbers, 2 = group name
+                 int tabs = 0, // 0 = off, 1 = numbers, 2 = group name
+                 const char** pParamNameStrings = 0) 
 {
   pGraphics->AttachPanelBackground(pBGColor);
-  
+
   WDL_PtrList<const char> groupNames;
   WDL_String thisGroup("");
   
@@ -440,6 +476,15 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   int row = 0;
   int col = 0;
   
+  if (pParamNameStrings) 
+  {
+    IRECT buttonsRect = IRECT(2, yoffs, colWidth-2, yoffs + paramNameMaxBounds.H());
+    
+    pGraphics->AttachControl(new AGPresetSaveButtonControl(pPlug, buttonsRect, pText, pParamNameStrings));
+    
+    yoffs += 20;
+  }
+
   AGPanelTabs* pTabsControl = 0;
   IRECT tabsRect = IRECT(2, yoffs, colWidth-2, yoffs + paramNameMaxBounds.H());
   
@@ -455,6 +500,8 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   IRECT thisTabRect;
   int groupIdx = 0;
   char buf[32];
+  
+  int paramStartYoffs = yoffs;
   
   for(int p = 0; p < pPlug->NParams(); p++)
   {
@@ -477,8 +524,8 @@ void GenerateSliderGUI(IGraphics* pGraphics,
         pTabsControl->AddTab(pTab);
         groupIdx++;
         
-        yoffs = 32;
         col = 0;
+        yoffs = paramStartYoffs;
       }
       
       pTab->mParamsToMux.Add(p);
