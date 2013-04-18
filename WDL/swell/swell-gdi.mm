@@ -517,6 +517,8 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     [str release];
     if (!font->ct_FontRef) font->ct_FontRef = (void*)[[NSFont labelFontOfSize:fontwid] retain]; 
 
+    font->font_quality = (!lfQuality || lfQuality == ANTIALIASED_QUALITY || lfQuality == NONANTIALIASED_QUALITY ? lfQuality : 0);
+
     // might want to make this conditional (i.e. only return font if created successfully), but I think we'd rather fallback to a system font than use ATSUI
     return font;
   }
@@ -907,6 +909,11 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
       CGFloat col[] = { (float)GetRValue(ct->curbkcol)/255.0f,  (float)GetGValue(ct->curbkcol)/255.0f, (float)GetBValue(ct->curbkcol)/255.0f, 1.0f };
       bgc = CGColorCreate(csr, col);
       CGColorSpaceRelease(csr);
+    }
+
+    if (ct->curfont->font_quality)
+    {
+      CGContextSetShouldAntialias(ct->ctx, ct->curfont->font_quality == ANTIALIASED_QUALITY);
     }
 
     if (line) 
