@@ -180,42 +180,26 @@ static int GLUE_RESET_WTP(unsigned char *out, void *ptr)
 }
 
 
-
-// for gcc on x86 (msvc should already have _controlfp defined)
-#if !defined(_RC_CHOP) && !defined(EEL_NO_CHANGE_FPFLAGS)
-
-  #include <fpu_control.h>
-  #define _RC_CHOP _FPU_RC_ZERO
-  #define _MCW_RC _FPU_RC_ZERO
-  static unsigned int _controlfp(unsigned int val, unsigned int mask)
-  {
-     unsigned int ret;
-     _FPU_GETCW(ret);
-     if (mask)
-     {
-       ret&=~mask;
-       ret|=val;
-       _FPU_SETCW(ret);
-     }
-     return ret;
-  }
-
-#endif
-
-
 static void GLUE_CALL_CODE(INT_PTR bp, INT_PTR cp, INT_PTR ramptr) 
 {
+  #ifndef NSEEL_EEL1_COMPAT_MODE
+    short oldsw, newsw;
+  #endif
   #ifdef _MSC_VER
-    #ifndef EEL_NO_CHANGE_FPFLAGS
-      unsigned int old_v=_controlfp(0,0); 
-      _controlfp(_RC_CHOP,_MCW_RC);
-    #endif
 
     __asm
     {
+#ifndef NSEEL_EEL1_COMPAT_MODE
+      fnstcw [oldsw]
+      mov ax, [oldsw]
+      or ax, 0xC00
+      mov [newsw], ax
+      fldcw [newsw]
+#endif
+      
       mov eax, cp
       mov ebx, ramptr
-      
+
       pushad 
       mov ebp, esp
       and esp, -16
@@ -233,31 +217,38 @@ static void GLUE_CALL_CODE(INT_PTR bp, INT_PTR cp, INT_PTR ramptr)
       call eax
       mov esp, ebp
       popad
+#ifndef NSEEL_EEL1_COMPAT_MODE
+      fldcw [oldsw]
+#endif
     };
 
-    #ifndef EEL_NO_CHANGE_FPFLAGS
-      _controlfp(old_v,_MCW_RC);
-    #endif
   #else // gcc x86
-    #ifndef EEL_NO_CHANGE_FPFLAGS
-      unsigned int old_v=_controlfp(0,0); 
-      _controlfp(_RC_CHOP,_MCW_RC);
-    #endif
     __asm__(
+#ifndef NSEEL_EEL1_COMPAT_MODE
+      "fnstcw %2\n"
+      "movw %2, %%ax\n"
+      "orw $0xC00, %%ax\n"
+      "movw %%ax, %3\n"
+      "fldcw %3\n"
+#endif
           "pushl %%ebx\n"
           "movl %%ecx, %%ebx\n"
           "pushl %%ebp\n"
           "movl %%esp, %%ebp\n"
           "andl $-16, %%esp\n" // align stack to 16 bytes
           "subl $12, %%esp\n" // call will push 4 bytes on stack, align for that
-          "call *%%eax\n"
+          "call *%%edx\n"
           "leave\n"
           "popl %%ebx\n"
+#ifndef NSEEL_EEL1_COMPAT_MODE
+      "fldcw %2\n"
+#endif
           ::
-          "a" (cp), "c" (ramptr): "%edx","%esi","%edi");
-    #ifndef EEL_NO_CHANGE_FPFLAGS
-      _controlfp(old_v,_MCW_RC);
-    #endif
+          "d" (cp), "c" (ramptr)
+#ifndef NSEEL_EEL1_COMPAT_MODE
+          , "g" (&oldsw), "g" (&newsw)
+#endif
+          : "%eax","%esi","%edi");
   #endif //gcc x86
 }
 
@@ -339,5 +330,26 @@ static EEL_F onepointfive=1.5f;
 
 
 #define GLUE_HAS_NATIVE_TRIGSQRTLOG
+
+static void *GLUE_realAddress(void *fn, void *fn_e, int *size)
+{
+  static const unsigned char sig[12] = { 0x89, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+  unsigned char *p = (unsigned char *)fn;
+
+  #if defined(_DEBUG) && defined(_MSC_VER)
+    if (*p == 0xE9) // this means jump to the following address (debug stub)
+    {
+      p += 5 + *(int *)(p+1);
+    }
+  #endif
+
+  while (memcmp(p,sig,sizeof(sig))) p++;
+  p+=sizeof(sig);
+  fn = p;
+
+  while (memcmp(p,sig,sizeof(sig))) p++;
+  *size = p - (unsigned char *)fn;
+  return fn;
+}
 
 #endif

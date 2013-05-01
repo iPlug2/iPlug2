@@ -29,10 +29,8 @@ class VWndBridgeNS;
 - (void)accessibilitySetValue:(id)value forAttribute:(NSString *)attribute;
 
 // parameterized attribute methods
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3
 - (NSArray *)accessibilityParameterizedAttributeNames;
 - (id)accessibilityAttributeValue:(NSString *)attribute forParameter:(id)parameter;
-#endif
 
 // action methods
 - (NSArray *)accessibilityActionNames;
@@ -359,19 +357,20 @@ public:
     }
 
   
+#if 0
     if (cs>=0)
     {
       if (str!=buf)
       {
-        lstrcpyn(buf,str,sizeof(buf)-128);
+        lstrcpyn(buf,str?str:"",sizeof(buf)-128);
         str=buf;
       }
 //      strcat(buf,cs>0 ? " checked" : " unchecked");
       
     }
+#endif
     
     if (str && *str) return [(id)SWELL_CStringToCFString(str) autorelease];
-
   }
   if ([attribute isEqual:NSAccessibilityWindowAttribute])
   {

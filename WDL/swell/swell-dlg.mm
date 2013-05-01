@@ -24,6 +24,7 @@ bool SWELL_owned_windows_levelincrease=false;
 #include "swell-internal.h"
 #include "../wdlstring.h"
 
+#define NSColorFromCol(a) [NSColor colorWithCalibratedRed:GetRValue(a)/255.0f green:GetGValue(a)/255.0f blue:GetBValue(a)/255.0f alpha:1.0f]
 extern int g_swell_terminating;
 
 static LRESULT sendSwellMessage(id obj, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -165,7 +166,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
           if (c)
           {
             d(hwnd,WM_CTLCOLORBTN,(WPARAM)c,(LPARAM)ch);
-            if (c->curtextcol) buttonFg=c->curtextcol;
+            if (c->curtextcol) buttonFg=NSColorFromCol(c->cur_text_color_int);
             else if (isUpdate) buttonFg = [NSColor textColor]; // todo some other col?              
             if (buttonFg) [buttonFg retain];
 
@@ -189,7 +190,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
               d(hwnd,WM_CTLCOLOREDIT,(WPARAM)c,(LPARAM)ch);
               if (c->curtextcol)
               {
-                editFg=c->curtextcol;
+                editFg=NSColorFromCol(c->cur_text_color_int);
                 editBg=[NSColor colorWithCalibratedRed:GetRValue(c->curbkcol)/255.0f green:GetGValue(c->curbkcol)/255.0f blue:GetBValue(c->curbkcol)/255.0f alpha:1.0f];
               }
               else if (isUpdate) 
@@ -215,7 +216,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
             if (c)
             {
               d(hwnd,WM_CTLCOLORSTATIC,(WPARAM)c,(LPARAM)ch);
-              if (c->curtextcol) staticFg=c->curtextcol;
+              if (c->curtextcol) staticFg=NSColorFromCol(c->cur_text_color_int);
               else if (isUpdate) 
               {
                 staticFg = [NSColor textColor]; 
@@ -356,49 +357,83 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
 {
   static int __nofwd;
   if (__nofwd) return 0;
-  
-  NSPoint p=[theEvent locationInWindow];
+
   NSWindow *w=[theEvent window];
   if (!w) return 0;
-  NSView *v=[[w contentView] hitTest:p];
-  
-  if (!v) 
+
+  NSPoint p=[theEvent locationInWindow];
+  NSPoint screen_p=[w convertBaseToScreen:p];
+
+  NSWindow *bestwnd = w;
+  HWND cap = GetCapture();
+  if (!cap)
   {
-    if (![NSApp modalWindow])
+    // if not captured, find the window that should receive this event
+
+    NSArray *windows=[NSApp orderedWindows];
+    int x,cnt=windows ? [windows count] : 0;
+    NSWindow *kw = [NSApp keyWindow];
+    if (kw && windows && [windows containsObject:kw]) kw=NULL;
+    // make sure the keywindow, if any, is checked, but not twice
+
+    for (x = kw ? -1 : 0; x < cnt; x ++)
     {
-      p=[w convertBaseToScreen:p];
-    
-      POINT pt={(int)floor(p.x),(int)floor(p.y)};
-      HWND h=WindowFromPoint(pt);
-      if (h && [(id)h isKindOfClass:[SWELL_hwndChild class]])
+      NSWindow *wnd = x < 0 ? kw : [windows objectAtIndex:x];
+      if (wnd && [wnd isVisible])
       {
-        NSWindow *nw = [(NSView *)h window];
-        if (nw != w)
+        NSRect fr=[wnd frame];
+        if (screen_p.x >= fr.origin.x && screen_p.x < fr.origin.x + fr.size.width &&
+            screen_p.y >= fr.origin.y && screen_p.y < fr.origin.y + fr.size.height)
         {
-          p = [nw convertScreenToBase:p];
-          theEvent = [NSEvent mouseEventWithType:[theEvent type] 
-                              location:p 
+          bestwnd=wnd;
+          break;
+        }    
+      }
+    }
+  }
+
+  if (bestwnd == w || [NSApp modalWindow])
+  {
+    NSView *v=[[w contentView] hitTest:p];
+    if (!v || v == view) return 0; // default processing if in view, or if in nonclient area
+
+    __nofwd=1;
+    [v mouseMoved:theEvent];
+    __nofwd=0;
+    return 1;
+  }
+
+  // bestwnd != w
+  NSView *cv = [bestwnd contentView];
+  if (cv && [cv isKindOfClass:[SWELL_hwndChild class]])
+  {
+    p = [bestwnd convertScreenToBase:screen_p];
+    NSView *v=[cv hitTest:p];
+    if (v)
+    {
+      theEvent = [NSEvent mouseEventWithType:[theEvent type] 
+                            location:p 
                             modifierFlags:[theEvent modifierFlags]
                             timestamp:[theEvent timestamp]
-                            windowNumber:[nw windowNumber] 
-                            context:[nw graphicsContext] 
+                            windowNumber:[bestwnd windowNumber] 
+                            context:[bestwnd graphicsContext] 
                             eventNumber:[theEvent eventNumber] 
                             clickCount:[theEvent clickCount]
                             pressure:[theEvent pressure]];
-        }
-        v=(NSView *)h;      
-      }
-    }  
-    
-    if (!v) return !GetCapture(); // eat mouse move if not captured
+      __nofwd=1;
+      [v mouseMoved:theEvent];
+      __nofwd=0;
+      return 1;
+    }
   }
-  if (v==view) return 0;
-  
-  __nofwd=1;
-  [v mouseMoved:theEvent];
-  __nofwd=0;
-  
-  return 1;
+  if (!cap)
+  {
+    // set default cursor, and eat message
+    NSCursor *arr= [NSCursor arrowCursor];
+    if (GetCursor() != (HCURSOR)arr) SetCursor((HCURSOR)arr);
+    return 1;
+  }
+  return 0;
 }
 
 
@@ -1375,6 +1410,10 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
   }
     
   return NSDragOperationGeneric;
+}
+- (BOOL) wantsPeriodicDraggingUpdates
+{
+  return NO;
 }
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender 
 {

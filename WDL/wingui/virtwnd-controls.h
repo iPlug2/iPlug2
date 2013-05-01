@@ -97,14 +97,15 @@ class WDL_VirtualIconButton : public WDL_VWnd
     void SetIsButton(bool isbutton) { m_is_button=isbutton; }
     bool GetIsButton() { return m_is_button; }
 
-    void SetImmediate(bool immediate) { m_immediate=true; } // send message on mousedown, not mouseup
+    void SetImmediate(bool immediate) { m_immediate=immediate; } // send message on mousedown, not mouseup
 
     void SetBGCol1Callback(int msg) { m_bgcol1_msg=msg; }
 
     void SetForceBorder(bool fb) { m_forceborder=fb; }
 
-    // only used if no icon config set
-    void SetTextLabel(const char *text, char align=0, LICE_IFont *font=NULL);
+    // only used if no icon config set, or if force is set
+    void SetTextLabel(const char *text); // no change of alignment etc
+    void SetTextLabel(const char *text, int align, LICE_IFont *font=NULL);
     const char* GetTextLabel() { return m_textlbl.Get(); }
     void SetMargins(int l, int r) { m_margin_l=l; m_margin_r=r; }
     void SetVMargins(int t, int b) { m_margin_t=t; m_margin_b=b; };

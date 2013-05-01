@@ -1,6 +1,6 @@
 /*
   Expression Evaluator Library (NS-EEL) v2
-  Copyright (C) 2004-2008 Cockos Incorporated
+  Copyright (C) 2004-2013 Cockos Incorporated
   Copyright (C) 1999-2003 Nullsoft, Inc.
   
   nseel-compiler.c
@@ -35,12 +35,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#ifndef _WIN64
-  #ifndef __ppc__
-    #include <float.h>
-  #endif
-#endif
-
 #ifdef __APPLE__
   #ifdef __LP64__
     #define EEL_USE_MPROTECT
@@ -53,20 +47,14 @@
 #include <unistd.h>
 #endif
 
-#ifdef NSEEL_EEL1_COMPAT_MODE
-
-#ifndef EEL_NO_CHANGE_FPFLAGS
-#define EEL_NO_CHANGE_FPFLAGS
-#endif
-
-#endif
-
 #define NSEEL_VARS_MALLOC_CHUNKSIZE 8
 
 //#define LOG_OPT
 //#define EEL_PPC_NOFREECODE
 //#define EEL_PRINT_FAILS
 //#define EEL_VALIDATE_WORKTABLE_USE
+//#define EEL_VALIDATE_FSTUBS
+
 
 #ifdef EEL_PRINT_FAILS
   #ifdef _WIN32
@@ -77,6 +65,7 @@
 #else
 #define RET_MINUS1_FAIL(x) return -1;
 #endif
+
 
 
 #ifdef EEL_VALIDATE_WORKTABLE_USE
@@ -134,82 +123,6 @@
 #define GLUE_INVSQRT_NEEDREPL 0
 #endif
 
-#ifndef EEL_TARGET_PORTABLE
-  static void *GLUE_realAddress(void *fn, void *fn_e, int *size)
-  {
-  #if defined(_MSC_VER) || defined(__LP64__)
-
-    unsigned char *p;
-
-  #if defined(_DEBUG) && !defined(__LP64__)
-    if (*(unsigned char *)fn == 0xE9) // this means jump to the following address
-    {
-      fn = ((unsigned char *)fn) + *(int *)((char *)fn+1) + 5;
-    }
-  #endif
-
-    // this may not work in debug mode?
-    p=(unsigned char *)fn;
-    for (;;)
-    {
-      int a;
-      for (a=0;a<12;a++)
-      {
-        if (p[a] != (a?0x90:0x89)) break;
-      }
-      if (a>=12)
-      {
-        *size = (char *)p - (char *)fn;
-      //  if (*size<0) MessageBox(NULL,"expect poof","a",0);
-        return fn;
-      }
-      p++;
-    }
-  #else
-
-    // gcc, 32 bit (ppc or x86)
-    unsigned char *endp=(unsigned char *)fn_e - sizeof(GLUE_RET);
-    if (endp <= (unsigned char *)fn) *size=0;
-    else
-    {
-      while (endp > (unsigned char *)fn && memcmp(endp,&GLUE_RET,sizeof(GLUE_RET))) endp-=sizeof(GLUE_RET);
-      *size = endp - (unsigned char *)fn;
-  #ifndef __ppc__
-      // x86, gcc: look for push ebp, mov ebp, esp (0x55, 0x89, 0xE5), and 0xC9 (leave) at end
-      if (*size >= 4)
-      {
-        int hadnop=0;
-        unsigned char *pfn = (unsigned char *)fn;
-      
-        // in debug mode, there will be nops before the stack frame code
-        while (pfn < endp-4 && *pfn == 0x90) 
-        {
-          hadnop++;
-          pfn++;
-        }
-        if (endp[-1] == 0xC9 && pfn < endp-4 && pfn[0] == 0x55 && pfn[1] == 0x89 && pfn[2] == 0xE5)
-        {
-          endp--;
-          pfn += 3;
-        
-          // if had nops (debug mode), skip any sub esp, byte
-          if (hadnop && pfn < endp-2 && pfn[0] == 0x83 && pfn[1] == 0xEC) pfn+=3;
-        
-          *size = endp - pfn;
-          if (*size < 0) *size=0;
-          return pfn;
-        }
-      }
-  #endif
-    }
-    return fn;
-
-  #endif
-  }
-#endif 
-
-
-
 
 // used by //#eel-no-optimize:xxx, in ctx->optimizeDisableFlags
 #define OPTFLAG_NO_OPTIMIZE 1
@@ -266,7 +179,7 @@ static void onCompileNewLine(compileContext *ctx, int srcBytes, int destBytes)
 	}
 }
 
-static void *__newBlock(llBlock **start,int size, char wantMprotect);
+static void *__newBlock(llBlock **start,int size, int wantMprotect);
 
 #define OPCODE_IS_TRIVIAL(x) ((x)->opcodeType <= OPCODETYPE_VARPTRPTR)
 enum {
@@ -316,7 +229,7 @@ static void *newTmpBlock(compileContext *ctx, int size)
   return p+((align-(((INT_PTR)p)&a1))&a1);
 }
 
-static void *__newBlock_align(compileContext *ctx, int size, int align, char isForCode) 
+static void *__newBlock_align(compileContext *ctx, int size, int align, int isForCode) 
 {
   const int a1=align-1;
   char *p=(char*)__newBlock(
@@ -682,6 +595,34 @@ functionType *nseel_getFunctionFromTable(int idx)
 
 int NSEEL_init() // returns 0 on success
 {
+
+#ifdef EEL_VALIDATE_FSTUBS
+  int a;
+  for (a=0;a < sizeof(fnTable1)/sizeof(fnTable1[0]);a++)
+  {
+    char *code_startaddr = (char*)fnTable1[a].afunc;
+    char *endp = (char *)fnTable1[a].func_e;
+    // validate
+    int sz=0;
+    char *f=(char *)GLUE_realAddress(code_startaddr,endp,&sz);
+
+    if (f+sz > endp) 
+    {
+#ifdef _WIN32
+      OutputDebugString("bad eel function stub\n");
+#else
+      printf("bad eel function stub\n");
+#endif
+      *(char *)NULL = 0;
+    }
+  }
+#ifdef _WIN32
+      OutputDebugString("eel function stub (builtin) validation complete\n");
+#else
+      printf("eel function stub (builtin) validation complete\n");
+#endif
+#endif
+
   NSEEL_quit();
   return 0;
 }
@@ -694,6 +635,32 @@ void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, in
   }
   if (fnTableUser)
   {
+
+#ifdef EEL_VALIDATE_FSTUBS
+    {
+      char *endp = code_startaddr+code_len;
+      // validate
+      int sz=0;
+      char *f=(char *)GLUE_realAddress(code_startaddr,endp,&sz);
+
+      if (f+sz > endp) 
+      {
+#ifdef _WIN32
+        OutputDebugString("bad eel function stub\n");
+#else
+        printf("bad eel function stub\n");
+#endif
+        *(char *)NULL = 0;
+      }
+#ifdef _WIN32
+      OutputDebugString(name);
+      OutputDebugString(" - validated eel function stub\n");
+#else
+      printf("eel function stub validation complete for %s\n",name);
+#endif
+    }
+#endif
+
     memset(&fnTableUser[fnTableUser_size],0,sizeof(functionType));
 
     if (!(nparms & BIF_RETURNSBOOL)) 
@@ -737,7 +704,7 @@ static void freeBlocks(llBlock **start)
 }
 
 //---------------------------------------------------------------------------------------------------------------
-static void *__newBlock(llBlock **start, int size, char wantMprotect)
+static void *__newBlock(llBlock **start, int size, int wantMprotect)
 {
 #if !defined(EEL_DOESNT_NEED_EXEC_PERMS) && defined(_WIN32)
   DWORD ov;
@@ -4394,6 +4361,30 @@ EEL_F *NSEEL_VM_regvar(NSEEL_VMCTX _ctx, const char *var)
   }
   
   return nseel_int_register_var(ctx,var,1);
+}
+
+int  NSEEL_VM_get_var_refcnt(NSEEL_VMCTX _ctx, const char *name)
+{
+  compileContext *ctx = (compileContext *)_ctx;
+  int wb;
+  if (!ctx) return -1;
+
+  for (wb = 0; wb < ctx->varTable_numBlocks; wb ++)
+  {
+    int ti;
+    if (!ctx->varTable_Values[wb] || !ctx->varTable_Names[wb]) break;
+
+    for (ti = 0; ti < NSEEL_VARS_PER_BLOCK; ti ++)
+    {        
+      if (ctx->varTable_Names[wb][ti] && !strcasecmp(ctx->varTable_Names[wb][ti],name)) 
+      {
+        varNameHdr *h = ((varNameHdr *)ctx->varTable_Names[wb][ti])-1;
+        return h->refcnt;
+      }
+    }
+  }
+
+  return -1;
 }
 
 
