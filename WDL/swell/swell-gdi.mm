@@ -54,24 +54,6 @@ static bool IsCoreTextSupported()
 #endif
 }
 
-#ifndef SA_API // this is in swell.cpp, but we don't want to inlude that, because there are lots of other dependancies
-char *lstrcpyn(char *dest, const char *src, int l)
-{
-  if (l<1) return dest;
-  
-  char *dsrc=dest;
-  while (--l > 0)
-  {
-    char p=*src++;
-    if (!p) break;
-    *dest++=p;
-  }
-  *dest++=0;
-  
-  return dsrc;
-}
-#endif
-
 static CTFontRef GetCoreTextDefaultFont()
 {
   static CTFontRef deffr;
