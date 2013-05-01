@@ -7,6 +7,7 @@ IParam::IParam()
 {
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
+  memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
 }
 
 IParam::~IParam() {}
