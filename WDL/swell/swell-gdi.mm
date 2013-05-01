@@ -54,6 +54,24 @@ static bool IsCoreTextSupported()
 #endif
 }
 
+#ifndef SA_API // this is in swell.cpp, but we don't want to inlude that, because there are lots of other dependancies
+char *lstrcpyn(char *dest, const char *src, int l)
+{
+  if (l<1) return dest;
+  
+  char *dsrc=dest;
+  while (--l > 0)
+  {
+    char p=*src++;
+    if (!p) break;
+    *dest++=p;
+  }
+  *dest++=0;
+  
+  return dsrc;
+}
+#endif
+
 static CTFontRef GetCoreTextDefaultFont()
 {
   static CTFontRef deffr;
@@ -539,9 +557,19 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     Boolean isItal=!!lfItalic;
     Boolean isUnder=!!lfUnderline;
     
-    ATSUAttributeTag        theTags[] = { kATSUQDBoldfaceTag, kATSUQDItalicTag, kATSUQDUnderlineTag,kATSUSizeTag,kATSUFontTag };
-    ByteCount               theSizes[] = { sizeof(Boolean),sizeof(Boolean),sizeof(Boolean), sizeof(Fixed),sizeof(ATSUFontID)  };
-    ATSUAttributeValuePtr   theValues[] =  {&isBold, &isItal, &isUnder,  &fsize, &fontid  } ;
+    ATSStyleRenderingOptions render;
+    if (!lfQuality)
+      render = kATSStyleNoOptions;
+    else if (lfQuality == ANTIALIASED_QUALITY)
+      render = kATSStyleApplyAntiAliasing;
+    else if (lfQuality == NONANTIALIASED_QUALITY)
+      render = kATSStyleNoAntiAliasing;
+    else
+      render = kATSStyleNoOptions;
+
+    ATSUAttributeTag        theTags[] = { kATSUQDBoldfaceTag, kATSUQDItalicTag, kATSUQDUnderlineTag,kATSUSizeTag,kATSUFontTag, kATSUStyleRenderingOptionsTag };
+    ByteCount               theSizes[] = { sizeof(Boolean),sizeof(Boolean),sizeof(Boolean), sizeof(Fixed),sizeof(ATSUFontID), sizeof(ATSStyleRenderingOptions)  };
+    ATSUAttributeValuePtr   theValues[] =  {&isBold, &isItal, &isUnder,  &fsize, &fontid, &render } ;
     
     int attrcnt=sizeof(theTags)/sizeof(theTags[0]);
     if (fontid == kATSUInvalidFontID) attrcnt--;    
@@ -960,8 +988,6 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     
     return line_h;
   }
-
-  if (quality) [curgc setShouldAntialias:oldaa];
   
   
   [str release];
