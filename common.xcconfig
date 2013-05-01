@@ -7,6 +7,7 @@ CERTIFICATE_ID = Oliver Larkin
 
 // Which compiler to use
 COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
+//COMPILER = com.intel.compilers.icc.12_1_0
 //COMPILER = com.apple.compilers.llvmgcc42 // use this 
 //COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4.x/10.7+ (YMMV)
 
