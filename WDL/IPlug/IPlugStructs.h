@@ -376,9 +376,9 @@ struct IMidiMsg
   int Channel(); // returns [0, 15] for midi channels 1 ... 16
 
   EStatusMsg StatusMsg() const;
-  int NoteNumber() const;     // Returns [0, 128), -1 if NA.
-  int Velocity() const;       // Returns [0, 128), -1 if NA.
-  int Program() const;        // Returns [0, 128), -1 if NA.
+  int NoteNumber() const;     // Returns [0, 127), -1 if NA.
+  int Velocity() const;       // Returns [0, 127), -1 if NA.
+  int Program() const;        // Returns [0, 127), -1 if NA.
   double PitchWheel() const;  // Returns [-1.0, 1.0], zero if NA.
   EControlChangeMsg ControlChangeIdx() const;
   double ControlChange(EControlChangeMsg idx) const;      // return [0, 1], -1 if NA.
