@@ -76,6 +76,17 @@ int IMidiMsg::Velocity() const
   }
 }
 
+int IMidiMsg::Pressure() const
+{
+  switch (StatusMsg())
+  {
+    case kPolyAftertouch:
+      return mData2;
+    default:
+      return -1;
+  }
+}
+
 int IMidiMsg::Program() const
 {
   if (StatusMsg() == kProgramChange)
