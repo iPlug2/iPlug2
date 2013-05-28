@@ -9,7 +9,8 @@ void DrawBitmapedText(IGraphics* pGraphics,
                       bool vCenter,
                       bool multiline,
                       int charWidth,
-                      int charHeight)
+                      int charHeight,
+                      int charOffset)
 {
   if (CSTR_NOT_EMPTY(str))
   {
@@ -69,9 +70,9 @@ void DrawBitmapedText(IGraphics* pGraphics,
 //          yOffset = basicYOffset + line * charHeight;
 //        }
 
-        int frameOffset = (int) str[stridx++] - 31;	// calculate which frame to look up
+        int frameOffset = (int) str[stridx++] - 31; // calculate which frame to look up
 
-        int xOffset = (linepos * charWidth) + basicXOffset;		// calculate xOffset for character we're drawing
+        int xOffset = (linepos * (charWidth + charOffset)) + basicXOffset;    // calculate xOffset for character we're drawing
         IRECT charRect = IRECT(xOffset, yOffset, xOffset + charWidth, yOffset + charHeight);
         pGraphics->DrawBitmap(pTextBitmap, &charRect, frameOffset, pBlend);
       }
@@ -93,7 +94,7 @@ bool IBitmapTextControl::Draw(IGraphics* pGraphics)
   char* cStr = mStr.Get();
   if (CSTR_NOT_EMPTY(cStr))
   {
-    DrawBitmapedText(pGraphics, &mTextBitmap, &mRECT, &mText, &mBlend, cStr, true, false, mCharWidth, mCharHeight);
+    DrawBitmapedText(pGraphics, &mTextBitmap, &mRECT, &mText, &mBlend, cStr, true, false, mCharWidth, mCharHeight, mCharOffset);
   }
   return true;
 }
