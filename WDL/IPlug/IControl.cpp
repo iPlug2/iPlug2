@@ -40,9 +40,14 @@ void IControl::SetDirty(bool pushParamToPlug)
     
     if (mValDisplayControl) 
     {
+      WDL_String plusLabel;
       char str[32];
       pParam->GetDisplayForHost(str);
-      ((ITextControl*)mValDisplayControl)->SetTextFromPlug(str);
+      plusLabel.Set(str, 32);
+      plusLabel.Append(" ", 32);
+      plusLabel.Append(pParam->GetLabelForHost(), 32);
+      
+      ((ITextControl*)mValDisplayControl)->SetTextFromPlug(plusLabel.Get());
     }
     
     if (mNameDisplayControl) 
