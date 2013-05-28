@@ -177,6 +177,37 @@ public:
   void OnMouseDown(int x, int y, IMouseMod* pMod);
 };
 
+// Like ISwitchControl except it puts up a popup menu instead of cycling through states on click
+class ISwitchPopUpControl : public ISwitchControl
+{
+public:
+  ISwitchPopUpControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap,
+                 IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  : ISwitchControl(pPlug, x, y, paramIdx, pBitmap, blendMethod)
+  {
+    mDisablePrompt = false;
+  }
+  
+  ~ISwitchPopUpControl() {}
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod);
+};
+
+// A switch where each frame of the bitmap contains images for multiple button states. The Control's mRect will be divided into clickable areas.
+class ISwitchFramesControl : public ISwitchControl
+{
+public:
+  ISwitchFramesControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap, bool imagesAreHorizontal = false,
+                       IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone);
+  
+  ~ISwitchFramesControl() {}
+  
+  void OnMouseDown(int x, int y, IMouseMod* pMod);
+  
+protected:
+  WDL_TypedBuf<IRECT> mRECTs;
+};
+
 // On/off switch that has a target area only.
 class IInvisibleSwitchControl : public IControl
 {

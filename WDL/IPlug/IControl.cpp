@@ -239,6 +239,43 @@ void ISwitchControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
   OnMouseDown(x, y, pMod);
 }
 
+void ISwitchPopUpControl::OnMouseDown(int x, int y, IMouseMod* pMod)
+{
+  PromptUserInput();
+
+  SetDirty();
+}
+
+ISwitchFramesControl::ISwitchFramesControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap* pBitmap, bool imagesAreHorizontal, IChannelBlend::EBlendMethod blendMethod)
+  : ISwitchControl(pPlug, x, y, paramIdx, pBitmap, blendMethod)
+{
+  mDisablePrompt = false;
+  
+  for(int i = 0; i < pBitmap->N; i++)
+  {
+    if (imagesAreHorizontal)
+      mRECTs.Add(mRECT.SubRectHorizontal(pBitmap->N, i)); 
+    else
+      mRECTs.Add(mRECT.SubRectVertical(pBitmap->N, i)); 
+  }
+}
+
+void ISwitchFramesControl::OnMouseDown(int x, int y, IMouseMod* pMod)
+{
+  int n = mRECTs.GetSize();
+  
+  for (int i = 0; i < n; i++) 
+  {
+    if (mRECTs.Get()[i].Contains(x, y)) 
+    {
+      mValue = (double) i / (double) (n - 1);
+      break;
+    }
+  }
+  
+  SetDirty();
+}
+
 IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBase* pPlug, IRECT pR, int paramIdx)
   :   IControl(pPlug, pR, paramIdx, IChannelBlend::kBlendClobber)
 {
