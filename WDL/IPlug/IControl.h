@@ -240,7 +240,7 @@ public:
   virtual bool IsHit(int x, int y);
 
 protected:
-  void SnapToMouse(int x, int y);
+  virtual void SnapToMouse(int x, int y);
   int mLen, mHandleHeadroom;
   IBitmap mBitmap;
   EDirection mDirection;
