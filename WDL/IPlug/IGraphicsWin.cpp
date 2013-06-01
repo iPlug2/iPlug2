@@ -886,6 +886,9 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
       }
     }
     DestroyMenu(hMenu);
+
+    RECT r = { 0, 0, Width(), Height() };
+    InvalidateRect(mPlugWnd, &r, FALSE);
   }
   return result;
 }
