@@ -74,6 +74,7 @@ public:
 
 protected:
   bool SendMidiMsg(IMidiMsg* pMsg);
+  bool SendSysEx(ISysEx* pSysEx);
 
 private:
   bool mDoesMidi;

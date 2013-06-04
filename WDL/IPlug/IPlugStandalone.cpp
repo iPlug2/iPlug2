@@ -96,6 +96,23 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
   return false;
 }
 
+bool IPlugStandalone::SendSysEx(ISysEx* pSysEx)
+{
+  if (mMidiOut)
+  {  
+    std::vector<unsigned char> message;
+    
+    for (int i = 0; i < pSysEx->mSize; i++) {
+      message.push_back(pSysEx->mData[i]);
+    }
+    
+    mMidiOut->sendMessage( &message );
+    return true;
+  }
+  
+  return false;
+}
+
 #ifdef OS_IOS
 void IPlugStandalone::LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
 {
