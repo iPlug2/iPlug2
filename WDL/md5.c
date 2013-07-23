@@ -33,6 +33,8 @@
  * It is meant to be fast, but not as fast as possible.  Some known
  * optimizations are not included to reduce source code size and avoid
  * compile-time configuration.
+ *
+ * Minor additions/changes by Theo Niessink <http://www.taletn.com/>.
  */
 
 #ifndef HAVE_OPENSSL
@@ -89,13 +91,13 @@
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters.  There are no alignment requirements.
  */
-static void *body(MD5_CTX *ctx, void *data, unsigned long size)
+static const void *body(MD5_CTX *ctx, const void *data, unsigned long size)
 {
-	unsigned char *ptr;
+	const unsigned char *ptr;
 	MD5_u32plus a, b, c, d;
 	MD5_u32plus saved_a, saved_b, saved_c, saved_d;
 
-	ptr = data;
+	ptr = (const unsigned char *)data;
 
 	a = ctx->a;
 	b = ctx->b;
@@ -207,7 +209,7 @@ void MD5_Init(MD5_CTX *ctx)
 	ctx->hi = 0;
 }
 
-void MD5_Update(MD5_CTX *ctx, void *data, unsigned long size)
+void MD5_Update(MD5_CTX *ctx, const void *data, unsigned long size)
 {
 	MD5_u32plus saved_lo;
 	unsigned long used, free;
