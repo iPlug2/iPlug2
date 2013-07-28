@@ -198,6 +198,13 @@ public:
   // Some controls may not need to capture the mouse for dragging, they can call ReleaseCapture when the mouse leaves.
   void ReleaseMouseCapture();
 
+  // Enables/disables tooltips; also enables mouseovers/mouseouts if necessary.
+  inline void EnableTooltips(bool enable)
+  {
+    mEnableTooltips = enable;
+    if (enable) mHandleMouseOver = enable;
+  }
+
   // This is an idle call from the GUI thread, as opposed to
   // IPlug::OnIdle which is called from the audio processing thread.
   void OnGUIIdle();
@@ -225,7 +232,11 @@ protected:
   int mHiddenMousePointX, mHiddenMousePointY;
 
   bool CanHandleMouseOver() { return mHandleMouseOver; }
+  inline int GetMouseOver() const { return mMouseOver; }
+  inline bool TooltipsEnabled() const { return mEnableTooltips; }
+  
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;
+  
   LICE_SysBitmap* mDrawBitmap;
   LICE_IFont* CacheFont(IText* pTxt);
   
@@ -238,7 +249,7 @@ private:
   int mWidth, mHeight, mFPS, mIdleTicks;
   int GetMouseControlIdx(int x, int y, bool mo = false);
   int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;
-  bool mHandleMouseOver, mStrict;
+  bool mHandleMouseOver, mStrict, mEnableTooltips;
   IControl* mKeyCatcher;
 };
 
