@@ -154,6 +154,23 @@ void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
   {
     [(NSView*) pParentView addSubview: (IGRAPHICS_COCOA*) mGraphicsCocoa];
   }
+  
+  if (TooltipsEnabled()) 
+  {
+    IControl** ppControl = mControls.GetList();
+    
+    for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl) 
+    {
+      IControl* pControl = *ppControl;
+      const char* tooltip = pControl->GetTooltip();
+      
+      if (tooltip) 
+      {
+        [(IGRAPHICS_COCOA*) mGraphicsCocoa registerToolTip: pControl->GetTargetRECT()];
+      }
+    }
+  }
+  
   // Else we are being called by IGraphicsCocoaFactory, which is being called by a Cocoa AU host,
   // and the host will take care of attaching the view to the window.
   return mGraphicsCocoa;

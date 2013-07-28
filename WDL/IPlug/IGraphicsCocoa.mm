@@ -196,6 +196,11 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 }
 @end
 
+inline int GetMouseOver(IGraphicsMac* pGraphics)
+{
+	return pGraphics->GetMouseOver();
+}
+
 @implementation IGRAPHICS_COCOA
 
 - (id) init
@@ -593,6 +598,20 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   mTextFieldView = 0;
   mEdControl = 0;
   mEdParam = 0;
+}
+
+- (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
+{
+  int c = GetMouseOver(mGraphics);
+  if (c < 0) return @"";
+  
+  const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
+  return CSTR_NOT_EMPTY(tooltip) ? ToNSString((const char*) tooltip) : @"";
+}
+
+- (void) registerToolTip: (IRECT*) pRECT
+{
+  [self addToolTipRect: ToNSRect(mGraphics, pRECT) owner: self userData: nil];
 }
 
 @end

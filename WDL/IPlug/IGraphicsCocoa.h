@@ -93,4 +93,6 @@ NSString* ToNSString(const char* cStr);
 - (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu: (NSRect) rect;
 - (void) createTextEntry: (IControl*) pControl: (IParam*) pParam: (IText*) pText: (const char*) pString: (NSRect) areaRect;
 - (void) endUserInput;
+- (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
+- (void) registerToolTip: (IRECT*) pRECT;
 @end
