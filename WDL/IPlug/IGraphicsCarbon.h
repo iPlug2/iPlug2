@@ -35,6 +35,10 @@ public:
   void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
 
   void EndUserInput(bool commit);
+  
+protected:
+  void ShowTooltip();
+  void HideTooltip();
 
 private:
   IGraphicsMac* mGraphicsMac;
@@ -59,6 +63,10 @@ private:
   IParam* mEdParam;
   int mPrevX, mPrevY;
   short mLeftOffset, mTopOffset; // only for RTAS
+  
+  bool mShowingTooltip;
+  int mTooltipIdx, mTooltipTimer;
+  const char* mTooltip;
 
 public:
   static pascal OSStatus MainEventHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);

@@ -123,7 +123,8 @@ private:
   WDL_String mBundleID;
   
   friend int GetMouseOver(IGraphicsMac* pGraphics);
-
+  friend class IGraphicsCarbon;
+  
 public: //TODO: make this private
   void* mHostNSWindow;
 };
