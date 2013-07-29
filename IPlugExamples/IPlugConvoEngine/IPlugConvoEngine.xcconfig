@@ -33,13 +33,13 @@ APP_DEFS = SA_API __MACOSX_CORE__ //__UNIX_JACK__
 
 IOS_DEFS = SA_API
 // Preprocessor definitions for all Debug builds
-DEBUG_DEFS = _DEBUG
+DEBUG_DEFS = _DEBUG WDL_FFT_REALSIZE=8
 
 // Preprocessor definitions for all Release builds
-RELEASE_DEFS = NDEBUG //DEMO_VERSION
+RELEASE_DEFS = NDEBUG WDL_FFT_REALSIZE=8 //DEMO_VERSION
 
 // Preprocessor definitions for all Tracer builds
-TRACER_DEFS = TRACER_BUILD NDEBUG
+TRACER_DEFS = TRACER_BUILD NDEBUG WDL_FFT_REALSIZE=8
 
 // Preprocessor definitions for cocoa uniqueness (all builds)
 // If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too
