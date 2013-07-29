@@ -530,7 +530,7 @@ void IPlugBase::SetLatency(int samples)
   }
 }
 
-// this is over-ridden for VST3 and AAX formats
+// this is over-ridden for AAX
 void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
