@@ -576,10 +576,11 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
               //  msg.LogMsg();
               //#endif
             }
-            else if (pEvent->type == kVstSysExType) {
-                VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
-                ISysEx sysex(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
-                _this->ProcessSysEx(&sysex);
+            else if (pEvent->type == kVstSysExType) 
+            {
+              VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
+              ISysEx sysex(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
+              _this->ProcessSysEx(&sysex);
             }
           }
         }
