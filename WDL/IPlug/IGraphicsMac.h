@@ -91,6 +91,8 @@ public:
   void ForceEndUserEdit();
 
   const char* GetGUIAPI();
+  
+  void UpdateTooltips();
 
   void HostPath(WDL_String* pPath);
   void PluginPath(WDL_String* pPath);
