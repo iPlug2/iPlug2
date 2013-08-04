@@ -233,6 +233,8 @@ protected:
 
   bool CanHandleMouseOver() { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
+  inline int GetMouseX() const { return mMouseX; }
+  inline int GetMouseY() const { return mMouseY; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;

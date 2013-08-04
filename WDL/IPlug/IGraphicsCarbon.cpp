@@ -1241,10 +1241,9 @@ void IGraphicsCarbon::ShowTooltip()
 {
   HMHelpContentRec helpTag;
   helpTag.version = kMacHelpVersion;
-  
-  helpTag.tagSide = kHMDefaultSide;
-  IRECT* pR = mGraphicsMac->GetControl(mTooltipIdx)->GetTargetRECT();
-  HIRect r = CGRectMake(pR->L, pR->T, pR->W(), pR->H());
+
+  helpTag.tagSide = kHMInsideTopLeftCorner;
+  HIRect r = CGRectMake(mGraphicsMac->GetMouseX(), mGraphicsMac->GetMouseY() + mGraphicsMac->GetMouseCursorYOffset() + 3, 1, 1);
   HIRectConvert(&r, kHICoordSpaceView, mView, kHICoordSpaceScreenPixel, NULL);
   helpTag.absHotRect.top = (int)r.origin.y;
   helpTag.absHotRect.left = (int)r.origin.x;

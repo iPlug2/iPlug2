@@ -611,3 +611,45 @@ int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
   Trace(TRACELOC, "%x", ver);
   return ver;
 }
+
+#ifndef IPLUG_NO_CARBON_SUPPORT
+// static
+int IGraphicsMac::GetMouseCursorYOffset()
+{
+  #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6 && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+  if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_6)
+  #endif
+  #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+  {
+    NSCursor* cur = [NSCursor currentSystemCursor];
+    if (cur)
+    {
+      NSImage* img = [cur image];
+      if (img)
+      {
+        NSSize sz = [img size];
+        NSPoint hot = [cur hotSpot];
+        return int(sz.height - hot.y);
+      }
+    }
+  }
+  #endif
+  #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6 && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+  else
+  #endif
+  #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6
+  {
+    PixMapHandle pix;
+    Point hot;
+    if (QDGetCursorData(true, &pix, &hot) == noErr)
+    {
+      Rect sz = (*pix)->bounds;
+      return (sz.bottom - sz.top) - hot.v;
+    }
+  }
+  #endif
+
+  // Default
+  return 24 - 4;
+}
+#endif
