@@ -1255,6 +1255,7 @@ void IGraphicsCarbon::ShowTooltip()
   helpTag.content[kHMMinimumContentIndex].u.tagCFString = CFStringCreateWithCString(NULL, mTooltip, kCFStringEncodingUTF8);
   helpTag.content[kHMMaximumContentIndex].contentType = kHMNoContent;
   HMDisplayTag(&helpTag);
+  //TODO: CFRelease?
   mShowingTooltip = true;
 }
 
