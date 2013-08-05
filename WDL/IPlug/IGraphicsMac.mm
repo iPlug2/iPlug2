@@ -257,6 +257,7 @@ void IGraphicsMac::CloseWindow()
   if (mGraphicsCocoa)
   {
     IGRAPHICS_COCOA* graphicscocoa = (IGRAPHICS_COCOA*)mGraphicsCocoa;
+    [graphicscocoa removeAllToolTips];
     [graphicscocoa killTimer];
     mGraphicsCocoa = 0;
 

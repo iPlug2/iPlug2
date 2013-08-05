@@ -602,7 +602,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {
-  int c = GetMouseOver(mGraphics);
+  int c = mGraphics ? GetMouseOver(mGraphics) : -1;
   if (c < 0) return @"";
   
   const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
