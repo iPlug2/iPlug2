@@ -114,10 +114,6 @@ public:
 protected:
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
   
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  static int GetMouseCursorYOffset();
-#endif
-
 private:
 #ifndef IPLUG_NO_CARBON_SUPPORT
   IGraphicsCarbon* mGraphicsCarbon;
