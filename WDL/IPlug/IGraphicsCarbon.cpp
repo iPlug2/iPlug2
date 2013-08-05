@@ -1251,10 +1251,11 @@ void IGraphicsCarbon::ShowTooltip()
   helpTag.absHotRect.right = helpTag.absHotRect.left + (int)r.size.width;
   
   helpTag.content[kHMMinimumContentIndex].contentType = kHMCFStringLocalizedContent;
-  helpTag.content[kHMMinimumContentIndex].u.tagCFString = CFStringCreateWithCString(NULL, mTooltip, kCFStringEncodingUTF8);
+  CFStringRef str = CFStringCreateWithCString(NULL, mTooltip, kCFStringEncodingUTF8);
+  helpTag.content[kHMMinimumContentIndex].u.tagCFString = str;
   helpTag.content[kHMMaximumContentIndex].contentType = kHMNoContent;
   HMDisplayTag(&helpTag);
-  //TODO: CFRelease?
+  CFRelease(str);
   mShowingTooltip = true;
 }
 
