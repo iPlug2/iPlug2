@@ -6,6 +6,10 @@
 // Only looked at if USE_IDLE_CALLS is defined.
 #define IDLE_TICKS 20
 
+#ifndef CONTROL_BOUNDS_COLOR
+  #define CONTROL_BOUNDS_COLOR COLOR_GREEN
+#endif
+
 class BitmapStorage
 {
 public:
@@ -175,6 +179,7 @@ IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS)
   , mHiddenMousePointX(-1)
   , mHiddenMousePointY(-1)
   , mEnableTooltips(false)
+  , mShowControlBounds(false)
 {
   mFPS = (refreshFPS > 0 ? refreshFPS : DEFAULT_FPS);
 }
@@ -797,13 +802,16 @@ bool IGraphics::Draw(IRECT* pR)
     }
   }
 
-  #ifdef SHOW_CONTROL_BOUNDARIES
-  for (int j = 1; j < mControls.GetSize(); j++)
+#ifndef NDEBUG
+  if (mShowControlBounds) 
   {
-    IControl* pControl = mControls.Get(j);
-    DrawRect(&COLOR_RED, pControl->GetRECT());
+    for (int j = 1; j < mControls.GetSize(); j++)
+    {
+      IControl* pControl = mControls.Get(j);
+      DrawRect(&CONTROL_BOUNDS_COLOR, pControl->GetRECT());
+    }
   }
-  #endif
+#endif
 
   return DrawScreen(pR);
 }

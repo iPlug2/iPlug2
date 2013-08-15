@@ -204,6 +204,12 @@ public:
     mEnableTooltips = enable;
     if (enable) mHandleMouseOver = enable;
   }
+  
+  // in debug builds you can enable this to draw a coloured box on the top of the GUI to show the bounds of the IControls
+  inline void ShowControlBounds(bool enable)
+  {
+    mShowControlBounds = enable;
+  }
 
   // This is an idle call from the GUI thread, as opposed to
   // IPlug::OnIdle which is called from the audio processing thread.
@@ -251,7 +257,7 @@ private:
   int mWidth, mHeight, mFPS, mIdleTicks;
   int GetMouseControlIdx(int x, int y, bool mo = false);
   int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;
-  bool mHandleMouseOver, mStrict, mEnableTooltips;
+  bool mHandleMouseOver, mStrict, mEnableTooltips, mShowControlBounds;
   IControl* mKeyCatcher;
 };
 
