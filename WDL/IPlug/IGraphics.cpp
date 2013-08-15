@@ -157,7 +157,7 @@ inline int LiceBlendMode(const IChannelBlend* pBlend)
 }
 
 IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS)
-  :	mPlug(pPlug)
+  : mPlug(pPlug)
   , mWidth(w)
   , mHeight(h)
   , mIdleTicks(0)
@@ -174,6 +174,7 @@ IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS)
   , mCursorHidden(false)
   , mHiddenMousePointX(-1)
   , mHiddenMousePointY(-1)
+  , mEnableTooltips(false)
 {
   mFPS = (refreshFPS > 0 ? refreshFPS : DEFAULT_FPS);
 }

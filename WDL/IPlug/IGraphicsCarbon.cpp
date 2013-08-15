@@ -60,6 +60,9 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac,
 //, mRgn(NewRgn())
   , mLeftOffset(leftOffset)
   , mTopOffset(topOffset)
+  , mShowingTooltip(false)
+  , mTooltipIdx(-1)
+  , mTooltipTimer(0)
 {
   TRACE;
 
@@ -155,6 +158,7 @@ IGraphicsCarbon::~IGraphicsCarbon()
     mEdParam = 0;
   }
 
+  HideTooltip();
   RemoveEventLoopTimer(mTimer);
   RemoveEventHandler(mControlHandler);
   RemoveEventHandler(mWindowHandler);
@@ -469,6 +473,8 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
       {
         case kEventMouseDown:
         {
+           _this->HideTooltip();
+          
           if (_this->mTextEntryView)
           {
             #if !(USE_MLTE)
@@ -514,6 +520,23 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
           _this->mPrevX = x;
           _this->mPrevY = y;
           pGraphicsMac->OnMouseOver(x, y, &mmod);
+          
+          if (pGraphicsMac->TooltipsEnabled()) 
+          {
+            int c = pGraphicsMac->GetMouseOver();
+            if (c != _this->mTooltipIdx) 
+            {
+              _this->mTooltipIdx = c;
+              _this->HideTooltip();
+              const char* tooltip = c >= 0 ? pGraphicsMac->GetControl(c)->GetTooltip() : NULL;
+              if (CSTR_NOT_EMPTY(tooltip)) 
+              {
+                _this->mTooltip = tooltip;
+                _this->mTooltipTimer = pGraphicsMac->FPS() * 3 / 2;  //TODO: remove FPS link
+              }
+            }
+          }          
+          
           return noErr;
         }
 
@@ -599,6 +622,22 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
 //      SetRectRgn(_this->mRgn, r.L, h - r.B, r.R, h - r.T);
 //      UpdateControls(_this->mWindow, _this->mRgn);
       UpdateControls(_this->mWindow, 0);
+    }
+  }
+  
+  if (_this->mTooltipTimer) 
+  {    
+    if (!(--_this->mTooltipTimer)) 
+    {
+      if (!_this->mShowingTooltip) 
+      {
+        _this->ShowTooltip();
+        _this->mTooltipTimer = _this->mGraphicsMac->FPS() * 10; // TODO: remove FPS link
+      }
+      else 
+      {
+        _this->HideTooltip();
+      }
     }
   }
 }
@@ -1197,4 +1236,37 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
 }
 
 #endif // USE_MLTE
+
+void IGraphicsCarbon::ShowTooltip()
+{
+  HMHelpContentRec helpTag;
+  helpTag.version = kMacHelpVersion;
+
+  helpTag.tagSide = kHMInsideTopLeftCorner;
+  HIRect r = CGRectMake(mGraphicsMac->GetMouseX(), mGraphicsMac->GetMouseY() + 23, 1, 1);
+  HIRectConvert(&r, kHICoordSpaceView, mView, kHICoordSpaceScreenPixel, NULL);
+  helpTag.absHotRect.top = (int)r.origin.y;
+  helpTag.absHotRect.left = (int)r.origin.x;
+  helpTag.absHotRect.bottom = helpTag.absHotRect.top + (int)r.size.height;
+  helpTag.absHotRect.right = helpTag.absHotRect.left + (int)r.size.width;
+  
+  helpTag.content[kHMMinimumContentIndex].contentType = kHMCFStringLocalizedContent;
+  CFStringRef str = CFStringCreateWithCString(NULL, mTooltip, kCFStringEncodingUTF8);
+  helpTag.content[kHMMinimumContentIndex].u.tagCFString = str;
+  helpTag.content[kHMMaximumContentIndex].contentType = kHMNoContent;
+  HMDisplayTag(&helpTag);
+  CFRelease(str);
+  mShowingTooltip = true;
+}
+
+void IGraphicsCarbon::HideTooltip()
+{
+  mTooltipTimer = 0;
+  if (mShowingTooltip) 
+  {
+    HMHideTag();
+    mShowingTooltip = false;
+  }
+}
+
 #endif // IPLUG_NO_CARBON_SUPPORT

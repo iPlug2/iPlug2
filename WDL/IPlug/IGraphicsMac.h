@@ -113,7 +113,7 @@ public:
 
 protected:
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
-
+  
 private:
 #ifndef IPLUG_NO_CARBON_SUPPORT
   IGraphicsCarbon* mGraphicsCarbon;
@@ -121,7 +121,13 @@ private:
   void* mGraphicsCocoa;   // Can't forward-declare IGraphicsCocoa because it's an obj-C object.
 
   WDL_String mBundleID;
-
+  
+  friend int GetMouseOver(IGraphicsMac* pGraphics);
+  
+#ifndef IPLUG_NO_CARBON_SUPPORT
+  friend class IGraphicsCarbon;
+#endif
+  
 public: //TODO: make this private
   void* mHostNSWindow;
 };

@@ -3,6 +3,7 @@
 #include "Log.h"
 #include <wininet.h>
 #include <Shlobj.h>
+#include <commctrl.h>
 
 #ifdef RTAS_API
   #include "PlugInUtils.h"
@@ -157,7 +158,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-
+      pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
         SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
@@ -225,6 +226,17 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         if (pGraphics->OnMouseOver(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam)))
         {
           TRACKMOUSEEVENT eventTrack = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hWnd, HOVER_DEFAULT };
+          if (pGraphics->TooltipsEnabled()) 
+          {
+            int c = pGraphics->GetMouseOver();
+            if (c != pGraphics->mTooltipIdx) 
+            {
+              if (c >= 0) eventTrack.dwFlags |= TME_HOVER;
+              pGraphics->mTooltipIdx = c;
+              pGraphics->HideTooltip();
+            }
+          }
+
           TrackMouseEvent(&eventTrack);
         }
       }
@@ -235,8 +247,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       return 0;
     }
+    case WM_MOUSEHOVER: 
+    {
+      pGraphics->ShowTooltip();
+		  return 0;
+    }
     case WM_MOUSELEAVE:
     {
+      pGraphics->HideTooltip();
       pGraphics->OnMouseOut();
       return 0;
     }
@@ -369,6 +387,8 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 
   if (pGraphics && pGraphics->mParamEditWnd && pGraphics->mParamEditWnd == hWnd)
   {
+    pGraphics->HideTooltip();
+
     switch (msg)
     {
       case WM_CHAR:
@@ -461,6 +481,7 @@ IGraphicsWin::IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS)
   : IGraphics(pPlug, w, h, refreshFPS), mPlugWnd(0), mParamEditWnd(0),
     mPID(0), mParentWnd(0), mMainWnd(0), mCustomColorStorage(0),
     mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone), mIdleTicks(0),
+    mTooltipWnd(0), mShowingTooltip(false), mTooltipIdx(-1),
     mHInstance(0)
 {}
 
@@ -640,6 +661,28 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
     SetAllControlsDirty();
   }
 
+  if (mPlugWnd && TooltipsEnabled())
+  {
+    bool ok = false;
+    static const INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
+
+    if (InitCommonControlsEx(&iccex))
+    {
+      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
+      if (mTooltipWnd)
+      {
+        SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
+        ti.lpszText = (LPTSTR)NULL;
+        SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+        ok = true;
+      }
+    }
+
+    if (!ok) EnableTooltips(ok);
+  }
+
   return mPlugWnd;
 }
 
@@ -718,6 +761,14 @@ void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
   {
+    if (mTooltipWnd)
+    {
+      DestroyWindow(mTooltipWnd);
+      mTooltipWnd = 0;
+      mShowingTooltip = false;
+      mTooltipIdx = -1;
+    }
+
     DestroyWindow(mPlugWnd);
     mPlugWnd = 0;
 
@@ -1147,3 +1198,29 @@ bool IGraphicsWin::OpenURL(const char* url,
   return false;
 }
 
+void IGraphicsWin::SetTooltip(const char* tooltip)
+{
+  TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR)mPlugWnd };
+  ti.lpszText = (LPTSTR)tooltip;
+  SendMessage(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+}
+
+void IGraphicsWin::ShowTooltip()
+{
+  const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
+  if (tooltip)
+  {
+    assert(strlen(tooltip) < 80);
+    SetTooltip(tooltip);
+    mShowingTooltip = true;
+  }
+}
+
+void IGraphicsWin::HideTooltip()
+{
+  if (mShowingTooltip)
+  {
+    SetTooltip(NULL);
+    mShowingTooltip = false;
+  }
+}
