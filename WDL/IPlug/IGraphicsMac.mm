@@ -435,9 +435,10 @@ void IGraphicsMac::PluginPath(WDL_String* pPath)
 
 void IGraphicsMac::DesktopPath(WDL_String* pPath)
 {
-  char* home = getenv("HOME");
-  pPath->Set(home);
-  pPath->Append("/Desktop/");
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
+  NSString *desktopDirectory = [paths objectAtIndex:0];
+  pPath->Set([desktopDirectory UTF8String]);
+}
 }
 
 // extensions = "txt wav" for example
