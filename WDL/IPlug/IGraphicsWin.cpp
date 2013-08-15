@@ -1019,9 +1019,17 @@ void IGraphicsWin::DesktopPath(WDL_String* pPath)
   #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
   SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
-
   pPath->Set(strPath, MAX_PATH_LEN);
   #endif
+}
+
+void IGraphicsWin::AppSupportPath(WDL_String* pPath)
+{
+#ifndef __MINGW_H // TODO: alternative for gcc?
+  TCHAR strPath[MAX_PATH_LEN];
+  SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath );
+  pPath->Set(strPath, MAX_PATH_LEN);
+#endif
 }
 
 void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)

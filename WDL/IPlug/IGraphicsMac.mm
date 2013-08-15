@@ -439,6 +439,12 @@ void IGraphicsMac::DesktopPath(WDL_String* pPath)
   NSString *desktopDirectory = [paths objectAtIndex:0];
   pPath->Set([desktopDirectory UTF8String]);
 }
+
+void IGraphicsMac::AppSupportPath(WDL_String* pPath)
+{
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  NSString *applicationSupportDirectory = [paths objectAtIndex:0];
+  pPath->Set([applicationSupportDirectory UTF8String]);
 }
 
 // extensions = "txt wav" for example
