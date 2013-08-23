@@ -625,6 +625,11 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
   return retval;
 }
 
+Steinberg::uint32 PLUGIN_API IPlugVST3::getLatencySamples () 
+{ 
+  return mLatency;
+} 
+
 #pragma mark -
 #pragma mark IEditController overrides
 
@@ -966,10 +971,10 @@ void IPlugVST3::ResizeGraphics(int w, int h)
 
 void IPlugVST3::SetLatency(int latency)
 {
+  IPlugBase::SetLatency(latency);
+
   FUnknownPtr<IComponentHandler>handler(componentHandler);
-  handler->restartComponent (kLatencyChanged);
-  
-  IPlugBase::SetLatency(latency); // will update delay time
+  handler->restartComponent(kLatencyChanged);  
 }
 
 void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)

@@ -54,7 +54,8 @@ public:
 //  tresult PLUGIN_API getState(IBStream* state);
 //  tresult PLUGIN_API setComponentState(IBStream *state);
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize);
-
+  Steinberg::uint32 PLUGIN_API getLatencySamples ();
+  
   // IEditController
   IPlugView* PLUGIN_API createView (const char* name);
   tresult PLUGIN_API setEditorState (IBStream* state);
