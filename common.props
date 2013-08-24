@@ -28,7 +28,11 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>comctl32.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="VST2_32_HOST_PATH">
