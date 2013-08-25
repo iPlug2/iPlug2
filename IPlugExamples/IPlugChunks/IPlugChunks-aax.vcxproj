@@ -102,7 +102,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\
+      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\Win32\
 CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico
 </Command>
     </PreBuildEvent>
@@ -153,7 +153,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\
+      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\Win32\
 CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico
 </Command>
     </PreBuildEvent>
@@ -208,7 +208,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
     <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\
+      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\Win32\
 CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico
 </Command>
     </PreBuildEvent>
@@ -263,7 +263,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PreBuildEvent>
-      <Command>
+      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\x64\
       </Command>
     </PreBuildEvent>
     <CustomBuildStep>
@@ -316,7 +316,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
-      <Command>
+      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\x64\
       </Command>
     </PreBuildEvent>
     <CustomBuildStep>
@@ -371,7 +371,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
     <PreBuildEvent>
-      <Command>
+      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\x64\
       </Command>
     </PreBuildEvent>
     <CustomBuildStep>
