@@ -38,10 +38,10 @@ REM - msbuild IPlugChunks-app.vcxproj /p:configuration=release /p:platform=win32
 msbuild IPlugChunks.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugChunks.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-echo ------------------------------------------------------------------
-echo Code sign aax binary...
-call ashelper -f .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\Win32\IPlugChunks.aaxplugin
-REM - call ashelper -f .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\x64\IPlugChunks.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugChunks.aaxplugin\Contents\x64\IPlugChunks.aaxplugin
+#echo ------------------------------------------------------------------
+#echo Code sign aax binary...
+#REM - x86
+#REM - x64
 
 REM - Make Installer (InnoSetup)
 

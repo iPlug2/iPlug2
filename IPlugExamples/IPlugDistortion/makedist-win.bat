@@ -38,10 +38,10 @@ REM - msbuild IPlugDistortion-app.vcxproj /p:configuration=release /p:platform=w
 msbuild IPlugDistortion.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugDistortion.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-echo ------------------------------------------------------------------
-echo Code sign aax binary...
-call ashelper -f .\build-win\aax\bin\IPlugDistortion.aaxplugin\Contents\Win32\IPlugDistortion.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugDistortion.aaxplugin\Contents\Win32\IPlugDistortion.aaxplugin
-REM - call ashelper -f .\build-win\aax\bin\IPlugDistortion.aaxplugin\Contents\x64\IPlugDistortion.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugDistortion.aaxplugin\Contents\x64\IPlugDistortion.aaxplugin
+#echo ------------------------------------------------------------------
+#echo Code sign aax binary...
+#REM - x86
+#REM - x64
 
 REM - Make Installer (InnoSetup)
 

@@ -129,6 +129,12 @@ else
  rm build-mac.log
 fi
 
+strip -u -r $AU
+strip -u -r $VST2
+strip -u -r $VST3
+strip -u -r "${RTAS}"
+strip -u -r "${AAX}"
+
 #---------------------------------------------------------------------------------------------------------
 
 #icon stuff - http://maxao.free.fr/telechargements/setfileicon.gz
@@ -150,8 +156,8 @@ sudo cp -p -R "${RTAS}" "${RTAS_FINAL}"
 echo "copying AAX bundle from 3PDev to main AAX folder"
 sudo cp -p -R "${AAX}" "${AAX_FINAL}"
 
-echo "code sign AAX binary"
-sudo ashelper -f "${AAX_FINAL}/Contents/MacOS/IPlugEffect" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX_FINAL}/Contents/MacOS/IPlugEffect"
+#echo "code sign AAX binary"
+#...
 #---------------------------------------------------------------------------------------------------------
 
 #appstore stuff

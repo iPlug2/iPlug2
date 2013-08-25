@@ -38,10 +38,10 @@ REM - msbuild IPlugMultiTargets-app.vcxproj /p:configuration=release /p:platform
 msbuild IPlugMultiTargets.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugMultiTargets.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-echo ------------------------------------------------------------------
-echo Code sign aax binary...
-call ashelper -f .\build-win\aax\bin\IPlugMultiTargets.aaxplugin\Contents\Win32\IPlugMultiTargets.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugMultiTargets.aaxplugin\Contents\Win32\IPlugMultiTargets.aaxplugin
-REM - call ashelper -f .\build-win\aax\bin\IPlugMultiTargets.aaxplugin\Contents\x64\IPlugMultiTargets.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugMultiTargets.aaxplugin\Contents\x64\IPlugMultiTargets.aaxplugin
+#echo ------------------------------------------------------------------
+#echo Code sign aax binary...
+#REM - x86
+#REM - x64
 
 REM - Make Installer (InnoSetup)
 

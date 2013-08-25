@@ -38,10 +38,10 @@ REM - msbuild IPlugControls-app.vcxproj /p:configuration=release /p:platform=win
 msbuild IPlugControls.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugControls.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-echo ------------------------------------------------------------------
-echo Code sign aax binary...
-call ashelper -f .\build-win\aax\bin\IPlugControls.aaxplugin\Contents\Win32\IPlugControls.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugControls.aaxplugin\Contents\Win32\IPlugControls.aaxplugin
-REM - call ashelper -f .\build-win\aax\bin\IPlugControls.aaxplugin\Contents\x64\IPlugControls.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugControls.aaxplugin\Contents\x64\IPlugControls.aaxplugin
+#echo ------------------------------------------------------------------
+#echo Code sign aax binary...
+#REM - x86
+#REM - x64
 
 REM - Make Installer (InnoSetup)
 

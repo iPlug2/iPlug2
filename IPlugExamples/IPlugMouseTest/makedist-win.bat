@@ -38,10 +38,10 @@ REM - msbuild IPlugMouseTest-app.vcxproj /p:configuration=release /p:platform=wi
 msbuild IPlugMouseTest.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugMouseTest.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-echo ------------------------------------------------------------------
-echo Code sign aax binary...
-call ashelper -f .\build-win\aax\bin\IPlugMouseTest.aaxplugin\Contents\Win32\IPlugMouseTest.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugMouseTest.aaxplugin\Contents\Win32\IPlugMouseTest.aaxplugin
-REM - call ashelper -f .\build-win\aax\bin\IPlugMouseTest.aaxplugin\Contents\x64\IPlugMouseTest.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugMouseTest.aaxplugin\Contents\x64\IPlugMouseTest.aaxplugin
+#echo ------------------------------------------------------------------
+#echo Code sign aax binary...
+#REM - x86
+#REM - x64
 
 REM - Make Installer (InnoSetup)
 

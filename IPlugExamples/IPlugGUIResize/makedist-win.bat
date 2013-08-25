@@ -38,10 +38,10 @@ REM - msbuild IPlugGUIResize-app.vcxproj /p:configuration=release /p:platform=wi
 msbuild IPlugGUIResize.sln /p:configuration=release /p:platform=win32 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly 
 msbuild IPlugGUIResize.sln /p:configuration=release /p:platform=x64 /nologo /noconsolelogger /fileLogger /v:quiet /flp:logfile=build-win.log;errorsonly;append
 
-echo ------------------------------------------------------------------
-echo Code sign aax binary...
-call ashelper -f .\build-win\aax\bin\IPlugGUIResize.aaxplugin\Contents\Win32\IPlugGUIResize.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugGUIResize.aaxplugin\Contents\Win32\IPlugGUIResize.aaxplugin
-REM - call ashelper -f .\build-win\aax\bin\IPlugGUIResize.aaxplugin\Contents\x64\IPlugGUIResize.aaxplugin -l .\..\..\..\Certificates\aax.crt -k .\..\..\..\Certificates\aax.key -o .\build-win\aax\bin\IPlugGUIResize.aaxplugin\Contents\x64\IPlugGUIResize.aaxplugin
+#echo ------------------------------------------------------------------
+#echo Code sign aax binary...
+#REM - x86
+#REM - x64
 
 REM - Make Installer (InnoSetup)
 

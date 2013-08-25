@@ -150,8 +150,8 @@ sudo cp -p -R "${RTAS}" "${RTAS_FINAL}"
 echo "copying AAX bundle from 3PDev to main AAX folder"
 sudo cp -p -R "${AAX}" "${AAX_FINAL}"
 
-echo "code sign AAX binary"
-sudo ashelper -f "${AAX_FINAL}/Contents/MacOS/IPlugGUIResize" -l ../../../Certificates/aax.crt -k ../../../Certificates/aax.key -o "${AAX_FINAL}/Contents/MacOS/IPlugGUIResize"
+#echo "code sign AAX binary"
+#...
 #---------------------------------------------------------------------------------------------------------
 
 #appstore stuff
