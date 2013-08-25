@@ -293,7 +293,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).aaxplugin</OutputFile>
+      <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>
@@ -353,7 +353,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).aaxplugin</OutputFile>
+      <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -408,7 +408,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName).aaxplugin</OutputFile>
+      <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
