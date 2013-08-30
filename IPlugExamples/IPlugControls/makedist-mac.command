@@ -48,8 +48,8 @@ AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
 AAX=${AAX//\AAX_FOLDER = }/$PLUGIN_NAME.aaxplugin
 AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/$PLUGIN_NAME.aaxplugin"
 
-PKG='installer/build-mac/$PLUGIN_NAME Installer.pkg'
-PKG_US='installer/build-mac/$PLUGIN_NAME Installer.unsigned.pkg'
+PKG="installer/build-mac/$PLUGIN_NAME Installer.pkg"
+PKG_US="installer/build-mac/$PLUGIN_NAME Installer.unsigned.pkg"
 
 CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
 CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
@@ -205,13 +205,13 @@ packagesbuild installer/$PLUGIN_NAME.pkgproj
 
 echo "code-sign installer for Gatekeeper on 10.8"
 echo ""
-mv ${PKG} ${PKG_US}
-productsign --sign "Developer ID Installer: ""${CERT_ID}" ${PKG_US} ${PKG}
+mv "${PKG}" "${PKG_US}"
+productsign --sign "Developer ID Installer: ""${CERT_ID}" "${PKG_US}" "${PKG}"
                    
-rm -R -f ${PKG_US}
+rm -R -f "${PKG_US}"
 
 #set installer icon
-setfileicon resources/$PLUGIN_NAME.icns ${PKG}
+setfileicon resources/$PLUGIN_NAME.icns "${PKG}"
 
 #---------------------------------------------------------------------------------------------------------
 
