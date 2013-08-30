@@ -866,17 +866,13 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
       }
     }
     #endif
-        
-    pControl->OnMouseDown(x, y, pMod);
     
-    // need to do these things again in case the mouse message caused a resize/rebuild
-    pControl = mControls.Get(c);
-    paramIdx = pControl->ParamIdx();
-
     if (paramIdx >= 0)
     {
       mPlug->BeginInformHostOfParamChange(paramIdx);
     }
+        
+    pControl->OnMouseDown(x, y, pMod);
   }
 }
 
