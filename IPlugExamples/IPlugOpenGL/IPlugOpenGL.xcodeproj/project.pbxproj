@@ -1234,7 +1234,7 @@
 			isa = PBXGroup;
 			children = (
 				4F8B6723158B4EB2002FC25B /* libAAXLibrary.a */,
-				4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */,
+				4F8B6725158B4EB2002FC25B /* AAXLibrary_UnitTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1612,10 +1612,10 @@
 			remoteRef = 4F8B6722158B4EB2002FC25B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		4F8B6725158B4EB2002FC25B /* AAXLibrary_ParameterManager_UnitTest */ = {
+		4F8B6725158B4EB2002FC25B /* AAXLibrary_UnitTest */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
-			path = AAXLibrary_ParameterManager_UnitTest;
+			path = AAXLibrary_UnitTest;
 			remoteRef = 4F8B6724158B4EB2002FC25B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};

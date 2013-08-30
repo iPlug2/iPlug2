@@ -11,4 +11,4 @@ make the following mods to compile on 10.68 / Xcode 3.26
   MACOSX_DEPLOYMENT_TARGET = 10.5
   ARCHS = x86_64 i386
 
-On windows you need to open Libs/AAXLibrary/WinBuild/AAXLibrary.vcproj with VS2010 in order to upgrade the project. You will also need to set the project to link statically to the MSVC2010 runtime library - change to /MT rather than /MD
+On Windows you will need to set the Libs/AAXLibrary/WinBuild/AAXLibrary.vcxproj project to link statically to the MSVC2010 runtime library - change to /MT rather than /MD
