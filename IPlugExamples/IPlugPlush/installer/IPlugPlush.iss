@@ -23,6 +23,7 @@ Name: "vst3_32"; Description: "32-bit VST3 Plugin (.vst3)"; Types: full custom;
 Name: "vst3_64"; Description: "64-bit VST3 Plugin (.vst3)"; Types: full custom; Check: Is64BitInstallMode;
 Name: "rtas_32"; Description: "32-bit RTAS Plugin (.dpm)"; Types: full custom;
 Name: "aax_32"; Description: "32-bit AAX Plugin (.aaxplugin)"; Types: full custom;
+Name: "aax_64"; Description: "64-bit AAX Plugin (.aaxplugin)"; Types: full custom; Check: Is64BitInstallMode;
 Name: "manual"; Description: "User guide"; Types: full custom; Flags: fixed
 
 [Files]
@@ -41,6 +42,7 @@ Source: "..\build-win\rtas\bin\IPlugPlush.dpm"; DestDir: "{cf32}\Digidesign\DAE\
 Source: "..\build-win\rtas\bin\IPlugPlush.dpm.rsr"; DestDir: "{cf32}\Digidesign\DAE\Plug-Ins\"; Components:rtas_32; Flags: ignoreversion;
 
 Source: "..\build-win\aax\bin\IPlugPlush.aaxplugin\*.*"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\IPlugPlush.aaxplugin\"; Components:aax_32; Flags: ignoreversion recursesubdirs;
+Source: "..\build-win\aax\bin\IPlugPlush.aaxplugin\*.*"; DestDir: "{cf}\Avid\Audio\Plug-Ins\IPlugPlush.aaxplugin\"; Components:aax_64; Flags: ignoreversion recursesubdirs;
 
 Source: "..\manual\IPlugPlush_manual.pdf"; DestDir: "{app}"
 Source: "changelog.txt"; DestDir: "{app}"
