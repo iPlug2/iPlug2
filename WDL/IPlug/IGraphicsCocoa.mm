@@ -566,12 +566,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   [[mTextFieldView cell] setLineBreakMode: NSLineBreakByTruncatingTail];
   [mTextFieldView setAllowsEditingTextAttributes:NO];
-  [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
   [mTextFieldView setTextColor:ToNSColor(&pText->mTextEntryFGColor)];
   [mTextFieldView setBackgroundColor:ToNSColor(&pText->mTextEntryBGColor)];
 
   [mTextFieldView setStringValue: ToNSString(pString)];
+
+#ifndef COCOA_TEXTENTRY_BORDERED
   [mTextFieldView setBordered: NO];
+  [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
+#endif
+  
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1060
   [mTextFieldView setDelegate: (id<NSTextFieldDelegate>) self];
 #else
