@@ -375,6 +375,8 @@ void IGraphicsMac::ForceEndUserEdit()
 void IGraphicsMac::UpdateTooltips()
 {
   if (!(mGraphicsCocoa && TooltipsEnabled())) return;
+
+  CocoaAutoReleasePool pool;
   
   [(IGRAPHICS_COCOA*) mGraphicsCocoa removeAllToolTips];
   
