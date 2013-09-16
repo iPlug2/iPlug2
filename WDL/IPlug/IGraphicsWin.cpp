@@ -1137,6 +1137,10 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     #endif
     pFilename->Set(ofn.lpstrFile);
   }
+  else
+  {
+    pFilename->Set("");
+  }
 }
 
 UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
