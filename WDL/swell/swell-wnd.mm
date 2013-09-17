@@ -1499,7 +1499,8 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       if (msg == EM_GETSEL)
       {
         NSRange range={0,};
-        if ([[obj window] firstResponder] == obj)
+        NSResponder *rs = [[obj window] firstResponder];
+        if ([rs isKindOfClass:[NSView class]] && [rs isDescendantOf:obj])
         {
           NSText* text=[[obj window] fieldEditor:YES forObject:(NSTextField*)obj];  
           if (text) range=[text selectedRange];
@@ -1511,7 +1512,8 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       {        
         //        [(NSTextField*)obj selectText:obj]; // Force the window's text field editor onto this control
         // don't force it, just ignore EM_GETSEL/EM_SETSEL if not in focus
-        if ([[obj window] firstResponder] == obj)
+        NSResponder *rs = [[obj window] firstResponder];
+        if ([rs isKindOfClass:[NSView class]] && [rs isDescendantOf:obj])
         {
           NSText* text = [[obj window] fieldEditor:YES forObject:(NSTextField*)obj]; // then get it from the window 
           int sl = [[text string] length];
@@ -1831,10 +1833,10 @@ void GetClientRect(HWND hwnd, RECT *r)
   r->bottom= (int)(b.origin.y+b.size.height+0.5);
 
   // todo this may need more attention
-  RECT tr=*r;
+  NCCALCSIZE_PARAMS tr={{*r,},};
   SendMessage(hwnd,WM_NCCALCSIZE,FALSE,(LPARAM)&tr);
-  r->right = r->left + (tr.right-tr.left);
-  r->bottom = r->top + (tr.bottom-tr.top);
+  r->right = r->left + (tr.rgrc[0].right-tr.rgrc[0].left);
+  r->bottom = r->top + (tr.rgrc[0].bottom-tr.rgrc[0].top);
   SWELL_END_TRY(;)
 }
 
@@ -4855,7 +4857,23 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
   }
   else if (msg==WM_NCHITTEST) 
   {
-    return HTCLIENT;
+    int rv=HTCLIENT;
+    SWELL_BEGIN_TRY
+    RECT r;
+    GetWindowRect(hwnd,&r);
+    POINT pt={GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam)};
+
+    if (r.top > r.bottom) 
+    { 
+      pt.y = r.bottom + (r.top - pt.y); // translate coordinate into flipped-window
+
+      int a=r.top; r.top=r.bottom; r.bottom=a; 
+    }
+    NCCALCSIZE_PARAMS p={{r,}};
+    SendMessage(hwnd,WM_NCCALCSIZE,FALSE,(LPARAM)&p);
+    if (!PtInRect(&p.rgrc[0],pt)) rv=HTNOWHERE;
+    SWELL_END_TRY(;)
+    return rv;
   }
   else if (msg==WM_KEYDOWN || msg==WM_KEYUP) return 69;
   else if (msg == WM_DISPLAYCHANGE)
