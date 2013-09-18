@@ -80,6 +80,7 @@ IPlugBase::IPlugBase(int nParams,
   , mGraphics(0)
   , mCurrentPresetIdx(0)
   , mIsInst(plugIsInst)
+  , mDoesMIDI(plugDoesMidi)
   , mAPI(plugAPI)
   , mIsBypassed(false)
   , mDelay(0)

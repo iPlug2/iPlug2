@@ -38,8 +38,6 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
               plugDoesChunks,
               plugIsInst,
               kAPIVST3)
-
-  , mDoesMidi(plugDoesMidi)
   , mScChans(plugScChans)
   , mSidechainActive(false)
 {
@@ -133,7 +131,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans), kAux, 0);
     }
 
-    if(mDoesMidi)
+    if(DoesMIDI())
     {
       addEventInput (STR16("MIDI Input"), 1);
       //addEventOutput(STR16("MIDI Output"), 1);
@@ -399,7 +397,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     }
   }
 
-  if(mDoesMidi)
+  if(DoesMIDI())
   {
     //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;

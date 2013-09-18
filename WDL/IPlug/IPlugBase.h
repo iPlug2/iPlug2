@@ -201,6 +201,7 @@ protected:
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   virtual bool SendSysEx(ISysEx* pSysEx) { return false; }
   bool IsInst() { return mIsInst; }
+  bool DoesMIDI() { return mDoesMIDI; }
 
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(char* name = 0, int nPresets = 1);
@@ -314,7 +315,7 @@ private:
   };
 
 protected:
-  bool mStateChunks, mIsInst, mIsBypassed;
+  bool mStateChunks, mIsInst, mDoesMIDI, mIsBypassed;
   int mCurrentPresetIdx;
   double mSampleRate;
   int mBlockSize, mLatency;

@@ -32,8 +32,6 @@ IPlugRTAS::IPlugRTAS(IPlugInstanceInfo instanceInfo,
               plugDoesChunks,
               plugIsInst,
               kAPIRTAS)
-
-  , mDoesMidi(plugDoesMidi)
   , mSideChainIsConnected(false)
 {
   Trace(TRACELOC, "%s", effectName);

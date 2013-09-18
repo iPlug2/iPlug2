@@ -122,7 +122,6 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
 
 , AAX_CIPlugParameters()
 , mTransport(0)
-, mDoesMidi(plugDoesMidi)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
@@ -293,7 +292,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
   
-  if (mDoesMidi) 
+  if (DoesMIDI()) 
   {
     AAX_IMIDINode* midiIn = ioRenderInfo->mInputNode;
     AAX_CMidiStream* midiBuffer = midiIn->GetNodeBuffer();

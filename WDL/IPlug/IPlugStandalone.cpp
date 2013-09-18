@@ -33,8 +33,6 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
               plugDoesChunks,
               plugIsInst,
               kAPISA)
-
-  , mDoesMidi(plugDoesMidi)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
@@ -74,7 +72,7 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
   #ifdef OS_IOS
   mIOSLink->SendMidiMsg(pMsg);
   #else
-  if (mMidiOut)
+  if (DoesMIDI())
   {
     IMidiMsg newMsg = *pMsg;
 
@@ -98,6 +96,7 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
 
 bool IPlugStandalone::SendSysEx(ISysEx* pSysEx)
 {
+#ifndef OS_IOS
   if (mMidiOut)
   {  
     std::vector<unsigned char> message;
@@ -109,7 +108,7 @@ bool IPlugStandalone::SendSysEx(ISysEx* pSysEx)
     mMidiOut->sendMessage( &message );
     return true;
   }
-  
+#endif
   return false;
 }
 
