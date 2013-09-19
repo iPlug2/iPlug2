@@ -36,10 +36,11 @@ public:
 
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
   void SetDisplayText(int value, const char* text);
-  void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; };
-
+  void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
   void SetShape(double shape);
+  
+  void SetToDefault() { mValue = mDefault; }
 
   // Call this if your param is (x, y) but you want to always display (-x, -y).
   void NegateDisplay() { mNegateDisplay = true; }
@@ -70,15 +71,16 @@ public:
   const char* GetDisplayTextAtIdx(int idx, int* value = 0);
   bool MapDisplayText(char* str, int* pValue);  // Reverse map back to value.
   void GetBounds(double* pMin, double* pMax);
-  const double GetShape() {return mShape;};
-  const double GetStep() {return mStep;};
-  const double GetDefault() {return mDefault;};
-  const double GetMin() {return mMin;};
-  const double GetMax() {return mMax;};
+  const double GetShape() {return mShape;}
+  const double GetStep() {return mStep;}
+  const double GetDefault() {return mDefault;}
+  const double GetDefaultNormalized() {return ToNormalizedParam(mDefault, mMin, mMax, mShape);}
+  const double GetMin() {return mMin;}
+  const double GetMax() {return mMax;}
   const double GetRange() {return mMax - mMin;}
   const int GetPrecision() {return mDisplayPrecision;}
 
-  bool GetCanAutomate() { return mCanAutomate; };
+  bool GetCanAutomate() { return mCanAutomate; }
 
 private:
   // All we store is the readable values.
