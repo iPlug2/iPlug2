@@ -403,13 +403,13 @@ const char* IGraphicsMac::GetGUIAPI()
   if (mGraphicsCarbon)
   {
     if (mGraphicsCarbon->GetIsComposited())
-      return "Carbon Composited gui";
+      return "Carbon Composited GUI";
     else
-      return "Carbon Non-Composited gui";
+      return "Carbon Non-Composited GUI";
   }
   else
   #endif
-    return "Cocoa gui";
+    return "Cocoa GUI";
 }
 
 void IGraphicsMac::HostPath(WDL_String* pPath)
