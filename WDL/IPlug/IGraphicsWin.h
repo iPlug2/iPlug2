@@ -72,7 +72,6 @@ private:
   int mParamEditMsg;
   bool mShowingTooltip;
   int mTooltipIdx;
-  int mIdleTicks;
   COLORREF* mCustomColorStorage;
 
   DWORD mPID;

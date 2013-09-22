@@ -480,7 +480,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 IGraphicsWin::IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS)
   : IGraphics(pPlug, w, h, refreshFPS), mPlugWnd(0), mParamEditWnd(0),
     mPID(0), mParentWnd(0), mMainWnd(0), mCustomColorStorage(0),
-    mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone), mIdleTicks(0),
+    mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone),
     mTooltipWnd(0), mShowingTooltip(false), mTooltipIdx(-1),
     mHInstance(0)
 {}

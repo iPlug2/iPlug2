@@ -109,8 +109,6 @@ public:
 
   void* GetWindow();
 
-  int mIdleTicks;
-
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
 
