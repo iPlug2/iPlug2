@@ -378,7 +378,8 @@ struct IMidiMsg
   EStatusMsg StatusMsg() const;
   int NoteNumber() const;     // Returns [0, 127), -1 if NA.
   int Velocity() const;       // Returns [0, 127), -1 if NA.
-  int Pressure() const;       // Returns [0, 127), -1 if NA.
+  int PolyAfterTouch() const;       // Returns [0, 127), -1 if NA.
+  int ChannelAfterTouch() const;       // Returns [0, 127), -1 if NA.
   int Program() const;        // Returns [0, 127), -1 if NA.
   double PitchWheel() const;  // Returns [-1.0, 1.0], zero if NA.
   EControlChangeMsg ControlChangeIdx() const;

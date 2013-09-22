@@ -76,12 +76,23 @@ int IMidiMsg::Velocity() const
   }
 }
 
-int IMidiMsg::Pressure() const
+int IMidiMsg::PolyAfterTouch() const
 {
   switch (StatusMsg())
   {
     case kPolyAftertouch:
       return mData2;
+    default:
+      return -1;
+  }
+}
+
+int IMidiMsg::ChannelAfterTouch() const
+{
+  switch (StatusMsg())
+  {
+    case kChannelAftertouch:
+      return mData1;
     default:
       return -1;
   }
