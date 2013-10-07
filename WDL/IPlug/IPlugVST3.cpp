@@ -169,11 +169,11 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
       if (CSTR_NOT_EMPTY(paramGroupName))
       {        
-        for(int i = 0; i< mParamGroups.GetSize(); i++)
+        for(int j = 0; j < mParamGroups.GetSize(); j++)
         {
-          if(strcmp(paramGroupName, mParamGroups.Get(i)) == 0)
+          if(strcmp(paramGroupName, mParamGroups.Get(j)) == 0)
           {
-            unitID = i+1;
+            unitID = j+1;
           }
         }
         
