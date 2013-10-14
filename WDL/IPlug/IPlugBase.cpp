@@ -1333,6 +1333,7 @@ bool IPlugBase::LoadProgramFromFXP()
           GetIPlugVerFromChunk(&pgm, &pos);
           UnserializeState(&pgm, pos);
           ModifyCurrentPreset(prgName);
+          RestorePreset(GetCurrentPresetIdx());
           InformHostOfProgramChange();
 
           return true;
