@@ -47,7 +47,7 @@ public:
 
   ~MultiSliderControlV()
   {
-    delete mSteps;
+    delete [] mSteps;
 
     for(int i=0; i<mNumSliders; i++)
     {
@@ -95,7 +95,7 @@ public:
 
   void SnapToMouse(int x, int y)
   {
-    x = BOUNDED(x, mRECT.L, mRECT.R-1);
+    x = BOUNDED(x, mRECT.L, mSliderBounds[mNumSliders-1]->R-1);
     y = BOUNDED(y, mRECT.T, mRECT.B-1);
 
     float yValue =  (float) (y-mRECT.T) / (float) mRECT.H();
