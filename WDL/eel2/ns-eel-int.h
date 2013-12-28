@@ -136,7 +136,7 @@ typedef struct _compileContext
   char   ***varTable_Names;
   int varTable_numBlocks;
 
-  int errVar;
+  int errVar,gotEndOfInput;
   opcodeRec *result;
   char last_error_string[256];
 
@@ -183,6 +183,7 @@ typedef struct _compileContext
   struct opcodeRec *directValueCache; // linked list using fn as next
 
   int isSharedFunctions;
+  int isGeneratingCommonFunction;
   int function_usesNamespaces;
   // [0] is parameter+local symbols (combined space)
   // [1] is symbols which get implied "this." if used
@@ -253,7 +254,7 @@ typedef struct nseel_globalVarItem
   char name[1]; // varlen, does not include _global. prefix
 } nseel_globalVarItem;
 
-extern nseel_globalVarItem *nseel_globalreg_list;
+extern nseel_globalVarItem *nseel_globalreg_list; // if NSEEL_EEL1_COMPAT_MODE, must use NSEEL_getglobalregs() for regxx values
 
 #ifdef NSEEL_USE_OLD_PARSER
   #define	VALUE	258

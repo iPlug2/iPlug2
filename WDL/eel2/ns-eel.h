@@ -84,6 +84,7 @@ int NSEEL_init(); // returns 0 on success. clears any added functions as well
 #define NSEEL_addfunction(name,nparms,code,len) NSEEL_addfunctionex((name),(nparms),(code),(len),0,0)
 #define NSEEL_addfunctionex(name,nparms,code,len,pproc,fptr) NSEEL_addfunctionex2((name),(nparms),(code),(len),(pproc),(fptr),0)
 
+struct _compileContext;
 typedef void *(*NSEEL_PPPROC)(void *data, int data_size, struct _compileContext *userfunc_data);
 
 void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, int code_len, NSEEL_PPPROC pproc, void *fptr, void *fptr2);
@@ -128,6 +129,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile(NSEEL_VMCTX ctx, const char *code, int lineo
 NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX ctx, const char *code, int lineoffs, int flags);
 
 char *NSEEL_code_getcodeerror(NSEEL_VMCTX ctx);
+int NSEEL_code_geterror_flag(NSEEL_VMCTX ctx);
 void NSEEL_code_execute(NSEEL_CODEHANDLE code);
 void NSEEL_code_free(NSEEL_CODEHANDLE code);
 int *NSEEL_code_getstats(NSEEL_CODEHANDLE code); // 4 ints...source bytes, static code bytes, call code bytes, data bytes
@@ -169,8 +171,6 @@ extern int NSEEL_RAM_memused_errors;
 #define NSEEL_SHARED_GRAM_SIZE (1<<20)
 
 
-
-
 // note: if you wish to change NSEEL_RAM_*, and your target is x86-64, you will need to regenerate things.
 
 // on osx:
@@ -199,6 +199,11 @@ extern int NSEEL_RAM_memused_errors;
 #ifdef EEL_TARGET_PORTABLE
 #define EEL_BC_TYPE int
 #endif
+
+#ifdef NSEEL_EEL1_COMPAT_MODE
+double *NSEEL_getglobalregs();
+#endif
+
 
 #ifdef __cplusplus
 }

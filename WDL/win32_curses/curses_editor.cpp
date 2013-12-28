@@ -551,7 +551,6 @@ void WDL_CursesEditor::removeSelect()
           WDL_FastString *s=m_text.Get(x);
           if (s)
           {
-            const char *str=s->Get();
             int sx,ex;
             if (x == miny) sx=max(minx,0);
             else sx=0;
@@ -775,7 +774,7 @@ int WDL_CursesEditor::onChar(int c)
     case 'V'-'A'+1:
       {
         // generate a m_clipboard using win32 clipboard data
-        WDL_PtrList<char> lines;
+        WDL_PtrList<const char> lines;
         WDL_String buf;
 #ifdef WDL_IS_FAKE_CURSES
         if (CURSES_INSTANCE)
@@ -848,7 +847,10 @@ int WDL_CursesEditor::onChar(int c)
                 while (*p == ' ' || *p == '\t') p++;
                 if (!*p && p > str->Get())
                 {
-                  while (*tstr == ' ' || *tstr == '\t') tstr++;
+                  if (lines.GetSize()>1)
+                  {
+                    while (*tstr == ' ' || *tstr == '\t') tstr++;
+                  }
                   indent_to_pos = m_curs_x;
                 }
 
@@ -908,7 +910,6 @@ int WDL_CursesEditor::onChar(int c)
       }
       else if ((s=m_text.Get(m_curs_y)))
       {
-        const char *p=s->Get();
         if (m_curs_x < s->GetLength())
         {
           preSaveUndoState();
@@ -1251,9 +1252,9 @@ int WDL_CursesEditor::onChar(int c)
       {
         preSaveUndoState();
 
-        bool hadCom = strstr(tl->Get(),"*/") || strstr(tl->Get(),"/*");
+        bool hadCom = LineCanAffectOtherLines(tl->Get());
         tl->DeleteSub(--m_curs_x,1);
-        if (!hadCom) hadCom = strstr(tl->Get(),"*/") || strstr(tl->Get(),"/*");
+        if (!hadCom) hadCom = LineCanAffectOtherLines(tl->Get());
         draw(hadCom?-1:m_curs_y);
         saveUndoState();
         setCursor();
@@ -1358,12 +1359,12 @@ int WDL_CursesEditor::onChar(int c)
          char str[8]={c,};
         if (c == '\t') strcpy(str,TAB_STR);
     //    sprintf(str,"|%d|",c);
-        bool hadCom = strstr(ss->Get(),"*/") || strstr(ss->Get(),"/*");
+        bool hadCom = LineCanAffectOtherLines(ss->Get());
         if (s_overwrite) ss->DeleteSub(m_curs_x,strlen(str));
 
         ss->Insert(str,m_curs_x);
 
-        if (!hadCom) hadCom = strstr(ss->Get(),"*/") || strstr(ss->Get(),"/*");
+        if (!hadCom) hadCom = LineCanAffectOtherLines(ss->Get());
 
         m_curs_x += strlen(str);
         draw(hadCom ? -1 : m_curs_y);

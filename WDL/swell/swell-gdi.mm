@@ -260,7 +260,7 @@ HGDIOBJ SelectObject(HDC ctx, HGDIOBJ pen)
   if (!mod) return 0;
   
   HGDIOBJ__ *op=*mod;
-  if (!HGDIOBJ_VALID(op,p->type)) op=(HGDIOBJ__*)p->type;
+  if (!HGDIOBJ_VALID(op,p->type)) op=(HGDIOBJ__*)(INT_PTR)p->type;
   if (op != p) *mod=p;  
   return op;
 }
@@ -494,8 +494,18 @@ void SWELL_SetPixel(HDC ctx, int x, int y, int c)
 
 
 static WDL_Mutex s_fontnamecache_mutex;
+
+#ifdef SWELL_CLEANUP_ON_UNLOAD
 static void releaseString(NSString *s) { [s release]; }
-static WDL_StringKeyedArray<NSString *> s_fontnamecache(true,releaseString);
+#endif
+static WDL_StringKeyedArray<NSString *> s_fontnamecache(true,
+#ifdef SWELL_CLEANUP_ON_UNLOAD
+      releaseString
+#else
+      NULL
+#endif
+      );
+
 static NSString *SWELL_GetCachedFontName(const char *nm)
 {
   NSString *ret = NULL;

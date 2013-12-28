@@ -36,7 +36,9 @@
 #include <ctype.h>
 
 #ifdef __APPLE__
-  #ifdef __LP64__
+  #include <AvailabilityMacros.h>
+
+  #if defined(__LP64__) || defined(MAC_OS_X_VERSION_10_7) // using 10.7+ SDK, force mprotect use
     #define EEL_USE_MPROTECT
   #endif
 #endif
@@ -342,6 +344,8 @@ void _asm_gmegabuf_end(void);
   DECL_ASMFUNC(div)
   DECL_ASMFUNC(mul_op)
   DECL_ASMFUNC(div_op)
+  DECL_ASMFUNC(mul_op_fast)
+  DECL_ASMFUNC(div_op_fast)
   DECL_ASMFUNC(mod)
   DECL_ASMFUNC(shl)
   DECL_ASMFUNC(shr)
@@ -489,6 +493,9 @@ static double eel1sigmoid(double x, double constraint)
 #define BIF_TWOPARMSONFPSTACK_LAZY (BIF_LAZYPARMORDERING|BIF_SECONDLASTPARMST|BIF_LASTPARMONSTACK)
 
 
+#ifndef GLUE_HAS_NATIVE_TRIGSQRTLOG
+static double sqrt_fabs(double a) { return sqrt(fabs(a)); }
+#endif
 
 
 EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f);
@@ -523,17 +530,17 @@ static functionType fnTable1[] = {
 
 
 #ifndef GLUE_HAS_NATIVE_TRIGSQRTLOG
-   { "sin",   nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&sin} },
-   { "cos",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&cos} },
+   { "sin",   nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&sin} },
+   { "cos",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&cos} },
    { "tan",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&tan}  },
-   { "sqrt",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&sqrt}, },
+   { "sqrt",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&sqrt_fabs}, },
    { "log",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&log} },
    { "log10",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&log10} },
 #else
-   { "sin",   nseel_asm_sin,nseel_asm_sin_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
-   { "cos",    nseel_asm_cos,nseel_asm_cos_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
+   { "sin",   nseel_asm_sin,nseel_asm_sin_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL|BIF_FPSTACKUSE(1) },
+   { "cos",    nseel_asm_cos,nseel_asm_cos_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL|BIF_FPSTACKUSE(1) },
    { "tan",    nseel_asm_tan,nseel_asm_tan_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
-   { "sqrt",   nseel_asm_sqrt,nseel_asm_sqrt_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
+   { "sqrt",   nseel_asm_sqrt,nseel_asm_sqrt_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1)|BIF_WONTMAKEDENORMAL },
    { "log",    nseel_asm_log,nseel_asm_log_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), },
    { "log10",  nseel_asm_log10,nseel_asm_log10_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), },
 #endif
@@ -567,10 +574,10 @@ static functionType fnTable1[] = {
    { "min",    nseel_asm_min,nseel_asm_min_end,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_FPSTACKUSE(3)|BIF_WONTMAKEDENORMAL },
    { "max",    nseel_asm_max,nseel_asm_max_end,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_FPSTACKUSE(3)|BIF_WONTMAKEDENORMAL },
    { "sign",   nseel_asm_sign,nseel_asm_sign_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(2)|BIF_CLEARDENORMAL, },
-   { "rand",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&nseel_int_rand}, },
+   { "rand",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&nseel_int_rand}, },
 
-   { "floor",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&floor} },
-   { "ceil",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&ceil} },
+   { "floor",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&floor} },
+   { "ceil",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&ceil} },
 
    { "invsqrt",   nseel_asm_invsqrt,nseel_asm_invsqrt_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), {GLUE_INVSQRT_NEEDREPL} },
 
@@ -933,7 +940,12 @@ static unsigned char *compileCodeBlockWithRet(compileContext *ctx, opcodeRec *re
 _codeHandleFunctionRec *eel_createFunctionNamespacedInstance(compileContext *ctx, _codeHandleFunctionRec *fr, const char *nameptr)
 {
   int n;
-  _codeHandleFunctionRec *subfr = fr->isCommonFunction ? newDataBlock(sizeof(_codeHandleFunctionRec),8) : newTmpBlock(ctx,sizeof(_codeHandleFunctionRec));
+  _codeHandleFunctionRec *subfr = 
+    fr->isCommonFunction ? 
+      ctx->isSharedFunctions ? newDataBlock(sizeof(_codeHandleFunctionRec),8) : 
+      newCtxDataBlock(sizeof(_codeHandleFunctionRec),8) :  // if common function, but derived version is in non-common context, set ownership to VM rather than us
+    newTmpBlock(ctx,sizeof(_codeHandleFunctionRec));
+
   if (!subfr) return 0;
   // fr points to functionname()'s rec, nameptr to blah.functionname()
 
@@ -986,15 +998,33 @@ static void combineNamespaceFields(char *nm, const namespaceInformation *namespa
 static void *nseel_getBuiltinFunctionAddress(compileContext *ctx, 
       int fntype, void *fn, 
       NSEEL_PPPROC *pProc, void ***replList, 
-      void **endP, int *abiInfo, int preferredReturnValues)
+      void **endP, int *abiInfo, int preferredReturnValues, const EEL_F *hasConstParm1, const EEL_F *hasConstParm2)
 {
+  const EEL_F *firstConstParm = hasConstParm1 ? hasConstParm1 : hasConstParm2;
+
   switch (fntype)
   {
 #define RF(x) *endP = nseel_asm_##x##_end; return (void*)nseel_asm_##x
-    case FN_ADD: *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL; RF(add);
-    case FN_SUB: *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL; RF(sub);
-    case FN_MULTIPLY: *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2); RF(mul);
-    case FN_DIVIDE: *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_FPSTACKUSE(2); RF(div);
+    case FN_ADD: 
+       *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL;
+        // for x +- non-denormal-constant,  we can set BIF_CLEARDENORMAL
+       if (firstConstParm && fabs(*firstConstParm) > 1.0e-10) *abiInfo |= BIF_CLEARDENORMAL;
+    RF(add);
+    case FN_SUB: 
+       *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL; 
+        // for x +- non-denormal-constant,  we can set BIF_CLEARDENORMAL
+       if (firstConstParm && fabs(*firstConstParm) > 1.0e-10) *abiInfo |= BIF_CLEARDENORMAL;
+    RF(sub);
+    case FN_MULTIPLY: 
+        *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2); 
+         // for x*constant-greater-than-eq-1, we can set BIF_WONTMAKEDENORMAL
+        if (firstConstParm && fabs(*firstConstParm) >= 1.0) *abiInfo |= BIF_WONTMAKEDENORMAL;
+    RF(mul);
+    case FN_DIVIDE: 
+        *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_FPSTACKUSE(2); 
+        // for x/constant-less-than-eq-1, we can set BIF_WONTMAKEDENORMAL
+        if (firstConstParm && fabs(*firstConstParm) <= 1.0) *abiInfo |= BIF_WONTMAKEDENORMAL;
+    RF(div);
 #ifndef EEL_TARGET_PORTABLE
     case FN_JOIN_STATEMENTS: *abiInfo = BIF_WONTMAKEDENORMAL; RF(exec2); // shouldn't ever be used anyway, but scared to remove
 #endif
@@ -1025,6 +1055,12 @@ static void *nseel_getBuiltinFunctionAddress(compileContext *ctx,
         *pProc=p->pProc;
         *endP = p->func_e;
         *abiInfo = p->nParams & BIF_NPARAMS_MASK;
+        if (firstConstParm)
+        {
+          const char *name=p->name;
+          if (!strcmp(name,"min") && *firstConstParm < -1.0e-10) *abiInfo |= BIF_CLEARDENORMAL;
+          else if (!strcmp(name,"max") && *firstConstParm > 1.0e-10) *abiInfo |= BIF_CLEARDENORMAL;
+        }
         return p->afunc; 
       }
     break;
@@ -1120,6 +1156,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
   if (!fn->startptr && fn->opcodes && fn->startptr_size > 0)
   {
     int sz;
+
     fn->tmpspace_req=0;
     fn->rvMode = RETURNVALUE_IGNORE;
     fn->canHaveDenormalOutput=0;
@@ -1154,7 +1191,9 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       if (p)
       {
         fn->canHaveDenormalOutput=0;
+        if (fn->isCommonFunction) ctx->isGeneratingCommonFunction++;
         sz=compileOpcodes(ctx,fn->opcodes,(unsigned char*)p,sz,&fn->tmpspace_req,&local_namespace,RETURNVALUE_NORMAL|RETURNVALUE_FPSTACK,&fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
+        if (fn->isCommonFunction) ctx->isGeneratingCommonFunction--;
         // recompile function with native context pointers
         if (sz>0)
         {
@@ -1169,7 +1208,9 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       fn->tmpspace_req=0;
       fn->fpStackUsage=0;
       fn->canHaveDenormalOutput=0;
+      if (fn->isCommonFunction) ctx->isGeneratingCommonFunction++;
       codeCall=compileCodeBlockWithRet(ctx,fn->opcodes,&fn->tmpspace_req,&local_namespace,RETURNVALUE_NORMAL|RETURNVALUE_FPSTACK,&fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
+      if (fn->isCommonFunction) ctx->isGeneratingCommonFunction--;
       if (codeCall)
       {
         void *f=GLUE_realAddress(nseel_asm_fcall,nseel_asm_fcall_end,&sz);
@@ -1183,6 +1224,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       }
     }
   }
+
   if (fn->startptr)
   {
     if (computTableTop) *computTableTop += fn->tmpspace_req;
@@ -1491,18 +1533,20 @@ start_over: // when an opcode changed substantially in optimization, goto here t
           int suc=1;
           EEL_F v = op->parms.parms[0]->parms.dv.directValue;
   #define DOF(x) if (!strcmp(pfn->name,#x)) v = x(v); else
+  #define DOF2(x,y) if (!strcmp(pfn->name,#x)) v = x(y); else
           DOF(sin)
           DOF(cos)
           DOF(tan)
           DOF(asin)
           DOF(acos)
           DOF(atan)
-          DOF(sqrt)
+          DOF2(sqrt, fabs(v))
           DOF(exp)
           DOF(log)
           DOF(log10)
           /*else*/ suc=0;
   #undef DOF
+  #undef DOF2
           if (suc)
           {
             op->opcodeType = OPCODETYPE_DIRECTVALUE;
@@ -1671,7 +1715,11 @@ static int generateValueToReg(compileContext *ctx, opcodeRec *op, unsigned char 
     if (!b)
     {
       ctx->l_stats[3]++;
-      b = newDataBlock(sizeof(EEL_F),sizeof(EEL_F));
+      if (ctx->isGeneratingCommonFunction)
+        b = newCtxDataBlock(sizeof(EEL_F),sizeof(EEL_F));
+      else
+        b = newDataBlock(sizeof(EEL_F),sizeof(EEL_F));
+
       if (!b) RET_MINUS1_FAIL("error allocating data block")
 
       if (op->opcodeType != OPCODETYPE_VARPTRPTR) op->parms.dv.valuePtr = b;
@@ -1738,7 +1786,13 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   int n_params= 1 + op->opcodeType - OPCODETYPE_FUNC1;
   NSEEL_PPPROC preProc=0;
   void **repl=NULL;
-  void *func = nseel_getBuiltinFunctionAddress(ctx, op->fntype, op->fn, &preProc,&repl,&func_e,&cfunc_abiinfo,preferredReturnValues);
+  const int parm0_dv = op->parms.parms[0]->opcodeType == OPCODETYPE_DIRECTVALUE;
+  const int parm1_dv = n_params > 1 && op->parms.parms[1]->opcodeType == OPCODETYPE_DIRECTVALUE;
+
+  void *func = nseel_getBuiltinFunctionAddress(ctx, op->fntype, op->fn, &preProc,&repl,&func_e,&cfunc_abiinfo,preferredReturnValues, 
+       parm0_dv ? &op->parms.parms[0]->parms.dv.directValue : NULL,
+       parm1_dv ? &op->parms.parms[1]->parms.dv.directValue : NULL
+       );
 
   if (!func) RET_MINUS1_FAIL("error getting funcaddr")
 
@@ -1751,7 +1805,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
 
   *rvMode = RETURNVALUE_NORMAL;
 
-  if (op->parms.parms[0]->opcodeType == OPCODETYPE_DIRECTVALUE)
+  if (parm0_dv) 
   {
     if (func == nseel_asm_stack_pop)
     {
@@ -2045,6 +2099,17 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
       func = nseel_asm_sub_op_fast;
       func_e = nseel_asm_sub_op_fast_end;
     }
+    // or if mul/div by a fixed value of >= or <= 1.0
+    else if (func == (void *)nseel_asm_mul_op && parm1_dv && fabs(op->parms.parms[1]->parms.dv.directValue) >= 1.0)
+    {
+      func = nseel_asm_mul_op_fast;
+      func_e = nseel_asm_mul_op_fast_end;
+    }
+    else if (func == (void *)nseel_asm_div_op && parm1_dv && fabs(op->parms.parms[1]->parms.dv.directValue) <= 1.0)
+    {
+      func = nseel_asm_div_op_fast;
+      func_e = nseel_asm_div_op_fast_end;
+    }
   }
 
 
@@ -2133,6 +2198,7 @@ static int compileEelFunctionCall(compileContext *ctx, opcodeRec *op, unsigned c
   if (!func) RET_MINUS1_FAIL("eelfuncaddr")
 
   *fpStackUse += 1;
+
 
   if (cfp_numparams>0 && n_params != cfp_numparams)
   {
@@ -2824,7 +2890,6 @@ int compileOpcodes(compileContext *ctx, opcodeRec *op, unsigned char *bufOut, in
     if (!stub || bufOut_len < stubsize) RET_MINUS1_FAIL(stub?"booltofp size":"booltfp addr")
     if (bufOut) 
     {
-      unsigned char *p=bufOut;
       memcpy(bufOut,stub,stubsize);
       bufOut += stubsize;
     }
@@ -3277,6 +3342,7 @@ static char *preprocessCode(compileContext *ctx, char *expression, int src_offse
 						}
 						r_ptr++;
 					}
+                                        if (!*r_ptr) ctx->gotEndOfInput=1;
 					// expression -> r_ptr is our string (not including r_ptr)
 
 					{
@@ -3450,6 +3516,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *__expressio
 
   ctx->directValueCache=0;
   ctx->optimizeDisableFlags=0;
+  ctx->gotEndOfInput=0;
 
   if (compile_flags & NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS_RESET)
   {
@@ -3515,6 +3582,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *__expressio
     }
   }
 
+  ctx->isGeneratingCommonFunction=0;
   ctx->isSharedFunctions = !!(compile_flags & NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
   ctx->functions_local = NULL;
 
@@ -3691,7 +3759,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *__expressio
         }
       }
     }
-    if (ctx->function_localTable_Size>0)
+    if (ctx->function_localTable_Size[0]>0)
     {
       ctx->function_localTable_ValuePtrs = 
           ctx->isSharedFunctions ? newDataBlock(ctx->function_localTable_Size[0] * sizeof(EEL_F *),8) : 
@@ -3748,7 +3816,6 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *__expressio
      }
      ctx->inputbufferptr=NULL;
 #endif
-
    }
 #endif
            
@@ -3886,7 +3953,16 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *__expressio
       buf[x]=0;
 
       if (!ctx->last_error_string[0])
-        snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"Around line %d '%s'",linenumber+lineoffs,buf);
+      {
+        if (ctx->gotEndOfInput)
+        {
+          snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"Unterminated expression, missing ) or ]");
+        }
+        else
+        {
+          snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"Around line %d '%s'",linenumber+lineoffs,buf);
+        }
+      }
 
       startpts=NULL;
       startpts_tail=NULL; 
@@ -4014,6 +4090,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *__expressio
   ctx->directValueCache=0;
   ctx->functions_local = NULL;
   
+  ctx->isGeneratingCommonFunction=0;
   ctx->isSharedFunctions=0;
 
   freeBlocks(&ctx->tmpblocks_head);  // free blocks
@@ -4075,6 +4152,12 @@ void NSEEL_code_execute(NSEEL_CODEHANDLE code)
 
 }
 
+int NSEEL_code_geterror_flag(NSEEL_VMCTX ctx)
+{
+  compileContext *c=(compileContext *)ctx;
+  if (c) return (c->gotEndOfInput ? 1 : 0);
+  return 0;
+}
 
 char *NSEEL_code_getcodeerror(NSEEL_VMCTX ctx)
 {
@@ -4309,9 +4392,21 @@ void NSEEL_VM_clear_var_refcnts(NSEEL_VMCTX _ctx)
 
 nseel_globalVarItem *nseel_globalreg_list;
 
+#ifdef NSEEL_EEL1_COMPAT_MODE
+static EEL_F __nseel_global_regs[100];
+double *NSEEL_getglobalregs() { return __nseel_global_regs; }
+#endif
+
 static EEL_F *get_global_var(const char *gv, int addIfNotPresent)
 {
   nseel_globalVarItem *p;
+#ifdef NSEEL_EEL1_COMPAT_MODE
+  if (!strncasecmp(gv,"reg",3) && gv[3]>='0' && gv[3] <= '9' && gv[4] >= '0' && gv[4] <= '9' && !gv[5])
+  {
+    return __nseel_global_regs + atoi(gv+3);
+  }
+#endif
+
   NSEEL_HOSTSTUB_EnterMutex(); 
   p = nseel_globalreg_list;
   while (p)
@@ -4530,7 +4625,7 @@ opcodeRec *nseel_lookup(compileContext *ctx, int *typeOfObject, const char *snam
         ctx->function_localTable_Names[0] && 
         ctx->function_localTable_ValuePtrs)
     {
-      const char * const * const namelist = ctx->function_localTable_Names[0];
+      char * const * const namelist = ctx->function_localTable_Names[0];
       const int namelist_sz = ctx->function_localTable_Size[0];
       int i;
       for (i=0; i < namelist_sz; i++)
@@ -4560,7 +4655,7 @@ opcodeRec *nseel_lookup(compileContext *ctx, int *typeOfObject, const char *snam
         ctx->function_localTable_Size[1] > 0 && 
         ctx->function_localTable_Names[1])
     {
-      const char * const * const namelist = ctx->function_localTable_Names[1];
+      char * const * const namelist = ctx->function_localTable_Names[1];
       const int namelist_sz = ctx->function_localTable_Size[1];
       int i;
       for (i=0; i < namelist_sz; i++)
