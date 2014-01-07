@@ -376,7 +376,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pText
   int n = pParam->GetNDisplayTexts();
   char currentText[MAX_PARAM_LEN];
 
-  if ( type == IParam::kTypeEnum || type == IParam::kTypeBool && n)
+  if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && n))
   {
     pParam->GetDisplayForHost(currentText);
     IPopupMenu menu;

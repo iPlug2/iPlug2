@@ -16,7 +16,7 @@
 
 @implementation IGRAPHICS_NSMENU
 
-- (id)initWithIPopupMenuAndReciever:(IPopupMenu*)pMenu: (NSView*)pView
+- (id)initWithIPopupMenuAndReciever:(IPopupMenu*)pMenu : (NSView*)pView
 {
   [self initWithTitle: @""];
 
@@ -39,7 +39,7 @@
 
       switch (pMenu->GetPrefix())
       {
-        case 0: prefixString = [NSString stringWithFormat:@"", i+1]; break;
+        case 0: prefixString = [NSString stringWithUTF8String:""]; break;
         case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
         case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
         case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
@@ -480,7 +480,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self setNeedsDisplay: YES];
 }
 
-- (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu: (NSRect) rect;
+- (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu : (NSRect) rect;
 {
   IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:rect] autorelease];
   NSMenu* nsMenu = [[[IGRAPHICS_NSMENU alloc] initWithIPopupMenuAndReciever:pMenu :dummyView] autorelease];
@@ -516,7 +516,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   else return 0;
 }
 
-- (void) createTextEntry: (IControl*) pControl: (IParam*) pParam: (IText*) pText: (const char*) pString: (NSRect) areaRect;
+- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (IText*) pText : (const char*) pString : (NSRect) areaRect;
 {
   if (!pControl || mTextFieldView) return;
 
