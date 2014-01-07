@@ -310,6 +310,8 @@ void IPlugVST::HostSpecificInit()
       case kHostSAWStudio:
         LimitToStereoIO();
         break;
+      default:
+        break;
     }
 
     // This won't always solve a picky host problem -- for example Forte
