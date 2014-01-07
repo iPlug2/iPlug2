@@ -3,6 +3,7 @@
 
 IRECT GetRegionRect(EventRef pEvent, int gfxW, int gfxH)
 {
+#if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
   RgnHandle pRgn = 0;
   if (GetEventParameter(pEvent, kEventParamRgnHandle, typeQDRgnHandle, 0, sizeof(RgnHandle), 0, &pRgn) == noErr && pRgn)
   {
@@ -10,21 +11,9 @@ IRECT GetRegionRect(EventRef pEvent, int gfxW, int gfxH)
     GetRegionBounds(pRgn, &rct);
     return IRECT(rct.left, rct.top, rct.right, rct.bottom);
   }
+#endif
   return IRECT(0, 0, gfxW, gfxH);
 }
-
-//IRECT GetControlRect(EventRef pEvent, int gfxW, int gfxH)
-//{
-//  Rect rct;
-//  if (GetEventParameter(pEvent, kEventParamCurrentBounds, typeQDRectangle, 0, sizeof(Rect), 0, &rct) == noErr) {
-//    int w = rct.right - rct.left;
-//    int h = rct.bottom - rct.top;
-//    if (w > 0 && h > 0) {
-//      return IRECT(0, 0, w, h);
-//    }
-//  }
-//  return IRECT(0, 0, gfxW, gfxH);
-//}
 
 void ResizeWindow(WindowRef pWindow, int w, int h)
 {
@@ -57,7 +46,6 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac,
   , mEdParam(0)
   , mPrevX(0)
   , mPrevY(0)
-//, mRgn(NewRgn())
   , mLeftOffset(leftOffset)
   , mTopOffset(topOffset)
   , mShowingTooltip(false)
@@ -164,7 +152,6 @@ IGraphicsCarbon::~IGraphicsCarbon()
   RemoveEventHandler(mWindowHandler);
   mTimer = 0;
   mView = 0;
-//  DisposeRgn(mRgn);
 }
 
 bool IGraphicsCarbon::Resize(int w, int h)
@@ -206,7 +193,7 @@ MenuRef IGraphicsCarbon::CreateMenu(IPopupMenu* pMenu)
           switch (pMenu->GetPrefix())
           {
             case 0:
-              prefixString = CFStringCreateWithFormat(NULL, 0, CFSTR(""),i+1); break;
+              prefixString = CFStringCreateWithCString(NULL, "", kCFStringEncodingUTF8); break;
             case 1:
               prefixString = CFStringCreateWithFormat(NULL, 0, CFSTR("%1d: "),i+1); break;
             case 2:
@@ -386,8 +373,6 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
 
           IRECT r = GetRegionRect(pEvent, gfxW, gfxH);
 
-          CGrafPtr port = 0;
-
           if (_this->mIsComposited)
           {
             GetEventParameter(pEvent, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(CGContextRef), 0, &(_this->mCGC));
@@ -395,20 +380,19 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             CGContextScaleCTM(_this->mCGC, 1.0, -1.0);
             pGraphicsMac->Draw(&r);
           }
+#if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
           else
           {
+            CGrafPtr port = 0;
+            
             GetEventParameter(pEvent, kEventParamGrafPort, typeGrafPtr, 0, sizeof(CGrafPtr), 0, &port);
             QDBeginCGContext(port, &(_this->mCGC));
-            
-            //RgnHandle clipRegion = NewRgn();
-            //GetPortClipRegion(port, clipRegion);
             
             Rect portBounds;
             GetPortBounds(port, &portBounds);
 
             int offsetW = 0;
             int offsetH = -portBounds.top;
-            //int offsetH = (portBounds.bottom - portBounds.top) - gfxH; // this almost works with AS, but clip rect seems wrong when previewing/breaks RTAS
             
             if ((portBounds.right - portBounds.left) >= gfxW)
             {
@@ -421,9 +405,8 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             pGraphicsMac->Draw(&r); // Carbon non-composited will redraw everything, the IRECT passed here is the entire plugin-gui
             
             QDEndCGContext(port, &(_this->mCGC));
-            
-            //DisposeRgn(clipRegion);
           }
+#endif
           return noErr;
         }
       }
