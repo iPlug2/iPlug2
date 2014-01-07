@@ -3,18 +3,20 @@
 // along with some other global build variables
 
 // this is used for Developer ID / Appstore code-signing and is used in the makedist-mac shell script
-CERTIFICATE_ID = Oliver Larkin
+CERTIFICATE_ID = Your_Developer_ID
 
 // Which compiler to use
 COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
 //COMPILER = com.intel.compilers.icc.12_1_0
-//COMPILER = com.apple.compilers.llvmgcc42 // use this 
-//COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4.x/10.7+ (YMMV)
+//COMPILER = com.apple.compilers.llvmgcc42 // use this ...
+//COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4+/10.7+
 
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
 BASE_SDK = macosx10.5
 //BASE_SDK = macosx10.6
 //BASE_SDK = macosx10.7 // Plugins with a Carbon GUI do not work with the 10.7 or higher sdks
+//BASE_SDK = macosx10.8
+//BASE_SDK = macosx10.9
 
 // the minimum OS to support
 MACOSX_DEPLOYMENT_TARGET = 10.5
@@ -25,8 +27,8 @@ IPLUG_PATH = $(WDL_PATH)/IPlug
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
 PT9_SDK = $(SRCROOT)/../../PT9_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
-CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
-//CA_SDK = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Extras/CoreAudio
+//CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
+CA_SDK = $(SRCROOT)/../../CA_SDK
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES

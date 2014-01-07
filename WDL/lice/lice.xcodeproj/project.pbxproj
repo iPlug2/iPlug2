@@ -586,6 +586,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = lice;
 				SKIP_INSTALL = YES;
+				SYMROOT = "build-mac";
 			};
 			name = Debug;
 		};
@@ -606,6 +607,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_STYLE = "non-global";
+				SYMROOT = "build-mac";
 			};
 			name = Release;
 		};
@@ -665,6 +667,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = lice32;
 				SKIP_INSTALL = YES;
+				SYMROOT = "build-mac";
 			};
 			name = Debug;
 		};
@@ -686,6 +689,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_STYLE = "non-global";
+				SYMROOT = "build-mac";
 			};
 			name = Release;
 		};

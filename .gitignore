@@ -27,6 +27,7 @@ VST_SDK/*
 PT9_SDK/*
 AAX_SDK/*
 ASIO_SDK/*
+CA_SDK/*
 Projects/*
 */*/gui/*
 
