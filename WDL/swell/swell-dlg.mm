@@ -2408,7 +2408,7 @@ void SWELL_CarbonWndHost_SetWantAllKeys(void* carbonhost, bool want)
     //CFRetain(wndref);
 
     m_cwnd = [[NSWindow alloc] initWithWindowRef:wndref];
-#if __clang__
+#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1050
     [m_cwnd setDelegate:(id<NSWindowDelegate>)self];
 #else
     [m_cwnd setDelegate: self];

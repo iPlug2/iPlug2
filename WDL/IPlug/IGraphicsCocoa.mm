@@ -576,7 +576,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
 #endif
   
-#if __clang__
+#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1050
   [mTextFieldView setDelegate: (id<NSTextFieldDelegate>) self];
 #else
   [mTextFieldView setDelegate: self];
