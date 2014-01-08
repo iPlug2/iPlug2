@@ -14,7 +14,7 @@ COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
 BASE_SDK = macosx10.5
 //BASE_SDK = macosx10.6
-//BASE_SDK = macosx10.7 // Plugins with a Carbon GUI do not work with the 10.7 or higher sdks
+//BASE_SDK = macosx10.7 // Carbon GUIs do not work fully with the 10.7 or higher sdks
 //BASE_SDK = macosx10.8
 //BASE_SDK = macosx10.9
 
@@ -32,6 +32,9 @@ CA_SDK = $(SRCROOT)/../../CA_SDK
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES
+
+CLANG_LINK_OBJC_RUNTIME = NO
+
 // Where to build the plugins / app bundles ...
 
 // build to system plugin folder
