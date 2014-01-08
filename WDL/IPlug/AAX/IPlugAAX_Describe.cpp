@@ -85,7 +85,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   else if(strcmp(PLUG_TYPE_PT, "NoiseReduction") == 0) category = AAX_ePlugInCategory_NoiseReduction;
   else if(strcmp(PLUG_TYPE_PT, "Dither") == 0) category = AAX_ePlugInCategory_Dither;
   else if(strcmp(PLUG_TYPE_PT, "SoundField") == 0) category = AAX_ePlugInCategory_SoundField;
-  else if(strcmp(PLUG_TYPE_PT, "Effect") == 0) category = PDA_ePlugInCategory_Effect;
+  else if(strcmp(PLUG_TYPE_PT, "Effect") == 0) category = AAX_ePlugInCategory_None;
   err |= effectDescriptor->AddCategory(category);
   
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
