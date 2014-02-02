@@ -1,7 +1,10 @@
-extract the VST3.5.2 SDK here, preserving the folder structure. You only need
+extract the VST3.6.0 SDK here, preserving the folder structure. i.e
 
-/base/source
-/pluginterfaces
-/public.sdk/source
+WDL-OL/VST3_SDK/base/source
+WDL-OL/VST3_SDK/pluginterfaces
+WDL-OL/VST3_SDK/public.sdk/source
 
-Make sure you don't delete the base/win/base_vc10.vcxproj file which are part of wdl-ol
+Once you've put the SDK files in place, you should discard changes in these two files via git…
+
+WDL-OL/VST3_SDK/base/mac/base.xcodeproj
+WDL-OL/VST3_SDK/base/win/base_vc10.vcxproj
