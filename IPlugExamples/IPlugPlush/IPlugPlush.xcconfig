@@ -43,7 +43,7 @@ TRACER_DEFS = TRACER_BUILD NDEBUG
 
 // Preprocessor definitions for cocoa uniqueness (all builds)
 // If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too
-COCOA_DEFS = COCOA_PREFIX=vIPlugPlush SWELL_APP_PREFIX=Swell_vIPlugPlush
+COCOA_DEFS = SWELL_CLEANUP_ON_UNLOAD COCOA_PREFIX=vIPlugPlush SWELL_APP_PREFIX=Swell_vIPlugPlush
 
 //------------------------------
 // Release build options
