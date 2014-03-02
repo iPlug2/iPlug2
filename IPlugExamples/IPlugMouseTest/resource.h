@@ -29,7 +29,7 @@
 #if (defined(AAX_API) || defined(RTAS_API)) && !defined(_PIDS_)
   #define _PIDS_
   const int PLUG_TYPE_IDS[2] = {'MTN1', 'MTN2'};
-  //const int PLUG_TYPE_IDS_AS[2] = {'MTA1', 'MTA2'}; // AudioSuite
+  const int PLUG_TYPE_IDS_AS[2] = {'MTA1', 'MTA2'}; // AudioSuite
 #endif
 #define PLUG_MFR_PT "AcmeInc\nAcmeInc\nAcme"
 #define PLUG_NAME_PT "IPlugMouseTest\nIPMS"

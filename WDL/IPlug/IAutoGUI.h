@@ -29,17 +29,17 @@ private:
   
 public:
   
-	AGPanelTabs(IPlugBase *pPlug, IRECT tabsRect, IText *pText, const IColor *pBGColor, const IColor *pFGColor, const IColor *pOnColor)
-	: IControl(pPlug, tabsRect, -1) 
+  AGPanelTabs(IPlugBase *pPlug, IRECT tabsRect, IText *pText, const IColor *pBGColor, const IColor *pFGColor, const IColor *pOnColor)
+  : IControl(pPlug, tabsRect, -1) 
   , mBGColor(*pBGColor)
   , mFGColor(*pFGColor)
   , mOnColor(*pOnColor)
   , mActive(0)
-	{
-		mDblAsSingleClick = true;
+  {
+    mDblAsSingleClick = true;
     mText = *pText;
     mText.mAlign = IText::kAlignCenter;
-	}
+  }
   
   ~AGPanelTabs()
   {
