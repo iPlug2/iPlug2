@@ -8,12 +8,9 @@
 
 
 #ifdef _WIN32
-  #define PREF_DIRCH '\\'
   #ifdef _MSC_VER // todo: win7filedialog.cpp support for mingw32
     #define WDL_FILEBROWSE_WIN7VISTAMODE
   #endif
-#else
-  #define PREF_DIRCH '/'
 #endif
 
 
@@ -52,7 +49,7 @@ static void WDL_fixfnforopenfn(char *buf)
   char *p=buf;
   while (*p) 
   {
-    if (*p == '/' || *p == '\\') *p=PREF_DIRCH;
+    if (WDL_IS_DIRCHAR(*p)) *p = WDL_DIRCHAR;
     p++;
   }
 #ifdef _WIN32
@@ -62,7 +59,7 @@ static void WDL_fixfnforopenfn(char *buf)
     char *op=p;
     while (*p)
     {
-      while (p[0]=='\\' && p[1] == '\\') p++;
+      while (p[0]==WDL_DIRCHAR && p[1] == WDL_DIRCHAR) p++;
       *op++ = *p++;
     }
     *op=0;
@@ -114,12 +111,8 @@ bool WDL_ChooseDirectory(HWND parent, const char *text, const char *initialdir, 
 
 static const char *stristr(const char* a, const char* b)
 {
-  int i;
-  int len = strlen(b);
-  int n = strlen(a)-len;
-  for (i = 0; i <= n; ++i)
-    if (!strnicmp(a+i, b, len)) 
-      return a+i;
+  const size_t n = strlen(a), len = strlen(b);
+  for (size_t i = 0; i+len <= n; ++i) if (!strnicmp(a+i, b, len)) return a+i;
   return NULL;
 }
 
@@ -184,14 +177,11 @@ bool WDL_ChooseFileForSave(HWND parent,
       if(initialfile) 
       {
         //check for folder name
-        char *p = temp+strlen(temp);
-        while(p>temp && *p!='/' && *p!='\\') p--;
-        if(*p=='/'||*p=='\\')
+        if (WDL_remove_filepart(temp))
         {
           //folder found
-          *p=0;
           fd.setFolder(temp, 0);
-          fd.setFilename(p+1);
+          fd.setFilename(temp + strlen(temp) + 1);
         }
         else
           fd.setFilename(temp);
@@ -307,14 +297,11 @@ char *WDL_ChooseFileForOpen(HWND parent,
         char temp[4096];
         lstrcpyn_safe(temp,initialfile,sizeof(temp));
         //check for folder name
-        char *p = temp+strlen(temp);
-        while(p>temp && *p!='/' && *p!='\\') p--;
-        if(*p=='/'||*p=='\\')
+        if (WDL_remove_filepart(temp))
         {
           //folder found
-          *p=0;
           fd.setFolder(temp, 0);
-          fd.setFilename(p+1);
+          fd.setFilename(temp + strlen(temp) + 1);
         }
         else
           fd.setFilename(temp);

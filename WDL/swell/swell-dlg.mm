@@ -66,7 +66,7 @@ void updateWindowCollection(NSWindow *w)
 }
 
 static void DrawSwellViewRectImpl(SWELL_hwndChild *view, NSRect rect, HDC hdc);
-static void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc, BOOL doforce, WDL_PtrList<void> *needdraws, const NSRect *rlist, int rlistcnt, int draw_xlate_x, int draw_xlate_y, bool iscv);
+static void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc, BOOL doforce, WDL_PtrList<void> *needdraws, const NSRect *rlist, int rlistcnt, int draw_xlate_x, int draw_xlate_y, bool iscv, NSView *rlist_coordview);
 
 static LRESULT SWELL_SendMouseMessage(NSView *slf, int msg, NSEvent *event);
 static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent *theEvent)
@@ -1112,7 +1112,7 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
   
   static WDL_PtrList<void> ndlist;
   int ndlist_oldsz=ndlist.GetSize();
-  swellRenderOptimizely(twoPassMode?1:3,self,hdc,false,&ndlist,rlist,rlistcnt,0,0,true);
+  swellRenderOptimizely(twoPassMode?1:3,self,hdc,false,&ndlist,rlist,rlistcnt,0,0,true,self);
     
   while (ndlist.GetSize()>ndlist_oldsz+1)
   {
@@ -1147,7 +1147,7 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
   }
   
   
-  if (twoPassMode) swellRenderOptimizely(2,self,hdc,false,&ndlist,rlist,rlistcnt,0,0,true);
+  if (twoPassMode) swellRenderOptimizely(2,self,hdc,false,&ndlist,rlist,rlistcnt,0,0,true,self);
   SWELL_DeleteGfxContext(hdc);
   [self unlockFocus];
   [self setNeedsDisplay:NO];
@@ -2164,13 +2164,15 @@ HWND SWELL_CreateModelessFrameForWindow(HWND childW, HWND ownerW, unsigned int w
 HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, HWND parent, DLGPROC dlgproc, LPARAM param)
 {
   unsigned int forceStyles=0;
+  bool forceNonChild=false;
   if ((((INT_PTR)resid)&~0xf)==0x400000)
   {
-    int a = (int)(INT_PTR)resid;
+    const int a = ((int)(INT_PTR)resid)&0xf;
     forceStyles = NSTitledWindowMask|NSMiniaturizableWindowMask|NSClosableWindowMask;
     if (a&1) forceStyles|=NSResizableWindowMask;
     if (a&2) forceStyles&=~NSMiniaturizableWindowMask;
     if (a&4) forceStyles&=~NSClosableWindowMask;
+    if (a) forceNonChild=true;
     resid=NULL;
   }
   SWELL_DialogResourceIndex *p=resById(reshead,resid);
@@ -2185,7 +2187,7 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
                  )) parview=(NSView *)parent;
   else if (parent && [(id)parent isKindOfClass:[NSWindow class]])  parview=(NSView *)[(id)parent contentView];
   
-  if ((!p || (p->windowTypeFlags&SWELL_DLG_WS_CHILD)) && parview)
+  if ((!p || (p->windowTypeFlags&SWELL_DLG_WS_CHILD)) && parview && (p || !forceNonChild))
   {
     SWELL_hwndChild *ch=[[SWELL_hwndChild alloc] initChild:p Parent:parview dlgProc:dlgproc Param:param];       // create a new child view class
     ch->m_create_windowflags=(NSTitledWindowMask|NSMiniaturizableWindowMask|NSClosableWindowMask|NSResizableWindowMask);
@@ -3008,10 +3010,10 @@ void SWELL_SetViewGL(HWND h, bool wantGL)
       if (wantGL) 
       {
         NSOpenGLPixelFormatAttribute atr[] = { 
-            96/*NSOpenGLPFAAllowOfflineRenderers*/, // allows use of NSSupportsAutomaticGraphicsSwitching and no gpu-forcing
+            (NSOpenGLPixelFormatAttribute)96/*NSOpenGLPFAAllowOfflineRenderers*/, // allows use of NSSupportsAutomaticGraphicsSwitching and no gpu-forcing
             (NSOpenGLPixelFormatAttribute)0
         }; // todo: optionally add any attributes before the 0
-        if (!Is105Plus()) atr[0]=0; // 10.4 can't use offline renderers and will fail trying
+        if (!Is105Plus()) atr[0]=(NSOpenGLPixelFormatAttribute)0; // 10.4 can't use offline renderers and will fail trying
 
         NSOpenGLPixelFormat *fmt  = [[NSOpenGLPixelFormat alloc] initWithAttributes:atr];
         
@@ -3124,12 +3126,31 @@ void DrawSwellViewRectImpl(SWELL_hwndChild *view, NSRect rect, HDC hdc)
   
 }
 
-void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc, BOOL doforce, WDL_PtrList<void> *needdraws, const NSRect *rlist, int rlistcnt, int draw_xlate_x, int draw_xlate_y, bool iscv)
+void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc, BOOL doforce, WDL_PtrList<void> *needdraws, const NSRect *rlist, int rlistcnt, int draw_xlate_x, int draw_xlate_y, bool iscv, NSView *rlist_coordview)
 {
   if (view->m_isdirty&1) doforce=true;
   NSArray *sv = [view subviews];
   if (doforce&&(passflags & ([sv count]?1:2)))
-    DrawSwellViewRectImpl(view,[view bounds], hdc);
+  {
+    NSRect drawr = [view bounds];
+    if (rlistcnt > 0)
+    {
+      if (view != rlist_coordview) drawr = [rlist_coordview convertRect:drawr fromView:view];
+
+      int x;
+      NSRect update_rect = rlist[0];
+      for(x=1;x<rlistcnt;x++) update_rect = NSUnionRect(update_rect,rlist[x]);
+      drawr = NSIntersectionRect(drawr, update_rect);
+
+      if (drawr.size.width > 0.0 && 
+          drawr.size.height > 0.0 &&
+          view != rlist_coordview) drawr = [rlist_coordview convertRect:drawr toView:view];
+
+      // if drawr is empty, might be good to update it back to bounds? if something stops painting right that would be a good thing to check
+    }
+    if (drawr.size.width > 0.0 && drawr.size.height > 0.0)
+      DrawSwellViewRectImpl(view,drawr, hdc);
+  }
   
   if (sv)
   {
@@ -3152,7 +3173,7 @@ void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc, BOOL d
             CGContextSaveGState(hdc->ctx);
             CGContextClipToRect(hdc->ctx,CGRectMake(fr.origin.x,fr.origin.y,fr.size.width,fr.size.height));
             CGContextTranslateCTM(hdc->ctx, fr.origin.x,fr.origin.y);            
-            swellRenderOptimizely(passflags,(SWELL_hwndChild*)v,hdc,doforce,needdraws,rlist,rlistcnt,draw_xlate_x-(int)fr.origin.x,draw_xlate_y-(int)fr.origin.y,false);
+            swellRenderOptimizely(passflags,(SWELL_hwndChild*)v,hdc,doforce,needdraws,rlist,rlistcnt,draw_xlate_x-(int)fr.origin.x,draw_xlate_y-(int)fr.origin.y,false,rlist_coordview);
             CGContextRestoreGState(hdc->ctx);
             if (passflags&2) [v setNeedsDisplay:NO];
             bgbr_valid=false; // code in swellRenderOptimizely() may trigger WM_CTLCOLORDLG which may invalidate our brush, so clear the cached value here

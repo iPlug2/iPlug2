@@ -1738,9 +1738,13 @@ void LICE_PutPixel(LICE_IBitmap *bm, int x, int y, LICE_pixel color, float alpha
 
 
 #ifndef LICE_NO_BLIT_SUPPORT
-void LICE_TransformBlit(LICE_IBitmap *dest, LICE_IBitmap *src,  
+
+template<class T> class LICE_TransformBlit_class
+{
+  public:
+  static void blit(LICE_IBitmap *dest, LICE_IBitmap *src,  
                     int dstx, int dsty, int dstw, int dsth,
-                    float *srcpoints, int div_w, int div_h, // srcpoints coords should be div_w*div_h*2 long, and be in source image coordinates
+                    T *srcpoints, int div_w, int div_h, // srcpoints coords should be div_w*div_h*2 long, and be in source image coordinates
                     float alpha, int mode)
 {
   if (!dest || !src || dstw<1 || dsth<1 || div_w<2 || div_h<2) return;
@@ -1750,7 +1754,7 @@ void LICE_TransformBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   double dxpos=dstw/(float)(div_w-1);
   double dypos=dsth/(float)(div_h-1);
   int y;
-  float *curpoints=srcpoints;
+  T *curpoints=srcpoints;
   for (y = 0; y < div_h-1; y ++)
   {
     int nypos=(int)(ypos+=dypos);
@@ -1799,9 +1803,23 @@ void LICE_TransformBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
     curpoints+=div_w*2;
     cypos=nypos;
   }
-
 }
+};
 
+void LICE_TransformBlit(LICE_IBitmap *dest, LICE_IBitmap *src,  
+                    int dstx, int dsty, int dstw, int dsth,
+                    float *srcpoints, int div_w, int div_h, // srcpoints coords should be div_w*div_h*2 long, and be in source image coordinates
+                    float alpha, int mode)
+{
+  LICE_TransformBlit_class<float>::blit(dest,src,dstx,dsty,dstw,dsth,srcpoints,div_w,div_h,alpha,mode);
+}
+void LICE_TransformBlit2(LICE_IBitmap *dest, LICE_IBitmap *src,  
+                    int dstx, int dsty, int dstw, int dsth,
+                    double *srcpoints, int div_w, int div_h, // srcpoints coords should be div_w*div_h*2 long, and be in source image coordinates
+                    float alpha, int mode)
+{
+  LICE_TransformBlit_class<double>::blit(dest,src,dstx,dsty,dstw,dsth,srcpoints,div_w,div_h,alpha,mode);
+}
 
 
 #endif
@@ -1924,25 +1942,31 @@ void LICE_DrawGlyphEx(LICE_IBitmap* dest, int x, int y, LICE_pixel color, const 
   }
 #endif
 
-  int ia= (int)(alpha*256.0f);
+  const int ia= (int)(alpha*256.0f);
 
   int src_x = 0, src_y = 0, src_w = glyph_w, src_h = glyph_h;
+  if (x <= -src_w || y <= -src_h) return;
+  
   if (x < 0) {
     src_x -= x;
     src_w += x;
     x = 0;
-  }
-  if (x+src_w >= dest->getWidth()) {
-    src_w = dest->getWidth()-x;
   }
   if (y < 0) {
     src_y -= y;
     src_h += y;
     y = 0;
   }
-  if (y+src_h >= dest->getHeight()) {
+  if (x >= dest->getWidth() || y >= dest->getHeight()) return;
+
+  if (y > dest->getHeight()-src_h) {
     src_h = dest->getHeight()-y;
   }
+  if (x > dest->getWidth()-src_w) {
+    src_w = dest->getWidth()-x;
+  }
+  
+  if (src_w < 1 || src_h < 1) return;
 
 
   LICE_pixel* destpx = dest->getBits();
