@@ -244,14 +244,31 @@ int ProjectContextFormatString(char *outbuf, size_t outbuf_size, const char *fmt
     c = *fmt++;
     if (!want_abort) switch (c)
     {
+      case '@':
+      case 'p':
       case 's':
       {
         const char *str=va_arg(va,const char *);
-        lstrcpyn_safe(outbuf+wroffs,str?str:"(null)",outbuf_size);
-        while (outbuf[wroffs])
+        const char qc = outbuf_size >= 3 && c != 's' ? getConfigStringQuoteChar(str) : ' ';
+        
+        if (qc != ' ')
         {
-          wroffs++;
+          outbuf[wroffs++] = qc ? qc : '`';
+          outbuf_size-=2; // will add trailing quote below
+        }
+        
+        if (str) while (outbuf_size > 1 && *str)
+        {
+          char v = *str++;
+          if (!qc && v == '`') v = '\'';
+          outbuf[wroffs++] = v;
           outbuf_size--;
+        }
+
+        if (qc != ' ')
+        {
+          outbuf[wroffs++] = qc ? qc : '`';
+          // outbuf_size already decreased above
         }
       }
       break;
@@ -345,17 +362,17 @@ int ProjectContextFormatString(char *outbuf, size_t outbuf_size, const char *fmt
         {
           char tmp[64];
           projectcontext_fastDoubleToString(v,tmp,has_prec?prec:6);
-          lstrcpyn_safe(outbuf+wroffs,tmp,outbuf_size);
-          while (outbuf[wroffs])
+          const char *str = tmp;
+          while (outbuf_size > 1 && *str)
           {
-            wroffs++;
+            outbuf[wroffs++] = *str++;
             outbuf_size--;
           }
         }
         else
         {
           const char *p=projectcontext_fastDoubleToString(v,outbuf+wroffs,has_prec?prec:6);
-          int amt = (p-(outbuf+wroffs));
+          int amt = (int) (p-(outbuf+wroffs));
           wroffs += amt;
           outbuf_size-=amt;
         }
@@ -1088,28 +1105,46 @@ void cfg_encode_textblock(ProjectStateContext *ctx, const char *text)
   }
 }
 
-static int makeEscapedConfigString_calcflags(const char *p)
+char getConfigStringQuoteChar(const char *p)
 {
+  if (!p || !*p) return '"';
+
+  char fc = *p;
   int flags=0;
-  while (*p && flags!=7)
+  while (*p && flags!=15)
   {
     char c=*p++;
     if (c=='"') flags|=1;
     else if (c=='\'') flags|=2;
     else if (c=='`') flags|=4;
+    else if (c == ' ' || c == '\t') flags |= 8;
   }
-  return flags;
+#ifndef PROJECTCONTEXT_USE_QUOTES_WHEN_NO_SPACES
+  if (!(flags & 8) && fc != '"' && fc != '\'' && fc != '`' && fc != '#' && fc != ';') return ' ';
+#endif
+
+  if (!(flags & 1)) return '"';
+  if (!(flags & 2)) return '\'';
+  if (!(flags & 4)) return '`';
+  return 0;
 }
 
 void makeEscapedConfigString(const char *in, WDL_String *out)
 {
-  int flags=makeEscapedConfigString_calcflags(in);
-  if (flags!=7)
+  char c;
+  if (!in || !*in) out->Set("\"\"");
+  else if ((c = getConfigStringQuoteChar(in)))
   {
-    const char *src=(flags&1)?((flags&2)?"`":"'"):"\"";
-    out->Set(src);
-    out->Append(in);
-    out->Append(src);
+    if (c == ' ') 
+    {
+      out->Set(in);
+    }
+    else
+    {
+      out->Set(&c,1);
+      out->Append(in);
+      out->Append(&c,1);
+    }
   }
   else  // ick, change ` into '
   {
@@ -1127,14 +1162,20 @@ void makeEscapedConfigString(const char *in, WDL_String *out)
 
 void makeEscapedConfigString(const char *in, WDL_FastString *out)
 {
-  int flags = makeEscapedConfigString_calcflags(in);
-
-  if (flags!=7)
+  char c;
+  if (!in || !*in) out->Set("\"\"");
+  else if ((c = getConfigStringQuoteChar(in)))
   {
-    const char *src=(flags&1)?((flags&2)?"`":"'"):"\"";
-    out->Set(src);
-    out->Append(in);
-    out->Append(src);
+    if (c == ' ') 
+    {
+      out->Set(in);
+    }
+    else
+    {
+      out->Set(&c,1);
+      out->Append(in);
+      out->Append(&c,1);
+    }
   }
   else  // ick, change ` into '
   {
