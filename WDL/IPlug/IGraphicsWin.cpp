@@ -161,17 +161,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
-        SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
-        DestroyWindow(pGraphics->mParamEditWnd);
-        pGraphics->mParamEditWnd = 0;
-        pGraphics->mEdParam = 0;
-        pGraphics->mEdControl = 0;
-        pGraphics->mDefEditProc = 0;
-        pGraphics->mParamEditMsg = kNone;
-        //force full redraw when closing text entry
-        RECT r = { 0, 0, pGraphics->Width(), pGraphics->Height() };
-        InvalidateRect(hWnd, &r, FALSE);
-        UpdateWindow(hWnd);
+        pGraphics->mParamEditMsg = kCommit;
+        return 0;
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
