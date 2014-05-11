@@ -315,6 +315,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       else
         return 0;
     }
+    case WM_KEYUP:
+    {
+      HWND rootHWnd = GetAncestor(hWnd, GA_ROOT);
+      SendMessage(rootHWnd, msg, wParam, lParam);
+      return DefWindowProc(hWnd, msg, wParam, lParam);
+    }
     case WM_PAINT:
     {
       RECT r;
