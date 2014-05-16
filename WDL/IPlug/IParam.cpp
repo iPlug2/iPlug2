@@ -2,8 +2,17 @@
 #include <stdio.h>
 
 IParam::IParam()
-  : mType(kTypeNone), mValue(0.0), mMin(0.0), mMax(1.0), mStep(1.0),
-    mDisplayPrecision(0), mNegateDisplay(false), mShape(1.0), mCanAutomate(true), mDefault(0.)
+  : mType(kTypeNone)
+  , mValue(0.0)
+  , mMin(0.0)
+  , mMax(1.0)
+  , mStep(1.0)
+  , mDisplayPrecision(0)
+  , mNegateDisplay(false)
+  , mShape(1.0)
+  , mCanAutomate(true)
+  , mDefault(0.)
+  , mIsMeta(false)
 {
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));

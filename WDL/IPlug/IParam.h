@@ -39,7 +39,7 @@ public:
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
   void SetShape(double shape);
-  
+  void SetIsMeta(bool meta) { mIsMeta = meta; }
   void SetToDefault() { mValue = mDefault; }
 
   // Call this if your param is (x, y) but you want to always display (-x, -y).
@@ -79,8 +79,8 @@ public:
   const double GetMax() {return mMax;}
   const double GetRange() {return mMax - mMin;}
   const int GetPrecision() {return mDisplayPrecision;}
-
   bool GetCanAutomate() { return mCanAutomate; }
+  bool GetIsMeta() { return mIsMeta; }
 
 private:
   // All we store is the readable values.
@@ -94,7 +94,8 @@ private:
   bool mNegateDisplay;
   bool mSignDisplay;
   bool mCanAutomate;
-
+  bool mIsMeta;
+  
   struct DisplayText
   {
     int mValue;
