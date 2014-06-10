@@ -55,6 +55,8 @@ public:
   IRECT GetWindowRECT();
   void SetWindowTitle(char* str);
 
+  const char* GetGUIAPI() { return "Windows GDI"; };
+  
 protected:
   LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
 
