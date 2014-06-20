@@ -1554,6 +1554,7 @@
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0510;
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 0500;
 			};
