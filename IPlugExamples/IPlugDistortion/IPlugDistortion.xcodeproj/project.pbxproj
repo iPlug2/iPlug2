@@ -2480,7 +2480,7 @@
 				INFOPLIST_FILE = "resources/IPlugDistortion-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(ADDITIONAL_LIBRARY_PATHS)",
-					"$(SRCROOT)/../../AAX_SDK/Libs/Debug",
+					"$(AAX_SDK)/Libs/Debug",
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
@@ -2524,7 +2524,7 @@
 				INFOPLIST_FILE = "resources/IPlugDistortion-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(ADDITIONAL_LIBRARY_PATHS)",
-					"$(SRCROOT)/../../AAX_SDK/Libs/Release",
+					"$(AAX_SDK)/Libs/Release",
 				);
 				PREBINDING = YES;
 				SDKROOT = "$(BASE_SDK)";
@@ -2569,7 +2569,7 @@
 				INFOPLIST_FILE = "resources/IPlugDistortion-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(ADDITIONAL_LIBRARY_PATHS)",
-					"$(SRCROOT)/../../AAX_SDK/Libs/Release",
+					"$(AAX_SDK)/Libs/Release",
 				);
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
