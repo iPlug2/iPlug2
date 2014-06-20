@@ -27,7 +27,7 @@
 
   #define DAC_DS 0
   #define DAC_ASIO 1
-#else if defined OS_OSX
+#elif defined OS_OSX
   #include "swell.h"
   #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
 
