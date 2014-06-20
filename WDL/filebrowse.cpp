@@ -73,9 +73,18 @@ static int CALLBACK WINAPI WDL_BrowseCallbackProc( HWND hwnd, UINT uMsg, LPARAM 
 {
 	switch (uMsg)
 	{
-		case BFFM_INITIALIZED:
-				if (lpData && ((char *)lpData)[0]) SendMessage(hwnd,BFFM_SETSELECTION,1,(LPARAM)lpData);
-    break;
+    case BFFM_INITIALIZED:
+    {
+      if (lpData && ((char *)lpData)[0])
+      {
+#ifndef WDL_NO_SUPPORT_UTF8
+        WDL_UTF8_SendBFFM_SETSEL(hwnd, (const char *)lpData);
+#else
+        SendMessage(hwnd, BFFM_SETSELECTION, 1, lpData);
+#endif
+      }
+      break;
+    }
 	}
 	return 0;
 }
@@ -90,10 +99,9 @@ bool WDL_ChooseDirectory(HWND parent, const char *text, const char *initialdir, 
   char name[4096];
   lstrcpyn_safe(name,initialdir?initialdir:"",sizeof(name));
   BROWSEINFO bi={parent,NULL, name, text, BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE, WDL_BrowseCallbackProc, (LPARAM)name,};
-  LPITEMIDLIST idlist = SHBrowseForFolder( &bi );
-  if (idlist) 
+  LPITEMIDLIST idlist = SHBrowseForFolderUTF8( &bi );
+  if (idlist && SHGetPathFromIDListUTF8(idlist, name, sizeof(name)))
   {
-    SHGetPathFromIDList( idlist, name );        
     IMalloc *m;
     SHGetMalloc(&m);
     m->Free(idlist);

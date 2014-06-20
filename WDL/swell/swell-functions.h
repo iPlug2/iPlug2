@@ -280,6 +280,8 @@ SWELL_API_DEFINE(HWND, SetParent,(HWND hwnd, HWND newPar))
 */
 SWELL_API_DEFINE(HWND, GetWindow,(HWND hwnd, int what))
 
+SWELL_API_DEFINE(BOOL, EnumWindows, (BOOL (*proc)(HWND, LPARAM), LPARAM lp))
+
 SWELL_API_DEFINE(HWND,FindWindowEx,(HWND par, HWND lastw, const char *classname, const char *title))
 
 
@@ -303,8 +305,8 @@ SWELL_API_DEFINE(void, GetClientRect,(HWND hwnd, RECT *r))
 SWELL_API_DEFINE(HWND, WindowFromPoint,(POINT p))
 SWELL_API_DEFINE(BOOL, WinOffsetRect, (LPRECT lprc, int dx, int dy))
 SWELL_API_DEFINE(BOOL, WinSetRect, (LPRECT lprc, int xLeft, int yTop, int xRight, int yBottom))
-SWELL_API_DEFINE(void,WinUnionRect,(RECT *out, RECT *in1, RECT *in2))
-SWELL_API_DEFINE(int,WinIntersectRect,(RECT *out, RECT *in1, RECT *in2))
+SWELL_API_DEFINE(void,WinUnionRect,(RECT *out, const RECT *in1, const RECT *in2))
+SWELL_API_DEFINE(int,WinIntersectRect,(RECT *out, const RECT *in1, const RECT *in2))
 
 
 /*
@@ -445,14 +447,14 @@ SWELL_API_DEFINE(void, ListView_SetItemText,(HWND h, int ipos, int cpos, const c
 SWELL_API_DEFINE(bool, ListView_SetItem,(HWND h, LVITEM *item))
 SWELL_API_DEFINE(int, ListView_GetNextItem,(HWND h, int istart, int flags))
 SWELL_API_DEFINE(bool, ListView_GetItem,(HWND h, LVITEM *item))
-SWELL_API_DEFINE(int, ListView_GetItemState,(HWND h, int ipos, int mask))
+SWELL_API_DEFINE(int, ListView_GetItemState,(HWND h, int ipos, UINT mask))
 SWELL_API_DEFINE(void, ListView_DeleteItem,(HWND h, int ipos))
 SWELL_API_DEFINE(void, ListView_DeleteAllItems,(HWND h))
 SWELL_API_DEFINE(int, ListView_GetSelectedCount,(HWND h))
 SWELL_API_DEFINE(int, ListView_GetItemCount,(HWND h))
 SWELL_API_DEFINE(int, ListView_GetSelectionMark,(HWND h))
 SWELL_API_DEFINE(void, ListView_SetColumnWidth,(HWND h, int colpos, int wid))
-SWELL_API_DEFINE(bool, ListView_SetItemState,(HWND h, int item, int state, int statemask))
+SWELL_API_DEFINE(bool, ListView_SetItemState,(HWND h, int item, UINT state, UINT statemask))
 SWELL_API_DEFINE(void, ListView_RedrawItems,(HWND h, int startitem, int enditem))
 SWELL_API_DEFINE(void, ListView_SetItemCount,(HWND h, int cnt))
 SWELL_API_DEFINE(void, ListView_EnsureVisible,(HWND h, int i, BOOL pok))
@@ -545,7 +547,7 @@ SWELL_API_DEFINE(bool, EnableMenuItem,(HMENU hMenu, int idx, int en))
 SWELL_API_DEFINE(bool, DeleteMenu,(HMENU hMenu, int idx, int flag))
 SWELL_API_DEFINE(bool, CheckMenuItem,(HMENU hMenu, int idx, int chk))
 SWELL_API_DEFINE(void, InsertMenuItem,(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi))
-SWELL_API_DEFINE(void,SWELL_InsertMenu,(HMENU menu, int pos, int flag, UINT_PTR idx, const char *str))
+SWELL_API_DEFINE(void,SWELL_InsertMenu,(HMENU menu, int pos, unsigned int flag, UINT_PTR idx, const char *str))
 #ifdef InsertMenu
 #undef InsertMenu
 #endif
@@ -1059,7 +1061,7 @@ SWELL_API_DEFINE(HWND, SWELL_MakeGroupBox,(const char *name, int idx, int x, int
 SWELL_API_DEFINE(HWND, SWELL_MakeCheckBox,(const char *name, int idx, int x, int y, int w, int h, int flags))
 SWELL_API_DEFINE(HWND, SWELL_MakeListBox,(int idx, int x, int y, int w, int h, int styles))
 
-SWELL_API_DEFINE(void, SWELL_Menu_AddMenuItem,(HMENU hMenu, const char *name, int idx, int flags))
+SWELL_API_DEFINE(void, SWELL_Menu_AddMenuItem,(HMENU hMenu, const char *name, int idx, unsigned int flags))
 SWELL_API_DEFINE(int, SWELL_GenerateMenuFromList,(HMENU hMenu, const void *list, int listsz)) // list is SWELL_MenuGen_Entry
 
 SWELL_API_DEFINE(void, SWELL_GenerateDialogFromList, (const void *list, int listsz))
