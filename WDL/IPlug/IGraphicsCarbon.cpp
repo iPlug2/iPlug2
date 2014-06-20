@@ -1020,7 +1020,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 
   if (!pControl || mTextEntryView || !mIsComposited) return;
 
-  Rect r = { pTextRect->T, pTextRect->L, pTextRect->B, pTextRect->R };
+  Rect r = { static_cast<short>(pTextRect->T), static_cast<short>(pTextRect->L), static_cast<short>(pTextRect->B), static_cast<short>(pTextRect->R) };
 
   // these adjustments should make it the same as the cocoa one, i.e. the same size as the pTextRect, but with the extra blue rim often this is too small
   //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 };
@@ -1072,7 +1072,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
       break;
   }
 
-  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, pText->mSize, 0, 0, just, 0, 0 };
+  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, static_cast<SInt16>(pText->mSize), 0, 0, static_cast<SInt16>(just), 0, 0 };
   CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
   font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
 

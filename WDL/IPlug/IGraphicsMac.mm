@@ -279,7 +279,7 @@ void IGraphicsMac::Resize(int w, int h)
   #endif
   if (mGraphicsCocoa)
   {
-    NSSize size = { w, h };
+    NSSize size = { static_cast<CGFloat>(w), static_cast<CGFloat>(h) };
     [(IGRAPHICS_COCOA*) mGraphicsCocoa setFrameSize: size ];
   }
 }
