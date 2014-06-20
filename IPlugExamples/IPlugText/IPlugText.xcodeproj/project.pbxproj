@@ -2485,6 +2485,8 @@
 					"$(IPLUG_PATH)",
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
+					"$(AAX_SDK)/Interfaces",
+					"$(AAX_SDK)/Interfaces/ACF",
 				);
 				INFOPLIST_FILE = "resources/IPlugText-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -2529,6 +2531,8 @@
 					"$(IPLUG_PATH)",
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
+					"$(AAX_SDK)/Interfaces",
+					"$(AAX_SDK)/Interfaces/ACF",
 				);
 				INFOPLIST_FILE = "resources/IPlugText-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -2574,6 +2578,8 @@
 					"$(IPLUG_PATH)",
 					"$(ADDITIONAL_INCLUDES)",
 					"$(inherited)",
+					"$(AAX_SDK)/Interfaces",
+					"$(AAX_SDK)/Interfaces/ACF",
 				);
 				INFOPLIST_FILE = "resources/IPlugText-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
