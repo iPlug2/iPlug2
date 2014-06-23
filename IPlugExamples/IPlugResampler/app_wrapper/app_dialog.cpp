@@ -243,7 +243,7 @@ void PopulatePreferencesDialog(HWND hwndDlg)
   PopulateMidiDialogs(hwndDlg);
 }
 
-#else if defined OS_OSX
+#elif defined OS_OSX
 void PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"CoreAudio");
