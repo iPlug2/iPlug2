@@ -1,4 +1,4 @@
-extract AAX_SDK_2p1p0.zip here 
+extract AAX_SDK_2p1p1.zip here 
 
 make the following mods to compile on 10.68 / Xcode 3.26
 
