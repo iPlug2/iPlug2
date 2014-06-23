@@ -71,4 +71,4 @@ double	AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
   return ToNormalizedParam(realValue, mMinValue, mMaxValue, mShape);
 }
 
-#endif AAX_CIPlugTAPERDELEGATE_H
+#endif //AAX_CIPlugTAPERDELEGATE_H
