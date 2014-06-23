@@ -174,7 +174,7 @@ CFStringRef CFAUPresetArrayCopyDescriptionCallBack(const void * inPreset)
 	AUPreset * preset = (AUPreset*) inPreset;
 	return CFStringCreateWithFormat(kCFAllocatorDefault, NULL, 
 									CFSTR("AUPreset:\npreset number = %d\npreset name = %@"), 
-									preset->presetNumber, preset->presetName);
+									(int)preset->presetNumber, preset->presetName);
 }
 
 //-----------------------------------------------------------------------------
