@@ -55,7 +55,7 @@ then
 	export MallocStackLogging=1
 	set env MallocStackLoggingNoCompact=1
 
-	auval -v $TYPE $PUID $PMID -w -q
+	auval $x86_ARGS -v $TYPE $PUID $PMID -w -q
 	
 	unset MallocStackLogging
 
