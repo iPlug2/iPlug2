@@ -35,26 +35,6 @@ void DBGMSG(const char *format, ...)
   #define LOGFILE "IPlugLog.txt" // will get put on Desktop
 #endif
 
-const int TXTLEN = 1024;
-
-// _vsnsprintf
-
-#define VARARGS_TO_STR(str) { \
-  try { \
-    va_list argList;  \
-    va_start(argList, format);  \
-    int i = vsnprintf(str, TXTLEN-2, format, argList); \
-    if (i < 0 || i > TXTLEN-2) {  \
-      str[TXTLEN-1] = '\0';  \
-    } \
-    va_end(argList);  \
-  } \
-  catch(...) {  \
-    strcpy(str, "parse error"); \
-  } \
-  strcat(str, "\r\n"); \
-}
-
 struct LogFile
 {
   FILE* mFP;
@@ -196,6 +176,26 @@ const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const
 }
 
 #if defined TRACER_BUILD
+
+const int TXTLEN = 1024;
+
+// _vsnsprintf
+
+#define VARARGS_TO_STR(str) { \
+  try { \
+    va_list argList;  \
+    va_start(argList, format);  \
+    int i = vsnprintf(str, TXTLEN-2, format, argList); \
+    if (i < 0 || i > TXTLEN-2) {  \
+      str[TXTLEN-1] = '\0';  \
+    } \
+    va_end(argList);  \
+  } \
+  catch(...) {  \
+    strcpy(str, "parse error"); \
+  } \
+  strcat(str, "\r\n"); \
+}
 
 intptr_t GetOrdinalThreadID(intptr_t sysThreadID)
 {
