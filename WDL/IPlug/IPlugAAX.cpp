@@ -461,12 +461,6 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::SetParameterFromGUI(int idx, double normalizedValue)
-{
-  Trace(TRACELOC, "%d:%f", idx, normalizedValue);
-  InformHostOfParamChange(idx, normalizedValue);
-}
-
 int IPlugAAX::GetSamplePos()
 { 
   int64_t samplePos;
