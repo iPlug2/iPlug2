@@ -129,17 +129,6 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       err |= AAX_CIPlugParameters::StaticDescribe(effectDescriptor, setupInfo);
       
       AAX_ASSERT (err == AAX_SUCCESS);
-      
-      // Data model
-      err |= effectDescriptor->AddProcPtr( (void *) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
-      
-      // GUI
-      err |= effectDescriptor->AddProcPtr( (void *) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
-      
-      if ( err == AAX_SUCCESS )
-        err = outCollection->AddEffect(BUNDLE_ID, effectDescriptor );
-      
-      AAX_ASSERT (err == AAX_SUCCESS);
           
       ioConfigIdx++;
     }
@@ -149,6 +138,17 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     if (channelIOStr)
       ++channelIOStr;
   }
+  
+  // Data model
+  err |= effectDescriptor->AddProcPtr( (void *) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
+  
+  // GUI
+  err |= effectDescriptor->AddProcPtr( (void *) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
+  
+  if ( err == AAX_SUCCESS )
+    err = outCollection->AddEffect(BUNDLE_ID, effectDescriptor );
+  
+  AAX_ASSERT (err == AAX_SUCCESS);
   
   char *mfrNameStr = PLUG_MFR_PT;
   
