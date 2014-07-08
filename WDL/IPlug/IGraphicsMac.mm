@@ -25,6 +25,122 @@ struct CocoaAutoReleasePool
   }
 };
 
+//#define IGRAPHICS_MAC_BLIT_BENCHMARK
+//#define IGRAPHICS_MAC_OLD_IMAGE_DRAWING
+
+#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
+#include <sys/time.h>
+static double gettm()
+{
+  struct timeval tm={0,};
+  gettimeofday(&tm,NULL);
+  return (double)tm.tv_sec + (double)tm.tv_usec/1000000;
+}
+#endif
+
+#ifndef __ppc__
+
+#ifdef __SSE__
+#include <xmmintrin.h>
+#endif
+
+static void SWELL_fastDoubleUpImage(unsigned int *op, const unsigned int *ip, int w, int h, int sw, int newspan)
+{
+  int y = h;
+  while (y-->0)
+  {
+    const unsigned int *rd = ip;
+    unsigned int *wr = op;
+    int remaining = w;
+    
+#ifdef __SSE__
+    if (remaining >= 4)
+    {
+      // with SSE is about 2x faster than without
+      if (((INT_PTR)rd & 7))
+      {
+        // input isn't 8 byte aligned, must use unaligned reads
+        int x = remaining/4;
+        while (x-->0)
+        {
+          __m128 m =  _mm_loadu_ps((const float *)rd);
+          __m128 p1 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(1,1,0,0));
+          __m128 p2 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(3,3,2,2));
+          
+          unsigned int *wr2 = wr+newspan;
+          rd+=4;
+          
+          _mm_store_ps((float*)wr,p1);
+          _mm_store_ps((float*)wr2,p1);
+          
+          _mm_store_ps((float*)wr + 4,p2);
+          _mm_store_ps((float*)wr2 + 4,p2);
+          
+          wr += 8;
+        }
+      }
+      else
+      {
+        // if rd is 8 byte aligned, we can do SSE without unaligned reads
+        
+        // but if it is not 16 byte aligned, we need to preprocess a pair of pixels
+        // (advancing rd by 8 bytes, and wr by 16)
+        
+        if ((INT_PTR)rd & 15)
+        {
+          unsigned int *nwr = wr+newspan;
+          wr[0] = wr[1] = nwr[0] = nwr[1] = rd[0];
+          wr[2] = wr[3] = nwr[2] = nwr[3] = rd[1];
+          wr+=4;
+          rd+=2;
+          remaining-=2;
+        }
+        
+        int x = remaining/4;
+        while (x-->0)
+        {
+          __m128 m =  _mm_load_ps((const float *)rd);
+          __m128 p1 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(1,1,0,0));
+          __m128 p2 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(3,3,2,2));
+          
+          unsigned int *wr2 = wr+newspan;
+          rd+=4;
+          
+          _mm_store_ps((float*)wr,p1);
+          _mm_store_ps((float*)wr2,p1);
+          
+          _mm_store_ps((float*)wr + 4,p2);
+          _mm_store_ps((float*)wr2 + 4,p2);
+          
+          wr += 8;
+        }
+      }
+      remaining &= 3;
+    }
+#endif //__SSE__
+    
+    int x = remaining/2;
+    while (x-->0)
+    {
+      unsigned int *nwr = wr+newspan;
+      wr[0] = wr[1] = nwr[0] = nwr[1] = rd[0];
+      wr[2] = wr[3] = nwr[2] = nwr[3] = rd[1];
+      rd+=2;
+      wr+=4;
+    }
+    if (remaining&1)
+    {
+      wr[0] = wr[1] = wr[newspan] = wr[newspan+1] = *rd;
+    }
+    ip += sw;
+    op += newspan*2;
+  }
+}
+#endif
+
+
+
+
 @interface CUSTOM_COCOA_WINDOW : NSWindow {}
 @end
 
@@ -37,7 +153,8 @@ IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
     #ifndef IPLUG_NO_CARBON_SUPPORT
     mGraphicsCarbon(0),
     #endif
-    mGraphicsCocoa(0)
+    mGraphicsCocoa(0),
+    mColorSpace(NULL)
 {
   NSApplicationLoad();
 }
@@ -45,6 +162,11 @@ IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
 IGraphicsMac::~IGraphicsMac()
 {
   CloseWindow();
+  if (mColorSpace)
+  {
+    CFRelease(mColorSpace);
+    mColorSpace=0;
+  }
 }
 
 LICE_IBitmap* LoadImgFromResourceOSX(const char* bundleID, const char* filename)
@@ -116,12 +238,80 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
   {
     return false;
   }
-
+  
+  if (!mColorSpace)
+  {
+    SInt32 v=0x1040;
+    Gestalt(gestaltSystemVersion,&v);
+    if (v >= 0x1070)
+    {
+      // use monitor colorspace for faster drawing on 10.7+
+      CMProfileRef systemMonitorProfile = NULL;
+      CMError getProfileErr = CMGetSystemProfile(&systemMonitorProfile);
+      if(noErr == getProfileErr)
+      {
+        mColorSpace = CGColorSpaceCreateWithPlatformColorSpace(systemMonitorProfile);
+        CMCloseProfile(systemMonitorProfile);
+      }
+    }
+    if (!mColorSpace)
+      mColorSpace = CGColorSpaceCreateDeviceRGB();
+  }
+  
+#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
+  double tm=gettm();
+#endif
+  
+  CGImageRef img=NULL;
+  
+#ifdef IGRAPHICS_MAC_OLD_IMAGE_DRAWING
   HDC__ * srcCtx = (HDC__*) mDrawBitmap->getDC();
-  CGImageRef img = CGBitmapContextCreateImage(srcCtx->ctx); 
-  r.size.width = mDrawBitmap->getRowSpan();
-  CGContextDrawImage(pCGC, r, img);
-  CGImageRelease(img);
+  img = CGBitmapContextCreateImage(srcCtx->ctx);
+#else
+  const unsigned char *p = (const unsigned char *)mDrawBitmap->getBits();
+  const unsigned char *retina_buf = NULL;
+  
+  int sw = mDrawBitmap->getRowSpan();
+  int h = mDrawBitmap->getHeight();
+  int w = mDrawBitmap->getWidth();
+#ifndef __ppc__
+  if (CGContextConvertSizeToDeviceSpace(pCGC, CGSizeMake(1,1)).width > 1.9)
+  {
+    const int newspan = (w*2+3)&~3;
+    const int newsz=sizeof(unsigned int) * newspan*h*2 + 32;
+    mRetinaUpscaleBuf.Resize(newsz,false);
+    if (mRetinaUpscaleBuf.GetSize()==newsz)
+    {
+      retina_buf = (unsigned char *)mRetinaUpscaleBuf.Get();
+      const UINT_PTR align = (UINT_PTR)retina_buf & 31;
+      if (align) retina_buf += 32-align;
+      
+      SWELL_fastDoubleUpImage((unsigned int *)retina_buf,
+                              (const unsigned int *)p,w,h,sw,newspan);
+      
+      sw = newspan;
+      w *= 2;
+      h *= 2;
+    }
+  }
+#endif
+  
+  
+  CGDataProviderRef provider = CGDataProviderCreateWithData(NULL,retina_buf ? retina_buf : p,4*sw*h,NULL);
+  img = CGImageCreate(w,h,8,32,4*sw,(CGColorSpaceRef)mColorSpace,
+                                 kCGImageAlphaNoneSkipFirst,
+                                 provider,NULL,NO,kCGRenderingIntentDefault);
+  CGDataProviderRelease(provider);
+#endif
+  
+  if (img)
+  {
+    CGContextDrawImage(pCGC, r, img);
+    CGImageRelease(img);
+  }
+#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
+  printf("blit %fms\n",(gettm()-tm)*1000.0);
+#endif
   return true;
 }
 

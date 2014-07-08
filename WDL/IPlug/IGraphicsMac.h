@@ -128,6 +128,9 @@ private:
   friend class IGraphicsCarbon;
 #endif
   
+  void *mColorSpace; // CGColorSpaceRef, created on demand and freed on destroy
+  WDL_HeapBuf mRetinaUpscaleBuf; // used for doubled-bitmap when drawing retina
+  
 public: //TODO: make this private
   void* mHostNSWindow;
 };
