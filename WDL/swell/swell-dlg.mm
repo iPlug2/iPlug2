@@ -35,29 +35,14 @@ static LRESULT sendSwellMessage(id obj, UINT uMsg, WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-static BOOL Is105Plus()
-{
-  static char is105;
-  if (!is105)
-  {
-    SInt32 v=0x1040;
-    Gestalt(gestaltSystemVersion,&v);
-    is105 = v>=0x1050 ? 1 : -1;    
-  }
-  return is105>0;
-}
 
-static BOOL useNoMiddleManCocoa() { return Is105Plus(); }
+extern int SWELL_GetOSXVersion();
+
+static BOOL useNoMiddleManCocoa() { return SWELL_GetOSXVersion() >= 0x1050; }
 
 void updateWindowCollection(NSWindow *w)
 {
-  static SInt32 ver;
-  if (!ver)
-  {
-    Gestalt(gestaltSystemVersion,&ver);
-    if (!ver) ver=0x1040;
-  }
-  if (ver>=0x1060)
+  if (SWELL_GetOSXVersion()>=0x1060)
   {
     const int NSWindowCollectionBehaviorParticipatesInCycle = 1 << 5;
     const int  NSWindowCollectionBehaviorManaged = 1 << 2;
@@ -1200,6 +1185,7 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
 - (void)scrollWheel:(NSEvent *)theEvent
 {
   if (!m_enabled) return;
+  // todo: use scrollingDeltaX/scrollingDeltaY etc on 10.7+ ?
   if ([theEvent deltaY] != 0.0f)
   {
     SWELL_SendMouseMessage(self,WM_MOUSEWHEEL,theEvent);
@@ -3013,7 +2999,7 @@ void SWELL_SetViewGL(HWND h, bool wantGL)
             (NSOpenGLPixelFormatAttribute)96/*NSOpenGLPFAAllowOfflineRenderers*/, // allows use of NSSupportsAutomaticGraphicsSwitching and no gpu-forcing
             (NSOpenGLPixelFormatAttribute)0
         }; // todo: optionally add any attributes before the 0
-        if (!Is105Plus()) atr[0]=(NSOpenGLPixelFormatAttribute)0; // 10.4 can't use offline renderers and will fail trying
+        if (SWELL_GetOSXVersion() < 0x1050) atr[0]=(NSOpenGLPixelFormatAttribute)0; // 10.4 can't use offline renderers and will fail trying
 
         NSOpenGLPixelFormat *fmt  = [[NSOpenGLPixelFormat alloc] initWithAttributes:atr];
         
@@ -3042,21 +3028,27 @@ void DrawSwellViewRectImpl(SWELL_hwndChild *view, NSRect rect, HDC hdc)
     return;
   }    
   view->m_paintctx_hdc=hdc;
-  if (view->m_paintctx_hdc && view->m_glctx)
+  if (view->m_paintctx_hdc)
   {
     view->m_paintctx_hdc->GLgfxctx = view->m_glctx;
-    
-    [view->m_glctx setView:view];
-    [view->m_glctx makeCurrentContext];
-    [view->m_glctx update];
+    if (view->m_glctx)
+    {
+      [view->m_glctx setView:view];
+      [view->m_glctx makeCurrentContext];
+      [view->m_glctx update];
+    }
   }
   view->m_paintctx_rect=rect;
   view->m_paintctx_used=false;
   DoPaintStuff(view->m_wndproc,(HWND)view,view->m_paintctx_hdc,&view->m_paintctx_rect);
   
-  if (view->m_paintctx_hdc && view->m_glctx && [NSOpenGLContext currentContext] == view->m_glctx)
+  if (view->m_paintctx_hdc)
   {
-    [NSOpenGLContext clearCurrentContext]; 
+    if (view->m_glctx && [NSOpenGLContext currentContext] == view->m_glctx)
+    {
+      [NSOpenGLContext clearCurrentContext]; 
+    }
+    view->m_paintctx_hdc->GLgfxctx = NULL;
   }
   view->m_paintctx_hdc=0;
   if (!view->m_paintctx_used) {

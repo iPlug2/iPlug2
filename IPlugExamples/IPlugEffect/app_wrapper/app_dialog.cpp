@@ -19,12 +19,15 @@ void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtA
 
   std::vector<int> matchedSRs;
 
-  for (int i=0; i<inputDevInfo->sampleRates.size(); i++)
+  if(inputDevInfo->probed && outputDevInfo->probed)
   {
-    for (int j=0; j<outputDevInfo->sampleRates.size(); j++)
+    for (int i=0; i<inputDevInfo->sampleRates.size(); i++)
     {
-      if(inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
-        matchedSRs.push_back(inputDevInfo->sampleRates[i]);
+      for (int j=0; j<outputDevInfo->sampleRates.size(); j++)
+      {
+        if(inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
+          matchedSRs.push_back(inputDevInfo->sampleRates[i]);
+      }
     }
   }
 
@@ -44,6 +47,9 @@ void PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_RESETCONTENT,0,0);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_RESETCONTENT,0,0);
+
+  if(!info->probed)
+    return;
 
   int i;
 
@@ -72,10 +78,11 @@ void PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 
   int i;
 
-//  for (int i=0; i<info.outputChannels; i++) {
+  if(!info->probed)
+    return;
+
   for (i=0; i<info->outputChannels -1; i++)
   {
-
     wsprintf(buf,"%i",i+1);
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_L,CB_ADDSTRING,0,(LPARAM)buf);
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_ADDSTRING,0,(LPARAM)buf);
@@ -137,11 +144,21 @@ void PopulateDriverSpecificControls(HWND hwndDlg)
 
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_DEV,CB_SETCURSEL, outdevidx, 0);
 
-  RtAudio::DeviceInfo inputDevInfo = gDAC->getDeviceInfo(gAudioInputDevs[indevidx]);
-  RtAudio::DeviceInfo outputDevInfo = gDAC->getDeviceInfo(gAudioOutputDevs[outdevidx]);
+  RtAudio::DeviceInfo inputDevInfo;
+  RtAudio::DeviceInfo outputDevInfo;
 
-  PopulateAudioInputList(hwndDlg, &inputDevInfo);
-  PopulateAudioOutputList(hwndDlg, &outputDevInfo);
+  if(gAudioInputDevs.size())
+  {
+    inputDevInfo = gDAC->getDeviceInfo(gAudioInputDevs[indevidx]);
+    PopulateAudioInputList(hwndDlg, &inputDevInfo);
+  }
+
+  if(gAudioOutputDevs.size())
+  {
+    outputDevInfo = gDAC->getDeviceInfo(gAudioOutputDevs[outdevidx]);
+    PopulateAudioOutputList(hwndDlg, &outputDevInfo);
+  }
+
   PopulateSampleRateList(hwndDlg, &inputDevInfo, &outputDevInfo);
 }
 
@@ -315,8 +332,11 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
               TryToChangeAudioDriverType();
               ProbeAudioIO();
 
-              strcpy(gState->mAudioInDev,GetAudioDeviceName(gAudioInputDevs[0]).c_str());
-              strcpy(gState->mAudioOutDev,GetAudioDeviceName(gAudioOutputDevs[0]).c_str());
+              if(gAudioInputDevs.size())
+                strcpy(gState->mAudioInDev,GetAudioDeviceName(gAudioInputDevs[0]).c_str());
+
+              if(gAudioOutputDevs.size())
+                strcpy(gState->mAudioOutDev,GetAudioDeviceName(gAudioOutputDevs[0]).c_str());
 
               // Reset IO
               gState->mAudioOutChanL = 1;
