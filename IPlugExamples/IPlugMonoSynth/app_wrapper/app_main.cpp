@@ -752,7 +752,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     {
       // folder doesn't exist - make folder and make file
       CreateDirectory(gINIPath, NULL);
-      sprintf(gINIPath, "%s%s", gINIPath, "settings.ini"); // add file name to path
+      sprintf(gINIPath, "%s\\%s", gINIPath, "settings.ini"); // add file name to path
       UpdateINI(); // will write file if doesn't exist
     }
 
