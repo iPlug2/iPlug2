@@ -322,7 +322,7 @@ SWELL_API_DEFINE(int, SWELL_SetWindowLevel, (HWND hwnd, int newlevel))
 ** InvalidateRect()
 ** Notes: eraseBk is ignored, probably not threadsafe! hwnd can be NSWindow or NSView
 */
-SWELL_API_DEFINE(void,InvalidateRect,(HWND hwnd, RECT *r, int eraseBk))
+SWELL_API_DEFINE(BOOL,InvalidateRect,(HWND hwnd, const RECT *r, int eraseBk))
 
 /*
 ** UpdateWindow()
@@ -457,6 +457,11 @@ SWELL_API_DEFINE(void, ListView_SetColumnWidth,(HWND h, int colpos, int wid))
 SWELL_API_DEFINE(bool, ListView_SetItemState,(HWND h, int item, UINT state, UINT statemask))
 SWELL_API_DEFINE(void, ListView_RedrawItems,(HWND h, int startitem, int enditem))
 SWELL_API_DEFINE(void, ListView_SetItemCount,(HWND h, int cnt))
+#ifdef ListView_SetItemCountEx
+#undef ListView_SetItemCountEx
+#endif
+#define ListView_SetItemCountEx(list,cnt,flags) ListView_SetItemCount(list,cnt)
+
 SWELL_API_DEFINE(void, ListView_EnsureVisible,(HWND h, int i, BOOL pok))
 SWELL_API_DEFINE(bool, ListView_GetSubItemRect,(HWND h, int item, int subitem, int code, RECT *r))
 SWELL_API_DEFINE(void, ListView_SetImageList,(HWND h, HIMAGELIST imagelist, int which)) 
