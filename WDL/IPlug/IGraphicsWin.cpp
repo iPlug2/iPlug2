@@ -380,7 +380,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 // static
 LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(GetParent(hWnd), GWLP_USERDATA);
 
   if (pGraphics && pGraphics->mParamEditWnd && pGraphics->mParamEditWnd == hWnd)
   {
@@ -969,7 +969,7 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
   SetFocus(mParamEditWnd);
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
-  SetWindowLong(mParamEditWnd, GWLP_USERDATA, (LPARAM) this);
+  SetWindowLongPtr(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
 
   //DeleteObject(font);
 
