@@ -36,6 +36,12 @@ inline IMouseMod GetMouseMod(WPARAM wParam)
   return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON),
                    (wParam & MK_SHIFT), (wParam & MK_CONTROL), IsOptionKeyDown());
 }
+#elif defined(AAX_API)
+inline IMouseMod GetMouseMod(WPARAM wParam)
+{
+  return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON),
+                   (wParam & MK_SHIFT), (wParam & MK_CONTROL), GetAsyncKeyState(VK_MENU) < 0);
+}
 #else
 inline IMouseMod GetMouseMod(WPARAM wParam)
 {
