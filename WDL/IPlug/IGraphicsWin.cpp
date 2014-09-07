@@ -30,25 +30,23 @@ enum EParamEditMsg
 
 #define IPLUG_TIMER_ID 2
 
+inline IMouseMod GetMouseMod(WPARAM wParam)
+{
+  return IMouseMod((wParam & MK_LBUTTON), 
+                   (wParam & MK_RBUTTON),
+                   (wParam & MK_SHIFT), 
+                   (wParam & MK_CONTROL), 
+                   
 #ifdef RTAS_API
-inline IMouseMod GetMouseMod(WPARAM wParam)
-{
-  return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON),
-                   (wParam & MK_SHIFT), (wParam & MK_CONTROL), IsOptionKeyDown());
-}
+                   IsOptionKeyDown()
 #elif defined(AAX_API)
-inline IMouseMod GetMouseMod(WPARAM wParam)
-{
-  return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON),
-                   (wParam & MK_SHIFT), (wParam & MK_CONTROL), GetAsyncKeyState(VK_MENU) < 0);
-}
+                   GetAsyncKeyState(VK_MENU) < 0
 #else
-inline IMouseMod GetMouseMod(WPARAM wParam)
-{
-  return IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON),
-                   (wParam & MK_SHIFT), (wParam & MK_CONTROL), GetKeyState(VK_MENU) < 0);
-}
+                   GetKeyState(VK_MENU) < 0
 #endif
+                   );
+}
+
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
