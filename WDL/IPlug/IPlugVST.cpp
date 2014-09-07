@@ -743,6 +743,9 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       }
       return 0;
     }
+    case effGetTailSize:
+      return _this->GetTailSize();
+    }
     case effVendorSpecific:
     {
       // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/

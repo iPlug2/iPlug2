@@ -801,7 +801,15 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     }
     case kAudioUnitProperty_TailTime:                    // 20,   // listenable
     {
-      return GetProperty(kAudioUnitProperty_Latency, scope, element, pDataSize, pWriteable, pData);
+      ASSERT_SCOPE(kAudioUnitScope_Global);
+      *pWriteable = GetTailSize() > 0;
+      *pDataSize = sizeof(Float64);
+      
+      if (pData)
+      {
+        *((Float64*) pData) = (double) GetTailSize() / GetSampleRate();
+      }
+      return noErr;
     }
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
