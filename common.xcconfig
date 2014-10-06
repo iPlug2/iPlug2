@@ -6,10 +6,10 @@
 CERTIFICATE_ID = Your_Developer_ID
 
 // Which compiler to use
-COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
+//COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
 //COMPILER = com.intel.compilers.icc.12_1_0
 //COMPILER = com.apple.compilers.llvmgcc42 // use this ...
-//COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4+/10.7+
+COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4+/10.7+
 
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
 BASE_SDK = macosx10.5
