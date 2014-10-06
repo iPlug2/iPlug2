@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{be9703fc-4d42-41c6-8f20-01b4ccecba8d}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90</Extensions>
+    </Filter>
+    <Filter Include="Source Files\pluginterfaces">
+      <UniqueIdentifier>{d0f68a46-0122-4878-824a-475009e46b5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\container templates">
+      <UniqueIdentifier>{6a22c0fe-1835-4ab1-94fd-c9f41b84dcbd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\baseiids.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\classfactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fatomic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fbitset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fcpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fdebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fdynlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\finitializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fmemory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fpoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\frect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fstreamer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fstring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fthread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\updatehandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\pluginterfaces\base\conststringtable.cpp">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\pluginterfaces\base\funknown.cpp">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\classfactory.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fatomic.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fbitset.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fbuffer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fcleanup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fcommandline.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fcontainer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fcpu.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fdebug.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fdynlib.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\finitializer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fmemory.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fobject.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fpoint.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\frect.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fstreamer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fstring.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fthread.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\timer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\updatehandler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\conststringtable.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\fplatform.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\fstrdefs.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\ftypes.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\funknown.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\futils.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pluginterfaces\base\iupdatehandler.h">
+      <Filter>Source Files\pluginterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tarray.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tassociation.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tbag.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tbinarytree.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tbtree.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tbtreedictionary.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tbtreeset.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tcontainer.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tdeque.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tdictionary.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tdlist.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\thashset.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\thashtable.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tlist.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tqueue.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tringbuffer.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tstack.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\tvector.h">
+      <Filter>Source Files\container templates</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
