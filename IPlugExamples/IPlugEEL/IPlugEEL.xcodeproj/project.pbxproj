@@ -2616,6 +2616,7 @@
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wno-incompatible-ms-struct",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
 			};
@@ -2663,6 +2664,7 @@
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wno-incompatible-ms-struct",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
 			};
@@ -2709,6 +2711,7 @@
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wno-incompatible-ms-struct",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
 			};
