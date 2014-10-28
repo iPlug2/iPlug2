@@ -2280,6 +2280,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = $(DEPLOYMENT_TARGET);
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "-fno-inline";
@@ -2330,6 +2331,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = $(DEPLOYMENT_TARGET);
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
@@ -2375,6 +2377,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = $(DEPLOYMENT_TARGET);
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
@@ -2529,8 +2532,8 @@
 					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"$(AAX_SDK)/Libs/Release",
 				);
-				PREBINDING = YES;
 				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
+				PREBINDING = YES;
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
