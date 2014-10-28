@@ -3,7 +3,7 @@
 // along with some other global build variables
 
 // this is used for Developer ID / Appstore code-signing and is used in the makedist-mac shell script
-CERTIFICATE_ID = Your_Developer_ID
+CERTIFICATE_ID = Oliver Larkin
 
 // Which compiler to use
 //COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
@@ -22,7 +22,7 @@ BASE_SDK = macosx10.5
 //CLANG_CXX_LIBRARY = libc++
 
 // the minimum OS to support
-MACOSX_DEPLOYMENT_TARGET = 10.5
+DEPLOYMENT_TARGET = 10.5
 
 // Where the SDKs etc are located in relation to the plugin xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
