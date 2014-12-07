@@ -118,6 +118,8 @@ public:
   void SetAllAuxParamsFromGUI();
   int NAuxParams() { return mAuxParams.GetSize(); }
   
+  IPlugBase* GetPlug() { return mPlug; }
+  
 protected:
   int mTextEntryLength;
   IText mText;
