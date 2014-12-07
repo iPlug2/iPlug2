@@ -270,6 +270,7 @@ public:
 
   virtual void OnMouseDown(int x, int y, IMouseMod* pMod);
   virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod);
+  virtual void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
 
   virtual bool Draw(IGraphics* pGraphics);
   

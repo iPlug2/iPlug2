@@ -463,6 +463,27 @@ void IFaderControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
   return SnapToMouse(x, y);
 }
 
+void IFaderControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
+{
+#ifdef PROTOOLS
+  if (pMod->C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (pMod->C || pMod->S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+  
+  SetDirty();
+}
+
 void IFaderControl::SnapToMouse(int x, int y)
 {
   if (mDirection == kVertical)
