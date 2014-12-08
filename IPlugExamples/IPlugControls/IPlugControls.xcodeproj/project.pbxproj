@@ -2448,7 +2448,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = $(DEPLOYMENT_TARGET);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "-fno-inline";
@@ -2499,7 +2499,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = $(DEPLOYMENT_TARGET);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
@@ -2545,7 +2545,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = $(DEPLOYMENT_TARGET);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
