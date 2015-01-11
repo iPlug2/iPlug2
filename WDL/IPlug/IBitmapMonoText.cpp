@@ -29,7 +29,8 @@ void DrawBitmapedText(IGraphics* pGraphics,
       basicXOffset = controlRect->L + charWidth;
 
     int widthAsOneLine = charWidth * len;
-    int lineWidth = controlRect->W() - (charWidth * 2);
+    //int lineWidth = controlRect->W() - (charWidth * 2);
+    int lineWidth = controlRect->W(); //- (charWidth * 2);
 
     assert(lineWidth > 0);
 
