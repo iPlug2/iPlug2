@@ -895,19 +895,23 @@ bool ProjectContext_GetNextLine(ProjectStateContext *ctx, LineParser *lpOut)
 }
 
 
-bool ProjectContext_EatCurrentBlock(ProjectStateContext *ctx)
+bool ProjectContext_EatCurrentBlock(ProjectStateContext *ctx, ProjectStateContext *ctxOut)
 {
   int child_count=1;
   if (ctx) for (;;)
   {
     char linebuf[4096];
     if (ctx->GetLine(linebuf,sizeof(linebuf))) break;
+    const char *sp = linebuf;
+    while (*sp == ' ' || *sp == '\t') sp++;
 
-    bool comment_state=false;
-    LineParser lp(comment_state);
-    if (lp.parse(linebuf)||lp.getnumtokens()<=0) continue;
-    if (lp.gettoken_str(0)[0] == '>')  if (--child_count < 1) return true;
-    if (lp.gettoken_str(0)[0] == '<') child_count++;
+    const char *p = sp;    
+    if (*p == '\'' || *p == '"' || *p == '`') p++; // skip a quote if any
+    if (p[0] == '>')  if (--child_count < 1) return true;
+
+    if (ctxOut) ctxOut->AddLine("%s",sp);
+
+    if (p[0] == '<') child_count++;
   }
 
   return false;
@@ -1020,7 +1024,7 @@ void cfg_encode_binary(ProjectStateContext *ctx, const void *ptr, int len)
 int cfg_decode_textblock(ProjectStateContext *ctx, WDL_String *str) // 0 on success, appends to str
 {
   int child_count=1;
-  bool comment_state=false;
+  bool comment_state=false, did_firstline=!!str->Get()[0];
   for (;;)
   {
     char linebuf[4096];
@@ -1039,7 +1043,8 @@ int cfg_decode_textblock(ProjectStateContext *ctx, WDL_String *str) // 0 on succ
       while (*p == ' ' || *p == '\t') p++;
       if (*p == '|')
       {
-        if (str->Get()[0]) str->Append("\r\n");
+        if (!did_firstline) did_firstline=true;
+        else str->Append("\r\n");
         str->Append(++p);
       }
     }
@@ -1050,7 +1055,7 @@ int cfg_decode_textblock(ProjectStateContext *ctx, WDL_String *str) // 0 on succ
 int cfg_decode_textblock(ProjectStateContext *ctx, WDL_FastString *str) // 0 on success, appends to str
 {
   int child_count=1;
-  bool comment_state=false;
+  bool comment_state=false, did_firstline=!!str->Get()[0];
   for (;;)
   {
     char linebuf[4096];
@@ -1069,7 +1074,8 @@ int cfg_decode_textblock(ProjectStateContext *ctx, WDL_FastString *str) // 0 on 
       while (*p == ' ' || *p == '\t') p++;
       if (*p == '|')
       {
-        if (str->Get()[0]) str->Append("\r\n");
+        if (!did_firstline) did_firstline=true;
+        else str->Append("\r\n");
         str->Append(++p);
       }
     }

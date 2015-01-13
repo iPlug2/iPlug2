@@ -324,7 +324,7 @@ HGDIOBJ SelectObject(HDC ctx, HGDIOBJ pen)
 
 
 
-void SWELL_FillRect(HDC ctx, RECT *r, HBRUSH br)
+void SWELL_FillRect(HDC ctx, const RECT *r, HBRUSH br)
 {
   HDC__ *c=(HDC__ *)ctx;
   HGDIOBJ__ *b=(HGDIOBJ__*) br;
@@ -684,11 +684,33 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   return font;
 }
 
-
+int GetTextFace(HDC ctx, int nCount, LPTSTR lpFaceName)
+{
+  HDC__ *ct=(HDC__*)ctx;
+  if (!HDC_VALID(ct) || !nCount || !lpFaceName) return 0;
+  
+#ifndef SWELL_NO_CORETEXT
+  CTFontRef fr=NULL;
+  if (HGDIOBJ_VALID(ct->curfont,TYPE_FONT)) fr=(CTFontRef)ct->curfont->ct_FontRef;
+  if (!fr)  fr=GetCoreTextDefaultFont();
+  
+  if (fr)
+  {
+    CFStringRef name=CTFontCopyDisplayName(fr);
+    const char* p=[(NSString*)name UTF8String];
+    if (p)
+    {
+      lstrcpyn(lpFaceName, p, nCount);
+      return strlen(lpFaceName);
+    }
+  }
+#endif
+  
+  return 0;
+}
 
 BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
 {
-  
   HDC__ *ct=(HDC__ *)ctx;
   if (tm) // give some sane defaults
   {
@@ -1219,7 +1241,7 @@ HICON LoadNamedImage(const char *name, bool alphaFromMask)
   return i;
 }
 
-void DrawImageInRect(HDC ctx, HICON img, RECT *r)
+void DrawImageInRect(HDC ctx, HICON img, const RECT *r)
 {
   HGDIOBJ__ *i = (HGDIOBJ__ *)img;
   HDC__ *ct=(HDC__*)ctx;
@@ -1576,7 +1598,7 @@ void SWELL_PushClipRegion(HDC ctx)
   if (HDC_VALID(ct) && ct->ctx) CGContextSaveGState(ct->ctx);
 }
 
-void SWELL_SetClipRegion(HDC ctx, RECT *r)
+void SWELL_SetClipRegion(HDC ctx, const RECT *r)
 {
   HDC__ *ct=(HDC__ *)ctx;
   if (HDC_VALID(ct) && ct->ctx) CGContextClipToRect(ct->ctx,CGRectMake(r->left,r->top,r->right-r->left,r->bottom-r->top));
@@ -1695,7 +1717,7 @@ void ReleaseDC(HWND h, HDC hdc)
   }
 }
 
-void SWELL_FillDialogBackground(HDC hdc, RECT *r, int level)
+void SWELL_FillDialogBackground(HDC hdc, const RECT *r, int level)
 {
   CGContextRef ctx=(CGContextRef)SWELL_GetCtxGC(hdc);
   if (ctx)
