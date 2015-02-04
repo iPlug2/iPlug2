@@ -59,6 +59,7 @@ public:
 
   IText* GetText() { return &mText; }
   int GetTextEntryLength() { return mTextEntryLength; }
+  void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText* txt) { mText = *txt; }
   IRECT* GetRECT() { return &mRECT; }       // The draw area for this control.
   IRECT* GetTargetRECT() { return &mTargetRECT; } // The mouse target area (default = draw area).
