@@ -429,6 +429,11 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
           pGraphics->mParamEditMsg = kCommit;
           return 0;
         }
+        else if (wParam == VK_ESCAPE)
+        {
+          pGraphics->mParamEditMsg = kCancel;
+          return 0;
+        }
         break;
       }
       case WM_SETFOCUS:
