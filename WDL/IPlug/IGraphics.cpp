@@ -355,6 +355,20 @@ void IGraphics::SetAllControlsDirty()
   }
 }
 
+void IGraphics::AssignParamNameToolTips()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    if (pControl->ParamIdx() > -1)
+    {
+      pControl->SetTooltip(pControl->GetParam()->GetNameForHost());
+    }
+  }
+}
+
 void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
 {
   int i, n = mControls.GetSize();

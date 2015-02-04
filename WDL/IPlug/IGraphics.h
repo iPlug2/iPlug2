@@ -205,11 +205,13 @@ public:
   void ReleaseMouseCapture();
 
   // Enables/disables tooltips; also enables mouseovers/mouseouts if necessary.
-  inline void EnableTooltips(bool enable)
+  void EnableTooltips(bool enable)
   {
     mEnableTooltips = enable;
     if (enable) mHandleMouseOver = enable;
   }
+  
+  void AssignParamNameToolTips();
   
   // in debug builds you can enable this to draw a coloured box on the top of the GUI to show the bounds of the IControls
   inline void ShowControlBounds(bool enable)
