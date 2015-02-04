@@ -443,7 +443,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       }
       case WM_KILLFOCUS:
       {
-        pGraphics->mParamEditMsg = kCancel; // when another window is focussed, kill the text edit box
+        pGraphics->mParamEditMsg = kCommit;
         break;
       }
       // handle WM_GETDLGCODE so that we can say that we want the return key message
