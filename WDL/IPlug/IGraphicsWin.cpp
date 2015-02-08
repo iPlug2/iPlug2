@@ -429,6 +429,11 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
           pGraphics->mParamEditMsg = kCommit;
           return 0;
         }
+        else if (wParam == VK_ESCAPE)
+        {
+          pGraphics->mParamEditMsg = kCancel;
+          return 0;
+        }
         break;
       }
       case WM_SETFOCUS:
@@ -438,7 +443,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       }
       case WM_KILLFOCUS:
       {
-        pGraphics->mParamEditMsg = kCancel; // when another window is focussed, kill the text edit box
+        pGraphics->mParamEditMsg = kCommit;
         break;
       }
       // handle WM_GETDLGCODE so that we can say that we want the return key message
@@ -959,17 +964,16 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
     default:                  editStyle = ES_CENTER; break;
   }
 
-  editStyle |= ES_MULTILINE;
-
-  mParamEditWnd = CreateWindow("EDIT", pString, WS_CHILD | WS_VISIBLE | editStyle ,
+  mParamEditWnd = CreateWindow("EDIT", pString, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
                                pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1,
                                mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
 
+  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) pControl->GetTextEntryLength(), 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
-  Edit_LimitText(mParamEditWnd, pControl->GetTextEntryLength());
+
   SetFocus(mParamEditWnd);
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
