@@ -22,7 +22,7 @@ public:
     : mPlug(pPlug), mRECT(pR), mTargetRECT(pR), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
       mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
       mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN), 
-      mValDisplayControl(0), mNameDisplayControl(0), mTooltip(NULL) {}
+      mValDisplayControl(0), mNameDisplayControl(0), mTooltip("") {}
 
   virtual ~IControl() {}
 
@@ -48,8 +48,8 @@ public:
   void PromptUserInput();
   void PromptUserInput(IRECT* pTextRect);
   
-  inline void SetTooltip(const char* tooltip) { mTooltip = tooltip; }
-  inline const char* GetTooltip() const { return mTooltip; }
+  inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
+  inline const char* GetTooltip() const { return mTooltip.Get(); }
 
   int ParamIdx() { return mParamIdx; }
   IParam *GetParam() { return mPlug->GetParam(mParamIdx); }
@@ -133,7 +133,7 @@ protected:
   IChannelBlend mBlend;
   IControl* mValDisplayControl;
   IControl* mNameDisplayControl;
-  const char* mTooltip;
+  WDL_String mTooltip;
 };
 
 enum EDirection { kVertical, kHorizontal };
