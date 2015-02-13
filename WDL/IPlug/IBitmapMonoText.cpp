@@ -25,8 +25,10 @@ void DrawBitmapedText(IGraphics* pGraphics,
     
     if (pItext->mAlign == IText::kAlignCenter)
       basicXOffset = controlRect->L + ((controlRect->W() - (len * charWidth)) / 2);
-    else
+    else if (pItext->mAlign == IText::kAlignNear)
       basicXOffset = controlRect->L + charWidth;
+    else if (pItext->mAlign == IText::kAlignFar)
+      basicXOffset = controlRect->R - (len * charWidth);
 
     int widthAsOneLine = charWidth * len;
     //int lineWidth = controlRect->W() - (charWidth * 2);
