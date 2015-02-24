@@ -276,12 +276,11 @@ public:
 
   virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
-  #ifndef OS_IOS
-  bool SaveProgramAsFXP(const char* defaultFileName = "");
-  bool SaveBankAsFXB(const char* defaultFileName = "");
-  bool LoadProgramFromFXP();
-  bool LoadBankFromFXB();
-  #endif
+  
+  bool SaveProgramAsFXP(WDL_String* fileName);
+  bool SaveBankAsFXB(WDL_String* fileName);
+  bool LoadProgramFromFXP(WDL_String* fileName);
+  bool LoadBankFromFXB(WDL_String* fileName);
   
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
@@ -327,7 +326,6 @@ protected:
   double mSampleRate;
   int mBlockSize, mLatency;
   unsigned int mTailSize;
-  WDL_String mPreviousPath; // for saving/loading fxps
   NChanDelayLine* mDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
   WDL_PtrList<const char> mParamGroups;
 
