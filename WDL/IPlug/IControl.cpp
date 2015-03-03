@@ -105,7 +105,7 @@ void IControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
   #endif
 }
 
-#define PARAM_EDIT_W 30
+#define PARAM_EDIT_W 40
 #define PARAM_EDIT_H 16
 
 void IControl::PromptUserInput()
