@@ -129,6 +129,8 @@ public:
   virtual void CloseWindow() = 0;
   virtual void* GetWindow() = 0;
 
+  virtual bool GetTextFromClipboard(WDL_String* pStr) = 0;
+
   ////////////////////////////////////////
 
   IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS = 0);

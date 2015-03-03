@@ -1241,3 +1241,70 @@ void IGraphicsWin::HideTooltip()
     mShowingTooltip = false;
   }
 }
+
+bool IGraphicsWin::GetTextFromClipboard(WDL_String* pStr)
+{
+  bool success = false;
+  HGLOBAL hglb;
+  
+  if (IsClipboardFormatAvailable(CF_UNICODETEXT))
+  {
+    if(OpenClipboard(0))
+    {
+      hglb = GetClipboardData(CF_UNICODETEXT);
+      
+      if(hglb != NULL)
+      {
+        WCHAR *orig_str = (WCHAR*)GlobalLock(hglb);
+        
+        if (orig_str != NULL)
+        {
+          int orig_len = (int) wcslen(orig_str);
+          
+          orig_len += 1;
+          
+          // find out how much space is needed
+          int new_len = WideCharToMultiByte(CP_UTF8,
+                                            0,
+                                            orig_str,
+                                            orig_len,
+                                            0,
+                                            0,
+                                            NULL,
+                                            NULL);
+          
+          if (new_len > 0)
+          {
+            char *new_str = new char[new_len + 1];
+            
+            int num_chars = WideCharToMultiByte(CP_UTF8,
+                                                0,
+                                                orig_str,
+                                                orig_len,
+                                                new_str,
+                                                new_len,
+                                                NULL,
+                                                NULL);
+            
+            if (num_chars > 0)
+            {
+              success = true;
+              pStr->Set(new_str);
+            }
+            
+            delete [] new_str;
+          }
+          
+          GlobalUnlock(hglb);
+        }
+      }
+    }
+    
+    CloseClipboard();
+  }
+  
+  if(!success)
+    pStr->Set("");
+  
+  return success;
+}

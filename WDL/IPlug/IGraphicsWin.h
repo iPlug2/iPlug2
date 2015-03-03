@@ -57,6 +57,7 @@ public:
 
   const char* GetGUIAPI() { return "Windows GDI"; };
   
+  bool GetTextFromClipboard(WDL_String* pStr);
 protected:
   LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
 

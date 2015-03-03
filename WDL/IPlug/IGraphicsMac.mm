@@ -820,3 +820,20 @@ int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
   Trace(TRACELOC, "%x", ver);
   return ver;
 }
+
+bool IGraphicsMac::GetTextFromClipboard(WDL_String* pStr)
+{
+  NSString* text = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
+  
+  if (text == nil)
+  {
+    pStr->Set("");
+    return false;
+  }
+  else
+  {
+    pStr->Set([text UTF8String]);
+    return true;
+  }
+}
+
