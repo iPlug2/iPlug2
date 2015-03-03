@@ -121,7 +121,8 @@ public:
   int NAuxParams() { return mAuxParams.GetSize(); }
   
   IPlugBase* GetPlug() { return mPlug; }
-  
+  IGraphics* GetGUI() { return mPlug->GetGUI(); }
+
 protected:
   int mTextEntryLength;
   IText mText;
