@@ -648,6 +648,17 @@ void IGraphicsMac::AppSupportPath(WDL_String* pPath)
   pPath->Set([applicationSupportDirectory UTF8String]);
 }
 
+void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String* pPath)
+{
+#if MAC_OS_X_VERSION_10_5 <= MAC_OS_X_VERSION_MAX_ALLOWED
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSUserDirectory, NSUserDomainMask, YES);
+#elif MAC_OS_X_VERSION_10_6 <= MAC_OS_X_VERSION_MAX_ALLOWED
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
+#endif
+  NSString *userMusicDirectory = [paths objectAtIndex:0];
+  pPath->Set([userMusicDirectory UTF8String]);
+}
+
 // extensions = "txt wav" for example
 void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
 {

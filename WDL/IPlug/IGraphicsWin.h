@@ -35,6 +35,7 @@ public:
   void PluginPath(WDL_String* pPath);
   void DesktopPath(WDL_String* pPath);
   void AppSupportPath(WDL_String* pPath);
+  void SandboxSafeAppSupportPath(WDL_String* pPath) { AppSupportPath(pPath, false); }
 
   void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
