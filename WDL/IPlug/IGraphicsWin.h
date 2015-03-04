@@ -34,7 +34,8 @@ public:
   void HostPath(WDL_String* pPath);
   void PluginPath(WDL_String* pPath);
   void DesktopPath(WDL_String* pPath);
-  void AppSupportPath(WDL_String* pPath);
+  //void VST3PresetsPath(WDL_String* pPath, bool isSystem = true);
+  void AppSupportPath(WDL_String* pPath, bool isSystem = false);
   void SandboxSafeAppSupportPath(WDL_String* pPath) { AppSupportPath(pPath, false); }
 
   void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.

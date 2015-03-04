@@ -105,7 +105,7 @@ public:
   //Windows7: %LOCALAPPDATA%\
   //Windows XP/Vista: %USERPROFILE%\Local Settings\Application Data\
   //OSX: ~/Library/Application Support/
-  virtual void AppSupportPath(WDL_String* pPath) = 0;
+  virtual void AppSupportPath(WDL_String* pPath, bool isSystem = false) = 0;
   virtual void SandboxSafeAppSupportPath(WDL_String* pPath) = 0;
 
   // Run the "open file" or "save file" dialog.  Default to host executable path.

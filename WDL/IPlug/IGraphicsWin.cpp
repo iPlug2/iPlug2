@@ -1028,14 +1028,38 @@ void IGraphicsWin::DesktopPath(WDL_String* pPath)
   #endif
 }
 
-void IGraphicsWin::AppSupportPath(WDL_String* pPath)
+void IGraphicsWin::AppSupportPath(WDL_String* pPath, bool isSystem)
 {
 #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
-  SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath );
+
+  if (isSystem)
+    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
+  else
+    SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
+
   pPath->Set(strPath, MAX_PATH_LEN);
 #endif
 }
+
+//void IGraphicsWin::VST3PresetsPath(WDL_String* pPath, bool isSystem)
+//{
+//  TCHAR strPath[MAX_PATH_LEN];
+//
+//  if (!isSystem)
+//  {
+//    TCHAR strPath[MAX_PATH_LEN];
+//    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
+//    pPath->Set(strPath, MAX_PATH_LEN);
+//  }
+//  else
+//  {
+//    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
+//    pPath->Set(strPath, MAX_PATH_LEN);
+//  }
+//
+//  pPath->AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug->GetMfrNameStr(), mPlug->GetPluginNameStr());
+//}
 
 void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
 {
@@ -1308,3 +1332,4 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String* pStr)
   
   return success;
 }
+
