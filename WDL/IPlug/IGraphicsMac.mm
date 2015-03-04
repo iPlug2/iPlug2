@@ -641,9 +641,30 @@ void IGraphicsMac::DesktopPath(WDL_String* pPath)
   pPath->Set([desktopDirectory UTF8String]);
 }
 
-void IGraphicsMac::AppSupportPath(WDL_String* pPath)
+//void IGraphicsMac::VST3PresetsPath(WDL_String* pPath, bool isSystem)
+//{
+//  NSArray *paths;
+//  if (isSystem)
+//    paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
+//  else
+//    paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+//  
+//  NSString *applicationSupportDirectory = [paths objectAtIndex:0];
+//  pPath->SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/",
+//                      [applicationSupportDirectory UTF8String],
+//                      GetController()->GetMfrNameStr(),
+//                      GetController()->GetPluginNameStr());
+//}
+
+void IGraphicsMac::AppSupportPath(WDL_String* pPath, bool isSystem)
 {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  NSArray *paths;
+  
+  if (isSystem)
+    paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSSystemDomainMask, YES);
+  else
+    paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  
   NSString *applicationSupportDirectory = [paths objectAtIndex:0];
   pPath->Set([applicationSupportDirectory UTF8String]);
 }
@@ -651,12 +672,14 @@ void IGraphicsMac::AppSupportPath(WDL_String* pPath)
 void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String* pPath)
 {
 #if MAC_OS_X_VERSION_10_5 <= MAC_OS_X_VERSION_MAX_ALLOWED
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSUserDirectory, NSUserDomainMask, YES);
+  NSString *userHomeDir = NSHomeDirectory();
+  pPath->Set([userHomeDir UTF8String]);
+  pPath->Append("/Music");
 #elif MAC_OS_X_VERSION_10_6 <= MAC_OS_X_VERSION_MAX_ALLOWED
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
-#endif
   NSString *userMusicDirectory = [paths objectAtIndex:0];
   pPath->Set([userMusicDirectory UTF8String]);
+#endif
 }
 
 // extensions = "txt wav" for example
