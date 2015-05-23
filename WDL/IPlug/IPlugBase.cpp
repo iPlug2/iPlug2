@@ -1026,6 +1026,29 @@ void IPlugBase::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
+void IPlugBase::DumpBankBlob(const char* filename)
+{
+  FILE* fp = fopen(filename, "w");
+  
+  if (!fp)
+    return;
+  
+  char buf[MAX_BLOB_LENGTH] = "";
+  
+  for (int i = 0; i< NPresets(); i++)
+  {
+    IPreset* pPreset = mPresets.Get(i);
+    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
+    
+    ByteChunk* pPresetChunk = &pPreset->mChunk;
+    base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
+    
+    fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
+  }
+  
+  fclose(fp);
+}
+
 void IPlugBase::SetInputLabel(int idx, const char* pLabel)
 {
   if (idx >= 0 && idx < NInChannels())
