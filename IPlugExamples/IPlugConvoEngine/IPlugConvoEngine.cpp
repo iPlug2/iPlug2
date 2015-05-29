@@ -218,7 +218,7 @@ void IPlugConvoEngine::ProcessDoubleReplacing(double** inputs, double** outputs,
 	double *out_l = outputs[0];
 	double *out_r = outputs[1];
 
-	int nAvail = MIN(mEngine.Avail(nFrames), nFrames);
+	int nAvail = IPMIN(mEngine.Avail(nFrames), nFrames);
 
 	// If not enough samples are available yet, then only output the dry
 	// signal.
