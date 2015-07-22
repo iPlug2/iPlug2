@@ -89,9 +89,14 @@ typedef bool WDL_bool;
 #endif
 
 
-#ifndef max
+#if !defined(max) && defined(WDL_DEFINE_MINMAX)
 #define max(x,y) ((x)<(y)?(y):(x))
 #define min(x,y) ((x)<(y)?(x):(y))
+#endif
+
+#ifndef wdl_max
+#define wdl_max(x,y) ((x)<(y)?(y):(x))
+#define wdl_min(x,y) ((x)<(y)?(x):(y))
 #endif
 
 #ifndef _WIN32

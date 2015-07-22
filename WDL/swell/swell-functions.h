@@ -508,6 +508,7 @@ SWELL_API_DEFINE(HTREEITEM, TreeView_InsertItem, (HWND hwnd, TV_INSERTSTRUCT *in
 SWELL_API_DEFINE(BOOL, TreeView_Expand,(HWND hwnd, HTREEITEM item, UINT flag))
 SWELL_API_DEFINE(HTREEITEM, TreeView_GetSelection,(HWND hwnd))
 SWELL_API_DEFINE(void, TreeView_DeleteItem,(HWND hwnd, HTREEITEM item))
+SWELL_API_DEFINE(void, TreeView_DeleteAllItems,(HWND hwnd))
 SWELL_API_DEFINE(void, TreeView_SelectItem,(HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(BOOL, TreeView_GetItem,(HWND hwnd, LPTVITEM pitem))
 SWELL_API_DEFINE(BOOL, TreeView_SetItem,(HWND hwnd, LPTVITEM pitem))
@@ -1085,6 +1086,7 @@ SWELL_API_DEFINE(void,SWELL_Internal_PostMessage_Init,())
 
 SWELL_API_DEFINE(HCURSOR,SWELL_LoadCursorFromFile,(const char *fn))
 SWELL_API_DEFINE(void,SWELL_SetWindowWantRaiseAmt,(HWND h, int  amt))
+SWELL_API_DEFINE(int,SWELL_GetWindowWantRaiseAmt,(HWND))
 
 SWELL_API_DEFINE(void,SWELL_SetListViewFastClickMask,(HWND hList, int mask))
 
@@ -1110,6 +1112,7 @@ SWELL_API_DEFINE(void,SWELL_GetDesiredControlSize,(HWND hwnd, RECT *r))
 
 #ifdef __APPLE__
 SWELL_API_DEFINE(void,SWELL_DisableAppNap,(int disable))
+SWELL_API_DEFINE(int,SWELL_GetOSXVersion,())
 #endif
 
 

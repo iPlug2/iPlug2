@@ -1286,8 +1286,8 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   else pdest += dsty*dest_span;
   pdest+=dstx*sizeof(LICE_pixel);
 
-  int clip_r=(int)(srcx+max(srcw,0)+0.999999);
-  int clip_b=(int)(srcy+max(srch,0)+0.999999);
+  int clip_r=(int)(srcx+lice_max(srcw,0)+0.999999);
+  int clip_b=(int)(srcy+lice_max(srch,0)+0.999999);
   if (clip_r>src->getWidth()) clip_r=src->getWidth();
   if (clip_b>src->getHeight()) clip_b=src->getHeight();
 
@@ -1310,7 +1310,7 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   {
     if (xadvance>=1.7 && yadvance >=1.7 && (mode&LICE_BLIT_FILTER_MASK)==LICE_BLIT_FILTER_BILINEAR)
     {
-      int msc = max(idx,idy);
+      int msc = lice_max(idx,idy);
       const int filtsz=msc>(3<<16) ? 5 : 3;
       const int filt_start = - (filtsz/2);
 
@@ -2059,7 +2059,7 @@ template<class T> class LICE_TransformBlit_class
   const T *curpoints=srcpoints;
   for (y = 0; y < div_h-1; y ++)
   {
-    int nypos=(int)(ypos+=dypos);
+    int nypos=(int)((ypos+=dypos) + 0.5);
     int x;
     double xpos=dstx;
     int cxpos=dstx;
@@ -2069,7 +2069,7 @@ template<class T> class LICE_TransformBlit_class
       double iy=1.0/(double)(nypos-cypos);
       for (x = 0; x < div_w-1; x ++)
       {
-        int nxpos=(int) (xpos+=dxpos);
+        int nxpos=(int) ((xpos+=dxpos) + 0.5);
         if (nxpos != cxpos)
         {
           int offs=x*2;
@@ -2126,7 +2126,7 @@ template<class T> class LICE_TransformBlitAlpha_class
   const T *curpoints=srcpoints;
   for (y = 0; y < div_h-1; y ++)
   {
-    int nypos=(int)(ypos+=dypos);
+    int nypos=(int)((ypos+=dypos)+0.5);
     int x;
     double xpos=dstx;
     int cxpos=dstx;
@@ -2136,7 +2136,7 @@ template<class T> class LICE_TransformBlitAlpha_class
       double iy=1.0/(double)(nypos-cypos);
       for (x = 0; x < div_w-1; x ++)
       {
-        int nxpos=(int) (xpos+=dxpos);
+        int nxpos=(int) ((xpos+=dxpos)+0.5);
         if (nxpos != cxpos)
         {
           int offs=x*3;
