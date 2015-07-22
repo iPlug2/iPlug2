@@ -2106,6 +2106,7 @@
 				);
 				INFOPLIST_FILE = "resources/IPlugMouseTest-VST2-Info.plist";
 				SKIP_INSTALL = NO;
+				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Debug;
@@ -2120,6 +2121,7 @@
 				);
 				INFOPLIST_FILE = "resources/IPlugMouseTest-VST2-Info.plist";
 				SKIP_INSTALL = NO;
+				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Release;
@@ -2134,6 +2136,7 @@
 				);
 				INFOPLIST_FILE = "resources/IPlugMouseTest-VST2-Info.plist";
 				SKIP_INSTALL = NO;
+				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Tracer;
