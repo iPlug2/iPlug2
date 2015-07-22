@@ -29,7 +29,7 @@ RTAS_DEFS = RTAS_API
 
 AAX_DEFS = AAX_API
 
-APP_DEFS = SA_API __MACOSX_CORE__ //__UNIX_JACK__
+APP_DEFS = SA_API __MACOSX_CORE__ WDL_NO_DEFINE_MINMAX//__UNIX_JACK__
 
 IOS_DEFS = SA_API
 // Preprocessor definitions for all Debug builds
