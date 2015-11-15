@@ -138,7 +138,22 @@ struct IRECT
 
   IRECT() { L = T = R = B = 0; }
   IRECT(int l, int t, int r, int b) : L(l), R(r), T(t), B(b) {}
-  IRECT(int x, int y, IBitmap* pBitmap) : L(x), T(y), R(x + pBitmap->W), B(y + pBitmap->H / pBitmap->N) {}
+  
+  IRECT(int x, int y, IBitmap *pBitmap)
+  {
+    L = x;
+    T = y;
+    if (pBitmap->mFramesAreHorizontal)
+    {
+      R = L + pBitmap->W / pBitmap->N;
+      B = T + pBitmap->H;
+    }
+    else
+    {
+      R = L + pBitmap->W;
+      B = T + pBitmap->H / pBitmap->N;
+    }
+  }
 
   bool Empty() const
   {
