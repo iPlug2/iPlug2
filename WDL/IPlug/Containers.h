@@ -222,7 +222,7 @@ public:
     int dStartPos = Get(&len, startPos);
     if (dStartPos >= 0)
     {
-      int dEndPos = dStartPos + len;
+      int dEndPos = dStartPos + (len * sizeof(double));
       if (dEndPos <= mBytes.GetSize() && len > 0)
       {
         memcpy(data, mBytes.Get() + dStartPos, len * sizeof(double));
