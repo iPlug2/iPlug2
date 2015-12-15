@@ -9,6 +9,9 @@
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstevents.h"
 
+using namespace Steinberg;
+using namespace Vst;
+
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
                      int nParams,
                      const char* channelIOStr,

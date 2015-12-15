@@ -82,8 +82,6 @@ unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
   #endif
 #endif
 
-using namespace Steinberg::Vst;
-
 // called after library was loaded
 bool InitModule ()
 {
@@ -110,18 +108,18 @@ IPlug* MakePlug()
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 
-static FUnknown* createInstance (void*) {
-  return (IAudioProcessor*) MakePlug();
+static Steinberg::FUnknown* createInstance (void*) {
+  return (Steinberg::Vst::IAudioProcessor*) MakePlug();
 }
 
 // Company Information
 BEGIN_FACTORY_DEF (PLUG_MFR, MFR_URL, MFR_EMAIL)
 
 DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
-            PClassInfo::kManyInstances,                         // cardinality
+            Steinberg::PClassInfo::kManyInstances,              // cardinality
             kVstAudioEffectClass,                               // the component category (don't change this)
             PLUG_NAME,                                          // plug-in name
-            Vst::kSimpleModeSupported,                          // kSimpleModeSupported because we can't split the gui and plugin
+            Steinberg::Vst::kSimpleModeSupported,                          // kSimpleModeSupported because we can't split the gui and plugin
             EFFECT_TYPE_VST3,                                   // Subcategory for this plug-in
             VST3_VER_STR,                                       // plug-in version
             kVstVersionString,                                  // the VST 3 SDK version (dont changed this, use always this define)

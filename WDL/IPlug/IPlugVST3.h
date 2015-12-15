@@ -15,14 +15,11 @@ struct IPlugInstanceInfo
   // not needed
 };
 
-using namespace Steinberg;
-using namespace Vst;
-
 class IPlugVST3View;
 
 class IPlugVST3 : public IPlugBase
-                , public IUnitInfo
-                , public SingleComponentEffect
+                , public Steinberg::Vst::IUnitInfo
+                , public Steinberg::Vst::SingleComponentEffect
 {
 public:
   IPlugVST3(IPlugInstanceInfo instanceInfo,
@@ -44,42 +41,42 @@ public:
   virtual ~IPlugVST3();
 
   // AudioEffect overrides:
-  tresult PLUGIN_API initialize (FUnknown* context);
-  tresult PLUGIN_API terminate();
-  tresult PLUGIN_API setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts);
-  tresult PLUGIN_API setActive(TBool state);
-  tresult PLUGIN_API setupProcessing (ProcessSetup& newSetup);
-  tresult PLUGIN_API process(ProcessData& data);
-//  tresult PLUGIN_API setState(IBStream* state);
-//  tresult PLUGIN_API getState(IBStream* state);
-//  tresult PLUGIN_API setComponentState(IBStream *state);
-  tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize);
+  Steinberg::tresult PLUGIN_API initialize (FUnknown* context);
+  Steinberg::tresult PLUGIN_API terminate();
+  Steinberg::tresult PLUGIN_API setBusArrangements(Steinberg::Vst::SpeakerArrangement* inputs, Steinberg::int32 numIns, Steinberg::Vst::SpeakerArrangement* outputs, Steinberg::int32 numOuts);
+  Steinberg::tresult PLUGIN_API setActive(Steinberg::TBool state);
+  Steinberg::tresult PLUGIN_API setupProcessing (Steinberg::Vst::ProcessSetup& newSetup);
+  Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData& data);
+//  Steinberg::tresult PLUGIN_API setState(IBStream* state);
+//  Steinberg::tresult PLUGIN_API getState(IBStream* state);
+//  Steinberg::tresult PLUGIN_API setComponentState(IBStream *state);
+  Steinberg::tresult PLUGIN_API canProcessSampleSize(Steinberg::int32 symbolicSampleSize);
   Steinberg::uint32 PLUGIN_API getLatencySamples ();
   Steinberg::uint32 PLUGIN_API getTailSamples() { return GetTailSize(); }
   // IEditController
-  IPlugView* PLUGIN_API createView (const char* name);
-  tresult PLUGIN_API setEditorState (IBStream* state);
-  tresult PLUGIN_API getEditorState (IBStream* state);
-  tresult PLUGIN_API setParamNormalized (ParamID tag, ParamValue value);
-  ParamValue PLUGIN_API getParamNormalized(ParamID tag);
-  ParamValue PLUGIN_API plainParamToNormalized(ParamID tag, ParamValue plainValue);
-  tresult PLUGIN_API getParamStringByValue (ParamID tag, ParamValue valueNormalized, String128 string);
-  tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized);
+  Steinberg::IPlugView* PLUGIN_API createView (const char* name);
+  Steinberg::tresult PLUGIN_API setEditorState (Steinberg::IBStream* state);
+  Steinberg::tresult PLUGIN_API getEditorState (Steinberg::IBStream* state);
+  Steinberg::tresult PLUGIN_API setParamNormalized (Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value);
+  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized(Steinberg::Vst::ParamID tag);
+  Steinberg::Vst::ParamValue PLUGIN_API plainParamToNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue plainValue);
+  Steinberg::tresult PLUGIN_API getParamStringByValue (Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue valueNormalized, Steinberg::Vst::String128 string);
+  Steinberg::tresult PLUGIN_API getParamValueByString (Steinberg::Vst::ParamID tag, Steinberg::Vst::TChar* string, Steinberg::Vst::ParamValue& valueNormalized);
 
   //IUnitInfo
-  int32 PLUGIN_API getUnitCount();
-  tresult PLUGIN_API getUnitInfo(int32 unitIndex, UnitInfo& info);
-  int32 PLUGIN_API getProgramListCount();
-  tresult PLUGIN_API getProgramListInfo(int32 listIndex, ProgramListInfo& info);
-  tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name);
+  Steinberg::int32 PLUGIN_API getUnitCount();
+  Steinberg::tresult PLUGIN_API getUnitInfo(Steinberg::int32 unitIndex, Steinberg::Vst::UnitInfo& info);
+  Steinberg::int32 PLUGIN_API getProgramListCount();
+  Steinberg::tresult PLUGIN_API getProgramListInfo(Steinberg::int32 listIndex, Steinberg::Vst::ProgramListInfo& info);
+  Steinberg::tresult PLUGIN_API getProgramName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name);
 
-  virtual tresult PLUGIN_API getProgramInfo(ProgramListID listId, int32 programIndex, Steinberg::Vst::CString attributeId, String128 attributeValue) {return kNotImplemented;}
-  virtual tresult PLUGIN_API hasProgramPitchNames(ProgramListID listId, int32 programIndex) {return kNotImplemented;}
-  virtual tresult PLUGIN_API getProgramPitchName(ProgramListID listId, int32 programIndex, int16 midiPitch, String128 name) {return kNotImplemented;}
-  virtual UnitID PLUGIN_API getSelectedUnit () {return kRootUnitId;}
-  virtual tresult PLUGIN_API selectUnit(UnitID unitId) {return kNotImplemented;}
-  virtual tresult PLUGIN_API getUnitByBus(MediaType type, BusDirection dir, int32 busIndex, int32 channel, UnitID& unitId) {return kNotImplemented;}
-  virtual tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) {return kNotImplemented;}
+  virtual Steinberg::tresult PLUGIN_API getProgramInfo(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::CString attributeId, Steinberg::Vst::String128 attributeValue) {return Steinberg::kNotImplemented;}
+  virtual Steinberg::tresult PLUGIN_API hasProgramPitchNames(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex) {return Steinberg::kNotImplemented;}
+  virtual Steinberg::tresult PLUGIN_API getProgramPitchName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::int16 midiPitch, Steinberg::Vst::String128 name) {return Steinberg::kNotImplemented;}
+  virtual Steinberg::Vst::UnitID PLUGIN_API getSelectedUnit () {return Steinberg::Vst::kRootUnitId;}
+  virtual Steinberg::tresult PLUGIN_API selectUnit(Steinberg::Vst::UnitID unitId) {return Steinberg::kNotImplemented;}
+  virtual Steinberg::tresult PLUGIN_API getUnitByBus(Steinberg::Vst::MediaType type, Steinberg::Vst::BusDirection dir, Steinberg::int32 busIndex, Steinberg::int32 channel, Steinberg::Vst::UnitID& unitId) {return Steinberg::kNotImplemented;}
+  virtual Steinberg::tresult PLUGIN_API setUnitProgramData(Steinberg::int32 listOrUnitId, Steinberg::int32 programIndex, Steinberg::IBStream* data) {return Steinberg::kNotImplemented;}
   
   //IPlugBase
   virtual void BeginInformHostOfParamChange(int idx);
@@ -87,7 +84,7 @@ public:
   virtual void EndInformHostOfParamChange(int idx);
   virtual void InformHostOfProgramChange() {};
   
-  virtual bool IsRenderingOffline() { return (processSetup.processMode == kOffline); }
+  virtual bool IsRenderingOffline() { return (processSetup.processMode == Steinberg::Vst::kOffline); }
 
   virtual int GetSamplePos();
   virtual double GetTempo();
@@ -127,38 +124,38 @@ protected:
 private:
   void addDependentView (IPlugVST3View* view);
   void removeDependentView (IPlugVST3View* view);
-  virtual tresult beginEdit(ParamID tag);
-  virtual tresult performEdit(ParamID tag, ParamValue valueNormalized);
-  virtual tresult endEdit(ParamID tag);
-  AudioBus* getAudioInput(int32 index);
-  AudioBus* getAudioOutput(int32 index);
-  SpeakerArrangement getSpeakerArrForChans(int32 chans);
+  virtual Steinberg::tresult beginEdit(Steinberg::Vst::ParamID tag);
+  virtual Steinberg::tresult performEdit(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue valueNormalized);
+  virtual Steinberg::tresult endEdit(Steinberg::Vst::ParamID tag);
+  Steinberg::Vst::AudioBus* getAudioInput(Steinberg::int32 index);
+  Steinberg::Vst::AudioBus* getAudioOutput(Steinberg::int32 index);
+  Steinberg::Vst::SpeakerArrangement getSpeakerArrForChans(Steinberg::int32 chans);
 
   int mScChans;
   bool mSidechainActive;
 //  IMidiQueue mMidiOutputQueue;
-  ProcessContext mProcessContext;
-  TArray <IPlugVST3View*> viewsArray;
+  Steinberg::Vst::ProcessContext mProcessContext;
+  Steinberg::TArray <IPlugVST3View*> viewsArray;
 
   friend class IPlugVST3View;
 };
 
 IPlugVST3* MakePlug();
 
-class IPlugVST3View : public CPluginView
+class IPlugVST3View : public Steinberg::CPluginView
 {
 public:
   IPlugVST3View(IPlugVST3* pPlug);
   ~IPlugVST3View ();
 
   // CPluginView overides
-  tresult PLUGIN_API attached(void* parent, FIDString type);
-  tresult PLUGIN_API removed();
+  Steinberg::tresult PLUGIN_API attached(void* parent, Steinberg::FIDString type);
+  Steinberg::tresult PLUGIN_API removed();
 
   // IPlugView overides
-  tresult PLUGIN_API onSize(ViewRect* newSize);
-  tresult PLUGIN_API getSize(ViewRect* size);
-  tresult PLUGIN_API isPlatformTypeSupported(FIDString type);
+  Steinberg::tresult PLUGIN_API onSize(Steinberg::ViewRect* newSize);
+  Steinberg::tresult PLUGIN_API getSize(Steinberg::ViewRect* size);
+  Steinberg::tresult PLUGIN_API isPlatformTypeSupported(Steinberg::FIDString type);
 
   void resize(int w, int h);
 
