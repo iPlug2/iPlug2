@@ -689,6 +689,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define CB_GETCOUNT                 0x0146
 #define CB_GETCURSEL                0x0147
 #define CB_GETLBTEXT                0x0148
+#define CB_GETLBTEXTLEN             0x0149
 #define CB_INSERTSTRING             0x014A
 #define CB_RESETCONTENT             0x014B
 #define CB_FINDSTRING               0x014C
@@ -698,7 +699,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define CB_FINDSTRINGEXACT          0x0158
 #define CB_INITSTORAGE              0x0161
 
-#define LB_ADDSTRING            0x0180
+#define LB_ADDSTRING            0x0180 // oops these don't all match real windows, todo fix (maybe)
 #define LB_INSERTSTRING         0x0181
 #define LB_DELETESTRING         0x0182
 #define LB_GETTEXT              0x0183
@@ -707,6 +708,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define LB_SETCURSEL            0x0186
 #define LB_GETSEL               0x0187
 #define LB_GETCURSEL            0x0188
+#define LB_GETTEXTLEN           0x018A
 #define LB_GETCOUNT             0x018B
 #define LB_GETSELCOUNT          0x0190
 #define LB_GETITEMDATA          0x0199
@@ -1160,6 +1162,19 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define VK_F10            0x79
 #define VK_F11            0x7A
 #define VK_F12            0x7B
+#define VK_F13            0x7C
+#define VK_F14            0x7D
+#define VK_F15            0x7E
+#define VK_F16            0x7F
+#define VK_F17            0x80
+#define VK_F18            0x81
+#define VK_F19            0x82
+#define VK_F20            0x83
+#define VK_F21            0x84
+#define VK_F22            0x85
+#define VK_F23            0x86
+#define VK_F24            0x87
+
 #define VK_NUMLOCK        0x90
 #define VK_SCROLL         0x91
 

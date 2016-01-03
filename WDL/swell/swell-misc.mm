@@ -123,23 +123,19 @@ HANDLE SWELL_CreateProcess(const char *exe, int nparams, const char **params)
     [s release];
   }
 
-  NSTask *tsk = [[NSTask alloc] init];
-
-  if (tsk)
-  {
-    @try {
-      [tsk setArguments:ar];
-      [tsk setLaunchPath:ex];
-      [tsk launch];
-    }
-    @catch (NSException *exception) { 
-      [tsk release];
-      tsk=0;
-    }
-    @catch (id ex) {
-    }
+  NSTask *tsk = NULL;
+  
+  @try {
+    tsk = [NSTask launchedTaskWithLaunchPath:ex arguments:ar];
+  }
+  @catch (NSException *exception) { 
+    [tsk release];
+    tsk=0;
+  }
+  @catch (id ex) {
   }
 
+  if (tsk) [tsk retain];
   [ex release];
   [ar release];
   if (!tsk) return NULL;
@@ -657,7 +653,10 @@ int SWELL_GetOSXVersion()
   {
     if (NSAppKitVersionNumber >= 1266.0) 
     {
-      v=0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
+      if (NSAppKitVersionNumber >= 1404.0)
+        v = 0x10b0;
+      else
+        v = 0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
     }
     else 
     {

@@ -74,6 +74,7 @@ class LICE_CachedFont : public LICE_IFont
     virtual HFONT GetHFont() { return m_font; }
     virtual int GetLineHeight() { return m_line_height; }
 
+
     void SetLineSpacingAdjust(int amt) { m_lsadj=amt; }
 
   protected:

@@ -15,6 +15,7 @@ public:
   int m_tmp; // Cocoa uses this temporarily, generic uses it as a mask (1= selected)
 };
 
+struct HTREEITEM__;
 
 #ifdef SWELL_TARGET_OSX
 
@@ -110,22 +111,6 @@ typedef struct WindowPropRec
   void *data;
   struct WindowPropRec *_next;
 } WindowPropRec;
-
-
-
-struct HTREEITEM__
-{
-  HTREEITEM__();
-  ~HTREEITEM__();
-  bool FindItem(HTREEITEM it, HTREEITEM__ **parOut, int *idxOut);
-  
-  SWELL_DataHold *m_dh;
-  
-  bool m_haschildren;
-  char *m_value;
-  WDL_PtrList<HTREEITEM__> m_children; // only used in tree mode
-  LPARAM m_param;
-};
 
 
 
@@ -284,6 +269,7 @@ struct HTREEITEM__
   unsigned int m_create_windowflags;
   NSOpenGLContext *m_glctx;
   char m_isdirty; // &1=self needs redraw, &2=children may need redraw
+  char m_allow_nomiddleman;
   id m_lastTopLevelOwner; // save a copy of the owner, if any
   id m_access_cacheptrs[6];
 }
@@ -551,8 +537,10 @@ struct HDC__ {
 
 
 
-
-#endif // __OBJC__
+#else
+  // compat when compiling targetting OSX but not in objectiveC mode
+  struct SWELL_DataHold;
+#endif // !__OBJC__
 
 // 10.4 sdk just uses "float"
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
@@ -575,12 +563,36 @@ struct HDC__ {
 
 #endif // end generic
 
+struct HTREEITEM__
+{
+  HTREEITEM__();
+  ~HTREEITEM__();
+  bool FindItem(HTREEITEM it, HTREEITEM__ **parOut, int *idxOut);
+  
+#ifdef SWELL_TARGET_OSX
+  SWELL_DataHold *m_dh;
+#else
+  int m_state; // TVIS_EXPANDED, for ex
+#endif
+  
+  bool m_haschildren;
+  char *m_value;
+  WDL_PtrList<HTREEITEM__> m_children; // only used in tree mode
+  LPARAM m_param;
+};
+
+
+
 #ifndef SWELL_TARGET_OSX 
+
+#include "../wdlstring.h"
 
 #ifdef SWELL_LICE_GDI
 #include "../lice/lice.h"
 #endif
 #include "../assocarray.h"
+
+#define SWELL_INTERNAL_MENUBAR_SIZE 12
 
 LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -603,12 +615,12 @@ struct HWND__
 #ifdef SWELL_TARGET_GDK
   GdkWindow *m_oswindow;
 #endif
-  char *m_title;
+  WDL_FastString m_title;
 
   HWND__ *m_children, *m_parent, *m_next, *m_prev;
   HWND__ *m_owner, *m_owned;
   RECT m_position;
-  int m_id;
+  UINT m_id;
   int m_style, m_exstyle;
   INT_PTR m_userdata;
   WNDPROC m_wndproc;
@@ -780,5 +792,48 @@ typedef struct
 
 
 bool IsRightClickEmulateEnabled();
+
+#ifdef SWELL_INTERNAL_HTREEITEM_IMPL
+
+HTREEITEM__::HTREEITEM__()
+{
+  m_param=0;
+  m_value=0;
+  m_haschildren=false;
+#ifdef SWELL_TARGET_OSX
+  m_dh = [[SWELL_DataHold alloc] initWithVal:this];
+#else
+  m_state=0;
+#endif
+}
+HTREEITEM__::~HTREEITEM__()
+{
+  free(m_value);
+  m_children.Empty(true);
+#ifdef SWELL_TARGET_OSX
+  [m_dh release];
+#endif
+}
+
+
+bool HTREEITEM__::FindItem(HTREEITEM it, HTREEITEM__ **parOut, int *idxOut)
+{
+  int a=m_children.Find((HTREEITEM__*)it);
+  if (a>=0)
+  {
+    if (parOut) *parOut=this;
+    if (idxOut) *idxOut=a;
+    return true;
+  }
+  int x;
+  const int n=m_children.GetSize();
+  for (x = 0; x < n; x ++)
+  {
+    if (m_children.Get(x)->FindItem(it,parOut,idxOut)) return true;
+  }
+  return false;
+}
+
+#endif
 
 #endif

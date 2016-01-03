@@ -3,7 +3,7 @@
 
 #include "../wdlstring.h"
 #include "../ptrlist.h"
-
+#include <time.h>
 
 class WDL_CursesEditor
 {
@@ -12,6 +12,7 @@ public:
   virtual ~WDL_CursesEditor();
   
   bool IsDirty() const { return m_clean_undopos != m_undoStack_pos; }
+  void SetDirty() { m_clean_undopos = -1; }
 
   virtual int onChar(int c);
   virtual void onRightClick(HWND hwnd) { } 
@@ -25,6 +26,8 @@ public:
   int m_top_margin, m_bottom_margin;
 
   const char *GetFileName() { return m_filename.Get(); }
+  time_t GetLastModTime() const { return m_filelastmod; } // returns file mod time of last save or load, or 0 if unknown
+  void SetLastModTime(time_t v) { m_filelastmod=v; } // in case caller wants to manually set this value
 
   virtual void setCursor(int isVscroll=0, double ycenter=-1.0);
 
@@ -32,6 +35,7 @@ public:
   int m_max_undo_states;
 
   virtual int init(const char *fn, const char *init_if_empty=0); 
+  virtual int reload_file(bool clearUndo=false);
   virtual void draw(int lineidx=-1);
 
   virtual void highlight_line(int line);
@@ -39,6 +43,8 @@ public:
 protected:
   class refcntString;
   class editUndoRec;
+
+  void loadLines(FILE* fh);
 
   void draw_message(const char *str);
   void draw_status_state();
@@ -57,9 +63,11 @@ protected:
   void getselectregion(int &minx, int &miny, int &maxx, int &maxy);
   void doDrawString(int y, int x, int line_n, const char *p, int ml, int *c_comment_state, int skipcnt);
 
-  void saveUndoState();
-  void preSaveUndoState(); // updates coordinates of edit to last rec
-  void loadUndoState(editUndoRec *rec);
+  void saveUndoState(); // updates rec[0]/rec[1], rec[0] is view after edit (rec[1] will be view after following edit)
+  void preSaveUndoState(); // updates coordinates of edit to last rec[1]
+  void loadUndoState(editUndoRec *rec, int idx); // idx=0 on redo, 1=on undo
+
+  void updateLastModTime();
 
   virtual int GetCommentStateForLineStart(int line); // pass current line, returns flags (which will be passed as c_comment_state)
 
@@ -74,6 +82,13 @@ protected:
   int getVisibleLines() const;
   
   WDL_FastString m_filename;
+  time_t m_filelastmod; // last written-to or read-from modification time, or 0 if unknown
+  int m_newline_mode; // detected from input. 0 = \n, 1=\r\n
+
+  // auto-detected on input, set to >0 (usually m_indent_size) if all leading whitespace was tabs (some fuzzy logic too)
+  // this is a workaround until we retrofit real tab (and UTF-8) support
+  int m_write_leading_tabs; 
+
   WDL_PtrList<WDL_FastString> m_text;
   WDL_PtrList<editUndoRec> m_undoStack;
   int m_undoStack_pos;
@@ -139,11 +154,12 @@ protected:
 
     WDL_PtrList<refcntString> m_htext;
 
-    int m_offs_x;
-    int m_curs_x, m_curs_y;
-    int m_curpane;
-    double m_pane_div;
-    int m_paneoffs_y[2];
+    int m_offs_x[2];
+    int m_curs_x[2], m_curs_y[2];
+
+    int m_curpane[2];
+    double m_pane_div[2];
+    int m_paneoffs_y[2][2];
   };
 };
 #endif

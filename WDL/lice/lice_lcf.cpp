@@ -93,7 +93,7 @@ void LICECaptureCompressor::OnFrame(LICE_IBitmap *fr, int delta_t_ms)
       for(i=0;i<list_size; i++)
       {
         unsigned short *rd = list[i]->data + rdoffs;
-        if (i&&repeat_cnt<256)
+        if (i&&repeat_cnt<255)
         {
           unsigned short *rd1=rd;
           unsigned short *rd2=list[i-1]->data+rdoffs;
@@ -314,11 +314,18 @@ LICECaptureDecompressor::LICECaptureDecompressor(const char *fn, bool want_seeka
       if (want_seekable)
       {
         unsigned int lastpos = 0;
+        int first_frame_delay = 0;
         while (ReadHdr(0))
         {
           m_file_frame_info.Add(&lastpos,1);
           unsigned int mst = m_file_length_ms;
-          if (m_frame_deltas[0].GetSize()) mst += m_frame_deltas[0].Get()[0]; // TOC is by time of first frames, ignore first delay when seeking
+          if (m_frame_deltas[0].GetSize()) 
+          {
+            if (lastpos > 0)
+              mst += m_frame_deltas[0].Get()[0]-first_frame_delay; // TOC is by time of first frames, ignore first delay when seeking
+            else
+              first_frame_delay = m_frame_deltas[0].Get()[0];
+          }
           m_file_frame_info.Add(&mst,1);         
 
           int x;
