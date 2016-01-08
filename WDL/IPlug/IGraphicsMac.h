@@ -7,7 +7,7 @@
 
 // carbon support uses quickdraw methods that have been removed in SDKs > 10.6
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1060
-  #warning Carbon GUIs work best with the 10.6 sdk
+  #warning Carbon GUIs work best with the 10.6 sdk or lower
 #endif
 
 #include "IGraphics.h"
