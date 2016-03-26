@@ -69,7 +69,7 @@ public:
   bool FillIConvexPolygon(const IColor* pColor, int* x, int* y, int npoints, const IChannelBlend* pBlend = 0);
   bool FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend);
 
-  bool DrawIText(IText* pTxt, char* str, IRECT* pR, bool measure = false);
+  bool DrawIText(IText* pTxt, const char* str, IRECT* pR, bool measure = false);
   virtual bool MeasureIText(IText* pTxt, char* str, IRECT* pR) { return DrawIText(pTxt, str, pR, true); } ;
 
   IColor GetPoint(int x, int y);
