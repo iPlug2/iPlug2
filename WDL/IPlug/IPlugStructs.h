@@ -22,7 +22,8 @@ struct IBitmap
     , mFramesAreHorizontal(framesAreHorizontal)
   {}
 
-  inline int frameHeight() const { return H / N; }
+  inline int frameWidth() const { return framesAreHorizontal ? : W / N : W; }
+  inline int frameHeight() const { return framesAreHorizontal ? H : H / N; }
 };
 
 struct IColor
