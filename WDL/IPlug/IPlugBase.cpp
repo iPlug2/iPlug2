@@ -1327,7 +1327,7 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String* fileName)
       if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
       if (pluginID != GetUniqueID()) return false;
       //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
-      if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
+      //if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
       if (DoesStateChunks() && fxpMagic == 'FPCh')
       {
