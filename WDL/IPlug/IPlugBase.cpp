@@ -1,4 +1,4 @@
-#include "IPlugBase.h"
+  #include "IPlugBase.h"
 #ifndef OS_IOS
 #include "IGraphics.h"
 #include "IControl.h"
@@ -1007,7 +1007,7 @@ void IPlugBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNam
 }
 
 #ifndef MAX_BLOB_LENGTH
-#define MAX_BLOB_LENGTH 1024
+#define MAX_BLOB_LENGTH 2048
 #endif
 
 void IPlugBase::DumpPresetBlob(const char* filename)
