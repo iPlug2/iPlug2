@@ -31,6 +31,8 @@ EHost LookUpHost(const char* inHost)
   if (strstr(host, "vst3plugintesthost")) return kHostVST3TestHost;
   if (strstr(host, "protools")) return kHostProTools;
   if (strstr(host, "ardour")) return kHostArdour;
+  if (strstr(host, "openmpt")) return kHostOpenMPT;
+  if (strstr(host, "renoise")) return kHostRenoise;
   if (strstr(host, "standalone")) return kHostStandalone;
   
   return kHostUnknown;
@@ -108,6 +110,12 @@ void GetHostNameStr(EHost host, char* pHostName)
     break;
   case kHostArdour:
     strcpy(pHostName, "Ardour");
+    break;
+  case kHostOpenMPT:
+    strcpy(pHostName, "OpenMPT");
+    break;
+  case kHostRenoise:
+    strcpy(pHostName, "Renoise");
     break;
   case kHostStandalone:
     strcpy(pHostName, "Standalone");
