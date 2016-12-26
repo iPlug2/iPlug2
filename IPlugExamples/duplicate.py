@@ -93,7 +93,7 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
         for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
           yield x
       elif (f in SUBFOLDERS_TO_SEARCH):
-        print 'recursing in ' + f + ' directory: '
+        print('recursing in ' + f + ' directory: ')
         for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
           yield x
 
