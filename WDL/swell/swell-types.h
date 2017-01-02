@@ -810,6 +810,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define BS_AUTO3STATE      0x00000006L
 #define BS_AUTORADIOBUTTON 0x00000009L
 #define BS_OWNERDRAW       0x0000000BL
+#define BS_BITMAP          0x00000080L
 
 
 
@@ -985,6 +986,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define CBN_SELCHANGE       1
 #define CBN_EDITCHANGE      5
 #define CBN_DROPDOWN        7
+#define CBN_CLOSEUP         8
 #define CB_ERR (-1)
 
 #define EM_GETSEL               0xF0B0
@@ -1276,7 +1278,6 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define _RC_CHOP        0x00000300              /*   chop */
 
 
-extern struct SWELL_CursorResourceIndex *SWELL_curmodule_cursorresource_head;
 extern struct SWELL_DialogResourceIndex *SWELL_curmodule_dialogresource_head;
 extern struct SWELL_MenuResourceIndex *SWELL_curmodule_menuresource_head;
 
@@ -1349,6 +1350,8 @@ extern struct SWELL_MenuResourceIndex *SWELL_curmodule_menuresource_head;
 #define WAIT_FAILED (DWORD)0xFFFFFFFF
 #define INFINITE            0xFFFFFFFF
 
+
+#define FR_PRIVATE 1 // AddFontResourceEx()
 
 typedef struct _ICONINFO
 {

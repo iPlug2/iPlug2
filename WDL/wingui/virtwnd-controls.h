@@ -273,10 +273,16 @@ class WDL_VirtualSlider : public WDL_VWnd
     void SetFGColors(int knobcol, int zlcol) { m_knob_color=knobcol; m_zl_color = zlcol; }
     void SetKnobBias(int knobbias, int knobextrasize=0) { m_knobbias=knobbias; m_knob_lineextrasize=knobextrasize; } // 1=force knob, -1=prevent knob
 
+    void SetAccessDescCopy(const char *str);
+    void SetAccessValueDesc(const char *str);
+    virtual bool GetAccessValueDesc(char *buf, int bufsz);
+
   protected:
+    WDL_FastString m_valueText;
     WDL_VirtualSlider_SkinConfig *m_skininfo;
     WDL_VirtualWnd_BGCfg *m_knobbg[2];
     WDL_VirtualWnd_BGCfg *m_knobstacks;
+    char *m_accessDescCopy;
     int m_nknobstacks;
 
     int m_bgcol1_msg;
@@ -331,7 +337,7 @@ class WDL_VirtualListBox : public WDL_VWnd
 
     void SetDroppedMessage(int msg) { m_dropmsg=msg; }
     void SetClickedMessage(int msg) { m_clickmsg=msg; }
-    void SetDragBeginMessage(int msg) { m_dragbeginmsg=msg; }
+    void SetDragMessage(int msg) { m_dragmsg=msg; }
     int IndexFromPt(int x, int y);
     bool GetItemRect(int item, RECT *r); // returns FALSE if not onscreen
 
@@ -354,7 +360,7 @@ class WDL_VirtualListBox : public WDL_VWnd
   
     int m_cap_state;
     int m_cap_startitem;
-    int m_clickmsg,m_dropmsg,m_dragbeginmsg;
+    int m_clickmsg,m_dropmsg,m_dragmsg;
     int m_viewoffs;
     int m_align;
     int m_margin_r, m_margin_l;

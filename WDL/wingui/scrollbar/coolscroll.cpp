@@ -2638,7 +2638,10 @@ static LRESULT ThumbTrackHorz(SCROLLBAR *sbar, HWND hwnd, int x, int y, const wd
 	siMaxMin = si->nMax - si->nMin;
 
 	if(siMaxMin > 0)
+  {
 		pos = MulDiv(thumbpos-rc.left, siMaxMin-si->nPage + 1, rc.right-rc.left-nThumbSize);
+    /*this +1 should probably not be here, todo someday remove, allows thumb tracking messages to exceed expected bounds*/
+  }
 	else
 		pos = thumbpos - rc.left;
 
@@ -3337,6 +3340,8 @@ static void RedrawNonClient(HWND hwnd, BOOL fFrameChanged)
 #ifdef _WIN32
 		SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE
 			| SWP_FRAMECHANGED | SWP_DRAWFRAME);
+#else
+                InvalidateRect(hwnd,NULL,FALSE);
 #endif
 	}
 }

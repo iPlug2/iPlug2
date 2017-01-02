@@ -60,12 +60,12 @@ LICE_MemBitmap::LICE_MemBitmap(int w, int h, unsigned int linealign)
   m_height=0;
   m_linealign = linealign > 1 ? ((linealign & ~(linealign-1))-1) : 0; // force to be contiguous bits
   if (m_linealign>16) m_linealign=16;
-  if (w>0&&h>0) resize(w,h);
+  if (w>0&&h>0) __resize(w,h);
 }
 
 LICE_MemBitmap::~LICE_MemBitmap() { free(m_fb); }
 
-bool LICE_MemBitmap::resize(int w, int h)
+bool LICE_MemBitmap::__resize(int w, int h)
 {
   if (w!=m_width||h!=m_height)
   {
@@ -116,7 +116,7 @@ LICE_SysBitmap::LICE_SysBitmap(int w, int h)
   m_bits=0;
   m_width=m_height=0;
 
-  resize(w,h);
+  __resize(w,h);
 }
 
 
@@ -132,7 +132,7 @@ LICE_SysBitmap::~LICE_SysBitmap()
 #endif
 }
 
-bool LICE_SysBitmap::resize(int w, int h)
+bool LICE_SysBitmap::__resize(int w, int h)
 {
 #ifdef _WIN32
   if (!m_dc) { m_width=m_height=0; m_bits=0; return false; }
@@ -324,8 +324,8 @@ class _LICE_Template_Blit1 // these controlled by LICE_FAVOR_SIZE_EXTREME
         int n=w;
         while (n--)
         {
-          int ia=a/65536;
-          DOPIX(pout,r/65536,g/65536,b/65536,ia,ia);          
+          const int aa=a/65536;
+          DOPIX(pout,r/65536,g/65536,b/65536,aa,aa);
           pout += sizeof(LICE_pixel)/sizeof(LICE_pixel_chan);
           r+=drdx; g+=dgdx; b+=dbdx; a+=dadx;
         }
@@ -1711,6 +1711,8 @@ void LICE_RotatedBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
 
   sr -= sl;
   sb -= st;
+  srcx -= sl;
+  srcy -= st;
   if (sr < 1 || sb < 1) return;
 
   psrc += src_span * st + sl * sizeof(LICE_pixel);
@@ -2466,8 +2468,8 @@ int LICE_BitmapCmpEx(LICE_IBitmap* a, LICE_IBitmap* b, LICE_pixel mask, int *coo
     if (mask == LICE_RGBA(255,255,255,255))
       for (y=0; y < ah; y ++)
       {
-        int a = memcmp(px1,px2,aw*sizeof(LICE_pixel));
-        if (a) return a;
+        const int dv = memcmp(px1,px2,aw*sizeof(LICE_pixel));
+        if (dv) return dv;
         px1+=span1;
         px2+=span2;
       }

@@ -25,6 +25,7 @@
 
 #include <math.h>
 #include "virtwnd-controls.h"
+#include "../wdlcstring.h"
 #include "../lice/lice.h"
 
 void vwnd_slider_drawknobstack(LICE_IBitmap *drawbm, double val, WDL_VirtualWnd_BGCfg *knobimage, int ksw, int ksh, int ks_offs, int dx, int dy, int dw, int dh, float alpha)
@@ -161,6 +162,7 @@ WDL_VirtualWnd_BGCfg *vwnd_slider_getknobimageforsize(WDL_VirtualWnd_BGCfg *knob
 
 WDL_VirtualSlider::WDL_VirtualSlider()
 {
+  m_accessDescCopy=0;
   m_knob_lineextrasize=0;
   m_knobbias=0;
   m_zl_color = m_knob_color=0;
@@ -183,6 +185,7 @@ WDL_VirtualSlider::WDL_VirtualSlider()
 
 WDL_VirtualSlider::~WDL_VirtualSlider()
 {
+  free(m_accessDescCopy);
 }
 
 bool WDL_VirtualSlider::GetIsVert()
@@ -1006,6 +1009,54 @@ int WDL_VirtualSlider::GetSliderPosition()
   if (m_pos < m_minr) return m_minr; 
   if (m_pos > m_maxr) return m_maxr; 
   return m_pos; 
+}
+
+bool WDL_VirtualSlider::GetAccessValueDesc(char *buf, int bufsz)
+{
+  if (m_valueText.GetLength())
+  {
+    if (!strcmp(m_valueText.Get(),"#"))
+    {
+      snprintf(buf,bufsz,"%d",m_pos);
+      return true;
+    }
+
+    lstrcpyn_safe(buf,m_valueText.Get(),bufsz);
+    return true;
+  }
+  if (m_maxr > m_minr)
+  {
+    snprintf(buf,bufsz,"%.1f%%",((m_pos-m_minr)*100.0) / (m_maxr-m_minr));
+    return true;
+  }
+  return false;
+}
+
+void WDL_VirtualSlider::SetAccessDescCopy(const char *str)
+{
+  char *op = m_accessDescCopy;  
+  if (str && *str)
+  {
+    if (op && !strcmp(op,str)) return;
+
+    m_accessDescCopy = strdup(str);
+    SetAccessDesc(m_accessDescCopy);
+  }
+  else
+  {
+    SetAccessDesc("");
+    m_accessDescCopy=NULL;
+  }
+  free(op);
+}
+void WDL_VirtualSlider::SetAccessValueDesc(const char *str)
+{
+  if (!str) str="";
+  if (strcmp(m_valueText.Get(),str))
+  {
+    m_valueText.Set(str);
+    if (m__iaccess) m__iaccess->OnStateChange();
+  }
 }
 
 void WDL_VirtualSlider::SetSliderPosition(int pos) 

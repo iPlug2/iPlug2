@@ -22,7 +22,6 @@ public:
 
   void *m_cursesCtx; // win32CursesCtx *
 
-  int m_color_bottomline, m_color_statustext,  m_color_selection,  m_color_message; // COLOR_PAIR(x)
   int m_top_margin, m_bottom_margin;
 
   const char *GetFileName() { return m_filename.Get(); }
@@ -40,28 +39,62 @@ public:
 
   virtual void highlight_line(int line);
 
+
+  enum
+  {
+#ifdef WDL_IS_FAKE_CURSES
+    SYNTAX_REGVAR = COLOR_PAIR(8),
+    SYNTAX_KEYWORD = COLOR_PAIR(9),
+    SYNTAX_STRING = COLOR_PAIR(10),
+    SYNTAX_STRINGVAR = COLOR_PAIR(11),
+    COLOR_MESSAGE = COLOR_PAIR(12),
+    COLOR_TOPLINE = COLOR_PAIR(13),
+    SYNTAX_FUNC2 = COLOR_PAIR(14),
+#else
+    SYNTAX_REGVAR = COLOR_PAIR(4),
+    SYNTAX_KEYWORD = COLOR_PAIR(4),
+    SYNTAX_STRING = COLOR_PAIR(3),
+    SYNTAX_STRINGVAR = COLOR_PAIR(4),
+    COLOR_TOPLINE = COLOR_PAIR(6),
+
+    COLOR_MESSAGE = COLOR_PAIR(2),
+    SYNTAX_FUNC2 = COLOR_PAIR(7),
+#endif
+    COLOR_BOTTOMLINE = COLOR_PAIR(1),
+    COLOR_SELECTION = COLOR_PAIR(2),
+    SYNTAX_HIGHLIGHT1 = COLOR_PAIR(3),
+    SYNTAX_HIGHLIGHT2 = COLOR_PAIR(4),
+    SYNTAX_COMMENT = COLOR_PAIR(5),
+    SYNTAX_ERROR = COLOR_PAIR(6),
+    SYNTAX_FUNC = COLOR_PAIR(7),
+  };
+
+
 protected:
   class refcntString;
   class editUndoRec;
 
   void loadLines(FILE* fh);
+  void getLinesFromClipboard(WDL_FastString &buf, WDL_PtrList<const char> &lines);
 
   void draw_message(const char *str);
   void draw_status_state();
 
+#ifdef WDL_IS_FAKE_CURSES
   virtual LRESULT onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
   static LRESULT _onMouseMessage(void *user_data, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
     if (user_data) return ((WDL_CursesEditor*)user_data)->onMouseMessage(hwnd,uMsg,wParam,lParam);
     return 0;
   }
+#endif
   
   void runSearch();
 
   void indentSelect(int amt);
   void removeSelect();
   void getselectregion(int &minx, int &miny, int &maxx, int &maxy);
-  void doDrawString(int y, int x, int line_n, const char *p, int ml, int *c_comment_state, int skipcnt);
+  void doDrawString(int y, int line_n, const char *p, int *c_comment_state);
 
   void saveUndoState(); // updates rec[0]/rec[1], rec[0] is view after edit (rec[1] will be view after following edit)
   void preSaveUndoState(); // updates coordinates of edit to last rec[1]
@@ -71,17 +104,27 @@ protected:
 
   virtual int GetCommentStateForLineStart(int line); // pass current line, returns flags (which will be passed as c_comment_state)
 
-  virtual void mvaddnstr_highlight(int y, int x, const char *p, int ml, int *c_comment_state, int skipcnt);
-  virtual void draw_top_line() { }// within m_top_margin
+  virtual void draw_line_highlight(int y, const char *p, int *c_comment_state);
+  virtual void draw_top_line();
   virtual void draw_bottom_line();
   virtual bool LineCanAffectOtherLines(const char *txt, int spos, int slen) // if multiline comment etc
   {
     return false;
   }
 
+  virtual int GetTabCount() { return 1; }
+  virtual WDL_CursesEditor *GetTab(int idx) { if (idx==0) return this; return NULL; }
+  virtual bool AddTab(const char *fn) { return false; }
+  virtual void SwitchTab(int idx, bool rel) { }
+  virtual void CloseCurrentTab() { }
+
+  void OpenFileInTab(const char *fnp); // requires full pathname, will prompt to create if does not exist
+
   int getVisibleLines() const;
   
   WDL_FastString m_filename;
+  WDL_FastString m_newfn;
+
   time_t m_filelastmod; // last written-to or read-from modification time, or 0 if unknown
   int m_newline_mode; // detected from input. 0 = \n, 1=\r\n
 
@@ -94,7 +137,12 @@ protected:
   int m_undoStack_pos;
   int m_clean_undopos;
   
-  int m_state; // values >0 used by specific impls, negatives used by builtin funcs
+  enum uiState { UI_STATE_NORMAL=0,
+    UI_STATE_MESSAGE, 
+    UI_STATE_SEARCH, UI_STATE_SEARCH2, 
+    UI_STATE_SAVE_AS_NEW, UI_STATE_SAVE_ON_CLOSE 
+  };
+  uiState m_ui_state; 
 
   int m_selecting;
   int m_select_x1,m_select_y1,m_select_x2,m_select_y2;
@@ -109,6 +157,7 @@ protected:
   int m_curpane;
   double m_pane_div;
   int m_paneoffs_y[2]; 
+  int m_status_lastlen; // status line right hand text length, if any
 
   int GetPaneDims(int* paney, int* paneh);
 

@@ -377,11 +377,11 @@ int eelScriptInst::runcode(const char *codeptr, int showerr, const char *showerr
         void *opaque = (void*)this;
         if (showerr==2)
         {
-          EEL_STRING_DEBUGOUT("Warning: %s:%s",showerrfn,err);
+          EEL_STRING_DEBUGOUT("Warning: %s:%s",WDL_get_filepart(showerrfn),err);
         }
         else
         {
-          EEL_STRING_DEBUGOUT("Error: %s:%s",showerrfn,err);
+          EEL_STRING_DEBUGOUT("%s:%s",WDL_get_filepart(showerrfn),err);
         }
 #endif
       }
@@ -402,35 +402,11 @@ int eelScriptInst::runcode(const char *codeptr, int showerr, const char *showerr
 }
 
 
-int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdin)
+FILE *eelscript_resolvePath(WDL_FastString &usefn, const char *fn, const char *callerfn)
 {
-  WDL_FastString usefn;
-  FILE *fp = NULL;
-  if (!strcmp(fn,"-"))
-  {
-    if (callerfn)
-    {
-#ifdef EEL_STRING_DEBUGOUT
-      void *opaque = (void *)this;
-      EEL_STRING_DEBUGOUT("@import: can't import \"-\" (stdin)");
-#endif
-      return -1;
-    }
-    if (allowstdin)
-    {
-      fp = stdin;
-      fn = "(stdin)";
-    }
-  }
-  else if (!callerfn) 
-  {
-    fp = fopen(fn,"r");
-    if (fp) m_loaded_fnlist.Insert(fn,true);
-  }
-  else
-  {
     // resolve path relative to current
     int x;
+    bool had_abs=false;
     for (x=0;x<2; x ++)
     {
 #ifdef _WIN32
@@ -440,6 +416,7 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
 #endif
       {
         usefn.Set(fn);
+        had_abs=true;
       }
       else
       {
@@ -486,18 +463,50 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
         }
       }
 
-      fp = fopen(usefn.Get(),"r");
-      if (fp) 
+      FILE *fp = fopen(usefn.Get(),"r");
+      if (fp) return fp;
+    }
+    if (had_abs) usefn.Set(fn);
+    return NULL;
+}
+
+int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdin)
+{
+  WDL_FastString usefn;
+  FILE *fp = NULL;
+  if (!strcmp(fn,"-"))
+  {
+    if (callerfn)
+    {
+#ifdef EEL_STRING_DEBUGOUT
+      void *opaque = (void *)this;
+      EEL_STRING_DEBUGOUT("@import: can't import \"-\" (stdin)");
+#endif
+      return -1;
+    }
+    if (allowstdin)
+    {
+      fp = stdin;
+      fn = "(stdin)";
+    }
+  }
+  else if (!callerfn) 
+  {
+    fp = fopen(fn,"r");
+    if (fp) m_loaded_fnlist.Insert(fn,true);
+  }
+  else
+  {
+    fp = eelscript_resolvePath(usefn,fn,callerfn);
+    if (fp)
+    {
+      if (m_loaded_fnlist.Get(usefn.Get())) 
       {
-        if (m_loaded_fnlist.Get(usefn.Get())) 
-        {
-          fclose(fp);
-          return 0; // already imported
-        }
-        m_loaded_fnlist.Insert(usefn.Get(),true);
-        fn = usefn.Get();
-        break;
+        fclose(fp);
+        return 0;
       }
+      m_loaded_fnlist.Insert(usefn.Get(),true);
+      fn = usefn.Get();
     }
   }
 

@@ -489,6 +489,7 @@ SWELL_API_DEFINE(int, SWELL_GetListViewHeaderHeight, (HWND h))
 SWELL_API_DEFINE(HIMAGELIST, ImageList_CreateEx,())
 SWELL_API_DEFINE(BOOL, ImageList_Remove, (HIMAGELIST list, int idx))
 SWELL_API_DEFINE(int, ImageList_ReplaceIcon,(HIMAGELIST list, int offset, HICON image))
+SWELL_API_DEFINE(int, ImageList_Add,(HIMAGELIST list, HBITMAP image, HBITMAP mask))
 SWELL_API_DEFINE(void, ImageList_Destroy, (HIMAGELIST))
 /*
 ** TabCtrl api. 
@@ -879,6 +880,10 @@ SWELL_API_DEFINE(BOOL,ResetEvent,(HANDLE evt))
 SWELL_API_DEFINE(void,SWELL_EnsureMultithreadedCocoa,())
 SWELL_API_DEFINE(void *, SWELL_InitAutoRelease,())
 SWELL_API_DEFINE(void, SWELL_QuitAutoRelease,(void *p))
+SWELL_API_DEFINE(int,SWELL_TerminateProcess,(HANDLE hand))
+SWELL_API_DEFINE(int,SWELL_GetProcessExitCode,(HANDLE hand))
+SWELL_API_DEFINE(HANDLE,SWELL_CreateProcessIO,(const char *exe, int nparams, const char **params, bool redirectIO))
+SWELL_API_DEFINE(int,SWELL_ReadWriteProcessIO,(HANDLE, int w/*stdin,stdout,stderr*/, char *buf, int bufsz))
 #endif
 
 SWELL_API_DEFINE(HANDLE,SWELL_CreateProcess,(const char *exe, int nparams, const char **params))
@@ -1097,6 +1102,7 @@ SWELL_API_DEFINE(void,GetTempPath,(int sz, char *buf))
 #ifndef __APPLE__
 SWELL_API_DEFINE(void,SWELL_initargs,(int *argc, char ***argv))
 SWELL_API_DEFINE(void,SWELL_RunMessageLoop,())
+SWELL_API_DEFINE(HWND,SWELL_CreateXBridgeWindow,(HWND viewpar, void **wref, RECT*))
 #endif
 
 #ifdef __APPLE__
@@ -1111,10 +1117,14 @@ SWELL_API_DEFINE(BOOL,SWELL_IsButton,(HWND))
 SWELL_API_DEFINE(BOOL,SWELL_IsStaticText,(HWND))
 SWELL_API_DEFINE(void,SWELL_GetDesiredControlSize,(HWND hwnd, RECT *r))
 
+SWELL_API_DEFINE(int,AddFontResourceEx,(LPCTSTR str, DWORD fl, void *pdv))
+
 #ifdef __APPLE__
 SWELL_API_DEFINE(void,SWELL_DisableAppNap,(int disable))
 SWELL_API_DEFINE(int,SWELL_GetOSXVersion,())
 #endif
+
+SWELL_API_DEFINE(void,SWELL_Register_Cursor_Resource,(const char *idx, const char *name, int hotspot_x, int hotspot_y))
 
 
 #endif // _WDL_SWELL_H_API_DEFINED_

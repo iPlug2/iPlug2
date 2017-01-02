@@ -549,10 +549,10 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
   return idx;
 }
 
--(int)columnAtPoint:(NSPoint)pt
+-(NSInteger)columnAtPoint:(NSPoint)pt
 {
-  int pos=[super columnAtPoint:pt];
-  return [self getColumnIdx:pos];
+  int pos=(int)[super columnAtPoint:pt];
+  return (NSInteger) [self getColumnIdx:pos];
 }
 
 
@@ -953,6 +953,12 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL
 
 @end
 
+@implementation SWELL_ImageButtonCell
+- (NSRect)drawTitle:(NSAttributedString *)title withFrame:(NSRect)frame inView:(NSView *)controlView
+{
+  return NSMakeRect(0,0,0,0);
+}
+@end
 
 @implementation SWELL_ODButtonCell
 - (BOOL)isTransparent
@@ -1650,7 +1656,10 @@ void EnableWindow(HWND hwnd, int enable)
     
   if (bla && [bla respondsToSelector:@selector(setEnabled:)])
   {
-    [bla setEnabled:(enable?YES:NO)];
+    if (enable == -1000 && [bla respondsToSelector:@selector(setEnabledSwellNoFocus)])
+      [bla setEnabledSwellNoFocus];
+    else
+      [bla setEnabled:(enable?YES:NO)];
     if ([bla isKindOfClass:[SWELL_TextField class]])
     {
       NSTextField* txt = (NSTextField*)bla;
@@ -2351,6 +2360,7 @@ BOOL SetDlgItemText(HWND hwnd, int idx, const char *text)
     // todo if there is a way to find out that the window's NSTextField is already assigned 
     // to another field, restore the assignment afterwards
     [(NSText*)obj setString:lbl];
+    [obj setNeedsDisplay:YES]; // required on Sierra, it seems -- if the parent is hidden (e.g. DialogBox() + WM_INITDIALOG), the view is not drawn
   }
   else if ([obj isKindOfClass:[NSBox class]])
   {
@@ -2618,12 +2628,14 @@ int SWELL_CB_InsertString(HWND hwnd, int idx, int pos, const char *str)
     NSMenu *menu = [(NSPopUpButton *)p menu];
     if (menu)
     {
+      const bool needclearsel = [p indexOfSelectedItem] < 0;
       if (isAppend && [p respondsToSelector:@selector(getSwellStyle)] && (((int)[(SWELL_PopUpButton*)p getSwellStyle]) & CBS_SORT))
       {
         pos=arr_bsearch_mod(label,[menu itemArray],_nsMenuSearchProc);
       }
       NSMenuItem *item=[menu insertItemWithTitle:label action:NULL keyEquivalent:@"" atIndex:pos];
       [item setEnabled:YES];      
+      if (needclearsel) [(NSPopUpButton *)p selectItemAtIndex:-1];
     }
   }
   [label release];
@@ -2979,6 +2991,12 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
   UINT_PTR a=(UINT_PTR)label;
   if (a < 65536) label = "ICONTEMP";
   SWELL_Button *button=[[SWELL_Button alloc] init];
+  if (flags & BS_BITMAP)
+  {
+    SWELL_ImageButtonCell * cell = [[SWELL_ImageButtonCell alloc] init];
+    [button setCell:cell];
+    [cell release];
+  }
   
   if (m_transform.size.width < minwidfontadjust)
   {
@@ -3609,6 +3627,12 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     }
     else // normal button
     {
+      if (style & BS_BITMAP)
+      {
+        SWELL_ImageButtonCell * cell = [[SWELL_ImageButtonCell alloc] init];
+        [button setCell:cell];
+        [cell release];
+      }
 //      fr.size.width+=8;
     }
     
