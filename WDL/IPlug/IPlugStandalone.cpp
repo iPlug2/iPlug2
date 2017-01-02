@@ -1,8 +1,6 @@
 #include "IPlugStandalone.h"
-#ifndef OS_IOS
-  #include "IGraphics.h"
-  extern HWND gHWND;
-#endif
+#include "IGraphics.h"
+extern HWND gHWND;
 
 IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
                                  int nParams,
@@ -43,17 +41,12 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("standalone", vendorVersion);
 
-  #ifdef OS_IOS
-  mIOSLink = instanceInfo.mIOSLink;
-  #else
   mMidiOutChan = instanceInfo.mMidiOutChan;
   mMidiOut = instanceInfo.mRTMidiOut;
-  #endif
 }
 
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
-  #ifndef OS_IOS
   IGraphics* pGraphics = GetGUI();
   if (pGraphics)
   {
@@ -65,14 +58,10 @@ void IPlugStandalone::ResizeGraphics(int w, int h)
     #endif
     OnWindowResize();
   }
-  #endif
 }
 
 bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
 {
-  #ifdef OS_IOS
-  mIOSLink->SendMidiMsg(pMsg);
-  #else
   if (DoesMIDI())
   {
     IMidiMsg newMsg = *pMsg;
@@ -91,13 +80,12 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
     mMidiOut->sendMessage( &message );
     return true;
   }
-  #endif
+
   return false;
 }
 
 bool IPlugStandalone::SendSysEx(ISysEx* pSysEx)
 {
-#ifndef OS_IOS
   if (mMidiOut)
   {  
     std::vector<unsigned char> message;
@@ -109,20 +97,12 @@ bool IPlugStandalone::SendSysEx(ISysEx* pSysEx)
     mMidiOut->sendMessage( &message );
     return true;
   }
-#endif
+  
   return false;
 }
 
-#ifdef OS_IOS
-void IPlugStandalone::LockMutexAndProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
-{
-  IMutexLock lock(this);
-  ProcessSingleReplacing(inputs, outputs, nFrames);
-}
-#else
 void IPlugStandalone::LockMutexAndProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   IMutexLock lock(this);
   ProcessDoubleReplacing(inputs, outputs, nFrames);
 }
-#endif

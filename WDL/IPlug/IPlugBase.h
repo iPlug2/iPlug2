@@ -54,8 +54,7 @@ public:
   // Default passthrough.  Inputs and outputs are [nChannel][nSample].
   // Mutex is already locked.
   virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  virtual void ProcessSingleReplacing(float** inputs, float** outputs, int nFrames);
-
+  
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
   virtual void OnGUIOpen() { TRACE; }
@@ -84,9 +83,7 @@ public:
   // Only used by RTAS & AAX, override in plugins that do chunks
   virtual bool CompareState(const unsigned char* incomingState, int startPos);
   
-  #ifndef OS_IOS
   virtual void OnWindowResize() {}
-  #endif
   // implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone
   virtual bool HostRequestingAboutBox() { return false; }
 
@@ -193,9 +190,7 @@ protected:
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() { return; };
-  #ifndef OS_IOS
   virtual void AttachGraphics(IGraphics* pGraphics);
-  #endif
 
   // If latency changes after initialization (often not supported by the host).
   virtual void SetLatency(int samples);
@@ -228,9 +223,7 @@ protected:
   bool SerializeParams(ByteChunk* pChunk);
   int UnserializeParams(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos)
 
-  #ifndef OS_IOS
   virtual void RedrawParamControls();  // Called after restoring state.
-  #endif
 
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).

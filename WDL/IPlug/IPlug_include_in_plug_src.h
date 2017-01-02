@@ -31,11 +31,6 @@
     pGraphics->SetBundleID(BUNDLE_ID);
     return pGraphics;
   }
-#elif defined OS_IOS
-  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
-  {
-    return 0;
-  }
 #else
   #error "No OS defined!"
 #endif
@@ -167,8 +162,7 @@ END_FACTORY
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #elif defined SA_API
-  //IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan)
-  IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan, void* ioslink)
+  IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan)
   {
     static WDL_Mutex sMutex;
     WDL_MutexLock lock(&sMutex);
@@ -181,9 +175,6 @@ END_FACTORY
       instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
       instanceInfo.mMidiOutChan = pMidiOutChan;
       instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
-    #elif defined OS_IOS
-      instanceInfo.mIOSBundleID.Set(BUNDLE_ID);
-      instanceInfo.mIOSLink = (IOSLink*) ioslink;
     #endif
 
     return new PLUG_CLASS_NAME(instanceInfo);

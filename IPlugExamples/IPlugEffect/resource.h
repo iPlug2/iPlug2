@@ -64,7 +64,7 @@ instrument determined by PLUG _IS _INST
 #define GUI_HEIGHT 300
 
 // on MSVC, you must define SA_API in the resource editor preprocessor macros as well as the c++ ones
-#if defined(SA_API) && !defined(OS_IOS)
+#if defined(SA_API)
 #include "app_wrapper/app_resource.h"
 #endif
 
