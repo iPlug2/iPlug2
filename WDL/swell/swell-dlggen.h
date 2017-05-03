@@ -1,6 +1,5 @@
-
-/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Losers (who use OS X))
-   Copyright (C) 2006-2007, Cockos, Inc.
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -136,11 +135,11 @@ struct SWELL_DlgResourceEntry
 #define ES_CENTER 1
 #define ES_RIGHT 2
 #define ES_MULTILINE 4
+#define ES_AUTOHSCROLL 0x80
                                     
 // flags we ignore
 #define LVS_SHOWSELALWAYS 0
 #define LVS_SHAREIMAGELISTS 0
-#define ES_AUTOHSCROLL 0
 #define ES_AUTOVSCROLL 0
 #define GROUP 0
 #define PBS_SMOOTH 0

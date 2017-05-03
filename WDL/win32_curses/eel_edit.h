@@ -4,6 +4,7 @@
 #define STATE_BEFORE_CODE -1
 
 #include "curses_editor.h"
+#include "../assocarray.h"
 
 // add EEL syntax highlighting and paren matching, hooks for watch/etc
 class EEL_Editor : public WDL_CursesEditor
@@ -66,6 +67,7 @@ public:
 
   bool m_case_sensitive; // for function detection, and maybe other places
   const char *m_function_prefix; // defaults to "function "
+  const char *m_comment_str; // defaults to "//"
 };
 
 #endif

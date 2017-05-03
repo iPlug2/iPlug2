@@ -1,3 +1,23 @@
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
+
+    This software is provided 'as-is', without any express or implied
+    warranty.  In no event will the authors be held liable for any damages
+    arising from the use of this software.
+
+    Permission is granted to anyone to use this software for any purpose,
+    including commercial applications, and to alter it and redistribute it
+    freely, subject to the following restrictions:
+
+    1. The origin of this software must not be misrepresented; you must not
+       claim that you wrote the original software. If you use this software
+       in a product, an acknowledgment in the product documentation would be
+       appreciated but is not required.
+    2. Altered source versions must be plainly marked as such, and must not be
+       misrepresented as being the original software.
+    3. This notice may not be removed or altered from any source distribution.
+*/
+  
 #ifndef SWELL_PROVIDED_BY_APP
 
 
@@ -862,6 +882,13 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
     ps->rcPaint.right = (int)ceil(m_paintctx_rect.origin.x+m_paintctx_rect.size.width);
     ps->rcPaint.top = (int)m_paintctx_rect.origin.y;
     ps->rcPaint.bottom  = (int)ceil(m_paintctx_rect.origin.y+m_paintctx_rect.size.height);
+
+    // should NC_CALCSIZE to convert, but this will be good enough to fix this small scrollbar overdraw bug
+    RECT r;
+    GetClientRect((HWND)self,&r);
+    if (ps->rcPaint.right > r.right) ps->rcPaint.right = r.right;
+    if (ps->rcPaint.bottom > r.bottom) ps->rcPaint.bottom = r.bottom;
+    
   }
 }
 
@@ -923,6 +950,11 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
   p->name = (name<(void*)65536) ? (char *)name : strdup(name);
   p->data = val; p->_next=m_props; m_props=p;
   return TRUE;
+}
+
+-(NSOpenGLContext *)swellGetGLContext
+{
+  return m_glctx;
 }
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
@@ -1885,7 +1917,8 @@ static HWND last_key_window;
 - (id)swellGetOwner { return m_owner; }  \
 - (NSSize)minSize \
 { \
-  MINMAXINFO mmi={0}; \
+  MINMAXINFO mmi; \
+  memset(&mmi,0,sizeof(mmi)); \
   NSSize minsz=(NSSize)[super minSize]; \
   mmi.ptMinTrackSize.x=(int)minsz.width; mmi.ptMinTrackSize.y=(int)minsz.height; \
   sendSwellMessage([self contentView],WM_GETMINMAXINFO,0,(LPARAM)&mmi); \
@@ -1894,7 +1927,8 @@ static HWND last_key_window;
 } \
 - (NSSize)maxSize \
 { \
-  MINMAXINFO mmi={0}; \
+  MINMAXINFO mmi; \
+  memset(&mmi,0,sizeof(mmi)); \
   NSSize maxsz=(NSSize)[super maxSize]; NSSize tmp=maxsz;\
   if (tmp.width<1)tmp.width=1; else if (tmp.width > 1000000.0) tmp.width=1000000.0; \
   if (tmp.height<1)tmp.height=1; else if (tmp.height > 1000000.0) tmp.height=1000000.0; \

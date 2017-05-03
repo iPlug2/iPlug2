@@ -1496,7 +1496,7 @@ static int _ysort(const void* a, const void* b)
 static int FindNextEdgeVertex(int* xy, int a, int n, int dir)
 {
   bool init = false;
-  float dxdy_best;
+  float dxdy_best = 0.0f;
   int i, ilo = a;
 
   for (i = a+1; i < n; ++i)
@@ -1520,7 +1520,7 @@ void LICE_FillConvexPolygon(LICE_IBitmap* dest, const int* x, const int* y, int 
 
   int* xy = 0;
   int xyt[1024]; // use stack space if small
-  bool usestack = (npoints <= sizeof(xyt)/sizeof(int)/2);
+  bool usestack = npoints <= (int) (sizeof(xyt)/sizeof(int)/2);
   if (usestack) xy = xyt;
   else xy = (int*)malloc(npoints*sizeof(int)*2);
 

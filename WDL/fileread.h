@@ -50,6 +50,7 @@
   #define WDL_POSIX_NATIVE_READ 
    #include <sys/fcntl.h>
    #include <sys/file.h>
+   #include <sys/stat.h>
    #include <sys/errno.h>
    #include <sys/mman.h>
    #ifdef __APPLE__
@@ -649,8 +650,8 @@ public:
       DWORD l=GetFileSize(m_fh,&h);
       m_fsize=(((WDL_FILEREAD_POSTYPE)h)<<32)|l;
 #elif defined(WDL_POSIX_NATIVE_READ)
-      struct stat st;
-      if (!fstat(m_filedes,&st))  m_fsize = st.st_size;
+      struct stat64 st;
+      if (!fstat64(m_filedes,&st))  m_fsize = st.st_size;
 
 #endif
     }

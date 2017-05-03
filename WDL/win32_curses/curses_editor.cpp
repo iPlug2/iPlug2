@@ -11,8 +11,8 @@
 
 #include "curses_editor.h"
 #include "../wdlutf8.h"
+#include "../win32_utf8.h"
 #include "../wdlcstring.h"
-#include "curses.h"
 
 #ifndef VALIDATE_TEXT_CHAR
 #define VALIDATE_TEXT_CHAR(thischar) ((thischar) >= 0 && (thischar >= 128 || isspace(thischar) || isgraph(thischar)) && !(thischar >= KEY_DOWN && thischar <= KEY_F12))
@@ -401,6 +401,9 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 
       if (pane >= 0) m_curpane=pane;           
 
+      int ox=m_curs_x;
+      int oy=m_curs_y;
+
       m_curs_x=cx+m_offs_x;
       m_curs_y=cy+m_paneoffs_y[m_curpane]-paney[m_curpane];
 
@@ -413,8 +416,17 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
       const int slen = s ? WDL_utf8_get_charlen(s->Get()) : 0;
 
       if (s && (end || m_curs_x > slen)) m_curs_x=slen;
-
-      if (uMsg == WM_LBUTTONDBLCLK && s && slen)
+      
+      if (uMsg == WM_LBUTTONDOWN && !!(GetAsyncKeyState(VK_SHIFT)&0x8000) && 
+        (m_curs_x != ox || m_curs_y != oy))
+      {
+        m_select_x1=ox;
+        m_select_y1=oy;
+        m_select_x2=m_curs_x;
+        m_select_y2=m_curs_y;
+        m_selecting=1;
+      }
+      else if (uMsg == WM_LBUTTONDBLCLK && s && slen)
       {
         if (m_curs_x < slen)
         {     
@@ -1316,7 +1328,7 @@ void WDL_CursesEditor::getLinesFromClipboard(WDL_FastString &buf, WDL_PtrList<co
     if (h)
     {
       wchar_t *t=(wchar_t *)GlobalLock(h);
-      int s=GlobalSize(h)/2;
+      int s=(int)(GlobalSize(h)/2);
       while (s-- > 0)
       {
         char b[32];
@@ -1335,7 +1347,7 @@ void WDL_CursesEditor::getLinesFromClipboard(WDL_FastString &buf, WDL_PtrList<co
       if (h)
       {
         char *t=(char *)GlobalLock(h);
-        int s=GlobalSize(h);
+        int s=(int)(GlobalSize(h));
         buf.Set(t,s);
         GlobalUnlock(t);
       }

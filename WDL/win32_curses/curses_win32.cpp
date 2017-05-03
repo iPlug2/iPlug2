@@ -751,7 +751,7 @@ void reInitializeContext(win32CursesCtx *ctx)
                         0, // width
                         0, // escapement
                         0, // orientation
-#ifdef _WIN32
+#ifndef __APPLE__
                         FW_NORMAL, // normal
 #else
                         FW_BOLD,
@@ -866,7 +866,10 @@ void curses_setWindowContext(HWND hwnd, win32CursesCtx *ctx)
   }
 }
 
+#ifdef _WIN32
 static int m_regcnt;
+#endif
+
 void curses_unregisterChildClass(HINSTANCE hInstance)
 {
 #ifdef _WIN32

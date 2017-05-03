@@ -1,8 +1,13 @@
 CC=gcc
-CFLAGS=-O -g -DWDL_FFT_REALSIZE=8
+CFLAGS=-g -DWDL_FFT_REALSIZE=8  -Wall -Wno-unused-function -Wno-multichar
 LFLAGS=
 CXX=g++
 
+ifdef DEBUG
+CFLAGS += -D_DEBUG -O0
+else
+CFLAGS += -DNDEBUG -O
+endif
 
 OBJS=nseel-caltab.o nseel-compiler.o nseel-eval.o nseel-lextab.o nseel-ram.o nseel-yylex.o nseel-cfunc.o  ../fft.o
 
@@ -24,6 +29,16 @@ endif
 ifneq ($(filter arm%,$(ARCH)),)
   CFLAGS += -fsigned-char -mfpu=vfp -march=armv6t2
 endif
+
+ifndef ALLOW_WARNINGS
+  ifneq ($(UNAME_S),Darwin)
+    CFLAGS += -Werror
+  endif
+endif
+ifndef DEPRECATED_WARNINGS
+  CFLAGS +=  -Wno-deprecated-declarations
+endif
+
 
 default: loose_eel
 
@@ -51,27 +66,27 @@ ifndef NO_GFX
     CFLAGS += -DSWELL_LICE_GDI
     ifdef GDK2
       CFLAGS += -DSWELL_TARGET_GDK=2 $(shell pkg-config --cflags gdk-2.0)
-      LFLAGS += $(shell pkg-config --libs gdk-2.0)
+      LFLAGS += $(shell pkg-config --libs gdk-2.0) -lX11 -lXi
     else
       CFLAGS += -DSWELL_TARGET_GDK=3 $(shell pkg-config --cflags gdk-3.0)
-      LFLAGS += $(shell pkg-config --libs gdk-3.0)
+      LFLAGS += $(shell pkg-config --libs gdk-3.0) -lX11 -lXi
     endif
     ifndef NOFREETYPE
       CFLAGS += -DSWELL_FREETYPE $(shell freetype-config --cflags)
       LFLAGS += $(shell freetype-config --libs)
     endif
 
-    OBJS += ../swell/swell-wnd-generic.o ../swell/swell-gdi-lice.o ../swell/swell.o ../swell/swell-misc-generic.o ../swell/swell-dlg-generic.o ../swell/swell-menu-generic.o ../swell/swell-kb-generic.o
+    OBJS += ../swell/swell-wnd-generic.o ../swell/swell-gdi-lice.o \
+            ../swell/swell.o ../swell/swell-misc-generic.o \
+            ../swell/swell-dlg-generic.o ../swell/swell-menu-generic.o \
+            ../swell/swell-kb-generic.o ../swell/swell-gdi-generic.o \
+            ../swell/swell-ini.o ../swell/swell-generic-gdk.o
 
     LFLAGS += -ldl
   endif
 
 endif
 
-
-
-%.o : %.mm
-	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 asm-nseel-x64.o: a2x64.php asm-nseel-x86-gcc.c
 	php a2x64.php elf64
@@ -91,6 +106,10 @@ else
   endif
 endif
 CXXFLAGS=$(CFLAGS)
+
+
+%.o : %.mm
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
 loose_eel: loose_eel.o $(OBJS) $(OBJS2)
 	g++ -o $@ $^ $(CXXFLAGS) $(LFLAGS)
