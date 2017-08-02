@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 
+#include "../wdltypes.h"
+
 extern "C" {
 
 #include "../giflib/gif_lib.h"
@@ -107,6 +109,15 @@ int LICE_SetGIFColorMapFromOctree(void *ww, void *octree, int numcolors)
   return rv;
 }
 
+unsigned int LICE_WriteGIFGetSize(void *handle)
+{
+  if (handle)
+  {
+    liceGifWriteRec *wr = (liceGifWriteRec*)handle;
+    if (wr->fp) return ftell(wr->fp);
+  }
+  return 0;
+}
 
 bool LICE_WriteGIFFrame(void *handle, LICE_IBitmap *frame, int xpos, int ypos, bool perImageColorMap, int frame_delay, int nreps)
 {
@@ -229,7 +240,7 @@ bool LICE_WriteGIFFrame(void *handle, LICE_IBitmap *frame, int xpos, int ypos, b
     if (!wr->prevframe)
     {
       ignFr=true;
-      wr->prevframe = new LICE_MemBitmap(wr->w,wr->h);
+      wr->prevframe = new WDL_NEW LICE_MemBitmap(wr->w,wr->h);
       LICE_Clear(wr->prevframe,0);
     }
 
@@ -369,8 +380,10 @@ static int writefunc_fh(GifFileType *fh, const GifByteType *buf, int sz) {  retu
 void *LICE_WriteGIFBeginNoFrame(const char *filename, int w, int h, int transparent_alpha, bool dither, bool is_append)
 {
   FILE *fp=NULL;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(WDL_NO_SUPPORT_UTF8)
+  #ifdef WDL_SUPPORT_WIN9X
   if (GetVersion()<0x80000000)
+  #endif
   {
     WCHAR wf[2048];
     if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wf,2048))

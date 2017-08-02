@@ -1561,7 +1561,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0720;
 			};
 			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugConvoEngine" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2058,6 +2058,7 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(ADDITIONAL_LIBRARY_PATHS)";
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2107,6 +2108,7 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(ADDITIONAL_LIBRARY_PATHS)";
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
@@ -2132,6 +2134,7 @@
 				);
 				INFOPLIST_FILE = "resources/IPlugConvoEngine-VST2-Info.plist";
 				SKIP_INSTALL = NO;
+				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Debug;
@@ -2146,6 +2149,7 @@
 				);
 				INFOPLIST_FILE = "resources/IPlugConvoEngine-VST2-Info.plist";
 				SKIP_INSTALL = NO;
+				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Release;
@@ -2160,6 +2164,7 @@
 				);
 				INFOPLIST_FILE = "resources/IPlugConvoEngine-VST2-Info.plist";
 				SKIP_INSTALL = NO;
+				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
 			};
 			name = Tracer;
@@ -2289,9 +2294,10 @@
 				INFOPLIST_FILE = "resources/IPlugConvoEngine-RTAS-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(ADDITIONAL_LIBRARY_PATHS)",
-					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
+					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "-fno-inline";
@@ -2342,6 +2348,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
@@ -2387,6 +2394,7 @@
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Release\"",
 					"\"$(SRCROOT)/../../PT9_SDK/MacBag/Libs/Debug\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MacBag = "$(PT9_SDK)/MacBag";
 				OBJROOT = "build-mac";
 				OTHER_CFLAGS = "";
@@ -2493,11 +2501,13 @@
 					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"$(AAX_SDK)/Libs/Debug",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wno-incompatible-ms-struct",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
 			};
@@ -2539,12 +2549,14 @@
 					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"$(AAX_SDK)/Libs/Release",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				PREBINDING = YES;
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wno-incompatible-ms-struct",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
 			};
@@ -2586,11 +2598,13 @@
 					"$(ADDITIONAL_LIBRARY_PATHS)",
 					"$(AAX_SDK)/Libs/Release",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
+					"-Wno-incompatible-ms-struct",
 				);
 				WRAPPER_EXTENSION = aaxplugin;
 			};
@@ -2700,6 +2714,7 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(ADDITIONAL_LIBRARY_PATHS)";
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",

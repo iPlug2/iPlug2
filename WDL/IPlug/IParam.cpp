@@ -111,6 +111,11 @@ double IParam::GetNormalized(double nonNormalizedValue)
   return ToNormalizedParam(nonNormalizedValue, mMin, mMax, mShape);
 }
 
+double IParam::GetNonNormalized(double normalizedValue)
+{
+  return FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
+}
+
 void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText)
 {
   if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape);

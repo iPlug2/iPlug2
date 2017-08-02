@@ -105,28 +105,7 @@ void IControl::OnMouseDblClick(int x, int y, IMouseMod* pMod)
   #endif
 }
 
-void IControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
-{
-  #ifdef PROTOOLS
-  if (pMod->C)
-  {
-    mValue += 0.001 * d;
-  }
-  #else
-  if (pMod->C || pMod->S)
-  {
-    mValue += 0.001 * d;
-  }
-  #endif
-  else
-  {
-    mValue += 0.01 * d;
-  }
-  
-  SetDirty();
-}
-
-#define PARAM_EDIT_W 30
+#define PARAM_EDIT_W 40
 #define PARAM_EDIT_H 16
 
 void IControl::PromptUserInput()
@@ -484,6 +463,27 @@ void IFaderControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
   return SnapToMouse(x, y);
 }
 
+void IFaderControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
+{
+#ifdef PROTOOLS
+  if (pMod->C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (pMod->C || pMod->S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+  
+  SetDirty();
+}
+
 void IFaderControl::SnapToMouse(int x, int y)
 {
   if (mDirection == kVertical)
@@ -539,6 +539,27 @@ void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
     mValue += (double) dX / (double) (mRECT.R - mRECT.L) / gearing;
   }
 
+  SetDirty();
+}
+
+void IKnobControl::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
+{
+#ifdef PROTOOLS
+  if (pMod->C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (pMod->C || pMod->S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+  
   SetDirty();
 }
 

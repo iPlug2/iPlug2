@@ -50,7 +50,7 @@ public:
     return ismatch;
   }
 
-  void Insert(KEY key, VAL val, KEY *keyPtrOut=NULL) 
+  int Insert(KEY key, VAL val)
   {
     bool ismatch = false;
     int i = LowerBound(key, &ismatch);
@@ -59,7 +59,6 @@ public:
       KeyVal* kv = m_data.Get()+i;
       if (m_valdispose) m_valdispose(kv->val);
       kv->val = val;
-      if (keyPtrOut) *keyPtrOut = kv->key;
     }
     else
     {
@@ -67,9 +66,9 @@ public:
       memmove(kv+1, kv, (m_data.GetSize()-i-1)*(unsigned int)sizeof(KeyVal));
       if (m_keydup) key = m_keydup(key);
       kv->key = key;
-      kv->val = val;
-      if (keyPtrOut) *keyPtrOut = key;
+      kv->val = val;      
     }
+    return i;
   }
 
   void Delete(KEY key) 
@@ -81,20 +80,18 @@ public:
       KeyVal* kv = m_data.Get()+i;
       if (m_keydispose) m_keydispose(kv->key);
       if (m_valdispose) m_valdispose(kv->val);
-      memmove(kv, kv+1, (m_data.GetSize()-i-1)*(unsigned int)sizeof(KeyVal));
-      m_data.Resize(m_data.GetSize()-1);
+      m_data.Delete(i);
     }
   }
 
   void DeleteByIndex(int idx)
   {
-    if (idx>=0&&idx<GetSize())
+    if (idx >= 0 && idx < m_data.GetSize())
     {
       KeyVal* kv = m_data.Get()+idx;
       if (m_keydispose) m_keydispose(kv->key);
       if (m_valdispose) m_valdispose(kv->val);
-      memmove(kv, kv+1, (m_data.GetSize()-idx-1)*(unsigned int)sizeof(KeyVal));
-      m_data.Resize(m_data.GetSize()-1);
+      m_data.Delete(idx);
     }
   }
 
@@ -151,6 +148,18 @@ public:
       if (m_keydup) newkey = m_keydup(newkey);
       kv->key = newkey;
       Resort();
+    }
+  }
+
+  void ChangeKeyByIndex(int idx, KEY newkey, bool needsort)
+  {
+    if (idx >= 0 && idx < m_data.GetSize())
+    {
+      KeyVal* kv = m_data.Get()+idx;
+      if (m_keydispose) m_keydispose(kv->key);
+      if (m_keydup) newkey = m_keydup(newkey);
+      kv->key = newkey;
+      if (needsort) Resort();
     }
   }
 
@@ -363,36 +372,65 @@ private:
   static int _cmpstr(const char *s1, const char *s2, bool case_sensitive)
   {
     // this also exists as WDL_strcmp_logical in wdlcstring.h
+    char lastNonZeroChar=0;
+    // last matching character, updated if not 0. this allows us to track whether
+    // we are inside of a number with the same leading digits
+
     for (;;)
     {
       char c1=*s1++, c2=*s2++;
-      if (c1 > '0' && c1 <= '9' && c2 > '0' && c2 <= '9') 
-      {             
-        int d=c1-c2,s1d; // maybe not ideal, 030 will sort after 20, but that could also be useful... 
-        // alternatively we could calculate the full length of each number not counting leadings 0s and use that, but
-        // then the string comparison would end up comparing at different offsets too. this is good enough for now 
-        // IMO
-        while ((s1d=isdigit(*s1)) && isdigit(*s2))
-        {
-          if (!d) d=*s1-*s2;
-          s1++;
-          s2++;
-        }
-        if (s1d) return 1; // s1 is longer than s2, so larger
-        if (isdigit(*s2)) return -1; // s2 is longer than s1, larger
-        if (d) return d; // same length, but check to see which is greater
-      }
-      else
+      if (!c1) return c1-c2;
+      
+      if (c1!=c2)
       {
-        if (!case_sensitive)
+        if (c1 >= '0' && c1 <= '9' && c2 >= '0' && c2 <= '9')
         {
-          if (c1 >= 'a' && c1 <= 'z') c1 += 'A'-'a';
-          if (c2 >= 'a' && c2 <= 'z') c2 += 'A'-'a';
+          int lzdiff=0, cnt=0;
+          if (lastNonZeroChar < '1' || lastNonZeroChar > '9')
+          {
+            while (c1 == '0') { c1=*s1++; lzdiff--; }
+            while (c2 == '0') { c2=*s2++; lzdiff++; } // lzdiff = lz2-lz1, more leading 0s = earlier in list
+          }
+
+          for (;;)
+          {
+            if (c1 >= '0' && c1 <= '9')
+            {
+              if (c2 < '0' || c2 > '9') return 1;
+
+              c1=s1[cnt];
+              c2=s2[cnt++];
+            }
+            else
+            {
+              if (c2 >= '0' && c2 <= '9') return -1;
+              break;
+            }
+          }
+
+          s1--;
+          s2--;
+        
+          while (cnt--)
+          {
+            const int d = *s1++ - *s2++;
+            if (d) return d;
+          }
+
+          if (lzdiff) return lzdiff;
         }
-        if (!c1 || c1 != c2) return c1-c2;             
+        else
+        {
+          if (!case_sensitive)
+          {
+            if (c1>='a' && c1<='z') c1+='A'-'a';
+            if (c2>='a' && c2<='z') c2+='A'-'a';
+          }
+          if (c1 != c2) return c1-c2;
+        }
       }
+      else if (c1 != '0') lastNonZeroChar=c1;
     }
-    return 0; 
   }
 };
 

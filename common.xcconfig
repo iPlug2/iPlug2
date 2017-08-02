@@ -3,13 +3,13 @@
 // along with some other global build variables
 
 // this is used for Developer ID / Appstore code-signing and is used in the makedist-mac shell script
-CERTIFICATE_ID = Your_Developer_ID
+CERTIFICATE_ID = Oliver Larkin
 
 // Which compiler to use
-COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
+//COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
 //COMPILER = com.intel.compilers.icc.12_1_0
 //COMPILER = com.apple.compilers.llvmgcc42 // use this ...
-//COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4+/10.7+
+COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4+/10.7+
 
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
 BASE_SDK = macosx10.5
@@ -22,7 +22,7 @@ BASE_SDK = macosx10.5
 //CLANG_CXX_LIBRARY = libc++
 
 // the minimum OS to support
-MACOSX_DEPLOYMENT_TARGET = 10.5
+DEPLOYMENT_TARGET = 10.5
 
 // Where the SDKs etc are located in relation to the plugin xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
@@ -34,7 +34,7 @@ AAX_SDK = $(SRCROOT)/../../AAX_SDK
 CA_SDK = $(SRCROOT)/../../CA_SDK
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
-GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES
+GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 CLANG_LINK_OBJC_RUNTIME = NO
 

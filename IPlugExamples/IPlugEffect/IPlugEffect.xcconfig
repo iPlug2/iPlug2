@@ -30,9 +30,8 @@ RTAS_DEFS = RTAS_API
 
 AAX_DEFS = AAX_API
 
-APP_DEFS = SA_API __MACOSX_CORE__ //__UNIX_JACK__
+APP_DEFS = SA_API __MACOSX_CORE__ 
 
-IOS_DEFS = SA_API
 // Preprocessor definitions for all Debug builds
 DEBUG_DEFS = _DEBUG
 

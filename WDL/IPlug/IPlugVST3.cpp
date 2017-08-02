@@ -9,6 +9,71 @@
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstevents.h"
 
+using namespace Steinberg;
+using namespace Vst;
+
+#include "IParam.h"
+
+class IPlugParameter : public Parameter
+{
+public:
+  IPlugParameter (IParam* pParam, ParamID tag, UnitID unitID)
+  : mIPlugParam(pParam)
+  {
+    UString (info.title, str16BufferSize (String128)).assign (pParam->GetNameForHost());
+    UString (info.units, str16BufferSize (String128)).assign (pParam->GetLabelForHost());
+    
+    precision = pParam->GetPrecision();
+    
+    if (pParam->Type() != IParam::kTypeDouble)
+      info.stepCount = pParam->GetRange();
+    else
+      info.stepCount = 0; // continuous
+    
+    int32 flags = 0;
+
+    if (pParam->GetCanAutomate())
+    {
+      flags |= ParameterInfo::kCanAutomate;
+    }
+    
+    info.defaultNormalizedValue = valueNormalized = pParam->GetDefaultNormalized();
+    info.flags = flags;
+    info.id = tag;
+    info.unitId = unitID;
+  }
+  
+  virtual void toString (ParamValue valueNormalized, String128 string) const
+  {
+    char disp[MAX_PARAM_DISPLAY_LEN];
+    mIPlugParam->GetDisplayForHost(valueNormalized, true, disp);
+    Steinberg::UString(string, 128).fromAscii(disp);
+  }
+  
+  virtual bool fromString (const TChar* string, ParamValue& valueNormalized) const
+  {
+    String str ((TChar*)string);
+    valueNormalized = mIPlugParam->GetNormalized(atof(str.text8()));
+    
+    return true;
+  }
+  
+  virtual Steinberg::Vst::ParamValue toPlain (ParamValue valueNormalized) const
+  {
+    return mIPlugParam->GetNonNormalized(valueNormalized);
+  }
+  
+  virtual Steinberg::Vst::ParamValue toNormalized (ParamValue plainValue) const
+  {
+    return mIPlugParam->GetNormalized(valueNormalized);
+  }
+  
+  OBJ_METHODS (IPlugParameter, Parameter)
+  
+protected:
+  IParam* mIPlugParam;
+};
+
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
                      int nParams,
                      const char* channelIOStr,
@@ -162,7 +227,6 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
     {
       IParam *p = GetParam(i);
 
-      int32 flags = 0;
       UnitID unitID = kRootUnitId;
       
       const char* paramGroupName = p->GetParamGroupForHost();
@@ -183,56 +247,9 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
           unitID = mParamGroups.GetSize();
         }
       }
-
-      if (p->GetCanAutomate())
-      {
-        flags |= ParameterInfo::kCanAutomate;
-      }
-
-      switch (p->Type())
-      {
-        case IParam::kTypeDouble:
-        case IParam::kTypeInt:
-        {
-          Parameter* param = new RangeParameter( STR16(p->GetNameForHost()),
-                                                 i,
-                                                 STR16(p->GetLabelForHost()),
-                                                 p->GetMin(),
-                                                 p->GetMax(),
-                                                 p->GetDefault(),
-                                                 0, // continuous
-                                                 flags,
-                                                 unitID);
-
-          param->setPrecision (p->GetPrecision());
-          parameters.addParameter(param);
-
-          break;
-        }
-        case IParam::kTypeEnum:
-        case IParam::kTypeBool:
-        {
-          StringListParameter* param = new StringListParameter (STR16(p->GetNameForHost()),
-                                                                i,
-                                                                STR16(p->GetLabelForHost()),
-                                                                flags | ParameterInfo::kIsList,
-                                                                unitID);
-
-          int nDisplayTexts = p->GetNDisplayTexts();
-
-          assert(nDisplayTexts);
-
-          for (int j=0; j<nDisplayTexts; j++)
-          {
-            param->appendString(STR16(p->GetDisplayText(j)));
-          }
-
-          parameters.addParameter(param);
-          break;
-        }
-        default:
-          break;
-      }
+      
+      Parameter* param = new IPlugParameter(p, i, unitID);
+      parameters.addParameter(param);
     }
   }
 

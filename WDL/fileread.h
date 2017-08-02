@@ -50,6 +50,7 @@
   #define WDL_POSIX_NATIVE_READ 
    #include <sys/fcntl.h>
    #include <sys/file.h>
+   #include <sys/stat.h>
    #include <sys/errno.h>
    #include <sys/mman.h>
    #ifdef __APPLE__
@@ -135,7 +136,12 @@ public:
 #ifdef WDL_WIN32_NATIVE_READ
 
     m_mmap_fmap=0;
-    bool isNT = GetVersion()<0x80000000;
+
+    #ifdef WDL_SUPPORT_WIN9X
+    const bool isNT = GetVersion()<0x80000000;
+    #else
+    const bool isNT = true;
+    #endif
     m_async = isNT ? allow_async : 0;
 
     int flags=FILE_ATTRIBUTE_NORMAL;
@@ -564,11 +570,11 @@ public:
           if (m_syncrd_firstbuf) // this is a scheduling mechanism to avoid having reads on various files always happening at the same time -- not needed in async modes, only in sync with large buffers
           {
             m_syncrd_firstbuf=false;
-            int a= thissz/WDL_UNBUF_ALIGN;
-            if (a > 1)
+            const int blocks = thissz/WDL_UNBUF_ALIGN;
+            if (blocks > 1)
             {
               static int rrs; // may not be ideal on multithread, but having it incorrect isnt a big deal.
-              if (a>7) thissz >>= (rrs++)&3;
+              if (blocks>7) thissz >>= (rrs++)&3;
               else thissz>>= (rrs++)&1;
             }
           }
@@ -590,14 +596,12 @@ public:
               break;
             }
           #elif defined(WDL_POSIX_NATIVE_READ)
-            int o;
-            o=pread(m_filedes,srcbuf,thissz,m_filedes_rdpos);
+            int o=(int)pread(m_filedes,srcbuf,thissz,m_filedes_rdpos);
             if (o>0) m_filedes_rdpos+=o;
             if (o<1 || m_sync_bufmode_pos>=o) break;                    
           
           #else
-            int o;
-            o=fread(srcbuf,1,thissz,m_fp);
+            int o=(int)fread(srcbuf,1,thissz,m_fp);
             if (o<1 || m_sync_bufmode_pos>=o) break;                    
           #endif
           m_sync_bufmode_used=o;
@@ -615,7 +619,7 @@ public:
       return dw;
     #elif defined(WDL_POSIX_NATIVE_READ)
     
-      int ret=pread(m_filedes,buf,len,m_filedes_rdpos);
+      int ret=(int)pread(m_filedes,buf,len,m_filedes_rdpos);
       if (ret>0) m_filedes_rdpos+=ret;
       m_file_position+=ret;
       return ret;
@@ -646,8 +650,8 @@ public:
       DWORD l=GetFileSize(m_fh,&h);
       m_fsize=(((WDL_FILEREAD_POSTYPE)h)<<32)|l;
 #elif defined(WDL_POSIX_NATIVE_READ)
-      struct stat st;
-      if (!fstat(m_filedes,&st))  m_fsize = st.st_size;
+      struct stat64 st;
+      if (!fstat64(m_filedes,&st))  m_fsize = st.st_size;
 
 #endif
     }

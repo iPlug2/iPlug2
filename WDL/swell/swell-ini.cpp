@@ -1,5 +1,5 @@
-/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Losers (who use OS X))
-   Copyright (C) 2006-2007, Cockos, Inc.
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -95,11 +95,39 @@ static bool fgets_to_typedbuf(WDL_TypedBuf<char> *buf, FILE *fp)
 }
 
 
+void SWELL_SetDefaultIniFile(const char *p) // deprecated will be removed very soon
+{
+  SWELL_ExtendedAPI("INIFILE",(void *)p);
+}
+
 // return true on success
 static iniFileContext *GetFileContext(const char *name)
 {
   static WDL_UINT64 acc_cnt;
   int best_z = 0;
+  char fntemp[512];
+  if (!name || !strstr(name,"/"))
+  {
+    extern char *g_swell_defini;
+    if (g_swell_defini)
+    {
+      lstrcpyn_safe(fntemp,g_swell_defini,sizeof(fntemp));
+    }
+    else
+    {
+      const char *p = getenv("HOME");
+      snprintf(fntemp,sizeof(fntemp),"%s/.libSwell.ini",
+        p && *p ? p : "/tmp");
+    }
+    if (name && *name)
+    {
+      WDL_remove_fileext(fntemp);
+      snprintf_append(fntemp,sizeof(fntemp),"_%s%s",name,
+        stricmp(WDL_get_fileext(name),".ini")?".ini":"");
+    }
+    name = fntemp;
+  }
+
   {
     int w;
     WDL_UINT64 bestcnt = 0; 
@@ -271,7 +299,7 @@ static void WriteBackFile(iniFileContext *ctx)
 
 BOOL WritePrivateProfileSection(const char *appname, const char *strings, const char *fn)
 {
-  if (!appname || !fn) return FALSE;
+  if (!appname) return FALSE;
   WDL_MutexLock lock(&m_mutex);
   iniFileContext *ctx = GetFileContext(fn);
   if (!ctx) return FALSE;
@@ -532,13 +560,13 @@ static bool __readbyte(char *src, unsigned char *out)
 
 BOOL GetPrivateProfileStruct(const char *appname, const char *keyname, void *buf, int bufsz, const char *fn)
 {
-  if (!appname || !keyname) return 0;
+  if (!appname || !keyname || bufsz<0) return 0;
   char *tmp=(char *)malloc((bufsz+1)*2+16); 
   if (!tmp) return 0;
 
   BOOL ret=0;
   GetPrivateProfileString(appname,keyname,"",tmp,(bufsz+1)*2+15,fn);
-  if (strlen(tmp) == (bufsz+1)*2)
+  if (strlen(tmp) == (size_t) (bufsz+1)*2)
   {
     unsigned char sum=0;
     unsigned char *bufout=(unsigned char *)buf;

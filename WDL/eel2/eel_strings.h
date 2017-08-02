@@ -119,7 +119,7 @@ class eel_string_context_state
   public:
     static int cmpistr(const char **a, const char **b) { return stricmp(*a,*b); }
 
-    eel_string_context_state()  : m_varname_cache(cmpistr), m_named_strings_names(false)
+    eel_string_context_state()  : m_named_strings_names(false), m_varname_cache(cmpistr)
     {
       m_vm=0;
       memset(m_user_strings,0,sizeof(m_user_strings));
@@ -230,7 +230,7 @@ class eel_string_context_state
     WDL_StringKeyedArray<int> m_named_strings_names; // #xyz->index
 
     EEL_STRING_STORAGECLASS *m_user_strings[EEL_STRING_MAX_USER_STRINGS]; // indices 0-1023 (etc)
-    WDL_AssocArray<const char *, EEL_F *> m_varname_cache; // cached pointers when using %{xyz}s, %{#xyz}s bypasses
+    WDL_AssocArray<const char *, EEL_F_PTR> m_varname_cache; // cached pointers when using %{xyz}s, %{#xyz}s bypasses
 
     NSEEL_VMCTX m_vm;
 #ifdef EEL_STRING_WANT_MUTEX
@@ -239,7 +239,9 @@ class eel_string_context_state
 
     static EEL_F addNamedStringCallback(void *opaque, const char *name)
     {
+      if (!opaque) return -1.0;
       eel_string_context_state *_this = EEL_STRING_GET_CONTEXT_POINTER(opaque);
+      if (!_this) return -1.0;
 
       EEL_STRING_MUTEXLOCK_SCOPE
       if (!name || !name[0])
@@ -260,7 +262,10 @@ class eel_string_context_state
 
     static EEL_F addStringCallback(void *opaque, struct eelStringSegmentRec *list)
     {
+      if (!opaque) return -1.0;
+
       eel_string_context_state *_this = EEL_STRING_GET_CONTEXT_POINTER(opaque);
+      if (!_this) return -1.0;
 
       EEL_STRING_STORAGECLASS *ns = new EEL_STRING_STORAGECLASS;
       // could probably do a faster implementation using AddRaw() etc but this should also be OK
@@ -436,10 +441,10 @@ int eel_format_strings(void *opaque, const char *fmt, const char *fmt_end, char 
         const int maxl=(int) (buf+buf_sz - 2 - op);
         if (wr && !fs[2]) // %s or %S -- todo: implement padding modes for binary compat too?
         {
-          int l = wr->GetLength();
-          if (l > maxl) l=maxl;
-          memcpy(op,wr->Get(),l);
-          op += l;
+          int wl = wr->GetLength();
+          if (wl > maxl) wl=maxl;
+          memcpy(op,wr->Get(),wl);
+          op += wl;
           *op=0;
         }
         else
@@ -517,7 +522,7 @@ static int eel_string_match(void *opaque, const char *fmt, const char *msg, int 
     }
 
     // if string ends and format is not on a wildcard, early-out to 0
-    if (msg>=msg_endptr && *fmt != '*') return 0;
+    if (msg>=msg_endptr && *fmt != '*' && *fmt != '%') return 0;
 
     switch (*fmt)
     {
@@ -601,7 +606,7 @@ static int eel_string_match(void *opaque, const char *fmt, const char *msg, int 
 #ifdef EEL_STRING_GETNAMEDVAR 
               char tmp[128];
               int idx=0;
-              while (dest_varname < fmt_endptr && *dest_varname && *dest_varname != '}' && idx<sizeof(tmp)-1) tmp[idx++] = *dest_varname++;
+              while (dest_varname < fmt_endptr && *dest_varname && *dest_varname != '}' && idx<(int)sizeof(tmp)-1) tmp[idx++] = *dest_varname++;
               tmp[idx]=0;
               if (idx>0) varOut = EEL_STRING_GETNAMEDVAR(tmp,1,&vv);
 #endif
@@ -691,7 +696,7 @@ static int eel_string_match(void *opaque, const char *fmt, const char *msg, int 
 #ifdef EEL_STRING_GETNAMEDVAR 
               char tmp[128];
               int idx=0;
-              while (dest_varname < fmt_endptr && *dest_varname  && *dest_varname != '}' && idx<sizeof(tmp)-1) tmp[idx++] = *dest_varname++;
+              while (dest_varname < fmt_endptr && *dest_varname  && *dest_varname != '}' && idx<(int)sizeof(tmp)-1) tmp[idx++] = *dest_varname++;
               tmp[idx]=0;
               if (idx>0) varOut = EEL_STRING_GETNAMEDVAR(tmp,1,&vv);
 #endif
@@ -731,7 +736,7 @@ static int eel_string_match(void *opaque, const char *fmt, const char *msg, int 
               else
               {
                 char tmp[128];
-                lstrcpyn_safe(tmp,msg,min(len+1,sizeof(tmp)));
+                lstrcpyn_safe(tmp,msg,wdl_min(len+1,(int)sizeof(tmp)));
                 if (varOut == &vv) 
                 {
                   EEL_STRING_STORAGECLASS *wr=NULL;

@@ -1,5 +1,5 @@
-/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Losers (who use OS X))
-   Copyright (C) 2006-2007, Cockos, Inc.
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -33,8 +33,8 @@
 
 static int MacKeyCodeToVK(int code)
 {
-	switch (code)
-	{
+  switch (code)
+  {
     case 51: return VK_BACK;
     case 65: return VK_DECIMAL;
     case 67: return VK_MULTIPLY;
@@ -62,23 +62,26 @@ static int MacKeyCodeToVK(int code)
     case 101: return VK_F9;
     case 109: return VK_F10;
     case 103: return VK_F11;
-    case 105: return VK_SNAPSHOT;
     case 111: return VK_F12;
     case 114: return VK_INSERT;
-		case 115: return VK_HOME;
+    case 115: return VK_HOME;
     case 117: return VK_DELETE;
-		case 116: return VK_PRIOR;
+    case 116: return VK_PRIOR;
     case 118: return VK_F4;
-		case 119: return VK_END;
+    case 119: return VK_END;
     case 120: return VK_F2;
-		case 121: return VK_NEXT;
+    case 121: return VK_NEXT;
     case 122: return VK_F1;
-		case 123: return VK_LEFT;
-		case 124: return VK_RIGHT;
-		case 125: return VK_DOWN;
-		case 126: return VK_UP;
-	}
-	return 0;
+    case 123: return VK_LEFT;
+    case 124: return VK_RIGHT;
+    case 125: return VK_DOWN;
+    case 126: return VK_UP;
+    case 0x69: return VK_F13;
+    case 0x6B: return VK_F14;
+    case 0x71: return VK_F15;
+    case 0x6A: return VK_F16;
+  }
+  return 0;
 }
 
 bool IsRightClickEmulateEnabled();
@@ -175,9 +178,17 @@ int SWELL_MacKeyToWindowsKeyEx(void *nsevent, int *flags, int mode)
     else
     {
       code=[str characterAtIndex:0];
-      if (code >= 'a' && code <= 'z') code+='A'-'a';
-      if (code == 25 && (flag&FSHIFT)) code=VK_TAB;
-      if (isalnum(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
+      if (code >= NSF1FunctionKey && code <= NSF24FunctionKey)
+      {
+        flag|=FVIRTKEY;
+        code += VK_F1 - NSF1FunctionKey;
+      }
+      else 
+      {
+        if (code >= 'a' && code <= 'z') code+='A'-'a';
+        if (code == 25 && (flag&FSHIFT)) code=VK_TAB;
+        if (isalnum(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
+      }
     }
   }
   else
@@ -248,7 +259,7 @@ WORD GetAsyncKeyState(int key)
 }
 
 
-SWELL_CursorResourceIndex *SWELL_curmodule_cursorresource_head;
+static SWELL_CursorResourceIndex *SWELL_curmodule_cursorresource_head;
 
 static NSCursor* MakeCursorFromData(unsigned char* data, int hotspot_x, int hotspot_y)
 {
@@ -299,12 +310,13 @@ static NSCursor* MakeSWELLSystemCursor(const char *id)
   const unsigned char W = 0xFF;
   const unsigned char G = 0xF8;
   
-  static NSCursor* carr[3] = { 0, 0, 0 };
+  static NSCursor* carr[4] = { 0, 0, 0, 0 };
   
   NSCursor** pc=0;
   if (id == IDC_SIZEALL) pc = &carr[0];
   else if (id == IDC_SIZENWSE) pc = &carr[1];
   else if (id == IDC_SIZENESW) pc = &carr[2];
+  else if (id == IDC_NO) pc = &carr[3];
   else return 0;
   
   if (!(*pc))
@@ -663,6 +675,19 @@ BOOL SWELL_SetCursorPos(int X, int Y)
   CGPoint pos=CGPointMake(X,h-Y);
   return CGWarpMouseCursorPosition(pos)==kCGErrorSuccess;
 }
+
+void SWELL_Register_Cursor_Resource(const char *idx, const char *name, int hotspot_x, int hotspot_y)
+{
+  SWELL_CursorResourceIndex *ri = (SWELL_CursorResourceIndex*)malloc(sizeof(SWELL_CursorResourceIndex));
+  ri->hotspot.x = hotspot_x;
+  ri->hotspot.y = hotspot_y;
+  ri->resname=name;
+  ri->cachedCursor=0;
+  ri->resid = idx;
+  ri->_next = SWELL_curmodule_cursorresource_head;
+  SWELL_curmodule_cursorresource_head = ri;
+}
+
 
 
 

@@ -429,6 +429,11 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
           pGraphics->mParamEditMsg = kCommit;
           return 0;
         }
+        else if (wParam == VK_ESCAPE)
+        {
+          pGraphics->mParamEditMsg = kCancel;
+          return 0;
+        }
         break;
       }
       case WM_SETFOCUS:
@@ -438,7 +443,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       }
       case WM_KILLFOCUS:
       {
-        pGraphics->mParamEditMsg = kCancel; // when another window is focussed, kill the text edit box
+        pGraphics->mParamEditMsg = kCommit;
         break;
       }
       // handle WM_GETDLGCODE so that we can say that we want the return key message
@@ -959,17 +964,16 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTex
     default:                  editStyle = ES_CENTER; break;
   }
 
-  editStyle |= ES_MULTILINE;
-
-  mParamEditWnd = CreateWindow("EDIT", pString, WS_CHILD | WS_VISIBLE | editStyle ,
+  mParamEditWnd = CreateWindow("EDIT", pString, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
                                pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1,
                                mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
 
+  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) pControl->GetTextEntryLength(), 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
-  Edit_LimitText(mParamEditWnd, pControl->GetTextEntryLength());
+
   SetFocus(mParamEditWnd);
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
@@ -1024,14 +1028,38 @@ void IGraphicsWin::DesktopPath(WDL_String* pPath)
   #endif
 }
 
-void IGraphicsWin::AppSupportPath(WDL_String* pPath)
+void IGraphicsWin::AppSupportPath(WDL_String* pPath, bool isSystem)
 {
 #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
-  SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath );
+
+  if (isSystem)
+    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
+  else
+    SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
+
   pPath->Set(strPath, MAX_PATH_LEN);
 #endif
 }
+
+//void IGraphicsWin::VST3PresetsPath(WDL_String* pPath, bool isSystem)
+//{
+//  TCHAR strPath[MAX_PATH_LEN];
+//
+//  if (!isSystem)
+//  {
+//    TCHAR strPath[MAX_PATH_LEN];
+//    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
+//    pPath->Set(strPath, MAX_PATH_LEN);
+//  }
+//  else
+//  {
+//    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
+//    pPath->Set(strPath, MAX_PATH_LEN);
+//  }
+//
+//  pPath->AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug->GetMfrNameStr(), mPlug->GetPluginNameStr());
+//}
 
 void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
 {
@@ -1237,3 +1265,71 @@ void IGraphicsWin::HideTooltip()
     mShowingTooltip = false;
   }
 }
+
+bool IGraphicsWin::GetTextFromClipboard(WDL_String* pStr)
+{
+  bool success = false;
+  HGLOBAL hglb;
+  
+  if (IsClipboardFormatAvailable(CF_UNICODETEXT))
+  {
+    if(OpenClipboard(0))
+    {
+      hglb = GetClipboardData(CF_UNICODETEXT);
+      
+      if(hglb != NULL)
+      {
+        WCHAR *orig_str = (WCHAR*)GlobalLock(hglb);
+        
+        if (orig_str != NULL)
+        {
+          int orig_len = (int) wcslen(orig_str);
+          
+          orig_len += 1;
+          
+          // find out how much space is needed
+          int new_len = WideCharToMultiByte(CP_UTF8,
+                                            0,
+                                            orig_str,
+                                            orig_len,
+                                            0,
+                                            0,
+                                            NULL,
+                                            NULL);
+          
+          if (new_len > 0)
+          {
+            char *new_str = new char[new_len + 1];
+            
+            int num_chars = WideCharToMultiByte(CP_UTF8,
+                                                0,
+                                                orig_str,
+                                                orig_len,
+                                                new_str,
+                                                new_len,
+                                                NULL,
+                                                NULL);
+            
+            if (num_chars > 0)
+            {
+              success = true;
+              pStr->Set(new_str);
+            }
+            
+            delete [] new_str;
+          }
+          
+          GlobalUnlock(hglb);
+        }
+      }
+    }
+    
+    CloseClipboard();
+  }
+  
+  if(!success)
+    pStr->Set("");
+  
+  return success;
+}
+

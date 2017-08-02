@@ -106,12 +106,12 @@ void WebServerBaseClass::run(void)
 
     if (rv<0)
     {
-      JNL_IConnection *c=ci->m_serv.steal_con();
-      if (c) 
+      if (ci->m_serv.want_keepalive_reset())
       {
-        if (c->get_state() == JNL_Connection::STATE_CONNECTED)
-          attachConnection(c,ci->m_port);
-        else delete c;
+        time(&ci->m_connect_time);
+        delete ci->m_pagegen;
+        ci->m_pagegen=0;
+        continue;
       }
     }
 
@@ -156,7 +156,11 @@ int WebServerBaseClass::run_connection(WS_conInst *con)
       l=con->m_pagegen->GetData(buf,l);
       if (l < (con->m_pagegen->IsNonBlocking() ? 0 : 1)) // if nonblocking, this is l < 0, otherwise it's l<1
       {
-        if (con->m_serv.canKeepAlive()) return -1;
+        if (con->m_serv.canKeepAlive()) 
+        {
+          con->m_serv.write_bytes("",0);
+          return -1;
+        }
         return !con->m_serv.bytes_inqueue();
       }
       if (l>0)

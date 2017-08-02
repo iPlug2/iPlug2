@@ -1,8 +1,6 @@
 #include "IPlugBase.h"
-#ifndef OS_IOS
 #include "IGraphics.h"
 #include "IControl.h"
-#endif
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
@@ -88,8 +86,6 @@ IPlugBase::IPlugBase(int nParams,
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
 
-  mPreviousPath.Set("", MAX_PATH);
-
   for (int i = 0; i < nParams; ++i)
   {
     mParams.Add(new IParam);
@@ -154,9 +150,7 @@ IPlugBase::IPlugBase(int nParams,
 IPlugBase::~IPlugBase()
 {
   TRACE;
-  #ifndef OS_IOS
   DELETE_NULL(mGraphics);
-  #endif
   mParams.Empty(true);
   mPresets.Empty(true);
   mInChannels.Empty(true);
@@ -226,7 +220,7 @@ void IPlugBase::SetHost(const char* host, int version)
   GetVersionStr(version, vStr);
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr);
 }
-#ifndef OS_IOS
+
 void IPlugBase::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
@@ -243,7 +237,6 @@ void IPlugBase::AttachGraphics(IGraphics* pGraphics)
     mGraphics = pGraphics;
   }
 }
-#endif
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
 int IPlugBase::GetEffectVersion(bool decimal)
@@ -572,21 +565,6 @@ void IPlugBase::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
   }
 }
 
-// Default passthrough ONLY USED BY IOS.
-void IPlugBase::ProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
-{
-  // Mutex is already locked.
-  int i, nIn = mInChannels.GetSize(), nOut = mOutChannels.GetSize();
-  for (i = 0; i < nIn; ++i)
-  {
-    memcpy(outputs[i], inputs[i], nFrames * sizeof(float));
-  }
-  for (/* same i */; i < nOut; ++i)
-  {
-    memset(outputs[i], 0, nFrames * sizeof(float));
-  }
-}
-
 // Default passthrough.
 void IPlugBase::ProcessMidiMsg(IMidiMsg* pMsg)
 {
@@ -790,9 +768,7 @@ bool IPlugBase::RestorePreset(int idx)
     {
       mCurrentPresetIdx = idx;
       PresetsChangedByHost();
-      #ifndef OS_IOS
       RedrawParamControls();
-      #endif
     }
   }
   return restoredOK;
@@ -945,7 +921,6 @@ bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
   return isEqual;
 }
 
-#ifndef OS_IOS
 void IPlugBase::RedrawParamControls()
 {
   if (mGraphics)
@@ -958,7 +933,7 @@ void IPlugBase::RedrawParamControls()
     }
   }
 }
-#endif
+
 void IPlugBase::DirtyParameters()
 {
   WDL_MutexLock lock(&mMutex);
@@ -1009,7 +984,7 @@ void IPlugBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNam
 }
 
 #ifndef MAX_BLOB_LENGTH
-#define MAX_BLOB_LENGTH 1024
+#define MAX_BLOB_LENGTH 2048
 #endif
 
 void IPlugBase::DumpPresetBlob(const char* filename)
@@ -1025,6 +1000,29 @@ void IPlugBase::DumpPresetBlob(const char* filename)
   base64encode(byteStart, buf, pPresetChunk->Size());
 
   fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
+  fclose(fp);
+}
+
+void IPlugBase::DumpBankBlob(const char* filename)
+{
+  FILE* fp = fopen(filename, "w");
+  
+  if (!fp)
+    return;
+  
+  char buf[MAX_BLOB_LENGTH] = "";
+  
+  for (int i = 0; i< NPresets(); i++)
+  {
+    IPreset* pPreset = mPresets.Get(i);
+    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
+    
+    ByteChunk* pPresetChunk = &pPreset->mChunk;
+    base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
+    
+    fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
+  }
+  
   fclose(fp);
 }
 
@@ -1077,225 +1075,346 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-#ifndef OS_IOS
-bool IPlugBase::SaveProgramAsFXP(const char* defaultFileName)
+bool IPlugBase::SaveProgramAsFXP(WDL_String* fileName)
 {
-  if (mGraphics)
+  if (fileName->GetLength())
   {
-    WDL_String fileName(defaultFileName, strlen(defaultFileName));
-    mGraphics->PromptForFile(&fileName, kFileSave, &mPreviousPath, "fxp");
+    FILE* fp = fopen(fileName->Get(), "wb");
 
-    if (fileName.GetLength())
+    ByteChunk pgm;
+
+    VstInt32 chunkMagic = WDL_bswap32('CcnK');
+    VstInt32 byteSize = 0;
+    VstInt32 fxpMagic;
+    VstInt32 fxpVersion = WDL_bswap32(kFXPVersionNum);
+    VstInt32 pluginID = WDL_bswap32(GetUniqueID());
+    VstInt32 pluginVersion = WDL_bswap32(GetEffectVersion(true));
+    VstInt32 numParams = WDL_bswap32(NParams());
+    char prgName[28];
+    memset(prgName, 0, 28);
+    strcpy(prgName, GetPresetName(GetCurrentPresetIdx()));
+
+    pgm.Put(&chunkMagic);
+
+    if (DoesStateChunks())
     {
-      FILE* fp = fopen(fileName.Get(), "wb");
+      ByteChunk state;
+      VstInt32 chunkSize;
 
-      ByteChunk pgm;
+      fxpMagic = WDL_bswap32('FPCh');
 
-      VstInt32 chunkMagic = WDL_bswap32('CcnK');
-      VstInt32 byteSize = 0;
-      VstInt32 fxpMagic;
+      InitChunkWithIPlugVer(&state);
+      SerializeState(&state);
+
+      chunkSize = WDL_bswap32(state.Size());
+      byteSize = WDL_bswap32(state.Size() + 60);
+
+      pgm.Put(&byteSize);
+      pgm.Put(&fxpMagic);
+      pgm.Put(&fxpVersion);
+      pgm.Put(&pluginID);
+      pgm.Put(&pluginVersion);
+      pgm.Put(&numParams);
+      pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
+      pgm.Put(&chunkSize);
+      pgm.PutBytes(state.GetBytes(), state.Size());
+    }
+    else
+    {
+      fxpMagic = WDL_bswap32('FxCk');
+      //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
+      pgm.Put(&byteSize);
+      pgm.Put(&fxpMagic);
+      pgm.Put(&fxpVersion);
+      pgm.Put(&pluginID);
+      pgm.Put(&pluginVersion);
+      pgm.Put(&numParams);
+      pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
+
+      for (int i = 0; i< NParams(); i++)
+      {
+        WDL_EndianFloat v32;
+        v32.f = (float) mParams.Get(i)->GetNormalized();
+        unsigned int swapped = WDL_bswap32(v32.int32);
+        pgm.Put(&swapped);
+      }
+    }
+
+    fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
+    fclose(fp);
+
+    return true;
+  }
+  return false;
+}
+
+bool IPlugBase::SaveBankAsFXB(WDL_String* fileName)
+{
+  if (fileName->GetLength())
+  {
+    FILE* fp = fopen(fileName->Get(), "wb");
+
+    ByteChunk bnk;
+
+    VstInt32 chunkMagic = WDL_bswap32('CcnK');
+    VstInt32 byteSize = 0;
+    VstInt32 fxbMagic;
+    VstInt32 fxbVersion = WDL_bswap32(kFXBVersionNum);
+    VstInt32 pluginID = WDL_bswap32(GetUniqueID());
+    VstInt32 pluginVersion = WDL_bswap32(GetEffectVersion(true));
+    VstInt32 numPgms =  WDL_bswap32(NPresets());
+    VstInt32 currentPgm = WDL_bswap32(GetCurrentPresetIdx());
+    char future[124];
+    memset(future, 0, 124);
+
+    bnk.Put(&chunkMagic);
+
+    if (DoesStateChunks())
+    {
+      ByteChunk state;
+      VstInt32 chunkSize;
+
+      fxbMagic = WDL_bswap32('FBCh');
+
+      InitChunkWithIPlugVer(&state);
+      SerializePresets(&state);
+
+      chunkSize = WDL_bswap32(state.Size());
+      byteSize = WDL_bswap32(160 + state.Size() );
+
+      bnk.Put(&byteSize);
+      bnk.Put(&fxbMagic);
+      bnk.Put(&fxbVersion);
+      bnk.Put(&pluginID);
+      bnk.Put(&pluginVersion);
+      bnk.Put(&numPgms);
+      bnk.Put(&currentPgm);
+      bnk.PutBytes(&future, 124);
+
+      bnk.Put(&chunkSize);
+      bnk.PutBytes(state.GetBytes(), state.Size());
+    }
+    else
+    {
+      fxbMagic = WDL_bswap32('FxBk');
+
+      bnk.Put(&byteSize);
+      bnk.Put(&fxbMagic);
+      bnk.Put(&fxbVersion);
+      bnk.Put(&pluginID);
+      bnk.Put(&pluginVersion);
+      bnk.Put(&numPgms);
+      bnk.Put(&currentPgm);
+      bnk.PutBytes(&future, 124);
+
+      VstInt32 fxpMagic = WDL_bswap32('FxCk');
       VstInt32 fxpVersion = WDL_bswap32(kFXPVersionNum);
-      VstInt32 pluginID = WDL_bswap32(GetUniqueID());
-      VstInt32 pluginVersion = WDL_bswap32(GetEffectVersion(true));
       VstInt32 numParams = WDL_bswap32(NParams());
-      char prgName[28];
-      memset(prgName, 0, 28);
-      strcpy(prgName, GetPresetName(GetCurrentPresetIdx()));
 
-      pgm.Put(&chunkMagic);
-
-      if (DoesStateChunks())
+      for (int p = 0; p < NPresets(); p++)
       {
-        ByteChunk state;
-        VstInt32 chunkSize;
+        IPreset* pPreset = mPresets.Get(p);
 
-        fxpMagic = WDL_bswap32('FPCh');
+        char prgName[28];
+        memset(prgName, 0, 28);
+        strcpy(prgName, pPreset->mName);
 
-        InitChunkWithIPlugVer(&state);
-        SerializeState(&state);
-
-        chunkSize = WDL_bswap32(state.Size());
-        byteSize = WDL_bswap32(state.Size() + 60);
-
-        pgm.Put(&byteSize);
-        pgm.Put(&fxpMagic);
-        pgm.Put(&fxpVersion);
-        pgm.Put(&pluginID);
-        pgm.Put(&pluginVersion);
-        pgm.Put(&numParams);
-        pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
-        pgm.Put(&chunkSize);
-        pgm.PutBytes(state.GetBytes(), state.Size());
-      }
-      else
-      {
-        fxpMagic = WDL_bswap32('FxCk');
+        bnk.Put(&chunkMagic);
         //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
-        pgm.Put(&byteSize);
-        pgm.Put(&fxpMagic);
-        pgm.Put(&fxpVersion);
-        pgm.Put(&pluginID);
-        pgm.Put(&pluginVersion);
-        pgm.Put(&numParams);
-        pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
-
-        for (int i = 0; i< NParams(); i++)
-        {
-          WDL_EndianFloat v32;
-          v32.f = (float) mParams.Get(i)->GetNormalized();
-          unsigned int swapped = WDL_bswap32(v32.int32);
-          pgm.Put(&swapped);
-        }
-      }
-
-      fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
-      fclose(fp);
-
-      return true;
-    }
-  }
-  return false;
-}
-
-bool IPlugBase::SaveBankAsFXB(const char* defaultFileName)
-{
-  if (mGraphics)
-  {
-    WDL_String fileName(defaultFileName, strlen(defaultFileName));
-    mGraphics->PromptForFile(&fileName, kFileSave, &mPreviousPath, "fxb");
-
-    if (fileName.GetLength())
-    {
-      FILE* fp = fopen(fileName.Get(), "wb");
-
-      ByteChunk bnk;
-
-      VstInt32 chunkMagic = WDL_bswap32('CcnK');
-      VstInt32 byteSize = 0;
-      VstInt32 fxbMagic;
-      VstInt32 fxbVersion = WDL_bswap32(kFXBVersionNum);
-      VstInt32 pluginID = WDL_bswap32(GetUniqueID());
-      VstInt32 pluginVersion = WDL_bswap32(GetEffectVersion(true));
-      VstInt32 numPgms =  WDL_bswap32(NPresets());
-      VstInt32 currentPgm = WDL_bswap32(GetCurrentPresetIdx());
-      char future[124];
-      memset(future, 0, 124);
-
-      bnk.Put(&chunkMagic);
-
-      if (DoesStateChunks())
-      {
-        ByteChunk state;
-        VstInt32 chunkSize;
-
-        fxbMagic = WDL_bswap32('FBCh');
-
-        InitChunkWithIPlugVer(&state);
-        SerializePresets(&state);
-
-        chunkSize = WDL_bswap32(state.Size());
-        byteSize = WDL_bswap32(160 + state.Size() );
-
         bnk.Put(&byteSize);
-        bnk.Put(&fxbMagic);
-        bnk.Put(&fxbVersion);
+        bnk.Put(&fxpMagic);
+        bnk.Put(&fxpVersion);
         bnk.Put(&pluginID);
         bnk.Put(&pluginVersion);
-        bnk.Put(&numPgms);
-        bnk.Put(&currentPgm);
-        bnk.PutBytes(&future, 124);
-
-        bnk.Put(&chunkSize);
-        bnk.PutBytes(state.GetBytes(), state.Size());
-      }
-      else
-      {
-        fxbMagic = WDL_bswap32('FxBk');
-
-        bnk.Put(&byteSize);
-        bnk.Put(&fxbMagic);
-        bnk.Put(&fxbVersion);
-        bnk.Put(&pluginID);
-        bnk.Put(&pluginVersion);
-        bnk.Put(&numPgms);
-        bnk.Put(&currentPgm);
-        bnk.PutBytes(&future, 124);
-
-        VstInt32 fxpMagic = WDL_bswap32('FxCk');
-        VstInt32 fxpVersion = WDL_bswap32(kFXPVersionNum);
-        VstInt32 numParams = WDL_bswap32(NParams());
-
-        for (int p = 0; p < NPresets(); p++)
-        {
-          IPreset* pPreset = mPresets.Get(p);
-
-          char prgName[28];
-          memset(prgName, 0, 28);
-          strcpy(prgName, pPreset->mName);
-
-          bnk.Put(&chunkMagic);
-          //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
-          bnk.Put(&byteSize);
-          bnk.Put(&fxpMagic);
-          bnk.Put(&fxpVersion);
-          bnk.Put(&pluginID);
-          bnk.Put(&pluginVersion);
-          bnk.Put(&numParams);
-          bnk.PutBytes(prgName, 28);
-
-          int pos = 0;
-
-          for (int i = 0; i< NParams(); i++)
-          {
-            double v = 0.0;
-            pos = pPreset->mChunk.Get(&v, pos);
-
-            WDL_EndianFloat v32;
-            v32.f = (float) mParams.Get(i)->GetNormalized(v);
-            unsigned int swapped = WDL_bswap32(v32.int32);
-            bnk.Put(&swapped);
-          }
-        }
-      }
-
-      fwrite(bnk.GetBytes(), bnk.Size(), 1, fp);
-      fclose(fp);
-
-      return true;
-    }
-  }
-  return false;
-}
-
-bool IPlugBase::LoadProgramFromFXP()
-{
-  if (mGraphics)
-  {
-    WDL_String fileName;
-    mGraphics->PromptForFile(&fileName, kFileOpen, &mPreviousPath, "fxp");
-
-    if (fileName.GetLength())
-    {
-      FILE* fp = fopen(fileName.Get(), "rb");
-
-      if (fp)
-      {
-        ByteChunk pgm;
-        long fileSize;
-
-        fseek(fp , 0 , SEEK_END);
-        fileSize = ftell(fp);
-        rewind(fp);
-
-        pgm.Resize(fileSize);
-        fread(pgm.GetBytes(), fileSize, 1, fp);
-
-        fclose(fp);
+        bnk.Put(&numParams);
+        bnk.PutBytes(prgName, 28);
 
         int pos = 0;
 
+        for (int i = 0; i< NParams(); i++)
+        {
+          double v = 0.0;
+          pos = pPreset->mChunk.Get(&v, pos);
+
+          WDL_EndianFloat v32;
+          v32.f = (float) mParams.Get(i)->GetNormalized(v);
+          unsigned int swapped = WDL_bswap32(v32.int32);
+          bnk.Put(&swapped);
+        }
+      }
+    }
+
+    fwrite(bnk.GetBytes(), bnk.Size(), 1, fp);
+    fclose(fp);
+
+    return true;
+  }
+  else
+    return false;
+}
+
+bool IPlugBase::LoadProgramFromFXP(WDL_String* fileName)
+{
+  if (fileName->GetLength())
+  {
+    FILE* fp = fopen(fileName->Get(), "rb");
+
+    if (fp)
+    {
+      ByteChunk pgm;
+      long fileSize;
+
+      fseek(fp , 0 , SEEK_END);
+      fileSize = ftell(fp);
+      rewind(fp);
+
+      pgm.Resize(fileSize);
+      fread(pgm.GetBytes(), fileSize, 1, fp);
+
+      fclose(fp);
+
+      int pos = 0;
+
+      VstInt32 chunkMagic;
+      VstInt32 byteSize = 0;
+      VstInt32 fxpMagic;
+      VstInt32 fxpVersion;
+      VstInt32 pluginID;
+      VstInt32 pluginVersion;
+      VstInt32 numParams;
+      char prgName[28];
+
+      pos = pgm.Get(&chunkMagic, pos);
+      chunkMagic = WDL_bswap_if_le(chunkMagic);
+      pos = pgm.Get(&byteSize, pos);
+      byteSize = WDL_bswap_if_le(byteSize);
+      pos = pgm.Get(&fxpMagic, pos);
+      fxpMagic = WDL_bswap_if_le(fxpMagic);
+      pos = pgm.Get(&fxpVersion, pos);
+      fxpVersion = WDL_bswap_if_le(fxpVersion);
+      pos = pgm.Get(&pluginID, pos);
+      pluginID = WDL_bswap_if_le(pluginID);
+      pos = pgm.Get(&pluginVersion, pos);
+      pluginVersion = WDL_bswap_if_le(pluginVersion);
+      pos = pgm.Get(&numParams, pos);
+      numParams = WDL_bswap_if_le(numParams);
+      pos = pgm.GetBytes(prgName, 28, pos);
+
+      if (chunkMagic != 'CcnK') return false;
+      if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
+      if (pluginID != GetUniqueID()) return false;
+      //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+      //if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
+
+      if (DoesStateChunks() && fxpMagic == 'FPCh')
+      {
+        VstInt32 chunkSize;
+        pos = pgm.Get(&chunkSize, pos);
+        chunkSize = WDL_bswap_if_le(chunkSize);
+
+        GetIPlugVerFromChunk(&pgm, &pos);
+        UnserializeState(&pgm, pos);
+        ModifyCurrentPreset(prgName);
+        RestorePreset(GetCurrentPresetIdx());
+        InformHostOfProgramChange();
+
+        return true;
+      }
+      else if (fxpMagic == 'FxCk')
+      {
+        for (int i = 0; i< NParams(); i++)
+        {
+          WDL_EndianFloat v32;
+          pos = pgm.Get(&v32.int32, pos);
+          v32.int32 = WDL_bswap_if_le(v32.int32);
+          mParams.Get(i)->SetNormalized((double) v32.f);
+        }
+
+        ModifyCurrentPreset(prgName);
+        RestorePreset(GetCurrentPresetIdx());
+        InformHostOfProgramChange();
+
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool IPlugBase::LoadBankFromFXB(WDL_String* fileName)
+{
+  if (fileName->GetLength())
+  {
+    FILE* fp = fopen(fileName->Get(), "rb");
+
+    if (fp)
+    {
+      ByteChunk bnk;
+      long fileSize;
+
+      fseek(fp , 0 , SEEK_END);
+      fileSize = ftell(fp);
+      rewind(fp);
+
+      bnk.Resize(fileSize);
+      fread(bnk.GetBytes(), fileSize, 1, fp);
+
+      fclose(fp);
+
+      int pos = 0;
+
+      VstInt32 chunkMagic;
+      VstInt32 byteSize = 0;
+      VstInt32 fxbMagic;
+      VstInt32 fxbVersion;
+      VstInt32 pluginID;
+      VstInt32 pluginVersion;
+      VstInt32 numPgms;
+      VstInt32 currentPgm;
+      char future[124];
+      memset(future, 0, 124);
+
+      pos = bnk.Get(&chunkMagic, pos);
+      chunkMagic = WDL_bswap_if_le(chunkMagic);
+      pos = bnk.Get(&byteSize, pos);
+      byteSize = WDL_bswap_if_le(byteSize);
+      pos = bnk.Get(&fxbMagic, pos);
+      fxbMagic = WDL_bswap_if_le(fxbMagic);
+      pos = bnk.Get(&fxbVersion, pos);
+      fxbVersion = WDL_bswap_if_le(fxbVersion);
+      pos = bnk.Get(&pluginID, pos);
+      pluginID = WDL_bswap_if_le(pluginID);
+      pos = bnk.Get(&pluginVersion, pos);
+      pluginVersion = WDL_bswap_if_le(pluginVersion);
+      pos = bnk.Get(&numPgms, pos);
+      numPgms = WDL_bswap_if_le(numPgms);
+      pos = bnk.Get(&currentPgm, pos);
+      currentPgm = WDL_bswap_if_le(currentPgm);
+      pos = bnk.GetBytes(future, 124, pos);
+
+      if (chunkMagic != 'CcnK') return false;
+      //if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
+      if (pluginID != GetUniqueID()) return false;
+      //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+      //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
+
+      if (DoesStateChunks() && fxbMagic == 'FBCh')
+      {
+        VstInt32 chunkSize;
+        pos = bnk.Get(&chunkSize, pos);
+        chunkSize = WDL_bswap_if_le(chunkSize);
+
+        GetIPlugVerFromChunk(&bnk, &pos);
+        UnserializePresets(&bnk, pos);
+        //RestorePreset(currentPgm);
+        InformHostOfProgramChange();
+        return true;
+      }
+      else if (fxbMagic == 'FxBk')
+      {
         VstInt32 chunkMagic;
-        VstInt32 byteSize = 0;
+        VstInt32 byteSize;
         VstInt32 fxpMagic;
         VstInt32 fxpVersion;
         VstInt32 pluginID;
@@ -1303,204 +1422,59 @@ bool IPlugBase::LoadProgramFromFXP()
         VstInt32 numParams;
         char prgName[28];
 
-        pos = pgm.Get(&chunkMagic, pos);
-        chunkMagic = WDL_bswap_if_le(chunkMagic);
-        pos = pgm.Get(&byteSize, pos);
-        byteSize = WDL_bswap_if_le(byteSize);
-        pos = pgm.Get(&fxpMagic, pos);
-        fxpMagic = WDL_bswap_if_le(fxpMagic);
-        pos = pgm.Get(&fxpVersion, pos);
-        fxpVersion = WDL_bswap_if_le(fxpVersion);
-        pos = pgm.Get(&pluginID, pos);
-        pluginID = WDL_bswap_if_le(pluginID);
-        pos = pgm.Get(&pluginVersion, pos);
-        pluginVersion = WDL_bswap_if_le(pluginVersion);
-        pos = pgm.Get(&numParams, pos);
-        numParams = WDL_bswap_if_le(numParams);
-        pos = pgm.GetBytes(prgName, 28, pos);
-
-        if (chunkMagic != 'CcnK') return false;
-        if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
-        if (pluginID != GetUniqueID()) return false;
-        //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
-        if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
-
-        if (DoesStateChunks() && fxpMagic == 'FPCh')
+        for(int i = 0; i<numPgms; i++)
         {
-          VstInt32 chunkSize;
-          pos = pgm.Get(&chunkSize, pos);
-          chunkSize = WDL_bswap_if_le(chunkSize);
+          pos = bnk.Get(&chunkMagic, pos);
+          chunkMagic = WDL_bswap_if_le(chunkMagic);
 
-          GetIPlugVerFromChunk(&pgm, &pos);
-          UnserializeState(&pgm, pos);
-          ModifyCurrentPreset(prgName);
-          RestorePreset(GetCurrentPresetIdx());
-          InformHostOfProgramChange();
+          pos = bnk.Get(&byteSize, pos);
+          byteSize = WDL_bswap_if_le(byteSize);
 
-          return true;
-        }
-        else if (fxpMagic == 'FxCk')
-        {
-          for (int i = 0; i< NParams(); i++)
+          pos = bnk.Get(&fxpMagic, pos);
+          fxpMagic = WDL_bswap_if_le(fxpMagic);
+
+          pos = bnk.Get(&fxpVersion, pos);
+          fxpVersion = WDL_bswap_if_le(fxpVersion);
+
+          pos = bnk.Get(&pluginID, pos);
+          pluginID = WDL_bswap_if_le(pluginID);
+
+          pos = bnk.Get(&pluginVersion, pos);
+          pluginVersion = WDL_bswap_if_le(pluginVersion);
+
+          pos = bnk.Get(&numParams, pos);
+          numParams = WDL_bswap_if_le(numParams);
+
+          if (chunkMagic != 'CcnK') return false;
+          if (fxpMagic != 'FxCk') return false;
+          if (fxpVersion != kFXPVersionNum) return false;
+          if (numParams != NParams()) return false;
+
+          pos = bnk.GetBytes(prgName, 28, pos);
+
+          RestorePreset(i);
+
+          for (int j = 0; j< NParams(); j++)
           {
             WDL_EndianFloat v32;
-            pos = pgm.Get(&v32.int32, pos);
+            pos = bnk.Get(&v32.int32, pos);
             v32.int32 = WDL_bswap_if_le(v32.int32);
-            mParams.Get(i)->SetNormalized((double) v32.f);
+            mParams.Get(j)->SetNormalized((double) v32.f);
           }
 
           ModifyCurrentPreset(prgName);
-          RestorePreset(GetCurrentPresetIdx());
-          InformHostOfProgramChange();
-
-          return true;
         }
+
+        RestorePreset(currentPgm);
+        InformHostOfProgramChange();
+
+        return true;
       }
     }
   }
+
   return false;
 }
-
-bool IPlugBase::LoadBankFromFXB()
-{
-  if (mGraphics)
-  {
-    WDL_String fileName;
-    mGraphics->PromptForFile(&fileName, kFileOpen, &mPreviousPath, "fxb");
-
-    if (fileName.GetLength())
-    {
-      FILE* fp = fopen(fileName.Get(), "rb");
-
-      if (fp)
-      {
-        ByteChunk bnk;
-        long fileSize;
-
-        fseek(fp , 0 , SEEK_END);
-        fileSize = ftell(fp);
-        rewind(fp);
-
-        bnk.Resize(fileSize);
-        fread(bnk.GetBytes(), fileSize, 1, fp);
-
-        fclose(fp);
-
-        int pos = 0;
-
-        VstInt32 chunkMagic;
-        VstInt32 byteSize = 0;
-        VstInt32 fxbMagic;
-        VstInt32 fxbVersion;
-        VstInt32 pluginID;
-        VstInt32 pluginVersion;
-        VstInt32 numPgms;
-        VstInt32 currentPgm;
-        char future[124];
-        memset(future, 0, 124);
-
-        pos = bnk.Get(&chunkMagic, pos);
-        chunkMagic = WDL_bswap_if_le(chunkMagic);
-        pos = bnk.Get(&byteSize, pos);
-        byteSize = WDL_bswap_if_le(byteSize);
-        pos = bnk.Get(&fxbMagic, pos);
-        fxbMagic = WDL_bswap_if_le(fxbMagic);
-        pos = bnk.Get(&fxbVersion, pos);
-        fxbVersion = WDL_bswap_if_le(fxbVersion);
-        pos = bnk.Get(&pluginID, pos);
-        pluginID = WDL_bswap_if_le(pluginID);
-        pos = bnk.Get(&pluginVersion, pos);
-        pluginVersion = WDL_bswap_if_le(pluginVersion);
-        pos = bnk.Get(&numPgms, pos);
-        numPgms = WDL_bswap_if_le(numPgms);
-        pos = bnk.Get(&currentPgm, pos);
-        currentPgm = WDL_bswap_if_le(currentPgm);
-        pos = bnk.GetBytes(future, 124, pos);
-
-        if (chunkMagic != 'CcnK') return false;
-        //if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
-        if (pluginID != GetUniqueID()) return false;
-        //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
-        //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
-
-        if (DoesStateChunks() && fxbMagic == 'FBCh')
-        {
-          VstInt32 chunkSize;
-          pos = bnk.Get(&chunkSize, pos);
-          chunkSize = WDL_bswap_if_le(chunkSize);
-
-          GetIPlugVerFromChunk(&bnk, &pos);
-          UnserializePresets(&bnk, pos);
-          //RestorePreset(currentPgm);
-          InformHostOfProgramChange();
-          return true;
-        }
-        else if (fxbMagic == 'FxBk')
-        {
-          VstInt32 chunkMagic;
-          VstInt32 byteSize;
-          VstInt32 fxpMagic;
-          VstInt32 fxpVersion;
-          VstInt32 pluginID;
-          VstInt32 pluginVersion;
-          VstInt32 numParams;
-          char prgName[28];
-
-          for(int i = 0; i<numPgms; i++)
-          {
-            pos = bnk.Get(&chunkMagic, pos);
-            chunkMagic = WDL_bswap_if_le(chunkMagic);
-
-            pos = bnk.Get(&byteSize, pos);
-            byteSize = WDL_bswap_if_le(byteSize);
-
-            pos = bnk.Get(&fxpMagic, pos);
-            fxpMagic = WDL_bswap_if_le(fxpMagic);
-
-            pos = bnk.Get(&fxpVersion, pos);
-            fxpVersion = WDL_bswap_if_le(fxpVersion);
-
-            pos = bnk.Get(&pluginID, pos);
-            pluginID = WDL_bswap_if_le(pluginID);
-
-            pos = bnk.Get(&pluginVersion, pos);
-            pluginVersion = WDL_bswap_if_le(pluginVersion);
-
-            pos = bnk.Get(&numParams, pos);
-            numParams = WDL_bswap_if_le(numParams);
-
-            if (chunkMagic != 'CcnK') return false;
-            if (fxpMagic != 'FxCk') return false;
-            if (fxpVersion != kFXPVersionNum) return false;
-            if (numParams != NParams()) return false;
-
-            pos = bnk.GetBytes(prgName, 28, pos);
-
-            RestorePreset(i);
-
-            for (int j = 0; j< NParams(); j++)
-            {
-              WDL_EndianFloat v32;
-              pos = bnk.Get(&v32.int32, pos);
-              v32.int32 = WDL_bswap_if_le(v32.int32);
-              mParams.Get(j)->SetNormalized((double) v32.f);
-            }
-
-            ModifyCurrentPreset(prgName);
-          }
-
-          RestorePreset(currentPgm);
-          InformHostOfProgramChange();
-
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-#endif
 
 void IPlugBase::InitChunkWithIPlugVer(ByteChunk* pChunk)
 {

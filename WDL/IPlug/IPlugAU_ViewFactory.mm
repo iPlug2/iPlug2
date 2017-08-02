@@ -29,6 +29,7 @@
     IGraphics* pGraphics = mPlug->GetGUI();   
     if (pGraphics) {
       IGRAPHICS_COCOA* pView = (IGRAPHICS_COCOA*) pGraphics->OpenWindow(0);
+      mPlug->OnGUIOpen();
       return pView;
     }
   }

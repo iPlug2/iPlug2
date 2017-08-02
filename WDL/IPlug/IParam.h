@@ -59,6 +59,8 @@ public:
   void SetNormalized(double normalizedValue);
   double GetNormalized();
   double GetNormalized(double nonNormalizedValue);
+  double GetNonNormalized(double normalizedValue);
+
   void GetDisplayForHost(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay); }
   void GetDisplayForHostNoDisplayText(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay, false); }
   void GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText = true);

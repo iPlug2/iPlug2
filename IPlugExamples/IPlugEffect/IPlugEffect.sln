@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-app", "IPlugEffect-app.vcxproj", "{41785AE4-5B70-4A75-880B-4B418B4E13C6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3059A12C-2A45-439B-81EC-201D8ED347A3} = {3059A12C-2A45-439B-81EC-201D8ED347A3}
@@ -27,7 +29,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-vst3", "IPlugEf
 		{5755CC40-C699-491B-BD7C-5D841C26C28D} = {5755CC40-C699-491B-BD7C-5D841C26C28D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "..\..\VST3_SDK\base\win\base_vc10.vcxproj", "{5755CC40-C699-491B-BD7C-5D841C26C28D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "..\..\VST3_SDK\base\win\base.vcxproj", "{5755CC40-C699-491B-BD7C-5D841C26C28D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-aax", "IPlugEffect-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 	ProjectSection(ProjectDependencies) = postProject

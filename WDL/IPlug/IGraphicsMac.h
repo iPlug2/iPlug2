@@ -7,15 +7,15 @@
 
 // carbon support uses quickdraw methods that have been removed in SDKs > 10.6
 #if __MAC_OS_X_VERSION_MAX_ALLOWED > 1060
-  #warning Carbon GUIs work best with the 10.6 sdk
+  #warning Carbon GUIs work best with the 10.6 sdk or lower
 #endif
 
 #include "IGraphics.h"
 #include "../swell/swell.h"
 
-#ifdef VST3_API
-  #define _UINT32 // this is necessary to get VST3 to compile with the 10.6 SDK due to a conflict
-#endif
+//#ifdef VST3_API
+//  #define _UINT32 // this is necessary to get VST3 to compile with the 10.6 SDK due to a conflict
+//#endif
 
 #include <Carbon/Carbon.h>
 
@@ -96,7 +96,9 @@ public:
   void HostPath(WDL_String* pPath);
   void PluginPath(WDL_String* pPath);
   void DesktopPath(WDL_String* pPath);
-  void AppSupportPath(WDL_String* pPath);
+//  void VST3PresetsPath(WDL_String* pPath, bool isSystem = true);
+  void AppSupportPath(WDL_String* pPath, bool isSystem = false);
+  void SandboxSafeAppSupportPath(WDL_String* pPath);
 
   void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor* pColor, char* prompt = "");
@@ -110,6 +112,8 @@ public:
 
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
+  
+  bool GetTextFromClipboard(WDL_String* pStr);
 
 protected:
   virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name);

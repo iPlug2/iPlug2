@@ -22,7 +22,7 @@ public:
     : mPlug(pPlug), mRECT(pR), mTargetRECT(pR), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
       mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
       mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN), 
-      mValDisplayControl(0), mNameDisplayControl(0), mTooltip(NULL) {}
+      mValDisplayControl(0), mNameDisplayControl(0), mTooltip("") {}
 
   virtual ~IControl() {}
 
@@ -30,7 +30,7 @@ public:
   virtual void OnMouseUp(int x, int y, IMouseMod* pMod) {}
   virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod) {}
   virtual void OnMouseDblClick(int x, int y, IMouseMod* pMod);
-  virtual void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
+  virtual void OnMouseWheel(int x, int y, IMouseMod* pMod, int d) {};
   virtual bool OnKeyDown(int x, int y, int key) { return false; }
 
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
@@ -48,17 +48,18 @@ public:
   void PromptUserInput();
   void PromptUserInput(IRECT* pTextRect);
   
-  inline void SetTooltip(const char* tooltip) { mTooltip = tooltip; }
-  inline const char* GetTooltip() const { return mTooltip; }
+  inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
+  inline const char* GetTooltip() const { return mTooltip.Get(); }
 
   int ParamIdx() { return mParamIdx; }
   IParam *GetParam() { return mPlug->GetParam(mParamIdx); }
   virtual void SetValueFromPlug(double value);
-  void SetValueFromUserInput(double value);
+  virtual void SetValueFromUserInput(double value);
   double GetValue() { return mValue; }
 
   IText* GetText() { return &mText; }
   int GetTextEntryLength() { return mTextEntryLength; }
+  void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText* txt) { mText = *txt; }
   IRECT* GetRECT() { return &mRECT; }       // The draw area for this control.
   IRECT* GetTargetRECT() { return &mTargetRECT; } // The mouse target area (default = draw area).
@@ -118,6 +119,9 @@ public:
   void SetAllAuxParamsFromGUI();
   int NAuxParams() { return mAuxParams.GetSize(); }
   
+  IPlugBase* GetPlug() { return mPlug; }
+  IGraphics* GetGUI() { return mPlug->GetGUI(); }
+
 protected:
   int mTextEntryLength;
   IText mText;
@@ -131,7 +135,7 @@ protected:
   IChannelBlend mBlend;
   IControl* mValDisplayControl;
   IControl* mNameDisplayControl;
-  const char* mTooltip;
+  WDL_String mTooltip;
 };
 
 enum EDirection { kVertical, kHorizontal };
@@ -270,6 +274,7 @@ public:
 
   virtual void OnMouseDown(int x, int y, IMouseMod* pMod);
   virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod);
+  virtual void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
 
   virtual bool Draw(IGraphics* pGraphics);
   
@@ -296,6 +301,7 @@ public:
 
   void SetGearing(double gearing) { mGearing = gearing; }
   virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod);
+  virtual void OnMouseWheel(int x, int y, IMouseMod* pMod, int d);
 
 protected:
   EDirection mDirection;

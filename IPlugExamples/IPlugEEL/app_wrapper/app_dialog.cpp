@@ -548,7 +548,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           if(!gPluginInstance->HostRequestingAboutBox())
           {
             char version[50];
-            sprintf(version, BUNDLE_MFR"\nBuilt on "__DATE__);
+            sprintf(version, BUNDLE_MFR"\nBuilt on " __DATE__);
             MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
           }
           return 0;

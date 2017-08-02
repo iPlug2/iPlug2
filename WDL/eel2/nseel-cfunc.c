@@ -117,6 +117,10 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f)
 
 #ifdef __ppc__
 #include "asm-nseel-ppc-gcc.c"
+#elif defined(__arm__)
+#include "asm-nseel-arm-gcc.c"
+#elif defined (_M_ARM) && _M_ARM  == 7
+  // vc on ARM, tbd
 #else
   #ifdef _MSC_VER
     #ifdef _WIN64
@@ -124,9 +128,30 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f)
     #else
       #include "asm-nseel-x86-msvc.c"
 
-      #include <float.h>
-      void eel_setfp_round() { _controlfp(_RC_NEAR,_MCW_RC); }
-      void eel_setfp_trunc() { _controlfp(_RC_CHOP,_MCW_RC); }
+      void eel_setfp_round() 
+      { 
+        short oldsw;
+        __asm
+        {
+          fnstcw [oldsw]
+          mov ax, [oldsw]
+          and ax, 0xF3FF // round to nearest
+          mov [oldsw], ax
+          fldcw [oldsw]
+        }
+      }
+      void eel_setfp_trunc() 
+      { 
+        short oldsw;
+        __asm
+        {
+          fnstcw [oldsw]
+          mov ax, [oldsw]
+          or ax, 0xC00 // truncate
+          mov [oldsw], ax
+          fldcw [oldsw]
+        }
+      }
     #endif
   #elif !defined(__LP64__)
     #define FUNCTION_MARKER "\n.byte 0x89,0x90,0x90,0x90,0x90,0x90,0x90,0x90,0x90,0x90,0x90,0x90\n"
@@ -160,7 +185,7 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f)
 
 #endif
 
-#if defined(__ppc__) || defined(EEL_TARGET_PORTABLE)
+#if defined(__ppc__) || defined(__arm__) || defined(EEL_TARGET_PORTABLE)
   // blank stubs for PPC, portable modes
   void eel_setfp_round() { }
   void eel_setfp_trunc() { }

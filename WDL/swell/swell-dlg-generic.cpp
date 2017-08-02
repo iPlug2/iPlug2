@@ -1,3 +1,23 @@
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
+
+    This software is provided 'as-is', without any express or implied
+    warranty.  In no event will the authors be held liable for any damages
+    arising from the use of this software.
+
+    Permission is granted to anyone to use this software for any purpose,
+    including commercial applications, and to alter it and redistribute it
+    freely, subject to the following restrictions:
+
+    1. The origin of this software must not be misrepresented; you must not
+       claim that you wrote the original software. If you use this software
+       in a product, an acknowledgment in the product documentation would be
+       appreciated but is not required.
+    2. Altered source versions must be plainly marked as such, and must not be
+       misrepresented as being the original software.
+    3. This notice may not be removed or altered from any source distribution.
+*/
+
 #ifndef SWELL_PROVIDED_BY_APP
 
 #include "swell.h"
@@ -39,22 +59,32 @@ static WDL_PtrList<modalDlgRet> s_modalDialogs;
 
 HWND DialogBoxIsActive()
 {
-  return s_modalDialogs.GetSize() ? s_modalDialogs.Get(s_modalDialogs.GetSize()-1)->hwnd : NULL;
+  int a = s_modalDialogs.GetSize();
+  while (a-- > 0)
+  {
+    modalDlgRet *r = s_modalDialogs.Get(a);
+    if (r && !r->has_ret && r->hwnd) return r->hwnd; 
+  }
+  return NULL;
 }
 
 void EndDialog(HWND wnd, int ret)
 {   
   if (!wnd) return;
   
-  int x;
-  for (x = 0; x < s_modalDialogs.GetSize(); x ++)
-    if (s_modalDialogs.Get(x)->hwnd == wnd)  
+  int a = s_modalDialogs.GetSize();
+  while (a-->0)
+  {
+    modalDlgRet *r = s_modalDialogs.Get(a);
+    if (r && r->hwnd == wnd)  
     {
-      s_modalDialogs.Get(x)->has_ret=true;
-      s_modalDialogs.Get(x)->ret = ret;
+      r->ret = ret;
+      if (r->has_ret) return;
+
+      r->has_ret=true;
     }
+  }
   DestroyWindow(wnd);
-  // todo
 }
 
 int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND parent,  DLGPROC dlgproc, LPARAM param)
@@ -63,6 +93,10 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
   if (resid) // allow modal dialogs to be created without template
   {
     if (!p||(p->windowTypeFlags&SWELL_DLG_WS_CHILD)) return -1;
+  }
+  else if (parent)
+  {
+    resid = (const char *)(INT_PTR)(0x400002); // force non-child, force no minimize box
   }
 
 
@@ -73,14 +107,22 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
   {
     ReleaseCapture(); // force end of any captures
 
-    WDL_PtrList<HWND__> enwnds;
+    WDL_PtrKeyedArray<int> restwnds;
     extern HWND__ *SWELL_topwindows;
     HWND a = SWELL_topwindows;
     while (a)
     {
-      if (a->m_enabled && a != hwnd) { EnableWindow(a,FALSE); enwnds.Add(a); }
+      if (a!=hwnd) 
+      {
+        int f=0;
+        if (a->m_enabled) { EnableWindow(a,FALSE); f|=1; }
+        if (a->m_israised) { SWELL_SetWindowLevel(a,0); f|=2; }
+        if (f) restwnds.AddUnsorted((INT_PTR)a,f);
+      }
       a = a->m_next;
     }
+    restwnds.Resort();
+    SWELL_SetWindowLevel(hwnd,1);
 
     modalDlgRet r = { hwnd,false, -1 };
     s_modalDialogs.Add(&r);
@@ -92,12 +134,17 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
       Sleep(10);
     }
     ret=r.ret;
-    s_modalDialogs.Delete(s_modalDialogs.Find(&r));
+    s_modalDialogs.DeletePtr(&r);
 
     a = SWELL_topwindows;
     while (a)
     {
-      if (!a->m_enabled && a != hwnd && enwnds.Find(a)>=0) EnableWindow(a,TRUE);
+      if (a != hwnd) 
+      {
+        int f = restwnds.Get((INT_PTR)a);
+        if (!a->m_enabled && (f&1)) EnableWindow(a,TRUE);
+        if (!a->m_israised && (f&2)) SWELL_SetWindowLevel(a,1);
+      }
       a = a->m_next;
     }
   }
@@ -118,7 +165,7 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
   SWELL_DialogResourceIndex *p=resById(reshead,resid);
   if (!p&&resid) return 0;
   
-  RECT r={0,0,p?p->width : 300, p?p->height : 200};
+  RECT r={0,0,SWELL_UI_SCALE(p ? p->width : 300), SWELL_UI_SCALE(p ? p->height : 200) };
   HWND owner=NULL;
 
   if (!forceNonChild && parent && (!p || (p->windowTypeFlags&SWELL_DLG_WS_CHILD)))
@@ -130,7 +177,7 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
     parent = NULL; // top level window
   }
 
-  HWND__ *h = new HWND__(parent,0,&r,NULL,false,NULL,NULL);
+  HWND__ *h = new HWND__(parent,0,&r,NULL,false,NULL,NULL, owner);
   if (forceNonChild || (p && !(p->windowTypeFlags&SWELL_DLG_WS_CHILD)))
   {
     if ((forceStyles&1) || (p && (p->windowTypeFlags&SWELL_DLG_WS_RESIZABLE))) 
@@ -148,12 +195,24 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
     h->m_dlgproc = dlgproc;
     h->m_wndproc = SwellDialogDefaultWindowProc;
 
-    //HWND hFoc=m_children;
-//    while (hFoc && !hFoc->m_wantfocus) hFoc=hFoc->m_next;
- //   if (!hFoc) hFoc=this;
-  //  if (dlgproc(this,WM_INITDIALOG,(WPARAM)hFoc,0)&&hFoc) SetFocus(hFoc);
+    HWND hFoc=h->m_children;
+    while (hFoc)
+    {
+      if (hFoc->m_wantfocus && hFoc->m_visible && hFoc->m_enabled) 
+      {
+        h->m_focused_child = hFoc; // default focus to hFoc, but set focus more aggressively after WM_INITDIALOG if the dlgproc returns 1
+        break;
+      }
+      hFoc=hFoc->m_next;
+    }
 
-    h->m_dlgproc(h,WM_INITDIALOG,0,param);
+    if (h->m_dlgproc(h,WM_INITDIALOG,(WPARAM)hFoc,param))
+    {
+      if (hFoc && hFoc->m_wantfocus && hFoc->m_visible && hFoc->m_enabled)
+      {
+        SetFocus(hFoc);
+      }
+    }
   } 
   else
   {
@@ -182,40 +241,5 @@ void SWELL_SetDefaultModalWindowMenu(HMENU menu)
 
 
 SWELL_DialogResourceIndex *SWELL_curmodule_dialogresource_head; // this eventually will go into a per-module stub file
-
-
-static char* s_dragdropsrcfn = 0;
-static void (*s_dragdropsrccallback)(const char*) = 0;
-
-void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*callback)(const char* dropfn))
-{
-  SWELL_FinishDragDrop();
-
-  if (1) return;
-
-  s_dragdropsrcfn = strdup(srcfn);
-  s_dragdropsrccallback = callback;
-  
-  char* p = s_dragdropsrcfn+strlen(s_dragdropsrcfn)-1;
-  while (p >= s_dragdropsrcfn && *p != '.') --p;
-  ++p;
-  
-} 
-
-// owner owns srclist, make copies here etc
-void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **srclist, int srccount, HICON icon)
-{
-  SWELL_FinishDragDrop();
-
-  if (1) return;
-  
-}
-
-void SWELL_FinishDragDrop()
-{
-  free(s_dragdropsrcfn);
-  s_dragdropsrcfn = 0;
-  s_dragdropsrccallback = 0;  
-}
 
 #endif

@@ -709,6 +709,10 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       }
       return 0;
     }
+    case effGetVendorVersion:
+    {
+      return _this->GetEffectVersion(true);
+    }
     case effCanDo:
     {
       if (ptr)
@@ -744,6 +748,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       return 0;
     }
     case effGetTailSize:
+    {
       return _this->GetTailSize();
     }
     case effVendorSpecific:

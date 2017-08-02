@@ -1,6 +1,5 @@
-
-/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Losers (who use OS X))
-   Copyright (C) 2006-2007, Cockos, Inc.
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -44,13 +43,22 @@
 #include <OpenGL/gl.h>
 #endif
 
-int SWELL_GetOSXVersion()
+// reimplement here so that swell-gdi isn't dependent on swell-misc, and vice-versa
+static int SWELL_GDI_GetOSXVersion()
 {
   static SInt32 v;
   if (!v)
   {
-    v=0x1040;
-    Gestalt(gestaltSystemVersion,&v);
+    if (NSAppKitVersionNumber >= 1266.0) 
+    {
+      v=0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
+    }
+    else 
+    {
+      SInt32 a = 0x1040;
+      Gestalt(gestaltSystemVersion,&a);
+      v=a;
+    }
   }
   return v;
 }
@@ -59,11 +67,16 @@ int SWELL_GetOSXVersion()
 #include <immintrin.h>
 #endif
 
+#ifndef MAC_OS_X_VERSION_10_6
+// 10.5 SDK doesn't include CGContextSetAllowsFontSmoothing() in header (but apparently does in libs)
+CG_EXTERN void CGContextSetAllowsFontSmoothing(CGContextRef c, bool) AVAILABLE_MAC_OS_X_VERSION_10_2_AND_LATER;
+#endif
+
 #ifndef SWELL_NO_CORETEXT
 static bool IsCoreTextSupported()
 {
 #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
-  return SWELL_GetOSXVersion() >= 0x1050 && CTFontCreateWithName && CTLineDraw && CTFramesetterCreateWithAttributedString && CTFramesetterCreateFrame && 
+  return SWELL_GDI_GetOSXVersion() >= 0x1050 && CTFontCreateWithName && CTLineDraw && CTFramesetterCreateWithAttributedString && CTFramesetterCreateFrame && 
          CTFrameGetLines && CTLineGetTypographicBounds && CTLineCreateWithAttributedString && CTFontCopyPostScriptName
          ;
 #else
@@ -99,6 +112,12 @@ static NSString *CStringToNSString(const char *str)
   ret=(NSString *)CFStringCreateWithCString(NULL,str,kCFStringEncodingASCII);
   return ret;
 }
+CGColorSpaceRef __GetBitmapColorSpace()
+{
+  static CGColorSpaceRef cs;
+  if (!cs) cs = CGColorSpaceCreateDeviceRGB();
+  return cs;
+}
 
 CGColorSpaceRef __GetDisplayColorSpace()
 {
@@ -106,8 +125,14 @@ CGColorSpaceRef __GetDisplayColorSpace()
   if (!cs)
   {
     // use monitor profile for 10.7+
-    if (SWELL_GetOSXVersion() >= 0x1070)
+    if (SWELL_GDI_GetOSXVersion() >= 0x1070)
     {
+
+#ifdef MAC_OS_X_VERSION_10_11
+      // OSX 10.11 SDK removes CMGetSystemProfile
+      // this may be preferable on older SDKs as well, need to test (though CGDisplayCopyColorSpace is only available on 10.5+)
+      cs = CGDisplayCopyColorSpace(CGMainDisplayID());
+#else
       CMProfileRef systemMonitorProfile = NULL;
       CMError getProfileErr = CMGetSystemProfile(&systemMonitorProfile);
       if(noErr == getProfileErr)
@@ -115,6 +140,7 @@ CGColorSpaceRef __GetDisplayColorSpace()
         cs = CGColorSpaceCreateWithPlatformColorSpace(systemMonitorProfile);
         CMCloseProfile(systemMonitorProfile);
       }
+#endif
     }
   }
   if (!cs) 
@@ -125,7 +151,7 @@ CGColorSpaceRef __GetDisplayColorSpace()
 static CGColorRef CreateColor(int col, float alpha=1.0f)
 {
   CGFloat cols[4]={GetRValue(col)/255.0f,GetGValue(col)/255.0f,GetBValue(col)/255.0f,alpha};
-  CGColorRef color=CGColorCreate(__GetDisplayColorSpace(),cols);
+  CGColorRef color=CGColorCreate(__GetBitmapColorSpace(),cols);
   return color;
 }
 
@@ -134,7 +160,7 @@ static CGColorRef CreateColor(int col, float alpha=1.0f)
 
 int SWELL_IsRetinaHWND(HWND hwnd)
 {
-  if (!hwnd || SWELL_GetOSXVersion() < 0x1070) return 0;
+  if (!hwnd || SWELL_GDI_GetOSXVersion() < 0x1070) return 0;
 
   NSWindow *w=NULL;
   if ([(id)hwnd isKindOfClass:[NSView class]]) w = [(NSView *)hwnd window];
@@ -186,7 +212,7 @@ HDC SWELL_CreateMemContext(HDC hdc, int w, int h)
 {
   void *buf=calloc(w*4*h+ALIGN_EXTRA,1);
   if (!buf) return 0;
-  CGContextRef c=CGBitmapContextCreate(ALIGN_FBUF(buf),w,h,8,w*4,__GetDisplayColorSpace(), kCGImageAlphaNoneSkipFirst);
+  CGContextRef c=CGBitmapContextCreate(ALIGN_FBUF(buf),w,h,8,w*4, __GetBitmapColorSpace(), kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host);
   if (!c)
   {
     free(buf);
@@ -196,7 +222,7 @@ HDC SWELL_CreateMemContext(HDC hdc, int w, int h)
 
   CGContextTranslateCTM(c,0.0,h);
   CGContextScaleCTM(c,1.0,-1.0);
-
+  CGContextSetAllowsFontSmoothing(c,0); // we may wish to enable this for some contexts eventually, but this is to match previous behavior
 
   HDC__ *ctx=SWELL_GDP_CTX_NEW();
   ctx->ctx=(CGContextRef)c;
@@ -324,7 +350,7 @@ HGDIOBJ SelectObject(HDC ctx, HGDIOBJ pen)
 
 
 
-void SWELL_FillRect(HDC ctx, RECT *r, HBRUSH br)
+void SWELL_FillRect(HDC ctx, const RECT *r, HBRUSH br)
 {
   HDC__ *c=(HDC__ *)ctx;
   HGDIOBJ__ *b=(HGDIOBJ__*) br;
@@ -373,7 +399,7 @@ void Ellipse(HDC ctx, int l, int t, int r, int b)
   if (HGDIOBJ_VALID(c->curpen,TYPE_PEN) && c->curpen->wid >= 0)
   {
     CGContextSetStrokeColorWithColor(c->ctx,c->curpen->color);
-    CGContextStrokeEllipseInRect(c->ctx, rect); //, (float)max(1,c->curpen->wid));
+    CGContextStrokeEllipseInRect(c->ctx, rect); //, (float)wdl_max(1,c->curpen->wid));
   }
 }
 
@@ -392,7 +418,7 @@ void Rectangle(HDC ctx, int l, int t, int r, int b)
   if (HGDIOBJ_VALID(c->curpen,TYPE_PEN) && c->curpen->wid >= 0)
   {
     CGContextSetStrokeColorWithColor(c->ctx,c->curpen->color);
-    CGContextStrokeRectWithWidth(c->ctx, rect, (float)max(1,c->curpen->wid));
+    CGContextStrokeRectWithWidth(c->ctx, rect, (float)wdl_max(1,c->curpen->wid));
   }
 }
 
@@ -438,7 +464,7 @@ void Polygon(HDC ctx, POINT *pts, int npts)
   }
   if (HGDIOBJ_VALID(c->curpen,TYPE_PEN) && c->curpen->wid>=0)
   {
-    CGContextSetLineWidth(c->ctx,(float)max(c->curpen->wid,1));
+    CGContextSetLineWidth(c->ctx,(float)wdl_max(c->curpen->wid,1));
     CGContextSetStrokeColorWithColor(c->ctx,c->curpen->color);	
   }
   CGContextDrawPath(c->ctx,HGDIOBJ_VALID(c->curpen,TYPE_PEN) && c->curpen->wid>=0 && HGDIOBJ_VALID(c->curbrush,TYPE_BRUSH) && c->curbrush->wid>=0 ?  kCGPathFillStroke : HGDIOBJ_VALID(c->curpen,TYPE_PEN) && c->curpen->wid>=0 ? kCGPathStroke : kCGPathFill);
@@ -462,7 +488,7 @@ void PolyBezierTo(HDC ctx, POINT *pts, int np)
   HDC__ *c=(HDC__ *)ctx;
   if (!HDC_VALID(c)||!HGDIOBJ_VALID(c->curpen,TYPE_PEN)||c->curpen->wid<0||np<3) return;
   
-  CGContextSetLineWidth(c->ctx,(float)max(c->curpen->wid,1));
+  CGContextSetLineWidth(c->ctx,(float)wdl_max(c->curpen->wid,1));
   CGContextSetStrokeColorWithColor(c->ctx,c->curpen->color);
 	
   CGContextBeginPath(c->ctx);
@@ -487,7 +513,7 @@ void SWELL_LineTo(HDC ctx, int x, int y)
   HDC__ *c=(HDC__ *)ctx;
   if (!HDC_VALID(c)||!HGDIOBJ_VALID(c->curpen,TYPE_PEN)||c->curpen->wid<0) return;
 
-  float w = (float)max(c->curpen->wid,1);
+  float w = (float)wdl_max(c->curpen->wid,1);
   CGContextSetLineWidth(c->ctx,w);
   CGContextSetStrokeColorWithColor(c->ctx,c->curpen->color);
 	
@@ -506,7 +532,7 @@ void PolyPolyline(HDC ctx, POINT *pts, DWORD *cnts, int nseg)
   HDC__ *c=(HDC__ *)ctx;
   if (!HDC_VALID(c)||!HGDIOBJ_VALID(c->curpen,TYPE_PEN)||c->curpen->wid<0||nseg<1) return;
 
-  float w = (float)max(c->curpen->wid,1);
+  float w = (float)wdl_max(c->curpen->wid,1);
   CGContextSetLineWidth(c->ctx,w);
   CGContextSetStrokeColorWithColor(c->ctx,c->curpen->color);
 	
@@ -684,11 +710,33 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   return font;
 }
 
-
+int GetTextFace(HDC ctx, int nCount, LPTSTR lpFaceName)
+{
+  HDC__ *ct=(HDC__*)ctx;
+  if (!HDC_VALID(ct) || !nCount || !lpFaceName) return 0;
+  
+#ifndef SWELL_NO_CORETEXT
+  CTFontRef fr=NULL;
+  if (HGDIOBJ_VALID(ct->curfont,TYPE_FONT)) fr=(CTFontRef)ct->curfont->ct_FontRef;
+  if (!fr)  fr=GetCoreTextDefaultFont();
+  
+  if (fr)
+  {
+    CFStringRef name=CTFontCopyDisplayName(fr);
+    const char* p=[(NSString*)name UTF8String];
+    if (p)
+    {
+      lstrcpyn_safe(lpFaceName, p, nCount);
+      return strlen(lpFaceName);
+    }
+  }
+#endif
+  
+  return 0;
+}
 
 BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
 {
-  
   HDC__ *ct=(HDC__ *)ctx;
   if (tm) // give some sane defaults
   {
@@ -1087,8 +1135,23 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
   [str release];
   return 0;  
 }
-    
+
+
+int GetGlyphIndicesW(HDC ctx, wchar_t *buf, int len, unsigned short *indices, int flags)
+{
+  HDC__ *ct=(HDC__*)ctx;
+  if (HDC_VALID(ct) && HGDIOBJ_VALID(ct->curfont, TYPE_FONT))
+  {
+#ifndef SWELL_NO_CORETEXT
+    CTFontRef f=(CTFontRef)ct->curfont->ct_FontRef;
+    if (f && CTFontGetGlyphsForCharacters(f, (const UniChar*)buf, (CGGlyph*)indices, (CFIndex)len)) return len;
+#endif
+  }
   
+  int i;
+  for (i=0; i < len; ++i) indices[i]=(flags == GGI_MARK_NONEXISTING_GLYPHS ? 0xFFFF : 0);
+  return 0;
+}
 
 
 
@@ -1175,6 +1238,9 @@ HICON LoadNamedImage(const char *name, bool alphaFromMask)
       [img drawInRect:NSMakeRect(0,0,w,h) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
       [NSGraphicsContext restoreGraphicsState];
 
+      // on yosemite, calling [img TIFFRepresentation] seems to change img somehow for some images, ouch.
+      // in this case, we should always replace img with newImage (set rcnt=1), but in general
+      // maybe we shoulnt use alphaFromMask anyhow
       NSImage *newImage=[[NSImage alloc] initWithData:[img TIFFRepresentation]];
       [newImage setFlipped:YES];
 
@@ -1187,11 +1253,7 @@ HICON LoadNamedImage(const char *name, bool alphaFromMask)
         int x;
         for (x = 0; x < w; x++)
         {
-#ifdef __ppc__
           if ((*fb++ & 0xffffff) == 0xff00ff)
-#else
-          if ((*fb++ & 0xffffff00) == 0xff00ff00)
-#endif
           {
             CGContextClearRect(myContext,CGRectMake(x,y,1,1));
             rcnt++;
@@ -1219,7 +1281,7 @@ HICON LoadNamedImage(const char *name, bool alphaFromMask)
   return i;
 }
 
-void DrawImageInRect(HDC ctx, HICON img, RECT *r)
+void DrawImageInRect(HDC ctx, HICON img, const RECT *r)
 {
   HGDIOBJ__ *i = (HGDIOBJ__ *)img;
   HDC__ *ct=(HDC__*)ctx;
@@ -1306,131 +1368,6 @@ void BitBlt(HDC hdcOut, int x, int y, int w, int h, HDC hdcIn, int xin, int yin,
   StretchBlt(hdcOut,x,y,w,h,hdcIn,xin,yin,w,h,mode);
 }
 
-#ifndef __ppc__
-static void SWELL_fastDoubleUpImage(unsigned int *op, const unsigned int *ip, int w, int h, int sw, int newspan)
-{
-  int y = h;
-  while (y-->0)
-  {
-    const unsigned int *rd = ip;
-    unsigned int *wr = op;
-    int remaining = w;
-
-#if 0 // def __AVX__
-    // this isn't really any faster than SSE anyway
-    if (remaining >= 8)
-    {
-      if (!((INT_PTR)rd & 31))
-      {
-        int x = remaining/8;
-        while (x-->0)
-        {
-          const __m256 m =  _mm256_load_ps((const float *)rd);
-          rd+=8;
-          
-          const __m256 p1 = _mm256_permutevar_ps(_mm256_permute2f128_ps(m,m,0),_mm256_set_epi32(3,3,2,2,1,1,0,0));
-          const __m256 p2 = _mm256_permutevar_ps(_mm256_permute2f128_ps(m,m,1|(1<<4)),_mm256_set_epi32(3,3,2,2,1,1,0,0));
-          
-          unsigned int *wr2 = wr+newspan;
-          _mm256_store_ps((float*)wr,p1);
-          _mm256_store_ps((float*)wr2,p1);
-        
-          _mm256_store_ps((float*)wr + 8,p2);
-          _mm256_store_ps((float*)wr2 + 8,p2);
-          
-          wr += 16;
-        }
-        remaining &= 7;
-        
-      }
-    }
-#endif
-    
-#ifdef __SSE__
-    if (remaining >= 4)
-    {
-      // with SSE is about 2x faster than without
-      if (((INT_PTR)rd & 7))
-      {
-        // input isn't 8 byte aligned, must use unaligned reads
-        int x = remaining/4;
-        while (x-->0)
-        {
-          __m128 m =  _mm_loadu_ps((const float *)rd);
-          __m128 p1 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(1,1,0,0));
-          __m128 p2 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(3,3,2,2));
-          
-          unsigned int *wr2 = wr+newspan;
-          rd+=4;
-          
-          _mm_store_ps((float*)wr,p1);
-          _mm_store_ps((float*)wr2,p1);
-          
-          _mm_store_ps((float*)wr + 4,p2);
-          _mm_store_ps((float*)wr2 + 4,p2);
-          
-          wr += 8;
-        }
-      }
-      else
-      {
-        // if rd is 8 byte aligned, we can do SSE without unaligned reads
-        
-        // but if it is not 16 byte aligned, we need to preprocess a pair of pixels
-        // (advancing rd by 8 bytes, and wr by 16)
-      
-        if ((INT_PTR)rd & 15)
-        {
-          unsigned int *nwr = wr+newspan;
-          wr[0] = wr[1] = nwr[0] = nwr[1] = rd[0];
-          wr[2] = wr[3] = nwr[2] = nwr[3] = rd[1];
-          wr+=4;
-          rd+=2;
-          remaining-=2;
-        }
-        
-        int x = remaining/4;
-        while (x-->0)
-        {
-          __m128 m =  _mm_load_ps((const float *)rd);
-          __m128 p1 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(1,1,0,0));
-          __m128 p2 = _mm_shuffle_ps(m,m,_MM_SHUFFLE(3,3,2,2));
-
-          unsigned int *wr2 = wr+newspan;
-          rd+=4;
-          
-          _mm_store_ps((float*)wr,p1);
-          _mm_store_ps((float*)wr2,p1);
-          
-          _mm_store_ps((float*)wr + 4,p2);
-          _mm_store_ps((float*)wr2 + 4,p2);
-
-          wr += 8;
-        }
-      }
-      remaining &= 3;
-    }
-#endif //__SSE__
-
-    int x = remaining/2;
-    while (x-->0)
-    {
-      unsigned int *nwr = wr+newspan;
-      wr[0] = wr[1] = nwr[0] = nwr[1] = rd[0];
-      wr[2] = wr[3] = nwr[2] = nwr[3] = rd[1];
-      rd+=2;
-      wr+=4;
-    }
-    if (remaining&1)
-    {
-      wr[0] = wr[1] = wr[newspan] = wr[newspan+1] = *rd;
-    }
-    ip += sw;
-    op += newspan*2;
-  }
-}
-#endif
-
 void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int xin, int yin, int w, int h, int mode)
 {
   if (!hdcOut || !hdcIn||w<1||h<1) return;
@@ -1496,10 +1433,9 @@ void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int x
     glBindTexture(GL_TEXTURE_RECTANGLE_EXT, texid);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, sw);
     glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER,  GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_EXT,0,GL_RGBA8,w,h,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8, p);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_EXT,0,GL_RGBA8,w,h,0,GL_BGRA,GL_UNSIGNED_INT_8_8_8_8_REV, p);
     
-    glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(x,[[glCtx view] bounds].size.height-h-y,w,h);
+    glViewport(x,[[glCtx view] bounds].size.height-desth-y,destw,desth);
     glBegin(GL_QUADS);
     
     glTexCoord2f(0.0f, 0.0f);
@@ -1524,35 +1460,10 @@ void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int x
 #endif
   
   
-  // this is only faster when using the native color profile, it seems
-  WDL_HeapBuf *retina_hb = NULL;
-  unsigned char *retina_buf = NULL;
-#ifndef __ppc__
-  if (destw == w && desth == h && 
-      CGContextConvertSizeToDeviceSpace(output, CGSizeMake(1,1)).width > 1.9)
-  {
-    const int newspan = (w*2+3)&~3;
-    retina_hb = SWELL_GDP_GetTmpBuf();
-    if (retina_hb && retina_hb->ResizeOK(sizeof(unsigned int) * newspan*h*2 + 32,false))
-    {
-      retina_buf = (unsigned char *)retina_hb->Get();
-      const UINT_PTR align = (UINT_PTR)retina_buf & 31;
-      if (align) retina_buf += 32-align;
-
-      SWELL_fastDoubleUpImage((unsigned int *)retina_buf, 
-                        (const unsigned int *)p,w,h,sw,newspan);
-
-      sw = newspan;
-      w *= 2;
-      h *= 2;
-    }
-  }
-#endif
-
   
-  CGDataProviderRef provider = CGDataProviderCreateWithData(NULL,retina_buf ? retina_buf : p,4*sw*h,NULL);
+  CGDataProviderRef provider = CGDataProviderCreateWithData(NULL,p,4*sw*h,NULL);
   CGImageRef img = CGImageCreate(w,h,8,32,4*sw,__GetDisplayColorSpace(),
-      use_alphachannel?kCGImageAlphaFirst:kCGImageAlphaNoneSkipFirst,
+      (use_alphachannel?kCGImageAlphaFirst:kCGImageAlphaNoneSkipFirst)|kCGBitmapByteOrder32Host,
       provider,NULL,NO,kCGRenderingIntentDefault);
   CGDataProviderRelease(provider);
   
@@ -1567,7 +1478,6 @@ void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int x
   
     CGImageRelease(img);
   }
-  SWELL_GDP_DisposeTmpBuf(retina_hb);
 }
 
 void SWELL_PushClipRegion(HDC ctx)
@@ -1576,7 +1486,7 @@ void SWELL_PushClipRegion(HDC ctx)
   if (HDC_VALID(ct) && ct->ctx) CGContextSaveGState(ct->ctx);
 }
 
-void SWELL_SetClipRegion(HDC ctx, RECT *r)
+void SWELL_SetClipRegion(HDC ctx, const RECT *r)
 {
   HDC__ *ct=(HDC__ *)ctx;
   if (HDC_VALID(ct) && ct->ctx) CGContextClipToRect(ct->ctx,CGRectMake(r->left,r->top,r->right-r->left,r->bottom-r->top));
@@ -1632,7 +1542,13 @@ HDC GetDC(HWND h)
       HDC ret= SWELL_CreateGfxContext([NSGraphicsContext currentContext]);
       if (ret)
       {
-         if ((ret)->ctx) CGContextSaveGState((ret)->ctx);
+        if (ret->ctx) CGContextSaveGState(ret->ctx);
+        if (!ret->GLgfxctx && [(id)h respondsToSelector:@selector(swellGetGLContext)])
+        {
+          NSOpenGLContext *glctx = (NSOpenGLContext*)[(id)h swellGetGLContext];
+          ret->GLgfxctx = glctx;
+          if (glctx) [glctx setView:(NSView *)h];
+        }
       }
       return ret;
     }
@@ -1686,6 +1602,11 @@ void ReleaseDC(HWND h, HDC hdc)
       if (ps.hdc && ps.hdc==hdc) return;
     }
   }    
+  if (hdc && hdc->GLgfxctx)
+  {
+    if ([NSOpenGLContext currentContext] == hdc->GLgfxctx) [NSOpenGLContext clearCurrentContext]; 
+    hdc->GLgfxctx = NULL;
+  }
     
   if (hdc) SWELL_DeleteGfxContext(hdc);
   if (isView && hdc)
@@ -1695,7 +1616,7 @@ void ReleaseDC(HWND h, HDC hdc)
   }
 }
 
-void SWELL_FillDialogBackground(HDC hdc, RECT *r, int level)
+void SWELL_FillDialogBackground(HDC hdc, const RECT *r, int level)
 {
   CGContextRef ctx=(CGContextRef)SWELL_GetCtxGC(hdc);
   if (ctx)
@@ -1736,7 +1657,23 @@ HBITMAP CreateBitmap(int width, int height, int numplanes, int bitsperpixel, uns
   int y;
   for (y=0;y<height;y ++)
   {
+#ifdef __ppc__
     memcpy(p,bits,width*4);
+#else
+    unsigned char *wr = p;
+    const unsigned char *rd = bits;
+    int x = width;
+    // convert BGRA to ARGB
+    while (x--)
+    {
+      wr[0] = rd[3];
+      wr[1] = rd[2];
+      wr[2] = rd[1];
+      wr[3] = rd[0];
+      wr+=4;
+      rd+=4;
+    }
+#endif
     p+=pspan;
     bits += width*4;
   }
@@ -1821,6 +1758,58 @@ int ImageList_ReplaceIcon(HIMAGELIST list, int offset, HICON image)
   return offset;
 }
 
+int ImageList_Add(HIMAGELIST list, HBITMAP image, HBITMAP mask)
+{
+  if (!image || !list) return -1;
+  WDL_PtrList<HGDIOBJ__> *l=(WDL_PtrList<HGDIOBJ__> *)list;
+  
+  HGDIOBJ__ *imgsrc = (HGDIOBJ__*)image;
+  if (!HGDIOBJ_VALID(imgsrc,TYPE_BITMAP)) return -1;
+  
+  HGDIOBJ__* icon=GDP_OBJECT_NEW();
+  icon->type=TYPE_BITMAP;
+  icon->wid=1;
+  NSImage *nsimg = [imgsrc->bitmapptr copy]; // caller still owns the image
+  [nsimg setFlipped:YES];
+  icon->bitmapptr = nsimg;
+  image = (HICON) icon;
+  
+  l->Add(image);
+  return l->GetSize();
+}
+
+int AddFontResourceEx(LPCTSTR str, DWORD fl, void *pdv)
+{
+  if (SWELL_GDI_GetOSXVersion() < 0x1060)  return 0;
+  static bool l;
+  static bool (*_CTFontManagerRegisterFontsForURL)( CFURLRef fontURL, uint32_t scope, CFErrorRef *error );
+  if (!l)
+  {
+    CFBundleRef b = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.CoreText"));
+    if (b)
+    {
+      *(void **)&_CTFontManagerRegisterFontsForURL = CFBundleGetFunctionPointerForName(b,CFSTR("CTFontManagerRegisterFontsForURL"));
+    }
+
+    l=true;
+  }
+  
+  if (!_CTFontManagerRegisterFontsForURL) return 0;
+  
+  CFStringRef s=(CFStringRef)CStringToNSString(str); 
+
+  CFURLRef r=CFURLCreateWithFileSystemPath(NULL,s,kCFURLPOSIXPathStyle,true);
+  CFErrorRef err=NULL;
+  const int v = _CTFontManagerRegisterFontsForURL(r,
+      (fl & FR_PRIVATE) ? 1/*kCTFontManagerScopeProcess*/ : 2/*kCTFontManagerScopeUser*/,
+      &err)?1:0;
+
+  // release err? don't think so
+
+  CFRelease(s);
+  CFRelease(r);
+  return v;
+}
 
 
 #endif

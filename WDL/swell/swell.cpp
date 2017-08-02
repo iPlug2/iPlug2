@@ -1,6 +1,5 @@
-
-/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Losers (who use OS X))
-   Copyright (C) 2006-2007, Cockos, Inc.
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -37,16 +36,23 @@
 #include "swell-internal.h"
 
 
-#ifdef __APPLE__
+#ifdef SWELL_TARGET_OSX
 #include <Carbon/Carbon.h>
-#include <libkern/OSAtomic.h>
-#include <sched.h>
 #endif
 
+#ifdef __APPLE__
+#include <sched.h>
+#include <sys/errno.h>
+#endif
+
+#ifdef __linux__
+#include <linux/sched.h>
+#endif
 
 #include <pthread.h>
 
 
+#include "../wdlatomic.h"
 #include "../mutex.h"
 #include "../assocarray.h"
 
@@ -85,7 +91,7 @@ BOOL GetFileTime(int filedes, FILETIME *lpCreationTime, FILETIME *lpLastAccessTi
   return 1;
 }
 
-BOOL SWELL_PtInRect(RECT *r, POINT p)
+BOOL SWELL_PtInRect(const RECT *r, POINT p)
 {
   if (!r) return FALSE;
   int tp=r->top;
@@ -107,7 +113,7 @@ int MulDiv(int a, int b, int c)
 
 unsigned int  _controlfp(unsigned int flag, unsigned int mask)
 {
-#if !defined(__ppc__) && !defined(__LP64__)
+#if !defined(__ppc__) && !defined(__LP64__) && !defined(__arm__)
   unsigned short ret;
   mask &= _MCW_RC; // don't let the caller set anything other than round control for now
   __asm__ __volatile__("fnstcw %0\n\t":"=m"(ret));
@@ -128,11 +134,7 @@ BOOL CloseHandle(HANDLE hand)
   if (!hdr) return FALSE;
   if (hdr->type <= INTERNAL_OBJECT_START || hdr->type >= INTERNAL_OBJECT_END) return FALSE;
   
-#ifdef SWELL_TARGET_OSX
-  if (!OSAtomicDecrement32(&hdr->count))
-#else
-  if (!--hdr->count) // todo: atomic decrement on posix/ glib?
-#endif
+  if (!wdl_atomic_decr(&hdr->count))
   {
     switch (hdr->type)
     {
@@ -165,7 +167,7 @@ BOOL CloseHandle(HANDLE hand)
           pthread_detach(thr->pt);
         }
       break;
-#ifdef __APPLE__
+#ifdef SWELL_TARGET_OSX
       case INTERNAL_OBJECT_NSTASK:
         {
           SWELL_InternalObjectHeader_NSTask *nst = (SWELL_InternalObjectHeader_NSTask*)hdr;
@@ -250,7 +252,7 @@ DWORD WaitForSingleObject(HANDLE hand, DWORD msTO)
   
   switch (hdr->type)
   {
-#ifdef __APPLE__
+#ifdef SWELL_TARGET_OSX
     case INTERNAL_OBJECT_NSTASK:
       {
         SWELL_InternalObjectHeader_NSTask *nst = (SWELL_InternalObjectHeader_NSTask*)hdr;
@@ -320,29 +322,25 @@ again:
         else
         {
           // timed wait
+#ifdef __APPLE__
           struct timespec ts;
           ts.tv_sec = msTO/1000;
           ts.tv_nsec = (msTO%1000)*1000000;
+#endif
           while (!evt->isSignal) 
           {
-#ifdef SWELL_TARGET_OSX
+#ifdef __APPLE__
             if (pthread_cond_timedwait_relative_np(&evt->cond,&evt->mutex,&ts)==ETIMEDOUT)
             {
               rv = WAIT_TIMEOUT;
               break;
             }
 #else
-#if 1
             struct timeval tm={0,};
             gettimeofday(&tm,NULL);
-            ts.tv_sec += tm.tv_sec;
-            ts.tv_nsec += tm.tv_usec * 1000;
-#else
-            struct timespec ts2={0,0,};
-            clock_gettime(CLOCK_REALTIME,&ts2);
-            ts.tv_sec += ts2.tv_sec;
-            ts.tv_nsec += ts2.tv_nsec;
-#endif
+            struct timespec ts;
+            ts.tv_sec = msTO/1000 + tm.tv_sec;
+            ts.tv_nsec = (tm.tv_usec + (msTO%1000)*1000) * 1000;
             if (ts.tv_nsec>=1000000000) 
             {
               int n = ts.tv_nsec/1000000000;
@@ -431,17 +429,57 @@ HANDLE CreateThread(void *TA, DWORD stackSize, DWORD (*ThreadProc)(LPVOID), LPVO
 BOOL SetThreadPriority(HANDLE hand, int prio)
 {
   SWELL_InternalObjectHeader_Thread *evt=(SWELL_InternalObjectHeader_Thread*)hand;
+
+#ifdef __linux__
+  static int s_rt_max;
+  if (!evt && prio >= 0x10000 && prio < 0x10000 + 100)
+  {
+    s_rt_max = prio - 0x10000;
+    return TRUE;
+  }
+#endif
+
   if (!evt || evt->hdr.type != INTERNAL_OBJECT_THREAD) return FALSE;
   
   if (evt->done) return FALSE;
     
   int pol;
   struct sched_param param;
+  memset(&param,0,sizeof(param));
+
+#ifdef __linux__
+  // linux only has meaningful priorities if using realtime threads,
+  // for this to be enabled the caller should use:
+  // #ifdef __linux__
+  // SetThreadPriority(NULL,0x10000 + max_thread_priority (0..99));
+  // #endif
+  if (s_rt_max < 1 || prio <= THREAD_PRIORITY_NORMAL)
+  {
+    pol = SCHED_NORMAL;
+    param.sched_priority=0;
+  }
+  else 
+  {
+    int lb = s_rt_max;
+    if (prio < THREAD_PRIORITY_TIME_CRITICAL) 
+    {
+      lb--;
+      if (prio < THREAD_PRIORITY_HIGHEST)  
+      {
+        lb--;
+        if (prio < THREAD_PRIORITY_ABOVE_NORMAL) lb--;
+      }
+    }
+    param.sched_priority = lb < 1 ? 1 : lb;
+    pol = SCHED_RR;
+  }
+  return !pthread_setschedparam(evt->pt,pol,&param);
+#else
   if (!pthread_getschedparam(evt->pt,&pol,&param))
   {
-
-//    printf("thread prio %d(%d,%d), %d(FIFO=%d, RR=%d)\n",param.sched_priority, sched_get_priority_min(pol),sched_get_priority_max(pol), pol,SCHED_FIFO,SCHED_RR);
+    // this is for darwin, but might work elsewhere
     param.sched_priority = 31 + prio;
+
     int mt=sched_get_priority_min(pol);
     if (param.sched_priority<mt||param.sched_priority > (mt=sched_get_priority_max(pol)))param.sched_priority=mt;
     
@@ -450,10 +488,8 @@ BOOL SetThreadPriority(HANDLE hand, int prio)
       return TRUE;
     }
   }
-  
-  
-  
   return FALSE;
+#endif
 }
 
 BOOL SetEvent(HANDLE hand)
@@ -598,6 +634,7 @@ BOOL WinSetRect(LPRECT lprc, int xLeft, int yTop, int xRight, int yBottom)
 
 int WinIntersectRect(RECT *out, const RECT *in1, const RECT *in2)
 {
+  RECT tmp = *in1; in1 = &tmp;
   memset(out,0,sizeof(RECT));
   if (in1->right <= in1->left) return false;
   if (in2->right <= in2->left) return false;
@@ -605,19 +642,19 @@ int WinIntersectRect(RECT *out, const RECT *in1, const RECT *in2)
   if (in2->bottom <= in2->top) return false;
   
   // left is maximum of minimum of right edges and max of left edges
-  out->left = max(in1->left,in2->left);
-  out->right = min(in1->right,in2->right);
-  out->top=max(in1->top,in2->top);
-  out->bottom = min(in1->bottom,in2->bottom);
+  out->left = wdl_max(in1->left,in2->left);
+  out->right = wdl_min(in1->right,in2->right);
+  out->top=wdl_max(in1->top,in2->top);
+  out->bottom = wdl_min(in1->bottom,in2->bottom);
   
   return out->right>out->left && out->bottom>out->top;
 }
 void WinUnionRect(RECT *out, const RECT *in1, const RECT *in2)
 {
-  out->left = min(in1->left,in2->left);
-  out->top = min(in1->top,in2->top);
-  out->right=max(in1->right,in2->right);
-  out->bottom=max(in1->bottom,in2->bottom);
+  out->left = wdl_min(in1->left,in2->left);
+  out->top = wdl_min(in1->top,in2->top);
+  out->right=wdl_max(in1->right,in2->right);
+  out->bottom=wdl_max(in1->bottom,in2->bottom);
 }
 
 
@@ -706,7 +743,7 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
   
   void *inst = NULL, *bundleinst=NULL;
 
-#ifdef __APPLE__
+#ifdef SWELL_TARGET_OSX
   struct stat ss;
   if (stat(fn,&ss) || (ss.st_mode&S_IFDIR))
   {
@@ -719,30 +756,18 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
     
     if (bundleinst)
     {
-      CFURLRef executableURL = CFBundleCopyExecutableURL((CFBundleRef)bundleinst);
-      char path[PATH_MAX];
-      path[0]=0;
-      if (executableURL) 
+      if (!CFBundleLoadExecutable((CFBundleRef)bundleinst))
       {
-        if (!CFURLGetFileSystemRepresentation(executableURL, true, (UInt8*)path, sizeof(path))) path[0]=0;
-        CFRelease(executableURL);
-      }        
-      
-      if (path[0]) 
-      {
-
-        inst=dlopen(path,RTLD_NOW|(symbolsAsGlobals?RTLD_GLOBAL:RTLD_LOCAL));
-        if (!inst)
-        {
-          CFRelease(bundleinst);
-          return 0;
-        }
+        CFRelease((CFBundleRef)bundleinst);
+        bundleinst=NULL;
       }
     }      
   }
 #endif
 
-  if (!inst && !bundleinst)
+#ifdef SWELL_TARGET_OSX
+  if (!bundleinst)
+#endif
   {
     inst=dlopen(fn,RTLD_NOW|(symbolsAsGlobals?RTLD_GLOBAL:RTLD_LOCAL));
     if (!inst) return 0;
@@ -755,7 +780,9 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
   { 
     rec = (SWELL_HINSTANCE *)calloc(sizeof(SWELL_HINSTANCE),1);
     rec->instptr = inst;
+#ifdef __APPLE__
     rec->bundleinstptr =  bundleinst;
+#endif
     rec->refcnt = 1;
     s_loadedLibs.Insert(bundleinst ? bundleinst : inst,rec);
   
@@ -797,7 +824,7 @@ void *GetProcAddress(HINSTANCE hInst, const char *procName)
   SWELL_HINSTANCE *rec=(SWELL_HINSTANCE*)hInst;
 
   void *ret = NULL;
-#ifdef __APPLE__
+#ifdef SWELL_TARGET_OSX
   if (rec->bundleinstptr)
   {
     CFStringRef str=(CFStringRef)SWELL_CStringToCFString(procName); 
@@ -823,18 +850,24 @@ BOOL FreeLibrary(HINSTANCE hInst)
   if (--rec->refcnt<=0) 
   {
     dofree=true;
+#ifdef SWELL_TARGET_OSX
     s_loadedLibs.Delete(rec->bundleinstptr ? rec->bundleinstptr : rec->instptr); 
+#else
+    s_loadedLibs.Delete(rec->instptr); 
+#endif
     
     if (rec->SWELL_dllMain) 
     {
       rec->SWELL_dllMain(rec,DLL_PROCESS_DETACH,NULL);
       if (rec->dllMain) rec->dllMain(rec,DLL_PROCESS_DETACH,NULL);
     }
-
   }
 
-#ifdef __APPLE__
-  if (rec->bundleinstptr) CFRelease((CFBundleRef)rec->bundleinstptr); 
+#ifdef SWELL_TARGET_OSX
+  if (rec->bundleinstptr)
+  {
+    CFRelease((CFBundleRef)rec->bundleinstptr);
+  }
 #endif
   if (rec->instptr) dlclose(rec->instptr); 
   
@@ -842,19 +875,35 @@ BOOL FreeLibrary(HINSTANCE hInst)
   return TRUE;
 }
 
+void* SWELL_GetBundle(HINSTANCE hInst)
+{
+  SWELL_HINSTANCE* rec=(SWELL_HINSTANCE*)hInst;
+#ifdef SWELL_TARGET_OSX
+  if (rec) return rec->bundleinstptr;
+#else
+  if (rec) return rec->instptr;
+#endif
+  return NULL;
+}
+
 DWORD GetModuleFileName(HINSTANCE hInst, char *fn, DWORD nSize)
 {
   *fn=0;
 
-  void *instptr = NULL, *bundleinstptr=NULL, *lastSymbolRequested=NULL;
+  void *instptr = NULL, *lastSymbolRequested=NULL;
+#ifdef SWELL_TARGET_OSX
+  void *bundleinstptr=NULL;
+#endif
   if (hInst)
   {
     SWELL_HINSTANCE *p = (SWELL_HINSTANCE*)hInst;
     instptr = p->instptr;
+#ifdef SWELL_TARGET_OSX
     bundleinstptr = p->bundleinstptr;
+#endif
     lastSymbolRequested=p->lastSymbolRequested;
   }
-#ifdef __APPLE__
+#ifdef SWELL_TARGET_OSX
   if (!instptr || bundleinstptr)
   {
     CFBundleRef bund=bundleinstptr ? (CFBundleRef)bundleinstptr : CFBundleGetMainBundle();
@@ -870,14 +919,14 @@ DWORD GetModuleFileName(HINSTANCE hInst, char *fn, DWORD nSize)
     }
     return strlen(fn);
   }
-#else
+#elif defined(__linux__)
   if (!instptr) // get exe file name
   {
     char tmp[64];
     sprintf(tmp,"/proc/%d/exe",getpid());
     int sz=readlink(tmp,fn,nSize);
     if (sz<0)sz=0;
-    else if (sz>=nSize)sz=nSize-1;
+    else if ((DWORD)sz>=nSize)sz=nSize-1;
     fn[sz]=0;
     return sz;
   }
@@ -896,20 +945,26 @@ DWORD GetModuleFileName(HINSTANCE hInst, char *fn, DWORD nSize)
   return 0;
 }
 
-#ifdef __APPLE__
 
-void SWELL_GenerateGUID(void *g)
+bool SWELL_GenerateGUID(void *g)
 {
+#ifdef SWELL_TARGET_OSX
   CFUUIDRef r = CFUUIDCreate(NULL);
-  if (r)
-  {
-    CFUUIDBytes a = CFUUIDGetUUIDBytes(r);
-    if (g) memcpy(g,&a,16);
-    CFRelease(r);
-  }
+  if (!r) return false;
+  CFUUIDBytes a = CFUUIDGetUUIDBytes(r);
+  if (g) memcpy(g,&a,16);
+  CFRelease(r);
+  return true;
+#else
+  int f = open("/dev/urandom",O_RDONLY);
+  if (f<0) return false;
+
+  int v = read(f,g,sizeof(GUID));
+  close(f);
+  return v == sizeof(GUID);
+#endif
 }
 
-#endif
 
 
 void GetTempPath(int bufsz, char *buf)
@@ -931,11 +986,58 @@ void GetTempPath(int bufsz, char *buf)
   size_t len = strlen(buf);
   if (!len || buf[len-1] != '/')
   {
-    if (len > bufsz-2) len = bufsz-2;
+    if (len > (size_t)bufsz-2) len = bufsz-2;
 
     buf[len] = '/';
     buf[len+1]=0;
   }
 }
+
+const char *g_swell_appname;
+char *g_swell_defini;
+const char *g_swell_fontpangram;
+
+void *SWELL_ExtendedAPI(const char *key, void *v)
+{
+  if (!strcmp(key,"APPNAME")) g_swell_appname = (const char *)v;
+  else if (!strcmp(key,"INIFILE"))
+  {
+    free(g_swell_defini);
+    g_swell_defini = v ? strdup((const char *)v) : NULL;
+
+    #ifdef SWELL_TARGET_GDK
+      char buf[128];
+      GetPrivateProfileString(".swell","ui_scale","",buf,sizeof(buf),"");
+      if (buf[0])
+      {
+        double sc = atof(buf);
+        if (sc > 0.01 && sc < 10.0 && sc != 1.0)
+        {
+          #define __scale(x,c) g_swell_ctheme.x = (int) (g_swell_ctheme.x * sc + 0.5);
+            SWELL_GENERIC_THEMESIZEDEFS(__scale,__scale)
+          #undef __scale
+          g_swell_ui_scale = (int) (256 * sc + 0.5);
+        }
+      }
+      else
+      {
+        WritePrivateProfileString(".swell","ui_scale","1.0 // scales the sizes in libSwell.colortheme","");
+      }
+    #endif
+  }
+  else if (!strcmp(key,"FONTPANGRAM"))
+  {
+    g_swell_fontpangram = (const char *)v;
+  }
+#ifndef SWELL_TARGET_OSX
+  else if (!strcmp(key,"FULLSCREEN") || !strcmp(key,"-FULLSCREEN"))
+  {
+    int swell_fullscreenWindow(HWND, BOOL);
+    return (void*)(INT_PTR)swell_fullscreenWindow((HWND)v, key[0] != '-');
+  }
+#endif
+  return NULL;
+}
+
 
 #endif

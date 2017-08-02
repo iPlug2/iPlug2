@@ -355,6 +355,20 @@ void IGraphics::SetAllControlsDirty()
   }
 }
 
+void IGraphics::AssignParamNameToolTips()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    if (pControl->ParamIdx() > -1)
+    {
+      pControl->SetTooltip(pControl->GetParam()->GetNameForHost());
+    }
+  }
+}
+
 void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
 {
   int i, n = mControls.GetSize();
@@ -700,6 +714,14 @@ bool IGraphics::DrawRadialLine(const IColor* pColor, float cx, float cy, float a
 
 bool IGraphics::IsDirty(IRECT* pR)
 {
+#ifndef NDEBUG
+  if (mShowControlBounds)
+  {
+    *pR = mDrawRECT;
+    return true;
+  }
+#endif
+  
   bool dirty = false;
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -810,6 +832,12 @@ bool IGraphics::Draw(IRECT* pR)
       IControl* pControl = mControls.Get(j);
       DrawRect(&CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
+    
+    WDL_String str;
+    str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
+    IText txt(20, &CONTROL_BOUNDS_COLOR);
+    IRECT rect(Width() - 150, Height() - 20, Width(), Height());
+    DrawIText(&txt, str.Get(), &rect);
   }
 #endif
 

@@ -1,4 +1,4 @@
-extract the VST3.6.0 SDK here, preserving the folder structure. i.e
+extract the VST3.6.5 SDK here (vstsdk365_12_11_2015_build_67.zip, preserving the folder structure. i.e
 
 WDL-OL/VST3_SDK/base/source
 WDL-OL/VST3_SDK/pluginterfaces

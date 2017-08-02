@@ -1,5 +1,5 @@
-/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Losers (who use OS X))
-   Copyright (C) 2006-2007, Cockos, Inc.
+/* Cockos SWELL (Simple/Small Win32 Emulation Layer for Linux/OSX)
+   Copyright (C) 2006 and later, Cockos, Inc.
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -250,7 +250,7 @@ bool SetMenuItemModifier(HMENU hMenu, int idx, int flag, int code, unsigned int 
     
     if (code>='A' && code<='Z') suppressShift=true;
   }
-  else if (code >= VK_F1 && code <= VK_F12)
+  else if (code >= VK_F1 && code <= VK_F24)
   {
     arrowKey = NSF1FunctionKey + code - VK_F1;
   }
@@ -788,6 +788,7 @@ void SWELL_SetMenuDestination(HMENU menu, HWND hwnd)
 
 int TrackPopupMenu(HMENU hMenu, int flags, int xpos, int ypos, int resvd, HWND hwnd, const RECT *r)
 {
+  ReleaseCapture(); // match win32 -- TrackPopupMenu() ends any captures
   if (hMenu)
   {
     NSMenu *m=(NSMenu *)hMenu;
