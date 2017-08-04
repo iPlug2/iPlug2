@@ -361,17 +361,30 @@ static LRESULT WINAPI swellFileSelectProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
         {
           char buf[maxPathLen];
           const char *filepart = "";
-          if (parms->initialfile && *parms->initialfile && *parms->initialfile != '.') 
+          if (parms->initialfile && *parms->initialfile && strcmp(parms->initialfile,"."))
           { 
             lstrcpyn_safe(buf,parms->initialfile,sizeof(buf));
             char *p = (char *)WDL_get_filepart(buf);
-            if (p > buf) { p[-1]=0; filepart = p; }
+            if (p > buf) 
+            { 
+              p[-1]=0; 
+              filepart = p; 
+            }
+            else
+            {
+              filepart = parms->initialfile;
+              goto get_dir;
+            }
           }
-          else if (parms->initialdir && *parms->initialdir) 
+          else 
           {
-            lstrcpyn_safe(buf,parms->initialdir,sizeof(buf));
+get_dir:
+            if (parms->initialdir && *parms->initialdir && strcmp(parms->initialdir,".")) 
+            {
+              lstrcpyn_safe(buf,parms->initialdir,sizeof(buf));
+            }
+            else getcwd(buf,sizeof(buf));
           }
-          else getcwd(buf,sizeof(buf));
 
           SetWindowText(edit,filepart);
           SendMessage(hwnd, WM_UPD, IDC_DIR, (LPARAM)buf);
@@ -816,6 +829,18 @@ treatAsDir:
         SendMessage(hwnd,WM_UPD,1,0);
         return 1;
       }
+      else if (lParam == FVIRTKEY && wParam == VK_BACK && 
+               GetFocus() == GetDlgItem(hwnd,IDC_LIST))
+      {
+        SendMessage(hwnd,WM_COMMAND,IDC_PARENTBUTTON,0);
+        return 1;
+      }
+      else if (lParam == FVIRTKEY && wParam == VK_RETURN && 
+               GetFocus() == GetDlgItem(hwnd,IDC_LIST))
+      {
+        SendMessage(hwnd,WM_COMMAND,IDOK,0);
+        return 1;
+      }
     return 0;
   }
   return 0;
@@ -1120,9 +1145,9 @@ static LRESULT WINAPI swellColorSelectProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
                   }
                   else
                   {
-                    int r,g,b;
-                    LICE_HSV2RGB(cs->h,cs->s,cs->v,&r,&g,&b);
-                    cs->custom[col] = RGB(r,g,b);
+                    int rv,gv,bv;
+                    LICE_HSV2RGB(cs->h,cs->s,cs->v,&rv,&gv,&bv);
+                    cs->custom[col] = RGB(rv,gv,bv);
                     InvalidateRect(hwnd,NULL,FALSE);
                   }
                 }
@@ -1425,12 +1450,12 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
         SetWindowPos(hwnd,NULL,0,0, 550,380, SWP_NOZORDER|SWP_NOMOVE);
 
         WDL_StringKeyedArray<char> list;
-        const char *p;
+        const char *fontfile;
         int x;
-        for (x=0; (p=swell_enumFontFiles(x)); x ++)
+        for (x=0; (fontfile=swell_enumFontFiles(x)); x ++)
         {
           char buf[512];
-          lstrcpyn_safe(buf,WDL_get_filepart(p),sizeof(buf));
+          lstrcpyn_safe(buf,WDL_get_filepart(fontfile),sizeof(buf));
           char *tmp = buf;
           while (*tmp && *tmp != '-' && *tmp != '.') tmp++;
           *tmp=0;
@@ -1455,7 +1480,16 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
             {
               // if this is an extension of the last one, skip
               const char *trail = p+ll;
-              while (*trail)
+              if (strlen(trail)<=2)
+              {
+                for (int y=0;y<2;y++)
+                {
+                  char c = *trail;
+                  if (c>0) c=toupper(c);
+                  if (c == 'B' || c == 'I' || c == 'L') trail++;
+                }
+              }
+              else while (*trail)
               {
                 if (!strnicmp(trail,"Bold",4)) trail+=4;
                 else if (!strnicmp(trail,"Light",5)) trail+=5;
@@ -1502,7 +1536,9 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
           for (x=0;x<4 && ind[x]==0xffff;x++);
           if (x==4)
           {
-            DrawText(di->hDC,buf,-1,&di->rcItem,DT_VCENTER|DT_RIGHT|DT_NOPREFIX);
+            RECT r = di->rcItem;
+            r.right-=4;
+            DrawText(di->hDC,buf,-1,&r,DT_VCENTER|DT_RIGHT|DT_NOPREFIX);
           }
           DeleteObject(font);
 

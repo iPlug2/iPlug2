@@ -472,7 +472,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           HPEN pen2=CreatePen(PS_SOLID,0,g_swell_ctheme.menu_hilight);
           HGDIOBJ oldbr = SelectObject(ps.hdc,br);
           HGDIOBJ oldpen = SelectObject(ps.hdc,pen2);
-          Rectangle(ps.hdc,cr.left,cr.top,cr.right-1,cr.bottom-1);
+          Rectangle(ps.hdc,cr.left,cr.top,cr.right,cr.bottom);
           SetBkMode(ps.hdc,TRANSPARENT);
           HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
           int x;
@@ -524,10 +524,10 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
             if (x == menu->sel_vis && !dis)
             {
-              HBRUSH br=CreateSolidBrush(g_swell_ctheme.menu_bg_sel);
+              HBRUSH brs=CreateSolidBrush(g_swell_ctheme.menu_bg_sel);
               RECT r2=r;
-              FillRect(ps.hdc,&r2,br);
-              DeleteObject(br);
+              FillRect(ps.hdc,&r2,brs);
+              DeleteObject(brs);
               SetTextColor(ps.hdc,g_swell_ctheme.menu_text_sel);
             }
             else 
@@ -726,14 +726,23 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
       {
         HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
         int l = menu->sel_vis;
-        for (int i= wParam == VK_UP ? 0 : 9; i>=0 && l>0; i--) while (l > 0)
+        for (int i= wParam == VK_UP ? 0 : 9; i>=0; i--) 
         {
-          MENUITEMINFO *inf = menu->items.Get(--l);
-          if (!inf) break; 
-          if (!(inf->fState & MF_GRAYED) && inf->fType != MFT_SEPARATOR) 
+          int mc = menu->items.GetSize();
+          while (mc--)
           {
-            menu->sel_vis=l;
-            break;
+            if (l<1)
+            {
+              if (wParam != VK_UP) break;
+              l = menu->items.GetSize();
+            }
+            MENUITEMINFO *inf = menu->items.Get(--l);
+            if (!inf) break; 
+            if (!(inf->fState & MF_GRAYED) && inf->fType != MFT_SEPARATOR) 
+            {
+              menu->sel_vis=l;
+              break;
+            }
           }
         }
         if (menu->sel_vis < hwnd->m_extra[0])
@@ -745,14 +754,24 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
         int l = menu->sel_vis;
         const int n =menu->items.GetSize()-1;
-        for (int i = wParam == VK_DOWN ? 0 : 9; i>=0 && l<n; i--) while (l < n)
+        for (int i = wParam == VK_DOWN ? 0 : 9; i>=0; i--) 
         {
-          MENUITEMINFO *inf = menu->items.Get(++l);
-          if (!inf) break; 
-          if (!(inf->fState & MF_GRAYED) && inf->fType != MFT_SEPARATOR) 
+          int mc = n+1;
+          while (mc--)
           {
-            menu->sel_vis=l;
-            break;
+            if (l>=n)
+            {
+              if (wParam != VK_DOWN) break;
+              l=-1;
+              hwnd->m_extra[0]=0;
+            }
+            MENUITEMINFO *inf = menu->items.Get(++l);
+            if (!inf) break; 
+            if (!(inf->fState & MF_GRAYED) && inf->fType != MFT_SEPARATOR) 
+            {
+              menu->sel_vis=l;
+              break;
+            }
           }
         }
         InvalidateRect(hwnd,NULL,FALSE);

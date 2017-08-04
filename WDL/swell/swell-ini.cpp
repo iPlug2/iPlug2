@@ -94,12 +94,6 @@ static bool fgets_to_typedbuf(WDL_TypedBuf<char> *buf, FILE *fp)
   return buf->GetSize()>0 && buf->Get()[0];
 }
 
-
-void SWELL_SetDefaultIniFile(const char *p) // deprecated will be removed very soon
-{
-  SWELL_ExtendedAPI("INIFILE",(void *)p);
-}
-
 // return true on success
 static iniFileContext *GetFileContext(const char *name)
 {
@@ -492,9 +486,9 @@ DWORD GetPrivateProfileString(const char *appname, const char *keyname, const ch
           int y;
           for (y = 0; ; y ++)
           {            
-            const char *keyname=NULL;
-            if (!cursec->Enumerate(y,&keyname)||!keyname) break;
-            if (*keyname) tmpbuf.Add(keyname,strlen(keyname)+1);
+            const char *k=NULL;
+            if (!cursec->Enumerate(y,&k)||!k) break;
+            if (*k) tmpbuf.Add(k,strlen(k)+1);
           }
         }
       }
