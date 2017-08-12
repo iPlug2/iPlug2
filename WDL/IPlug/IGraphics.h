@@ -121,7 +121,7 @@ public:
   void SetStrictDrawing(bool strict);
 
   virtual void* OpenWindow(void* pParentWnd) = 0;
-
+  virtual void* OpenWindow(void* pParentWnd, void* pParentControl) { return 0; } // For Carbon
   virtual void AttachSubWindow(void* hostWindowRef) {};
   virtual void RemoveSubWindow() {};
 

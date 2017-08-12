@@ -46,8 +46,6 @@ IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac,
   , mEdParam(0)
   , mPrevX(0)
   , mPrevY(0)
-  , mLeftOffset(leftOffset)
-  , mTopOffset(topOffset)
   , mShowingTooltip(false)
   , mTooltipIdx(-1)
   , mTooltipTimer(0)
