@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "Containers.h"
 #include "IPlugOSDetect.h"
 
@@ -32,7 +33,7 @@ struct IColor
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
-  void Clamp() { A = IPMIN(A, 255); R = IPMIN(R, 255); G = IPMIN(G, 255); B = IPMIN(B, 255); }
+  void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -184,14 +185,14 @@ struct IRECT
   {
     if (Empty()) { return *pRHS; }
     if (pRHS->Empty()) { return *this; }
-    return IRECT(IPMIN(L, pRHS->L), IPMIN(T, pRHS->T), IPMAX(R, pRHS->R), IPMAX(B, pRHS->B));
+    return IRECT(std::min(L, pRHS->L), std::min(T, pRHS->T), std::max(R, pRHS->R), std::max(B, pRHS->B));
   }
 
   inline IRECT Intersect(IRECT* pRHS)
   {
     if (Intersects(pRHS))
     {
-      return IRECT(IPMAX(L, pRHS->L), IPMAX(T, pRHS->T), IPMIN(R, pRHS->R), IPMIN(B, pRHS->B));
+      return IRECT(std::max(L, pRHS->L), std::max(T, pRHS->T), std::min(R, pRHS->R), std::min(B, pRHS->B));
     }
     return IRECT();
   }
@@ -272,22 +273,22 @@ struct IRECT
   {
     if (L < pRHS->L)
     {
-      R = IPMIN(pRHS->R - 1, R + pRHS->L - L);
+      R = std::min(pRHS->R - 1, R + pRHS->L - L);
       L = pRHS->L;
     }
     if (T < pRHS->T)
     {
-      B = IPMIN(pRHS->B - 1, B + pRHS->T - T);
+      B = std::min(pRHS->B - 1, B + pRHS->T - T);
       T = pRHS->T;
     }
     if (R >= pRHS->R)
     {
-      L = IPMAX(pRHS->L, L - (R - pRHS->R + 1));
+      L = std::max(pRHS->L, L - (R - pRHS->R + 1));
       R = pRHS->R - 1;
     }
     if (B >= pRHS->B)
     {
-      T = IPMAX(pRHS->T, T - (B - pRHS->B + 1));
+      T = std::max(pRHS->T, T - (B - pRHS->B + 1));
       B = pRHS->B - 1;
     }
   }

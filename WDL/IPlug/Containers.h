@@ -10,10 +10,10 @@
   #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
 
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cmath>
+#include <cstring>
+#include <cstdio>
+#include <cassert>
 #include "../mutex.h"
 #include "../wdlstring.h"
 #include "../ptrlist.h"
@@ -22,8 +22,6 @@
 #define FREE_NULL(p) {free(p);p=0;}
 #define DELETE_NULL(p) {delete(p); p=0;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=0;}
-#define IPMIN(x,y) ((x)<(y)?(x):(y))
-#define IPMAX(x,y) ((x)<(y)?(y):(x))
 #define BOUNDED(x,lo,hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 #define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
 

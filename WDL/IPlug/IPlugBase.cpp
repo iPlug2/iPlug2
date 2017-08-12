@@ -111,8 +111,8 @@ IPlugBase::IPlugBase(int nParams,
 #else
     sscanf(channelIOStr, "%d-%d", &nIn, &nOut);
 #endif
-    nInputs = IPMAX(nInputs, nIn);
-    nOutputs = IPMAX(nOutputs, nOut);
+    nInputs = std::max(nInputs, nIn);
+    nOutputs = std::max(nOutputs, nOut);
     mChannelIO.Add(new ChannelIO(nIn, nOut));
     channelIOStr = strstr(channelIOStr, " ");
     
@@ -326,7 +326,7 @@ void IPlugBase::SetBlockSize(int blockSize)
 
 void IPlugBase::SetInputChannelConnections(int idx, int n, bool connected)
 {
-  int iEnd = IPMIN(idx + n, mInChannels.GetSize());
+  int iEnd = std::min(idx + n, mInChannels.GetSize());
   
   for (int i = idx; i < iEnd; ++i)
   {
@@ -342,7 +342,7 @@ void IPlugBase::SetInputChannelConnections(int idx, int n, bool connected)
 
 void IPlugBase::SetOutputChannelConnections(int idx, int n, bool connected)
 {
-  int iEnd = IPMIN(idx + n, mOutChannels.GetSize());
+  int iEnd = std::min(idx + n, mOutChannels.GetSize());
   
   for (int i = idx; i < iEnd; ++i)
   {
@@ -368,7 +368,7 @@ bool IPlugBase::IsOutChannelConnected(int chIdx)
 
 void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
 {
-  int iEnd = IPMIN(idx + n, mInChannels.GetSize());
+  int iEnd = std::min(idx + n, mInChannels.GetSize());
   
   for (int i = idx; i < iEnd; ++i)
   {
@@ -382,7 +382,7 @@ void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
 
 void IPlugBase::AttachInputBuffers(int idx, int n, float** ppData, int nFrames)
 {
-  int iEnd = IPMIN(idx + n, mInChannels.GetSize());
+  int iEnd = std::min(idx + n, mInChannels.GetSize());
   for (int i = idx; i < iEnd; ++i)
   {
     InChannel* pInChannel = mInChannels.Get(i);
@@ -397,7 +397,7 @@ void IPlugBase::AttachInputBuffers(int idx, int n, float** ppData, int nFrames)
 
 void IPlugBase::AttachOutputBuffers(int idx, int n, double** ppData)
 {
-  int iEnd = IPMIN(idx + n, mOutChannels.GetSize());
+  int iEnd = std::min(idx + n, mOutChannels.GetSize());
   for (int i = idx; i < iEnd; ++i)
   {
     OutChannel* pOutChannel = mOutChannels.Get(i);
@@ -410,7 +410,7 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, double** ppData)
 
 void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
 {
-  int iEnd = IPMIN(idx + n, mOutChannels.GetSize());
+  int iEnd = std::min(idx + n, mOutChannels.GetSize());
   for (int i = idx; i < iEnd; ++i)
   {
     OutChannel* pOutChannel = mOutChannels.Get(i);

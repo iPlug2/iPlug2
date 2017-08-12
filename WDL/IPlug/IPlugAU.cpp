@@ -967,7 +967,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         strcpy(cStr, pParam->GetNameForHost());
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full)
         {
-          int n = IPMIN(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
+          int n = std::min(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
           cStr[n] = '\0';
         }
         pIDName->outName = MakeCFString(cStr);
@@ -1321,14 +1321,14 @@ bool IPlugAU::CheckLegalIO(AudioUnitScope scope, int busIdx, int nChannels)
 {
   if (scope == kAudioUnitScope_Input)
   {
-    int nIn = IPMAX(NHostChannelsConnected(&mInBuses, busIdx), 0);
+    int nIn = std::max(NHostChannelsConnected(&mInBuses, busIdx), 0);
     int nOut = (mActive ? NHostChannelsConnected(&mOutBuses) : -1);
     return LegalIO(nIn + nChannels, nOut);
   }
   else
   {
     int nIn = (mActive ? NHostChannelsConnected(&mInBuses) : -1);
-    int nOut = IPMAX(NHostChannelsConnected(&mOutBuses, busIdx), 0);
+    int nOut = std::max(NHostChannelsConnected(&mOutBuses, busIdx), 0);
     return LegalIO(nIn, nOut + nChannels);
   }
 }
@@ -1388,7 +1388,7 @@ void IPlugAU::AssessInputConnections()
         pInBus->mNHostChannels = pInBus->mNPlugChannels;
       }
       int nConnected = pInBus->mNHostChannels;
-      int nUnconnected = IPMAX(pInBus->mNPlugChannels - nConnected, 0);
+      int nUnconnected = std::max(pInBus->mNPlugChannels - nConnected, 0);
       SetInputChannelConnections(startChannelIdx, nConnected, true);
       SetInputChannelConnections(startChannelIdx + nConnected, nUnconnected, false);
     }
@@ -1718,8 +1718,8 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
   if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
   {
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-    int nConnected = IPMIN(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
-    int nUnconnected = IPMAX(pOutBus->mNPlugChannels - nConnected, 0);
+    int nConnected = std::min(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
+    int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
     _this->SetOutputChannelConnections(startChannelIdx, nConnected, true);
     _this->SetOutputChannelConnections(startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
     pOutBus->mConnected = true;

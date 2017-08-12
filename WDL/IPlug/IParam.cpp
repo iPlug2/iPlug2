@@ -1,5 +1,6 @@
 #include "IParam.h"
-#include <stdio.h>
+#include <cstdio>
+#include <algorithm>
 
 IParam::IParam()
   : mType(kTypeNone)
@@ -54,7 +55,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   strcpy(mParamGroup, group);
   mValue = defaultVal;
   mMin = minVal;
-  mMax = IPMAX(maxVal, minVal + step);
+  mMax = std::max(maxVal, minVal + step);
   mStep = step;
   mDefault = defaultVal;
 
@@ -97,7 +98,7 @@ void IParam::SetNormalized(double normalizedValue)
     mValue = floor(0.5 + mValue / mStep) * mStep;
   }
   
-  mValue = IPMIN(mValue, mMax);
+  mValue = std::min(mValue, mMax);
 }
 
 double IParam::GetNormalized()
