@@ -39,11 +39,6 @@ APP=`echo | grep APP_FOLDER ../../common.xcconfig`
 APP=${APP//\APP_FOLDER = }/$PLUGIN_NAME.app
 
 # Dev build folder
-RTAS=`echo | grep RTAS_FOLDER ../../common.xcconfig`
-RTAS=${RTAS//\RTAS_FOLDER = }/$PLUGIN_NAME.dpm
-RTAS_FINAL="/Library/Application Support/Digidesign/Plug-Ins/$PLUGIN_NAME.dpm"
-
-# Dev build folder
 AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
 AAX=${AAX//\AAX_FOLDER = }/$PLUGIN_NAME.aaxplugin
 AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/$PLUGIN_NAME.aaxplugin"
@@ -245,7 +240,6 @@ sudo rm -R -f installer/build-mac/
 # cp -R $AU installer/dist/$PLUGIN_NAME.component
 # cp -R $VST2 installer/dist/$PLUGIN_NAME.vst
 # cp -R $VST3 installer/dist/$PLUGIN_NAME.vst3
-# cp -R $RTAS installer/dist/$PLUGIN_NAME.dpm
 # cp -R $AAX installer/dist/$PLUGIN_NAME.aaxplugin
 # cp -R $APP installer/dist/$PLUGIN_NAME.app
 # 

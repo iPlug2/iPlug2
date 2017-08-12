@@ -20,12 +20,12 @@ if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
 :32-Bit
 echo 32-Bit O/S detected
-call "%ProgramFiles%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+call "%ProgramFiles%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 8.1
 goto END
 
 :64-Bit
 echo 64-Bit Host O/S detected
-call "%ProgramFiles(x86)%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 8.1
 goto END
 :END
 
@@ -61,7 +61,7 @@ goto END-is
 :END-is
 
 REM - ZIP
-REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win\app\win32\bin\IPlugEffect.exe .\build-win\vst3\win32\bin\IPlugEffect.vst3 .\build-win\vst2\win32\bin\IPlugEffect.dll .\build-win\rtas\bin\IPlugEffect.dpm .\build-win\rtas\bin\IPlugEffect.dpm.rsr .\build-win\aax\bin\IPlugEffect.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
+REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-32bit.zip .\build-win\app\win32\bin\IPlugEffect.exe .\build-win\vst3\win32\bin\IPlugEffect.vst3 .\build-win\vst2\win32\bin\IPlugEffect.dll .\build-win\aax\bin\IPlugEffect.aaxplugin* .\installer\license.rtf .\installer\readmewin.rtf
 REM - "%ProgramFiles%\7-Zip\7z.exe" a .\installer\IPlugEffect-win-64bit.zip .\build-win\app\x64\bin\IPlugEffect.exe .\build-win\vst3\x64\bin\IPlugEffect.vst3 .\build-win\vst2\x64\bin\IPlugEffect.dll .\installer\license.rtf .\installer\readmewin.rtf
 
 echo ------------------------------------------------------------------
