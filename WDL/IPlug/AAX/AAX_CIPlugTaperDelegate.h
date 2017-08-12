@@ -1,5 +1,4 @@
-#ifndef	AAX_CIPlugTAPERDELEGATE_H
-#define AAX_CIPlugTAPERDELEGATE_H
+#pragma once
 
 #include "IParam.h"
 
@@ -70,5 +69,3 @@ double	AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
   
   return ToNormalizedParam(realValue, mMinValue, mMaxValue, mShape);
 }
-
-#endif //AAX_CIPlugTAPERDELEGATE_H

@@ -1,5 +1,4 @@
-#ifndef AAX_CIPlugPARAMETERS_H
-#define AAX_CIPlugPARAMETERS_H
+#pragma once
 
 // This helper class is based on AVID's AAX_CInstrumentParameters
 
@@ -119,5 +118,3 @@ public:
   static  AAX_Result  StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
   static  void  AAX_CALLBACK  StaticRenderAudio(AAX_SIPlugRenderInfo* const inInstancesBegin [], const void* inInstancesEnd); 
 };
-
-#endif

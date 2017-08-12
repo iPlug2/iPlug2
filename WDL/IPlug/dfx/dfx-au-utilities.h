@@ -39,9 +39,7 @@
 
 // this is a modified version of dfx-au-utilities.h keeping only CFAUPreset related functionality
 
-#ifndef __DFX_AU_UTILITIES_H
-#define __DFX_AU_UTILITIES_H
-
+#pragma once
 
 #include <Carbon/Carbon.h>
 #include <AudioUnit/AudioUnit.h>
@@ -62,8 +60,3 @@ extern const CFArrayCallBacks kCFAUPresetArrayCallBacks;
 }
 #endif
 /* end of extern "C" */
-
-
-
-#endif
-/* __DFX_AU_UTILITIES_H */
