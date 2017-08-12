@@ -1,5 +1,4 @@
-#ifndef _IPLUG_OSDETECT_H_
-#define _IPLUG_OSDETECT_H_
+#pragma once
 
 #ifdef _WIN32
   #define OS_WIN
@@ -17,5 +16,3 @@
 #if defined(_WIN64) || defined(__LP64__)
   #define ARCH_64BIT 
 #endif
-
-#endif // _IPLUG_OSDETECT_H_

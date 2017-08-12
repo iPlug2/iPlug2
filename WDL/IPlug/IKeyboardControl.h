@@ -1,5 +1,4 @@
-#ifndef _IKEYBOARDCONTROL_
-#define _IKEYBOARDCONTROL_
+#pragma once
 
 /*
 
@@ -313,6 +312,3 @@ const int IKeyboardControl::mNextKey[12] = { 2, 2, 2, 3, 1, 2, 2, 2, 2, 2, 3, 1 
 
 // The bitmap index number for each note.
 const int IKeyboardControl::mBitmapN[12] = { 1, 0, 2, 0, 3, 1, 0, 4, 0, 5, 0, 3 };
-
-
-#endif // _IKEYBOARDCONTROL_

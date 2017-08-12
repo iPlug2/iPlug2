@@ -1,5 +1,4 @@
-#ifndef _IPLUGSTRUCTS_
-#define _IPLUGSTRUCTS_
+#pragma once
 
 #include "Containers.h"
 #include "IPlugOSDetect.h"
@@ -482,5 +481,3 @@ enum
   KEY_ALPHA_A,
   KEY_ALPHA_Z=KEY_ALPHA_A+25
 };
-
-#endif

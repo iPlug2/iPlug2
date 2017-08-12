@@ -1,5 +1,4 @@
-#ifndef _IMIDIQUEUE_
-#define _IMIDIQUEUE_
+#pragma once
 
 /*
 
@@ -196,6 +195,3 @@ protected:
   int mSize, mGrow;
   int mFront, mBack;
 } WDL_FIXALIGN;
-
-
-#endif // _IMIDIQUEUE_

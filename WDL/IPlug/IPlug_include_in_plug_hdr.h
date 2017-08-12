@@ -1,5 +1,4 @@
-#ifndef _IPLUG_INCLUDE_HDR_
-#define _IPLUG_INCLUDE_HDR_
+#pragma once
 
 // Include this file in the main header for your plugin,
 // after #defining either VST_API or AU_API.
@@ -46,5 +45,3 @@
 #elif defined OS_LINUX
   //TODO
 #endif
-
-#endif // _IPLUG_INCLUDE_HDR_

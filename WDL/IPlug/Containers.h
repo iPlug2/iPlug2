@@ -1,5 +1,4 @@
-#ifndef _CONTAINERS_
-#define _CONTAINERS_
+#pragma once
 
 #ifdef WIN32
   #undef _WIN32_WINNT
@@ -294,5 +293,3 @@ public:
 private:
   WDL_TypedBuf<unsigned char> mBytes;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _IPLUG_INCLUDE_SRC_
-#define _IPLUG_INCLUDE_SRC_
+#pragma once
 
 // Include this file in the main source for your plugin,
 // after #including the main header for your plugin.
@@ -197,5 +196,3 @@ END_FACTORY
   IPlug(instanceInfo, nParams, PLUG_CHANNEL_IO, nPresets, \
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VER, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
     PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INST, PLUG_SC_CHANS)
-
-#endif

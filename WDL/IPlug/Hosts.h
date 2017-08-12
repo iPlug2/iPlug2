@@ -1,5 +1,4 @@
-#ifndef _PLUGINHOSTS_
-#define _PLUGINHOSTS_
+#pragma once
 
 #include <stdlib.h>
 #include <string.h>
@@ -56,7 +55,4 @@ enum EHost
 
 EHost LookUpHost(const char* host);
 void GetHostNameStr(EHost host, char* pHostName);
-
-#endif
-
 

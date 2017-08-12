@@ -1,5 +1,4 @@
-#ifndef _IGRAPHICS_
-#define _IGRAPHICS_
+#pragma once
 
 #include "IPlugStructs.h"
 #include "IPopupMenu.h"
@@ -273,5 +272,3 @@ private:
   bool mHandleMouseOver, mStrict, mEnableTooltips, mShowControlBounds;
   IControl* mKeyCatcher;
 };
-
-#endif

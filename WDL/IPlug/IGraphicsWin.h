@@ -1,5 +1,4 @@
-#ifndef _IGRAPHICSWIN_
-#define _IGRAPHICSWIN_
+#pragma once
 
 #include "IGraphics.h"
 
@@ -70,7 +69,6 @@ protected:
 private:
   HINSTANCE mHInstance;
   HWND mPlugWnd, mParamEditWnd, mTooltipWnd;
-  // Ed = being edited manually.
   IControl* mEdControl;
   IParam* mEdParam;
   WNDPROC mDefEditProc;
@@ -88,7 +86,3 @@ public:
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
 };
-
-////////////////////////////////////////
-
-#endif

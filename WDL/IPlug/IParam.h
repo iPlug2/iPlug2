@@ -1,5 +1,4 @@
-#ifndef _IPARAM_
-#define _IPARAM_
+#pragma once
 
 #include "Containers.h"
 #include <math.h>
@@ -85,8 +84,6 @@ public:
   bool GetIsMeta() { return mIsMeta; }
 
 private:
-  // All we store is the readable values.
-  // SetFromHost() and GetForHost() handle conversion from/to (0,1).
   EParamType mType;
   double mValue, mMin, mMax, mStep, mShape, mDefault;
   int mDisplayPrecision;
@@ -106,5 +103,3 @@ private:
   
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 };
-
-#endif

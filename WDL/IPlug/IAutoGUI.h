@@ -1,5 +1,4 @@
-#ifndef __IAUTOGUI__
-#define __IAUTOGUI__
+#pragma once
 
 #include "IControl.h"
 #include "wdlstring.h"
@@ -571,5 +570,3 @@ void GenerateSliderGUI(IGraphics* pGraphics,
     }
   }
 }
-
-#endif //__IAUTOGUI__

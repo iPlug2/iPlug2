@@ -1,5 +1,4 @@
-#ifndef _ICONTROL_
-#define _ICONTROL_
+#pragma once
 
 #include "IPlugBase.h"
 #include "IGraphics.h"
@@ -483,5 +482,3 @@ protected:
   EFileAction mFileAction;
   EFileSelectorState mState;
 };
-
-#endif

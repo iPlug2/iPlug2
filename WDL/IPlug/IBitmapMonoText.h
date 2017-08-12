@@ -1,5 +1,5 @@
-#ifndef _IBITMAPMONOTEXT_
-#define _IBITMAPMONOTEXT_
+#pragma once
+
 #include "IGraphics.h"
 #include "IControl.h"
 
@@ -64,5 +64,3 @@ protected:
   bool mMultiLine;
   bool mVCentre;
 };
-
-#endif //_IBITMAPMONOTEXT_

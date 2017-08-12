@@ -1,5 +1,4 @@
-#ifndef _IPOPUPMENU_
-#define _IPOPUPMENU_
+#pragma once
 
 #include <math.h>
 #include <string.h>
@@ -106,5 +105,3 @@ private:
   bool mCanMultiCheck; // multicheck = 0 doesn't actually prohibit multichecking, you should do that in your code, by calling CheckItemAlone instead of CheckItem
   WDL_PtrList<IPopupMenuItem> mMenuItems;
 };
-
-#endif

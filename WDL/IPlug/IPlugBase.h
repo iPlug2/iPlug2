@@ -1,5 +1,4 @@
-#ifndef _IPLUGBASE_
-#define _IPLUGBASE_
+#pragma once
 
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
@@ -333,5 +332,3 @@ private:
   WDL_PtrList<WDL_String> mInputBusLabels;
   WDL_PtrList<WDL_String> mOutputBusLabels;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _IGRAPHICSCARBON_
-#define _IGRAPHICSCARBON_
+#pragma once
 
 #include <Carbon/Carbon.h>
 #include "IGraphicsMac.h"
@@ -41,7 +40,7 @@ protected:
 private:
   IGraphicsMac* mGraphicsMac;
   bool mIsComposited;
-//  RgnHandle mRgn;
+
   WindowRef mWindow;
   ControlRef mView;
   EventLoopTimerRef mTimer;
@@ -70,5 +69,3 @@ public:
   static pascal void TimerHandler(EventLoopTimerRef pTimer, void* pGraphicsCarbon);
   static pascal OSStatus TextEntryHandler(EventHandlerCallRef pHandlerCall, EventRef pEvent, void* pGraphicsCarbon);
 };
-
-#endif // _IGRAPHICSCARBON_

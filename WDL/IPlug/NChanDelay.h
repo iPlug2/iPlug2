@@ -1,5 +1,4 @@
-#ifndef _NCHANDELAY_
-#define _NCHANDELAY_
+#pragma once
 
 // A static delayline used to delay bypassed signals to match mLatency in AAX/VST3/AU
 class NChanDelayLine
@@ -57,5 +56,3 @@ public:
   }
   
 } WDL_FIXALIGN;
-
-#endif //_NCHANDELAY_

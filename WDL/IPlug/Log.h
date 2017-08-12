@@ -1,5 +1,4 @@
-#ifndef _LOG_
-#define _LOG_
+#pragma once
 
 #undef min
 #undef max
@@ -60,6 +59,4 @@ const char* CurrentTime();
 void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr);
 const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr);
 #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
-
-#endif
 

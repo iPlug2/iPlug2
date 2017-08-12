@@ -1,5 +1,4 @@
-#ifndef _IGRAPHICSMAC_
-#define _IGRAPHICSMAC_
+#pragma once
 
 #if defined(__APPLE__) && defined(__LP64__) && !defined(IPLUG_NO_CARBON_SUPPORT)
   #define IPLUG_NO_CARBON_SUPPORT
@@ -180,5 +179,3 @@ inline int AdjustFontSize(int size)
 {
   return int(0.9 * (double)size);
 }
-
-#endif
