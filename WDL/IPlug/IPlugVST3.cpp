@@ -43,14 +43,14 @@ public:
     info.unitId = unitID;
   }
   
-  virtual void toString (ParamValue valueNormalized, String128 string) const
+  virtual void toString (ParamValue valueNormalized, String128 string) const override
   {
     char disp[MAX_PARAM_DISPLAY_LEN];
     mIPlugParam->GetDisplayForHost(valueNormalized, true, disp);
     Steinberg::UString(string, 128).fromAscii(disp);
   }
   
-  virtual bool fromString (const TChar* string, ParamValue& valueNormalized) const
+  virtual bool fromString (const TChar* string, ParamValue& valueNormalized) const override
   {
     String str ((TChar*)string);
     valueNormalized = mIPlugParam->GetNormalized(atof(str.text8()));
@@ -58,12 +58,12 @@ public:
     return true;
   }
   
-  virtual Steinberg::Vst::ParamValue toPlain (ParamValue valueNormalized) const
+  virtual Steinberg::Vst::ParamValue toPlain (ParamValue valueNormalized) const override
   {
     return mIPlugParam->GetNonNormalized(valueNormalized);
   }
   
-  virtual Steinberg::Vst::ParamValue toNormalized (ParamValue plainValue) const
+  virtual Steinberg::Vst::ParamValue toNormalized (ParamValue plainValue) const override
   {
     return mIPlugParam->GetNormalized(valueNormalized);
   }
