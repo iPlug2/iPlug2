@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Visual Studio 15
+# Visual Studio 15
 VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-app", "IPlugEffect-app.vcxproj", "{41785AE4-5B70-4A75-880B-4B418B4E13C6}"
@@ -38,14 +38,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-aax", "IPlugEff
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AAXLibrary", "..\..\AAX_SDK\Libs\AAXLibrary\WinBuild\AAXLibrary.vcxproj", "{5E3D286E-BF0D-446A-AFEF-E800F283CE53}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-rtas", "IPlugEffect-rtas.vcxproj", "{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3059A12C-2A45-439B-81EC-201D8ED347A3} = {3059A12C-2A45-439B-81EC-201D8ED347A3}
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F} = {D2CE28FF-63B8-48BC-936D-33F365B4053F}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlugInLib", "..\..\PT9_SDK\AlturaPorts\TDMPlugIns\PlugInLibrary\WinBuild\PlugInLib.vcxproj", "{D2CE28FF-63B8-48BC-936D-33F365B4053F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,24 +145,6 @@ Global
 		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Tracer|Win32.Build.0 = Release|Win32
 		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Tracer|x64.ActiveCfg = Release|x64
 		{5E3D286E-BF0D-446A-AFEF-E800F283CE53}.Tracer|x64.Build.0 = Release|x64
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Debug|Win32.Build.0 = Debug|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Debug|x64.ActiveCfg = Debug|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Release|Win32.ActiveCfg = Release|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Release|Win32.Build.0 = Release|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Release|x64.ActiveCfg = Release|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Tracer|Win32.ActiveCfg = Tracer|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Tracer|Win32.Build.0 = Tracer|Win32
-		{8F427C1E-B580-4793-BEAC-F2CFEFA003F5}.Tracer|x64.ActiveCfg = Tracer|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Debug|Win32.ActiveCfg = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Debug|Win32.Build.0 = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Debug|x64.ActiveCfg = Debug|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Release|Win32.ActiveCfg = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Release|Win32.Build.0 = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Release|x64.ActiveCfg = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Tracer|Win32.ActiveCfg = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Tracer|Win32.Build.0 = Release|Win32
-		{D2CE28FF-63B8-48BC-936D-33F365B4053F}.Tracer|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
