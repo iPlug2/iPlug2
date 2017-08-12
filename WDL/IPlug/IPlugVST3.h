@@ -2,6 +2,7 @@
 #define _IPLUGAPI_
 // Only load one API class!
 
+#include <vector>
 #include "IPlugBase.h"
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
 //#include "public.sdk/source/vst/vstpresetfile.h"
@@ -40,7 +41,7 @@ public:
 
   virtual ~IPlugVST3();
 
-  // AudioEffect overrides:
+  // AudioEffect
   Steinberg::tresult PLUGIN_API initialize (FUnknown* context) override;
   Steinberg::tresult PLUGIN_API terminate() override;
   Steinberg::tresult PLUGIN_API setBusArrangements(Steinberg::Vst::SpeakerArrangement* inputs, Steinberg::int32 numIns, Steinberg::Vst::SpeakerArrangement* outputs, Steinberg::int32 numOuts) override;
@@ -116,7 +117,7 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
 
 protected:
-  virtual bool SendMidiMsg(IMidiMsg* pMsg) override {return false;}  //TODO
+  virtual bool SendMidiMsg(IMidiMsg* pMsg) override {return false;}  //TODO:
 
 private:
   void addDependentView (IPlugVST3View* view);
@@ -132,7 +133,7 @@ private:
   bool mSidechainActive;
 //  IMidiQueue mMidiOutputQueue;
   Steinberg::Vst::ProcessContext mProcessContext;
-  IPlugVST3View* view;
+  std::vector <IPlugVST3View*> mViews;
 
   friend class IPlugVST3View;
 };
