@@ -3,23 +3,8 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 48;
 	objects = {
-
-/* Begin PBXAggregateTarget section */
-		4F8D4C1B13E97722004F7633 /* All */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 4F8D4C2513E97768004F7633 /* Build configuration list for PBXAggregateTarget "All" */;
-			buildPhases = (
-			);
-			dependencies = (
-				4F8D4C2013E97732004F7633 /* PBXTargetDependency */,
-				4F8D4C2213E97732004F7633 /* PBXTargetDependency */,
-			);
-			name = All;
-			productName = All;
-		};
-/* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
 		4F8D4B0B13E973D9004F7633 /* adler32.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF113E973D9004F7633 /* adler32.c */; };
@@ -78,80 +63,7 @@
 		4F8D4B9B13E9749E004F7633 /* pngwrite.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4313E973FA004F7633 /* pngwrite.c */; };
 		4F8D4B9C13E9749E004F7633 /* pngwtran.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4413E973FA004F7633 /* pngwtran.c */; };
 		4F8D4B9D13E9749E004F7633 /* pngwutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4513E973FA004F7633 /* pngwutil.c */; };
-		4F8D4BD713E976A7004F7633 /* crc32.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4AF413E973D9004F7633 /* crc32.h */; };
-		4F8D4BD813E976A7004F7633 /* deflate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4AF613E973D9004F7633 /* deflate.h */; };
-		4F8D4BD913E976A7004F7633 /* gzguts.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4AF813E973D9004F7633 /* gzguts.h */; };
-		4F8D4BDA13E976A7004F7633 /* inffast.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4AFE13E973D9004F7633 /* inffast.h */; };
-		4F8D4BDB13E976A7004F7633 /* inffixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4AFF13E973D9004F7633 /* inffixed.h */; };
-		4F8D4BDC13E976A7004F7633 /* inflate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B0113E973D9004F7633 /* inflate.h */; };
-		4F8D4BDD13E976A7004F7633 /* inftrees.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B0313E973D9004F7633 /* inftrees.h */; };
-		4F8D4BDE13E976A7004F7633 /* trees.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B0513E973D9004F7633 /* trees.h */; };
-		4F8D4BDF13E976A7004F7633 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B0713E973D9004F7633 /* zconf.h */; };
-		4F8D4BE013E976A7004F7633 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B0813E973D9004F7633 /* zlib.h */; };
-		4F8D4BE113E976A7004F7633 /* zutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B0A13E973D9004F7633 /* zutil.h */; };
-		4F8D4BE213E976A7004F7633 /* lice_bezier.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B5213E97425004F7633 /* lice_bezier.h */; };
-		4F8D4BE313E976A7004F7633 /* lice_combine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B5513E97425004F7633 /* lice_combine.h */; };
-		4F8D4BE413E976A7004F7633 /* lice_extended.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B5613E97425004F7633 /* lice_extended.h */; };
-		4F8D4BE513E976A7004F7633 /* lice_text.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B6C13E97425004F7633 /* lice_text.h */; };
-		4F8D4BE613E976A7004F7633 /* lice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8D4B6F13E97425004F7633 /* lice.h */; };
-		4F8D4BE813E976A7004F7633 /* png.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3013E973FA004F7633 /* png.c */; };
-		4F8D4BE913E976A7004F7633 /* pngerror.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3413E973FA004F7633 /* pngerror.c */; };
-		4F8D4BEA13E976A7004F7633 /* pngget.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3513E973FA004F7633 /* pngget.c */; };
-		4F8D4BEB13E976A7004F7633 /* pngmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3813E973FA004F7633 /* pngmem.c */; };
-		4F8D4BEC13E976A7004F7633 /* pngpread.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3913E973FA004F7633 /* pngpread.c */; };
-		4F8D4BED13E976A7004F7633 /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3B13E973FA004F7633 /* pngread.c */; };
-		4F8D4BEE13E976A7004F7633 /* pngrio.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3C13E973FA004F7633 /* pngrio.c */; };
-		4F8D4BEF13E976A7004F7633 /* pngrtran.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3D13E973FA004F7633 /* pngrtran.c */; };
-		4F8D4BF013E976A7004F7633 /* pngrutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3E13E973FA004F7633 /* pngrutil.c */; };
-		4F8D4BF113E976A7004F7633 /* pngset.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B3F13E973FA004F7633 /* pngset.c */; };
-		4F8D4BF213E976A7004F7633 /* pngtrans.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4113E973FA004F7633 /* pngtrans.c */; };
-		4F8D4BF313E976A7004F7633 /* pngwio.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4213E973FA004F7633 /* pngwio.c */; };
-		4F8D4BF413E976A7004F7633 /* pngwrite.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4313E973FA004F7633 /* pngwrite.c */; };
-		4F8D4BF513E976A7004F7633 /* pngwtran.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4413E973FA004F7633 /* pngwtran.c */; };
-		4F8D4BF613E976A7004F7633 /* pngwutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B4513E973FA004F7633 /* pngwutil.c */; };
-		4F8D4BF713E976A7004F7633 /* adler32.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF113E973D9004F7633 /* adler32.c */; };
-		4F8D4BF813E976A7004F7633 /* compress.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF213E973D9004F7633 /* compress.c */; };
-		4F8D4BF913E976A7004F7633 /* crc32.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF313E973D9004F7633 /* crc32.c */; };
-		4F8D4BFA13E976A7004F7633 /* deflate.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF513E973D9004F7633 /* deflate.c */; };
-		4F8D4BFB13E976A7004F7633 /* gzclose.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF713E973D9004F7633 /* gzclose.c */; };
-		4F8D4BFC13E976A7004F7633 /* gzlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AF913E973D9004F7633 /* gzlib.c */; };
-		4F8D4BFD13E976A7004F7633 /* gzread.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AFA13E973D9004F7633 /* gzread.c */; };
-		4F8D4BFE13E976A7004F7633 /* gzwrite.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AFB13E973D9004F7633 /* gzwrite.c */; };
-		4F8D4BFF13E976A7004F7633 /* infback.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AFC13E973D9004F7633 /* infback.c */; };
-		4F8D4C0013E976A7004F7633 /* inffast.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4AFD13E973D9004F7633 /* inffast.c */; };
-		4F8D4C0113E976A7004F7633 /* inflate.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B0013E973D9004F7633 /* inflate.c */; };
-		4F8D4C0213E976A7004F7633 /* inftrees.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B0213E973D9004F7633 /* inftrees.c */; };
-		4F8D4C0313E976A7004F7633 /* trees.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B0413E973D9004F7633 /* trees.c */; };
-		4F8D4C0413E976A7004F7633 /* uncompr.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B0613E973D9004F7633 /* uncompr.c */; };
-		4F8D4C0513E976A7004F7633 /* zutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B0913E973D9004F7633 /* zutil.c */; };
-		4F8D4C0613E976A7004F7633 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B5113E97425004F7633 /* lice_arc.cpp */; };
-		4F8D4C0713E976A7004F7633 /* lice_bmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B5313E97425004F7633 /* lice_bmp.cpp */; };
-		4F8D4C0813E976A7004F7633 /* lice_colorspace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B5413E97425004F7633 /* lice_colorspace.cpp */; };
-		4F8D4C0913E976A7004F7633 /* lice_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B5E13E97425004F7633 /* lice_image.cpp */; };
-		4F8D4C0A13E976A7004F7633 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B6313E97425004F7633 /* lice_line.cpp */; };
-		4F8D4C0B13E976A7004F7633 /* lice_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B6513E97425004F7633 /* lice_palette.cpp */; };
-		4F8D4C0C13E976A7004F7633 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B6813E97425004F7633 /* lice_png.cpp */; };
-		4F8D4C0D13E976A7004F7633 /* lice_texgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B6A13E97425004F7633 /* lice_texgen.cpp */; };
-		4F8D4C0E13E976A7004F7633 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B6D13E97425004F7633 /* lice_textnew.cpp */; };
-		4F8D4C0F13E976A7004F7633 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D4B6E13E97425004F7633 /* lice.cpp */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		4F8D4C1F13E97732004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = "lice_32&64_intel";
-		};
-		4F8D4C2113E97732004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F8D4BD513E976A7004F7633;
-			remoteInfo = lice_32_intel;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		4F8D4AF113E973D9004F7633 /* adler32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adler32.c; path = ../zlib/adler32.c; sourceTree = SOURCE_ROOT; };
@@ -218,18 +130,10 @@
 		4F8D4B6E13E97425004F7633 /* lice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice.cpp; path = ../lice/lice.cpp; sourceTree = "<group>"; };
 		4F8D4B6F13E97425004F7633 /* lice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lice.h; path = ../lice/lice.h; sourceTree = "<group>"; };
 		4F8D4BAD13E974CF004F7633 /* lice.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = lice.xcconfig; sourceTree = "<group>"; };
-		4F8D4C1413E976A7004F7633 /* lice32.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = lice32.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2AAC046055464E500DB518D /* lice.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = lice.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		4F8D4C1013E976A7004F7633 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D289987405E68DCB004EDB86 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -278,7 +182,6 @@
 			isa = PBXGroup;
 			children = (
 				D2AAC046055464E500DB518D /* lice.a */,
-				4F8D4C1413E976A7004F7633 /* lice32.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -348,29 +251,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		4F8D4BD613E976A7004F7633 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F8D4BD713E976A7004F7633 /* crc32.h in Headers */,
-				4F8D4BD813E976A7004F7633 /* deflate.h in Headers */,
-				4F8D4BD913E976A7004F7633 /* gzguts.h in Headers */,
-				4F8D4BDA13E976A7004F7633 /* inffast.h in Headers */,
-				4F8D4BDB13E976A7004F7633 /* inffixed.h in Headers */,
-				4F8D4BDC13E976A7004F7633 /* inflate.h in Headers */,
-				4F8D4BDD13E976A7004F7633 /* inftrees.h in Headers */,
-				4F8D4BDE13E976A7004F7633 /* trees.h in Headers */,
-				4F8D4BDF13E976A7004F7633 /* zconf.h in Headers */,
-				4F8D4BE013E976A7004F7633 /* zlib.h in Headers */,
-				4F8D4BE113E976A7004F7633 /* zutil.h in Headers */,
-				4F8D4BE213E976A7004F7633 /* lice_bezier.h in Headers */,
-				4F8D4BE313E976A7004F7633 /* lice_combine.h in Headers */,
-				4F8D4BE413E976A7004F7633 /* lice_extended.h in Headers */,
-				4F8D4BE513E976A7004F7633 /* lice_text.h in Headers */,
-				4F8D4BE613E976A7004F7633 /* lice.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D2AAC043055464E500DB518D /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -397,26 +277,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4F8D4BD513E976A7004F7633 /* lice_32_intel */ = {
+		D2AAC045055464E500DB518D /* lice */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4F8D4C1113E976A7004F7633 /* Build configuration list for PBXNativeTarget "lice_32_intel" */;
-			buildPhases = (
-				4F8D4BD613E976A7004F7633 /* Headers */,
-				4F8D4BE713E976A7004F7633 /* Sources */,
-				4F8D4C1013E976A7004F7633 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = lice_32_intel;
-			productName = lice;
-			productReference = 4F8D4C1413E976A7004F7633 /* lice32.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		D2AAC045055464E500DB518D /* lice_32&64_intel */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "lice_32&64_intel" */;
+			buildConfigurationList = 1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "lice" */;
 			buildPhases = (
 				D2AAC043055464E500DB518D /* Headers */,
 				D2AAC044055464E500DB518D /* Sources */,
@@ -426,7 +289,7 @@
 			);
 			dependencies = (
 			);
-			name = "lice_32&64_intel";
+			name = lice;
 			productName = lice;
 			productReference = D2AAC046055464E500DB518D /* lice.a */;
 			productType = "com.apple.product-type.library.static";
@@ -437,10 +300,10 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0830;
 			};
 			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "lice" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -453,61 +316,12 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4F8D4C1B13E97722004F7633 /* All */,
-				D2AAC045055464E500DB518D /* lice_32&64_intel */,
-				4F8D4BD513E976A7004F7633 /* lice_32_intel */,
+				D2AAC045055464E500DB518D /* lice */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		4F8D4BE713E976A7004F7633 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F8D4BE813E976A7004F7633 /* png.c in Sources */,
-				4F8D4BE913E976A7004F7633 /* pngerror.c in Sources */,
-				4F8D4BEA13E976A7004F7633 /* pngget.c in Sources */,
-				4F8D4BEB13E976A7004F7633 /* pngmem.c in Sources */,
-				4F8D4BEC13E976A7004F7633 /* pngpread.c in Sources */,
-				4F8D4BED13E976A7004F7633 /* pngread.c in Sources */,
-				4F8D4BEE13E976A7004F7633 /* pngrio.c in Sources */,
-				4F8D4BEF13E976A7004F7633 /* pngrtran.c in Sources */,
-				4F8D4BF013E976A7004F7633 /* pngrutil.c in Sources */,
-				4F8D4BF113E976A7004F7633 /* pngset.c in Sources */,
-				4F8D4BF213E976A7004F7633 /* pngtrans.c in Sources */,
-				4F8D4BF313E976A7004F7633 /* pngwio.c in Sources */,
-				4F8D4BF413E976A7004F7633 /* pngwrite.c in Sources */,
-				4F8D4BF513E976A7004F7633 /* pngwtran.c in Sources */,
-				4F8D4BF613E976A7004F7633 /* pngwutil.c in Sources */,
-				4F8D4BF713E976A7004F7633 /* adler32.c in Sources */,
-				4F8D4BF813E976A7004F7633 /* compress.c in Sources */,
-				4F8D4BF913E976A7004F7633 /* crc32.c in Sources */,
-				4F8D4BFA13E976A7004F7633 /* deflate.c in Sources */,
-				4F8D4BFB13E976A7004F7633 /* gzclose.c in Sources */,
-				4F8D4BFC13E976A7004F7633 /* gzlib.c in Sources */,
-				4F8D4BFD13E976A7004F7633 /* gzread.c in Sources */,
-				4F8D4BFE13E976A7004F7633 /* gzwrite.c in Sources */,
-				4F8D4BFF13E976A7004F7633 /* infback.c in Sources */,
-				4F8D4C0013E976A7004F7633 /* inffast.c in Sources */,
-				4F8D4C0113E976A7004F7633 /* inflate.c in Sources */,
-				4F8D4C0213E976A7004F7633 /* inftrees.c in Sources */,
-				4F8D4C0313E976A7004F7633 /* trees.c in Sources */,
-				4F8D4C0413E976A7004F7633 /* uncompr.c in Sources */,
-				4F8D4C0513E976A7004F7633 /* zutil.c in Sources */,
-				4F8D4C0613E976A7004F7633 /* lice_arc.cpp in Sources */,
-				4F8D4C0713E976A7004F7633 /* lice_bmp.cpp in Sources */,
-				4F8D4C0813E976A7004F7633 /* lice_colorspace.cpp in Sources */,
-				4F8D4C0913E976A7004F7633 /* lice_image.cpp in Sources */,
-				4F8D4C0A13E976A7004F7633 /* lice_line.cpp in Sources */,
-				4F8D4C0B13E976A7004F7633 /* lice_palette.cpp in Sources */,
-				4F8D4C0C13E976A7004F7633 /* lice_png.cpp in Sources */,
-				4F8D4C0D13E976A7004F7633 /* lice_texgen.cpp in Sources */,
-				4F8D4C0E13E976A7004F7633 /* lice_textnew.cpp in Sources */,
-				4F8D4C0F13E976A7004F7633 /* lice.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		D2AAC044055464E500DB518D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -557,26 +371,12 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		4F8D4C2013E97732004F7633 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D2AAC045055464E500DB518D /* lice_32&64_intel */;
-			targetProxy = 4F8D4C1F13E97732004F7633 /* PBXContainerItemProxy */;
-		};
-		4F8D4C2213E97732004F7633 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4F8D4BD513E976A7004F7633 /* lice_32_intel */;
-			targetProxy = 4F8D4C2113E97732004F7633 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
 		1DEB91EC08733DB70010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F8D4BAD13E974CF004F7633 /* lice.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = "";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -598,7 +398,6 @@
 			baseConfigurationReference = 4F8D4BAD13E974CF004F7633 /* lice.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				EXECUTABLE_PREFIX = "";
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -618,7 +417,21 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F8D4BAD13E974CF004F7633 /* lice.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(ALL_DEFS)",
@@ -626,8 +439,13 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = "$(BASE_SDK)";
@@ -638,89 +456,42 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F8D4BAD13E974CF004F7633 /* lice.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(ALL_DEFS)",
 					"$(RELEASE_DEFS)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				PREBINDING = NO;
 				SDKROOT = "$(BASE_SDK)";
-			};
-			name = Release;
-		};
-		4F8D4C1213E976A7004F7633 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F8D4BAD13E974CF004F7633 /* lice.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				COPY_PHASE_STRIP = NO;
-				EXECUTABLE_PREFIX = "";
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = lice32;
-				SKIP_INSTALL = YES;
-				SYMROOT = "build-mac";
-			};
-			name = Debug;
-		};
-		4F8D4C1313E976A7004F7633 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F8D4BAD13E974CF004F7633 /* lice.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = "";
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = lice32;
-				SKIP_INSTALL = YES;
-				STRIP_INSTALLED_PRODUCT = YES;
-				STRIP_STYLE = "non-global";
-				SYMROOT = "build-mac";
-			};
-			name = Release;
-		};
-		4F8D4C1C13E97722004F7633 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = All;
-			};
-			name = Debug;
-		};
-		4F8D4C1D13E97722004F7633 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				PRODUCT_NAME = All;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "lice_32&64_intel" */ = {
+		1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "lice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91EC08733DB70010E9CD /* Debug */,
@@ -734,24 +505,6 @@
 			buildConfigurations = (
 				1DEB91F008733DB70010E9CD /* Debug */,
 				1DEB91F108733DB70010E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4F8D4C1113E976A7004F7633 /* Build configuration list for PBXNativeTarget "lice_32_intel" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F8D4C1213E976A7004F7633 /* Debug */,
-				4F8D4C1313E976A7004F7633 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4F8D4C2513E97768004F7633 /* Build configuration list for PBXAggregateTarget "All" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F8D4C1C13E97722004F7633 /* Debug */,
-				4F8D4C1D13E97722004F7633 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
