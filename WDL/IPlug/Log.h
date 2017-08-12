@@ -1,23 +1,17 @@
 #pragma once
 
-#undef min
-#undef max
-
-#include <stdarg.h>
-#ifndef _MSC_VER
-  #include <stdint.h>
-#endif
-
+#include <cstdarg>
+#include <cstdint>
 #include "Containers.h"
 #include "IPlugOSDetect.h"
 
 #if defined OS_WIN
-  #include <stdio.h>
+  #include <cstdio>
   #include <ctype.h>
   void DBGMSG(const char *format, ...);
   #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
 
-#elif defined __APPLE__ // TODO: check on ios
+#elif defined __APPLE__
   #define SYS_THREAD_ID (intptr_t) pthread_self()
   #define DBGMSG(...) printf(__VA_ARGS__)
 #else

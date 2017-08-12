@@ -1,6 +1,6 @@
 #include "IPlugVST.h"
 #include "IGraphics.h"
-#include <stdio.h>
+#include <cstdio>
 
 const int VST_VERSION = 2400;
 

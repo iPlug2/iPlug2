@@ -1,9 +1,9 @@
 #pragma once
 
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cmath>
+#include <cstring>
+#include <cstdio>
+#include <cassert>
 
 #include "../mutex.h"
 #include "../wdlstring.h"

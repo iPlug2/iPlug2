@@ -1,9 +1,9 @@
 #include "IPlugBase.h"
 #include "IGraphics.h"
 #include "IControl.h"
-#include <math.h>
-#include <stdio.h>
-#include <time.h>
+#include <cmath>
+#include <cstdio>
+#include <ctime>
 #include "../wdlendian.h"
 #include "../base64encdec.h"
 

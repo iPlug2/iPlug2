@@ -3,7 +3,7 @@
 #ifdef _WIN32
   #define OS_WIN
 #elif defined __APPLE__
-  #include "TargetConditionals.h"
+  #include <TargetConditionals.h>
   #if TARGET_OS_MAC
     #define OS_OSX
   #endif

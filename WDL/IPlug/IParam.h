@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Containers.h"
-#include <math.h>
+#include <cmath>
 
 #define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
