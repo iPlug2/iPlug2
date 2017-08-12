@@ -122,7 +122,6 @@ public:
   void SetStrictDrawing(bool strict);
 
   virtual void* OpenWindow(void* pParentWnd) = 0;
-  virtual void* OpenWindow(void* pParentWnd, void* pParentControl, short leftOffset = 0, short topOffset = 0) { return 0; } // For Carbon / RTAS... mega ugh!
 
   virtual void AttachSubWindow(void* hostWindowRef) {};
   virtual void RemoveSubWindow() {};

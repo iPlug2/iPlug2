@@ -19,11 +19,6 @@
   #include "IPlugAU.h"
   typedef IPlugAU IPlug;
   #define API_EXT "audiounit"
-#elif RTAS_API
-  #include "IPlugRTAS.h"
-  typedef IPlugRTAS IPlug;
-  #define API_EXT "rtas"
-  #define PROTOOLS
 #elif AAX_API
   #include "IPlugAAX.h"
   typedef IPlugAAX IPlug;

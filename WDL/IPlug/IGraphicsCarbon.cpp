@@ -269,17 +269,12 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
   Rect wrct;
   GetWindowBounds(this->mWindow, kWindowContentRgn, &wrct);
 
-  #ifdef RTAS_API
-  int xpos = wrct.left + this->GetLeftOffset() + pAreaRect->L;
-  int ypos = wrct.top + this->GetTopOffset() + pAreaRect->B + 5;
-  #else
   HIViewRef contentView;
   HIViewFindByID(HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
   HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
 
   int xpos = wrct.left + rct.origin.x + pAreaRect->L;
   int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
-  #endif
 
   MenuRef menuRef = CreateMenu(pMenu);
 
@@ -417,33 +412,9 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
       HIPoint hp;
       GetEventParameter(pEvent, kEventParamWindowMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hp);
 
-      #ifdef RTAS_API
-      // Header offset
-      hp.x -= _this->GetLeftOffset();
-      hp.y -= _this->GetTopOffset();
-
-      Rect bounds;
-      GetWindowBounds(_this->mWindow, kWindowTitleBarRgn, &bounds);
-
-      // adjust x mouse coord if the gui is less wide than the window
-//      int windowWidth = (bounds.right - bounds.left);
-//
-//      if (windowWidth > pGraphicsMac->Width())
-//      {
-//        hp.x -= (int) floor((windowWidth - pGraphicsMac->Width()) / 2.);
-//      }
-
-      // Title bar Y offset
-      hp.y -= bounds.bottom - bounds.top;
-
-      int x = (int) hp.x;
-      int y = (int) hp.y;
-
-      #else // NOT RTAS
       HIPointConvert(&hp, kHICoordSpaceWindow, _this->mWindow, kHICoordSpaceView, _this->mView);
       int x = (int) hp.x - 2;
       int y = (int) hp.y - 3;
-      #endif
 
       UInt32 mods;
       GetEventParameter(pEvent, kEventParamKeyModifiers, typeUInt32, 0, sizeof(UInt32), 0, &mods);
@@ -467,13 +438,6 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             #endif
             _this->EndUserInput(true);
           }
-
-          #ifdef RTAS_API // RTAS triple click
-          if (mmod.L && mmod.R && mmod.C && (pGraphicsMac->GetParamIdxForPTAutomation(x, y) > -1))
-          {
-            return CallNextEventHandler(pHandlerCall, pEvent);
-          }
-          #endif
 
           CallNextEventHandler(pHandlerCall, pEvent);
 

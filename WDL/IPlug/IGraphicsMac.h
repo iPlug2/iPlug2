@@ -35,8 +35,6 @@
   #define API _vst
 #elif defined(AU_API)
   #define API _au
-#elif defined(RTAS_API)
-  #define API _rtas
 #elif defined(AAX_API)
   #define API _aax
 #elif defined(VST3_API)

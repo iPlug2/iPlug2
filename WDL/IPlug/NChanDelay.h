@@ -1,7 +1,7 @@
 #ifndef _NCHANDELAY_
 #define _NCHANDELAY_
 
-// A static delayline used to delay bypassed signals to match mLatency in RTAS/AAX/VST3/AU
+// A static delayline used to delay bypassed signals to match mLatency in AAX/VST3/AU
 class NChanDelayLine
 {
 private:

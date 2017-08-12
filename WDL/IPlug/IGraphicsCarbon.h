@@ -62,7 +62,6 @@ private:
   IControl* mEdControl;
   IParam* mEdParam;
   int mPrevX, mPrevY;
-  short mLeftOffset, mTopOffset; // only for RTAS
   
   bool mShowingTooltip;
   int mTooltipIdx, mTooltipTimer;

@@ -5,10 +5,6 @@
 #include <Shlobj.h>
 #include <commctrl.h>
 
-#ifdef RTAS_API
-  #include "PlugInUtils.h"
-#endif
-
 #pragma warning(disable:4244) // Pointer size cast mismatch.
 #pragma warning(disable:4312) // Pointer size cast mismatch.
 #pragma warning(disable:4311) // Pointer size cast mismatch.
@@ -37,9 +33,7 @@ inline IMouseMod GetMouseMod(WPARAM wParam)
                    (wParam & MK_SHIFT), 
                    (wParam & MK_CONTROL), 
                    
-#ifdef RTAS_API
-                   IsOptionKeyDown()
-#elif defined(AAX_API)
+#if defined(AAX_API)
                    GetAsyncKeyState(VK_MENU) < 0
 #else
                    GetKeyState(VK_MENU) < 0
@@ -170,47 +164,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
-#ifdef RTAS_API
-      // pass ctrl-start-alt-click or ctrl-start-click to host window (Pro Tools)
-      if ((IsControlKeyDown() && IsOptionKeyDown() && IsCommandKeyDown() ) || (IsControlKeyDown() && IsCommandKeyDown()))
-      {
-        HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
-
-        union point
-        {
-          long lp;
-          struct
-          {
-            short x;
-            short y;
-          } s;
-        } mousePoint;
-
-        // Get global coordinates of local window
-        RECT childRect;
-        GetWindowRect(hWnd, &childRect);
-
-        // Convert global coords to parent window coords
-        POINT p;
-        p.x = childRect.left;
-        p.y = childRect.top;
-
-        ScreenToClient(rootHWnd, &p);
-
-        // offset the local click-event coordinates to the parent window's values
-        mousePoint.lp = lParam;
-        mousePoint.s.x += p.x;
-        mousePoint.s.y += p.y;
-
-        if( pGraphics->GetParamIdxForPTAutomation(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)) > -1)
-        {
-          // Send converted coords to parent window's event handler for regular processing
-          LRESULT result = SendMessage(rootHWnd, msg, wParam, mousePoint.lp);
-        }
-
-        return 0;
-      }
-#endif
       pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
       return 0;
 
@@ -355,20 +308,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->CloseWindow();
       return 0;
     }
-#ifdef RTAS_API
-    case WM_MEASUREITEM :
-    {
-      HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
-      LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
-      return result;
-    }
-    case WM_DRAWITEM :
-    {
-      HWND rootHWnd =  GetAncestor( hWnd, GA_ROOT );
-      LRESULT result = SendMessage(rootHWnd, msg, wParam, lParam);
-      return result;
-    }
-#endif
     case WM_SETFOCUS:
     {
       return 0;
@@ -571,8 +510,8 @@ void IGraphicsWin::Resize(int w, int h)
 
     SetWindowPos(mPlugWnd, 0, 0, 0, plugW + dw, plugH + dh, SETPOS_FLAGS);
 
-    // don't want to touch the host window in VST3 or RTAS
-    if(mPlug->GetAPI() != kAPIVST3 && mPlug->GetAPI() != kAPIRTAS)
+    // don't want to touch the host window in VST3
+    if(mPlug->GetAPI() != kAPIVST3)
     {
       if(pParent)
       {
