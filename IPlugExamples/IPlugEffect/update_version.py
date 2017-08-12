@@ -70,14 +70,6 @@ def main():
   plistlib.writePlist(app, plistpath)
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
-  plistpath = scriptpath + "/resources/IPlugEffect-RTAS-Info.plist"
-  rtas = plistlib.readPlist(plistpath)
-  rtas['CFBundleGetInfoString'] = CFBundleGetInfoString
-  rtas['CFBundleVersion'] = CFBundleVersion
-  rtas['CFBundleShortVersionString'] = CFBundleVersion
-  plistlib.writePlist(rtas, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
-  
   plistpath = scriptpath + "/resources/IPlugEffect-AAX-Info.plist"
   aax = plistlib.readPlist(plistpath)
   aax['CFBundleGetInfoString'] = CFBundleGetInfoString
@@ -85,14 +77,6 @@ def main():
   aax['CFBundleShortVersionString'] = CFBundleVersion
   plistlib.writePlist(aax, plistpath)
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
-  
-#   plistpath = scriptpath + "/resources/IPlugEffect-IOSAPP-Info.plist"
-#   iosapp = plistlib.readPlist(plistpath)
-#   iosapp['CFBundleGetInfoString'] = CFBundleGetInfoString
-#   iosapp['CFBundleVersion'] = CFBundleVersion
-#   iosapp['CFBundleShortVersionString'] = CFBundleVersion
-#   plistlib.writePlist(iosapp, plistpath)
-#   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
   print "Updating Mac Installer version info..."
   
