@@ -9,7 +9,7 @@ enum EAPI
   kAPIVST2 = 0,
   kAPIVST3 = 1,
   kAPIAU = 2,
-  kAPIRTAS = 3,
+  //kAPIRTAS = 3,
   kAPIAAX = 4,
   kAPISA = 5
 };

@@ -25,8 +25,6 @@ public:
   ControlRef GetView() { return mView; }
   CGContextRef GetCGContext() { return mCGC; }
   bool GetIsComposited() {return mIsComposited;}
-  short GetLeftOffset() { return mLeftOffset; }
-  short GetTopOffset() { return mTopOffset; }
 
   bool Resize(int w, int h);
 
