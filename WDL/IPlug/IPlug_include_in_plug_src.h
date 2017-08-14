@@ -46,7 +46,7 @@
       IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
       if (pPlug) {
         pPlug->EnsureDefaultPreset();
-        pPlug->mAEffect.numPrograms = IPMAX(pPlug->mAEffect.numPrograms, 1);
+        pPlug->mAEffect.numPrograms = std::max(pPlug->mAEffect.numPrograms, 1);
         return &(pPlug->mAEffect);
       }
       return 0;
