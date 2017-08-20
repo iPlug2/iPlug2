@@ -3,7 +3,7 @@
 //------------------------------
 // Global settings
 
-// the basename of the vst, vst3, app, component, dpm, aaxplugin
+// the basename of the vst, vst3, app, component, aaxplugin
 BINARY_NAME = IPlugEffect
 
 ADDITIONAL_INCLUDES = // $(SRCROOT)/../../../MyDSP/
@@ -17,29 +17,14 @@ GCC_CFLAGS = -Wno-write-strings
 
 //------------------------------
 // Preprocessor definitions
-
-// Preprocessor definitions for all VST builds
 VST_DEFS = VST_API VST_FORCE_DEPRECATED
-
 VST3_DEFS = VST3_API
-
-// Preprocessor definitions for all AU builds
 AU_DEFS = AU_API
-
-RTAS_DEFS = RTAS_API
-
 AAX_DEFS = AAX_API
-
-APP_DEFS = SA_API __MACOSX_CORE__ 
-
-// Preprocessor definitions for all Debug builds
-DEBUG_DEFS = _DEBUG
-
-// Preprocessor definitions for all Release builds
-RELEASE_DEFS = NDEBUG //DEMO_VERSION
-
-// Preprocessor definitions for all Tracer builds
-TRACER_DEFS = TRACER_BUILD NDEBUG
+APP_DEFS = SA_API __MACOSX_CORE__
+DEBUG_DEFS = _DEBUG WDL_NO_DEFINE_MINMAX
+RELEASE_DEFS = NDEBUG //DEMO_VERSION WDL_NO_DEFINE_MINMAX
+TRACER_DEFS = TRACER_BUILD NDEBUG WDL_NO_DEFINE_MINMAX
 
 // Preprocessor definitions for cocoa uniqueness (all builds)
 // If you want to use swell inside of iplug, you need to make SWELL_APP_PREFIX unique too

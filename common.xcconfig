@@ -6,36 +6,28 @@
 CERTIFICATE_ID = Oliver Larkin
 
 // Which compiler to use
-//COMPILER = com.apple.compilers.gcc.4_2 // use this with xcode3
 //COMPILER = com.intel.compilers.icc.12_1_0
-//COMPILER = com.apple.compilers.llvmgcc42 // use this ...
-COMPILER = com.apple.compilers.llvm.clang.1_0 // or this with xcode4+/10.7+
+COMPILER = com.apple.compilers.llvm.clang.1_0
 
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
-BASE_SDK = macosx10.5
-//BASE_SDK = macosx10.6
-//BASE_SDK = macosx10.7 // Carbon GUIs do not work fully with the 10.7 or higher sdks
-//BASE_SDK = macosx10.8
-//BASE_SDK = macosx10.9
+BASE_SDK = macosx10.12
 
-//CLANG_CXX_LANGUAGE_STANDARD = c++0x
-//CLANG_CXX_LIBRARY = libc++
+CLANG_CXX_LANGUAGE_STANDARD = c++11
+CLANG_CXX_LIBRARY = libc++
 
 // the minimum OS to support
-DEPLOYMENT_TARGET = 10.5
+DEPLOYMENT_TARGET = 10.9
 
 // Where the SDKs etc are located in relation to the plugin xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
 IPLUG_PATH = $(WDL_PATH)/IPlug
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
-PT9_SDK = $(SRCROOT)/../../PT9_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
 //CA_SDK = $DEVELOPER_DIR/Extras/CoreAudio
 CA_SDK = $(SRCROOT)/../../CA_SDK
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
-
 CLANG_LINK_OBJC_RUNTIME = NO
 
 // Where to build the plugins / app bundles ...
@@ -43,11 +35,10 @@ CLANG_LINK_OBJC_RUNTIME = NO
 // build to system plugin folder
 // you need to explicitly add write permissions to put stuff here
 // you can also build to the user plugin folder, but the installer scripts assume that the binarys are in the system folder
-// RTAS and AAX folders should be the location of the PT Dev build plug-ins folders
+// AAX folder should be the location of the PT Dev build plug-ins folder
 
 VST_FOLDER = /Library/Audio/Plug-Ins/VST
 VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
 AU_FOLDER = /Library/Audio/Plug-Ins/Components
-RTAS_FOLDER = /Applications/Avid/ProTools_3PDev/Plug-Ins
 AAX_FOLDER = /Applications/Avid/ProTools_3PDev/Plug-Ins
 APP_FOLDER = /Applications
