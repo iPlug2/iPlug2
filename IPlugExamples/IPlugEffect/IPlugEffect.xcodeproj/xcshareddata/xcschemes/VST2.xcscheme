@@ -44,7 +44,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Applications/REAPER.app">
+         FilePath = "/Applications/REAPER64.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
