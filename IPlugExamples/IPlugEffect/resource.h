@@ -27,7 +27,7 @@
 
 // ProTools stuff
 
-#if (defined(AAX_API) || defined(RTAS_API)) && !defined(_PIDS_)
+#if defined(AAX_API) && !defined(_PIDS_)
   #define _PIDS_
   const int PLUG_TYPE_IDS[2] = {'EFN1', 'EFN2'};
   const int PLUG_TYPE_IDS_AS[2] = {'EFA1', 'EFA2'}; // AudioSuite
