@@ -72,7 +72,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     }
   }
   
-  AAX_EPlugInCategory category;
+  AAX_EPlugInCategory category = AAX_ePlugInCategory_None;
   if (PLUG_IS_INST) category = AAX_ePlugInCategory_SWGenerators;
   else if(strcmp(PLUG_TYPE_PT, "None") == 0) category = AAX_ePlugInCategory_None;
   else if(strcmp(PLUG_TYPE_PT, "EQ") == 0) category = AAX_ePlugInCategory_EQ;
