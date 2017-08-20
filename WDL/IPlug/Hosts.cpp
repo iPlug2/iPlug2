@@ -34,6 +34,7 @@ EHost LookUpHost(const char* inHost)
   if (strstr(host, "openmpt")) return kHostOpenMPT;
   if (strstr(host, "renoise")) return kHostRenoise;
   if (strstr(host, "standalone")) return kHostStandalone;
+  if (strstr(host, "wavelab")) return kHostWaveLab;
   
   return kHostUnknown;
 }
@@ -120,6 +121,9 @@ void GetHostNameStr(EHost host, char* pHostName)
   case kHostStandalone:
     strcpy(pHostName, "Standalone");
     break;
+  case kHostWaveLab:
+   strcpy(pHostName, "WaveLab");
+   break;
   default:
     strcpy(pHostName, "Unknown");
     break;
