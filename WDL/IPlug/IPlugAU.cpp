@@ -4,6 +4,7 @@
 #include "Hosts.h"
 
 #include "dfx/dfx-au-utilities.h"
+#include <algorithm>
 
 #define kAudioUnitRemovePropertyListenerWithUserDataSelect 0x0012
 
@@ -1718,7 +1719,7 @@ ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFl
   if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
   {
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-    int nConnected = std::min(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
+    int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
     int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
     _this->SetOutputChannelConnections(startChannelIdx, nConnected, true);
     _this->SetOutputChannelConnections(startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
