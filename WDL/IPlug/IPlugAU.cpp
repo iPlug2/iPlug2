@@ -968,7 +968,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         strcpy(cStr, pParam->GetNameForHost());
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full)
         {
-          int n = std::min(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
+          int n = std::min<int>(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
           cStr[n] = '\0';
         }
         pIDName->outName = MakeCFString(cStr);
