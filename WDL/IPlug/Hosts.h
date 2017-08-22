@@ -47,8 +47,11 @@ enum EHost
   kHostArdour,
   kHostRenoise,
   kHostOpenMPT,
-  kHostWaveLab
-
+  kHostWaveLab,
+  kHostWaveLabElements,
+  kHostTwistedWave,
+  kHostBitwig
+  
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost

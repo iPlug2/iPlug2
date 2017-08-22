@@ -1,6 +1,6 @@
 #include "Hosts.h"
-#include <ctype.h>
 #include "Log.h"
+#include <ctype.h>
 
 EHost LookUpHost(const char* inHost)
 {
@@ -35,6 +35,9 @@ EHost LookUpHost(const char* inHost)
   if (strstr(host, "renoise")) return kHostRenoise;
   if (strstr(host, "standalone")) return kHostStandalone;
   if (strstr(host, "wavelab")) return kHostWaveLab;
+  if (strstr(host, "wavelab elements")) return kHostWaveLabElements;
+  if (strstr(host, "bitwig studio")) return kHostBitwig;
+  if (strstr(host, "twistedwave")) return kHostTwistedWave;
   
   return kHostUnknown;
 }
@@ -123,6 +126,15 @@ void GetHostNameStr(EHost host, char* pHostName)
     break;
   case kHostWaveLab:
    strcpy(pHostName, "WaveLab");
+   break;
+  case kHostWaveLabElements:
+   strcpy(pHostName, "WaveLabElements");
+   break;
+  case kHostTwistedWave:
+   strcpy(pHostName, "TwistedWave");
+   break;
+  case kHostBitwig:
+   strcpy(pHostName, "Bitwig");
    break;
   default:
     strcpy(pHostName, "Unknown");
