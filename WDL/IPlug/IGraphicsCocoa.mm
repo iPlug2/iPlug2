@@ -116,13 +116,13 @@ NSString* ToNSString(const char* cStr)
 
 inline IMouseMod GetMouseMod(NSEvent* pEvent)
 {
-  int mods = [pEvent modifierFlags];
+  int mods = (int) [pEvent modifierFlags];
   return IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 }
 
 inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 {
-  int mods = [pEvent modifierFlags];
+  int mods = (int) [pEvent modifierFlags];
   return IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 }
 
@@ -138,7 +138,7 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   if (filterCharacterSet != nil)
   {
     int i = 0;
-    int len = [partialString length];
+    int len = (int) [partialString length];
     
     for (i = 0; i < len; i++)
     {
@@ -522,11 +522,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSMenu* chosenMenu = [chosenItem menu];
   IPopupMenu* associatedIPopupMenu = [(IGRAPHICS_NSMENU*) chosenMenu AssociatedIPopupMenu];
 
-  int chosenItemIdx = [chosenMenu indexOfItem: chosenItem];
+  long chosenItemIdx = [chosenMenu indexOfItem: chosenItem];
 
   if (chosenItemIdx > -1 && associatedIPopupMenu)
   {
-    associatedIPopupMenu->SetChosenItemIdx(chosenItemIdx);
+    associatedIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return associatedIPopupMenu;
   }
   else return 0;

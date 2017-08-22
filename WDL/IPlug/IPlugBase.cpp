@@ -1050,7 +1050,7 @@ void IPlugBase::SetInputBusLabel(int idx, const char* pLabel)
       mInputBusLabels.Delete(idx, true);
     }
 
-    mInputBusLabels.Insert(idx, new WDL_String(pLabel, strlen(pLabel)));
+    mInputBusLabels.Insert(idx, new WDL_String(pLabel, (int) strlen(pLabel)));
   }
 }
 
@@ -1063,7 +1063,7 @@ void IPlugBase::SetOutputBusLabel(int idx, const char* pLabel)
       mOutputBusLabels.Delete(idx, true);
     }
 
-    mOutputBusLabels.Insert(idx, new WDL_String(pLabel, strlen(pLabel)));
+    mOutputBusLabels.Insert(idx, new WDL_String(pLabel, (int) strlen(pLabel)));
   }
 }
 
@@ -1267,7 +1267,7 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String* fileName)
       fileSize = ftell(fp);
       rewind(fp);
 
-      pgm.Resize(fileSize);
+      pgm.Resize((int) fileSize);
       fread(pgm.GetBytes(), fileSize, 1, fp);
 
       fclose(fp);
@@ -1356,7 +1356,7 @@ bool IPlugBase::LoadBankFromFXB(WDL_String* fileName)
       fileSize = ftell(fp);
       rewind(fp);
 
-      bnk.Resize(fileSize);
+      bnk.Resize((int) fileSize);
       fread(bnk.GetBytes(), fileSize, 1, fp);
 
       fclose(fp);

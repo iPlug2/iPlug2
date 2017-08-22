@@ -605,7 +605,7 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     [panelSave setAllowedFileTypes: fileTypes];
     [panelSave setAllowsOtherFileTypes: NO];
 
-    int result = [panelSave runModalForDirectory:defaultPath file:defaultFileName];
+    long result = [panelSave runModalForDirectory:defaultPath file:defaultFileName];
 
     if (result == NSOKButton)
     {
@@ -631,7 +631,7 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     [panelOpen setCanChooseDirectories:NO];
     [panelOpen setResolvesAliases:YES];
 
-    int result = [panelOpen runModalForDirectory:defaultPath file:defaultFileName types:fileTypes];
+    long result = [panelOpen runModalForDirectory:defaultPath file:defaultFileName types:fileTypes];
 
     if (result == NSOKButton)
     {

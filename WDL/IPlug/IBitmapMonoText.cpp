@@ -14,7 +14,7 @@ void DrawBitmapedText(IGraphics* pGraphics,
 {
   if (CSTR_NOT_EMPTY(str))
   {
-    int stringLength = strlen(str);
+    int stringLength = (int) strlen(str);
 
     int basicYOffset, basicXOffset;
 

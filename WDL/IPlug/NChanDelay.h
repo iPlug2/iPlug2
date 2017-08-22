@@ -44,7 +44,7 @@ public:
       {
         if (chan < mNumOutChans)
         {
-          int offset = chan * mDTSamples;
+          unsigned long offset = chan * mDTSamples;
           outputs[chan][s] = buffer[offset + readAddress];
           buffer[offset + mWriteAddress] = inputs[chan][s];
         }

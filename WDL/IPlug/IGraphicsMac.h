@@ -159,7 +159,7 @@ struct CStrLocal
   char* mCStr;
   CStrLocal(CFStringRef cfStr)
   {
-    int n = CFStringGetLength(cfStr) + 1;
+    long n = CFStringGetLength(cfStr) + 1;
     mCStr = (char*) malloc(n);
     CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
   }

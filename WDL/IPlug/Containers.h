@@ -178,7 +178,7 @@ public:
 
   inline int PutStr(const char* str)
   {
-    int slen = strlen(str);
+    int slen = (int) strlen(str);
     #ifdef WDL_BIG_ENDIAN
     { const unsigned int i = WDL_bswap32_if_be(slen); Put(&i); }
     #else

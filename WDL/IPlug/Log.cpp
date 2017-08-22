@@ -142,7 +142,7 @@ const char* CurrentTime()
 		else if (yday < -1) yday = 1;
 		tz += 24 * 60 * yday;
 	}
-	int i = strlen(cStr);
+	int i = (int) strlen(cStr);
 	cStr[i++] = tz >= 0 ? '+' : '-';
 	if (tz < 0) tz = -tz;
 	sprintf(&cStr[i], "%02d%02d", tz / 60, tz % 60);
