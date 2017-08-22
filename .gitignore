@@ -21,6 +21,7 @@
 build-*
 /IPlugExamples/*/*.vcxproj.user
 
+_*
 PCH/*
 VST3_SDK/*
 VST_SDK/*
