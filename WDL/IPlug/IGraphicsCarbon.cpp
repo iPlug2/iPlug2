@@ -3,7 +3,7 @@
 
 IRECT GetRegionRect(EventRef pEvent, int gfxW, int gfxH)
 {
-#if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
   RgnHandle pRgn = 0;
   if (GetEventParameter(pEvent, kEventParamRgnHandle, typeQDRgnHandle, 0, sizeof(RgnHandle), 0, &pRgn) == noErr && pRgn)
   {
@@ -24,7 +24,7 @@ void ResizeWindow(WindowRef pWindow, int w, int h)
   SetWindowBounds(pWindow, kWindowContentRgn, &gr);
 }
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= 1040
 typedef UInt32 URefCon;
 #endif
 
@@ -380,7 +380,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             CGContextScaleCTM(_this->mCGC, 1.0, -1.0);
             pGraphicsMac->Draw(&r);
           }
-#if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
           else
           {
             CGrafPtr port = 0;
