@@ -138,6 +138,10 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
   {
     SetOutputBusLabel(0, "Output");
   }
+    
+  // Make sure the process context is predictably initialised in case it is used before process is called
+ 
+  memset(&mProcessContext, 0, sizeof(ProcessContext));
 }
 
 IPlugVST3::~IPlugVST3() {}

@@ -459,6 +459,16 @@ const char* AUSelectStr(int select)
     return "kAudioUnitCarbonViewCreateSelect";
   case kAudioUnitCarbonViewSetEventListenerSelect:
     return "kAudioUnitCarbonViewSetEventListenerSelect";
+   case kAudioUnitComplexRenderSelect:
+     return "kAudioUnitComplexRenderSelect";
+   case kAudioUnitProcessSelect:
+     return "kAudioUnitProcessSelect";
+   case kAudioUnitProcessMultipleSelect:
+     return "kAudioUnitProcessMultipleSelect";
+   case kAudioUnitRange:
+     return "kAudioUnitRange";
+   case kAudioUnitRemovePropertyListenerWithUserDataSelect:
+     return "kAudioUnitRemovePropertyListenerWithUserDataSelect";
   default:
     return "unknown";
   }
@@ -543,7 +553,7 @@ const char* AUPropertyStr(int propID)
     return "kAudioUnitProperty_PresentationLatency";
   case kAudioUnitProperty_DependentParameters:
     return "kAudioUnitProperty_DependentParameters";
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
   case kAudioUnitProperty_AUHostIdentifier:
     return "kAudioUnitProperty_AUHostIdentifier";
   case kAudioUnitProperty_MIDIOutputCallbackInfo:
@@ -554,6 +564,24 @@ const char* AUPropertyStr(int propID)
     return "kAudioUnitProperty_InputSamplesInOutput";
   case kAudioUnitProperty_ClassInfoFromDocument:
     return "kAudioUnitProperty_ClassInfoFromDocument";
+#endif
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1010
+  case kAudioUnitProperty_ShouldAllocateBuffer:
+    return "kAudioUnitProperty_ShouldAllocateBuffer";
+  case kAudioUnitProperty_FrequencyResponse:
+      return "kAudioUnitProperty_FrequencyResponse";
+  case kAudioUnitProperty_ParameterHistoryInfo:
+    return "kAudioUnitProperty_FrequencyResponse";
+  case kAudioUnitProperty_NickName:
+    return "kAudioUnitProperty_NickName"
+#endif
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1011
+  case kAudioUnitProperty_RequestViewController:
+      return "kAudioUnitProperty_RequestViewController";
+  case kAudioUnitProperty_ParametersForOverview:
+      return "kAudioUnitProperty_ParametersForOverview"
+  case kAudioUnitProperty_SupportsMPE:
+     return "kAudioUnitProperty_SupportsMPE"
 #endif
   default:
     return "unknown";
@@ -573,7 +601,7 @@ const char* AUScopeStr(int scope)
     return "kAudioUnitScope_Group";
   case kAudioUnitScope_Part:
     return "kAudioUnitScope_Part";
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
   case kAudioUnitScope_Note:
     return "kAudioUnitScope_Note";
 #endif

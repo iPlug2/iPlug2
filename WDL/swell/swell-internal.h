@@ -663,14 +663,15 @@ struct HWND__
   bool m_enabled;
   bool m_wantfocus;
 
-  int m_refcnt; 
-
   bool m_israised;
   bool m_has_had_position;
-  bool m_oswindow_needshow;
   bool m_oswindow_fullscreen;
 
+  int m_refcnt; 
+  int m_oswindow_private; // private state for generic-gtk or whatever
+
   HMENU m_menu;
+  HFONT m_font;
 
   WDL_StringKeyedArray<void *> m_props;
 
@@ -756,24 +757,34 @@ bool swell_isOSwindowmenu(SWELL_OSWINDOW osw);
 
 bool swell_is_virtkey_char(int c);
 
+void swell_on_toplevel_raise(SWELL_OSWINDOW wnd); // called by swell-generic-gdk when a window is focused
+
 HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w);
 void swell_oswindow_focus(HWND hwnd);
 void swell_oswindow_update_style(HWND hwnd, LONG oldstyle);
 void swell_oswindow_update_enable(HWND hwnd);
 void swell_oswindow_update_text(HWND hwnd);
-void swell_oswindow_begin_resize(HWND hwnd);
-void swell_oswindow_resize(HWND hwnd, int reposflag, RECT f);
-void swell_oswindow_show(HWND hwnd, RECT f);
+void swell_oswindow_begin_resize(SWELL_OSWINDOW wnd);
+void swell_oswindow_resize(SWELL_OSWINDOW wnd, int reposflag, RECT f);
+void swell_oswindow_postresize(HWND hwnd, RECT f);
 void swell_oswindow_invalidate(HWND hwnd, const RECT *r);
 void swell_oswindow_destroy(HWND hwnd);
 void swell_oswindow_manage(HWND hwnd, bool wantfocus);
 void swell_oswindow_updatetoscreen(HWND hwnd, RECT *rect);
+void swell_dlg_destroyspare();
 
 extern bool swell_is_likely_capslock; // only used when processing dit events for a-zA-Z
 extern const char *g_swell_appname;
 extern SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 extern HWND swell_captured_window;
-extern HWND SWELL_topwindows;
+extern HWND SWELL_topwindows; // front of list = most recently active
+extern bool swell_app_is_inactive;
+
+#ifdef _DEBUG
+void VALIDATE_HWND_LIST(HWND list, HWND par);
+#else
+#define VALIDATE_HWND_LIST(list, par) do { } while (0)
+#endif
 
 
 #endif // !OSX

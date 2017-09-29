@@ -18,7 +18,7 @@
   void DBGMSG(const char *format, ...);
   #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
 
-#elif defined __APPLE__ // TODO: check on ios
+#elif defined __APPLE__
   #define SYS_THREAD_ID (intptr_t) pthread_self()
   #define DBGMSG(...) printf(__VA_ARGS__)
 #else
@@ -48,7 +48,7 @@ const char* AUScopeStr(int scope);
 
 struct Timer
 {
-  int mT;
+  clock_t mT;
   Timer();
 
   // Returns true every sec seconds.

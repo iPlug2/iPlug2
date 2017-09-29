@@ -156,7 +156,7 @@ struct fontScoreMatched {
 
 const char *swell_last_font_filename;
 
-static FT_Face MatchFont(const char *lfFaceName, int weight, int italic)
+static FT_Face MatchFont(const char *lfFaceName, int weight, int italic, int exact)
 {
   const int fn_len = strlen(lfFaceName), ntab=2;
   WDL_PtrList<char> *tab[ntab]= { &s_freetype_regfonts, &s_freetype_fontlist };
@@ -188,10 +188,29 @@ static FT_Face MatchFont(const char *lfFaceName, int weight, int italic)
             !strnicmp(residual,"Light",5) ||
             !strnicmp(residual,"Oblique",7))
           dash = residual;
+        else if (ext > residual && ext <= residual+2)
+        {
+          char c1 = residual[0],c2=residual[1];
+          if (c1>0) c1=toupper(c1);
+          if (c2>0) c2=toupper(c2);
+          if ((c1 == 'B' || c1 == 'I' || c1 == 'L') &&
+              (c2 == 'B' || c2 == 'I' || c2 == 'L' || c2 == '.'))
+            dash=residual;
+        }
       }
 
       s.fn = fn;
       s.score1 = (int)((dash?dash:ext)-residual); // characters between font and either "-" or "."
+
+      if (exact > 0)
+      {
+        if (s.score1) continue;
+      }
+      else if (exact < 0 && !s.score1) 
+      {
+        continue;
+      }
+
       s.score2 = 0;
 
       if (dash) { if (*dash == '-') dash++; }
@@ -208,6 +227,18 @@ static FT_Face MatchFont(const char *lfFaceName, int weight, int italic)
       else if (italic && stristr(residual,"Oblique")) s.score2 -= 7+3; // if Italic isnt available, use Oblique
       if (weight >= FW_BOLD && stristr(residual,"Bold")) s.score2 -= 4+7;
       else if (weight <= FW_LIGHT && stristr(residual,"Light")) s.score2 -= 5+7;
+
+      if (ext > residual && ext <= residual+2)
+      {
+        char c1 = residual[0],c2=residual[1];
+        if (c1>0) c1=toupper(c1);
+        if (c2>0) c2=toupper(c2);
+
+        if (weight >= FW_BOLD && (c1 == 'B' || c2 == 'B')) s.score2 -= 2;
+        else if (weight <= FW_LIGHT && (c1 == 'L' || c2 == 'L')) s.score2 -= 2;
+        if (italic && (c1 == 'I' || c2 == 'I')) s.score2 -= 2;
+      }
+
       s.score2 = s.score2*ntab + x; 
 
       matchlist.Add(s);
@@ -343,7 +374,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   }
   if (s_freetype)
   {
-    if (!face && lfFaceName && *lfFaceName) face = MatchFont(lfFaceName,lfWeight,lfItalic);
+    if (!face && lfFaceName && *lfFaceName) face = MatchFont(lfFaceName,lfWeight,lfItalic,0);
 
     if (!face)
     {
@@ -356,8 +387,8 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
       {
         static const char *ent[2] = { "ft_font_fallback", "ft_font_fallback_fixedwidth" };
         static const char *def[2] = { 
-          "// Cantarell FreeSans DejaVuSans NotoSans LiberationSans Oxygen", 
-          "// FreeMono DejaVuSansMono NotoMono OxygenMono LiberationMono" 
+          "// Cantarell FreeSans DejaVuSans NotoSans LiberationSans Oxygen Arial Verdana", 
+          "// FreeMono DejaVuSansMono NotoMono OxygenMono LiberationMono Courier" 
         };
         char tmp[1024];
         GetPrivateProfileString(".swell",ent[wl],"",tmp,sizeof(tmp),"");
@@ -381,11 +412,14 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
           *b++=0;
         }
       }
-      const char *l = fallbacklist[wl];
-      while (*l && !face)
+      for (int exact=0;exact<2 && !face;exact++)
       {
-        face = MatchFont(l,lfWeight,lfItalic);
-        l += strlen(l)+1;
+        const char *l = fallbacklist[wl];
+        while (*l && !face)
+        {
+          face = MatchFont(l,lfWeight,lfItalic,exact?-1:1);
+          l += strlen(l)+1;
+        }
       }
     }
   }
@@ -603,7 +637,8 @@ void Rectangle(HDC ctx, int l, int t, int r, int b)
   }
   if (HGDIOBJ_VALID(c->curpen,TYPE_PEN) && c->curpen->wid >= 0)
   {
-    LICE_DrawRect(c->surface,l,t,r-l,b-t,c->curpen->color,c->curpen->alpha,LICE_BLIT_MODE_COPY);
+    if (r>l+1 && b>t+1)
+      LICE_DrawRect(c->surface,l,t,r-l-1,b-t-1,c->curpen->color,c->curpen->alpha,LICE_BLIT_MODE_COPY);
   }
 }
 
@@ -969,7 +1004,14 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
           const int ha = g->metrics.horiAdvance/64;
           if (bgmode==OPAQUE) LICE_FillRect(surface,xpos,ypos,ha,lineh,bgcol,1.0f,LICE_BLIT_MODE_COPY);
   
-          LICE_DrawGlyphEx(surface,xpos+g->bitmap_left,ypos+ascent-g->bitmap_top,fgcol,(LICE_pixel_chan *)g->bitmap.buffer,g->bitmap.width,g->bitmap.pitch,g->bitmap.rows,1.0f,LICE_BLIT_MODE_COPY);
+          if (g->bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
+          {
+            LICE_DrawMonoGlyph(surface,xpos+g->bitmap_left,ypos+ascent-g->bitmap_top,fgcol,(const unsigned char*)g->bitmap.buffer,g->bitmap.width,g->bitmap.pitch,g->bitmap.rows,1.0f,LICE_BLIT_MODE_COPY);
+          }
+          else  // FT_PIXEL_MODE_GRAY (hopefully!)
+          {
+            LICE_DrawGlyphEx(surface,xpos+g->bitmap_left,ypos+ascent-g->bitmap_top,fgcol,(LICE_pixel_chan *)g->bitmap.buffer,g->bitmap.width,g->bitmap.pitch,g->bitmap.rows,1.0f,LICE_BLIT_MODE_COPY);
+          }
           if (doUl) 
           {
             int xw = g->metrics.width/64;
@@ -1299,6 +1341,7 @@ HDC SWELL_internalGetWindowDC(HWND h, bool calcsize_on_first)
   p->clipr.top=yoffs;
   p->clipr.right=xoffs + p->ctx.surface->getWidth();
   p->clipr.bottom=yoffs + p->ctx.surface->getHeight();
+  p->ctx.curfont = starth->m_font;
 
   return (HDC)p;
 }
@@ -1429,6 +1472,7 @@ void SWELL_internalLICEpaint(HWND hwnd, LICE_IBitmap *bmout, int bmout_xpos, int
     {
       if (hwnd->m_wndproc && ctx.clipr.right > ctx.clipr.left && ctx.clipr.bottom > ctx.clipr.top) 
       {
+        ctx.ctx.curfont = hwnd->m_font;
         hwnd->m_wndproc(hwnd,WM_PAINT,(WPARAM)&ctx,0);
       }
 
@@ -1443,12 +1487,12 @@ void SWELL_internalLICEpaint(HWND hwnd, LICE_IBitmap *bmout, int bmout_xpos, int
   if (forceref || hwnd->m_child_invalidated)
   {
     HWND h = hwnd->m_children;
-    while (h && h->m_next) h=h->m_next;
-    while (h)  // go through list backwards (first in list = top of Z order)
+    while (h) 
     {
       if (h->m_visible && (forceref || h->m_invalidated||h->m_child_invalidated))
       {
-        int width = h->m_position.right - h->m_position.left, height = h->m_position.bottom - h->m_position.top; // max width possible for this window
+        int width = h->m_position.right - h->m_position.left, 
+            height = h->m_position.bottom - h->m_position.top; // max width possible for this window
         int xp = h->m_position.left - bmout_xpos, yp = h->m_position.top - bmout_ypos;
 
         if (okToClearChild && !forceref)
@@ -1469,7 +1513,7 @@ void SWELL_internalLICEpaint(HWND hwnd, LICE_IBitmap *bmout, int bmout_xpos, int
         if (subbm.getWidth()>0 && subbm.getHeight()>0)
           SWELL_internalLICEpaint(h,&subbm,-xp,-yp,forceref);
       }
-      h = h->m_prev;
+      h = h->m_next;
     }
   }
   if (okToClearChild) hwnd->m_child_invalidated=false;

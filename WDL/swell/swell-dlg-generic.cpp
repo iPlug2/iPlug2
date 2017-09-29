@@ -68,6 +68,34 @@ HWND DialogBoxIsActive()
   return NULL;
 }
 
+static SWELL_OSWINDOW s_spare;
+static RECT s_spare_rect;
+static UINT_PTR s_spare_timer;
+static int s_spare_style;
+
+void swell_dlg_destroyspare()
+{
+  if (s_spare_timer)
+  {
+    KillTimer(NULL,s_spare_timer);
+    s_spare_timer=0;
+  }
+  if (s_spare) 
+  { 
+#ifdef SWELL_TARGET_GDK
+    gdk_window_destroy(s_spare);
+#endif
+    s_spare=NULL; 
+  }
+}
+
+static void spareTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwtime)
+{
+  swell_dlg_destroyspare();
+}
+
+static int s_last_dlgret;
+
 void EndDialog(HWND wnd, int ret)
 {   
   if (!wnd) return;
@@ -84,7 +112,21 @@ void EndDialog(HWND wnd, int ret)
       r->has_ret=true;
     }
   }
+#ifndef SWELL_NO_SPARE_MODALDLG
+  if (wnd->m_oswindow && wnd->m_visible)
+  {
+    swell_dlg_destroyspare();
+    GetWindowRect(wnd,&s_spare_rect);
+    s_spare_style = wnd->m_style;
+    s_spare = wnd->m_oswindow;
+    wnd->m_oswindow = NULL;
+    s_spare_timer = SetTimer(NULL,0,
+                             swell_app_is_inactive ? 500 : 100,
+                             spareTimer);
+  }
+#endif
   DestroyWindow(wnd);
+  s_last_dlgret = ret;
 }
 
 int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND parent,  DLGPROC dlgproc, LPARAM param)
@@ -101,6 +143,7 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
 
 
   int ret=-1;
+  s_last_dlgret = -1;
   HWND hwnd = SWELL_CreateDialog(reshead,resid,parent,dlgproc,param);
   // create dialog
   if (hwnd)
@@ -126,7 +169,52 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
 
     modalDlgRet r = { hwnd,false, -1 };
     s_modalDialogs.Add(&r);
-    ShowWindow(hwnd,SW_SHOW);
+
+    if (s_spare && s_spare_style == hwnd->m_style)
+    {
+      if (s_spare_timer) 
+      {
+        KillTimer(NULL,s_spare_timer);
+        s_spare_timer = 0;
+      }
+      SWELL_OSWINDOW w = s_spare;
+      s_spare = NULL;
+
+      int flags = 0;
+      const int dw = (hwnd->m_position.right-hwnd->m_position.left) -
+                      (s_spare_rect.right - s_spare_rect.left);
+      const int dh = (hwnd->m_position.bottom-hwnd->m_position.top) -
+                      (s_spare_rect.bottom - s_spare_rect.top);
+
+      if (hwnd->m_has_had_position) flags |= 1;
+      if (dw || dh) flags |= 2;
+
+      if (flags == 2)
+      {
+        // center on the old window
+        hwnd->m_position.right -= hwnd->m_position.left;
+        hwnd->m_position.bottom -= hwnd->m_position.top;
+        hwnd->m_position.left = s_spare_rect.left - dw/2;
+        hwnd->m_position.top = s_spare_rect.top - dh/2;
+        hwnd->m_position.right += hwnd->m_position.left;
+        hwnd->m_position.bottom += hwnd->m_position.top;
+        flags = 3;
+      }
+          
+      if (flags)
+      {
+        if (flags&2) swell_oswindow_begin_resize(w);
+        swell_oswindow_resize(w, flags, hwnd->m_position);
+      }
+      hwnd->m_oswindow = w;
+      ShowWindow(hwnd,SW_SHOWNA);
+    }
+    else  
+    {
+      swell_dlg_destroyspare();
+      ShowWindow(hwnd,SW_SHOW);
+    }
+ 
     while (s_modalDialogs.Find(&r)>=0 && !r.has_ret)
     {
       void SWELL_RunMessageLoop();
@@ -147,6 +235,10 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
       }
       a = a->m_next;
     }
+  }
+  else 
+  {
+    ret = s_last_dlgret; // SWELL_CreateDialog() failed, implies WM_INITDIALOG could have called EndDialog()
   }
   // while in list, do something
   return ret;
@@ -187,6 +279,8 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
   else if (!p && !parent) h->m_style |= WS_CAPTION;
   else if (parent && (!p || (p->windowTypeFlags&SWELL_DLG_WS_CHILD))) h->m_style |= WS_CHILD;
 
+  h->Retain();
+
   if (p)
   {
     p->createFunc(h,p->windowTypeFlags);
@@ -206,21 +300,28 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
       hFoc=hFoc->m_next;
     }
 
+    if (hFoc) hFoc->Retain();
+
     if (h->m_dlgproc(h,WM_INITDIALOG,(WPARAM)hFoc,param))
     {
       if (hFoc && hFoc->m_wantfocus && hFoc->m_visible && hFoc->m_enabled)
       {
-        SetFocus(hFoc);
+        if (!h->m_hashaddestroy && !hFoc->m_hashaddestroy)
+          SetFocus(hFoc);
       }
     }
-  } 
+
+    if (hFoc) hFoc->Release();
+  }
   else
   {
     h->m_wndproc = (WNDPROC)dlgproc;
     h->m_wndproc(h,WM_CREATE,0,param);
   }
-    
-  return h;
+
+  HWND rv = h->m_hashaddestroy ? NULL : h;
+  h->Release();
+  return rv;
 }
 
 

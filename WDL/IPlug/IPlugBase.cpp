@@ -894,9 +894,9 @@ int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
   {
     IParam* pParam = mParams.Get(i);
     double v = 0.0;
-    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
     pos = pChunk->Get(&v, pos);
     pParam->Set(v);
+    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
   }
   OnParamReset();
   return pos;
