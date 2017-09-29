@@ -1,5 +1,4 @@
-#ifndef __IPLUGEFFECT__
-#define __IPLUGEFFECT__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 
@@ -16,5 +15,3 @@ public:
 private:
   double mGain;
 };
-
-#endif
