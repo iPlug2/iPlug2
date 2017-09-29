@@ -51,3 +51,4 @@ IPlugExamples/build_errors.log
 /IPlugExamples/duplicate.pyc
 *.db-shm
 *.db-wal
+*.opendb
