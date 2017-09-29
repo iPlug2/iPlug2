@@ -49,3 +49,5 @@ IPlugExamples/build_errors.log
 /ReaperExtensions/
 
 /IPlugExamples/duplicate.pyc
+*.db-shm
+*.db-wal
