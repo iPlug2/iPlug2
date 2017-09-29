@@ -10,6 +10,37 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+//https://gist.github.com/ccgus/3716936
+SInt32 GetSystemVersion() {
+  
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1090
+  static dispatch_once_t once;
+  static int SysVersionVal = 0x00;
+  
+  dispatch_once(&once, ^{
+    NSDictionary *d = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+    
+    NSString *prodVersion = [d objectForKey:@"ProductVersion"];
+    
+    if ([[prodVersion componentsSeparatedByString:@"."] count] < 3) {
+      prodVersion = [prodVersion stringByAppendingString:@".0"];
+    }
+    
+    NSString *junk = [prodVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
+    
+    char *e = nil;
+    SysVersionVal = (int) strtoul([junk UTF8String], &e, 16);
+    
+  });
+  
+  return SysVersionVal;
+#else
+  SInt32 v;
+  Gestalt(gestaltSystemVersion, &v);
+  return v;
+#endif
+}
+
 struct CocoaAutoReleasePool
 {
   NSAutoreleasePool* mPool;
@@ -139,8 +170,8 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
   
   if (!mColorSpace)
   {
-    SInt32 v=0x1040;
-    Gestalt(gestaltSystemVersion,&v);
+    SInt32 v = GetSystemVersion();
+
     if (v >= 0x1070)
     {
 #ifdef MAC_OS_X_VERSION_10_11
@@ -727,10 +758,10 @@ void* IGraphicsMac::GetWindow()
 // static
 int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
 {
-  SInt32 ver = 0;
-  Gestalt(gestaltSystemVersion, &ver);
+  SInt32 ver = GetSystemVersion();
+  
   Trace(TRACELOC, "%x", ver);
-  return ver;
+  return (int) ver;
 }
 
 bool IGraphicsMac::GetTextFromClipboard(WDL_String* pStr)
