@@ -41,7 +41,7 @@ const char* AUScopeStr(int scope);
 
 struct Timer
 {
-  clock_t mT;
+  int mT;
   Timer();
 
   // Returns true every sec seconds.
