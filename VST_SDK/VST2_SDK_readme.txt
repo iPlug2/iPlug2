@@ -9,5 +9,5 @@ vstsdk367_03_03_2017_build_352.zip
 
 these are the files you need:
 
-/vstsdk2.4/pluginterfaces/vst2.x/aeffect.h
-/vstsdk2.4/pluginterfaces/vst2.x/aeffectx.h
+/VST2_SDK/pluginterfaces/vst2.x/aeffect.h
+/VST2_SDK/pluginterfaces/vst2.x/aeffectx.h
