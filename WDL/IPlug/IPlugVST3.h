@@ -4,6 +4,8 @@
 
 #include <vector>
 #include "IPlugBase.h"
+#undef stricmp
+#undef strnicmp
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
 //#include "public.sdk/source/vst/vstpresetfile.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
