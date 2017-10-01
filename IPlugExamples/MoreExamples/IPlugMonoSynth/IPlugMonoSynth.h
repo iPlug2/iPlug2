@@ -1,5 +1,4 @@
-#ifndef __IPLUGMONOSYNTH__
-#define __IPLUGMONOSYNTH__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IMidiQueue.h"
@@ -71,4 +70,3 @@ enum ELayout
   kKnobFrames = 60
 };
 
-#endif //__IPLUGMONOSYNTH__

@@ -1,5 +1,4 @@
-#ifndef __IPLUGGUIRESIZE__
-#define __IPLUGGUIRESIZE__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 
@@ -59,4 +58,3 @@ public:
 private:
 };
 
-#endif

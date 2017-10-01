@@ -1,5 +1,4 @@
-#ifndef __IPLUGMOUSETESTDSP_H__
-#define __IPLUGMOUSETESTDSP_H__
+#pragma once
 
 inline double midi2CPS(double pitch)
 {
@@ -74,4 +73,3 @@ public:
   
 } WDL_FIXALIGN;
 
-#endif // __IPLUGMOUSETESTDSP_H__

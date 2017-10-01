@@ -1,5 +1,4 @@
-#ifndef __IPLUGPLUSH__
-#define __IPLUGPLUSH__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 
@@ -20,4 +19,3 @@ private:
   double mGain;
 };
 
-#endif

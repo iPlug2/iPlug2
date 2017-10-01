@@ -1,6 +1,5 @@
 
-#ifndef __IPLUGPOLYSYNTHDSP__
-#define __IPLUGPOLYSYNTHDSP__
+#pragma once
 
 const double ENV_VALUE_LOW = 0.000001; // -120dB
 const double ENV_VALUE_HIGH = 0.999;
@@ -262,4 +261,3 @@ struct CVoiceState
 };
 
 
-#endif //__IPLUGPOLYSYNTHDSP__

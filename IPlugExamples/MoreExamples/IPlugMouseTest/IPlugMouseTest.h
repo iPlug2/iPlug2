@@ -1,5 +1,4 @@
-#ifndef __IPLUGMOUSETEST__
-#define __IPLUGMOUSETEST__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IPlugMouseTestDSP.h"
@@ -22,4 +21,3 @@ private:
   double* mTable;
 };
 
-#endif

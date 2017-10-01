@@ -1,5 +1,4 @@
-#ifndef __IPLUGMULTICHANNEL__
-#define __IPLUGMULTICHANNEL__
+#pragma once
 
 // This example demonstrates a multi-channel plug-in (max 4ins, 4outs)
 // the app_wrapper.* code is modified to provide four channels of audio
@@ -25,4 +24,3 @@ private:
   double mGain;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef __IPLUGEEL__
-#define __IPLUGEEL__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "../../WDL/eel2/ns-eel.h"
@@ -63,4 +62,3 @@ private:
   AlgDisplay* mTextControl;
 };
 
-#endif

@@ -18,8 +18,7 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#ifndef _FPU_CONTROL_H
-#define _FPU_CONTROL_H	1
+#pragma once
 
 /* Note that this file sets on x86-64 only the x87 FPU, it does not
    touch the SSE unit.  */
@@ -98,4 +97,3 @@ typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__HI__)));
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
 
-#endif	/* fpu_control.h */

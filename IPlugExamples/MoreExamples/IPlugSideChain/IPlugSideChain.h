@@ -1,5 +1,4 @@
-#ifndef __IPLUGSIDECHAIN__
-#define __IPLUGSIDECHAIN__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IPlugSideChain_Controls.h"
@@ -23,4 +22,3 @@ private:
   int mMeterIdx_L, mMeterIdx_R, mMeterIdx_LS, mMeterIdx_RS;
 };
 
-#endif

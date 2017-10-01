@@ -1,5 +1,4 @@
-#ifndef __IPLUGHOSTDETECT__
-#define __IPLUGHOSTDETECT__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 
@@ -21,4 +20,3 @@ private:
   ITextControl* mHostVersionControl;
 };
 
-#endif

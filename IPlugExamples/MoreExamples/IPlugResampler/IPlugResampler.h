@@ -1,5 +1,4 @@
-#ifndef __IPLUGEFFECT__
-#define __IPLUGEFFECT__
+#pragma once
 
 /*
  
@@ -42,4 +41,3 @@ public:
   double mGain;
 };
 
-#endif

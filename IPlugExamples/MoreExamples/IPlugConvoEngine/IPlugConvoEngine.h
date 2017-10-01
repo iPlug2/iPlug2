@@ -1,5 +1,4 @@
-#ifndef __IPlugConvoEngine_H__
-#define __IPlugConvoEngine_H__
+#pragma once
 
 /*
 
@@ -82,4 +81,3 @@ private:
 };
 
 
-#endif // __IPlugConvoEngine_H__

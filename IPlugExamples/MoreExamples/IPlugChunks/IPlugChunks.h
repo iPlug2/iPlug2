@@ -1,5 +1,4 @@
-#ifndef __IPLUGEFFECT__
-#define __IPLUGEFFECT__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IPlugChunks_controls.h"
@@ -52,4 +51,3 @@ private:
   MultiSliderControlV *mMSlider;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef __IPLUGDISTORTION_H__
-#define __IPLUGDISTORTION_H__
+#pragma once
 
 /*
 
@@ -66,4 +65,3 @@ private:
 };
 
 
-#endif // __IPLUGDISTORTION_H__

@@ -1,5 +1,4 @@
-#ifndef __IPLUGCONTROLSDEMO__
-#define __IPLUGCONTROLSDEMO__
+#pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
 
@@ -137,4 +136,3 @@ enum ELayout
 
 };
 
-#endif
