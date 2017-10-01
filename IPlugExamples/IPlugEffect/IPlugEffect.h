@@ -8,9 +8,9 @@ public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
   ~IPlugEffect();
 
-  void Reset();
-  void OnParamChange(int paramIdx);
-  void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
+  void Reset() override;
+  void OnParamChange(int paramIdx) override;
+  void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames) override;
 
 private:
   double mGain;
