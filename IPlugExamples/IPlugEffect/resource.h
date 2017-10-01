@@ -19,7 +19,6 @@
 #define PLUG_VER 0x00010000
 #define VST3_VER_STR "1.0.0"
 
-// http://service.steinberg.de/databases/plugin.nsf/plugIn?openForm
 // 4 chars, single quotes. At least one capital letter
 #define PLUG_UNIQUE_ID 'Ipef'
 // make sure this is not the same as BUNDLE_MFR
