@@ -16,6 +16,8 @@ enum ELayout
   kWidth = GUI_WIDTH,
   kHeight = GUI_HEIGHT,
 
+  kTextX = 10,
+  kTextY = 10,
   kGainX = 100,
   kGainY = 100,
   kKnobFrames = 60
@@ -37,6 +39,12 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   pGraphics->AttachControl(new IKnobMultiControl(this, kGainX, kGainY, kGain, &knob));
 
+  IText basic;
+  char builddatestr[80];
+  sprintf(builddatestr, "IPlugEffect %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
+
+  pGraphics->AttachControl(new ITextControl(this, IRECT(kTextX, kTextY, 290, 100), &basic, builddatestr));
+  
   AttachGraphics(pGraphics);
 
   //MakePreset("preset 1", ... );
