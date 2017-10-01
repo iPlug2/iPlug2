@@ -124,6 +124,9 @@ static HCURSOR s_last_cursor;
 static HCURSOR s_last_setcursor;
 static SWELL_OSWINDOW s_last_setcursor_oswnd;
 
+static void *g_swell_touchptr; // last GDK touch sequence
+static void *g_swell_touchptr_wnd; // last window of touch sequence, for forcing end of sequence on destroy
+
 static bool g_swell_mouse_relmode;
 static int g_swell_mouse_relmode_curpos_x;
 static int g_swell_mouse_relmode_curpos_y;
@@ -191,6 +194,8 @@ void swell_oswindow_destroy(HWND hwnd)
   if (hwnd && hwnd->m_oswindow)
   {
     if (SWELL_focused_oswindow == hwnd->m_oswindow) SWELL_focused_oswindow = NULL;
+    if (g_swell_touchptr && g_swell_touchptr_wnd == hwnd->m_oswindow)
+      g_swell_touchptr = NULL;
     gdk_window_destroy(hwnd->m_oswindow);
     hwnd->m_oswindow=NULL;
 #ifdef SWELL_LICE_GDI
@@ -411,6 +416,8 @@ static void init_options()
 {
   if (!gdk_options)
   {
+    const char *wmname = gdk_x11_screen_get_window_manager_name(gdk_screen_get_default ());
+
     gdk_options = 0x40000000;
 
     if (swell_gdk_option("gdk_owned_windows_keep_above", "auto (default is 1)",1))
@@ -419,7 +426,7 @@ static void init_options()
     if (swell_gdk_option("gdk_owned_windows_in_tasklist", "auto (default is 0)",0))
       gdk_options|=OPTION_OWNED_TASKLIST;
 
-    if (swell_gdk_option("gdk_borderless_are_override_redirect", "auto (default is 0)",0))
+    if (swell_gdk_option("gdk_borderless_are_override_redirect", "auto (default is 0)", wmname && !stricmp(wmname,"i3")))
       gdk_options|=OPTION_BORDERLESS_OVERRIDEREDIRECT;
   }
   
@@ -700,7 +707,7 @@ static LRESULT SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
       return -1; // if somehow WM_NCHITTEST destroyed us, bail
     }
      
-    if (htc!=HTCLIENT) 
+    if (htc!=HTCLIENT || swell_window_wants_all_input() == hwnd)
     { 
       if (msg==WM_MOUSEMOVE) return hwnd->m_wndproc(hwnd,WM_NCMOUSEMOVE,htc,p); 
 //      if (msg==WM_MOUSEWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEWHEEL,htc,p); 
@@ -982,15 +989,20 @@ static void OnKeyEvent(GdkEventKey *k)
     SendMessage(hwnd, msg.message, kv, modifiers);
 }
 
+static HWND getMouseTarget(SWELL_OSWINDOW osw, POINT p, const HWND *hwnd_has_osw)
+{
+  HWND hwnd = GetCapture();
+  if (hwnd) return hwnd;
+  hwnd = hwnd_has_osw ? *hwnd_has_osw : swell_oswindow_to_hwnd(osw);
+  if (!hwnd || swell_window_wants_all_input() == hwnd) return hwnd;
+  return ChildWindowFromPoint(hwnd,p);
+}
+
 static void OnMotionEvent(GdkEventMotion *m)
 {
   swell_lastMessagePos = MAKELONG(((int)m->x_root&0xffff),((int)m->y_root&0xffff));
   POINT p={(int)m->x, (int)m->y};
-  HWND hwnd = GetCapture();
-  if (!hwnd && (hwnd = swell_oswindow_to_hwnd(m->window)))
-    hwnd=ChildWindowFromPoint(hwnd, p);
-
-  gdk_event_request_motions(m); // request before sending WM_MOUSEMOVE
+  HWND hwnd = getMouseTarget(m->window,p,NULL);
 
   if (hwnd)
   {
@@ -1006,9 +1018,8 @@ static void OnScrollEvent(GdkEventScroll *b)
 {
   swell_lastMessagePos = MAKELONG(((int)b->x_root&0xffff),((int)b->y_root&0xffff));
   POINT p={(int)b->x, (int)b->y};
-  HWND hwnd = GetCapture();
-  if (!hwnd && (hwnd = swell_oswindow_to_hwnd(b->window)))
-      hwnd=ChildWindowFromPoint(hwnd, p);
+
+  HWND hwnd = getMouseTarget(b->window,p,NULL);
   if (hwnd)
   {
     POINT p2={(int)b->x_root, (int)b->y_root};
@@ -1034,8 +1045,8 @@ static void OnButtonEvent(GdkEventButton *b)
   if (!hwnd) return;
   swell_lastMessagePos = MAKELONG(((int)b->x_root&0xffff),((int)b->y_root&0xffff));
   POINT p={(int)b->x, (int)b->y};
-  HWND hwnd2 = GetCapture();
-  if (!hwnd2) hwnd2=ChildWindowFromPoint(hwnd, p);
+  HWND hwnd2 = getMouseTarget(b->window,p,&hwnd);
+
   POINT p2={(int)b->x_root, (int)b->y_root};
   ScreenToClient(hwnd2, &p2);
 
@@ -1327,7 +1338,79 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
       swell_dlg_destroyspare();
       OnKeyEvent((GdkEventKey *)evt);
     break;
+#ifdef GDK_AVAILABLE_IN_3_4
+    case GDK_TOUCH_BEGIN:
+    case GDK_TOUCH_UPDATE:
+    case GDK_TOUCH_END:
+    case GDK_TOUCH_CANCEL:
+      {
+        GdkEventTouch *e = (GdkEventTouch *)evt;
+        static guint32 touchptr_lasttime; 
+        bool doubletap = false;
+        if (evt->type == GDK_TOUCH_BEGIN && !g_swell_touchptr)
+        {
+          DWORD now = e->time;
+          doubletap = touchptr_lasttime && 
+                      now >= touchptr_lasttime && 
+                      now < touchptr_lasttime+350;
+          touchptr_lasttime = now;
+          g_swell_touchptr = e->sequence;
+          g_swell_touchptr_wnd = e->window;
+        }
+
+        if (!e->sequence || e->sequence != g_swell_touchptr) 
+        {
+          touchptr_lasttime=0;
+          break;
+        }
+
+        if (e->type == GDK_TOUCH_UPDATE)
+        {
+          GdkEventMotion m;
+          memset(&m,0,sizeof(m));
+          m.type = GDK_MOTION_NOTIFY;
+          m.window = e->window;
+          m.time = e->time;
+          m.x = e->x;
+          m.y = e->y;
+          m.axes = e->axes;
+          m.state = e->state;
+          m.device = e->device;
+          m.x_root = e->x_root;
+          m.y_root = e->y_root;
+          OnMotionEvent(&m);
+        }
+        else
+        {
+          GdkEventButton but;
+          memset(&but,0,sizeof(but));
+          if (e->type == GDK_TOUCH_BEGIN) 
+          {
+            but.type = doubletap ? GDK_2BUTTON_PRESS:GDK_BUTTON_PRESS;
+          }
+          else 
+          {
+            but.type = GDK_BUTTON_RELEASE;
+            g_swell_touchptr = NULL;
+          }
+          but.window = e->window;
+          but.time = e->time;
+          but.x = e->x;
+          but.y = e->y;
+          but.axes = e->axes;
+          but.state = e->state;
+          but.device = e->device;
+          but.button = 1;
+          but.x_root = e->x_root;
+          but.y_root = e->y_root;
+          swell_dlg_destroyspare();
+          OnButtonEvent(&but);
+        } 
+      }
+    break;
+#endif
     case GDK_MOTION_NOTIFY:
+      gdk_event_request_motions((GdkEventMotion *)evt);
       OnMotionEvent((GdkEventMotion *)evt);
     break;
     case GDK_SCROLL:
@@ -1530,7 +1613,7 @@ void swell_oswindow_invalidate(HWND hwnd, const RECT *r)
 
 bool OpenClipboard(HWND hwndDlg) 
 {
-  s_clip_hwnd=hwndDlg; 
+  s_clip_hwnd=hwndDlg ? hwndDlg : SWELL_topwindows; 
   if (s_clipboard_getstate)
   {
     GlobalFree(s_clipboard_getstate);
@@ -1701,7 +1784,7 @@ WORD GetAsyncKeyState(int key)
     gdk_window_get_pointer(h?  h->m_oswindow : gdk_get_default_root_window(),NULL,NULL,&mod);
 //#endif
  
-    if (key == VK_LBUTTON) return (mod&GDK_BUTTON1_MASK)?0x8000:0;
+    if (key == VK_LBUTTON) return ((mod&GDK_BUTTON1_MASK)||g_swell_touchptr)?0x8000:0;
     if (key == VK_MBUTTON) return (mod&GDK_BUTTON2_MASK)?0x8000:0;
     if (key == VK_RBUTTON) return (mod&GDK_BUTTON3_MASK)?0x8000:0;
 
@@ -2180,20 +2263,23 @@ int SWELL_ShowCursor(BOOL bShow)
   {
     SetCursor(s_last_cursor);
     g_swell_mouse_relmode=false;
-    #if SWELL_TARGET_GDK == 3
-    gdk_device_warp(gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default())),
+    if (!g_swell_touchptr)
+    {
+      #if SWELL_TARGET_GDK == 3
+      gdk_device_warp(gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default())),
                      gdk_screen_get_default(),
                      g_swell_mouse_relmode_curpos_x, g_swell_mouse_relmode_curpos_y);
-    #else
-    gdk_display_warp_pointer(gdk_display_get_default(),gdk_screen_get_default(), g_swell_mouse_relmode_curpos_x, g_swell_mouse_relmode_curpos_y);
-    #endif
+      #else
+      gdk_display_warp_pointer(gdk_display_get_default(),gdk_screen_get_default(), g_swell_mouse_relmode_curpos_x, g_swell_mouse_relmode_curpos_y);
+      #endif
+    }
   }
   return s_cursor_vis_cnt;
 }
 
 BOOL SWELL_SetCursorPos(int X, int Y)
 {  
-  if (g_swell_mouse_relmode) return false;
+  if (g_swell_mouse_relmode || g_swell_touchptr) return false;
  
   #if SWELL_TARGET_GDK == 3
   gdk_device_warp(gdk_device_manager_get_client_pointer(gdk_display_get_device_manager(gdk_display_get_default())),

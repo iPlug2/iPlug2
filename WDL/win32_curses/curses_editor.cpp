@@ -570,7 +570,7 @@ static void ReplaceTabs(WDL_FastString *str, int tabsz)
   if (insert_sz<0) insert_sz=0;
   else if (insert_sz>128) insert_sz=128;
 
-  memset(s,' ',insert_sz);
+  if (insert_sz>0) memset(s,' ',insert_sz);
   for(x=0;x<str->GetLength();x++)
   {
     char *p = (char *)str->Get();
@@ -832,7 +832,7 @@ void WDL_CursesEditor::getselectregion(int &minx, int &miny, int &maxx, int &max
     {
       miny=maxy=m_select_y1;
       minx=wdl_min(m_select_x1,m_select_x2);
-      maxx=max(m_select_x1,m_select_x2);
+      maxx=wdl_max(m_select_x1,m_select_x2);
     }
 }
 
@@ -1145,7 +1145,7 @@ void WDL_CursesEditor::removeSelect()
             const int sx=x == miny ? WDL_utf8_charpos_to_bytepos(s->Get(),minx) : 0;
             const int ex=x == maxy ? WDL_utf8_charpos_to_bytepos(s->Get(),maxx) : s->GetLength();
 
-            if (sx == 0 && ex == s->GetLength()) // remove entire line
+            if (x != maxy && sx == 0 && ex == s->GetLength()) // remove entire line
             {
               m_text.Delete(x,true);
               if (x==miny) miny--;
@@ -1981,7 +1981,7 @@ int WDL_CursesEditor::onChar(int c)
         {
           const char* p=s->Get();
           int xlo=wdl_min(m_select_x1, m_select_x2);
-          int xhi=max(m_select_x1, m_select_x2);
+          int xhi=wdl_max(m_select_x1, m_select_x2);
           xlo = WDL_utf8_charpos_to_bytepos(p,xlo);
           xhi = WDL_utf8_charpos_to_bytepos(p,xhi);
           if (xhi > xlo && xhi-xlo < sizeof(s_search_string))
@@ -2558,7 +2558,7 @@ void WDL_CursesEditor::draw_top_line()
           buf[skip++] = '>';
           skip++;
         }
-        memcpy(buf+skip,p,min(tsz-1-skip,lp));
+        memcpy(buf+skip,p,wdl_min(tsz-1-skip,lp));
         buf[tsz]=0;
         int l = tsz;
         if (l > COLS-xpos) l = COLS-xpos;

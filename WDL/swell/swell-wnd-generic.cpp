@@ -299,13 +299,20 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       tmp=tmp->m_next;
       SendMessage(old,WM_DESTROY,0,0);
     }
-    tmp=hwnd->m_owned_list;
-    while (tmp)
+#if 0 
+      // todo: option to destroy owned windows?
+      // might only make sense for modal windows? unsure
+      // if we do this, we should make BrowseForFiles() etc take HWND owners
     {
-      HWND old = tmp;
-      tmp=tmp->m_owned_next;
-      SendMessage(old,WM_DESTROY,0,0);
+      tmp=hwnd->m_owned_list;
+      while (tmp)
+      {
+        HWND old = tmp;
+        tmp=tmp->m_owned_next;
+        SendMessage(old,WM_DESTROY,0,0);
+      }
     }
+#endif
     if (SWELL_focused_oswindow && SWELL_focused_oswindow == hwnd->m_oswindow)
     {
       HWND h = hwnd->m_owner;
@@ -372,7 +379,11 @@ static void RecurseDestroyWindow(HWND hwnd)
     if (tmp) tmp->m_owned_prev = NULL;
 
     old->m_owned_prev = old->m_owned_next = NULL;
-    RecurseDestroyWindow(old);
+    old->m_owner = NULL;
+#if 0
+      // todo: option to destroy owned windows?
+    if (old->m_hashaddestroy) RecurseDestroyWindow(old);
+#endif
   }
 
   if (swell_captured_window == hwnd) swell_captured_window=NULL;
@@ -1971,7 +1982,8 @@ struct __SWELL_editControlState
     {
       if (!word_wrap)
       {
-        if (pt.x > scroll_x+tmp.right*5/6) scroll_x = pt.x - tmp.right*5/6;
+        const int padsz = wdl_max(tmp.right - line_h,line_h);
+        if (pt.x > scroll_x+padsz) scroll_x = pt.x - padsz;
         if (pt.x < scroll_x) scroll_x=pt.x;
       }
       if (is_multiline)
@@ -2440,6 +2452,35 @@ static LRESULT WINAPI editWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
       InvalidateRect(hwnd,NULL,FALSE);
     return 0;
+    case WM_MOUSEWHEEL:
+      if (es && (hwnd->m_style & ES_MULTILINE))
+      {
+        if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break; // pass modified mousewheel to parent
+
+        RECT r;
+        GetClientRect(hwnd,&r);
+        r.right -= g_swell_ctheme.scrollbar_width;
+        if (es->max_width > r.right && (hwnd->m_style & ES_AUTOHSCROLL))
+        {
+          r.bottom -= g_swell_ctheme.scrollbar_width;
+        }
+        const int viewsz = r.bottom;
+        const int totalsz=es->max_height + g_swell_ctheme.scrollbar_width;
+
+        const int amt = ((short)HIWORD(wParam))/-2;
+
+        const int oldscroll = es->scroll_y;
+        es->scroll_y += amt;
+        if (es->scroll_y + viewsz > totalsz) es->scroll_y = totalsz-viewsz;
+        if (es->scroll_y < 0) es->scroll_y=0;
+        if (es->scroll_y != oldscroll)
+        {
+          InvalidateRect(hwnd,NULL,FALSE);
+        }
+
+        return 1;
+      }
+    break;
     case WM_MOUSEMOVE:
 forceMouseMove:
       if (es && GetCapture()==hwnd)
@@ -2734,6 +2775,28 @@ forceMouseMove:
         es->sel2 = (int)lParam;
         if (!es->sel1 && es->sel2 == -1) es->sel2 = WDL_utf8_get_charlen(hwnd->m_title.Get());
         InvalidateRect(hwnd,NULL,FALSE);
+        if (es->sel2>=0)
+          es->autoScrollToOffset(hwnd,es->sel2,
+               (hwnd->m_style & ES_MULTILINE) != 0,
+               (hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL)) == ES_MULTILINE);
+
+      }
+    return 0;
+    case EM_SCROLL:
+      if (es)
+      {
+        if (wParam == SB_TOP)
+        {
+          es->scroll_x=es->scroll_y=0;
+          InvalidateRect(hwnd,NULL,FALSE);
+        } 
+        else if (wParam == SB_BOTTOM)
+        {
+          es->autoScrollToOffset(hwnd,hwnd->m_title.GetLength(),
+               (hwnd->m_style & ES_MULTILINE) != 0,
+               (hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL)) == ES_MULTILINE);
+          InvalidateRect(hwnd,NULL,FALSE);
+        }
       }
     return 0;
   }
@@ -3425,6 +3488,8 @@ popupMenu:
         s->editstate.sel2 = (int)lParam;
         if (!s->editstate.sel1 && s->editstate.sel2 == -1)
           s->editstate.sel2 = WDL_utf8_get_charlen(hwnd->m_title.Get());
+        if (s->editstate.sel2>=0)
+          s->editstate.autoScrollToOffset(hwnd,s->editstate.sel2, false, false);
         InvalidateRect(hwnd,NULL,FALSE);
       }
     return 0;
@@ -3672,6 +3737,47 @@ struct listViewState
   int m_status_imagelist_type;
 };
 
+// returns non-NULL if a searching string occurred
+static const char *stateStringOnKey(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  if (lParam & (FCONTROL|FALT|FLWIN)) return NULL;
+  if (uMsg != WM_KEYDOWN) return NULL;
+  static WDL_FastString str;
+  static DWORD last_t;
+  DWORD now = GetTickCount();
+  if (now > last_t + 500 || now < last_t - 500) str.Set("");
+  last_t = now;
+
+  const bool is_numpad = wParam >= VK_NUMPAD0 && wParam <= VK_DIVIDE;
+  if ((lParam & FVIRTKEY) && wParam == VK_BACK)
+  {
+    str.SetLen(WDL_utf8_charpos_to_bytepos(str.Get(),WDL_utf8_get_charlen(str.Get())-1));
+  }
+  else if (wParam >= 32 && (!(lParam & FVIRTKEY) || swell_is_virtkey_char((int)wParam) || is_numpad))
+  {
+    if (lParam & FVIRTKEY)
+    {
+      if (wParam >= 'A' && wParam <= 'Z')
+      {
+        if ((lParam&FSHIFT) ^ (swell_is_likely_capslock?0:FSHIFT)) wParam += 'a' - 'A';
+      }
+      else if (is_numpad)
+      {
+        if (wParam <= VK_NUMPAD9) wParam += '0' - VK_NUMPAD0;
+        else wParam += '*' - VK_MULTIPLY;
+      }
+    }
+
+    char b[8];
+    WDL_MakeUTFChar(b,wParam,sizeof(b));
+    str.Append(b);
+    return str.Get();
+  }
+
+  return NULL;
+}
+
+
 static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   enum { col_resize_sz = 3 };
@@ -3680,6 +3786,8 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
   switch (msg)
   {
     case WM_MOUSEWHEEL:
+      if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break; // pass modified mousewheel to parent
+
       {
         const int amt = ((short)HIWORD(wParam))/40;
         if (amt && lvs)
@@ -4036,6 +4144,94 @@ forceMouseMove:
       }
     return 1;
     case WM_KEYDOWN:
+      if (lvs)
+      {
+        const char *s = stateStringOnKey(msg,wParam,lParam);
+        if (s)
+        {
+          int col = 0;
+          if (!lvs->m_is_listbox)
+          {
+            for (int x=0;x<lvs->m_cols.GetSize();x++)
+            {
+              if (lvs->m_cols.Get()[x].sortindicator)
+              {
+                col = x;
+                break;
+              }
+            }
+          }
+
+          const int n = lvs->GetNumItems();
+          int selitem = lvs->m_selitem;
+          if (selitem < 0 || selitem >= n) selitem=0;
+          for (int x=0;x<n;x++)
+          {
+            int offs = (selitem + x) % n;
+            if (offs < 0) offs+=n;
+
+            const char *v=NULL;
+            char buf[1024];
+            if (!lvs->IsOwnerData())
+            {
+              SWELL_ListView_Row *row = lvs->m_data.Get(offs);
+              if (row) v = row->m_vals.Get(col);
+            }
+            else
+            {
+              buf[0]=0;
+              NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, offs,col, 0,0, buf, sizeof(buf), -1 }};
+              SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+              v = buf;
+            }
+
+            if (v && !strnicmp(v,s,strlen(s))) 
+            {
+              if (!lvs->m_is_multisel)
+              {
+                const int oldsel = lvs->m_selitem;
+                lvs->m_selitem = offs;
+
+                if (lvs->m_is_listbox)
+                {
+                  SendMessage(GetParent(hwnd),WM_COMMAND,(LBN_SELCHANGE<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+                }
+                else
+                {
+                  if (oldsel != lvs->m_selitem) 
+                  {
+                    NMLISTVIEW nm={{hwnd,hwnd->m_id,LVN_ITEMCHANGED},lvs->m_selitem,1,LVIS_SELECTED,};
+                    SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+                  }
+                }
+              }
+              else 
+              {
+                bool changed = lvs->clear_sel() | lvs->set_sel(offs,true);
+                lvs->m_selitem = offs;
+
+                if (lvs->m_is_listbox)
+                {
+                  if (changed) SendMessage(GetParent(hwnd),WM_COMMAND,(LBN_SELCHANGE<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+                }
+                else 
+                {
+                  if (changed)
+                  {
+                    NMLISTVIEW nm={{hwnd,hwnd->m_id,LVN_ITEMCHANGED},offs,0,LVIS_SELECTED,};
+                    if (nm.iItem < 0 || nm.iItem >= n) nm.iItem=0;
+                    SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+                  }
+                }
+              }
+
+              ListView_EnsureVisible(hwnd,offs,FALSE);
+              InvalidateRect(hwnd,NULL,FALSE);
+              break;
+            }
+          }
+        }
+      }
       if (lvs && (lParam & FVIRTKEY)) 
       {
         int flag=0;
@@ -4847,6 +5043,8 @@ static LRESULT treeViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
   switch (msg)
   {
     case WM_MOUSEWHEEL:
+      if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break; // pass modified mousewheel to parent
+
       {
         const int amt = ((short)HIWORD(wParam))/40;
         if (amt && tvs)
@@ -6325,6 +6523,13 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
 
 static RECT g_menubar_lastrect;
 static HWND g_menubar_active;
+static POINT g_menubar_startpt;
+static bool g_menubar_active_drag;
+
+HWND swell_window_wants_all_input()
+{
+  return g_menubar_active_drag ? g_menubar_active : NULL;
+}
 
 int menuBarNavigate(int dir) // -1 if no menu bar active, 0 if did nothing, 1 if navigated
 {
@@ -6362,7 +6567,9 @@ static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r)
   mbr.bottom = 0;
   mbr.top = -g_swell_ctheme.menubar_height;
   menu->sel_vis = x;
+  GetCursorPos(&g_menubar_startpt);
   g_menubar_active = hwnd;
+  g_menubar_active_drag=true;
   for (;;)
   {
     InvalidateRect(hwnd,&mbr,FALSE);
@@ -6391,6 +6598,8 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_NCMOUSEMOVE:
       if (g_menubar_active == hwnd && hwnd->m_menu)
       {
+        swell_delegate_menu_message(hwnd,lParam,WM_MOUSEMOVE,true);
+
         HMENU__ *menu = (HMENU__*)hwnd->m_menu;
         RECT r;
         const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1);
@@ -6502,6 +6711,21 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_NCLBUTTONUP:
       if (!hwnd->m_parent && hwnd->m_menu)
       {
+        if (msg == WM_NCLBUTTONUP && g_menubar_active_drag) 
+        {
+          g_menubar_active_drag=false;
+          if (swell_delegate_menu_message(hwnd,lParam,WM_LBUTTONUP,true)) return 0;
+
+          POINT pt;
+          GetCursorPos(&pt);
+          pt.x -= g_menubar_startpt.x;
+          pt.y -= g_menubar_startpt.y;
+          if (pt.x*pt.x+ pt.y*pt.y > 4*4) 
+          {
+            DestroyPopupMenus();
+            return 0;
+          }
+        }
         RECT r;
         const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1);
         if (x>=0)

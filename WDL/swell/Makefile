@@ -6,15 +6,14 @@
 ARCH := $(shell uname -m)
 UNAME_S := $(shell uname -s)
 
+PKG_CONFIG = pkg-config
 
-CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wno-unused-function -Wno-multichar -Wno-unused-result
+CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result
 
 ifeq ($(UNAME_S),Darwin)
   CFLAGS += -Wno-unused-private-field -DSWELL_FORCE_GENERIC
-  ARCHSTR := $(ARCH)-darwin
   DLL_EXT=.dylib
 else
-  ARCHSTR := $(ARCH)-$(shell lsb_release -i -s | tr '[:upper:]' '[:lower:]')-$(shell lsb_release -c -s | tr '[:upper:]' '[:lower:]')
   DLL_EXT=.so
 endif
 
@@ -62,17 +61,17 @@ OBJS = $(SWELL_OBJS)
 
 ifndef NOGDK
   ifdef GDK2
-    CFLAGS += -DSWELL_TARGET_GDK=2 $(shell pkg-config --cflags gdk-2.0)
+    CFLAGS += -DSWELL_TARGET_GDK=2 $(shell $(PKG_CONFIG) --cflags gdk-2.0)
     ifndef PRELOAD_GDK
-      LINKEXTRA += $(shell pkg-config --libs gdk-2.0)
+      LINKEXTRA += $(shell $(PKG_CONFIG) --libs gdk-2.0)
     else
       LINKEXTRA += -lX11 -lXi
       CFLAGS += -DSWELL_PRELOAD="libgdk-x11-2.0.so.0"
     endif
   else
-    CFLAGS += -DSWELL_TARGET_GDK=3 $(shell pkg-config --cflags gdk-3.0)
+    CFLAGS += -DSWELL_TARGET_GDK=3 $(shell $(PKG_CONFIG) --cflags gdk-3.0)
     ifndef PRELOAD_GDK
-      LINKEXTRA += $(shell pkg-config --libs gdk-3.0)
+      LINKEXTRA += $(shell $(PKG_CONFIG) --libs gdk-3.0)
     else
       LINKEXTRA += -lX11 -lXi
       CFLAGS += -DSWELL_PRELOAD="libgdk-3.so.0"
@@ -122,11 +121,3 @@ libSwell.colortheme: swell-gdi-generic.cpp $(SWELL_HEADERS)
 
 clean: 
 	-rm $(OBJS) libSwell$(DLL_EXT) make-theme libSwell.colortheme
-
-dist-xz:
-	-make NOGDK=1 clean
-	make NOGDK=1
-	tar cvJf libSwell-$(ARCHSTR)-headless.tar.xz libSwell$(DLL_EXT)
-	-make clean
-	make
-	tar cvJf libSwell-$(ARCHSTR)-gtk3.tar.xz libSwell$(DLL_EXT)

@@ -177,7 +177,7 @@ public:
   }
   static int sortFunc_sz(const void *_a, const void *_b)
   {
-    const rec *a = (const rec *)_a, *b = (const rec *)_b;
+    const rec *a = *(const rec * const *)_a, *b = *(const rec * const *)_b;
     int d = a->type - b->type;
     if (d) return s_sortrev ? -d : d;
     if (a->size != b->size) return s_sortrev ? (a->size>b->size?-1:1) : (a->size>b->size?1:-1);
@@ -196,8 +196,13 @@ public:
     {
       if (ent->d_name[0] == '.') continue;
       bool is_dir = (ent->d_type == DT_DIR);
-
-      if (ent->d_type == DT_LNK)
+      if (ent->d_type == DT_UNKNOWN)
+      {
+        snprintf(tmp,sizeof(tmp),"%s/%s",path,ent->d_name);
+        DIR *d = opendir(tmp);
+        if (d) { is_dir = true; closedir(d); }
+      }
+      else if (ent->d_type == DT_LNK)
       {
         snprintf(tmp,sizeof(tmp),"%s/%s",path,ent->d_name);
         char *rp = realpath(tmp,NULL);
@@ -257,6 +262,24 @@ public:
 };
 
 char BrowseFile_State::s_sortrev;
+
+static void preprocess_user_path(char *buf, int bufsz)
+{
+  if (buf[0] == '~')
+  {
+    char *tmp = strdup(buf+1);
+    if (buf[1] == '/' || !buf[1])
+    {
+      char *p = getenv("HOME");
+      if (p && *p) snprintf(buf,bufsz,"%s%s",p,tmp);
+    }
+    else
+    {
+      snprintf(buf,bufsz,"/home/%s",tmp); // if someone wants to write code to lookup homedirs, please, go right ahead!
+    }
+    free(tmp);
+  }
+}
 
 static LRESULT WINAPI swellFileSelectProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -390,6 +413,7 @@ get_dir:
           SendMessage(hwnd, WM_UPD, IDC_DIR, (LPARAM)buf);
         }
 
+        if (list) SetWindowPos(list,HWND_BOTTOM,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
         SetWindowPos(hwnd,NULL,x,y, w,h, flag);
         SendMessage(hwnd,WM_UPD,1,0);
         SendMessage(edit,EM_SETSEL,0,(LPARAM)-1);
@@ -449,6 +473,7 @@ get_dir:
             if (a>=0) filt = (const char *)SendDlgItemMessage(hwnd,IDC_EXT,CB_GETITEMDATA,a,0);
 
             GetDlgItemText(hwnd,IDC_DIR,buf,sizeof(buf));
+            preprocess_user_path(buf,sizeof(buf));
 
             if (buf[0]) parms->scan_path(buf, filt, parms->mode == BrowseFile_State::OPENDIR);
             else parms->viewlist_clear();
@@ -563,6 +588,7 @@ get_dir:
             {
               char buf[maxPathLen];
               GetDlgItemText(hwnd,IDC_DIR,buf,sizeof(buf));
+              preprocess_user_path(buf,sizeof(buf));
               WDL_remove_filepart(buf);
               SetDlgItemText(hwnd,IDC_DIR,buf);
             }
@@ -580,18 +606,21 @@ get_dir:
           {
             char buf[maxPathLen], msg[2048];
             GetDlgItemText(hwnd,IDC_DIR,buf,sizeof(buf));
+            preprocess_user_path(buf,sizeof(buf));
+
             if (GetFocus() == GetDlgItem(hwnd,IDC_DIR))
             {
               DIR *dir = opendir(buf);
               if (!dir)
               {
-                snprintf(msg,sizeof(msg),"Path does not exist:\r\n\r\n%s",buf);
-                MessageBox(hwnd,msg,"Path not found",MB_OK);
+                //snprintf(msg,sizeof(msg),"Path does not exist:\r\n\r\n%s",buf);
+                //MessageBox(hwnd,msg,"Path not found",MB_OK);
                 return 0;
               }
               closedir(dir);
 
               SendMessage(hwnd,WM_UPD,1,0);
+              SendMessage(hwnd, WM_UPD, IDC_DIR, (LPARAM)buf);
               HWND e = GetDlgItem(hwnd,IDC_EDIT);
               SendMessage(e,EM_SETSEL,0,(LPARAM)-1);
               SetFocus(e);
@@ -606,6 +635,7 @@ get_dir:
               if (buf[buflen-1]!='/') { buf[buflen++] = '/'; buf[buflen]=0; }
             }
             GetDlgItemText(hwnd,IDC_EDIT,msg,sizeof(msg));
+            preprocess_user_path(msg,sizeof(msg));
 
             BrowseFile_State *parms = (BrowseFile_State *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
             int cnt;
@@ -718,8 +748,8 @@ treatAsDir:
                    }
                    if (stat64(buf,&st))
                    {
-                     snprintf(msg,sizeof(msg),"File does not exist:\r\n\r\n%s",buf);
-                     MessageBox(hwnd,msg,"File not found",MB_OK);
+                     //snprintf(msg,sizeof(msg),"File does not exist:\r\n\r\n%s",buf);
+                     //MessageBox(hwnd,msg,"File not found",MB_OK);
                      return 0;
                    }
                  }

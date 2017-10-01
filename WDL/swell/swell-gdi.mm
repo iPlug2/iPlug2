@@ -727,7 +727,7 @@ int GetTextFace(HDC ctx, int nCount, LPTSTR lpFaceName)
     if (p)
     {
       lstrcpyn_safe(lpFaceName, p, nCount);
-      return strlen(lpFaceName);
+      return (int)strlen(lpFaceName);
     }
   }
 #endif
@@ -1016,9 +1016,8 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
       if (frame)
       {
         lines = CTFrameGetLines(frame);
-        int n=CFArrayGetCount(lines);
-        int x;
-        for(x=0;x<n;x++)
+        const int n = (int)CFArrayGetCount(lines);
+        for (int x=0;x<n;x++)
         {
           CTLineRef l = (CTLineRef)CFArrayGetValueAtIndex(lines,x);
           if (l)
@@ -1098,14 +1097,14 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     }
     if (lines)
     {
-      int n=CFArrayGetCount(lines);
-      int x;
-      for(x=0;x<n;x++)
+      const int n = (int)CFArrayGetCount(lines);
+      for (int x=0;x<n;x++)
       {
         CTLineRef l = (CTLineRef)CFArrayGetValueAtIndex(lines,x);
         if (l)
         {
-          CGFloat asc=0,desc=0,lead=0;
+          CGFloat desc=0.0,lead=0.0;
+          asc=0.0;
           float lw=CTLineGetTypographicBounds(l,&asc,&desc,&lead);
 
           if (bgc)
@@ -1119,7 +1118,6 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
           yo += floor(asc+desc+lead+0.5);          
         }
       }
-      
     }
     
     CGContextRestoreGState(ct->ctx);
@@ -1377,11 +1375,11 @@ void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int x
 
   if (w<1||h<1) return;
   
-  int sw=  CGBitmapContextGetWidth(src->ctx);
-  int sh= CGBitmapContextGetHeight(src->ctx);
+  const int sw = (int)CGBitmapContextGetWidth(src->ctx);
+  const int sh = (int)CGBitmapContextGetHeight(src->ctx);
   
-  int preclip_w=w;
-  int preclip_h=h;
+  const int preclip_w=w;
+  const int preclip_h=h;
   
   if (xin<0) 
   { 
@@ -1652,10 +1650,9 @@ HBITMAP CreateBitmap(int width, int height, int numplanes, int bitsperpixel, uns
                                                                  bytesPerRow:0 bitsPerPixel:0];    
   if (!rep) return 0;
   unsigned char* p = [rep bitmapData];
-  int pspan = [rep bytesPerRow]; // might not be the same as width
+  const int pspan = (int)[rep bytesPerRow]; // might not be the same as width
   
-  int y;
-  for (y=0;y<height;y ++)
+  for (int y=0;y<height;y ++)
   {
 #ifdef __ppc__
     memcpy(p,bits,width*4);
