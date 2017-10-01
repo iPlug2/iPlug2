@@ -2,11 +2,9 @@
 #include "IPlug_include_in_plug_src.h"
 #include "resource.h"
 
-#ifndef OS_IOS
 #include "IControl.h"
 #include "IKeyboardControl.h"
 #include "IPlugMultiTargets_controls.h"
-#endif
 
 const int kNumPrograms = 8;
 
@@ -36,7 +34,6 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
     mKey(-1),
     mPrevL(0.0),
     mPrevR(0.0)
-
 {
   TRACE;
 
@@ -53,7 +50,6 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   GetParam(kMode)->SetDisplayText(4, "e");
   GetParam(kMode)->SetDisplayText(5, "f");
 
-#ifndef OS_IOS
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachBackground(BG_ID, BG_FN);
 
@@ -87,29 +83,13 @@ IPlugMultiTargets::IPlugMultiTargets(IPlugInstanceInfo instanceInfo)
   mAboutBox = new IBitmapOverlayControl(this, 100, 100, &about, IRECT(540, 250, 680, 290));
   pGraphics->AttachControl(mAboutBox);
   AttachGraphics(pGraphics);
-#endif
+
   //MakePreset("preset 1", ... );
   MakeDefaultPreset((char *) "-", kNumPrograms);
 }
 
 IPlugMultiTargets::~IPlugMultiTargets() {}
 
-#ifdef OS_IOS
-void IPlugMultiTargets::ProcessSingleReplacing(float** inputs, float** outputs, int nFrames)
-{
-  // Mutex is already locked for us.
-  float* in1 = inputs[0];
-  float* in2 = inputs[1];
-  float* out1 = outputs[0];
-  float* out2 = outputs[1];
-
-  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
-  {
-    *out1 = sinf( 2.f * M_PI * mFreq * mPhase / mSampleRate ) * mGainLSmoother.Process(mGainL * mNoteGain);
-    *out2 = sinf( 2.f * M_PI * mFreq * 1.01f * (mPhase++) / mSampleRate ) * mGainRSmoother.Process(mGainR * mNoteGain);
-  }
-}
-#else
 void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   // Mutex is already locked for us.
@@ -153,7 +133,6 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
 #if !defined(OS_WIN) && !defined(SA_API)
       SendMidiMsg(pMsg);
 #endif
-
       int status = pMsg->StatusMsg();
 
       switch (status)
@@ -209,7 +188,6 @@ void IPlugMultiTargets::ProcessDoubleReplacing(double** inputs, double** outputs
 
   mMidiQueue.Flush(nFrames);
 }
-#endif
 
 void IPlugMultiTargets::Reset()
 {
@@ -243,30 +221,7 @@ void IPlugMultiTargets::ProcessMidiMsg(IMidiMsg* pMsg)
 {
   int status = pMsg->StatusMsg();
   int velocity = pMsg->Velocity();
-#ifdef OS_IOS
-  // Handle the MIDI message.
-  switch (status)
-  {
-    case IMidiMsg::kNoteOn:
-    case IMidiMsg::kNoteOff:
-      // filter only note messages
-      if (status == IMidiMsg::kNoteOn && velocity)
-      {
-        printf("note on\n");
-        mPhase = 0;
-        mNoteGain = 1.;
-      }
-      else
-      {
-        printf("note off\n");
-        mNoteGain = 0.;
-      }
-      break;
-    default:
-      return;
-  }
-#else
-
+  
   switch (status)
   {
     case IMidiMsg::kNoteOn:
@@ -289,7 +244,6 @@ void IPlugMultiTargets::ProcessMidiMsg(IMidiMsg* pMsg)
   
   mKeyboard->SetDirty();
   mMidiQueue.Add(pMsg);
-#endif
 }
 
 // Should return non-zero if one or more keys are playing.
@@ -306,7 +260,6 @@ bool IPlugMultiTargets::GetKeyStatus(int key)
   return mKeyStatus[key];
 }
 
-#ifndef OS_IOS
 //Called by the standalone wrapper if someone clicks about
 bool IPlugMultiTargets::HostRequestingAboutBox()
 {
@@ -319,4 +272,3 @@ bool IPlugMultiTargets::HostRequestingAboutBox()
   }
   return true;
 }
-#endif

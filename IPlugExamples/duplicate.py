@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Python shell script for Duplicating WDL-OL IPlug Projects
-# Oli Larkin 2012-2014 http://www.olilarkin.co.uk
+# Oli Larkin 2012-2017 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd
@@ -41,7 +41,6 @@ SUBFOLDERS_TO_SEARCH = [
 "installer",
 "scripts",
 "manual",
-"ios_wrapper",
 "xcschemes",
 "xcshareddata",
 "xcuserdata",
@@ -83,13 +82,6 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
         fullpath = os.path.join(dir, replaceproject + ".xcodeproj")
         
         print("recursing in main xcode project directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
-          yield x
-      elif checkdirname(f, searchproject + "-ios.xcodeproj"):
-        os.rename(fullpath, os.path.join(dir, replaceproject + "-ios.xcodeproj"))
-        fullpath = os.path.join(dir, replaceproject + "-ios.xcodeproj")
-        
-        print("recursing in ios xcode project directory: ")
         for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
           yield x
       elif (f in SUBFOLDERS_TO_SEARCH):
