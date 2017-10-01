@@ -2223,6 +2223,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffect-OSXAPP-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -2249,6 +2250,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffect-OSXAPP-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -2275,6 +2277,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffect-OSXAPP-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
