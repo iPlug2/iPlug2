@@ -1,16 +1,26 @@
 #! /bin/sh
 
-#shell script to automate IPlug Project build, code-signing and packaging on OSX
-
 BASEDIR=$(dirname $0)
-cd $BASEDIR
+
+cd $BASEDIR/..
+
+if [ -d build-mac ] 
+then
+  sudo rm -f -R -f build-mac
+fi
 
 #---------------------------------------------------------------------------------------------------------
 
 #variables
 
-VERSION=`echo | grep PLUG_VER resource.h`
-VERSION=${VERSION//\#define PLUG_VER }
+DEMO=0
+if [ "$1" == "demo" ]
+then
+DEMO=1
+fi
+
+VERSION=`echo | grep PLUG_VERSION_HEX resource.h`
+VERSION=${VERSION//\#define PLUG_VERSION_HEX }
 VERSION=${VERSION//\'}
 MAJOR_VERSION=$(($VERSION & 0xFFFF0000))
 MAJOR_VERSION=$(($MAJOR_VERSION >> 16)) 
@@ -24,23 +34,31 @@ PLUGIN_NAME=`echo | grep BUNDLE_NAME resource.h`
 PLUGIN_NAME=${PLUGIN_NAME//\#define BUNDLE_NAME }
 PLUGIN_NAME=${PLUGIN_NAME//\"}
 
+DMG_NAME=$PLUGIN_NAME-v$FULL_VERSION-mac
+
+if [ $DEMO == 1 ]
+then
+  DMG_NAME=$DMG_NAME-demo
+fi
+
+
 # work out the paths to the binaries
 
-VST2=`echo | grep VST_FOLDER ../../common.xcconfig`
-VST2=${VST2//\VST_FOLDER = }/$PLUGIN_NAME.vst
+VST2=`echo | grep VST2_PATH ../../common.xcconfig`
+VST2=${VST2//\VST2_PATH = }/$PLUGIN_NAME.vst
 
-VST3=`echo | grep VST3_FOLDER ../../common.xcconfig`
-VST3=${VST3//\VST3_FOLDER = }/$PLUGIN_NAME.vst3
+VST3=`echo | grep VST3_PATH ../../common.xcconfig`
+VST3=${VST3//\VST3_PATH = }/$PLUGIN_NAME.vst3
 
-AU=`echo | grep AU_FOLDER ../../common.xcconfig`
-AU=${AU//\AU_FOLDER = }/$PLUGIN_NAME.component
+AU=`echo | grep AU_PATH ../../common.xcconfig`
+AU=${AU//\AU_PATH = }/$PLUGIN_NAME.component
 
-APP=`echo | grep APP_FOLDER ../../common.xcconfig`
-APP=${APP//\APP_FOLDER = }/$PLUGIN_NAME.app
+APP=`echo | grep APP_PATH ../../common.xcconfig`
+APP=${APP//\APP_PATH = }/$PLUGIN_NAME.app
 
 # Dev build folder
-AAX=`echo | grep AAX_FOLDER ../../common.xcconfig`
-AAX=${AAX//\AAX_FOLDER = }/$PLUGIN_NAME.aaxplugin
+AAX=`echo | grep AAX_PATH ../../common.xcconfig`
+AAX=${AAX//\AAX_PATH = }/$PLUGIN_NAME.aaxplugin
 AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/$PLUGIN_NAME.aaxplugin"
 
 PKG="installer/build-mac/$PLUGIN_NAME Installer.pkg"
@@ -49,20 +67,27 @@ PKG_US="installer/build-mac/$PLUGIN_NAME Installer.unsigned.pkg"
 CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
 CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
 
-echo "making $PLUGIN_NAME version $FULL_VERSION mac distribution..."
+if [ $DEMO == 1 ]
+then
+  echo "making $PLUGIN_NAME version $FULL_VERSION DEMO mac distribution..."
+  cp "resources/img/AboutBox_Demo.png" "resources/img/AboutBox.png"
+else
+  echo "making $PLUGIN_NAME version $FULL_VERSION mac distribution..."
+  cp "resources/img/AboutBox_Registered.png" "resources/img/AboutBox.png"
+fi
+
 echo ""
 
 #---------------------------------------------------------------------------------------------------------
 
-#call python script to update version numbers
-./update_version.py
+./scripts/update_installer_version.py $DEMO
 
-#here you can use the touch command to force xcode to rebuild
-#touch MyPlugin.h
+echo "touching source to force recompile" 
+touch ./source/*.cpp
 
 #---------------------------------------------------------------------------------------------------------
 
-#if you are zipping the binaries, remove existing dist folder
+#remove existing dist folder
 #if [ -d installer/dist ] 
 #then
 #  rm -R installer/dist
@@ -91,16 +116,6 @@ then
   sudo rm -f -R $VST3
 fi
 
-if [ -d "${RTAS}" ] 
-then
-  sudo rm -f -R "${RTAS}"
-fi
-
-if [ -d "${RTAS_FINAL}" ] 
-then
-  sudo rm -f -R "${RTAS_FINAL}"
-fi
-
 if [ -d "${AAX}" ] 
 then
   sudo rm -f -R "${AAX}"
@@ -114,7 +129,8 @@ fi
 #---------------------------------------------------------------------------------------------------------
 
 # build xcode project. Change target to build individual formats 
-xcodebuild -project $PLUGIN_NAME.xcodeproj -xcconfig $PLUGIN_NAME.xcconfig -target "All" -configuration Release 2> ./build-mac.log
+
+xcodebuild -project $PLUGIN_NAME.xcodeproj -xcconfig $PLUGIN_NAME.xcconfig DEMO_VERSION=$DEMO -target "All" -configuration Release 2> ./build-mac.log
 
 if [ -s build-mac.log ]
 then
@@ -134,33 +150,28 @@ echo ""
 setfileicon resources/$PLUGIN_NAME.icns $AU
 setfileicon resources/$PLUGIN_NAME.icns $VST2
 setfileicon resources/$PLUGIN_NAME.icns $VST3
-setfileicon resources/$PLUGIN_NAME.icns "${RTAS}"
 setfileicon resources/$PLUGIN_NAME.icns "${AAX}"
 
 #---------------------------------------------------------------------------------------------------------
 
 #strip debug symbols from binaries
 
-echo "striping binaries"
-strip -x $AU/Contents/MacOS/$PLUGIN_NAME
+echo "stripping binaries"
+strip -x $AU/Contents/Resources/plugin.vst3/Contents/MacOS/$PLUGIN_NAME
 strip -x $VST2/Contents/MacOS/$PLUGIN_NAME
 strip -x $VST3/Contents/MacOS/$PLUGIN_NAME
 strip -x $APP/Contents/MacOS/$PLUGIN_NAME
 strip -x "${AAX}/Contents/MacOS/$PLUGIN_NAME"
-strip -x "${RTAS}/Contents/MacOS/$PLUGIN_NAME"
 
 #---------------------------------------------------------------------------------------------------------
 
 #ProTools stuff
-
-echo "copying RTAS PLUGIN_NAME from 3PDev to main RTAS folder"
-sudo cp -p -R "${RTAS}" "${RTAS_FINAL}"
-
-echo "copying AAX PLUGIN_NAME from 3PDev to main AAX folder"
+echo "copying AAX ${PLUGIN_NAME} from 3PDev to main AAX folder"
 sudo cp -p -R "${AAX}" "${AAX_FINAL}"
+mkdir "${AAX_FINAL}/Contents/Factory Presets/"
 
 echo "code sign AAX binary"
-#... consult PACE documentation
+/Applications/PACEAntiPiracy/Eden/Fusion/Current/bin/wraptool sign --verbose --account XXXX --wcguid XXXX --signid "Developer ID Application: ""${CERT_ID}" --in "${AAX_FINAL}" --out "${AAX_FINAL}"
 
 #---------------------------------------------------------------------------------------------------------
 
@@ -183,11 +194,9 @@ echo "code sign AAX binary"
 
 #10.8 Gatekeeper/Developer ID stuff
 
-echo "code app binary for Gatekeeper on 10.8"
-echo ""
-codesign -f -s "Developer ID Application: ""${CERT_ID}" $APP
-
-#TODO: code-sign plug-in binaries too?
+#echo "code app binary for Gatekeeper on 10.8"
+#echo ""
+#codesign -f -s "Developer ID Application: ""${CERT_ID}" $APP
 
 #---------------------------------------------------------------------------------------------------------
 
@@ -217,17 +226,9 @@ echo ""
 
 if [ -d installer/$PLUGIN_NAME.dmgCanvas ]
 then
-  dmgcanvas installer/$PLUGIN_NAME.dmgCanvas installer/$PLUGIN_NAME-mac.dmg
+  dmgcanvas installer/$PLUGIN_NAME.dmgCanvas installer/$DMG_NAME.dmg
 else
-  hdiutil create installer/$PLUGIN_NAME.dmg -srcfolder installer/build-mac/ -ov -anyowners -volname $PLUGIN_NAME
-  
-  if [ -f installer/$PLUGIN_NAME-mac.dmg ]
-  then
-   rm -f installer/$PLUGIN_NAME-mac.dmg
-  fi
-  
-  hdiutil convert installer/$PLUGIN_NAME.dmg -format UDZO -o installer/$PLUGIN_NAME-mac.dmg
-  sudo rm -R -f installer/$PLUGIN_NAME.dmg
+  hdiutil create installer/$DMG_NAME.dmg -format UDZO -srcfolder installer/build-mac/ -ov -anyowners -volname $PLUGIN_NAME
 fi
 
 sudo rm -R -f installer/build-mac/
@@ -249,5 +250,12 @@ sudo rm -R -f installer/build-mac/
 # rm -R installer/dist
 
 #---------------------------------------------------------------------------------------------------------
+
+if [ $DEMO == 1 ]
+then
+git checkout installer/VirtualCZ.iss
+git checkout installer/VirtualCZ.pkgproj
+git checkout resources/img/AboutBox.png
+fi
 
 echo "done"
