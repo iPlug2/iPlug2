@@ -74,18 +74,18 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   
   AAX_EPlugInCategory category = AAX_ePlugInCategory_None;
   if (PLUG_IS_INST) category = AAX_ePlugInCategory_SWGenerators;
-  else if(strcmp(PLUG_TYPE_PT, "None") == 0) category = AAX_ePlugInCategory_None;
-  else if(strcmp(PLUG_TYPE_PT, "EQ") == 0) category = AAX_ePlugInCategory_EQ;
-  else if(strcmp(PLUG_TYPE_PT, "Dynamics") == 0) category = AAX_ePlugInCategory_Dynamics;
-  else if(strcmp(PLUG_TYPE_PT, "PitchShift") == 0) category = AAX_ePlugInCategory_PitchShift;
-  else if(strcmp(PLUG_TYPE_PT, "Reverb") == 0) category = AAX_ePlugInCategory_Reverb;
-  else if(strcmp(PLUG_TYPE_PT, "Delay") == 0) category = AAX_ePlugInCategory_Delay;
-  else if(strcmp(PLUG_TYPE_PT, "Modulation") == 0) category = AAX_ePlugInCategory_Modulation;
-  else if(strcmp(PLUG_TYPE_PT, "Harmonic") == 0) category = AAX_ePlugInCategory_Harmonic;
-  else if(strcmp(PLUG_TYPE_PT, "NoiseReduction") == 0) category = AAX_ePlugInCategory_NoiseReduction;
-  else if(strcmp(PLUG_TYPE_PT, "Dither") == 0) category = AAX_ePlugInCategory_Dither;
-  else if(strcmp(PLUG_TYPE_PT, "SoundField") == 0) category = AAX_ePlugInCategory_SoundField;
-  else if(strcmp(PLUG_TYPE_PT, "Effect") == 0) category = AAX_ePlugInCategory_None;
+  else if(strcmp(PLUG_TYPE_PT, "None") == (0)) category = AAX_ePlugInCategory_None;
+  else if(strcmp(PLUG_TYPE_PT, "EQ") == (0)) category = AAX_ePlugInCategory_EQ;
+  else if(strcmp(PLUG_TYPE_PT, "Dynamics") == (0)) category = AAX_ePlugInCategory_Dynamics;
+  else if(strcmp(PLUG_TYPE_PT, "PitchShift") == (0)) category = AAX_ePlugInCategory_PitchShift;
+  else if(strcmp(PLUG_TYPE_PT, "Reverb") == (0)) category = AAX_ePlugInCategory_Reverb;
+  else if(strcmp(PLUG_TYPE_PT, "Delay") == (0)) category = AAX_ePlugInCategory_Delay;
+  else if(strcmp(PLUG_TYPE_PT, "Modulation") == (0)) category = AAX_ePlugInCategory_Modulation;
+  else if(strcmp(PLUG_TYPE_PT, "Harmonic") == (0)) category = AAX_ePlugInCategory_Harmonic;
+  else if(strcmp(PLUG_TYPE_PT, "NoiseReduction") == (0)) category = AAX_ePlugInCategory_NoiseReduction;
+  else if(strcmp(PLUG_TYPE_PT, "Dither") == (0)) category = AAX_ePlugInCategory_Dither;
+  else if(strcmp(PLUG_TYPE_PT, "SoundField") == (0)) category = AAX_ePlugInCategory_SoundField;
+  else if(strcmp(PLUG_TYPE_PT, "Effect") == (0)) category = AAX_ePlugInCategory_None;
   err |= effectDescriptor->AddCategory(category);
   
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
