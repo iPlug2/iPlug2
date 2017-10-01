@@ -28,7 +28,7 @@
       <AdditionalIncludeDirectories>$(ADDITIONAL_INCLUDES);..\..\WDL;..\..\WDL\lice;..\..\WDL\IPlug</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>IPlug.lib;lice.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IPlug.lib;lice.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
