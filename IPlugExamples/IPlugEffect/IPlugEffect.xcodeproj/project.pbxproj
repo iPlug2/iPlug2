@@ -502,7 +502,6 @@
 		4F78DAEA13B642790032E0F3 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWin.cpp; path = ../../WDL/IPlug/IGraphicsWin.cpp; sourceTree = SOURCE_ROOT; };
 		4F78DAEB13B642790032E0F3 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../WDL/IPlug/IGraphicsWin.h; sourceTree = SOURCE_ROOT; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugEffect.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.component; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F7F5C0C13E95DDC002918FD /* IPlugEffect-RTAS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-RTAS-Info.plist"; path = "resources/IPlugEffect-RTAS-Info.plist"; sourceTree = "<group>"; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../WDL/IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
@@ -649,7 +648,6 @@
 				4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */,
 				4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */,
-				4F7F5C0C13E95DDC002918FD /* IPlugEffect-RTAS-Info.plist */,
 				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */,
 			);
