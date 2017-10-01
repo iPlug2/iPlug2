@@ -6,6 +6,26 @@
 // Only looked at if USE_IDLE_CALLS is defined.
 #define IDLE_TICKS 20
 
+#ifdef AAX_API
+static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& pMod)
+{
+  uint32_t aax_mods = 0;
+  
+  if (pMod.A) aax_mods |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+  
+#ifdef OS_WIN
+  if (pMod.C) aax_mods |= AAX_eModifiers_Command;
+#else
+  if (pMod.C) aax_mods |= AAX_eModifiers_Control;
+  if (pMod.R) aax_mods |= AAX_eModifiers_Command;
+#endif
+  if (pMod.S) aax_mods |= AAX_eModifiers_Shift;
+  if (pMod.R) aax_mods |= AAX_eModifiers_SecondaryButton;
+  
+  return aax_mods;
+}
+#endif
+
 #ifndef CONTROL_BOUNDS_COLOR
   #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
