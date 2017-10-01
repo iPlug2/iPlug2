@@ -161,11 +161,7 @@
       <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
-    <PostBuildEvent>
-      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
-copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
-      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -182,11 +178,7 @@ copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
-    <PostBuildEvent>
-      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
-if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEffect.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
-      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -208,11 +200,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEf
       <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
-    <PostBuildEvent>
-      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
-copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
-      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -234,11 +222,7 @@ copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
-    <PostBuildEvent>
-      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
-if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEffect.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
-      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
     <ClCompile>
@@ -259,11 +243,7 @@ if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEf
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
-    <PostBuildEvent>
-      <Command>echo Post-Build: copy 32bit binary to 32bit VST3 Plugins folder ... ...
-copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
-      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
     <ClCompile>
@@ -284,66 +264,126 @@ copy /y "$(TargetPath)" "$(VST3_32_PATH)\IPlugEffect.vst3"</Command>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
-    <PostBuildEvent>
-      <Command>echo Post-Build: copy 64bit binary to 64bit VST3 Plugins folder ...
-if exist "%programfiles(x86)%" (copy /y "$(TargetPath)" "$(VST3_64_PATH)\IPlugEffect.vst3") else (echo Not copying 64bit binary - 32bit OS detected)</Command>
-      <Message>Copy VST3 Binary to VST3 Plugins folder</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\VST3_SDK\base\source\classfactoryhelpers.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fbuffer.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fcleanup.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fcommandline.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fdebug.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fdynlib.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\flock.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fobject.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fstdmethods.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fstreamer.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\fstring.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\hexbinary.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\timer.h" />
+    <ClInclude Include="..\..\VST3_SDK\base\source\updatehandler.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\conststringtable.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\falignpop.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\falignpush.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\fplatform.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\fstrdefs.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ftypes.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\funknown.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\futils.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\fvariant.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\geoconstants.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ibstream.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\icloneable.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ierrorcontext.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ipersistent.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ipluginbase.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\istringresult.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\iupdatehandler.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\keycodes.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\pluginbasefwd.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\smartpointer.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ucolorspec.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\base\ustring.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\gui\iplugview.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\gui\iplugviewcontentscalesupport.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstattributes.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstaudioprocessor.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstautomationstate.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstchannelcontextinfo.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstcomponent.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstcontextmenu.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivsteditcontroller.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstevents.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivsthostapplication.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstinterappaudio.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstmessage.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstmidicontrollers.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstnoteexpression.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstparameterchanges.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstplugview.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstprefetchablesupport.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstprocesscontext.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstrepresentation.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\ivstunits.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\vstpresetkeys.h" />
+    <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\vstpshpack4.h" />
     <ClInclude Include="..\..\VST3_SDK\pluginterfaces\vst\vsttypes.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\common\memorystream.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\common\pluginview.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstaudioeffect.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstaudioprocessoralgo.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstbus.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstbypassprocessor.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstnoteexpressiontypes.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstpresetfile.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
+    <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstspeakerarray.h" />
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h" />
     <ClInclude Include="IPlugEffect.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\VST3_SDK\base\source\baseiids.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\fbuffer.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\fdebug.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\fdynlib.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\flock.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\fobject.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\fstreamer.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\fstring.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\timer.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\source\updatehandler.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\conststringtable.cpp" />
     <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\funknown.cpp" />
     <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\ustring.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\common\memorystream.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\common\pluginview.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\main\dllmain.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstaudioeffect.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstbus.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstbypassprocessor.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstnoteexpressiontypes.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstparameters.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstpresetfile.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
     <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\VST3_SDK\public.sdk\source\main\winexport.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

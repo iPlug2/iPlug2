@@ -151,6 +151,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -164,6 +165,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -181,6 +183,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -199,6 +202,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
     <ClCompile>
@@ -216,6 +220,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(WDL_PATH)\lice\build-win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
     <ClCompile>
@@ -233,6 +238,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(x64_LIB_PATHS);$(WDL_PATH)\lice\build-win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h" />

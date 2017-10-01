@@ -31,6 +31,7 @@
     <ProjectGuid>{DC4B5920-933D-4C82-B842-F34431D55A93}</ProjectGuid>
     <RootNamespace>IPlugEffect-aax</RootNamespace>
     <Keyword>ManagedCProj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -106,12 +107,26 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetExt>.aaxplugin</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetExt>.aaxplugin</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
+    <TargetExt>.aaxplugin</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetExt>.aaxplugin</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetExt>.aaxplugin</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
+    <TargetExt>.aaxplugin</TargetExt>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\Win32\
-CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico
-</Command>
-    </PreBuildEvent>
+    <PreBuildEvent />
     <CustomBuildStep>
       <Message>
       </Message>
@@ -152,17 +167,10 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
-    <PostBuildEvent>
-      <Message>Copying AAX plugin folder to $(AAX_PLUGINS_PATH)</Message>
-      <Command>xcopy /E /Y /i ".\build-win\aax\bin\$(BINARY_NAME).aaxplugin" "$(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\Win32\
-CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico
-</Command>
-    </PreBuildEvent>
+    <PreBuildEvent />
     <CustomBuildStep>
       <Message>
       </Message>
@@ -207,17 +215,10 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
-    <PostBuildEvent>
-      <Message>Copying AAX plugin folder to $(AAX_PLUGINS_PATH)</Message>
-      <Command>xcopy /E /Y /i ".\build-win\aax\bin\$(BINARY_NAME).aaxplugin" "$(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
-    <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\Win32\
-CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities\PlugIn.ico
-</Command>
-    </PreBuildEvent>
+    <PreBuildEvent />
     <CustomBuildStep>
       <Message>
       </Message>
@@ -262,16 +263,10 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
-    <PostBuildEvent>
-      <Message>Copying AAX plugin folder to $(AAX_PLUGINS_PATH)</Message>
-      <Command>xcopy /E /Y /i ".\build-win\aax\bin\$(BINARY_NAME).aaxplugin" "$(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\x64\
-      </Command>
-    </PreBuildEvent>
+    <PreBuildEvent />
     <CustomBuildStep>
       <Message>
       </Message>
@@ -315,16 +310,10 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
-    <PostBuildEvent>
-      <Message>Copying AAX plugin folder to $(AAX_PLUGINS_PATH)</Message>
-      <Command>xcopy /E /Y /i ".\build-win\aax\bin\$(BINARY_NAME).aaxplugin" "$(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\x64\
-      </Command>
-    </PreBuildEvent>
+    <PreBuildEvent />
     <CustomBuildStep>
       <Message>
       </Message>
@@ -370,16 +359,10 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
-    <PostBuildEvent>
-      <Message>Copying AAX plugin folder to $(AAX_PLUGINS_PATH)</Message>
-      <Command>xcopy /E /Y /i ".\build-win\aax\bin\$(BINARY_NAME).aaxplugin" "$(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
-    <PreBuildEvent>
-      <Command>DEL /Q /F /S .\build-win\aax\bin\$(BINARY_NAME).aaxplugin\Contents\x64\
-      </Command>
-    </PreBuildEvent>
+    <PreBuildEvent />
     <CustomBuildStep>
       <Message>
       </Message>
@@ -425,10 +408,7 @@ CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat $(OutDir) ..\..\AAX_SDK\Utilities
     <Bscmake>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
-    <PostBuildEvent>
-      <Message>Copying AAX plugin folder to $(AAX_PLUGINS_PATH)</Message>
-      <Command>xcopy /E /Y /i ".\build-win\aax\bin\$(BINARY_NAME).aaxplugin" "$(AAX_PLUGINS_PATH)\$(BINARY_NAME).aaxplugin"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
