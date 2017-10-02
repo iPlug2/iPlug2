@@ -569,19 +569,19 @@ const char* AUPropertyStr(int propID)
   case kAudioUnitProperty_ShouldAllocateBuffer:
     return "kAudioUnitProperty_ShouldAllocateBuffer";
   case kAudioUnitProperty_FrequencyResponse:
-      return "kAudioUnitProperty_FrequencyResponse";
+    return "kAudioUnitProperty_FrequencyResponse";
   case kAudioUnitProperty_ParameterHistoryInfo:
     return "kAudioUnitProperty_FrequencyResponse";
   case kAudioUnitProperty_NickName:
-    return "kAudioUnitProperty_NickName"
+    return "kAudioUnitProperty_NickName";
 #endif
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1011
   case kAudioUnitProperty_RequestViewController:
-      return "kAudioUnitProperty_RequestViewController";
+    return "kAudioUnitProperty_RequestViewController";
   case kAudioUnitProperty_ParametersForOverview:
-      return "kAudioUnitProperty_ParametersForOverview"
+    return "kAudioUnitProperty_ParametersForOverview";
   case kAudioUnitProperty_SupportsMPE:
-     return "kAudioUnitProperty_SupportsMPE"
+    return "kAudioUnitProperty_SupportsMPE";
 #endif
   default:
     return "unknown";
