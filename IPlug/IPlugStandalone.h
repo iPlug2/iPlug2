@@ -5,7 +5,7 @@
 #include "IPlugBase.h"
 
 #ifdef OS_WIN
-  #include "../rtaudiomidi/RtMidi.h"
+  #include "RtMidi.h"
   
   struct IPlugInstanceInfo
   {
