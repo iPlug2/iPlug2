@@ -20,18 +20,18 @@ else
   x64_ARGS="-64"
 fi
 
-PUID=`echo | grep PLUG_UNIQUE_ID resource.h`
+PUID=`echo | grep PLUG_UNIQUE_ID ../resource.h`
 PUID=${PUID//\#define PLUG_UNIQUE_ID }
 PUID=${PUID//\'}
 
-PMID=`echo | grep PLUG_MFR_ID resource.h`
+PMID=`echo | grep PLUG_MFR_ID ../resource.h`
 PMID=${PMID//\#define PLUG_MFR_ID }
 PMID=${PMID//\'}
 
-PII=`echo | grep PLUG_IS_INST resource.h`
+PII=`echo | grep PLUG_IS_INST ../resource.h`
 PII=${PII//\#define PLUG_IS_INST }
 
-PDM=`echo | grep PLUG_DOES_MIDI resource.h`
+PDM=`echo | grep PLUG_DOES_MIDI ../resource.h`
 PDM=${PDM//\#define PLUG_DOES_MIDI }
 
 TYPE=aufx
