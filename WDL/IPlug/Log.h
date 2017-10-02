@@ -20,7 +20,7 @@
 
 #if defined TRACER_BUILD
   #define TRACE Trace(TRACELOC, "");
-//  #define TRACE_PROCESS Trace(TRACELOC, "");
+  //#define TRACE_PROCESS Trace(TRACELOC, ""); // uncomment this to trace render callback
   #define TRACE_PROCESS
 #else
   #define TRACE
@@ -29,6 +29,7 @@
 
 #define TRACELOC __FUNCTION__,__LINE__
 void Trace(const char* funcName, int line, const char* fmtStr, ...);
+#define TraceProcess Trace
 
 // To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
 // To simply create a trace entry in the log:    TRACE;

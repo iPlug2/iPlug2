@@ -736,7 +736,6 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           pChInfo->inChannels = pIO->mIn;
           pChInfo->outChannels = pIO->mOut;
           Trace(TRACELOC, "IO:%d:%d", pIO->mIn, pIO->mOut);
-
         }
       }
       return noErr;
@@ -1621,7 +1620,8 @@ inline ComponentResult RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRend
 ComponentResult IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp,
                                     UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
-  TRACE_PROCESS(TRACELOC, "%d:%d:%d", outputBusIdx, pOutBufList->mNumberBuffers, nFrames);
+  //Trace(TRACELOC, "%d:%d:%d", outputBusIdx, pOutBufList->mNumberBuffers, nFrames);
+  TRACE_PROCESS;
 
   IPlugAU* _this = (IPlugAU*) pPlug;
 
