@@ -1277,7 +1277,7 @@
 				4F25BECE12C61F47005D51F7 /* Resources */,
 				4F3AE1D312C0E5E2001FD7A4 /* Frameworks */,
 				4F3AE1DA12C0E5E2001FD7A4 /* Rez */,
-				4F744D4C14005ADA002FAD90 /* ShellScript */,
+				4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */,
 			);
 			buildRules = (
 			);
@@ -1484,7 +1484,7 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4F744D4C14005ADA002FAD90 /* ShellScript */ = {
+		4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			comments = "reset audiounit caches";
@@ -1492,11 +1492,12 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Script - clear_audiounit_caches.sh";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\" ]\n  then\n\trm \"$HOME/Library/Application Support/AU Lab/com.apple.audio.aulab_componentcache.plist\"\nfi\n\nif [ -f \"$HOME/Library/Caches/com.apple.audiounits.cache\" ]\n  then\n\trm \"$HOME/Library/Caches/com.apple.audiounits.cache\"\nfi";
+			shellScript = ./scripts/clear_audiounit_caches.sh;
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
