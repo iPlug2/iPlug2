@@ -41,7 +41,7 @@ struct LogFile
 
   LogFile()
   {
-    #ifdef _WIN32
+    #ifdef OS_WIN
     mFP = fopen(LOGFILE, "w");
     #else
     char logFilePath[100];
