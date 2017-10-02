@@ -5,7 +5,7 @@
 #endif
 
 #include "IGraphics.h"
-#include "../swell/swell.h"
+#include "swell.h"
 #include <Carbon/Carbon.h>
 
 #ifndef DEFAULT_PATH_OSX

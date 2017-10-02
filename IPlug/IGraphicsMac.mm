@@ -6,7 +6,7 @@
 #ifndef IPLUG_NO_CARBON_SUPPORT
   #include "IGraphicsCarbon.h"
 #endif
-#include "../swell/swell-internal.h"
+#include "swell-internal.h"
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 

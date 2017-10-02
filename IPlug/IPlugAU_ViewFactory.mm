@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#include "../IPlug/IGraphicsCocoa.h"
+#include "IGraphicsCocoa.h"
 #include "resource.h"   // This is your plugin's resource.h.
 
 @interface VIEW_CLASS : NSObject <AUCocoaUIBase>

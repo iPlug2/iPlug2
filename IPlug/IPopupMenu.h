@@ -5,9 +5,9 @@
 #include <cstdio>
 #include <cassert>
 
-#include "../mutex.h"
-#include "../wdlstring.h"
-#include "../ptrlist.h"
+#include "mutex.h"
+#include "wdlstring.h"
+#include "ptrlist.h"
 
 // this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
 
