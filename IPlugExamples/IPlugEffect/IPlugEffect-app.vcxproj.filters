@@ -44,7 +44,7 @@
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugStandalone.h">
+    <ClInclude Include="..\..\IPlug\IPlugStandalone.h">
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="app_wrapper\app_resource.h" />
@@ -72,7 +72,7 @@
       <Filter>app</Filter>
     </ClCompile>
     <ClCompile Include="IPlugEffect.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPlugStandalone.cpp">
+    <ClCompile Include="..\..\IPlug\IPlugStandalone.cpp">
       <Filter>app</Filter>
     </ClCompile>
   </ItemGroup>

@@ -6,7 +6,7 @@
 // the basename of the vst, vst3, app, component, aaxplugin
 BINARY_NAME = IPlugEffect
 
-ADDITIONAL_INCLUDES = // $(SRCROOT)/../../../MyDSP/
+ADDITIONAL_INCLUDES = $(LICE_PATH)
 //ADDITIONAL_LIBRARY_PATHS = //
 
 // for jack headers

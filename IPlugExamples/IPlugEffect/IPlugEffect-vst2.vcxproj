@@ -241,12 +241,12 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h" />
+    <ClInclude Include="..\..\IPlug\IPlugVST.h" />
     <ClInclude Include="IPlugEffect.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugVST.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>

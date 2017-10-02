@@ -419,19 +419,19 @@
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
-    <ClCompile Include="..\..\WDL\IPlug\Hosts.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IBitmapMonoText.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IControl.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IGraphics.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IGraphicsWin.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IParam.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPlugBase.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPlugStructs.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPopupMenu.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\Log.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\AAX\AAX_CIPlugParameters.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPlugAAX.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\AAX\IPlugAAX_Describe.cpp" />
+    <ClCompile Include="..\..\IPlug\Hosts.cpp" />
+    <ClCompile Include="..\..\IPlug\IBitmapMonoText.cpp" />
+    <ClCompile Include="..\..\IPlug\IControl.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\IPlug\IParam.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugBase.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugStructs.cpp" />
+    <ClCompile Include="..\..\IPlug\IPopupMenu.cpp" />
+    <ClCompile Include="..\..\IPlug\Log.cpp" />
+    <ClCompile Include="..\..\IPlug\AAX\AAX_CIPlugParameters.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugAAX.cpp" />
+    <ClCompile Include="..\..\IPlug\AAX\IPlugAAX_Describe.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -464,24 +464,24 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\WDL\IPlug\Containers.h" />
-    <ClInclude Include="..\..\WDL\IPlug\Hosts.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IBitmapMonoText.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IControl.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IGraphics.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IGraphicsWin.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IKeyboardControl.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IMidiQueue.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IParam.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlug_include_in_plug_src.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugBase.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugOSDetect.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugStructs.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPopupMenu.h" />
-    <ClInclude Include="..\..\WDL\IPlug\Log.h" />
-    <ClInclude Include="..\..\WDL\IPlug\AAX\AAX_CIPlugParameters.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugAAX.h" />
+    <ClInclude Include="..\..\IPlug\Containers.h" />
+    <ClInclude Include="..\..\IPlug\Hosts.h" />
+    <ClInclude Include="..\..\IPlug\IBitmapMonoText.h" />
+    <ClInclude Include="..\..\IPlug\IControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphicsWin.h" />
+    <ClInclude Include="..\..\IPlug\IKeyboardControl.h" />
+    <ClInclude Include="..\..\IPlug\IMidiQueue.h" />
+    <ClInclude Include="..\..\IPlug\IParam.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\IPlug\IPlugOSDetect.h" />
+    <ClInclude Include="..\..\IPlug\IPlugStructs.h" />
+    <ClInclude Include="..\..\IPlug\IPopupMenu.h" />
+    <ClInclude Include="..\..\IPlug\Log.h" />
+    <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugParameters.h" />
+    <ClInclude Include="..\..\IPlug\IPlugAAX.h" />
     <ClInclude Include="IPlugEffect.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

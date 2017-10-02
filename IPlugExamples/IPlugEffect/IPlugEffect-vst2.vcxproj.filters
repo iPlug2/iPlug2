@@ -2,14 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="IPlugEffect.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPlugVST.cpp">
+    <ClCompile Include="..\..\IPlug\IPlugVST.cpp">
       <Filter>vst2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugEffect.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugVST.h">
+    <ClInclude Include="..\..\IPlug\IPlugVST.h">
       <Filter>vst2</Filter>
     </ClInclude>
   </ItemGroup>

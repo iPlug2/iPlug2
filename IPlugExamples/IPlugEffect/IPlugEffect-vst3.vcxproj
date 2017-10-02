@@ -343,7 +343,7 @@
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstspeakerarray.h" />
-    <ClInclude Include="..\..\WDL\IPlug\IPlugVST3.h" />
+    <ClInclude Include="..\..\IPlug\IPlugVST3.h" />
     <ClInclude Include="IPlugEffect.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -376,7 +376,7 @@
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstpresetfile.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
-    <ClCompile Include="..\..\WDL\IPlug\IPlugVST3.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugVST3.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
