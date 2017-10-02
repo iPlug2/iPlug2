@@ -8,12 +8,8 @@
 #include "base64encdec.h"
 
 #ifndef VstInt32
-  #ifdef WIN32
-    typedef int VstInt32;
-  #else
     #include <stdint.h>
     typedef int32_t VstInt32;
-  #endif
 #endif
 
 const double DEFAULT_SAMPLE_RATE = 44100.0;

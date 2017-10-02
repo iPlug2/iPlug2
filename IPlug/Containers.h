@@ -43,7 +43,7 @@ inline double AmpToDB(double amp)
 }
 
 #ifndef REMINDER
-  #if defined WIN32
+  #ifdef OS_WIN
   // This enables: #pragma REMINDER("change this line!") with click-through from VC++.
     #define REMINDER(msg) message(__FILE__   "(" MAKE_STR(__LINE__) "): " msg)
   #elif defined __APPLE__
