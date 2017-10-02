@@ -508,6 +508,7 @@
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FB3624E13B648FE00DB6B76 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FC1EA3D1F82692C00780C58 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16C9E13B6327C001D0217 /* app_resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_resource.h; path = app_wrapper/app_resource.h; sourceTree = "<group>"; };
@@ -681,6 +682,7 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4FC1EA3D1F82692C00780C58 /* scripts */,
 				4FD16C9D13B6327C001D0217 /* OSX App Wrapper */,
 				526F9C010D7DC7D700562CF8 /* IPlugEffect.exp */,
 				4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */,
@@ -1497,8 +1499,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = ./scripts/clear_audiounit_caches.sh;
-			showEnvVarsInLog = 0;
+			shellScript = ./scripts/clear_audiounit_caches.command;
 		};
 /* End PBXShellScriptBuildPhase section */
 
