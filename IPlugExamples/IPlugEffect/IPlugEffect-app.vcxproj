@@ -272,9 +272,9 @@
     <ClInclude Include="..\..\ASIO_SDK\ginclude.h" />
     <ClInclude Include="..\..\ASIO_SDK\iasiodrv.h" />
     <ClInclude Include="..\..\IPlug\IPlugStandalone.h" />
-    <ClInclude Include="..\..\WDL\rtaudiomidi\RtAudio.h" />
-    <ClInclude Include="..\..\WDL\rtaudiomidi\RtError.h" />
-    <ClInclude Include="..\..\WDL\rtaudiomidi\RtMidi.h" />
+    <ClInclude Include="..\..\IPlug\rtaudiomidi\RtAudio.h" />
+    <ClInclude Include="..\..\IPlug\rtaudiomidi\RtError.h" />
+    <ClInclude Include="..\..\IPlug\rtaudiomidi\RtMidi.h" />
     <ClInclude Include="app_wrapper\app_main.h" />
     <ClInclude Include="app_wrapper\app_resource.h" />
     <ClInclude Include="IPlugEffect.h" />
@@ -285,8 +285,8 @@
     <ClCompile Include="..\..\ASIO_SDK\asiodrivers.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiolist.cpp" />
     <ClCompile Include="..\..\IPlug\IPlugStandalone.cpp" />
-    <ClCompile Include="..\..\WDL\rtaudiomidi\RtAudio.cpp" />
-    <ClCompile Include="..\..\WDL\rtaudiomidi\RtMidi.cpp" />
+    <ClCompile Include="..\..\IPlug\rtaudiomidi\RtAudio.cpp" />
+    <ClCompile Include="..\..\IPlug\rtaudiomidi\RtMidi.cpp" />
     <ClCompile Include="app_wrapper\app_dialog.cpp" />
     <ClCompile Include="app_wrapper\app_main.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />

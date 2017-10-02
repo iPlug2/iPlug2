@@ -924,7 +924,7 @@
 				4F78D8C313B63A700032E0F3 /* RtMidi.h */,
 			);
 			name = rtaudiomidi;
-			path = ../../WDL/rtaudiomidi;
+			path = ../../IPlug/rtaudiomidi;
 			sourceTree = SOURCE_ROOT;
 		};
 		4F78D8D013B63B390032E0F3 /* IPlug */ = {
