@@ -2,7 +2,7 @@
 
 // Include this file in the main header for your plugin,
 // after #defining either VST_API or AU_API.
-#include <stdio.h>
+#include <cstdio>
 #include "IPlugOSDetect.h"
 #include "resource.h" // This is your plugin's resource.h
 
