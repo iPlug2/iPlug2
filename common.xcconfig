@@ -33,7 +33,10 @@ APP_DEFS = SA_API __MACOSX_CORE__ $ALL_DEFS
 
 // Where the SDKs etc are located in relation to the plugin xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
-IPLUG_PATH = $(WDL_PATH)/IPlug
+IPLUG_PATH = $(SRCROOT)/../../IPlug
+SWELL_PATH = $(WDL_PATH)/swell
+LICE_PATH = $(WDL_PATH)/lice
+
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
 CA_SDK = $(SRCROOT)/../../CA_SDK

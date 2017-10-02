@@ -4,8 +4,8 @@
 #include "Containers.h"
 #include "IPlugOSDetect.h"
 
-#include "../swell/swell.h"
-#include "../lice/lice_text.h"
+#include "swell.h"
+#include "lice_text.h"
 
 enum EFileAction { kFileOpen, kFileSave };
 

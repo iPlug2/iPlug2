@@ -14,10 +14,10 @@
 #include <cstring>
 #include <cstdio>
 #include <cassert>
-#include "../mutex.h"
-#include "../wdlstring.h"
-#include "../ptrlist.h"
-#include "../wdlendian.h"
+#include "mutex.h"
+#include "wdlstring.h"
+#include "ptrlist.h"
+#include "wdlendian.h"
 
 #define FREE_NULL(p) {free(p);p=0;}
 #define DELETE_NULL(p) {delete(p); p=0;}

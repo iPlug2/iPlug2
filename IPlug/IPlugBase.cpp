@@ -4,8 +4,8 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
-#include "../wdlendian.h"
-#include "../base64encdec.h"
+#include "wdlendian.h"
+#include "base64encdec.h"
 
 #ifndef VstInt32
   #ifdef WIN32
