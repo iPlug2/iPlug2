@@ -5,14 +5,6 @@
 #include "IControl.h"
 #include "lice.h"
 
-// Specialty stuff for calling in to Reaper for Lice functionality.
-#ifdef REAPER_SPECIAL
-  #include "../IPlugExt/ReaperExt.h"
-  #define _LICE ReaperExt
-#else
-  #define _LICE
-#endif
-
 #ifdef AAX_API
   #include "AAX_IViewContainer.h"
 #endif

@@ -477,7 +477,7 @@ bool IGraphics::DrawBitmap(IBitmap* pIBitmap, IRECT* pDest, int srcX, int srcY, 
   IRECT r = pDest->Intersect(&mDrawRECT);
   srcX += r.L - pDest->L;
   srcY += r.T - pDest->T;
-  _LICE::LICE_Blit(mDrawBitmap, pLB, r.L, r.T, srcX, srcY, r.W(), r.H(), LiceWeight(pBlend), LiceBlendMode(pBlend));
+  LICE_Blit(mDrawBitmap, pLB, r.L, r.T, srcX, srcY, r.W(), r.H(), LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
 
@@ -500,7 +500,7 @@ bool IGraphics::DrawRotatedBitmap(IBitmap* pIBitmap, int destCtrX, int destCtrY,
   int destX = destCtrX - W / 2;
   int destY = destCtrY - H / 2;
 
-  _LICE::LICE_RotatedBlit(mDrawBitmap, pLB, destX, destY, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) angle,
+  LICE_RotatedBlit(mDrawBitmap, pLB, destX, destY, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) angle,
                           false, LiceWeight(pBlend), LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR, 0.0f, (float) yOffsetZeroDeg);
 
   return true;
@@ -523,16 +523,16 @@ bool IGraphics::DrawRotatedMask(IBitmap* pIBase, IBitmap* pIMask, IBitmap* pITop
   {
     mTmpBitmap = new LICE_MemBitmap();
   }
-  _LICE::LICE_Copy(mTmpBitmap, pBase);
-  _LICE::LICE_ClearRect(mTmpBitmap, 0, 0, W, H, LICE_RGBA(255, 255, 255, 0));
+  LICE_Copy(mTmpBitmap, pBase);
+  LICE_ClearRect(mTmpBitmap, 0, 0, W, H, LICE_RGBA(255, 255, 255, 0));
 
-  _LICE::LICE_RotatedBlit(mTmpBitmap, pMask, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) dA,
+  LICE_RotatedBlit(mTmpBitmap, pMask, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) dA,
                           true, 1.0f, LICE_BLIT_MODE_ADD | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
-  _LICE::LICE_RotatedBlit(mTmpBitmap, pTop, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) dA,
+  LICE_RotatedBlit(mTmpBitmap, pTop, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) dA,
                           true, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
 
   IRECT r = IRECT(x, y, x + W, y + H).Intersect(&mDrawRECT);
-  _LICE::LICE_Blit(mDrawBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T,
+  LICE_Blit(mDrawBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T,
                    LiceWeight(pBlend), LiceBlendMode(pBlend));
   //	ReaperExt::LICE_Blit(mDrawBitmap, mTmpBitmap, x, y, &srcR, LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
@@ -542,7 +542,7 @@ bool IGraphics::DrawPoint(const IColor* pColor, float x, float y,
                           const IChannelBlend* pBlend, bool antiAlias)
 {
   float weight = (pBlend ? pBlend->mWeight : 1.0f);
-  _LICE::LICE_PutPixel(mDrawBitmap, int(x + 0.5f), int(y + 0.5f), LiceColor(pColor), weight, LiceBlendMode(pBlend));
+  LICE_PutPixel(mDrawBitmap, int(x + 0.5f), int(y + 0.5f), LiceColor(pColor), weight, LiceBlendMode(pBlend));
   return true;
 }
 
@@ -557,14 +557,14 @@ bool IGraphics::ForcePixel(const IColor* pColor, int x, int y)
 bool IGraphics::DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2,
                          const IChannelBlend* pBlend, bool antiAlias)
 {
-  _LICE::LICE_Line(mDrawBitmap, (int) x1, (int) y1, (int) x2, (int) y2, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
+  LICE_Line(mDrawBitmap, (int) x1, (int) y1, (int) x2, (int) y2, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
 }
 
 bool IGraphics::DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle,
                         const IChannelBlend* pBlend, bool antiAlias)
 {
-  _LICE::LICE_Arc(mDrawBitmap, cx, cy, r, minAngle, maxAngle, LiceColor(pColor),
+  LICE_Arc(mDrawBitmap, cx, cy, r, minAngle, maxAngle, LiceColor(pColor),
                   LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
 }
@@ -572,13 +572,13 @@ bool IGraphics::DrawArc(const IColor* pColor, float cx, float cy, float r, float
 bool IGraphics::DrawCircle(const IColor* pColor, float cx, float cy, float r,
                            const IChannelBlend* pBlend, bool antiAlias)
 {
-  _LICE::LICE_Circle(mDrawBitmap, cx, cy, r, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
+  LICE_Circle(mDrawBitmap, cx, cy, r, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
 }
 
 bool IGraphics::RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
-  _LICE::LICE_RoundRect(mDrawBitmap, (float) pR->L, (float) pR->T, (float) pR->W(), (float) pR->H(), cornerradius,
+  LICE_RoundRect(mDrawBitmap, (float) pR->L, (float) pR->T, (float) pR->W(), (float) pR->H(), cornerradius,
                         LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
   return true;
 }
@@ -594,58 +594,58 @@ bool IGraphics::FillRoundRect(const IColor* pColor, IRECT* pR, const IChannelBle
   float weight = LiceWeight(pBlend);
   LICE_pixel color = LiceColor(pColor);
   
-  _LICE::LICE_FillRect(mDrawBitmap, x1+cornerradius, y1, w-2*cornerradius, h, color, weight, mode);
-  _LICE::LICE_FillRect(mDrawBitmap, x1, y1+cornerradius, cornerradius, h-2*cornerradius,color, weight, mode);
-  _LICE::LICE_FillRect(mDrawBitmap, x1+w-cornerradius, y1+cornerradius, cornerradius, h-2*cornerradius, color, weight, mode);
+  LICE_FillRect(mDrawBitmap, x1+cornerradius, y1, w-2*cornerradius, h, color, weight, mode);
+  LICE_FillRect(mDrawBitmap, x1, y1+cornerradius, cornerradius, h-2*cornerradius,color, weight, mode);
+  LICE_FillRect(mDrawBitmap, x1+w-cornerradius, y1+cornerradius, cornerradius, h-2*cornerradius, color, weight, mode);
 
   //void LICE_FillCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel color, float alpha, int mode, bool aa)
-  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+cornerradius, (float) cornerradius, color, weight, mode, aa);
-  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+h-cornerradius-1, (float) cornerradius, color, weight, mode, aa);
-  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+cornerradius, (float) cornerradius, color, weight, mode, aa);
-  _LICE::LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+h-cornerradius-1, (float) cornerradius, color, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+cornerradius, (float) cornerradius, color, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+h-cornerradius-1, (float) cornerradius, color, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+cornerradius, (float) cornerradius, color, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+h-cornerradius-1, (float) cornerradius, color, weight, mode, aa);
   
   return true;
 }
 
 bool IGraphics::FillIRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend)
 {
-  _LICE::LICE_FillRect(mDrawBitmap, pR->L, pR->T, pR->W(), pR->H(), LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend));
+  LICE_FillRect(mDrawBitmap, pR->L, pR->T, pR->W(), pR->H(), LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
 
 bool IGraphics::FillCircle(const IColor* pColor, int cx, int cy, float r, const IChannelBlend* pBlend, bool antiAlias)
 {
-  _LICE::LICE_FillCircle(mDrawBitmap, (float) cx, (float) cy, r, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
+  LICE_FillCircle(mDrawBitmap, (float) cx, (float) cy, r, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
 }
 
 bool IGraphics::FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend)
 {
-  _LICE::LICE_FillTriangle(mDrawBitmap, x1, y1, x2, y2, x3, y3, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend));
+  LICE_FillTriangle(mDrawBitmap, x1, y1, x2, y2, x3, y3, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
 
 bool IGraphics::FillIConvexPolygon(const IColor* pColor, int* x, int* y, int npoints, const IChannelBlend* pBlend)
 {
-  _LICE::LICE_FillConvexPolygon(mDrawBitmap, x, y, npoints, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend));
+  LICE_FillConvexPolygon(mDrawBitmap, x, y, npoints, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
 
 IColor IGraphics::GetPoint(int x, int y)
 {
-  LICE_pixel pix = _LICE::LICE_GetPixel(mDrawBitmap, x, y);
+  LICE_pixel pix = LICE_GetPixel(mDrawBitmap, x, y);
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
 bool IGraphics::DrawVerticalLine(const IColor* pColor, int xi, int yLo, int yHi)
 {
-  _LICE::LICE_Line(mDrawBitmap, xi, yLo, xi, yHi, LiceColor(pColor), 1.0f, LICE_BLIT_MODE_COPY, false);
+  LICE_Line(mDrawBitmap, xi, yLo, xi, yHi, LiceColor(pColor), 1.0f, LICE_BLIT_MODE_COPY, false);
   return true;
 }
 
 bool IGraphics::DrawHorizontalLine(const IColor* pColor, int yi, int xLo, int xHi)
 {
-  _LICE::LICE_Line(mDrawBitmap, xLo, yi, xHi, yi, LiceColor(pColor), 1.0f, LICE_BLIT_MODE_COPY, false);
+  LICE_Line(mDrawBitmap, xLo, yi, xHi, yi, LiceColor(pColor), 1.0f, LICE_BLIT_MODE_COPY, false);
   return true;
 }
 
@@ -653,7 +653,7 @@ IBitmap IGraphics::ScaleBitmap(IBitmap* pIBitmap, int destW, int destH)
 {
   LICE_IBitmap* pSrc = (LICE_IBitmap*) pIBitmap->mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  _LICE::LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pIBitmap->W, (float) pIBitmap->H, 1.0f,
+  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pIBitmap->W, (float) pIBitmap->H, 1.0f,
                          LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
 
   IBitmap bmp(pDest, destW, destH, pIBitmap->N);
@@ -666,7 +666,7 @@ IBitmap IGraphics::CropBitmap(IBitmap* pIBitmap, IRECT* pR)
   int destW = pR->W(), destH = pR->H();
   LICE_IBitmap* pSrc = (LICE_IBitmap*) pIBitmap->mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  _LICE::LICE_Blit(pDest, pSrc, 0, 0, pR->L, pR->T, destW, destH, 1.0f, LICE_BLIT_MODE_COPY);
+  LICE_Blit(pDest, pSrc, 0, 0, pR->L, pR->T, destW, destH, 1.0f, LICE_BLIT_MODE_COPY);
 
   IBitmap bmp(pDest, destW, destH, pIBitmap->N);
   RetainBitmap(&bmp);
