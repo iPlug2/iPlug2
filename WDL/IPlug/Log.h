@@ -11,7 +11,7 @@
   void DBGMSG(const char *format, ...);
   #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
 
-#elif defined __APPLE__
+#elif defined OS_OSX
   #define SYS_THREAD_ID (intptr_t) pthread_self()
   #define DBGMSG(...) printf(__VA_ARGS__)
 #else

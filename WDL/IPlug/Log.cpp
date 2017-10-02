@@ -410,7 +410,7 @@ const char* VSTOpcodeStr(int opCode)
     return "unknown";
   }
 }
-#if defined __APPLE__
+#if defined OS_OSX
 #include <AudioUnit/AudioUnitProperties.h>
 #include <AudioUnit/AudioUnitCarbonView.h>
 const char* AUSelectStr(int select)
@@ -609,7 +609,7 @@ const char* AUScopeStr(int scope)
     return "unknown";
   }
 }
-#endif // __APPLE__
+#endif // OS_OSX
 #else
 void Trace(const char* funcName, int line, const char* format, ...) {}
 const char* VSTOpcodeStr(int opCode)

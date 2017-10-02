@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(__APPLE__) && defined(__LP64__) && !defined(IPLUG_NO_CARBON_SUPPORT)
+#if defined(__LP64__) && !defined(IPLUG_NO_CARBON_SUPPORT)
   #define IPLUG_NO_CARBON_SUPPORT
 #endif
 

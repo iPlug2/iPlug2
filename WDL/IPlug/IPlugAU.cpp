@@ -52,7 +52,7 @@ int PtrListInitialize(WDL_PtrList<C>* pList, int size)
   return size;
 }
 
-#if defined(__APPLE__) && defined(__LP64__)
+#if defined(__LP64__)
   #define GET_COMP_PARAM(TYPE, IDX, NUM) *((TYPE*)&(params->params[NUM - IDX]))
 #else
   #define GET_COMP_PARAM(TYPE, IDX, NUM) *((TYPE*)&(params->params[IDX]))

@@ -1192,7 +1192,7 @@ LICE_IFont* IGraphics::CacheFont(IText* pTxt)
     else // if (pTxt->mQuality == IText::kQualityNonAntiAliased)
       q = NONANTIALIASED_QUALITY;
 
-    #ifdef __APPLE__
+    #ifdef OS_OSX
     bool resized = false;
     Resize:
     if (h < 2) h = 2;
