@@ -29,14 +29,14 @@ def  main():
 
   # extract values from config.h
   for line in fileinput.input(projectpath + "resource.h",inplace=0):
-    if "#define PLUG_VERSION_HEX " in line:
-      PLUG_VERSION_HEX_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
-      PLUG_VERSION_HEX = int(PLUG_VERSION_HEX_STR, 16)
-      MAJOR = PLUG_VERSION_HEX & 0xFFFF0000
+    if "#define PLUG_VER " in line:
+      PLUG_VER_STR = string.lstrip(line, "#define PLUG_VER ")
+      PLUG_VER = int(PLUG_VER_STR, 16)
+      MAJOR = PLUG_VER & 0xFFFF0000
       MAJORSTR = str(MAJOR >> 16)
-      MINOR = PLUG_VERSION_HEX & 0x0000FF00
+      MINOR = PLUG_VER & 0x0000FF00
       MINORSTR = str(MINOR >> 8)
-      BUGFIXSTR = str(PLUG_VERSION_HEX & 0x000000FF)
+      BUGFIXSTR = str(PLUG_VER & 0x000000FF)
     
     if "#define BUNDLE_NAME " in line:
       BUNDLE_NAME = string.lstrip(line, "#define BUNDLE_NAME ")
