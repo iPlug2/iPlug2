@@ -216,6 +216,11 @@
 		4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4FBF95681F3F5DDC00A92E48 /* libAAXLibrary_libcpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F83C3721F3F599D0044D8B8 /* libAAXLibrary_libcpp.a */; };
 		4FBF95691F3F5DE700A92E48 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4FC3A4E11F83B01100DEEC70 /* IGraphicsLice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */; };
+		4FC3A4E21F83B01200DEEC70 /* IGraphicsLice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */; };
+		4FC3A4E31F83B01200DEEC70 /* IGraphicsLice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */; };
+		4FC3A4E41F83B01200DEEC70 /* IGraphicsLice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */; };
+		4FC3A4E51F83B01300DEEC70 /* IGraphicsLice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */; };
 		4FD16CA213B6327D001D0217 /* app_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */; };
 		4FD16CA313B6327D001D0217 /* app_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA113B6327C001D0217 /* app_dialog.cpp */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
@@ -509,6 +514,8 @@
 		4FB3624E13B648FE00DB6B76 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC1EA3D1F82692C00780C58 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
+		4FC3A4DE1F83A53D00DEEC70 /* IGraphicsLice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsLice.h; path = ../../IPlug/IGraphicsLice.h; sourceTree = "<group>"; };
+		4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsLice.cpp; path = ../../IPlug/IGraphicsLice.cpp; sourceTree = "<group>"; };
 		4FCF15AF133124D1009A6277 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16C9E13B6327C001D0217 /* app_resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_resource.h; path = app_wrapper/app_resource.h; sourceTree = "<group>"; };
@@ -942,6 +949,8 @@
 				4F3EE94513B65A350097B791 /* IPlugOSDetect.h */,
 				4F78D90813B63BA50032E0F3 /* IGraphics.h */,
 				4F78D8F613B63BA50032E0F3 /* IGraphics.cpp */,
+				4FC3A4DE1F83A53D00DEEC70 /* IGraphicsLice.h */,
+				4FC3A4E01F83A53E00DEEC70 /* IGraphicsLice.cpp */,
 				4FDA440513F3E4F2000B4551 /* IBitmapMonoText.cpp */,
 				4FDA440613F3E4F2000B4551 /* IBitmapMonoText.h */,
 				4F78D8E613B63BA40032E0F3 /* IPlug_include_in_plug_hdr.h */,
@@ -1517,6 +1526,7 @@
 				4F78D9C013B63BA50032E0F3 /* IGraphics.cpp in Sources */,
 				4F78D9C113B63BA50032E0F3 /* IGraphicsCarbon.cpp in Sources */,
 				4F78D9C213B63BA50032E0F3 /* IGraphicsCocoa.mm in Sources */,
+				4FC3A4E21F83B01200DEEC70 /* IGraphicsLice.cpp in Sources */,
 				4F78D9C313B63BA50032E0F3 /* Log.cpp in Sources */,
 				4F78D9C413B63BA50032E0F3 /* IPopupMenu.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IParam.cpp in Sources */,
@@ -1541,6 +1551,7 @@
 				4F78D95013B63BA50032E0F3 /* IGraphicsCocoa.mm in Sources */,
 				4F78D95313B63BA50032E0F3 /* Log.cpp in Sources */,
 				4F78D95513B63BA50032E0F3 /* IPopupMenu.cpp in Sources */,
+				4FC3A4E41F83B01200DEEC70 /* IGraphicsLice.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IParam.cpp in Sources */,
 				4F78D96113B63BA50032E0F3 /* IControl.cpp in Sources */,
 				4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
@@ -1556,6 +1567,7 @@
 			files = (
 				4F9828B6140A9EB700F3FCC1 /* IPlugEffect.cpp in Sources */,
 				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
+				4FC3A4E31F83B01200DEEC70 /* IGraphicsLice.cpp in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */,
 				4F9828B9140A9EB700F3FCC1 /* IPlugStructs.cpp in Sources */,
 				4F9828BA140A9EB700F3FCC1 /* Hosts.cpp in Sources */,
@@ -1610,6 +1622,7 @@
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4FB600271567CB0A0020189A /* IPlugAAX.cpp in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
+				4FC3A4E51F83B01300DEEC70 /* IGraphicsLice.cpp in Sources */,
 				4FB600291567CB0A0020189A /* AAX_CIPlugParameters.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1624,6 +1637,7 @@
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
+				4FC3A4E11F83B01100DEEC70 /* IGraphicsLice.cpp in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
