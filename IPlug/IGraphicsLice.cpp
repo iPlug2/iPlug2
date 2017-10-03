@@ -6,7 +6,6 @@
 class BitmapStorage
 {
 public:
-  
   struct BitmapKey
   {
     int id;
@@ -206,8 +205,7 @@ bool IGraphicsLice::DrawBitmap(IBitmap* pIBitmap, IRECT* pDest, int srcX, int sr
   return true;
 }
 
-bool IGraphicsLice::DrawRotatedBitmap(IBitmap* pIBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg,
-                                  const IChannelBlend* pBlend)
+bool IGraphicsLice::DrawRotatedBitmap(IBitmap* pIBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend)
 {
   LICE_IBitmap* pLB = (LICE_IBitmap*) pIBitmap->mData;
   
@@ -225,14 +223,12 @@ bool IGraphicsLice::DrawRotatedBitmap(IBitmap* pIBitmap, int destCtrX, int destC
   int destX = destCtrX - W / 2;
   int destY = destCtrY - H / 2;
   
-  LICE_RotatedBlit(mDrawBitmap, pLB, destX, destY, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) angle,
-                   false, LiceWeight(pBlend), LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR, 0.0f, (float) yOffsetZeroDeg);
+  LICE_RotatedBlit(mDrawBitmap, pLB, destX, destY, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) angle, false, LiceWeight(pBlend), LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR, 0.0f, (float) yOffsetZeroDeg);
   
   return true;
 }
 
-bool IGraphicsLice::DrawRotatedMask(IBitmap* pIBase, IBitmap* pIMask, IBitmap* pITop, int x, int y, double angle,
-                                const IChannelBlend* pBlend)
+bool IGraphicsLice::DrawRotatedMask(IBitmap* pIBase, IBitmap* pIMask, IBitmap* pITop, int x, int y, double angle, const IChannelBlend* pBlend)
 {
   LICE_IBitmap* pBase = (LICE_IBitmap*) pIBase->mData;
   LICE_IBitmap* pMask = (LICE_IBitmap*) pIMask->mData;
@@ -257,14 +253,11 @@ bool IGraphicsLice::DrawRotatedMask(IBitmap* pIBase, IBitmap* pIMask, IBitmap* p
                    true, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
   
   IRECT r = IRECT(x, y, x + W, y + H).Intersect(&mDrawRECT);
-  LICE_Blit(mDrawBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T,
-            LiceWeight(pBlend), LiceBlendMode(pBlend));
-  //  ReaperExt::LICE_Blit(mDrawBitmap, mTmpBitmap, x, y, &srcR, LiceWeight(pBlend), LiceBlendMode(pBlend));
+  LICE_Blit(mDrawBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
 
-bool IGraphicsLice::DrawPoint(const IColor* pColor, float x, float y,
-                          const IChannelBlend* pBlend, bool antiAlias)
+bool IGraphicsLice::DrawPoint(const IColor* pColor, float x, float y, const IChannelBlend* pBlend, bool antiAlias)
 {
   float weight = (pBlend ? pBlend->mWeight : 1.0f);
   LICE_PutPixel(mDrawBitmap, int(x + 0.5f), int(y + 0.5f), LiceColor(pColor), weight, LiceBlendMode(pBlend));
@@ -279,8 +272,7 @@ bool IGraphicsLice::ForcePixel(const IColor* pColor, int x, int y)
   return true;
 }
 
-bool IGraphicsLice::DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2,
-                         const IChannelBlend* pBlend, bool antiAlias)
+bool IGraphicsLice::DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool antiAlias)
 {
   LICE_Line(mDrawBitmap, (int) x1, (int) y1, (int) x2, (int) y2, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
@@ -289,13 +281,11 @@ bool IGraphicsLice::DrawLine(const IColor* pColor, float x1, float y1, float x2,
 bool IGraphicsLice::DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle,
                         const IChannelBlend* pBlend, bool antiAlias)
 {
-  LICE_Arc(mDrawBitmap, cx, cy, r, minAngle, maxAngle, LiceColor(pColor),
-           LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
+  LICE_Arc(mDrawBitmap, cx, cy, r, minAngle, maxAngle, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
 }
 
-bool IGraphicsLice::DrawCircle(const IColor* pColor, float cx, float cy, float r,
-                           const IChannelBlend* pBlend, bool antiAlias)
+bool IGraphicsLice::DrawCircle(const IColor* pColor, float cx, float cy, float r, const IChannelBlend* pBlend, bool antiAlias)
 {
   LICE_Circle(mDrawBitmap, cx, cy, r, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), antiAlias);
   return true;
@@ -303,8 +293,7 @@ bool IGraphicsLice::DrawCircle(const IColor* pColor, float cx, float cy, float r
 
 bool IGraphicsLice::RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
-  LICE_RoundRect(mDrawBitmap, (float) pR->L, (float) pR->T, (float) pR->W(), (float) pR->H(), cornerradius,
-                 LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_RoundRect(mDrawBitmap, (float) pR->L, (float) pR->T, (float) pR->W(), (float) pR->H(), cornerradius, LiceColor(pColor), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
   return true;
 }
 
@@ -499,7 +488,7 @@ LICE_IFont* IGraphicsLice::CacheFont(IText* pTxt)
       return 0;
     }
     font->SetFromHFont(hFont, LICE_FONT_FLAG_OWNS_HFONT | LICE_FONT_FLAG_FORCE_NATIVE);
-#ifdef __APPLE__
+#ifdef OS_OSX
     if (!resized && font->GetLineHeight() != h)
     {
       h = int((double)(h * h) / (double)font->GetLineHeight() + 0.5);
