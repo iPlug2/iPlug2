@@ -4,7 +4,10 @@
 #include "Containers.h"
 #include "IPlugOSDetect.h"
 
+#ifdef OS_OSX
 #include "swell.h"
+#endif
+
 #include "lice_text.h"
 
 enum EFileAction { kFileOpen, kFileSave };
