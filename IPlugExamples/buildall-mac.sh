@@ -1,7 +1,7 @@
 #! /bin/sh
 
 #bash shell script to build all the plugin projects in this directory for OSX. 
-#you may need to modify this if you don't have the RTAS SDK, or only want to build vst2 etc
+#you may need to modify this if you don't have the AAX SDK, or only want to build vst2 etc
 #since the build will cancel if there are any errors
 
 BASEDIR=$(dirname $0)
