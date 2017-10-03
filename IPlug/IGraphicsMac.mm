@@ -78,7 +78,7 @@ static double gettm()
 @end
 
 IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
-  :	IGraphics(pPlug, w, h, refreshFPS),
+  :	IGraphicsLice(pPlug, w, h, refreshFPS),
     #ifndef IPLUG_NO_CARBON_SUPPORT
     mGraphicsCarbon(0),
     #endif

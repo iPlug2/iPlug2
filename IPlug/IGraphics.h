@@ -3,7 +3,6 @@
 #include "IPlugStructs.h"
 #include "IPopupMenu.h"
 #include "IControl.h"
-#include "lice.h"
 
 #ifdef AAX_API
   #include "AAX_IViewContainer.h"
@@ -18,34 +17,34 @@ class IParam;
 class IGraphics
 {
 public:
-  void PrepDraw();    // Called once, when the IGraphics class is attached to the IPlug class.
+  virtual void PrepDraw() = 0;    // Called once, when the IGraphics class is attached to the IPlug class.
 
   bool IsDirty(IRECT* pR);        // Ask the plugin what needs to be redrawn.
   bool Draw(IRECT* pR);           // The system announces what needs to be redrawn.  Ordering and drawing logic.
   virtual bool DrawScreen(IRECT* pR) = 0;  // Tells the OS class to put the final bitmap on the screen.
 
   // Methods for the drawing implementation class.
-  bool DrawBitmap(IBitmap* pBitmap, IRECT* pDest, int srcX, int srcY, const IChannelBlend* pBlend = 0);
-  bool DrawRotatedBitmap(IBitmap* pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = 0);
-  bool DrawRotatedMask(IBitmap* pBase, IBitmap* pMask, IBitmap* pTop, int x, int y, double angle, const IChannelBlend* pBlend = 0);
-  bool DrawPoint(const IColor* pColor, float x, float y, const IChannelBlend* pBlend = 0, bool antiAlias = false);
+  virtual bool DrawBitmap(IBitmap* pBitmap, IRECT* pDest, int srcX, int srcY, const IChannelBlend* pBlend = 0) = 0;
+  virtual bool DrawRotatedBitmap(IBitmap* pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = 0) = 0;
+  virtual bool DrawRotatedMask(IBitmap* pBase, IBitmap* pMask, IBitmap* pTop, int x, int y, double angle, const IChannelBlend* pBlend = 0) = 0;
+  virtual bool DrawPoint(const IColor* pColor, float x, float y, const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
   // Live ammo!  Will crash if out of bounds!  etc.
-  bool ForcePixel(const IColor* pColor, int x, int y);
-  bool DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool DrawCircle(const IColor* pColor, float cx, float cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa);
-  bool FillRoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa);
+  virtual bool ForcePixel(const IColor* pColor, int x, int y) = 0;
+  virtual bool DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
+  virtual bool DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
+  virtual bool DrawCircle(const IColor* pColor, float cx, float cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
+  virtual bool RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa) = 0;
+  virtual bool FillRoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa) = 0;
 
-  bool FillIRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend = 0);
-  bool FillCircle(const IColor* pColor, int cx, int cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool FillIConvexPolygon(const IColor* pColor, int* x, int* y, int npoints, const IChannelBlend* pBlend = 0);
-  bool FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend);
+  virtual bool FillIRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend = 0) = 0;
+  virtual bool FillCircle(const IColor* pColor, int cx, int cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false) = 0;
+  virtual bool FillIConvexPolygon(const IColor* pColor, int* x, int* y, int npoints, const IChannelBlend* pBlend = 0) = 0;
+  virtual bool FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend) = 0;
 
-  bool DrawIText(IText* pTxt, const char* str, IRECT* pR, bool measure = false);
-  virtual bool MeasureIText(IText* pTxt, char* str, IRECT* pR) { return DrawIText(pTxt, str, pR, true); } ;
+  virtual bool DrawIText(IText* pTxt, const char* str, IRECT* pR, bool measure = false) = 0;
+  bool MeasureIText(IText* pTxt, char* str, IRECT* pR) { return DrawIText(pTxt, str, pR, true); } ;
 
-  IColor GetPoint(int x, int y);
+  virtual IColor GetPoint(int x, int y)  = 0;
   void* GetData();
 
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pTextRect);
@@ -115,9 +114,9 @@ public:
 
   IPlugBase* GetPlug() { return mPlug; }
 
-  IBitmap LoadIBitmap(int ID, const char* name, int nStates = 1, bool framesAreHoriztonal = false);
-  IBitmap ScaleBitmap(IBitmap* pSrcBitmap, int destW, int destH);
-  IBitmap CropBitmap(IBitmap* pSrcBitmap, IRECT* pR);
+  virtual IBitmap LoadIBitmap(int ID, const char* name, int nStates = 1, bool framesAreHoriztonal = false) = 0;
+  virtual IBitmap ScaleBitmap(IBitmap* pSrcBitmap, int destW, int destH) = 0;
+  virtual IBitmap CropBitmap(IBitmap* pSrcBitmap, IRECT* pR) = 0;
   void AttachBackground(int ID, const char* name);
   void AttachPanelBackground(const IColor *pColor);
   void AttachKeyCatcher(IControl* pControl);
@@ -147,8 +146,8 @@ public:
   bool DrawRect(const IColor* pColor, IRECT* pR);
   bool DrawVerticalLine(const IColor* pColor, IRECT* pR, float x);
   bool DrawHorizontalLine(const IColor* pColor, IRECT* pR, float y);
-  bool DrawVerticalLine(const IColor* pColor, int xi, int yLo, int yHi);
-  bool DrawHorizontalLine(const IColor* pColor, int yi, int xLo, int xHi);
+  virtual bool DrawVerticalLine(const IColor* pColor, int xi, int yLo, int yHi) = 0;
+  virtual bool DrawHorizontalLine(const IColor* pColor, int yi, int xLo, int xHi) = 0;
   bool DrawRadialLine(const IColor* pColor, float cx, float cy, float angle, float rMin, float rMax, const IChannelBlend* pBlend = 0, bool antiAlias = false);
 
   void OnMouseDown(int x, int y, IMouseMod* pMod);
@@ -201,11 +200,8 @@ public:
 	// IPlug::OnIdle which is called from the audio processing thread.
 	void OnGUIIdle();
 
-  void RetainBitmap(IBitmap* pBitmap);
-  void ReleaseBitmap(IBitmap* pBitmap);
-  LICE_pixel* GetBits();
-  // For controls that need to interface directly with LICE.
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
+  virtual void RetainBitmap(IBitmap* pBitmap) = 0;
+  virtual void ReleaseBitmap(IBitmap* pBitmap) = 0;
 
   WDL_Mutex mMutex;
 
@@ -229,17 +225,11 @@ protected:
   inline int GetMouseY() const { return mMouseY; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
-  virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;
-  
-  LICE_SysBitmap* mDrawBitmap;
-  LICE_IFont* CacheFont(IText* pTxt);
-  
 #ifdef AAX_API
   AAX_IViewContainer* mAAXViewContainer;  
 #endif
 
 private:
-  LICE_MemBitmap* mTmpBitmap;
   int mWidth, mHeight, mFPS, mIdleTicks;
   int GetMouseControlIdx(int x, int y, bool mo = false);
   int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;

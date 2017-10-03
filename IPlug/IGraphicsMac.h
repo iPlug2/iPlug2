@@ -4,7 +4,7 @@
   #define IPLUG_NO_CARBON_SUPPORT
 #endif
 
-#include "IGraphics.h"
+#include "IGraphicsLice.h"
 #include "swell.h"
 #include <Carbon/Carbon.h>
 
@@ -42,7 +42,7 @@
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 #define COCOA_FORMATTER CONCAT(CocoaFormatter_)
 
-class IGraphicsMac : public IGraphics
+class IGraphicsMac : public IGraphicsLice
 {
 public:
   IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS);
