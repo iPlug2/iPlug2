@@ -291,7 +291,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
     case WM_CTLCOLOREDIT:
     {
-
       if(!pGraphics->mEdControl)
         return 0;
 
@@ -300,7 +299,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       SetBkColor(dc, RGB(pText->mTextEntryBGColor.R, pText->mTextEntryBGColor.G, pText->mTextEntryBGColor.B));
       SetTextColor(dc, RGB(pText->mTextEntryFGColor.R, pText->mTextEntryFGColor.G, pText->mTextEntryFGColor.B));
       SetBkMode(dc, OPAQUE);
-      return (BOOL)GetStockObject(DC_BRUSH);
+      return (BOOL) GetStockObject(DC_BRUSH);
     }
 
     case WM_CLOSE:
@@ -442,9 +441,9 @@ LICE_IBitmap* IGraphicsWin::OSLoadBitmap(int ID, const char* name)
   while (ext > name && *ext != '.') --ext;
   ++ext;
 
-  if (!stricmp(ext, "png")) return _LICE::LICE_LoadPNGFromResource(mHInstance, ID, 0);
+  if (!stricmp(ext, "png")) return LICE_LoadPNGFromResource(mHInstance, ID, 0);
   #ifdef IPLUG_JPEG_SUPPORT
-  if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg")) return _LICE::LICE_LoadJPGFromResource(mHInstance, ID, 0);
+  if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg")) return LICE_LoadJPGFromResource(mHInstance, ID, 0);
   #endif
 
   return 0;
