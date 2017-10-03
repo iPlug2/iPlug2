@@ -1,5 +1,4 @@
-#ifndef _IPLUGAPP_APP_MAIN_H_
-#define _IPLUGAPP_APP_MAIN_H_
+#pragma once
 
 #include "IPlugOSDetect.h"
 
@@ -142,6 +141,3 @@ extern std::vector<unsigned int> gAudioInputDevs;
 extern std::vector<unsigned int> gAudioOutputDevs;
 extern std::vector<std::string> gMIDIInputDevNames;
 extern std::vector<std::string> gMIDIOutputDevNames;
-
-#endif //_IPLUGAPP_APP_MAIN_H_
-
