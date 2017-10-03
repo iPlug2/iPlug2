@@ -159,7 +159,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(IPLUG_PATH)\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -176,7 +176,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(IPLUG_PATH)\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -198,7 +198,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(WDL_PATH)\lice\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(IPLUG_PATH)\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -220,7 +220,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\VST3_SDK\base\win\$(Platform)\$(Configuration)\;$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(IPLUG_PATH)\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -241,7 +241,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(WDL_PATH)\lice\build-win\$(Platform)\Release\;..\..\VST3_SDK\base\win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(IPLUG_PATH)\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -262,7 +262,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(x64_LIB_PATHS);$(WDL_PATH)\lice\build-win\$(Platform)\Release\;..\..\VST3_SDK\base\win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>base.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>$(WDL_PATH)\IPlug\IPlugVST3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(IPLUG_PATH)\IPlugVST3.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>

@@ -5,19 +5,6 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <BINARY_NAME>IPlugEffect</BINARY_NAME>
-    <APP_DEFS>SA_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
-    <VST_DEFS>VST_API;VST_FORCE_DEPRECATED;</VST_DEFS>
-    <VST3_DEFS>VST3_API</VST3_DEFS>
-    <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
-    <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
-    <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
-    <ADDITIONAL_INCLUDES>$(ProjectDir)\..\..\..\MyDSP\;</ADDITIONAL_INCLUDES>
-    <APP_INCLUDES>..\..\ASIO_SDK;..\..\WDL\rtaudiomidi;</APP_INCLUDES>
-    <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
-    <VST3_INCLUDES>..\..\VST3_SDK;</VST3_INCLUDES>
-    <AAX_INCLUDES>.\..\..\AAX_SDK\Interfaces;.\..\..\AAX_SDK\Interfaces\ACF;.\..\..\IPlug\AAX</AAX_INCLUDES>
-    <AAX_DEFS>AAX_API;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</AAX_DEFS>
-    <AAX_LIBS>lice.lib;wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
     <AAX_BUNDLE>$(ProjectDir)build-win\aax\bin\$(BINARY_NAME).aaxplugin</AAX_BUNDLE>
   </PropertyGroup>
   <PropertyGroup>
@@ -26,7 +13,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ADDITIONAL_INCLUDES);..\..\WDL;..\..\WDL\lice;..\..\IPlug;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADDITIONAL_INCLUDES);$(LICE_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>IPlug.lib;lice.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -41,45 +28,6 @@
   <ItemGroup>
     <BuildMacro Include="BINARY_NAME">
       <Value>$(BINARY_NAME)</Value>
-    </BuildMacro>
-    <BuildMacro Include="APP_DEFS">
-      <Value>$(APP_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST_DEFS">
-      <Value>$(VST_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST3_DEFS">
-      <Value>$(VST3_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="DEBUG_DEFS">
-      <Value>$(DEBUG_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="RELEASE_DEFS">
-      <Value>$(RELEASE_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="TRACER_DEFS">
-      <Value>$(TRACER_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="ADDITIONAL_INCLUDES">
-      <Value>$(ADDITIONAL_INCLUDES)</Value>
-    </BuildMacro>
-    <BuildMacro Include="APP_INCLUDES">
-      <Value>$(APP_INCLUDES)</Value>
-    </BuildMacro>
-    <BuildMacro Include="APP_LIBS">
-      <Value>$(APP_LIBS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST3_INCLUDES">
-      <Value>$(VST3_INCLUDES)</Value>
-    </BuildMacro>
-    <BuildMacro Include="AAX_INCLUDES">
-      <Value>$(AAX_INCLUDES)</Value>
-    </BuildMacro>
-    <BuildMacro Include="AAX_DEFS">
-      <Value>$(AAX_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="AAX_LIBS">
-      <Value>$(AAX_LIBS)</Value>
     </BuildMacro>
     <BuildMacro Include="AAX_BUNDLE">
       <Value>$(AAX_BUNDLE)</Value>

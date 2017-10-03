@@ -31,7 +31,7 @@ AU_DEFS = AU_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
 AAX_DEFS = AAX_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
 APP_DEFS = SA_API __MACOSX_CORE__ $ALL_DEFS
 
-// Where the SDKs etc are located in relation to the plugin xcode project
+// Where the SDKs etc. are located in relation to the plug-in Xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
 IPLUG_PATH = $(SRCROOT)/../../IPlug
 SWELL_PATH = $(WDL_PATH)/swell
@@ -45,11 +45,11 @@ SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 CLANG_LINK_OBJC_RUNTIME = NO
 
-// Where to build the plugins / app bundles ...
+// Where to build the plug-ins / app bundles ...
 
-// build to system plugin folder
+// build to system plug-in folder
 // you need to explicitly add write permissions to put stuff here
-// you can also build to the user plugin folder, but the installer scripts assume that the binarys are in the system folder
+// you can also build to the user plug-in folder, but the installer scripts assume that the binarys are in the system folder
 // AAX folder should be the location of the PT Dev build plug-ins folder
 
 VST_FOLDER = /Library/Audio/Plug-Ins/VST
