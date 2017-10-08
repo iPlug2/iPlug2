@@ -2,52 +2,63 @@
 
 #include "IControl.h"
 #include "lice.h"
+#include "lice_text.h"
+
+#ifdef OS_OSX
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 class IGraphicsLice : public IGraphics
 {
 public:
-  IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS = 0);
+  IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS, double scale);
   ~IGraphicsLice();
 
-  void PrepDraw();
+  void PrepDraw() override;
 
-  bool DrawBitmap(IBitmap* pBitmap, IRECT* pDest, int srcX, int srcY, const IChannelBlend* pBlend = 0);
-  virtual bool DrawRotatedBitmap(IBitmap* pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = 0);
-  virtual bool DrawRotatedMask(IBitmap* pBase, IBitmap* pMask, IBitmap* pTop, int x, int y, double angle, const IChannelBlend* pBlend = 0);
-  bool DrawPoint(const IColor* pColor, float x, float y, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool ForcePixel(const IColor* pColor, int x, int y);
-  bool DrawLine(const IColor* pColor, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool DrawArc(const IColor* pColor, float cx, float cy, float r, float minAngle, float maxAngle,  const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool DrawCircle(const IColor* pColor, float cx, float cy, float r,const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool FillCircle(const IColor* pColor, int cx, int cy, float r, const IChannelBlend* pBlend = 0, bool antiAlias = false);
-  bool FillIRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend = 0);
-  bool RoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa);
-  bool FillRoundRect(const IColor* pColor, IRECT* pR, const IChannelBlend* pBlend, int cornerradius, bool aa);
-  bool FillIConvexPolygon(const IColor* pColor, int* x, int* y, int npoints, const IChannelBlend* pBlend = 0);
-  bool FillTriangle(const IColor* pColor, int x1, int y1, int x2, int y2, int x3, int y3, IChannelBlend* pBlend);
-  IColor GetPoint(int x, int y);
-  void* GetData() { return GetBits(); }
-  bool DrawVerticalLine(const IColor* pColor, int xi, int yLo, int yHi);
-  bool DrawHorizontalLine(const IColor* pColor, int yi, int xLo, int xHi);
+  bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend) override;
+  bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend) override;
+  bool DrawRotatedMask(IBitmap& pBase, IBitmap& pMask, IBitmap& pTop, int x, int y, double angle, const IChannelBlend* pBlend) override;
+  bool DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa) override;
+  bool ForcePixel(const IColor& color, int x, int y) override;
+  bool DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa) override;
+  bool DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IChannelBlend* pBlend, bool aa) override;
+  bool DrawCircle(const IColor& color, float cx, float cy, float r,const IChannelBlend* pBlend, bool aa) override;
+  bool FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa) override;
+  bool FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend) override;
+  bool RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa) override;
+  bool FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa) override;
+  bool FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend) override;
+  bool FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend) override;
   
-  bool DrawIText(IText* pTxt, const char* str, IRECT* pR, bool measure = false);
-  IBitmap LoadIBitmap(int ID, const char* name, int nStates = 1, bool framesAreHoriztonal = false);
+  IColor GetPoint(int x, int y) override;
+  void* GetData() override { return mDrawBitmap->getBits(); }
+  bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
+  bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
+  
+  bool DrawIText(const IText& pTxt, const char* str, IRECT& rect, bool measure) override;
+  bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
+  
+  IBitmap LoadIBitmap(const char* name, int nStates, double scale, bool framesAreHoriztonal) override;
+  IBitmap ScaleBitmap(IBitmap* pBitmap, int destW, int destH, const char* cacheName) override;
+  IBitmap CropBitmap(IBitmap* pBitmap, const IRECT& rect, const char * cacheName) override;
+  void RetainBitmap(IBitmap* pBitmap, const char* cacheName) override;
+  void ReleaseBitmap(IBitmap* pBitmap) override;
+  
+  IBitmap CreateBitmap(const char * cacheName, int w, int h) override;
 
-  // Specialty use...
-  IBitmap ScaleBitmap(IBitmap* pBitmap, int destW, int destH);
-  IBitmap CropBitmap(IBitmap* pBitmap, IRECT* pR);
-  void RetainBitmap(IBitmap* pBitmap);
-  void ReleaseBitmap(IBitmap* pBitmap);
-  LICE_pixel* GetBits();
-  
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
-  virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name) = 0;
-  
-  LICE_SysBitmap* mDrawBitmap;
-  LICE_IFont* CacheFont(IText* pTxt);
-  
+  void RenderAPIBitmap(void* pContext) override;
 private:
+  LICE_IBitmap* LoadAPIBitmap(const char* pPath);
+//  void* CreateAPIBitmap(int w, int h);
+  
+#ifdef OS_OSX
+  CGColorSpaceRef mColorSpace;
+#endif
+  LICE_SysBitmap* mDrawBitmap;
+  LICE_IFont* CacheFont(IText& pTxt);
   LICE_MemBitmap* mTmpBitmap;
 };

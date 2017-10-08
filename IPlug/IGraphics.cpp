@@ -7,20 +7,20 @@
 #define IDLE_TICKS 20
 
 #ifdef AAX_API
-static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& pMod)
+static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
 {
   uint32_t aax_mods = 0;
   
-  if (pMod.A) aax_mods |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+  if (mod.A) aax_mods |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
   
 #ifdef OS_WIN
-  if (pMod.C) aax_mods |= AAX_eModifiers_Command;
+  if (mod.C) aax_mods |= AAX_eModifiers_Command;
 #else
-  if (pMod.C) aax_mods |= AAX_eModifiers_Control;
-  if (pMod.R) aax_mods |= AAX_eModifiers_Command;
+  if (mod.C) aax_mods |= AAX_eModifiers_Control;
+  if (mod.R) aax_mods |= AAX_eModifiers_Command;
 #endif
-  if (pMod.S) aax_mods |= AAX_eModifiers_Shift;
-  if (pMod.R) aax_mods |= AAX_eModifiers_SecondaryButton;
+  if (mod.S) aax_mods |= AAX_eModifiers_Shift;
+  if (mod.R) aax_mods |= AAX_eModifiers_SecondaryButton;
   
   return aax_mods;
 }
@@ -104,9 +104,9 @@ void IGraphics::AttachBackground(int ID, const char* name)
   mControls.Insert(0, pBG);
 }
 
-void IGraphics::AttachPanelBackground(const IColor *pColor)
+void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mPlug, IRECT(0, 0, mWidth, mHeight), pColor);
+  IControl* pBG = new IPanelControl(mPlug, IRECT(0, 0, mWidth, mHeight), color);
   mControls.Insert(0, pBG);
 }
 
@@ -116,9 +116,9 @@ int IGraphics::AttachControl(IControl* pControl)
   return mControls.GetSize() - 1;
 }
 
-void IGraphics::AttachKeyCatcher(IControl* pControl)
+void IGraphics::AttachKeyCatcher(IControl& pControl)
 {
-  mKeyCatcher = pControl;
+  mKeyCatcher = &pControl;
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)
@@ -186,7 +186,6 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
     IControl* pControl = *ppControl;
     if (pControl->ParamIdx() == paramIdx)
     {
-      //WDL_MutexLock lock(&mMutex);
       pControl->SetValueFromPlug(value);
       // Could be more than one, don't break until we check them all.
     }
@@ -205,7 +204,6 @@ void IGraphics::SetControlFromPlug(int controlIdx, double normalizedValue)
 {
   if (controlIdx >= 0 && controlIdx < mControls.GetSize())
   {
-    //WDL_MutexLock lock(&mMutex);
     mControls.Get(controlIdx)->SetValueFromPlug(normalizedValue);
   }
 }
@@ -248,9 +246,9 @@ void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
   }
 }
 
-void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pTextRect)
+void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect)
 {
-  if (!pControl || !pParam || !pTextRect) return;
+  if (!pControl || !pParam) return;
 
   IParam::EParamType type = pParam->Type();
   int n = pParam->GetNDisplayTexts();
@@ -272,7 +270,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pText
         menu.AddItem( new IPopupMenuItem(str), -1 );
     }
 
-    if(CreateIPopupMenu(&menu, pTextRect))
+    if(CreateIPopupMenu(menu, textRect))
     {
       pControl->SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
     }
@@ -281,70 +279,68 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT* pText
   else // type == IParam::kTypeInt || type == IParam::kTypeDouble
   {
     pParam->GetDisplayForHostNoDisplayText(currentText);
-    CreateTextEntry(pControl, pControl->GetText(), pTextRect, currentText, pParam );
+    CreateTextEntry(pControl, pControl->GetText(), textRect, currentText, pParam);
   }
 
 }
 
-bool IGraphics::DrawBitmap(IBitmap* pBitmap, IRECT* pR, int bmpState, const IChannelBlend* pBlend)
+bool IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IChannelBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
 
-  if (pBitmap->N > 1 && bmpState > 1)
+  if (bitmap.N > 1 && bmpState > 1)
   {
-    if (pBitmap->mFramesAreHorizontal)
+    if (bitmap.mFramesAreHorizontal)
     {
-      srcX = int(0.5 + (double) pBitmap->W * (double) (bmpState - 1) / (double) pBitmap->N);
+      srcX = int(0.5 + (double) bitmap.W * (double) (bmpState - 1) / (double) bitmap.N);
     }
     else
     {
-      srcY = int(0.5 + (double) pBitmap->H * (double) (bmpState - 1) / (double) pBitmap->N);
+      srcY = int(0.5 + (double) bitmap.H * (double) (bmpState - 1) / (double) bitmap.N);
     }
   }
-  return DrawBitmap(pBitmap, pR, srcX, srcY, pBlend);
+  return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
 }
 
-bool IGraphics::DrawRect(const IColor* pColor, IRECT* pR)
+bool IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 {
-  bool rc = DrawHorizontalLine(pColor, pR->T, pR->L, pR->R);
-  rc &= DrawHorizontalLine(pColor, pR->B, pR->L, pR->R);
-  rc &= DrawVerticalLine(pColor, pR->L, pR->T, pR->B);
-  rc &= DrawVerticalLine(pColor, pR->R, pR->T, pR->B);
+  bool rc = DrawHorizontalLine(color, rect.T, rect.L, rect.R);
+  rc &= DrawHorizontalLine(color, rect.B, rect.L, rect.R);
+  rc &= DrawVerticalLine(color, rect.L, rect.T, rect.B);
+  rc &= DrawVerticalLine(color, rect.R, rect.T, rect.B);
   return rc;
 }
 
-bool IGraphics::DrawVerticalLine(const IColor* pColor, IRECT* pR, float x)
+bool IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
 {
-  x = BOUNDED(x, 0.0f, 1.0f);
-  int xi = pR->L + int(x * (float) (pR->R - pR->L));
-  return DrawVerticalLine(pColor, xi, pR->T, pR->B);
+  DrawLine(color, xi, yLo, xi, yHi);
+  return true;
 }
 
-bool IGraphics::DrawHorizontalLine(const IColor* pColor, IRECT* pR, float y)
+bool IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
 {
-  y = BOUNDED(y, 0.0f, 1.0f);
-  int yi = pR->B - int(y * (float) (pR->B - pR->T));
-  return DrawHorizontalLine(pColor, yi, pR->L, pR->R);
+  DrawLine(color, xLo, yi, xHi, yi);
+  return true;
 }
 
-bool IGraphics::DrawRadialLine(const IColor* pColor, float cx, float cy, float angle, float rMin, float rMax, const IChannelBlend* pBlend, bool antiAlias)
+bool IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa)
 {
   float sinV = sin(angle);
   float cosV = cos(angle);
-  float xLo = cx + rMin * sinV;
-  float xHi = cx + rMax * sinV;
-  float yLo = cy - rMin * cosV;
-  float yHi = cy - rMax * cosV;
-  return DrawLine(pColor, xLo, yLo, xHi, yHi, pBlend, antiAlias);
+  float xLo = (cx + rMin * sinV) * mScale;
+  float xHi = (cx + rMax * sinV) * mScale;
+  float yLo = (cy - rMin * cosV) * mScale;
+  float yHi = (cy - rMax * cosV) * mScale;
+  return DrawLine(color, xLo, yLo, xHi, yHi, 0, aa);
 }
 
-bool IGraphics::IsDirty(IRECT* pR)
+bool IGraphics::IsDirty(IRECT& rect)
 {
 #ifndef NDEBUG
   if (mShowControlBounds)
   {
-    *pR = mDrawRECT;
+    rect = mDrawRECT;
     return true;
   }
 #endif
@@ -357,7 +353,7 @@ bool IGraphics::IsDirty(IRECT* pR)
     IControl* pControl = *ppControl;
     if (pControl->IsDirty())
     {
-      *pR = pR->Union(pControl->GetRECT());
+      rect = rect.Union(pControl->GetRECT());
       dirty = true;
     }
   }
@@ -379,11 +375,8 @@ bool IGraphics::IsDirty(IRECT* pR)
 
 // The OS is announcing what needs to be redrawn,
 // which may be a larger area than what is strictly dirty.
-bool IGraphics::Draw(IRECT* pR)
+bool IGraphics::Draw(const IRECT& rect)
 {
-//  #pragma REMINDER("Mutex set while drawing")
-//  WDL_MutexLock lock(&mMutex);
-
   int i, j, n = mControls.GetSize();
   if (!n)
   {
@@ -392,15 +385,15 @@ bool IGraphics::Draw(IRECT* pR)
 
   if (mStrict)
   {
-    mDrawRECT = *pR;
+    mDrawRECT = rect;
     int n = mControls.GetSize();
     IControl** ppControl = mControls.GetList();
     for (int i = 0; i < n; ++i, ++ppControl)
     {
       IControl* pControl = *ppControl;
-      if (!(pControl->IsHidden()) && pR->Intersects(pControl->GetRECT()))
+      if (!(pControl->IsHidden()) && rect.Intersects(pControl->GetRECT()))
       {
-        pControl->Draw(this);
+        pControl->Draw(*this);
       }
       pControl->SetClean();
     }
@@ -410,13 +403,13 @@ bool IGraphics::Draw(IRECT* pR)
     IControl* pBG = mControls.Get(0);
     if (pBG->IsDirty())   // Special case when everything needs to be drawn.
     {
-      mDrawRECT = *(pBG->GetRECT());
+      mDrawRECT = pBG->GetRECT();
       for (int j = 0; j < n; ++j)
       {
         IControl* pControl2 = mControls.Get(j);
         if (!j || !(pControl2->IsHidden()))
         {
-          pControl2->Draw(this);
+          pControl2->Draw(*this);
           pControl2->SetClean();
         }
       }
@@ -431,18 +424,18 @@ bool IGraphics::Draw(IRECT* pR)
 
           // printf("control %i is Dirty\n", i);
 
-          mDrawRECT = *(pControl->GetRECT()); // put the rect in the mDrawRect member variable
+          mDrawRECT = pControl->GetRECT(); // put the rect in the mDrawRect member variable
           for (j = 0; j < n; ++j)   // loop through all controls
           {
             IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
 
             // if control1 == control2 OR control2 is not hidden AND control2's rect intersects mDrawRect
-            if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT()->Intersects(&mDrawRECT)))
+            if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT().Intersects(mDrawRECT)))
             {
               //if ((i == j) && (!pControl2->IsHidden())|| (!(pControl2->IsHidden()) && pControl2->GetRECT()->Intersects(&mDrawRECT))) {
               //printf("control %i and %i \n", i, j);
 
-              pControl2->Draw(this);
+              pControl2->Draw(*this);
             }
           }
           pControl->SetClean();
@@ -457,18 +450,17 @@ bool IGraphics::Draw(IRECT* pR)
     for (int j = 1; j < mControls.GetSize(); j++)
     {
       IControl* pControl = mControls.Get(j);
-      DrawRect(&CONTROL_BOUNDS_COLOR, pControl->GetRECT());
+      DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
     
     WDL_String str;
     str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
-    IText txt(20, &CONTROL_BOUNDS_COLOR);
+    IText txt(20, CONTROL_BOUNDS_COLOR);
     IRECT rect(Width() - 150, Height() - 20, Width(), Height());
-    DrawIText(&txt, str.Get(), &rect);
   }
 #endif
 
-  return DrawScreen(pR);
+  return DrawScreen(rect);
 }
 
 void IGraphics::SetStrictDrawing(bool strict)
@@ -477,7 +469,7 @@ void IGraphics::SetStrictDrawing(bool strict)
   SetAllControlsDirty();
 }
 
-void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
+void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
   ReleaseMouseCapture();
   int c = GetMouseControlIdx(x, y);
@@ -493,7 +485,7 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
     #if defined OS_WIN || defined VST3_API  // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
     if (mPlug->GetAPI() == kAPIVST3)
     {
-      if (pMod->R && paramIdx >= 0)
+      if (mod.R && paramIdx >= 0)
       {
         ReleaseMouseCapture();
         mPlug->PopupHostContextMenuForParam(paramIdx, x, y);
@@ -505,7 +497,7 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
     #ifdef AAX_API
     if (mAAXViewContainer && paramIdx >= 0)
     {
-      uint32_t mods = GetAAXModifiersFromIMouseMod(pMod);
+      uint32_t mods = GetAAXModifiersFromIMouseMod(mod);
       #ifdef OS_WIN
       // required to get start/windows and alt keys
       uint32_t aaxViewMods = 0;
@@ -527,18 +519,18 @@ void IGraphics::OnMouseDown(int x, int y, IMouseMod* pMod)
       mPlug->BeginInformHostOfParamChange(paramIdx);
     }
         
-    pControl->OnMouseDown(x, y, pMod);
+    pControl->OnMouseDown(x, y, mod);
   }
 }
 
-void IGraphics::OnMouseUp(int x, int y, IMouseMod* pMod)
+void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
 {
   int c = GetMouseControlIdx(x, y);
   mMouseCapture = mMouseX = mMouseY = -1;
   if (c >= 0)
   {
     IControl* pControl = mControls.Get(c);
-    pControl->OnMouseUp(x, y, pMod);
+    pControl->OnMouseUp(x, y, mod);
     pControl = mControls.Get(c); // needed if the mouse message caused a resize/rebuild
     int paramIdx = pControl->ParamIdx();
     if (paramIdx >= 0)
@@ -548,7 +540,7 @@ void IGraphics::OnMouseUp(int x, int y, IMouseMod* pMod)
   }
 }
 
-bool IGraphics::OnMouseOver(int x, int y, IMouseMod* pMod)
+bool IGraphics::OnMouseOver(int x, int y, const IMouseMod& mod)
 {
   if (mHandleMouseOver)
   {
@@ -557,7 +549,7 @@ bool IGraphics::OnMouseOver(int x, int y, IMouseMod* pMod)
     {
       mMouseX = x;
       mMouseY = y;
-      mControls.Get(c)->OnMouseOver(x, y, pMod);
+      mControls.Get(c)->OnMouseOver(x, y, mod);
       if (mMouseOver >= 0 && mMouseOver != c)
       {
         mControls.Get(mMouseOver)->OnMouseOut();
@@ -580,7 +572,7 @@ void IGraphics::OnMouseOut()
   mMouseOver = -1;
 }
 
-void IGraphics::OnMouseDrag(int x, int y, IMouseMod* pMod)
+void IGraphics::OnMouseDrag(int x, int y, const IMouseMod& mod)
 {
   int c = mMouseCapture;
   if (c >= 0)
@@ -591,12 +583,12 @@ void IGraphics::OnMouseDrag(int x, int y, IMouseMod* pMod)
     {
       mMouseX = x;
       mMouseY = y;
-      mControls.Get(c)->OnMouseDrag(x, y, dX, dY, pMod);
+      mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
     }
   }
 }
 
-bool IGraphics::OnMouseDblClick(int x, int y, IMouseMod* pMod)
+bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
 {
   ReleaseMouseCapture();
   bool newCapture = false;
@@ -609,23 +601,23 @@ bool IGraphics::OnMouseDblClick(int x, int y, IMouseMod* pMod)
       mMouseCapture = c;
       mMouseX = x;
       mMouseY = y;
-      pControl->OnMouseDown(x, y, pMod);
+      pControl->OnMouseDown(x, y, mod);
       newCapture = true;
     }
     else
     {
-      pControl->OnMouseDblClick(x, y, pMod);
+      pControl->OnMouseDblClick(x, y, mod);
     }
   }
   return newCapture;
 }
 
-void IGraphics::OnMouseWheel(int x, int y, IMouseMod* pMod, int d)
+void IGraphics::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
 {
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
   {
-    mControls.Get(c)->OnMouseWheel(x, y, pMod, d);
+    mControls.Get(c)->OnMouseWheel(x, y, mod, d);
   }
 }
 

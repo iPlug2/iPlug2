@@ -50,10 +50,9 @@ public:
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
 
-  bool DrawScreen(IRECT* pR);
-  bool MeasureIText(IText* pTxt, char* str, IRECT* pR);
+  bool DrawScreen(const IRECT& pR) override;
   
-  void* OpenWindow(void* pWindow);
+  void* OpenWindow(void* pWindow) override;
 #ifndef IPLUG_NO_CARBON_SUPPORT
   void* OpenWindow(void* pWindow, void* pControl, short leftOffset = 0, short topOffset = 0);
 #endif
@@ -63,47 +62,50 @@ public:
   void* OpenCarbonWindow(void* pParentWnd, void* pParentControl, short leftOffset, short topOffset);
 #endif
 
-  void AttachSubWindow(void* hostWindowRef);
-  void RemoveSubWindow();
+//  void AttachSubWindow(void* hostWindowRef);
+//  void RemoveSubWindow();
 
-  void CloseWindow();
-  bool WindowIsOpen();
-  void Resize(int w, int h);
+  void CloseWindow() override;
+  bool WindowIsOpen() override;
+  void Resize(int w, int h) override;
 
-  void HideMouseCursor();
-  void ShowMouseCursor();
+  void HideMouseCursor() override;
+  void ShowMouseCursor() override;
 
-  int ShowMessageBox(const char* pText, const char* pCaption, int type);
-  void ForceEndUserEdit();
+  int ShowMessageBox(const char* pText, const char* pCaption, int type) override;
+  void ForceEndUserEdit() override;
 
-  const char* GetGUIAPI();
+  const char* GetGUIAPI() override;
   
-  void UpdateTooltips();
+  void UpdateTooltips() override;
 
-  void HostPath(WDL_String* pPath);
-  void PluginPath(WDL_String* pPath);
-  void DesktopPath(WDL_String* pPath);
-//  void VST3PresetsPath(WDL_String* pPath, bool isSystem = true);
-  void AppSupportPath(WDL_String* pPath, bool isSystem = false);
-  void SandboxSafeAppSupportPath(WDL_String* pPath);
+  void HostPath(WDL_String& pPath) override;
+  void PluginPath(WDL_String& pPath) override;
+  void DesktopPath(WDL_String& pPath) override;
+//  void VST3PresetsPath(WDL_String& pPath, bool isSystem = true);
+  void AppSupportPath(WDL_String& pPath, bool isSystem = false) override;
+  void SandboxSafeAppSupportPath(WDL_String& pPath) override;
 
-  void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
-  bool PromptForColor(IColor* pColor, char* prompt = "");
+  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "") override;   // extensions = "txt wav" for example.
+  bool PromptForColor(IColor& color, const char* pStr) override;
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect);
-  void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam );
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) override;
+  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam) override;
 
-  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
+  bool OpenURL(const char* pURL, const char* pMsgWindowTitle = 0, const char* pConfirmMsg = 0, const char* pErrMsgOnFailure = 0) override;
 
-  void* GetWindow();
+  void* GetWindow() override;
 
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
   
-  bool GetTextFromClipboard(WDL_String* pStr);
+  bool GetTextFromClipboard(WDL_String& pStr) override;
 
 protected:
-  virtual LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
+  void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
+//  void OSLoadFont(const char* name, const int size) override;
+
+//  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
   
 private:
 #ifndef IPLUG_NO_CARBON_SUPPORT
@@ -119,11 +121,8 @@ private:
   friend class IGraphicsCarbon;
 #endif
   
-  void *mColorSpace; // CGColorSpaceRef, created on demand and freed on destroy
-  WDL_HeapBuf mRetinaUpscaleBuf; // used for doubled-bitmap when drawing retina
-  
-public: //TODO: make this private
-  void* mHostNSWindow;
+public:
+//  void* mHostNSWindow;
 };
 
 inline CFStringRef MakeCFString(const char* cStr)

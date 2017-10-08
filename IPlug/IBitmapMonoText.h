@@ -3,12 +3,12 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-void DrawBitmapedText(IGraphics* pGraphics,
-                      IBitmap* pTextBitmap,
-                      IRECT* controlRect,
-                      IText* pItext,
+void DrawBitmapedText(IGraphics& graphics,
+                      IBitmap& textBitmap,
+                      IRECT& controlRect,
+                      IText& text,
                       IChannelBlend* pBlend,
-                      const char* str,
+                      const char* pStr,
                       bool vCenter = true,
                       bool multiline = false,
                       int charWidth = 6,
@@ -21,8 +21,8 @@ class IBitmapTextControl : public IControl
 {
 public:
   IBitmapTextControl(IPlugBase* pPlug,
-                     IRECT pR,
-                     IBitmap* pBitmap,
+                     IRECT rect,
+                     IBitmap& bitmap,
                      const char* str = "",
                      IText* pText = 0,
                      int charWidth = 6,
@@ -30,32 +30,27 @@ public:
                      int charOffset = 0,
                      bool multiLine = false,
                      bool vCenter = true)
-  : IControl(pPlug, pR)
-  , mTextBitmap(*pBitmap)
+  : IControl(pPlug, rect)
+  , mTextBitmap(bitmap)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
   , mCharOffset(charOffset)
   , mMultiLine(multiLine)
   , mVCentre(vCenter)
   {
-    if (pText)
-    {
-      mText = *pText;
-    }
-
     mStr.Set(str);
   }
   
   ~IBitmapTextControl() {}
 
-  void SetTextFromPlug(char* str);
+  void SetTextFromPlug(char* pStr);
   
   void ClearTextFromPlug()
   {
     SetTextFromPlug( (char *) "");
   }
 
-  bool Draw(IGraphics* pGraphics);
+  bool Draw(IGraphics& graphics);
 
 protected:
   WDL_String mStr;

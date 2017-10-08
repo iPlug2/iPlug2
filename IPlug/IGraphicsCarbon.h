@@ -28,8 +28,8 @@ public:
   bool Resize(int w, int h);
 
   MenuRef CreateMenu(IPopupMenu* pMenu);
-  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
-  void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, const IRECT& areaRect);
+  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam);
 
   void EndUserInput(bool commit);
   

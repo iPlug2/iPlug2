@@ -8,7 +8,7 @@
 #endif
 #include "swell-internal.h"
 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 //https://gist.github.com/ccgus/3716936
 SInt32 GetSystemVersion() {
@@ -83,7 +83,6 @@ IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
     mGraphicsCarbon(0),
     #endif
     mGraphicsCocoa(0),
-    mColorSpace(NULL)
 {
   NSApplicationLoad();
 }
@@ -91,65 +90,43 @@ IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
 IGraphicsMac::~IGraphicsMac()
 {
   CloseWindow();
-  if (mColorSpace)
-  {
-    CFRelease(mColorSpace);
-    mColorSpace=0;
-  }
 }
 
-LICE_IBitmap* LoadImgFromResourceOSX(const char* bundleID, const char* filename)
+void GetResourcePathFromBundle(const char* bundleID, const char* filename, const char* searchExt, WDL_String& fullPath)
 {
-  if (!filename) return 0;
   CocoaAutoReleasePool pool;
 
   const char* ext = filename+strlen(filename)-1;
   while (ext >= filename && *ext != '.') --ext;
   ++ext;
 
-  bool ispng = !stricmp(ext, "png");
-  #ifndef IPLUG_JPEG_SUPPORT
-  if (!ispng) return 0;
-  #else
-  bool isjpg = !stricmp(ext, "jpg");
-  if (!isjpg && !ispng) return 0;
-  #endif
+  bool isCorrectType = !stricmp(ext, searchExt);
 
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(bundleID)];
   NSString* pFile = [[[NSString stringWithCString:filename] lastPathComponent] stringByDeletingPathExtension];
   
-  if (pBundle && pFile)
+  if (isCorrectType && pBundle && pFile)
   {
-    NSString* pPath = 0;
-    if (ispng) pPath = [pBundle pathForResource:pFile ofType:@"png"];
-    #ifdef IPLUG_JPEG_SUPPORT
-    if (isjpg) pPath = [pBundle pathForResource:pFile ofType:@"jpg"];
-    #endif
-
+    NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
+    
     if (pPath)
     {
-      const char* resourceFileName = [pPath cString];
-      if (CSTR_NOT_EMPTY(resourceFileName))
-      {
-        if (ispng) return LICE_LoadPNG(resourceFileName);
-        #ifdef IPLUG_JPEG_SUPPORT
-        if (isjpg) return LICE_LoadJPG(resourceFileName);
-        #endif
-      }
+      fullPath.Set([pPath cString]);
+      return;
     }
   }
-  return 0;
+  
+  return;
 }
 
-LICE_IBitmap* IGraphicsMac::OSLoadBitmap(int ID, const char* name)
+void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& fullPath)
 {
-  return LoadImgFromResourceOSX(GetBundleID(), name);
+  return GetResourcePathFromBundle(GetBundleID(), name, "png", fullPath);
 }
 
-bool IGraphicsMac::DrawScreen(IRECT* pR)
+bool IGraphicsMac::DrawScreen(const IRECT& pR)
 {
   CGContextRef pCGC = 0;
-  CGRect r = CGRectMake(0, 0, Width(), Height());
 
   if (mGraphicsCocoa)
   {
@@ -168,56 +145,12 @@ bool IGraphicsMac::DrawScreen(IRECT* pR)
     return false;
   }
   
-  if (!mColorSpace)
-  {
-    SInt32 v = GetSystemVersion();
-
-    if (v >= 0x1070)
-    {
-#ifdef MAC_OS_X_VERSION_10_11
-      mColorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
-#else
-      CMProfileRef systemMonitorProfile = NULL;
-      CMError getProfileErr = CMGetSystemProfile(&systemMonitorProfile);
-      if(noErr == getProfileErr)
-      {
-        mColorSpace = CGColorSpaceCreateWithPlatformColorSpace(systemMonitorProfile);
-        CMCloseProfile(systemMonitorProfile);
-      }
-#endif
-    }
-    if (!mColorSpace)
-      mColorSpace = CGColorSpaceCreateDeviceRGB();
-  }
-  
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   double tm=gettm();
 #endif
-  
-  CGImageRef img=NULL;
-  
-#ifdef IGRAPHICS_MAC_OLD_IMAGE_DRAWING
-  HDC__ * srcCtx = (HDC__*) mDrawBitmap->getDC();
-  img = CGBitmapContextCreateImage(srcCtx->ctx);
-#else
-  const unsigned char *p = (const unsigned char *)mDrawBitmap->getBits();
-  
-  int sw = mDrawBitmap->getRowSpan();
-  int h = mDrawBitmap->getHeight();
-  int w = mDrawBitmap->getWidth();
-  
-  CGDataProviderRef provider = CGDataProviderCreateWithData(NULL,p,4*sw*h,NULL);
-  img = CGImageCreate(w,h,8,32,4*sw,(CGColorSpaceRef)mColorSpace,
-                                 kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host,
-                                 provider,NULL,NO,kCGRenderingIntentDefault);
-  CGDataProviderRelease(provider);
-#endif
-  
-  if (img)
-  {
-    CGContextDrawImage(pCGC, r, img);
-    CGImageRelease(img);
-  }
+
+  RenderAPIBitmap(pCGC);
+
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   printf("blit %fms\n",(gettm()-tm)*1000.0);
 #endif
@@ -273,62 +206,62 @@ void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl, sho
 }
 #endif
 
-void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
-{
-  CocoaAutoReleasePool pool;
-
-  NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: hostWindowRef];
-  [hostWindow retain];
-  [hostWindow setCanHide: YES];
-  [hostWindow setReleasedWhenClosed: YES];
-
-  NSRect w = [hostWindow frame];
-
-  int xOffset = 0;
-
-  if (w.size.width > Width())
-  {
-    xOffset = (int) floor((w.size.width - Width()) / 2.);
-  }
-
-  NSRect windowRect = NSMakeRect(w.origin.x + xOffset, w.origin.y, Width(), Height());
-  CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect
-                                                                            styleMask:( NSBorderlessWindowMask )
-                                                                              backing:NSBackingStoreBuffered defer:NO];
-  [childWindow retain];
-  [childWindow setOpaque:YES];
-  [childWindow setCanHide: YES];
-  [childWindow setHasShadow: NO];
-  [childWindow setReleasedWhenClosed: YES];
-
-  NSView* childContent = [childWindow contentView];
-
-  OpenWindow(childContent);
-
-  [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
-  [hostWindow orderFront: nil];
-  [hostWindow display];
-  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.05];
-
-  mHostNSWindow = (void*) hostWindow;
-}
-
-void IGraphicsMac::RemoveSubWindow()
-{
-  CocoaAutoReleasePool pool;
-
-  NSWindow* hostWindow = (NSWindow*) mHostNSWindow;
-  NSArray* childWindows = [hostWindow childWindows];
-  NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
-
-  CloseWindow();
-
-  [childWindow orderOut:nil];
-  [hostWindow orderOut:nil];
-  [childWindow close];
-  [hostWindow removeChildWindow: childWindow];
-  [hostWindow close];
-}
+//void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
+//{
+//  CocoaAutoReleasePool pool;
+//
+//  NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: hostWindowRef];
+//  [hostWindow retain];
+//  [hostWindow setCanHide: YES];
+//  [hostWindow setReleasedWhenClosed: YES];
+//
+//  NSRect w = [hostWindow frame];
+//
+//  int xOffset = 0;
+//
+//  if (w.size.width > Width())
+//  {
+//    xOffset = (int) floor((w.size.width - Width()) / 2.);
+//  }
+//
+//  NSRect windowRect = NSMakeRect(w.origin.x + xOffset, w.origin.y, Width(), Height());
+//  CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect
+//                                                                            styleMask:( NSBorderlessWindowMask )
+//                                                                              backing:NSBackingStoreBuffered defer:NO];
+//  [childWindow retain];
+//  [childWindow setOpaque:YES];
+//  [childWindow setCanHide: YES];
+//  [childWindow setHasShadow: NO];
+//  [childWindow setReleasedWhenClosed: YES];
+//
+//  NSView* childContent = [childWindow contentView];
+//
+//  OpenWindow(childContent);
+//
+//  [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
+//  [hostWindow orderFront: nil];
+//  [hostWindow display];
+//  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.05];
+//
+//  mHostNSWindow = (void*) hostWindow;
+//}
+//
+//void IGraphicsMac::RemoveSubWindow()
+//{
+//  CocoaAutoReleasePool pool;
+//
+//  NSWindow* hostWindow = (NSWindow*) mHostNSWindow;
+//  NSArray* childWindows = [hostWindow childWindows];
+//  NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
+//
+//  CloseWindow();
+//
+//  [childWindow orderOut:nil];
+//  [hostWindow orderOut:nil];
+//  [childWindow close];
+//  [hostWindow removeChildWindow: childWindow];
+//  [hostWindow close];
+//}
 
 void IGraphicsMac::CloseWindow()
 {
@@ -405,7 +338,7 @@ void IGraphicsMac::ShowMouseCursor()
   }
 }
 
-int IGraphicsMac::ShowMessageBox(const char* pText, const char* pCaption, int type)
+int IGraphicsMac::ShowMessageBox(const char* text, const char* pCaption, int type)
 {
   int result = 0;
 
@@ -413,7 +346,7 @@ int IGraphicsMac::ShowMessageBox(const char* pText, const char* pCaption, int ty
   CFStringRef alternateButtonTitle = NULL;
   CFStringRef otherButtonTitle = NULL;
 
-  CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, pText, 0, kCFAllocatorNull);
+  CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, text, 0, kCFAllocatorNull);
   CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, pCaption, 0, kCFAllocatorNull);
 
   switch (type)
@@ -487,8 +420,8 @@ void IGraphicsMac::UpdateTooltips()
     const char* tooltip = pControl->GetTooltip();
     if (tooltip && !pControl->IsHidden()) 
     {
-      IRECT* pR = pControl->GetTargetRECT();
-      if (!pControl->GetTargetRECT()->Empty()) 
+      IRECT pR = pControl->GetTargetRECT();
+      if (!pControl->GetTargetRECT().Empty())
       {
         [(IGRAPHICS_COCOA*) mGraphicsCocoa registerToolTip: pR];
       }
@@ -511,7 +444,7 @@ const char* IGraphicsMac::GetGUIAPI()
     return "Cocoa GUI";
 }
 
-void IGraphicsMac::HostPath(WDL_String* pPath)
+void IGraphicsMac::HostPath(WDL_String& pPath)
 {
   CocoaAutoReleasePool pool;
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
@@ -521,12 +454,12 @@ void IGraphicsMac::HostPath(WDL_String* pPath)
     NSString* path = [pBundle executablePath];
     if (path)
     {
-      pPath->Set([path UTF8String]);
+      pPath.Set([path UTF8String]);
     }
   }
 }
 
-void IGraphicsMac::PluginPath(WDL_String* pPath)
+void IGraphicsMac::PluginPath(WDL_String& pPath)
 {
   CocoaAutoReleasePool pool;
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
@@ -537,20 +470,20 @@ void IGraphicsMac::PluginPath(WDL_String* pPath)
     
     if (path)
     {
-      pPath->Set([path UTF8String]);
-      pPath->Append("/");
+      pPath.Set([path UTF8String]);
+      pPath.Append("/");
     }
   }
 }
 
-void IGraphicsMac::DesktopPath(WDL_String* pPath)
+void IGraphicsMac::DesktopPath(WDL_String& pPath)
 {
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
   NSString *desktopDirectory = [paths objectAtIndex:0];
-  pPath->Set([desktopDirectory UTF8String]);
+  pPath.Set([desktopDirectory UTF8String]);
 }
 
-//void IGraphicsMac::VST3PresetsPath(WDL_String* pPath, bool isSystem)
+//void IGraphicsMac::VST3PresetsPath(WDL_String& pPath, bool isSystem)
 //{
 //  NSArray *paths;
 //  if (isSystem)
@@ -565,7 +498,7 @@ void IGraphicsMac::DesktopPath(WDL_String* pPath)
 //                      GetController()->GetPluginNameStr());
 //}
 
-void IGraphicsMac::AppSupportPath(WDL_String* pPath, bool isSystem)
+void IGraphicsMac::AppSupportPath(WDL_String& pPath, bool isSystem)
 {
   NSArray *paths;
   
@@ -575,28 +508,28 @@ void IGraphicsMac::AppSupportPath(WDL_String* pPath, bool isSystem)
     paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
   
   NSString *applicationSupportDirectory = [paths objectAtIndex:0];
-  pPath->Set([applicationSupportDirectory UTF8String]);
+  pPath.Set([applicationSupportDirectory UTF8String]);
 }
 
-void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String* pPath)
+void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String& pPath)
 {
 #if MAC_OS_X_VERSION_10_5 <= MAC_OS_X_VERSION_MAX_ALLOWED
   NSString *userHomeDir = NSHomeDirectory();
-  pPath->Set([userHomeDir UTF8String]);
-  pPath->Append("/Music");
+  pPath.Set([userHomeDir UTF8String]);
+  pPath.Append("/Music");
 #elif MAC_OS_X_VERSION_10_6 <= MAC_OS_X_VERSION_MAX_ALLOWED
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
   NSString *userMusicDirectory = [paths objectAtIndex:0];
-  pPath->Set([userMusicDirectory UTF8String]);
+  pPath.Set([userMusicDirectory UTF8String]);
 #endif
 }
 
 // extensions = "txt wav" for example
-void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
+void IGraphicsMac::PromptForFile(WDL_String& pFilename, EFileAction action, WDL_String* pDir, const char* extensions)
 {
   if (!WindowIsOpen())
   {
-    pFilename->Set("");
+    pFilename.Set("");
     return;
   }
 
@@ -604,9 +537,9 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
   NSString* defaultPath;
   NSArray* fileTypes = nil;
 
-  if (pFilename->GetLength())
+  if (pFilename.GetLength())
   {
-    defaultFileName = [NSString stringWithCString:pFilename->Get() encoding:NSUTF8StringEncoding];
+    defaultFileName = [NSString stringWithCString:pFilename.Get() encoding:NSUTF8StringEncoding];
   }
   else
   {
@@ -623,7 +556,7 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     pDir->Set(DEFAULT_PATH_OSX);
   }
 
-  pFilename->Set(""); // reset it
+  pFilename.Set(""); // reset it
 
   //if (CSTR_NOT_EMPTY(extensions))
   fileTypes = [[NSString stringWithUTF8String:extensions] componentsSeparatedByString: @" "];
@@ -641,7 +574,7 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     if (result == NSOKButton)
     {
       NSString* fullPath = [ panelSave filename ] ;
-      pFilename->Set( [fullPath UTF8String] );
+      pFilename.Set( [fullPath UTF8String] );
 
       NSString* truncatedPath = [fullPath stringByDeletingLastPathComponent];
 
@@ -667,7 +600,7 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
     if (result == NSOKButton)
     {
       NSString* fullPath = [ panelOpen filename ] ;
-      pFilename->Set( [fullPath UTF8String] );
+      pFilename.Set( [fullPath UTF8String] );
 
       NSString* truncatedPath = [fullPath stringByDeletingLastPathComponent];
 
@@ -678,71 +611,62 @@ void IGraphicsMac::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
       }
     }
   }
-
-// dont know if you have to free these
-// [defaultFileName release];
-// [defaultPath release];
-// [fileTypes release];
 }
 
-bool IGraphicsMac::PromptForColor(IColor* pColor, char* prompt)
+bool IGraphicsMac::PromptForColor(IColor& colour, const char* pStr)
 {
-//  NSColorPanel *colorPanel = [NSColorPanel sharedColorPanel];
-//	[colorPanel setTarget:self]; // target??
-//	[colorPanel setAction:@selector(colorPanelAction:)];
-//	[NSApp orderFrontColorPanel:self];
-
+  //TODO:
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pTextRect)
+IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect)
 {
   ReleaseMouseCapture();
 
   if (mGraphicsCocoa)
   {
-    NSRect areaRect = ToNSRect(this, pTextRect);
-    return [(IGRAPHICS_COCOA*) mGraphicsCocoa createIPopupMenu: pMenu: areaRect];
+    NSRect areaRect = ToNSRect(this, textRect);
+    return [(IGRAPHICS_COCOA*) mGraphicsCocoa createIPopupMenu: menu: areaRect];
   }
   #ifndef IPLUG_NO_CARBON_SUPPORT
   else if (mGraphicsCarbon)
   {
-    return mGraphicsCarbon->CreateIPopupMenu(pMenu, pTextRect);
+    return mGraphicsCarbon->CreateIPopupMenu(menu, textRect);
   }
   #endif
   else return 0;
 }
 
-void IGraphicsMac::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam)
 {
   if (mGraphicsCocoa)
   {
-    NSRect areaRect = ToNSRect(this, pTextRect);
-    [(IGRAPHICS_COCOA*) mGraphicsCocoa createTextEntry: pControl: pParam: pText: pString: areaRect];
+    NSRect areaRect = ToNSRect(this, textRect);
+    [(IGRAPHICS_COCOA*) mGraphicsCocoa createTextEntry: pControl: pParam: text: pStr: areaRect];
   }
   #ifndef IPLUG_NO_CARBON_SUPPORT
   else if (mGraphicsCarbon)
   {
-    mGraphicsCarbon->CreateTextEntry(pControl, pText, pTextRect, pString, pParam);
+    mGraphicsCarbon->CreateTextEntry(pControl, text, textRect, pStr, pParam);
   }
   #endif
 }
 
-bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+bool IGraphicsMac::OpenURL(const char* pURL, const char* pMsgWindowTitle, const char* pConfirmMsg, const char* pErrMsgOnFailure)
 {
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")
-  NSURL* pURL = 0;
-  if (strstr(url, "http"))
+  NSURL* pNSURL = 0;
+  if (strstr(pURL, "http"))
   {
-    pURL = [NSURL URLWithString:ToNSString(url)];
+    pNSURL = [NSURL URLWithString:ToNSString(pURL)];
   }
   else
   {
-    pURL = [NSURL fileURLWithPath:ToNSString(url)];
+    pNSURL = [NSURL fileURLWithPath:ToNSString(pURL)];
   }
-  if (pURL)
+  if (pNSURL)
   {
-    bool ok = ([[NSWorkspace sharedWorkspace] openURL:pURL]);
+    bool ok = ([[NSWorkspace sharedWorkspace] openURL:pNSURL]);
     // [pURL release];
     return ok;
   }
@@ -764,18 +688,18 @@ int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
   return (int) ver;
 }
 
-bool IGraphicsMac::GetTextFromClipboard(WDL_String* pStr)
+bool IGraphicsMac::GetTextFromClipboard(WDL_String& pStr)
 {
   NSString* text = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
   
   if (text == nil)
   {
-    pStr->Set("");
+    pStr.Set("");
     return false;
   }
   else
   {
-    pStr->Set([text UTF8String]);
+    pStr.Set([text UTF8String]);
     return true;
   }
 }

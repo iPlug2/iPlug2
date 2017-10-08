@@ -208,6 +208,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 	return pGraphics->GetMouseOver();
 }
 
+#pragma mark -
+
 @implementation IGRAPHICS_COCOA
 
 - (id) init
@@ -269,16 +271,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics)
   {
     IRECT tmpRect = ToIRECT(mGraphics, &rect);
-    mGraphics->Draw(&tmpRect);
+    mGraphics->Draw(tmpRect);
   }
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
   IRECT r;
-  if (pTimer == mTimer && mGraphics && mGraphics->IsDirty(&r))
+  if (pTimer == mTimer && mGraphics && mGraphics->IsDirty(r))
   {
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, &r)];
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
   }
 }
 
@@ -302,23 +304,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [self getMouseXY:pEvent x:&x y:&y];
     IMouseMod ms = GetMouseMod(pEvent);
 
-    #ifdef RTAS_API
-    if (ms.L && ms.R && ms.C && (mGraphics->GetParamIdxForPTAutomation(x, y) > -1))
-    {
-      WindowRef carbonParent = (WindowRef) [[[self window] parentWindow] windowRef];
-      EventRef carbonEvent = (EventRef) [pEvent eventRef];
-      SendEventToWindow(carbonEvent, carbonParent);
-      return;
-    }
-    #endif
-
     if ([pEvent clickCount] > 1)
     {
-      mGraphics->OnMouseDblClick(x, y, &ms);
+      mGraphics->OnMouseDblClick(x, y, ms);
     }
     else
     {
-      mGraphics->OnMouseDown(x, y, &ms);
+      mGraphics->OnMouseDown(x, y, ms);
     }
   }
 }
@@ -330,7 +322,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     int x, y;
     [self getMouseXY:pEvent x:&x y:&y];
     IMouseMod ms = GetMouseMod(pEvent);
-    mGraphics->OnMouseUp(x, y, &ms);
+    mGraphics->OnMouseUp(x, y, ms);
   }
 }
 
@@ -344,7 +336,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     if(!mTextFieldView)
     {
-      mGraphics->OnMouseDrag(x, y, &ms);
+      mGraphics->OnMouseDrag(x, y, ms);
     }
   }
 }
@@ -356,7 +348,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     int x, y;
     [self getMouseXY:pEvent x:&x y:&y];
     IMouseMod ms = GetRightMouseMod(pEvent);
-    mGraphics->OnMouseDown(x, y, &ms);
+    mGraphics->OnMouseDown(x, y, ms);
   }
 }
 
@@ -367,7 +359,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     int x, y;
     [self getMouseXY:pEvent x:&x y:&y];
     IMouseMod ms = GetRightMouseMod(pEvent);
-    mGraphics->OnMouseUp(x, y, &ms);
+    mGraphics->OnMouseUp(x, y, ms);
   }
 }
 
@@ -381,7 +373,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     if(!mTextFieldView)
     {
-      mGraphics->OnMouseDrag(x, y, &ms);
+      mGraphics->OnMouseDrag(x, y, ms);
     }
   }
 }
@@ -393,7 +385,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     int x, y;
     [self getMouseXY:pEvent x:&x y:&y];
     IMouseMod ms = GetMouseMod(pEvent);
-    mGraphics->OnMouseOver(x, y, &ms);
+    mGraphics->OnMouseOver(x, y, ms);
   }
 }
 
@@ -427,12 +419,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     if (!handle)
     {
-      #ifdef RTAS_API
-      [[NSApp mainWindow] makeKeyWindow];
-      [NSApp postEvent: [NSApp currentEvent] atStart: YES];
-      #else
       [[self nextResponder] keyDown:pEvent];
-      #endif
     }
   }
 }
@@ -448,7 +435,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     int d = [pEvent deltaY];
 
     IMouseMod ms = GetMouseMod(pEvent);
-    mGraphics->OnMouseWheel(x, y, &ms, d);
+    mGraphics->OnMouseWheel(x, y, ms, d);
   }
 }
 
@@ -488,10 +475,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self setNeedsDisplay: YES];
 }
 
-- (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu : (NSRect) rect;
+- (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
 {
   IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:rect] autorelease];
-  NSMenu* nsMenu = [[[IGRAPHICS_NSMENU alloc] initWithIPopupMenuAndReciever:pMenu :dummyView] autorelease];
+  NSMenu* nsMenu = [[[IGRAPHICS_NSMENU alloc] initWithIPopupMenuAndReciever:&menu :dummyView] autorelease];
 
   NSWindow* pWindow = [self window];
 
@@ -532,15 +519,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   else return 0;
 }
 
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (IText*) pText : (const char*) pString : (NSRect) areaRect;
+- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) pString : (NSRect) areaRect;
 {
-  if (!pControl || mTextFieldView) return;
+  if (mTextFieldView) return;
 
   mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
-  NSString* font = [NSString stringWithUTF8String: pText->mFont];
-  [mTextFieldView setFont: [NSFont fontWithName:font size: (float) AdjustFontSize(pText->mSize)]];
+  NSString* font = [NSString stringWithUTF8String: text.mFont];
+  [mTextFieldView setFont: [NSFont fontWithName:font size: (float) AdjustFontSize(text.mSize)]];
 
-  switch ( pText->mAlign )
+  switch ( text.mAlign )
   {
     case IText::kAlignNear:
       [mTextFieldView setAlignment: NSLeftTextAlignment];
@@ -582,8 +569,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   [[mTextFieldView cell] setLineBreakMode: NSLineBreakByTruncatingTail];
   [mTextFieldView setAllowsEditingTextAttributes:NO];
-  [mTextFieldView setTextColor:ToNSColor(&pText->mTextEntryFGColor)];
-  [mTextFieldView setBackgroundColor:ToNSColor(&pText->mTextEntryBGColor)];
+  [mTextFieldView setTextColor:ToNSColor(text.mTextEntryFGColor)];
+  [mTextFieldView setBackgroundColor:ToNSColor(text.mTextEntryBGColor)];
 
   [mTextFieldView setStringValue: ToNSString(pString)];
 
@@ -629,9 +616,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return CSTR_NOT_EMPTY(tooltip) ? ToNSString((const char*) tooltip) : @"";
 }
 
-- (void) registerToolTip: (IRECT*) pRECT
+- (void) registerToolTip: (IRECT&) rect
 {
-  [self addToolTipRect: ToNSRect(mGraphics, pRECT) owner: self userData: nil];
+  [self addToolTipRect: ToNSRect(mGraphics, rect) owner: self userData: nil];
+}
+
 }
 
 @end

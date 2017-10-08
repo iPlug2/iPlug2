@@ -257,7 +257,7 @@ MenuRef IGraphicsCarbon::CreateMenu(IPopupMenu* pMenu)
   return menuRef;
 }
 
-IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu& menu, const IRECT& areaRect)
 {
   // Get the plugin gui frame rect within the host's window
   HIRect rct;
@@ -271,10 +271,10 @@ IPopupMenu* IGraphicsCarbon::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRec
   HIViewFindByID(HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
   HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
 
-  int xpos = wrct.left + rct.origin.x + pAreaRect->L;
-  int ypos = wrct.top + rct.origin.y + pAreaRect->B + 5;
+  int xpos = wrct.left + rct.origin.x + areaRect.L;
+  int ypos = wrct.top + rct.origin.y + areaRect.B + 5;
 
-  MenuRef menuRef = CreateMenu(pMenu);
+  MenuRef menuRef = CreateMenu(&menu);
 
   if (menuRef)
   {
@@ -371,7 +371,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             GetEventParameter(pEvent, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(CGContextRef), 0, &(_this->mCGC));
             CGContextTranslateCTM(_this->mCGC, 0, gfxH);
             CGContextScaleCTM(_this->mCGC, 1.0, -1.0);
-            pGraphicsMac->Draw(&r);
+            pGraphicsMac->Draw(r);
           }
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
           else
@@ -444,11 +444,11 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
 
           if (clickCount > 1)
           {
-            pGraphicsMac->OnMouseDblClick(x, y, &mmod);
+            pGraphicsMac->OnMouseDblClick(x, y, mmod);
           }
           else
           {
-            pGraphicsMac->OnMouseDown(x, y, &mmod);
+            pGraphicsMac->OnMouseDown(x, y, mmod);
           }
 
           return noErr;
@@ -456,7 +456,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
 
         case kEventMouseUp:
         {
-          pGraphicsMac->OnMouseUp(x, y, &mmod);
+          pGraphicsMac->OnMouseUp(x, y, mmod);
           return noErr;
         }
 
@@ -464,7 +464,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
         {
           _this->mPrevX = x;
           _this->mPrevY = y;
-          pGraphicsMac->OnMouseOver(x, y, &mmod);
+          pGraphicsMac->OnMouseOver(x, y, mmod);
           
           if (pGraphicsMac->TooltipsEnabled()) 
           {
@@ -488,7 +488,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
         case kEventMouseDragged:
         {
           if (!_this->mTextEntryView)
-            pGraphicsMac->OnMouseDrag(x, y, &mmod);
+            pGraphicsMac->OnMouseDrag(x, y, mmod);
           return noErr;
         }
 
@@ -504,7 +504,7 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
 
             if (_this->mTextEntryView) _this->EndUserInput(false);
 
-            pGraphicsMac->OnMouseWheel(x, y, &mmod, d);
+            pGraphicsMac->OnMouseWheel(x, y, mmod, d);
             return noErr;
           }
         }
@@ -543,7 +543,7 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
 
   IRECT r;
 
-  if (_this->mGraphicsMac->IsDirty(&r))
+  if (_this->mGraphicsMac->IsDirty(r))
   {
     if (_this->mIsComposited)
     {
@@ -592,7 +592,7 @@ pascal void IGraphicsCarbon::TimerHandler(EventLoopTimerRef pTimer, void* pGraph
 
 #if USE_MLTE
 
-void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+void IGraphicsCarbon::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pString, IParam* pParam)
 {
   if (!pControl || mTextEntryView || !mIsComposited) return; // Only composited carbon supports text entry
 
@@ -609,10 +609,10 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
   HIViewFindByID (HIViewGetRoot(this->mWindow), kHIViewWindowContentID, &contentView);
   HIViewConvertRect(&rct, HIViewGetSuperview((HIViewRef)this->mView), contentView);
 
-  Rect rect = { rct.origin.y + pTextRect->T,
-                rct.origin.x + pTextRect->L,
-                rct.origin.y + pTextRect->B + 1,
-                rct.origin.x + pTextRect->R + 1
+  Rect rect = { rct.origin.y + textRect.T,
+                rct.origin.x + textRect.L,
+                rct.origin.y + textRect.B + 1,
+                rct.origin.x + textRect.R + 1
               };
 
   if (TXNNewObject(NULL,
@@ -633,15 +633,15 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     TXNSetData(mTextEntryView, kTXNTextData, pString, strlen(pString)/*+1*/, kTXNStartOffset, kTXNEndOffset); // center aligned text has problems with uneven string lengths
 
     RGBColor tc;
-    tc.red = pText->mTextEntryFGColor.R * 257;
-    tc.green = pText->mTextEntryFGColor.G * 257;
-    tc.blue = pText->mTextEntryFGColor.B * 257;
+    tc.red = text.mTextEntryFGColor.R * 257;
+    tc.green = text.mTextEntryFGColor.G * 257;
+    tc.blue = text.mTextEntryFGColor.B * 257;
 
     TXNBackground bg;
     bg.bgType         = kTXNBackgroundTypeRGB;
-    bg.bg.color.red   = pText->mTextEntryBGColor.R * 257;
-    bg.bg.color.green = pText->mTextEntryBGColor.G * 257;
-    bg.bg.color.blue  = pText->mTextEntryBGColor.B * 257;
+    bg.bg.color.red   = text.mTextEntryBGColor.R * 257;
+    bg.bg.color.green = text.mTextEntryBGColor.G * 257;
+    bg.bg.color.blue  = text.mTextEntryBGColor.B * 257;
 
     TXNSetBackground(mTextEntryView, &bg);
 
@@ -649,7 +649,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     SInt16 justification;
     Fract flushness;
 
-    switch ( pText->mAlign )
+    switch ( text.mAlign )
     {
       case IText::kAlignCenter:
         justification = kTXNCenter;  // seems to be buggy wrt dragging and alignement with uneven string lengths
@@ -674,9 +674,9 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 
     ATSUFontID fontid = kATSUInvalidFontID;
 
-    if (pText->mFont && pText->mFont[0])
+    if (text.mFont && text.mFont[0])
     {
-      ATSUFindFontFromName(pText->mFont, strlen(pText->mFont),
+      ATSUFindFontFromName(text.mFont, strlen(text.mFont),
                            kFontFullName /* kFontFamilyName? */ ,
                            (FontPlatformCode)kFontNoPlatform,
                            kFontNoScriptCode,
@@ -692,7 +692,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
     // size
     attributes[1].tag = kTXNQDFontSizeAttribute;
     attributes[1].size = kTXNFontSizeAttributeSize;
-    attributes[1].data.dataValue = pText->mSize << 16;
+    attributes[1].data.dataValue = text.mSize << 16;
     // color
     attributes[2].tag = kTXNQDFontColorAttribute;
     attributes[2].size = kTXNQDFontColorAttributeSize;
@@ -729,7 +729,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 
     mEdControl = pControl;
     mEdParam = pParam;
-    mTextEntryRect = *pTextRect;
+    mTextEntryRect = *textRect;
   }
 }
 
@@ -976,16 +976,16 @@ pascal OSStatus IGraphicsCarbon::TextEntryHandler(EventHandlerCallRef pHandlerCa
 #pragma mark -
 #pragma mark HIView text entry methods
 
-void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+void IGraphicsCarbon::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pString, IParam* pParam)
 {
   ControlRef control = 0;
 
-  if (!pControl || mTextEntryView || !mIsComposited) return;
+  if (mTextEntryView || !mIsComposited) return;
 
-  Rect r = { static_cast<short>(pTextRect->T), static_cast<short>(pTextRect->L), static_cast<short>(pTextRect->B), static_cast<short>(pTextRect->R) };
+  Rect r = { static_cast<short>(textRect.T), static_cast<short>(textRect.L), static_cast<short>(textRect.B), static_cast<short>(textRect.R) };
 
-  // these adjustments should make it the same as the cocoa one, i.e. the same size as the pTextRect, but with the extra blue rim often this is too small
-  //Rect r = { pTextRect->T+4, pTextRect->L+3, pTextRect->B-3, pTextRect->R -3 };
+  // these adjustments should make it the same as the cocoa one, i.e. the same size as the textRect, but with the extra blue rim often this is too small
+  //Rect r = { textRect.T+4, textRect.L+3, textRect.B-3, textRect.R -3 };
 
   if (CreateEditUnicodeTextControl(NULL, &r, NULL, false, NULL, &control) != noErr) return;
 
@@ -1018,7 +1018,7 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
 
   int just = 0;
 
-  switch ( pText->mAlign )
+  switch ( text.mAlign )
   {
     case IText::kAlignNear:
       just = teJustLeft;
@@ -1034,8 +1034,8 @@ void IGraphicsCarbon::CreateTextEntry(IControl* pControl, IText* pText, IRECT* p
       break;
   }
 
-  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, static_cast<SInt16>(pText->mSize), 0, 0, static_cast<SInt16>(just), 0, 0 };
-  CFStringRef str = CFStringCreateWithCString(NULL, pText->mFont, kCFStringEncodingUTF8);
+  ControlFontStyleRec font = { kControlUseJustMask | kControlUseSizeMask | kControlUseFontMask, 0, static_cast<SInt16>(text.mSize), 0, 0, static_cast<SInt16>(just), 0, 0 };
+  CFStringRef str = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
   font.font = ATSFontFamilyFindFromName(str, kATSOptionFlagsDefault);
 
   SetControlData(mTextEntryView, kControlEditTextPart, kControlFontStyleTag, sizeof(font), &font);

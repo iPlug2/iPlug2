@@ -4,10 +4,10 @@
 #import <AudioUnit/AUCocoaUIView.h>
 #include "IGraphicsMac.h"
 
-inline NSRect ToNSRect(IGraphics* pGraphics, IRECT* pR)
+inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& pR)
 {
-  int B = pGraphics->Height() - pR->B;
-  return NSMakeRect(pR->L, B-1, pR->W()+1, pR->H()+1);
+  const int B = pGraphics->Height() - pR.B;
+  return NSMakeRect(pR.L, B-1, pR.W()+1, pR.H()+1);
 }
 
 inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
@@ -16,12 +16,12 @@ inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
   return IRECT(x, gh - (y + h), x + w, gh - y);
 }
 
-inline NSColor* ToNSColor(IColor* pColor)
+inline NSColor* ToNSColor(const IColor& pColor)
 {
-  double r = (double) pColor->R / 255.0;
-  double g = (double) pColor->G / 255.0;
-  double b = (double) pColor->B / 255.0;
-  double a = (double) pColor->A / 255.0;
+  const double r = (double) pColor.R / 255.0;
+  const double g = (double) pColor.G / 255.0;
+  const double b = (double) pColor.B / 255.0;
+  const double a = (double) pColor.A / 255.0;
   return [NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
 }
 
@@ -90,9 +90,9 @@ NSString* ToNSString(const char* cStr);
 - (void) removeFromSuperview;
 //- (void) controlTextDidChange: (NSNotification *) aNotification;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (IPopupMenu*) createIPopupMenu: (IPopupMenu*) pMenu : (NSRect) rect;
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (IText*) pText : (const char*) pString : (NSRect) areaRect;
+- (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
+- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) pStr : (NSRect) areaRect;
 - (void) endUserInput;
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
-- (void) registerToolTip: (IRECT*) pRECT;
+- (void) registerToolTip: (IRECT&) rect;
 @end

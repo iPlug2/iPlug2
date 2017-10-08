@@ -8,7 +8,7 @@
 #include "swell.h"
 #endif
 
-#include "lice_text.h"
+class LICE_IFont;
 
 enum EFileAction { kFileOpen, kFileSave };
 
@@ -91,30 +91,30 @@ struct IText
   LICE_IFont* mCached;
 
   IText(int size = DEFAULT_TEXT_SIZE,
-        const IColor* pColor = 0,
+        const IColor& color = DEFAULT_TEXT_COLOR,
         char* font = 0,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         int orientation = 0,
         EQuality quality = kQualityDefault,
-        const IColor* pTEBGColor = 0,
-        const IColor* pTEFGColor = 0)
+        const IColor& textEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR,
+        const IColor& textEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR)
     : mSize(size)
-    , mColor(pColor ? *pColor : DEFAULT_TEXT_COLOR)
+    , mColor(color)
     , mStyle(style)
     , mAlign(align)
     , mOrientation(orientation)
     , mQuality(quality)
     , mCached(0)
-    , mTextEntryBGColor(pTEBGColor ? *pTEBGColor : DEFAULT_TEXT_ENTRY_BGCOLOR)
-    , mTextEntryFGColor(pTEFGColor ? *pTEFGColor : DEFAULT_TEXT_ENTRY_FGCOLOR)
+    , mTextEntryBGColor(textEntryBGColor)
+    , mTextEntryFGColor(textEntryFGColor)
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
 
-  IText(const IColor* pColor)
+  IText(const IColor& color)
     : mSize(DEFAULT_TEXT_SIZE)
-    , mColor(*pColor)
+    , mColor(color)
     , mStyle(kStyleNormal)
     , mAlign(kAlignCenter)
     , mOrientation(0)
@@ -184,33 +184,33 @@ struct IRECT
   inline float MW() const { return 0.5f * (float) (L + R); }
   inline float MH() const { return 0.5f * (float) (T + B); }
 
-  inline IRECT Union(IRECT* pRHS)
+  inline IRECT Union(const IRECT& pRHS)
   {
-    if (Empty()) { return *pRHS; }
-    if (pRHS->Empty()) { return *this; }
-    return IRECT(std::min(L, pRHS->L), std::min(T, pRHS->T), std::max(R, pRHS->R), std::max(B, pRHS->B));
+    if (Empty()) { return pRHS; }
+    if (pRHS.Empty()) { return *this; }
+    return IRECT(std::min(L, pRHS.L), std::min(T, pRHS.T), std::max(R, pRHS.R), std::max(B, pRHS.B));
   }
 
-  inline IRECT Intersect(IRECT* pRHS)
+  inline IRECT Intersect(const IRECT& pRHS) const
   {
     if (Intersects(pRHS))
     {
-      return IRECT(std::max(L, pRHS->L), std::max(T, pRHS->T), std::min(R, pRHS->R), std::min(B, pRHS->B));
+      return IRECT(std::max(L, pRHS.L), std::max(T, pRHS.T), std::min(R, pRHS.R), std::min(B, pRHS.B));
     }
     return IRECT();
   }
 
-  inline bool Intersects(IRECT* pRHS)
+  inline bool Intersects(const IRECT& pRHS) const
   {
-    return (!Empty() && !pRHS->Empty() && R >= pRHS->L && L < pRHS->R && B >= pRHS->T && T < pRHS->B);
+    return (!Empty() && !pRHS.Empty() && R >= pRHS.L && L < pRHS.R && B >= pRHS.T && T < pRHS.B);
   }
 
-  inline bool Contains(IRECT* pRHS)
+  inline bool Contains(const IRECT& pRHS) const
   {
-    return (!Empty() && !pRHS->Empty() && pRHS->L >= L && pRHS->R <= R && pRHS->T >= T && pRHS->B <= B);
+    return (!Empty() && !pRHS.Empty() && pRHS.L >= L && pRHS.R <= R && pRHS.T >= T && pRHS.B <= B);
   }
 
-  inline bool Contains(int x, int y)
+  inline bool Contains(int x, int y) const
   {
     return (!Empty() && x >= L && x < R && y >= T && y < B);
   }
@@ -272,27 +272,27 @@ struct IRECT
     return IRECT(L, T-padding, R, B+padding);
   }
   
-  void Clank(IRECT* pRHS)
+  void Clank(const IRECT& pRHS)
   {
-    if (L < pRHS->L)
+    if (L < pRHS.L)
     {
-      R = std::min(pRHS->R - 1, R + pRHS->L - L);
-      L = pRHS->L;
+      R = std::min(pRHS.R - 1, R + pRHS.L - L);
+      L = pRHS.L;
     }
-    if (T < pRHS->T)
+    if (T < pRHS.T)
     {
-      B = std::min(pRHS->B - 1, B + pRHS->T - T);
-      T = pRHS->T;
+      B = std::min(pRHS.B - 1, B + pRHS.T - T);
+      T = pRHS.T;
     }
-    if (R >= pRHS->R)
+    if (R >= pRHS.R)
     {
-      L = std::max(pRHS->L, L - (R - pRHS->R + 1));
-      R = pRHS->R - 1;
+      L = std::max(pRHS.L, L - (R - pRHS.R + 1));
+      R = pRHS.R - 1;
     }
-    if (B >= pRHS->B)
+    if (B >= pRHS.B)
     {
-      T = std::max(pRHS->T, T - (B - pRHS->B + 1));
-      B = pRHS->B - 1;
+      T = std::max(pRHS.T, T - (B - pRHS.B + 1));
+      B = pRHS.B - 1;
     }
   }
 };
