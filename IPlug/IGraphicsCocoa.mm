@@ -261,6 +261,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSWindow* pWindow = [self window];
   if (pWindow)
   {
+    [pWindow setDelegate: self];
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
   }
@@ -619,6 +620,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) registerToolTip: (IRECT&) rect
 {
   [self addToolTipRect: ToNSRect(mGraphics, rect) owner: self userData: nil];
+}
+
+- (void)windowDidChangeBackingProperties:(NSNotification *) notification
+{
+  NSWindow* pWindow = [self window];
+  CGFloat newBackingScaleFactor = [pWindow backingScaleFactor];
+  CGFloat oldBackingScaleFactor = [[[notification userInfo] objectForKey:@"NSBackingPropertyOldScaleFactorKey"] doubleValue];
+  
+  if (newBackingScaleFactor != oldBackingScaleFactor)
+    mGraphics->SetDisplayScale(newBackingScaleFactor);
 }
 
 @end

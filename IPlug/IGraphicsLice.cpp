@@ -117,9 +117,9 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
-IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal)
+IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
 {
-  double targetScale = 1.;
+  double targetScale = mDisplayScale / scale;
   WDL_String cacheName(name);
   char buf [6] = {0};
   sprintf(buf, "-%.1fx", targetScale);
@@ -137,11 +137,11 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     
-    IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
+    const IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
 
-//    if (scale != mScale) {
-//      return ScaleBitmap(&bitmap, lb->getWidth() * targetScale, lb->getHeight() * targetScale, cacheName.Get());
-//    }
+    if (scale != GetDisplayScale()) {
+      return ScaleIBitmap(bitmap, lb->getWidth() * targetScale, lb->getHeight() * targetScale, cacheName.Get());
+    }
     
     s_bitmapCache.Add(lb, cacheName.Get());
   }
@@ -169,8 +169,11 @@ void IGraphicsLice::PrepDraw()
 
 bool IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
-//  srcX *= mScale;
-//  srcY *= mScale;
+  IRECT rect = dest;
+  rect.Scale(mDisplayScale);
+  
+  srcX *= mDisplayScale;
+  srcY *= mDisplayScale;
   
   LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.mData;
   IRECT r = dest.Intersect(mDrawRECT);
@@ -331,8 +334,7 @@ IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, int destW, int destH,
 {
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) bitmap.W, (float) bitmap.H, 1.0f,
-                  LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
+  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) bitmap.W, (float) bitmap.H, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
   IBitmap bmp(pDest, destW, destH, bitmap.N);
   RetainBitmap(bmp, cacheName);
@@ -505,8 +507,8 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
 {
 #ifdef OS_OSX
   CGImageRef img = NULL;
-  CGRect r = CGRectMake(0, 0, Width(), Height());
-  
+  CGRect r = CGRectMake(0, 0, Width() / mDisplayScale, Height() / mDisplayScale);
+
   if (!mColorSpace)
   {
     SInt32 v = GetSystemVersion();

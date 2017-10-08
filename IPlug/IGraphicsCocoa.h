@@ -58,7 +58,7 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) MenuItem;
 @end
 
-@interface IGRAPHICS_COCOA : NSView
+@interface IGRAPHICS_COCOA : NSView <NSWindowDelegate>
 {
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
@@ -95,4 +95,5 @@ NSString* ToNSString(const char* cStr);
 - (void) endUserInput;
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) rect;
+- (void)windowDidChangeBackingProperties:(NSNotification *) notification;
 @end

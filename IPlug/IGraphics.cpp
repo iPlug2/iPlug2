@@ -50,6 +50,8 @@ IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int fps)
 , mHiddenMousePointY(-1)
 , mEnableTooltips(false)
 , mShowControlBounds(false)
+, mScale(1.)
+, mDisplayScale(1.)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }

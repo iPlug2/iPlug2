@@ -22,9 +22,9 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-IBitmap IGraphicsAGG::LoadIBitmap(const char * name, int nStates, bool framesAreHoriztonal)
+IBitmap IGraphicsAGG::LoadIBitmap(const char * name, int nStates, bool framesAreHoriztonal, double scale)
 {
-  double targetScale = 1;
+  double targetScale = mDisplayScale / scale;
   WDL_String cacheName(name);
   char buf [6] = {0};
   sprintf(buf, "-%.1fx", targetScale);
@@ -47,9 +47,9 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char * name, int nStates, bool framesAre
       
       IBitmap bitmap(pixel_map, pixel_map->width(), pixel_map->height(), nStates, framesAreHoriztonal);
       
-//      if (scale != mScale) {        
-//        return ScaleBitmap(bitmap, pixel_map->width() * targetScale, pixel_map->height() * targetScale, cacheName.Get());
-//      }
+      if (scale != mDisplayScale) {
+        return ScaleIBitmap(bitmap, pixel_map->width() * targetScale, pixel_map->height() * targetScale, cacheName.Get());
+      }
       
       s_bitmapCache.Add(pixel_map, cacheName.Get());
     }
@@ -81,8 +81,8 @@ IFontData IGraphicsAGG::LoadIFont(const char * name, const int size)
 
 void IGraphicsAGG::PrepDraw()
 {
-  int w = Width();
-  int h = Height();
+  int w = Width() * mDisplayScale;
+  int h = Height() * mDisplayScale;
   
   mPixelMap.create(w, h);
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
@@ -94,10 +94,10 @@ void IGraphicsAGG::PrepDraw()
 bool IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
   IRECT rect = dest;
-//  rect.Scale(mScale);
-//  
-//  srcX *= mScale;
-//  srcY *= mScale;
+  rect.Scale(mDisplayScale);
+  
+  srcX *= mDisplayScale;
+  srcY *= mDisplayScale;
 
   agg::pixel_map * pixel_map = (agg::pixel_map *) bitmap.mData;
   agg::rendering_buffer buf(pixel_map->buf(), pixel_map->width(), pixel_map->height(), pixel_map->row_bytes());
@@ -533,7 +533,7 @@ IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, int destW, int dest
 
   s_bitmapCache.Add(copy, cacheName);
   
-  return IBitmap(copy, srcbitmap.W, srcbitmap.H, srcbitmap.N, srcbitmap.mFramesAreHorizontal);
+  return IBitmap(copy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal);
 }
 
 IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char * cacheName)
@@ -624,7 +624,7 @@ agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* pPath)
 void IGraphicsAGG::RenderAPIBitmap(void *pContext)
 {
 #ifdef OS_OSX
-  mPixelMap.draw((CGContext*) pContext, 1);
+  mPixelMap.draw((CGContext*) pContext, mDisplayScale);
 #else // OS_WIN
   //TODO: win
 #endif

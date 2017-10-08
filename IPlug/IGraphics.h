@@ -160,6 +160,10 @@ public:
   int Width() const { return mWidth; }
   int Height() const { return mHeight; }
   int FPS() const { return mFPS; }
+//  double GetScale() const { return mScale; }
+//  void SetScale(double scale) { mScale = scale; }
+  double GetDisplayScale() const { return mDisplayScale; }
+  void SetDisplayScale(double scale) { mDisplayScale = scale; }
 
   IPlugBase* GetPlug() { return mPlug; }
 
@@ -243,7 +247,9 @@ protected:
   IRECT mDrawRECT;
   bool mCursorHidden;
   int mHiddenMousePointX, mHiddenMousePointY;
-
+  double mScale; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
+  double mDisplayScale; // the scaling of the display that the ui is currently on e.g. 2. for retina
+  
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
   inline int GetMouseX() const { return mMouseX; }

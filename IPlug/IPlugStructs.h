@@ -17,12 +17,14 @@ struct IBitmap
   void* mData;
   int W, H, N;    // N = number of states (for multibitmaps).
   bool mFramesAreHorizontal;
-  IBitmap(void* pData = 0, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false)
+  double mScale;
+  IBitmap(void* pData = 0, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double scale = 1.)
     : mData(pData)
     , W(w)
     , H(h)
     , N(n)
     , mFramesAreHorizontal(framesAreHorizontal)
+    , mScale(scale)
   {}
 
   inline int frameWidth() const { return mFramesAreHorizontal ? W / N : W; }

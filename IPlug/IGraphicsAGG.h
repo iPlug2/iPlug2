@@ -129,10 +129,8 @@ private:
   PixfmtType mPixf;
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
-  double mScale = 1.;
   agg::rendering_buffer mRenBuf;
 #ifdef OS_OSX
-protected:
   agg::pixel_map_mac mPixelMap;
 #else
 #endif
