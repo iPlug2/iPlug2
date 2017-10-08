@@ -136,12 +136,12 @@ bool IGraphicsMac::DrawScreen(const IRECT& pR)
     NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
     pCGC = (CGContextRef) [gc graphicsPort];
   }
-  #ifndef IPLUG_NO_CARBON_SUPPORT
+#ifndef IPLUG_NO_CARBON_SUPPORT
   else if (mGraphicsCarbon)
   {
     pCGC = mGraphicsCarbon->GetCGContext();
   }
-  #endif
+#endif
   if (!pCGC)
   {
     return false;
@@ -613,7 +613,7 @@ void IGraphicsMac::PromptForFile(WDL_String& pFilename, EFileAction action, WDL_
   }
 }
 
-bool IGraphicsMac::PromptForColor(IColor& colour, const char* pStr)
+bool IGraphicsMac::PromptForColor(IColor& color, const char* pStr)
 {
   //TODO:
   return false;
