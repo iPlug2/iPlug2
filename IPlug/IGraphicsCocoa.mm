@@ -621,6 +621,4 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self addToolTipRect: ToNSRect(mGraphics, rect) owner: self userData: nil];
 }
 
-}
-
 @end

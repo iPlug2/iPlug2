@@ -73,24 +73,6 @@ void IGraphics::Resize(int w, int h)
     SetParameterFromPlug(i, mPlug->GetParam(i)->GetNormalized(), true);
 }
 
-int IGraphics::GetWindowWidth()
-{
-  double displayScale = (mScale / GetDisplayScale());
-  return int((mWidth * displayScale) + 0.5);
-}
-
-int IGraphics::GetWindowHeight()
-{
-  double displayScale = (mScale / GetDisplayScale());
-  return int((mHeight * displayScale) + 0.5);
-}
-
-void IGraphics::SetScale(double scale)
-{
-  mScale = scale;
-  Resize(GetWindowWidth(), GetWindowHeight());
-}
-
 void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
 {
   if (pParam)
@@ -345,10 +327,10 @@ bool IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
 {
   float sinV = sin(angle);
   float cosV = cos(angle);
-  float xLo = (cx + rMin * sinV) * mScale;
-  float xHi = (cx + rMax * sinV) * mScale;
-  float yLo = (cy - rMin * cosV) * mScale;
-  float yHi = (cy - rMax * cosV) * mScale;
+  float xLo = (cx + rMin * sinV);
+  float xHi = (cx + rMax * sinV);
+  float yLo = (cy - rMin * cosV);
+  float yHi = (cy - rMax * cosV);
   return DrawLine(color, xLo, yLo, xHi, yHi, 0, aa);
 }
 
@@ -474,6 +456,7 @@ bool IGraphics::Draw(const IRECT& rect)
     str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
     IText txt(20, CONTROL_BOUNDS_COLOR);
     IRECT rect(Width() - 150, Height() - 20, Width(), Height());
+//    DrawIText(txt, str.Get(), rect);
   }
 #endif
 

@@ -94,7 +94,7 @@ public:
 
   IPlugBase* GetPlug() { return mPlug; }
 
-  virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, double scale = 1.0, bool framesAreHoriztonal = false) = 0;
+  virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false) = 0;
   virtual IBitmap ScaleBitmap(IBitmap* pSrcBitmap, int destW, int destH, const char* cacheName = 0) = 0;
   virtual IBitmap CropBitmap(IBitmap* pSrcBitmap, const IRECT& rect, const char* cacheName = 0) = 0;
   void AttachBackground(const char* name);

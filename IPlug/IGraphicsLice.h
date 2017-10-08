@@ -11,7 +11,7 @@
 class IGraphicsLice : public IGraphics
 {
 public:
-  IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS, double scale);
+  IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS);
   ~IGraphicsLice();
 
   void PrepDraw() override;
@@ -39,7 +39,7 @@ public:
   bool DrawIText(const IText& pTxt, const char* str, IRECT& rect, bool measure) override;
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
   
-  IBitmap LoadIBitmap(const char* name, int nStates, double scale, bool framesAreHoriztonal) override;
+  IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal) override;
   IBitmap ScaleBitmap(IBitmap* pBitmap, int destW, int destH, const char* cacheName) override;
   IBitmap CropBitmap(IBitmap* pBitmap, const IRECT& rect, const char * cacheName) override;
   void RetainBitmap(IBitmap* pBitmap, const char* cacheName) override;

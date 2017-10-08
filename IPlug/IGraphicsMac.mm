@@ -79,8 +79,8 @@ static double gettm()
 
 #pragma mark -
 
-IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS, double scale)
-  : IGRAPHICS_DRAW_CLASS(pPlug, w, h, refreshFPS, scale)
+IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int fps)
+  : IGRAPHICS_DRAW_CLASS(pPlug, w, h, fps)
    #ifndef IPLUG_NO_CARBON_SUPPORT
   , mGraphicsCarbon(0)
    #endif

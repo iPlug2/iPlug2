@@ -167,8 +167,8 @@ inline int LiceBlendMode(const IChannelBlend* pBlend)
 
 #pragma mark -
 
-IGraphicsLice::IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS, double scale)
-: IGraphics(pPlug, w, h, refreshFPS, scale)
+IGraphicsLice::IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS)
+: IGraphics(pPlug, w, h, refreshFPS)
 , mDrawBitmap(nullptr)
 , mTmpBitmap(nullptr)
 , mColorSpace(nullptr)
@@ -186,9 +186,9 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
-IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, double scale, bool framesAreHoriztonal)
+IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal)
 {
-  double targetScale = mScale / scale;
+  double targetScale = 1.;
   WDL_String cacheName(name);
   char buf [6] = {0};
   sprintf(buf, "-%.1fx", targetScale);
@@ -206,15 +206,15 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, double scale, 
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     
-    IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, scale, framesAreHoriztonal);
+    IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
 
-    if (scale != mScale) {
-      return ScaleBitmap(&bitmap, lb->getWidth() * targetScale, lb->getHeight() * targetScale, cacheName.Get());
-    }
+//    if (scale != mScale) {
+//      return ScaleBitmap(&bitmap, lb->getWidth() * targetScale, lb->getHeight() * targetScale, cacheName.Get());
+//    }
     
     s_bitmapCache.Add(lb, cacheName.Get());
   }
-  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, scale, framesAreHoriztonal);
+  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
 }
 
 void IGraphicsLice::RetainBitmap(IBitmap* pBitmap, const char * cacheName)
@@ -229,8 +229,8 @@ void IGraphicsLice::ReleaseBitmap(IBitmap* pBitmap)
 
 void IGraphicsLice::PrepDraw()
 {
-  int w = Width() * mScale;
-  int h = Height() * mScale;
+  int w = Width();
+  int h = Height();
 
   mDrawBitmap = new LICE_SysBitmap(w, h);
   mTmpBitmap = new LICE_MemBitmap();
@@ -238,11 +238,8 @@ void IGraphicsLice::PrepDraw()
 
 bool IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
-  IRECT rect = dest;
-  rect.Scale(mScale);
-  
-  srcX *= mScale;
-  srcY *= mScale;
+//  srcX *= mScale;
+//  srcY *= mScale;
   
   LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.mData;
   IRECT r = dest.Intersect(mDrawRECT);
@@ -576,7 +573,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
 {
 #ifdef OS_OSX
   CGImageRef img = NULL;
-  CGRect r = CGRectMake(0, 0, GetWindowWidth(), GetWindowHeight());
+  CGRect r = CGRectMake(0, 0, Width(), Height());
   
   if (!mColorSpace)
   {
