@@ -86,7 +86,7 @@ public:
   void AppSupportPath(WDL_String& pPath, bool isSystem = false) override;
   void SandboxSafeAppSupportPath(WDL_String& pPath) override;
 
-  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "") override;   // extensions = "txt wav" for example.
+  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = "") override;   // extensions = "txt wav" for example.
   bool PromptForColor(IColor& color, const char* pStr) override;
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) override;
