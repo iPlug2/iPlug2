@@ -77,12 +77,14 @@ static double gettm()
 - (BOOL)canBecomeKeyWindow {return YES;}
 @end
 
-IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS)
-  :	IGraphicsLice(pPlug, w, h, refreshFPS),
-    #ifndef IPLUG_NO_CARBON_SUPPORT
-    mGraphicsCarbon(0),
-    #endif
-    mGraphicsCocoa(0),
+#pragma mark -
+
+IGraphicsMac::IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS, double scale)
+  : IGRAPHICS_DRAW_CLASS(pPlug, w, h, refreshFPS, scale)
+   #ifndef IPLUG_NO_CARBON_SUPPORT
+  , mGraphicsCarbon(0)
+   #endif
+  , mGraphicsCocoa(0)
 {
   NSApplicationLoad();
 }
@@ -157,11 +159,11 @@ bool IGraphicsMac::DrawScreen(const IRECT& pR)
   return true;
 }
 
-bool IGraphicsMac::MeasureIText(IText* pTxt, char* str, IRECT* pR)
+bool IGraphicsMac::MeasureIText(const IText& text, const char* pStr, IRECT& destRect)
 {
   CocoaAutoReleasePool pool;
 
-  return DrawIText(pTxt, str, pR, true);
+  return IGRAPHICS_DRAW_CLASS::DrawIText(text, pStr, destRect, true);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)

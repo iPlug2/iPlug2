@@ -4,7 +4,17 @@
   #define IPLUG_NO_CARBON_SUPPORT
 #endif
 
-#include "IGraphicsLice.h"
+#ifdef IGRAPHICS_AGG
+  #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
+  #include "IGraphicsAGG.h"
+#elif defined IGRAPHICS_CAIRO
+  #define IGRAPHICS_DRAW_CLASS IGraphicsCairo.h
+  #include "IGraphicsCairo.h"
+#else
+  #define IGRAPHICS_DRAW_CLASS IGraphicsLice
+  #include "IGraphicsLice.h"
+#endif
+
 #include "swell.h"
 #include <Carbon/Carbon.h>
 
@@ -42,7 +52,7 @@
 #define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 #define COCOA_FORMATTER CONCAT(CocoaFormatter_)
 
-class IGraphicsMac : public IGraphicsLice
+class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS);
@@ -101,10 +111,10 @@ public:
   
   bool GetTextFromClipboard(WDL_String& pStr) override;
 
+  bool MeasureIText(const IText& text, const char* pStr, IRECT& destRect) override;
 protected:
   void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
 //  void OSLoadFont(const char* name, const int size) override;
-
 //  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
   
 private:

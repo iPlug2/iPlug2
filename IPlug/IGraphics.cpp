@@ -30,49 +30,68 @@ static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
   #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
 
-IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS)
-  : mPlug(pPlug)
-  , mWidth(w)
-  , mHeight(h)
-  , mIdleTicks(0)
-  , mMouseCapture(-1)
-  , mMouseOver(-1)
-  , mMouseX(0)
-  , mMouseY(0)
-  , mHandleMouseOver(false)
-  , mStrict(true)
-  , mLastClickedParam(-1)
-  , mKeyCatcher(0)
-  , mCursorHidden(false)
-  , mHiddenMousePointX(-1)
-  , mHiddenMousePointY(-1)
-  , mEnableTooltips(false)
-  , mShowControlBounds(false)
+#pragma mark -
+
+IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int fps)
+: mPlug(pPlug)
+, mWidth(w)
+, mHeight(h)
+, mIdleTicks(0)
+, mMouseCapture(-1)
+, mMouseOver(-1)
+, mMouseX(0)
+, mMouseY(0)
+, mHandleMouseOver(false)
+, mStrict(true)
+, mLastClickedParam(-1)
+, mKeyCatcher(nullptr)
+, mCursorHidden(false)
+, mHiddenMousePointX(-1)
+, mHiddenMousePointY(-1)
+, mEnableTooltips(false)
+, mShowControlBounds(false)
 {
-  mFPS = (refreshFPS > 0 ? refreshFPS : DEFAULT_FPS);
+  mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }
 
 IGraphics::~IGraphics()
 {
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
-
+  
   mControls.Empty(true);
 }
 
 void IGraphics::Resize(int w, int h)
 {
-//  mWidth = w;
-//  mHeight = h;
-//  ReleaseMouseCapture();
-//  mControls.Empty(true);
-//  DELETE_NULL(mDrawBitmap);
-//  DELETE_NULL(mTmpBitmap);
+  ReleaseMouseCapture();
+//  mControls.Empty(true); // TODO fix
 //  PrepDraw();
 //  mPlug->ResizeGraphics(w, h);
+  
+  for (int i = 0; i < mPlug->NParams(); ++i)
+    SetParameterFromPlug(i, mPlug->GetParam(i)->GetNormalized(), true);
 }
 
-void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, char *txt)
+int IGraphics::GetWindowWidth()
+{
+  double displayScale = (mScale / GetDisplayScale());
+  return int((mWidth * displayScale) + 0.5);
+}
+
+int IGraphics::GetWindowHeight()
+{
+  double displayScale = (mScale / GetDisplayScale());
+  return int((mHeight * displayScale) + 0.5);
+}
+
+void IGraphics::SetScale(double scale)
+{
+  mScale = scale;
+  Resize(GetWindowWidth(), GetWindowHeight());
+}
+
+void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
 {
   if (pParam)
   {
@@ -96,12 +115,10 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, cha
   }
 }
 
-
-void IGraphics::AttachBackground(int ID, const char* name)
+void IGraphics::AttachBackground(const char* name)
 {
-  IBitmap bg = LoadIBitmap(ID, name);
-  IControl* pBG = new IBitmapControl(mPlug, 0, 0, -1, &bg, IChannelBlend::kBlendClobber);
-  mControls.Insert(0, pBG);
+  IBitmap bg = LoadIBitmap(name);
+  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IChannelBlend::kBlendClobber));
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
