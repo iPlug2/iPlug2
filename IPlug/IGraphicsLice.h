@@ -11,7 +11,7 @@
 class IGraphicsLice : public IGraphics
 {
 public:
-  IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS);
+  IGraphicsLice(IPlugBase* pPlug, int w, int h, int fps);
   ~IGraphicsLice();
 
   void PrepDraw() override;
@@ -36,7 +36,7 @@ public:
   bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
   bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
   
-  bool DrawIText(const IText& pTxt, const char* str, IRECT& rect, bool measure) override;
+  bool DrawIText(const IText& text, const char* str, IRECT& rect, bool measure) override;
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
   
   IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal) override;
@@ -59,6 +59,6 @@ private:
   CGColorSpaceRef mColorSpace;
 #endif
   LICE_SysBitmap* mDrawBitmap;
-  LICE_IFont* CacheFont(IText& pTxt);
+  LICE_IFont* CacheFont(IText& text);
   LICE_MemBitmap* mTmpBitmap;
 };

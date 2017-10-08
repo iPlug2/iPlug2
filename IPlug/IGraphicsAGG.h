@@ -89,7 +89,7 @@ public:
   void PrepDraw() override;
   bool Draw(const IRECT& rect) override;
 
-  bool DrawBitmap(IBitmap& bitmap, const IRECT& pDest, int srcX, int srcY, const IChannelBlend* pBlend) override;
+  bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend) override;
   bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend) override;
   bool DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend) override;
   bool DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa) override;
