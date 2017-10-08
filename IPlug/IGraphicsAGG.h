@@ -109,9 +109,9 @@ public:
   bool DrawIText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
 
-  IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName) override;
+  IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
+  IBitmap ScaleIBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName) override;
+  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName) override;
   void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
   void ReleaseBitmap(IBitmap& bitmap) override {};
   IBitmap CreateBitmap(const char * cacheName, int w, int h) override;

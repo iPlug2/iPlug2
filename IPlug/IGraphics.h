@@ -163,9 +163,9 @@ public:
 
   IPlugBase* GetPlug() { return mPlug; }
 
-  virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false) = 0;
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, int destW, int destH, const char* cacheName = 0) = 0;
-  virtual IBitmap CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
+  virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
+  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, int destW, int destH, const char* cacheName = 0) = 0;
+  virtual IBitmap CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
   void AttachBackground(const char* name);
   void AttachPanelBackground(const IColor& pColor);
   void AttachKeyCatcher(IControl& pControl);

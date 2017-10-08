@@ -481,7 +481,7 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, int destW, int destH, const char * cacheName)
+IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, int destW, int destH, const char * cacheName)
 {
   agg::pixel_map* pixel_map = (agg::pixel_map *)srcbitmap.mData;
   agg::pixel_map* copy = (agg::pixel_map*) CreateAPIBitmap(destW, destH);
@@ -536,7 +536,7 @@ IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, int destW, int destH
   return IBitmap(copy, srcbitmap.W, srcbitmap.H, srcbitmap.N, srcbitmap.mFramesAreHorizontal);
 }
 
-IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char * cacheName)
+IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char * cacheName)
 {
   agg::pixel_map* pixel_map = (agg::pixel_map *)srcbitmap.mData;
   agg::pixel_map* copy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());

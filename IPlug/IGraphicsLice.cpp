@@ -327,7 +327,7 @@ bool IGraphicsLice::DrawHorizontalLine(const IColor& color, int yi, int xLo, int
   return true;
 }
 
-IBitmap IGraphicsLice::ScaleBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName)
+IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName)
 {
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
@@ -339,7 +339,7 @@ IBitmap IGraphicsLice::ScaleBitmap(const IBitmap& bitmap, int destW, int destH, 
   return bmp;
 }
 
-IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName)
+IBitmap IGraphicsLice::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName)
 {
   int destW = rect.W(), destH = rect.H();
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
