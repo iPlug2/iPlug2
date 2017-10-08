@@ -30,9 +30,7 @@ typedef UInt32 URefCon;
 
 IGraphicsCarbon::IGraphicsCarbon(IGraphicsMac* pGraphicsMac,
                                  WindowRef pWindow,
-                                 ControlRef pParentControl,
-                                 short leftOffset,
-                                 short topOffset)
+                                 ControlRef pParentControl)
   : mGraphicsMac(pGraphicsMac)
   , mWindow(pWindow)
   , mView(0)

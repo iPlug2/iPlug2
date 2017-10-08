@@ -18,7 +18,7 @@
 class IGraphicsCarbon
 {
 public:
-  IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl, short leftOffset, short topOffset);
+  IGraphicsCarbon(IGraphicsMac* pGraphicsMac, WindowRef pWindow, ControlRef pParentControl);
   ~IGraphicsCarbon();
 
   ControlRef GetView() { return mView; }

@@ -171,12 +171,10 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   return OpenCocoaWindow(pParent);
 }
 
-#ifndef IPLUG_NO_CARBON_SUPPORT
-void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl, short leftOffset, short topOffset)
+void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl)
 {
-  return OpenCarbonWindow(pWindow, pControl, leftOffset, topOffset);
+  return OpenCarbonWindow(pWindow, pControl);
 }
-#endif
 
 void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
 {
@@ -190,23 +188,23 @@ void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
   }
     
   UpdateTooltips();
-  
-  // Else we are being called by IGraphicsCocoaFactory, which is being called by a Cocoa AU host,
-  // and the host will take care of attaching the view to the window.
+
   return mGraphicsCocoa;
 }
 
-#ifndef IPLUG_NO_CARBON_SUPPORT
-void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl, short leftOffset, short topOffset)
+void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
 {
+#ifndef IPLUG_NO_CARBON_SUPPORT
   TRACE;
   CloseWindow();
   WindowRef pWnd = (WindowRef) pParentWnd;
   ControlRef pControl = (ControlRef) pParentControl;
-  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl, leftOffset, topOffset);
+  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);
   return mGraphicsCarbon->GetView();
-}
+#else
+  return 0;
 #endif
+}
 
 //void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
 //{
