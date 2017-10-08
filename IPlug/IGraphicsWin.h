@@ -20,7 +20,7 @@ public:
 
   void HideMouseCursor();
   void ShowMouseCursor();
-  int ShowMessageBox(const char* pText, const char* pCaption, int type);
+  int ShowMessageBox(const char* pStr, const char* pCaption, int type);
 
   bool DrawScreen(IRECT* pR);
 
@@ -30,22 +30,22 @@ public:
   
   void UpdateTooltips() {}
 
-  void HostPath(WDL_String* pPath);
-  void PluginPath(WDL_String* pPath);
-  void DesktopPath(WDL_String* pPath);
+  void HostPath(WDL_String& path);
+  void PluginPath(WDL_String& path);
+  void DesktopPath(WDL_String& path);
   //void VST3PresetsPath(WDL_String* pPath, bool isSystem = true);
-  void AppSupportPath(WDL_String* pPath, bool isSystem = false);
-  void SandboxSafeAppSupportPath(WDL_String* pPath) { AppSupportPath(pPath, false); }
+  void AppSupportPath(WDL_String& path, bool isSystem = false);
+  void SandboxSafeAppSupportPath(WDL_String& pPath) { AppSupportPath(path, false); }
 
-  void PromptForFile(WDL_String* pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* extensions = "");   // extensions = "txt wav" for example.
-  bool PromptForColor(IColor* pColor, char* prompt = "");
+  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* pExtensions = "");   // extensions = "txt wav" for example.
+  bool PromptForColor(IColor& colour, const char* pStr);
 
   IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu* pMenu);
-  HMENU CreateMenu(IPopupMenu* pMenu, long* offsetIdx);
-  IPopupMenu* CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect);
-  void CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam);
+  HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect);
+  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam);
 
-  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
+  bool OpenURL(const char* pUrl, const char* pMsgWindowTitle = 0, const char* pConfirmMsg = 0, const char* pErrMsgOnFailure = 0);
 
   // Specialty use!
   void* GetWindow() { return mPlugWnd; }

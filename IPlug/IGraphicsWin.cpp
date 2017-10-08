@@ -888,7 +888,7 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
   return result;
 }
 
-void IGraphicsWin::CreateTextEntry(IControl* pControl, IText* pText, IRECT* pTextRect, const char* pString, IParam* pParam)
+void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& pText, const IRECT& pTextRect, const char* pString, IParam* pParam)
 {
   if (!pControl || mParamEditWnd) return;
 
