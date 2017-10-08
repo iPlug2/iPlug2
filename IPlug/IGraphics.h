@@ -15,7 +15,7 @@ class IControl;
 class IParam;
 
 template <class T>
-class BitmapStorage
+class StaticStorage
 {
 public:
   
@@ -30,56 +30,56 @@ public:
     return hash;
   }
   
-  struct BitmapKey
+  struct DataKey
   {
     unsigned long id;
-    T* bitmap;
+    T* data;
   };
   
-  WDL_PtrList<BitmapKey> mBitmaps;
+  WDL_PtrList<DataKey> mDatas;
   
   T* Find(const char* str)
   {
     unsigned long id = hash(str);
     
-    int i, n = mBitmaps.GetSize();
+    int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      BitmapKey* key = mBitmaps.Get(i);
-      if (key->id == id) return key->bitmap;
+      DataKey* key = mDatas.Get(i);
+      if (key->id == id) return key->data;
     }
     return 0;
   }
   
-  void Add(T* bitmap, const char* str)
+  void Add(T* data, const char* str)
   {
-    BitmapKey* key = mBitmaps.Add(new BitmapKey);
+    DataKey* key = mDatas.Add(new DataKey);
     key->id = hash(str);
-    key->bitmap = bitmap;
+    key->data = data;
   }
   
-  void Remove(T* bitmap)
+  void Remove(T* data)
   {
-    int i, n = mBitmaps.GetSize();
+    int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      if (mBitmaps.Get(i)->bitmap == bitmap)
+      if (mDatas.Get(i)->data == data)
       {
-        mBitmaps.Delete(i, true);
-        delete(bitmap);
+        mDatas.Delete(i, true);
+        delete(data);
         break;
       }
     }
   }
   
-  ~BitmapStorage()
+  ~StaticStorage()
   {
-    int i, n = mBitmaps.GetSize();
+    int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      delete(mBitmaps.Get(i)->bitmap);
+      delete(mDatas.Get(i)->data);
     }
-    mBitmaps.Empty(true);
+    mDatas.Empty(true);
   }
 };
 

@@ -4,77 +4,8 @@
 #include "Log.h"
 
 
-static BitmapStorage<agg::pixel_map> s_bitmapCache;
-
-class FontStorage
-{
-public:
-  
-  unsigned long hash(const char *str) {
-    unsigned long hash = 5381;
-    int c;
-    
-    while ((c = *str++)) {
-      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    }
-    
-    return hash;
-  }
-  
-  struct FontKey
-  {
-    unsigned long id;
-    agg::font * font;
-  };
-  
-  WDL_PtrList<FontKey> m_fonts;
-  
-  agg::font * Find(const char * str)
-  {
-    unsigned long id = hash(str);
-    
-    int i, n = m_fonts.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      FontKey* key = m_fonts.Get(i);
-      if (key->id == id) return key->font;
-    }
-    return 0;
-  }
-  
-  void Add(agg::font * font, const char * str)
-  {
-    FontKey * key = m_fonts.Add(new FontKey);
-    key->id = hash(str);
-    key->font = font;
-  }
-  
-  void Remove(agg::font * font)
-  {
-    int i, n = m_fonts.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      if (m_fonts.Get(i)->font == font)
-      {
-        m_fonts.Delete(i, true);
-        delete(font);
-        break;
-      }
-    }
-  }
-  
-  ~FontStorage()
-  {
-    int i, n = m_fonts.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      delete(m_fonts.Get(i)->font);
-    }
-    m_fonts.Empty(true);
-  }
-};
-
-static FontStorage s_fontCache;
+static StaticStorage<agg::pixel_map> s_bitmapCache;
+static StaticStorage<agg::font> s_fontCache;
 
 #pragma mark -
 
@@ -693,7 +624,7 @@ agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* pPath)
 void IGraphicsAGG::RenderAPIBitmap(void *pContext)
 {
 #ifdef OS_OSX
-//  mPixelMap.draw((CGContext*) pContext, mDisplayScale);
+  mPixelMap.draw((CGContext*) pContext, 1);
 #else // OS_WIN
   //TODO: win
 #endif

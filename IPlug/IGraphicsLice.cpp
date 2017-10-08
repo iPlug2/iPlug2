@@ -5,7 +5,7 @@
 
 signed int GetSystemVersion();
 
-static BitmapStorage<LICE_IBitmap> s_bitmapCache;
+static StaticStorage<LICE_IBitmap> s_bitmapCache;
 
 class FontStorage
 {
@@ -468,6 +468,7 @@ bool IGraphicsLice::MeasureIText(const IText& text, const char* str, IRECT& dest
 
 IBitmap IGraphicsLice::CreateBitmap(const char * cacheName, int w, int h)
 {
+  //  TODO: ?
 }
 
 //void* IGraphicsLice::CreateAPIBitmap(int w, int h)
