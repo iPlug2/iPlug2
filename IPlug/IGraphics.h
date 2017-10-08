@@ -14,6 +14,75 @@ class IPlugBase;
 class IControl;
 class IParam;
 
+template <class T>
+class BitmapStorage
+{
+public:
+  
+  unsigned long hash(const char* str) {
+    unsigned long hash = 5381;
+    int c;
+    
+    while ((c = *str++)) {
+      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    }
+    
+    return hash;
+  }
+  
+  struct BitmapKey
+  {
+    unsigned long id;
+    T* bitmap;
+  };
+  
+  WDL_PtrList<BitmapKey> mBitmaps;
+  
+  T* Find(const char* str)
+  {
+    unsigned long id = hash(str);
+    
+    int i, n = mBitmaps.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      BitmapKey* key = mBitmaps.Get(i);
+      if (key->id == id) return key->bitmap;
+    }
+    return 0;
+  }
+  
+  void Add(T* bitmap, const char* str)
+  {
+    BitmapKey* key = mBitmaps.Add(new BitmapKey);
+    key->id = hash(str);
+    key->bitmap = bitmap;
+  }
+  
+  void Remove(T* bitmap)
+  {
+    int i, n = mBitmaps.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      if (mBitmaps.Get(i)->bitmap == bitmap)
+      {
+        mBitmaps.Delete(i, true);
+        delete(bitmap);
+        break;
+      }
+    }
+  }
+  
+  ~BitmapStorage()
+  {
+    int i, n = mBitmaps.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      delete(mBitmaps.Get(i)->bitmap);
+    }
+    mBitmaps.Empty(true);
+  }
+};
+
 class IGraphics
 {
 public:

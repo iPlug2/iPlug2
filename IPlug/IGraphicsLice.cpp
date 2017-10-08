@@ -5,76 +5,7 @@
 
 signed int GetSystemVersion();
 
-class BitmapStorage
-{
-public:
-  
-  unsigned long hash(const char* str) {
-    unsigned long hash = 5381;
-    int c;
-    
-    while ((c = *str++)) {
-      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    }
-    
-    return hash;
-  }
-  
-  struct BitmapKey
-  {
-    unsigned long id;
-    LICE_IBitmap * bitmap;
-  };
-  
-  WDL_PtrList<BitmapKey> m_bitmaps;
-  
-  LICE_IBitmap * Find(const char* str)
-  {
-    unsigned long id = hash(str);
-    
-    int i, n = m_bitmaps.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      BitmapKey* key = m_bitmaps.Get(i);
-      if (key->id == id) return key->bitmap;
-    }
-    return 0;
-  }
-  
-  void Add(LICE_IBitmap * bitmap, const char* str)
-  {
-    BitmapKey* key = m_bitmaps.Add(new BitmapKey);
-    key->id = hash(str);
-    key->bitmap = bitmap;
-  }
-  
-  void Remove(LICE_IBitmap* bitmap)
-  {
-    int i, n = m_bitmaps.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      if (m_bitmaps.Get(i)->bitmap == bitmap)
-      {
-        m_bitmaps.Delete(i, true);
-        delete(bitmap);
-        break;
-      }
-    }
-  }
-  
-  ~BitmapStorage()
-  {
-    int i, n = m_bitmaps.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      delete(m_bitmaps.Get(i)->bitmap);
-    }
-    m_bitmaps.Empty(true);
-  }
-};
-
-
-static BitmapStorage s_bitmapCache;
+static BitmapStorage<LICE_IBitmap> s_bitmapCache;
 
 class FontStorage
 {
