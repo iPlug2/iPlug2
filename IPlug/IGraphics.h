@@ -172,7 +172,7 @@ public:
   int AttachControl(IControl* pControl);
 
   IControl* GetControl(int idx) { return mControls.Get(idx); }
-  int GetNControls() { return mControls.GetSize(); }
+  int GetNControls() const { return mControls.GetSize(); }
   void HideControl(int paramIdx, bool hide);
   void GrayOutControl(int paramIdx, bool gray);
 
@@ -244,7 +244,7 @@ protected:
   bool mCursorHidden;
   int mHiddenMousePointX, mHiddenMousePointY;
 
-  bool CanHandleMouseOver() { return mHandleMouseOver; }
+  bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
   inline int GetMouseX() const { return mMouseX; }
   inline int GetMouseY() const { return mMouseY; }
