@@ -466,7 +466,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       
       if (pGraphics)
       {
-        #ifdef _WIN32
+        #ifdef OS_WIN
           if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
         #else   // OSX, check if we are in a Cocoa VST host
           #if defined(__LP64__)
