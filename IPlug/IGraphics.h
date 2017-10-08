@@ -157,9 +157,9 @@ public:
   IGraphics(IPlugBase* pPlug, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
-  int Width() { return mWidth; }
-  int Height() { return mHeight; }
-  int FPS() { return mFPS; }
+  int Width() const { return mWidth; }
+  int Height() const { return mHeight; }
+  int FPS() const { return mFPS; }
 
   IPlugBase* GetPlug() { return mPlug; }
 
