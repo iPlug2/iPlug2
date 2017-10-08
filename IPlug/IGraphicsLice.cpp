@@ -217,14 +217,14 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
   return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
 }
 
-void IGraphicsLice::RetainBitmap(IBitmap* pBitmap, const char * cacheName)
+void IGraphicsLice::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
-  s_bitmapCache.Add((LICE_IBitmap*)pBitmap->mData, cacheName);
+  s_bitmapCache.Add((LICE_IBitmap*)bitmap.mData, cacheName);
 }
 
-void IGraphicsLice::ReleaseBitmap(IBitmap* pBitmap)
+void IGraphicsLice::ReleaseBitmap(IBitmap& bitmap)
 {
-  s_bitmapCache.Remove((LICE_IBitmap*) pBitmap->mData);
+  s_bitmapCache.Remove((LICE_IBitmap*) bitmap.mData);
 }
 
 void IGraphicsLice::PrepDraw()
@@ -396,27 +396,27 @@ bool IGraphicsLice::DrawHorizontalLine(const IColor& color, int yi, int xLo, int
   return true;
 }
 
-IBitmap IGraphicsLice::ScaleBitmap(IBitmap* pIBitmap, int destW, int destH, const char * cacheName)
+IBitmap IGraphicsLice::ScaleBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName)
 {
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) pIBitmap->mData;
+  LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pIBitmap->W, (float) pIBitmap->H, 1.0f,
+  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) bitmap.W, (float) bitmap.H, 1.0f,
                   LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
-  IBitmap bmp(pDest, destW, destH, pIBitmap->N);
-  RetainBitmap(&bmp, cacheName);
+  IBitmap bmp(pDest, destW, destH, bitmap.N);
+  RetainBitmap(bmp, cacheName);
   return bmp;
 }
 
-IBitmap IGraphicsLice::CropBitmap(IBitmap* pIBitmap, const IRECT& rect, const char * cacheName)
+IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName)
 {
   int destW = rect.W(), destH = rect.H();
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) pIBitmap->mData;
+  LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_Blit(pDest, pSrc, 0, 0, rect.L, rect.T, destW, destH, 1.0f, LICE_BLIT_MODE_COPY);
   
-  IBitmap bmp(pDest, destW, destH, pIBitmap->N);
-  RetainBitmap(&bmp, cacheName);
+  IBitmap bmp(pDest, destW, destH, bitmap.N);
+  RetainBitmap(bmp, cacheName);
   return bmp;
 }
 

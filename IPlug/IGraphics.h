@@ -85,7 +85,7 @@ public:
 
 #pragma mark -
 
-  IGraphics(IPlugBase* pPlug, int w, int h, int refreshFPS = 0);
+  IGraphics(IPlugBase* pPlug, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
   int Width() { return mWidth; }
@@ -95,8 +95,8 @@ public:
   IPlugBase* GetPlug() { return mPlug; }
 
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false) = 0;
-  virtual IBitmap ScaleBitmap(IBitmap* pSrcBitmap, int destW, int destH, const char* cacheName = 0) = 0;
-  virtual IBitmap CropBitmap(IBitmap* pSrcBitmap, const IRECT& rect, const char* cacheName = 0) = 0;
+  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, int destW, int destH, const char* cacheName = 0) = 0;
+  virtual IBitmap CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
   void AttachBackground(const char* name);
   void AttachPanelBackground(const IColor& pColor);
   void AttachKeyCatcher(IControl& pControl);
@@ -160,8 +160,8 @@ public:
 
   void OnGUIIdle();
 
-  virtual void RetainBitmap(IBitmap* pBitmap, const char* cacheName) = 0;
-  virtual void ReleaseBitmap(IBitmap* pBitmap) = 0;
+  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
+  virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
   virtual IBitmap CreateBitmap(const char* cacheName, int w, int h) = 0;
 
   virtual void OSLoadBitmap(const char* name, WDL_String& fullPath) = 0;

@@ -40,10 +40,10 @@ public:
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
   
   IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal) override;
-  IBitmap ScaleBitmap(IBitmap* pBitmap, int destW, int destH, const char* cacheName) override;
-  IBitmap CropBitmap(IBitmap* pBitmap, const IRECT& rect, const char * cacheName) override;
-  void RetainBitmap(IBitmap* pBitmap, const char* cacheName) override;
-  void ReleaseBitmap(IBitmap* pBitmap) override;
+  IBitmap ScaleBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName) override;
+  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char * cacheName) override;
+  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override;
+  void ReleaseBitmap(IBitmap& bitmap) override;
   
   IBitmap CreateBitmap(const char * cacheName, int w, int h) override;
 
