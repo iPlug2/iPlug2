@@ -9,7 +9,7 @@ class BitmapStorage
 {
 public:
   
-  unsigned long hash(const char *str) {
+  unsigned long hash(const char* str) {
     unsigned long hash = 5381;
     int c;
     
@@ -28,7 +28,7 @@ public:
   
   WDL_PtrList<BitmapKey> m_bitmaps;
   
-  LICE_IBitmap * Find(const char * str)
+  LICE_IBitmap * Find(const char* str)
   {
     unsigned long id = hash(str);
     
@@ -41,14 +41,14 @@ public:
     return 0;
   }
   
-  void Add(LICE_IBitmap * bitmap, const char * str)
+  void Add(LICE_IBitmap * bitmap, const char* str)
   {
     BitmapKey* key = m_bitmaps.Add(new BitmapKey);
     key->id = hash(str);
     key->bitmap = bitmap;
   }
   
-  void Remove(LICE_IBitmap * bitmap)
+  void Remove(LICE_IBitmap* bitmap)
   {
     int i, n = m_bitmaps.GetSize();
     for (i = 0; i < n; ++i)
@@ -91,26 +91,26 @@ public:
   WDL_PtrList<FontKey> m_fonts;
   WDL_Mutex m_mutex;
   
-  LICE_IFont* Find(const IText& pTxt)
+  LICE_IFont* Find(const IText& text)
   {
     WDL_MutexLock lock(&m_mutex);
     int i = 0, n = m_fonts.GetSize();
     for (i = 0; i < n; ++i)
     {
       FontKey* key = m_fonts.Get(i);
-      if (key->size == pTxt.mSize && key->orientation == pTxt.mOrientation && key->style == pTxt.mStyle && !strcmp(key->face, pTxt.mFont)) return key->font;
+      if (key->size == text.mSize && key->orientation == text.mOrientation && key->style == text.mStyle && !strcmp(key->face, text.mFont)) return key->font;
     }
     return 0;
   }
   
-  void Add(LICE_IFont* font, const IText& pTxt)
+  void Add(LICE_IFont* font, const IText& text)
   {
     WDL_MutexLock lock(&m_mutex);
     FontKey* key = m_fonts.Add(new FontKey);
-    key->size = pTxt.mSize;
-    key->orientation = pTxt.mOrientation;
-    key->style = pTxt.mStyle;
-    strcpy(key->face, pTxt.mFont);
+    key->size = text.mSize;
+    key->orientation = text.mOrientation;
+    key->style = text.mStyle;
+    strcpy(key->face, text.mFont);
     key->font = font;
   }
   
@@ -167,8 +167,8 @@ inline int LiceBlendMode(const IChannelBlend* pBlend)
 
 #pragma mark -
 
-IGraphicsLice::IGraphicsLice(IPlugBase* pPlug, int w, int h, int refreshFPS)
-: IGraphics(pPlug, w, h, refreshFPS)
+IGraphicsLice::IGraphicsLice(IPlugBase* pPlug, int w, int h, int fps)
+: IGraphics(pPlug, w, h, fps)
 , mDrawBitmap(nullptr)
 , mTmpBitmap(nullptr)
 , mColorSpace(nullptr)
@@ -420,31 +420,31 @@ IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, cons
   return bmp;
 }
 
-bool IGraphicsLice::DrawIText(const IText& pTxt, const char* str, IRECT& rect, bool measure)
+bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   if (!str || str[0] == '\0')
   {
     return true;
   }
   
-  LICE_IFont* font = pTxt.mCached;
+  LICE_IFont* font = text.mCached;
   
   if (!font)
   {
-    font = CacheFont(const_cast<IText&>(pTxt));
+    font = CacheFont(const_cast<IText&>(text));
     if (!font) return false;
   }
   
-  LICE_pixel color = LiceColor(pTxt.mColor);
+  LICE_pixel color = LiceColor(text.mColor);
   font->SetTextColor(color);
   
   UINT fmt = DT_NOCLIP;
   if (LICE_GETA(color) < 255) fmt |= LICE_DT_USEFGALPHA;
-  if (pTxt.mAlign == IText::kAlignNear)
+  if (text.mAlign == IText::kAlignNear)
     fmt |= DT_LEFT;
-  else if (pTxt.mAlign == IText::kAlignCenter)
+  else if (text.mAlign == IText::kAlignCenter)
     fmt |= DT_CENTER;
-  else // if (pTxt.mAlign == IText::kAlignFar)
+  else // if (text.mAlign == IText::kAlignFar)
     fmt |= DT_RIGHT;
   
   if (measure)
@@ -453,16 +453,16 @@ bool IGraphicsLice::DrawIText(const IText& pTxt, const char* str, IRECT& rect, b
     RECT R = {0,0,0,0};
     font->DrawText(mDrawBitmap, str, -1, &R, fmt);
     
-    if( pTxt.mAlign == IText::kAlignNear)
+    if( text.mAlign == IText::kAlignNear)
     {
       rect.R = R.right;
     }
-    else if (pTxt.mAlign == IText::kAlignCenter)
+    else if (text.mAlign == IText::kAlignCenter)
     {
       rect.L = (int) rect.MW() - (R.right/2);
       rect.R = rect.L + R.right;
     }
-    else // (pTxt.mAlign == IText::kAlignFar)
+    else // (text.mAlign == IText::kAlignFar)
     {
       rect.L = rect.R - R.right;
       rect.R = rect.L + R.right;
@@ -479,29 +479,29 @@ bool IGraphicsLice::DrawIText(const IText& pTxt, const char* str, IRECT& rect, b
   return true;
 }
 
-LICE_IFont* IGraphicsLice::CacheFont(IText& pTxt)
+LICE_IFont* IGraphicsLice::CacheFont(IText& text)
 {
-  LICE_CachedFont* font = (LICE_CachedFont*)s_fontCache.Find(pTxt);
+  LICE_CachedFont* font = (LICE_CachedFont*)s_fontCache.Find(text);
   if (!font)
   {
     font = new LICE_CachedFont;
-    int h = pTxt.mSize;
-    int esc = 10 * pTxt.mOrientation;
-    int wt = (pTxt.mStyle == IText::kStyleBold ? FW_BOLD : FW_NORMAL);
-    int it = (pTxt.mStyle == IText::kStyleItalic ? TRUE : FALSE);
+    int h = text.mSize;
+    int esc = 10 * text.mOrientation;
+    int wt = (text.mStyle == IText::kStyleBold ? FW_BOLD : FW_NORMAL);
+    int it = (text.mStyle == IText::kStyleItalic ? TRUE : FALSE);
     
     int q;
-    if (pTxt.mQuality == IText::kQualityDefault)
+    if (text.mQuality == IText::kQualityDefault)
       q = DEFAULT_QUALITY;
 #ifdef CLEARTYPE_QUALITY
-    else if (pTxt.mQuality == IText::kQualityClearType)
+    else if (text.mQuality == IText::kQualityClearType)
       q = CLEARTYPE_QUALITY;
-    else if (pTxt.mQuality == IText::kQualityAntiAliased)
+    else if (text.mQuality == IText::kQualityAntiAliased)
 #else
-      else if (pTxt.mQuality != IText::kQualityNonAntiAliased)
+      else if (text.mQuality != IText::kQualityNonAntiAliased)
 #endif
         q = ANTIALIASED_QUALITY;
-      else // if (pTxt.mQuality == IText::kQualityNonAntiAliased)
+      else // if (text.mQuality == IText::kQualityNonAntiAliased)
         q = NONANTIALIASED_QUALITY;
     
 #ifdef OS_OSX
@@ -509,7 +509,7 @@ LICE_IFont* IGraphicsLice::CacheFont(IText& pTxt)
   Resize:
     if (h < 2) h = 2;
 #endif
-    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, pTxt.mFont);
+    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, text.mFont);
     if (!hFont)
     {
       delete(font);
@@ -524,9 +524,9 @@ LICE_IFont* IGraphicsLice::CacheFont(IText& pTxt)
       goto Resize;
     }
 #endif
-    s_fontCache.Add(font, pTxt);
+    s_fontCache.Add(font, text);
   }
-  pTxt.mCached = font;
+  text.mCached = font;
   return font;
 }
 
@@ -596,7 +596,6 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
     if (!mColorSpace)
       mColorSpace = CGColorSpaceCreateDeviceRGB();
   }
-  
 
 #ifdef IGRAPHICS_MAC_OLD_IMAGE_DRAWING
   HDC__ * srcCtx = (HDC__*) mDrawBitmap->getDC();
