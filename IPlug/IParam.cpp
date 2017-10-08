@@ -201,7 +201,7 @@ const char* IParam::GetDisplayTextAtIdx(int idx, int* value)
   return pDT->mText;
 }
 
-bool IParam::MapDisplayText(char* str, int* pValue)
+bool IParam::MapDisplayText(const char* pStr, int* pValue)
 {
   int n = mDisplayTexts.GetSize();
   
@@ -210,7 +210,7 @@ bool IParam::MapDisplayText(char* str, int* pValue)
     DisplayText* pDT = mDisplayTexts.Get();
     for (int i = 0; i < n; ++i, ++pDT)
     {
-      if (!strcmp(str, pDT->mText))
+      if (!strcmp(pStr, pDT->mText))
       {
         *pValue = pDT->mValue;
         return true;

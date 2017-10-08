@@ -70,7 +70,7 @@ public:
   int GetNDisplayTexts();
   const char* GetDisplayText(int value);
   const char* GetDisplayTextAtIdx(int idx, int* value = 0);
-  bool MapDisplayText(char* str, int* pValue);  // Reverse map back to value.
+  bool MapDisplayText(const char* pStr, int* pValue);  // Reverse map back to value.
   void GetBounds(double* pMin, double* pMax);
   const double GetShape() {return mShape;}
   const double GetStep() {return mStep;}
