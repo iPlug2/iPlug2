@@ -38,7 +38,6 @@ const int MAX_PRESET_NAME_LEN = 256;
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
 #define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
 #define MAX_PARAM_DISPLAY_PRECISION 6
-#define MAX_SYSEX_SIZE 1024
 
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000

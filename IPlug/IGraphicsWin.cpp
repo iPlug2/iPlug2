@@ -923,8 +923,6 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& pText, const
   mEdParam = pParam; // could be 0
 }
 
-#define MAX_PATH_LEN 256
-
 void GetModulePath(HMODULE hModule, WDL_String* pPath)
 {
   pPath->Set("");

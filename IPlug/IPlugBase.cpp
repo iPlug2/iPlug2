@@ -679,8 +679,6 @@ void IPlugBase::MakePresetFromBlob(const char* name, const char* blob, int sizeO
   MakePresetFromChunk(name, &presetChunk);
 }
 
-#define DEFAULT_USER_PRESET_NAME "user preset"
-
 void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
 {
   int nDefaultNames = 0;
