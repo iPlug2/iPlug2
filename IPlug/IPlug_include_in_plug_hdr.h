@@ -1,7 +1,7 @@
 #pragma once
 
 // Include this file in the main header for your plugin,
-// after #defining either VST_API or AU_API.
+// after #defining either XXX_API.
 #include <cstdio>
 #include "IPlugOSDetect.h"
 #include "resource.h" // This is your plugin's resource.h
