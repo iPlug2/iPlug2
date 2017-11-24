@@ -1,7 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include "Containers.h"
+#include <cmath>
+#include "wdlstring.h"
 #include "IPlugOSDetect.h"
 
 #ifdef OS_OSX
@@ -312,10 +313,10 @@ struct IRECT
   
   void Scale(double scale)
   {
-    L = (int) floor(0.5 + (L * scale));
-    T = (int) floor(0.5 + (T * scale));
-    R = (int) floor(0.5 + (R * scale));
-    B = (int) floor(0.5 + (B * scale));
+    L = (int) std::floor(0.5 + (L * scale));
+    T = (int) std::floor(0.5 + (T * scale));
+    R = (int) std::floor(0.5 + (R * scale));
+    B = (int) std::floor(0.5 + (B * scale));
   }
 };
 

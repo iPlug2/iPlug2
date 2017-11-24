@@ -1,7 +1,10 @@
 #pragma once
 
 #include <algorithm>
-#include "Containers.h"
+#include "wdlstring.h"
+
+#include "IPlugConstants.h"
+#include "IPlugByteChunk.h"
 #include "IPlugOSDetect.h"
 
 struct IMidiMsg
@@ -156,9 +159,6 @@ struct ISysEx
   void LogMsg();
 };
 
-const int MAX_PRESET_NAME_LEN = 256;
-#define UNUSED_PRESET_NAME "empty"
-
 struct IPreset
 {
   bool mInitialized;
@@ -171,17 +171,4 @@ struct IPreset
   {
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
-};
-
-enum
-{
-  KEY_SPACE,
-  KEY_UPARROW,
-  KEY_DOWNARROW,
-  KEY_LEFTARROW,
-  KEY_RIGHTARROW,
-  KEY_DIGIT_0,
-  KEY_DIGIT_9=KEY_DIGIT_0+9,
-  KEY_ALPHA_A,
-  KEY_ALPHA_Z=KEY_ALPHA_A+25
 };

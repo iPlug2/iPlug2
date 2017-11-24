@@ -12,8 +12,6 @@
     typedef int32_t VstInt32;
 #endif
 
-const double DEFAULT_SAMPLE_RATE = 44100.0;
-
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
@@ -21,27 +19,6 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
   {
     *pDest = (DEST) *pSrc;
   }
-}
-
-void GetVersionParts(int version, int* pVer, int* pMaj, int* pMin)
-{
-  *pVer = (version & 0xFFFF0000) >> 16;
-  *pMaj = (version & 0x0000FF00) >> 8;
-  *pMin = version & 0x000000FF;
-}
-
-int GetDecimalVersion(int version)
-{
-  int ver, rmaj, rmin;
-  GetVersionParts(version, &ver, &rmaj, &rmin);
-  return 10000 * ver + 100 * rmaj + rmin;
-}
-
-void GetVersionStr(int version, char* str)
-{
-  int ver, rmaj, rmin;
-  GetVersionParts(version, &ver, &rmaj, &rmin);
-  sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
 #ifndef MAX_PATH
@@ -613,24 +590,6 @@ void IPlugBase::MakeDefaultPreset(const char* name, int nPresets)
       SerializeState(&(pPreset->mChunk));
     }
   }
-}
-
-#define GET_PARAM_FROM_VARARG(paramType, vp, v) \
-{ \
-  v = 0.0; \
-  switch (paramType) { \
-    case IParam::kTypeBool: \
-    case IParam::kTypeInt: \
-    case IParam::kTypeEnum: { \
-      v = (double) va_arg(vp, int); \
-      break; \
-    } \
-    case IParam::kTypeDouble: \
-    default: { \
-      v = (double) va_arg(vp, double); \
-      break; \
-    } \
-  } \
 }
 
 void IPlugBase::MakePreset(const char* name, ...)

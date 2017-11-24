@@ -1,10 +1,12 @@
 #pragma once
 
-#define IPLUG_VERSION 0x010000
-#define IPLUG_VERSION_MAGIC 'pfft'
+#include <cstring>
+#include "ptrlist.h"
+#include "mutex.h"
 
-#include "Containers.h"
+#include "IPlugConstants.h"
 #include "IPlugStructs.h"
+#include "IPlugByteChunk.h"
 #include "IParam.h"
 #include "Hosts.h"
 #include "Log.h"
@@ -12,12 +14,6 @@
 
 // Uncomment to enable IPlug::OnIdle() and IGraphics::OnGUIIdle().
 // #define USE_IDLE_CALLS
-
-#define MAX_EFFECT_NAME_LEN 128
-#define DEFAULT_BLOCK_SIZE 1024
-#define DEFAULT_TEMPO 120.0
-
-// All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 
 class IGraphics;
 

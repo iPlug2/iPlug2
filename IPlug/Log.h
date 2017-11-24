@@ -2,7 +2,9 @@
 
 #include <cstdarg>
 #include <cstdint>
-#include "Containers.h"
+#include <cstring>
+#include "wdlstring.h"
+#include "IPlugUtilities.h"
 #include "IPlugOSDetect.h"
 
 #if defined OS_WIN

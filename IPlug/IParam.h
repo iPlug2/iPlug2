@@ -1,21 +1,18 @@
 #pragma once
 
-#include "Containers.h"
 #include <cmath>
-
-#define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
-#define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
-#define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
-#define MAX_PARAM_DISPLAY_PRECISION 6
+#include <cstring>
+#include "heapbuf.h"
+#include "IPlugUtilities.h"
 
 inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)
 {
-  return pow((nonNormalizedValue - min) / (max - min), 1.0 / shape);
+  return std::pow((nonNormalizedValue - min) / (max - min), 1.0 / shape);
 }
 
 inline double FromNormalizedParam(double normalizedValue, double min, double max, double shape)
 {
-  return min + pow((double) normalizedValue, shape) * (max - min);
+  return min + std::pow((double) normalizedValue, shape) * (max - min);
 }
 
 class IParam

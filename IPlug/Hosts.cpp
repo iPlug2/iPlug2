@@ -1,6 +1,9 @@
+#include <ctype.h>
+#include <cstring>
+
+#include "wdlstring.h"
 #include "Hosts.h"
 #include "Log.h"
-#include <ctype.h>
 
 EHost LookUpHost(const char* inHost)
 {
