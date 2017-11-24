@@ -84,7 +84,7 @@ public:
   
   virtual void OnWindowResize() {}
   // implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone
-  virtual bool HostRequestingAboutBox() { return false; }
+  virtual bool OnHostRequestingAboutBox() { return false; }
 
   // implement this to do something specific when IPlug is aware of the host
   // may get called multiple times
