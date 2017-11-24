@@ -384,20 +384,38 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       }
       return 0;
     }
-      //could implement effGetParameterProperties to group parameters, but can't find a host that supports it
-//    case effGetParameterProperties:
-//    {
-//      if (idx >= 0 && idx < _this->NParams())
-//      {
-//        VstParameterProperties* props = (VstParameterProperties*) ptr;
-//        
-//        props->flags = kVstParameterSupportsDisplayCategory;
-//        props->category = idx+1;
-//        props->numParametersInCategory = 1;
-//        strcpy(props->categoryLabel, "test");
-//      }
-//      return 1;
-//    }
+    case effGetParameterProperties:
+    {
+      if (idx >= 0 && idx < _this->NParams())
+      {
+        VstParameterProperties* props = (VstParameterProperties*) ptr;
+
+        IParam* pParam = _this->GetParam(idx);
+        switch (pParam->Type())
+        {
+          case IParam::kTypeInt:
+          case IParam::kTypeEnum:
+            props->flags = kVstParameterUsesIntStep | kVstParameterUsesIntegerMinMax;
+            break;
+          case IParam::kTypeBool:
+            props->flags = kVstParameterIsSwitch;
+            break;
+          case IParam::kTypeDouble:
+          default:
+            props->flags = kVstParameterUsesFloatStep;
+            break;
+        }
+        
+        props->minInteger = pParam->GetMin();
+        props->maxInteger = pParam->GetMax();
+        props->stepInteger = props->largeStepInteger = (int) pParam->GetStep();
+        props->largeStepFloat = props->smallStepFloat = props->stepFloat = pParam->GetStep();
+        strcpy(props->label, pParam->GetLabelForHost());
+        
+        return 1;
+      }
+      return 0;
+    }
     case effString2Parameter:
     {
       if (idx >= 0 && idx < _this->NParams())
