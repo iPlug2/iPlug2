@@ -565,7 +565,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           DestroyWindow(hwndDlg);
           return 0;
         case ID_ABOUT:
-          if(!gPluginInstance->HostRequestingAboutBox())
+          if(!gPluginInstance->OnHostRequestingAboutBox())
           {
             char version[50];
             sprintf(version, BUNDLE_MFR"\nBuilt on " __DATE__);
