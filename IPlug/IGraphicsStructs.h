@@ -27,7 +27,7 @@ struct IBitmap
     , N(n)
     , mFramesAreHorizontal(framesAreHorizontal)
     , mScale(scale)
-    , mName(name, strlen(name))
+    , mName(name, (int) strlen(name))
   {}
 
   inline int frameWidth() const { return mFramesAreHorizontal ? W / N : W; }
