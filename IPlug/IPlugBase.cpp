@@ -362,6 +362,27 @@ bool IPlugBase::IsOutChannelConnected(int chIdx)
   return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected);
 }
 
+int IPlugBase::GetNumInputsConnected()
+{
+  int count = 0;
+  
+  for (int i = 0; i<mInChannels.GetSize(); i++) {
+    count += (int) IsInChannelConnected(i);
+  }
+  
+  return count;
+}
+
+int IPlugBase::GetNumOutputsConnected()
+{
+  int count = 0;
+  
+  for (int i = 0; i<mOutChannels.GetSize(); i++) {
+    count += (int) IsOutChannelConnected(i);
+  }
+  
+  return count;
+}
 void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
 {
   int iEnd = std::min(idx + n, mInChannels.GetSize());
