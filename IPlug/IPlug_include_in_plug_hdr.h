@@ -1,7 +1,7 @@
 #pragma once
 
 // Include this file in the main header for your plugin,
-// after #defining either XXX_API.
+// after #defining XXX_API.
 #include <cstdio>
 #include "IPlugOSDetect.h"
 #include "resource.h" // This is your plugin's resource.h
@@ -10,7 +10,7 @@
   #include "IPlugVST.h"
   typedef IPlugVST IPlug;
   #define API_EXT "vst"
-#elif VST3_API
+#elif defined VST3_API
   #include "IPlugVST3.h"
   typedef IPlugVST3 IPlug;
   #define API_EXT "vst3"
@@ -18,7 +18,7 @@
   #include "IPlugAU.h"
   typedef IPlugAU IPlug;
   #define API_EXT "audiounit"
-#elif AAX_API
+#elif defined AAX_API
   #include "IPlugAAX.h"
   typedef IPlugAAX IPlug;
   #define API_EXT "aax"
