@@ -1,5 +1,4 @@
-#ifndef _IPLUGAPI_
-#define _IPLUGAPI_
+#pragma once
 
 #include "IPlugOSDetect.h"
 #include "IPlugBase.h"
@@ -69,5 +68,3 @@ private:
 };
 
 IPlugStandalone* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan);
-
-#endif
