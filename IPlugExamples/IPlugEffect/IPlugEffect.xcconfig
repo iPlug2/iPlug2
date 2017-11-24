@@ -22,13 +22,13 @@ GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
 //EXTRA_RELEASE_DEFS =
 //EXTRA_TRACER_DEFS =
 
-COCOA_DEFS = COCOA_PREFIX=vIPlugEffect SWELL_APP_PREFIX=Swell_vIPlugEffect
+EXTRA_ALL_DEFS = COCOA_PREFIX=vIPlugEffect SWELL_APP_PREFIX=Swell_vIPlugEffect
 
 //------------------------------
 // Release build options
 
 //Enable/Disable Profiling code
-PROFILE = NO //NO, YES - enable this if you want to use shark to profile a plugin
+PROFILE = NO //NO, YES - enable this if you want to use instruments to profile a plugin
 
 // GCC optimization level -
 // None: [-O0] Fast: [-O, -O1] Faster:[-O2] Fastest: [-O3] Fastest, smallest: Optimize for size. [-Os]
