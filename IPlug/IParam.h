@@ -28,9 +28,9 @@ public:
 
   EParamType Type() { return mType; }
 
-  void InitBool(const char* name, bool defaultVal, const char* label = "", const char* group = ""); // LABEL not used here
-  void InitEnum(const char* name, int defaultVal, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
-  void InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label = "", const char* group = "");
+  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // LABEL not used here
+  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
+  void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
   void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1.);
 
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
