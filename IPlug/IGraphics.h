@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IPlugStructs.h"
+#include "IGraphicsStructs.h"
 #include "IPopupMenu.h"
 #include "IControl.h"
 
