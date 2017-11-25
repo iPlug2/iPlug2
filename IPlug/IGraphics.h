@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
 #include "IPopupMenu.h"
 #include "IControl.h"
