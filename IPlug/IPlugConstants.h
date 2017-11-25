@@ -2,6 +2,11 @@
 
 typedef unsigned char BYTE;
 
+#ifndef VstInt32
+#include <stdint.h>
+typedef int32_t VstInt32;
+#endif
+
 enum EIPlugKeyCodes
 {
   KEY_SPACE,
@@ -38,6 +43,12 @@ const int MAX_PRESET_NAME_LEN = 256;
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
 #define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
 #define MAX_PARAM_DISPLAY_PRECISION 6
+
+#define PARAM_UNINIT 99.99e-9
+
+#ifndef MAX_BLOB_LENGTH
+#define MAX_BLOB_LENGTH 2048
+#endif
 
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000

@@ -1,19 +1,8 @@
 #pragma once
 
-#include <cmath>
 #include <cstring>
 #include "heapbuf.h"
 #include "IPlugUtilities.h"
-
-inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)
-{
-  return std::pow((nonNormalizedValue - min) / (max - min), 1.0 / shape);
-}
-
-inline double FromNormalizedParam(double normalizedValue, double min, double max, double shape)
-{
-  return min + std::pow((double) normalizedValue, shape) * (max - min);
-}
 
 class IParam
 {

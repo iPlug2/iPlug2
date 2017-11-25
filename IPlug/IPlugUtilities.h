@@ -1,12 +1,12 @@
-#ifndef __IPLUGUTILITIES__
-#define __IPLUGUTILITIES__
+#pragma once
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 #include "IPlugConstants.h"
+#include "IPlugOSDetect.h"
 
-#ifdef WIN32
+#ifdef OS_WIN
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
 #undef WINVER
@@ -76,13 +76,21 @@ inline void GetVersionStr(int version, char* str)
   sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
-#ifndef REMINDER
-#if defined WIN32
-// This enables: #pragma REMINDER("change this line!") with click-through from VC++.
-#define REMINDER(msg) message(__FILE__   "(" MAKE_STR(__LINE__) "): " msg)
-#elif defined __APPLE__
-#define REMINDER(msg) WARNING msg
-#endif
-#endif
+inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)
+{
+  return std::pow((nonNormalizedValue - min) / (max - min), 1.0 / shape);
+}
 
-#endif //__IPLUGUTILITIES__
+inline double FromNormalizedParam(double normalizedValue, double min, double max, double shape)
+{
+  return min + std::pow((double) normalizedValue, shape) * (max - min);
+}
+
+#ifndef REMINDER
+  #ifdef OS_WIN
+    // This enables: #pragma REMINDER("change this line!") with click-through from VC++.
+    #define REMINDER(msg) message(__FILE__   "(" MAKE_STR(__LINE__) "): " msg)
+  #elif defined __APPLE__
+    #define REMINDER(msg) WARNING msg
+  #endif
+#endif

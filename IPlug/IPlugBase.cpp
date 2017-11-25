@@ -7,11 +7,6 @@
 #include "wdlendian.h"
 #include "base64encdec.h"
 
-#ifndef VstInt32
-    #include <stdint.h>
-    typedef int32_t VstInt32;
-#endif
-
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
@@ -20,10 +15,6 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
     *pDest = (DEST) *pSrc;
   }
 }
-
-#ifndef MAX_PATH
-  #define MAX_PATH 1024
-#endif
 
 IPlugBase::IPlugBase(int nParams,
                      const char* channelIOStr,
