@@ -605,8 +605,6 @@ void IPlugBase::MakePreset(const char* name, ...)
   }
 }
 
-#define PARAM_UNINIT 99.99e-9
-
 void IPlugBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
 {
   TRACE;
@@ -947,10 +945,6 @@ void IPlugBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNam
     fclose(fp);
   }
 }
-
-#ifndef MAX_BLOB_LENGTH
-#define MAX_BLOB_LENGTH 2048
-#endif
 
 void IPlugBase::DumpPresetBlob(const char* filename)
 {
