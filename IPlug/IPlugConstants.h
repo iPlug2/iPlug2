@@ -57,5 +57,7 @@ const int MAX_PRESET_NAME_LEN = 256;
 #define DEFAULT_BLOCK_SIZE 1024
 #define DEFAULT_TEMPO 120.0
 
+// Uncomment to enable IPlug::OnIdle() and IGraphics::OnGUIIdle().
+// #define USE_IDLE_CALLS
 
 
