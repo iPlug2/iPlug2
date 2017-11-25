@@ -12,11 +12,6 @@
 #include "Log.h"
 #include "NChanDelay.h"
 
-// Uncomment to enable IPlug::OnIdle() and IGraphics::OnGUIIdle().
-// #define USE_IDLE_CALLS
-
-class IGraphics;
-
 class IPlugBase
 {
 public:
@@ -55,9 +50,8 @@ public:
   virtual void OnGUIOpen() { TRACE; }
   virtual void OnGUIClose() { TRACE; }
 
-  // This is an idle call from the audio processing thread, as opposed to
-  // IGraphics::OnGUIIdle which is called from the GUI thread.
-  // Only active if USE_IDLE_CALLS is defined.
+  // This is an idle call from the audio processing thread
+  // Only active if USE_IDLE_CALLS is defined
   virtual void OnIdle() {}
 
   // Not usually needed ... Reset is called on activate regardless of whether this is implemented.
@@ -86,14 +80,13 @@ public:
   // may get called multiple times
   virtual void OnHostIdentified() { return; };
 
-  virtual void PopupHostContextMenuForParam(int param, int x, int y) { return; }; //only for VST3, call it from the GUI
+  virtual void PopupHostContextMenuForParam(int param, int x, int y) { return; }; // only for VST3, call it from the GUI
 
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
   int NParams() { return mParams.GetSize(); }
   IParam* GetParam(int idx) { return mParams.Get(idx); }
-  IGraphics* GetGUI() { return mGraphics; }
 
   const char* GetEffectName() { return mEffectName; }
   int GetEffectVersion(bool decimal);   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
@@ -147,9 +140,9 @@ public:
   const char* GetArchString();
   
   int GetTailSize() { return mTailSize; }
+  bool GetHasUI() { return mHasUI; }
   
   // Tell the host that the graphics resized.
-  // Should be called only by the graphics object when it resizes itself.
   virtual void ResizeGraphics(int w, int h) = 0;
 
   void EnsureDefaultPreset();
@@ -187,7 +180,6 @@ protected:
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() { return; };
-  virtual void AttachGraphics(IGraphics* pGraphics);
 
   // If latency changes after initialization (often not supported by the host).
   virtual void SetLatency(int samples);
@@ -312,16 +304,13 @@ private:
   };
 
 protected:
-  bool mStateChunks, mIsInst, mDoesMIDI, mIsBypassed;
+  bool mStateChunks, mIsInst, mDoesMIDI, mIsBypassed, mHasUI;
   int mCurrentPresetIdx;
   double mSampleRate;
   int mBlockSize, mLatency;
   unsigned int mTailSize;
   NChanDelayLine* mDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
   WDL_PtrList<const char> mParamGroups;
-
-private:
-  IGraphics* mGraphics;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;
   WDL_TypedBuf<double*> mInData, mOutData;

@@ -1,6 +1,4 @@
 #include "IPlugBase.h"
-#include "IGraphics.h"
-#include "IControl.h"
 #include <cmath>
 #include <cstdio>
 #include <ctime>
@@ -40,7 +38,6 @@ IPlugBase::IPlugBase(int nParams,
   , mHost(kHostUninit)
   , mHostVersion(0)
   , mStateChunks(plugDoesChunks)
-  , mGraphics(0)
   , mCurrentPresetIdx(0)
   , mIsInst(plugIsInst)
   , mDoesMIDI(plugDoesMidi)
@@ -48,6 +45,7 @@ IPlugBase::IPlugBase(int nParams,
   , mIsBypassed(false)
   , mDelay(0)
   , mTailSize(0)
+  , mHasUI(false)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
 
@@ -115,7 +113,7 @@ IPlugBase::IPlugBase(int nParams,
 IPlugBase::~IPlugBase()
 {
   TRACE;
-  DELETE_NULL(mGraphics);
+
   mParams.Empty(true);
   mPresets.Empty(true);
   mInChannels.Empty(true);
@@ -184,23 +182,6 @@ void IPlugBase::SetHost(const char* host, int version)
   char vStr[32];
   GetVersionStr(version, vStr);
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr);
-}
-
-void IPlugBase::AttachGraphics(IGraphics* pGraphics)
-{
-  if (pGraphics)
-  {
-    WDL_MutexLock lock(&mMutex);
-    int i, n = mParams.GetSize();
-    
-    for (i = 0; i < n; ++i)
-    {
-      pGraphics->SetParameterFromPlug(i, GetParam(i)->GetNormalized(), true);
-    }
-    
-    pGraphics->PrepDraw();
-    mGraphics = pGraphics;
-  }
 }
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
@@ -882,19 +863,6 @@ bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
   }
   
   return isEqual;
-}
-
-void IPlugBase::RedrawParamControls()
-{
-  if (mGraphics)
-  {
-    int i, n = mParams.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      double v = mParams.Get(i)->Value();
-      mGraphics->SetParameterFromPlug(i, v, false);
-    }
-  }
 }
 
 void IPlugBase::DirtyParameters()
