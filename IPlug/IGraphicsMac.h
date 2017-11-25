@@ -8,7 +8,7 @@
   #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
   #include "IGraphicsAGG.h"
 #elif defined IGRAPHICS_CAIRO
-  #define IGRAPHICS_DRAW_CLASS IGraphicsCairo.h
+  #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
   #include "IGraphicsCairo.h"
 #else
   #define IGRAPHICS_DRAW_CLASS IGraphicsLice
