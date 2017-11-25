@@ -105,9 +105,6 @@ void IControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
   #endif
 }
 
-#define PARAM_EDIT_W 40
-#define PARAM_EDIT_H 16
-
 void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)

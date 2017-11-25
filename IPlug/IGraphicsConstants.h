@@ -9,3 +9,7 @@
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
+
+#define PARAM_EDIT_W 40
+#define PARAM_EDIT_H 16
+

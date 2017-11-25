@@ -3,7 +3,7 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-void DrawBitmapedText(IGraphics& graphics,
+static void DrawBitmapedText(IGraphics& graphics,
                       IBitmap& bitmap,
                       IRECT& rect,
                       IText& text,
