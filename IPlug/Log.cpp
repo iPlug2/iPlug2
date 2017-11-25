@@ -1,8 +1,10 @@
-#include "Log.h"
+
 #include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <ctype.h>
+#include <assert.h>
+#include "Log.h"
 
 #define TRACETOSTDOUT
 

@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "IPlugStructs.h"
 #include "Log.h"
 

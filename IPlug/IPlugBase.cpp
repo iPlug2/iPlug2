@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
+#include <assert.h>
 #include "wdlendian.h"
 #include "base64encdec.h"
 
