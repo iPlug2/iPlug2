@@ -776,7 +776,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       {
         if (value >= 0 && value < _this->NParams())
         {
-          _this->GetParam(value)->GetDisplayForHost((double) opt, true, (char*) ptr);
+          _this->GetParam((int) value)->GetDisplayForHost((double) opt, true, (char*) ptr);
         }
         return 0xbeef;
       }
