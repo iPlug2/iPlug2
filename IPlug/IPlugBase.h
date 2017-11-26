@@ -49,7 +49,10 @@ public:
   // (like for example, set some state dependent initial values for controls).
   virtual void OnGUIOpen() { TRACE; }
   virtual void OnGUIClose() { TRACE; }
-
+  
+  virtual bool OpenWindow(void* handle) { return false; } // plugin api asking to open window
+  virtual void CloseWindow() { return; } // plugin api asking to close window
+  
   // This is an idle call from the audio processing thread
   // Only active if USE_IDLE_CALLS is defined
   virtual void OnIdle() {}
@@ -141,7 +144,10 @@ public:
   
   int GetTailSize() { return mTailSize; }
   bool GetHasUI() { return mHasUI; }
-  
+  virtual int GetUIWidth() { return 0; }
+  virtual int GetUIHeight() { return 0; }
+  virtual void OnGUICreated() {};
+
   // Tell the host that the graphics resized.
   virtual void ResizeGraphics(int w, int h) = 0;
 
@@ -212,7 +218,7 @@ protected:
   bool SerializeParams(ByteChunk* pChunk);
   int UnserializeParams(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos)
 
-  virtual void RedrawParamControls();  // Called after restoring state.
+  virtual void RedrawParamControls() {};  // Called after restoring state.
 
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).

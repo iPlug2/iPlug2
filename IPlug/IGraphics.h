@@ -9,7 +9,7 @@
   #include "AAX_IViewContainer.h"
 #endif
 
-class IPlugBase;
+class IPlugBaseGraphics;
 class IControl;
 class IParam;
 
@@ -242,7 +242,7 @@ public:
 
 protected:
   WDL_PtrList<IControl> mControls;
-  IPlugBase* mPlug;
+  IPlugBaseGraphics* mPlug;
   IRECT mDrawRECT;
   bool mCursorHidden;
   int mHiddenMousePointX, mHiddenMousePointY;
@@ -256,7 +256,7 @@ protected:
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
   virtual void RenderAPIBitmap(void* pContext) = 0;
-
+  
 #ifdef AAX_API
   AAX_IViewContainer* mAAXViewContainer;  
 #endif

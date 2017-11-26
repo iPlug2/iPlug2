@@ -1,11 +1,5 @@
 #include "IGraphics.h"
 
-#define DEFAULT_FPS 25
-
-// If not dirty for this many timer ticks, we call OnGUIIDle.
-// Only looked at if USE_IDLE_CALLS is defined.
-#define IDLE_TICKS 20
-
 #ifdef AAX_API
 static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
 {
@@ -26,13 +20,9 @@ static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
 }
 #endif
 
-#ifndef CONTROL_BOUNDS_COLOR
-  #define CONTROL_BOUNDS_COLOR COLOR_GREEN
-#endif
-
 #pragma mark -
 
-IGraphics::IGraphics(IPlugBase* pPlug, int w, int h, int fps)
+IGraphics::IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps)
 : mPlug(pPlug)
 , mWidth(w)
 , mHeight(h)

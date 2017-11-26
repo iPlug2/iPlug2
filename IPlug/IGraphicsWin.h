@@ -9,7 +9,7 @@
 class IGraphicsWin : public IGraphics
 {
 public:
-  IGraphicsWin(IPlugBase* pPlug, int w, int h, int refreshFPS);
+  IGraphicsWin(IPlugBaseGraphics* pPlug, int w, int h, int refreshFPS);
   virtual ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }

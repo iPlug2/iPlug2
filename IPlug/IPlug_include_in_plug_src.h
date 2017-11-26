@@ -16,20 +16,24 @@
   }
   #endif
 
-  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
+  #ifndef NO_IGRAPHICS
+  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int fps = 0)
   {
-    IGraphicsWin* pGraphics = new IGraphicsWin(pPlug, w, h, FPS);
+    IGraphicsWin* pGraphics = new IGraphicsWin(pPlug, w, h, fps);
 
     pGraphics->SetHInstance(gHInstance);
     return pGraphics;
   }
+  #endif
 #elif defined OS_OSX
-  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int FPS = 0)
+  #ifndef NO_IGRAPHICS
+  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int fps = 0)
   {
-    IGraphicsMac* pGraphics = new IGraphicsMac(pPlug, w, h, FPS);
+    IGraphicsMac* pGraphics = new IGraphicsMac(pPlug, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);
     return pGraphics;
   }
+  #endif
 #else
   #error "No OS defined!"
 #endif

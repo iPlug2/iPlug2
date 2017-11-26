@@ -82,7 +82,7 @@ static void DrawBitmapedText(IGraphics& graphics,
 class IBitmapTextControl : public IControl
 {
 public:
-  IBitmapTextControl(IPlugBase* pPlug,
+  IBitmapTextControl(IPlugBaseGraphics* pPlug,
                      IRECT rect,
                      IBitmap& bitmap,
                      const char* str = "",

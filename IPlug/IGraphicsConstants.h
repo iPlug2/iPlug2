@@ -13,3 +13,7 @@
 #define PARAM_EDIT_W 40
 #define PARAM_EDIT_H 16
 
+#define MAX_URL_LEN 256
+#define MAX_NET_ERR_MSG_LEN 1024
+
+#define DEFAULT_TEXT_ENTRY_LEN 7

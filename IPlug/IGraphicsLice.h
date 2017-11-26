@@ -11,7 +11,7 @@
 class IGraphicsLice : public IGraphics
 {
 public:
-  IGraphicsLice(IPlugBase* pPlug, int w, int h, int fps);
+  IGraphicsLice(IPlugBaseGraphics* pPlug, int w, int h, int fps);
   ~IGraphicsLice();
 
   void PrepDraw() override;

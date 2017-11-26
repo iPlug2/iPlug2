@@ -227,7 +227,7 @@ void ISwitchPopUpControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-ISwitchFramesControl::ISwitchFramesControl(IPlugBase* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IChannelBlend::EBlendMethod blendMethod)
+ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IChannelBlend::EBlendMethod blendMethod)
   : ISwitchControl(pPlug, x, y, paramIdx, bitmap, blendMethod)
 {
   mDisablePrompt = false;
@@ -257,7 +257,7 @@ void ISwitchFramesControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBase* pPlug, IRECT pR, int paramIdx)
+IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx)
   :   IControl(pPlug, pR, paramIdx, IChannelBlend::kBlendClobber)
 {
   mDisablePrompt = true;
@@ -276,7 +276,7 @@ void IInvisibleSwitchControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-IRadioButtonsControl::IRadioButtonsControl(IPlugBase* pPlug, IRECT pR, int paramIdx, int nButtons,
+IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx, int nButtons,
     IBitmap& bitmap, EDirection direction, bool reverse)
   :   IControl(pPlug, pR, paramIdx), mBitmap(bitmap)
 {
@@ -395,7 +395,7 @@ void IContactControl::OnMouseUp(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-IFaderControl::IFaderControl(IPlugBase* pPlug, int x, int y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IFaderControl::IFaderControl(IPlugBaseGraphics* pPlug, int x, int y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : IControl(pPlug, IRECT(), paramIdx)
 , mLen(len), mBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
@@ -561,7 +561,7 @@ void IKnobControl::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
   SetDirty();
 }
 
-IKnobLineControl::IKnobLineControl(IPlugBase* pPlug, IRECT pR, int paramIdx, const IColor& color, double innerRadius, double outerRadius, double minAngle, double maxAngle, EDirection direction, double gearing)
+IKnobLineControl::IKnobLineControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx, const IColor& color, double innerRadius, double outerRadius, double minAngle, double maxAngle, EDirection direction, double gearing)
   : IKnobControl(pPlug, pR, paramIdx, direction, gearing)
   , mColor(color)
 {
@@ -642,7 +642,7 @@ bool ITextControl::Draw(IGraphics& graphics)
   return true;
 }
 
-ICaptionControl::ICaptionControl(IPlugBase* pPlug, IRECT pR, int paramIdx, IText& text, bool showParamLabel)
+ICaptionControl::ICaptionControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx, IText& text, bool showParamLabel)
   :   ITextControl(pPlug, pR, text), mShowParamLabel(showParamLabel)
 {
   mParamIdx = paramIdx;
@@ -677,7 +677,7 @@ bool ICaptionControl::Draw(IGraphics& graphics)
   return ITextControl::Draw(graphics);
 }
 
-IURLControl::IURLControl(IPlugBase* pPlug, IRECT pR, const char* url, const char* backupURL, const char* errMsgOnFailure)
+IURLControl::IURLControl(IPlugBaseGraphics* pPlug, IRECT pR, const char* url, const char* backupURL, const char* errMsgOnFailure)
   : IControl(pPlug, pR)
 {
   memset(mURL, 0, MAX_URL_LEN);

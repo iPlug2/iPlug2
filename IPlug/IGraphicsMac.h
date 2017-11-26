@@ -55,7 +55,7 @@
 class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsMac(IPlugBase* pPlug, int w, int h, int refreshFPS);
+  IGraphicsMac(IPlugBaseGraphics* pPlug, int w, int h, int fps);
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }

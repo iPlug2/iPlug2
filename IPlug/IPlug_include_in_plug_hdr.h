@@ -32,14 +32,18 @@
 #endif
 
 #ifdef OS_WIN
+#ifndef NO_IGRAPHICS
   #include "IGraphicsWin.h"
+#endif
   #ifdef __MINGW32__
     #define EXPORT __attribute__ ((visibility("default")))
   #else
     #define EXPORT __declspec(dllexport)
   #endif
 #elif defined OS_OSX
+#ifndef NO_IGRAPHICS
   #include "IGraphicsMac.h"
+#endif
   #define EXPORT __attribute__ ((visibility("default")))
   #define BUNDLE_ID "com." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
 #elif defined OS_LINUX
