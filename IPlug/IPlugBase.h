@@ -50,7 +50,7 @@ public:
   virtual void OnGUIOpen() { TRACE; }
   virtual void OnGUIClose() { TRACE; }
   
-  virtual bool OpenWindow(void* handle) { return false; } // plugin api asking to open window
+  virtual void* OpenWindow(void* handle = nullptr, void* control = nullptr) { return nullptr; } // plugin api asking to open window, second argument is for mac carbon
   virtual void CloseWindow() { return; } // plugin api asking to close window
   
   // This is an idle call from the audio processing thread
