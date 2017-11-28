@@ -1,26 +1,5 @@
 #include "IGraphics.h"
-
-#ifdef AAX_API
-static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
-{
-  uint32_t aax_mods = 0;
-  
-  if (mod.A) aax_mods |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
-  
-#ifdef OS_WIN
-  if (mod.C) aax_mods |= AAX_eModifiers_Command;
-#else
-  if (mod.C) aax_mods |= AAX_eModifiers_Control;
-  if (mod.R) aax_mods |= AAX_eModifiers_Command;
-#endif
-  if (mod.S) aax_mods |= AAX_eModifiers_Shift;
-  if (mod.R) aax_mods |= AAX_eModifiers_SecondaryButton;
-  
-  return aax_mods;
-}
-#endif
-
-#pragma mark -
+#include "IGraphicsUtilites.h"
 
 IGraphics::IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps)
 : mPlug(pPlug)

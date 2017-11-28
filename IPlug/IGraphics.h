@@ -6,7 +6,7 @@
 #include "IControl.h"
 
 #ifdef AAX_API
-  #include "AAX_IViewContainer.h"
+#include "IPlugAAX_view_interface.h"
 #endif
 
 class IPlugBaseGraphics;
@@ -83,6 +83,9 @@ public:
 };
 
 class IGraphics
+#ifdef AAX_API
+: public IPlugAAXView_Interface
+#endif
 {
 public:
   virtual void PrepDraw() = 0;
@@ -92,6 +95,8 @@ public:
   virtual bool DrawScreen(const IRECT& rect) = 0;
 
   bool DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
+  
+  // these are implemented in the drawing api IGraphics class
   virtual bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawRotatedBitmap(IBitmap& pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawRotatedMask(IBitmap& pBase, IBitmap& pMask, IBitmap& pTop, int x, int y, double angle, const IChannelBlend* pBlend = nullptr) = 0;
@@ -208,10 +213,6 @@ public:
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();
 
-#ifdef AAX_API
-  void SetViewContainer(AAX_IViewContainer* viewContainer) { mAAXViewContainer = viewContainer; }
-  AAX_IViewContainer* GetViewContainer() { return mAAXViewContainer; }
-#endif
 //  void DisplayControlValue(IControl* pControl);
 
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
@@ -257,10 +258,6 @@ protected:
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
   virtual void RenderAPIBitmap(void* pContext) = 0;
-  
-#ifdef AAX_API
-  AAX_IViewContainer* mAAXViewContainer;  
-#endif
 
 private:
   int mWidth, mHeight, mFPS, mIdleTicks;

@@ -31,7 +31,7 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   {
     IPlugAAXView_Interface* viewInterface = dynamic_cast<IPlugAAXView_Interface*>(mPlug);
     if(viewInterface)
-      viewInterface->SetAAXViewContainer(GetViewContainer());
+      viewInterface->SetViewContainer(GetViewContainer());
     
     mPlug->OpenWindow(winPtr, nullptr);
   }
