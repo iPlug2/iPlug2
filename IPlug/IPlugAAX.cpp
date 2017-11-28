@@ -1,5 +1,5 @@
 #include "IPlugAAX.h"
-
+#include "IPlugAAX_view_interface.h"
 #include "AAX_CBinaryTaperDelegate.h"
 #include "AAX_CBinaryDisplayDelegate.h"
 #include "AAX_CStringDisplayDelegate.h"
@@ -18,17 +18,7 @@ AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 void AAX_CEffectGUI_IPLUG::CreateViewContents() 
 {
   TRACE;
-  
-  IGraphics* gui = ((IPlugAAX*) GetEffectParameters())->GetGUI();
-  
-  if (gui) 
-  {
-    mGraphics = gui;
-  }
-  else
-  {
-    mGraphics = 0;
-  }
+  mPlug = dynamic_cast<IPlugAAX*>(GetEffectParameters());  
 }
 
 void AAX_CEffectGUI_IPLUG::CreateViewContainer()
@@ -37,27 +27,27 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   void* winPtr = GetViewContainerPtr();
   
-  if (winPtr && mGraphics)
+  if (winPtr && mPlug->GetHasUI())
   {
-    mGraphics->SetViewContainer(GetViewContainer());
-    mGraphics->OpenWindow(winPtr);
+    IPlugAAXView_Interface* viewInterface = dynamic_cast<IPlugAAXView_Interface*>(mPlug);
+    if(viewInterface)
+      viewInterface->SetAAXViewContainer(GetViewContainer());
+    
+    mPlug->OpenWindow(winPtr, nullptr);
   }
 }
 
 void AAX_CEffectGUI_IPLUG::DeleteViewContainer() 
 {
-  if(mGraphics)
-  {
-    mGraphics->CloseWindow();
-  }
+  mPlug->CloseWindow();
 }
 
 AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
 {
-  if (mGraphics)
+  if (mPlug->GetHasUI())
   {
-    oEffectViewSize->horz = (float) mGraphics->Width();
-    oEffectViewSize->vert = (float) mGraphics->Height();
+    oEffectViewSize->horz = (float) mPlug->GetUIWidth();
+    oEffectViewSize->vert = (float) mPlug->GetUIHeight();
   }
   
   return AAX_SUCCESS; 
@@ -65,23 +55,6 @@ AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
 
 AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(const char* iParameterID)
 {
-//  AAX_Result err = AAX_ERROR_INVALID_PARAMETER_ID;
-  
-//  int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
-//  
-//  if ((mGraphics) && (paramIdx >= 0)) 
-//  {
-//    double  normalizedValue = 0;
-//    err = GetEffectParameters()->GetParameterNormalizedValue( iParameterID, &normalizedValue );
-//    
-//    if (err == AAX_SUCCESS)
-//    {
-//      mGraphics->SetParameterFromPlug(paramIdx, normalizedValue, true);
-//    }
-//  }
-//  
-//  return err;
-
   return AAX_SUCCESS;
 } 
 
@@ -105,7 +78,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
                                  bool plugDoesChunks, 
                                  bool plugIsInst,
                                  int plugScChans)
-: IPlugBase(nParams,
+: IPLUG_BASE_CLASS(nParams,
             channelIOStr,
             nPresets,
             effectName,
@@ -262,7 +235,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, d
     
     GetParam(paramIdx)->SetNormalized(iValue);
     
-    if (GetGUI())
+    if (GetHasUI())
     {
       GetGUI()->SetParameterFromPlug(paramIdx, iValue, true);
     }
@@ -517,7 +490,10 @@ void IPlugAAX::ResizeGraphics(int w, int h)
     AAX_Point oEffectViewSize;
     oEffectViewSize.horz = (float) w;
     oEffectViewSize.vert = (float) h;
-    pGraphics->GetViewContainer()->SetViewSize(oEffectViewSize);
+    
+    IPlugAAXView_Interface* viewInterface = dynamic_cast<IPlugAAXView_Interface*>(this);
+    if(viewInterface)
+      viewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
     OnWindowResize();
   }

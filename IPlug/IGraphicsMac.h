@@ -4,22 +4,23 @@
   #define IPLUG_NO_CARBON_SUPPORT
 #endif
 
-#ifdef IGRAPHICS_AGG
-  #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
-  #include "IGraphicsAGG.h"
-#elif defined IGRAPHICS_CAIRO
-  #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
-  #include "IGraphicsCairo.h"
-#else
-  #define IGRAPHICS_DRAW_CLASS IGraphicsLice
-  #include "IGraphicsLice.h"
-#endif
-
 #include "swell.h"
 #include <Carbon/Carbon.h>
 
-#ifndef DEFAULT_PATH_OSX
-  #define DEFAULT_PATH_OSX "~/Desktop"
+#include "IGraphicsConstants.h"
+
+//TODO: would be nice not to repeat this here
+#ifndef NO_IGRAPHICS
+  #ifdef IGRAPHICS_AGG
+    #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
+    #include "IGraphicsAGG.h"
+  #elif defined IGRAPHICS_CAIRO
+    #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
+    #include "IGraphicsCairo.h"
+  #else
+    #define IGRAPHICS_DRAW_CLASS IGraphicsLice
+    #include "IGraphicsLice.h"
+  #endif
 #endif
 
 #ifndef IPLUG_NO_CARBON_SUPPORT
@@ -62,7 +63,6 @@ public:
 
   bool DrawScreen(const IRECT& pR) override;
   
-  void* OpenWindow(void* pWindow) override;
   void* OpenWindow(void* pWindow, void* pControl) override;
 
   void* OpenCocoaWindow(void* pParentView);
@@ -129,39 +129,6 @@ private:
   
 public:
 //  void* mHostNSWindow;
-};
-
-inline CFStringRef MakeCFString(const char* cStr)
-{
-  return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
-}
-
-struct CFStrLocal
-{
-  CFStringRef mCFStr;
-  CFStrLocal(const char* cStr)
-  {
-    mCFStr = MakeCFString(cStr);
-  }
-  ~CFStrLocal()
-  {
-    CFRelease(mCFStr);
-  }
-};
-
-struct CStrLocal
-{
-  char* mCStr;
-  CStrLocal(CFStringRef cfStr)
-  {
-    long n = CFStringGetLength(cfStr) + 1;
-    mCStr = (char*) malloc(n);
-    CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
-  }
-  ~CStrLocal()
-  {
-    FREE_NULL(mCStr);
-  }
 };
 
 inline CGRect ToCGRect(int h, IRECT* pR)

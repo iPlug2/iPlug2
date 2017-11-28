@@ -3,7 +3,14 @@
 // Only load one API class!
 
 #include <vector>
+#ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
+typedef IPlugBase IPLUG_BASE_CLASS;
+#else
+#include "IPlugBaseGraphics.h"
+typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
+#endif
+
 #undef stricmp
 #undef strnicmp
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
@@ -20,7 +27,7 @@ struct IPlugInstanceInfo
 
 class IPlugVST3View;
 
-class IPlugVST3 : public IPlugBase
+class IPlugVST3 : public IPLUG_BASE_CLASS
                 , public Steinberg::Vst::IUnitInfo
                 , public Steinberg::Vst::SingleComponentEffect
 {

@@ -1,5 +1,5 @@
 #include "IPlugStandalone.h"
-#include "IGraphics.h"
+#include "swell.h"
 extern HWND gHWND;
 
 IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
@@ -17,7 +17,7 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
                                  bool plugDoesChunks,
                                  bool plugIsInst,
                                  int plugScChans)
-  : IPlugBase(nParams,
+  : IPLUG_BASE_CLASS(nParams,
               channelIOStr,
               nPresets,
               effectName,
@@ -47,14 +47,13 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
 
 void IPlugStandalone::ResizeGraphics(int w, int h)
 {
-  IGraphics* pGraphics = GetGUI();
-  if (pGraphics)
+  if (GetHasUI())
   {
     #ifdef OS_OSX
     #define TITLEBAR_BODGE 22
     RECT r;
     GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - pGraphics->Height() - TITLEBAR_BODGE, pGraphics->Width(), pGraphics->Height() + TITLEBAR_BODGE, 0);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - GetUIHeight() - TITLEBAR_BODGE, GetUIWidth(), GetUIHeight() + TITLEBAR_BODGE, 0);
     #endif
     OnWindowResize();
   }

@@ -27,7 +27,7 @@
   #endif
 #elif defined OS_OSX
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps = 0)
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(pPlug, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);

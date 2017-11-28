@@ -118,7 +118,7 @@ public:
 
   virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h);
-  virtual bool WindowIsOpen() { return (GetWindow()); }
+  virtual bool WindowIsOpen() { return GetWindow(); }
   virtual const char* GetGUIAPI() { return ""; };
 
   virtual int ShowMessageBox(const char* pStr, const char* pCaption, int type) = 0;
@@ -141,8 +141,7 @@ public:
 
   void SetStrictDrawing(bool strict);
 
-  virtual void* OpenWindow(void* pParentWnd) = 0;
-  virtual void* OpenWindow(void* pParentWnd, void* pParentControl) { return 0; } // For Carbon
+  virtual void* OpenWindow(void* pParentWnd = nullptr, void* pParentControl = nullptr) = 0;
 //  virtual void AttachSubWindow(void* hostWindowRef) {};
 //  virtual void RemoveSubWindow() {};
 
@@ -153,7 +152,7 @@ public:
 
 #pragma mark -
 
-  IGraphics(IPlugBase* pPlug, int w, int h, int fps = 0);
+  IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
   int Width() const { return mWidth; }
@@ -162,13 +161,15 @@ public:
 //  double GetScale() const { return mScale; }
 //  void SetScale(double scale) { mScale = scale; }
   double GetDisplayScale() const { return mDisplayScale; }
-  void SetDisplayScale(double scale) { mDisplayScale = scale; }
+  void SetDisplayScale(double scale) { mDisplayScale = scale; mScale = scale; /* todo: mScale should be different*/ }
 
   IPlugBase* GetPlug() { return mPlug; }
 
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
-  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, int destW, int destH, const char* cacheName = 0) = 0;
-  virtual IBitmap CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
+  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale) = 0;
+//  virtual IBitmap CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
+  virtual void ReScaleBitmaps();
+  
   void AttachBackground(const char* name);
   void AttachPanelBackground(const IColor& pColor);
   void AttachKeyCatcher(IControl& pControl);

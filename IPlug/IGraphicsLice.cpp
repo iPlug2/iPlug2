@@ -98,7 +98,7 @@ inline int LiceBlendMode(const IChannelBlend* pBlend)
 
 #pragma mark -
 
-IGraphicsLice::IGraphicsLice(IPlugBase* pPlug, int w, int h, int fps)
+IGraphicsLice::IGraphicsLice(IPlugBaseGraphics* pPlug, int w, int h, int fps)
 : IGraphics(pPlug, w, h, fps)
 , mDrawBitmap(nullptr)
 , mTmpBitmap(nullptr)

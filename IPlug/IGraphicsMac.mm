@@ -166,14 +166,12 @@ bool IGraphicsMac::MeasureIText(const IText& text, const char* pStr, IRECT& dest
   return IGRAPHICS_DRAW_CLASS::DrawIText(text, pStr, destRect, true);
 }
 
-void* IGraphicsMac::OpenWindow(void* pParent)
-{
-  return OpenCocoaWindow(pParent);
-}
-
 void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl)
 {
-  return OpenCarbonWindow(pWindow, pControl);
+  if(pControl != nullptr)
+    return OpenCarbonWindow(pWindow, pControl);
+  else
+    return OpenCocoaWindow(pWindow);
 }
 
 void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
@@ -552,8 +550,8 @@ void IGraphicsMac::PromptForFile(WDL_String& pFilename, EFileAction action, WDL_
   }
   else
   {
-    defaultPath = [NSString stringWithCString:DEFAULT_PATH_OSX encoding:NSUTF8StringEncoding];
-    pDir->Set(DEFAULT_PATH_OSX);
+    defaultPath = [NSString stringWithCString:DEFAULT_PATH_MAC encoding:NSUTF8StringEncoding];
+    pDir->Set(DEFAULT_PATH_MAC);
   }
 
   pFilename.Set(""); // reset it

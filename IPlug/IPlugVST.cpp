@@ -1,6 +1,5 @@
-#include "IPlugVST.h"
-#include "IGraphics.h"
 #include <cstdio>
+#include "IPlugVST.h"
 
 const int VST_VERSION = 2400;
 
@@ -27,7 +26,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo,
                    bool plugDoesChunks,
                    bool plugIsInst,
                    int plugScChans)
-  : IPlugBase(nParams,
+  : IPLUG_BASE_CLASS(nParams,
               channelIOStr,
               nPresets,
               effectName,
@@ -213,27 +212,23 @@ EHost IPlugVST::GetHost()
   return host;
 }
 
-void IPlugVST::AttachGraphics(IGraphics* pGraphics)
 {
-  if (pGraphics)
+  if (GetHasUI())
   {
-    IPlugBase::AttachGraphics(pGraphics);
     mAEffect.flags |= effFlagsHasEditor;
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = pGraphics->Width();
-    mEditRect.bottom = pGraphics->Height();
+    mEditRect.right = GetUIWidth();
+    mEditRect.bottom = GetUIHeight();
   }
 }
 
 void IPlugVST::ResizeGraphics(int w, int h)
 {
-  IGraphics* pGraphics = GetGUI();
-
-  if (pGraphics)
+  if (GetHasUI())
   {
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = pGraphics->Width();
-    mEditRect.bottom = pGraphics->Height();
+    mEditRect.right = GetUIWidth();
+    mEditRect.bottom = GetUIHeight();
 
     OnWindowResize();
   }
@@ -470,7 +465,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditGetRect:
     {
-      if (ptr && _this->GetGUI())
+      if (ptr && _this->GetHasUI())
       {
         *(ERect**) ptr = &(_this->mEditRect);
         return 1;
@@ -480,35 +475,31 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditOpen:
     {
-      IGraphics* pGraphics = _this->GetGUI();
-      
-      if (pGraphics)
+      if (_this->GetHasUI())
       {
         #ifdef OS_WIN
-          if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
+//          if (!_this->OpenWindow(ptr)) pGraphics=0; //TODO
         #else   // OSX, check if we are in a Cocoa VST host
           #if defined(__LP64__)
-          if (!pGraphics->OpenWindow(ptr)) pGraphics=0;
+          if (!_this->OpenWindow(ptr, nullptr))
+          {
+            _this->OnGUIOpen();
+            return 1;
+          }
           #else
           bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
           if (iscocoa && !pGraphics->OpenWindow(ptr)) pGraphics=0;
           if (!iscocoa && !pGraphics->OpenWindow(ptr, 0)) pGraphics=0;
           #endif
         #endif
-        if (pGraphics)
-        {
-          _this->OnGUIOpen();
-          return 1;
-        }
       }
       return 0;
     }
     case effEditClose:
     {
-      if (_this->GetGUI())
+      if (_this->GetHasUI())
       {
-        _this->OnGUIClose();
-        _this->GetGUI()->CloseWindow();
+        _this->CloseWindow();
         return 1;
       }
       return 0;
@@ -919,7 +910,7 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
   IMutexLock lock(_this);
   if (idx >= 0 && idx < _this->NParams())
   {
-    if (_this->GetGUI())
+    if (_this->GetHasUI())
     {
       _this->GetGUI()->SetParameterFromPlug(idx, value, true);
     }

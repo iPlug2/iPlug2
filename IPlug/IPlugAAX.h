@@ -2,8 +2,14 @@
 #define _IPLUGAPI_
 
 #include "IPlugOSDetect.h"
+
+#ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
-#include "IGraphics.h"
+typedef IPlugBase IPLUG_BASE_CLASS;
+#else
+#include "IPlugBaseGraphics.h"
+typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
+#endif
 
 #include "AAX_CIPlugParameters.h"
 #include "AAX_CEffectGUI.h"
@@ -16,6 +22,8 @@ struct IPlugInstanceInfo
 {
   // not used
 };
+
+class IPlugAAX;
 
 class AAX_CEffectGUI_IPLUG : public AAX_CEffectGUI
 {
@@ -32,10 +40,10 @@ private:
   AAX_Result ParameterUpdated (const char* iParameterID);
   
 private:
-  IGraphics* mGraphics;
+  IPlugAAX* mPlug;
 };
 
-class IPlugAAX : public IPlugBase, 
+class IPlugAAX : public IPLUG_BASE_CLASS,
                  public AAX_CIPlugParameters
 {
 public:

@@ -1,10 +1,42 @@
 #include "IPlugAU.h"
-#include "IGraphicsMac.h"
 #include "Log.h"
 #include "Hosts.h"
 
 #include "dfx/dfx-au-utilities.h"
 #include <algorithm>
+
+inline CFStringRef MakeCFString(const char* cStr)
+{
+  return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
+}
+
+struct CFStrLocal
+{
+  CFStringRef mCFStr;
+  CFStrLocal(const char* cStr)
+  {
+    mCFStr = MakeCFString(cStr);
+  }
+  ~CFStrLocal()
+  {
+    CFRelease(mCFStr);
+  }
+};
+
+struct CStrLocal
+{
+  char* mCStr;
+  CStrLocal(CFStringRef cfStr)
+  {
+    long n = CFStringGetLength(cfStr) + 1;
+    mCStr = (char*) malloc(n);
+    CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+  }
+  ~CStrLocal()
+  {
+    FREE_NULL(mCStr);
+  }
+};
 
 #define kAudioUnitRemovePropertyListenerWithUserDataSelect 0x0012
 
@@ -402,9 +434,9 @@ ComponentResult IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, voi
     case kComponentCloseSelect:
     {
       IPlugAU* _this = pCVI->mPlug;
-      if (_this && _this->GetGUI())
+      if (_this && _this->GetHasUI())
       {
-        _this->GetGUI()->CloseWindow();
+        _this->CloseWindow();
       }
       DELETE_NULL(pCVI);
       return noErr;
@@ -414,9 +446,9 @@ ComponentResult IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, voi
       AudioUnitCarbonViewCreateGluePB* pb = (AudioUnitCarbonViewCreateGluePB*) params;
       IPlugAU* _this = (IPlugAU*) GetComponentInstanceStorage(pb->inAudioUnit);
       pCVI->mPlug = _this;
-      if (_this && _this->GetGUI())
+      if (_this && _this->GetHasUI())
       {
-        *(pb->outControl) = (ControlRef) (_this->GetGUI()->OpenWindow(pb->inWindow, pb->inParentControl));
+        *(pb->outControl) = (ControlRef) (_this->OpenWindow(pb->inWindow, pb->inParentControl));
         return noErr;
       }
       return badComponentSelector;
@@ -605,7 +637,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         }
         
         const char* paramName = pParam->GetNameForHost();
-        pInfo->cfNameString = MakeCFString(pParam->GetNameForHost());
+        pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
         strcpy(pInfo->name, paramName);   // Max 52.
 
         switch (pParam->Type())
@@ -624,7 +656,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
             if (CSTR_NOT_EMPTY(label))
             {
               pInfo->unit = kAudioUnitParameterUnit_CustomUnit;
-              pInfo->unitName = MakeCFString(label);
+              pInfo->unitName = CFStringCreateWithCString(0, label, kCFStringEncodingUTF8);
             }
             else
             {
@@ -779,7 +811,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     }
     case kAudioUnitProperty_GetUIComponentList:          // 18,
     {
-      if (GetGUI())
+      if (GetHasUI())
       {
         *pDataSize = sizeof(ComponentDescription);
         if (pData)
@@ -911,7 +943,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     }
     case kAudioUnitProperty_CocoaUI:                      // 31,
     {
-      if (GetGUI() && IGraphicsMac::GetUserOSVersion() >= 0x1050)
+      if (GetHasUI()) // this won't work < 10.5 SDK but barely anyone will use that these days
       {
         *pDataSize = sizeof(AudioUnitCocoaViewInfo);  // Just one view.
         if (pData)
@@ -921,7 +953,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           CFBundleRef pBundle = CFBundleGetBundleWithIdentifier(bundleID.mCFStr);
           CFURLRef url = CFBundleCopyBundleURL(pBundle);
           pViewInfo->mCocoaAUViewBundleLocation = url;
-          pViewInfo->mCocoaAUViewClass[0] = MakeCFString(mCocoaViewFactoryClassName.Get());
+          pViewInfo->mCocoaAUViewClass[0] = CFStringCreateWithCString(0, mCocoaViewFactoryClassName.Get(), kCFStringEncodingUTF8);
         }
         return noErr;
       }
@@ -970,7 +1002,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           int n = std::min<int>(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
           cStr[n] = '\0';
         }
-        pIDName->outName = MakeCFString(cStr);
+        pIDName->outName = CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
       }
       return noErr;
     }
@@ -985,7 +1017,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         if (clumpId < 1)
           return kAudioUnitErr_PropertyNotInUse;
         
-        parameterNameInfo->outName = MakeCFString(mParamGroups.Get(clumpId-1));
+        parameterNameInfo->outName = CFStringCreateWithCString(0, mParamGroups.Get(clumpId-1), kCFStringEncodingUTF8);
       }
       return noErr;
     }
@@ -999,7 +1031,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         AUPreset* pAUPreset = (AUPreset*) pData;
         pAUPreset->presetNumber = GetCurrentPresetIdx();
         const char* name = GetPresetName(pAUPreset->presetNumber);
-        pAUPreset->presetName = MakeCFString(name);
+        pAUPreset->presetName = CFStringCreateWithCString(0, name, kCFStringEncodingUTF8);
       }
       return noErr;
     }
@@ -1838,7 +1870,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
                  bool plugDoesChunks,
                  bool plugIsInst,
                  int plugScChans)
-  : IPlugBase(nParams,
+  : IPLUG_BASE_CLASS(nParams,
               channelIOStr,
               nPresets,
               effectName,
@@ -1918,7 +1950,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
       BusChannels* pOutBus = mOutBuses.Get(i);
       pOutBus->mNHostChannels = -1;
       pOutBus->mPlugChannelStartIdx = startCh;
-      pOutBus->mNPlugChannels = MIN(NOutChannels() - startCh, 2);
+      pOutBus->mNPlugChannels = std::min(NOutChannels() - startCh, 2);
 
       sprintf(label, "output %i", i+1);
       SetOutputBusLabel(i, label);
@@ -2111,9 +2143,8 @@ void IPlugAU::HostSpecificInit()
 
 void IPlugAU::ResizeGraphics(int w, int h)
 {
-  IGraphics* pGraphics = GetGUI();
-
-  if (pGraphics)
+  //TODO: this doesn't seem right
+  if (GetHasUI())
   {
     OnWindowResize();
   }

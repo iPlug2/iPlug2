@@ -2,7 +2,15 @@
 #define _IPLUGAPI_
 
 #include "IPlugOSDetect.h"
+
+//TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
+#ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
+typedef IPlugBase IPLUG_BASE_CLASS;
+#else
+#include "IPlugBaseGraphics.h"
+typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
+#endif
 
 #ifdef OS_WIN
   #include "RtMidi.h"
@@ -25,7 +33,7 @@
 
 #endif
 
-class IPlugStandalone : public IPlugBase
+class IPlugStandalone : public IPLUG_BASE_CLASS
 {
 public:
   IPlugStandalone(IPlugInstanceInfo instanceInfo,

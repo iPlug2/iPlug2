@@ -2,12 +2,19 @@
 #define _IPLUGAPI_
 // Only load one API class!
 
-#include "IPlugBase.h"
 #include <CoreServices/CoreServices.h>
 #include <AudioUnit/AUComponent.h>
 #include <AudioUnit/AudioUnitProperties.h>
 #include <AudioToolbox/AudioUnitUtilities.h>
 #include <AudioUnit/AudioUnitCarbonView.h>
+
+#ifdef NO_IGRAPHICS
+#include "IPlugBase.h"
+typedef IPlugBase IPLUG_BASE_CLASS;
+#else
+#include "IPlugBaseGraphics.h"
+typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
+#endif
 
 // Argh!
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
@@ -25,7 +32,7 @@ struct IPlugInstanceInfo
   WDL_String mOSXBundleID, mCocoaViewFactoryClassName;
 };
 
-class IPlugAU : public IPlugBase
+class IPlugAU : public IPLUG_BASE_CLASS
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo,

@@ -2,7 +2,6 @@
 #pragma warning (disable : 4068 )
 
 #include "IPlugVST3.h"
-#include "IGraphics.h"
 #include <cstdio>
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/base/ibstream.h"
@@ -89,7 +88,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
                      bool plugDoesChunks,
                      bool plugIsInst,
                      int plugScChans)
-  : IPlugBase(nParams,
+  : IPLUG_BASE_CLASS(nParams,
               channelIOStr,
               nPresets,
               effectName,
@@ -168,7 +167,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
   if (result == kResultOk)
   {
-    int maxInputs = getSpeakerArrForChans(NInChannels()-mScChans);
+    SpeakerArrangement maxInputs = getSpeakerArrForChans(NInChannels()-mScChans);
     if(maxInputs < 0) maxInputs = 0;
 
     // add io buses with the maximum i/o to start with
@@ -975,7 +974,7 @@ int IPlugVST3::GetSamplePos()
 
 void IPlugVST3::ResizeGraphics(int w, int h)
 {
-  if (GetGUI())
+  if (GetHasUI())
   {
     mViews.at(0)->resize(w, h); // only resize view 0?
   }
@@ -1060,7 +1059,7 @@ IPlugVST3View::~IPlugVST3View()
 
 tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 {
-  if(mPlug->GetGUI()) // for no editor plugins
+  if(mPlug->GetHasUI()) // for no editor plugins
   {
 #ifdef OS_WIN
     if (strcmp (type, kPlatformTypeHWND) == 0)
@@ -1099,9 +1098,9 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 {
   TRACE;
 
-  if (mPlug->GetGUI())
+  if (mPlug->GetHasUI())
   {
-    *size = ViewRect(0, 0, mPlug->GetGUI()->Width(), mPlug->GetGUI()->Height());
+    *size = ViewRect(0, 0, mPlug->GetUIWidth(), mPlug->GetUIHeight());
 
     return kResultTrue;
   }
@@ -1113,16 +1112,16 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 
 tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
 {
-  if (mPlug->GetGUI())
+  if (mPlug->GetHasUI())
   {
     #ifdef OS_WIN
     if (strcmp (type, kPlatformTypeHWND) == 0)
-      mPlug->GetGUI()->OpenWindow(parent);
+      mPlug->OpenWindow(parent);
     #elif defined OS_OSX
     if (strcmp (type, kPlatformTypeNSView) == 0)
-      mPlug->GetGUI()->OpenWindow(parent);
+      mPlug->OpenWindow(parent, nullptr);
     else // Carbon
-      mPlug->GetGUI()->OpenWindow(parent, 0);
+      mPlug->OpenWindow(parent, nullptr);
     #endif
     mPlug->OnGUIOpen();
 
@@ -1134,10 +1133,10 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
 
 tresult PLUGIN_API IPlugVST3View::removed()
 {
-  if (mPlug->GetGUI())
+  if (mPlug->GetHasUI())
   {
     mPlug->OnGUIClose();
-    mPlug->GetGUI()->CloseWindow();
+    mPlug->CloseWindow();
   }
 
   return CPluginView::removed();

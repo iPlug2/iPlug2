@@ -2,7 +2,15 @@
 #define _IPLUGAPI_
 // Only load one API class!
 
+//TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
+#ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
+typedef IPlugBase IPLUG_BASE_CLASS;
+#else
+#include "IPlugBaseGraphics.h"
+typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
+#endif
+
 #include "aeffectx.h"
 
 struct IPlugInstanceInfo
@@ -10,7 +18,7 @@ struct IPlugInstanceInfo
   audioMasterCallback mVSTHostCallback;
 };
 
-class IPlugVST : public IPlugBase
+class IPlugVST : public IPLUG_BASE_CLASS
 {
 public:
   IPlugVST(IPlugInstanceInfo instanceInfo,
@@ -52,7 +60,6 @@ public:
 
 protected:
   void HostSpecificInit();
-  void AttachGraphics(IGraphics* pGraphics);
   void SetLatency(int samples);
   bool SendMidiMsg(IMidiMsg* pMsg);
   bool SendSysEx(ISysEx* pSysEx);
