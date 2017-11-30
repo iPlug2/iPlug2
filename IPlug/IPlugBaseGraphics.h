@@ -15,12 +15,13 @@ public:
   int GetUIWidth() override;
   int GetUIHeight() override;
 
+  void* OpenWindow(void* handle) override;
   void* OpenWindow(void* handle, void* control) override;
   void CloseWindow() override;
   
   void AttachGraphics(IGraphics* pGraphics);
   void RedrawParamControls() override;
-  
+  void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) override;
 private:
   IGraphics* mGraphics = nullptr;
 };

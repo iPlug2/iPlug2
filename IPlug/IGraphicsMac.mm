@@ -166,13 +166,17 @@ bool IGraphicsMac::MeasureIText(const IText& text, const char* pStr, IRECT& dest
   return IGRAPHICS_DRAW_CLASS::DrawIText(text, pStr, destRect, true);
 }
 
+void* IGraphicsMac::OpenWindow(void* pParent)
+{
+  return OpenCocoaWindow(pParent);
+}
+
+#ifndef IPLUG_NO_CARBON_SUPPORT
 void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl)
 {
-  if(pControl != nullptr)
-    return OpenCarbonWindow(pWindow, pControl);
-  else
-    return OpenCocoaWindow(pWindow);
+  return OpenCarbonWindow(pWindow, pControl);
 }
+#endif
 
 void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
 {

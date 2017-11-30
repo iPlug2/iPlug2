@@ -33,7 +33,7 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
     if(viewInterface)
       viewInterface->SetViewContainer(GetViewContainer());
     
-    mPlug->OpenWindow(winPtr, nullptr);
+    mPlug->OpenWindow(winPtr);
   }
 }
 
@@ -224,7 +224,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, d
   if (parameter == 0)
     return AAX_ERROR_INVALID_PARAMETER_ID;
   
-  // Store the value into the parameter.
+  // Store the value into the AAX parameter
   parameter->UpdateNormalizedValue(iValue);
   
   int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
@@ -234,11 +234,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, d
     IMutexLock lock(this);
     
     GetParam(paramIdx)->SetNormalized(iValue);
-    
-    if (GetHasUI())
-    {
-      GetGUI()->SetParameterFromPlug(paramIdx, iValue, true);
-    }
+    SetParameterInUIFromAPI(paramIdx, iValue, true);
     
     OnParamChange(paramIdx);      
   }

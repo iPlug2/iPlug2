@@ -1626,10 +1626,7 @@ ComponentResult IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID,
   IMutexLock lock(_this);
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
-  if (_this->GetGUI())
-  {
-    _this->GetGUI()->SetParameterFromPlug(paramID, value, false);
-  }
+  _this->SetParameterInUIFromAPI(paramID, value, false);
   _this->OnParamChange(paramID);
   return noErr;
 }

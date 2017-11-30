@@ -63,11 +63,14 @@ public:
 
   bool DrawScreen(const IRECT& pR) override;
   
-  void* OpenWindow(void* pWindow, void* pControl) override;
-
+  void* OpenWindow(void* pWindow);
   void* OpenCocoaWindow(void* pParentView);
-  void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
 
+#ifndef IPLUG_NO_CARBON_SUPPORT
+  void* OpenWindow(void* pWindow, void* pControl);
+  void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
+#endif
+  
 //  void AttachSubWindow(void* hostWindowRef);
 //  void RemoveSubWindow();
 

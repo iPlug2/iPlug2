@@ -437,9 +437,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         {
           IParam* pParam = _this->GetParam(idx);
           const double v = VSTString2Parameter(pParam, (char*)ptr);
-          if (_this->GetHasUI())
-            _this->SetParameterFromPlug(idx, v, false);
           pParam->Set(v);
+          _this->SetParameterInUIFromAPI(idx, v, false);
           _this->OnParamChange(idx);
         }
         return 1;
@@ -483,24 +482,13 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditOpen:
     {
-      if (_this->GetHasUI())
-      {
-        #ifdef OS_WIN
-//          if (!_this->OpenWindow(ptr)) pGraphics=0; //TODO
-        #else   // OSX, check if we are in a Cocoa VST host
-          #if defined(__LP64__)
-          if (!_this->OpenWindow(ptr, nullptr))
-          {
-            _this->OnGUIOpen();
-            return 1;
-          }
-          #else
-          bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
-          if (iscocoa && !pGraphics->OpenWindow(ptr)) pGraphics=0;
-          if (!iscocoa && !pGraphics->OpenWindow(ptr, 0)) pGraphics=0;
-          #endif
-        #endif
-      }
+#if defined(_WIN32) || defined(IPLUG_NO_CARBON_SUPPORT)
+      if (OpenWindow(ptr)) return 1;
+#else   // OSX, check if we are in a Cocoa VST host
+      bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
+      if (iscocoa && _this->OpenWindow(ptr)) return 1; // cocoa supported open cocoa
+      if (!iscocoa && !_this->OpenWindow(ptr, 0)) return 1; // open carbon
+#endif
       return 0;
     }
     case effEditClose:
@@ -963,11 +951,8 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
   IMutexLock lock(_this);
   if (idx >= 0 && idx < _this->NParams())
   {
-    if (_this->GetHasUI())
-    {
-      _this->GetGUI()->SetParameterFromPlug(idx, value, true);
-    }
     _this->GetParam(idx)->SetNormalized(value);
+    _this->SetParameterInUIFromAPI(idx, value, true);
     _this->OnParamChange(idx);
   }
 }

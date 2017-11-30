@@ -405,8 +405,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             default:
               if (idx >= 0 && idx < NParams())
               {
-                GetParam(idx)->SetNormalized((double)value);
-                if (GetGUI()) GetGUI()->SetParameterFromPlug(idx, (double)value, true);
+                GetParam(idx)->SetNormalized((double) value);
+                SetParameterInUIFromAPI(idx, (double) value, true);
                 OnParamChange(idx);
               }
               break;
@@ -1119,7 +1119,7 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
       mPlug->OpenWindow(parent);
     #elif defined OS_OSX
     if (strcmp (type, kPlatformTypeNSView) == 0)
-      mPlug->OpenWindow(parent, nullptr);
+      mPlug->OpenWindow(parent);
     else // Carbon
       mPlug->OpenWindow(parent, nullptr);
     #endif
