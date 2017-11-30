@@ -11,6 +11,24 @@ int VSTSpkrArrType(int nchan)
   return kSpeakerArrUserDefined;
 }
 
+double VSTString2Parameter(IParam* pParam, char* ptr)
+{
+  double v;
+  bool mapped = pParam->GetNDisplayTexts();
+  if (mapped)
+  {
+    int vi;
+    mapped = pParam->MapDisplayText(ptr, &vi);
+    if (mapped) v = (double)vi;
+  }
+  if (!mapped)
+  {
+    v = atof(ptr);
+    if (pParam->DisplayIsNegated()) v = -v;
+  }
+  return v;
+}
+
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo,
                    int nParams,
                    const char* channelIOStr,
@@ -391,6 +409,9 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           case IParam::kTypeInt:
           case IParam::kTypeEnum:
             props->flags = kVstParameterUsesIntStep | kVstParameterUsesIntegerMinMax;
+            props->minInteger = (int) pParam->GetMin();
+            props->maxInteger = (int) pParam->GetMax();
+            props->stepInteger = props->largeStepInteger = 1;
             break;
           case IParam::kTypeBool:
             props->flags = kVstParameterIsSwitch;
@@ -398,15 +419,12 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           case IParam::kTypeDouble:
           default:
             props->flags = kVstParameterUsesFloatStep;
+            props->largeStepFloat = props->smallStepFloat = props->stepFloat = pParam->GetStep();
             break;
         }
         
-        props->minInteger = pParam->GetMin();
-        props->maxInteger = pParam->GetMax();
-        props->stepInteger = props->largeStepInteger = (int) pParam->GetStep();
-        props->largeStepFloat = props->smallStepFloat = props->stepFloat = pParam->GetStep();
         strcpy(props->label, pParam->GetLabelForHost());
-        
+
         return 1;
       }
       return 0;
@@ -417,20 +435,10 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       {
         if (ptr)
         {
-          double v;
           IParam* pParam = _this->GetParam(idx);
-          if (pParam->GetNDisplayTexts())
-          {
-            int vi;
-            if (!pParam->MapDisplayText((char*)ptr, &vi)) return 0;
-            v = (double)vi;
-          }
-          else
-          {
-            v = atof((char*)ptr);
-            if (pParam->DisplayIsNegated()) v = -v;
-          }
-          if (_this->GetGUI()) _this->GetGUI()->SetParameterFromPlug(idx, v, false);
+          const double v = VSTString2Parameter(pParam, (char*)ptr);
+          if (_this->GetHasUI())
+            _this->SetParameterFromPlug(idx, v, false);
           pParam->Set(v);
           _this->OnParamChange(idx);
         }
@@ -762,27 +770,72 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effVendorSpecific:
     {
-      // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/
-      if (idx == effGetParamDisplay && ptr)
+      switch (idx)
       {
-        if (value >= 0 && value < _this->NParams())
+          // Mouse wheel
+//        case 0x73744341:
+//        {
+//          if (value == 0x57686565)
+//          {
+//            IGraphics* pGraphics = _this->GetGUI();
+//            if (pGraphics) {
+//              return pGraphics->ProcessMouseWheel(opt);
+//            }
+//          }
+//          break;
+//        }
+          // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/
+        case effGetParamDisplay:
         {
-          _this->GetParam((int) value)->GetDisplayForHost((double) opt, true, (char*) ptr);
-        }
-        return 0xbeef;
-      }
-
-      if (idx == kVstParameterUsesIntStep)
-      {
-        if (value >= 0 && value < _this->NParams())
-        {
-          if (_this->GetParam((int) value)->Type() != IParam::kTypeDouble)
+          if (ptr)
           {
+            if (value >= 0 && value < _this->NParams())
+            {
+              _this->GetParam((int) value)->GetDisplayForHost((double) opt, true, (char*) ptr);
+            }
             return 0xbeef;
           }
+          break;
+        }
+        case effString2Parameter:
+        {
+          if (ptr && value >= 0 && value < _this->NParams())
+          {
+            if (*(char*) ptr != '\0')
+            {
+              IParam* pParam = _this->GetParam((int) value);
+              sprintf((char*) ptr, "%.17f", pParam->GetNormalized(VSTString2Parameter(pParam, (char*) ptr)));
+            }
+            return 0xbeef;
+          }
+          break;
+        }
+        case kVstParameterUsesIntStep:
+        {
+          if (value >= 0 && value < _this->NParams())
+          {
+            IParam* pParam = _this->GetParam((int) value);
+            switch (pParam->Type())
+            {
+              case IParam::kTypeBool:
+                return 0xbeef;
+              case IParam::kTypeInt:
+              case IParam::kTypeEnum:
+              {
+                double min, max;
+                pParam->GetBounds(&min, &max);
+                if (std::fabs(max - min) < 1.5)
+                  return 0xbeef;
+                
+                break;
+              }
+              default:
+                break;
+            }
+          }
+          break;
         }
       }
-
       return 0;
     }
     case effGetProgram:
