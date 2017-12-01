@@ -207,63 +207,6 @@ void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
 }
 #endif
 
-//void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
-//{
-//  CocoaAutoReleasePool pool;
-//
-//  NSWindow* hostWindow = [[NSWindow alloc] initWithWindowRef: hostWindowRef];
-//  [hostWindow retain];
-//  [hostWindow setCanHide: YES];
-//  [hostWindow setReleasedWhenClosed: YES];
-//
-//  NSRect w = [hostWindow frame];
-//
-//  int xOffset = 0;
-//
-//  if (w.size.width > Width())
-//  {
-//    xOffset = (int) floor((w.size.width - Width()) / 2.);
-//  }
-//
-//  NSRect windowRect = NSMakeRect(w.origin.x + xOffset, w.origin.y, Width(), Height());
-//  CUSTOM_COCOA_WINDOW *childWindow = [[CUSTOM_COCOA_WINDOW alloc] initWithContentRect:windowRect
-//                                                                            styleMask:( NSBorderlessWindowMask )
-//                                                                              backing:NSBackingStoreBuffered defer:NO];
-//  [childWindow retain];
-//  [childWindow setOpaque:YES];
-//  [childWindow setCanHide: YES];
-//  [childWindow setHasShadow: NO];
-//  [childWindow setReleasedWhenClosed: YES];
-//
-//  NSView* childContent = [childWindow contentView];
-//
-//  OpenWindow(childContent);
-//
-//  [hostWindow addChildWindow: childWindow ordered: NSWindowAbove];
-//  [hostWindow orderFront: nil];
-//  [hostWindow display];
-//  [childWindow performSelector:@selector(orderFront:) withObject :(id) nil afterDelay :0.05];
-//
-//  mHostNSWindow = (void*) hostWindow;
-//}
-//
-//void IGraphicsMac::RemoveSubWindow()
-//{
-//  CocoaAutoReleasePool pool;
-//
-//  NSWindow* hostWindow = (NSWindow*) mHostNSWindow;
-//  NSArray* childWindows = [hostWindow childWindows];
-//  NSWindow* childWindow = [childWindows objectAtIndex:0]; // todo: check it is allways the only child
-//
-//  CloseWindow();
-//
-//  [childWindow orderOut:nil];
-//  [hostWindow orderOut:nil];
-//  [childWindow close];
-//  [hostWindow removeChildWindow: childWindow];
-//  [hostWindow close];
-//}
-
 void IGraphicsMac::CloseWindow()
 {
   #ifndef IPLUG_NO_CARBON_SUPPORT

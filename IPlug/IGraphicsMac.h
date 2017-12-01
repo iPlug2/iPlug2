@@ -65,15 +65,10 @@ public:
   
   void* OpenWindow(void* pWindow) override;
   void* OpenCocoaWindow(void* pParentView);
-
 #ifndef IPLUG_NO_CARBON_SUPPORT
   void* OpenWindow(void* pWindow, void* pControl) override;
   void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
 #endif
-  
-//  void AttachSubWindow(void* hostWindowRef);
-//  void RemoveSubWindow();
-
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h) override;
@@ -129,9 +124,6 @@ private:
 #ifndef IPLUG_NO_CARBON_SUPPORT
   friend class IGraphicsCarbon;
 #endif
-  
-public:
-//  void* mHostNSWindow;
 };
 
 inline CGRect ToCGRect(int h, IRECT* pR)
