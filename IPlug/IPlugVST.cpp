@@ -230,6 +230,7 @@ EHost IPlugVST::GetHost()
   return host;
 }
 
+void IPlugVST::OnGUICreated()
 {
   if (GetHasUI())
   {
@@ -482,8 +483,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditOpen:
     {
-#if defined(_WIN32) || defined(IPLUG_NO_CARBON_SUPPORT)
-      if (OpenWindow(ptr)) return 1;
+#if defined(_WIN32) || defined(__LP64__) // __LP64__ = cocoa macOS
+      if (_this->OpenWindow(ptr)) return 1;
 #else   // OSX, check if we are in a Cocoa VST host
       bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
       if (iscocoa && _this->OpenWindow(ptr)) return 1; // cocoa supported open cocoa

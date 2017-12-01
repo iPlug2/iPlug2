@@ -86,6 +86,7 @@ IGraphicsMac::IGraphicsMac(IPlugBaseGraphics* pPlug, int w, int h, int fps)
    #endif
   , mGraphicsCocoa(0)
 {
+  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
   NSApplicationLoad();
 }
 
@@ -194,19 +195,17 @@ void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
   return mGraphicsCocoa;
 }
 
+#ifndef IPLUG_NO_CARBON_SUPPORT
 void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
 {
-#ifndef IPLUG_NO_CARBON_SUPPORT
   TRACE;
   CloseWindow();
   WindowRef pWnd = (WindowRef) pParentWnd;
   ControlRef pControl = (ControlRef) pParentControl;
   mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);
   return mGraphicsCarbon->GetView();
-#else
-  return 0;
-#endif
 }
+#endif
 
 //void IGraphicsMac::AttachSubWindow(void* hostWindowRef)
 //{

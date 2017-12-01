@@ -40,29 +40,28 @@ public:
   // ----------------------------------------
   // See IPlugBase for the full list of methods that your plugin class can implement.
 
-  void BeginInformHostOfParamChange(int idx);
-  void InformHostOfParamChange(int idx, double normalizedValue);
-  void EndInformHostOfParamChange(int idx);
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
 
-  void InformHostOfProgramChange();
+  void InformHostOfProgramChange() override;
 
-  int GetSamplePos();   // Samples since start of project.
-  double GetTempo();
-  void GetTimeSig(int* pNum, int* pDenom);
-  void GetTime(ITimeInfo* pTimeInfo);
-  EHost GetHost();  // GetHostVersion() is inherited.
+  int GetSamplePos() override;   // Samples since start of project.
+  double GetTempo() override;
+  void GetTimeSig(int* pNum, int* pDenom) override;
+  void GetTime(ITimeInfo* pTimeInfo) override;
+  EHost GetHost() override;
 
-  // Tell the host that the graphics resized.
-  // Should be called only by the graphics object when it resizes itself.
-  void ResizeGraphics(int w, int h);
+  void ResizeGraphics(int w, int h) override;
+  bool IsRenderingOffline() override;
 
-  bool IsRenderingOffline();
+  virtual void OnGUICreated() override;
 
 protected:
-  void HostSpecificInit();
-  void SetLatency(int samples);
-  bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendSysEx(ISysEx* pSysEx);
+  void HostSpecificInit() override;
+  void SetLatency(int samples) override;
+  bool SendMidiMsg(IMidiMsg* pMsg) override;
+  bool SendSysEx(ISysEx* pSysEx) override;
   audioMasterCallback GetHostCallback();
 
 private:

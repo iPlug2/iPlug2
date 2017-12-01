@@ -148,6 +148,8 @@ public:
   bool GetHasUI() { return mHasUI; }
   virtual int GetUIWidth() { return 0; }
   virtual int GetUIHeight() { return 0; }
+  
+  // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics AttachGraphics)
   virtual void OnGUICreated() {};
 
   // Tell the host that the graphics resized.
