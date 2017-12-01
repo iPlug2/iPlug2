@@ -677,3 +677,14 @@ void IGraphics::OnGUIIdle()
     pControl->OnGUIIdle();
   }
 }
+
+void IGraphics::ReScaleBitmaps()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    pControl->OnRescale();
+  }
+}

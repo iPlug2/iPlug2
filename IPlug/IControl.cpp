@@ -197,6 +197,11 @@ bool IBitmapControl::Draw(IGraphics& graphics)
   return graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
+void IBitmapControl::OnRescale()
+{
+  mBitmap = GetGUI()->LoadIBitmap(mBitmap.mName.Get(), mBitmap.N, mBitmap.mFramesAreHorizontal, GetGUI()->GetDisplayScale());
+}
+
 void ISwitchControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
   if (mBitmap.N > 1)
@@ -601,6 +606,11 @@ bool IKnobMultiControl::Draw(IGraphics& graphics)
   int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
   i = BOUNDED(i, 1, mBitmap.N);
   return graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+}
+
+void IKnobMultiControl::OnRescale()
+{
+  mBitmap = GetGUI()->LoadIBitmap(mBitmap.mName.Get(), mBitmap.N, mBitmap.mFramesAreHorizontal, GetGUI()->GetDisplayScale());
 }
 
 bool IKnobRotatingMaskControl::Draw(IGraphics& graphics)

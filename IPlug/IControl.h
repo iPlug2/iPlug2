@@ -118,6 +118,8 @@ public:
   
   IPlugBaseGraphics* GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug->GetGUI(); }
+  
+  virtual void OnRescale() {};
 
 protected:
   int mTextEntryLength;
@@ -163,7 +165,7 @@ public:
   virtual ~IBitmapControl() {}
 
   virtual bool Draw(IGraphics& graphics) override;
-  virtual void RescaleOccured() override;
+  virtual void OnRescale() override;
   
 protected:
   IBitmap mBitmap;
@@ -341,7 +343,7 @@ public:
   ~IKnobMultiControl() {}
 
   bool Draw(IGraphics& graphics) override;
-  virtual void RescaleOccured() override;
+  virtual void OnRescale() override;
 
 protected:
   IBitmap mBitmap;
