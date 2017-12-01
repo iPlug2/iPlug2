@@ -122,9 +122,9 @@ void GetResourcePathFromBundle(const char* bundleID, const char* filename, const
   return;
 }
 
-void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& fullPath)
+void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& path)
 {
-  return GetResourcePathFromBundle(GetBundleID(), name, "png", fullPath);
+  return GetResourcePathFromBundle(GetBundleID(), name, "png", path);
 }
 
 bool IGraphicsMac::DrawScreen(const IRECT& pR)
@@ -388,83 +388,83 @@ const char* IGraphicsMac::GetGUIAPI()
     return "Cocoa GUI";
 }
 
-void IGraphicsMac::HostPath(WDL_String& pPath)
+void IGraphicsMac::HostPath(WDL_String& path)
 {
   CocoaAutoReleasePool pool;
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
   
   if (pBundle)
   {
-    NSString* path = [pBundle executablePath];
-    if (path)
+    NSString* pPath = [pBundle executablePath];
+    if (pPath)
     {
-      pPath.Set([path UTF8String]);
+      path.Set([pPath UTF8String]);
     }
   }
 }
 
-void IGraphicsMac::PluginPath(WDL_String& pPath)
+void IGraphicsMac::PluginPath(WDL_String& path)
 {
   CocoaAutoReleasePool pool;
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
   
   if (pBundle)
   {
-    NSString* path = [[pBundle bundlePath] stringByDeletingLastPathComponent];
+    NSString* pPath = [[pBundle bundlePath] stringByDeletingLastPathComponent];
     
-    if (path)
+    if (pPath)
     {
-      pPath.Set([path UTF8String]);
-      pPath.Append("/");
+      path.Set([pPath UTF8String]);
+      path.Append("/");
     }
   }
 }
 
-void IGraphicsMac::DesktopPath(WDL_String& pPath)
+void IGraphicsMac::DesktopPath(WDL_String& path)
 {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
-  NSString *desktopDirectory = [paths objectAtIndex:0];
-  pPath.Set([desktopDirectory UTF8String]);
+  NSArray* pPaths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
+  NSString* pDesktopDirectory = [pPaths objectAtIndex:0];
+  path.Set([pDesktopDirectory UTF8String]);
 }
 
-//void IGraphicsMac::VST3PresetsPath(WDL_String& pPath, bool isSystem)
+//void IGraphicsMac::VST3PresetsPath(WDL_String& path, bool isSystem)
 //{
-//  NSArray *paths;
+//  NSArray* pPaths;
 //  if (isSystem)
-//    paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
+//    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
 //  else
-//    paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+//    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
 //  
-//  NSString *applicationSupportDirectory = [paths objectAtIndex:0];
-//  pPath->SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/",
+//  NSString* pApplicationSupportDirectory = [pPaths objectAtIndex:0];
+//  path->SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/",
 //                      [applicationSupportDirectory UTF8String],
-//                      GetController()->GetMfrNameStr(),
-//                      GetController()->GetPluginNameStr());
+//                      mPlug->GetMfrNameStr(),
+//                      mPlug->GetPluginNameStr());
 //}
 
-void IGraphicsMac::AppSupportPath(WDL_String& pPath, bool isSystem)
+void IGraphicsMac::AppSupportPath(WDL_String& path, bool isSystem)
 {
-  NSArray *paths;
+  NSArray *pPaths;
   
   if (isSystem)
-    paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSSystemDomainMask, YES);
+    pPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSSystemDomainMask, YES);
   else
-    paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    pPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
   
-  NSString *applicationSupportDirectory = [paths objectAtIndex:0];
-  pPath.Set([applicationSupportDirectory UTF8String]);
+  NSString *pApplicationSupportDirectory = [pPaths objectAtIndex:0];
+  path.Set([pApplicationSupportDirectory UTF8String]);
 }
 
-void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String& pPath)
+void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String& path)
 {
 #if MAC_OS_X_VERSION_10_5 <= MAC_OS_X_VERSION_MAX_ALLOWED
   NSString *userHomeDir = NSHomeDirectory();
-  pPath.Set([userHomeDir UTF8String]);
-  pPath.Append("/Music");
+  path.Set([userHomeDir UTF8String]);
+  path.Append("/Music");
 #elif MAC_OS_X_VERSION_10_6 <= MAC_OS_X_VERSION_MAX_ALLOWED
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
-  NSString *userMusicDirectory = [paths objectAtIndex:0];
-  pPath.Set([userMusicDirectory UTF8String]);
+  NSArray *pPaths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
+  NSString *pUserMusicDirectory = [pPaths objectAtIndex:0];
+  path.Set([userMusicDirectory UTF8String]);
 #endif
 }
 
