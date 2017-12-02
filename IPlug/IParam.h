@@ -39,35 +39,36 @@ public:
   double Value() const { return mValue; }
   bool Bool() const { return (mValue >= 0.5); }
   int Int() const { return int(mValue); }
-  double DBToAmp();
+  double DBToAmp() const;
 
   void SetNormalized(double normalizedValue);
-  double GetNormalized();
-  double GetNormalized(double nonNormalizedValue);
-  double GetNonNormalized(double normalizedValue);
+  double GetNormalized() const;
+  double GetNormalized(double nonNormalizedValue) const;
+  double GetNonNormalized(double normalizedValue) const;
 
   void GetDisplayForHost(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay); }
   void GetDisplayForHostNoDisplayText(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay, false); }
   void GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText = true);
-  const char* GetNameForHost();
-  const char* GetLabelForHost();
-  const char* GetParamGroupForHost();
+  const char* GetNameForHost() const;
+  const char* GetLabelForHost() const;
+  const char* GetParamGroupForHost() const;
   
-  int GetNDisplayTexts();
-  const char* GetDisplayText(int value);
-  const char* GetDisplayTextAtIdx(int idx, int* value = 0);
-  bool MapDisplayText(const char* pStr, int* pValue);  // Reverse map back to value.
-  const double GetShape() {return mShape;}
-  const double GetStep() {return mStep;}
-  const double GetDefault() {return mDefault;}
-  const double GetDefaultNormalized() {return ToNormalizedParam(mDefault, mMin, mMax, mShape);}
-  const double GetMin() {return mMin;}
-  const double GetMax() {return mMax;}
-  const double GetRange() {return mMax - mMin;}
-  const int GetPrecision() {return mDisplayPrecision;}
-  bool GetCanAutomate() { return mCanAutomate; }
-  bool GetIsMeta() { return mIsMeta; }
+  int GetNDisplayTexts() const;
+  const char* GetDisplayText(int value) const;
+  const char* GetDisplayTextAtIdx(int idx, int* value = 0) const;
+  bool MapDisplayText(const char* pStr, int* pValue) const;  // Reverse map back to value.
+  
+  double GetShape() const { return mShape; }
+  double GetStep() const { return mStep; }
+  double GetDefault() const { return mDefault; }
+  double GetDefaultNormalized() const { return ToNormalizedParam(mDefault, mMin, mMax, mShape); }
+  double GetMin() const { return mMin; }
+  double GetMax() const { return mMax; }
   void GetBounds(double& min, double& max) const;
+  double GetRange() const { return mMax - mMin; }
+  int GetPrecision() const {return mDisplayPrecision;}
+  bool GetCanAutomate() const { return mCanAutomate; }
+  bool GetIsMeta() const { return mIsMeta; }
 
 private:
   EParamType mType;

@@ -84,7 +84,7 @@ void IParam::SetDisplayText(int value, const char* text)
   strcpy(pDT->mText, text);
 }
 
-double IParam::DBToAmp()
+double IParam::DBToAmp() const
 {
   return ::DBToAmp(mValue);
 }
@@ -101,18 +101,18 @@ void IParam::SetNormalized(double normalizedValue)
   mValue = std::min(mValue, mMax);
 }
 
-double IParam::GetNormalized()
+double IParam::GetNormalized() const
 {
   return GetNormalized(mValue);
 }
 
-double IParam::GetNormalized(double nonNormalizedValue)
+double IParam::GetNormalized(double nonNormalizedValue) const
 {
   nonNormalizedValue = BOUNDED(nonNormalizedValue, mMin, mMax);
   return ToNormalizedParam(nonNormalizedValue, mMin, mMax, mShape);
 }
 
-double IParam::GetNonNormalized(double normalizedValue)
+double IParam::GetNonNormalized(double normalizedValue) const
 {
   return FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
 }
@@ -152,28 +152,28 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
   }
 }
 
-const char* IParam::GetNameForHost()
+const char* IParam::GetNameForHost() const
 {
   return mName;
 }
 
-const char* IParam::GetLabelForHost()
+const char* IParam::GetLabelForHost() const
 {
   const char* displayText = GetDisplayText((int) mValue);
   return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel;
 }
 
-const char* IParam::GetParamGroupForHost()
+const char* IParam::GetParamGroupForHost() const
 {
   return mParamGroup;
 }
 
-int IParam::GetNDisplayTexts()
+int IParam::GetNDisplayTexts() const
 {
   return mDisplayTexts.GetSize();
 }
 
-const char* IParam::GetDisplayText(int value)
+const char* IParam::GetDisplayText(int value) const
 {
   int n = mDisplayTexts.GetSize();
   if (n)
@@ -190,18 +190,18 @@ const char* IParam::GetDisplayText(int value)
   return "";
 }
 
-const char* IParam::GetDisplayTextAtIdx(int idx, int* value)
+const char* IParam::GetDisplayTextAtIdx(int idx, int* pValue) const
 {
   DisplayText* pDT = mDisplayTexts.Get()+idx;
   
-  if (value) 
+  if (pValue)
   {
-    *value = pDT->mValue;
+    *pValue = pDT->mValue;
   }
   return pDT->mText;
 }
 
-bool IParam::MapDisplayText(const char* pStr, int* pValue)
+bool IParam::MapDisplayText(const char* pStr, int* pValue) const
 {
   int n = mDisplayTexts.GetSize();
   
@@ -220,8 +220,8 @@ bool IParam::MapDisplayText(const char* pStr, int* pValue)
   return false;
 }
 
-void IParam::GetBounds(double* pMin, double* pMax)
+void IParam::GetBounds(double& pMin, double& pMax) const
 {
-  *pMin = mMin;
-  *pMax = mMax;
+  pMin = mMin;
+  pMax = mMax;
 }
