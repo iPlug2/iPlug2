@@ -173,6 +173,8 @@ public:
 //  virtual void OSLoadFont(const char* name, const int size, WDL_String& fullPath) = 0;
 //  virtual void* OSLoadSVG(const char* name, const int size) = 0;
 
+  IRECT GetDrawRect() const { return mDrawRECT; }
+  
 protected:
   WDL_PtrList<IControl> mControls;
   IPlugBaseGraphics* mPlug;
