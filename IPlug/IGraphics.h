@@ -44,10 +44,17 @@ public:
   virtual bool FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
   virtual bool FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
-  
   virtual bool DrawIText(const IText& text, const char* pStr, IRECT& destRect, bool measure = false) = 0;
   virtual bool MeasureIText(const IText& text, const char* pStr, IRECT& destRect) = 0;
-
+  
+  //these are helper functions implemented in the base IGraphics class
+  bool DrawRect(const IColor& color, const IRECT& rect);
+  bool DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
+  bool DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
+  bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
+  bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
+  bool DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
+  
   virtual IColor GetPoint(int x, int y)  = 0;
   virtual void* GetData() = 0;
 
@@ -123,13 +130,6 @@ public:
   void SetAllControlsDirty();
   
   void SetParameterFromGUI(int paramIdx, double normalizedValue);
-
-  bool DrawRect(const IColor& color, const IRECT& rect);
-  bool DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
-  bool DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
-  bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
-  bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
-  bool DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
   void OnMouseUp(int x, int y, const IMouseMod& mod);
