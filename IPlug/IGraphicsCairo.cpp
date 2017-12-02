@@ -5,22 +5,7 @@
 
 signed int GetSystemVersion();
 
-static BitmapStorage s_bitmapCache;
-
-
-//inline LICE_pixel LiceColor(const IColor& color)
-//{
-//}
-//
-//inline float LiceWeight(const IChannelBlend* pBlend)
-//{
-//}
-//
-//inline int LiceBlendMode(const IChannelBlend* pBlend)
-//{
-//}
-
-IGraphicsCairo::IGraphicsCairo(IPlugBase* pPlug, int w, int h, int fps)
+IGraphicsCairo::IGraphicsCairo(IPlugBaseGraphics* pPlug, int w, int h, int fps)
 : IGraphics(pPlug, w, h, fps)
 {
   mSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
@@ -32,22 +17,8 @@ IGraphicsCairo::~IGraphicsCairo()
 {
 }
 
-IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal)
-{
-}
-
-void IGraphicsCairo::RetainBitmap(IBitmap& pBitmap, const char * cacheName)
-{
-}
-
-void IGraphicsCairo::ReleaseBitmap(IBitmap& pBitmap)
-{
-}
-
 void IGraphicsCairo::PrepDraw()
 {
-  int w = Width() * mScale;
-  int h = Height() * mScale;
 }
 
 bool IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
@@ -135,16 +106,6 @@ bool IGraphicsCairo::DrawHorizontalLine(const IColor& color, int yi, int xLo, in
   return true;
 }
 
-IBitmap IGraphicsCairo::ScaleBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName)
-{
-  return 0;
-}
-
-IBitmap IGraphicsCairo::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName)
-{
-  return 0;
-}
-
 bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   return true;
@@ -154,17 +115,3 @@ bool IGraphicsCairo::MeasureIText(const IText& text, const char* str, IRECT& des
 {
   return IGraphicsCairo::DrawIText(text, str, destRect, true);
 }
-
-IBitmap IGraphicsCairo::CreateBitmap(const char* cacheName, int w, int h)
-{
-}
-
-void* IGraphicsCairo::CreateAPIBitmap(int w, int h)
-{
-  return 0;
-}
-
-void* IGraphicsCairo::LoadAPIBitmap(void* pData)
-{
-}
-
