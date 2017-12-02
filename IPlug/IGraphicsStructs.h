@@ -377,7 +377,7 @@ public:
     return 0;
   }
   
-  void Add(T* data, const char* str, double scale)
+  void Add(T* data, const char* str, double scale = 1.)
   {
     DataKey* key = mDatas.Add(new DataKey);
     
