@@ -54,7 +54,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     
   while (plugNameStr)
   {
-    int span = strcspn(plugNameStr, "\n");
+    auto span = strcspn(plugNameStr, "\n");
     
     if (span)
     {
@@ -154,7 +154,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   
   while (mfrNameStr)
   {
-    int span = strcspn(mfrNameStr, "\n");
+    auto span = strcspn(mfrNameStr, "\n");
     
     if (span)
     {
