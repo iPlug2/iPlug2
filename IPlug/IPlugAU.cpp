@@ -665,7 +665,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           }
         }
         double vMin, vMax;
-        pParam->GetBounds(&vMin, &vMax);
+        pParam->GetBounds(vMin, vMax);
         pInfo->minValue = vMin;
         pInfo->maxValue = vMax;
         pInfo->defaultValue = pParam->Value();
@@ -1068,7 +1068,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
           else
           {
             double v = atof(cStr.mCStr);
-            if (pParam->DisplayIsNegated()) v = -v;
+            if (pParam->GetDisplayIsNegated()) v = -v;
             pVFS->outValue = (AudioUnitParameterValue) v;
           }
         }
