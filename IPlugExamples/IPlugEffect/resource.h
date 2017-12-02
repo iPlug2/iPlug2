@@ -67,7 +67,7 @@ instrument determined by PLUG _IS _INST
 #include "app_wrapper/app_resource.h"
 #endif
 
-// vst3 stuff
+// VST3 stuff
 #define MFR_URL "www.olilarkin.co.uk"
 #define MFR_EMAIL "spam@me.com"
 #define EFFECT_TYPE_VST3 "Fx"
