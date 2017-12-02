@@ -39,6 +39,7 @@ public:
   IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale) override { return IBitmap(); }
   //  virtual IBitmap CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
   void ReleaseIBitmap(IBitmap& bitmap) override {}
+  void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override {};
 
   virtual void RenderAPIBitmap(void* pContext) override {};
   virtual IBitmap CreateIBitmap(const char* cacheName, int w, int h) override { return IBitmap(); }

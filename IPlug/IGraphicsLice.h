@@ -6,6 +6,7 @@
 
 #ifdef OS_OSX
 #include <CoreGraphics/CoreGraphics.h>
+#include "swell.h"
 #endif
 
 class IGraphicsLice : public IGraphics
@@ -15,6 +16,7 @@ public:
   ~IGraphicsLice();
 
   void PrepDraw() override;
+  void ReScaleBitmaps() override;
 
   bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend) override;
   bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend) override;
@@ -40,17 +42,17 @@ public:
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
   
   IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleIBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName) override;
-  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char * cacheName) override;
-  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override;
-  void ReleaseBitmap(IBitmap& bitmap) override;
+  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
+//  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char * cacheName) override;
+  void ReleaseIBitmap(IBitmap& bitmap) override;
+  void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   
-  IBitmap CreateBitmap(const char * cacheName, int w, int h) override;
-
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
+  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
   void RenderAPIBitmap(void* pContext) override;
+  
 private:
   LICE_IBitmap* LoadAPIBitmap(const char* pPath);
 //  void* CreateAPIBitmap(int w, int h);

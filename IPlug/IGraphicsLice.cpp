@@ -7,6 +7,7 @@ signed int GetSystemVersion();
 
 static StaticStorage<LICE_IBitmap> s_bitmapCache;
 
+//todo: replace this with templated version
 class FontStorage
 {
 public:
