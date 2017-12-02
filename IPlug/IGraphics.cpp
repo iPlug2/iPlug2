@@ -61,7 +61,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
     else
     {
       v = atof(txt);
-      if (pParam->DisplayIsNegated()) v = -v;
+      if (pParam->GetDisplayIsNegated()) v = -v;
     }
 
     pControl->SetValueFromUserInput(pParam->GetNormalized(v));
