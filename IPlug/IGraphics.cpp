@@ -1,5 +1,4 @@
 #include "IGraphics.h"
-#include "IGraphicsUtilites.h"
 
 IGraphics::IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps)
 : mPlug(pPlug)
