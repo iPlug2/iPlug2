@@ -7,6 +7,13 @@
 #include "IPlugByteChunk.h"
 #include "IPlugOSDetect.h"
 
+struct ChannelIO
+{
+  int mIn, mOut;
+  ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
+};
+
+
 struct IMidiMsg
 {
   int mOffset;

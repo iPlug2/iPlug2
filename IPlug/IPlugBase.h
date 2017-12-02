@@ -84,13 +84,13 @@ public:
   // may get called multiple times
   virtual void OnHostIdentified() {}
 
-  virtual void PopupHostContextMenuForParam(int param, int x, int y) { return; }; // only for VST3, call it from the GUI
+  virtual void PopupHostContextMenuForParam(int paramIdx, int x, int y) { }; // only for VST3, call it from the GUI
 
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
   int NParams() { return mParams.GetSize(); }
-  IParam* GetParam(int idx) { return mParams.Get(idx); }
+  IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
   const char* GetEffectName() { return mEffectName; }
   int GetEffectVersion(bool decimal);   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
@@ -162,8 +162,8 @@ protected:
   // Useful stuff for your plugin class to call, implemented here or in the API class, or partly in both.
 
   // for labelling individual inputs/outputs (VST2)
-  void SetInputLabel(int idx, const char* pLabel);
-  void SetOutputLabel(int idx, const char* pLabel);
+  void SetInputLabel(int idx, const char* label);
+  void SetOutputLabel(int idx, const char* label);
 
   const WDL_String* GetInputLabel(int idx) { return &(mInChannels.Get(idx)->mLabel); }
   const WDL_String* GetOutputLabel(int idx) { return &(mOutChannels.Get(idx)->mLabel); }
@@ -175,13 +175,6 @@ protected:
   const WDL_String* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx); }
   const WDL_String* GetOutputBusLabel(int idx) { return mOutputBusLabels.Get(idx); }
 
-  struct ChannelIO
-  {
-    int mIn, mOut;
-    ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
-  };
-
-  WDL_PtrList<ChannelIO> mChannelIO;
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
 
@@ -328,4 +321,5 @@ protected:
   WDL_PtrList<OutChannel> mOutChannels;
   WDL_PtrList<WDL_String> mInputBusLabels;
   WDL_PtrList<WDL_String> mOutputBusLabels;
+  WDL_PtrList<ChannelIO> mChannelIO;
 };
