@@ -83,7 +83,7 @@ public:
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   
-  IGraphicsAGG(IPlugBase* pPlug, int w, int h, int fps);
+  IGraphicsAGG(IPlugBaseGraphics* pPlug, int w, int h, int fps);
   ~IGraphicsAGG();
 
   void PrepDraw() override;
@@ -110,13 +110,14 @@ public:
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
 
   IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleIBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName) override;
-  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName) override;
-  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
-  void ReleaseBitmap(IBitmap& bitmap) override {};
-  IBitmap CreateBitmap(const char * cacheName, int w, int h) override;
+  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
+//  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName) override;
+//  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
+  void ReleaseIBitmap(IBitmap& bitmap) override {};
+  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
+  void ReScaleBitmaps() final;
 
-	void RenderAPIBitmap(void* pContext) override;
+  void RenderAPIBitmap(void* pContext) override;
 
   IFontData LoadIFont(const char * name, const int size);
   
@@ -138,6 +139,7 @@ private:
 private:
   agg::pixel_map* LoadAPIBitmap(const char* pPath);
   agg::pixel_map* CreateAPIBitmap(int w, int h);
+  agg::pixel_map* ScaleAPIBitmap(agg::pixel_map* pixel_map, int destW, int destH);
 
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
