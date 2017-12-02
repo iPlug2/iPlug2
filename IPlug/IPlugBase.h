@@ -185,8 +185,8 @@ protected:
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
 
-  void InitChunkWithIPlugVer(ByteChunk* pChunk);
-  int GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos);
+  void InitChunkWithIPlugVer(ByteChunk& chunk);
+  int GetIPlugVerFromChunk(ByteChunk& chunk, int* pPos);
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() {};
