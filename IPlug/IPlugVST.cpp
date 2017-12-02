@@ -24,7 +24,7 @@ double VSTString2Parameter(IParam* pParam, char* ptr)
   if (!mapped)
   {
     v = atof(ptr);
-    if (pParam->DisplayIsNegated()) v = -v;
+    if (pParam->GetDisplayIsNegated()) v = -v;
   }
   return v;
 }

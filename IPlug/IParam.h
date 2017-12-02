@@ -27,9 +27,9 @@ public:
   void SetIsMeta(bool meta) { mIsMeta = meta; }
   void SetToDefault() { mValue = mDefault; }
 
-  // Call this if your param is (x, y) but you want to always display (-x, -y).
+  /** Call this if your param is (x, y) but you want to always display (-x, -y) */
   void NegateDisplay() { mNegateDisplay = true; }
-  bool DisplayIsNegated() const { return mNegateDisplay; }
+  bool GetDisplayIsNegated() const { return mNegateDisplay; }
 
   //call this to make sure the param display text allways has a sign
   void SignDisplay() { mSignDisplay = true; }
