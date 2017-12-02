@@ -137,8 +137,6 @@ protected:
   WDL_String mTooltip;
 };
 
-enum EDirection { kVertical, kHorizontal };
-
 // Fills a rectangle with a colour
 class IPanelControl : public IControl
 {
@@ -281,8 +279,6 @@ protected:
   bool mOnlyHandle; // if true only by clicking on the handle do you click the slider
 };
 
-const double DEFAULT_GEARING = 4.0;
-
 // Parent for knobs, to handle mouse action and ballistics.
 class IKnobControl : public IControl
 {
@@ -320,8 +316,7 @@ protected:
 class IKnobRotaterControl : public IKnobControl
 {
 public:
-  IKnobRotaterControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0,
-                      EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IKnobRotaterControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControl(pPlug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , mBitmap(bitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
   ~IKnobRotaterControl() {}

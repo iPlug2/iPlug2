@@ -13,6 +13,8 @@ class LICE_IFont;
 
 enum EFileAction { kFileOpen, kFileSave };
 
+enum EDirection { kVertical, kHorizontal };
+
 struct IBitmap
 {
   void* mData;
