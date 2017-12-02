@@ -63,7 +63,7 @@ public:
   virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h);
   virtual bool WindowIsOpen() { return GetWindow(); }
-  virtual const char* GetGUIAPI() { return ""; };
+  virtual const char* GetGUIAPI() { return ""; }
 
   virtual int ShowMessageBox(const char* pStr, const char* pCaption, int type) = 0;
   IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(pMenu, tempRect); }
