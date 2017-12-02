@@ -812,7 +812,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
               case IParam::kTypeEnum:
               {
                 double min, max;
-                pParam->GetBounds(&min, &max);
+                pParam->GetBounds(min, max);
                 if (std::fabs(max - min) < 1.5)
                   return 0xbeef;
                 

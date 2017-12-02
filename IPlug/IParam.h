@@ -57,7 +57,6 @@ public:
   const char* GetDisplayText(int value);
   const char* GetDisplayTextAtIdx(int idx, int* value = 0);
   bool MapDisplayText(const char* pStr, int* pValue);  // Reverse map back to value.
-  void GetBounds(double* pMin, double* pMax);
   const double GetShape() {return mShape;}
   const double GetStep() {return mStep;}
   const double GetDefault() {return mDefault;}
@@ -68,6 +67,7 @@ public:
   const int GetPrecision() {return mDisplayPrecision;}
   bool GetCanAutomate() { return mCanAutomate; }
   bool GetIsMeta() { return mIsMeta; }
+  void GetBounds(double& min, double& max) const;
 
 private:
   EParamType mType;
