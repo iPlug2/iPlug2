@@ -60,8 +60,8 @@ public:
 protected:
   void HostSpecificInit() override;
   void SetLatency(int samples) override;
-  bool SendMidiMsg(IMidiMsg* pMsg) override;
-  bool SendSysEx(ISysEx* pSysEx) override;
+  bool SendMidiMsg(IMidiMsg& msg) override;
+  bool SendSysEx(ISysEx& msg) override;
   audioMasterCallback GetHostCallback();
 
 private:
@@ -71,7 +71,7 @@ private:
   ERect mEditRect;
   audioMasterCallback mHostCallback;
 
-  bool SendVSTEvent(VstEvent* pEvent);
+  bool SendVSTEvent(VstEvent& event);
   bool SendVSTEvents(WDL_TypedBuf<VstEvent>* pEvents);
 
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;

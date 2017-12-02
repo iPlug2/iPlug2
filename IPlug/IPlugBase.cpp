@@ -532,9 +532,9 @@ void IPlugBase::ProcessDoubleReplacing(double** inputs, double** outputs, int nF
 }
 
 // Default passthrough.
-void IPlugBase::ProcessMidiMsg(IMidiMsg* pMsg)
+void IPlugBase::ProcessMidiMsg(IMidiMsg& msg)
 {
-  SendMidiMsg(pMsg);
+  SendMidiMsg(msg);
 }
 
 IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
@@ -560,7 +560,7 @@ void IPlugBase::MakeDefaultPreset(const char* name, int nPresets)
     {
       pPreset->mInitialized = true;
       strcpy(pPreset->mName, (name ? name : "Empty"));
-      SerializeState(&(pPreset->mChunk));
+      SerializeState(pPreset->mChunk);
     }
   }
 }
@@ -701,11 +701,11 @@ bool IPlugBase::RestorePreset(int idx)
     {
       pPreset->mInitialized = true;
       MakeDefaultUserPresetName(&mPresets, pPreset->mName);
-      restoredOK = SerializeState(&(pPreset->mChunk));
+      restoredOK = SerializeState(pPreset->mChunk);
     }
     else
     {
-      restoredOK = (UnserializeState(&(pPreset->mChunk), 0) > 0);
+      restoredOK = (UnserializeState(pPreset->mChunk, 0) > 0);
     }
 
     if (restoredOK)
@@ -753,7 +753,7 @@ void IPlugBase::ModifyCurrentPreset(const char* name)
 
     Trace(TRACELOC, "%d %s", mCurrentPresetIdx, pPreset->mName);
 
-    SerializeState(&(pPreset->mChunk));
+    SerializeState(pPreset->mChunk);
 
     if (CSTR_NOT_EMPTY(name))
     {
@@ -762,7 +762,7 @@ void IPlugBase::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPlugBase::SerializePresets(ByteChunk* pChunk)
+bool IPlugBase::SerializePresets(ByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -770,20 +770,20 @@ bool IPlugBase::SerializePresets(ByteChunk* pChunk)
   for (int i = 0; i < n && savedOK; ++i)
   {
     IPreset* pPreset = mPresets.Get(i);
-    pChunk->PutStr(pPreset->mName);
+    chunk.PutStr(pPreset->mName);
 
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
 
-    pChunk->PutBool(pPreset->mInitialized);
+    chunk.PutBool(pPreset->mInitialized);
     if (pPreset->mInitialized)
     {
-      savedOK &= (pChunk->PutChunk(&(pPreset->mChunk)) > 0);
+      savedOK &= (chunk.PutChunk(&(pPreset->mChunk)) > 0);
     }
   }
   return savedOK;
 }
 
-int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
+int IPlugBase::UnserializePresets(ByteChunk& chunk, int startPos)
 {
   TRACE;
   WDL_String name;
@@ -791,19 +791,19 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
   for (int i = 0; i < n && pos >= 0; ++i)
   {
     IPreset* pPreset = mPresets.Get(i);
-    pos = pChunk->GetStr(&name, pos);
+    pos = chunk.GetStr(&name, pos);
     strcpy(pPreset->mName, name.Get());
 
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
 
-    pos = pChunk->GetBool(&(pPreset->mInitialized), pos);
+    pos = chunk.GetBool(&(pPreset->mInitialized), pos);
     if (pPreset->mInitialized)
     {
-      pos = UnserializeState(pChunk, pos);
+      pos = UnserializeState(chunk, pos);
       if (pos > 0)
       {
         pPreset->mChunk.Clear();
-        SerializeState(&(pPreset->mChunk));
+        SerializeState(pPreset->mChunk);
       }
     }
   }
@@ -811,7 +811,7 @@ int IPlugBase::UnserializePresets(ByteChunk* pChunk, int startPos)
   return pos;
 }
 
-bool IPlugBase::SerializeParams(ByteChunk* pChunk)
+bool IPlugBase::SerializeParams(ByteChunk& chunk)
 {
   TRACE;
 
@@ -823,12 +823,12 @@ bool IPlugBase::SerializeParams(ByteChunk* pChunk)
     IParam* pParam = mParams.Get(i);
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
     double v = pParam->Value();
-    savedOK &= (pChunk->Put(&v) > 0);
+    savedOK &= (chunk.Put(&v) > 0);
   }
   return savedOK;
 }
 
-int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
+int IPlugBase::UnserializeParams(ByteChunk& chunk, int startPos)
 {
   TRACE;
 
@@ -838,7 +838,7 @@ int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
   {
     IParam* pParam = mParams.Get(i);
     double v = 0.0;
-    pos = pChunk->Get(&v, pos);
+    pos = chunk.Get(&v, pos);
     pParam->Set(v);
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
   }
@@ -846,7 +846,7 @@ int IPlugBase::UnserializeParams(ByteChunk* pChunk, int startPos)
   return pos;
 }
 
-bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
+bool IPlugBase::CompareState(const u_int8_t* incomingState, int startPos)
 {
   bool isEqual = true;
   
@@ -1030,8 +1030,8 @@ bool IPlugBase::SaveProgramAsFXP(WDL_String& fileName)
 
       fxpMagic = WDL_bswap32('FPCh');
 
-      InitChunkWithIPlugVer(&state);
-      SerializeState(&state);
+      InitChunkWithIPlugVer(state);
+      SerializeState(state);
 
       chunkSize = WDL_bswap32(state.Size());
       byteSize = WDL_bswap32(state.Size() + 60);
@@ -1103,8 +1103,8 @@ bool IPlugBase::SaveBankAsFXB(WDL_String& fileName)
 
       fxbMagic = WDL_bswap32('FBCh');
 
-      InitChunkWithIPlugVer(&state);
-      SerializePresets(&state);
+      InitChunkWithIPlugVer(state);
+      SerializePresets(state);
 
       chunkSize = WDL_bswap32(state.Size());
       byteSize = WDL_bswap32(160 + state.Size() );
@@ -1239,8 +1239,8 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String& fileName)
         pos = pgm.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GetIPlugVerFromChunk(&pgm, &pos);
-        UnserializeState(&pgm, pos);
+        GetIPlugVerFromChunk(pgm, &pos);
+        UnserializeState(pgm, pos);
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
         InformHostOfProgramChange();
@@ -1332,8 +1332,8 @@ bool IPlugBase::LoadBankFromFXB(WDL_String& fileName)
         pos = bnk.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GetIPlugVerFromChunk(&bnk, &pos);
-        UnserializePresets(&bnk, pos);
+        GetIPlugVerFromChunk(bnk, &pos);
+        UnserializePresets(bnk, pos);
         //RestorePreset(currentPgm);
         InformHostOfProgramChange();
         return true;
@@ -1429,7 +1429,7 @@ bool IPlugBase::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   int n = pMsgs->GetSize();
   IMidiMsg* pMsg = pMsgs->Get();
   for (int i = 0; i < n; ++i, ++pMsg) {
-    rc &= SendMidiMsg(pMsg);
+    rc &= SendMidiMsg(*pMsg);
   }
   return rc;
 }

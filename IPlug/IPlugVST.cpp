@@ -264,7 +264,7 @@ void IPlugVST::SetLatency(int samples)
   IPlugBase::SetLatency(samples);
 }
 
-bool IPlugVST::SendVSTEvent(VstEvent* pEvent)
+bool IPlugVST::SendVSTEvent(VstEvent& event)
 {
   // It would be more efficient to bundle these and send at the end of a processed block,
   // but that would require writing OnBlockEnd and making sure it always gets called,
@@ -272,37 +272,37 @@ bool IPlugVST::SendVSTEvent(VstEvent* pEvent)
   VstEvents events;
   memset(&events, 0, sizeof(VstEvents));
   events.numEvents = 1;
-  events.events[0] = pEvent;
+  events.events[0] = &event;
   return (mHostCallback(&mAEffect, audioMasterProcessEvents, 0, 0, &events, 0.0f) == 1);
 }
 
-bool IPlugVST::SendMidiMsg(IMidiMsg* pMsg)
+bool IPlugVST::SendMidiMsg(IMidiMsg& msg)
 {
   VstMidiEvent midiEvent;
   memset(&midiEvent, 0, sizeof(VstMidiEvent));
 
   midiEvent.type = kVstMidiType;
   midiEvent.byteSize = sizeof(VstMidiEvent);  // Should this be smaller?
-  midiEvent.deltaFrames = pMsg->mOffset;
-  midiEvent.midiData[0] = pMsg->mStatus;
-  midiEvent.midiData[1] = pMsg->mData1;
-  midiEvent.midiData[2] = pMsg->mData2;
+  midiEvent.deltaFrames = msg.mOffset;
+  midiEvent.midiData[0] = msg.mStatus;
+  midiEvent.midiData[1] = msg.mData1;
+  midiEvent.midiData[2] = msg.mData2;
 
-  return SendVSTEvent((VstEvent*) &midiEvent);
+  return SendVSTEvent((VstEvent&) midiEvent);
 }
 
-bool IPlugVST::SendSysEx(ISysEx* pSysEx)
+bool IPlugVST::SendSysEx(ISysEx& msg)
 { 
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
 
   sysexEvent.type = kVstSysExType;
   sysexEvent.byteSize = sizeof(VstMidiSysexEvent);
-  sysexEvent.deltaFrames = pSysEx->mOffset;
-  sysexEvent.dumpBytes = pSysEx->mSize;
-  sysexEvent.sysexDump = (char*)pSysEx->mData;
+  sysexEvent.deltaFrames = msg.mOffset;
+  sysexEvent.dumpBytes = msg.mSize;
+  sysexEvent.sysexDump = (char*) msg.mData;
 
-  return SendVSTEvent((VstEvent*) &sysexEvent);
+  return SendVSTEvent((VstEvent&) sysexEvent);
 }
 
 audioMasterCallback IPlugVST::GetHostCallback()
@@ -511,24 +511,24 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (ppData)
       {
         bool isBank = (!idx);
-        ByteChunk* pChunk = (isBank ? &(_this->mBankState) : &(_this->mState));
-        _this->InitChunkWithIPlugVer(pChunk);
+        ByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
+        _this->InitChunkWithIPlugVer(chunk);
         bool savedOK = true;
         
         if (isBank)
         {
           _this->ModifyCurrentPreset();
-          savedOK = _this->SerializePresets(pChunk);
+          savedOK = _this->SerializePresets(chunk);
         }
         else
         {
-          savedOK = _this->SerializeState(pChunk);
+          savedOK = _this->SerializeState(chunk);
         }
         
-        if (savedOK && pChunk->Size())
+        if (savedOK && chunk.Size())
         {
-          *ppData = pChunk->GetBytes();
-          return pChunk->Size();
+          *ppData = chunk.GetBytes();
+          return chunk.Size();
         }
       }
       return 0;
@@ -538,20 +538,20 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (ptr)
       {
         bool isBank = (!idx);
-        ByteChunk* pChunk = (isBank ? &(_this->mBankState) : &(_this->mState));
-        pChunk->Resize((int) value);
-        memcpy(pChunk->GetBytes(), ptr, value);
+        ByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
+        chunk.Resize((int) value);
+        memcpy(chunk.GetBytes(), ptr, value);
         int pos = 0;
-        int iplugVer = _this->GetIPlugVerFromChunk(pChunk, &pos);
+        int iplugVer = _this->GetIPlugVerFromChunk(chunk, &pos);
         isBank &= (iplugVer >= 0x010000);
         
         if (isBank)
         {
-          pos = _this->UnserializePresets(pChunk, pos);
+          pos = _this->UnserializePresets(chunk, pos);
         }
         else
         {
-          pos = _this->UnserializeState(pChunk, pos);
+          pos = _this->UnserializeState(chunk, pos);
           _this->ModifyCurrentPreset();
         }
         
@@ -566,7 +566,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effProcessEvents:
     {
       VstEvents* pEvents = (VstEvents*) ptr;
-      if (pEvents && pEvents->events)
+      if (pEvents)
       {
         for (int i = 0; i < pEvents->numEvents; ++i)
         {
@@ -577,7 +577,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             {
               VstMidiEvent* pME = (VstMidiEvent*) pEvent;
               IMidiMsg msg(pME->deltaFrames, pME->midiData[0], pME->midiData[1], pME->midiData[2]);
-              _this->ProcessMidiMsg(&msg);
+              _this->ProcessMidiMsg(msg);
               //#ifdef TRACER_BUILD
               //  msg.LogMsg();
               //#endif
@@ -586,7 +586,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             {
               VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
               ISysEx sysex(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
-              _this->ProcessSysEx(&sysex);
+              _this->ProcessSysEx(sysex);
             }
           }
         }

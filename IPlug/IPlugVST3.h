@@ -126,7 +126,7 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
 
 protected:
-  virtual bool SendMidiMsg(IMidiMsg* pMsg) override {return false;}  //TODO:
+  virtual bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO:
 
 private:
   void addDependentView (IPlugVST3View* view);

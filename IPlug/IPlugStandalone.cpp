@@ -59,22 +59,20 @@ void IPlugStandalone::ResizeGraphics(int w, int h)
   }
 }
 
-bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
+bool IPlugStandalone::SendMidiMsg(IMidiMsg& msg)
 {
   if (DoesMIDI())
   {
-    IMidiMsg newMsg = *pMsg;
-
     // if the midi channel out filter is set, reassign the status byte appropriately
     if (mMidiOutChan != 0)
     {
-      newMsg.mStatus = (*mMidiOutChan)-1 | ((unsigned int) newMsg.StatusMsg() << 4) ;
+      msg.mStatus = (*mMidiOutChan)-1 | ((unsigned int) msg.StatusMsg() << 4) ;
     }
 
     std::vector<unsigned char> message;
-    message.push_back( newMsg.mStatus );
-    message.push_back( newMsg.mData1 );
-    message.push_back( newMsg.mData2 );
+    message.push_back( msg.mStatus );
+    message.push_back( msg.mData1 );
+    message.push_back( msg.mData2 );
 
     mMidiOut->sendMessage( &message );
     return true;
@@ -83,17 +81,17 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg* pMsg)
   return false;
 }
 
-bool IPlugStandalone::SendSysEx(ISysEx* pSysEx)
+bool IPlugStandalone::SendSysEx(ISysEx& msg)
 {
   if (mMidiOut)
   {  
     std::vector<unsigned char> message;
     
-    for (int i = 0; i < pSysEx->mSize; i++) {
-      message.push_back(pSysEx->mData[i]);
+    for (int i = 0; i < msg.mSize; i++) {
+      message.push_back(msg.mData[i]);
     }
     
-    mMidiOut->sendMessage( &message );
+    mMidiOut->sendMessage(&message);
     return true;
   }
   

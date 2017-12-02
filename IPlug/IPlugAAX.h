@@ -97,7 +97,7 @@ public:
   void DirtyPTCompareState() { mNumPlugInChanges++; }
   
 protected:
-  bool SendMidiMsg(IMidiMsg* pMsg);
+  bool SendMidiMsg(IMidiMsg& msg);
 
 private:
   AAX_CParameter<bool>* mBypassParameter;

@@ -323,7 +323,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       msg.mData1 = GET_COMP_PARAM(UInt32, 2, 4);
       msg.mData2 = GET_COMP_PARAM(UInt32, 1, 4);
       msg.mOffset = GET_COMP_PARAM(UInt32, 0, 4);
-      _this->ProcessMidiMsg(&msg);
+      _this->ProcessMidiMsg(msg);
       return noErr;
     }
     case kMusicDeviceSysExSelect: {
@@ -331,7 +331,7 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       sysex.mData = GET_COMP_PARAM(UInt8*, 1, 2);
       sysex.mSize = GET_COMP_PARAM(UInt32, 0, 2);
       sysex.mOffset = 0;
-      _this->ProcessSysEx(&sysex);
+      _this->ProcessSysEx(sysex);
       return noErr;
     }
     case kMusicDevicePrepareInstrumentSelect: {
@@ -1511,7 +1511,7 @@ ComponentResult IPlugAU::GetState(CFPropertyListRef* ppPropList)
 
   ByteChunk chunk;
 
-  if (SerializeState(&chunk))
+  if (SerializeState(chunk))
   {
     PutDataInDict(pDict, kAUPresetDataKey, &chunk);
   }
@@ -1553,7 +1553,7 @@ ComponentResult IPlugAU::SetState(CFPropertyListRef pPropList)
     return kAudioUnitErr_InvalidPropertyValue;
   }
 
-  if (!UnserializeState(&chunk, 0))
+  if (!UnserializeState(chunk, 0))
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
@@ -2193,7 +2193,7 @@ void IPlugAU::SetLatency(int samples)
 }
 
 // TODO: SendMidiMsg
-bool IPlugAU::SendMidiMsg(IMidiMsg* pMsg)
+bool IPlugAU::SendMidiMsg(IMidiMsg& msg)
 {
   return false;
 }

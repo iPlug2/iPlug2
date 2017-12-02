@@ -68,8 +68,8 @@ public:
   void LockMutexAndProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
 
 protected:
-  bool SendMidiMsg(IMidiMsg* pMsg);
-  bool SendSysEx(ISysEx* pSysEx);
+  bool SendMidiMsg(IMidiMsg& msg);
+  bool SendSysEx(ISysEx& msg);
 
 private:
   RtMidiOut* mMidiOut;

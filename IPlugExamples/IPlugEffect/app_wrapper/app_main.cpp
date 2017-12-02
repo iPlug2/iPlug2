@@ -237,37 +237,33 @@ void MIDICallback( double deltatime, std::vector< unsigned char > *message, void
 {
   if ( message->size() )
   {
-    IMidiMsg *myMsg;
+    IMidiMsg msg;
 
     switch (message->size())
     {
       case 1:
-        myMsg = new IMidiMsg(0, message->at(0), 0, 0);
+        msg = IMidiMsg(0, message->at(0), 0, 0);
         break;
       case 2:
-        myMsg = new IMidiMsg(0, message->at(0), message->at(1), 0);
+        msg = IMidiMsg(0, message->at(0), message->at(1), 0);
         break;
       case 3:
-        myMsg = new IMidiMsg(0, message->at(0), message->at(1), message->at(2));
+        msg = IMidiMsg(0, message->at(0), message->at(1), message->at(2));
         break;
       default:
         DBGMSG("NOT EXPECTING %d midi callback msg len\n", (int) message->size());
         break;
     }
 
-    IMidiMsg msg(*myMsg);
-
-    delete myMsg;
-
     // filter midi messages based on channel, if gStatus.mMidiInChan != all (0)
     if (gState->mMidiInChan)
     {
       if (gState->mMidiInChan == msg.Channel() + 1 )
-        gPluginInstance->ProcessMidiMsg(&msg);
+        gPluginInstance->ProcessMidiMsg(msg);
     }
     else
     {
-      gPluginInstance->ProcessMidiMsg(&msg);
+      gPluginInstance->ProcessMidiMsg(msg);
     }
   }
 }

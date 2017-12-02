@@ -435,14 +435,14 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             case Event::kNoteOnEvent:
             {
               msg.MakeNoteOnMsg(event.noteOn.pitch, event.noteOn.velocity * 127, event.sampleOffset, event.noteOn.channel);
-              ProcessMidiMsg(&msg);
+              ProcessMidiMsg(msg);
               break;
             }
 
             case Event::kNoteOffEvent:
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
-              ProcessMidiMsg(&msg);
+              ProcessMidiMsg(msg);
               break;
             }
           }
@@ -669,12 +669,12 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
   WDL_MutexLock lock(&mMutex);
 
   ByteChunk chunk;
-  SerializeState(&chunk); // to get the size
+  SerializeState(chunk); // to get the size
 
   if (chunk.Size() > 0)
   {
     state->read(chunk.GetBytes(), chunk.Size());
-    UnserializeState(&chunk, 0);
+    UnserializeState(chunk, 0);
     
     int32 savedBypass = 0;
     
@@ -699,7 +699,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
   ByteChunk chunk;
 
-  if (SerializeState(&chunk))
+  if (SerializeState(chunk))
   {
     state->write(chunk.GetBytes(), chunk.Size());
   }

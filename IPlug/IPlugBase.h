@@ -63,15 +63,15 @@ public:
   // Implementations should set a mutex lock like in the no-op!
   virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
 
-  virtual void ProcessMidiMsg(IMidiMsg* pMsg);
-  virtual void ProcessSysEx(ISysEx* pSysEx) {}
+  virtual void ProcessMidiMsg(IMidiMsg& msg);
+  virtual void ProcessSysEx(ISysEx& msg) {}
 
   virtual bool MidiNoteName(int noteNumber, char* pNameStr) { *pNameStr = '\0'; return false; }
 
   // Implementations should set a mutex lock and call SerializeParams() after custom data is serialized
-  virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
+  virtual bool SerializeState(ByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
   // Return the new chunk position (endPos). Implementations should set a mutex lock and call UnserializeParams() after custom data is unserialized
-  virtual int UnserializeState(ByteChunk* pChunk, int startPos) { TRACE; return UnserializeParams(pChunk, startPos); }
+  virtual int UnserializeState(ByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
   
   // Only used by AAX, override in plugins that do chunks
   virtual bool CompareState(const unsigned char* incomingState, int startPos);
@@ -191,9 +191,9 @@ protected:
   // for VST2 setting to 1 means no tail, but it would be better i think to leave it at 0, the default
   void SetTailSize(unsigned int tailSizeSamples) { mTailSize = tailSizeSamples; }
   
-  virtual bool SendMidiMsg(IMidiMsg* pMsg) = 0;
+  virtual bool SendMidiMsg(IMidiMsg& msg) = 0;
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
-  virtual bool SendSysEx(ISysEx* pSysEx) { return false; }
+  virtual bool SendSysEx(ISysEx& msg) { return false; }
   bool IsInst() { return mIsInst; }
   bool DoesMIDI() { return mDoesMIDI; }
   
@@ -212,8 +212,8 @@ protected:
   bool DoesStateChunks() { return mStateChunks; }
 
   // Will append if the chunk is already started
-  bool SerializeParams(ByteChunk* pChunk);
-  int UnserializeParams(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos)
+  bool SerializeParams(ByteChunk& chunk);
+  int UnserializeParams(ByteChunk& chunk, int startPos); // Returns the new chunk position (endPos)
 
   virtual void RedrawParamControls() {};  // Called after restoring state.
 
@@ -225,8 +225,8 @@ protected:
   void PruneUninitializedPresets();
 
   // Unserialize / SerializePresets - Only used by VST2
-  bool SerializePresets(ByteChunk* pChunk);
-  int UnserializePresets(ByteChunk* pChunk, int startPos); // Returns the new chunk position (endPos).
+  bool SerializePresets(ByteChunk& chunk);
+  int UnserializePresets(ByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
 
   // Set connection state for n channels.
   // If a channel is connected, we expect a call to attach the buffers before each process call.

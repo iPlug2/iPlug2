@@ -276,7 +276,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
     for (int i = 0; i<packets_count; i++, midiBufferPtr++) 
     {
       IMidiMsg msg(midiBufferPtr->mTimestamp, midiBufferPtr->mData[0], midiBufferPtr->mData[1], midiBufferPtr->mData[2]);
-      ProcessMidiMsg(&msg);
+      ProcessMidiMsg(msg);
     }
   }
   
@@ -329,13 +329,13 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
   
   if (chunkID == _this->GetUniqueID()) 
   {
-    ByteChunk IPlugChunk;
+    ByteChunk chunk;
     
     //_this->InitChunkWithIPlugVer(&IPlugChunk);
     
-    if (_this->SerializeState(&IPlugChunk))
+    if (_this->SerializeState(chunk))
     {
-      *oSize = IPlugChunk.Size();
+      *oSize = chunk.Size();
     }
     
     return AAX_SUCCESS;
@@ -354,14 +354,14 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) c
 
   if (chunkID == _this->GetUniqueID()) 
   {
-    ByteChunk IPlugChunk;
+    ByteChunk chunk;
     
-    //_this->InitChunkWithIPlugVer(&IPlugChunk);
+    //_this->InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer
     
-    if (_this->SerializeState(&IPlugChunk)) 
+    if (_this->SerializeState(chunk))
     {
-      oChunk->fSize = IPlugChunk.Size();
-      memcpy(oChunk->fData, IPlugChunk.GetBytes(), IPlugChunk.Size());
+      oChunk->fSize = chunk.Size();
+      memcpy(oChunk->fData, chunk.GetBytes(), chunk.Size());
       return AAX_SUCCESS;
     }
   }
@@ -375,11 +375,11 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
   
   if (chunkID == GetUniqueID())
   {    
-    ByteChunk IPlugChunk;
-    IPlugChunk.PutBytes(iChunk->fData, iChunk->fSize);
+    ByteChunk chunk;
+    chunk.PutBytes(iChunk->fData, iChunk->fSize);
     int pos = 0;
-    //GetIPlugVerFromChunk(&IPlugChunk, &pos);
-    pos = UnserializeState(&IPlugChunk, pos);
+    //GetIPlugVerFromChunk(chunk, &pos); // TODO: IPlugVer
+    pos = UnserializeState(chunk, pos);
     
     for (int i = 0; i< NParams(); i++)
     {
@@ -407,7 +407,7 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CB
 		return AAX_SUCCESS; 
 	}
   
-	*aIsEqualP = _this->CompareState((const unsigned char*) aChunkP->fData, 0);
+	*aIsEqualP = _this->CompareState((const u_int8_t*) aChunkP->fData, 0);
     
   return AAX_SUCCESS;
 }  
@@ -503,7 +503,7 @@ void IPlugAAX::SetLatency(int latency)
 }
 
 // TODO: SendMidiMsg()
-bool IPlugAAX::SendMidiMsg(IMidiMsg* pMsg)
+bool IPlugAAX::SendMidiMsg(IMidiMsg& msg)
 {
   return false;
 }
