@@ -108,12 +108,6 @@
 
 @end
 
-
-NSString* ToNSString(const char* cStr)
-{
-  return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
-}
-
 inline IMouseMod GetMouseMod(NSEvent* pEvent)
 {
   int mods = (int) [pEvent modifierFlags];
@@ -124,6 +118,16 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
 {
   int mods = (int) [pEvent modifierFlags];
   return IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+}
+
+NSString* ToNSString(const char* cStr)
+{
+  return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
+}
+
+inline int GetMouseOver(IGraphicsMac* pGraphics)
+{
+  return pGraphics->GetMouseOver();
 }
 
 @implementation COCOA_FORMATTER
@@ -202,11 +206,6 @@ inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
   return YES;
 }
 @end
-
-inline int GetMouseOver(IGraphicsMac* pGraphics)
-{
-	return pGraphics->GetMouseOver();
-}
 
 #pragma mark -
 
