@@ -213,7 +213,7 @@ protected:
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
 
   // Use these methods with chunks-based plugins
-  void MakePresetFromChunk(const char* name, ByteChunk* pChunk);
+  void MakePresetFromChunk(const char* name, ByteChunk& chunk);
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
 
   bool DoesStateChunks() { return mStateChunks; }
@@ -270,10 +270,10 @@ public:
   virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
   
-  bool SaveProgramAsFXP(WDL_String* fileName);
-  bool SaveBankAsFXB(WDL_String* fileName);
-  bool LoadProgramFromFXP(WDL_String* fileName);
-  bool LoadBankFromFXB(WDL_String* fileName);
+  bool SaveProgramAsFXP(WDL_String& fileName);
+  bool SaveBankAsFXB(WDL_String& fileName);
+  bool LoadProgramFromFXP(WDL_String& fileName);
+  bool LoadBankFromFXB(WDL_String& fileName);
   
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU

@@ -629,7 +629,7 @@ void IPlugBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, ..
   }
 }
 
-void IPlugBase::MakePresetFromChunk(const char* name, ByteChunk* pChunk)
+void IPlugBase::MakePresetFromChunk(const char* name, ByteChunk& chunk)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -637,7 +637,7 @@ void IPlugBase::MakePresetFromChunk(const char* name, ByteChunk* pChunk)
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
 
-    pPreset->mChunk.PutChunk(pChunk);
+    pPreset->mChunk.PutChunk(&chunk);
   }
 }
 
@@ -647,7 +647,7 @@ void IPlugBase::MakePresetFromBlob(const char* name, const char* blob, int sizeO
   presetChunk.Resize(sizeOfChunk);
   base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
 
-  MakePresetFromChunk(name, &presetChunk);
+  MakePresetFromChunk(name, presetChunk);
 }
 
 void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
@@ -1002,11 +1002,11 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPlugBase::SaveProgramAsFXP(WDL_String* fileName)
+bool IPlugBase::SaveProgramAsFXP(WDL_String& fileName)
 {
-  if (fileName->GetLength())
+  if (fileName.GetLength())
   {
-    FILE* fp = fopen(fileName->Get(), "wb");
+    FILE* fp = fopen(fileName.Get(), "wb");
 
     ByteChunk pgm;
 
@@ -1075,11 +1075,11 @@ bool IPlugBase::SaveProgramAsFXP(WDL_String* fileName)
   return false;
 }
 
-bool IPlugBase::SaveBankAsFXB(WDL_String* fileName)
+bool IPlugBase::SaveBankAsFXB(WDL_String& fileName)
 {
-  if (fileName->GetLength())
+  if (fileName.GetLength())
   {
-    FILE* fp = fopen(fileName->Get(), "wb");
+    FILE* fp = fopen(fileName.Get(), "wb");
 
     ByteChunk bnk;
 
@@ -1180,11 +1180,11 @@ bool IPlugBase::SaveBankAsFXB(WDL_String* fileName)
     return false;
 }
 
-bool IPlugBase::LoadProgramFromFXP(WDL_String* fileName)
+bool IPlugBase::LoadProgramFromFXP(WDL_String& fileName)
 {
-  if (fileName->GetLength())
+  if (fileName.GetLength())
   {
-    FILE* fp = fopen(fileName->Get(), "rb");
+    FILE* fp = fopen(fileName.Get(), "rb");
 
     if (fp)
     {
@@ -1269,11 +1269,11 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String* fileName)
   return false;
 }
 
-bool IPlugBase::LoadBankFromFXB(WDL_String* fileName)
+bool IPlugBase::LoadBankFromFXB(WDL_String& fileName)
 {
-  if (fileName->GetLength())
+  if (fileName.GetLength())
   {
-    FILE* fp = fopen(fileName->Get(), "rb");
+    FILE* fp = fopen(fileName.Get(), "rb");
 
     if (fp)
     {
@@ -1403,22 +1403,22 @@ bool IPlugBase::LoadBankFromFXB(WDL_String* fileName)
   return false;
 }
 
-void IPlugBase::InitChunkWithIPlugVer(ByteChunk* pChunk)
+void IPlugBase::InitChunkWithIPlugVer(ByteChunk& chunk)
 {
-  pChunk->Clear();
+  chunk.Clear();
   int magic = IPLUG_VERSION_MAGIC;
-  pChunk->Put(&magic);
+  chunk.Put(&magic);
   int ver = IPLUG_VERSION;
-  pChunk->Put(&ver);
+  chunk.Put(&ver);
 }
 
-int IPlugBase::GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos)
+int IPlugBase::GetIPlugVerFromChunk(ByteChunk& chunk, int* pPos)
 {
   int magic = 0, ver = 0;
-  int pos = pChunk->Get(&magic, *pPos);
+  int pos = chunk.Get(&magic, *pPos);
   if (pos > *pPos && magic == IPLUG_VERSION_MAGIC)
   {
-    *pPos = pChunk->Get(&ver, pos);
+    *pPos = chunk.Get(&ver, pos);
   }
   return ver;
 }
