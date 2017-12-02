@@ -2,6 +2,7 @@
 
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
+#include "IGraphicsUtilites.h"
 #include "IPopupMenu.h"
 #include "IControl.h"
 
@@ -12,75 +13,6 @@
 class IPlugBaseGraphics;
 class IControl;
 class IParam;
-
-template <class T>
-class StaticStorage
-{
-public:
-  
-  unsigned long hash(const char* str) {
-    unsigned long hash = 5381;
-    int c;
-    
-    while ((c = *str++)) {
-      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    }
-    
-    return hash;
-  }
-  
-  struct DataKey
-  {
-    unsigned long id;
-    T* data;
-  };
-  
-  WDL_PtrList<DataKey> mDatas;
-  
-  T* Find(const char* str)
-  {
-    unsigned long id = hash(str);
-    
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      DataKey* key = mDatas.Get(i);
-      if (key->id == id) return key->data;
-    }
-    return 0;
-  }
-  
-  void Add(T* data, const char* str)
-  {
-    DataKey* key = mDatas.Add(new DataKey);
-    key->id = hash(str);
-    key->data = data;
-  }
-  
-  void Remove(T* data)
-  {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      if (mDatas.Get(i)->data == data)
-      {
-        mDatas.Delete(i, true);
-        delete(data);
-        break;
-      }
-    }
-  }
-  
-  ~StaticStorage()
-  {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      delete(mDatas.Get(i)->data);
-    }
-    mDatas.Empty(true);
-  }
-};
 
 class IGraphics
 #ifdef AAX_API

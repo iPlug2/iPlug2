@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include "wdlstring.h"
+#include "ptrlist.h"
+
 #include "IPlugOSDetect.h"
 
 #ifdef OS_OSX
@@ -327,4 +329,90 @@ struct IMouseMod
   bool L, R, S, C, A;
   IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
     : L(l), R(r), S(s), C(c), A(a) {}
+};
+
+template <class T>
+class StaticStorage
+{
+public:
+  
+  unsigned long hash(const char* str) {
+    unsigned long hash = 5381;
+    int c;
+    
+    while ((c = *str++)) {
+      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    }
+    
+    return hash;
+  }
+  
+  struct DataKey
+  {
+    unsigned long id;
+    WDL_String path;
+    double scale;
+    T* data;
+  };
+  
+  WDL_PtrList<DataKey> mDatas;
+  
+  T* Find(const char* str, double scale)
+  {
+    WDL_String cacheName(str);
+    char buf [6] = {0};
+    sprintf(buf, "-%.1fx", scale);
+    cacheName.Append(buf);
+    
+    unsigned long id = hash(cacheName.Get());
+    
+    int i, n = mDatas.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      DataKey* key = mDatas.Get(i);
+      
+      if (key->id == id)
+        return key->data;
+    }
+    return 0;
+  }
+  
+  void Add(T* data, const char* str, double scale)
+  {
+    DataKey* key = mDatas.Add(new DataKey);
+    
+    WDL_String cacheName(str);
+    char buf [6] = {0};
+    sprintf(buf, "-%.1fx", scale);
+    cacheName.Append(buf);
+    
+    key->id = hash(cacheName.Get());
+    key->data = data;
+    key->scale = scale;
+    key->path.Set(str);
+  }
+  
+  void Remove(T* data)
+  {
+    int i, n = mDatas.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      if (mDatas.Get(i)->data == data)
+      {
+        mDatas.Delete(i, true);
+        delete(data);
+        break;
+      }
+    }
+  }
+  
+  ~StaticStorage()
+  {
+    int i, n = mDatas.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      delete(mDatas.Get(i)->data);
+    }
+    mDatas.Empty(true);
+  }
 };
