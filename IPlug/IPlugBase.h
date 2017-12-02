@@ -52,7 +52,7 @@ public:
   
   virtual void* OpenWindow(void* handle = nullptr) { return nullptr; }
   virtual void* OpenWindow(void* handle = nullptr, void* control = nullptr) { return nullptr; }
-  virtual void CloseWindow() { return; } // plugin api asking to close window
+  virtual void CloseWindow() {} // plugin api asking to close window
   
   // This is an idle call from the audio processing thread
   // Only active if USE_IDLE_CALLS is defined
@@ -66,7 +66,7 @@ public:
   virtual void ProcessMidiMsg(IMidiMsg* pMsg);
   virtual void ProcessSysEx(ISysEx* pSysEx) {}
 
-  virtual bool MidiNoteName(int noteNumber, char* rName) { *rName = '\0'; return false; }
+  virtual bool MidiNoteName(int noteNumber, char* pNameStr) { *pNameStr = '\0'; return false; }
 
   // Implementations should set a mutex lock and call SerializeParams() after custom data is serialized
   virtual bool SerializeState(ByteChunk* pChunk) { TRACE; return SerializeParams(pChunk); }
@@ -82,7 +82,7 @@ public:
 
   // implement this to do something specific when IPlug is aware of the host
   // may get called multiple times
-  virtual void OnHostIdentified() { return; };
+  virtual void OnHostIdentified() {}
 
   virtual void PopupHostContextMenuForParam(int param, int x, int y) { return; }; // only for VST3, call it from the GUI
 
@@ -189,7 +189,7 @@ protected:
   int GetIPlugVerFromChunk(ByteChunk* pChunk, int* pPos);
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
-  virtual void HostSpecificInit() { return; };
+  virtual void HostSpecificInit() {};
 
   // If latency changes after initialization (often not supported by the host).
   virtual void SetLatency(int samples);
