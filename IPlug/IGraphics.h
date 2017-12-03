@@ -94,8 +94,8 @@ public:
   int Width() const { return mWidth; }
   int Height() const { return mHeight; }
   int FPS() const { return mFPS; }
-//  double GetScale() const { return mScale; }
-//  void SetScale(double scale) { mScale = scale; }
+  double GetScale() const { return mScale; }
+  void SetScale(double scale) { mScale = scale; }
   double GetDisplayScale() const { return mDisplayScale; }
   void SetDisplayScale(double scale) { mDisplayScale = scale; mScale = scale; /* TODO: mScale should be different*/ }
   IPlugBase& GetPlug() { return mPlug; }
