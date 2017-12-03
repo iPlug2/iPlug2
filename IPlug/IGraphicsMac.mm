@@ -89,7 +89,9 @@ IGraphicsMac::IGraphicsMac(IPlugBaseGraphics* pPlug, int w, int h, int fps)
    #endif
   , mGraphicsCocoa(0)
 {
+#if GRAPHICS_SCALING
   SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
+#endif
   NSApplicationLoad();
 }
 
