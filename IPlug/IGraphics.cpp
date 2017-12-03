@@ -18,8 +18,8 @@ IGraphics::IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps)
 , mHiddenMousePointY(-1)
 , mEnableTooltips(false)
 , mShowControlBounds(false)
-, mScale(1.)
 , mDisplayScale(1.)
+, mScale(1.)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }
@@ -275,7 +275,7 @@ bool IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
 bool IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 {
   IRECT r = rect;
-  r.Scale(mScale);
+  r.Scale(mDisplayScale);
   
   bool rc = DrawHorizontalLine(color, r.T, r.L, r.R);
   rc &= DrawHorizontalLine(color, r.B, r.L, r.R);
@@ -287,7 +287,7 @@ bool IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 bool IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
 {
   IRECT r = rect;
-  r.Scale(mScale);
+  r.Scale(mDisplayScale);
   
   x = BOUNDED(x, 0.0f, 1.0f);
   int xi = r.L + int(x * (float) (r.R - r.L));
@@ -297,7 +297,7 @@ bool IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x
 bool IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
 {
   IRECT r = rect;
-  r.Scale(mScale);
+  r.Scale(mDisplayScale);
   
   y = BOUNDED(y, 0.0f, 1.0f);
   int yi = r.B - int(y * (float) (r.B - r.T));

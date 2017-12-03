@@ -123,7 +123,7 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
   const double targetScale = GetDisplayScale(); // targetScale = what this screen is
 
   LICE_IBitmap* lb = s_bitmapCache.Find(name, targetScale);
-  
+
   if (!lb) // if bitmap not in cache allready at targetScale
   {
     WDL_String fullPath;
@@ -133,16 +133,24 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
     bool imgResourceFound = lb;
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
-    
-    const IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
+
+    const IBitmap bitmap(lb, lb->getWidth() / sourceScale, lb->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
     if (sourceScale != targetScale) {
       return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
     }
-    
-    s_bitmapCache.Add(lb, name, sourceScale);
+    else {
+      s_bitmapCache.Add(lb, name, sourceScale);
+      return IBitmap(lb, lb->getWidth() / sourceScale, lb->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+    }
   }
-  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
+
+  // if bitmap allready cached at scale
+  // TODO: this is horribly hacky
+  if(targetScale > 1.)
+    return IBitmap(lb, lb->getWidth() / sourceScale, lb->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+  else
+    return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
 }
 
 void IGraphicsLice::ReleaseIBitmap(IBitmap& bitmap)
@@ -175,8 +183,14 @@ bool IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
   IRECT rect = dest;
   rect.Scale(mDisplayScale);
   
+  IRECT sdr = mDrawRECT;
+  sdr.Scale(mDisplayScale);
+
+  srcX *= mDisplayScale;
+  srcY *= mDisplayScale;
+  
   LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.mData;
-  IRECT r = rect.Intersect(mDrawRECT);
+  IRECT r = rect.Intersect(sdr);
   srcX += r.L - rect.L;
   srcY += r.T - rect.T;
   LICE_Blit(mDrawBitmap, pLB, r.L, r.T, srcX, srcY, r.W(), r.H(), LiceWeight(pBlend), LiceBlendMode(pBlend));
@@ -335,13 +349,14 @@ bool IGraphicsLice::DrawHorizontalLine(const IColor& color, int yi, int xLo, int
 
 IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
 {
-  const double scalingFactor = targetScale/bitmap.mSourceScale;
-  const int destW = bitmap.W * scalingFactor;
-  const int destH = bitmap.H * scalingFactor;
-  
+  const double scalingFactor = targetScale / bitmap.mSourceScale;
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
+
+  const int destW = pSrc->getWidth() * scalingFactor;
+  const int destH = pSrc->getHeight() * scalingFactor;
+  
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) bitmap.W, (float) bitmap.H, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
+  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
   IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, bitmap.mSourceScale, name);
   s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
@@ -475,9 +490,8 @@ bool IGraphicsLice::MeasureIText(const IText& text, const char* str, IRECT& dest
   return IGraphicsLice::DrawIText(text, str, destRect, true);
 }
 
-IBitmap IGraphicsLice::CreateBitmap(const char * cacheName, int w, int h)
+IBitmap IGraphicsLice::CreateIBitmap(const char * cacheName, int w, int h)
 {
-  //  TODO: ?
 }
 
 //void* IGraphicsLice::CreateAPIBitmap(int w, int h)
@@ -514,7 +528,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
 {
 #ifdef OS_OSX
   CGImageRef img = NULL;
-  CGRect r = CGRectMake(0, 0, Width() / mDisplayScale, Height() / mDisplayScale);
+  CGRect r = CGRectMake(0, 0, Width(), Height());
 
   if (!mColorSpace)
   {
@@ -539,8 +553,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
   }
 
 #ifdef IGRAPHICS_MAC_OLD_IMAGE_DRAWING
-  HDC__ * srcCtx = (HDC__*) mDrawBitmap->getDC();
-  img = CGBitmapContextCreateImage(srcCtx->ctx);
+  img = CGBitmapContextCreateImage(mDrawBitmap->getDC()->ctx); // ARGH .. access to incomplete strut
 #else
   const unsigned char *p = (const unsigned char *) mDrawBitmap->getBits();
 

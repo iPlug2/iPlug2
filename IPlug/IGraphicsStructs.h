@@ -17,6 +17,7 @@ enum EFileAction { kFileOpen, kFileSave };
 
 enum EDirection { kVertical, kHorizontal };
 
+//An IBitmap's dimensions are always 1:1. Any scaling happens at the drawing stage.
 struct IBitmap
 {
   void* mData;
@@ -32,7 +33,8 @@ struct IBitmap
     , mFramesAreHorizontal(framesAreHorizontal)
     , mSourceScale(sourceScale)
     , mResourceName(name, (int) strlen(name))
-  {}
+  {
+  }
 
   inline int frameWidth() const { return (mFramesAreHorizontal ? W / N : W); }
   inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
@@ -155,6 +157,7 @@ struct IFontData
 #define MakeIRectVOffset(a, yoffs) IRECT(a##_X, a##_Y + yoffs, a##_X + a##_W, a##_Y + a##_H + yoffs)
 #define MakeIRectHVOffset(a, xoffs, yoffs) IRECT(a##_X + xoffs, a##_Y + yoffs, a##_X + a##_W + xoffs, a##_Y + a##_H + yoffs)
 
+// An IRECT is always specified in 1:1 pixels, any scaling for HiDPI happens in the drawing
 struct IRECT
 {
   int L, T, R, B;
@@ -365,7 +368,7 @@ public:
         return key->data;
       }
     }
-    return 0;
+    return nullptr;
   }
   
   void Add(T* data, const char* str, double scale = 1. /* scale where 2x = retina */)
@@ -379,8 +382,6 @@ public:
     key->data = data;
     key->scale = scale;
     key->path.Set(str);
-    
-    printf("cache size %i\n", mDatas.GetSize());
   }
   
   void Remove(T* data)
