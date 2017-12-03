@@ -185,7 +185,7 @@ void IPlugBase::SetHost(const char* host, int version)
 }
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
-int IPlugBase::GetEffectVersion(bool decimal)
+int IPlugBase::GetEffectVersion(bool decimal) const
 {
   if (decimal)
   {
@@ -197,7 +197,7 @@ int IPlugBase::GetEffectVersion(bool decimal)
   }
 }
 
-void IPlugBase::GetEffectVersionStr(char* str)
+void IPlugBase::GetEffectVersionStr(char* str) const
 {
   GetVersionStr(mVersion, str);
 #if defined _DEBUG
@@ -302,17 +302,17 @@ void IPlugBase::SetOutputChannelConnections(int idx, int n, bool connected)
   }
 }
 
-bool IPlugBase::IsInChannelConnected(int chIdx)
+bool IPlugBase::IsInChannelConnected(int chIdx) const
 {
   return (chIdx < mInChannels.GetSize() && mInChannels.Get(chIdx)->mConnected);
 }
 
-bool IPlugBase::IsOutChannelConnected(int chIdx)
+bool IPlugBase::IsOutChannelConnected(int chIdx) const
 {
   return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected);
 }
 
-int IPlugBase::GetNumInputsConnected()
+int IPlugBase::GetNumInputsConnected() const
 {
   int count = 0;
   
@@ -323,7 +323,7 @@ int IPlugBase::GetNumInputsConnected()
   return count;
 }
 
-int IPlugBase::GetNumOutputsConnected()
+int IPlugBase::GetNumOutputsConnected() const
 {
   int count = 0;
   

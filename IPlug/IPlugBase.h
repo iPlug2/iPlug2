@@ -89,18 +89,19 @@ public:
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 
-  int NParams() { return mParams.GetSize(); }
+  int NParams() const { return mParams.GetSize(); }
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
-  const char* GetEffectName() { return mEffectName; }
-  int GetEffectVersion(bool decimal);   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
-  void GetEffectVersionStr(char* str);
-  const char* GetMfrName() { return mMfrName; }
-  const char* GetProductName() { return mProductName; }
+  const char* GetEffectName() const { return mEffectName; }
+  int GetEffectVersion(bool decimal) const;   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
+  void GetEffectVersionStr(char* str) const;
+  const char* GetMfrName() const { return mMfrName; }
+  const char* GetProductName() const { return mProductName; }
+  int GetUniqueID() const { return mUniqueID; }
+  int GetMfrID() const { return mMfrID; }
 
-  int GetUniqueID() { return mUniqueID; }
-  int GetMfrID() { return mMfrID; }
-
+  //
+  
   virtual void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) {}; // call from plugin API class to update GUI prior to calling OnParamChange();
   virtual void SetParameterFromGUI(int idx, double normalizedValue); // called from GUI to update 
   // If a parameter change comes from the GUI, midi, or external input,
@@ -108,7 +109,6 @@ public:
   virtual void BeginInformHostOfParamChange(int idx) = 0;
   virtual void InformHostOfParamChange(int idx, double normalizedValue) = 0;
   virtual void EndInformHostOfParamChange(int idx) = 0;
-
   virtual void InformHostOfProgramChange() = 0;
   
   // ----------------------------------------
@@ -116,20 +116,20 @@ public:
   // most of which is implemented by the API class.
 
   double GetSampleRate() { return mSampleRate; }
-  int GetBlockSize() { return mBlockSize; }
-  int GetLatency() { return mLatency; }
+  int GetBlockSize() const { return mBlockSize; }
+  int GetLatency() const { return mLatency; }
 
-  bool GetIsBypassed() { return mIsBypassed; }
+  bool GetIsBypassed() const { return mIsBypassed; }
 
   // In ProcessDoubleReplacing you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
-  int NInChannels() { return mInChannels.GetSize(); }
-  int NOutChannels() { return mOutChannels.GetSize(); }
-  bool IsInChannelConnected(int chIdx);
-  bool IsOutChannelConnected(int chIdx);
-  int GetNumInputsConnected();
-  int GetNumOutputsConnected();
+  int NInChannels() const { return mInChannels.GetSize(); }
+  int NOutChannels() const { return mOutChannels.GetSize(); }
+  bool IsInChannelConnected(int chIdx) const;
+  bool IsOutChannelConnected(int chIdx) const;
+  int GetNumInputsConnected() const;
+  int GetNumOutputsConnected() const;
   
   virtual bool IsRenderingOffline() { return false; };
   virtual int GetSamplePos() = 0;   // Samples since start of project.
