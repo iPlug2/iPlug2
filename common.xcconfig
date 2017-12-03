@@ -34,6 +34,7 @@ APP_DEFS = SA_API __MACOSX_CORE__ $ALL_DEFS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project
 WDL_PATH = $(SRCROOT)/../../WDL
 IPLUG_PATH = $(SRCROOT)/../../IPlug
+IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 SWELL_PATH = $(WDL_PATH)/swell
 LICE_PATH = $(WDL_PATH)/lice
 
