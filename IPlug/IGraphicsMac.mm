@@ -8,6 +8,9 @@
 #endif
 #include "swell-internal.h"
 
+//TODO: why does this have to be here?
+#define DEFAULT_PATH_MAC "~/Desktop"
+
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 //https://gist.github.com/ccgus/3716936
