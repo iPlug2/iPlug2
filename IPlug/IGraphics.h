@@ -28,10 +28,10 @@ public:
 
   bool DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
   
-  #pragma mark - IGraphicsAPI impl drawing
+#pragma mark - IGraphicsAPI impl drawing
   virtual bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool DrawRotatedBitmap(IBitmap& pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool DrawRotatedMask(IBitmap& pBase, IBitmap& pMask, IBitmap& pTop, int x, int y, double angle, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual bool DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
 
   virtual bool ForcePixel(const IColor& color, int x, int y) = 0;
@@ -44,8 +44,8 @@ public:
   virtual bool FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
   virtual bool FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool DrawIText(const IText& text, const char* pStr, IRECT& destRect, bool measure = false) = 0;
-  virtual bool MeasureIText(const IText& text, const char* pStr, IRECT& destRect) = 0;
+  virtual bool DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
+  virtual bool MeasureIText(const IText& text, const char* str, IRECT& destRect) = 0;
 
   virtual IColor GetPoint(int x, int y)  = 0;
   virtual void* GetData() = 0;
@@ -67,25 +67,25 @@ public:
   virtual void Resize(int w, int h);
 
 #pragma mark - IGraphicsPlatform impl
-  virtual int ShowMessageBox(const char* pStr, const char* pCaption, int type) = 0;
+  virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
   IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(pMenu, tempRect); }
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, IRECT& textRect) = 0;
-  virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr = "", IParam* pParam = 0) = 0;
-  virtual void PromptForFile(WDL_String& pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = 0) = 0;
+  virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str = "", IParam* pParam = 0) = 0;
+  virtual void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = 0) = 0;
   virtual bool PromptForColor(IColor& pColor, const char* pStr = "") = 0;
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   virtual const char* GetGUIAPI() { return ""; }
   virtual bool WindowIsOpen() { return GetWindow(); }
-  virtual void HostPath(WDL_String& pPath) = 0;
-  virtual void PluginPath(WDL_String& pPath) = 0;
-  virtual void DesktopPath(WDL_String& pPath) = 0;
-  virtual void AppSupportPath(WDL_String& pPath, bool isSystem = false) = 0;
-  virtual void SandboxSafeAppSupportPath(WDL_String& pPath) = 0;
+  virtual void HostPath(WDL_String& path) = 0;
+  virtual void PluginPath(WDL_String& path) = 0;
+  virtual void DesktopPath(WDL_String& path) = 0;
+  virtual void AppSupportPath(WDL_String& path, bool isSystem = false) = 0;
+  virtual void SandboxSafeAppSupportPath(WDL_String& path) = 0;
   virtual void* OpenWindow(void* pParentWnd) = 0;
   virtual void* OpenWindow(void* pParentWnd, void* pParentControl) { return 0; }  // For OSX Carbon hosts ... ugh.
   virtual void CloseWindow() = 0;
   virtual void* GetWindow() = 0;
-  virtual bool GetTextFromClipboard(WDL_String& pStr) = 0;
+  virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
 #pragma mark -
   IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0);
@@ -107,9 +107,9 @@ public:
   virtual void ReScale();
   
   void AttachBackground(const char* name);
-  void AttachPanelBackground(const IColor& pColor);
-  void AttachKeyCatcher(IControl& pControl);
-  int AttachControl(IControl* pControl);
+  void AttachPanelBackground(const IColor& color);
+  void AttachKeyCatcher(IControl& control);
+  int AttachControl(IControl* control);
 
   IControl* GetControl(int idx) { return mControls.Get(idx); }
   int GetNControls() const { return mControls.GetSize(); }
