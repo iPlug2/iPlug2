@@ -479,9 +479,7 @@ void IPlugAAX::GetTimeSig(int* pNum, int* pDenom)
 
 void IPlugAAX::ResizeGraphics(int w, int h)
 {
-  IGraphics* pGraphics = GetGUI();
-  
-  if (pGraphics)
+  if (GetHasUI())
   {
     AAX_Point oEffectViewSize;
     oEffectViewSize.horz = (float) w;

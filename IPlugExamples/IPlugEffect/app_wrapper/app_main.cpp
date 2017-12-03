@@ -598,18 +598,9 @@ bool ChooseMidiOutput(const char* pPortName)
 
 extern bool AttachGUI()
 {
-  IGraphics* pGraphics = gPluginInstance->GetGUI();
-
-  if (pGraphics)
+  if (gPluginInstance->GetHasUI())
   {
-#ifdef OS_WIN
-    if (!pGraphics->OpenWindow(gHWND))
-      pGraphics=0;
-#else // Cocoa OSX
-    if (!pGraphics->OpenWindow(gHWND))
-      pGraphics=0;
-#endif
-    if (pGraphics)
+    if (gPluginInstance->OpenWindow((void*) gHWND))
     {
       gPluginInstance->OnGUIOpen();
       return true;
