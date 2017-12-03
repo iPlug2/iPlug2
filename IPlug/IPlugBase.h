@@ -50,8 +50,8 @@ public:
   virtual void OnGUIOpen() { TRACE; }
   virtual void OnGUIClose() { TRACE; }
   
-  virtual void* OpenWindow(void* handle = nullptr) { return nullptr; }
-  virtual void* OpenWindow(void* handle = nullptr, void* control = nullptr) { return nullptr; }
+  virtual void* OpenWindow(void* handle) { return nullptr; }
+  virtual void* OpenWindow(void* handle, void* control) { return nullptr; }
   virtual void CloseWindow() {} // plugin api asking to close window
   
   // This is an idle call from the audio processing thread

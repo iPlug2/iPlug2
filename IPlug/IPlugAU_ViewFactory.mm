@@ -38,7 +38,7 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
   mPlug = (IPLUG_BASE_CLASS*) GetComponentInstanceStorage(audioUnit);
   if (mPlug) {
     if (mPlug->GetHasUI()) {
-      NSView* pView = (NSView*) mPlug->OpenWindow(nullptr, nullptr);
+      NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);
       mPlug->OnGUIOpen();
       return pView;
     }
