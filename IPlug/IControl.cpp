@@ -33,10 +33,10 @@ void IControl::SetDirty(bool pushParamToPlug)
 {
   mValue = BOUNDED(mValue, mClampLo, mClampHi);
   mDirty = true;
-  if (pushParamToPlug && mPlug && mParamIdx >= 0)
+  if (pushParamToPlug && mParamIdx >= 0)
   {
-    mPlug->SetParameterFromGUI(mParamIdx, mValue);
-    IParam* pParam = mPlug->GetParam(mParamIdx);
+    mPlug.SetParameterFromGUI(mParamIdx, mValue);
+    IParam* pParam = mPlug.GetParam(mParamIdx);
     
     if (mValDisplayControl) 
     {
@@ -109,9 +109,9 @@ void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    if (mPlug->GetParam(mParamIdx)->GetNDisplayTexts()) // popup menu
+    if (mPlug.GetParam(mParamIdx)->GetNDisplayTexts()) // popup menu
     {
-      mPlug->GetGUI()->PromptUserInput(this, mPlug->GetParam(mParamIdx), mRECT );
+      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT );
     }
     else // text entry
     {
@@ -121,7 +121,7 @@ void IControl::PromptUserInput()
       int halfH = int(float(PARAM_EDIT_H)/2.f);
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      mPlug->GetGUI()->PromptUserInput(this, mPlug->GetParam(mParamIdx), txtRECT );
+      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT );
     }
 
     Redraw();
@@ -132,7 +132,7 @@ void IControl::PromptUserInput(IRECT& textRect)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    mPlug->GetGUI()->PromptUserInput(this, mPlug->GetParam(mParamIdx), textRect);
+    mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), textRect);
     Redraw();
   }
 }
@@ -176,7 +176,7 @@ void IControl::SetAllAuxParamsFromGUI()
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
     AuxParam* auxParam = GetAuxParam(i);
-    mPlug->SetParameterFromGUI(auxParam->mParamIdx, auxParam->mValue);
+    mPlug.SetParameterFromGUI(auxParam->mParamIdx, auxParam->mValue);
   }
 }
 
@@ -232,8 +232,8 @@ void ISwitchPopUpControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IChannelBlend::EBlendMethod blendMethod)
-  : ISwitchControl(pPlug, x, y, paramIdx, bitmap, blendMethod)
+ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IChannelBlend::EBlendMethod blendMethod)
+  : ISwitchControl(plug, x, y, paramIdx, bitmap, blendMethod)
 {
   mDisablePrompt = false;
   
@@ -262,8 +262,8 @@ void ISwitchFramesControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx)
-  :   IControl(pPlug, pR, paramIdx, IChannelBlend::kBlendClobber)
+IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  :   IControl(plug, rect, paramIdx, IChannelBlend::kBlendClobber)
 {
   mDisablePrompt = true;
 }
@@ -281,9 +281,9 @@ void IInvisibleSwitchControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx, int nButtons,
+IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, int nButtons,
     IBitmap& bitmap, EDirection direction, bool reverse)
-  :   IControl(pPlug, pR, paramIdx), mBitmap(bitmap)
+  :   IControl(plug, rect, paramIdx), mBitmap(bitmap)
 {
   mRECTs.Resize(nButtons);
   int h = int((double) bitmap.H / (double) bitmap.N);
@@ -292,7 +292,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT pR, i
   {
     if (direction == kHorizontal)
     {
-      int dX = int((double) (pR.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
+      int dX = int((double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
       int x = mRECT.R - bitmap.W - dX;
       int y = mRECT.T;
       
@@ -304,7 +304,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT pR, i
     }
     else
     {
-      int dY = int((double) (pR.H() - nButtons * h) /  (double) (nButtons - 1));
+      int dY = int((double) (rect.H() - nButtons * h) /  (double) (nButtons - 1));
       int x = mRECT.L;
       int y = mRECT.B - h - dY;
       
@@ -322,7 +322,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT pR, i
     
     if (direction == kHorizontal)
     {
-      int dX = int((double) (pR.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
+      int dX = int((double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
       for (int i = 0; i < nButtons; ++i)
       {
         mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
@@ -331,7 +331,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT pR, i
     }
     else
     {
-      int dY = int((double) (pR.H() - nButtons * h) /  (double) (nButtons - 1));
+      int dY = int((double) (rect.H() - nButtons * h) /  (double) (nButtons - 1));
       for (int i = 0; i < nButtons; ++i)
       {
         mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
@@ -400,8 +400,8 @@ void IContactControl::OnMouseUp(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-IFaderControl::IFaderControl(IPlugBaseGraphics* pPlug, int x, int y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
-: IControl(pPlug, IRECT(), paramIdx)
+IFaderControl::IFaderControl(IPlugBaseGraphics& plug, int x, int y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+: IControl(plug, IRECT(), paramIdx)
 , mLen(len), mBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
   if (direction == kVertical)
@@ -566,8 +566,8 @@ void IKnobControl::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
   SetDirty();
 }
 
-IKnobLineControl::IKnobLineControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx, const IColor& color, double innerRadius, double outerRadius, double minAngle, double maxAngle, EDirection direction, double gearing)
-  : IKnobControl(pPlug, pR, paramIdx, direction, gearing)
+IKnobLineControl::IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius, double outerRadius, double minAngle, double maxAngle, EDirection direction, double gearing)
+  : IKnobControl(plug, rect, paramIdx, direction, gearing)
   , mColor(color)
 {
   mMinAngle = (float) minAngle;
@@ -576,7 +576,7 @@ IKnobLineControl::IKnobLineControl(IPlugBaseGraphics* pPlug, IRECT pR, int param
   mOuterRadius = (float) outerRadius;
   if (mOuterRadius == 0.0f)
   {
-    mOuterRadius = 0.5f * (float) pR.W();
+    mOuterRadius = 0.5f * (float) rect.W();
   }
   mBlend = IChannelBlend(IChannelBlend::kBlendClobber);
 }
@@ -652,8 +652,9 @@ bool ITextControl::Draw(IGraphics& graphics)
   return true;
 }
 
-ICaptionControl::ICaptionControl(IPlugBaseGraphics* pPlug, IRECT pR, int paramIdx, IText& text, bool showParamLabel)
-  :   ITextControl(pPlug, pR, text), mShowParamLabel(showParamLabel)
+ICaptionControl::ICaptionControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IText& text, bool showParamLabel)
+: ITextControl(plug, rect, text)
+, mShowParamLabel(showParamLabel)
 {
   mParamIdx = paramIdx;
 }
@@ -673,7 +674,7 @@ void ICaptionControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
 
 bool ICaptionControl::Draw(IGraphics& graphics)
 {
-  IParam* pParam = mPlug->GetParam(mParamIdx);
+  IParam* pParam = mPlug.GetParam(mParamIdx);
   char cStr[32];
   pParam->GetDisplayForHost(cStr);
   mStr.Set(cStr);
@@ -687,16 +688,16 @@ bool ICaptionControl::Draw(IGraphics& graphics)
   return ITextControl::Draw(graphics);
 }
 
-IURLControl::IURLControl(IPlugBaseGraphics* pPlug, IRECT pR, const char* url, const char* backupURL, const char* errMsgOnFailure)
-  : IControl(pPlug, pR)
+IURLControl::IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, const char* backupURL, const char* errMsgOnFailure)
+  : IControl(plug, rect)
 {
   memset(mURL, 0, MAX_URL_LEN);
   memset(mBackupURL, 0, MAX_URL_LEN);
   memset(mErrMsg, 0, MAX_NET_ERR_MSG_LEN);
 
-  if (CSTR_NOT_EMPTY(url))
+  if (CSTR_NOT_EMPTY(URL))
   {
-    strcpy(mURL, url);
+    strcpy(mURL, URL);
   }
   if (CSTR_NOT_EMPTY(backupURL))
   {
@@ -714,23 +715,23 @@ void IURLControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 
   if (CSTR_NOT_EMPTY(mURL))
   {
-    opened = mPlug->GetGUI()->OpenURL(mURL, mErrMsg);
+    opened = mPlug.GetGUI()->OpenURL(mURL, mErrMsg);
   }
 
   if (!opened && CSTR_NOT_EMPTY(mBackupURL))
   {
-    opened = mPlug->GetGUI()->OpenURL(mBackupURL, mErrMsg);
+    opened = mPlug.GetGUI()->OpenURL(mBackupURL, mErrMsg);
   }
 }
 
 void IFileSelectorControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
-  if (mPlug && mPlug->GetGUI())
+  if (mPlug.GetGUI())
   {
     mState = kFSSelecting;
     SetDirty(false);
 
-    mPlug->GetGUI()->PromptForFile(mFile, mFileAction, &mDir, mExtensions.Get());
+    mPlug.GetGUI()->PromptForFile(mFile, mFileAction, &mDir, mExtensions.Get());
     mValue += 1.0;
     if (mValue > 1.0)
     {
@@ -755,9 +756,9 @@ void IFileSelectorControl::GetLastSelectedFileForPlug(WDL_String& str)
   str.Set(mFile.Get());
 }
 
-void IFileSelectorControl::SetLastSelectedFileFromPlug(const char* pFile)
+void IFileSelectorControl::SetLastSelectedFileFromPlug(const char* file)
 {
-  mFile.Set(pFile);
+  mFile.Set(file);
 }
 
 bool IFileSelectorControl::IsDirty()

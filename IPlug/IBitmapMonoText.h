@@ -82,17 +82,17 @@ static void DrawBitmapedText(IGraphics& graphics,
 class IBitmapTextControl : public IControl
 {
 public:
-  IBitmapTextControl(IPlugBaseGraphics* pPlug,
+  IBitmapTextControl(IPlugBaseGraphics& plug,
                      IRECT rect,
                      IBitmap& bitmap,
                      const char* str = "",
-                     IText* pText = 0,
+                     IText* text = 0,
                      int charWidth = 6,
                      int charHeight = 12,
                      int charOffset = 0,
                      bool multiLine = false,
                      bool vCenter = true)
-  : IControl(pPlug, rect)
+  : IControl(plug, rect)
   , mTextBitmap(bitmap)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
@@ -105,7 +105,7 @@ public:
   
   ~IBitmapTextControl() {}
 
-  void SetTextFromPlug(char* str)
+  void SetTextFromPlug(const char* str)
   {
     if (strcmp(mStr.Get(), str))
     {
@@ -116,7 +116,7 @@ public:
   
   void ClearTextFromPlug()
   {
-    SetTextFromPlug( (char *) "");
+    SetTextFromPlug("");
   }
 
   bool Draw(IGraphics& graphics)

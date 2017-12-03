@@ -28,7 +28,7 @@ public:
 
   bool DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
   
-  // these are implemented in the drawing api IGraphics class
+  #pragma mark - IGraphicsAPI impl drawing
   virtual bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawRotatedBitmap(IBitmap& pBitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawRotatedMask(IBitmap& pBase, IBitmap& pMask, IBitmap& pTop, int x, int y, double angle, const IChannelBlend* pBlend = nullptr) = 0;
@@ -46,56 +46,49 @@ public:
   virtual bool FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawIText(const IText& text, const char* pStr, IRECT& destRect, bool measure = false) = 0;
   virtual bool MeasureIText(const IText& text, const char* pStr, IRECT& destRect) = 0;
+
+  virtual IColor GetPoint(int x, int y)  = 0;
+  virtual void* GetData() = 0;
   
-  //these are helper functions implemented in the base IGraphics class
+#pragma mark - IGraphics impl drawing helpers
   bool DrawRect(const IColor& color, const IRECT& rect);
   bool DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
   bool DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
   bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
   bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
   bool DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
-  
-  virtual IColor GetPoint(int x, int y)  = 0;
-  virtual void* GetData() = 0;
 
+#pragma mark - IGraphics impl
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
+  void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
+  void SetStrictDrawing(bool strict);
 
   virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h);
-  virtual bool WindowIsOpen() { return GetWindow(); }
-  virtual const char* GetGUIAPI() { return ""; }
 
+#pragma mark - IGraphicsPlatform impl
   virtual int ShowMessageBox(const char* pStr, const char* pCaption, int type) = 0;
   IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(pMenu, tempRect); }
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, IRECT& textRect) = 0;
   virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr = "", IParam* pParam = 0) = 0;
-
-  void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
+  virtual void PromptForFile(WDL_String& pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = 0) = 0;
+  virtual bool PromptForColor(IColor& pColor, const char* pStr = "") = 0;
+  virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
+  virtual const char* GetGUIAPI() { return ""; }
+  virtual bool WindowIsOpen() { return GetWindow(); }
   virtual void HostPath(WDL_String& pPath) = 0;
   virtual void PluginPath(WDL_String& pPath) = 0;
   virtual void DesktopPath(WDL_String& pPath) = 0;
-
   virtual void AppSupportPath(WDL_String& pPath, bool isSystem = false) = 0;
   virtual void SandboxSafeAppSupportPath(WDL_String& pPath) = 0;
-
-  virtual void PromptForFile(WDL_String& pFilename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = 0) = 0;  // extensions = "txt wav" for example.
-  virtual bool PromptForColor(IColor& pColor, const char* pStr = "") = 0;
-
-  virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
-
-  void SetStrictDrawing(bool strict);
-
   virtual void* OpenWindow(void* pParentWnd) = 0;
   virtual void* OpenWindow(void* pParentWnd, void* pParentControl) { return 0; }  // For OSX Carbon hosts ... ugh.
-
   virtual void CloseWindow() = 0;
   virtual void* GetWindow() = 0;
-
   virtual bool GetTextFromClipboard(WDL_String& pStr) = 0;
 
 #pragma mark -
-
-  IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps = 0);
+  IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
   int Width() const { return mWidth; }
@@ -104,9 +97,8 @@ public:
 //  double GetScale() const { return mScale; }
 //  void SetScale(double scale) { mScale = scale; }
   double GetDisplayScale() const { return mDisplayScale; }
-  void SetDisplayScale(double scale) { mDisplayScale = scale; mScale = scale; /* todo: mScale should be different*/ }
-
-  IPlugBase* GetPlug() { return mPlug; }
+  void SetDisplayScale(double scale) { mDisplayScale = scale; mScale = scale; /* TODO: mScale should be different*/ }
+  IPlugBase& GetPlug() { return mPlug; }
 
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
   virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
@@ -178,7 +170,7 @@ public:
   
 protected:
   WDL_PtrList<IControl> mControls;
-  IPlugBaseGraphics* mPlug;
+  IPlugBaseGraphics& mPlug;
   IRECT mDrawRECT;
   bool mCursorHidden;
   int mHiddenMousePointX, mHiddenMousePointY;

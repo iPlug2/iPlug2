@@ -17,9 +17,9 @@
   #endif
 
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IPlug* pPlug, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
   {
-    IGraphicsWin* pGraphics = new IGraphicsWin(pPlug, w, h, fps);
+    IGraphicsWin* pGraphics = new IGraphicsWin(plug, w, h, fps);
 
     pGraphics->SetHInstance(gHInstance);
     return pGraphics;
@@ -27,9 +27,9 @@
   #endif
 #elif defined OS_OSX
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
   {
-    IGraphicsMac* pGraphics = new IGraphicsMac(pPlug, w, h, fps);
+    IGraphicsMac* pGraphics = new IGraphicsMac(plug, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);
     return pGraphics;
   }

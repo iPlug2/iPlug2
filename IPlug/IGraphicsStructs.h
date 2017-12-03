@@ -317,6 +317,13 @@ struct IRECT
     R = (int) std::floor(0.5 + (R * scale));
     B = (int) std::floor(0.5 + (B * scale));
   }
+  
+  IRECT GetScaled(double scale)
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r;
+  }
 };
 
 struct IMouseMod

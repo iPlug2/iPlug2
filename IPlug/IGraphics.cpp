@@ -1,7 +1,7 @@
 #include "IGraphics.h"
 
-IGraphics::IGraphics(IPlugBaseGraphics* pPlug, int w, int h, int fps)
-: mPlug(pPlug)
+IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
+: mPlug(plug)
 , mWidth(w)
 , mHeight(h)
 , mIdleTicks(0)
@@ -37,10 +37,10 @@ void IGraphics::Resize(int w, int h)
   ReleaseMouseCapture();
 //  mControls.Empty(true); // TODO fix
 //  PrepDraw();
-//  mPlug->ResizeGraphics(w, h);
+//  mPlug.ResizeGraphics(w, h);
   
-  for (int i = 0; i < mPlug->NParams(); ++i)
-    SetParameterFromPlug(i, mPlug->GetParam(i)->GetNormalized(), true);
+  for (int i = 0; i < mPlug.NParams(); ++i)
+    SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
 }
 
 void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
@@ -124,7 +124,7 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 {
   if (!normalized)
   {
-    IParam* pParam = mPlug->GetParam(paramIdx);
+    IParam* pParam = mPlug.GetParam(paramIdx);
     lo = pParam->GetNormalized(lo);
     hi = pParam->GetNormalized(hi);
   }
@@ -145,7 +145,7 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
 {
   if (!normalized)
   {
-    IParam* pParam = mPlug->GetParam(paramIdx);
+    IParam* pParam = mPlug.GetParam(paramIdx);
     value = pParam->GetNormalized(value);
   }
   int i, n = mControls.GetSize();
@@ -476,12 +476,12 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
     int paramIdx = pControl->ParamIdx();
 
     #if defined OS_WIN || defined VST3_API  // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
-    if (mPlug->GetAPI() == kAPIVST3)
+    if (mPlug.GetAPI() == kAPIVST3)
     {
       if (mod.R && paramIdx >= 0)
       {
         ReleaseMouseCapture();
-        mPlug->PopupHostContextMenuForParam(paramIdx, x, y);
+        mPlug.PopupHostContextMenuForParam(paramIdx, x, y);
         return;
       }
     }
@@ -509,7 +509,7 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
     
     if (paramIdx >= 0)
     {
-      mPlug->BeginInformHostOfParamChange(paramIdx);
+      mPlug.BeginInformHostOfParamChange(paramIdx);
     }
         
     pControl->OnMouseDown(x, y, mod);
@@ -528,7 +528,7 @@ void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
     int paramIdx = pControl->ParamIdx();
     if (paramIdx >= 0)
     {
-      mPlug->EndInformHostOfParamChange(paramIdx);
+      mPlug.EndInformHostOfParamChange(paramIdx);
     }
   }
 }

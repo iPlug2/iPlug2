@@ -15,8 +15,8 @@ class IControl
 {
 public:
   // If paramIdx is > -1, this control will be associated with a plugin parameter.
-  IControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx = -1, IChannelBlend blendMethod = IChannelBlend::kBlendNone)
-    : mPlug(pPlug), mRECT(rect), mTargetRECT(rect), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = -1, IChannelBlend blendMethod = IChannelBlend::kBlendNone)
+    : mPlug(plug), mRECT(rect), mTargetRECT(rect), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
       mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
       mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN), 
       mValDisplayControl(0), mNameDisplayControl(0), mTooltip("") {}
@@ -49,7 +49,7 @@ public:
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
   int ParamIdx() { return mParamIdx; }
-  IParam* GetParam() { return mPlug->GetParam(mParamIdx); }
+  IParam* GetParam() { return mPlug.GetParam(mParamIdx); }
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
   double GetValue() { return mValue; }
@@ -116,15 +116,15 @@ public:
   void SetAllAuxParamsFromGUI();
   int NAuxParams() { return mAuxParams.GetSize(); }
   
-  IPlugBaseGraphics* GetPlug() { return mPlug; }
-  IGraphics* GetGUI() { return mPlug->GetGUI(); }
+  IPlugBaseGraphics& GetPlug() { return mPlug; }
+  IGraphics* GetGUI() { return mPlug.GetGUI(); }
   
   virtual void OnRescale() {};
 
 protected:
   int mTextEntryLength;
   IText mText;
-  IPlugBaseGraphics* mPlug;
+  IPlugBaseGraphics& mPlug;
   IRECT mRECT, mTargetRECT;
   int mParamIdx;
   
@@ -141,8 +141,8 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IPlugBaseGraphics *pPlug, IRECT rect, const IColor& color)
-    : IControl(pPlug, rect), mColor(color) {}
+  IPanelControl(IPlugBaseGraphics& plug, IRECT rect, const IColor& color)
+    : IControl(plug, rect), mColor(color) {}
 
   bool Draw(IGraphics& graphics) override;
 
@@ -154,11 +154,11 @@ protected:
 class IBitmapControl : public IControl
 {
 public:
-  IBitmapControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IControl(pPlug, IRECT(x, y, bitmap), paramIdx, blendMethod), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendMethod), mBitmap(bitmap) {}
 
-  IBitmapControl(IPlugBaseGraphics* pPlug, int x, int y, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IControl(pPlug, IRECT(x, y, bitmap), -1, blendMethod), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), -1, blendMethod), mBitmap(bitmap) {}
 
   virtual ~IBitmapControl() {}
 
@@ -173,8 +173,8 @@ protected:
 class ISwitchControl : public IBitmapControl
 {
 public:
-  ISwitchControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IBitmapControl(pPlug, x, y, paramIdx, bitmap, blendMethod) {}
+  ISwitchControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  : IBitmapControl(plug, x, y, paramIdx, bitmap, blendMethod) {}
   ~ISwitchControl() {}
 
   void OnMouseDblClick(int x, int y, const IMouseMod& mod) override;
@@ -185,8 +185,8 @@ public:
 class ISwitchPopUpControl : public ISwitchControl
 {
 public:
-  ISwitchPopUpControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : ISwitchControl(pPlug, x, y, paramIdx, bitmap, blendMethod)
+  ISwitchPopUpControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  : ISwitchControl(plug, x, y, paramIdx, bitmap, blendMethod)
   {
     mDisablePrompt = false;
   }
@@ -200,7 +200,7 @@ public:
 class ISwitchFramesControl : public ISwitchControl
 {
 public:
-  ISwitchFramesControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone);
+  ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone);
   ~ISwitchFramesControl() {}
   
   void OnMouseDown(int x, int y, const IMouseMod& mod);
@@ -213,7 +213,7 @@ protected:
 class IInvisibleSwitchControl : public IControl
 {
 public:
-  IInvisibleSwitchControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx);
+  IInvisibleSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx);
   ~IInvisibleSwitchControl() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
@@ -225,7 +225,7 @@ public:
 class IRadioButtonsControl : public IControl
 {
 public:
-  IRadioButtonsControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx, int nButtons, IBitmap& bitmap, EDirection direction = kVertical, bool reverse = false);
+  IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, int nButtons, IBitmap& bitmap, EDirection direction = kVertical, bool reverse = false);
   ~IRadioButtonsControl() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
@@ -240,8 +240,8 @@ protected:
 class IContactControl : public ISwitchControl
 {
 public:
-  IContactControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap)
-    : ISwitchControl(pPlug, x, y, paramIdx, bitmap) {}
+  IContactControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap)
+    : ISwitchControl(plug, x, y, paramIdx, bitmap) {}
   ~IContactControl() {}
 
   void OnMouseUp(int x, int y, const IMouseMod& mod);
@@ -251,7 +251,7 @@ public:
 class IFaderControl : public IControl
 {
 public:
-  IFaderControl(IPlugBaseGraphics* pPlug, int x, int y, int len, int paramIdx, IBitmap& bitmap,
+  IFaderControl(IPlugBaseGraphics& plug, int x, int y, int len, int paramIdx, IBitmap& bitmap,
                 EDirection direction = kVertical, bool onlyHandle = false);
   ~IFaderControl() {}
 
@@ -283,8 +283,8 @@ protected:
 class IKnobControl : public IControl
 {
 public:
-  IKnobControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IControl(pPlug, rect, paramIdx), mDirection(direction), mGearing(gearing) {}
+  IKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  : IControl(plug, rect, paramIdx), mDirection(direction), mGearing(gearing) {}
   virtual ~IKnobControl() {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
@@ -300,7 +300,7 @@ protected:
 class IKnobLineControl : public IKnobControl
 {
 public:
-  IKnobLineControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx, const IColor& color, double innerRadius = 0.0, double outerRadius = 0.0,
+  IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius = 0.0, double outerRadius = 0.0,
                    double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI,
                    EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IKnobLineControl() {}
@@ -316,8 +316,8 @@ protected:
 class IKnobRotaterControl : public IKnobControl
 {
 public:
-  IKnobRotaterControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(pPlug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
+  IKnobRotaterControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , mBitmap(bitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
   ~IKnobRotaterControl() {}
 
@@ -333,8 +333,8 @@ protected:
 class IKnobMultiControl : public IKnobControl
 {
 public:
-  IKnobMultiControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(pPlug, IRECT(x, y, bitmap), paramIdx, direction, gearing), mBitmap(bitmap) {}
+  IKnobMultiControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing), mBitmap(bitmap) {}
   ~IKnobMultiControl() {}
 
   bool Draw(IGraphics& graphics) override;
@@ -349,8 +349,8 @@ protected:
 class IKnobRotatingMaskControl : public IKnobControl
 {
 public:
-  IKnobRotatingMaskControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& base, IBitmap& mask, IBitmap& top, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IKnobControl(pPlug, IRECT(x, y, base), paramIdx, direction, gearing),
+  IKnobRotatingMaskControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& base, IBitmap& mask, IBitmap& top, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    : IKnobControl(plug, IRECT(x, y, base), paramIdx, direction, gearing),
       mBase(base), mMask(mask), mTop(top), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
   ~IKnobRotatingMaskControl() {}
 
@@ -366,12 +366,12 @@ protected:
 class IBitmapOverlayControl : public ISwitchControl
 {
 public:
-  IBitmapOverlayControl(IPlugBaseGraphics* pPlug, int x, int y, int paramIdx, IBitmap& bitmap, IRECT targetArea)
-  : ISwitchControl(pPlug, x, y, paramIdx, bitmap)
+  IBitmapOverlayControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IRECT targetArea)
+  : ISwitchControl(plug, x, y, paramIdx, bitmap)
   , mTargetArea(targetArea) {}
 
-  IBitmapOverlayControl(IPlugBaseGraphics* pPlug, int x, int y, IBitmap& bitmap, IRECT targetArea)
-  : ISwitchControl(pPlug, x, y, -1, bitmap)
+  IBitmapOverlayControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IRECT targetArea)
+  : ISwitchControl(plug, x, y, -1, bitmap)
   , mTargetArea(targetArea) {}
 
   ~IBitmapOverlayControl() {}
@@ -386,8 +386,8 @@ protected:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IPlugBaseGraphics* pPlug, IRECT rect, IText& text, const char* str = "")
-  : IControl(pPlug, rect)
+  ITextControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char* str = "")
+  : IControl(plug, rect)
   {
     mText = text;
     mStr.Set(str);
@@ -408,7 +408,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx, IText& text, bool showParamLabel = true);
+  ICaptionControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IText& text, bool showParamLabel = true);
   ~ICaptionControl() {}
 
   virtual void OnMouseDown(int x, int y, const IMouseMod& mod) override;
@@ -423,7 +423,7 @@ protected:
 class IURLControl : public IControl
 {
 public:
-  IURLControl(IPlugBaseGraphics* pPlug, IRECT rect, const char* pURL, const char* pBackupURL = 0, const char* pErrMsgOnFailure = 0);
+  IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, const char* backupURL = 0, const char* errMsgOnFailure = 0);
   ~IURLControl() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
@@ -438,8 +438,8 @@ class IFileSelectorControl : public IControl
 public:
   enum EFileSelectorState { kFSNone, kFSSelecting, kFSDone };
 
-  IFileSelectorControl(IPlugBaseGraphics* pPlug, IRECT rect, int paramIdx, IBitmap& bitmap, EFileAction action, const char* dir = "", const char* extensions = "")
-  : IControl(pPlug, rect, paramIdx)
+  IFileSelectorControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBitmap& bitmap, EFileAction action, const char* dir = "", const char* extensions = "")
+  : IControl(plug, rect, paramIdx)
   , mBitmap(bitmap) , mFileAction(action), mDir(dir), mExtensions(extensions), mState(kFSNone) {}
   ~IFileSelectorControl() {}
 

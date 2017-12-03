@@ -83,7 +83,7 @@ public:
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   
-  IGraphicsAGG(IPlugBaseGraphics* pPlug, int w, int h, int fps);
+  IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsAGG();
 
   void PrepDraw() override;

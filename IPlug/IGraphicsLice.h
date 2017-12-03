@@ -12,7 +12,7 @@
 class IGraphicsLice : public IGraphics
 {
 public:
-  IGraphicsLice(IPlugBaseGraphics* pPlug, int w, int h, int fps);
+  IGraphicsLice(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsLice();
 
   void PrepDraw() override;
@@ -20,10 +20,12 @@ public:
 
   bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend) override;
   bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend) override;
-  bool DrawRotatedMask(IBitmap& pBase, IBitmap& pMask, IBitmap& pTop, int x, int y, double angle, const IChannelBlend* pBlend) override;
+  bool DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend) override;
   bool DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa) override;
   bool ForcePixel(const IColor& color, int x, int y) override;
   bool DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa) override;
+  bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
+  bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
   bool DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IChannelBlend* pBlend, bool aa) override;
   bool DrawCircle(const IColor& color, float cx, float cy, float r,const IChannelBlend* pBlend, bool aa) override;
   bool FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa) override;
@@ -35,9 +37,7 @@ public:
   
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return mDrawBitmap->getBits(); }
-  bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
-  bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
-  
+
   bool DrawIText(const IText& text, const char* str, IRECT& rect, bool measure) override;
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
   
@@ -50,11 +50,11 @@ public:
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
-  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
+  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
   void RenderAPIBitmap(void* pContext) override;
   
 private:
-  LICE_IBitmap* LoadAPIBitmap(const char* pPath);
+  LICE_IBitmap* LoadAPIBitmap(const char* path);
   
 #ifdef OS_OSX
   CGColorSpaceRef mColorSpace;
