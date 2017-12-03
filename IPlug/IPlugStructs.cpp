@@ -38,7 +38,7 @@ void IMidiMsg::MakeControlChangeMsg(EControlChangeMsg idx, double value, int cha
   mData2 = (int) (value * 127.0);
 }
 
-int IMidiMsg::Channel()
+int IMidiMsg::Channel() const
 {
   return mStatus & 0x0F;
 }

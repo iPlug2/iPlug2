@@ -115,7 +115,7 @@ struct IMidiMsg
   void MakeNoteOffMsg(int noteNumber, int offset, int channel=0);
   void MakePitchWheelMsg(double value, int channel=0);  // Value in [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
   void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel=0);           //  Value in [0, 1].
-  int Channel(); // returns [0, 15] for midi channels 1 ... 16
+  int Channel() const; // returns [0, 15] for midi channels 1 ... 16
 
   EStatusMsg StatusMsg() const;
   int NoteNumber() const;     // Returns [0, 127), -1 if NA.
