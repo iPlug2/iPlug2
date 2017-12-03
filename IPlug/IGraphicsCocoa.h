@@ -4,10 +4,10 @@
 #import <AudioUnit/AUCocoaUIView.h>
 #include "IGraphicsMac.h"
 
-inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& pR)
+inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
-  const int B = pGraphics->Height() - pR.B;
-  return NSMakeRect(pR.L, B-1, pR.W()+1, pR.H()+1);
+  int B = pGraphics->Height() - rect.B;
+  return NSMakeRect(rect.L, B-1, rect.W()+1, rect.H()+1);
 }
 
 inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)

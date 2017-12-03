@@ -118,17 +118,13 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
-IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
+IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
-  double targetScale = mDisplayScale / scale;
-  WDL_String cacheName(name);
-  char buf [6] = {0};
-  sprintf(buf, "-%.1fx", targetScale);
-  cacheName.Append(buf);
+  const double targetScale = GetDisplayScale(); // targetScale = what this screen is
 
-  LICE_IBitmap* lb = s_bitmapCache.Find(cacheName.Get());
+  LICE_IBitmap* lb = s_bitmapCache.Find(name, targetScale);
   
-  if (!lb)
+  if (!lb) // if bitmap not in cache allready at targetScale
   {
     WDL_String fullPath;
     OSLoadBitmap(name, fullPath);
@@ -138,34 +134,40 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     
-    const IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
+    const IBitmap bitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
 
-    if (scale != GetDisplayScale()) {
-      return ScaleIBitmap(bitmap, lb->getWidth() * targetScale, lb->getHeight() * targetScale, cacheName.Get());
+    if (sourceScale != targetScale) {
+      return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
     }
     
-    s_bitmapCache.Add(lb, cacheName.Get());
+    s_bitmapCache.Add(lb, name, sourceScale);
   }
-  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal);
+  return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
 }
 
-void IGraphicsLice::RetainBitmap(IBitmap& bitmap, const char * cacheName)
-{
-  s_bitmapCache.Add((LICE_IBitmap*)bitmap.mData, cacheName);
-}
-
-void IGraphicsLice::ReleaseBitmap(IBitmap& bitmap)
+void IGraphicsLice::ReleaseIBitmap(IBitmap& bitmap)
 {
   s_bitmapCache.Remove((LICE_IBitmap*) bitmap.mData);
 }
 
+void IGraphicsLice::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
+{
+  s_bitmapCache.Add((LICE_IBitmap*)bitmap.mData, cacheName);
+}
+
 void IGraphicsLice::PrepDraw()
 {
-  int w = Width();
-  int h = Height();
+  int w = Width() * mDisplayScale;
+  int h = Height() * mDisplayScale;
 
   mDrawBitmap = new LICE_SysBitmap(w, h);
   mTmpBitmap = new LICE_MemBitmap();
+}
+
+void IGraphicsLice::ReScale()
+{
+  mDrawBitmap->resize(Width() * mDisplayScale, Height() * mDisplayScale);
+  IGraphics::ReScale(); // will cause all the controls to update their bitmaps
 }
 
 bool IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
@@ -173,13 +175,10 @@ bool IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
   IRECT rect = dest;
   rect.Scale(mDisplayScale);
   
-  srcX *= mDisplayScale;
-  srcY *= mDisplayScale;
-  
   LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.mData;
-  IRECT r = dest.Intersect(mDrawRECT);
-  srcX += r.L - dest.L;
-  srcY += r.T - dest.T;
+  IRECT r = rect.Intersect(mDrawRECT);
+  srcX += r.L - rect.L;
+  srcY += r.T - rect.T;
   LICE_Blit(mDrawBitmap, pLB, r.L, r.T, srcX, srcY, r.W(), r.H(), LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
@@ -291,7 +290,10 @@ bool IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const 
 
 bool IGraphicsLice::FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend)
 {
-  LICE_FillRect(mDrawBitmap, rect.L, rect.T, rect.W(), rect.H(), LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
+  IRECT r = rect;
+  r.Scale(mDisplayScale);
+  
+  LICE_FillRect(mDrawBitmap, r.L, r.T, r.W(), r.H(), LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
   return true;
 }
 
@@ -331,26 +333,30 @@ bool IGraphicsLice::DrawHorizontalLine(const IColor& color, int yi, int xLo, int
   return true;
 }
 
-IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, int destW, int destH, const char* cacheName)
+IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
 {
+  const double scalingFactor = targetScale/bitmap.mSourceScale;
+  const int destW = bitmap.W * scalingFactor;
+  const int destH = bitmap.H * scalingFactor;
+  
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) bitmap.W, (float) bitmap.H, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
-  IBitmap bmp(pDest, destW, destH, bitmap.N);
-  RetainBitmap(bmp, cacheName);
+  IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, bitmap.mSourceScale, name);
+  s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
   return bmp;
 }
 
-IBitmap IGraphicsLice::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName)
+IBitmap IGraphicsLice::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
 {
   int destW = rect.W(), destH = rect.H();
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_Blit(pDest, pSrc, 0, 0, rect.L, rect.T, destW, destH, 1.0f, LICE_BLIT_MODE_COPY);
   
-  IBitmap bmp(pDest, destW, destH, bitmap.N);
-  RetainBitmap(bmp, cacheName);
+  IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, bitmap.mSourceScale, name);
+  s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
   return bmp;
 }
 

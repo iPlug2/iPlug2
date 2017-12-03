@@ -109,9 +109,10 @@ public:
   IPlugBase* GetPlug() { return mPlug; }
 
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
-  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale) = 0;
-//  virtual IBitmap CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName = 0) = 0;
-  virtual void ReScaleBitmaps();
+  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
+  virtual IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
+  IBitmap GetScaledBitmap(IBitmap& src);
+  virtual void ReScale();
   
   void AttachBackground(const char* name);
   void AttachPanelBackground(const IColor& pColor);
@@ -190,6 +191,7 @@ protected:
   inline int GetMouseY() const { return mMouseY; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
+  // this is called by the API class to blit the IGraphicsLice etc bitmap onto the screen
   virtual void RenderAPIBitmap(void* pContext) = 0;
 
 private:

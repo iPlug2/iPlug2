@@ -16,7 +16,7 @@ public:
   ~IGraphicsLice();
 
   void PrepDraw() override;
-  void ReScaleBitmaps() override;
+  void ReScale() override;
 
   bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend) override;
   bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend) override;
@@ -42,8 +42,8 @@ public:
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
   
   IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
-//  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char * cacheName) override;
+  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
+  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) override;
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   

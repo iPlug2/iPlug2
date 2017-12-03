@@ -274,11 +274,34 @@ bool IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
 
 bool IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 {
-  bool rc = DrawHorizontalLine(color, rect.T, rect.L, rect.R);
-  rc &= DrawHorizontalLine(color, rect.B, rect.L, rect.R);
-  rc &= DrawVerticalLine(color, rect.L, rect.T, rect.B);
-  rc &= DrawVerticalLine(color, rect.R, rect.T, rect.B);
+  IRECT r = rect;
+  r.Scale(mScale);
+  
+  bool rc = DrawHorizontalLine(color, r.T, r.L, r.R);
+  rc &= DrawHorizontalLine(color, r.B, r.L, r.R);
+  rc &= DrawVerticalLine(color, r.L, r.T, r.B);
+  rc &= DrawVerticalLine(color, r.R, r.T, r.B);
   return rc;
+}
+
+bool IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
+{
+  IRECT r = rect;
+  r.Scale(mScale);
+  
+  x = BOUNDED(x, 0.0f, 1.0f);
+  int xi = r.L + int(x * (float) (r.R - r.L));
+  return DrawVerticalLine(color, xi, r.T, r.B);
+}
+
+bool IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
+{
+  IRECT r = rect;
+  r.Scale(mScale);
+  
+  y = BOUNDED(y, 0.0f, 1.0f);
+  int yi = r.B - int(y * (float) (r.B - r.T));
+  return DrawHorizontalLine(color, yi, r.L, r.R);
 }
 
 bool IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
@@ -295,8 +318,8 @@ bool IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi
 
 bool IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa)
 {
-  float sinV = sin(angle);
-  float cosV = cos(angle);
+  float sinV = sinf(angle);
+  float cosV = cosf(angle);
   float xLo = (cx + rMin * sinV);
   float xHi = (cx + rMax * sinV);
   float yLo = (cy - rMin * cosV);
@@ -677,7 +700,7 @@ void IGraphics::OnGUIIdle()
   }
 }
 
-void IGraphics::ReScaleBitmaps()
+void IGraphics::ReScale()
 {
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -686,4 +709,11 @@ void IGraphics::ReScaleBitmaps()
     IControl* pControl = *ppControl;
     pControl->OnRescale();
   }
+  
+  SetAllControlsDirty();
+}
+
+IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
+{
+  return LoadIBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
 }

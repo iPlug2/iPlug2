@@ -22,20 +22,20 @@ struct IBitmap
   void* mData;
   int W, H, N;    // N = number of states (for multibitmaps).
   bool mFramesAreHorizontal;
-  double mScale;
-  WDL_String mName;
-  IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double scale = 1., const char* name = "")
+  double mSourceScale; // i.e. highest res available for this resource
+  WDL_String mResourceName;
+  IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double sourceScale = 1., const char* name = "")
     : mData(pData)
     , W(w)
     , H(h)
     , N(n)
     , mFramesAreHorizontal(framesAreHorizontal)
-    , mScale(scale)
-    , mName(name, (int) strlen(name))
+    , mSourceScale(sourceScale)
+    , mResourceName(name, (int) strlen(name))
   {}
 
-  inline int frameWidth() const { return mFramesAreHorizontal ? W / N : W; }
-  inline int frameHeight() const { return mFramesAreHorizontal ? H : H / N; }
+  inline int frameWidth() const { return (mFramesAreHorizontal ? W / N : W); }
+  inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
 };
 
 struct IColor
@@ -166,16 +166,8 @@ struct IRECT
   {
     L = x;
     T = y;
-    if (bitmap.mFramesAreHorizontal)
-    {
-      R = L + (bitmap.W / bitmap.N) ;
-      B = T + (bitmap.H );
-    }
-    else
-    {
-      R = L + bitmap.W ;
-      B = T + (bitmap.H / bitmap.N) ;
-    }
+    R = L + bitmap.frameWidth();
+    B = T + bitmap.frameHeight();
   }
 
   bool Empty() const
@@ -360,9 +352,7 @@ public:
   T* Find(const char* str, double scale)
   {
     WDL_String cacheName(str);
-    char buf [6] = {0};
-    sprintf(buf, "-%.1fx", scale);
-    cacheName.Append(buf);
+    cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
     unsigned long id = hash(cacheName.Get());
     
@@ -371,25 +361,26 @@ public:
     {
       DataKey* key = mDatas.Get(i);
       
-      if (key->id == id)
+      if (key->id == id) {
         return key->data;
+      }
     }
     return 0;
   }
   
-  void Add(T* data, const char* str, double scale = 1.)
+  void Add(T* data, const char* str, double scale = 1. /* scale where 2x = retina */)
   {
     DataKey* key = mDatas.Add(new DataKey);
     
     WDL_String cacheName(str);
-    char buf [6] = {0};
-    sprintf(buf, "-%.1fx", scale);
-    cacheName.Append(buf);
+    cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
     key->id = hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
     key->path.Set(str);
+    
+    printf("cache size %i\n", mDatas.GetSize());
   }
   
   void Remove(T* data)
