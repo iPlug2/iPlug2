@@ -55,7 +55,6 @@ protected:
   
 private:
   LICE_IBitmap* LoadAPIBitmap(const char* pPath);
-//  void* CreateAPIBitmap(int w, int h);
   
 #ifdef OS_OSX
   CGColorSpaceRef mColorSpace;

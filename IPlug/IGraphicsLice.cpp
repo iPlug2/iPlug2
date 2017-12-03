@@ -494,11 +494,6 @@ IBitmap IGraphicsLice::CreateIBitmap(const char * cacheName, int w, int h)
 {
 }
 
-//void* IGraphicsLice::CreateAPIBitmap(int w, int h)
-//{
-//  return 0;
-//}
-
 LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* pPath)
 {
   if (CSTR_NOT_EMPTY(pPath))
