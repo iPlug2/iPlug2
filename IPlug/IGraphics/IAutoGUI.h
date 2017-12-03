@@ -28,8 +28,8 @@ private:
   
 public:
   
-  AGPanelTabs(IPlugBase *pPlug, IRECT tabsRect, IText *pText, const IColor *pBGColor, const IColor *pFGColor, const IColor *pOnColor)
-  : IControl(pPlug, tabsRect, -1) 
+  AGPanelTabs(IPlugBaseGraphics& plug, IRECT tabsRect, IText& text, const IColor *pBGColor, const IColor *pFGColor, const IColor *pOnColor)
+  : IControl(plug, tabsRect, -1)
   , mBGColor(*pBGColor)
   , mFGColor(*pFGColor)
   , mOnColor(*pOnColor)
@@ -70,14 +70,14 @@ public:
           {
             for (int p = 0; p < mTabs.Get(t)->mParamsToMux.GetSize(); p++) 
             {
-              mPlug->GetGUI()->HideControl(mTabs.Get(t)->mParamsToMux.Get()[p], false);
+              mPlug.GetGUI()->HideControl(mTabs.Get(t)->mParamsToMux.Get()[p], false);
             }
           }
           else 
           {
             for (int p = 0; p < mTabs.Get(t)->mParamsToMux.GetSize(); p++) 
             {
-              mPlug->GetGUI()->HideControl(mTabs.Get(t)->mParamsToMux.Get()[p], true);
+              mPlug.GetGUI()->HideControl(mTabs.Get(t)->mParamsToMux.Get()[p], true);
             }
           }
           
@@ -95,15 +95,15 @@ public:
     SetDirty();
   }
   
-  bool Draw(IGraphics* pGraphics)
+  bool Draw(IGraphics& graphics)
   {
     for (int t = 0; t < mTabs.GetSize(); t++) 
     {
       if (t == mActive) {
-        pGraphics->FillIRect(&mOnColor, &mTabs.Get(t)->mRECT);
+        graphics.FillIRect(&mOnColor, &mTabs.Get(t)->mRECT);
       }
-      pGraphics->DrawRect(&mFGColor, &mTabs.Get(t)->mRECT);
-      pGraphics->DrawIText(&mText, mTabs.Get(t)->mLabel.Get(), &mTabs.Get(t)->mRECT);
+      graphics.DrawRect(&mFGColor, &mTabs.Get(t)->mRECT);
+      graphics.DrawIText(&mText, mTabs.Get(t)->mLabel.Get(), &mTabs.Get(t)->mRECT);
     }
     
     return true;
@@ -113,15 +113,15 @@ public:
 class AGHSliderControl: public IControl
 {
 public:
-  AGHSliderControl(IPlugBase *pPlug,
-                   IRECT pR,
+  AGHSliderControl(IPlugBaseGraphics& plug,
+                   IRECT rect,
                    int paramIdx,
-                   IText *pText,
+                   IText& text,
                    const IColor *pBGColor, 
                    const IColor *pFGColor,
                    int paramNameWidth,
                    int paramValWidth)
-  : IControl(pPlug, pR, paramIdx)
+  : IControl(plug, rect, paramIdx)
   , mBGColor(*pBGColor)
   , mFGColor(*pFGColor)
   {
@@ -135,30 +135,30 @@ public:
     mTextEntryRect =  mParamValueRECT;//IRECT(mParamValueRECT.L+3, mParamValueRECT.T+3, mParamValueRECT.R, mParamValueRECT.B-3);
     mBlend = IChannelBlend::kBlendNone;
     
-    mParamNameStr.Set(mPlug->GetParam(mParamIdx)->GetNameForHost());
+    mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }
   
-  bool Draw(IGraphics* pGraphics)
+  bool Draw(IGraphics& graphics)
   {
-    //pGraphics->RoundRect(&mFGColor, &mRECT, &mBlend, 2, true);
+    //graphics.RoundRect(&mFGColor, &mRECT, &mBlend, 2, true);
 
-    pGraphics->DrawIText(&mText, mParamNameStr.Get(), &mParamNameRECT);
+    graphics.DrawIText(&mText, mParamNameStr.Get(), &mParamNameRECT);
     
     // Draw Slider track
-    pGraphics->DrawLine(&mFGColor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
+    graphics.DrawLine(&mFGColor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
     
     // Draw Slider handle
     int xPos = int(mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1)));
   
     IRECT sliderHandleRect = IRECT(mSliderRECT.L + xPos, mRECT.T+4, mSliderRECT.L + xPos + SLIDER_HANDLE_WIDTH, mRECT.B-4);
-    pGraphics->FillRoundRect(&mFGColor, &sliderHandleRect, &mBlend, 2, true);
+    graphics.FillRoundRect(&mFGColor, &sliderHandleRect, &mBlend, 2, true);
 
     char cstr[32];    
-    mPlug->GetParam(mParamIdx)->GetDisplayForHost(cstr);
+    mPlug.GetParam(mParamIdx)->GetDisplayForHost(cstr);
     mParamValueStr.Set(cstr);
     mParamValueStr.Append(" ");
-    mParamValueStr.Append(mPlug->GetParam(mParamIdx)->GetLabelForHost());
-    pGraphics->DrawIText(&mText, mParamValueStr.Get(), &mParamValueRECT);
+    mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
+    graphics.DrawIText(&mText, mParamValueStr.Get(), &mParamValueRECT);
 
     return true;
   }
@@ -202,14 +202,14 @@ private:
 class AGKnobControl : public IKnobControl
 {
 public:
-  AGKnobControl(IPlugBase* pPlug, 
-                IRECT pR, 
+  AGKnobControl(IPlugBaseGraphics* plug,
+                IRECT rect,
                 int paramIdx,
-                IText *pText,
+                IText& text,
                 const IColor *pBGColor, 
                 const IColor *pFGColor,
                 int textHeight)
-  :   IKnobControl(pPlug, pR, paramIdx, kVertical, DEFAULT_GEARING)
+  :   IKnobControl(plug, rect, paramIdx, kVertical, DEFAULT_GEARING)
   , mBGColor(*pBGColor)
   , mFGColor(*pFGColor)
   {
@@ -233,17 +233,17 @@ public:
     
     mBlend = IChannelBlend(IChannelBlend::kBlendNone);
     
-    mParamNameStr.Set(mPlug->GetParam(mParamIdx)->GetNameForHost());
+    mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }
   
   ~AGKnobControl() {}
   
-  bool Draw(IGraphics* pGraphics)
+  bool Draw(IGraphics& graphics)
   {
-    pGraphics->RoundRect(&mFGColor, &mRECT, &mBlend, 2, true);
+    graphics.RoundRect(&mFGColor, &mRECT, &mBlend, 2, true);
 
     // Draw Param Name
-    pGraphics->DrawIText(&mText, mParamNameStr.Get(), &mParamNameRECT);
+    graphics.DrawIText(&mText, mParamNameStr.Get(), &mParamNameRECT);
 
     // Draw Knob
     double v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
@@ -253,11 +253,11 @@ public:
     float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
     float x2 = cx + (mOuterRadius) * sinV, y2 = cy - (mOuterRadius) * cosV;
 
-    pGraphics->FillCircle(&mBGColor, (int) cx, (int) cy, mOuterRadius - 5, &mBlend, true);
-    pGraphics->DrawArc(&mFGColor, cx, cy, mOuterRadius, mMinAngle, mMaxAngle, &mBlend, true);
-    pGraphics->DrawArc(&mFGColor, cx, cy, mOuterRadius+1, mMinAngle, mMaxAngle, &mBlend, true);
+    graphics.FillCircle(&mBGColor, (int) cx, (int) cy, mOuterRadius - 5, &mBlend, true);
+    graphics.DrawArc(&mFGColor, cx, cy, mOuterRadius, mMinAngle, mMaxAngle, &mBlend, true);
+    graphics.DrawArc(&mFGColor, cx, cy, mOuterRadius+1, mMinAngle, mMaxAngle, &mBlend, true);
 
-    pGraphics->DrawLine(&mFGColor, x1, y1, x2, y2, &mBlend, true);
+    graphics.DrawLine(&mFGColor, x1, y1, x2, y2, &mBlend, true);
     
     if (fabs(x2-x1) > fabs(y2-y1))
     {
@@ -271,14 +271,14 @@ public:
     }
     
     // thicken line
-    pGraphics->DrawLine(&mFGColor, x1, y1, x2, y2, &mBlend, true);
+    graphics.DrawLine(&mFGColor, x1, y1, x2, y2, &mBlend, true);
     
     char cstr[32];    
-    mPlug->GetParam(mParamIdx)->GetDisplayForHost(cstr);
+    mPlug.GetParam(mParamIdx)->GetDisplayForHost(cstr);
     mParamValueStr.Set(cstr);
     mParamValueStr.Append(" ");
-    mParamValueStr.Append(mPlug->GetParam(mParamIdx)->GetLabelForHost());
-    pGraphics->DrawIText(&mText, mParamValueStr.Get(), &mParamValueRECT);
+    mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
+    graphics.DrawIText(&mText, mParamValueStr.Get(), &mParamValueRECT);
     
     return true;
   }
@@ -310,8 +310,8 @@ private:
   const char** mParamNameStrings;
   
 public:
-  AGPresetSaveButtonControl(IPlugBase *pPlug, IRECT pR, IText *pText, const char** pParamNameStrings)
-  : IPanelControl(pPlug, pR, &COLOR_RED)
+  AGPresetSaveButtonControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char** pParamNameStrings)
+  : IPanelControl(plug, rect, &COLOR_RED)
   , mParamNameStrings(pParamNameStrings)
   {
     mText = *pText;
@@ -322,18 +322,18 @@ public:
   {
     WDL_String presetFilePath, desktopPath;
     
-    mPlug->GetGUI()->DesktopPath(&desktopPath);
-    mPlug->GetGUI()->PromptForFile(&presetFilePath, kFileSave, &desktopPath, "txt");
+    mPlug.GetGUI()->DesktopPath(&desktopPath);
+    mPlug.GetGUI()->PromptForFile(&presetFilePath, kFileSave, &desktopPath, "txt");
     
     if (strcmp(presetFilePath.Get(), "") != 0) {
-      mPlug->DumpPresetSrcCode(presetFilePath.Get(), mParamNameStrings);
+      mPlug.DumpPresetSrcCode(presetFilePath.Get(), mParamNameStrings);
     }
   }
   
-  bool Draw(IGraphics* pGraphics)
+  bool Draw(IGraphics& graphics)
   {
-    pGraphics->FillIRect(&mColor, &mRECT);
-    pGraphics->DrawIText(&mText, "Dump preset", &mRECT);
+    graphics.FillIRect(&mColor, &mRECT);
+    graphics.DrawIText(&mText, "Dump preset", &mRECT);
     
     return true;
   }
@@ -343,37 +343,37 @@ public:
 #define HEIGHT 50
 #define GAP 2
 
-void GenerateKnobGUI(IGraphics* pGraphics, 
-                     IPlug* pPlug,
-                     IText *pText,
+void GenerateKnobGUI(IGraphics& graphics,
+                     IPlugBaseGraphics& plug,
+                     IText& text,
                      const IColor *pBGColor, 
                      const IColor *pFGColor,
                      int minWidth,
                      int minHeight)
 {
-  pGraphics->AttachPanelBackground(pBGColor);
+  graphics.AttachPanelBackground(pBGColor);
   
-  const int w = pGraphics->Width();
+  const int w = graphics.Width();
   
   // Calculate max bounds
   WDL_String tmpText;
   IRECT paramNameMaxBounds;
   IRECT paramValueMaxBounds;
   
-  for(int p = 0; p < pPlug->NParams(); p++)
+  for(int p = 0; p < plug->NParams(); p++)
   {
     IRECT thisParamNameMaxBounds;
-    tmpText.Set(pPlug->GetParam(p)->GetNameForHost());
-    pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamNameMaxBounds);
+    tmpText.Set(plug->GetParam(p)->GetNameForHost());
+    graphics.MeasureIText(pText, tmpText.Get(), &thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(&thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
     // TODO: account for length of normal param values
-    for(int dt = 0; dt < pPlug->GetParam(p)->GetNDisplayTexts(); dt++)
+    for(int dt = 0; dt < plug->GetParam(p)->GetNDisplayTexts(); dt++)
     {
       IRECT thisParamValueMaxBounds;
-      tmpText.Set(pPlug->GetParam(p)->GetDisplayTextAtIdx(dt));
-      pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamValueMaxBounds);
+      tmpText.Set(plug->GetParam(p)->GetDisplayTextAtIdx(dt));
+      graphics.MeasureIText(pText, tmpText.Get(), &thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(&thisParamValueMaxBounds);
     }
   }
@@ -389,7 +389,7 @@ void GenerateKnobGUI(IGraphics* pGraphics,
   int column = 0;
   int xoffs = 2;
   
-  for(int p = 0; p < pPlug->NParams(); p++)
+  for(int p = 0; p < plug->NParams(); p++)
   {
     if ((((width + GAP) * column) + 2) + width >= w) 
     {
@@ -404,19 +404,19 @@ void GenerateKnobGUI(IGraphics* pGraphics,
     
     IRECT paramRect = IRECT(xoffs, yoffs, xoffs+width, yoffs + height);
     
-    switch (pPlug->GetParam(p)->Type()) 
+    switch (plug->GetParam(p)->Type())
     {
       case IParam::kTypeBool:
-        pGraphics->AttachControl(new AGKnobControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
+        graphics.AttachControl(new AGKnobControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
         break;
       case IParam::kTypeInt:
-        pGraphics->AttachControl(new AGKnobControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
+        graphics.AttachControl(new AGKnobControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
         break;
       case IParam::kTypeEnum:
-        pGraphics->AttachControl(new AGKnobControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
+        graphics.AttachControl(new AGKnobControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
         break;
       case IParam::kTypeDouble:
-        pGraphics->AttachControl(new AGKnobControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
+        graphics.AttachControl(new AGKnobControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.H()));
         break;
       default:
         break;
@@ -424,16 +424,9 @@ void GenerateKnobGUI(IGraphics* pGraphics,
   }
 }
 
-void GenerateSliderGUI(IGraphics* pGraphics, 
-                 IPlug* pPlug,
-                 IText *pText,
-                 const IColor *pBGColor, 
-                 const IColor *pFGColor,
-                 int colWidth = 300,
-                 int tabs = 0, // 0 = off, 1 = numbers, 2 = group name
-                 const char** pParamNameStrings = 0) 
+void GenerateSliderGUI(IGraphics& graphics, IPlug& plug, IText& text, const IColor *pBGColor, const IColor *pFGColor, int colWidth = 300, int tabs = 0, const char** pParamNameStrings = 0)
 {
-  pGraphics->AttachPanelBackground(pBGColor);
+  graphics.AttachPanelBackground(pBGColor);
 
   WDL_PtrList<const char> groupNames;
   WDL_String thisGroup("");
@@ -443,24 +436,24 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   IRECT paramNameMaxBounds;
   IRECT paramValueMaxBounds = IRECT(0, 0, 70, 10);  // the values here are a hack to make a minimum bounds 
   
-  for(int p = 0; p < pPlug->NParams(); p++)
+  for(int p = 0; p < plug->NParams(); p++)
   {
     IRECT thisParamNameMaxBounds;
-    tmpText.Set(pPlug->GetParam(p)->GetNameForHost());
-    pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamNameMaxBounds);
+    tmpText.Set(plug->GetParam(p)->GetNameForHost());
+    graphics.MeasureIText(pText, tmpText.Get(), &thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(&thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
     // TODO: account for length of normal param values
-    for(int dt = 0; dt < pPlug->GetParam(p)->GetNDisplayTexts(); dt++)
+    for(int dt = 0; dt < plug->GetParam(p)->GetNDisplayTexts(); dt++)
     {
       IRECT thisParamValueMaxBounds;
-      tmpText.Set(pPlug->GetParam(p)->GetDisplayTextAtIdx(dt));
-      pGraphics->MeasureIText(pText, tmpText.Get(), &thisParamValueMaxBounds);
+      tmpText.Set(plug->GetParam(p)->GetDisplayTextAtIdx(dt));
+      graphics.MeasureIText(pText, tmpText.Get(), &thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(&thisParamValueMaxBounds);
     }
     
-    const char* label = pPlug->GetParam(p)->GetParamGroupForHost();
+    const char* label = plug->GetParam(p)->GetParamGroupForHost();
     
     if (strcmp(label, thisGroup.Get()) != 0) 
     {
@@ -479,7 +472,7 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   {
     IRECT buttonsRect = IRECT(2, yoffs, colWidth-2, yoffs + paramNameMaxBounds.H());
     
-    pGraphics->AttachControl(new AGPresetSaveButtonControl(pPlug, buttonsRect, pText, pParamNameStrings));
+    graphics.AttachControl(new AGPresetSaveButtonControl(plug, buttonsRect, pText, pParamNameStrings));
     
     yoffs += 20;
   }
@@ -489,8 +482,8 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   
   if (tabs) 
   {
-    pTabsControl = new AGPanelTabs(pPlug, tabsRect, pText, pBGColor, pFGColor, &COLOR_RED);
-    pGraphics->AttachControl(pTabsControl);
+    pTabsControl = new AGPanelTabs(plug, tabsRect, pText, pBGColor, pFGColor, &COLOR_RED);
+    graphics.AttachControl(pTabsControl);
     yoffs += 20;
   }
   
@@ -502,11 +495,11 @@ void GenerateSliderGUI(IGraphics* pGraphics,
   
   int paramStartYoffs = yoffs;
   
-  for(int p = 0; p < pPlug->NParams(); p++)
+  for(int p = 0; p < plug->NParams(); p++)
   {
     if (tabs && groupNames.GetSize()) 
     {
-      const char* label = pPlug->GetParam(p)->GetParamGroupForHost();
+      const char* label = plug->GetParam(p)->GetParamGroupForHost();
 
       if (strcmp(label, thisGroup.Get()) != 0) 
       {
@@ -532,33 +525,33 @@ void GenerateSliderGUI(IGraphics* pGraphics,
 
     IRECT paramRect = IRECT(2 + (col * colWidth), yoffs, (col+1) * colWidth, yoffs + paramNameMaxBounds.H());
     
-//    switch (pPlug->GetParam(p)->Type()) 
+//    switch (plug->GetParam(p)->Type())
 //    {
 //      case IParam::kTypeBool:
-//        pGraphics->AttachControl(new AGHSliderControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+//        graphics.AttachControl(new AGHSliderControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 //        break;
 //      case IParam::kTypeInt:
-//        pGraphics->AttachControl(new AGHSliderControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+//        graphics.AttachControl(new AGHSliderControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 //        break;
 //      case IParam::kTypeEnum:
-//        pGraphics->AttachControl(new AGHSliderControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+//        graphics.AttachControl(new AGHSliderControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 //        break;
 //      case IParam::kTypeDouble:
-//        pGraphics->AttachControl(new AGHSliderControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+//        graphics.AttachControl(new AGHSliderControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 //        break;
 //      default:
 //        break;
 //    }
     
-    IControl* pControl = new AGHSliderControl(pPlug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W());
-    pGraphics->AttachControl(pControl);
+    IControl* pControl = new AGHSliderControl(plug, paramRect, p, pText, pBGColor, pFGColor, paramNameMaxBounds.W(), paramValueMaxBounds.W());
+    graphics.AttachControl(pControl);
     
     if (tabs && groupIdx != 1) 
     {
       pControl->Hide(true);
     }
     
-    if (yoffs + paramNameMaxBounds.H() >= pGraphics->Height() - 5) 
+    if (yoffs + paramNameMaxBounds.H() >= graphics.Height() - 5)
     {
       col++;
       yoffs = 2;
