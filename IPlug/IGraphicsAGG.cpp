@@ -54,7 +54,7 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
   return IBitmap(pixel_map, pixel_map->width() / targetScale, pixel_map->height() / targetScale, nStates, framesAreHoriztonal, scale, name);
 }
 
-void IGraphicsAGG::ReScaleBitmaps()
+void IGraphicsAGG::ReScale()
 {
   // resize draw bitmap
   PrepDraw();
@@ -86,10 +86,10 @@ void IGraphicsAGG::ReScaleBitmaps()
 //  printf("cache size %i\n", s_bitmapCache.mDatas.GetSize());
   
   // notify IControls
-  IGraphics::ReScaleBitmaps();
+  IGraphics::ReScale();
 }
 
-IFontData IGraphicsAGG::LoadIFont(const char * name, const int size)
+IFontData IGraphicsAGG::LoadIFont(const char* name, const int size)
 {
 //  WDL_String cacheName(name);
 //  char buf [6] = {0};
@@ -512,7 +512,7 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char * cacheName, double scale)
+IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
 {
   const int destW = srcbitmap.W * scale;
   const int destH = srcbitmap.H * scale;
@@ -521,37 +521,37 @@ IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char * cacheN
 
   s_bitmapCache.Add(copy, cacheName, scale);
   
-  return IBitmap(copy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, srcbitmap.mScale /* TODO: not right! */, cacheName);
+  return IBitmap(copy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, scale, cacheName);
 }
 
-//IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char * cacheName)
-//{
-//  agg::pixel_map* pixel_map = (agg::pixel_map *)srcbitmap.mData;
-//  agg::pixel_map* copy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());
-//  
-//  agg::rendering_buffer src;
-//  agg::rendering_buffer dest;
-//  
-//  src.attach(pixel_map->buf(), pixel_map->width(), pixel_map->height(), pixel_map->row_bytes());
-//  dest.attach(copy->buf(), copy->width(), copy->height(), copy->row_bytes());
-//  
-//  PixfmtType img_pixf_src(src);
-//  PixfmtType img_pixf_dest(dest);
-//  
-//  RenbaseType renbase(img_pixf_dest);
-//
-//  renbase.clear(agg::rgba(0, 0, 0, 0));
-//  
-//  agg::rect_i src_r(rect.L, rect.T, rect.R, rect.B);
-//  
-//  renbase.copy_from(img_pixf_src, &src_r, -rect.L, -rect.T);
-//  
-//  s_bitmapCache.Add(copy, cacheName, srcbitmap.mScale);
-//  
-//  return IBitmap(copy, copy->width(), copy->height(), srcbitmap.N, srcbitmap.mFramesAreHorizontal);
-//}
+IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
+{
+  agg::pixel_map* pixel_map = (agg::pixel_map *)srcbitmap.mData;
+  agg::pixel_map* copy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());
+  
+  agg::rendering_buffer src;
+  agg::rendering_buffer dest;
+  
+  src.attach(pixel_map->buf(), pixel_map->width(), pixel_map->height(), pixel_map->row_bytes());
+  dest.attach(copy->buf(), copy->width(), copy->height(), copy->row_bytes());
+  
+  PixfmtType img_pixf_src(src);
+  PixfmtType img_pixf_dest(dest);
+  
+  RenbaseType renbase(img_pixf_dest);
 
-IBitmap IGraphicsAGG::CreateIBitmap(const char * cacheName, int w, int h)
+  renbase.clear(agg::rgba(0, 0, 0, 0));
+  
+  agg::rect_i src_r(rect.L, rect.T, rect.R, rect.B);
+  
+  renbase.copy_from(img_pixf_src, &src_r, -rect.L, -rect.T);
+  
+  s_bitmapCache.Add(copy, cacheName, scale);
+  
+  return IBitmap(copy, copy->width(), copy->height(), srcbitmap.N, srcbitmap.mFramesAreHorizontal);
+}
+
+IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
 {
   agg::pixel_map * pixel_map = (agg::pixel_map*) CreateAPIBitmap(w, h);
 
@@ -667,7 +667,7 @@ void IGraphicsAGG::RenderAPIBitmap(void *pContext)
 #endif
 }
 
-void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char * str, FontManagerType& manager)
+void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char* str, FontManagerType& manager)
 {
   LineInfo info;
   info.start_char = 0;
@@ -681,7 +681,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
   size_t line_pos = 0;
   double x_count = 0.0;
   
-  const char * string = str;
+  const char* string = str;
   
   while (*string)
   {
@@ -980,7 +980,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
 }
 
 
-agg::pixel_map * IGraphicsAGG::load_image(const char * filename)
+agg::pixel_map * IGraphicsAGG::load_image(const char* filename)
 {
   IBitmap bitmap = LoadIBitmap(filename, 1, 1.0);
   return (agg::pixel_map *)bitmap.mData;
