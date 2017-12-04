@@ -124,23 +124,121 @@ DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
 END_FACTORY
 
 #elif defined AU_API
-  IPlug* MakePlug()
+#include <AvailabilityMacros.h>
+
+  IPlug* MakePlug(void *memory)
   {
     IPlugInstanceInfo instanceInfo;
     instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(VIEW_CLASS_STR);
-    return new PLUG_CLASS_NAME(instanceInfo);
+    
+    if(memory)
+      return new(memory) PLUG_CLASS_NAME(instanceInfo);
+    else
+      return new PLUG_CLASS_NAME(instanceInfo);
   }
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+class IPlugAUFactory
+{
+  public:
+    static void* Construct(void *memory, AudioComponentInstance compInstance)
+    {
+      return MakePlug(memory);
+    }
+    
+    static void Destruct(void *memory)
+    {
+      ((PLUG_CLASS_NAME*)memory)->~PLUG_CLASS_NAME();
+    }
+    
+    static AudioComponentMethod Lookup (SInt16 selector)
+    {
+      switch (selector) {
+        case kAudioUnitInitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
+        case kAudioUnitUninitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodUninitialize;
+        case kAudioUnitGetPropertyInfoSelect:	return (AudioComponentMethod)IPlugAU::AUMethodGetPropertyInfo;
+        case kAudioUnitGetPropertySelect: return (AudioComponentMethod)IPlugAU::AUMethodGetProperty;
+        case kAudioUnitSetPropertySelect: return (AudioComponentMethod)IPlugAU::AUMethodSetProperty;
+        case kAudioUnitAddPropertyListenerSelect:return (AudioComponentMethod)IPlugAU::AUMethodAddPropertyListener;
+        case kAudioUnitRemovePropertyListenerSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRemovePropertyListener;
+        case kAudioUnitRemovePropertyListenerWithUserDataSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRemovePropertyListenerWithUserData;
+        case kAudioUnitAddRenderNotifySelect:	return (AudioComponentMethod)IPlugAU::AUMethodAddRenderNotify;
+        case kAudioUnitRemoveRenderNotifySelect:return (AudioComponentMethod)IPlugAU::AUMethodRemoveRenderNotify;
+        case kAudioUnitGetParameterSelect:  return (AudioComponentMethod)IPlugAU::AUMethodGetParameter;
+        case kAudioUnitSetParameterSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSetParameter;
+        case kAudioUnitScheduleParametersSelect:return (AudioComponentMethod)IPlugAU::AUMethodScheduleParameters;
+        case kAudioUnitRenderSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRender;
+        case kAudioUnitResetSelect: return (AudioComponentMethod)IPlugAU::AUMethodReset;
+#if PLUG_DOES_MIDI
+        case kMusicDeviceMIDIEventSelect:  return (AudioComponentMethod)IPlugAU::AUMethodMIDIEvent;
+        case kMusicDeviceSysExSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSysEx;
+#endif
+        default:
+          break;
+      }
+      return NULL;
+    }
+     
+    static OSStatus Open(void *self, AudioUnit compInstance)
+    {
+      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) self;
+      assert(acpi);
+
+      (*acpi->mConstruct)(&acpi->mInstanceStorage, compInstance);
+      IPlugAU* plug = (IPlugAU*) &acpi->mInstanceStorage;
+
+      plug->mCI = compInstance;
+      plug->HostSpecificInit();
+      plug->PruneUninitializedPresets();
+      
+      return noErr;
+    }
+    
+    static OSStatus Close(void *self)
+    {
+      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) self;
+      assert(acpi);
+      (*acpi->mDestruct)(&acpi->mInstanceStorage);
+      free(self);
+      return noErr;
+    }
+
+    static AudioComponentPlugInInterface *Factory(const AudioComponentDescription* inDesc)
+    {
+      AudioComponentPlugInInstance *acpi = (AudioComponentPlugInInstance *) malloc( offsetof(AudioComponentPlugInInstance, mInstanceStorage) + sizeof(PLUG_CLASS_NAME) );
+      acpi->mPlugInInterface.Open = Open;
+      acpi->mPlugInInterface.Close = Close;
+      acpi->mPlugInInterface.Lookup = Lookup;
+      acpi->mPlugInInterface.reserved = NULL;
+      acpi->mConstruct = Construct;
+      acpi->mDestruct = Destruct;
+      acpi->mPad[0] = NULL;
+      acpi->mPad[1] = NULL;
+      return (AudioComponentPlugInInterface*)acpi;
+    }
+
+  };
+#endif
   extern "C"
   {
+    //Component Manager
     EXPORT ComponentResult PLUG_ENTRY(ComponentParameters* params, void* pPlug)
     {
       return IPlugAU::IPlugAUEntry(params, pPlug);
     }
+    //Carbon view
     EXPORT ComponentResult PLUG_VIEW_ENTRY(ComponentParameters* params, void* pView)
     {
       return IPlugAU::IPlugAUCarbonViewEntry(params, pView);
     }
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+    //>10.7 SDK AUPlugin
+    EXPORT void* PLUG_FACTORY(const AudioComponentDescription* inDesc)
+    {
+      return IPlugAUFactory::Factory (inDesc);
+    }
+#endif
   };
 #elif defined AAX_API
   IPlug* MakePlug()

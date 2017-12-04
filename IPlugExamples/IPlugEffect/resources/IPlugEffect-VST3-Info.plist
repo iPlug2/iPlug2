@@ -5,24 +5,26 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>${BINARY_NAME}</string>
+	<string>IPlugEffect</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.0.0, Copyright AcmeInc, 2017</string>
+	<string>IPlugEffect v1.0.0 Copyright 2017 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.vst3.${BINARY_NAME}</string>
+	<string>com.AcmeInc.vst3.IPlugEffect</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>${BINARY_NAME}</string>
+	<string>IPlugEffect</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>Acme</string>
+	<string>Ipef</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.5.0</string>
+	<string>10.7.0</string>
 </dict>
 </plist>

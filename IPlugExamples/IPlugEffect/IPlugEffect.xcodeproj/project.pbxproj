@@ -1304,6 +1304,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F3AE1DC12C0E5E2001FD7A4 /* Build configuration list for PBXNativeTarget "AU" */;
 			buildPhases = (
+				4FBCC1A21FD59C7300EFE550 /* Run Script - generate plists */,
 				4F3AE17912C0E5E2001FD7A4 /* Headers */,
 				4F3AE1A212C0E5E2001FD7A4 /* Sources */,
 				4F25BECE12C61F47005D51F7 /* Resources */,
@@ -1530,6 +1531,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = ./scripts/clear_audiounit_caches.command;
+		};
+		4FBCC1A21FD59C7300EFE550 /* Run Script - generate plists */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - generate plists";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python ./scripts/generate_plists.py";
 		};
 /* End PBXShellScriptBuildPhase section */
 

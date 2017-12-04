@@ -12,6 +12,7 @@ typedef IPlugBase IPLUG_BASE_CLASS;
 #include "IPlugBaseGraphics.h"
 typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #endif
+static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 @interface VIEW_CLASS : NSObject <AUCocoaUIBase>
 {
@@ -35,15 +36,23 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 - (NSView*) uiViewForAudioUnit: (AudioUnit) audioUnit withSize: (NSSize) preferredSize
 {
   TRACE;
-  mPlug = (IPLUG_BASE_CLASS*) GetComponentInstanceStorage(audioUnit);
-  if (mPlug) {
-    if (mPlug->GetHasUI()) {
-      NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);
-      mPlug->OnGUIOpen();
-      return pView;
+
+  void* pointers[1];
+  UInt32 propertySize = sizeof (pointers);
+  
+  if (AudioUnitGetProperty (audioUnit, kIPlugObjectPropertyID,
+                            kAudioUnitScope_Global, 0, pointers, &propertySize) == noErr)
+  {
+    mPlug = (IPLUG_BASE_CLASS*) pointers[0];
+    if (mPlug) {
+      if (mPlug->GetHasUI()) {
+        NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);
+        mPlug->OnGUIOpen();
+        return pView;
+      }
     }
   }
-  return 0; 
+  return 0;
 }
 
 - (unsigned) interfaceVersion

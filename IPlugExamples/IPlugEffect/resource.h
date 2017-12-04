@@ -8,6 +8,7 @@
 
 #define PLUG_ENTRY IPlugEffect_Entry
 #define PLUG_VIEW_ENTRY IPlugEffect_ViewEntry
+#define PLUG_FACTORY IPlugEffect_Factory
 
 #define PLUG_ENTRY_STR "IPlugEffect_Entry"
 #define PLUG_VIEW_ENTRY_STR "IPlugEffect_ViewEntry"
@@ -23,6 +24,8 @@
 #define PLUG_UNIQUE_ID 'Ipef'
 // make sure this is not the same as BUNDLE_MFR
 #define PLUG_MFR_ID 'Acme'
+
+#define PLUG_COPYRIGHT  "Copyright 2017 Acme Inc"
 
 // ProTools stuff
 
