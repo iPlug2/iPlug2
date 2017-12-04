@@ -43,8 +43,6 @@
   {
     EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
     {
-      static WDL_Mutex sMutex;
-      WDL_MutexLock lock(&sMutex);
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
       IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
@@ -128,8 +126,6 @@ END_FACTORY
 #elif defined AU_API
   IPlug* MakePlug()
   {
-    static WDL_Mutex sMutex;
-    WDL_MutexLock lock(&sMutex);
     IPlugInstanceInfo instanceInfo;
     instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(VIEW_CLASS_STR);
@@ -149,8 +145,6 @@ END_FACTORY
 #elif defined AAX_API
   IPlug* MakePlug()
   {
-    static WDL_Mutex sMutex;
-    WDL_MutexLock lock(&sMutex);
     IPlugInstanceInfo instanceInfo;
     
     return new PLUG_CLASS_NAME(instanceInfo);
@@ -158,8 +152,6 @@ END_FACTORY
 #elif defined SA_API
   IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan)
   {
-    static WDL_Mutex sMutex;
-    WDL_MutexLock lock(&sMutex);
     IPlugInstanceInfo instanceInfo;
 
     #if defined OS_WIN

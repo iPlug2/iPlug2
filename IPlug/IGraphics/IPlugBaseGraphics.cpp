@@ -26,7 +26,6 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
   {
-    WDL_MutexLock lock(&mMutex);
     int i, n = mParams.GetSize();
     
     for (i = 0; i < n; ++i)

@@ -118,8 +118,6 @@ ComponentResult IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     return noErr;
   }
 
-  IPlugBase::IMutexLock lock(_this);
-
   switch (select)
   {
     case kComponentVersionSelect:
@@ -624,6 +622,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
                        kAudioUnitParameterFlag_HasCFNameString |
                        kAudioUnitParameterFlag_IsReadable;
         
+        WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(element);
         
         if (pParam->GetCanAutomate()) 
@@ -788,6 +787,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
+      WDL_MutexLock lock(&mParams_mutex);
       IParam* pParam = GetParam(element);
       int n = pParam->GetNDisplayTexts();
       if (!n)
@@ -994,6 +994,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       if (pData && scope == kAudioUnitScope_Global)
       {
         AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
+        WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(pIDName->inID);
         char cStr[MAX_PARAM_NAME_LEN];
         strcpy(cStr, pParam->GetNameForHost());
@@ -1042,6 +1043,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
       if (pData && scope == kAudioUnitScope_Global)
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
+        WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(pSFV->inParamID);
         
         pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamValueString);
@@ -1058,6 +1060,7 @@ ComponentResult IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope 
         if (scope == kAudioUnitScope_Global)
         {
           CStrLocal cStr(pVFS->inString);
+          WDL_MutexLock lock(&mParams_mutex);
           IParam* pParam = GetParam(pVFS->inParamID);
           if (pParam->GetNDisplayTexts())
           {
@@ -1375,7 +1378,6 @@ bool IPlugAU::CheckLegalIO()
 void IPlugAU::AssessInputConnections()
 {
   TRACE;
-  IMutexLock lock(this);
 
   SetInputChannelConnections(0, NInChannels(), false);
 
@@ -1609,7 +1611,7 @@ ComponentResult IPlugAU::GetParamProc(void* pPlug, AudioUnitParameterID paramID,
 
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
-  IMutexLock lock(_this);
+  WDL_MutexLock lock(&_this->mParams_mutex);
   *pValue = _this->GetParam(paramID)->Value();
   return noErr;
 }
@@ -1623,7 +1625,7 @@ ComponentResult IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID,
   // In the SDK, offset frames is only looked at in group scope.
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
-  IMutexLock lock(_this);
+  WDL_MutexLock lock(&_this->mParams_mutex);
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
   _this->SetParameterInUIFromAPI(paramID, value, false);

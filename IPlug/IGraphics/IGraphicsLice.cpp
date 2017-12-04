@@ -21,11 +21,9 @@ public:
   };
   
   WDL_PtrList<FontKey> m_fonts;
-  WDL_Mutex m_mutex;
   
   LICE_IFont* Find(const IText& text)
   {
-    WDL_MutexLock lock(&m_mutex);
     int i = 0, n = m_fonts.GetSize();
     for (i = 0; i < n; ++i)
     {
@@ -37,7 +35,6 @@ public:
   
   void Add(LICE_IFont* font, const IText& text)
   {
-    WDL_MutexLock lock(&m_mutex);
     FontKey* key = m_fonts.Add(new FontKey);
     key->size = text.mSize;
     key->orientation = text.mOrientation;

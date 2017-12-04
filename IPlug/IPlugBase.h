@@ -37,12 +37,10 @@ public:
 
   virtual ~IPlugBase();
 
-  // Implementations should set a mutex lock like in the no-op!
-  virtual void Reset() { TRACE; IMutexLock lock(this); }
-  virtual void OnParamChange(int paramIdx) { IMutexLock lock(this); }
+  virtual void Reset() { TRACE; }
+  virtual void OnParamChange(int paramIdx) {}
 
   // Default passthrough.  Inputs and outputs are [nChannel][nSample].
-  // Mutex is already locked.
   virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
   
   // In case the audio processing thread needs to do anything when the GUI opens
@@ -60,17 +58,15 @@ public:
 
   // Not usually needed ... Reset is called on activate regardless of whether this is implemented.
   // Also different hosts have different interpretations of "activate".
-  // Implementations should set a mutex lock like in the no-op!
-  virtual void OnActivate(bool active) { TRACE;  IMutexLock lock(this); }
+  virtual void OnActivate(bool active) { TRACE; }
 
   virtual void ProcessMidiMsg(IMidiMsg& msg);
   virtual void ProcessSysEx(ISysEx& msg) {}
 
   virtual bool MidiNoteName(int noteNumber, char* pNameStr) { *pNameStr = '\0'; return false; }
 
-  // Implementations should set a mutex lock and call SerializeParams() after custom data is serialized
   virtual bool SerializeState(ByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
-  // Return the new chunk position (endPos). Implementations should set a mutex lock and call UnserializeParams() after custom data is unserialized
+  // Return the new chunk position (endPos). Implementations should call UnserializeParams() after custom data is unserialized
   virtual int UnserializeState(ByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
   
   // Only used by AAX, override in plugins that do chunks
@@ -270,16 +266,6 @@ public:
   
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
-  
-  WDL_Mutex mMutex;
-
-  struct IMutexLock
-  {
-    WDL_Mutex* mpMutex;
-    IMutexLock(IPlugBase* pPlug) : mpMutex(&(pPlug->mMutex)) { mpMutex->Enter(); }
-    ~IMutexLock() { if (mpMutex) { mpMutex->Leave(); } }
-    void Destroy() { mpMutex->Leave(); mpMutex = 0; }
-  };
 
 private:
   char mEffectName[MAX_EFFECT_NAME_LEN], mProductName[MAX_EFFECT_NAME_LEN], mMfrName[MAX_EFFECT_NAME_LEN];
@@ -322,4 +308,7 @@ protected:
   WDL_PtrList<WDL_String> mInputBusLabels;
   WDL_PtrList<WDL_String> mOutputBusLabels;
   WDL_PtrList<ChannelIO> mChannelIO;
+  
+public:
+  WDL_Mutex mParams_mutex; // lock when accessing mParams (including via GetParam) from the audio thread
 };

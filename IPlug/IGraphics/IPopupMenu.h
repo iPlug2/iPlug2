@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <cassert>
 
-#include "mutex.h"
 #include "wdlstring.h"
 #include "ptrlist.h"
 

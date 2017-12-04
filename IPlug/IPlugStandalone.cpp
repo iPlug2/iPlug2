@@ -97,9 +97,3 @@ bool IPlugStandalone::SendSysEx(ISysEx& msg)
   
   return false;
 }
-
-void IPlugStandalone::LockMutexAndProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
-{
-  IMutexLock lock(this);
-  ProcessDoubleReplacing(inputs, outputs, nFrames);
-}

@@ -486,7 +486,6 @@ void IPlugBase::SetLatency(int samples)
 void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
-  WDL_MutexLock lock(&mMutex);
   GetParam(idx)->SetNormalized(normalizedValue);
   InformHostOfParamChange(idx, normalizedValue);
   OnParamChange(idx);
@@ -504,7 +503,6 @@ void IPlugBase::OnParamReset()
 // Default passthrough.
 void IPlugBase::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-  // Mutex is already locked.
   int i, nIn = mInChannels.GetSize(), nOut = mOutChannels.GetSize();
   int j = 0;
   for (i = 0; i < nOut; ++i)
@@ -805,8 +803,6 @@ int IPlugBase::UnserializePresets(ByteChunk& chunk, int startPos)
 bool IPlugBase::SerializeParams(ByteChunk& chunk)
 {
   TRACE;
-
-  WDL_MutexLock lock(&mMutex);
   bool savedOK = true;
   int i, n = mParams.GetSize();
   for (i = 0; i < n && savedOK; ++i)
@@ -822,8 +818,7 @@ bool IPlugBase::SerializeParams(ByteChunk& chunk)
 int IPlugBase::UnserializeParams(ByteChunk& chunk, int startPos)
 {
   TRACE;
-
-  WDL_MutexLock lock(&mMutex);
+  WDL_MutexLock lock(&mParams_mutex); 
   int i, n = mParams.GetSize(), pos = startPos;
   for (i = 0; i < n && pos >= 0; ++i)
   {
@@ -858,8 +853,6 @@ bool IPlugBase::CompareState(const u_int8_t* incomingState, int startPos)
 
 void IPlugBase::DirtyParameters()
 {
-  WDL_MutexLock lock(&mMutex);
-
   for (int p = 0; p < NParams(); p++)
   {
     double normalizedValue = GetParam(p)->GetNormalized();
@@ -1240,6 +1233,7 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String& fileName)
       }
       else if (fxpMagic == 'FxCk')
       {
+        mParams_mutex.Enter();
         for (int i = 0; i< NParams(); i++)
         {
           WDL_EndianFloat v32;
@@ -1247,6 +1241,7 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String& fileName)
           v32.int32 = WDL_bswap_if_le(v32.int32);
           mParams.Get(i)->SetNormalized((double) v32.f);
         }
+        mParams_mutex.Leave();
 
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
@@ -1372,6 +1367,7 @@ bool IPlugBase::LoadBankFromFXB(WDL_String& fileName)
 
           RestorePreset(i);
 
+          mParams_mutex.Enter();
           for (int j = 0; j< NParams(); j++)
           {
             WDL_EndianFloat v32;
@@ -1379,6 +1375,7 @@ bool IPlugBase::LoadBankFromFXB(WDL_String& fileName)
             v32.int32 = WDL_bswap_if_le(v32.int32);
             mParams.Get(j)->SetNormalized((double) v32.f);
           }
+          mParams_mutex.Leave();
 
           ModifyCurrentPreset(prgName);
         }

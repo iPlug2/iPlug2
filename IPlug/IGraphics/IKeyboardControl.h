@@ -59,14 +59,12 @@ message to the plug-in:
 // Should return non-zero if one or more keys are playing.
 int MyPlug::GetNumKeys()
 {
-  IMutexLock lock(this);
   return mNumKeys;
 }
 
 // Should return true if the specified key is playing.
 bool MyPlug::GetKeyStatus(int key)
 {
-  IMutexLock lock(this);
   return mKeyStatus[key];
 }
 

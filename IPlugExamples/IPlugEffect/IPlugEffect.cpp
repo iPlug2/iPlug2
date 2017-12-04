@@ -56,8 +56,10 @@ IPlugEffect::~IPlugEffect() {}
 
 void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-  // Mutex is already locked for us.
-
+  mMutex.Enter();
+  const double gain = mGain;
+  mMutex.Leave();
+  
   double* in1 = inputs[0];
   double* in2 = inputs[1];
   double* out1 = outputs[0];
@@ -65,27 +67,26 @@ void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int 
 
   for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
   {
-    *out1 = *in1 * mGain;
-    *out2 = *in2 * mGain;
+    *out1 = *in1 * gain;
+    *out2 = *in2 * gain;
   }
 }
 
 void IPlugEffect::Reset()
 {
   TRACE;
-  IMutexLock lock(this);
 }
 
 void IPlugEffect::OnParamChange(int paramIdx)
 {
-  IMutexLock lock(this);
-
   switch (paramIdx)
   {
     case kGain:
+    {
+      WDL_MutexLock lock(&mMutex);
       mGain = GetParam(kGain)->Value() / 100.;
       break;
-
+    }
     default:
       break;
   }

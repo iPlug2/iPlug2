@@ -65,8 +65,6 @@ public:
 
   void ResizeGraphics(int w, int h);
 
-  void LockMutexAndProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-
 protected:
   bool SendMidiMsg(IMidiMsg& msg);
   bool SendSysEx(ISysEx& msg);

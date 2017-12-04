@@ -297,7 +297,7 @@ int AudioCallback(void *outputBuffer,
         double* inputs[2] = {inputBufferD + i, inputBufferD + inRightOffset + i};
         double* outputs[2] = {outputBufferD + i, outputBufferD + nFrames + i};
 
-        gPluginInstance->LockMutexAndProcessDoubleReplacing(inputs, outputs, gSigVS);
+        gPluginInstance->ProcessDoubleReplacing(inputs, outputs, gSigVS);
       }
 
       // fade in
