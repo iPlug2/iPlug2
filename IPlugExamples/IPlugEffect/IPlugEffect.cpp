@@ -26,7 +26,7 @@ enum ELayout
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
 {
-  TRACE;
+  TRACE; 
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
@@ -57,7 +57,7 @@ IPlugEffect::~IPlugEffect() {}
 void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
   mMutex.Enter();
-  const double gain = mGain;
+  const double gain = GetParam(kGain)->Value() / 100.;
   mMutex.Leave();
   
   double* in1 = inputs[0];
@@ -83,8 +83,6 @@ void IPlugEffect::OnParamChange(int paramIdx)
   {
     case kGain:
     {
-      WDL_MutexLock lock(&mMutex);
-      mGain = GetParam(kGain)->Value() / 100.;
       break;
     }
     default:
