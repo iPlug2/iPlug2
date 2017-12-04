@@ -401,6 +401,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParameterProperties:
     {
+      // TODO: UI thread only I hope! at least REAPER is, otherwise WDL_MutexLock lock(&_this->mParams_mutex);
+
       if (idx >= 0 && idx < _this->NParams())
       {
         VstParameterProperties* props = (VstParameterProperties*) ptr;
