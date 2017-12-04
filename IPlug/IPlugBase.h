@@ -141,7 +141,7 @@ public:
   
   int GetTailSize() { return mTailSize; }
   
-  bool GetHasUI() { return mHasUI; }
+  virtual bool GetHasUI() { return mHasUI; }
   virtual int GetUIWidth() { return 0; }
   virtual int GetUIHeight() { return 0; }
   
