@@ -119,35 +119,35 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
 {
   const double targetScale = GetDisplayScale(); // targetScale = what this screen is
 
-  LICE_IBitmap* lb = s_bitmapCache.Find(name, targetScale);
+  LICE_IBitmap* pLB = s_bitmapCache.Find(name, targetScale);
 
-  if (!lb) // if bitmap not in cache allready at targetScale
+  if (!pLB) // if bitmap not in cache allready at targetScale
   {
     WDL_String fullPath;
     OSLoadBitmap(name, fullPath);
-    lb = LoadAPIBitmap(fullPath.Get());
+    pLB = LoadAPIBitmap(fullPath.Get());
 #ifndef NDEBUG
-    bool imgResourceFound = lb;
+    bool imgResourceFound = pLB;
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
 
-    const IBitmap bitmap(lb, lb->getWidth() / sourceScale, lb->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+    const IBitmap bitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
     if (sourceScale != targetScale) {
       return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
     }
     else {
-      s_bitmapCache.Add(lb, name, sourceScale);
-      return IBitmap(lb, lb->getWidth() / sourceScale, lb->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+      s_bitmapCache.Add(pLB, name, sourceScale);
+      return IBitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
     }
   }
 
   // if bitmap allready cached at scale
   // TODO: this is horribly hacky
   if(targetScale > 1.)
-    return IBitmap(lb, lb->getWidth() / sourceScale, lb->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+    return IBitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
   else
-    return IBitmap(lb, lb->getWidth(), lb->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
+    return IBitmap(pLB, pLB->getWidth(), pLB->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
 }
 
 void IGraphicsLice::ReleaseIBitmap(IBitmap& bitmap)
