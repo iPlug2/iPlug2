@@ -220,8 +220,8 @@ bool IParam::MapDisplayText(const char* pStr, int* pValue) const
   return false;
 }
 
-void IParam::GetBounds(double& pMin, double& pMax) const
+void IParam::GetBounds(double& lo, double& hi) const
 {
-  pMin = mMin;
-  pMax = mMax;
+  lo = mMin;
+  hi = mMax;
 }

@@ -118,7 +118,6 @@ public:
   double GetSampleRate() { return mSampleRate; }
   int GetBlockSize() const { return mBlockSize; }
   int GetLatency() const { return mLatency; }
-
   bool GetIsBypassed() const { return mIsBypassed; }
 
   // In ProcessDoubleReplacing you are always guaranteed to get valid pointers
@@ -145,6 +144,7 @@ public:
   const char* GetArchString();
   
   int GetTailSize() { return mTailSize; }
+  
   bool GetHasUI() { return mHasUI; }
   virtual int GetUIWidth() { return 0; }
   virtual int GetUIHeight() { return 0; }
@@ -256,17 +256,17 @@ public:
   virtual void DirtyPTCompareState() {}; // needed in chunks based plugins to tell PT a non-indexed param changed and to turn on the compare light
 
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
-  void DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]);
-  void DumpPresetBlob(const char* filename);
-  void DumpBankBlob(const char* filename);
+  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
+  void DumpPresetBlob(const char* file);
+  void DumpBankBlob(const char* file);
   
   virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
   
-  bool SaveProgramAsFXP(WDL_String& fileName);
-  bool SaveBankAsFXB(WDL_String& fileName);
-  bool LoadProgramFromFXP(WDL_String& fileName);
-  bool LoadBankFromFXB(WDL_String& fileName);
+  bool SaveProgramAsFXP(WDL_String& file);
+  bool SaveBankAsFXB(WDL_String& file);
+  bool LoadProgramFromFXP(WDL_String& file);
+  bool LoadBankFromFXB(WDL_String& file);
   
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU

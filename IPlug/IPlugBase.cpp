@@ -6,15 +6,6 @@
 #include "wdlendian.h"
 #include "base64encdec.h"
 
-template <class SRC, class DEST>
-void CastCopy(DEST* pDest, SRC* pSrc, int n)
-{
-  for (int i = 0; i < n; ++i, ++pDest, ++pSrc)
-  {
-    *pDest = (DEST) *pSrc;
-  }
-}
-
 IPlugBase::IPlugBase(int nParams,
                      const char* channelIOStr,
                      int nPresets,

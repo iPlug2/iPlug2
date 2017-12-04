@@ -86,6 +86,15 @@ inline double FromNormalizedParam(double normalizedValue, double min, double max
   return min + std::pow((double) normalizedValue, shape) * (max - min);
 }
 
+template <class SRC, class DEST>
+void CastCopy(DEST* pDest, SRC* pSrc, int n)
+{
+  for (int i = 0; i < n; ++i, ++pDest, ++pSrc)
+  {
+    *pDest = (DEST) *pSrc;
+  }
+}
+
 #ifndef REMINDER
   #ifdef OS_WIN
     // This enables: #pragma REMINDER("change this line!") with click-through from VC++.

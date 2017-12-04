@@ -64,7 +64,7 @@ public:
   double GetDefaultNormalized() const { return ToNormalizedParam(mDefault, mMin, mMax, mShape); }
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
-  void GetBounds(double& min, double& max) const;
+  void GetBounds(double& lo, double& hi) const;
   double GetRange() const { return mMax - mMin; }
   int GetPrecision() const {return mDisplayPrecision;}
   bool GetCanAutomate() const { return mCanAutomate; }
