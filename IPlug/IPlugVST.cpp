@@ -205,7 +205,7 @@ void IPlugVST::GetTime(ITimeInfo* pTimeInfo)
 
 EHost IPlugVST::GetHost()
 {
-  EHost host = IPlugBase::GetHost();
+  EHost host = IPLUG_BASE_CLASS::GetHost();
 
   if (host == kHostUninit)
   {
@@ -224,7 +224,7 @@ EHost IPlugVST::GetHost()
     }
 
     SetHost(productStr, version);
-    host = IPlugBase::GetHost();
+    host = IPLUG_BASE_CLASS::GetHost();
   }
 
   return host;
@@ -261,7 +261,7 @@ bool IPlugVST::IsRenderingOffline()
 void IPlugVST::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
-  IPlugBase::SetLatency(samples);
+  IPLUG_BASE_CLASS::SetLatency(samples);
 }
 
 bool IPlugVST::SendVSTEvent(VstEvent& event)
