@@ -4,6 +4,8 @@
 #include <ctime>
 #include <ctype.h>
 #include <assert.h>
+
+#include "mutex.h"
 #include "Log.h"
 
 #define TRACETOSTDOUT
