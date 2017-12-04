@@ -185,7 +185,7 @@ def main():
   vst2 = plistlib.readPlist(plistpath)
   vst2['CFBundleExecutable'] = BUNDLE_NAME
   vst2['CFBundleGetInfoString'] = CFBundleGetInfoString
-  vst2['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".vst2." + BUNDLE_NAME + ""
+  vst2['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".vst." + BUNDLE_NAME + ""
   vst2['CFBundleName'] = BUNDLE_NAME
   vst2['CFBundleVersion'] = CFBundleVersion
   vst2['CFBundleShortVersionString'] = CFBundleVersion
