@@ -88,8 +88,8 @@ public:
       
   int GetSamplePos();
   double GetTempo();
-  void GetTimeSig(int* pNum, int* pDenom);
-  void GetTime(ITimeInfo* pTimeInfo);
+  void GetTimeSig(int& numerator, int& nominator);
+  void GetTime(ITimeInfo& timeInfo);
 
   void ResizeGraphics(int w, int h);
 

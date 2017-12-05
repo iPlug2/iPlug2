@@ -443,37 +443,37 @@ double IPlugAAX::GetTempo()
   return tempo;
 }
 
-void IPlugAAX::GetTime(ITimeInfo* pTimeInfo)
+void IPlugAAX::GetTime(ITimeInfo& timeInfo)
 {
   int32_t num, denom;
   int64_t ppqPos, samplePos, cStart, cEnd;
 
-  mTransport->GetCurrentTempo(&pTimeInfo->mTempo);
-  mTransport->IsTransportPlaying(&pTimeInfo->mTransportIsRunning);
+  mTransport->GetCurrentTempo(&timeInfo.mTempo);
+  mTransport->IsTransportPlaying(&timeInfo.mTransportIsRunning);
   
   mTransport->GetCurrentMeter(&num, &denom);
-  pTimeInfo->mNumerator = (int) num;
-  pTimeInfo->mDenominator = (int) denom;
+  timeInfo.mNumerator = (int) num;
+  timeInfo.mDenominator = (int) denom;
   
   mTransport->GetCurrentTickPosition(&ppqPos);
-  pTimeInfo->mPPQPos = (double) ppqPos / 960000.0;
+  timeInfo.mPPQPos = (double) ppqPos / 960000.0;
   
   mTransport->GetCurrentNativeSampleLocation(&samplePos);
-  pTimeInfo->mSamplePos = (double) samplePos;
+  timeInfo.mSamplePos = (double) samplePos;
   
-  mTransport->GetCurrentLoopPosition(&pTimeInfo->mTransportLoopEnabled, &cStart, &cEnd);
-  pTimeInfo->mCycleStart = (double) cStart / 960000.0;
-  pTimeInfo->mCycleEnd = (double) cEnd / 960000.0;
+  mTransport->GetCurrentLoopPosition(&timeInfo.mTransportLoopEnabled, &cStart, &cEnd);
+  timeInfo.mCycleStart = (double) cStart / 960000.0;
+  timeInfo.mCycleEnd = (double) cEnd / 960000.0;
   
-  //pTimeInfo->mLastBar ??
+  //timeInfo.mLastBar ??
 }
 
-void IPlugAAX::GetTimeSig(int* pNum, int* pDenom)
+void IPlugAAX::GetTimeSig(int& numerator, int& denominator)
 {
   int32_t num, denom;
   mTransport->GetCurrentMeter(&num, &denom);
-  *pNum = (int) num;
-  *pDenom = (int) denom;
+  numerator = (int) num;
+  denominator = (int) denom;
 }
 
 void IPlugAAX::ResizeGraphics(int w, int h)
