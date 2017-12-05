@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
+#include "swell.h"
 
 class ReaperPlugin : public IPlug
 {
@@ -15,6 +16,8 @@ public:
   void* OpenWindow(void* handle) override;
   void Reset() override;
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames) override;
+
+  HWND mHWND;
 
 private:
   double mGain;

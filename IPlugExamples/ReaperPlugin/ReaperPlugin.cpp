@@ -1,6 +1,5 @@
 #include "ReaperPlugin.h"
 #include "IPlug_include_in_plug_src.h"
-#include "swell.h"
 
 #include "resource.h"
 
@@ -38,11 +37,15 @@ void ReaperPlugin::Reset()
 {
 }
 
-WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+  ReaperPlugin* _this = (ReaperPlugin*) lParam;
+//  SetWindowLongPtr(hwndDlg, GWLP_USERDATA, lParam);
+  
   switch (uMsg) {
     case WM_INITDIALOG:
-      ShowWindow(hwndDlg, SW_SHOW);
+//      hwndDlg = _this->mHWND;
+      ShowWindow(hwndDlg, SW_SHOW); // TODO: how to embed window?
       return 1;
     default:
       break;
@@ -53,7 +56,9 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void* ReaperPlugin::OpenWindow(void* handle)
 {
-  return CreateDialogParam(handle,MAKEINTRESOURCE(MAPPING_DIALOG),(HWND)handle,MainDlgProc,(LPARAM) this);
+  mHWND = CreateDialogParam(0, MAKEINTRESOURCE(MAPPING_DIALOG),(HWND)handle, MainDlgProc,(LPARAM) this);
+  
+  return mHWND;
 }
 
 #ifndef OS_WIN
