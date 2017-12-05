@@ -374,7 +374,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamLabel:
     {
-      // TODO: UI thread only I hope! at least REAPER is, otherwise WDL_MutexLock lock(&_this->mParams_mutex);
+      WDL_MutexLock lock(&_this->mParams_mutex);
       if (idx >= 0 && idx < _this->NParams())
       {
         strcpy((char*) ptr, _this->GetParam(idx)->GetLabelForHost());
@@ -383,7 +383,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamDisplay:
     {
-     // TODO: UI thread only I hope! at least REAPER is, otherwise WDL_MutexLock lock(&_this->mParams_mutex);
+      WDL_MutexLock lock(&_this->mParams_mutex);
       if (idx >= 0 && idx < _this->NParams())
       {
         _this->GetParam(idx)->GetDisplayForHost((char*) ptr);
@@ -392,7 +392,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamName:
     {
-     // TODO: UI thread only I hope! at least REAPER is, otherwise WDL_MutexLock lock(&_this->mParams_mutex);
+      WDL_MutexLock lock(&_this->mParams_mutex);
       if (idx >= 0 && idx < _this->NParams())
       {
         strcpy((char*) ptr, _this->GetParam(idx)->GetNameForHost());
@@ -401,8 +401,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParameterProperties:
     {
-      // TODO: UI thread only I hope! at least REAPER is, otherwise WDL_MutexLock lock(&_this->mParams_mutex);
-
+      WDL_MutexLock lock(&_this->mParams_mutex);
       if (idx >= 0 && idx < _this->NParams())
       {
         VstParameterProperties* props = (VstParameterProperties*) ptr;
@@ -435,7 +434,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effString2Parameter:
     {
-      // TODO: UI thread only I hope! at least REAPER is, otherwise WDL_MutexLock lock(&_this->mParams_mutex);
+      WDL_MutexLock lock(&_this->mParams_mutex);
       if (idx >= 0 && idx < _this->NParams())
       {
         if (ptr)
