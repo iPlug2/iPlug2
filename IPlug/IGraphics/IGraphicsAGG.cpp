@@ -122,7 +122,7 @@ void IGraphicsAGG::PrepDraw()
   mRenBase.clear(agg::rgba(0, 0, 0, 0));
 }
 
-bool IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
+void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
   IRECT rect = dest;
   rect.Scale(mDisplayScale);
@@ -137,11 +137,9 @@ bool IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   
   agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
   mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T);
-  
-  return true;
 }
 
-bool IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend)
+void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend)
 {
   destCtrX *= mScale;
   destCtrY *= mScale;
@@ -183,11 +181,9 @@ bool IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   
   ras.add_path(tr);
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
-  
-  return true;
 }
 
-bool IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend)
+void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend)
 {
   x *= mScale;
   y *= mScale;
@@ -243,25 +239,19 @@ bool IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   
   ras.add_path(tr);
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
-  
-  return true;
 }
 
-bool IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa)
 {
   mRenBase.blend_pixel(x * mScale, y * mScale, IColorToAggColor(color), 255);
-  
-  return true;
 }
 
-bool IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
+void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
 {
   mRenBase.copy_pixel(x * mScale, y * mScale, IColorToAggColor(color));
-  
-  return true;
 }
 
-bool IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa)
 {
   ToPixel(x1);
   ToPixel(y1);
@@ -292,11 +282,9 @@ bool IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, f
   rasterizer.add_path(strokes);
   
   agg::render_scanlines(rasterizer, scanline, renderer);
-  
-  return true;
 }
 
-bool IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend, bool aa)
 {
   cx *= mScale;
   cy *= mScale;
@@ -323,11 +311,9 @@ bool IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, flo
   rasterizer.reset();
   rasterizer.add_path(strokes);
   agg::render_scanlines(rasterizer, scanline, renderer);
-  
-  return true;
 }
 
-bool IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend, bool aa)
 {
   cx *= mScale;
   cy *= mScale;
@@ -354,8 +340,6 @@ bool IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, 
   rasterizer.reset();
   rasterizer.add_path(strokes);
   agg::render_scanlines(rasterizer, scanline, renderer);
-    
-  return true;
 }
 
 bool IGraphicsAGG::RoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
@@ -384,11 +368,9 @@ bool IGraphicsAGG::RoundRect(const IColor& color, const IRECT& destRect, const I
   rasterizer.reset();
   rasterizer.add_path(strokes);
   agg::render_scanlines(rasterizer, scanline, renderer);
-  
-  return true;
 }
 
-bool IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -408,11 +390,9 @@ bool IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, con
   
   rasterizer.add_path(agg_rect);
   agg::render_scanlines(rasterizer, scanline, renderer);
-  
-  return true;
 }
 
-bool IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend)
+void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend)
 {
   IRECT rect = destRect;
   rect.Scale(mDisplayScale);
@@ -439,11 +419,9 @@ bool IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const I
   
   rasterizer.add_path(path);
   agg::render_scanlines(rasterizer, scanline, renderer);
-
-  return true;
 }
 
-bool IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa)
 {
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
   
@@ -461,19 +439,16 @@ bool IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, cons
   
   rasterizer.add_path(ellipse);
   agg::render_scanlines(rasterizer, scanline, renderer);
-
-  return true;
 }
 
-bool IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
+void IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
 {
   int x[3] = { x1, x2, x3 };
   int y[3] = { y1, y2, y3 };
-  
-  return FillIConvexPolygon(color, x, y, 3, pBlend);
+  FillIConvexPolygon(color, x, y, 3, pBlend);
 }
 
-bool IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend)
+void IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend)
 {
   typedef agg::conv_stroke<agg::path_storage> agg_strokes;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
@@ -501,8 +476,6 @@ bool IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int n
   
   rasterizer.add_path(path);
   agg::render_scanlines(rasterizer, scanline, renderer);
-
-  return true;
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)
@@ -865,9 +838,7 @@ bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect
       y += text.mSize * mScale;
     }
   }
-  
-  return true;
-}
+  }
 
 bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destRect)
 {
@@ -949,7 +920,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
   return false;
 }
 
-/*bool IGraphicsAGG::DrawSVG(agg::svg::path_renderer& pathRenderer, const IRECT& rect)
+/*void IGraphicsAGG::DrawSVG(agg::svg::path_renderer& pathRenderer, const IRECT& rect)
 {
   agg::trans_affine mtx;
   mtx.scale(mScale);
@@ -975,9 +946,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
 #endif
   
   pathRenderer.render(pf, sl, msl, mRenBase, maskRenBase, mPixf, img_mask_pixf, mtx, cb, *this);
-  
-  return true;
-}
+  }
 
 
 agg::pixel_map * IGraphicsAGG::load_image(const char* filename)
@@ -989,11 +958,10 @@ agg::pixel_map * IGraphicsAGG::load_image(const char* filename)
 */
 
 
-bool IGraphicsAGG::Draw(const IRECT& rect)
+void IGraphicsAGG::Draw(const IRECT& rect)
 {
   mRenBase.clear(agg::rgba(1, 1, 1));
-  
-  return IGraphics::Draw(rect);
+  IGraphics::Draw(rect);
 }
 
 void IGraphicsAGG::ToPixel(float & pixel)
