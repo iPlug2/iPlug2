@@ -39,7 +39,7 @@ public:
   // captured by the control on double click).
   bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
 
-  virtual bool Draw(IGraphics& graphics) = 0;
+  virtual void Draw(IGraphics& graphics) = 0;
 
   // Ask the IGraphics object to open an edit box so the user can enter a value for this control.
   void PromptUserInput();
@@ -144,7 +144,7 @@ public:
   IPanelControl(IPlugBaseGraphics& plug, IRECT rect, const IColor& color)
     : IControl(plug, rect), mColor(color) {}
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   IColor mColor;
@@ -162,7 +162,7 @@ public:
 
   virtual ~IBitmapControl() {}
 
-  virtual bool Draw(IGraphics& graphics) override;
+  virtual void Draw(IGraphics& graphics) override;
   virtual void OnRescale() override;
   
 protected:
@@ -217,8 +217,6 @@ public:
   ~IInvisibleSwitchControl() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
-
-  virtual bool Draw(IGraphics& graphics) { return true; }
 };
 
 // A set of buttons that maps to a single selection.  Bitmap has 2 states, off and on.
@@ -229,7 +227,7 @@ public:
   ~IRadioButtonsControl() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
-  bool Draw(IGraphics& graphics);
+  void Draw(IGraphics& graphics);
 
 protected:
   WDL_TypedBuf<IRECT> mRECTs;
@@ -245,6 +243,7 @@ public:
   ~IContactControl() {}
 
   void OnMouseUp(int x, int y, const IMouseMod& mod);
+  virtual void Draw(IGraphics& graphics) {}
 };
 
 // A fader. The bitmap snaps to a mouse click or drag.
@@ -267,7 +266,7 @@ public:
   virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod);
   virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d);
 
-  virtual bool Draw(IGraphics& graphics);
+  virtual void Draw(IGraphics& graphics);
   
   virtual bool IsHit(int x, int y);
 
@@ -305,7 +304,7 @@ public:
                    EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IKnobLineControl() {}
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   IColor mColor;
@@ -321,7 +320,7 @@ public:
   , mBitmap(bitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
   ~IKnobRotaterControl() {}
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   IBitmap mBitmap;
@@ -337,7 +336,7 @@ public:
   : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing), mBitmap(bitmap) {}
   ~IKnobMultiControl() {}
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
   virtual void OnRescale() override;
 
 protected:
@@ -354,7 +353,7 @@ public:
       mBase(base), mMask(mask), mTop(top), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
   ~IKnobRotatingMaskControl() {}
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   IBitmap mBase, mMask, mTop;
@@ -376,7 +375,7 @@ public:
 
   ~IBitmapOverlayControl() {}
 
-  bool Draw(IGraphics& graphics);
+  void Draw(IGraphics& graphics);
 
 protected:
   IRECT mTargetArea;  // Keep this around to swap in & out.
@@ -397,7 +396,7 @@ public:
   virtual void SetTextFromPlug(const char* pStr);
   virtual void ClearTextFromPlug() { SetTextFromPlug(""); }
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   WDL_String mStr;
@@ -414,7 +413,7 @@ public:
   virtual void OnMouseDown(int x, int y, const IMouseMod& mod) override;
   virtual void OnMouseDblClick(int x, int y, const IMouseMod& mod) override;
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   bool mShowParamLabel;
@@ -427,7 +426,7 @@ public:
   ~IURLControl() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod);
-  bool Draw(IGraphics& graphics) { return true; }
+  virtual void Draw(IGraphics& graphics) {}
 
 protected:
   char mURL[MAX_URL_LEN], mBackupURL[MAX_URL_LEN], mErrMsg[MAX_NET_ERR_MSG_LEN];
@@ -448,7 +447,7 @@ public:
   void GetLastSelectedFileForPlug(WDL_String& pStr);
   void SetLastSelectedFileFromPlug(const char* file);
 
-  bool Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& graphics) override;
   bool IsDirty() override;
 
 protected:

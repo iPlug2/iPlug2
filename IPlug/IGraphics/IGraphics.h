@@ -23,27 +23,27 @@ public:
   virtual void PrepDraw() = 0;
 
   bool IsDirty(IRECT& rect);
-  virtual bool Draw(const IRECT& rect);
-  virtual bool DrawScreen(const IRECT& rect) = 0;
+  virtual void Draw(const IRECT& rect);
+  virtual void DrawScreen(const IRECT& rect) = 0;
 
-  bool DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
+  void DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
   
 #pragma mark - IGraphics API  impl drawing (pure virtual)
-  virtual bool DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
+  virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual void DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
 
-  virtual bool ForcePixel(const IColor& color, int x, int y) = 0;
-  virtual bool DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
-  virtual bool DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
-  virtual bool DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
-  virtual bool RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
-  virtual bool FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
-  virtual bool FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
-  virtual bool FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend = nullptr) = 0;
-  virtual bool FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual void ForcePixel(const IColor& color, int x, int y) = 0;
+  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
+  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
+  virtual void RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
+  virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
+  virtual void FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
+  virtual void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend = nullptr) = 0;
+  virtual void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
   virtual bool DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
   virtual bool MeasureIText(const IText& text, const char* str, IRECT& destRect) = 0;
 
@@ -51,12 +51,12 @@ public:
   virtual void* GetData() = 0;
   
 #pragma mark - IGraphics impl drawing helpers
-  bool DrawRect(const IColor& color, const IRECT& rect);
-  bool DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
-  bool DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
-  bool DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
-  bool DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
-  bool DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
+  void DrawRect(const IColor& color, const IRECT& rect);
+  void DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
+  void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
+  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
+  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
+  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
 
 #pragma mark - IGraphics impl
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);

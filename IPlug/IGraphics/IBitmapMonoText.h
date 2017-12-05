@@ -119,14 +119,12 @@ public:
     SetTextFromPlug("");
   }
 
-  bool Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics)
   {
-    char* cStr = mStr.Get();
-    if (CSTR_NOT_EMPTY(cStr))
+    if (CSTR_NOT_EMPTY(mStr.Get()))
     {
-      DrawBitmapedText(graphics, mTextBitmap, mRECT, mText, &mBlend, cStr, mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
+      DrawBitmapedText(graphics, mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
     }
-    return true;
   }
 
 protected:

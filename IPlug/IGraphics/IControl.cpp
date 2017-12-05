@@ -180,13 +180,12 @@ void IControl::SetAllAuxParamsFromGUI()
   }
 }
 
-bool IPanelControl::Draw(IGraphics& graphics)
+void IPanelControl::Draw(IGraphics& graphics)
 {
   graphics.FillIRect(mColor, mRECT, &mBlend);
-  return true;
 }
 
-bool IBitmapControl::Draw(IGraphics& graphics)
+void IBitmapControl::Draw(IGraphics& graphics)
 {
   int i = 1;
   if (mBitmap.N > 1)
@@ -194,7 +193,8 @@ bool IBitmapControl::Draw(IGraphics& graphics)
     i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
     i = BOUNDED(i, 1, mBitmap.N);
   }
-  return graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+  
+  graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
 void IBitmapControl::OnRescale()
@@ -375,7 +375,7 @@ void IRadioButtonsControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-bool IRadioButtonsControl::Draw(IGraphics& graphics)
+void IRadioButtonsControl::Draw(IGraphics& graphics)
 {
   int i, n = mRECTs.GetSize();
   int active = int(0.5 + mValue * (double) (n - 1));
@@ -391,7 +391,6 @@ bool IRadioButtonsControl::Draw(IGraphics& graphics)
       graphics.DrawBitmap(mBitmap, mRECTs.Get()[i], 1, &mBlend);
     }
   }
-  return true;
 }
 
 void IContactControl::OnMouseUp(int x, int y, const IMouseMod& mod)
@@ -500,10 +499,10 @@ void IFaderControl::SnapToMouse(int x, int y)
   SetDirty();
 }
 
-bool IFaderControl::Draw(IGraphics& graphics)
+void IFaderControl::Draw(IGraphics& graphics)
 {
   IRECT r = GetHandleRECT();
-  return graphics.DrawBitmap(mBitmap, r, 1, &mBlend);
+  graphics.DrawBitmap(mBitmap, r, 1, &mBlend);
 }
 
 bool IFaderControl::IsHit(int x, int y) 
@@ -581,7 +580,7 @@ IKnobLineControl::IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int para
   mBlend = IChannelBlend(IChannelBlend::kBlendClobber);
 }
 
-bool IKnobLineControl::Draw(IGraphics& graphics)
+void IKnobLineControl::Draw(IGraphics& graphics)
 {
   double v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
   float sinV = (float) sin(v);
@@ -589,23 +588,24 @@ bool IKnobLineControl::Draw(IGraphics& graphics)
   float cx = mRECT.MW(), cy = mRECT.MH();
   float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
   float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
-  return graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend, true);
+  
+  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend, true);
 }
 
-bool IKnobRotaterControl::Draw(IGraphics& graphics)
+void IKnobRotaterControl::Draw(IGraphics& graphics)
 {
   int cX = (mRECT.L + mRECT.R) / 2;
   int cY = (mRECT.T + mRECT.B) / 2;
   double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  return graphics.DrawRotatedBitmap(mBitmap, cX, cY, angle, mYOffset, &mBlend);
+  graphics.DrawRotatedBitmap(mBitmap, cX, cY, angle, mYOffset, &mBlend);
 }
 
 // Same as IBitmapControl::Draw.
-bool IKnobMultiControl::Draw(IGraphics& graphics)
+void IKnobMultiControl::Draw(IGraphics& graphics)
 {
   int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
   i = BOUNDED(i, 1, mBitmap.N);
-  return graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+  graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
 void IKnobMultiControl::OnRescale()
@@ -613,23 +613,23 @@ void IKnobMultiControl::OnRescale()
   mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
 }
 
-bool IKnobRotatingMaskControl::Draw(IGraphics& graphics)
+void IKnobRotatingMaskControl::Draw(IGraphics& graphics)
 {
   double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  return graphics.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle, &mBlend);
+  graphics.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle, &mBlend);
 }
 
-bool IBitmapOverlayControl::Draw(IGraphics& graphics)
+void IBitmapOverlayControl::Draw(IGraphics& graphics)
 {
   if (mValue < 0.5)
   {
     mTargetRECT = mTargetArea;
-    return true;  // Don't draw anything.
+    return;  // Don't draw anything.
   }
   else
   {
     mTargetRECT = mRECT;
-    return IBitmapControl::Draw(graphics);
+    IBitmapControl::Draw(graphics);
   }
 }
 
@@ -642,14 +642,13 @@ void ITextControl::SetTextFromPlug(const char* str)
   }
 }
 
-bool ITextControl::Draw(IGraphics& graphics)
+void ITextControl::Draw(IGraphics& graphics)
 {
   char* cStr = mStr.Get();
   if (CSTR_NOT_EMPTY(cStr))
   {
-    return graphics.DrawIText(mText, cStr, mRECT);
+    graphics.DrawIText(mText, cStr, mRECT);
   }
-  return true;
 }
 
 ICaptionControl::ICaptionControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IText& text, bool showParamLabel)
@@ -672,7 +671,7 @@ void ICaptionControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
   PromptUserInput();
 }
 
-bool ICaptionControl::Draw(IGraphics& graphics)
+void ICaptionControl::Draw(IGraphics& graphics)
 {
   IParam* pParam = mPlug.GetParam(mParamIdx);
   char cStr[32];
@@ -685,7 +684,7 @@ bool ICaptionControl::Draw(IGraphics& graphics)
     mStr.Append(pParam->GetLabelForHost());
   }
 
-  return ITextControl::Draw(graphics);
+  ITextControl::Draw(graphics);
 }
 
 IURLControl::IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, const char* backupURL, const char* errMsgOnFailure)
@@ -742,13 +741,12 @@ void IFileSelectorControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   }
 }
 
-bool IFileSelectorControl::Draw(IGraphics& graphics)
+void IFileSelectorControl::Draw(IGraphics& graphics)
 {
   if (mState == kFSSelecting)
   {
     graphics.DrawBitmap(mBitmap, mRECT, 0, 0);
   }
-  return true;
 }
 
 void IFileSelectorControl::GetLastSelectedFileForPlug(WDL_String& str)

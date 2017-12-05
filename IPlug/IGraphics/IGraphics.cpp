@@ -253,7 +253,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
 
 }
 
-bool IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IChannelBlend* pBlend)
+void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IChannelBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
@@ -272,19 +272,18 @@ bool IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
 }
 
-bool IGraphics::DrawRect(const IColor& color, const IRECT& rect)
+void IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
   
-  bool rc = DrawHorizontalLine(color, r.T, r.L, r.R);
-  rc &= DrawHorizontalLine(color, r.B, r.L, r.R);
-  rc &= DrawVerticalLine(color, r.L, r.T, r.B);
-  rc &= DrawVerticalLine(color, r.R, r.T, r.B);
-  return rc;
+  DrawHorizontalLine(color, r.T, r.L, r.R);
+  DrawHorizontalLine(color, r.B, r.L, r.R);
+  DrawVerticalLine(color, r.L, r.T, r.B);
+  DrawVerticalLine(color, r.R, r.T, r.B);
 }
 
-bool IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
+void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
@@ -294,7 +293,7 @@ bool IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x
   return DrawVerticalLine(color, xi, r.T, r.B);
 }
 
-bool IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
+void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
@@ -304,19 +303,17 @@ bool IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float
   return DrawHorizontalLine(color, yi, r.L, r.R);
 }
 
-bool IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
+void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
 {
   DrawLine(color, xi, yLo, xi, yHi);
-  return true;
 }
 
-bool IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
+void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
 {
   DrawLine(color, xLo, yi, xHi, yi);
-  return true;
 }
 
-bool IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa)
 {
   float sinV = sinf(angle);
   float cosV = cosf(angle);
@@ -367,13 +364,11 @@ bool IGraphics::IsDirty(IRECT& rect)
 
 // The OS is announcing what needs to be redrawn,
 // which may be a larger area than what is strictly dirty.
-bool IGraphics::Draw(const IRECT& rect)
+void IGraphics::Draw(const IRECT& rect)
 {
   int i, j, n = mControls.GetSize();
   if (!n)
-  {
-    return true;
-  }
+    return;
 
   if (mStrict)
   {
@@ -453,7 +448,7 @@ bool IGraphics::Draw(const IRECT& rect)
   }
 #endif
 
-  return DrawScreen(rect);
+  DrawScreen(rect);
 }
 
 void IGraphics::SetStrictDrawing(bool strict)

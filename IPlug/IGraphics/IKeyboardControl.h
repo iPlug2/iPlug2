@@ -41,8 +41,8 @@ are actually used, the coordinates for the "regular" keys are ignored.)
 Here is code snippet defining a 4-octave keyboard starting at MIDI note 48
 (C3):
 
-IBitmap regular = pGraphics->LoadIBitmap(REGULAR_KEYS_ID, REGULAR_KEYS_PNG, 6);
-IBitmap sharp   = pGraphics->LoadIBitmap(SHARP_KEY_ID,    SHARP_KEY_PNG);
+IBitmap regular = graphics.LoadIBitmap(REGULAR_KEYS_ID, REGULAR_KEYS_PNG, 6);
+IBitmap sharp   = graphics.LoadIBitmap(SHARP_KEY_ID,    SHARP_KEY_PNG);
 
 //                    C#      D#          F#      G#        A#
 int coords[12] = { 0, 13, 23, 39, 46, 69, 82, 92, 107, 115, 131, 138 };
@@ -50,7 +50,7 @@ int coords[12] = { 0, 13, 23, 39, 46, 69, 82, 92, 107, 115, 131, 138 };
 // Store a pointer to the keyboard in member variable IControl* mKeyboard
 mKeyboard = new IKeyboardControl(this, x, y, 48, 4, &regular, &sharp, coords);
 
-pGraphics->AttachControl(mKeyboard);
+graphics.AttachControl(mKeyboard);
 
 The plug-in should provide the following methods, so the keyboard control
 can pull status information from the plug-in, and send MIDI Note On/Off
@@ -87,9 +87,9 @@ been declared, so it is propbably best to include it in your plug-in's main
 class IKeyboardControl: public IControl
 {
 public:
-  IKeyboardControl(IPlugBase* pPlug, int x, int y, int minNote, int nOctaves, IBitmap* pRegularKeys, IBitmap* pSharpKey, const int *pKeyCoords = 0):
-    IControl(pPlug, IRECT(x, y, pRegularKeys), -1),
-    mMinNote(minNote), mNumOctaves(nOctaves), mRegularKeys(*pRegularKeys), mSharpKey(*pSharpKey),
+  IKeyboardControl(IPlugBase& plug, int x, int y, int minNote, int nOctaves, IBitmap& regularKeys, IBitmap& sharpKey, const int *pKeyCoords = 0):
+    IControl(plug, IRECT(x, y, regularKeys), -1),
+    mMinNote(minNote), mNumOctaves(nOctaves), mRegularKeys(regularKeys), mSharpKey(sharpKey),
     mOctaveWidth(pRegularKeys->W * 7), mMaxKey(nOctaves * 12), mKey(-1)
   {
     memcpy(mKeyCoords, pKeyCoords, 12 * sizeof(int));
@@ -108,9 +108,9 @@ public:
   // Returns the velocity as a floating point value.
   inline double GetReal() const { return mVelocity; }
 
-  virtual void OnMouseDown(int x, int y, IMouseMod* pMod)
+  virtual void OnMouseDown(int x, int y, IMouseMod& mod)
   {
-    if (pMod->R) return;
+    if (mod.R) return;
 
     // Skip if this key is already being played using the mouse.
     int key = GetMouseKey(x, y);
@@ -124,7 +124,7 @@ public:
     SetDirty();
   }
 
-  virtual void OnMouseUp(int x, int y, IMouseMod* pMod)
+  virtual void OnMouseUp(int x, int y, IMouseMod& mod)
   {
     // Skip if no key is playing.
     if (mKey < 0) return;
@@ -134,16 +134,16 @@ public:
     SetDirty();
   }
 
-  virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
+  virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod& mod)
   {
     //if(y < mTargetRECT.T || y >= mTargetRECT.B);
-    OnMouseDown(x, y, pMod);
+    OnMouseDown(x, y, mod);
   }
 
-  virtual void OnMouseWheel(int x, int y, IMouseMod* pMod, int d) {}
+  virtual void OnMouseWheel(int x, int y, IMouseMod& mod, int d) {}
 
   // Draws only the keys that are currently playing.
-  virtual bool Draw(IGraphics* pGraphics)
+  virtual bool Draw(IGraphics& graphics)
   {
     // Skip if no keys are playing.
     if (((PLUG_CLASS_NAME*)mPlug)->GetNumKeys() == 0 && mKey == -1) return true;
@@ -188,22 +188,22 @@ public:
   }
 
 protected:
-  virtual void DrawKey(IGraphics* pGraphics, IRECT* pR, int key, int note, bool sharp)
+  virtual void DrawKey(IGraphics& graphics, IRECT* pR, int key, int note, bool sharp)
   {
     if (sharp)
-      pGraphics->DrawBitmap(&mSharpKey, pR, 0, &mBlend);
+      graphics.DrawBitmap(&mSharpKey, pR, 0, &mBlend);
     else
-      pGraphics->DrawBitmap(&mRegularKeys, pR, key < mMaxKey ? mBitmapN[note] : 6, &mBlend);
+      graphics.DrawBitmap(&mRegularKeys, pR, key < mMaxKey ? mBitmapN[note] : 6, &mBlend);
   }
 
   /* Override the above method if e.g. you want to draw the 1st octave
   // using different bitmaps:
 
-  virtual void DrawKey(IGraphics* pGraphics, IRECT* pR, int key, int note, bool sharp)
+  virtual void DrawKey(IGraphics& graphics, IRECT* pR, int key, int note, bool sharp)
   {
     if (sharp)
     {
-      pGraphics->DrawBitmap(&mSharpKey, pR, key < 12 ? 1 : 2, &mBlend);
+      graphics.DrawBitmap(&mSharpKey, pR, key < 12 ? 1 : 2, &mBlend);
     }
     else
     {
@@ -217,7 +217,7 @@ protected:
       {
         n = 11;
       }
-      pGraphics->DrawBitmap(&mRegularKeys, pR, n, &mBlend);
+      graphics.DrawBitmap(&mRegularKeys, pR, n, &mBlend);
     }
   }
 

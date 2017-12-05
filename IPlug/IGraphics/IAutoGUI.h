@@ -28,11 +28,11 @@ private:
   
 public:
   
-  AGPanelTabs(IPlugBaseGraphics& plug, IRECT tabsRect, IText& text, const IColor *pBGColor, const IColor *pFGColor, const IColor *pOnColor)
+  AGPanelTabs(IPlugBaseGraphics& plug, IRECT tabsRect, IText& text, const IColor& BGColor, const IColor& FGColor, const IColor& onColor)
   : IControl(plug, tabsRect, -1)
-  , mBGColor(*pBGColor)
-  , mFGColor(*pFGColor)
-  , mOnColor(*pOnColor)
+  , mBGColor(BGColor)
+  , mFGColor(FGColor)
+  , mOnColor(onColor)
   , mActive(0)
   {
     mDblAsSingleClick = true;
@@ -50,9 +50,9 @@ public:
     mTabs.Add(tab);
   }
   
-  void OnMouseWheel(int x, int y, IMouseMod* pMod) {}
+  void OnMouseWheel(int x, int y, IMouseMod& mod) {}
   
-  void OnMouseDown(int x, int y, IMouseMod* pMod) 
+  void OnMouseDown(int x, int y, IMouseMod& mod)
   {
     int i, n = mTabs.GetSize();
     int hit = -1;
@@ -95,7 +95,7 @@ public:
     SetDirty();
   }
   
-  bool Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics)
   {
     for (int t = 0; t < mTabs.GetSize(); t++) 
     {
@@ -105,8 +105,6 @@ public:
       graphics.DrawRect(&mFGColor, &mTabs.Get(t)->mRECT);
       graphics.DrawIText(&mText, mTabs.Get(t)->mLabel.Get(), &mTabs.Get(t)->mRECT);
     }
-    
-    return true;
   }
 };
 
@@ -117,13 +115,13 @@ public:
                    IRECT rect,
                    int paramIdx,
                    IText& text,
-                   const IColor *pBGColor, 
-                   const IColor *pFGColor,
+                   const IColor &BGColor,
+                   const IColor &FGColor,
                    int paramNameWidth,
                    int paramValWidth)
   : IControl(plug, rect, paramIdx)
-  , mBGColor(*pBGColor)
-  , mFGColor(*pFGColor)
+  , mBGColor(BGColor)
+  , mFGColor(FGColor)
   {
     mText = *pText;
     mText.mAlign = IText::kAlignNear;
@@ -138,7 +136,7 @@ public:
     mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }
   
-  bool Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics)
   {
     //graphics.RoundRect(&mFGColor, &mRECT, &mBlend, 2, true);
 
@@ -159,11 +157,9 @@ public:
     mParamValueStr.Append(" ");
     mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
     graphics.DrawIText(&mText, mParamValueStr.Get(), &mParamValueRECT);
-
-    return true;
   }
   
-  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  void OnMouseDown(int x, int y, IMouseMod& mod)
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -172,7 +168,7 @@ public:
     else SnapToMouse(x, y);      
   }
   
-  void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
+  void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod& mod)
   {
     SnapToMouse(x, y);
   }
@@ -202,16 +198,16 @@ private:
 class AGKnobControl : public IKnobControl
 {
 public:
-  AGKnobControl(IPlugBaseGraphics* plug,
+  AGKnobControl(IPlugBaseGraphics& plug,
                 IRECT rect,
                 int paramIdx,
                 IText& text,
-                const IColor *pBGColor, 
-                const IColor *pFGColor,
+                const IColor& BGColor,
+                const IColor& FGColor,
                 int textHeight)
   :   IKnobControl(plug, rect, paramIdx, kVertical, DEFAULT_GEARING)
-  , mBGColor(*pBGColor)
-  , mFGColor(*pFGColor)
+  , mBGColor(BGColor)
+  , mFGColor(FGColor)
   {
     mText = *pText;
     mText.mAlign = IText::kAlignCenter;
@@ -238,7 +234,7 @@ public:
   
   ~AGKnobControl() {}
   
-  bool Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics)
   {
     graphics.RoundRect(&mFGColor, &mRECT, &mBlend, 2, true);
 
@@ -279,11 +275,9 @@ public:
     mParamValueStr.Append(" ");
     mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
     graphics.DrawIText(&mText, mParamValueStr.Get(), &mParamValueRECT);
-    
-    return true;
   }
   
-  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  void OnMouseDown(int x, int y, IMouseMod& mod)
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -310,15 +304,15 @@ private:
   const char** mParamNameStrings;
   
 public:
-  AGPresetSaveButtonControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char** pParamNameStrings)
+  AGPresetSaveButtonControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char** ppParamNameStrings)
   : IPanelControl(plug, rect, &COLOR_RED)
-  , mParamNameStrings(pParamNameStrings)
+  , mParamNameStrings(ppParamNameStrings)
   {
     mText = *pText;
     mText.mAlign = IText::kAlignCenter;
   }
   
-  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  void OnMouseDown(int x, int y, IMouseMod& mod)
   {
     WDL_String presetFilePath, desktopPath;
     
@@ -330,12 +324,10 @@ public:
     }
   }
   
-  bool Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics)
   {
     graphics.FillIRect(&mColor, &mRECT);
     graphics.DrawIText(&mText, "Dump preset", &mRECT);
-    
-    return true;
   }
 };
 

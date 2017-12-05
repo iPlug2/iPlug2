@@ -9,7 +9,7 @@
 
 #include "IGraphicsConstants.h"
 
-//TODO: would be nice not to repeat this here
+//TODO: would be nice not to put this here
 #ifndef NO_IGRAPHICS
   #ifdef IGRAPHICS_AGG
     #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
@@ -17,6 +17,9 @@
   #elif defined IGRAPHICS_CAIRO
     #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
     #include "IGraphicsCairo.h"
+  #elif defined IGRAPHICS_NANOVG
+    #define IGRAPHICS_DRAW_CLASS IGraphicsNanoVG
+    #include "IGraphicsNanoVG.h"
   #else
     #define IGRAPHICS_DRAW_CLASS IGraphicsLice
     #include "IGraphicsLice.h"
@@ -61,7 +64,7 @@ public:
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
 
-  bool DrawScreen(const IRECT& pR) override;
+  void DrawScreen(const IRECT& pR) override;
   
   void* OpenWindow(void* pWindow) override;
   void* OpenCocoaWindow(void* pParentView);

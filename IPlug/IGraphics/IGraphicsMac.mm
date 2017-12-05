@@ -132,7 +132,7 @@ void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& path)
   return GetResourcePathFromBundle(GetBundleID(), name, "png", path);
 }
 
-bool IGraphicsMac::DrawScreen(const IRECT& pR)
+void IGraphicsMac::DrawScreen(const IRECT& pR)
 {
   CGContextRef pCGC = 0;
 
@@ -149,9 +149,7 @@ bool IGraphicsMac::DrawScreen(const IRECT& pR)
   }
 #endif
   if (!pCGC)
-  {
-    return false;
-  }
+    return;
   
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   double tm=gettm();
@@ -162,14 +160,13 @@ bool IGraphicsMac::DrawScreen(const IRECT& pR)
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   printf("blit %fms\n",(gettm()-tm)*1000.0);
 #endif
-  return true;
 }
 
 bool IGraphicsMac::MeasureIText(const IText& text, const char* pStr, IRECT& destRect)
 {
   CocoaAutoReleasePool pool;
 
-  return IGRAPHICS_DRAW_CLASS::DrawIText(text, pStr, destRect, true);
+  IGRAPHICS_DRAW_CLASS::DrawIText(text, pStr, destRect, true);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
