@@ -1,24 +1,52 @@
+#include <cmath>
+
 #include "IGraphicsCairo.h"
 #include "IControl.h"
-#include <cmath>
 #include "Log.h"
 
-signed int GetSystemVersion();
+#pragma mark -
 
-IGraphicsCairo::IGraphicsCairo(IPlugBaseGraphics* pPlug, int w, int h, int fps)
-: IGraphics(pPlug, w, h, fps)
+IGraphicsCairo::IGraphicsCairo(IPlugBaseGraphics& plug, int w, int h, int fps)
+: IGraphics(plug, w, h, fps)
 {
   mSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
   mContext = cairo_create(mSurface);
 }
 
+IGraphicsCairo::~IGraphicsCairo() 
+{
+}
 
-IGraphicsCairo::~IGraphicsCairo()
+IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+{
+}
+
+void IGraphicsCairo::ReleaseIBitmap(IBitmap& bitmap)
+{
+}
+
+void IGraphicsCairo::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
+{
+}
+
+IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
+{
+}
+
+IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
 {
 }
 
 void IGraphicsCairo::PrepDraw()
 {
+  int w = Width() * mDisplayScale;
+  int h = Height() * mDisplayScale;
+}
+
+void IGraphicsCairo::ReScale()
+{
+//   mDrawBitmap->resize(Width() * mDisplayScale, Height() * mDisplayScale);
+  IGraphics::ReScale(); // will cause all the controls to update their bitmaps
 }
 
 bool IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
@@ -93,7 +121,7 @@ bool IGraphicsCairo::FillIConvexPolygon(const IColor& color, int* x, int* y, int
 
 IColor IGraphicsCairo::GetPoint(int x, int y)
 {
-  return COLOR_BLACK;
+  return COLOR_BLACK; //TODO:
 }
 
 bool IGraphicsCairo::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
@@ -113,5 +141,9 @@ bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, 
 
 bool IGraphicsCairo::MeasureIText(const IText& text, const char* str, IRECT& destRect)
 {
-  return IGraphicsCairo::DrawIText(text, str, destRect, true);
+  return true;
+}
+
+void IGraphicsCairo::RenderAPIBitmap(void *pContext)
+{
 }
