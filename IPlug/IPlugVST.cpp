@@ -160,18 +160,18 @@ double IPlugVST::GetTempo()
   return 0.0;
 }
 
-void IPlugVST::GetTimeSig(int* pNum, int* pDenom)
+void IPlugVST::GetTimeSig(int& numerator, int& denominator)
 {
-  *pNum = *pDenom = 0;
+  numerator = denominator = 0;
   VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect, kVstTimeSigValid);
   if (pTI && pTI->timeSigNumerator >= 0.0 && pTI->timeSigDenominator >= 0.0)
   {
-    *pNum = pTI->timeSigNumerator;
-    *pDenom = pTI->timeSigDenominator;
+    numerator = pTI->timeSigNumerator;
+    denominator = pTI->timeSigDenominator;
   }
 }
 
-void IPlugVST::GetTime(ITimeInfo* pTimeInfo)
+void IPlugVST::GetTime(ITimeInfo& timeInfo)
 {
   VstTimeInfo* pTI = GetTimeInfo(mHostCallback,
                                  &mAEffect,
@@ -183,23 +183,23 @@ void IPlugVST::GetTime(ITimeInfo* pTimeInfo)
 
   if (pTI)
   {
-    pTimeInfo->mSamplePos = pTI->samplePos;
+    timeInfo.mSamplePos = pTI->samplePos;
 
-    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) pTimeInfo->mPPQPos = pTI->ppqPos;
-    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) pTimeInfo->mTempo = pTI->tempo;
-    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) pTimeInfo->mLastBar = pTI->barStartPos;
+    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) timeInfo.mPPQPos = pTI->ppqPos;
+    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) timeInfo.mTempo = pTI->tempo;
+    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) timeInfo.mLastBar = pTI->barStartPos;
     if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0)
     {
-      pTimeInfo->mCycleStart = pTI->cycleStartPos;
-      pTimeInfo->mCycleEnd = pTI->cycleEndPos;
+      timeInfo.mCycleStart = pTI->cycleStartPos;
+      timeInfo.mCycleEnd = pTI->cycleEndPos;
     }
     if ((pTI->flags & kVstTimeSigValid) && pTI->timeSigNumerator > 0.0 && pTI->timeSigDenominator > 0.0)
     {
-      pTimeInfo->mNumerator = pTI->timeSigNumerator;
-      pTimeInfo->mDenominator = pTI->timeSigDenominator;
+      timeInfo.mNumerator = pTI->timeSigNumerator;
+      timeInfo.mDenominator = pTI->timeSigDenominator;
     }
-    pTimeInfo->mTransportIsRunning = pTI->flags & kVstTransportPlaying;
-    pTimeInfo->mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
+    timeInfo.mTransportIsRunning = pTI->flags & kVstTransportPlaying;
+    timeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
   }
 }
 

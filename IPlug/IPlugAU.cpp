@@ -1991,7 +1991,7 @@ double IPlugAU::GetTempo()
   return mTempo;
 }
 
-void IPlugAU::GetTimeSig(int* pNum, int* pDenom)
+void IPlugAU::GetTimeSig(int& numerator, int& denominator)
 {
   UInt32 sampleOffsetToNextBeat = 0, tsDenom = 0;
   float tsNum = 0.0f;
@@ -2000,20 +2000,20 @@ void IPlugAU::GetTimeSig(int* pNum, int* pDenom)
   {
     mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat,
                                            &tsNum, &tsDenom, &currentMeasureDownBeat);
-    *pNum = (int) tsNum;
-    *pDenom = (int) tsDenom;
+    numerator = (int) tsNum;
+    denominator = (int) tsDenom;
   }
 }
 
-void IPlugAU::GetTime(ITimeInfo* pTimeInfo)
+void IPlugAU::GetTime(ITimeInfo& timeInfo)
 {
   if (mHostCallbacks.beatAndTempoProc)
   {
     double currentBeat = 0.0, tempo = 0.0;
     mHostCallbacks.beatAndTempoProc(mHostCallbacks.hostUserData, &currentBeat, &tempo);
 
-    if (tempo > 0.0) pTimeInfo->mTempo = tempo;
-    if (currentBeat> 0.0) pTimeInfo->mPPQPos = currentBeat;
+    if (tempo > 0.0) timeInfo.mTempo = tempo;
+    if (currentBeat> 0.0) timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
@@ -2023,11 +2023,11 @@ void IPlugAU::GetTime(ITimeInfo* pTimeInfo)
     mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos,
                                       &looping, &loopStartBeat, &loopEndBeat);
 
-    if (samplePos>0.0)pTimeInfo->mSamplePos = samplePos;
-    if (loopStartBeat>0.0) pTimeInfo->mCycleStart = loopStartBeat;
-    if (loopEndBeat>0.0) pTimeInfo->mCycleEnd = loopEndBeat;
-    pTimeInfo->mTransportIsRunning = playing;
-    pTimeInfo->mTransportLoopEnabled = looping;
+    if (samplePos>0.0)timeInfo.mSamplePos = samplePos;
+    if (loopStartBeat>0.0) timeInfo.mCycleStart = loopStartBeat;
+    if (loopEndBeat>0.0) timeInfo.mCycleEnd = loopEndBeat;
+    timeInfo.mTransportIsRunning = playing;
+    timeInfo.mTransportLoopEnabled = looping;
   }
 
   UInt32 sampleOffsetToNextBeat = 0, tsDenom = 0;
@@ -2039,9 +2039,9 @@ void IPlugAU::GetTime(ITimeInfo* pTimeInfo)
     mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat,
                                            &tsNum, &tsDenom, &currentMeasureDownBeat);
 
-    pTimeInfo->mNumerator = (int) tsNum;
-    pTimeInfo->mDenominator = (int) tsDenom;
-    if (currentMeasureDownBeat>0.0) pTimeInfo->mLastBar=currentMeasureDownBeat;
+    timeInfo.mNumerator = (int) tsNum;
+    timeInfo.mDenominator = (int) tsDenom;
+    if (currentMeasureDownBeat>0.0) timeInfo.mLastBar=currentMeasureDownBeat;
   }
 }
 

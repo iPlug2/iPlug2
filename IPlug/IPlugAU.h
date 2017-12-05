@@ -81,8 +81,8 @@ public:
 
   int GetSamplePos();   // Samples since start of project.
   double GetTempo();
-  void GetTimeSig(int* pNum, int* pDenom);
-  void GetTime(ITimeInfo* pTimeInfo);
+  void GetTimeSig(int& numerator, int& denominator);
+  void GetTime(ITimeInfo& timeinfo);
   EHost GetHost();  // GetHostVersion() is inherited.
 
   // Tell the host that the graphics resized.

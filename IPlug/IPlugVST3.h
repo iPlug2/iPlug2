@@ -98,8 +98,8 @@ public:
 
   virtual int GetSamplePos() override;
   virtual double GetTempo() override;
-  virtual void GetTimeSig(int* pNum, int* pDenom) override;
-  virtual void GetTime(ITimeInfo* pTimeInfo) override;
+  virtual void GetTimeSig(int& numerator, int& denominator) override;
+  virtual void GetTime(ITimeInfo& timeInfo) override;
 
   virtual void ResizeGraphics(int w, int h) override;
   void SetLatency(int samples) override;

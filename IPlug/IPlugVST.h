@@ -48,8 +48,8 @@ public:
 
   int GetSamplePos() override;   // Samples since start of project.
   double GetTempo() override;
-  void GetTimeSig(int* pNum, int* pDenom) override;
-  void GetTime(ITimeInfo* pTimeInfo) override;
+  void GetTimeSig(int& numerator, int& denominator) override;
+  void GetTime(ITimeInfo& timeInfo) override;
   EHost GetHost() override;
 
   void ResizeGraphics(int w, int h) override;

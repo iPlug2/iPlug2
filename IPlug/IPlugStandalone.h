@@ -60,8 +60,8 @@ public:
 
   int GetSamplePos() { return 0; }   // Samples since start of project.
   double GetTempo() { return DEFAULT_TEMPO; }
-  void GetTimeSig(int* pNum, int* pDenom) { return; }
-  void GetTime(ITimeInfo* pTimeInfo) { return; }
+  void GetTimeSig(int& numerator, int& denominator) { return; }
+  void GetTime(ITimeInfo& timeInfo) { return; }
 
   void ResizeGraphics(int w, int h);
 

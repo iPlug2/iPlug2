@@ -130,8 +130,8 @@ public:
   virtual int GetSamplePos() = 0;   // Samples since start of project.
   virtual double GetTempo() = 0;
   double GetSamplesPerBeat();
-  virtual void GetTimeSig(int* pNum, int* pDenom) = 0;
-  virtual void GetTime(ITimeInfo* pTimeInfo) = 0;
+  virtual void GetTimeSig(int& numerator, int& denominator) = 0;
+  virtual void GetTime(ITimeInfo& timeInfo) = 0;
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
   const char* GetAPIString();

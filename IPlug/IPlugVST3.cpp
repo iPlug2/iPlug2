@@ -941,19 +941,18 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
-void IPlugVST3::GetTime(ITimeInfo* pTimeInfo)
+void IPlugVST3::GetTime(ITimeInfo& timeInfo)
 {
-  //TODO: check these are all valid
-  pTimeInfo->mSamplePos = (double) mProcessContext.projectTimeSamples;
-  pTimeInfo->mPPQPos = mProcessContext.projectTimeMusic;
-  pTimeInfo->mTempo = mProcessContext.tempo;
-  pTimeInfo->mLastBar = mProcessContext.barPositionMusic;
-  pTimeInfo->mCycleStart = mProcessContext.cycleStartMusic;
-  pTimeInfo->mCycleEnd = mProcessContext.cycleEndMusic;
-  pTimeInfo->mNumerator = mProcessContext.timeSigNumerator;
-  pTimeInfo->mDenominator = mProcessContext.timeSigDenominator;
-  pTimeInfo->mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
-  pTimeInfo->mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
+  timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
+  timeInfo.mPPQPos = mProcessContext.projectTimeMusic;
+  timeInfo.mTempo = mProcessContext.tempo;
+  timeInfo.mLastBar = mProcessContext.barPositionMusic;
+  timeInfo.mCycleStart = mProcessContext.cycleStartMusic;
+  timeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
+  timeInfo.mNumerator = mProcessContext.timeSigNumerator;
+  timeInfo.mDenominator = mProcessContext.timeSigDenominator;
+  timeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
+  timeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
 }
 
 double IPlugVST3::GetTempo()
@@ -961,10 +960,10 @@ double IPlugVST3::GetTempo()
   return mProcessContext.tempo;
 }
 
-void IPlugVST3::GetTimeSig(int* pNum, int* pDenom)
+void IPlugVST3::GetTimeSig(int& numerator, int& denominator)
 {
-  *pNum = mProcessContext.timeSigNumerator;
-  *pDenom = mProcessContext.timeSigDenominator;
+  numerator = mProcessContext.timeSigNumerator;
+  denominator = mProcessContext.timeSigDenominator;
 }
 
 int IPlugVST3::GetSamplePos()
