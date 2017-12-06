@@ -85,9 +85,9 @@ int IGraphics::AttachControl(IControl* pControl)
   return mControls.GetSize() - 1;
 }
 
-void IGraphics::AttachKeyCatcher(IControl& pControl)
+void IGraphics::AttachKeyCatcher(IControl& control)
 {
-  mKeyCatcher = &pControl;
+  mKeyCatcher = &control;
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)

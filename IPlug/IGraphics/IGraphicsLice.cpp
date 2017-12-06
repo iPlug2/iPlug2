@@ -269,6 +269,11 @@ void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IChan
   LICE_PutPixel(mDrawBitmap, int((x * mDisplayScale) + 0.5f), int((y  * mDisplayScale) + 0.5f), LiceColor(color), weight, LiceBlendMode(pBlend));
 }
 
+void IGraphicsLice::DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
+{
+  //TODO:
+}
+
 void IGraphicsLice::ForcePixel(const IColor& color, int x, int y)
 {
   LICE_pixel* px = mDrawBitmap->getBits();
