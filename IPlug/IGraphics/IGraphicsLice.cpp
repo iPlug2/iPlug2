@@ -100,16 +100,20 @@ IGraphicsLice::IGraphicsLice(IPlugBaseGraphics& plug, int w, int h, int fps)
 : IGraphics(plug, w, h, fps)
 , mDrawBitmap(nullptr)
 , mTmpBitmap(nullptr)
+#ifdef OS_OSX
 , mColorSpace(nullptr)
+#endif
 {}
 
 IGraphicsLice::~IGraphicsLice() 
 {
+#ifdef OS_OSX
   if (mColorSpace)
   {
     CFRelease(mColorSpace);
     mColorSpace = nullptr;
   }
+#endif
   
   DELETE_NULL(mDrawBitmap);
   DELETE_NULL(mTmpBitmap);
