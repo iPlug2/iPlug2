@@ -8,13 +8,18 @@
 
 IGraphicsCairo::IGraphicsCairo(IPlugBaseGraphics& plug, int w, int h, int fps)
 : IGraphics(plug, w, h, fps)
+, mSurface(nullptr)
+, mContext(nullptr)
 {
-  mSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-  mContext = cairo_create(mSurface);
 }
 
 IGraphicsCairo::~IGraphicsCairo() 
 {
+  if (mContext)
+    cairo_destroy(mContext);
+  
+  if (mSurface)
+    cairo_surface_destroy(mSurface);
 }
 
 IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
@@ -41,6 +46,7 @@ void IGraphicsCairo::PrepDraw()
 {
   int w = Width() * mDisplayScale;
   int h = Height() * mDisplayScale;
+  
 }
 
 void IGraphicsCairo::ReScale()
@@ -81,7 +87,7 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
 {
 }
 
-bool IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
 }
 
@@ -91,6 +97,9 @@ void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const
 
 void IGraphicsCairo::FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend)
 {
+  cairo_rectangle (mContext, 0, 0, 300, 300);
+  SetCairoSourceRGBA(color);
+  cairo_fill(mContext);
 }
 
 void IGraphicsCairo::FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa)
@@ -128,6 +137,25 @@ bool IGraphicsCairo::MeasureIText(const IText& text, const char* str, IRECT& des
   return true;
 }
 
+void IGraphicsCairo::SetPlatformContext(void* pContext)
+{
+  if(!mSurface)
+  {
+    int w = Width() * mDisplayScale;
+    int h = Height() * mDisplayScale;
+    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), w , h);
+    mContext = cairo_create(mSurface);
+  }
+  
+  IGraphics::SetPlatformContext(pContext);
+}
+
 void IGraphicsCairo::RenderAPIBitmap(void *pContext)
 {
+//    TODO: bg color?
+//    int w = Width() * mDisplayScale;
+//    int h = Height() * mDisplayScale;
+//    cairo_set_source_rgb(mContext, 0., 0., 0.);
+//    cairo_rectangle(mContext, 0, 0, w, h);
+//    cairo_fill(mContext);
 }

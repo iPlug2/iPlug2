@@ -134,28 +134,15 @@ void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& path)
 
 void IGraphicsMac::DrawScreen(const IRECT& pR)
 {
-  CGContextRef pCGC = 0;
-
-  if (mGraphicsCocoa)
-  {
-    pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];  // Leak?
-    NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-    pCGC = (CGContextRef) [gc graphicsPort];
-  }
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  else if (mGraphicsCarbon)
-  {
-    pCGC = mGraphicsCarbon->GetCGContext();
-  }
-#endif
-  if (!pCGC)
+  if (!GetPlatformContext())
     return;
   
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   double tm=gettm();
 #endif
 
-  RenderAPIBitmap(pCGC);
+  //TODO: this is silly, adapt api
+  RenderAPIBitmap(GetPlatformContext());
 
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   printf("blit %fms\n",(gettm()-tm)*1000.0);

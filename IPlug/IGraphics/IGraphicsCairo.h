@@ -3,6 +3,10 @@
 #include "IControl.h"
 #include "cairo/cairo.h"
 
+#ifdef OS_OSX
+#include "cairo/cairo-quartz.h"
+#endif
+
 class IGraphicsCairo : public IGraphics
 {
 public:
@@ -24,7 +28,7 @@ public:
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IChannelBlend* pBlend, bool aa) override;
   void FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa) override;
   void FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend) override;
-  bool RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa) override;
+  void RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa) override;
   void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend) override;
   void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend) override;
@@ -41,6 +45,13 @@ public:
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   
+  void SetPlatformContext(void* pContext) override;
+  
+private:
+  inline void SetCairoSourceRGBA(const IColor& color)
+  {
+    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
+  }
 protected:
   IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
   void RenderAPIBitmap(void* pContext) override;

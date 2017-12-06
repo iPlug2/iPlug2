@@ -369,6 +369,8 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             GetEventParameter(pEvent, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(CGContextRef), 0, &(_this->mCGC));
             CGContextTranslateCTM(_this->mCGC, 0, gfxH);
             CGContextScaleCTM(_this->mCGC, 1.0, -1.0);
+            //TODO: surely we don't need to set this each draw?
+            pGraphicsMac->SetPlatformContext(_this->mCGC);
             pGraphicsMac->Draw(r);
           }
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
@@ -392,6 +394,9 @@ pascal OSStatus IGraphicsCarbon::MainEventHandler(EventHandlerCallRef pHandlerCa
             
             CGContextTranslateCTM(_this->mCGC, portBounds.left + offsetW, offsetH);
             
+            //TODO: surely we don't need to set this each draw?
+            pGraphicsMac->SetPlatformContext(_this->mCGC);
+
             r = IRECT(0, 0, pGraphicsMac->Width(), pGraphicsMac->Height());
             pGraphicsMac->Draw(&r); // Carbon non-composited will redraw everything, the IRECT passed here is the entire plugin-gui
             

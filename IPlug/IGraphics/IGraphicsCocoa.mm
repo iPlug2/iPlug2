@@ -270,8 +270,19 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   if (mGraphics)
   {
-    IRECT tmpRect = ToIRECT(mGraphics, &rect);
-    mGraphics->Draw(tmpRect);
+    if (mGraphics->GetPlatformContext())
+    {
+      IRECT tmpRect = ToIRECT(mGraphics, &rect);
+      mGraphics->Draw(tmpRect);
+    }
+    else //TODO: can we really only get this context on the first draw call?
+    {
+      CGContextRef pCGC = nullptr;
+      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+      pCGC = (CGContextRef) [gc graphicsPort];
+      mGraphics->SetPlatformContext(pCGC);
+    }
   }
 }
 

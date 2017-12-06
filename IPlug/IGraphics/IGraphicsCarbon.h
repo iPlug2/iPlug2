@@ -22,7 +22,6 @@ public:
   ~IGraphicsCarbon();
 
   ControlRef GetView() { return mView; }
-  CGContextRef GetCGContext() { return mCGC; }
   bool GetIsComposited() {return mIsComposited;}
 
   bool Resize(int w, int h);

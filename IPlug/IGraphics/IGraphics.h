@@ -25,7 +25,6 @@ public:
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   virtual void DrawScreen(const IRECT& rect) = 0;
-
   void DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
   
 #pragma mark - IGraphics API  impl drawing (pure virtual)
@@ -167,8 +166,11 @@ public:
 //  virtual void* OSLoadSVG(const char* name, const int size) = 0;
 
   IRECT GetDrawRect() const { return mDrawRECT; }
-  
+  void* GetPlatformContext() { return mPlatformContext; }
+  virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
+
 protected:
+  void* mPlatformContext = nullptr;
   WDL_PtrList<IControl> mControls;
   IPlugBaseGraphics& mPlug;
   IRECT mDrawRECT;
