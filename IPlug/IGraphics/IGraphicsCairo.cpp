@@ -80,15 +80,27 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa)
 {
   SetCairoSourceRGBA(color);
+  //cairo_set_line_width(mContext, mDisplayScale);
   cairo_move_to (mContext, x1 * mDisplayScale, (Height() - y1) * mDisplayScale);
   cairo_line_to (mContext, x2 * mDisplayScale, (Height() - y2) * mDisplayScale);
   cairo_set_line_width (mContext, 1);
   cairo_stroke (mContext);
 }
 
+void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect)
+{
+  IRECT r = rect;
+  r.Scale(mDisplayScale);
+  //cairo_set_line_width(mContext, mDisplayScale);
+  SetCairoSourceRGBA(color);
+  CairoDrawRect(rect);
+  cairo_stroke(mContext);
+}
+
 void IGraphicsCairo::DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
 {
   SetCairoSourceRGBA(color);
+  //cairo_set_line_width(mContext, mDisplayScale);
   cairo_new_sub_path(mContext);
   cairo_move_to(mContext, x1, (Height() - y1));
   cairo_line_to(mContext, x2, (Height() - y2));
@@ -99,6 +111,7 @@ void IGraphicsCairo::DrawTriangle(const IColor& color, int x1, int y1, int x2, i
 void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend, bool aa)
 {
   SetCairoSourceRGBA(color);
+  //cairo_set_line_width(mContext, mDisplayScale);
   cairo_arc (mContext, cx * mDisplayScale, cy * mDisplayScale, r, minAngle, maxAngle);
   cairo_stroke (mContext);
 }
@@ -106,6 +119,7 @@ void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, f
 void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend, bool aa)
 {
   SetCairoSourceRGBA(color);
+  //cairo_set_line_width(mContext, mDisplayScale);
   cairo_arc(mContext, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, 0, PI * 2.);
   cairo_stroke(mContext);
 }
@@ -116,6 +130,7 @@ void IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const ICh
   r.Scale(mDisplayScale);
   const double y = r.B - r.H();
   SetCairoSourceRGBA(color);
+  //cairo_set_line_width(mContext, mDisplayScale);
   cairo_new_sub_path(mContext);
   cairo_arc(mContext, r.L + r.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, r.L + r.W() - corner, y + r.H() - corner, corner, 0, PI * 0.5);
