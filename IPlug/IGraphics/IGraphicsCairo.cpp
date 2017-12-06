@@ -51,7 +51,7 @@ void IGraphicsCairo::PrepDraw()
 
 void IGraphicsCairo::ReScale()
 {
-//   mDrawBitmap->resize(Width() * mDisplayScale, Height() * mDisplayScale);
+  cairo_surface_set_device_scale(mSurface, 1./mDisplayScale, 1./mDisplayScale);
   IGraphics::ReScale(); // will cause all the controls to update their bitmaps
 }
 
