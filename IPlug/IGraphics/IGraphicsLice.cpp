@@ -356,16 +356,6 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-void IGraphicsLice::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
-{
-  LICE_Line(mDrawBitmap, xi * mDisplayScale, yLo * mDisplayScale, xi * mDisplayScale, yHi * mDisplayScale, LiceColor(color), 1.0f, LICE_BLIT_MODE_COPY, false);
-}
-
-void IGraphicsLice::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
-{
-  LICE_Line(mDrawBitmap, xLo, yi, xHi, yi, LiceColor(color), 1.0f, LICE_BLIT_MODE_COPY, false);
-}
-
 bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   if (!str || str[0] == '\0')

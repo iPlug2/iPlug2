@@ -124,14 +124,6 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-void IGraphicsCairo::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
-{
-}
-
-void IGraphicsCairo::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
-{
-}
-
 bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   return true;

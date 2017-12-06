@@ -22,8 +22,6 @@ public:
   void DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa) override;
   void ForcePixel(const IColor& color, int x, int y) override;
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa) override;
-  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
-  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
   void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IChannelBlend* pBlend, bool aa) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IChannelBlend* pBlend, bool aa) override;
   void FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa) override;
