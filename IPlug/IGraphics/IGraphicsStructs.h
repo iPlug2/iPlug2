@@ -324,6 +324,11 @@ struct IRECT
     r.Scale(scale);
     return r;
   }
+  
+  IRECT GetFlipped(int graphicsHeight)
+  {
+    return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
+  }
 };
 
 struct IMouseMod
