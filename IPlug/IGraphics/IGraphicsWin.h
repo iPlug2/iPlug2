@@ -1,15 +1,30 @@
 #pragma once
 
-#include "IGraphics.h"
-
 #include <windows.h>
 #include <windowsx.h>
 #include <winuser.h>
 
+//TODO: would be nice not to put this here
+#ifndef NO_IGRAPHICS
+  #ifdef IGRAPHICS_AGG
+    #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
+    #include "IGraphicsAGG.h"
+  #elif defined IGRAPHICS_CAIRO
+    #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
+    #include "IGraphicsCairo.h"
+  #elif defined IGRAPHICS_NANOVG
+    #define IGRAPHICS_DRAW_CLASS IGraphicsNanoVG
+    #include "IGraphicsNanoVG.h"
+  #else
+    #define IGRAPHICS_DRAW_CLASS IGraphicsLice
+    #include "IGraphicsLice.h"
+  #endif
+#endif
+
 class IGraphicsWin : public IGraphics
 {
 public:
-  IGraphicsWin(IPlugBaseGraphics* pPlug, int w, int h, int refreshFPS);
+  IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int refreshFPS);
   virtual ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
@@ -22,7 +37,7 @@ public:
   void ShowMouseCursor();
   int ShowMessageBox(const char* pStr, const char* pCaption, int type);
 
-  bool DrawScreen(IRECT* pR);
+  void DrawScreen(const IRECT& rect) override;
 
   void* OpenWindow(void* pParentWnd);
   void CloseWindow();
@@ -33,14 +48,14 @@ public:
   void HostPath(WDL_String& path);
   void PluginPath(WDL_String& path);
   void DesktopPath(WDL_String& path);
-  //void VST3PresetsPath(WDL_String* pPath, bool isSystem = true);
+  //void VST3PresetsPath(WDL_String& path, bool isSystem = true);
   void AppSupportPath(WDL_String& path, bool isSystem = false);
-  void SandboxSafeAppSupportPath(WDL_String& pPath) { AppSupportPath(path, false); }
+  void SandboxSafeAppSupportPath(WDL_String& path) { AppSupportPath(path, false); }
 
   void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* pExtensions = "");   // extensions = "txt wav" for example.
   bool PromptForColor(IColor& colour, const char* pStr);
 
-  IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu* pMenu);
+  IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect);
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam);
@@ -60,7 +75,7 @@ public:
   
   bool GetTextFromClipboard(WDL_String* pStr);
 protected:
-  LICE_IBitmap* OSLoadBitmap(int ID, const char* name);
+  void* OSLoadBitmap(int ID, const char* name);
 
   void SetTooltip(const char* tooltip);
   void ShowTooltip();

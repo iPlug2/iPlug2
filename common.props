@@ -5,6 +5,7 @@
     <WDL_PATH>$(ProjectDir)..\..\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(ProjectDir)..\..\IPlug</IPLUG_PATH>
+    <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
     <VST_SDK>$(ProjectDir)..\..\VST_SDK</VST_SDK>
     <VST3_SDK>$(ProjectDir)..\..\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(ProjectDir)..\..\ASIO_SDK</ASIO_SDK>
@@ -65,6 +66,9 @@
     </BuildMacro>
     <BuildMacro Include="IPLUG_PATH">
       <Value>$(IPLUG_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IGRAPHICS_PATH">
+      <Value>$(IGRAPHICS_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="VST_SDK">
       <Value>$(VST_SDK)</Value>

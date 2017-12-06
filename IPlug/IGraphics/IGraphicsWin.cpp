@@ -101,7 +101,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
                 else
                 {
                   v = atof(txt);
-                  if (pGraphics->mEdParam->DisplayIsNegated())
+                  if (pGraphics->mEdParam->GetDisplayIsNegated())
                   {
                     v = -v;
                   }
@@ -130,7 +130,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         }
 
         IRECT dirtyR;
-        if (pGraphics->IsDirty(&dirtyR))
+        if (pGraphics->IsDirty(dirtyR))
         {
           RECT r = { dirtyR.L, dirtyR.T, dirtyR.R, dirtyR.B };
 
@@ -138,8 +138,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
           if (pGraphics->mParamEditWnd)
           {
-            IRECT* notDirtyR = pGraphics->mEdControl->GetRECT();
-            RECT r2 = { notDirtyR->L, notDirtyR->T, notDirtyR->R, notDirtyR->B };
+            IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
+            RECT r2 = { notDirtyR.L, notDirtyR.T, notDirtyR.R, notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
             pGraphics->mParamEditMsg = kUpdate;
@@ -283,8 +283,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE))
       {
-        IRECT ir(r.left, r.top, r.right, r.bottom);
-        pGraphics->Draw(&ir);
+        const IRECT ir(r.left, r.top, r.right, r.bottom);
+        pGraphics->Draw(ir);
       }
       return 0;
     }
@@ -294,10 +294,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if(!pGraphics->mEdControl)
         return 0;
 
-      IText* pText = pGraphics->mEdControl->GetText();
+      IText& text = pGraphics->mEdControl->GetText();
       HDC dc = (HDC) wParam;
-      SetBkColor(dc, RGB(pText->mTextEntryBGColor.R, pText->mTextEntryBGColor.G, pText->mTextEntryBGColor.B));
-      SetTextColor(dc, RGB(pText->mTextEntryFGColor.R, pText->mTextEntryFGColor.G, pText->mTextEntryFGColor.B));
+      SetBkColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
+      SetTextColor(dc, RGB(text.mTextEntryFGColor.R, text.mTextEntryFGColor.G, text.mTextEntryFGColor.B));
       SetBkMode(dc, OPAQUE);
       return (BOOL) GetStockObject(DC_BRUSH);
     }
@@ -421,8 +421,8 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-IGraphicsWin::IGraphicsWin(IPlugBaseGraphics* pPlug, int w, int h, int fps)
-  : IGraphics(pPlug, w, h, fps), mPlugWnd(0), mParamEditWnd(0),
+IGraphicsWin::IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps)
+  : IGraphics(plug, w, h, fps), mPlugWnd(0), mParamEditWnd(0),
     mPID(0), mParentWnd(0), mMainWnd(0), mCustomColorStorage(0),
     mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone),
     mTooltipWnd(0), mShowingTooltip(false), mTooltipIdx(-1),
@@ -435,7 +435,7 @@ IGraphicsWin::~IGraphicsWin()
   FREE_NULL(mCustomColorStorage);
 }
 
-LICE_IBitmap* IGraphicsWin::OSLoadBitmap(int ID, const char* name)
+void* IGraphicsWin::OSLoadBitmap(int ID, const char* name)
 {
   const char* ext = name+strlen(name)-1;
   while (ext > name && *ext != '.') --ext;
@@ -510,7 +510,7 @@ void IGraphicsWin::Resize(int w, int h)
     SetWindowPos(mPlugWnd, 0, 0, 0, plugW + dw, plugH + dh, SETPOS_FLAGS);
 
     // don't want to touch the host window in VST3
-    if(mPlug->GetAPI() != kAPIVST3)
+    if(mPlug.GetAPI() != kAPIVST3)
     {
       if(pParent)
       {
@@ -558,14 +558,13 @@ int IGraphicsWin::ShowMessageBox(const char* pText, const char* pCaption, int ty
   return MessageBox(GetMainWnd(), pText, pCaption, type);
 }
 
-bool IGraphicsWin::DrawScreen(IRECT* pR)
+void IGraphicsWin::DrawScreen(const IRECT& rect)
 {
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
-  BitBlt(dc, pR->L, pR->T, pR->W(), pR->H(), mDrawBitmap->getDC(), pR->L, pR->T, SRCCOPY);
+  //TODO:BitBlt(dc, rect.L, rect.T, rect.W(), rect.H(), mDrawBitmap->getDC(), rect.L, rect.T, SRCCOPY);
   EndPaint(hWnd, &ps);
-  return true;
 }
 
 void* IGraphicsWin::OpenWindow(void* pParentWnd)
@@ -723,25 +722,25 @@ void IGraphicsWin::CloseWindow()
   }
 }
 
-IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu* pMenu)
+IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu)
 {
   long oldIDx = offsetIdx;
-  offsetIdx += pMenu->GetNItems();
+  offsetIdx += baseMenu.GetNItems();
 
   if (idx < offsetIdx)
   {
     idxInMenu = idx - oldIDx;
-    return pMenu;
+    return &baseMenu;
   }
 
   IPopupMenu* menu = 0;
 
-  for(int i = 0; i< pMenu->GetNItems(); i++)
+  for(int i = 0; i< baseMenu.GetNItems(); i++)
   {
-    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+    IPopupMenuItem* menuItem = baseMenu.GetItem(i);
     if(menuItem->GetSubmenu())
     {
-      menu = GetItemMenu(idx, idxInMenu, offsetIdx, menuItem->GetSubmenu());
+      menu = GetItemMenu(idx, idxInMenu, offsetIdx, *menuItem->GetSubmenu());
 
       if(menu)
         break;
@@ -751,20 +750,20 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
   return menu;
 }
 
-HMENU IGraphicsWin::CreateMenu(IPopupMenu* pMenu, long* offsetIdx)
+HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 {
   HMENU hMenu = CreatePopupMenu();
 
   int flags = 0;
   long idxSubmenu = 0;
   long offset = *offsetIdx;
-  long nItems = pMenu->GetNItems();
+  long nItems = menu.GetNItems();
   *offsetIdx += nItems;
   long inc = 0;
 
   for(int i = 0; i< nItems; i++)
   {
-    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+    IPopupMenuItem* menuItem = menu.GetItem(i);
 
     if (menuItem->GetIsSeparator())
     {
@@ -775,11 +774,11 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu* pMenu, long* offsetIdx)
       const char* str = menuItem->GetText();
       char* titleWithPrefixNumbers = 0;
 
-      if (pMenu->GetPrefix())
+      if (menu.GetPrefix())
       {
         titleWithPrefixNumbers = (char*)malloc(strlen(str) + 50);
 
-        switch (pMenu->GetPrefix())
+        switch (menu.GetPrefix())
         {
           case 1:
           {
@@ -804,7 +803,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu* pMenu, long* offsetIdx)
 
       if (menuItem->GetSubmenu())
       {
-        HMENU submenu = CreateMenu(menuItem->GetSubmenu(), offsetIdx);
+        HMENU submenu = CreateMenu(*menuItem->GetSubmenu(), offsetIdx);
         if (submenu)
         {
           AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText);
@@ -835,20 +834,20 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu* pMenu, long* offsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
+IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
 {
   ReleaseMouseCapture();
 
   long offsetIdx = 0;
-  HMENU hMenu = CreateMenu(pMenu, &offsetIdx);
+  HMENU hMenu = CreateMenu(menu, &offsetIdx);
   IPopupMenu* result = 0;
 
   if(hMenu)
   {
     POINT cPos;
 
-    cPos.x = pAreaRect->L;
-    cPos.y = pAreaRect->B;
+    cPos.x = areaRect.L;
+    cPos.y = areaRect.B;
 
     ClientToScreen(mPlugWnd, &cPos);
 
@@ -870,7 +869,7 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
           {
             long idx = 0;
             offsetIdx = 0;
-            IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, pMenu);
+            IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
             if(resultMenu)
             {
               result = resultMenu;
@@ -888,13 +887,13 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu* pMenu, IRECT* pAreaRect)
   return result;
 }
 
-void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& pText, const IRECT& pTextRect, const char* pString, IParam* pParam)
+void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam)
 {
   if (!pControl || mParamEditWnd) return;
 
   DWORD editStyle;
 
-  switch ( pText->mAlign )
+  switch ( text.mAlign )
   {
     case IText::kAlignNear:   editStyle = ES_LEFT;   break;
     case IText::kAlignFar:    editStyle = ES_RIGHT;  break;
@@ -902,11 +901,11 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& pText, const
     default:                  editStyle = ES_CENTER; break;
   }
 
-  mParamEditWnd = CreateWindow("EDIT", pString, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
-                               pTextRect->L, pTextRect->T, pTextRect->W()+1, pTextRect->H()+1,
-                               mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
+  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
+    textRect.L, textRect.T, textRect.W()+1, textRect.H()+1,
+    mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
-  HFONT font = CreateFont(pText->mSize, 0, 0, 0, pText->mStyle == IText::kStyleBold ? FW_BOLD : 0, pText->mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, pText->mFont);
+  HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
 
   SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) pControl->GetTextEntryLength(), 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
@@ -923,9 +922,9 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& pText, const
   mEdParam = pParam; // could be 0
 }
 
-void GetModulePath(HMODULE hModule, WDL_String* pPath)
+void GetModulePath(HMODULE hModule, WDL_String& path)
 {
-  pPath->Set("");
+  path.Set("");
   char pathCStr[MAX_PATH_LEN];
   pathCStr[0] = '\0';
   if (GetModuleFileName(hModule, pathCStr, MAX_PATH_LEN))
@@ -940,31 +939,31 @@ void GetModulePath(HMODULE hModule, WDL_String* pPath)
     }
     if (s >= 0 && s + 1 < strlen(pathCStr))
     {
-      pPath->Set(pathCStr, s + 1);
+      path.Set(pathCStr, s + 1);
     }
   }
 }
 
-void IGraphicsWin::HostPath(WDL_String* pPath)
+void IGraphicsWin::HostPath(WDL_String& path)
 {
-  GetModulePath(0, pPath);
+  GetModulePath(0, path);
 }
 
-void IGraphicsWin::PluginPath(WDL_String* pPath)
+void IGraphicsWin::PluginPath(WDL_String& path)
 {
-  GetModulePath(mHInstance, pPath);
+  GetModulePath(mHInstance, path);
 }
 
-void IGraphicsWin::DesktopPath(WDL_String* pPath)
+void IGraphicsWin::DesktopPath(WDL_String& path)
 {
   #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
   SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
-  pPath->Set(strPath, MAX_PATH_LEN);
+  path.Set(strPath, MAX_PATH_LEN);
   #endif
 }
 
-void IGraphicsWin::AppSupportPath(WDL_String* pPath, bool isSystem)
+void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
 #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
@@ -974,11 +973,11 @@ void IGraphicsWin::AppSupportPath(WDL_String* pPath, bool isSystem)
   else
     SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
 
-  pPath->Set(strPath, MAX_PATH_LEN);
+  path.Set(strPath, MAX_PATH_LEN);
 #endif
 }
 
-//void IGraphicsWin::VST3PresetsPath(WDL_String* pPath, bool isSystem)
+//void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
 //{
 //  TCHAR strPath[MAX_PATH_LEN];
 //
@@ -986,30 +985,30 @@ void IGraphicsWin::AppSupportPath(WDL_String* pPath, bool isSystem)
 //  {
 //    TCHAR strPath[MAX_PATH_LEN];
 //    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
-//    pPath->Set(strPath, MAX_PATH_LEN);
+//    path.Set(strPath, MAX_PATH_LEN);
 //  }
 //  else
 //  {
 //    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-//    pPath->Set(strPath, MAX_PATH_LEN);
+//    path.Set(strPath, MAX_PATH_LEN);
 //  }
 //
-//  pPath->AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug->GetMfrNameStr(), mPlug->GetPluginNameStr());
+//  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrNameStr(), mPlug.GetPluginNameStr());
 //}
 
-void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_String* pDir, char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pDir, char* extensions)
 {
   if (!WindowIsOpen())
   {
-    pFilename->Set("");
+    filename.Set("");
     return;
   }
 
   char fnCStr[MAX_PATH_LEN];
   char dirCStr[MAX_PATH_LEN];
 
-  if (pFilename->GetLength())
-    strcpy(fnCStr, pFilename->Get());
+  if (filename.GetLength())
+    strcpy(fnCStr, filename.Get());
   else
     fnCStr[0] = '\0';
 
@@ -1017,7 +1016,7 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
 
   if (!pDir->GetLength())
   {
-    DesktopPath(pDir);
+    DesktopPath(*pDir);
   }
 
   strcpy(dirCStr, pDir->Get());
@@ -1100,11 +1099,11 @@ void IGraphicsWin::PromptForFile(WDL_String* pFilename, EFileAction action, WDL_
       pDir->SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
     }
     #endif
-    pFilename->Set(ofn.lpstrFile);
+    filename.Set(ofn.lpstrFile);
   }
   else
   {
-    pFilename->Set("");
+    filename.Set("");
   }
 }
 
@@ -1122,7 +1121,7 @@ UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam
   return 0;
 }
 
-bool IGraphicsWin::PromptForColor(IColor* pColor, char* prompt)
+bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
 {
   if (!mPlugWnd)
   {
@@ -1136,7 +1135,7 @@ bool IGraphicsWin::PromptForColor(IColor* pColor, char* prompt)
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
   cc.hwndOwner = mPlugWnd;
-  cc.rgbResult = RGB(pColor->R, pColor->G, pColor->B);
+  cc.rgbResult = RGB(color.R, color.G, color.B);
   cc.lpCustColors = mCustomColorStorage;
   cc.lCustData = (LPARAM) prompt;
   cc.lpfnHook = CCHookProc;
@@ -1144,9 +1143,9 @@ bool IGraphicsWin::PromptForColor(IColor* pColor, char* prompt)
 
   if (ChooseColor(&cc))
   {
-    pColor->R = GetRValue(cc.rgbResult);
-    pColor->G = GetGValue(cc.rgbResult);
-    pColor->B = GetBValue(cc.rgbResult);
+    color.R = GetRValue(cc.rgbResult);
+    color.G = GetGValue(cc.rgbResult);
+    color.B = GetBValue(cc.rgbResult);
     return true;
   }
   return false;

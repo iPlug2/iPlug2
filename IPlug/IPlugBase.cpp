@@ -832,7 +832,7 @@ int IPlugBase::UnserializeParams(ByteChunk& chunk, int startPos)
   return pos;
 }
 
-bool IPlugBase::CompareState(const u_int8_t* incomingState, int startPos)
+bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
 {
   bool isEqual = true;
   
