@@ -13,6 +13,4 @@ public:
   void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames) override;
 
 private:
-  double mGain;
-  WDL_Mutex mMutex;
 };

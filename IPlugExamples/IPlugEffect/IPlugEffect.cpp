@@ -24,7 +24,7 @@ enum ELayout
 };
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo), mGain(1.)
+: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE; 
 
@@ -56,9 +56,9 @@ IPlugEffect::~IPlugEffect() {}
 
 void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
 {
-  mMutex.Enter();
+  mParams_mutex.Enter();
   const double gain = GetParam(kGain)->Value() / 100.;
-  mMutex.Leave();
+  mParams_mutex.Leave();
   
   double* in1 = inputs[0];
   double* in2 = inputs[1];

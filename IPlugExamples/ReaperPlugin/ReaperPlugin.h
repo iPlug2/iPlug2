@@ -21,6 +21,5 @@ public:
 
 private:
   double mGain;
-  WDL_Mutex mMutex;
 };
 

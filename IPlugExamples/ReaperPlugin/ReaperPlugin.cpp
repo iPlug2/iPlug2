@@ -40,12 +40,11 @@ void ReaperPlugin::Reset()
 static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   ReaperPlugin* _this = (ReaperPlugin*) lParam;
-//  SetWindowLongPtr(hwndDlg, GWLP_USERDATA, lParam);
   
   switch (uMsg) {
     case WM_INITDIALOG:
 //      hwndDlg = _this->mHWND;
-      ShowWindow(hwndDlg, SW_SHOW); // TODO: how to embed window?
+      ShowWindow(hwndDlg, SW_SHOW);
       return 1;
     default:
       break;
