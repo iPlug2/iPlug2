@@ -582,12 +582,12 @@ IKnobLineControl::IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int para
 
 void IKnobLineControl::Draw(IGraphics& graphics)
 {
-  double v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  float sinV = (float) sin(v);
-  float cosV = (float) cos(v);
-  float cx = mRECT.MW(), cy = mRECT.MH();
-  float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
-  float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
+  const float v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
+  const float sinV = sinf(v);
+  const float cosV = cosf(v);
+  const float cx = mRECT.MW(), cy = mRECT.MH();
+  const float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
+  const float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
   
   graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend, true);
 }

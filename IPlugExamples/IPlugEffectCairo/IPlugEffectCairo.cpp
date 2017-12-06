@@ -38,6 +38,8 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 //
 //  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX, kGainY, kGain, knob));
 
+  pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+100, kGainY+100), kGain, COLOR_BLACK));
+
 //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);

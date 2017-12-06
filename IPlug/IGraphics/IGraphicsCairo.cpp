@@ -44,9 +44,9 @@ IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, co
 
 void IGraphicsCairo::PrepDraw()
 {
-  int w = Width() * mDisplayScale;
-  int h = Height() * mDisplayScale;
-  
+// not sure if needed yet may change api
+//  int w = Width() * mDisplayScale;
+//  int h = Height() * mDisplayScale;
 }
 
 void IGraphicsCairo::ReScale()
@@ -77,6 +77,11 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
 
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa)
 {
+  SetCairoSourceRGBA(color);
+  cairo_move_to (mContext, x1 * mDisplayScale, (Height() - y1) * mDisplayScale);
+  cairo_line_to (mContext, x2 * mDisplayScale, (Height() - y2) * mDisplayScale);
+  cairo_set_line_width (mContext, 2);
+  cairo_stroke (mContext);
 }
 
 void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend, bool aa)
@@ -97,7 +102,7 @@ void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const
 
 void IGraphicsCairo::FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend)
 {
-  cairo_rectangle (mContext, 0, 0, 300, 300);
+  CairoDrawRect(rect);
   SetCairoSourceRGBA(color);
   cairo_fill(mContext);
 }

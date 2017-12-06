@@ -52,6 +52,11 @@ private:
   {
     cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
   }
+  
+  inline void CairoDrawRect(const IRECT& rect)
+  {
+    cairo_rectangle (mContext, rect.L * mDisplayScale, (Height() - rect.B)  * mDisplayScale, rect.W()  * mDisplayScale, rect.H()  * mDisplayScale);
+  }
 protected:
   IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
   void RenderAPIBitmap(void* pContext) override;
