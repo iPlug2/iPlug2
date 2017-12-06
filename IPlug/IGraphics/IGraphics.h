@@ -52,7 +52,7 @@ public:
   virtual void* GetData() = 0;
   
 #pragma mark - IGraphics impl drawing helpers
-  void DrawRect(const IColor& color, const IRECT& rect);
+  virtual void DrawRect(const IColor& color, const IRECT& rect);
   void DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
   void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
   void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
