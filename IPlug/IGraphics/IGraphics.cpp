@@ -274,33 +274,24 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
 
 void IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
-  
-  DrawHorizontalLine(color, r.T, r.L, r.R);
-  DrawHorizontalLine(color, r.B, r.L, r.R);
-  DrawVerticalLine(color, r.L, r.T, r.B);
-  DrawVerticalLine(color, r.R, r.T, r.B);
+  DrawHorizontalLine(color, rect.T, rect.L, rect.R);
+  DrawHorizontalLine(color, rect.B, rect.L, rect.R);
+  DrawVerticalLine(color, rect.L, rect.T, rect.B);
+  DrawVerticalLine(color, rect.R, rect.T, rect.B);
 }
 
 void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
-  
   x = BOUNDED(x, 0.0f, 1.0f);
-  int xi = r.L + int(x * (float) (r.R - r.L));
-  return DrawVerticalLine(color, xi, r.T, r.B);
+  int xi = rect.L + int(x * (float) (rect.R - rect.L));
+  return DrawVerticalLine(color, xi, rect.T, rect.B);
 }
 
 void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
-  
   y = BOUNDED(y, 0.0f, 1.0f);
-  int yi = r.B - int(y * (float) (r.B - r.T));
-  return DrawHorizontalLine(color, yi, r.L, r.R);
+  int yi = rect.B - int(y * (float) (rect.B - rect.T));
+  return DrawHorizontalLine(color, yi, rect.L, rect.R);
 }
 
 void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
