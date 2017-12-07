@@ -1,8 +1,36 @@
 #include <cmath>
 
+#include "png.h"
+
 #include "IGraphicsCairo.h"
 #include "IControl.h"
 #include "Log.h"
+
+struct CairoBitmap {
+  cairo_surface_t* surface = nullptr;
+  int width = 0;
+  int height = 0;
+  
+  CairoBitmap(const char* path)
+  {
+    surface = cairo_image_surface_create_from_png(path);
+    
+#ifndef NDEBUG
+    bool imgResourceFound = surface;
+#endif
+    assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
+    
+    width = cairo_image_surface_get_width (surface);
+    height = cairo_image_surface_get_height (surface);
+  }
+  
+  ~CairoBitmap()
+  {
+    cairo_surface_destroy(surface);
+  }
+};
+
+static StaticStorage<CairoBitmap> s_bitmapCache;
 
 #pragma mark -
 
@@ -24,6 +52,34 @@ IGraphicsCairo::~IGraphicsCairo()
 
 IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
+  const double targetScale = GetDisplayScale(); // targetScale = what this screen is
+
+  CairoBitmap* pCB = s_bitmapCache.Find(name, targetScale);
+
+  if (!pCB) // if bitmap not in cache allready at targetScale
+  {
+    WDL_String fullPath;
+    OSLoadBitmap(name, fullPath);
+
+    pCB = new CairoBitmap(fullPath.Get());
+
+    const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+
+//    if (sourceScale != targetScale) {
+//      return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
+//    }
+//    else {
+      s_bitmapCache.Add(pCB, name, sourceScale);
+      return IBitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+//    }
+  }
+
+  // if bitmap allready cached at scale
+  // TODO: this is horribly hacky
+  if(targetScale > 1.)
+    return IBitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+  else
+    return IBitmap(pCB->surface, pCB->width, pCB->height, nStates, framesAreHoriztonal, sourceScale, name);
 }
 
 void IGraphicsCairo::ReleaseIBitmap(IBitmap& bitmap)
@@ -36,10 +92,12 @@ void IGraphicsCairo::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
 
 IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
 {
+  return bitmap; //TODO:!!
 }
 
 IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
 {
+  return bitmap; //TODO:!!
 }
 
 void IGraphicsCairo::PrepDraw()
@@ -55,6 +113,11 @@ void IGraphicsCairo::ReScale()
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
+  IRECT r = dest.GetFlipped(Height()).GetScaled(GetDisplayScale());
+  cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
+  cairo_set_source_surface(mContext, surface, r.L, r.B + (Height()-srcY));
+  //cairo_move_to(mContext, r.L, r.T);
+  cairo_paint(mContext);
 }
 
 void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend)
@@ -229,3 +292,5 @@ void IGraphicsCairo::RenderAPIBitmap(void *pContext)
 //    cairo_rectangle(mContext, 0, 0, w, h);
 //    cairo_fill(mContext);
 }
+
+
