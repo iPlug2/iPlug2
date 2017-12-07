@@ -161,7 +161,6 @@ public:
 
   virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
-  virtual IBitmap CreateIBitmap(const char* cacheName, int w, int h) = 0;
 
   virtual void OSLoadBitmap(const char* name, WDL_String& fullPath) = 0;
 //  virtual void OSLoadFont(const char* name, const int size, WDL_String& fullPath) = 0;

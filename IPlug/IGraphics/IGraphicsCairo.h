@@ -58,7 +58,6 @@ private:
     cairo_rectangle (mContext, rect.L * mDisplayScale, (Height() - rect.B)  * mDisplayScale, rect.W()  * mDisplayScale, rect.H()  * mDisplayScale);
   }
 protected:
-  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
   void RenderAPIBitmap(void* pContext) override;
   cairo_t *mContext;
   cairo_surface_t *mSurface;

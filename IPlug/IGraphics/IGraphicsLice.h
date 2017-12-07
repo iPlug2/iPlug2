@@ -49,7 +49,6 @@ public:
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
-  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
   void RenderAPIBitmap(void* pContext) override;
   
 private:
