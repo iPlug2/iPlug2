@@ -311,14 +311,14 @@ struct IRECT
     B = (int) std::floor(0.5 + (B * scale));
   }
   
-  IRECT GetScaled(double scale)
+  IRECT GetScaled(double scale) const
   {
     IRECT r = *this;
     r.Scale(scale);
     return r;
   }
   
-  IRECT GetFlipped(int graphicsHeight)
+  IRECT GetFlipped(int graphicsHeight) const
   {
     return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
   }
@@ -336,11 +336,13 @@ class StaticStorage
 {
 public:
   
-  unsigned long hash(const char* str) {
+  unsigned long hash(const char* str)
+  {
     unsigned long hash = 5381;
     int c;
     
-    while ((c = *str++)) {
+    while ((c = *str++))
+    {
       hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
     }
     
