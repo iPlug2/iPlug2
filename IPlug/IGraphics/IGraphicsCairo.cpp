@@ -114,9 +114,10 @@ void IGraphicsCairo::ReScale()
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
   IRECT r = dest.GetFlipped(Height()).GetScaled(GetDisplayScale());
+  cairo_rectangle(mContext, r.L, r.T, r.W(), r.H());
+  cairo_clip (mContext);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
   cairo_set_source_surface(mContext, surface, r.L, r.B + (Height()-srcY));
-  //cairo_move_to(mContext, r.L, r.T);
   cairo_paint(mContext);
 }
 
