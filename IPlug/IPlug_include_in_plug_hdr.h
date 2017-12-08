@@ -4,7 +4,7 @@
 // after #defining XXX_API.
 #include <cstdio>
 #include "IPlugOSDetect.h"
-#include "resource.h" // This is your plugin's resource.h
+#include "config.h" // This is your plugin's config.h
 
 #ifdef VST_API
   #include "IPlugVST.h"
