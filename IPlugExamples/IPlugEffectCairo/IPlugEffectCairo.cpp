@@ -1,7 +1,36 @@
 #include "IPlugEffectCairo.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControl.h"
-#include "resource.h"
+#include "config.h"
+
+#include "cairo/cairo.h"
+
+class MyCairoControl : public IControl
+{
+public:
+  MyCairoControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  : IControl(plug, rect, paramIdx)
+  {
+  };
+  
+  ~MyCairoControl()
+  {
+  };
+  
+  void Draw(IGraphics& graphics)
+  {
+    cairo_t* cr = (cairo_t*) graphics.GetData();
+    IRECT r = mRECT.GetFlipped(graphics.Height()).GetScaled(graphics.GetDisplayScale());
+    
+    cairo_set_line_width(cr, 1. * graphics.GetDisplayScale());
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_move_to(cr, r.L, r.T);
+    cairo_line_to(cr, r.R, r.B);
+    cairo_close_path(cr);
+    cairo_stroke(cr);
+  };
+};
+
 
 const int kNumPrograms = 1;
 
@@ -34,12 +63,13 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
 
-//  IBitmap knob = pGraphics->LoadIBitmap(KNOB_FN, kKnobFrames, false, 2. /* this bitmap is 2* = hidpi */);
-//
+  IBitmap knob = pGraphics->LoadIBitmap(KNOB_FN, kKnobFrames, false, 1. /* this bitmap is 2* = hidpi */);
+
 //  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX, kGainY, kGain, knob));
 
   pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+100, kGainY+100), kGain, COLOR_BLACK));
 
+//  pGraphics->AttachControl(new MyCairoControl(*this, IRECT(kGainX, kGainY, kGainX+100, kGainY+100), kGain));
 //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
@@ -47,7 +77,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 //  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), basic, builddatestr));
 
   AttachGraphics(pGraphics);
-  pGraphics->ShowControlBounds(true);
+  //pGraphics->ShowControlBounds(true);
   
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);

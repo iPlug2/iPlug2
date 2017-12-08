@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# this script will update the versions in plist and installer files to match that in resource.h
+# this script will update the versions in plist and installer files to match that in config.h
 
 import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
@@ -19,7 +19,7 @@ def main():
   MinorStr = "" 
   BugfixStr = ""
 
-  for line in fileinput.input(scriptpath + "/resource.h",inplace=0):
+  for line in fileinput.input(scriptpath + "/config.h",inplace=0):
     if "#define PLUG_VER " in line:
       FullVersion = int(string.lstrip(line, "#define PLUG_VER "), 16)
       major = FullVersion & 0xFFFF0000
