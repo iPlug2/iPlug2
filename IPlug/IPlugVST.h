@@ -57,6 +57,8 @@ public:
 
   virtual void OnGUICreated() override;
 
+  audioMasterCallback mHostCallback;
+
 protected:
   void HostSpecificInit() override;
   void SetLatency(int samples) override;
@@ -69,7 +71,6 @@ private:
   void VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames);
 
   ERect mEditRect;
-  audioMasterCallback mHostCallback;
 
   bool SendVSTEvent(VstEvent& event);
   bool SendVSTEvents(WDL_TypedBuf<VstEvent>* pEvents);
