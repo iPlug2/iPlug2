@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# this script will update the versions in packages and innosetup installer files to match that in resource.h
+# this script will update the versions in packages and innosetup installer files to match that in config.h
 
 import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
@@ -28,8 +28,8 @@ def main():
   BugfixStr = ""
   BUNDLE_NAME = ""
   
-  # extract values from resource.h
-  for line in fileinput.input(projectpath + "resource.h", inplace=0):
+  # extract values from config.h
+  for line in fileinput.input(projectpath + "config.h", inplace=0):
     if "#define PLUG_VERSION_HEX " in line:
       PLUG_VERSION_HEX_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
       PLUG_VERSION_HEX = int(PLUG_VERSION_HEX_STR, 16)
@@ -76,9 +76,9 @@ def main():
       line="AppVersion=" + FULLVERSIONSTR + "\n"
     if "OutputBaseFilename" in line:
       if demo:
-        line="OutputBaseFilename=VirtualCZ Demo Installer\n"
+        line="OutputBaseFilename=ReaperPlugin Demo Installer\n"
       else:
-        line="OutputBaseFilename=VirtualCZ Installer\n"
+        line="OutputBaseFilename=ReaperPlugin Installer\n"
         
     if 'Source: "readme' in line:
      if demo:
@@ -88,15 +88,15 @@ def main():
     
     if "WelcomeLabel1" in line:
      if demo:
-       line="WelcomeLabel1=Welcome to the VirtualCZ Demo installer\n"
+       line="WelcomeLabel1=Welcome to the ReaperPlugin Demo installer\n"
      else:
-       line="WelcomeLabel1=Welcome to the VirtualCZ installer\n"
+       line="WelcomeLabel1=Welcome to the ReaperPlugin installer\n"
        
     if "SetupWindowTitle" in line:
      if demo:
-       line="SetupWindowTitle=VirtualCZ Demo installer\n"
+       line="SetupWindowTitle=ReaperPlugin Demo installer\n"
      else:
-       line="SetupWindowTitle=VirtualCZ installer\n"
+       line="SetupWindowTitle=ReaperPlugin installer\n"
        
     sys.stdout.write(line)
     

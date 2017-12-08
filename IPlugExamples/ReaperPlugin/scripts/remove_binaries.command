@@ -4,7 +4,7 @@ BASEDIR=$(dirname $0)
 
 cd $BASEDIR
 
-PLUGIN_NAME=`echo | grep BUNDLE_NAME ../resource.h`
+PLUGIN_NAME=`echo | grep BUNDLE_NAME ../config.h`
 PLUGIN_NAME=${PLUGIN_NAME//\#define BUNDLE_NAME }
 PLUGIN_NAME=${PLUGIN_NAME//\"}
 

@@ -27,8 +27,8 @@ def  main():
     projectpath + "\manual\ReaperPlugin manual.pdf" 
   ]
 
-  # extract values from resource.h
-  for line in fileinput.input(projectpath + "resource.h",inplace=0):
+  # extract values from config.h
+  for line in fileinput.input(projectpath + "config.h",inplace=0):
     if "#define PLUG_VER " in line:
       PLUG_VER_STR = string.lstrip(line, "#define PLUG_VER ")
       PLUG_VER = int(PLUG_VER_STR, 16)

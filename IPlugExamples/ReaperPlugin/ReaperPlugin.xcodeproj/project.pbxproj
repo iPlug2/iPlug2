@@ -51,6 +51,8 @@
 		4F78D90513B63BA50032E0F3 /* IMidiQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IMidiQueue.h; path = ../../IPlug/IMidiQueue.h; sourceTree = SOURCE_ROOT; };
 		4F78D9EC13B63C6A0032E0F3 /* IPlugVST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST.cpp; path = ../../IPlug/IPlugVST.cpp; sourceTree = SOURCE_ROOT; };
 		4F78D9ED13B63C6A0032E0F3 /* IPlugVST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST.h; path = ../../IPlug/IPlugVST.h; sourceTree = SOURCE_ROOT; };
+		4FA3667A1FDB1D3F0026B47F /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
+		4FA3667B1FDB1D3F0026B47F /* ReaperPlugin.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReaperPlugin.rc; sourceTree = "<group>"; };
 		4FBC0D351FD6990900489E0B /* swell-modstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
 		4FC1EA3D1F82692C00780C58 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		4FCF15AF133124D1009A6277 /* ReaperPlugin.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ReaperPlugin.xcconfig; sourceTree = "<group>"; };
@@ -63,7 +65,7 @@
 		526F9C010D7DC7D700562CF8 /* ReaperPlugin.exp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.exports; path = ReaperPlugin.exp; sourceTree = "<group>"; };
 		52FBBED00D0CF139001C8B8A /* ReaperPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperPlugin.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		52FBBED20D0CF13D001C8B8A /* ReaperPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = ReaperPlugin.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
-		52FBBED30D0CF143001C8B8A /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,7 +83,7 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
-				52FBBED30D0CF143001C8B8A /* resource.h */,
+				52FBBED30D0CF143001C8B8A /* config.h */,
 				52FBBED20D0CF13D001C8B8A /* ReaperPlugin.h */,
 				52FBBED00D0CF139001C8B8A /* ReaperPlugin.cpp */,
 				089C167CFE841241C02AAC07 /* Resources */,
@@ -104,6 +106,8 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FA3667B1FDB1D3F0026B47F /* ReaperPlugin.rc */,
+				4FA3667A1FDB1D3F0026B47F /* resource.h */,
 				4F23BA1513B647E50097A67E /* ReaperPlugin-VST2-Info.plist */,
 			);
 			name = Resources;
@@ -210,6 +214,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F20EF2F132C69FE0030E34C /* Build configuration list for PBXNativeTarget "VST2" */;
 			buildPhases = (
+				4F870E0D1FDB2A6800415F75 /* Run Script - make mac resource */,
 				4FBCC1B31FD5AE9F00EFE550 /* Run Script - generate plists */,
 				4F20EEC9132C69FE0030E34C /* Resources */,
 				4F20EECA132C69FE0030E34C /* Sources */,
@@ -264,6 +269,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4F870E0D1FDB2A6800415F75 /* Run Script - make mac resource */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - make mac resource";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./../../WDL/swell/mac_resgen.php ReaperPlugin.rc";
+			showEnvVarsInLog = 0;
+		};
 		4FBCC1B31FD5AE9F00EFE550 /* Run Script - generate plists */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
