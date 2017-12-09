@@ -34,7 +34,7 @@ IPlugBase::IPlugBase(int nParams,
   , mDoesMIDI(plugDoesMidi)
   , mAPI(plugAPI)
   , mIsBypassed(false)
-  , mDelay(0)
+  , mLatencyDelay(nullptr)
   , mTailSize(0)
   , mHasUI(false)
 {
@@ -113,9 +113,9 @@ IPlugBase::~IPlugBase()
   mInputBusLabels.Empty(true);
   mOutputBusLabels.Empty(true);
  
-  if (mDelay) 
+  if (mLatencyDelay)
   {
-    DELETE_NULL(mDelay);
+    DELETE_NULL(mLatencyDelay);
   }
 }
 
@@ -382,9 +382,9 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
 
 void IPlugBase::PassThroughBuffers(double sampleType, int nFrames)
 {
-  if (mLatency && mDelay) 
+  if (mLatency && mLatencyDelay)
   {
-    mDelay->ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
+    mLatencyDelay->ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
   }
   else 
   {
@@ -476,9 +476,9 @@ void IPlugBase::SetLatency(int samples)
 {
   mLatency = samples;
   
-  if (mDelay) 
+  if (mLatencyDelay)
   {
-    mDelay->SetDelayTime(mLatency);
+    mLatencyDelay->SetDelayTime(mLatency);
   }
 }
 

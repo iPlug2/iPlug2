@@ -110,8 +110,8 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
   
   if (NInChannels()) 
   {
-    mDelay = new NChanDelayLine(NInChannels(), NOutChannels());
-    mDelay->SetDelayTime(latency);
+    mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
+    mLatencyDelay->SetDelayTime(latency);
   }
 
   // initialize the bus labels

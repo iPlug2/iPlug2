@@ -1,10 +1,11 @@
 #pragma once
 
 // A static delayline used to delay bypassed signals to match mLatency in AAX/VST3/AU
+template<typename sampType>
 class NChanDelayLine
 {
 private:
-  WDL_TypedBuf<double> mBuffer;
+  WDL_TypedBuf<sampType> mBuffer;
   unsigned long mWriteAddress;
   unsigned int mNumInChans, mNumOutChans;
   unsigned long mDTSamples;
@@ -12,7 +13,7 @@ private:
 public:
   NChanDelayLine(int maxInputChans = 2, int maxOutputChans = 2)
   : mNumInChans(maxInputChans)
-  , mNumOutChans(maxOutputChans) 
+  , mNumOutChans(maxOutputChans)
   , mWriteAddress(0)
   , mDTSamples(0) {}
   
@@ -28,19 +29,19 @@ public:
   
   void ClearBuffer()
   {
-    memset(mBuffer.Get(), 0, mNumInChans * mDTSamples * sizeof(double));
+    memset(mBuffer.Get(), 0, mNumInChans * mDTSamples * sizeof(sampType));
   }
   
-  void ProcessBlock(double** inputs, double** outputs, int nFrames)
+  void ProcessBlock(sampType** inputs, sampType** outputs, int nFrames)
   {
-    double* buffer = mBuffer.Get();
+    sampType* buffer = mBuffer.Get();
     
     for (int s = 0 ; s < nFrames; ++s)
     {
       signed long readAddress = mWriteAddress - mDTSamples;
       readAddress %= mDTSamples;
       
-      for (int chan = 0; chan < mNumInChans; chan++) 
+      for (int chan = 0; chan < mNumInChans; chan++)
       {
         if (chan < mNumOutChans)
         {
@@ -56,3 +57,4 @@ public:
   }
   
 } WDL_FIXALIGN;
+

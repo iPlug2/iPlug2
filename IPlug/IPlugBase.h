@@ -298,7 +298,7 @@ protected:
   double mSampleRate;
   int mBlockSize, mLatency;
   unsigned int mTailSize;
-  NChanDelayLine* mDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
+  NChanDelayLine<double>* mLatencyDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
   WDL_PtrList<const char> mParamGroups;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;
