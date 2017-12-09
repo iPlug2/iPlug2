@@ -3,7 +3,7 @@
 #include <AudioUnit/AUCocoaUIView.h>
 
 #include "Log.h"
-#include "resource.h"   // This is your plugin's resource.h.
+#include "config.h"   // This is your plugin's config.h.
 
 #ifdef NO_IGRAPHICS
 #include "IPlugBase.h"

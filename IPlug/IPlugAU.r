@@ -1,4 +1,4 @@
-#include "resource.h"   // This is your plugin's resource.h.
+#include "config.h"   // This is your plugin's config.h.
 #include <AudioUnit/AudioUnit.r>
 
 #define UseExtendedThingResource 1
