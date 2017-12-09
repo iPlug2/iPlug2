@@ -47,7 +47,7 @@ public:
   
   void SetPlatformContext(void* pContext) override;
   
-private:
+public: //helpers
   inline void SetCairoSourceRGBA(const IColor& color)
   {
     cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
