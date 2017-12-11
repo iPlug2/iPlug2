@@ -4,16 +4,16 @@
 //
 #define IDD_DIALOG1                     101
 #define IDC_AZI                         1001
-#define IDC_AZI_EDIT                    1002
-#define IDC_ELE                         1003
-#define IDC_ELE_EDIT                    1004
-#define IDC_RAD_LAB                     1005
-#define IDC_ELE_LAB                     1006
-#define IDC_ELEVATION2                  1007
-#define IDC_RAD                         1007
-#define IDC_RAD_EDIT                    1008
-#define IDC_AZI_LAB                     1009
-#define IDC_RECT                        1010
+#define IDC_ELE                         1002
+#define IDC_RAD                         1003
+#define IDC_AZI_EDIT                    1004
+#define IDC_ELE_EDIT                    1005
+#define IDC_RAD_EDIT                    1006
+#define IDC_AZI_LAB                     1007
+#define IDC_ELE_LAB                     1008
+#define IDC_RAD_LAB                     1009
+#define IDC_ELEVATION2                  1010
+#define IDC_RECT                        1011
 
 // Next default values for new objects
 // 

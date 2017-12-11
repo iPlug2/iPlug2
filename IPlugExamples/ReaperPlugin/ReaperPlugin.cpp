@@ -13,6 +13,7 @@ enum EParams
 {
   kAzimuth = 0,
   kElevation,
+  kRadius,
   kNumParams
 };
 
@@ -30,6 +31,7 @@ ReaperPlugin::ReaperPlugin(IPlugInstanceInfo instanceInfo)
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kAzimuth)->InitDouble("Azimuth", 0, -180., 180., 0.1, "");
   GetParam(kElevation)->InitDouble("Elevation", 0, 0., 90., 0.1, "");
+  GetParam(kRadius)->InitDouble("Radius", 1, 0., 1., 0.1, "");
 
   OnGUICreated();
   
@@ -56,58 +58,72 @@ void ReaperPlugin::Reset()
 
 static WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  ReaperPlugin *_this = (ReaperPlugin*) lParam;
-  
-  if(!_this)
-    return 0;
+  ReaperPlugin *_this = nullptr;
   
   switch (uMsg)
   {
     case WM_INITDIALOG:
-      _this->mHWND=hwndDlg;
+      _this = (ReaperPlugin*) lParam;
+      SetWindowLongPtr(hwndDlg, GWLP_USERDATA, lParam);
+      _this->mHWND = hwndDlg;
       for (auto p = 0; p < _this->NParams(); p++)
       {
-        SetWindowLong(GetDlgItem(hwndDlg,IDC_AZI), 0, 1);
-        double dp=_this->GetParam(p)->GetDefaultNormalized()*1000.0;
-        
-        //if (param_infos[x].slidershape>1.0) dp=sliderscale_sq(dp,1,param_infos[x].slidershape);
-//
-//        if (dp<0) dp = 0;
-//        else if (dp>1000)dp = 1000;
-        SendDlgItemMessage(hwndDlg, IDC_AZI, TBM_SETTIC, 0, (LPARAM)(dp+0.5));
+        SetWindowLong(GetDlgItem(hwndDlg, IDC_AZI + p), 0, 1);
+        double dp = _this->GetParam(p)->GetDefaultNormalized() * 1000.;
+        //need to consider shape, db etc.
+        SendDlgItemMessage(hwndDlg, IDC_AZI + p, TBM_SETTIC, 0, (LPARAM)(dp+0.5));
       }
       
       SetTimer(hwndDlg, 2, 200, NULL);
       ShowWindow(hwndDlg, SW_SHOWNA);
+      return 0;
     case WM_USER+6606:
+      _this = (ReaperPlugin *) GetWindowLongPtr(hwndDlg, GWLP_USERDATA);
+
       for (auto p = 0; p < _this->NParams(); p++)
       {
-//        if (param_infos[x].ui_id_lbl)
-//        {
-//          char buf[512];
-//          format_parm(x,m_parms[x],buf);
-//          SetDlgItemText(hwndDlg,param_infos[x].ui_id_lbl,buf);
-//        }
-//        if (param_infos[x].ui_id_slider)
-//        {
-//          double val;
-//          if (param_infos[x].minval == USE_DB) val=(DB2SLIDER(VAL2DB(m_parms[x])));
-//          else if (param_infos[x].slidershape>1.0)
-//            val=sliderscale_sq(m_parms[x]*1000.0/param_infos[x].parm_maxval,1,param_infos[x].slidershape);
-//          else val=(m_parms[x]*1000.0)/param_infos[x].parm_maxval;
-//          SendDlgItemMessage(hwndDlg,param_infos[x].ui_id_slider,TBM_SETPOS,0,(LPARAM)val);
-//        }
-//        }
+        char buf[512];
+        _this->GetParam(p)->GetDisplayForHost(buf);
+        SetDlgItemText(hwndDlg, IDC_AZI_EDIT + p, buf);
+        SendDlgItemMessage(hwndDlg, IDC_AZI + p, TBM_SETPOS, 0, (LPARAM)((_this->GetParam(p)->GetNormalized() * 1000.) + 0.5));
       }
       return 0;
     case WM_NOTIFY:
       break;
     case WM_TIMER:
+      if (wParam == 2)
+      {
+        SendMessage(hwndDlg, WM_USER+6606, 0, 0);
+      }
       return 0;
     case WM_COMMAND:
       return 0;
     case WM_HSCROLL:
     case WM_VSCROLL:
+    {
+      _this = (ReaperPlugin *) GetWindowLongPtr(hwndDlg, GWLP_USERDATA);
+
+      char buf[512];
+      auto pos = SendMessage((HWND) lParam, TBM_GETPOS, 0, 0);
+
+      for (auto p = 0; p < _this->NParams(); p++)
+      {
+        if ((HWND) lParam == GetDlgItem(hwndDlg, IDC_AZI + p))
+        {
+          _this->BeginInformHostOfParamChange(p); // should be on mouse down
+
+          _this->SetParameterFromGUI(p, pos/1000.0);
+          
+          if (LOWORD(wParam) == SB_ENDSCROLL)
+            _this->EndInformHostOfParamChange(p); // should be on mouse up
+          
+          _this->GetParam(p)->GetDisplayForHost(buf);
+          SetDlgItemText(hwndDlg, IDC_AZI_EDIT + p, buf);
+          
+          break;
+        }
+      }
+    }
       return 0;
     case WM_DESTROY:
       return 0;
