@@ -193,7 +193,7 @@ public:
   
   ~ISwitchPopUpControl() {}
   
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override;
 };
 
 // A switch where each frame of the bitmap contains images for multiple button states. The Control's mRect will be divided into clickable areas.
@@ -203,8 +203,8 @@ public:
   ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone);
   ~ISwitchFramesControl() {}
   
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
-  
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override;
+
 protected:
   WDL_TypedBuf<IRECT> mRECTs;
 };
@@ -216,7 +216,7 @@ public:
   IInvisibleSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx);
   ~IInvisibleSwitchControl() {}
 
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override;
 };
 
 // A set of buttons that maps to a single selection.  Bitmap has 2 states, off and on.
@@ -226,8 +226,8 @@ public:
   IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, int nButtons, IBitmap& bitmap, EDirection direction = kVertical, bool reverse = false);
   ~IRadioButtonsControl() {}
 
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
-  void Draw(IGraphics& graphics);
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override;
+  void Draw(IGraphics& graphics) override;
 
 protected:
   WDL_TypedBuf<IRECT> mRECTs;
@@ -242,8 +242,8 @@ public:
     : ISwitchControl(plug, x, y, paramIdx, bitmap) {}
   ~IContactControl() {}
 
-  void OnMouseUp(int x, int y, const IMouseMod& mod);
-  virtual void Draw(IGraphics& graphics) {}
+  void OnMouseUp(int x, int y, const IMouseMod& mod) override;
+  virtual void Draw(IGraphics& graphics) override {}
 };
 
 // A fader. The bitmap snaps to a mouse click or drag.
@@ -262,13 +262,14 @@ public:
   // Where is the handle right now?
   IRECT GetHandleRECT(double value = -1.0) const;
 
-  virtual void OnMouseDown(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod);
-  virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d);
+  virtual void OnMouseDown(int x, int y, const IMouseMod& mod) override;
+  virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) override;
+  virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d) override;
 
-  virtual void Draw(IGraphics& graphics);
+  virtual void Draw(IGraphics& graphics) override;
   
-  virtual bool IsHit(int x, int y);
+  virtual bool IsHit(int x, int y) override;
+  virtual void OnRescale() override;
 
 protected:
   virtual void SnapToMouse(int x, int y);
@@ -276,6 +277,7 @@ protected:
   IBitmap mBitmap;
   EDirection mDirection;
   bool mOnlyHandle; // if true only by clicking on the handle do you click the slider
+  
 };
 
 // Parent for knobs, to handle mouse action and ballistics.
@@ -375,7 +377,7 @@ public:
 
   ~IBitmapOverlayControl() {}
 
-  void Draw(IGraphics& graphics);
+  void Draw(IGraphics& graphics) override;
 
 protected:
   IRECT mTargetArea;  // Keep this around to swap in & out.

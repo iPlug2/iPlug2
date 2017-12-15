@@ -518,6 +518,11 @@ bool IFaderControl::IsHit(int x, int y)
   }
 }
 
+void IFaderControl::OnRescale()
+{
+  mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
+}
+
 void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod)
 {
   double gearing = mGearing;
