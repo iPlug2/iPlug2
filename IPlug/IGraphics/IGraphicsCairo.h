@@ -47,6 +47,12 @@ public:
   
   void SetPlatformContext(void* pContext) override;
   
+  inline void ClipRegion(const IRECT& r) override
+  {
+    CairoDrawRect(r);
+    cairo_clip(mContext);
+  }
+  
 public: //helpers
   inline void SetCairoSourceRGBA(const IColor& color)
   {
@@ -55,7 +61,7 @@ public: //helpers
   
   inline void CairoDrawRect(const IRECT& rect)
   {
-    cairo_rectangle (mContext, rect.L * mDisplayScale, (Height() - rect.B)  * mDisplayScale, rect.W()  * mDisplayScale, rect.H()  * mDisplayScale);
+    cairo_rectangle (mContext, rect.L * mDisplayScale, rect.T  * mDisplayScale, rect.W()  * mDisplayScale, rect.H()  * mDisplayScale);
   }
 protected:
   void RenderAPIBitmap(void* pContext) override;

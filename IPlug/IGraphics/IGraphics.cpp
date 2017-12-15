@@ -371,6 +371,7 @@ void IGraphics::Draw(const IRECT& rect)
       IControl* pControl = *ppControl;
       if (!(pControl->IsHidden()) && rect.Intersects(pControl->GetRECT()))
       {
+        ClipRegion(pControl->GetRECT());
         pControl->Draw(*this);
       }
       pControl->SetClean();
@@ -387,6 +388,7 @@ void IGraphics::Draw(const IRECT& rect)
         IControl* pControl2 = mControls.Get(j);
         if (!j || !(pControl2->IsHidden()))
         {
+          ClipRegion(pControl2->GetRECT());
           pControl2->Draw(*this);
           pControl2->SetClean();
         }
@@ -412,7 +414,7 @@ void IGraphics::Draw(const IRECT& rect)
             {
               //if ((i == j) && (!pControl2->IsHidden())|| (!(pControl2->IsHidden()) && pControl2->GetRECT()->Intersects(&mDrawRECT))) {
               //printf("control %i and %i \n", i, j);
-
+              ClipRegion(pControl2->GetRECT());
               pControl2->Draw(*this);
             }
           }

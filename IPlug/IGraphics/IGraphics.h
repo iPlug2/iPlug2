@@ -121,6 +121,7 @@ public:
   void SetParameterFromPlug(int paramIdx, double value, bool normalized);
   void SetControlFromPlug(int controlIdx, double normalizedValue);
   
+  inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics classes 2 clip drawing
   void SetAllControlsDirty();
   
   void SetParameterFromGUI(int paramIdx, double normalizedValue);
