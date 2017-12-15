@@ -639,6 +639,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   CGFloat newBackingScaleFactor = [pWindow backingScaleFactor];
   CGFloat oldBackingScaleFactor = [[[notification userInfo] objectForKey:@"NSBackingPropertyOldScaleFactorKey"] doubleValue];
   
+  if(!pWindow)
+    return;
+  
   if (newBackingScaleFactor != oldBackingScaleFactor)
   {
     mGraphics->SetDisplayScale(newBackingScaleFactor);
