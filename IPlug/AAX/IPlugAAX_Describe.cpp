@@ -1,5 +1,5 @@
 #include "IPlugAAX.h"
-#include "resource.h"
+#include "config.h"
 
 //AAX Components
 #include "AAX_ICollection.h"
