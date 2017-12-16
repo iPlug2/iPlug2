@@ -157,6 +157,7 @@ public:
   virtual void UpdateTooltips() = 0;
 
   inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
+  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
 
   void OnGUIIdle();
 
@@ -194,6 +195,7 @@ private:
   int mWidth, mHeight, mFPS, mIdleTicks;
   int GetMouseControlIdx(int x, int y, bool mo = false);
   int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;
-  bool mHandleMouseOver, mStrict, mEnableTooltips, mShowControlBounds;
+  bool mHandleMouseOver, mStrict, mEnableTooltips;
+  bool mShowControlBounds, mShowAreaDrawn;
   IControl* mKeyCatcher;
 };

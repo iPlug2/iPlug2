@@ -18,6 +18,7 @@ IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
 , mHiddenMousePointY(-1)
 , mEnableTooltips(false)
 , mShowControlBounds(false)
+, mShowAreaDrawn(false)
 , mDisplayScale(1.)
 , mScale(1.)
 {
@@ -425,6 +426,14 @@ void IGraphics::Draw(const IRECT& rect)
   }
 
 #ifndef NDEBUG
+  // some helpers for debugging
+  if(mShowAreaDrawn)
+  {
+    static IColor c;
+    c.Randomise(200);
+    FillIRect(c, rect);
+  }
+  
   if (mShowControlBounds) 
   {
     for (int j = 1; j < mControls.GetSize(); j++)
