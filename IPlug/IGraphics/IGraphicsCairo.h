@@ -61,7 +61,7 @@ public: //helpers
   
   inline void CairoDrawRect(const IRECT& rect)
   {
-    cairo_rectangle (mContext, rect.L * mDisplayScale, rect.T  * mDisplayScale, rect.W()  * mDisplayScale, rect.H()  * mDisplayScale);
+    cairo_rectangle (mContext, rect.L, rect.T, rect.W(), rect.H());
   }
 protected:
   void RenderAPIBitmap(void* pContext) override;
