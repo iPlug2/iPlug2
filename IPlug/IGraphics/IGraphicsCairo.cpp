@@ -148,8 +148,6 @@ void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2,
 
 void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
   cairo_set_line_width(mContext, 1);
   SetCairoSourceRGBA(color);
   CairoDrawRect(rect);
@@ -185,37 +183,31 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
 
 void IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int corner, bool aa)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
-  const double y = r.B - r.H();
+  const double y = rect.B - rect.H();
   SetCairoSourceRGBA(color);
   //cairo_set_line_width(mContext, mDisplayScale);
   cairo_new_sub_path(mContext);
-  cairo_arc(mContext, r.L + r.W() - corner, y + corner, corner, PI * -0.5, 0);
-  cairo_arc(mContext, r.L + r.W() - corner, y + r.H() - corner, corner, 0, PI * 0.5);
-  cairo_arc(mContext, r.L + corner, y + r.H() - corner, corner, PI * 0.5, PI);
-  cairo_arc(mContext, r.L + corner, y + corner, corner, PI, PI * 1.25);
+  cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
+  cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
+  cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
+  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
   cairo_stroke(mContext);
 }
 
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int corner, bool aa)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
-  const double y = r.B - r.H();
+  const double y = rect.B - rect.H();
   SetCairoSourceRGBA(color);
   cairo_new_sub_path(mContext);
-  cairo_arc(mContext, r.L + r.W() - corner, y + corner, corner, PI * -0.5, 0);
-  cairo_arc(mContext, r.L + r.W() - corner, y + r.H() - corner, corner, 0, PI * 0.5);
-  cairo_arc(mContext, r.L + corner, y + r.H() - corner, corner, PI * 0.5, PI);
-  cairo_arc(mContext, r.L + corner, y + corner, corner, PI, PI * 1.25);
+  cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
+  cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
+  cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
+  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
   cairo_fill(mContext);
 }
 
 void IGraphicsCairo::FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend)
 {
-  IRECT r = rect;
-  r.Scale(mDisplayScale);
   SetCairoSourceRGBA(color);
   CairoDrawRect(rect);
   cairo_fill(mContext);
