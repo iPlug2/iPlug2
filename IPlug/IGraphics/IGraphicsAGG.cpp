@@ -342,7 +342,7 @@ void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, 
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-bool IGraphicsAGG::RoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsAGG::RoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -524,16 +524,16 @@ IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, c
   return IBitmap(copy, copy->width(), copy->height(), srcbitmap.N, srcbitmap.mFramesAreHorizontal);
 }
 
-IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
-{
-  agg::pixel_map * pixel_map = (agg::pixel_map*) CreateAPIBitmap(w, h);
-
-  s_bitmapCache.Add(pixel_map, cacheName, mScale);
-  
-  IBitmap bitmap(pixel_map, pixel_map->width(), pixel_map->height());
-  
-  return bitmap;
-}
+//IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
+//{
+//  agg::pixel_map * pixel_map = (agg::pixel_map*) CreateAPIBitmap(w, h);
+//
+//  s_bitmapCache.Add(pixel_map, cacheName, mScale);
+//  
+//  IBitmap bitmap(pixel_map, pixel_map->width(), pixel_map->height());
+//  
+//  return bitmap;
+//}
 
 agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 {
