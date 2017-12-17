@@ -49,14 +49,53 @@ public:
   
   inline void ClipRegion(const IRECT& r) override
   {
+    cairo_new_path(mContext);
     CairoDrawRect(r);
     cairo_clip(mContext);
   }
   
-public: //helpers
-  inline void SetCairoSourceRGBA(const IColor& color)
+  inline void ResetClipRegion() override
   {
-    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0);
+    cairo_reset_clip(mContext);
+  }
+  
+public:
+  inline float CairoWeight(const IChannelBlend* pBlend)
+  {
+    return (pBlend ? pBlend->mWeight : 1.0f);
+  }
+  
+  inline cairo_operator_t CairoBlendMode(const IChannelBlend* pBlend)
+  {
+    if (!pBlend)
+    {
+      return CAIRO_OPERATOR_OVER;
+    }
+    switch (pBlend->mMethod)
+    {
+      case IChannelBlend::kBlendClobber:
+      {
+        return CAIRO_OPERATOR_OVER;
+      }
+      case IChannelBlend::kBlendAdd:
+      {
+        return CAIRO_OPERATOR_ADD;
+      }
+      case IChannelBlend::kBlendColorDodge:
+      {
+        return CAIRO_OPERATOR_COLOR_DODGE;
+      }
+      case IChannelBlend::kBlendNone:
+      default:
+      {
+        return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
+      }
+    }
+  }
+  
+  inline void SetCairoSourceRGBA(const IColor& color, const IChannelBlend* pBlend = nullptr)
+  {
+    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
   }
   
   inline void CairoDrawRect(const IRECT& rect)
