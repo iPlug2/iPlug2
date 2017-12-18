@@ -98,7 +98,7 @@ public:
   double GetScale() const { return mScale; }
   void SetScale(double scale) { mScale = scale; }
   double GetDisplayScale() const { return mDisplayScale; }
-  void SetDisplayScale(double scale) { mDisplayScale = scale; mScale = scale; /* TODO: mScale should be different*/ }
+  void SetDisplayScale(double scale) { mDisplayScale = scale; }
   IPlugBase& GetPlug() { return mPlug; }
 
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
