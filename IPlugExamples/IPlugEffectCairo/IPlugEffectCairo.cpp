@@ -63,11 +63,15 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
 
-  IBitmap knob = pGraphics->LoadIBitmap(KNOB_FN, kKnobFrames, false, 1. /* this bitmap is 2* = hidpi */);
+  IBitmap knob = pGraphics->LoadIBitmap(KNOB_FN, kKnobFrames, false, 2. /* this bitmap is 2* = hidpi */);
+  IBitmap switchc = pGraphics->LoadIBitmap(SWITCH_FN, 3, false, 1. /* this bitmap is 2* = hidpi */);
 
-//  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX, kGainY, kGain, knob));
+//  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX, kGainY, -1, knob));
+  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX + 100, kGainY, -1, knob));
 
-  pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+100, kGainY+100), kGain, COLOR_BLACK));
+  //pGraphics->AttachControl(new ISwitchControl(*this, kGainX, kGainY, -1, switchc));
+
+  pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+48, kGainY+48), kGain, COLOR_BLACK));
 
 //  pGraphics->AttachControl(new MyCairoControl(*this, IRECT(kGainX, kGainY, kGainX+100, kGainY+100), kGain));
 //  IText basic;
@@ -77,7 +81,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 //  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), basic, builddatestr));
 
   AttachGraphics(pGraphics);
-  //pGraphics->ShowControlBounds(true);
+  pGraphics->ShowControlBounds(true);
   
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);

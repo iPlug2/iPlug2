@@ -8,7 +8,7 @@ BINARY_NAME = IPlugEffectCairo
 
 PKG_MAN_PATH = /usr/local/
 
-ADDITIONAL_INCLUDES = $(IGRAPHICS_PATH) $(PKG_MAN_PATH)/include
+ADDITIONAL_INCLUDES = $(IGRAPHICS_PATH) $(PKG_MAN_PATH)/include $(LICE_PATH)
 ADDITIONAL_LIBRARY_PATHS = $(PKG_MAN_PATH)/lib
 
 OTHER_LDFLAGS = $(PKG_MAN_PATH)/lib/libcairo.a $(PKG_MAN_PATH)/lib/libfreetype.a $(PKG_MAN_PATH)/lib/libpixman-1.a $(PKG_MAN_PATH)/lib/libpng.a $(PKG_MAN_PATH)/lib/libfontconfig.a /usr/local/opt/zlib/lib/libz.a /usr/local/opt/bzip2/lib/libbz2.a /usr/local/opt/expat/lib/libexpat.a
