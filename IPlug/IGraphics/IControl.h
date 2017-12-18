@@ -301,7 +301,7 @@ protected:
 class IKnobLineControl : public IKnobControl
 {
 public:
-  IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius = 0.0, double outerRadius = 0.0,
+  IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius = 10, double outerRadius = 20.,
                    double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI,
                    EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IKnobLineControl() {}
