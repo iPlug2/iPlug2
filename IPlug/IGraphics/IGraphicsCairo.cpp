@@ -111,34 +111,49 @@ void IGraphicsCairo::ReScale()
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
 {
+  ClipRegion(dest);
+  cairo_save(mContext);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
-  cairo_set_source_surface(mContext, surface, dest.L, dest.T - srcY);
-  cairo_paint(mContext);
+  cairo_scale(mContext, 1./bitmap.mSourceScale, 1./bitmap.mSourceScale);
+  
+  if(bitmap.mSourceScale > 1.) //TODO: check on non retina/mixed
+    cairo_translate(mContext, dest.L, dest.T);
+  
+  cairo_set_source_surface(mContext, surface, dest.L - (srcX * bitmap.mSourceScale), dest.T - (srcY * bitmap.mSourceScale));
+  cairo_set_operator(mContext, CairoBlendMode(pBlend));
+  cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
+//  cairo_paint(mContext);
+  cairo_restore(mContext);
+  ResetClipRegion();
 }
 
 void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend)
 {
+  //TODO:
+
 }
 
 void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend)
 {
+  //TODO:
+
 }
 
 void IGraphicsCairo::DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa)
 {
-  SetCairoSourceRGBA(color);
-
+  SetCairoSourceRGBA(color, pBlend);
+  //TODO:
 }
 
 void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
 {
   SetCairoSourceRGBA(color);
-
+  //TODO:
 }
 
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend);
   cairo_set_line_width(mContext, 1);
   cairo_move_to (mContext, x1, y1);
   cairo_line_to (mContext, x2, y2);
@@ -156,7 +171,7 @@ void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect)
 
 void IGraphicsCairo::DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
   cairo_set_line_width(mContext, 1);
   cairo_new_sub_path(mContext);
   cairo_move_to(mContext, x1, y1);
@@ -167,7 +182,7 @@ void IGraphicsCairo::DrawTriangle(const IColor& color, int x1, int y1, int x2, i
 
 void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend, bool aa)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend);
   cairo_set_line_width(mContext, 1);
   cairo_arc (mContext, cx, cy, r, minAngle, maxAngle);
   cairo_stroke (mContext);
@@ -175,7 +190,7 @@ void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, f
 
 void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend, bool aa)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend);
   cairo_set_line_width(mContext, 1);
   cairo_arc(mContext, cx, cy, r, 0, PI * 2.);
   cairo_stroke(mContext);
@@ -183,9 +198,8 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
 
 void IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int corner, bool aa)
 {
-  const double y = rect.B - rect.H();
-  SetCairoSourceRGBA(color);
-  //cairo_set_line_width(mContext, mDisplayScale);
+  const double y = rect.B - rect.H(); // TODO: should cairo_create_group?
+  SetCairoSourceRGBA(color, pBlend);
   cairo_new_sub_path(mContext);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
@@ -197,7 +211,7 @@ void IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const ICh
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int corner, bool aa)
 {
   const double y = rect.B - rect.H();
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
   cairo_new_sub_path(mContext);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
@@ -208,21 +222,21 @@ void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const
 
 void IGraphicsCairo::FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend);
   CairoDrawRect(rect);
   cairo_fill(mContext);
 }
 
 void IGraphicsCairo::FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend);
   cairo_arc(mContext, cx, cy, r, 0, 2 * PI);
   cairo_fill(mContext);
 }
 
 void IGraphicsCairo::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
   cairo_new_sub_path(mContext);
   cairo_move_to(mContext, x1, y1);
   cairo_line_to(mContext, x2, y2);
@@ -232,7 +246,7 @@ void IGraphicsCairo::FillTriangle(const IColor& color, int x1, int y1, int x2, i
 
 void IGraphicsCairo::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend)
 {
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
 
   cairo_new_sub_path(mContext);
   cairo_move_to(mContext, x[0], y[0]);
