@@ -1549,6 +1549,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "python ./scripts/generate_plists.py";
+			showEnvVarsInLog = 0;
 		};
 		4FBCC1B21FD5AE8500EFE550 /* Run Script - generate plists */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1563,6 +1564,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "python ./scripts/generate_plists.py";
+			showEnvVarsInLog = 0;
 		};
 		4FBCC1B31FD5AE9F00EFE550 /* Run Script - generate plists */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1577,6 +1579,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "python ./scripts/generate_plists.py";
+			showEnvVarsInLog = 0;
 		};
 		4FBCC1B41FD5AEB700EFE550 /* Run Script - generate plists */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1591,6 +1594,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "python ./scripts/generate_plists.py";
+			showEnvVarsInLog = 0;
 		};
 		4FBCC1B51FD5AED400EFE550 /* Run Script - generate plists */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1605,6 +1609,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "python ./scripts/generate_plists.py";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
