@@ -372,8 +372,9 @@ void IGraphics::Draw(const IRECT& rect)
       IControl* pControl = *ppControl;
       if (!(pControl->IsHidden()) && rect.Intersects(pControl->GetRECT()))
       {
-        ClipRegion(pControl->GetRECT());
+        ClipRegion(mDrawRECT);
         pControl->Draw(*this);
+        ResetClipRegion();
       }
       pControl->SetClean();
     }
@@ -381,7 +382,7 @@ void IGraphics::Draw(const IRECT& rect)
   else
   {
     IControl* pBG = mControls.Get(0);
-    if (pBG->IsDirty())   // Special case when everything needs to be drawn.
+    if (pBG->IsDirty()) // Special case when everything needs to be drawn.
     {
       mDrawRECT = pBG->GetRECT();
       for (int j = 0; j < n; ++j)
@@ -392,6 +393,7 @@ void IGraphics::Draw(const IRECT& rect)
           ClipRegion(pControl2->GetRECT());
           pControl2->Draw(*this);
           pControl2->SetClean();
+          ResetClipRegion();
         }
       }
     }
@@ -402,9 +404,6 @@ void IGraphics::Draw(const IRECT& rect)
         IControl* pControl = mControls.Get(i); // assign control i to pControl
         if (pControl->IsDirty())   // if pControl is dirty
         {
-
-          // printf("control %i is Dirty\n", i);
-
           mDrawRECT = pControl->GetRECT(); // put the rect in the mDrawRect member variable
           for (j = 0; j < n; ++j)   // loop through all controls
           {
@@ -413,10 +412,9 @@ void IGraphics::Draw(const IRECT& rect)
             // if control1 == control2 OR control2 is not hidden AND control2's rect intersects mDrawRect
             if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT().Intersects(mDrawRECT)))
             {
-              //if ((i == j) && (!pControl2->IsHidden())|| (!(pControl2->IsHidden()) && pControl2->GetRECT()->Intersects(&mDrawRECT))) {
-              //printf("control %i and %i \n", i, j);
-              ClipRegion(pControl2->GetRECT());
+              ClipRegion(mDrawRECT);
               pControl2->Draw(*this);
+              ResetClipRegion();
             }
           }
           pControl->SetClean();
