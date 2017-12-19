@@ -482,6 +482,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     mEdControl->TextFromTextEntry(txt);
   }
   
+  mGraphics->SetAllControlsDirty();
+  
   [self endUserInput ];
   [self setNeedsDisplay: YES];
 }
