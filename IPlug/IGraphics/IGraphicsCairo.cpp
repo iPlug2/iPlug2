@@ -67,13 +67,13 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
 
     const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
-//    if (sourceScale != targetScale) {
-//      return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
-//    }
-//    else {
+    if (sourceScale != targetScale) {
+      return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
+    }
+    else {
       s_bitmapCache.Add(pCB, name, sourceScale);
       return IBitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
-//    }
+    }
   }
 
   // if bitmap allready cached at scale
@@ -98,13 +98,10 @@ IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& inBitmap, const char* name, 
   int newH = (int)(inBitmap.H * targetScale);
   
   // Convert output to cairo
-  unsigned char* pDest = new unsigned char[newW * newH * 4];
-  memset(pDest, 0, newW * newH * 4 * sizeof(unsigned char));
-  cairo_surface_t* pOutSurface = cairo_image_surface_create_for_data(pDest, CAIRO_FORMAT_ARGB32, newW, newH, cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, newW));
+  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, newW, newH);
   cairo_t* pOutContext = cairo_create(pOutSurface);
-  
-  // Paint from one surface to another
-  cairo_set_source_surface(pOutContext, (cairo_surface_t*) inBitmap.mData, 0, 0);
+
+  cairo_set_source_surface(pOutContext, (cairo_surface_t*)inBitmap.mData, 0, 0);
   cairo_scale(pOutContext, 1. / targetScale, 1. / targetScale);
   cairo_paint(pOutContext);
 
@@ -112,13 +109,9 @@ IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& inBitmap, const char* name, 
   
   s_bitmapCache.Add(pCB, name, targetScale);
   
-  const IBitmap outBitmap(pCB->surface, inBitmap.W, inBitmap.H, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
-
-  // Destroy cairo stuff
-  cairo_surface_finish(pOutSurface);
   cairo_destroy(pOutContext);
 
-  return outBitmap;
+  return IBitmap(pCB->surface, inBitmap.W, inBitmap.H, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
 }
 
 IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, double targetScale)
