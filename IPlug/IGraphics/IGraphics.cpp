@@ -428,7 +428,7 @@ void IGraphics::Draw(const IRECT& rect)
   if(mShowAreaDrawn)
   {
     static IColor c;
-    c.Randomise(200);
+    c.Randomise(50);
     FillIRect(c, rect);
   }
   
