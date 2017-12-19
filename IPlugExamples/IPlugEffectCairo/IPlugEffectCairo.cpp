@@ -20,12 +20,9 @@ public:
   void Draw(IGraphics& graphics)
   {
     cairo_t* cr = (cairo_t*) graphics.GetData();
-    IRECT r = mRECT.GetFlipped(graphics.Height()).GetScaled(graphics.GetDisplayScale());
-    
-    cairo_set_line_width(cr, 1. * graphics.GetDisplayScale());
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, r.L, r.T);
-    cairo_line_to(cr, r.R, r.B);
+    cairo_move_to(cr, mRECT.L, mRECT.T);
+    cairo_line_to(cr, mRECT.R, mRECT.B);
     cairo_close_path(cr);
     cairo_stroke(cr);
   };
@@ -73,7 +70,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+48, kGainY+48), kGain, COLOR_BLACK));
 
-//  pGraphics->AttachControl(new MyCairoControl(*this, IRECT(kGainX, kGainY, kGainX+100, kGainY+100), kGain));
+  pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 100, 100), -1));
 //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
@@ -81,7 +78,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 //  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), basic, builddatestr));
 
   AttachGraphics(pGraphics);
-  pGraphics->ShowControlBounds(true);
+  //pGraphics->ShowControlBounds(true);
   
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
