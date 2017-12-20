@@ -611,7 +611,6 @@ struct HTREEITEM__
 };
 
 
-
 #ifndef SWELL_TARGET_OSX 
 
 #include "../wdlstring.h"
@@ -748,7 +747,6 @@ struct HDC__ {
 HWND DialogBoxIsActive(void);
 void DestroyPopupMenus(void);
 HWND ChildWindowFromPoint(HWND h, POINT p);
-bool IsWindowEnabled(HWND hwnd);
 HWND GetFocusIncludeMenus();
 
 void SWELL_RunEvents();

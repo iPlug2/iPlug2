@@ -268,6 +268,8 @@ bool IsWindowVisible(HWND hwnd)
   return false;
 }
 
+bool IsModalDialogBox(HWND hwnd);
+
 LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (!hwnd) return 0;
@@ -284,6 +286,8 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
   else if (hwnd->m_hashaddestroy == 2) return 0;
   else if (msg==WM_CAPTURECHANGED && hwnd->m_hashaddestroy) return 0;
     
+  hwnd->Retain();
+
   LRESULT ret = wp ? wp(hwnd,msg,wParam,lParam) : 0;
  
   if (msg == WM_DESTROY)
@@ -299,20 +303,15 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       tmp=tmp->m_next;
       SendMessage(old,WM_DESTROY,0,0);
     }
-#if 0 
-      // todo: option to destroy owned windows?
-      // might only make sense for modal windows? unsure
-      // if we do this, we should make BrowseForFiles() etc take HWND owners
     {
       tmp=hwnd->m_owned_list;
       while (tmp)
       {
         HWND old = tmp;
         tmp=tmp->m_owned_next;
-        SendMessage(old,WM_DESTROY,0,0);
+        if (!IsModalDialogBox(old)) SendMessage(old,WM_DESTROY,0,0);
       }
     }
-#endif
     if (SWELL_focused_oswindow && SWELL_focused_oswindow == hwnd->m_oswindow)
     {
       HWND h = hwnd->m_owner;
@@ -323,6 +322,7 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     hwnd->m_hashaddestroy=2;
     KillTimer(hwnd,-1);
   }
+  hwnd->Release();
   return ret;
 }
 
@@ -355,7 +355,7 @@ static void swell_removeWindowFromParentOrTop(HWND__ *hwnd, bool removeFromOwner
   if (par && !par->m_hashaddestroy) InvalidateRect(par,NULL,FALSE);
 }
 
-static void RecurseDestroyWindow(HWND hwnd)
+void RecurseDestroyWindow(HWND hwnd)
 {
   HWND tmp=hwnd->m_children;
   hwnd->m_children=NULL;
@@ -380,10 +380,7 @@ static void RecurseDestroyWindow(HWND hwnd)
 
     old->m_owned_prev = old->m_owned_next = NULL;
     old->m_owner = NULL;
-#if 0
-      // todo: option to destroy owned windows?
     if (old->m_hashaddestroy) RecurseDestroyWindow(old);
-#endif
   }
 
   if (swell_captured_window == hwnd) swell_captured_window=NULL;
@@ -1262,7 +1259,7 @@ static LRESULT WINAPI buttonWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 {
   switch (msg)
   {
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       delete (buttonWindowState *)hwnd->m_private_data;
       hwnd->m_private_data=0;
     break;
@@ -1290,6 +1287,7 @@ fakeButtonClick:
         RECT r;
         GetClientRect(hwnd,&r);
         POINT p={GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam)};
+        hwnd->Retain();
         if ((msg==WM_KEYDOWN||PtInRect(&r,p)) && hwnd->m_id && hwnd->m_parent) 
         {
           int sf = (hwnd->m_style & 0xf);
@@ -1343,6 +1341,7 @@ fakeButtonClick:
           SendMessage(hwnd->m_parent,WM_COMMAND,MAKEWPARAM(hwnd->m_id,BN_CLICKED),(LPARAM)hwnd);
         }
         if (msg == WM_KEYDOWN) InvalidateRect(hwnd,NULL,FALSE);
+        hwnd->Release();
       }
     return 0;
     case WM_PAINT:
@@ -1444,7 +1443,10 @@ fakeButtonClick:
               g_swell_ctheme.button_hilight,
               g_swell_ctheme.button_shadow,pressed);
 
-            f|=DT_CENTER;
+            if (hwnd->m_style & BS_LEFT)
+              r.left+=2;
+            else
+              f|=DT_CENTER;
             if (pressed) 
             {
               const int pad = SWELL_UI_SCALE(2);
@@ -2340,10 +2342,10 @@ static LRESULT WINAPI editWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
   static int s_capmode_state /* 1=vscroll, 2=hscroll, 3=move sel1, 4=move sel2*/, s_capmode_data1;
   switch (msg)
   {
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       delete es;
       hwnd->m_private_data=0;
-    return 0;
+    break;
     case WM_CONTEXTMENU:
       {
         HMENU menu=CreatePopupMenu();
@@ -2819,7 +2821,7 @@ static LRESULT WINAPI progressWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
       if (hwnd->m_private_data) ((int *)hwnd->m_private_data)[1] = (int) lParam;
       InvalidateRect(hwnd,NULL,FALSE);
     break;
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       free((int *)hwnd->m_private_data);
       hwnd->m_private_data=0;
     break;
@@ -2888,7 +2890,7 @@ static LRESULT WINAPI trackbarWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
     case TBM_SETTIC:
       if (hwnd->m_private_data) ((int *)hwnd->m_private_data)[2] = (int) lParam;
     break;
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       free((int *)hwnd->m_private_data);
       hwnd->m_private_data=0;
     break;
@@ -3243,11 +3245,9 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
   switch (msg)
   {
-    case WM_DESTROY:
-      {
-       hwnd->m_private_data=0;
-       delete s;
-      }
+    case WM_NCDESTROY:
+      hwnd->m_private_data=0;
+      delete s;
     break;
     case WM_TIMER:
       if (wParam == 100)
@@ -3505,7 +3505,7 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
   if (a < 65536) label = "ICONTEMP";
   
   RECT tr=MakeCoords(x,y,w,h,true);
-  HWND hwnd = swell_makeButton(m_make_owner,idx,&tr,label,!(flags&SWELL_NOT_WS_VISIBLE),def ? BS_DEFPUSHBUTTON : 0);
+  HWND hwnd = swell_makeButton(m_make_owner,idx,&tr,label,!(flags&SWELL_NOT_WS_VISIBLE),(def ? BS_DEFPUSHBUTTON : 0) | (flags&BS_LEFT));
 
   if (m_doautoright) UpdateAutoCoords(tr);
   if (def) { }
@@ -3963,6 +3963,8 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
           {
             //if (oldsel != lvs->m_selitem) 
             SendMessage(GetParent(hwnd),WM_COMMAND,(LBN_SELCHANGE<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+            if (msg == WM_LBUTTONDBLCLK)
+              SendMessage(GetParent(hwnd),WM_COMMAND,(LBN_DBLCLK<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
           }
           else
           {
@@ -4018,6 +4020,8 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
           if (lvs->m_is_listbox)
           {
             if (changed) SendMessage(GetParent(hwnd),WM_COMMAND,(LBN_SELCHANGE<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+            if (msg == WM_LBUTTONDBLCLK)
+              SendMessage(GetParent(hwnd),WM_COMMAND,(LBN_DBLCLK<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
           }
           else 
           {
@@ -4606,10 +4610,10 @@ forceMouseMove:
         }
       }
     return 0;
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       hwnd->m_private_data = 0;
       delete lvs;
-    return 0;
+    break;
     case LB_ADDSTRING:
       if (lvs && !lvs->IsOwnerData())
       {
@@ -5225,10 +5229,10 @@ forceMouseMove:
         }
       }
     return 0;
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       hwnd->m_private_data = 0;
       delete tvs;
-    return 0;
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5250,10 +5254,10 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
   tabControlState *s = (tabControlState *)hwnd->m_private_data;
   switch (msg)
   {
-    case WM_DESTROY:
+    case WM_NCDESTROY:
       hwnd->m_private_data = 0;
       delete s;
-    return 0;  
+    break;
     case WM_TIMER:
       if (wParam==1)
       {
@@ -5582,6 +5586,10 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     hwnd->m_private_data = (INT_PTR) calloc(3,sizeof(int)); // pos, range, tic
     hwnd->m_wndproc(hwnd,WM_CREATE,0,0);
     return hwnd;
+  }
+  else if (!stricmp(classname,"COMBOBOX"))
+  {
+    return SWELL_MakeCombo(idx, x, y, w, h, style);
   }
   return 0;
 }
@@ -7409,6 +7417,7 @@ int ListView_GetTopIndex(HWND h)
 }
 BOOL ListView_GetColumnOrderArray(HWND h, int cnt, int* arr)
 {
+  if (arr) for (int x=0;x<cnt;x++) arr[x]=x; // todo
   return FALSE;
 }
 BOOL ListView_SetColumnOrderArray(HWND h, int cnt, int* arr)

@@ -1431,6 +1431,28 @@ bool IsWindowVisible(HWND hwnd)
   return true;
 }
 
+
+bool IsWindowEnabled(HWND hwnd)
+{
+  if (!hwnd) return false;
+
+  bool rv = true;
+
+  SWELL_BEGIN_TRY
+
+  id view = (id)hwnd;
+  if ([view isKindOfClass:[NSWindow class]]) view = [view contentView];
+
+  rv = view && [view respondsToSelector:@selector(isEnabled)] && [view isEnabled];
+
+  SWELL_END_TRY(;)
+
+  return rv;
+}
+
+
+
+
 static void *__GetNSImageFromHICON(HICON ico) // local copy to not be link dependent on swell-gdi.mm
 {
   HGDIOBJ__ *i = (HGDIOBJ__ *)ico;
@@ -3016,6 +3038,7 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
   [button setTitle:labelstr];
   [button setTarget:ACTIONTARGET];
   [button setAction:@selector(onSwellCommand:)];
+  if (flags & BS_LEFT) [button setAlignment:NSLeftTextAlignment];
   if (flags&SWELL_NOT_WS_VISIBLE) [button setHidden:YES];
   [m_make_owner addSubview:button];
   if (m_doautoright) UpdateAutoCoords([button frame]);
@@ -3172,7 +3195,14 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
       NSScrollView *obj2=[[NSScrollView alloc] init];
       [obj2 setFrame:fr];
       if (flags&WS_VSCROLL) [obj2 setHasVerticalScroller:YES];
-      if (flags&WS_HSCROLL) [obj2 setHasHorizontalScroller:YES];
+      if (flags&WS_HSCROLL) 
+      {
+        [obj2 setHasHorizontalScroller:YES];
+        [obj setMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+        [obj setHorizontallyResizable:YES];
+        [[obj textContainer] setWidthTracksTextView:NO];
+        [[obj textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+      }
       [obj2 setAutohidesScrollers:YES];
       [obj2 setDrawsBackground:NO];
       [obj2 setDocumentView:obj];
@@ -3437,7 +3467,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     {
       LVCOLUMN lvc={0,};
       lvc.mask=LVCF_TEXT|LVCF_WIDTH;
-      lvc.cx=(int)ceil(wdl_max(tr.size.width,300.0));
+      lvc.cx=(int)ceil(wdl_max(tr.size.width - 4.0,isLB ? 1200.0 : 300.0));
       lvc.pszText=(char*)"";
       ListView_InsertColumn((HWND)obj,0,&lvc);
       if (isLB && (style & LBS_OWNERDRAWFIXED))
@@ -3630,6 +3660,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
         [button setCell:cell];
         [cell release];
       }
+      if (style & BS_LEFT) [button setAlignment:NSLeftTextAlignment];
 //      fr.size.width+=8;
     }
     
@@ -3666,6 +3697,10 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     [m_make_owner addSubview:obj];
     [obj release];
     return (HWND)obj;
+  }
+  else if (!stricmp(classname,"COMBOBOX"))
+  {
+    return SWELL_MakeCombo(idx, x, y, w, h, style);
   }
   return 0;
 }

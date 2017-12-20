@@ -46,6 +46,8 @@ WDL_WIN32_UTF8_IMPL BOOL SHGetPathFromIDListUTF8(const struct _ITEMIDLIST __unal
 WDL_WIN32_UTF8_IMPL BOOL SHGetPathFromIDListUTF8(const struct _ITEMIDLIST *pidl, LPSTR pszPath, int pszPathLen);
 #endif
 
+WDL_WIN32_UTF8_IMPL BOOL SHGetSpecialFolderPathUTF8(HWND hwndOwner, LPTSTR lpszPath, int pszPathLen, int csidl, BOOL create);
+
 WDL_WIN32_UTF8_IMPL struct _ITEMIDLIST *SHBrowseForFolderUTF8(struct _browseinfoA *browseInfoA);
 WDL_WIN32_UTF8_IMPL int WDL_UTF8_SendBFFM_SETSEL(HWND hwnd, const char *str); // sends BFFM_SETSELECTIONA or BFFM_SETSELECTIONW
 
@@ -77,6 +79,23 @@ WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookTabCtrl(HWND h);
 
 WDL_WIN32_UTF8_IMPL LPSTR GetCommandParametersUTF8();
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDISPINFO 
+
+WDL_WIN32_UTF8_IMPL UINT GetPrivateProfileIntUTF8(LPCTSTR appStr, LPCTSTR keyStr, INT def, LPCTSTR fnStr);
+WDL_WIN32_UTF8_IMPL DWORD GetPrivateProfileStringUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPCTSTR defStr, LPTSTR retStr, DWORD nSize, LPCTSTR fnStr);
+WDL_WIN32_UTF8_IMPL BOOL WritePrivateProfileStringUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPCTSTR str, LPCTSTR fnStr);
+WDL_WIN32_UTF8_IMPL BOOL GetPrivateProfileStructUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPVOID pStruct, UINT uSize, LPCTSTR fnStr);
+WDL_WIN32_UTF8_IMPL BOOL WritePrivateProfileStructUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPVOID pStruct, UINT uSize, LPCTSTR fnStr);
+
+WDL_WIN32_UTF8_IMPL DWORD GetModuleFileNameUTF8(HMODULE hModule, LPTSTR fnStr, DWORD nSize);
+
+WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lpCommandLine,
+  LPSECURITY_ATTRIBUTES lpProcessAttributes,
+  LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles,
+  DWORD dwCreationFlags,
+  LPVOID lpEnvironment,
+  LPCTSTR lpCurrentDirectory,
+  LPSTARTUPINFO lpStartupInfo,
+  LPPROCESS_INFORMATION lpProcessInformation);
 
 #ifdef SetWindowText
 #undef SetWindowText
@@ -201,6 +220,42 @@ WDL_WIN32_UTF8_IMPL void WDL_UTF8_ListViewConvertDispInfoToW(void *di); //NMLVDI
 #undef LoadLibrary
 #endif
 #define LoadLibrary LoadLibraryUTF8
+
+#ifdef GetPrivateProfileInt
+#undef GetPrivateProfileInt
+#endif
+#define GetPrivateProfileInt GetPrivateProfileIntUTF8
+
+#ifdef GetPrivateProfileString
+#undef GetPrivateProfileString
+#endif
+#define GetPrivateProfileString GetPrivateProfileStringUTF8
+
+#ifdef WritePrivateProfileString
+#undef WritePrivateProfileString
+#endif
+#define WritePrivateProfileString WritePrivateProfileStringUTF8
+
+#ifdef WritePrivateProfileStruct
+#undef WritePrivateProfileStruct
+#endif
+#define WritePrivateProfileStruct WritePrivateProfileStructUTF8
+
+#ifdef GetPrivateProfileStruct
+#undef GetPrivateProfileStruct
+#endif
+#define GetPrivateProfileStruct GetPrivateProfileStructUTF8
+
+
+#ifdef GetModuleFileName
+#undef GetModuleFileName
+#endif
+#define GetModuleFileName GetModuleFileNameUTF8
+
+#ifdef CreateProcess
+#undef CreateProcess
+#endif
+#define CreateProcess CreateProcessUTF8
 
 #else
 
