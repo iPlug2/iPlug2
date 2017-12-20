@@ -422,7 +422,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 }
 
 IGraphicsWin::IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps)
-  : IGraphics(plug, w, h, fps), mPlugWnd(0), mParamEditWnd(0),
+  : IGRAPHICS_DRAW_CLASS(plug, w, h, fps), mPlugWnd(0), mParamEditWnd(0),
     mPID(0), mParentWnd(0), mMainWnd(0), mCustomColorStorage(0),
     mEdControl(0), mEdParam(0), mDefEditProc(0), mParamEditMsg(kNone),
     mTooltipWnd(0), mShowingTooltip(false), mTooltipIdx(-1),
@@ -435,18 +435,18 @@ IGraphicsWin::~IGraphicsWin()
   FREE_NULL(mCustomColorStorage);
 }
 
-void* IGraphicsWin::OSLoadBitmap(int ID, const char* name)
+void IGraphicsWin::OSLoadBitmap(int ID, const char* name)
 {
   const char* ext = name+strlen(name)-1;
   while (ext > name && *ext != '.') --ext;
   ++ext;
 
-  if (!stricmp(ext, "png")) return LICE_LoadPNGFromResource(mHInstance, ID, 0);
+  if (!stricmp(ext, "png"))
+	LICE_LoadPNGFromResource(mHInstance, ID, 0);
   #ifdef IPLUG_JPEG_SUPPORT
-  if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg")) return LICE_LoadJPGFromResource(mHInstance, ID, 0);
+  if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg"))
+	LICE_LoadJPGFromResource(mHInstance, ID, 0);
   #endif
-
-  return 0;
 }
 
 void GetWindowSize(HWND pWnd, int* pW, int* pH)
@@ -1201,7 +1201,7 @@ void IGraphicsWin::HideTooltip()
   }
 }
 
-bool IGraphicsWin::GetTextFromClipboard(WDL_String* pStr)
+bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
 {
   bool success = false;
   HGLOBAL hglb;
@@ -1248,7 +1248,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String* pStr)
             if (num_chars > 0)
             {
               success = true;
-              pStr->Set(new_str);
+              str.Set(new_str);
             }
             
             delete [] new_str;
@@ -1263,7 +1263,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String* pStr)
   }
   
   if(!success)
-    pStr->Set("");
+    str.Set("");
   
   return success;
 }
