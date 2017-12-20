@@ -189,8 +189,8 @@ protected:
   inline int GetMouseY() const { return mMouseY; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
-  // this is called by the API class to blit the IGraphicsLice etc bitmap onto the screen
-  virtual void RenderAPIBitmap(void* pContext) = 0;
+  // this is called by some drawing API classes to blit the bitmap onto the screen (IGraphicsLice)
+  virtual void RenderAPIBitmap(void* pContext) {}
 
 private:
   int mWidth, mHeight, mFPS, mIdleTicks;

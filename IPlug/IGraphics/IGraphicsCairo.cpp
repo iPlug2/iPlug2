@@ -351,14 +351,3 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   IGraphics::SetPlatformContext(pContext);
 }
 
-void IGraphicsCairo::RenderAPIBitmap(void *pContext)
-{
-//    TODO: bg color?
-//    int w = Width();
-//    int h = Height();
-//    cairo_set_source_rgb(mContext, 1., 1., 1.);
-//    cairo_rectangle(mContext, 0, 0, w, h);
-//    cairo_fill(mContext);
-}
-
-

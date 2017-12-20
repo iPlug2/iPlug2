@@ -103,7 +103,6 @@ public:
     cairo_rectangle (mContext, rect.L, rect.T, rect.W(), rect.H());
   }
 protected:
-  void RenderAPIBitmap(void* pContext) override;
   cairo_t *mContext;
   cairo_surface_t *mSurface;
 };
