@@ -405,7 +405,7 @@ bool InitialiseAudio(unsigned int inId,
       {
         gDAC->abortStream();
       }
-      catch (RtError& e)
+      catch (RtAudioError& e)
       {
         e.printMessage();
       }
@@ -448,7 +448,7 @@ bool InitialiseAudio(unsigned int inId,
 
     memcpy(gActiveState, gState, sizeof(AppState)); // copy state to active state
   }
-  catch ( RtError& e )
+  catch ( RtAudioError& e )
   {
     e.printMessage();
     return false;
@@ -463,7 +463,7 @@ bool InitialiseMidi()
   {
     gMidiIn = new RtMidiIn();
   }
-  catch ( RtError &error )
+  catch ( RtAudioError &error )
   {
     FREE_NULL(gMidiIn);
     error.printMessage();
@@ -474,7 +474,7 @@ bool InitialiseMidi()
   {
     gMidiOut = new RtMidiOut();
   }
-  catch ( RtError &error )
+  catch ( RtAudioError &error )
   {
     FREE_NULL(gMidiOut);
     error.printMessage();
@@ -634,7 +634,7 @@ void Cleanup()
     // Stop the stream
     gDAC->stopStream();
   }
-  catch (RtError& e)
+  catch (RtAudioError& e)
   {
     e.printMessage();
   }
