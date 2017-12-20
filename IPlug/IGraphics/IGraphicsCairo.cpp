@@ -312,8 +312,14 @@ void IGraphicsCairo::FillIConvexPolygon(const IColor& color, int* x, int* y, int
 
 IColor IGraphicsCairo::GetPoint(int x, int y)
 {
-  unsigned char* pData = cairo_image_surface_get_data(mSurface);
-  int stride = cairo_image_surface_get_stride(mSurface);
+  // Convert suface to cairo image surface
+  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, Width(), Height());
+  cairo_t* pOutContext = cairo_create(pOutSurface);
+  cairo_set_source_surface(pOutContext, mSurface, 0, 0);
+  cairo_paint(pOutContext);
+  
+  unsigned char* pData = cairo_image_surface_get_data(pOutSurface);
+  int stride = cairo_image_surface_get_stride(pOutSurface);
   
   unsigned int* pPixel = (unsigned int*)(pData + y * stride);
   pPixel += x;
@@ -321,7 +327,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   int A = ((*pPixel) >> 0) & 0xff;
   int R = ((*pPixel) >> 8) & 0xff;
   int G = ((*pPixel) >> 16) & 0xff;
-  int B = ((*pPixel) >> 32) & 0xff;
+  int B = ((*pPixel) >> 24) & 0xff;
   
   return IColor(A, R, G, B);
 }
@@ -340,9 +346,9 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 {
   if(!mSurface)
   {
-    int w = Width();
-    int h = Height();
-    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), w , h);
+#ifdef OS_OSX
+    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width() , Height());
+#endif
     mContext = cairo_create(mSurface);
     cairo_scale(mContext, 1, -1);
     cairo_translate(mContext, 0., -Height());
