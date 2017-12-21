@@ -34,17 +34,19 @@ public:
   virtual void DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
 
   virtual void ForcePixel(const IColor& color, int x, int y) = 0;
+ 
   virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
   virtual void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
-
   virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
   virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
-  virtual void RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
+  virtual void DrawRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
+  
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr, int cornerradius = 5, bool aa = false) = 0;
   virtual void FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend = nullptr) = 0;
   virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend = nullptr, bool aa = false) = 0;
   virtual void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend = nullptr) = 0;
   virtual void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) = 0;
+
   virtual bool DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
   virtual bool MeasureIText(const IText& text, const char* str, IRECT& destRect) = 0;
 

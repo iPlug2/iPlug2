@@ -296,7 +296,7 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
   LICE_Circle(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
 }
 
-void IGraphicsLice::RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);

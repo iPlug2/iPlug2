@@ -249,7 +249,7 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
   cairo_stroke(mContext);
 }
 
-void IGraphicsCairo::RoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int corner, bool aa)
+void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int corner, bool aa)
 {
   const double y = rect.B - rect.H(); // TODO: should cairo_create_group?
   SetCairoSourceRGBA(color, pBlend);
