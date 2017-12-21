@@ -123,13 +123,11 @@ void GetResourcePathFromBundle(const char* bundleID, const char* filename, const
       return;
     }
   }
-  
-  return;
 }
 
 void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& path)
 {
-  return GetResourcePathFromBundle(GetBundleID(), name, "png", path);
+  GetResourcePathFromBundle(GetBundleID(), name, "png", path);
 }
 
 void IGraphicsMac::DrawScreen(const IRECT& pR)

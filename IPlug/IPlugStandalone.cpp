@@ -1,5 +1,7 @@
 #include "IPlugStandalone.h"
+#ifdef OS_OSX
 #include "swell.h"
+#endif
 extern HWND gHWND;
 
 IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,

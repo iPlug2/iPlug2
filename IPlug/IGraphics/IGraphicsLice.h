@@ -53,10 +53,10 @@ protected:
   void RenderAPIBitmap(void* pContext) override;
   
 private:
-  LICE_IBitmap* LoadAPIBitmap(const char* path);
-  
 #ifdef OS_OSX
+  LICE_IBitmap* LoadAPIBitmap(const char* path);
   CGColorSpaceRef mColorSpace;
+  
 #endif
   LICE_SysBitmap* mDrawBitmap;
   LICE_IFont* CacheFont(IText& text);

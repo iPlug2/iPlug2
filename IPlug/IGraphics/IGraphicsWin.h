@@ -21,7 +21,7 @@
   #endif
 #endif
 
-class IGraphicsWin : public IGraphics
+class IGraphicsWin : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int refreshFPS);
@@ -52,7 +52,7 @@ public:
   void AppSupportPath(WDL_String& path, bool isSystem = false);
   void SandboxSafeAppSupportPath(WDL_String& path) { AppSupportPath(path, false); }
 
-  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, char* pExtensions = "");   // extensions = "txt wav" for example.
+  void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = "");
   bool PromptForColor(IColor& colour, const char* pStr);
 
   IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu);
@@ -73,9 +73,9 @@ public:
 
   const char* GetGUIAPI() { return "Windows GDI"; };
   
-  bool GetTextFromClipboard(WDL_String* pStr);
+  bool GetTextFromClipboard(WDL_String& str);
 protected:
-  void* OSLoadBitmap(int ID, const char* name);
+  void OSLoadBitmap(int ID, const char* name);
 
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
