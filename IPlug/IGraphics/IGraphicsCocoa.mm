@@ -496,7 +496,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSWindow* pWindow = [self window];
 
   NSPoint wp = {rect.origin.x, rect.origin.y - 4};
-  wp = [self convertPointToBacking:wp];
+  wp = [self convertPointToBase:wp];
   
   //fix position for retina display
   float displayScale = 1.0f;
