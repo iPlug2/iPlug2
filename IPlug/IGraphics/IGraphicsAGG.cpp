@@ -342,7 +342,7 @@ void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, 
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::RoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
