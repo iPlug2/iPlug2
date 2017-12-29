@@ -12,6 +12,8 @@
 class IGraphicsLice : public IGraphics
 {
 public:
+  const char* GetDrawingAPIStr() override { return "LICE"; }
+
   IGraphicsLice(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsLice();
 

@@ -78,6 +78,7 @@ public:
   virtual bool PromptForColor(IColor& pColor, const char* pStr = "") = 0;
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   virtual const char* GetGUIAPI() { return ""; }
+  virtual const char* GetDrawingAPIStr() = 0;
   virtual bool WindowIsOpen() { return GetWindow(); }
   virtual void HostPath(WDL_String& path) = 0;
   virtual void PluginPath(WDL_String& path) = 0;

@@ -61,6 +61,8 @@
 class IGraphicsAGG : public IGraphics
 {
 public:
+  const char* GetDrawingAPIStr() override { return "AGG"; }
+
   struct LineInfo {
     int start_char;
     int end_char;
