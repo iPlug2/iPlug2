@@ -47,20 +47,17 @@ IPopupMenuItem* IPopupMenu::AddItem(IPopupMenuItem* item, int index)
 
 IPopupMenuItem* IPopupMenu::AddItem(const char* text, int index, int itemFlags)
 {
-  IPopupMenuItem* item = new IPopupMenuItem(text, itemFlags);
-  return AddItem(item, index);
+  return AddItem(new IPopupMenuItem(text, itemFlags), index);
 }
 
-IPopupMenuItem* IPopupMenu::AddItem(const char* text, int index, IPopupMenu* submenu)
+IPopupMenuItem* IPopupMenu::AddItem(const char* text, int index, IPopupMenu* pSubmenu)
 {
-  IPopupMenuItem* item = new IPopupMenuItem(text, submenu);
-  return AddItem(item, index);
+  return AddItem(new IPopupMenuItem(text, pSubmenu), index);
 }
 
-IPopupMenuItem* IPopupMenu::AddItem(const char* text, IPopupMenu* submenu)
+IPopupMenuItem* IPopupMenu::AddItem(const char* text, IPopupMenu* pSubmenu)
 {
-  IPopupMenuItem* item = new IPopupMenuItem(text, submenu);
-  return AddItem(item, -1);
+  return AddItem(new IPopupMenuItem(text, pSubmenu), -1);
 }
 
 IPopupMenuItem* IPopupMenu::AddSeparator(int index)

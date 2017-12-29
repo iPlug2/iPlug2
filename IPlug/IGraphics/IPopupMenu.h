@@ -26,7 +26,7 @@ public:
 
   IPopupMenuItem(const char* text, int flags = kNoFlags)
     : mFlags(flags)
-    , mSubmenu(0)
+    , mSubmenu(nullptr)
   {
     SetText(text);
   }
@@ -76,9 +76,9 @@ public:
     mMenuItems.Empty(true);
   }
 
-  IPopupMenuItem* AddItem(IPopupMenuItem* item, int index = -1);
-  IPopupMenuItem* AddItem(const char* text, int index, IPopupMenu* submenu);
-  IPopupMenuItem* AddItem(const char* text, IPopupMenu* submenu);
+  IPopupMenuItem* AddItem(IPopupMenuItem* pItem, int index = -1);
+  IPopupMenuItem* AddItem(const char* text, int index, IPopupMenu* pSubmenu);
+  IPopupMenuItem* AddItem(const char* text, IPopupMenu* pSubmenu);
   IPopupMenuItem* AddItem(const char* text, int index = -1, int itemFlags = IPopupMenuItem::kNoFlags);
   IPopupMenuItem* AddSeparator(int index = -1);
 
