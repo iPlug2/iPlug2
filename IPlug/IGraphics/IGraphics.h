@@ -26,6 +26,7 @@ public:
   virtual void Draw(const IRECT& rect);
   virtual void DrawScreen(const IRECT& rect) = 0;
   void DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
+  void DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IChannelBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
   
 #pragma mark - IGraphics API  impl drawing (pure virtual)
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend = nullptr) = 0;

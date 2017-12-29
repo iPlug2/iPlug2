@@ -19,3 +19,5 @@
 #define DEFAULT_TEXT_ENTRY_LEN 7
 
 #define DEFAULT_GEARING 4.0
+
+const float GRAYED_ALPHA = 0.25f;

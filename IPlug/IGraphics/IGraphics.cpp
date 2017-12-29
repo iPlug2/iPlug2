@@ -273,6 +273,70 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
 }
 
+void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IChannelBlend* pBlend, const char* pStr, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+{
+  if (CSTR_NOT_EMPTY(pStr))
+  {
+    int stringLength = (int) strlen(pStr);
+    
+    int basicYOffset, basicXOffset;
+    
+    if (vCenter)
+      basicYOffset = rect.T + ((rect.H() - charHeight) / 2);
+    else
+      basicYOffset = rect.T;
+    
+    if (text.mAlign == IText::kAlignCenter)
+      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2);
+    else if (text.mAlign == IText::kAlignNear)
+      basicXOffset = rect.L;
+    else if (text.mAlign == IText::kAlignFar)
+      basicXOffset = rect.R - (stringLength * charWidth);
+    
+    int widthAsOneLine = charWidth * stringLength;
+    
+    int nLines;
+    int stridx = 0;
+    
+    int nCharsThatFitIntoLine;
+    
+    if(multiline)
+    {
+      if (widthAsOneLine > rect.W())
+      {
+        nCharsThatFitIntoLine = rect.W() / charWidth;
+        nLines = (widthAsOneLine / rect.W()) + 1;
+      }
+      else // line is shorter than width of rect
+      {
+        nCharsThatFitIntoLine = stringLength;
+        nLines = 1;
+      }
+    }
+    else
+    {
+      nCharsThatFitIntoLine = rect.W() / charWidth;
+      nLines = 1;
+    }
+    
+    for(int line=0; line<nLines; line++)
+    {
+      int yOffset = basicYOffset + line * charHeight;
+      
+      for(int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
+      {
+        if (pStr[stridx] == '\0') return;
+        
+        int frameOffset = (int) pStr[stridx++] - 31; // calculate which frame to look up
+        
+        int xOffset = (linepos * (charWidth + charOffset)) + basicXOffset;    // calculate xOffset for character we're drawing
+        IRECT charRect = IRECT(xOffset, yOffset, xOffset + charWidth, yOffset + charHeight);
+        DrawBitmap(bitmap, charRect, frameOffset, pBlend);
+      }
+    }
+  }
+}
+
 void IGraphics::DrawRect(const IColor& color, const IRECT& rect)
 {
   DrawHorizontalLine(color, rect.T, rect.L, rect.R);
@@ -439,13 +503,18 @@ void IGraphics::Draw(const IRECT& rect)
       IControl* pControl = mControls.Get(j);
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
-    
-    WDL_String str;
-    str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
-    IText txt(20, CONTROL_BOUNDS_COLOR);
-    IRECT rect(Width() - 150, Height() - 20, Width(), Height());
-//    DrawIText(txt, str.Get(), rect);
   }
+  
+//  WDL_String str;
+//  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
+  IText txt(20, CONTROL_BOUNDS_COLOR);
+  txt.mAlign = IText::kAlignNear;
+  IRECT r;
+//  DrawIText(txt, str.Get(), r);
+  MeasureIText(txt, GetDrawingAPIStr(), r);
+  FillIRect(COLOR_BLACK, r);
+  DrawIText(txt, GetDrawingAPIStr(), r);
+
 #endif
 
   DrawScreen(rect);
