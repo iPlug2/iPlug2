@@ -476,12 +476,12 @@ bool IGraphicsLice::MeasureIText(const IText& text, const char* str, IRECT& dest
   return IGraphicsLice::DrawIText(text, str, destRect, true);
 }
 
-LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* pPath)
+LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 {
-  if (CSTR_NOT_EMPTY(pPath))
+  if (CSTR_NOT_EMPTY(path))
   {
-    const char* ext = pPath+strlen(pPath)-1;
-    while (ext >= pPath && *ext != '.') --ext;
+    const char* ext = path +strlen(path)-1;
+    while (ext >= path && *ext != '.') --ext;
     ++ext;
     
     bool ispng = !stricmp(ext, "png");
@@ -492,9 +492,9 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* pPath)
     if (!isjpg && !ispng) return 0;
 #endif
     
-    if (ispng) return LICE_LoadPNG(pPath);
+    if (ispng) return LICE_LoadPNG(path);
 #ifdef IPLUG_JPEG_SUPPORT
-    if (isjpg) return LICE_LoadJPG(pPath);
+    if (isjpg) return LICE_LoadJPG(path);
 #endif
   }
     

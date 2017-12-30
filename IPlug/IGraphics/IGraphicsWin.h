@@ -24,7 +24,7 @@
 class IGraphicsWin : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int refreshFPS);
+  IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps);
   virtual ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
@@ -35,7 +35,7 @@ public:
 
   void HideMouseCursor();
   void ShowMouseCursor();
-  int ShowMessageBox(const char* pStr, const char* pCaption, int type);
+  int ShowMessageBox(const char* str, const char* caption, int type);
 
   void DrawScreen(const IRECT& rect) override;
 
@@ -58,7 +58,7 @@ public:
   IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect);
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam);
+  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam);
 
   bool OpenURL(const char* pUrl, const char* pMsgWindowTitle = 0, const char* pConfirmMsg = 0, const char* pErrMsgOnFailure = 0);
 
@@ -71,7 +71,7 @@ public:
   IRECT GetWindowRECT();
   void SetWindowTitle(char* str);
 
-  const char* GetGUIAPI() { return "Windows GDI"; };
+  const char* GetGUIAPIStr() override { return "win32"; };
   
   bool GetTextFromClipboard(WDL_String& str);
 protected:

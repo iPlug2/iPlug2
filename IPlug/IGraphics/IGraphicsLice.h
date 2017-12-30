@@ -56,10 +56,10 @@ protected:
   
 private:
 #ifdef OS_OSX
-  LICE_IBitmap* LoadAPIBitmap(const char* path);
   CGColorSpaceRef mColorSpace;
-  
 #endif
+  LICE_IBitmap* LoadAPIBitmap(const char* path);
+
   LICE_SysBitmap* mDrawBitmap;
   LICE_IFont* CacheFont(IText& text);
   LICE_MemBitmap* mTmpBitmap;

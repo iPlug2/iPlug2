@@ -996,7 +996,7 @@ void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 //  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrNameStr(), mPlug.GetPluginNameStr());
 //}
 
-void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pDir, char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pDir, const char* extensions)
 {
   if (!WindowIsOpen())
   {
