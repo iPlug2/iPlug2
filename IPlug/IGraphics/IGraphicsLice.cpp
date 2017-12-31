@@ -296,15 +296,15 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
   LICE_Circle(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
 }
 
-void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cr, bool aa)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
   
-  LICE_RoundRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), cornerradius * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_RoundRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), cr * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
 }
 
-void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cr, bool aa)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
@@ -314,21 +314,21 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const 
   int h = r.H();
   int w = r.W();
   
-  cornerradius *= mDisplayScale;
+  cr *= mDisplayScale;
   
   int mode = LiceBlendMode(pBlend);
   float weight = LiceWeight(pBlend);
   LICE_pixel lcolor = LiceColor(color);
   
-  LICE_FillRect(mDrawBitmap, x1+cornerradius, y1, w-2*cornerradius, h, lcolor, weight, mode);
-  LICE_FillRect(mDrawBitmap, x1, y1+cornerradius, cornerradius, h-2*cornerradius,lcolor, weight, mode);
-  LICE_FillRect(mDrawBitmap, x1+w-cornerradius, y1+cornerradius, cornerradius, h-2*cornerradius, lcolor, weight, mode);
+  LICE_FillRect(mDrawBitmap, x1+cr, y1, w-2*cr, h, lcolor, weight, mode);
+  LICE_FillRect(mDrawBitmap, x1, y1+cr, cr, h-2*cr,lcolor, weight, mode);
+  LICE_FillRect(mDrawBitmap, x1+w-cr, y1+cr, cr, h-2*cr, lcolor, weight, mode);
   
   //void LICE_FillCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel color, float alpha, int mode, bool aa)
-  LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+cornerradius, (float) cornerradius, lcolor, weight, mode, aa);
-  LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+h-cornerradius-1, (float) cornerradius, lcolor, weight, mode, aa);
-  LICE_FillCircle(mDrawBitmap, (float) x1+w-cornerradius-1, (float) y1+cornerradius, (float) cornerradius, lcolor, weight, mode, aa);
-  LICE_FillCircle(mDrawBitmap, (float) x1+cornerradius, (float) y1+h-cornerradius-1, (float) cornerradius, lcolor, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+cr, (float) cr, lcolor, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+w-cr-1, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+w-cr-1, (float) y1+cr, (float) cr, lcolor, weight, mode, aa);
+  LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, aa);
 }
 
 void IGraphicsLice::FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend)

@@ -342,7 +342,7 @@ void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, 
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cr, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -350,7 +350,7 @@ void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, con
   typedef agg::conv_stroke<agg::rounded_rect> agg_strokes;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
   
-  agg::rounded_rect agg_rect(rect.L - 0.5, rect.T - 0.5, rect.L - 0.5 + rect.W(), rect.T - 0.5 + rect.H(), cornerradius);
+  agg::rounded_rect agg_rect(rect.L - 0.5, rect.T - 0.5, rect.L - 0.5 + rect.W(), rect.T - 0.5 + rect.H(), cr);
   agg_strokes strokes(agg_rect);
   
   strokes.width(1.0);
@@ -370,7 +370,7 @@ void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cornerradius, bool aa)
+void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cr, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -378,7 +378,7 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, con
   typedef agg::conv_stroke<agg::path_storage> agg_strokes;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
   
-  agg::rounded_rect agg_rect(rect.L, rect.T, rect.L + rect.W(), rect.T + rect.H(), cornerradius);
+  agg::rounded_rect agg_rect(rect.L, rect.T, rect.L + rect.W(), rect.T + rect.H(), cr);
   
   agg::rasterizer_scanline_aa<> rasterizer;
   
