@@ -1,7 +1,7 @@
-#WDL-OL/IPlug
+# WDL-OL/IPlug
 ***IPlug2: Make IPlug great again!***
 
-##About IPlug
+## About IPlug
 
 IPlug is a simple-to-use C++ framework for developing cross platform audio plugins and targeting multiple plugin APIs with the same minimalistic code. Originally developed by [John Schwartz aka schwa](https://www.cockos.com/team.php), IPlug has been enhanced by various contributors, since 2008. IPlug depends on [Cockos' WDL](https://www.cockos.com/wdl/), and that is why this project is called WDL-OL, although the differences from Cockos' WDL are to do with IPlug and the build system around it.
 This version of IPlug targets the VST2, VST3, AudioUnit and AAX (Native) plug-in APIs. It can also produce standalone Windows/macOS apps with audio and MIDI i/o.
@@ -14,13 +14,13 @@ Discuss IPlug on the [WDL forum](http://forum.cockos.com/forumdisplay.php?f=32
 WDL-OL/IPlug requires a compiler that supports C++11, and is tested with MS Visual Studio 2017 and Xcode 9. It supports Windows XP or higher and macOS 10.7+.
 
 
-##Beginner Developers - Getting Started
+## Beginner Developers - Getting Started
 
 
 ##Experienced Developers
 Here are some docs for budding developers who want to try and understand IPlug better, fix bugs and contribute pull requests!
 
-###What is WDL?
+### What is WDL?
 
 IPlug depends on WDL, which is Cockos' open source library of lightweight reusable code for making cross-platform software. WDL makes very little use of the STL or of modern C++ features. The underlying code is a challenge to understand. It is arcane in places, and poorly documented but it generally works very well. It is developed by some great people who make legendary software and it powers what is undoubtably the best DAW - Reaper (at least from a programmer's perspective)! There is a reason Reaper is blazingly fast and lightweight.
 The key parts of WDL that IPlug uses are: 
@@ -33,14 +33,14 @@ The key parts of WDL that IPlug uses are:
 
 IPlug makes extensive use of preprocessor macros in order to switch functionality, without bloating binaries. This can get ugly at times, but is unavoidable in a cross platform multi-format/api bridge such as this.
 
-###IPlugBase
+### IPlugBase
 IPlugBase is the base class for an IPlug plug-in, that will be inherited by classes that deal with the various plug-in format API stuff (e.g. IPlugVST), and eventually inherited by your plug-in implementation. It knows nothing about drawing or platform specific stuff such as locations of common folders. It facilitates plug-in set up, creation of parameters, managing of state and factory presets. 
 
-###TODO: IPlugProcessor
+### TODO: IPlugProcessor
 
 IPlugProcessor is a lightweight base class to handle purely the audio processing side of the plug-in. This is primarily for WAMs, for which we require as little C++ as necessary to be compiled into web assembly, in order to minimise binary sizes. Normally for desktop plug-ins you will not deal with this class. 
 
-###IGraphics (optional)
+### IGraphics (optional)
 
 IGraphics is the pure virtual *interface* primarily for drawing but also for doing platform specific stuff such as locating certain folders or creating native controls such as pop-up menus. There are several different classes that inherit the IGraphics interface depending on which drawing API we want to use and which platform we are running on. To make this more complicated - on macOS, there are two different types of platform API: Cocoa (which uses Objective-C) and Carbon. Carbon is a deprecated API which does not support 64 -bit but you may decide it is necessary to support this for compatibility with some older 32 bit hosts. IPlug is designed to abstract these things away from plug-in implementation but it's good to know about them.
 
@@ -51,10 +51,10 @@ Different drawing APIs have different benefits:
 * IGraphicsAGG: This uses Anti-Grain Geometry 2.4. This is an experimental IGraphics API class that can produce very nice results but appears to be quite a lot slower than other options. The drawing code is extremely verbose and complicated. Text is drawn with freetype which is quite a big dependency.
 * IGraphicsNanoVG: TODO
 
-####Selecting API
+#### Selecting API
 In order to provide support for multiple plug-in, drawing and platform APIs IPlug uses preprocessor macros extensively to switch different base classes depending on the target platform, drawing library. On macOS, IGraphicsMac is the top level class which inherits from IGRAPHICS_DRAW_CLASS. The value of this is changed depending on what preprocessor macros are set. Usually the preprocessor macros would be set in the MyPlugin.xcconfig file (on Mac) and MyPlugin.props (on Windows). These are simple files that are read by the IDE projects, and allow you to set build settings for multiple targets once rather than repeating the process manually inside the IDE for each target. For example to use cairo you would define IGRAPHICS_CAIRO in EXTRA_ALL_DEFS, which would set that preprocessor macro for all targets.
 
-####Drawing
+#### Drawing
 You create and attach a graphics object in your plug-ins constructor, using MakeGraphics() and IPlugBase::AttachGraphics(). Depending on the frame rate that you specify when calling MakeGraphics, a platform timer will be created that triggers a callback at regular intervals (by default 30 times per second or every ~33 milliseconds). On Mac Cocoa this callback is IGraphicsCocoa::onTimer. This method will call mGraphics::IsDirty(), to ascertain which rectangular region of the plug-in's user interface needs to be drawn on this frame. IGraphics::IsDirty() loops through the plug-in controls checking if any of them are set "dirty", and if they are adding the rectangular region they occupy to the region that is reported back. The OS will then call a method such as IGraphicsCocoa::drawRect(), notifying that that part of the screen is to be drawn. This might be different to what we have explicitly specified needs drawing in IGraphics::IsDirty(). This will result in IGraphics::Draw() being called which will loop through the controls trying to find the ones which match this region that the OS is requesting be painted.
 
 // Strict mode on (default): draw everything within the smallest rectangle that contains everything dirty.
@@ -71,7 +71,7 @@ Some of the bug fixes and extra features in WDL-OL are thanks to, or inspired by
 
 WDL-OL/IPlug uses RtAudio/RtMidi by [Gary Scavone](https://www.music.mcgill.ca/~gary/) to provide cross platform audio and MIDI I/O in standalone app builds.
 
-#License
+# License
 WDL/OL shares the same liberal license as Cockos WDL. It can be used in a closed source product for free. A credit/thankyou in your product manual or website is appreciated, but not required.
 
 -
