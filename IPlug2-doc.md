@@ -66,7 +66,7 @@ You create and attach a graphics object in your plug-ins constructor, using Make
 
 There is no Z order testing - so if you bring up an "about box" or panel on top of controls that are being set dirty, those controls will still redraw. This is obviously important if the control on top has an alpha channel (see-through parts), but wasteful if not. In practice this is not a problem for the majority of plug-in apis, but if it causes problems in your plug-in, the solution is to explicitly hide controls that are not on screen. 
 
-#Credits
+# Credits
 Some of the bug fixes and extra features in WDL-OL are thanks to, or inspired by the work of other people. Significant contributions over the years have come from [Theo Niessink](https://www.taletn.com), [Justin Frankel](www.askjf.com), [Julijan Nikolic](https://youlean.co/), [Alex Harker](http://www.alexanderjharker.co.uk/) and [Benjamin Klum](https://www.benjamin-klum.com/it/), amongst others. See individual source code files for any extra credits or license information.
 
 WDL-OL/IPlug uses RtAudio/RtMidi by [Gary Scavone](https://www.music.mcgill.ca/~gary/) to provide cross platform audio and MIDI I/O in standalone app builds.
