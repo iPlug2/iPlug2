@@ -1,4 +1,4 @@
-extract the VST3.6.7 SDK here (vstsdk367_03_03_2017_build_352.zip, preserving the folder structure. i.e
+extract the VST3.6.8 SDK here (https://download.steinberg.net/sdk_downloads/vstsdk368_08_11_2017_build_121.zip, preserving the folder structure. i.e
 
 WDL-OL/VST3_SDK/base/source
 WDL-OL/VST3_SDK/pluginterfaces

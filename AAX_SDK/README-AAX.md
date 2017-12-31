@@ -1,6 +1,6 @@
 extract AAX_SDK_2p3p0.zip here 
 
-  - this assumes that you have installed the MacOSX10.X.sdk in /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/
+  - You need to modify the AAXlibrary project in order to compile with the same SDK as your plug-ins
 
   - set SDKROOT to macosx10.X for debug and release targets of AAXLibrary static lib
  
