@@ -71,7 +71,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadIBitmap(name);
-  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IChannelBlend::kBlendClobber));
+  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
@@ -254,7 +254,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
 
 }
 
-void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IChannelBlend* pBlend)
+void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
@@ -273,7 +273,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IChannelBlend* pBlend, const char* pStr, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* pStr, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
   if (CSTR_NOT_EMPTY(pStr))
   {

@@ -30,8 +30,8 @@ void ISwitchPopUpControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IChannelBlend::EBlendMethod blendMethod)
-: ISwitchControl(plug, x, y, paramIdx, bitmap, blendMethod)
+ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IBlend::EType blendType)
+: ISwitchControl(plug, x, y, paramIdx, bitmap, blendType)
 {
   mDisablePrompt = false;
   
@@ -61,7 +61,7 @@ void ISwitchFramesControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 }
 
 IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
-:   IControl(plug, rect, paramIdx, IChannelBlend::kBlendClobber)
+:   IControl(plug, rect, paramIdx, IBlend::kBlendClobber)
 {
   mDisablePrompt = true;
 }
@@ -380,7 +380,7 @@ IKnobLineControl::IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int para
   {
     mOuterRadius = 0.5f * (float) rect.W();
   }
-  mBlend = IChannelBlend(IChannelBlend::kBlendClobber);
+  mBlend = IBlend(IBlend::kBlendClobber);
 }
 
 void IKnobLineControl::Draw(IGraphics& graphics)

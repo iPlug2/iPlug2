@@ -18,23 +18,23 @@ public:
   void PrepDraw() override;
   void ReScale() override;
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend) override;
-  void DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa) override;
+  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
+  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
+  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa) override;
   void ForcePixel(const IColor& color, int x, int y) override;
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa) override;
+  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa) override;
   void DrawRect(const IColor& color, const IRECT& rect) override;
-  void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend = nullptr) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IChannelBlend* pBlend, bool aa) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IChannelBlend* pBlend, bool aa) override;
-  void DrawRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cr, bool aa) override;
-  void FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa) override;
-  void FillIRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend) override;
+  void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = nullptr) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend, bool aa) override;
+  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, bool aa) override;
+  void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
+  void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa) override;
+  void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
-  void FillRoundRect(const IColor& color, const IRECT& rect, const IChannelBlend* pBlend, int cr, bool aa) override;
-  void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend) override;
-  void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend) override;
+  void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
+  void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
+  void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mContext; }
@@ -63,12 +63,12 @@ public:
   }
   
 public:
-  inline float CairoWeight(const IChannelBlend* pBlend)
+  inline float CairoWeight(const IBlend* pBlend)
   {
     return (pBlend ? pBlend->mWeight : 1.0f);
   }
   
-  inline cairo_operator_t CairoBlendMode(const IChannelBlend* pBlend)
+  inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   {
     if (!pBlend)
     {
@@ -76,19 +76,19 @@ public:
     }
     switch (pBlend->mMethod)
     {
-      case IChannelBlend::kBlendClobber:
+      case IBlend::kBlendClobber:
       {
         return CAIRO_OPERATOR_OVER;
       }
-      case IChannelBlend::kBlendAdd:
+      case IBlend::kBlendAdd:
       {
         return CAIRO_OPERATOR_ADD;
       }
-      case IChannelBlend::kBlendColorDodge:
+      case IBlend::kBlendColorDodge:
       {
         return CAIRO_OPERATOR_COLOR_DODGE;
       }
-      case IChannelBlend::kBlendNone:
+      case IBlend::kBlendNone:
       default:
       {
         return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
@@ -96,7 +96,7 @@ public:
     }
   }
   
-  inline void SetCairoSourceRGBA(const IColor& color, const IChannelBlend* pBlend = nullptr)
+  inline void SetCairoSourceRGBA(const IColor& color, const IBlend* pBlend = nullptr)
   {
     cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
   }

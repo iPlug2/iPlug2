@@ -122,7 +122,7 @@ void IGraphicsAGG::PrepDraw()
   mRenBase.clear(agg::rgba(0, 0, 0, 0));
 }
 
-void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IChannelBlend* pBlend)
+void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   IRECT rect = dest;
   rect.Scale(mDisplayScale);
@@ -139,7 +139,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T);
 }
 
-void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IChannelBlend* pBlend)
+void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
   destCtrX *= mScale;
   destCtrY *= mScale;
@@ -183,7 +183,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
 }
 
-void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IChannelBlend* pBlend)
+void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
   x *= mScale;
   y *= mScale;
@@ -241,7 +241,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
 }
 
-void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
 {
   mRenBase.blend_pixel(x * mScale, y * mScale, IColorToAggColor(color), 255);
 }
@@ -251,7 +251,7 @@ void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
   mRenBase.copy_pixel(x * mScale, y * mScale, IColorToAggColor(color));
 }
 
-void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa)
 {
   ToPixel(x1);
   ToPixel(y1);
@@ -284,7 +284,7 @@ void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, f
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend, bool aa)
 {
   cx *= mScale;
   cy *= mScale;
@@ -313,7 +313,7 @@ void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, flo
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, bool aa)
 {
   cx *= mScale;
   cy *= mScale;
@@ -342,7 +342,7 @@ void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, 
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cr, bool aa)
+void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -370,7 +370,7 @@ void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend, int cr, bool aa)
+void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr, bool aa)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -392,7 +392,7 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IChannelBlend* pBlend)
+void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
 {
   IRECT rect = destRect;
   rect.Scale(mDisplayScale);
@@ -421,7 +421,7 @@ void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const I
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IChannelBlend* pBlend, bool aa)
+void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa)
 {
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
   
@@ -441,14 +441,14 @@ void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, cons
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IChannelBlend* pBlend)
+void IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
 {
   int x[3] = { x1, x2, x3 };
   int y[3] = { y1, y2, y3 };
   FillIConvexPolygon(color, x, y, 3, pBlend);
 }
 
-void IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IChannelBlend* pBlend)
+void IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
   typedef agg::conv_stroke<agg::path_storage> agg_strokes;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;

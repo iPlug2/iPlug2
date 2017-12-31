@@ -70,9 +70,9 @@ const IColor COLOR_BLUE(255, 0, 0, 255);
 const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
-struct IChannelBlend
+struct IBlend
 {
-  enum EBlendMethod
+  enum EType
   {
     kBlendNone,   // Copy over whatever is already there, but look at src alpha.
     kBlendClobber,  // Copy completely over whatever is already there.
@@ -80,10 +80,10 @@ struct IChannelBlend
     kBlendColorDodge,
     // etc
   };
-  EBlendMethod mMethod;
+  EType mMethod;
   float mWeight;
 
-  IChannelBlend(EBlendMethod method = kBlendNone, float weight = 1.0f) : mMethod(method), mWeight(weight) {}
+  IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
 const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;

@@ -131,7 +131,7 @@ public:
     mParamValueRECT = IRECT(mRECT.R - paramValWidth, mRECT.T, mRECT.R, mRECT.B);
     mSliderRECT =     IRECT(mParamNameRECT.R + 2, mRECT.T, mParamValueRECT.L - 2, mRECT.B);
     mTextEntryRect =  mParamValueRECT;//IRECT(mParamValueRECT.L+3, mParamValueRECT.T+3, mParamValueRECT.R, mParamValueRECT.B-3);
-    mBlend = IChannelBlend::kBlendNone;
+    mBlend = IBlend::kBlendNone;
     
     mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }
@@ -227,7 +227,7 @@ public:
     mInnerRadius = 0.;
     mOuterRadius = 0.5f * (float) mKnobRECT.H();
     
-    mBlend = IChannelBlend(IChannelBlend::kBlendNone);
+    mBlend = IBlend(IBlend::kBlendNone);
     
     mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }

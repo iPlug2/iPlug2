@@ -6,7 +6,7 @@
 class ISwitchControl : public IBitmapControl
 {
 public:
-  ISwitchControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  ISwitchControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendMethod = IBlend::kBlendNone)
   : IBitmapControl(plug, x, y, paramIdx, bitmap, blendMethod) {}
   ~ISwitchControl() {}
   
@@ -18,7 +18,7 @@ public:
 class ISwitchPopUpControl : public ISwitchControl
 {
 public:
-  ISwitchPopUpControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
+  ISwitchPopUpControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendMethod = IBlend::kBlendNone)
   : ISwitchControl(plug, x, y, paramIdx, bitmap, blendMethod)
   {
     mDisablePrompt = false;
@@ -33,7 +33,7 @@ public:
 class ISwitchFramesControl : public ISwitchControl
 {
 public:
-  ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone);
+  ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IBlend::EType blendMethod = IBlend::kBlendNone);
   ~ISwitchFramesControl() {}
   
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;

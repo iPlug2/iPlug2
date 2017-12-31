@@ -15,9 +15,9 @@ class IControl
 {
 public:
   // If paramIdx is > -1, this control will be associated with a plugin parameter.
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = -1, IChannelBlend blendMethod = IChannelBlend::kBlendNone)
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = -1, IBlend blendType = IBlend::kBlendNone)
     : mPlug(plug), mRECT(rect), mTargetRECT(rect), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
-      mBlend(blendMethod), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
+      mBlend(blendType), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
       mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN), 
       mValDisplayControl(0), mNameDisplayControl(0), mTooltip("") {}
 
@@ -74,7 +74,7 @@ public:
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(int x, int y) { return mTargetRECT.Contains(x, y); }
 
-  void SetBlendMethod(IChannelBlend::EBlendMethod blendMethod) { mBlend = IChannelBlend(blendMethod); }
+  void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
   
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
@@ -131,7 +131,7 @@ protected:
   WDL_TypedBuf<AuxParam> mAuxParams;
   double mValue, mDefaultValue, mClampLo, mClampHi;
   bool mDirty, mHide, mGrayed, mRedraw, mDisablePrompt, mClamped, mDblAsSingleClick, mMOWhenGreyed;
-  IChannelBlend mBlend;
+  IBlend mBlend;
   IControl* mValDisplayControl;
   IControl* mNameDisplayControl;
   WDL_String mTooltip;
@@ -154,11 +154,11 @@ protected:
 class IBitmapControl : public IControl
 {
 public:
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendMethod), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
 
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IChannelBlend::EBlendMethod blendMethod = IChannelBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), -1, blendMethod), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), -1, blendType), mBitmap(bitmap) {}
 
   virtual ~IBitmapControl() {}
 
