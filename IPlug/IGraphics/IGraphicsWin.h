@@ -60,14 +60,14 @@ public:
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect);
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam);
 
-  bool OpenURL(const char* pUrl, const char* pMsgWindowTitle = 0, const char* pConfirmMsg = 0, const char* pErrMsgOnFailure = 0);
+  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
 
   // Specialty use!
   void* GetWindow() { return mPlugWnd; }
   HWND GetParentWindow() { return mParentWnd; }
   HWND GetMainWnd();
-  void SetMainWndClassName(char* name) { mMainWndClassName.Set(name); }
-  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
+  void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
+//  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
   IRECT GetWindowRECT();
   void SetWindowTitle(char* str);
 

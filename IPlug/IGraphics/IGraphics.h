@@ -25,7 +25,7 @@ public:
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   virtual void DrawScreen(const IRECT& rect) = 0;
-  void DrawBitmap(IBitmap& pBitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
+  void DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState = 1, const IChannelBlend* pBlend = nullptr);
   void DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IChannelBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
   
 #pragma mark - IGraphics API  impl drawing (pure virtual)
@@ -72,11 +72,11 @@ public:
 
 #pragma mark - IGraphicsPlatform impl
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(pMenu, tempRect); }
-  virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& pMenu, IRECT& textRect) = 0;
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
+  virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) = 0;
   virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str = "", IParam* pParam = 0) = 0;
   virtual void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = 0) = 0;
-  virtual bool PromptForColor(IColor& pColor, const char* pStr = "") = 0;
+  virtual bool PromptForColor(IColor& color, const char* pStr = "") = 0;
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   virtual const char* GetGUIAPI() { return ""; }
   virtual const char* GetDrawingAPIStr() = 0;
@@ -125,8 +125,8 @@ public:
   void SetParameterFromPlug(int paramIdx, double value, bool normalized);
   void SetControlFromPlug(int controlIdx, double normalizedValue);
   
-  inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics classes 2 clip drawing
-  inline virtual void ResetClipRegion() {}; // overridden in some IGraphics classes 2 clip drawing
+  inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics classes to clip drawing
+  inline virtual void ResetClipRegion() {}; // overridden in some IGraphics classes to clip drawing
   void SetAllControlsDirty();
   
   void SetParameterFromGUI(int paramIdx, double normalizedValue);

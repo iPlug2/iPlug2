@@ -553,9 +553,9 @@ void IGraphicsWin::ShowMouseCursor()
   }
 }
 
-int IGraphicsWin::ShowMessageBox(const char* pText, const char* pCaption, int type)
+int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
 {
-  return MessageBox(GetMainWnd(), pText, pCaption, type);
+  return MessageBox(GetMainWnd(), text, caption, type);
 }
 
 void IGraphicsWin::DrawScreen(const IRECT& rect)
@@ -695,7 +695,7 @@ IRECT IGraphicsWin::GetWindowRECT()
   return IRECT();
 }
 
-void IGraphicsWin::SetWindowTitle(char* str)
+void IGraphicsWin::SetWindowTitle(const char* str)
 {
   SetWindowText(mPlugWnd, str);
 }
@@ -1151,9 +1151,7 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
   return false;
 }
 
-#define MAX_INET_ERR_CODE 32
-bool IGraphicsWin::OpenURL(const char* url,
-                           const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
   if (confirmMsg && MessageBox(mPlugWnd, confirmMsg, msgWindowTitle, MB_YESNO) != IDYES)
   {

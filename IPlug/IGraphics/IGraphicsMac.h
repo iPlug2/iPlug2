@@ -99,7 +99,7 @@ public:
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) override;
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam) override;
 
-  bool OpenURL(const char* pURL, const char* pMsgWindowTitle = 0, const char* pConfirmMsg = 0, const char* pErrMsgOnFailure = 0) override;
+  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override;
 
   void* GetWindow() override;
 

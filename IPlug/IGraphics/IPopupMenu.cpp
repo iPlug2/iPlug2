@@ -22,7 +22,7 @@ IPopupMenuItem* IPopupMenu::GetItem(int index)
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -31,18 +31,18 @@ const char* IPopupMenu::GetItemText(int index)
   return GetItem(index)->GetText();
 }
 
-IPopupMenuItem* IPopupMenu::AddItem(IPopupMenuItem* item, int index)
+IPopupMenuItem* IPopupMenu::AddItem(IPopupMenuItem* pItem, int index)
 {
   if (index == -1)
   {
-    mMenuItems.Add(item); // add it to the end
+    mMenuItems.Add(pItem); // add it to the end
   }
   else
   {
-    mMenuItems.Insert(index, item);
+    mMenuItems.Insert(index, pItem);
   }
 
-  return item;
+  return pItem;
 }
 
 IPopupMenuItem* IPopupMenu::AddItem(const char* text, int index, int itemFlags)
@@ -62,8 +62,8 @@ IPopupMenuItem* IPopupMenu::AddItem(const char* text, IPopupMenu* pSubmenu)
 
 IPopupMenuItem* IPopupMenu::AddSeparator(int index)
 {
-  IPopupMenuItem* item = new IPopupMenuItem ("", IPopupMenuItem::kSeparator);
-  return AddItem(item, index);
+  IPopupMenuItem* pItem = new IPopupMenuItem ("", IPopupMenuItem::kSeparator);
+  return AddItem(pItem, index);
 }
 
 void IPopupMenu::SetPrefix(int count)
@@ -76,11 +76,11 @@ void IPopupMenu::SetPrefix(int count)
 
 bool IPopupMenu::CheckItem(int index, bool state)
 {
-  IPopupMenuItem* item = mMenuItems.Get(index);
+  IPopupMenuItem* pItem = mMenuItems.Get(index);
 
-  if (item)
+  if (pItem)
   {
-    item->SetChecked(state);
+    pItem->SetChecked(state);
     return true;
   }
   return false;
