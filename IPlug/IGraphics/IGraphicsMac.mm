@@ -150,22 +150,17 @@ bool IGraphicsMac::MeasureIText(const IText& text, const char* pStr, IRECT& dest
 
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
-  return OpenCocoaWindow(pParent);
-}
-
-void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
-{
   TRACE;
   CloseWindow();
   mGraphicsCocoa = (IGRAPHICS_COCOA*) [[IGRAPHICS_COCOA alloc] initWithIGraphics: this];
   
-  if (pParentView) // Cocoa VST host.
+  if (pParent) // Cocoa VST host.
   {
-    [(NSView*) pParentView addSubview: (IGRAPHICS_COCOA*) mGraphicsCocoa];
+    [(NSView*) pParent addSubview: (IGRAPHICS_COCOA*) mGraphicsCocoa];
   }
-    
+  
   UpdateTooltips();
-
+  
   return mGraphicsCocoa;
 }
 

@@ -16,7 +16,6 @@ public:
   int GetUIHeight() override;
 
   void* OpenWindow(void* handle) override;
-  void* OpenWindow(void* handle, void* control) override;
   void CloseWindow() override;
   
   void AttachGraphics(IGraphics* pGraphics);

@@ -87,7 +87,6 @@ public:
   virtual void AppSupportPath(WDL_String& path, bool isSystem = false) = 0;
   virtual void SandboxSafeAppSupportPath(WDL_String& path) = 0;
   virtual void* OpenWindow(void* pParentWnd) = 0;
-  virtual void* OpenWindow(void* pParentWnd, void* pParentControl) { return 0; }  // For OSX Carbon hosts ... ugh.
   virtual void CloseWindow() = 0;
   virtual void* GetWindow() = 0;
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;

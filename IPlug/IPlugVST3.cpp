@@ -1120,7 +1120,7 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
     if (strcmp (type, kPlatformTypeNSView) == 0)
       mPlug->OpenWindow(parent);
     else // Carbon
-      mPlug->OpenWindow(parent, nullptr);
+      return kResultFalse;
     #endif
     mPlug->OnGUIOpen();
 

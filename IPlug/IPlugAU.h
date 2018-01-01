@@ -6,7 +6,6 @@
 #include <AudioUnit/AUComponent.h>
 #include <AudioUnit/AudioUnitProperties.h>
 #include <AudioToolbox/AudioUnitUtilities.h>
-#include <AudioUnit/AudioUnitCarbonView.h>
 #include <AvailabilityMacros.h>
 
 #ifdef NO_IGRAPHICS
@@ -193,7 +192,6 @@ private:
   
 public:
   static OSStatus IPlugAUEntry(ComponentParameters *params, void* pVPlug);
-  static OSStatus IPlugAUCarbonViewEntry(ComponentParameters *params, void* pView);
   
   static OSStatus GetParamProc(void* pPlug, 
                                       AudioUnitParameterID paramID, 

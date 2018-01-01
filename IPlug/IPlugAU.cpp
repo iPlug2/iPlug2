@@ -300,72 +300,6 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   }
 }
 
-struct AudioUnitCarbonViewCreateGluePB
-{
-  unsigned char componentFlags;
-  unsigned char componentParamSize;
-  short componentWhat;
-  ControlRef* outControl;
-  const Float32Point* inSize;
-  const Float32Point* inLocation;
-  ControlRef inParentControl;
-  WindowRef inWindow;
-  AudioUnit inAudioUnit;
-  AudioUnitCarbonView inView;
-};
-
-struct CarbonViewInstance
-{
-  ComponentInstance mCI;
-  IPlugAU* mPlug;
-};
-
-// static
-OSStatus IPlugAU::IPlugAUCarbonViewEntry(ComponentParameters *params, void* pView)
-{
-  int select = params->what;
-
-  Trace(TRACELOC, "%d:%s", select, AUSelectStr(select));
-
-  if (select == kComponentOpenSelect)
-  {
-    CarbonViewInstance* pCVI = new CarbonViewInstance;
-    pCVI->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
-    pCVI->mPlug = 0;
-    SetComponentInstanceStorage(pCVI->mCI, (Handle) pCVI);
-    return noErr;
-  }
-
-  CarbonViewInstance* pCVI = (CarbonViewInstance*) pView;
-
-  switch (select)
-  {
-    case kComponentCloseSelect:
-    {
-      IPlugAU* _this = pCVI->mPlug;
-      if (_this && _this->GetHasUI())
-      {
-        _this->CloseWindow();
-      }
-      DELETE_NULL(pCVI);
-      return noErr;
-    }
-    case kAudioUnitCarbonViewCreateSelect:
-    {
-      AudioUnitCarbonViewCreateGluePB* pb = (AudioUnitCarbonViewCreateGluePB*) params;
-      IPlugAU* _this = (IPlugAU*) GetComponentInstanceStorage(pb->inAudioUnit);
-      pCVI->mPlug = _this;
-      if (_this && _this->GetHasUI())
-      {
-        *(pb->outControl) = (ControlRef) (_this->OpenWindow(pb->inWindow, pb->inParentControl));
-        return noErr;
-      }
-      return badComponentSelector;
-    }
-    default:  return badComponentSelector;
-  }
-}
-
 //TODO: support more tags
 
 UInt32 IPlugAU::GetTagForNumChannels(int numChannels)
@@ -733,20 +667,6 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_GetUIComponentList:          // 18,
     {
-      if (GetHasUI())
-      {
-        *pDataSize = sizeof(AudioComponentDescription);
-        if (pData)
-        {
-          AudioComponentDescription* pDesc = (AudioComponentDescription*) pData;
-          pDesc->componentType = kAudioUnitCarbonViewComponentType;
-          pDesc->componentSubType = GetUniqueID();
-          pDesc->componentManufacturer = GetMfrID();
-          pDesc->componentFlags = 0;
-          pDesc->componentFlagsMask = 0;
-        }
-        return noErr;
-      }
       return kAudioUnitErr_InvalidProperty;
     }
     case kAudioUnitProperty_AudioChannelLayout:

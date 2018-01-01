@@ -59,11 +59,6 @@ void* IPlugBaseGraphics::OpenWindow(void* handle)
   return mGraphics->OpenWindow(handle);
 }
 
-void* IPlugBaseGraphics::OpenWindow(void* handle, void* control)
-{
-  return mGraphics->OpenWindow(handle, control);
-}
-
 void IPlugBaseGraphics::CloseWindow()
 {
   mGraphics->CloseWindow();

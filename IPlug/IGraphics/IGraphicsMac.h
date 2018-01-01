@@ -1,8 +1,5 @@
 #pragma once
 
-#include "swell.h"
-#include <Carbon/Carbon.h>
-
 #include "IGraphicsConstants.h"
 
 //TODO: would be nice not to put this here
@@ -23,7 +20,7 @@
 #endif
 
 #ifndef COCOA_PREFIX
-  #define COCOA_PREFIX vOliLarkin
+  #define COCOA_PREFIX vWDLOL
 #endif
 
 #if defined(VST_API)
@@ -45,7 +42,6 @@
 #define IGRAPHICS_COCOA CONCAT(IGraphicsCocoa_)
 #define IGRAPHICS_NSMENU CONCAT(IGraphicsNSMenu_)
 #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
-#define CUSTOM_COCOA_WINDOW CONCAT(CustomCocoaWindow_)
 #define COCOA_FORMATTER CONCAT(CocoaFormatter_)
 
 class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
@@ -59,7 +55,6 @@ public:
   void DrawScreen(const IRECT& pR) override;
   
   void* OpenWindow(void* pWindow) override;
-  void* OpenCocoaWindow(void* pParentView);
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h) override;

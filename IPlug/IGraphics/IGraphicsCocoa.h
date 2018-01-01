@@ -1,7 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #include <Carbon/Carbon.h>
-#include <AudioUnit/AudioUnit.h>
-#import <AudioUnit/AUCocoaUIView.h>
 #include "IGraphicsMac.h"
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)

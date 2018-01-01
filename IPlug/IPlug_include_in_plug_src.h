@@ -227,11 +227,6 @@ class IPlugAUFactory
     {
       return IPlugAU::IPlugAUEntry(params, pPlug);
     }
-    //Carbon view
-    EXPORT ComponentResult PLUG_VIEW_ENTRY(ComponentParameters* params, void* pView)
-    {
-      return IPlugAU::IPlugAUCarbonViewEntry(params, pView);
-    }
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
     //>10.7 SDK AUPlugin
     EXPORT void* PLUG_FACTORY(const AudioComponentDescription* inDesc)
