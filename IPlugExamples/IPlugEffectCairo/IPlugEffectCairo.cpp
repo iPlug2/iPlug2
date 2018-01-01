@@ -61,7 +61,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachPanelBackground(COLOR_RED);
 
   IBitmap knob = pGraphics->LoadIBitmap(KNOB_FN, kKnobFrames, false, 2. /* this bitmap is 2* = hidpi */);
-  IBitmap switchc = pGraphics->LoadIBitmap(SWITCH_FN, 3, false, 1. /* this bitmap is 2* = hidpi */);
+//  IBitmap switchc = pGraphics->LoadIBitmap(SWITCH_FN, 3, false, 1. /* this bitmap is 2* = hidpi */);
 
 //  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX, kGainY, -1, knob));
   pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX + 100, kGainY, -1, knob));
@@ -79,7 +79,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   AttachGraphics(pGraphics);
   //pGraphics->ShowControlBounds(true);
-  
+  pGraphics->ShowAreaDrawn(true);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }
