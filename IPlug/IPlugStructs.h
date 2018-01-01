@@ -13,7 +13,6 @@ struct ChannelIO
   ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
 };
 
-
 struct IMidiMsg
 {
   int mOffset;
@@ -109,7 +108,12 @@ struct IMidiMsg
     kAllNotesOff = 123
   };
 
-  IMidiMsg(int offs = 0, BYTE s = 0, BYTE d1 = 0, BYTE d2 = 0) : mOffset(offs), mStatus(s), mData1(d1), mData2(d2) {}
+  IMidiMsg(int offs = 0, BYTE s = 0, BYTE d1 = 0, BYTE d2 = 0)
+  : mOffset(offs)
+  , mStatus(s)
+  , mData1(d1)
+  , mData2(d2)
+  {}
 
   void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel=0);
   void MakeNoteOffMsg(int noteNumber, int offset, int channel=0);
@@ -133,26 +137,21 @@ struct IMidiMsg
 
 struct ITimeInfo
 {
-  double mTempo;
-  double mSamplePos;
-  double mPPQPos;
-  double mLastBar;
-  double mCycleStart;
-  double mCycleEnd;
+  double mTempo = DEFAULT_TEMPO;
+  double mSamplePos = -1.0;
+  double mPPQPos = -1.0;
+  double mLastBar = -1.0;
+  double mCycleStart = -1.0;
+  double mCycleEnd = -1.0;
 
-  int mNumerator;
-  int mDenominator;
+  int mNumerator = 4;
+  int mDenominator = 4;
 
-  bool mTransportIsRunning;
-  bool mTransportLoopEnabled;
+  bool mTransportIsRunning = false;
+  bool mTransportLoopEnabled = false;
 
   ITimeInfo()
-  {
-    mSamplePos = mSamplePos = mTempo = mPPQPos = mLastBar = mCycleStart = mCycleEnd = -1.0;
-    mTempo = 120.;
-    mNumerator = mDenominator = 4;
-    mTransportIsRunning = mTransportLoopEnabled = false;
-  }
+  {}
 };
 
 struct ISysEx
@@ -160,7 +159,11 @@ struct ISysEx
   int mOffset, mSize;
   const BYTE* mData;
 
-  ISysEx(int offs = 0, const BYTE* pData = NULL, int size = 0) : mOffset(offs), mData(pData), mSize(size) {}
+  ISysEx(int offs = 0, const BYTE* pData = NULL, int size = 0)
+  : mOffset(offs)
+  , mData(pData)
+  , mSize(size)
+  {}
 
   void Clear();
   void LogMsg();
@@ -174,7 +177,7 @@ struct IPreset
   ByteChunk mChunk;
 
   IPreset(int idx)
-    : mInitialized(false)
+  : mInitialized(false)
   {
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }

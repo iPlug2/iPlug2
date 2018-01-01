@@ -13,13 +13,9 @@ inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
   return IRECT(x, gh - (y + h), x + w, gh - y);
 }
 
-inline NSColor* ToNSColor(const IColor& pColor)
+inline NSColor* ToNSColor(const IColor& c)
 {
-  const double r = (double) pColor.R / 255.0;
-  const double g = (double) pColor.G / 255.0;
-  const double b = (double) pColor.B / 255.0;
-  const double a = (double) pColor.A / 255.0;
-  return [NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+  return [NSColor colorWithCalibratedRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
 }
 
 NSString* ToNSString(const char* cStr);

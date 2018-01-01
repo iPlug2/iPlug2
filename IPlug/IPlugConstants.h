@@ -27,12 +27,12 @@ enum EIPlugKeyCodes
 //  kMIDICCParamStartIdx
 //};
 
-#define PI 3.141592653589793238
-#define AMP_DB 8.685889638065036553
-#define IAMP_DB 0.11512925464970
-
-const double DEFAULT_SAMPLE_RATE = 44100.0;
-const int MAX_PRESET_NAME_LEN = 256;
+//TODO: these should be in a namespace, to avoid conflicts with third-party libraries
+static const double PI = 3.141592653589793238;
+static const double AMP_DB = 8.685889638065036553;
+static const double IAMP_DB = 0.11512925464970;
+static const double DEFAULT_SAMPLE_RATE = 44100.0;
+static const int MAX_PRESET_NAME_LEN = 256;
 #define UNUSED_PRESET_NAME "empty"
 #define DEFAULT_USER_PRESET_NAME "user preset"
 
@@ -42,7 +42,7 @@ const int MAX_PRESET_NAME_LEN = 256;
 #define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
 #define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
-#define MAX_PARAM_DISPLAY_PRECISION 6
+static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 
 #define PARAM_UNINIT 99.99e-9
 
@@ -54,8 +54,9 @@ const int MAX_PRESET_NAME_LEN = 256;
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
 
-#define DEFAULT_BLOCK_SIZE 1024
-#define DEFAULT_TEMPO 120.0
+static const int DEFAULT_BLOCK_SIZE = 1024;
+static const double DEFAULT_TEMPO = 120.0;
+static const int kNoParameter = -1;
 
 // Uncomment to enable IPlug::OnIdle() and IGraphics::OnGUIIdle().
 // #define USE_IDLE_CALLS

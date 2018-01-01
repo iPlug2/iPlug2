@@ -19,8 +19,6 @@
 #define FREE_NULL(p) {free(p);p=nullptr;}
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
-#define IPMIN(x,y) ((x)<(y)?(x):(y))
-#define IPMAX(x,y) ((x)<(y)?(y):(x))
 #define BOUNDED(x,lo,hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 #define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
 

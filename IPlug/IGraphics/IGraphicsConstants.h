@@ -27,4 +27,4 @@ static const double DEFAULT_GEARING = 4.0;
 //
 
 static const float GRAYED_ALPHA = 0.25f;
-static const int kNoParameter = -1;
+
