@@ -124,7 +124,7 @@ void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& path)
   GetResourcePathFromBundle(GetBundleID(), name, "png", path);
 }
 
-void IGraphicsMac::DrawScreen(const IRECT& pR)
+void IGraphicsMac::DrawScreen(const IRECT& rect)
 {
   if (!GetPlatformContext())
     return;
@@ -141,11 +141,11 @@ void IGraphicsMac::DrawScreen(const IRECT& pR)
 #endif
 }
 
-bool IGraphicsMac::MeasureIText(const IText& text, const char* pStr, IRECT& destRect)
+bool IGraphicsMac::MeasureIText(const IText& text, const char* str, IRECT& destRect)
 {
   CocoaAutoReleasePool pool;
 
-  return IGRAPHICS_DRAW_CLASS::DrawIText(text, pStr, destRect, true);
+  return IGRAPHICS_DRAW_CLASS::DrawIText(text, str, destRect, true);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
