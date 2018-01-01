@@ -1,4 +1,5 @@
-#include "IGraphicsCocoa.h"
+#import "IGraphicsView.h"
+#import <QuartzCore/QuartzCore.h>
 
 //forward declare this if compiling with 10.6 sdk
 #if !defined(MAC_OS_X_VERSION_10_7) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7
@@ -21,7 +22,7 @@
 
 @end
 
-@implementation IGRAPHICS_NSMENU
+@implementation IGRAPHICS_MENU
 
 - (id)initWithIPopupMenuAndReciever:(IPopupMenu*)pMenu : (NSView*)pView
 {
@@ -58,7 +59,7 @@
     if (menuItem->GetSubmenu())
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
-      NSMenu* subMenu = [[IGRAPHICS_NSMENU alloc] initWithIPopupMenuAndReciever:menuItem->GetSubmenu() :pView];
+      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:menuItem->GetSubmenu() :pView];
       [self setSubmenu: subMenu forItem:nsMenuItem];
       [subMenu release];
     }
@@ -130,7 +131,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return pGraphics->GetMouseOver();
 }
 
-@implementation COCOA_FORMATTER
+@implementation IGRAPHICS_FORMATTER
 - (void) dealloc
 {
   [filterCharacterSet release];
@@ -209,7 +210,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 #pragma mark -
 
-@implementation IGRAPHICS_COCOA
+@implementation IGRAPHICS_VIEW
 
 - (id) init
 {
@@ -232,6 +233,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.width = (float) pGraphics->Width();
   r.size.height = (float) pGraphics->Height();
   self = [super initWithFrame:r];
+  
+//  if (!self.wantsLayer) {
+//    self.layer = [CAMetalLayer new];
+//    self.layer.opaque = NO;
+//    self.wantsLayer = YES;
+//
+//    mGraphics->mMetalLayer = self.layer;
+//
+//    mGraphics->WindowOpened();
+//  }
 
   double sec = 1.0 / (double) pGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
@@ -263,9 +274,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow setDelegate: self];
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
+    
+    if (mGraphics)
+    {
+      mGraphics->SetAllControlsDirty();
+    }
   }
 }
 
+// not called for opengl/metal
 - (void) drawRect: (NSRect) rect
 {
   if (mGraphics)
@@ -491,7 +508,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
 {
   IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:rect] autorelease];
-  NSMenu* nsMenu = [[[IGRAPHICS_NSMENU alloc] initWithIPopupMenuAndReciever:&menu :dummyView] autorelease];
+  NSMenu* nsMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu :dummyView] autorelease];
 
   NSWindow* pWindow = [self window];
 
@@ -520,7 +537,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   NSMenuItem* chosenItem = [dummyView MenuItem];
   NSMenu* chosenMenu = [chosenItem menu];
-  IPopupMenu* associatedIPopupMenu = [(IGRAPHICS_NSMENU*) chosenMenu AssociatedIPopupMenu];
+  IPopupMenu* associatedIPopupMenu = [(IGRAPHICS_MENU*) chosenMenu AssociatedIPopupMenu];
 
   long chosenItemIdx = [chosenMenu indexOfItem: chosenItem];
 
@@ -574,7 +591,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
         break;
     }
 
-    [mTextFieldView setFormatter:[[[COCOA_FORMATTER alloc] init] autorelease]];
+    [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
     [[mTextFieldView formatter] setMaximumLength:pControl->GetTextEntryLength()];
     [characterSet release];

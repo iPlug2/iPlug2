@@ -1,8 +1,10 @@
 #include <Foundation/NSArchiver.h>
+
 #include "IGraphicsMac.h"
+#import "IGraphicsView.h"
 #include "IControl.h"
 #include "Log.h"
-#import "IGraphicsCocoa.h"
+
 #include "swell-internal.h"
 
 //TODO: why does this have to be here?
@@ -73,7 +75,7 @@ static double gettm()
 
 IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
-  , mGraphicsCocoa(0)
+  , mView(nullptr)
 {
 #if GRAPHICS_SCALING
   SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
@@ -144,39 +146,39 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE;
   CloseWindow();
-  mGraphicsCocoa = (IGRAPHICS_COCOA*) [[IGRAPHICS_COCOA alloc] initWithIGraphics: this];
+  mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
   if (pParent) // Cocoa VST host.
   {
-    [(NSView*) pParent addSubview: (IGRAPHICS_COCOA*) mGraphicsCocoa];
+    [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
   }
   
   UpdateTooltips();
   
-  return mGraphicsCocoa;
+  return mView;
 }
 
 void IGraphicsMac::CloseWindow()
 {
-  if (mGraphicsCocoa)
+  if (mView)
   {
-    IGRAPHICS_COCOA* graphicscocoa = (IGRAPHICS_COCOA*)mGraphicsCocoa;
-    [graphicscocoa removeAllToolTips];
-    [graphicscocoa killTimer];
-    mGraphicsCocoa = 0;
+    IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
+    [view removeAllToolTips];
+    [view killTimer];
+    mView = nullptr;
 
-    if (graphicscocoa->mGraphics)
+    if (view->mGraphics)
     {
       SetPlatformContext(nullptr);
-      graphicscocoa->mGraphics = 0;
-      [graphicscocoa removeFromSuperview];   // Releases.
+      view->mGraphics = nullptr;
+      [view removeFromSuperview];   // Releases.
     }
   }
 }
 
 bool IGraphicsMac::WindowIsOpen()
 {
-  return mGraphicsCocoa;
+  return mView;
 }
 
 void IGraphicsMac::Resize(int w, int h)
@@ -185,10 +187,10 @@ void IGraphicsMac::Resize(int w, int h)
 
   IGraphics::Resize(w, h);
 
-  if (mGraphicsCocoa)
+  if (mView)
   {
     NSSize size = { static_cast<CGFloat>(w), static_cast<CGFloat>(h) };
-    [(IGRAPHICS_COCOA*) mGraphicsCocoa setFrameSize: size ];
+    [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
   }
 }
 
@@ -268,19 +270,19 @@ int IGraphicsMac::ShowMessageBox(const char* text, const char* pCaption, int typ
 
 void IGraphicsMac::ForceEndUserEdit()
 {
-  if (mGraphicsCocoa)
+  if (mView)
   {
-    [(IGRAPHICS_COCOA*) mGraphicsCocoa endUserInput];
+    [(IGRAPHICS_VIEW*) mView endUserInput];
   }
 }
 
 void IGraphicsMac::UpdateTooltips()
 {
-  if (!(mGraphicsCocoa && TooltipsEnabled())) return;
+  if (!(mView && TooltipsEnabled())) return;
 
   CocoaAutoReleasePool pool;
   
-  [(IGRAPHICS_COCOA*) mGraphicsCocoa removeAllToolTips];
+  [(IGRAPHICS_VIEW*) mView removeAllToolTips];
   
   IControl** ppControl = mControls.GetList();
   
@@ -293,7 +295,7 @@ void IGraphicsMac::UpdateTooltips()
       IRECT pR = pControl->GetTargetRECT();
       if (!pControl->GetTargetRECT().Empty())
       {
-        [(IGRAPHICS_COCOA*) mGraphicsCocoa registerToolTip: pR];
+        [(IGRAPHICS_VIEW*) mView registerToolTip: pR];
       }
     }
   }
@@ -480,20 +482,20 @@ IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect)
 {
   ReleaseMouseCapture();
 
-  if (mGraphicsCocoa)
+  if (mView)
   {
     NSRect areaRect = ToNSRect(this, textRect);
-    return [(IGRAPHICS_COCOA*) mGraphicsCocoa createIPopupMenu: menu: areaRect];
+    return [(IGRAPHICS_VIEW*) mView createIPopupMenu: menu: areaRect];
   }
   else return 0;
 }
 
 void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam)
 {
-  if (mGraphicsCocoa)
+  if (mView)
   {
     NSRect areaRect = ToNSRect(this, textRect);
-    [(IGRAPHICS_COCOA*) mGraphicsCocoa createTextEntry: pControl: pParam: text: pStr: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: pControl: pParam: text: pStr: areaRect];
   }
 }
 
@@ -520,7 +522,7 @@ bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
 void* IGraphicsMac::GetWindow()
 {
-  if (mGraphicsCocoa) return mGraphicsCocoa;
+  if (mView) return mView;
   else return 0;
 }
 

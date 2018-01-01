@@ -1,11 +1,10 @@
 #import <Cocoa/Cocoa.h>
-#include <Carbon/Carbon.h>
 #include "IGraphicsMac.h"
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
   int B = pGraphics->Height() - rect.B;
-  return NSMakeRect(rect.L, B-1, rect.W()+1, rect.H()+1);
+  return NSMakeRect(rect.L, B, rect.W(), rect.H());
 }
 
 inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
@@ -26,7 +25,7 @@ inline NSColor* ToNSColor(const IColor& pColor)
 NSString* ToNSString(const char* cStr);
 
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
-@interface COCOA_FORMATTER : NSFormatter
+@interface IGRAPHICS_FORMATTER : NSFormatter
 {
   NSCharacterSet *filterCharacterSet;
   int maxLength;
@@ -39,7 +38,7 @@ NSString* ToNSString(const char* cStr);
 
 @end
 
-@interface IGRAPHICS_NSMENU : NSMenu
+@interface IGRAPHICS_MENU : NSMenu
 {
   IPopupMenu* mIPopupMenu;
 }
@@ -56,7 +55,7 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) MenuItem;
 @end
 
-@interface IGRAPHICS_COCOA : NSView <NSWindowDelegate>
+@interface IGRAPHICS_VIEW : NSView <NSWindowDelegate>
 {
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
@@ -86,10 +85,9 @@ NSString* ToNSString(const char* cStr);
 - (void) keyDown: (NSEvent *)pEvent;
 - (void) killTimer;
 - (void) removeFromSuperview;
-//- (void) controlTextDidChange: (NSNotification *) aNotification;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
 - (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) pStr : (NSRect) areaRect;
+- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) rect;

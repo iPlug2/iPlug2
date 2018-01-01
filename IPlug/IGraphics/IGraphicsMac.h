@@ -21,8 +21,8 @@
 
 //objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
 //so that binaries using different versions don't conflict
-#ifndef COCOA_PREFIX
-  #define COCOA_PREFIX vWDLOL
+#ifndef OBJC_PREFIX
+  #define OBJC_PREFIX vWDLOL
 #endif
 
 #if defined(VST_API)
@@ -39,12 +39,12 @@
 
 #define CONCAT3(a,b,c) a##b##c
 #define CONCAT2(a,b,c) CONCAT3(a,b,c)
-#define CONCAT(cname) CONCAT2(cname,COCOA_PREFIX,API)
+#define CONCAT(cname) CONCAT2(cname,OBJC_PREFIX,API)
 
-#define IGRAPHICS_COCOA CONCAT(IGraphicsCocoa_)
-#define IGRAPHICS_NSMENU CONCAT(IGraphicsNSMenu_)
+#define IGRAPHICS_VIEW CONCAT(IGraphicsView_)
+#define IGRAPHICS_MENU CONCAT(IGraphicsMenu_)
 #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
-#define COCOA_FORMATTER CONCAT(CocoaFormatter_)
+#define IGRAPHICS_FORMATTER CONCAT(IGraphicsFormatter_)
 
 class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
 {
@@ -54,7 +54,7 @@ public:
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
 
-  void DrawScreen(const IRECT& pR) override;
+  void DrawScreen(const IRECT& rect) override;
   
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -78,10 +78,10 @@ public:
   void AppSupportPath(WDL_String& pPath, bool isSystem = false) override;
   void SandboxSafeAppSupportPath(WDL_String& pPath) override;
 
-  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = "") override;
+  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* ext = "") override;
   bool PromptForColor(IColor& color, const char* pStr) override;
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) override;
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override;
@@ -100,7 +100,7 @@ protected:
 //  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
   
 private:
-  void* mGraphicsCocoa;   // Can't forward-declare IGraphicsCocoa because it's an obj-C object.
+  void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
 
   WDL_String mBundleID;
   
