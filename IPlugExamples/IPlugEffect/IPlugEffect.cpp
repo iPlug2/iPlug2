@@ -1,6 +1,6 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
-#include "IControl.h"
+#include "IControls.h"
 #include "config.h"
 
 const int kNumPrograms = 1;
