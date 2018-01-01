@@ -1,9 +1,5 @@
 #pragma once
 
-#if defined(__LP64__) && !defined(IPLUG_NO_CARBON_SUPPORT)
-  #define IPLUG_NO_CARBON_SUPPORT
-#endif
-
 #include "swell.h"
 #include <Carbon/Carbon.h>
 
@@ -24,10 +20,6 @@
     #define IGRAPHICS_DRAW_CLASS IGraphicsLice
     #include "IGraphicsLice.h"
   #endif
-#endif
-
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  class IGraphicsCarbon;
 #endif
 
 #ifndef COCOA_PREFIX
@@ -68,10 +60,6 @@ public:
   
   void* OpenWindow(void* pWindow) override;
   void* OpenCocoaWindow(void* pParentView);
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  void* OpenWindow(void* pWindow, void* pControl) override;
-  void* OpenCarbonWindow(void* pParentWnd, void* pParentControl);
-#endif
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h) override;
@@ -115,18 +103,11 @@ protected:
 //  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
   
 private:
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  IGraphicsCarbon* mGraphicsCarbon;
-#endif
   void* mGraphicsCocoa;   // Can't forward-declare IGraphicsCocoa because it's an obj-C object.
 
   WDL_String mBundleID;
   
   friend int GetMouseOver(IGraphicsMac* pGraphics);
-  
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  friend class IGraphicsCarbon;
-#endif
 };
 
 inline CGRect ToCGRect(int h, IRECT* pR)

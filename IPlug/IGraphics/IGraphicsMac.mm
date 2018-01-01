@@ -3,9 +3,6 @@
 #include "IControl.h"
 #include "Log.h"
 #import "IGraphicsCocoa.h"
-#ifndef IPLUG_NO_CARBON_SUPPORT
-  #include "IGraphicsCarbon.h"
-#endif
 #include "swell-internal.h"
 
 //TODO: why does this have to be here?
@@ -84,9 +81,6 @@ static double gettm()
 
 IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
-   #ifndef IPLUG_NO_CARBON_SUPPORT
-  , mGraphicsCarbon(0)
-   #endif
   , mGraphicsCocoa(0)
 {
 #if GRAPHICS_SCALING
@@ -159,13 +153,6 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   return OpenCocoaWindow(pParent);
 }
 
-#ifndef IPLUG_NO_CARBON_SUPPORT
-void* IGraphicsMac::OpenWindow(void* pWindow, void* pControl)
-{
-  return OpenCarbonWindow(pWindow, pControl);
-}
-#endif
-
 void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
 {
   TRACE;
@@ -182,27 +169,8 @@ void* IGraphicsMac::OpenCocoaWindow(void* pParentView)
   return mGraphicsCocoa;
 }
 
-#ifndef IPLUG_NO_CARBON_SUPPORT
-void* IGraphicsMac::OpenCarbonWindow(void* pParentWnd, void* pParentControl)
-{
-  TRACE;
-  CloseWindow();
-  WindowRef pWnd = (WindowRef) pParentWnd;
-  ControlRef pControl = (ControlRef) pParentControl;
-  mGraphicsCarbon = new IGraphicsCarbon(this, pWnd, pControl);
-  return mGraphicsCarbon->GetView();
-}
-#endif
-
 void IGraphicsMac::CloseWindow()
 {
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  if (mGraphicsCarbon)
-  {
-    DELETE_NULL(mGraphicsCarbon);
-  }
-  else
-  #endif
   if (mGraphicsCocoa)
   {
     IGRAPHICS_COCOA* graphicscocoa = (IGRAPHICS_COCOA*)mGraphicsCocoa;
@@ -212,6 +180,7 @@ void IGraphicsMac::CloseWindow()
 
     if (graphicscocoa->mGraphics)
     {
+      SetPlatformContext(nullptr);
       graphicscocoa->mGraphics = 0;
       [graphicscocoa removeFromSuperview];   // Releases.
     }
@@ -220,11 +189,7 @@ void IGraphicsMac::CloseWindow()
 
 bool IGraphicsMac::WindowIsOpen()
 {
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  return (mGraphicsCarbon || mGraphicsCocoa);
-  #else
   return mGraphicsCocoa;
-  #endif
 }
 
 void IGraphicsMac::Resize(int w, int h)
@@ -233,13 +198,6 @@ void IGraphicsMac::Resize(int w, int h)
 
   IGraphics::Resize(w, h);
 
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  if (mGraphicsCarbon)
-  {
-    mGraphicsCarbon->Resize(w, h);
-  }
-  else
-  #endif
   if (mGraphicsCocoa)
   {
     NSSize size = { static_cast<CGFloat>(w), static_cast<CGFloat>(h) };
@@ -323,12 +281,6 @@ int IGraphicsMac::ShowMessageBox(const char* text, const char* pCaption, int typ
 
 void IGraphicsMac::ForceEndUserEdit()
 {
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  if (mGraphicsCarbon)
-  {
-    mGraphicsCarbon->EndUserInput(false);
-  }
-  #endif
   if (mGraphicsCocoa)
   {
     [(IGRAPHICS_COCOA*) mGraphicsCocoa endUserInput];
@@ -362,17 +314,7 @@ void IGraphicsMac::UpdateTooltips()
 
 const char* IGraphicsMac::GetGUIAPI()
 {
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  if (mGraphicsCarbon)
-  {
-    if (mGraphicsCarbon->GetIsComposited())
-      return "Carbon Composited";
-    else
-      return "Carbon Non-Composited";
-  }
-  else
-  #endif
-    return "Cocoa";
+  return "Cocoa";
 }
 
 void IGraphicsMac::HostPath(WDL_String& path)
@@ -559,12 +501,6 @@ IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect)
     NSRect areaRect = ToNSRect(this, textRect);
     return [(IGRAPHICS_COCOA*) mGraphicsCocoa createIPopupMenu: menu: areaRect];
   }
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  else if (mGraphicsCarbon)
-  {
-    return mGraphicsCarbon->CreateIPopupMenu(menu, textRect);
-  }
-  #endif
   else return 0;
 }
 
@@ -575,12 +511,6 @@ void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const 
     NSRect areaRect = ToNSRect(this, textRect);
     [(IGRAPHICS_COCOA*) mGraphicsCocoa createTextEntry: pControl: pParam: text: pStr: areaRect];
   }
-  #ifndef IPLUG_NO_CARBON_SUPPORT
-  else if (mGraphicsCarbon)
-  {
-    mGraphicsCarbon->CreateTextEntry(pControl, text, textRect, pStr, pParam);
-  }
-  #endif
 }
 
 bool IGraphicsMac::OpenURL(const char* pURL, const char* pMsgWindowTitle, const char* pConfirmMsg, const char* pErrMsgOnFailure)
