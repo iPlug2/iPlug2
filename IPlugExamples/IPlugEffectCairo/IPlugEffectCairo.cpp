@@ -1,6 +1,6 @@
 #include "IPlugEffectCairo.h"
 #include "IPlug_include_in_plug_src.h"
-#include "IControl.h"
+#include "IControls.h"
 #include "config.h"
 
 #include "cairo/cairo.h"
