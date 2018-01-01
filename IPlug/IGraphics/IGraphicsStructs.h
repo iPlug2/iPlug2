@@ -401,7 +401,7 @@ public:
     key->scale = scale;
     key->path.Set(str);
     
-    DBGMSG("adding %s to the static storage at %f the original scale\n", str, scale);
+    DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
   
   void Remove(T* data)
