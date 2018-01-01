@@ -6,6 +6,7 @@
 #include "ptrlist.h"
 
 #include "IPlugOSDetect.h"
+#include "Log.h"
 
 #ifdef OS_OSX
 #include "swell.h"
@@ -399,6 +400,8 @@ public:
     key->data = data;
     key->scale = scale;
     key->path.Set(str);
+    
+    DBGMSG("adding %s to the static storage at %f the original scale\n", str, scale);
   }
   
   void Remove(T* data)
