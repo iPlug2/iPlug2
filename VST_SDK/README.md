@@ -8,5 +8,5 @@ download the latest VST SDK. The VST2 SDK is included in the VST3 SDK:
 
 these are the files you need to put in this folder
 
-`/VST2_SDK/pluginterfaces/vst2.x/aeffect.h`
-`/VST2_SDK/pluginterfaces/vst2.x/aeffectx.h`
+`/VST2_SDK/pluginterfaces/vst2.x/aeffect.h`  
+`/VST2_SDK/pluginterfaces/vst2.x/aeffectx.h`  
