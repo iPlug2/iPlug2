@@ -69,14 +69,6 @@ static double gettm()
 }
 #endif
 
-
-@interface CUSTOM_COCOA_WINDOW : NSWindow {}
-@end
-
-@implementation CUSTOM_COCOA_WINDOW
-- (BOOL)canBecomeKeyWindow {return YES;}
-@end
-
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
@@ -505,17 +497,17 @@ void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const 
   }
 }
 
-bool IGraphicsMac::OpenURL(const char* pURL, const char* pMsgWindowTitle, const char* pConfirmMsg, const char* pErrMsgOnFailure)
+bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")
   NSURL* pNSURL = 0;
-  if (strstr(pURL, "http"))
+  if (strstr(url, "http"))
   {
-    pNSURL = [NSURL URLWithString:ToNSString(pURL)];
+    pNSURL = [NSURL URLWithString:ToNSString(url)];
   }
   else
   {
-    pNSURL = [NSURL fileURLWithPath:ToNSString(pURL)];
+    pNSURL = [NSURL fileURLWithPath:ToNSString(url)];
   }
   if (pNSURL)
   {
