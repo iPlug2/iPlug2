@@ -351,20 +351,17 @@ void IGraphicsMac::DesktopPath(WDL_String& path)
   path.Set([pDesktopDirectory UTF8String]);
 }
 
-//void IGraphicsMac::VST3PresetsPath(WDL_String& path, bool isSystem)
-//{
-//  NSArray* pPaths;
-//  if (isSystem)
-//    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
-//  else
-//    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
-//  
-//  NSString* pApplicationSupportDirectory = [pPaths objectAtIndex:0];
-//  path->SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/",
-//                      [applicationSupportDirectory UTF8String],
-//                      mPlug->GetMfrNameStr(),
-//                      mPlug->GetPluginNameStr());
-//}
+void IGraphicsMac::VST3PresetsPath(WDL_String& path, bool isSystem)
+{
+  NSArray* pPaths;
+  if (isSystem)
+    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
+  else
+    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+  
+  NSString* pApplicationSupportDirectory = [pPaths objectAtIndex:0];
+  path.SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/", [pApplicationSupportDirectory UTF8String], mPlug.GetMfrName(), mPlug.GetEffectName());
+}
 
 void IGraphicsMac::AppSupportPath(WDL_String& path, bool isSystem)
 {

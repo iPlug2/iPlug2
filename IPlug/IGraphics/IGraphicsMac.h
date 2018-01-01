@@ -19,6 +19,8 @@
   #endif
 #endif
 
+//objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
+//so that binaries using different versions don't conflict
 #ifndef COCOA_PREFIX
   #define COCOA_PREFIX vWDLOL
 #endif
@@ -72,11 +74,11 @@ public:
   void HostPath(WDL_String& pPath) override;
   void PluginPath(WDL_String& pPath) override;
   void DesktopPath(WDL_String& pPath) override;
-//  void VST3PresetsPath(WDL_String& pPath, bool isSystem = true);
+  void VST3PresetsPath(WDL_String& pPath, bool isSystem = true);
   void AppSupportPath(WDL_String& pPath, bool isSystem = false) override;
   void SandboxSafeAppSupportPath(WDL_String& pPath) override;
 
-  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = "") override;   // extensions = "txt wav" for example.
+  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = "") override;
   bool PromptForColor(IColor& color, const char* pStr) override;
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) override;
@@ -87,7 +89,7 @@ public:
   void* GetWindow() override;
 
   const char* GetBundleID()  { return mBundleID.Get(); }
-  static int GetUserOSVersion();   // Returns a number like 0x1050 (10.5).
+  static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& pStr) override;
 
