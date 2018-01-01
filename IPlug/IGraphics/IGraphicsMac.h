@@ -107,12 +107,6 @@ private:
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 
-inline CGRect ToCGRect(int h, IRECT* pR)
-{
-  int B = h - pR->B;
-  return CGRectMake(pR->L, B, pR->W(), B + pR->H());
-}
-
 inline int AdjustFontSize(int size)
 {
   return int(0.9 * (double)size);
