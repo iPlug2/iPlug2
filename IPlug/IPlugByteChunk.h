@@ -7,7 +7,6 @@ template <class T> inline void SWAP(T& a, T& b)
   T tmp = a; a = b; b = tmp;
 }
 
-typedef unsigned char BYTE;
 class ByteChunk
 {
 public:
