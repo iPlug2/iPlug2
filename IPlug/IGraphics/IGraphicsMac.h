@@ -79,10 +79,10 @@ public:
   void SandboxSafeAppSupportPath(WDL_String& pPath) override;
 
   void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* ext = "") override;
-  bool PromptForColor(IColor& color, const char* pStr) override;
+  bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam) override;
+  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override;
 
@@ -91,9 +91,9 @@ public:
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();
   
-  bool GetTextFromClipboard(WDL_String& pStr) override;
+  bool GetTextFromClipboard(WDL_String& str) override;
 
-  bool MeasureIText(const IText& text, const char* pStr, IRECT& destRect) override;
+  bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
 protected:
   void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
 //  void OSLoadFont(const char* name, const int size) override;

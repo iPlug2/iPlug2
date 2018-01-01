@@ -549,7 +549,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   else return 0;
 }
 
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) pString : (NSRect) areaRect;
+- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;
 {
   if (mTextFieldView) return;
 
@@ -602,7 +602,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [mTextFieldView setTextColor:ToNSColor(text.mTextEntryFGColor)];
   [mTextFieldView setBackgroundColor:ToNSColor(text.mTextEntryBGColor)];
 
-  [mTextFieldView setStringValue: ToNSString(pString)];
+  [mTextFieldView setStringValue: ToNSString(str)];
 
 #ifndef COCOA_TEXTENTRY_BORDERED
   [mTextFieldView setBordered: NO];

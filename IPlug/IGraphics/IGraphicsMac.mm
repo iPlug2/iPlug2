@@ -472,7 +472,7 @@ void IGraphicsMac::PromptForFile(WDL_String& pFilename, EFileAction action, WDL_
   }
 }
 
-bool IGraphicsMac::PromptForColor(IColor& color, const char* pStr)
+bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
 {
   //TODO:
   return false;
@@ -490,12 +490,12 @@ IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect)
   else return 0;
 }
 
-void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* pStr, IParam* pParam)
+void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam)
 {
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, textRect);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: pControl: pParam: text: pStr: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: pControl: pParam: text: str: areaRect];
   }
 }
 
@@ -535,18 +535,18 @@ int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
   return (int) ver;
 }
 
-bool IGraphicsMac::GetTextFromClipboard(WDL_String& pStr)
+bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 {
   NSString* text = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
   
   if (text == nil)
   {
-    pStr.Set("");
+    str.Set("");
     return false;
   }
   else
   {
-    pStr.Set([text UTF8String]);
+    str.Set([text UTF8String]);
     return true;
   }
 }

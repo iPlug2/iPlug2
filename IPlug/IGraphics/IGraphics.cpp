@@ -273,11 +273,11 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* pStr, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
-  if (CSTR_NOT_EMPTY(pStr))
+  if (CSTR_NOT_EMPTY(str))
   {
-    int stringLength = (int) strlen(pStr);
+    int stringLength = (int) strlen(str);
     
     int basicYOffset, basicXOffset;
     
@@ -325,9 +325,9 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
       
       for(int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
       {
-        if (pStr[stridx] == '\0') return;
+        if (str[stridx] == '\0') return;
         
-        int frameOffset = (int) pStr[stridx++] - 31; // calculate which frame to look up
+        int frameOffset = (int) str[stridx++] - 31; // calculate which frame to look up
         
         int xOffset = (linepos * (charWidth + charOffset)) + basicXOffset;    // calculate xOffset for character we're drawing
         IRECT charRect = IRECT(xOffset, yOffset, xOffset + charWidth, yOffset + charHeight);

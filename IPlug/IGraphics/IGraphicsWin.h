@@ -52,8 +52,8 @@ public:
   void AppSupportPath(WDL_String& path, bool isSystem = false);
   void SandboxSafeAppSupportPath(WDL_String& path) { AppSupportPath(path, false); }
 
-  void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* extensions = "");
-  bool PromptForColor(IColor& colour, const char* pStr);
+  void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* ext = "");
+  bool PromptForColor(IColor& colour, const char* str);
 
   IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);

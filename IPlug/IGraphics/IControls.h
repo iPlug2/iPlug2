@@ -258,7 +258,7 @@ public:
   
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
   
-  void GetLastSelectedFileForPlug(WDL_String& pStr);
+  void GetLastSelectedFileForPlug(WDL_String& str);
   void SetLastSelectedFileFromPlug(const char* file);
   
   void Draw(IGraphics& graphics) override;
