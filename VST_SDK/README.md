@@ -10,3 +10,9 @@ these are the files you need to put in this folder
 
 `/VST2_SDK/pluginterfaces/vst2.x/aeffect.h`  
 `/VST2_SDK/pluginterfaces/vst2.x/aeffectx.h`  
+
+so it looks like:
+
+`WDL-OL/`  
+`WDL-OL/VST2_SDK/aeffect.h`  
+`WDL-OL/VST2_SDK/aeffectx.h`  

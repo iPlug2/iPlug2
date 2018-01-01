@@ -1,10 +1,19 @@
-extract the VST3.6.8 SDK here (https://download.steinberg.net/sdk_downloads/vstsdk368_08_11_2017_build_121.zip, preserving the folder structure. i.e
+download the latest VST3 SDK:
 
-WDL-OL/VST3_SDK/base/source
-WDL-OL/VST3_SDK/pluginterfaces
-WDL-OL/VST3_SDK/public.sdk/source
+[http://www.steinberg.net/en/company/developer.html
+](http://www.steinberg.net/en/company/developer.html
+)
 
-Once you've put the SDK files in place, you should discard any changes in these two files via git
+extract the zip file here preserving the folder structure so it looks like:
 
-WDL-OL/VST3_SDK/base/mac/base.xcodeproj
-WDL-OL/VST3_SDK/base/win/base.vcxproj
+`WDL-OL/`  
+`WDL-OL/VST3_SDK/`  
+`WDL-OL/VST3_SDK/base/source`  
+`WDL-OL/VST3_SDK/base/thread`  
+`WDL-OL/VST3_SDK/pluginterfaces`  
+`WDL-OL/VST3_SDK/public.sdk/source`  
+
+Once you've put the SDK files in place, you should discard any changes in these two files via git:
+
+`WDL-OL/VST3_SDK/base/mac/base.xcodeproj`  
+`WDL-OL/VST3_SDK/base/win/base.vcxproj`  
