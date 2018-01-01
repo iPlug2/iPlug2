@@ -28,7 +28,6 @@
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F20EECB132C69FE0030E34C /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F20EF2D132C69FE0030E34C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4F20EF2E132C69FE0030E34C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F23B9F313B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23B9FD13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23BA0C13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -36,7 +35,6 @@
 		4F3AE17B12C0E5E2001FD7A4 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* config.h */; };
 		4F3AE17C12C0E5E2001FD7A4 /* IPlugEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */; };
 		4F3AE1A312C0E5E2001FD7A4 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
-		4F3AE1D412C0E5E2001FD7A4 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F3AE1D512C0E5E2001FD7A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F3AE1D612C0E5E2001FD7A4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D920D14C2D600A0943B /* AudioToolbox.framework */; };
 		4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D7E0D14C2D100A0943B /* AudioUnit.framework */; };
@@ -51,7 +49,6 @@
 		4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F7E65807B2D6F200F64583 /* CoreData.framework */; };
 		4F78D87013B637A20032E0F3 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41CB90D14C2A900A0943B /* CoreAudio.framework */; };
 		4F78D87113B637A20032E0F3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4F78D87513B637E50032E0F3 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */; };
 		4F78D89913B639100032E0F3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4F78D89513B639100032E0F3 /* InfoPlist.strings */; };
 		4F78D89A13B639100032E0F3 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F78D89713B639100032E0F3 /* MainMenu.xib */; };
@@ -148,7 +145,6 @@
 		4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
 		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
@@ -170,7 +166,6 @@
 		4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */; };
 		4FB600291567CB0A0020189A /* AAX_CIPlugParameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F017360154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp */; };
 		4FB6002C1567CB0A0020189A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
-		4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
 		4FBF95681F3F5DDC00A92E48 /* libAAXLibrary_libcpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F83C3721F3F599D0044D8B8 /* libAAXLibrary_libcpp.a */; };
 		4FBF95691F3F5DE700A92E48 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4FD16CA213B6327D001D0217 /* app_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CA013B6327C001D0217 /* app_main.cpp */; };
@@ -560,7 +555,6 @@
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../common.xcconfig; sourceTree = SOURCE_ROOT; };
 		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		526F9C010D7DC7D700562CF8 /* IPlugEffect.exp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.exports; path = IPlugEffect.exp; sourceTree = "<group>"; };
-		52C4DB180D0E51270007A920 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		52E41CB90D14C2A900A0943B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		52E41CC40D14C2B000A0943B /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		52E41D7E0D14C2D100A0943B /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
@@ -578,7 +572,6 @@
 			files = (
 				4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */,
 				4F20EF2D132C69FE0030E34C /* Cocoa.framework in Frameworks */,
-				4F20EF2E132C69FE0030E34C /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -587,7 +580,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */,
-				4F3AE1D412C0E5E2001FD7A4 /* Carbon.framework in Frameworks */,
 				4F3AE1D512C0E5E2001FD7A4 /* Cocoa.framework in Frameworks */,
 				4F3AE1D612C0E5E2001FD7A4 /* AudioToolbox.framework in Frameworks */,
 				4F3AE1D712C0E5E2001FD7A4 /* AudioUnit.framework in Frameworks */,
@@ -603,7 +595,6 @@
 				4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */,
 				4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */,
 				4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */,
-				4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -614,7 +605,6 @@
 				4FBF95691F3F5DE700A92E48 /* lice.a in Frameworks */,
 				4FBF95681F3F5DDC00A92E48 /* libAAXLibrary_libcpp.a in Frameworks */,
 				4FB6002C1567CB0A0020189A /* Cocoa.framework in Frameworks */,
-				4FB6002D1567CB0A0020189A /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -623,7 +613,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */,
-				4F78D87513B637E50032E0F3 /* Carbon.framework in Frameworks */,
 				4F78D7D013B637790032E0F3 /* CoreMIDI.framework in Frameworks */,
 				4F78D70B13B637340032E0F3 /* CoreFoundation.framework in Frameworks */,
 				4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */,
@@ -1034,7 +1023,6 @@
 				D2F7E65807B2D6F200F64583 /* CoreData.framework */,
 				089C1672FE841209C02AAC07 /* Foundation.framework */,
 				52E41CC40D14C2B000A0943B /* CoreServices.framework */,
-				52C4DB180D0E51270007A920 /* Carbon.framework */,
 				1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */,
 			);
 			name = "App & Plugins";
