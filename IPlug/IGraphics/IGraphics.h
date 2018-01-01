@@ -177,15 +177,6 @@ public:
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 
 protected:
-  void* mPlatformContext = nullptr;
-  WDL_PtrList<IControl> mControls;
-  IPlugBaseGraphics& mPlug;
-  IRECT mDrawRECT;
-  bool mCursorHidden;
-  int mHiddenMousePointX, mHiddenMousePointY;
-  double mScale; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  double mDisplayScale; // the scaling of the display that the ui is currently on e.g. 2. for retina
-  
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
   inline int GetMouseX() const { return mMouseX; }
@@ -194,12 +185,32 @@ protected:
   
   // this is called by some drawing API classes to blit the bitmap onto the screen (IGraphicsLice)
   virtual void RenderAPIBitmap(void* pContext) {}
+  
+  WDL_PtrList<IControl> mControls;
+  IRECT mDrawRECT;
+  void* mPlatformContext = nullptr;
+  IPlugBaseGraphics& mPlug;
+  
+  bool mCursorHidden = false;
+  int mHiddenMousePointX = -1;
+  int mHiddenMousePointY = -1;
+  double mScale = 1.; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
+  double mDisplayScale = 1.; // the scaling of the display that the ui is currently on e.g. 2. for retina
 
 private:
-  int mWidth, mHeight, mFPS, mIdleTicks;
   int GetMouseControlIdx(int x, int y, bool mo = false);
-  int mMouseCapture, mMouseOver, mMouseX, mMouseY, mLastClickedParam;
-  bool mHandleMouseOver, mStrict, mEnableTooltips;
-  bool mShowControlBounds, mShowAreaDrawn;
-  IControl* mKeyCatcher;
+
+  int mWidth, mHeight, mFPS;
+  int mIdleTicks = 0;
+  int mMouseCapture = -1;
+  int mMouseOver = -1;
+  int mMouseX = 0;
+  int mMouseY = 0;
+  int mLastClickedParam = kNoParameter;
+  bool mHandleMouseOver = false;
+  bool mStrict = true;
+  bool mEnableTooltips;
+  bool mShowControlBounds = false;
+  bool mShowAreaDrawn = false;
+  IControl* mKeyCatcher = nullptr;
 };
