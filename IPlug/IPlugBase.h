@@ -110,7 +110,7 @@ public:
   // Useful stuff for your plugin class or an outsider to call,
   // most of which is implemented by the API class.
 
-  double GetSampleRate() { return mSampleRate; }
+  double GetSampleRate() const { return mSampleRate; }
   int GetBlockSize() const { return mBlockSize; }
   int GetLatency() const { return mLatency; }
   bool GetIsBypassed() const { return mIsBypassed; }
