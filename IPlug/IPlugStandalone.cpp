@@ -33,7 +33,7 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
               plugDoesChunks,
               plugIsInst,
               kAPISA)
-  , mMidiOutChan(0)
+  , mMidiOutChan(nullptr)
 {
   Trace(TRACELOC, "%s%s", effectName, channelIOStr);
 
@@ -52,7 +52,7 @@ void IPlugStandalone::ResizeGraphics(int w, int h)
   if (GetHasUI())
   {
     #ifdef OS_OSX
-    #define TITLEBAR_BODGE 22
+    #define TITLEBAR_BODGE 22 //TO DO what the faq is this
     RECT r;
     GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - GetUIHeight() - TITLEBAR_BODGE, GetUIWidth(), GetUIHeight() + TITLEBAR_BODGE, 0);

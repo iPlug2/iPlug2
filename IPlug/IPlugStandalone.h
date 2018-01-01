@@ -70,8 +70,8 @@ protected:
   bool SendSysEx(ISysEx& msg);
 
 private:
-  RtMidiOut* mMidiOut;
-  unsigned short* mMidiOutChan;
+  RtMidiOut* mMidiOut = nullptr;
+  unsigned short* mMidiOutChan = nullptr; //TO DO: what the faq is this
 };
 
 IPlugStandalone* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan);
