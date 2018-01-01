@@ -483,7 +483,7 @@ void IPlugBase::SetLatency(int samples)
 }
 
 // this is over-ridden for AAX
-void IPlugBase::SetParameterFromGUI(int idx, double normalizedValue)
+void IPlugBase::SetParameterFromUI(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
   GetParam(idx)->SetNormalized(normalizedValue);

@@ -98,7 +98,7 @@ public:
   //
   
   virtual void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) {}; // call from plugin API class to update GUI prior to calling OnParamChange();
-  virtual void SetParameterFromGUI(int idx, double normalizedValue); // called from GUI to update 
+  virtual void SetParameterFromUI(int idx, double normalizedValue); // called from GUI to update
   // If a parameter change comes from the GUI, midi, or external input,
   // the host needs to be informed in case the changes are being automated.
   virtual void BeginInformHostOfParamChange(int idx) = 0;

@@ -33,7 +33,7 @@ void IControl::SetDirty(bool pushParamToPlug)
   mDirty = true;
   if (pushParamToPlug && mParamIdx >= 0)
   {
-    mPlug.SetParameterFromGUI(mParamIdx, mValue);
+    mPlug.SetParameterFromUI(mParamIdx, mValue);
     IParam* pParam = mPlug.GetParam(mParamIdx);
     
     if (mValDisplayControl) 
@@ -174,7 +174,7 @@ void IControl::SetAllAuxParamsFromGUI()
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
     AuxParam* auxParam = GetAuxParam(i);
-    mPlug.SetParameterFromGUI(auxParam->mParamIdx, auxParam->mValue);
+    mPlug.SetParameterFromUI(auxParam->mParamIdx, auxParam->mValue);
   }
 }
 
