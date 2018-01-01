@@ -103,8 +103,8 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
   
   if (NInChannels()) 
   {
-    mDelay = new NChanDelayLine(NInChannels(), NOutChannels());
-    mDelay->SetDelayTime(latency);
+    mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
+    mLatencyDelay->SetDelayTime(latency);
   }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
