@@ -303,7 +303,7 @@ void IFaderControl::Draw(IGraphics& graphics)
   graphics.DrawBitmap(mBitmap, r, 1, &mBlend);
 }
 
-bool IFaderControl::IsHit(int x, int y)
+bool IFaderControl::IsHit(int x, int y) const
 {
   if(mOnlyHandle)
   {
@@ -475,37 +475,23 @@ void ICaptionControl::Draw(IGraphics& graphics)
 
 IURLControl::IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, const char* backupURL, const char* errMsgOnFailure)
 : IControl(plug, rect)
+, mURL(URL)
+, mBackupURL(backupURL)
+, mErrMsg(errMsgOnFailure)
 {
-  memset(mURL, 0, MAX_URL_LEN);
-  memset(mBackupURL, 0, MAX_URL_LEN);
-  memset(mErrMsg, 0, MAX_NET_ERR_MSG_LEN);
-  
-  if (CSTR_NOT_EMPTY(URL))
-  {
-    strcpy(mURL, URL);
-  }
-  if (CSTR_NOT_EMPTY(backupURL))
-  {
-    strcpy(mBackupURL, backupURL);
-  }
-  if (CSTR_NOT_EMPTY(errMsgOnFailure))
-  {
-    strcpy(mErrMsg, errMsgOnFailure);
-  }
+  assert(strlen(URL) < MAX_URL_LEN);
+  assert(strlen(backupURL) < MAX_URL_LEN);
+  assert(strlen(errMsgOnFailure) < MAX_NET_ERR_MSG_LEN);
 }
 
 void IURLControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
   bool opened = false;
+  opened = mPlug.GetGUI()->OpenURL(mURL.Get(), mErrMsg.Get());
   
-  if (CSTR_NOT_EMPTY(mURL))
+  if (!opened && mBackupURL.GetLength() > 0)
   {
-    opened = mPlug.GetGUI()->OpenURL(mURL, mErrMsg);
-  }
-  
-  if (!opened && CSTR_NOT_EMPTY(mBackupURL))
-  {
-    opened = mPlug.GetGUI()->OpenURL(mBackupURL, mErrMsg);
+    opened = mPlug.GetGUI()->OpenURL(mBackupURL.Get(), mErrMsg.Get());
   }
 }
 

@@ -88,7 +88,7 @@ class IKeyboardControl: public IControl
 {
 public:
   IKeyboardControl(IPlugBase& plug, int x, int y, int minNote, int nOctaves, IBitmap& regularKeys, IBitmap& sharpKey, const int *pKeyCoords = 0):
-    IControl(plug, IRECT(x, y, regularKeys), -1),
+    IControl(plug, IRECT(x, y, regularKeys), kNoParameter),
     mMinNote(minNote), mNumOctaves(nOctaves), mRegularKeys(regularKeys), mSharpKey(sharpKey),
     mOctaveWidth(pRegularKeys->W * 7), mMaxKey(nOctaves * 12), mKey(-1)
   {

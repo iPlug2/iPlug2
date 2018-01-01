@@ -101,7 +101,7 @@ public:
   
   virtual void Draw(IGraphics& graphics) override;
   
-  virtual bool IsHit(int x, int y) override;
+  virtual bool IsHit(int x, int y) const override;
   virtual void OnRescale() override;
   
 protected:
@@ -205,7 +205,7 @@ public:
   , mTargetArea(targetArea) {}
   
   IBitmapOverlayControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IRECT targetArea)
-  : ISwitchControl(plug, x, y, -1, bitmap)
+  : ISwitchControl(plug, x, y, kNoParameter, bitmap)
   , mTargetArea(targetArea) {}
   
   ~IBitmapOverlayControl() {}
@@ -243,7 +243,7 @@ public:
   virtual void Draw(IGraphics& graphics) {}
   
 protected:
-  char mURL[MAX_URL_LEN], mBackupURL[MAX_URL_LEN], mErrMsg[MAX_NET_ERR_MSG_LEN];
+  WDL_String mURL, mBackupURL, mErrMsg;
 };
 
 class IFileSelectorControl : public IControl

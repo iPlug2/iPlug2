@@ -29,7 +29,7 @@ private:
 public:
   
   AGPanelTabs(IPlugBaseGraphics& plug, IRECT tabsRect, IText& text, const IColor& BGColor, const IColor& FGColor, const IColor& onColor)
-  : IControl(plug, tabsRect, -1)
+  : IControl(plug, tabsRect, kNoParameter)
   , mBGColor(BGColor)
   , mFGColor(FGColor)
   , mOnColor(onColor)

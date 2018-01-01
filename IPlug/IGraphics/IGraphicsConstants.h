@@ -1,10 +1,10 @@
 #pragma once
 
-#define DEFAULT_FPS 25
+static const int DEFAULT_FPS = 25;
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
 // Only looked at if USE_IDLE_CALLS is defined.
-#define IDLE_TICKS 20
+static const int IDLE_TICKS = 20;
 
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN
@@ -16,9 +16,8 @@
 #define MAX_URL_LEN 256
 #define MAX_NET_ERR_MSG_LEN 1024
 
-#define DEFAULT_TEXT_ENTRY_LEN 7
-
-#define DEFAULT_GEARING 4.0
+static const int DEFAULT_TEXT_ENTRY_LEN = 7;
+static const double DEFAULT_GEARING = 4.0;
 
 //what is this stuff
 #define MAX_INET_ERR_CODE 32
@@ -27,4 +26,5 @@
 #define MAX_CLASSNAME_LEN 128
 //
 
-const float GRAYED_ALPHA = 0.25f;
+static const float GRAYED_ALPHA = 0.25f;
+static const int kNoParameter = -1;

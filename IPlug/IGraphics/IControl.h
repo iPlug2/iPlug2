@@ -14,12 +14,16 @@
 class IControl
 {
 public:
-  // If paramIdx is > -1, this control will be associated with a plugin parameter.
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = -1, IBlend blendType = IBlend::kBlendNone)
-    : mPlug(plug), mRECT(rect), mTargetRECT(rect), mParamIdx(paramIdx), mValue(0.0), mDefaultValue(-1.0),
-      mBlend(blendType), mDirty(true), mHide(false), mGrayed(false), mDisablePrompt(true), mDblAsSingleClick(false),
-      mClampLo(0.0), mClampHi(1.0), mMOWhenGreyed(false), mTextEntryLength(DEFAULT_TEXT_ENTRY_LEN), 
-      mValDisplayControl(0), mNameDisplayControl(0), mTooltip("") {}
+  // If paramIdx is > -1 (kNoParameter) this control will be associated with a plugin parameter.
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone)
+  : mPlug(plug)
+  , mRECT(rect)
+  , mTargetRECT(rect)
+  , mParamIdx(paramIdx)
+  , mBlend(blendType)
+  , mTooltip("")
+  {
+  }
 
   virtual ~IControl() {}
 
@@ -43,7 +47,7 @@ public:
 
   // Ask the IGraphics object to open an edit box so the user can enter a value for this control.
   void PromptUserInput();
-  void PromptUserInput(IRECT& textRect);
+  void PromptUserInput(IRECT& rect);
   
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
   inline const char* GetTooltip() const { return mTooltip.Get(); }
@@ -67,12 +71,12 @@ public:
   bool IsHidden() const { return mHide; }
 
   virtual void GrayOut(bool gray);
-  bool IsGrayed() { return mGrayed; }
+  bool IsGrayed() const { return mGrayed; }
 
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
-  virtual bool IsHit(int x, int y) { return mTargetRECT.Contains(x, y); }
+  virtual bool IsHit(int x, int y) const { return mTargetRECT.Contains(x, y); }
 
   void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
   
@@ -81,7 +85,7 @@ public:
 
   virtual void SetDirty(bool pushParamToPlug = true);
   virtual void SetClean();
-  virtual bool IsDirty() { return mDirty; }
+  virtual bool IsDirty() { return mDirty; } // This is not const, because it may be used to update something at the fps
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }  // Disables the right-click manual value entry.
 
@@ -97,12 +101,12 @@ public:
   // a struct that contain a parameter index and normalized value
   struct AuxParam 
   {
-    double mValue;
+    double mValue  = 0.;
     int mParamIdx;
     
     AuxParam(int idx) : mParamIdx(idx)
     {
-      assert(idx > -1); // no negative params please
+      assert(idx > kNoParameter); // no negative params please
     }
   };
   
@@ -122,19 +126,29 @@ public:
   virtual void OnRescale() {};
 
 protected:
-  int mTextEntryLength;
-  IText mText;
   IPlugBaseGraphics& mPlug;
   IRECT mRECT, mTargetRECT;
   int mParamIdx;
+  IBlend mBlend;
+  IText mText;
   
   WDL_TypedBuf<AuxParam> mAuxParams;
-  double mValue, mDefaultValue, mClampLo, mClampHi;
-  bool mDirty, mHide, mGrayed, mRedraw, mDisablePrompt, mClamped, mDblAsSingleClick, mMOWhenGreyed;
-  IBlend mBlend;
-  IControl* mValDisplayControl;
-  IControl* mNameDisplayControl;
-  WDL_String mTooltip;
+  int mTextEntryLength  = DEFAULT_TEXT_ENTRY_LEN;
+  double mValue = 0.;
+  double mDefaultValue = -1.;
+  double mClampLo = 0.;
+  double mClampHi = 1.;
+  bool mDirty = true;
+  bool mHide = false;
+  bool mGrayed = false;
+  bool mRedraw = false;
+  bool mDisablePrompt = true;
+  bool mClamped = false;
+  bool mDblAsSingleClick = false;
+  bool mMOWhenGreyed = false;
+  IControl* mValDisplayControl = nullptr;
+  IControl* mNameDisplayControl = nullptr;
+  WDL_String mTooltip; //TODO: joining to initialise this to empty string?
 };
 
 // Fills a rectangle with a colour
@@ -142,7 +156,9 @@ class IPanelControl : public IControl
 {
 public:
   IPanelControl(IPlugBaseGraphics& plug, IRECT rect, const IColor& color)
-    : IControl(plug, rect), mColor(color) {}
+  : IControl(plug, rect)
+  , mColor(color)
+  {}
 
   void Draw(IGraphics& graphics) override;
 
@@ -158,7 +174,7 @@ public:
   : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
 
   IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), -1, blendType), mBitmap(bitmap) {}
+  : IControl(plug, IRECT(x, y, bitmap), kNoParameter, blendType), mBitmap(bitmap) {}
 
   virtual ~IBitmapControl() {}
 
@@ -175,13 +191,14 @@ class ITextControl : public IControl
 public:
   ITextControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char* str = "")
   : IControl(plug, rect)
+  , mStr(str)
   {
     mText = text;
-    mStr.Set(str);
   }
+  
   ~ITextControl() {}
   
-  virtual void SetTextFromPlug(const char* pStr);
+  virtual void SetTextFromPlug(const char* str);
   virtual void ClearTextFromPlug() { SetTextFromPlug(""); }
   
   void Draw(IGraphics& graphics) override;
