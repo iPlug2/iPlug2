@@ -75,8 +75,6 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str);
 protected:
-  void OSLoadBitmap(int ID, const char* name);
-
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
   void HideTooltip();

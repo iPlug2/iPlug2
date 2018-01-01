@@ -435,20 +435,6 @@ IGraphicsWin::~IGraphicsWin()
   FREE_NULL(mCustomColorStorage);
 }
 
-void IGraphicsWin::OSLoadBitmap(int ID, const char* name)
-{
-  const char* ext = name+strlen(name)-1;
-  while (ext > name && *ext != '.') --ext;
-  ++ext;
-
-  if (!stricmp(ext, "png"))
-	LICE_LoadPNGFromResource(mHInstance, ID, 0);
-  #ifdef IPLUG_JPEG_SUPPORT
-  if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg"))
-	LICE_LoadJPGFromResource(mHInstance, ID, 0);
-  #endif
-}
-
 void GetWindowSize(HWND pWnd, int* pW, int* pH)
 {
   if (pWnd)
@@ -629,7 +615,6 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
   return mPlugWnd;
 }
 
-#define MAX_CLASSNAME_LEN 128
 void GetWndClassName(HWND hWnd, WDL_String* pStr)
 {
   char cStr[MAX_CLASSNAME_LEN];
@@ -678,9 +663,6 @@ HWND IGraphicsWin::GetMainWnd()
   }
   return mMainWnd;
 }
-
-#define TOOLWIN_BORDER_W 6
-#define TOOLWIN_BORDER_H 23
 
 IRECT IGraphicsWin::GetWindowRECT()
 {
