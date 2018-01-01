@@ -405,16 +405,16 @@ bool IGraphics::IsDirty(IRECT& rect)
 // which may be a larger area than what is strictly dirty.
 void IGraphics::Draw(const IRECT& rect)
 {
-  int i, j, n = mControls.GetSize();
+  int n = mControls.GetSize();
+  
   if (!n)
     return;
 
   if (mStrict)
   {
     mDrawRECT = rect;
-    int n = mControls.GetSize();
     IControl** ppControl = mControls.GetList();
-    for (int i = 0; i < n; ++i, ++ppControl)
+    for (auto i = 0; i < n; ++i, ++ppControl)
     {
       IControl* pControl = *ppControl;
       if (!(pControl->IsHidden()) && rect.Intersects(pControl->GetRECT()))
@@ -446,13 +446,13 @@ void IGraphics::Draw(const IRECT& rect)
     }
     else
     {
-      for (i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
+      for (auto i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
       {
         IControl* pControl = mControls.Get(i); // assign control i to pControl
         if (pControl->IsDirty())   // if pControl is dirty
         {
           mDrawRECT = pControl->GetRECT(); // put the rect in the mDrawRect member variable
-          for (j = 0; j < n; ++j)   // loop through all controls
+          for (auto j = 0; j < n; ++j)   // loop through all controls
           {
             IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
 
