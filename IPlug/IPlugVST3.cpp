@@ -13,10 +13,10 @@ using namespace Vst;
 
 #include "IParam.h"
 
-class IPlugParameter : public Parameter
+class IPlugVST3Parameter : public Parameter
 {
 public:
-  IPlugParameter (IParam* pParam, ParamID tag, UnitID unitID)
+  IPlugVST3Parameter (IParam* pParam, ParamID tag, UnitID unitID)
   : mIPlugParam(pParam)
   {
     UString (info.title, str16BufferSize (String128)).assign (pParam->GetNameForHost());
@@ -67,7 +67,7 @@ public:
     return mIPlugParam->GetNormalized(valueNormalized);
   }
   
-  OBJ_METHODS (IPlugParameter, Parameter)
+  OBJ_METHODS (IPlugVST3Parameter, Parameter)
   
 protected:
   IParam* mIPlugParam;
@@ -251,7 +251,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
         }
       }
       
-      Parameter* param = new IPlugParameter(p, i, unitID);
+      Parameter* param = new IPlugVST3Parameter(p, i, unitID);
       parameters.addParameter(param);
     }
   }
