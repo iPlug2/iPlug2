@@ -16,19 +16,6 @@ typedef IPlugBase IPLUG_BASE_CLASS;
 typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #endif
 
-// Argh!
-#if MAC_OS_X_VERSION_MAX_ALLOWED <= 1040
-  typedef Float32 AudioSampleType;
-  typedef	Float32	AudioUnitParameterValue;
-  typedef OSStatus (*AUMIDIOutputCallback)(void*, const AudioTimeStamp*, UInt32, const struct MIDIPacketList*);
-  struct AUMIDIOutputCallbackStruct { AUMIDIOutputCallback midiOutputCallback; void* userData; };
-  #define kAudioFormatFlagsCanonical (kAudioFormatFlagIsFloat|kAudioFormatFlagsNativeEndian|kAudioFormatFlagIsPacked)
-#elif MAC_OS_X_VERSION_MAX_ALLOWED <= 1050
- typedef ComponentInstance AudioComponentInstance;
- typedef ComponentDescription AudioComponentDescription;
-#elif MAC_OS_X_VERSION_MAX_ALLOWED == 1060
-//TODO
-#else
 struct AudioComponentPlugInInstance {
   AudioComponentPlugInInterface   mPlugInInterface;
   void * (*mConstruct)(void *memory, AudioComponentInstance ci);
@@ -36,7 +23,6 @@ struct AudioComponentPlugInInstance {
   void *mPad[2];
   UInt32 mInstanceStorage;
 };
-#endif
 
 #define MAX_IO_CHANNELS 128
 

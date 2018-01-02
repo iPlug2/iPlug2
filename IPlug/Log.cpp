@@ -557,7 +557,6 @@ const char* AUPropertyStr(int propID)
     return "kAudioUnitProperty_PresentationLatency";
   case kAudioUnitProperty_DependentParameters:
     return "kAudioUnitProperty_DependentParameters";
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
   case kAudioUnitProperty_AUHostIdentifier:
     return "kAudioUnitProperty_AUHostIdentifier";
   case kAudioUnitProperty_MIDIOutputCallbackInfo:
@@ -568,7 +567,6 @@ const char* AUPropertyStr(int propID)
     return "kAudioUnitProperty_InputSamplesInOutput";
   case kAudioUnitProperty_ClassInfoFromDocument:
     return "kAudioUnitProperty_ClassInfoFromDocument";
-#endif
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1010
   case kAudioUnitProperty_ShouldAllocateBuffer:
     return "kAudioUnitProperty_ShouldAllocateBuffer";
@@ -605,10 +603,8 @@ const char* AUScopeStr(int scope)
     return "kAudioUnitScope_Group";
   case kAudioUnitScope_Part:
     return "kAudioUnitScope_Part";
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
   case kAudioUnitScope_Note:
     return "kAudioUnitScope_Note";
-#endif
   default:
     return "unknown";
   }

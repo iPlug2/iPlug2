@@ -609,11 +609,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
 #endif
   
-#if MAC_OS_X_VERSION_MAX_ALLOWED > 1050
   [mTextFieldView setDelegate: (id<NSTextFieldDelegate>) self];
-#else
-  [mTextFieldView setDelegate: self];
-#endif
   
   [self addSubview: mTextFieldView];
   NSWindow* pWindow = [self window];

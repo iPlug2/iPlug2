@@ -941,14 +941,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       }
     }
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED > 1040
     NO_OP(kAudioUnitProperty_AUHostIdentifier);           // 46,
     NO_OP(kAudioUnitProperty_MIDIOutputCallbackInfo);     // 47,
     NO_OP(kAudioUnitProperty_MIDIOutputCallback);         // 48,
     NO_OP(kAudioUnitProperty_InputSamplesInOutput);       // 49,
     NO_OP(kAudioUnitProperty_ClassInfoFromDocument);      // 50
-#endif
-
+      
     default:
     {
       return kAudioUnitErr_InvalidProperty;
@@ -1129,8 +1127,6 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_IconLocation);              // 39,
     NO_OP(kAudioUnitProperty_PresentationLatency);       // 40,
     NO_OP(kAudioUnitProperty_DependentParameters);       // 45,
-
-#if MAC_OS_X_VERSION_MAX_ALLOWED > 1040
     case kAudioUnitProperty_AUHostIdentifier:            // 46,
     {
       AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
@@ -1147,8 +1143,6 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_MIDIOutputCallback);       // 48,
     NO_OP(kAudioUnitProperty_InputSamplesInOutput);       // 49,
     NO_OP(kAudioUnitProperty_ClassInfoFromDocument)       // 50
-#endif
-
     default:
     {
       return kAudioUnitErr_InvalidProperty;
@@ -1341,9 +1335,6 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
   AudioComponentDescription cd;
   AudioComponent comp = AudioComponentInstanceGetComponent(mCI);
   OSStatus r = AudioComponentGetDescription(comp, &cd);
-//#elif MAC_OS_X_VERSION_MAX_ALLOWED == 1060
-//  ComponentDescription cd;
-//  OSStatus r = GetComponentInfo((Component) mCI, &cd, 0, 0, 0);
 #else
   AudioComponentDescription cd;
   OSStatus r = GetComponentInfo((Component) mCI, &cd, 0, 0, 0);
@@ -1380,9 +1371,6 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
   AudioComponentDescription cd;
   AudioComponent comp = AudioComponentInstanceGetComponent(mCI);
   OSStatus r = AudioComponentGetDescription(comp, &cd);
-//#elif MAC_OS_X_VERSION_MAX_ALLOWED == 1060
-//  ComponentDescription cd;
-//  OSStatus r = GetComponentInfo((Component) mCI, &cd, 0, 0, 0);
 #else
   AudioComponentDescription cd;
   OSStatus r = GetComponentInfo((Component) mCI, &cd, 0, 0, 0);
