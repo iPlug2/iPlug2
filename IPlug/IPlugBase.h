@@ -79,8 +79,6 @@ public:
   // may get called multiple times
   virtual void OnHostIdentified() {}
 
-  virtual void PopupHostContextMenuForParam(int paramIdx, int x, int y) { }; // only for VST3, call it from the GUI
-
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
 

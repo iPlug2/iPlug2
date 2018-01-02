@@ -140,9 +140,13 @@ public:
   virtual void HideMouseCursor() {};
   virtual void ShowMouseCursor() {};
 
+  // AAX only
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();
   void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
+  
+  // VST3 primarily
+  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x, int y);
   
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
   bool OnMouseOver(int x, int y, const IMouseMod& mod);

@@ -1,4 +1,8 @@
 #include "IGraphics.h"
+#ifdef VST3_API
+#include "IPlugVST3.h"
+#include "pluginterfaces/base/ustring.h"
+#endif
 
 IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
 : mPlug(plug)
@@ -535,18 +539,6 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 
     IControl* pControl = mControls.Get(c);
     int paramIdx = pControl->ParamIdx();
-
-    #if defined OS_WIN || defined VST3_API  // on Mac, IGraphics.cpp is not compiled in a static library, so this can be #ifdef'd
-    if (mPlug.GetAPI() == kAPIVST3)
-    {
-      if (mod.R && paramIdx >= 0)
-      {
-        ReleaseMouseCapture();
-        mPlug.PopupHostContextMenuForParam(paramIdx, x, y);
-        return;
-      }
-    }
-    #endif
     
     #ifdef AAX_API
     if (mAAXViewContainer && paramIdx >= 0)
@@ -565,6 +557,15 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
       {
         return; // event handled by PT
       }
+    }
+    #endif
+    
+    #ifndef IGRAPHICS_NO_CONTEXT_MENU
+    if (mod.R && paramIdx >= 0)
+    {
+      ReleaseMouseCapture();
+      PopupHostContextMenuForParam(c, paramIdx, x, y);
+      return;
     }
     #endif
     
@@ -763,6 +764,61 @@ void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color
       pControl->SetPTParameterHighlight(isHighlighted, color);
     }
   }
+}
+
+void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x, int y)
+{
+  IPopupMenu contextMenu;
+  IControl* pControl = GetControl(controlIdx);
+  
+  if(pControl)
+  {
+    pControl->CreateContextMenu(contextMenu);
+    
+#ifdef VST3_API
+    
+    IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mPlug);
+    
+    if (!pVST3->GetComponentHandler() || !pVST3->GetView())
+      return;
+    
+    Steinberg::FUnknownPtr<Steinberg::Vst::IComponentHandler3>handler(pVST3->GetComponentHandler() );
+    
+    if (handler == 0)
+      return;
+    
+    Steinberg::Vst::ParamID p = paramIdx;
+    
+    Steinberg::Vst::IContextMenu* menu = handler->createContextMenu(pVST3->GetView(), &p);
+    
+    if (menu)
+    {
+      Steinberg::Vst::IContextMenu::Item item = {0};
+      
+      for (int i = 0; i < contextMenu.GetNItems(); i++)
+      {
+        Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
+        item.tag = i;
+        
+        if (!contextMenu.GetItem(i)->GetEnabled())
+          item.flags = Steinberg::Vst::IContextMenu::Item::kIsDisabled;
+        else
+          item.flags = 0;
+        
+        menu->addItem(item, GetControl(controlIdx));
+      }
+      
+      menu->popup((Steinberg::UCoord) x,(Steinberg::UCoord) y);
+      menu->release();
+    }
+    
+    
+#else
+    CreateIPopupMenu(contextMenu, x, y);
+    pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
+#endif
+  }
+  return;
 }
 
 void IGraphics::OnGUIIdle()

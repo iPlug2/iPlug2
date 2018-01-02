@@ -987,27 +987,6 @@ void IPlugVST3::SetLatency(int latency)
   handler->restartComponent(kLatencyChanged);  
 }
 
-void IPlugVST3::PopupHostContextMenuForParam(int param, int x, int y)
-{
-  if (componentHandler == 0 || mViews.at(0) == 0) // only check view 0?
-    return;
-
-  FUnknownPtr<IComponentHandler3>handler(componentHandler);
-
-  if (handler == 0)
-    return;
-
-  ParamID p = param;
-
-  IContextMenu* menu = handler->createContextMenu(mViews.at(0), &p); // TODO: only view 0?
-
-  if (menu)
-  {
-    menu->popup((UCoord) x,(UCoord) y);
-    menu->release();
-  }
-}
-
 //void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
 //{
 //  FUID pluginGuid;

@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef VST3_API
+#include "pluginterfaces/vst/ivstcontextmenu.h"
+#include "base/source/fobject.h"
+#endif
+
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
 
@@ -12,6 +17,10 @@
 // Other controls are readouts only.
 
 class IControl
+#ifdef VST3_API
+: public Steinberg::Vst::IContextMenuTarget
+, public Steinberg::FObject
+#endif
 {
 public:
   // If paramIdx is > -1 (kNoParameter) this control will be associated with a plugin parameter.
@@ -32,6 +41,7 @@ public:
   virtual void OnMouseDblClick(int x, int y, const IMouseMod& mod);
   virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d) {};
   virtual bool OnKeyDown(int x, int y, int key) { return false; }
+  virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
 
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
   virtual void OnMouseOver(int x, int y, const IMouseMod& mod) {}
@@ -67,7 +77,8 @@ public:
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
   void SetTargetArea(IRECT rect) { mTargetRECT = rect; }
-  virtual void TextFromTextEntry( const char* txt ) { return; } // does nothing by default
+  virtual void TextFromTextEntry( const char* txt ) {}
+  virtual void OnContextSelection(int itemSelected) {}
 
   virtual void Hide(bool hide);
   bool IsHidden() const { return mHide; }
@@ -126,6 +137,10 @@ public:
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
   
   virtual void OnRescale() {};
+  
+#ifdef VST3_API
+  Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
+#endif
 
 protected:
   IPlugBaseGraphics& mPlug;
@@ -154,6 +169,14 @@ protected:
   
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
+  
+#ifdef VST3_API
+  OBJ_METHODS(IControl, FObject)
+  DEFINE_INTERFACES
+  DEF_INTERFACE (IContextMenuTarget)
+  END_DEFINE_INTERFACES (FObject)
+  REFCOUNT_METHODS(FObject)
+#endif
 };
 
 // Fills a rectangle with a colour

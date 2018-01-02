@@ -104,8 +104,9 @@ public:
   virtual void ResizeGraphics(int w, int h) override;
   void SetLatency(int samples) override;
 
-  void PopupHostContextMenuForParam(int param, int x, int y) override;
-
+  Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
+  IPlugVST3View* GetView() { return mViews.at(0); }
+  
   enum
   {
     kBypassParam = 'bpas',
