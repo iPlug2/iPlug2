@@ -178,6 +178,38 @@ void IControl::SetAllAuxParamsFromGUI()
   }
 }
 
+void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
+{
+  switch (color)
+  {
+    case 0: //AAX_eHighlightColor_Red
+      mPTHighlightColor = COLOR_RED;
+      break;
+    case 1: //AAX_eHighlightColor_Blue
+      mPTHighlightColor = COLOR_BLUE;
+      break;
+    case 2: //AAX_eHighlightColor_Green
+      mPTHighlightColor = COLOR_GREEN;
+      break;
+    case 3: //AAX_eHighlightColor_Yellow
+      mPTHighlightColor = COLOR_YELLOW;
+      break;
+    default:
+      break;
+  }
+  
+  mPTisHighlighted = isHighlighted;
+  SetDirty(false);
+}
+
+void IControl::DrawPTHighlight(IGraphics& graphics)
+{
+  if (mPTisHighlighted)
+  {
+    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend, true);
+  }
+}
+
 void IPanelControl::Draw(IGraphics& graphics)
 {
   graphics.FillIRect(mColor, mRECT, &mBlend);

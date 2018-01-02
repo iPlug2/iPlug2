@@ -249,6 +249,7 @@ public:
   const char* GetPresetName(int idx);
   
   virtual void DirtyPTCompareState() {}; // needed in chunks based plugins to tell PT a non-indexed param changed and to turn on the compare light
+  virtual void* GetAAXViewInterface() { return nullptr; }
 
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
   void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);

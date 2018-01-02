@@ -421,6 +421,11 @@ void IGraphics::Draw(const IRECT& rect)
       {
         ClipRegion(mDrawRECT);
         pControl->Draw(*this);
+        
+#ifdef AAX_API
+        pControl->DrawPTHighlight(*this);
+#endif
+        
         ResetClipRegion();
       }
       pControl->SetClean();
@@ -439,6 +444,11 @@ void IGraphics::Draw(const IRECT& rect)
         {
           ClipRegion(pControl2->GetRECT());
           pControl2->Draw(*this);
+          
+#ifdef AAX_API
+          pControl2->DrawPTHighlight(*this);
+#endif
+          
           pControl2->SetClean();
           ResetClipRegion();
         }
@@ -461,6 +471,10 @@ void IGraphics::Draw(const IRECT& rect)
             {
               ClipRegion(mDrawRECT);
               pControl2->Draw(*this);
+              
+#ifdef AAX_API
+              pControl2->DrawPTHighlight(*this);
+#endif
               ResetClipRegion();
             }
           }
@@ -729,11 +743,26 @@ int IGraphics::GetParamIdxForPTAutomation(int x, int y)
 
 int IGraphics::GetLastClickedParamForPTAutomation()
 {
-  int idx = mLastClickedParam;
+  const int idx = mLastClickedParam;
 
-  mLastClickedParam = -1;
+  mLastClickedParam = kNoParameter;
 
   return idx;
+}
+
+void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color)
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    
+    if (pControl->ParamIdx() == param)
+    {
+      pControl->SetPTParameterHighlight(isHighlighted, color);
+    }
+  }
 }
 
 void IGraphics::OnGUIIdle()

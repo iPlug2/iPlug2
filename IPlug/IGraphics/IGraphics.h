@@ -142,9 +142,8 @@ public:
 
   int GetParamIdxForPTAutomation(int x, int y);
   int GetLastClickedParamForPTAutomation();
-
-//  void DisplayControlValue(IControl* pControl);
-
+  void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
+  
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
   bool OnMouseOver(int x, int y, const IMouseMod& mod);
   void OnMouseOut();
@@ -175,7 +174,7 @@ public:
   IRECT GetDrawRect() const { return mDrawRECT; }
   void* GetPlatformContext() { return mPlatformContext; }
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
-
+ 
 protected:
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }

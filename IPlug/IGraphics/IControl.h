@@ -45,6 +45,9 @@ public:
 
   virtual void Draw(IGraphics& graphics) = 0;
 
+  virtual void DrawPTHighlight(IGraphics& graphics);
+  virtual void SetPTParameterHighlight(bool isHighlighted, int color);
+  
   // Ask the IGraphics object to open an edit box so the user can enter a value for this control.
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
@@ -148,7 +151,10 @@ protected:
   bool mMOWhenGreyed = false;
   IControl* mValDisplayControl = nullptr;
   IControl* mNameDisplayControl = nullptr;
-  WDL_String mTooltip; //TODO: joining to initialise this to empty string?
+  WDL_String mTooltip;
+  
+  IColor mPTHighlightColor = COLOR_RED;
+  bool mPTisHighlighted = false;
 };
 
 // Fills a rectangle with a colour

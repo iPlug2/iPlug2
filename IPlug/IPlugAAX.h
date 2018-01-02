@@ -31,6 +31,7 @@ public:
   AAX_CEffectGUI_IPLUG() {}
   ~AAX_CEffectGUI_IPLUG() {}
   static AAX_IEffectGUI* AAX_CALLBACK Create();
+  AAX_Result SetControlHighlightInfo(AAX_CParamID iParameterID, AAX_CBoolean iIsHighlighted, AAX_EHighlightColor iColor);
   
 private:
   void CreateViewContents();
@@ -40,7 +41,7 @@ private:
   AAX_Result ParameterUpdated (const char* iParameterID);
   
 private:
-  IPlugAAX* mPlug;
+  IPlugAAX* mPlug = nullptr;
 };
 
 class IPlugAAX : public IPLUG_BASE_CLASS,

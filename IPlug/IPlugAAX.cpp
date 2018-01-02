@@ -29,7 +29,8 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (winPtr && mPlug->GetHasUI())
   {
-    IPlugAAXView_Interface* viewInterface = dynamic_cast<IPlugAAXView_Interface*>(mPlug);
+    IPlugAAXView_Interface* viewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
+    
     if(viewInterface)
       viewInterface->SetViewContainer(GetViewContainer());
     
@@ -61,6 +62,22 @@ AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(const char* iParameterID)
 AAX_IEffectGUI* AAX_CALLBACK AAX_CEffectGUI_IPLUG::Create()
 {
   return new AAX_CEffectGUI_IPLUG;
+}
+
+AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID iParameterID, AAX_CBoolean iIsHighlighted, AAX_EHighlightColor iColor)
+{
+  IPlugAAXView_Interface* viewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
+  
+  if (viewInterface)
+  {
+    int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
+
+    viewInterface->SetPTParameterHighlight(paramIdx, (bool) iIsHighlighted, (int) iColor);
+    return AAX_SUCCESS;
+    
+  }
+  
+  return AAX_ERROR_INVALID_PARAMETER_ID;
 }
 
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, 
