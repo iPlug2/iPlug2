@@ -114,7 +114,7 @@ struct IText
 
   IText(int size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_COLOR,
-        char* font = 0,
+        const char* font = nullptr,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         int orientation = 0,
