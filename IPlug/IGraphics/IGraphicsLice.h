@@ -61,6 +61,6 @@ private:
   LICE_IBitmap* LoadAPIBitmap(const char* path);
 
   LICE_SysBitmap* mDrawBitmap;
-  LICE_IFont* CacheFont(IText& text);
+  LICE_IFont* CacheFont(const IText& text, double scale);
   LICE_MemBitmap* mTmpBitmap;
 };

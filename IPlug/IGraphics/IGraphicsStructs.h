@@ -104,13 +104,16 @@ const int FONT_LEN = 32;
 struct IText
 {
   char mFont[FONT_LEN];
-  int mSize;
-  IColor mColor, mTextEntryBGColor, mTextEntryFGColor;
-  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
-  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
-  int mOrientation;   // Degrees ccwise from normal.
-  enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality;
-  LICE_IFont* mCached;
+  int mSize = DEFAULT_TEXT_SIZE;
+  IColor mColor;
+  IColor mTextEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR;
+  IColor mTextEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR;
+  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle = kStyleNormal;
+  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign = kAlignCenter;
+  int mOrientation = 0; // Degrees ccwise from normal.
+  enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
+  mutable LICE_IFont* mCached = nullptr;
+  mutable double mCachedScale = 1.0;
 
   IText(int size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_COLOR,
@@ -127,7 +130,6 @@ struct IText
     , mAlign(align)
     , mOrientation(orientation)
     , mQuality(quality)
-    , mCached(0)
     , mTextEntryBGColor(textEntryBGColor)
     , mTextEntryFGColor(textEntryFGColor)
   {
@@ -135,15 +137,7 @@ struct IText
   }
 
   IText(const IColor& color)
-    : mSize(DEFAULT_TEXT_SIZE)
-    , mColor(color)
-    , mStyle(kStyleNormal)
-    , mAlign(kAlignCenter)
-    , mOrientation(0)
-    , mQuality(kQualityDefault)
-    , mCached(0)
-    , mTextEntryBGColor(DEFAULT_TEXT_ENTRY_BGCOLOR)
-    , mTextEntryFGColor(DEFAULT_TEXT_ENTRY_FGCOLOR)
+  : mColor(color)
   {
     strcpy(mFont, DEFAULT_FONT);
   }
@@ -151,14 +145,6 @@ struct IText
 };
 
 const IText DEFAULT_TEXT = IText();
-
-struct IFontData
-{
-  void * mData;
-  IFontData(void * pData = 0)
-  : mData(pData)
-  {}
-};
 
 // An IRECT is always specified in 1:1 pixels, any scaling for HiDPI happens in the drawing
 // IGraphics 0,0 is top left
@@ -349,7 +335,7 @@ public:
   
   unsigned long hash(const char* str)
   {
-    unsigned long hash = 5381;
+    unsigned long hash = 5381; // TODO CHECK THIS
     int c;
     
     while ((c = *str++))

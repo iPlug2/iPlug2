@@ -139,7 +139,7 @@ bool IGraphicsMac::MeasureIText(const IText& text, const char* str, IRECT& destR
 {
   CocoaAutoReleasePool pool;
 
-  return IGRAPHICS_DRAW_CLASS::DrawIText(text, str, destRect, true);
+  return IGRAPHICS_DRAW_CLASS::MeasureIText(text, str, destRect);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)

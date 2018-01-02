@@ -6,55 +6,7 @@
 signed int GetSystemVersion();
 
 static StaticStorage<LICE_IBitmap> s_bitmapCache;
-
-//todo: replace this with templated version
-class FontStorage
-{
-public:
-  
-  struct FontKey
-  {
-    int size, orientation;
-    IText::EStyle style;
-    char face[FONT_LEN];
-    LICE_IFont* font;
-  };
-  
-  WDL_PtrList<FontKey> m_fonts;
-  
-  LICE_IFont* Find(const IText& text)
-  {
-    int i = 0, n = m_fonts.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      FontKey* key = m_fonts.Get(i);
-      if (key->size == text.mSize && key->orientation == text.mOrientation && key->style == text.mStyle && !strcmp(key->face, text.mFont)) return key->font;
-    }
-    return 0;
-  }
-  
-  void Add(LICE_IFont* font, const IText& text)
-  {
-    FontKey* key = m_fonts.Add(new FontKey);
-    key->size = text.mSize;
-    key->orientation = text.mOrientation;
-    key->style = text.mStyle;
-    strcpy(key->face, text.mFont);
-    key->font = font;
-  }
-  
-  ~FontStorage()
-  {
-    int i, n = m_fonts.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      delete(m_fonts.Get(i)->font);
-    }
-    m_fonts.Empty(true);
-  }
-};
-
-static FontStorage s_fontCache;
+static StaticStorage<LICE_IFont> s_fontCache;
 
 inline LICE_pixel LiceColor(const IColor& color)
 {
@@ -369,10 +321,10 @@ bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, b
   }
   
   LICE_IFont* font = text.mCached;
-  
-  if (!font)
+    
+  if (!font || text.mCachedScale != mDisplayScale)
   {
-    font = CacheFont(const_cast<IText&>(text));
+    font = CacheFont(text, mDisplayScale);
     if (!font) return false;
   }
   
@@ -413,20 +365,25 @@ bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, b
   }
   else
   {
-    RECT R = { rect.L, rect.T, rect.R, rect.B };
+    IRECT r = rect;
+    r.Scale(mDisplayScale);
+    RECT R = { r.L, r.T, r.R, r.B };
     font->DrawText(mDrawBitmap, str, -1, &R, fmt);
   }
   
   return true;
 }
 
-LICE_IFont* IGraphicsLice::CacheFont(IText& text)
+LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
 {
-  LICE_CachedFont* font = (LICE_CachedFont*)s_fontCache.Find(text);
+  WDL_String hashStr(text.mFont);
+  hashStr.AppendFormatted(50, "-%d-%d-%d", text.mSize, text.mOrientation, text.mStyle);
+    
+  LICE_CachedFont* font = (LICE_CachedFont*)s_fontCache.Find(hashStr.Get(), scale);
   if (!font)
   {
     font = new LICE_CachedFont;
-    int h = text.mSize;
+    int h = round(text.mSize * scale);
     int esc = 10 * text.mOrientation;
     int wt = (text.mStyle == IText::kStyleBold ? FW_BOLD : FW_NORMAL);
     int it = (text.mStyle == IText::kStyleItalic ? TRUE : FALSE);
@@ -465,15 +422,20 @@ LICE_IFont* IGraphicsLice::CacheFont(IText& text)
       goto Resize;
     }
 #endif
-    s_fontCache.Add(font, text);
+    s_fontCache.Add(font, hashStr.Get(), scale);
   }
   text.mCached = font;
+  text.mCachedScale = scale;
   return font;
 }
 
 bool IGraphicsLice::MeasureIText(const IText& text, const char* str, IRECT& destRect)
 {
-  return IGraphicsLice::DrawIText(text, str, destRect, true);
+  bool success = IGraphicsLice::DrawIText(text, str, destRect, true);
+  
+  destRect.Scale(1.0 / mDisplayScale);
+
+  return success;
 }
 
 LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
