@@ -21,7 +21,6 @@ public:
   , mTargetRECT(rect)
   , mParamIdx(paramIdx)
   , mBlend(blendType)
-  , mTooltip("")
   {
   }
 
