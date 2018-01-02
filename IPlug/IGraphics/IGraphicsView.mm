@@ -216,8 +216,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   TRACE;
 
-  mGraphics = 0;
-  mTimer = 0;
+  mGraphics = nullptr;
+  mTimer = nullptr;
   mPrevX = 0;
   mPrevY = 0;
   return self;
@@ -271,7 +271,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSWindow* pWindow = [self window];
   if (pWindow)
   {
-    [pWindow setDelegate: self];
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
@@ -647,7 +646,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self addToolTipRect: ToNSRect(mGraphics, rect) owner: self userData: nil];
 }
 
-- (void)windowDidChangeBackingProperties:(NSNotification *) notification
+- (void)viewDidChangeBackingProperties:(NSNotification *) notification
 {
 #if GRAPHICS_SCALING
   NSWindow* pWindow = [self window];
