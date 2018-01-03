@@ -30,7 +30,7 @@ public:
   void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
   void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend, bool aa) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, bool aa) override;
-  void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = nullptr) override {}
+  void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend) override {}
   void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
 
   void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa) override;
