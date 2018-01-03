@@ -25,7 +25,7 @@ public:
   //These are NanoVG only, may be refactored
   virtual void BeginFrame() {};
   virtual void EndFrame() {};
-  virtual void ViewInitialized(void* layer);
+  virtual void ViewInitialized(void* layer) {};
   //
 
   bool IsDirty(IRECT& rect);
