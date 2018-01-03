@@ -55,9 +55,9 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
   }
 }
 
-void IGraphics::AttachBackground(const char* name)
+void IGraphics::AttachBackground(const char* name, double scale)
 {
-  IBitmap bg = LoadIBitmap(name);
+  IBitmap bg = LoadIBitmap(name, 1, false, scale);
   mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
 }
 

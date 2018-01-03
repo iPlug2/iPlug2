@@ -110,7 +110,7 @@ public:
   IBitmap GetScaledBitmap(IBitmap& src);
   virtual void ReScale();
   
-  void AttachBackground(const char* name);
+  void AttachBackground(const char* name, double scale = 1.);
   void AttachPanelBackground(const IColor& color);
   void AttachKeyCatcher(IControl& control);
   int AttachControl(IControl* control);
