@@ -78,40 +78,6 @@ bool Timer::Every(double sec)
   return false;
 };
 
-// Needs rewriting for WDL.
-//StrVector ReadFileIntoStr(WDL_String* pFileName)
-//{
-//  WDL_PtrList<WDL_String> lines;
-//  if (!strlen(pFileName->Get())) {
-//    WDL_String line;
-//    std::ifstream ifs(pFileName->Get());
-//    if (ifs) {
-//      while (std::getline(ifs, line, '\n')) {
-//        if (!line.empty()) {
-//          lines.push_back(line);
-//        }
-//      }
-//      ifs.close();
-//    }
-//  }
-//  return lines;
-//}
-
-// Needs rewriting for WDL.
-//int WriteBufferToFile(const DBuffer& buf, const std::string& fileName)
-//{
-//    std::ofstream ofs(fileName.c_str());
-//    if (ofs) {
-//        for (int i = 0, p = buf.Pos(); i < buf.Size(); ++i, ++p) {
-//            ofs << buf[p] << ' ';
-//        }
-//        ofs << '\n';
-//        ofs.close();
-//        return buf.Size();
-//    }
-//    return 0;
-//}
-
 bool IsWhitespace(char c)
 {
   return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
