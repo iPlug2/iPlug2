@@ -86,6 +86,8 @@ public:
   virtual void DesktopPath(WDL_String& path) = 0;
   virtual void AppSupportPath(WDL_String& path, bool isSystem = false) = 0;
   virtual void SandboxSafeAppSupportPath(WDL_String& path) = 0;
+  virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) = 0;
+  
   virtual void* OpenWindow(void* pParentWnd) = 0;
   virtual void CloseWindow() = 0;
   virtual void* GetWindow() = 0;

@@ -216,7 +216,7 @@ void IGraphicsMac::ShowMouseCursor()
   }
 }
 
-int IGraphicsMac::ShowMessageBox(const char* text, const char* pCaption, int type)
+int IGraphicsMac::ShowMessageBox(const char* str, const char* pCaption, int type)
 {
   int result = 0;
 
@@ -224,7 +224,7 @@ int IGraphicsMac::ShowMessageBox(const char* text, const char* pCaption, int typ
   CFStringRef alternateButtonTitle = NULL;
   CFStringRef otherButtonTitle = NULL;
 
-  CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, text, 0, kCFAllocatorNull);
+  CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, str, 0, kCFAllocatorNull);
   CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, pCaption, 0, kCFAllocatorNull);
 
   switch (type)
@@ -377,7 +377,40 @@ void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String& path)
   path.Set([pUserMusicDirectory UTF8String]);
 }
 
-// extensions = "txt wav" for example
+bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
+{
+  CocoaAutoReleasePool pool;
+  
+  BOOL success = FALSE;
+  
+  if(path.GetLength())
+  {
+    NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    
+    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+    {
+      if (select)
+      {
+        NSString* pParentDirectoryPath = [pPath stringByDeletingLastPathComponent];
+        
+        if (pParentDirectoryPath)
+        {
+          success = [[NSWorkspace sharedWorkspace] openFile:pParentDirectoryPath];
+          
+          if (success)
+            success = [[NSWorkspace sharedWorkspace] selectFile: pPath inFileViewerRootedAtPath:pParentDirectoryPath];
+        }
+      }
+      else {
+        success = [[NSWorkspace sharedWorkspace] openFile:pPath];
+      }
+      
+    }
+  }
+  
+  return (bool) success;
+}
+
 void IGraphicsMac::PromptForFile(WDL_String& pFilename, EFileAction action, WDL_String* pDir, const char* extensions)
 {
   if (!WindowIsOpen())

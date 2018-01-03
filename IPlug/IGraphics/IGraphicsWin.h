@@ -48,9 +48,10 @@ public:
   void HostPath(WDL_String& path);
   void PluginPath(WDL_String& path);
   void DesktopPath(WDL_String& path);
-  //void VST3PresetsPath(WDL_String& path, bool isSystem = true);
+  void VST3PresetsPath(WDL_String& path, bool isSystem = true);
   void AppSupportPath(WDL_String& path, bool isSystem = false);
   void SandboxSafeAppSupportPath(WDL_String& path) { AppSupportPath(path, false); }
+  bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false);
 
   void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* ext = "");
   bool PromptForColor(IColor& colour, const char* str);

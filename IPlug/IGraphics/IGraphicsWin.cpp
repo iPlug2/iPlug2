@@ -959,25 +959,57 @@ void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 #endif
 }
 
-//void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
-//{
-//  TCHAR strPath[MAX_PATH_LEN];
-//
-//  if (!isSystem)
-//  {
-//    TCHAR strPath[MAX_PATH_LEN];
-//    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
-//    path.Set(strPath, MAX_PATH_LEN);
-//  }
-//  else
-//  {
-//    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-//    path.Set(strPath, MAX_PATH_LEN);
-//  }
-//
-//  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrNameStr(), mPlug.GetPluginNameStr());
-//}
+void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
+{
+  TCHAR strPath[MAX_PATH_LEN];
 
+  if (!isSystem)
+  {
+    TCHAR strPath[MAX_PATH_LEN];
+    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
+    path.Set(strPath, MAX_PATH_LEN);
+  }
+  else
+  {
+    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
+    path.Set(strPath, MAX_PATH_LEN);
+  }
+
+  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrNameStr(), mPlug.GetPluginNameStr());
+}
+
+bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
+{
+  bool success = false;
+  
+  if (path.GetLength())
+  {
+    TCHAR winDir[MAX_PATH];
+    UINT len = GetSystemDirectory(winDir, MAX_PATH);
+    
+    if (len || !(len > MAX_PATH - 2))
+    {
+      winDir[len]   = L'\\';
+      winDir[++len] = L'\0';
+      
+      WDL_String explorerParams;
+      
+      if(select)
+        explorerParams.Append("/select,");
+      
+      explorerParams.Append("\"");
+      explorerParams.Append(path.Get());
+      explorerParams.Append("\\\"");
+      
+      HINSTANCE result;
+      
+      if ((result=::ShellExecute(NULL, "open", "explorer.exe", (const TCHAR*)explorerParams.Get(), winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
+        success = true;
+    }
+  }
+  
+  return success;
+}
 void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pDir, const char* extensions)
 {
   if (!WindowIsOpen())
