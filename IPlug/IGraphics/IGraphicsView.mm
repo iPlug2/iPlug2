@@ -1,5 +1,7 @@
 #import "IGraphicsView.h"
+#ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
+#endif
 
 //forward declare this if compiling with 10.6 sdk
 #if !defined(MAC_OS_X_VERSION_10_7) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7
@@ -234,16 +236,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.height = (float) pGraphics->Height();
   self = [super initWithFrame:r];
   
-//  if (!self.wantsLayer) {
-//    self.layer = [CAMetalLayer new];
-//    self.layer.opaque = NO;
-//    self.wantsLayer = YES;
-//
-//    mGraphics->mMetalLayer = self.layer;
-//
-//    mGraphics->WindowOpened();
-//  }
-
+#ifdef IGRAPHICS_NANOVG
+  if (!self.wantsLayer) {
+    self.layer = [CAMetalLayer new];
+    self.layer.opaque = NO;
+    self.wantsLayer = YES;
+    mGraphics->ViewInitialized(self.layer);
+  }
+#endif
+  
   double sec = 1.0 / (double) pGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
@@ -318,9 +319,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   mGraphics->BeginFrame();
   
   //TODO: this is redrawing every IControl!
-//  r.R = mGraphics->Width();
-//  r.B = mGraphics->Height();
-  if(mGraphics->IsDirty(r))
+  r.R = mGraphics->Width();
+  r.B = mGraphics->Height();
+//  if(mGraphics->IsDirty(r))
   mGraphics->Draw(r);
 
   mGraphics->EndFrame();

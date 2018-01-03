@@ -21,10 +21,17 @@ class IGraphics
 {
 public:
   virtual void PrepDraw() = 0;
+  
+  //These are NanoVG only, may be refactored
+  virtual void BeginFrame() {};
+  virtual void EndFrame() {};
+  virtual void ViewInitialized(void* layer);
+  //
 
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   virtual void DrawScreen(const IRECT& rect) = 0;
+  
   void DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState = 1, const IBlend* pBlend = nullptr);
   void DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
   
