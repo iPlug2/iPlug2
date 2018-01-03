@@ -266,12 +266,17 @@ public:
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
 
 private:
-  char mEffectName[MAX_EFFECT_NAME_LEN], mProductName[MAX_EFFECT_NAME_LEN], mMfrName[MAX_EFFECT_NAME_LEN];
-  int mUniqueID, mMfrID, mVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
-
+  char mEffectName[MAX_EFFECT_NAME_LEN];
+  char mProductName[MAX_EFFECT_NAME_LEN];
+  char mMfrName[MAX_EFFECT_NAME_LEN];
+  
+  //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
+  int mUniqueID;
+  int mMfrID;
+  int mVersion;
+  int mHostVersion;
   EAPI mAPI;
   EHost mHost;
-  int mHostVersion;   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 
   struct InChannel
   {
@@ -291,7 +296,11 @@ private:
   };
 
 protected:
-  bool mStateChunks, mIsInst, mDoesMIDI, mIsBypassed, mHasUI;
+  bool mStateChunks;
+  bool mIsInst;
+  bool mDoesMIDI;
+  bool mIsBypassed;
+  bool mHasUI;
   int mCurrentPresetIdx;
   double mSampleRate;
   int mBlockSize, mLatency;
