@@ -8,44 +8,6 @@ signed int GetSystemVersion();
 static StaticStorage<LICE_IBitmap> s_bitmapCache;
 static StaticStorage<LICE_IFont> s_fontCache;
 
-inline LICE_pixel LiceColor(const IColor& color)
-{
-  return LICE_RGBA(color.R, color.G, color.B, color.A);
-}
-
-inline float LiceWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
-inline int LiceBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-  }
-  switch (pBlend->mMethod)
-  {
-    case IBlend::kBlendClobber:
-    {
-      return LICE_BLIT_MODE_COPY;
-    }
-    case IBlend::kBlendAdd:
-    {
-      return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    }
-    case IBlend::kBlendColorDodge:
-    {
-      return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
-    }
-    case IBlend::kBlendNone:
-    default:
-    {
-      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-    }
-  }
-}
-
 #pragma mark -
 
 IGraphicsLice::IGraphicsLice(IPlugBaseGraphics& plug, int w, int h, int fps)
