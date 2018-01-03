@@ -150,7 +150,7 @@ protected:
   IText mText;
   
   WDL_TypedBuf<AuxParam> mAuxParams;
-  int mTextEntryLength  = DEFAULT_TEXT_ENTRY_LEN;
+  int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   double mValue = 0.;
   double mDefaultValue = -1.;
   double mClampLo = 0.;
