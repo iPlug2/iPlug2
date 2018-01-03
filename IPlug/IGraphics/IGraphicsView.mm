@@ -279,6 +279,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       mGraphics->SetAllControlsDirty();
     }
   }
+  else
+  {
+    if (mGraphics)
+      mGraphics->SetPlatformContext(nullptr);
+  }
 }
 
 // not called for opengl/metal
@@ -286,29 +291,46 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   if (mGraphics)
   {
+    //TODO: can we really only get this context on the first draw call?
+      
+    if (!mGraphics->GetPlatformContext())
+    {
+        CGContextRef pCGC = nullptr;
+        pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+        NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+        pCGC = (CGContextRef) [gc graphicsPort];
+        mGraphics->SetPlatformContext(pCGC);
+    }
+      
     if (mGraphics->GetPlatformContext())
     {
       IRECT tmpRect = ToIRECT(mGraphics, &rect);
       mGraphics->Draw(tmpRect);
     }
-    else //TODO: can we really only get this context on the first draw call?
-    {
-      CGContextRef pCGC = nullptr;
-      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-      pCGC = (CGContextRef) [gc graphicsPort];
-      mGraphics->SetPlatformContext(pCGC);
-    }
+    
   }
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
   IRECT r;
-  if (pTimer == mTimer && mGraphics && mGraphics->IsDirty(r))
+#ifdef IGRAPHICS_NANOVG
+  mGraphics->BeginFrame();
+  
+  //TODO: this is redrawing every IControl!
+//  r.R = mGraphics->Width();
+//  r.B = mGraphics->Height();
+  if(mGraphics->IsDirty(r))
+  mGraphics->Draw(r);
+
+  mGraphics->EndFrame();
+  [self setNeedsDisplay: YES];
+#else
+  if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(r))
   {
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
   }
+#endif
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (int*) pX y: (int*) pY

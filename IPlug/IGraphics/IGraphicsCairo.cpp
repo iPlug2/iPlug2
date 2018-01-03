@@ -344,7 +344,17 @@ bool IGraphicsCairo::MeasureIText(const IText& text, const char* str, IRECT& des
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)
 {
-  if(!mSurface)
+  if (!pContext)
+  {
+    if (mContext)
+      cairo_destroy(mContext);
+    if (mSurface)
+      cairo_surface_destroy(mSurface);
+      
+    mContext = nullptr;
+    mSurface = nullptr;
+  }
+  else if(!mSurface)
   {
 #ifdef OS_OSX
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width() , Height());
