@@ -12,8 +12,10 @@
   #include <ctype.h>
   void DBGMSG(const char *format, ...);
   #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-
 #elif defined OS_OSX
+  #define SYS_THREAD_ID (intptr_t) pthread_self()
+  #define DBGMSG(...) printf(__VA_ARGS__)
+#elif defined OS_WEB
   #define SYS_THREAD_ID (intptr_t) pthread_self()
   #define DBGMSG(...) printf(__VA_ARGS__)
 #else

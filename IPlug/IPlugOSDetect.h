@@ -9,6 +9,9 @@
   #endif
 #elif defined __linux || defined __linux__ || defined linux
   #define OS_LINUX
+#elif defined EMSCRIPTEN
+  #define OS_WEB
+  #define NO_IGRAPHICS
 #else
   #error "No OS defined!"
 #endif

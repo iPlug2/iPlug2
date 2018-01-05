@@ -34,6 +34,14 @@
     return pGraphics;
   }
   #endif
+#elif defined OS_WEB
+//   #ifndef NO_IGRAPHICS
+//   IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
+//   {
+//     IGraphicsWeb* pGraphics = new IGraphicsWeb(plug, w, h, fps);
+//     return pGraphics;
+//   }
+//   #endif
 #else
   #error "No OS defined!"
 #endif
@@ -258,6 +266,7 @@ class IPlugAUFactory
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+#elif defined WAM_API
 
 #else
   #error "No API defined!"

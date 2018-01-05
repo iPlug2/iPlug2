@@ -27,6 +27,8 @@
   #include "IPlugStandalone.h"
   typedef IPlugStandalone IPlug;
   #define API_EXT "standalone"
+#elif defined WAM_API
+  typedef IPlugWAM IPlug;
 #else
   #error "No API defined!"
 #endif
@@ -46,6 +48,10 @@
 #endif
   #define EXPORT __attribute__ ((visibility("default")))
   #define BUNDLE_ID "com." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
+#elif defined OS_WEB
+#ifndef NO_IGRAPHICS
+  #include "IGraphicsWeb.h"
+#endif
 #elif defined OS_LINUX
   //TODO
 #endif
