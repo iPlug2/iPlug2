@@ -20,6 +20,13 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 
 IBitmap IGraphicsNanoVG::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
+  WDL_String fullPath;
+  OSLoadBitmap(name, fullPath);
+  int imageIndex = nvgCreateImage(mVG, fullPath.Get(), 0);
+  int w, h;
+  nvgImageSize(mVG, imageIndex, &w, &h);
+  IBitmap bmp((void*) imageIndex, w, h, nStates, framesAreHoriztonal, sourceScale, name);
+  return bmp;
 }
 
 void IGraphicsNanoVG::ReleaseIBitmap(IBitmap& bitmap)
@@ -32,10 +39,12 @@ void IGraphicsNanoVG::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
 
 IBitmap IGraphicsNanoVG::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
 {
+  return bitmap;
 }
 
 IBitmap IGraphicsNanoVG::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
 {
+  return bitmap;
 }
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
@@ -67,6 +76,11 @@ void IGraphicsNanoVG::ReScale()
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  NVGpaint imgPaint = nvgImagePattern(mVG, srcX, srcY, bitmap.frameWidth(), bitmap.frameHeight(), 0.f, (long) bitmap.mData, NanoVGWeight(pBlend));
+  nvgBeginPath(mVG);
+  nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
+  nvgFillPaint(mVG, imgPaint);
+  nvgFill(mVG);
 }
 
 void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)

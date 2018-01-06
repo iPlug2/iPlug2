@@ -59,9 +59,9 @@ NSString* ToNSString(const char* cStr);
   IParam* mEdParam; // the param linked to the open text edit (optional)
   int mPrevX, mPrevY;
 @public
-  IGraphicsMac* mGraphics;
+  IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
-- (id) init;
+//- (id) init;
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;

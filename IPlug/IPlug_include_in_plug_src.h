@@ -31,6 +31,9 @@
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(plug, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);
+    #ifdef IGRAPHICS_NANOVG
+    pGraphics->CreateMetalLayer();
+    #endif
     return pGraphics;
   }
   #endif

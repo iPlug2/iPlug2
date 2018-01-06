@@ -1,4 +1,7 @@
 #include <Foundation/NSArchiver.h>
+#ifdef IGRAPHICS_NANOVG
+#import <QuartzCore/QuartzCore.h>
+#endif
 
 #include "IGraphicsMac.h"
 #import "IGraphicsView.h"
@@ -86,6 +89,12 @@ IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
 IGraphicsMac::~IGraphicsMac()
 {
   CloseWindow();
+}
+
+void IGraphicsMac::CreateMetalLayer()
+{
+  mLayer = [CAMetalLayer new];
+  ViewInitialized(mLayer);
 }
 
 void GetResourcePathFromBundle(const char* bundleID, const char* filename, const char* searchExt, WDL_String& fullPath)

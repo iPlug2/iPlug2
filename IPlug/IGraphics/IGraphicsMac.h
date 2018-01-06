@@ -51,7 +51,8 @@ public:
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
-
+  void CreateMetalLayer();
+  
   void DrawScreen(const IRECT& rect) override;
   
   void* OpenWindow(void* pWindow) override;
@@ -93,6 +94,9 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override;
 
   bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
+  
+  void* mLayer;
+
 protected:
   void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
 //  void OSLoadFont(const char* name, const int size) override;
@@ -100,7 +104,7 @@ protected:
   
 private:
   void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
-
+  
   WDL_String mBundleID;
   
   friend int GetMouseOver(IGraphicsMac* pGraphics);

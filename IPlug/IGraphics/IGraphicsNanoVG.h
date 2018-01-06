@@ -7,6 +7,8 @@
 #include "nanovg_mtl.h"
 #endif
 
+#include "IGraphics.h"
+
 class IGraphicsNanoVG : public IGraphics
 {
 public:
@@ -68,4 +70,37 @@ inline NVGcolor NanoVGColor(const IColor& color)
   c.b = (float) color.B / 255.0f;
   c.a = (float) color.A / 255.0f;
   return c;
+}
+
+inline float NanoVGWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
+inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return NVG_COPY;
+  }
+  switch (pBlend->mMethod)
+  {
+    case IBlend::kBlendClobber:
+    {
+      return NVG_SOURCE_OVER;
+    }
+    case IBlend::kBlendAdd:
+//    {
+//      return NVG_ATOP;
+//    }
+    case IBlend::kBlendColorDodge:
+//    {
+//      return CAIRO_OPERATOR_COLOR_DODGE;
+//    }
+    case IBlend::kBlendNone:
+    default:
+    {
+      return NVG_COPY;
+    }
+  }
 }

@@ -1,7 +1,4 @@
 #import "IGraphicsView.h"
-#ifdef IGRAPHICS_NANOVG
-#import <QuartzCore/QuartzCore.h>
-#endif
 
 @implementation IGRAPHICS_MENU_RCVR
 
@@ -207,16 +204,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 @implementation IGRAPHICS_VIEW
 
-- (id) init
-{
-  TRACE;
-
-  mGraphics = nullptr;
-  mTimer = nullptr;
-  mPrevX = 0;
-  mPrevY = 0;
-  return self;
-}
+//- (id) init
+//{
+//  TRACE;
+//
+//  mGraphics = nullptr;
+//  mTimer = nullptr;
+//  mPrevX = 0;
+//  mPrevY = 0;
+//  return self;
+//}
 
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics
 {
@@ -231,10 +228,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
 #ifdef IGRAPHICS_NANOVG
   if (!self.wantsLayer) {
-    self.layer = [CAMetalLayer new];
+    self.layer = (CALayer*) mGraphics->mLayer;
     self.layer.opaque = NO;
     self.wantsLayer = YES;
-    mGraphics->ViewInitialized(self.layer);
   }
 #endif
   
