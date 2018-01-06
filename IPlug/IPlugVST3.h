@@ -28,7 +28,6 @@ struct IPlugInstanceInfo
 class IPlugVST3View;
 
 class IPlugVST3 : public IPLUG_BASE_CLASS
-                , public Steinberg::Vst::IUnitInfo
                 , public Steinberg::Vst::SingleComponentEffect
 {
 public:
@@ -122,7 +121,6 @@ public:
 
   OBJ_METHODS (IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
-  DEF_INTERFACE (IUnitInfo)
   END_DEFINE_INTERFACES (SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
 

@@ -7,13 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F21A6E32001221500B7B057 /* fcondition.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F21A6E12001221500B7B057 /* fcondition.h */; };
+		4F21A6E42001221500B7B057 /* flock.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F21A6E22001221500B7B057 /* flock.h */; };
+		4F21A6E72001222400B7B057 /* fcondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F21A6E52001222400B7B057 /* fcondition.cpp */; };
+		4F21A6E82001222400B7B057 /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F21A6E62001222400B7B057 /* flock.cpp */; };
 		4F83C33A1F3E922F0044D8B8 /* classfactoryhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C32C1F3E922F0044D8B8 /* classfactoryhelpers.h */; };
 		4F83C33B1F3E922F0044D8B8 /* fbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C32D1F3E922F0044D8B8 /* fbuffer.h */; };
 		4F83C33C1F3E922F0044D8B8 /* fcleanup.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C32E1F3E922F0044D8B8 /* fcleanup.h */; };
 		4F83C33D1F3E922F0044D8B8 /* fcommandline.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C32F1F3E922F0044D8B8 /* fcommandline.h */; };
 		4F83C33E1F3E922F0044D8B8 /* fdebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C3301F3E922F0044D8B8 /* fdebug.h */; };
 		4F83C33F1F3E922F0044D8B8 /* fdynlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C3311F3E922F0044D8B8 /* fdynlib.h */; };
-		4F83C3401F3E922F0044D8B8 /* flock.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C3321F3E922F0044D8B8 /* flock.h */; };
 		4F83C3411F3E922F0044D8B8 /* fobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C3331F3E922F0044D8B8 /* fobject.h */; };
 		4F83C3421F3E922F0044D8B8 /* fstdmethods.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C3341F3E922F0044D8B8 /* fstdmethods.h */; };
 		4F83C3431F3E922F0044D8B8 /* fstreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F83C3351F3E922F0044D8B8 /* fstreamer.h */; };
@@ -25,7 +28,6 @@
 		4F83C3531F3E92410044D8B8 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C3491F3E92410044D8B8 /* fbuffer.cpp */; };
 		4F83C3541F3E92410044D8B8 /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C34A1F3E92410044D8B8 /* fdebug.cpp */; };
 		4F83C3551F3E92410044D8B8 /* fdynlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C34B1F3E92410044D8B8 /* fdynlib.cpp */; };
-		4F83C3561F3E92410044D8B8 /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C34C1F3E92410044D8B8 /* flock.cpp */; };
 		4F83C3571F3E92410044D8B8 /* fobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C34D1F3E92410044D8B8 /* fobject.cpp */; };
 		4F83C3581F3E92410044D8B8 /* fstreamer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C34E1F3E92410044D8B8 /* fstreamer.cpp */; };
 		4F83C3591F3E92410044D8B8 /* fstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F83C34F1F3E92410044D8B8 /* fstring.cpp */; };
@@ -34,13 +36,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4F21A6E12001221500B7B057 /* fcondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fcondition.h; path = ../thread/include/fcondition.h; sourceTree = "<group>"; };
+		4F21A6E22001221500B7B057 /* flock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = flock.h; path = ../thread/include/flock.h; sourceTree = "<group>"; };
+		4F21A6E52001222400B7B057 /* fcondition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fcondition.cpp; path = ../thread/source/fcondition.cpp; sourceTree = "<group>"; };
+		4F21A6E62001222400B7B057 /* flock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = flock.cpp; path = ../thread/source/flock.cpp; sourceTree = "<group>"; };
 		4F83C32C1F3E922F0044D8B8 /* classfactoryhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = classfactoryhelpers.h; path = ../source/classfactoryhelpers.h; sourceTree = "<group>"; };
 		4F83C32D1F3E922F0044D8B8 /* fbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fbuffer.h; path = ../source/fbuffer.h; sourceTree = "<group>"; };
 		4F83C32E1F3E922F0044D8B8 /* fcleanup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fcleanup.h; path = ../source/fcleanup.h; sourceTree = "<group>"; };
 		4F83C32F1F3E922F0044D8B8 /* fcommandline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fcommandline.h; path = ../source/fcommandline.h; sourceTree = "<group>"; };
 		4F83C3301F3E922F0044D8B8 /* fdebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fdebug.h; path = ../source/fdebug.h; sourceTree = "<group>"; };
 		4F83C3311F3E922F0044D8B8 /* fdynlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fdynlib.h; path = ../source/fdynlib.h; sourceTree = "<group>"; };
-		4F83C3321F3E922F0044D8B8 /* flock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = flock.h; path = ../source/flock.h; sourceTree = "<group>"; };
 		4F83C3331F3E922F0044D8B8 /* fobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fobject.h; path = ../source/fobject.h; sourceTree = "<group>"; };
 		4F83C3341F3E922F0044D8B8 /* fstdmethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstdmethods.h; path = ../source/fstdmethods.h; sourceTree = "<group>"; };
 		4F83C3351F3E922F0044D8B8 /* fstreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstreamer.h; path = ../source/fstreamer.h; sourceTree = "<group>"; };
@@ -52,7 +57,6 @@
 		4F83C3491F3E92410044D8B8 /* fbuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fbuffer.cpp; path = ../source/fbuffer.cpp; sourceTree = "<group>"; };
 		4F83C34A1F3E92410044D8B8 /* fdebug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fdebug.cpp; path = ../source/fdebug.cpp; sourceTree = "<group>"; };
 		4F83C34B1F3E92410044D8B8 /* fdynlib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fdynlib.cpp; path = ../source/fdynlib.cpp; sourceTree = "<group>"; };
-		4F83C34C1F3E92410044D8B8 /* flock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = flock.cpp; path = ../source/flock.cpp; sourceTree = "<group>"; };
 		4F83C34D1F3E92410044D8B8 /* fobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fobject.cpp; path = ../source/fobject.cpp; sourceTree = "<group>"; };
 		4F83C34E1F3E92410044D8B8 /* fstreamer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fstreamer.cpp; path = ../source/fstreamer.cpp; sourceTree = "<group>"; };
 		4F83C34F1F3E92410044D8B8 /* fstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fstring.cpp; path = ../source/fstring.cpp; sourceTree = "<group>"; };
@@ -87,11 +91,12 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				4F21A6E52001222400B7B057 /* fcondition.cpp */,
+				4F21A6E62001222400B7B057 /* flock.cpp */,
 				4F83C3481F3E92410044D8B8 /* baseiids.cpp */,
 				4F83C3491F3E92410044D8B8 /* fbuffer.cpp */,
 				4F83C34A1F3E92410044D8B8 /* fdebug.cpp */,
 				4F83C34B1F3E92410044D8B8 /* fdynlib.cpp */,
-				4F83C34C1F3E92410044D8B8 /* flock.cpp */,
 				4F83C34D1F3E92410044D8B8 /* fobject.cpp */,
 				4F83C34E1F3E92410044D8B8 /* fstreamer.cpp */,
 				4F83C34F1F3E92410044D8B8 /* fstring.cpp */,
@@ -112,13 +117,14 @@
 		F479070E0E02AF4C007F68F4 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				4F21A6E12001221500B7B057 /* fcondition.h */,
+				4F21A6E22001221500B7B057 /* flock.h */,
 				4F83C32C1F3E922F0044D8B8 /* classfactoryhelpers.h */,
 				4F83C32D1F3E922F0044D8B8 /* fbuffer.h */,
 				4F83C32E1F3E922F0044D8B8 /* fcleanup.h */,
 				4F83C32F1F3E922F0044D8B8 /* fcommandline.h */,
 				4F83C3301F3E922F0044D8B8 /* fdebug.h */,
 				4F83C3311F3E922F0044D8B8 /* fdynlib.h */,
-				4F83C3321F3E922F0044D8B8 /* flock.h */,
 				4F83C3331F3E922F0044D8B8 /* fobject.h */,
 				4F83C3341F3E922F0044D8B8 /* fstdmethods.h */,
 				4F83C3351F3E922F0044D8B8 /* fstreamer.h */,
@@ -146,11 +152,12 @@
 				4F83C33D1F3E922F0044D8B8 /* fcommandline.h in Headers */,
 				4F83C33F1F3E922F0044D8B8 /* fdynlib.h in Headers */,
 				4F83C3411F3E922F0044D8B8 /* fobject.h in Headers */,
+				4F21A6E42001221500B7B057 /* flock.h in Headers */,
+				4F21A6E32001221500B7B057 /* fcondition.h in Headers */,
 				4F83C3431F3E922F0044D8B8 /* fstreamer.h in Headers */,
 				4F83C33A1F3E922F0044D8B8 /* classfactoryhelpers.h in Headers */,
 				4F83C33B1F3E922F0044D8B8 /* fbuffer.h in Headers */,
 				4F83C3461F3E922F0044D8B8 /* timer.h in Headers */,
-				4F83C3401F3E922F0044D8B8 /* flock.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,11 +215,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F83C3561F3E92410044D8B8 /* flock.cpp in Sources */,
 				4F83C3591F3E92410044D8B8 /* fstring.cpp in Sources */,
 				4F83C3551F3E92410044D8B8 /* fdynlib.cpp in Sources */,
+				4F21A6E72001222400B7B057 /* fcondition.cpp in Sources */,
 				4F83C35B1F3E92410044D8B8 /* updatehandler.cpp in Sources */,
 				4F83C3581F3E92410044D8B8 /* fstreamer.cpp in Sources */,
+				4F21A6E82001222400B7B057 /* flock.cpp in Sources */,
 				4F83C3531F3E92410044D8B8 /* fbuffer.cpp in Sources */,
 				4F83C3521F3E92410044D8B8 /* baseiids.cpp in Sources */,
 				4F83C3541F3E92410044D8B8 /* fdebug.cpp in Sources */,

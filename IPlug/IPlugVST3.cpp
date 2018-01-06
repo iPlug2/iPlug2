@@ -788,7 +788,7 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
     case 3:
       return SpeakerArr::k30Music;
     case 4:
-      return SpeakerArr::kBFormat1stOrder;
+      return SpeakerArr::kAmbi1stOrderACN;
     case 5:
       return SpeakerArr::k50;
     case 6:

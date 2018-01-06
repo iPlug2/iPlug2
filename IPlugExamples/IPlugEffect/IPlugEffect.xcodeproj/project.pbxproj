@@ -28,6 +28,7 @@
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F20EECB132C69FE0030E34C /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F20EF2D132C69FE0030E34C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
+		4F21A6EF2001270800B7B057 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F21A6EE2001270400B7B057 /* coreiids.cpp */; };
 		4F23B9F313B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23B9FD13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
 		4F23BA0C13B647A00097A67E /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -376,6 +377,8 @@
 		4F017361154D4BFC0034BE1A /* AAX_CIPlugParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAX_CIPlugParameters.h; path = ../../IPlug/AAX/AAX_CIPlugParameters.h; sourceTree = SOURCE_ROOT; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F20EF33132C69FE0030E34C /* IPlugEffect.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F21A6EC2001233700B7B057 /* vstspeakerarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstspeakerarray.h; sourceTree = "<group>"; };
+		4F21A6EE2001270400B7B057 /* coreiids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coreiids.cpp; sourceTree = "<group>"; };
 		4F23B9E413B647A00097A67E /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = knob.png; path = resources/img/knob.png; sourceTree = "<group>"; };
 		4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-AU-Info.plist"; path = "resources/IPlugEffect-AU-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1413B647E50097A67E /* IPlugEffect-OSXAPP-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-OSXAPP-Info.plist"; path = "resources/IPlugEffect-OSXAPP-Info.plist"; sourceTree = "<group>"; };
@@ -788,6 +791,7 @@
 		4F4ACFFE140996A10068A6D4 /* vst */ = {
 			isa = PBXGroup;
 			children = (
+				4F21A6EC2001233700B7B057 /* vstspeakerarray.h */,
 				4F4ACFFF140996A10068A6D4 /* vstaudioeffect.cpp */,
 				4F4AD000140996A10068A6D4 /* vstaudioeffect.h */,
 				4F4AD001140996A10068A6D4 /* vstbus.cpp */,
@@ -825,6 +829,7 @@
 		4F4AD015140996A10068A6D4 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				4F21A6EE2001270400B7B057 /* coreiids.cpp */,
 				4F4AD016140996A10068A6D4 /* conststringtable.cpp */,
 				4F4AD017140996A10068A6D4 /* conststringtable.h */,
 				4F4AD018140996A10068A6D4 /* falignpop.h */,
