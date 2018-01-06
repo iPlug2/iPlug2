@@ -3,13 +3,6 @@
 #import <QuartzCore/QuartzCore.h>
 #endif
 
-//forward declare this if compiling with 10.6 sdk
-#if !defined(MAC_OS_X_VERSION_10_7) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7
-@interface NSScreen
-- (CGFloat)backingScaleFactor;
-@end
-#endif // MAC_OS_X_VERSION_10_7
-
 @implementation IGRAPHICS_MENU_RCVR
 
 - (NSMenuItem*)MenuItem
