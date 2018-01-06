@@ -122,7 +122,7 @@ public:
 
   void RenderAPIBitmap(void* pContext) override;
 
-  IFontData LoadIFont(const char * name, const int size);
+  //IFontData LoadIFont(const char * name, const int size);
   
   inline const agg::rgba8 IColorToAggColor(const IColor& color)
   {
