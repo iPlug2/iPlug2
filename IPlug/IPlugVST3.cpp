@@ -399,7 +399,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             case kPresetParam:
               RestorePreset(FromNormalizedParam(value, 0, NPresets(), 1.));
               break;
-              //TODO pitch bend, modwheel etc
+              //TODO: pitch bend, modwheel etc
             default:
               {
                 WDL_MutexLock lock(&mParams_mutex);
@@ -572,56 +572,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   return kResultOk;
 }
 
-//tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
-//{
-//  TRACE;
-//
-//  ByteChunk chunk;
-//  SerializeState(&chunk); // to get the size
-//
-//  if (chunk.Size() > 0)
-//  {
-//    state->read(chunk.GetBytes(), chunk.Size());
-//    UnserializeState(&chunk, 0);
-//    RedrawParamControls();
-//    return kResultOk;
-//  }
-//
-//  return kResultFalse;
-//}
-//
-//tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
-//{
-//  TRACE;
-//
-//  ByteChunk chunk;
-//
-//  if (SerializeState(&chunk))
-//  {
-//    state->write(chunk.GetBytes(), chunk.Size());
-//    return kResultOk;
-//  }
-//
-//  return kResultFalse;
-//}
-
-//tresult PLUGIN_API IPlugVST3::setComponentState(IBStream *state)
-//{
-//  TRACE;
-//
-//  ByteChunk chunk;
-//  SerializeState(&chunk); // to get the size
-//
-//  if (chunk.Size() > 0)
-//  {
-//    state->read(chunk.GetBytes(), chunk.Size());
-//    UnserializeState(&chunk, 0);
-//    RedrawParamControls();
-//    return kResultOk;
-//  }
-//
-//  return kResultFalse;
-//}
+//TODO: VST3 State needs work
 
 tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 {
@@ -666,6 +617,8 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
   TRACE;
 
   ByteChunk chunk;
+  //InitChunkWithIPlugVer(&chunk); // TODO: IPlugVer should be in chunk!
+
   SerializeState(chunk); // to get the size
 
   if (chunk.Size() > 0)
@@ -986,35 +939,6 @@ void IPlugVST3::SetLatency(int latency)
   FUnknownPtr<IComponentHandler>handler(componentHandler);
   handler->restartComponent(kLatencyChanged);  
 }
-
-//void IPlugVST3::DumpFactoryPresets(const char* path, int a, int b, int c, int d)
-//{
-//  FUID pluginGuid;
-//  pluginGuid.from4Int(a,b,c,d);
-//
-//  for (int i = 0; i< NPresets(); i++)
-//  {
-//    WDL_String fileName(path, strlen(path));
-//    fileName.Append(GetPresetName(i), strlen(GetPresetName(i)));
-//    fileName.Append(".vstpreset", strlen(".vstpreset"));
-//
-//    WDL_String xmlMetaData("", strlen(""));
-//
-//    IBStream* stream = FileStream::open(fileName.Get(), "w");
-//
-//    RestorePreset(i);
-//
-//    PresetFile::savePreset(stream,
-//                           pluginGuid,
-//                           this,
-//                           this,
-//                           xmlMetaData.Get(),
-//                           xmlMetaData.GetLength()
-//                           );
-//
-//
-//  }
-//}
 
 #pragma mark -
 #pragma mark IPlugVST3View

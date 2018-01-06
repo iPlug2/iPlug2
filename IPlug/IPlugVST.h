@@ -37,16 +37,13 @@ public:
            bool plugIsInst = false,
            int plugScChans = 0);
 
-  // ----------------------------------------
-  // See IPlugBase for the full list of methods that your plugin class can implement.
-
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
 
   void InformHostOfProgramChange() override;
 
-  int GetSamplePos() override;   // Samples since start of project.
+  int GetSamplePos() override;
   double GetTempo() override;
   void GetTimeSig(int& numerator, int& denominator) override;
   void GetTime(ITimeInfo& timeInfo) override;
@@ -55,7 +52,7 @@ public:
   void ResizeGraphics(int w, int h) override;
   bool IsRenderingOffline() override;
 
-  virtual void OnGUICreated() override;
+  void OnGUICreated() override;
 
   audioMasterCallback mHostCallback;
 

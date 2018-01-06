@@ -1354,6 +1354,7 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
   PutStrInDict(pDict, kAUPresetNameKey, GetPresetName(GetCurrentPresetIdx()));
 
   ByteChunk chunk;
+  //InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
 
   if (SerializeState(chunk))
   {

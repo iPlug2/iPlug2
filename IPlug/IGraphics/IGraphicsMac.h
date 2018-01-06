@@ -108,7 +108,7 @@ private:
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 
-inline int AdjustFontSize(int size)
+inline int AdjustFontSize(int size) //TODO: sort this out
 {
   return int(0.9 * (double)size);
 }

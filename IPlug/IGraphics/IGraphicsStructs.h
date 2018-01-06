@@ -328,6 +328,7 @@ struct IMouseMod
     : L(l), R(r), S(s), C(c), A(a) {}
 };
 
+// TODO: static storage needs thread safety mechanism
 template <class T>
 class StaticStorage
 {
@@ -335,7 +336,7 @@ public:
   
   unsigned long hash(const char* str)
   {
-    unsigned long hash = 5381; // TODO CHECK THIS
+    unsigned long hash = 5381; // TODO: CHECK THIS
     int c;
     
     while ((c = *str++))
