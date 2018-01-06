@@ -5,7 +5,7 @@
 #include "IControl.h"
 #include "Log.h"
 
-#include "swell-internal.h"
+#include "swell.h"
 
 //TODO: why does this have to be here?
 #define DEFAULT_PATH_MAC "~/Desktop"
