@@ -986,11 +986,11 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPlugBase::SaveProgramAsFXP(WDL_String& fileName)
+bool IPlugBase::SaveProgramAsFXP(const char* file)
 {
-  if (fileName.GetLength())
+  if (CSTR_NOT_EMPTY(file))
   {
-    FILE* fp = fopen(fileName.Get(), "wb");
+    FILE* fp = fopen(file, "wb");
 
     ByteChunk pgm;
 
@@ -1059,11 +1059,11 @@ bool IPlugBase::SaveProgramAsFXP(WDL_String& fileName)
   return false;
 }
 
-bool IPlugBase::SaveBankAsFXB(WDL_String& fileName)
+bool IPlugBase::SaveBankAsFXB(const char* file)
 {
-  if (fileName.GetLength())
+  if (CSTR_NOT_EMPTY(file))
   {
-    FILE* fp = fopen(fileName.Get(), "wb");
+    FILE* fp = fopen(file, "wb");
 
     ByteChunk bnk;
 
@@ -1164,11 +1164,11 @@ bool IPlugBase::SaveBankAsFXB(WDL_String& fileName)
     return false;
 }
 
-bool IPlugBase::LoadProgramFromFXP(WDL_String& fileName)
+bool IPlugBase::LoadProgramFromFXP(const char* file)
 {
-  if (fileName.GetLength())
+  if (CSTR_NOT_EMPTY(file))
   {
-    FILE* fp = fopen(fileName.Get(), "rb");
+    FILE* fp = fopen(file, "rb");
 
     if (fp)
     {
@@ -1255,11 +1255,11 @@ bool IPlugBase::LoadProgramFromFXP(WDL_String& fileName)
   return false;
 }
 
-bool IPlugBase::LoadBankFromFXB(WDL_String& fileName)
+bool IPlugBase::LoadBankFromFXB(const char* file)
 {
-  if (fileName.GetLength())
+  if (CSTR_NOT_EMPTY(file))
   {
-    FILE* fp = fopen(fileName.Get(), "rb");
+    FILE* fp = fopen(file, "rb");
 
     if (fp)
     {

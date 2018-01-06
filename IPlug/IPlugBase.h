@@ -142,7 +142,7 @@ public:
   virtual int GetUIWidth() { return 0; }
   virtual int GetUIHeight() { return 0; }
   
-  // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics AttachGraphics)
+  // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics::AttachGraphics)
   virtual void OnGUICreated() {};
 
   // Tell the host that the graphics resized.
@@ -257,10 +257,26 @@ public:
   virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
   
-  bool SaveProgramAsFXP(WDL_String& file);
-  bool SaveBankAsFXB(WDL_String& file);
-  bool LoadProgramFromFXP(WDL_String& file);
-  bool LoadBankFromFXB(WDL_String& file);
+  //VST2 Presets
+  bool SaveProgramAsFXP(const char* file);
+  bool SaveBankAsFXB(const char* file);
+  bool LoadProgramFromFXP(const char* file);
+  bool LoadBankFromFXB(const char* file);
+  
+//   VST3 format
+//   bool SaveProgramAsVSTPreset(const char* file);
+//   bool LoadProgramFromVSTPreset(const char* file);
+//   bool SaveBankAsVSTPresets(const char* file);
+//   
+//   AU format
+//   bool SaveProgramAsAUPreset(const char* name, const char* file);
+//   bool LoadProgramFromAUPreset(const char* file);
+//   bool SaveBankAsAUPresets(const char* file);
+//   
+//   ProTools format
+//   bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID);
+//   bool LoadProgramFromProToolsPreset(const char* file);
+//   bool SaveBankAsProToolsPresets(const char* file, unsigned long pluginID);
   
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
