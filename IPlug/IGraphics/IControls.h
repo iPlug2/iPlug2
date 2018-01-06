@@ -76,7 +76,6 @@ public:
   ~IContactControl() {}
   
   void OnMouseUp(int x, int y, const IMouseMod& mod) override;
-  virtual void Draw(IGraphics& graphics) override {}
 };
 
 // A fader. The bitmap snaps to a mouse click or drag.
