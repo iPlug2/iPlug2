@@ -98,6 +98,7 @@ public:
   
   inline void SetCairoSourceRGBA(const IColor& color, const IBlend* pBlend = nullptr)
   {
+    cairo_set_operator(mContext, CairoBlendMode(pBlend));
     cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
   }
   

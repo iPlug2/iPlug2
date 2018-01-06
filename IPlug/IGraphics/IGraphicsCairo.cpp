@@ -226,7 +226,6 @@ void IGraphicsCairo::DrawTriangle(const IColor& color, int x1, int y1, int x2, i
 {
   SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
   cairo_set_line_width(mContext, 1);
-  cairo_new_sub_path(mContext);
   cairo_move_to(mContext, x1, y1);
   cairo_line_to(mContext, x2, y2);
   cairo_line_to(mContext, x3, y3);
@@ -251,7 +250,7 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
 
 void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int corner, bool aa)
 {
-  const double y = rect.B - rect.H(); // TODO: should cairo_create_group?
+  const double y = rect.B - rect.H();
   SetCairoSourceRGBA(color, pBlend);
   cairo_new_sub_path(mContext);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
@@ -264,7 +263,7 @@ void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int corner, bool aa)
 {
   const double y = rect.B - rect.H();
-  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
+  SetCairoSourceRGBA(color, pBlend);
   cairo_new_sub_path(mContext);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
@@ -289,8 +288,7 @@ void IGraphicsCairo::FillCircle(const IColor& color, int cx, int cy, float r, co
 
 void IGraphicsCairo::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
 {
-  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
-  cairo_new_sub_path(mContext);
+  SetCairoSourceRGBA(color, pBlend);
   cairo_move_to(mContext, x1, y1);
   cairo_line_to(mContext, x2, y2);
   cairo_line_to(mContext, x3, y3);
@@ -299,9 +297,8 @@ void IGraphicsCairo::FillTriangle(const IColor& color, int x1, int y1, int x2, i
 
 void IGraphicsCairo::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
-  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
+  SetCairoSourceRGBA(color, pBlend);
 
-  cairo_new_sub_path(mContext);
   cairo_move_to(mContext, x[0], y[0]);
   
   for(int i = 1; i < npoints; i++)
@@ -329,6 +326,9 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   int G = ((*pPixel) >> 16) & 0xff;
   int B = ((*pPixel) >> 24) & 0xff;
   
+  cairo_surface_destroy(pOutSurface);
+  cairo_destroy(pOutContext);
+    
   return IColor(A, R, G, B);
 }
 
