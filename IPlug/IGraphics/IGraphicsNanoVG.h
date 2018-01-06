@@ -9,6 +9,8 @@
 
 #include "IGraphics.h"
 
+struct NanoVGBitmap;
+
 class IGraphicsNanoVG : public IGraphics
 {
 public:
@@ -58,7 +60,7 @@ public:
 protected:
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
   void RenderAPIBitmap(void* pContext) override;
-  
+  WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
 };
 

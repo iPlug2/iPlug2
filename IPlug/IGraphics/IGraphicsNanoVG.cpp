@@ -5,6 +5,28 @@
 
 #pragma mark -
 
+struct NanoVGBitmap {
+  int idx = -1;
+  int w = 0;
+  int h = 0;
+  NVGcontext* mVG;
+  
+  NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale)
+  {
+    mVG = context;
+    
+    idx = nvgCreateImage(mVG, path, 0);
+    nvgImageSize(mVG, idx, &w, &h);
+    w /= sourceScale;
+    h /= sourceScale;
+  }
+  
+  ~NanoVGBitmap()
+  {
+    nvgDeleteImage(mVG, idx);
+  }
+};
+
 IGraphicsNanoVG::IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps)
 : IGraphics(plug, w, h, fps)
 {
@@ -12,6 +34,8 @@ IGraphicsNanoVG::IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps)
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+  mBitmaps.Empty(true);
+  
 #ifdef OS_OSX
   if(mVG)
     nvgDeleteMTL(mVG);
@@ -22,11 +46,10 @@ IBitmap IGraphicsNanoVG::LoadIBitmap(const char* name, int nStates, bool framesA
 {
   WDL_String fullPath;
   OSLoadBitmap(name, fullPath);
-  int imageIndex = nvgCreateImage(mVG, fullPath.Get(), 0);
-  int w, h;
-  nvgImageSize(mVG, imageIndex, &w, &h);
-  IBitmap bmp((void*) imageIndex, w, h, nStates, framesAreHoriztonal, sourceScale, name);
-  return bmp;
+  
+  NanoVGBitmap* nvgbmp = new NanoVGBitmap(mVG, fullPath.Get(), sourceScale);
+  mBitmaps.Add(nvgbmp);
+  return IBitmap(nvgbmp, nvgbmp->w, nvgbmp->h, nStates, framesAreHoriztonal, sourceScale, name);
 }
 
 void IGraphicsNanoVG::ReleaseIBitmap(IBitmap& bitmap)
@@ -76,7 +99,8 @@ void IGraphicsNanoVG::ReScale()
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  NVGpaint imgPaint = nvgImagePattern(mVG, srcX, srcY, bitmap.frameWidth(), bitmap.frameHeight(), 0.f, (long) bitmap.mData, NanoVGWeight(pBlend));
+  NanoVGBitmap* pBmp = (NanoVGBitmap*) bitmap.mData;
+  NVGpaint imgPaint = nvgImagePattern(mVG, dest.L - srcX, dest.T - srcY, bitmap.W, bitmap.H, 0.f, pBmp->idx, NanoVGWeight(pBlend));
   nvgBeginPath(mVG);
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
