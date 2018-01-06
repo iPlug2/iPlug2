@@ -296,7 +296,6 @@ def main():
 
 #  expfile.write("_" + PLUG_FACTORY + "\n")
 #  expfile.write("_" + PLUG_ENTRY + "\n")
-#  expfile.write("_" + PLUG_VIEW_ENTRY + "\n")
 
 #  expfile.close()
 
