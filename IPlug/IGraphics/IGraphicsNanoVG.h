@@ -1,9 +1,11 @@
 #pragma once
 
-#include "IControl.h"
+#include "IPlugOSDetect.h"
 
 #include "nanovg.h"
+#ifdef OS_OSX
 #include "nanovg_mtl.h"
+#endif
 
 class IGraphicsNanoVG : public IGraphics
 {

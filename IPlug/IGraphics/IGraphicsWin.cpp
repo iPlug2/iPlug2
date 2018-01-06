@@ -1,9 +1,9 @@
-#include "IGraphicsWin.h"
-#include "IControl.h"
-#include "Log.h"
 #include <wininet.h>
 #include <Shlobj.h>
 #include <commctrl.h>
+
+#include "IGraphicsWin.h"
+#include "Log.h"
 
 #pragma warning(disable:4244) // Pointer size cast mismatch.
 #pragma warning(disable:4312) // Pointer size cast mismatch.

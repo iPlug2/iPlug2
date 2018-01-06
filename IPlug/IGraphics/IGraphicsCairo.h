@@ -1,11 +1,13 @@
 #pragma once
 
-#include "IControl.h"
-#include "cairo/cairo.h"
+#include "IPlugOSDetect.h"
 
+#include "cairo/cairo.h"
 #ifdef OS_OSX
 #include "cairo/cairo-quartz.h"
 #endif
+
+#include "IGraphics.h"
 
 class IGraphicsCairo : public IGraphics
 {

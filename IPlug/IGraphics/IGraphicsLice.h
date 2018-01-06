@@ -1,13 +1,15 @@
 #pragma once
 
-#include "IControl.h"
-#include "lice.h"
-#include "lice_text.h"
+#include "IPlugOSDetect.h"
 
 #ifdef OS_OSX
 #include <CoreGraphics/CoreGraphics.h>
 #include "swell.h"
 #endif
+#include "lice.h"
+#include "lice_text.h"
+
+#include "IGraphics.h"
 
 class IGraphicsLice : public IGraphics
 {

@@ -2,15 +2,15 @@
 
 #include <algorithm>
 #include <cmath>
+
 #include "wdlstring.h"
 #include "ptrlist.h"
-
-#include "IPlugOSDetect.h"
-#include "Log.h"
-
 #ifdef OS_OSX
 #include "swell.h"
 #endif
+
+#include "IPlugOSDetect.h"
+#include "Log.h"
 
 class LICE_IFont;
 

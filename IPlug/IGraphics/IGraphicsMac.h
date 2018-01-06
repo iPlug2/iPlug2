@@ -1,7 +1,5 @@
 #pragma once
 
-#include "IGraphicsConstants.h"
-
 //TODO: would be nice not to put this here
 #ifndef NO_IGRAPHICS
   #ifdef IGRAPHICS_AGG

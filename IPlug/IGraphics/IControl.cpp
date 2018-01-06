@@ -1,5 +1,6 @@
-#include "IControl.h"
 #include <cmath>
+
+#include "IControl.h"
 #include "Log.h"
 
 void IControl::SetValueFromPlug(double value)

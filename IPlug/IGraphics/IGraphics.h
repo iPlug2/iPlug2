@@ -1,14 +1,14 @@
 #pragma once
 
+#ifdef AAX_API
+#include "IPlugAAX_view_interface.h"
+#endif
+
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
 #include "IGraphicsUtilites.h"
 #include "IPopupMenu.h"
 #include "IControl.h"
-
-#ifdef AAX_API
-#include "IPlugAAX_view_interface.h"
-#endif
 
 class IPlugBaseGraphics;
 class IControl;

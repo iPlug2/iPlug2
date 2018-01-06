@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "IControl.h"
 #include "Log.h"
 
 #pragma mark -
@@ -13,8 +12,10 @@ IGraphicsNanoVG::IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps)
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+#ifdef OS_OSX
   if(mVG)
     nvgDeleteMTL(mVG);
+#endif
 }
 
 IBitmap IGraphicsNanoVG::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
@@ -39,7 +40,9 @@ IBitmap IGraphicsNanoVG::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, c
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
+#ifdef OS_OSX
   mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#endif
 }
 
 void IGraphicsNanoVG::BeginFrame()

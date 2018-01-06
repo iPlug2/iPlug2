@@ -1,6 +1,6 @@
-#include "IGraphicsLice.h"
-#include "IControl.h"
 #include <cmath>
+
+#include "IGraphicsLice.h"
 #include "Log.h"
 
 signed int GetSystemVersion();

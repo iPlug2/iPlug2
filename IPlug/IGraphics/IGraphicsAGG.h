@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IControl.h"
+#include "IGraphics.h"
 
 #ifdef OS_OSX
 #pragma clang diagnostic push
