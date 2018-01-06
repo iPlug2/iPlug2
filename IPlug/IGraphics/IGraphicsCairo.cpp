@@ -15,8 +15,8 @@ struct CairoBitmap {
   {
     surface = s;
 
-    width = cairo_image_surface_get_width (s);
-    height = cairo_image_surface_get_height (s);
+    width = cairo_image_surface_get_width(s);
+    height = cairo_image_surface_get_height(s);
   }
   
   ~CairoBitmap()
@@ -51,7 +51,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
 
   CairoBitmap* pCB = s_bitmapCache.Find(name, targetScale);
 
-  if (!pCB) // if bitmap not in cache allready at targetScale
+  if (!pCB) // if bitmap not in cache already at targetScale
   {
     WDL_String fullPath;
     OSLoadBitmap(name, fullPath);

@@ -106,7 +106,7 @@ public:
   
   inline void CairoDrawRect(const IRECT& rect)
   {
-    cairo_rectangle (mContext, rect.L, rect.T, rect.W(), rect.H());
+    cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
   }
 protected:
   cairo_t *mContext;
