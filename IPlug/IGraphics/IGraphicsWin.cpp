@@ -1051,7 +1051,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     DesktopPath(path);
   }
 
-  strcpy(dirCStr, pPath.Get());
+  strcpy(dirCStr, path.Get());
 
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(OPENFILENAME));
