@@ -2,13 +2,14 @@ WDL-OL/IPlug2 TODOs:
 
 ALL - document all main interface headers with decent doxygen comments, remove random comments from source code this
 ALL - bring disparate documentation together into doxygen pages
+ALL - use clang format to enforce clean and consistent code style
 
 IPlug:
 
 ALL - IParam improvements e.g. using lambdas for custom readout ranges
 ALL - cmake support
 ALL - templated processor class for single/double precision and WAM support
-ALL - make side chain/multi-channel definitions more consistent and more flexible, i.e. mono or stereo SC
+ALL - make side chain/multi-channel definitions more consistent and more flexible, i.e. mono or stereo SC, ambisonics etc
 ALL - GetHostVersionStr() etc are not reliable, especially with AU
 AU - preset changing from inside the plugin doesn't consistently update logic's GUI
 AU - auval "preset name not retained" message
@@ -17,10 +18,13 @@ AU - possibility of instruments with multichannel output, e.g. 5.1
 AU - possibility of instruments with side-chain inputs
 VST3 - SendMidiMsg()
 VST3 - pitch bend & other common MIDI CC parameters
+VST3 - issues with state need to be looked at
+VST3 - possibly move away from SingleComponentEffect
 AAX - "continuous" gui controls linked to enumerated list parameters jump around
 AAX - multi-mono with PLUG_DOES_STATE_CHUNKS 1 doesn't sync instances
 AAX - auxiliary output stems for instruments with multiple outs
 AAX - SendMidiMsg/s
+AAX - integrate ear level fixes/changes
 APP - edit to use IPlugBase buffer attaching code
 APP - some keys not received by windows standalone...arrow keys for example DLGC_WANTARROWS
 APP - how to change audio devices without hanging the main loop?
@@ -35,7 +39,7 @@ APP - windows midi - MS Built in GS Synth crashes when selected in prefs (XP)
 APP - state persistence - save fxp & option
 APP - look again at JACK client osx
 APP - get latency and display
-APP - remove per plug-in wrapper, replace with global code
+APP - remove per plug-in wrapper, replace with global code, that is a lot less rubbish
 
 IGraphics:
 
@@ -59,3 +63,97 @@ IGraphicsAGG - strict/non strict mode not working
 IGraphicsNanoVG - text
 IGraphicsNanoVG - svg
 IGraphicsNanoVG - currently redrawing controls that are not dirty
+IBitmapTextControl - fix wrapping text
+IAutoGUI - account for length of normal param values
+
+
+
+grep TODO -nr *
+
+
+IPlug/IPlug_include_in_plug_hdr.h:56:  //TODO
+IPlug/IPlugAAX.cpp:128:  SetHost("ProTools", vendorVersion); // TODO:vendor version correct?  
+IPlug/IPlugAAX.cpp:172:        param->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
+IPlug/IPlugAAX.cpp:249:  // TODO: UI thread only? If not, need to lock mParams_mutex
+IPlug/IPlugAAX.cpp:373:    //_this->InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
+IPlug/IPlugAAX.cpp:389:  // TODO: UI thread only?
+IPlug/IPlugAAX.cpp:396:    //GetIPlugVerFromChunk(chunk, &pos); // TODO: IPlugVer should be in chunk!
+IPlug/IPlugAAX.cpp:404:    RedrawParamControls(); //TODO: what about icontrols not linked to params how do they get redrawn - setdirty via UnserializeState()?
+IPlug/IPlugAAX.cpp:518:// TODO: SendMidiMsg()
+IPlug/IPlugAU.cpp:303://TODO: support more tags
+IPlug/IPlugAU.cpp:674:      return kAudioUnitErr_InvalidPropertyValue; // TODO: this seems wrong but works
+IPlug/IPlugAU.cpp:1071:    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+IPlug/IPlugAU.cpp:1357:  //InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
+IPlug/IPlugAU.cpp:1425:      //TODO: - WHAT ABOUT THESE!!!
+IPlug/IPlugAU.cpp:1782:  else   // synth = no inputs // TODO: support synths with SC inputs?
+IPlug/IPlugAU.cpp:1788:  if(plugIsInst) // TODO: support instruments with multichannel outputs, i.e. 5.1?
+IPlug/IPlugAU.cpp:2044:// TODO: SendMidiMsg
+IPlug/IPlugBase.cpp:1207:      if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
+IPlug/IPlugBase.cpp:1209:      //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+IPlug/IPlugBase.cpp:1210:      //if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
+IPlug/IPlugBase.cpp:1302:      //if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
+IPlug/IPlugBase.cpp:1304:      //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+IPlug/IPlugBase.cpp:1305:      //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
+IPlug/IPlugConstants.h:30://TODO: these should be in a namespace, to avoid conflicts with third-party libraries
+IPlug/IPlugStandalone.cpp:55:    #define TITLEBAR_BODGE 22 //TODO: sort this out
+IPlug/IPlugStandalone.h:6://TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
+IPlug/IPlugStandalone.h:74:  unsigned short* mMidiOutChan = nullptr; //TODO: sort this out
+IPlug/IPlugVST.cpp:840:        _this->ModifyCurrentPreset(); // TODO: test, something is funny about this http://forum.cockos.com/showpost.php?p=485113&postcount=22
+IPlug/IPlugVST.h:5://TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
+IPlug/IPlugVST3.cpp:402:              //TODO: pitch bend, modwheel etc
+IPlug/IPlugVST3.cpp:566://        //TODO: parse events and add
+IPlug/IPlugVST3.cpp:575://TODO: VST3 State needs work
+IPlug/IPlugVST3.cpp:620:  //InitChunkWithIPlugVer(&chunk); // TODO: IPlugVer should be in chunk!
+IPlug/IPlugVST3.cpp:779:// TODO: more speaker arrs
+IPlug/IPlugVST3.h:110://    TODO: add missing parameters
+IPlug/IPlugVST3.h:128:  virtual bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+IPlug/Log.cpp:14:#define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions?
+IPlug/rtaudiomidi/RtAudio.cpp:4587:  ///! TODO: RTAUDIO_MINIMIZE_LATENCY // Provide stream buffers directly to callback
+IPlug/rtaudiomidi/RtAudio.cpp:4588:  ///! TODO: RTAUDIO_HOG_DEVICE       // Exclusive mode
+IPlug2-doc.md:39:### TODO: IPlugProcessor
+IPlug2-doc.md:52:* IGraphicsNanoVG: TODO
+IPlugExamples/duplicate.py:20:# TODO:
+IPlug/IGraphics/IAutoGUI.h:363:    // TODO: account for length of normal param values
+IPlug/IGraphics/IAutoGUI.h:439:    // TODO: account for length of normal param values
+IPlug/IGraphics/IControls.h:273://TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
+IPlug/IGraphics/IGraphics.cpp:24://TODO: IGraphics::Resize
+IPlug/IGraphics/IGraphics.cpp:225:      // TODO: what if two parameters have the same text?
+IPlug/IGraphics/IGraphics.cpp:237:  // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
+IPlug/IGraphics/IGraphicsAGG.cpp:135:  mPixf.comp_op(agg::comp_op_src_over);//TODO
+IPlug/IGraphics/IGraphicsAGG.cpp:542:  //TODO: win
+IPlug/IGraphics/IGraphicsAGG.cpp:575:  //TODO: win
+IPlug/IGraphics/IGraphicsAGG.cpp:638:  //TODO: win
+IPlug/IGraphics/IGraphicsCairo.cpp:135:  return outBitmap; //TODO: surface will not be destroyed, unless this is retained
+IPlug/IGraphics/IGraphicsCairo.cpp:163:  //TODO:
+IPlug/IGraphics/IGraphicsCairo.cpp:169:  //TODO:
+IPlug/IGraphics/IGraphicsCairo.cpp:219:  SetCairoSourceRGBA(color, pBlend); // TODO: should cairo_create_group?
+IPlug/IGraphics/IGraphicsCairo.h:96:        return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
+IPlug/IGraphics/IGraphicsLice.cpp:64:  // TODO: this is horribly hacky
+IPlug/IGraphics/IGraphicsLice.cpp:188:  //TODO:
+IPlug/IGraphics/IGraphicsLice.cpp:268:  //TODO: FillIConvexPolygon won't scale
+IPlug/IGraphics/IGraphicsMac.h:3://TODO: would be nice not to put this here
+IPlug/IGraphics/IGraphicsMac.h:113:inline int AdjustFontSize(int size) //TODO: sort this out
+IPlug/IGraphics/IGraphicsMac.mm:13://TODO: why does this have to be here?
+IPlug/IGraphics/IGraphicsMac.mm:141:  //TODO: this is silly, adapt api
+IPlug/IGraphics/IGraphicsMac.mm:266:  switch (response) // TODO: check the return type, what about IDYES
+IPlug/IGraphics/IGraphicsMac.mm:515:  //TODO:
+IPlug/IGraphics/IGraphicsNanoVG.cpp:213:  return COLOR_BLACK; //TODO:
+IPlug/IGraphics/IGraphicsNanoVG.cpp:246:  //TODO: change this api
+IPlug/IGraphics/IGraphicsStructs.h:331:// TODO: static storage needs thread safety mechanism
+IPlug/IGraphics/IGraphicsStructs.h:339:    unsigned long hash = 5381; // TODO: CHECK THIS
+IPlug/IGraphics/IGraphicsView.mm:286:    //TODO: can we really only get this context on the first draw call?
+IPlug/IGraphics/IGraphicsView.mm:312:  //TODO: this is redrawing every IControl!
+IPlug/IGraphics/IGraphicsWin.cpp:130:          return 0; // TODO: check this!
+IPlug/IGraphics/IGraphicsWin.cpp:566:  //TODO:BitBlt(dc, rect.L, rect.T, rect.W(), rect.H(), mDrawBitmap->getDC(), rect.L, rect.T, SRCCOPY);
+IPlug/IGraphics/IGraphicsWin.cpp:955:  #ifndef __MINGW_H // TODO: alternative for gcc?
+IPlug/IGraphics/IGraphicsWin.cpp:964:#ifndef __MINGW_H // TODO: alternative for gcc?
+IPlug/IGraphics/IGraphicsWin.cpp:1124:    #ifndef __MINGW_H // TODO: alternative for gcc
+IPlug/IGraphics/IGraphicsWin.h:7://TODO: would be nice not to put this here
+IPlug/IGraphics/nanovg/src/nanovg.c:2476:	// TODO: add back-end bit to do t
+IPlug/app_wrapper/app_dialog.cpp:422:          //TODO: FIX
+IPlug/app_wrapper/app_dialog.cpp:452:            if( (_this->mState->mAudioDriverType == DAC_ASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
+IPlug/app_wrapper/app_dialog.cpp:557://        lres = CallWindowProc(/*TODO GET PROC */, hWnd, WM_GETDLGCODE, wParam, lParam);
+IPlug/app_wrapper/app_dialog.cpp:573:          //TODO: open about box
+IPlug/app_wrapper/app_wrapper.cpp:527:  //TODO: send all notes off?
+IPlug/app_wrapper/app_wrapper.cpp:575:    //TODO: send all notes off?
+IPlug/app_wrapper/app_wrapper.cpp:879:    //TODO proper error catching
