@@ -46,7 +46,7 @@
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996;4250;4018;4267;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4250;4018;4267;4068;</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
