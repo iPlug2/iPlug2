@@ -61,6 +61,8 @@ public:
   virtual IColor GetPoint(int x, int y)  = 0;
   virtual void* GetData() = 0;
   
+  virtual const char* GetDrawingAPIStr() = 0;
+
 #pragma mark - IGraphics impl drawing helpers
   virtual void DrawRect(const IColor& color, const IRECT& rect);
   void DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
@@ -86,7 +88,6 @@ public:
   virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   virtual const char* GetGUIAPI() { return ""; }
-  virtual const char* GetDrawingAPIStr() = 0;
   virtual bool WindowIsOpen() { return GetWindow(); }
   virtual void HostPath(WDL_String& path) = 0;
   virtual void PluginPath(WDL_String& path) = 0;
