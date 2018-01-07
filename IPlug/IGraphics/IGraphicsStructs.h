@@ -52,11 +52,11 @@ struct IColor
   void Randomise(int alpha = 255) { A = alpha, R = std::rand() % 255, G = std::rand() % 255, B = std::rand() % 255; }
   IColor addContrast(double c)
   {
-    c *= 255.;
+    const int mod = int(c * 255.);
     IColor n = *this;
-    n.R   = std::min(n.R += c, 255);
-    n.G = std::min(n.G += c, 255);
-    n.B  = std::min(n.B += c, 255);
+    n.R   = std::min(n.R += mod, 255);
+    n.G = std::min(n.G += mod, 255);
+    n.B  = std::min(n.B += mod, 255);
     return n;
   }
 };
