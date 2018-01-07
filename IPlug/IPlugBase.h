@@ -262,21 +262,22 @@ public:
   bool SaveBankAsFXB(const char* file);
   bool LoadProgramFromFXP(const char* file);
   bool LoadBankFromFXB(const char* file);
-  
+//  bool SaveBankAsFXPs(const char* path);
+
 //   VST3 format
 //   bool SaveProgramAsVSTPreset(const char* file);
 //   bool LoadProgramFromVSTPreset(const char* file);
-//   bool SaveBankAsVSTPresets(const char* file);
+//   bool SaveBankAsVSTPresets(const char* path);
 //   
 //   AU format
 //   bool SaveProgramAsAUPreset(const char* name, const char* file);
 //   bool LoadProgramFromAUPreset(const char* file);
-//   bool SaveBankAsAUPresets(const char* file);
+//   bool SaveBankAsAUPresets(const char* path);
 //   
 //   ProTools format
 //   bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID);
 //   bool LoadProgramFromProToolsPreset(const char* file);
-//   bool SaveBankAsProToolsPresets(const char* file, unsigned long pluginID);
+//   bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID);
   
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
