@@ -1,10 +1,12 @@
-#include "IPlugBase.h"
 #include <cmath>
 #include <cstdio>
 #include <ctime>
 #include <assert.h>
+
 #include "wdlendian.h"
 #include "base64encdec.h"
+
+#include "IPlugBase.h"
 
 IPlugBase::IPlugBase(int nParams,
                      const char* channelIOStr,
@@ -23,20 +25,15 @@ IPlugBase::IPlugBase(int nParams,
   : mUniqueID(uniqueID)
   , mMfrID(mfrID)
   , mVersion(vendorVersion)
-  , mSampleRate(DEFAULT_SAMPLE_RATE)
-  , mBlockSize(0)
   , mLatency(latency)
   , mHost(kHostUninit)
-  , mHostVersion(0)
   , mStateChunks(plugDoesChunks)
-  , mCurrentPresetIdx(0)
   , mIsInst(plugIsInst)
   , mDoesMIDI(plugDoesMidi)
   , mAPI(plugAPI)
-  , mIsBypassed(false)
-  , mLatencyDelay(nullptr)
-  , mTailSize(0)
-  , mHasUI(false)
+  , mEffectName(effectName, MAX_EFFECT_NAME_LEN)
+  , mProductName(productName, MAX_EFFECT_NAME_LEN)
+  , mMfrName(mfrName, MAX_EFFECT_NAME_LEN)
 {
   Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
 
@@ -49,10 +46,6 @@ IPlugBase::IPlugBase(int nParams,
   {
     mPresets.Add(new IPreset(i));
   }
-
-  strcpy(mEffectName, effectName);
-  strcpy(mProductName, productName);
-  strcpy(mMfrName, mfrName);
 
   int nInputs = 0, nOutputs = 0;
 

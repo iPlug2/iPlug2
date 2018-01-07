@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+
 #include "ptrlist.h"
 #include "mutex.h"
 
@@ -34,7 +35,6 @@ public:
   // ----------------------------------------
   // Your plugin class implements these.
   // There are default impls, mostly just for reference.
-
   virtual ~IPlugBase();
 
   virtual void Reset() { TRACE; }
@@ -85,11 +85,11 @@ public:
   int NParams() const { return mParams.GetSize(); }
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
-  const char* GetEffectName() const { return mEffectName; }
+  const char* GetEffectName() const { return mEffectName.Get(); }
   int GetEffectVersion(bool decimal) const;   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetEffectVersionStr(char* str) const;
-  const char* GetMfrName() const { return mMfrName; }
-  const char* GetProductName() const { return mProductName; }
+  const char* GetMfrName() const { return mMfrName.Get(); }
+  const char* GetProductName() const { return mProductName.Get(); }
   int GetUniqueID() const { return mUniqueID; }
   int GetMfrID() const { return mMfrID; }
 
@@ -283,15 +283,15 @@ public:
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
 
 private:
-  char mEffectName[MAX_EFFECT_NAME_LEN];
-  char mProductName[MAX_EFFECT_NAME_LEN];
-  char mMfrName[MAX_EFFECT_NAME_LEN];
+  WDL_String mEffectName;
+  WDL_String mProductName;
+  WDL_String mMfrName;
   
   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
   int mUniqueID;
   int mMfrID;
   int mVersion;
-  int mHostVersion;
+  int mHostVersion = 0;
   EAPI mAPI;
   EHost mHost;
 
@@ -316,13 +316,14 @@ protected:
   bool mStateChunks;
   bool mIsInst;
   bool mDoesMIDI;
-  bool mIsBypassed;
-  bool mHasUI;
-  int mCurrentPresetIdx;
-  double mSampleRate;
-  int mBlockSize, mLatency;
-  unsigned int mTailSize;
-  NChanDelayLine<double>* mLatencyDelay; // for delaying dry signal when mLatency > 0 and plugin is bypassed
+  int mLatency;
+  bool mIsBypassed = false;
+  bool mHasUI = false;
+  int mCurrentPresetIdx = 0;
+  double mSampleRate  = DEFAULT_SAMPLE_RATE;
+  int mBlockSize = 0;
+  unsigned int mTailSize = 0;
+  NChanDelayLine<double>* mLatencyDelay = nullptr;
   WDL_PtrList<const char> mParamGroups;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;
