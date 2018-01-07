@@ -18,7 +18,7 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 
 struct AudioComponentPlugInInstance
 {
-  AudioComponentPlugInInterface   mPlugInInterface;
+  AudioComponentPlugInInterface mPlugInInterface;
   void * (*mConstruct)(void *memory, AudioComponentInstance ci);
   void (*mDestruct)(void *memory);
   void *mPad[2];

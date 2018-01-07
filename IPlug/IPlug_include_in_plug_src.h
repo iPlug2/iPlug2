@@ -20,7 +20,6 @@
   IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(plug, w, h, fps);
-
     pGraphics->SetHInstance(gHInstance);
     return pGraphics;
   }
@@ -137,30 +136,29 @@ END_FACTORY
 #elif defined AU_API
 #include <AvailabilityMacros.h>
 
-  IPlug* MakePlug(void *memory)
+  IPlug* MakePlug(void* pMemory)
   {
     IPlugInstanceInfo instanceInfo;
     instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(VIEW_CLASS_STR);
     
-    if(memory)
-      return new(memory) PLUG_CLASS_NAME(instanceInfo);
+    if(pMemory)
+      return new(pMemory) PLUG_CLASS_NAME(instanceInfo);
     else
       return new PLUG_CLASS_NAME(instanceInfo);
   }
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
 class IPlugAUFactory
 {
   public:
-    static void* Construct(void *memory, AudioComponentInstance compInstance)
+    static void* Construct(void* pMemory, AudioComponentInstance compInstance)
     {
-      return MakePlug(memory);
+      return MakePlug(pMemory);
     }
     
-    static void Destruct(void *memory)
+    static void Destruct(void* pMemory)
     {
-      ((PLUG_CLASS_NAME*)memory)->~PLUG_CLASS_NAME();
+      ((PLUG_CLASS_NAME*) pMemory)->~PLUG_CLASS_NAME();
     }
     
     static AudioComponentMethod Lookup (SInt16 selector)
@@ -191,9 +189,9 @@ class IPlugAUFactory
       return NULL;
     }
      
-    static OSStatus Open(void *self, AudioUnit compInstance)
+    static OSStatus Open(void* pSelf, AudioUnit compInstance)
     {
-      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) self;
+      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
       assert(acpi);
 
       (*acpi->mConstruct)(&acpi->mInstanceStorage, compInstance);
@@ -206,18 +204,18 @@ class IPlugAUFactory
       return noErr;
     }
     
-    static OSStatus Close(void *self)
+    static OSStatus Close(void* pSelf)
     {
-      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) self;
+      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
       assert(acpi);
       (*acpi->mDestruct)(&acpi->mInstanceStorage);
-      free(self);
+      free(pSelf);
       return noErr;
     }
 
-    static AudioComponentPlugInInterface *Factory(const AudioComponentDescription* inDesc)
+    static AudioComponentPlugInInterface* Factory(const AudioComponentDescription* pInDesc)
     {
-      AudioComponentPlugInInstance *acpi = (AudioComponentPlugInInstance *) malloc( offsetof(AudioComponentPlugInInstance, mInstanceStorage) + sizeof(PLUG_CLASS_NAME) );
+      AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance*) malloc( offsetof(AudioComponentPlugInInstance, mInstanceStorage) + sizeof(PLUG_CLASS_NAME) );
       acpi->mPlugInInterface.Open = Open;
       acpi->mPlugInInterface.Close = Close;
       acpi->mPlugInInterface.Lookup = Lookup;
@@ -230,21 +228,21 @@ class IPlugAUFactory
     }
 
   };
-#endif
-  extern "C"
+
+extern "C"
   {
     //Component Manager
-    EXPORT ComponentResult PLUG_ENTRY(ComponentParameters* params, void* pPlug)
+    EXPORT ComponentResult PLUG_ENTRY(ComponentParameters* pParams, void* pPlug)
     {
-      return IPlugAU::IPlugAUEntry(params, pPlug);
+      return IPlugAU::IPlugAUEntry(pParams, pPlug);
     }
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+
     //>10.7 SDK AUPlugin
-    EXPORT void* PLUG_FACTORY(const AudioComponentDescription* inDesc)
+    EXPORT void* PLUG_FACTORY(const AudioComponentDescription* pInDesc)
     {
-      return IPlugAUFactory::Factory (inDesc);
+      return IPlugAUFactory::Factory(pInDesc);
     }
-#endif
+
   };
 #elif defined AAX_API
   IPlug* MakePlug()
