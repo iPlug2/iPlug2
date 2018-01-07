@@ -234,6 +234,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 #endif
   
+  [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
+  
   double sec = 1.0 / (double) pGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
@@ -675,5 +677,34 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 #endif
 }
+
+- (NSDragOperation)draggingEntered: (id <NSDraggingInfo>) sender
+{
+  NSPasteboard *pPasteBoard = [sender draggingPasteboard];
+  
+  if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
+    return NSDragOperationGeneric;
+  else
+    return NSDragOperationNone;
+}
+
+- (BOOL)performDragOperation: (id<NSDraggingInfo>) sender
+{
+  NSPasteboard *pPasteBoard = [sender draggingPasteboard];
+
+  if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
+  {
+    NSArray *pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
+    NSString *pFirstFile = [pFiles firstObject];
+    NSPoint point = [sender draggingLocation];
+    NSPoint relativePoint = [self convertPoint: point fromView:nil];
+    int x = (int) relativePoint.x - 2;
+    int y = mGraphics->Height() - (int) relativePoint.y - 3;
+    mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+  }
+  
+  return YES;
+}
+
 
 @end

@@ -849,3 +849,11 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
   return LoadIBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
 }
+
+void IGraphics::OnDrop(const char* str, int x, int y)
+{
+  int i = GetMouseControlIdx(x, y);
+  IControl* pControl = GetControl(i);
+  if (pControl != nullptr)
+    pControl->OnDrop(str);
+}

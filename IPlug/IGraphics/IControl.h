@@ -46,7 +46,10 @@ public:
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
   virtual void OnMouseOver(int x, int y, const IMouseMod& mod) {}
   virtual void OnMouseOut() {}
-
+  
+  // Something was drag n dropped
+  virtual void OnDrop(const char* str) {};
+  
   // By default, mouse double click has its own handler.  A control can set mDblAsSingleClick to true to change,
   // which maps double click to single click for this control (and also causes the mouse to be
   // captured by the control on double click).

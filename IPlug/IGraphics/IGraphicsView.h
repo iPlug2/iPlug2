@@ -88,4 +88,6 @@ NSString* ToNSString(const char* cStr);
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) rect;
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
+- (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
+- (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 @end

@@ -176,7 +176,8 @@ public:
   inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
 
   void OnGUIIdle();
-
+  void OnDrop(const char* str, int x, int y);
+  
   virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
 
