@@ -1026,7 +1026,9 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   
   return success;
 }
-void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pDir, const char* extensions)
+
+//TODO: this method needs rewriting
+void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* extensions)
 {
   if (!WindowIsOpen())
   {
@@ -1044,12 +1046,12 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_S
 
   dirCStr[0] = '\0';
 
-  if (!pDir->GetLength())
+  if (!path.GetLength())
   {
-    DesktopPath(*pDir);
+    DesktopPath(path);
   }
 
-  strcpy(dirCStr, pDir->Get());
+  strcpy(dirCStr, pPath.Get());
 
   OPENFILENAME ofn;
   memset(&ofn, 0, sizeof(OPENFILENAME));
@@ -1126,7 +1128,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, EFileAction action, WDL_S
     #ifndef __MINGW_H // TODO: alternative for gcc
     if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
     {
-      pDir->SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
+      path.SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
     }
     #endif
     filename.Set(ofn.lpstrFile);

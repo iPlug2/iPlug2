@@ -53,7 +53,7 @@ public:
   void VST3PresetsPath(WDL_String& path, bool isSystem) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
-  void PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pPath, const char* ext) override;
+  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);

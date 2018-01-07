@@ -84,7 +84,9 @@ public:
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) = 0;
   virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str = "", IParam* pParam = 0) = 0;
-  virtual void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pPath = 0, const char* extensions = 0) = 0;
+  
+  //TODO: should pPath be a pointer or reference?
+  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
   virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   virtual const char* GetGUIAPI() { return ""; }

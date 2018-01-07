@@ -10,9 +10,6 @@
 
 #include "swell.h"
 
-//TODO: why does this have to be here?
-#define DEFAULT_PATH_MAC "~/Desktop"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 //https://gist.github.com/ccgus/3716936
@@ -422,7 +419,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return (bool) success;
 }
 
-void IGraphicsMac::PromptForFile(WDL_String& fileName, EFileAction action, WDL_String* pDir, const char* extensions)
+void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
 {
   if (!WindowIsOpen())
   {
@@ -439,21 +436,15 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, EFileAction action, WDL_S
   else
     pDefaultFileName = [NSString stringWithCString:"" encoding:NSUTF8StringEncoding];
 
-  if(pDir)
-  {
-    if(pDir->GetLength())
-      pDefaultPath = [NSString stringWithCString:pDir->Get() encoding:NSUTF8StringEncoding];
-    else
-    {
-      pDefaultPath = [NSString stringWithCString:DEFAULT_PATH_MAC encoding:NSUTF8StringEncoding];
-      pDir->Set(DEFAULT_PATH_MAC);
-    }
-  }
-  
+  if(!path.GetLength())
+    DesktopPath(path);
+
+  pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+
   fileName.Set(""); // reset it
 
-  //if (CSTR_NOT_EMPTY(extensions))
-  pFileTypes = [[NSString stringWithUTF8String:extensions] componentsSeparatedByString: @" "];
+  //if (CSTR_NOT_EMPTY(ext))
+  pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
 
   if (action == kFileSave)
   {
@@ -474,8 +465,8 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, EFileAction action, WDL_S
 
       if (pTruncatedPath)
       {
-        pDir->Set([pTruncatedPath UTF8String]);
-        pDir->Append("/");
+        path.Set([pTruncatedPath UTF8String]);
+        path.Append("/");
       }
     }
   }
@@ -500,8 +491,8 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, EFileAction action, WDL_S
 
       if (pTruncatedPath)
       {
-        pDir->Set([pTruncatedPath UTF8String]);
-        pDir->Append("/");
+        path.Set([pTruncatedPath UTF8String]);
+        path.Append("/");
       }
     }
   }

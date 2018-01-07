@@ -317,7 +317,7 @@ public:
     WDL_String presetFilePath, desktopPath;
     
     mPlug.GetGUI()->DesktopPath(desktopPath);
-    mPlug.GetGUI()->PromptForFile(presetFilePath, kFileSave, &desktopPath, "txt");
+    mPlug.GetGUI()->PromptForFile(presetFilePath, desktopPath, kFileSave, "txt");
     
     if (strcmp(presetFilePath.Get(), "") != 0) {
       mPlug.DumpPresetSrcCode(presetFilePath.Get(), mParamNameStrings);

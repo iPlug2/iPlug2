@@ -502,7 +502,7 @@ void IFileSelectorControl::OnMouseDown(int x, int y, const IMouseMod& mod)
     mState = kFSSelecting;
     SetDirty(false);
     
-    mPlug.GetGUI()->PromptForFile(mFile, mFileAction, &mDir, mExtensions.Get());
+    mPlug.GetGUI()->PromptForFile(mFile, mDir, mFileAction, mExtensions.Get());
     mValue += 1.0;
     if (mValue > 1.0)
     {
