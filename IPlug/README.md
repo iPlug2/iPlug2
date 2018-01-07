@@ -21,14 +21,15 @@ public:
   {
   }
 
-  /** Doxygen description like this. cstring arguments don't need prefix pMyCStringVariable, 
-  but other pointer arguments should be prefixed with p and camel case */
-  void MyFunction(const char* str, IControl* pControl, WDL_String& myWDLStringVariable) const
+  /** Doxygen description like this. 
+  cstring args don't need prefix pCString, 
+  but other pointer arguments should be prefixed with pCamelCase */
+  void MyFunction(const char* str, IControl* pControl, WDL_String& fileName) const
   {
-    const double myVarible = 0.5; // should we always bother specifying const here if we know myVariable won't change?
+    const double myVarible = 0.5; // const where relevant
   }
 
 private:
-  IControl* mControl; // member variables have prefix m camel case
+  IControl* mControl; // member variables have prefix mCamelCase
 }
 ```
