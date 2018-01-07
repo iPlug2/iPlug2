@@ -112,7 +112,7 @@ static WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
         {
           _this->BeginInformHostOfParamChange(p); // should be on mouse down
 
-          _this->SetParameterFromGUI(p, pos/1000.0);
+          _this->SetParameterFromUI(p, pos/1000.0);
           
           if (LOWORD(wParam) == SB_ENDSCROLL)
             _this->EndInformHostOfParamChange(p); // should be on mouse up
