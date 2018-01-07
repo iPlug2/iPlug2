@@ -78,13 +78,13 @@ public:
   void SandboxSafeAppSupportPath(WDL_String& path) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override;
 
-  void PromptForFile(WDL_String& fileName, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* ext = "") override;
+  void PromptForFile(WDL_String& fileName, EFileAction action, WDL_String* pPath, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
 
-  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override;
+  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
 
