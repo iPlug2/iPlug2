@@ -53,25 +53,25 @@ public:
                   int plugScChans = 0);
 
   // these methods aren't needed in standalones but they are pure virtual in IPlugBase so must have a NO-OP here
-  void BeginInformHostOfParamChange(int idx) {};
-  void InformHostOfParamChange(int idx, double normalizedValue) {};
-  void EndInformHostOfParamChange(int idx) {};
-  void InformHostOfProgramChange() {};
+  void BeginInformHostOfParamChange(int idx) override {};
+  void InformHostOfParamChange(int idx, double normalizedValue) override {};
+  void EndInformHostOfParamChange(int idx) override {};
+  void InformHostOfProgramChange() override {};
 
-  int GetSamplePos() { return 0; }   // Samples since start of project.
-  double GetTempo() { return DEFAULT_TEMPO; }
-  void GetTimeSig(int& numerator, int& denominator) { return; }
-  void GetTime(ITimeInfo& timeInfo) { return; }
+  int GetSamplePos() override { return 0; }
+  double GetTempo() override { return DEFAULT_TEMPO; }
+  void GetTimeSig(int& numerator, int& denominator) override { return; }
+  void GetTime(ITimeInfo& timeInfo) override { return; }
 
-  void ResizeGraphics(int w, int h);
+  void ResizeGraphics(int w, int h) override;
 
 protected:
-  bool SendMidiMsg(IMidiMsg& msg);
-  bool SendSysEx(ISysEx& msg);
+  bool SendMidiMsg(IMidiMsg& msg) override;
+  bool SendSysEx(ISysEx& msg) override;
 
 private:
   RtMidiOut* mMidiOut = nullptr;
-  unsigned short* mMidiOutChan = nullptr; //TO DO: what the faq is this
+  unsigned short* mMidiOutChan = nullptr; //TODO: sort this out
 };
 
 IPlugStandalone* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan);

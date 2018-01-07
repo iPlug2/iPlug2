@@ -16,7 +16,8 @@ typedef IPlugBase IPLUG_BASE_CLASS;
 typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #endif
 
-struct AudioComponentPlugInInstance {
+struct AudioComponentPlugInInstance
+{
   AudioComponentPlugInInterface   mPlugInInterface;
   void * (*mConstruct)(void *memory, AudioComponentInstance ci);
   void (*mDestruct)(void *memory);
@@ -30,7 +31,8 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 struct IPlugInstanceInfo
 {
-  WDL_String mOSXBundleID, mCocoaViewFactoryClassName;
+  WDL_String mOSXBundleID;
+  WDL_String mCocoaViewFactoryClassName;
 };
 
 class IPlugAU : public IPLUG_BASE_CLASS
@@ -55,26 +57,21 @@ public:
 
   virtual ~IPlugAU();
 
-  // ----------------------------------------
-  // See IPlugBase for the full list of methods that your plugin class can implement.
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
 
-  void BeginInformHostOfParamChange(int idx);
-  void InformHostOfParamChange(int idx, double normalizedValue);
-  void EndInformHostOfParamChange(int idx);
+  void InformHostOfProgramChange() override;
 
-  void InformHostOfProgramChange();
+  int GetSamplePos() override;
+  double GetTempo() override;
+  void GetTimeSig(int& numerator, int& denominator) override;
+  void GetTime(ITimeInfo& timeinfo) override;
+  EHost GetHost() override;
 
-  int GetSamplePos();   // Samples since start of project.
-  double GetTempo();
-  void GetTimeSig(int& numerator, int& denominator);
-  void GetTime(ITimeInfo& timeinfo);
-  EHost GetHost();  // GetHostVersion() is inherited.
+  void ResizeGraphics(int w, int h) override;
 
-  // Tell the host that the graphics resized.
-  // Should be called only by the graphics object when it resizes itself.
-  void ResizeGraphics(int w, int h);
-
-  bool IsRenderingOffline();
+  bool IsRenderingOffline() override;
 
   enum EAUInputType
   {
@@ -85,10 +82,10 @@ public:
   };
 
 protected:
-  void SetBlockSize(int blockSize);
-  void SetLatency(int samples);
-  bool SendMidiMsg(IMidiMsg& msg);
-  void HostSpecificInit();
+  void SetBlockSize(int blockSize) override;
+  void SetLatency(int samples) override;
+  bool SendMidiMsg(IMidiMsg& msg) override;
+  void HostSpecificInit() override;
   
 private:
   WDL_String mOSXBundleID;

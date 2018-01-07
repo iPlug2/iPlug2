@@ -52,7 +52,7 @@ void IPlugStandalone::ResizeGraphics(int w, int h)
   if (GetHasUI())
   {
     #ifdef OS_OSX
-    #define TITLEBAR_BODGE 22 //TO DO what the faq is this
+    #define TITLEBAR_BODGE 22 //TODO: sort this out
     RECT r;
     GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - GetUIHeight() - TITLEBAR_BODGE, GetUIWidth(), GetUIHeight() + TITLEBAR_BODGE, 0);
@@ -66,7 +66,7 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg& msg)
   if (DoesMIDI())
   {
     // if the midi channel out filter is set, reassign the status byte appropriately
-    if (mMidiOutChan != 0)
+    if (mMidiOutChan)
     {
       msg.mStatus = (*mMidiOutChan)-1 | ((unsigned int) msg.StatusMsg() << 4) ;
     }
