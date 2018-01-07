@@ -497,7 +497,6 @@ void IPlugBase::OnParamReset()
   {
     OnParamChange(i);
   }
-  //Reset();
 }
 
 // Default passthrough.

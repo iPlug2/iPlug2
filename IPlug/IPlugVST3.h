@@ -14,7 +14,6 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #undef stricmp
 #undef strnicmp
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
-//#include "public.sdk/source/vst/vstpresetfile.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
@@ -108,6 +107,7 @@ public:
   
   enum
   {
+//    TODO: add missing parameters
     kBypassParam = 'bpas',
     kPresetParam = 'prst',
 //    kModWheelParam = 'modw',
@@ -125,7 +125,7 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
 
 protected:
-  virtual bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO:
+  virtual bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
 
 private:
   void addDependentView (IPlugVST3View* view);

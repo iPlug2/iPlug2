@@ -14,5 +14,6 @@ these are the files you need to put in this folder
 so it looks like:
 
 `WDL-OL/`  
+`WDL-OL/VST2_SDK/`  
 `WDL-OL/VST2_SDK/aeffect.h`  
 `WDL-OL/VST2_SDK/aeffectx.h`  
