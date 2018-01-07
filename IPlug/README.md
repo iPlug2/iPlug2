@@ -1,13 +1,15 @@
 # WDL-OL IPlug style/coding guidelines
 
-to try and tidy up the IPlug code base
+let's try and tidy up the IPlug code base
 
-// indents using 2 spaces - no tabs
-// C++11 stuff: override keyword, final keyword, auto where sensible
-// noexcept keyword?
-// currently does not use the STL, unless API classes depend on it. WDL_String is used rather than std::string
-// IPlug should be able to produce very small binaries, and not include large dependencies or unnecessary code
+* indents using 2 spaces - no tabs  
+* C++11 stuff: override keyword, final keyword, auto where sensible  
+* noexcept keyword?  
+* currently does not use the STL, unless API classes depend on it. WDL_String is used rather than std::string  
+* IPlug should be able to produce very small binaries, and not include large dependencies or unnecessary code  
 
+
+```C++
 class MyClass
 {
 public:
@@ -29,3 +31,4 @@ public:
 private:
   IControl* mControl; // member variables have prefix m camel case
 }
+```
