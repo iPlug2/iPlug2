@@ -15,14 +15,14 @@ class MyClass
 public:
   MyClass()
   {
-
   }
 
   ~MyClass()
   {
   }
 
-  /** Doxygen description like this. cstring arguments don't need prefix pMyCStringVariable, but other pointer arguments should be prefixed with p and camel case */
+  /** Doxygen description like this. cstring arguments don't need prefix pMyCStringVariable, 
+  but other pointer arguments should be prefixed with p and camel case */
   void MyFunction(const char* str, IControl* pControl, WDL_String& myWDLStringVariable) const
   {
     const double myVarible = 0.5; // should we always bother specifying const here if we know myVariable won't change?
