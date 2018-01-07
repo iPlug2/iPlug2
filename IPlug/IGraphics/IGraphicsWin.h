@@ -52,16 +52,16 @@ public:
   void SandboxSafeAppSupportPath(WDL_String& path) override { AppSupportPath(path, false); }
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override;
 
-  void PromptForFile(WDL_String& filename, EFileAction action = kFileOpen, WDL_String* pDir = 0, const char* ext = "") override;
-  bool PromptForColor(IColor& colour, const char* str) override;
+  void PromptForFile(WDL_String& filename, EFileAction action, WDL_String* pPath, const char* ext) override;
+  bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu);
+  IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect) override;
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
 
-  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0);
+  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
 
   // Specialty use!
   void* GetWindow() { return mPlugWnd; }
