@@ -182,7 +182,7 @@ protected:
 #endif
 };
 
-// Fills a rectangle with a colour
+// Fills a rectangle with a color
 class IPanelControl : public IControl
 {
 public:

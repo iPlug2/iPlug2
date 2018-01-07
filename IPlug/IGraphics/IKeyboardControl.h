@@ -32,7 +32,7 @@ because it's in the background).
 By default pRegularKeys should contain 6 bitmaps (C/F, D, E/B, G, A, high
 C), while pSharpKey should only contain 1 bitmap (for all flat/sharp keys).
 If you want to use more bitmaps, e.g. if the 1st octave is alternatively
-coloured, then you should override the DrawKey() method.
+colored, then you should override the DrawKey() method.
 
 pKeyCoords should contain the x-coordinates of each key relative to the
 start of the octave. (Note that only the coordinates for the flat/sharp keys
