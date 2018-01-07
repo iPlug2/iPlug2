@@ -225,3 +225,34 @@ void IParam::GetBounds(double& lo, double& hi) const
   lo = mMin;
   hi = mMax;
 }
+
+void IParam::GetJSON(WDL_String& json, int idx) const
+{
+  json.AppendFormatted(8192, "{");
+  json.AppendFormatted(8192, "\"id\":%i, ", idx);
+  json.AppendFormatted(8192, "\"name\":\"%s\", ", GetNameForHost());
+  switch (Type())
+  {
+    case IParam::kTypeNone:
+      break;
+    case IParam::kTypeBool:
+      json.AppendFormatted(8192, "\"type\":\"%s\", ", "bool");
+      break;
+    case IParam::kTypeInt:
+      json.AppendFormatted(8192, "\"type\":\"%s\", ", "int");
+      break;
+    case IParam::kTypeEnum:
+      json.AppendFormatted(8192, "\"type\":\"%s\", ", "enum");
+      break;
+    case IParam::kTypeDouble:
+      json.AppendFormatted(8192, "\"type\":\"%s\", ", "float");
+      break;
+    default:
+      break;
+  }
+  json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
+  json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
+  json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
+  json.AppendFormatted(8192, "\"rate\":\"audio\"");
+  json.AppendFormatted(8192, "}");
+}

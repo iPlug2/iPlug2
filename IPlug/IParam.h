@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstring>
-#include "heapbuf.h"
+
+#include "wdlstring.h"
+
 #include "IPlugUtilities.h"
 
 class IParam
@@ -12,7 +14,7 @@ public:
   IParam();
   ~IParam();
 
-  EParamType Type() { return mType; }
+  EParamType Type() const { return mType; }
 
   void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // LABEL not used here
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
@@ -69,6 +71,8 @@ public:
   int GetPrecision() const {return mDisplayPrecision;}
   bool GetCanAutomate() const { return mCanAutomate; }
   bool GetIsMeta() const { return mIsMeta; }
+  
+  void GetJSON(WDL_String& json, int idx) const;
 
 private:
   EParamType mType;
