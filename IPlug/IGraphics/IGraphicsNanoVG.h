@@ -64,19 +64,20 @@ protected:
   NVGcontext* mVG = nullptr;
 };
 
-inline NVGcolor NanoVGColor(const IColor& color)
+
+inline float NanoVGWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
+inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
   c.g = (float) color.G / 255.0f;
   c.b = (float) color.B / 255.0f;
-  c.a = (float) color.A / 255.0f;
+  c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
   return c;
-}
-
-inline float NanoVGWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
 }
 
 inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)

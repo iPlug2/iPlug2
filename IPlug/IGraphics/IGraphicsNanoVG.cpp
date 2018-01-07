@@ -109,6 +109,12 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 
 void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
+  NanoVGBitmap* pBmp = (NanoVGBitmap*) bitmap.mData;
+  NVGpaint imgPaint = nvgImagePattern(mVG, destCtrX, destCtrY, bitmap.W, bitmap.H, angle, pBmp->idx, NanoVGWeight(pBlend));
+  nvgBeginPath(mVG);
+  nvgRect(mVG, destCtrX, destCtrY, destCtrX + bitmap.W, destCtrX + bitmap.H);
+  nvgFillPaint(mVG, imgPaint);
+  nvgFill(mVG);
 }
 
 void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
@@ -117,6 +123,10 @@ void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top
 
 void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
 {
+  nvgBeginPath(mVG);
+  nvgCircle(mVG, x, y, 0.01);
+  nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
+  nvgStroke(mVG);
 }
 
 void IGraphicsNanoVG::ForcePixel(const IColor& color, int x, int y)
@@ -128,23 +138,23 @@ void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2
   nvgBeginPath(mVG);
   nvgMoveTo(mVG, x1, y1);
   nvgLineTo(mVG, x2, y2);
-  nvgStrokeColor(mVG, NanoVGColor(color));
+  nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
   nvgStroke(mVG);
 }
 
 void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend, bool aa)
 {
-//  nvgBeginPath(mVG);
-//  nvgArc(mVG, cx, cy, r, minAngle, maxAngle, <#int dir#>)
-//  nvgStrokeColor(mVG, NanoVGColor(color));
-//  nvgStroke(mVG);
+  nvgBeginPath(mVG);
+  nvgArc(mVG, cx, cy, r, minAngle, maxAngle, 0);
+  nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
+  nvgStroke(mVG);
 }
 
 void IGraphicsNanoVG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, bool aa)
 {
   nvgBeginPath(mVG);
   nvgCircle(mVG, cx, cy, r);
-  nvgStrokeColor(mVG, NanoVGColor(color));
+  nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
   nvgStroke(mVG);
 }
 
@@ -152,7 +162,7 @@ void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, cons
 {
   nvgBeginPath(mVG);
   nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
-  nvgStrokeColor(mVG, NanoVGColor(color));
+  nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
   nvgStroke(mVG);
 }
 
@@ -160,7 +170,7 @@ void IGraphicsNanoVG::FillRoundRect(const IColor& color, const IRECT& rect, cons
 {
   nvgBeginPath(mVG);
   nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
-  nvgFillColor(mVG, NanoVGColor(color));
+  nvgFillColor(mVG, NanoVGColor(color, pBlend));
   nvgFill(mVG);
 }
 
@@ -168,7 +178,7 @@ void IGraphicsNanoVG::FillIRect(const IColor& color, const IRECT& rect, const IB
 {
   nvgBeginPath(mVG);
   nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H());
-  nvgFillColor(mVG, NanoVGColor(color));
+  nvgFillColor(mVG, NanoVGColor(color, pBlend));
   nvgFill(mVG);
 }
 
@@ -176,18 +186,26 @@ void IGraphicsNanoVG::FillCircle(const IColor& color, int cx, int cy, float r, c
 {
   nvgBeginPath(mVG);
   nvgCircle(mVG, cx, cy, r);
-  nvgFillColor(mVG, NanoVGColor(color));
+  nvgFillColor(mVG, NanoVGColor(color, pBlend));
   nvgFill(mVG);
 }
 
 void IGraphicsNanoVG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
 {
-//  nvgFillColor(mVG, NanoVGColor(color));
+//  nvgFillColor(mVG, NanoVGColor(color, pBlend));
 //  nvgFill(mVG);
 }
 
 void IGraphicsNanoVG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
+  nvgBeginPath(mVG);
+  nvgMoveTo(mVG, x[0], y[0]);
+  
+  for(int i = 1; i < npoints; i++)
+    nvgLineTo(mVG, x[i], y[i]);
+  
+  nvgFillColor(mVG, NanoVGColor(color, pBlend));
+  nvgFill(mVG);
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)

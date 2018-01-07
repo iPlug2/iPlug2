@@ -93,8 +93,10 @@ IGraphicsMac::~IGraphicsMac()
 
 void IGraphicsMac::CreateMetalLayer()
 {
+#ifdef IGRAPHICS_NANOVG
   mLayer = [CAMetalLayer new];
   ViewInitialized(mLayer);
+#endif
 }
 
 void GetResourcePathFromBundle(const char* bundleID, const char* filename, const char* searchExt, WDL_String& fullPath)
