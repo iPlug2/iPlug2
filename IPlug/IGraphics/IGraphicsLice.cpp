@@ -423,8 +423,8 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 #endif
   }
 #else //OS_WIN
-  const char* ext = name+strlen(name)-1;
-  while (ext > name && *ext != '.') --ext;
+  const char* ext = path+strlen(path)-1;
+  while (ext > path && *ext != '.') --ext;
   ++ext;
   
   if (!stricmp(ext, "png"))

@@ -70,9 +70,9 @@ public:
   void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
 //  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
   IRECT GetWindowRECT();
-  void SetWindowTitle(char* str);
+  void SetWindowTitle(const char* str);
 
-  const char* GetGUIAPIStr() override { return "win32"; };
+  const char* GetGUIAPI() override { return "win32"; };
   
   bool GetTextFromClipboard(WDL_String& str);
 protected:

@@ -1,9 +1,11 @@
-#include <wininet.h>
+
 #include <Shlobj.h>
 #include <commctrl.h>
 
 #include "IGraphicsWin.h"
 #include "Log.h"
+
+#include <wininet.h>
 
 #pragma warning(disable:4244) // Pointer size cast mismatch.
 #pragma warning(disable:4312) // Pointer size cast mismatch.
@@ -989,7 +991,7 @@ void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
     path.Set(strPath, MAX_PATH_LEN);
   }
 
-  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrNameStr(), mPlug.GetPluginNameStr());
+  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrName(), mPlug.GetProductName());
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
