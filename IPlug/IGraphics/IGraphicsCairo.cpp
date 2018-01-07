@@ -11,10 +11,10 @@ struct CairoBitmap {
   int width = 0;
   int height = 0;
   
-  CairoBitmap(cairo_surface_t* s)
+  CairoBitmap(cairo_surface_t* s, double scale)
   {
     surface = s;
-
+    cairo_surface_set_device_scale(s, scale, scale);
     width = cairo_image_surface_get_width(s);
     height = cairo_image_surface_get_height(s);
   }
@@ -57,13 +57,13 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
     OSLoadBitmap(name, fullPath);
 
     cairo_surface_t* pSurface = cairo_image_surface_create_from_png(fullPath.Get());
-
+      
 #ifndef NDEBUG
     bool imgResourceFound = pSurface;
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     
-    pCB = new CairoBitmap(pSurface);
+    pCB = new CairoBitmap(pSurface, sourceScale);
 
     const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
@@ -72,16 +72,10 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
     }
     else {
       s_bitmapCache.Add(pCB, name, sourceScale);
-      return IBitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
     }
   }
 
-  // if bitmap allready cached at scale
-  // TODO: this is horribly hacky
-  if(targetScale > 1.)
-    return IBitmap(pCB->surface, pCB->width / targetScale, pCB->height / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
-  else
-    return IBitmap(pCB->surface, pCB->width, pCB->height, nStates, framesAreHoriztonal, sourceScale, name);
+  return IBitmap(pCB->surface, pCB->width / targetScale, pCB->height / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
 }
 
 void IGraphicsCairo::ReleaseIBitmap(IBitmap& bitmap)
@@ -97,19 +91,22 @@ IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& inBitmap, const char* name, 
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
   
-  // Convert output to cairo
+  // Create resources to redraw
+    
   cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, newW, newH);
   cairo_t* pOutContext = cairo_create(pOutSurface);
 
+  // Scale and paint (destroying the context / the surface is retained)
+    
+  cairo_scale(pOutContext, targetScale, targetScale);
   cairo_set_source_surface(pOutContext, (cairo_surface_t*)inBitmap.mData, 0, 0);
-  cairo_scale(pOutContext, 1. / targetScale, 1. / targetScale);
   cairo_paint(pOutContext);
-
-  CairoBitmap* pCB = new CairoBitmap(pOutSurface);
-  
-  s_bitmapCache.Add(pCB, name, targetScale);
-  
   cairo_destroy(pOutContext);
+
+ // Cache and retun as an IBitmap
+    
+  CairoBitmap* pCB = new CairoBitmap(pOutSurface, targetScale);
+  s_bitmapCache.Add(pCB, name, targetScale);
 
   return IBitmap(pCB->surface, inBitmap.W, inBitmap.H, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
 }
@@ -118,24 +115,24 @@ IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& inBitmap, const IRECT& rect, 
 {
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
-  
+    
   unsigned char* pOutBuffer = new unsigned char[newW * newH * 4];
-  IBitmap outBitmap(pOutBuffer, newW, newH);
   
   // Convert output to cairo
-  cairo_surface_t* pOutSurface = cairo_image_surface_create_for_data((unsigned char*) outBitmap.mData, CAIRO_FORMAT_ARGB32, outBitmap.W, outBitmap.H, 0);
+  cairo_surface_t* pOutSurface = cairo_image_surface_create_for_data(pOutBuffer, CAIRO_FORMAT_ARGB32, newW, newH, 0);
   cairo_t* pOutContext = cairo_create(pOutSurface);
   
   // Paint from one surface to another
   cairo_set_source_surface(pOutContext, (cairo_surface_t*) inBitmap.mData, 0, 0);
   cairo_rectangle(pOutContext, rect.L, rect.T, rect.W(), rect.H());
-  cairo_scale(pOutContext, 1.0 / targetScale, 1.0 / targetScale);
+  cairo_scale(pOutContext, targetScale, targetScale);
   cairo_paint(pOutContext);
-  
+  cairo_surface_set_device_scale(pOutSurface, targetScale, targetScale);
+    
   // Destroy cairo stuff
   cairo_destroy(pOutContext);
   
-  return outBitmap; //TODO: surface will not be destroyed, unless this is retained
+  return IBitmap(pOutSurface, newW, newH); //TODO: surface will not be destroyed, unless this is retained
 }
 
 void IGraphicsCairo::PrepDraw()
@@ -150,20 +147,13 @@ void IGraphicsCairo::ReScale()
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  ClipRegion(dest);
   cairo_save(mContext);
+  ClipRegion(dest);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
-  cairo_scale(mContext, 1./bitmap.mSourceScale, 1./bitmap.mSourceScale);
-  
-  if(bitmap.mSourceScale > 1.) //TODO: check on non retina/mixed
-    cairo_translate(mContext, dest.L, dest.T);
-  
-  cairo_set_source_surface(mContext, surface, dest.L - (srcX * bitmap.mSourceScale), dest.T - (srcY * bitmap.mSourceScale));
+  cairo_set_source_surface(mContext, surface, dest.L - srcX, dest.T - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
-//  cairo_paint(mContext);
   cairo_restore(mContext);
-  ResetClipRegion();
 }
 
 void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -360,8 +350,8 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width() , Height());
 #endif
     mContext = cairo_create(mSurface);
-    cairo_scale(mContext, 1, -1);
-    cairo_translate(mContext, 0., -Height());
+    cairo_surface_set_device_scale(mSurface, 1, -1);
+    cairo_surface_set_device_offset(mSurface, 0, Height());
   }
   
   IGraphics::SetPlatformContext(pContext);
