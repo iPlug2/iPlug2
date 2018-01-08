@@ -98,7 +98,7 @@ public:
   void* mLayer;
 
 protected:
-  void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
+  void OSLoadBitmap(const char* name, WDL_String& result) override;
 //  void OSLoadFont(const char* name, const int size) override;
 //  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
   

@@ -121,9 +121,10 @@ void GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
   }
 }
 
-void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& path)
+void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& result)
 {
-  GetResourcePathFromBundle(GetBundleID(), name, "png", path);
+  //TODO: no jpg?
+  GetResourcePathFromBundle(GetBundleID(), name, "png", result);
 }
 
 void IGraphicsMac::DrawScreen(const IRECT& rect)

@@ -1298,3 +1298,23 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return success;
 }
 
+void IGraphicsWin::OSLoadBitmap(const char* name, WDL_String& result)
+{
+  const char* ext = name+strlen(name)-1;
+  while (ext > name && *ext != '.') --ext;
+  ++ext;
+  
+  bool ispng = false;
+  bool isjpg = false;
+  
+  if (!stricmp(ext, "png")) ispng = true;
+  else if (!stricmp(ext, "jpg")) isjpg = true;
+  
+  int resourceID = -1;
+  
+  EnumResourceNames(mHInstance, ispng ? "PNG" : "JPG", (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &resourceID);
+  
+  if (resourceID > -1)
+    result.SetFormatted("%i", resourceID);
+  //TODO:  else search location?
+}

@@ -76,6 +76,8 @@ public:
   const char* GetGUIAPI() override { return "win32"; };
   
   bool GetTextFromClipboard(WDL_String& str);
+  
+  void OSLoadBitmap(const char* name, WDL_String& result) override;
 protected:
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
