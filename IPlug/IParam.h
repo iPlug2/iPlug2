@@ -11,7 +11,7 @@ class IParam
 public:
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
 
-  IParam() {};
+  IParam();
   ~IParam() {};
 
   EParamType Type() const { return mType; }
@@ -75,9 +75,6 @@ public:
   void GetJSON(WDL_String& json, int idx) const;
 
 private:
-  WDL_String mName = WDL_String("", MAX_PARAM_NAME_LEN);
-  WDL_String mLabel = WDL_String("", MAX_PARAM_NAME_LEN);
-  WDL_String mParamGroup = WDL_String("", MAX_PARAM_NAME_LEN);
   EParamType mType = kTypeNone;
   double mValue = 0.0;
   double mMin = 0.0;
@@ -90,6 +87,9 @@ private:
   bool mSignDisplay = false;
   bool mCanAutomate = true;
   bool mIsMeta = false;
+  char mName[MAX_PARAM_NAME_LEN];
+  char mLabel[MAX_PARAM_LABEL_LEN];
+  char mParamGroup[MAX_PARAM_LABEL_LEN];
   
   struct DisplayText
   {
@@ -98,4 +98,4 @@ private:
   };
   
   WDL_TypedBuf<DisplayText> mDisplayTexts;
-};
+} WDL_FIXALIGN;

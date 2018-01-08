@@ -2,6 +2,13 @@
 #include <cstdio>
 #include <algorithm>
 
+IParam::IParam()
+{
+  memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
+  memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
+  memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
+};
+
 void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group)
 {
   if (mType == kTypeNone) mType = kTypeBool;
@@ -30,9 +37,9 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
-  mName.Set(name);
-  mLabel.Set(label);
-  mParamGroup.Set(group);
+  strcpy(mName, name);
+  strcpy(mLabel, label);
+  strcpy(mParamGroup, group);
   mValue = defaultVal;
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
@@ -134,18 +141,18 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
 
 const char* IParam::GetNameForHost() const
 {
-  return mName.Get();
+  return mName;
 }
 
 const char* IParam::GetLabelForHost() const
 {
   const char* displayText = GetDisplayText((int) mValue);
-  return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel.Get();
+  return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel;
 }
 
 const char* IParam::GetParamGroupForHost() const
 {
-  return mParamGroup.Get();
+  return mParamGroup;
 }
 
 int IParam::GetNDisplayTexts() const
