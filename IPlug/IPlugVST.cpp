@@ -709,7 +709,6 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
               !strcmp((char*) ptr, "receiveVstEvents") ||
               !strcmp((char*) ptr, "receiveVstMidiEvent"))   // ||
           {
-            //!strcmp((char*) ptr, "midiProgramNames")) {
             return 1;
           }
         }

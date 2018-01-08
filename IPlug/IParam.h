@@ -31,7 +31,7 @@ public:
   void SetIsMeta(bool meta) { mIsMeta = meta; }
   void SetToDefault() { mValue = mDefault; }
 
-  /** Call this if your param is (x, y) but you want to always display (-x, -y) */
+  // Call this if your param is (x, y) but you want to always display (-x, -y)
   void NegateDisplay() { mNegateDisplay = true; }
   bool GetDisplayIsNegated() const { return mNegateDisplay; }
 
