@@ -1298,6 +1298,22 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return success;
 }
 
+bool IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param)
+{
+  if (IS_INTRESOURCE(name))
+  {
+    return true;
+  }
+  
+  int* resourceID = (int*) param;
+  if (resourceID != 0 && name != 0)
+  {
+    
+  }
+  
+  return true;
+}
+
 void IGraphicsWin::OSLoadBitmap(const char* name, WDL_String& result)
 {
   const char* ext = name+strlen(name)-1;
