@@ -29,12 +29,14 @@ struct AudioComponentPlugInInstance
 
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
+/*! Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
 {
   WDL_String mOSXBundleID;
   WDL_String mCocoaViewFactoryClassName;
 };
 
+/*! AudioUnit v2 API base class for an IPlug plug-in */
 class IPlugAU : public IPLUG_BASE_CLASS
 {
   friend class IPlugAUFactory;

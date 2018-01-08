@@ -13,11 +13,13 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 
 #include "aeffectx.h"
 
+/*! Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
 {
   audioMasterCallback mVSTHostCallback;
 };
 
+/*! VST2.4 API base class for an IPlug plug-in */
 class IPlugVST : public IPLUG_BASE_CLASS
 {
 public:

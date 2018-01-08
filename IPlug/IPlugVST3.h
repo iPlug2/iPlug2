@@ -26,6 +26,7 @@ struct IPlugInstanceInfo
 
 class IPlugVST3View;
 
+/*! VST3 base class for an IPlug plug-in */
 class IPlugVST3 : public IPLUG_BASE_CLASS
                 , public Steinberg::Vst::SingleComponentEffect
 {
@@ -133,6 +134,7 @@ private:
 
 IPlugVST3* MakePlug();
 
+/*! IPlug VST3 View  */
 class IPlugVST3View : public Steinberg::CPluginView
 {
 public:

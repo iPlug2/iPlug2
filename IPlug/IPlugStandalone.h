@@ -33,6 +33,7 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 
 #endif
 
+/*! Standalone application base class for an IPlug plug-in */
 class IPlugStandalone : public IPLUG_BASE_CLASS
 {
 public:

@@ -1,7 +1,12 @@
 #pragma once
 
-// Include this file in the main header for your plugin,
-// after #defining XXX_API.
+/*! \file IPlug_include_in_plug_hdr.h
+    \brief IPlug header include
+
+    Include this file in the main header for your plugin
+    A preprocessor macro for a particular API such as VST_API should be defined at project level
+*/
+
 #include <cstdio>
 #include "IPlugOSDetect.h"
 #include "config.h" // This is your plugin's config.h

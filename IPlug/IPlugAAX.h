@@ -18,13 +18,12 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 
 const int kAAXParamIdxOffset = 1;
 
-struct IPlugInstanceInfo
-{
-  // not used
-};
+/*! Used to pass various instance info to the API class */
+struct IPlugInstanceInfo {};
 
 class IPlugAAX;
 
+/*! AAX_CEffectGUI base class for an IPlug AAX view */
 class AAX_CEffectGUI_IPLUG : public AAX_CEffectGUI
 {
 public:
@@ -44,6 +43,7 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
+/*! AAX API base class for an IPlug plug-in */
 class IPlugAAX : public IPLUG_BASE_CLASS,
                  public AAX_CIPlugParameters
 {

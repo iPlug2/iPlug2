@@ -7,6 +7,7 @@
 #include "IPlugByteChunk.h"
 #include "IPlugOSDetect.h"
 
+/*! Helper struct to set compile time options to an API class constructor  */
 struct IPlugConfig
 {
   int nParams;
@@ -56,12 +57,14 @@ struct IPlugConfig
   {};
 };
 
+/*! Used to store channel i/o count together */
 struct ChannelIO
 {
   int mIn, mOut;
   ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
 };
 
+/*! Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg
 {
   int mOffset;
@@ -184,6 +187,7 @@ struct IMidiMsg
   void LogMsg();
 };
 
+/*! Encapsulates information about the host transport state */
 struct ITimeInfo
 {
   double mTempo = DEFAULT_TEMPO;
@@ -203,12 +207,13 @@ struct ITimeInfo
   {}
 };
 
+/*! A struct for dealing with SysEx messages. Does not store the data. */
 struct ISysEx
 {
   int mOffset, mSize;
   const BYTE* mData;
 
-  ISysEx(int offs = 0, const BYTE* pData = NULL, int size = 0)
+  ISysEx(int offs = 0, const BYTE* pData = nullptr, int size = 0)
   : mOffset(offs)
   , mData(pData)
   , mSize(size)
@@ -218,15 +223,15 @@ struct ISysEx
   void LogMsg();
 };
 
+/*! A struct used for specifying baked-in factory presets */
 struct IPreset
 {
-  bool mInitialized;
+  bool mInitialized = false;
   char mName[MAX_PRESET_NAME_LEN];
 
   ByteChunk mChunk;
 
-  IPreset(int idx)
-  : mInitialized(false)
+  IPreset()
   {
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }

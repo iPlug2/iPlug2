@@ -6,10 +6,10 @@
 
 // #include "Processor.h"
 
-struct IPlugInstanceInfo
-{
-};
+/*! Used to pass various instance info to the API class */
+struct IPlugInstanceInfo {};
 
+/*! Web Audio Module API base class for an IPlug plug-in */
 class IPlugWAM : public IPLUG_BASE_CLASS
 {
 public:
@@ -49,7 +49,5 @@ protected:
 };
 
 IPlugWAM* MakePlug();
-
-#endif
 
 #endif
