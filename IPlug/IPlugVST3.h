@@ -30,22 +30,7 @@ class IPlugVST3 : public IPLUG_BASE_CLASS
                 , public Steinberg::Vst::SingleComponentEffect
 {
 public:
-  IPlugVST3(IPlugInstanceInfo instanceInfo,
-            int nParams,
-            const char* channelIOStr,
-            int nPresets,
-            const char* effectName,
-            const char* productName,
-            const char* mfrName,
-            int vendorVersion,
-            int uniqueID,
-            int mfrID,
-            int latency = 0,
-            bool plugDoesMidi = false,
-            bool plugDoesChunks = false,
-            bool plugIsInst = false,
-            int plugScChans = 0);
-
+  IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   virtual ~IPlugVST3();
 
   // AudioEffect
@@ -138,7 +123,7 @@ private:
   Steinberg::Vst::SpeakerArrangement getSpeakerArrForChans(Steinberg::int32 chans);
 
   int mScChans;
-  bool mSidechainActive;
+  bool mSidechainActive = false;
 //  IMidiQueue mMidiOutputQueue;
   Steinberg::Vst::ProcessContext mProcessContext;
   std::vector <IPlugVST3View*> mViews;

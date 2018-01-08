@@ -7,7 +7,7 @@ class IGraphics;
 class IPlugBaseGraphics : public IPlugBase
 {
 public:
-  IPlugBaseGraphics(int nParams, const char* channelIOStr, int nPresets, const char* effectName, const char* productName, const char* mfrName, int vendorVersion, int uniqueID, int mfrID, int latency, bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, EAPI plugAPI);
+  IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI);
   
   ~IPlugBaseGraphics();
   

@@ -1702,42 +1702,10 @@ void IPlugAU::ClearConnections()
 }
 #pragma mark IPlugAU Constructor
 
-IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
-                 int nParams,
-                 const char* channelIOStr,
-                 int nPresets,
-                 const char* effectName,
-                 const char* productName,
-                 const char* mfrName,
-                 int vendorVersion,
-                 int uniqueID,
-                 int mfrID,
-                 int latency,
-                 bool plugDoesMidi,
-                 bool plugDoesChunks,
-                 bool plugIsInst,
-                 int plugScChans)
-  : IPLUG_BASE_CLASS(nParams,
-              channelIOStr,
-              nPresets,
-              effectName,
-              productName,
-              mfrName,
-              vendorVersion,
-              uniqueID,
-              mfrID,
-              latency,
-              plugDoesMidi,
-              plugDoesChunks,
-              plugIsInst,
-              kAPIAU)
-  , mCI(0)
-  , mIsOffline(false)
-  , mRenderTimestamp(-1.0)
-  , mTempo(DEFAULT_TEMPO)
-  , mActive(false)
+IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+: IPLUG_BASE_CLASS(c, kAPIAU)
 {
-  Trace(TRACELOC, "%s", effectName);
+  Trace(TRACELOC, "%s", c.effectName);
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
@@ -1746,9 +1714,9 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
   mOSXBundleID.Set(instanceInfo.mOSXBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
-  if (plugScChans && NInChannels()) // effect with side chain input... 2 input buses
+  if (c.plugScChans && NInChannels()) // effect with side chain input... 2 input buses
   {
-    int nNonScInputChans = NInChannels() - plugScChans;
+    int nNonScInputChans = NInChannels() - c.plugScChans;
 
     PtrListInitialize(&mInBusConnections, 2);
     PtrListInitialize(&mInBuses, 2);
@@ -1761,7 +1729,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     BusChannels* pInBus2 = mInBuses.Get(1);
     pInBus2->mNHostChannels = -1;
     pInBus2->mPlugChannelStartIdx = nNonScInputChans;
-    pInBus2->mNPlugChannels = plugScChans;
+    pInBus2->mNPlugChannels = c.plugScChans;
 
     SetInputBusLabel(0, "main input");
     SetInputBusLabel(1, "aux input");
@@ -1785,7 +1753,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo,
     PtrListInitialize(&mInBuses, 0);
   }
 
-  if(plugIsInst) // TODO: support instruments with multichannel outputs, i.e. 5.1?
+  if(c.plugIsInst) // TODO: support instruments with multichannel outputs, i.e. 5.1?
   {
     int nOutBuses = (int) ceil(NOutChannels() / 2.);
 

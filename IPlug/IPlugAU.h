@@ -39,21 +39,7 @@ class IPlugAU : public IPLUG_BASE_CLASS
 {
   friend class IPlugAUFactory;
 public:
-  IPlugAU(IPlugInstanceInfo instanceInfo,
-          int nParams,
-          const char* channelIOStr,
-          int nPresets,
-          const char* effectName,
-          const char* productName,
-          const char* mfrName,
-          int vendorVersion,
-          int uniqueID,
-          int mfrID,
-          int latency,
-          bool plugDoesMidi,
-          bool plugDoesChunks,
-          bool plugIsInst,
-          int plugScChans);
+  IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   virtual ~IPlugAU();
 
@@ -91,9 +77,11 @@ private:
   WDL_String mOSXBundleID;
   WDL_String mCocoaViewFactoryClassName;
   char mParamValueString[MAX_PARAM_DISPLAY_LEN];
-  AudioComponentInstance mCI;
-  bool mActive, mIsOffline;
-  double mRenderTimestamp, mTempo;
+  AudioComponentInstance mCI = nullptr;
+  bool mActive = false;
+  bool mIsOffline = false;
+  double mRenderTimestamp = -1.0;
+  bool mTempo = DEFAULT_TEMPO;
   HostCallbackInfo mHostCallbacks;
 
 // InScratchBuf is only needed if the upstream connection is a callback.

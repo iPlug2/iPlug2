@@ -21,21 +21,7 @@ struct IPlugInstanceInfo
 class IPlugVST : public IPLUG_BASE_CLASS
 {
 public:
-  IPlugVST(IPlugInstanceInfo instanceInfo,
-           int nParams,
-           const char* channelIOStr,
-           int nPresets,
-           const char* effectName,
-           const char* productName,
-           const char* mfrName,
-           int vendorVersion,
-           int uniqueID,
-           int mfrID,
-           int latency = 0,
-           bool plugDoesMidi = false,
-           bool plugDoesChunks = false,
-           bool plugIsInst = false,
-           int plugScChans = 0);
+  IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
@@ -74,7 +60,7 @@ private:
 
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;
 
-  bool mHostSpecificInitDone;
+  bool mHostSpecificInitDone = false;
 
   enum { VSTEXT_NONE=0, VSTEXT_COCKOS, VSTEXT_COCOA }; // list of VST extensions supported by host
   int mHasVSTExtensions;

@@ -2,8 +2,8 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-IPlugBaseGraphics::IPlugBaseGraphics(int nParams, const char* channelIOStr, int nPresets, const char* effectName, const char* productName, const char* mfrName, int vendorVersion, int uniqueID, int mfrID, int latency, bool plugDoesMidi, bool plugDoesChunks, bool plugIsInst, EAPI plugAPI)
-: IPlugBase(nParams, channelIOStr, nPresets, effectName, productName, mfrName, vendorVersion, uniqueID, mfrID, latency, plugDoesMidi, plugDoesChunks, plugIsInst, plugAPI)
+IPlugBaseGraphics::IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI)
+: IPlugBase(config, plugAPI)
 {  
 }
 

@@ -4,44 +4,16 @@
 #endif
 extern HWND gHWND;
 
-IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo,
-                                 int nParams,
-                                 const char* channelIOStr,
-                                 int nPresets,
-                                 const char* effectName,
-                                 const char* productName,
-                                 const char* mfrName,
-                                 int vendorVersion,
-                                 int uniqueID,
-                                 int mfrID,
-                                 int latency,
-                                 bool plugDoesMidi,
-                                 bool plugDoesChunks,
-                                 bool plugIsInst,
-                                 int plugScChans)
-  : IPLUG_BASE_CLASS(nParams,
-              channelIOStr,
-              nPresets,
-              effectName,
-              productName,
-              mfrName,
-              vendorVersion,
-              uniqueID,
-              mfrID,
-              latency,
-              plugDoesMidi,
-              plugDoesChunks,
-              plugIsInst,
-              kAPISA)
-  , mMidiOutChan(nullptr)
+IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+: IPLUG_BASE_CLASS(config, kAPISA)
 {
-  Trace(TRACELOC, "%s%s", effectName, channelIOStr);
+  Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("standalone", vendorVersion);
+  SetHost("standalone", c.vendorVersion);
 
   mMidiOutChan = instanceInfo.mMidiOutChan;
   mMidiOut = instanceInfo.mRTMidiOut;

@@ -49,22 +49,7 @@ class IPlugAAX : public IPLUG_BASE_CLASS,
 {
 public:
 
-  IPlugAAX(IPlugInstanceInfo instanceInfo, 
-                  int nParams, 
-                  const char* channelIOStr, 
-                  int nPresets,
-                  const char* effectName, 
-                  const char* productName, 
-                  const char* mfrName,
-                  int vendorVersion, 
-                  int uniqueID, 
-                  int mfrID, 
-                  int latency = 0, 
-                  bool plugDoesMidi = false, 
-                  bool plugDoesChunks = false, 
-                  bool plugIsInst = false,
-                  int plugScChans = 0);
-  
+  IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugAAX();
   
   AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource );
@@ -101,8 +86,8 @@ protected:
   bool SendMidiMsg(IMidiMsg& msg);
 
 private:
-  AAX_CParameter<bool>* mBypassParameter;
-  AAX_ITransport* mTransport;
+  AAX_CParameter<bool>* mBypassParameter = nullptr;
+  AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;
 };
 

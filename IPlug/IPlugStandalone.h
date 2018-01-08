@@ -36,21 +36,7 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 class IPlugStandalone : public IPLUG_BASE_CLASS
 {
 public:
-  IPlugStandalone(IPlugInstanceInfo instanceInfo,
-                  int nParams,
-                  const char* channelIOStr,
-                  int nPresets,
-                  const char* effectName,
-                  const char* productName,
-                  const char* mfrName,
-                  int vendorVersion,
-                  int uniqueID,
-                  int mfrID,
-                  int latency = 0,
-                  bool plugDoesMidi = false,
-                  bool plugDoesChunks = false,
-                  bool plugIsInst = false,
-                  int plugScChans = 0);
+  IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   // these methods aren't needed in standalones but they are pure virtual in IPlugBase so must have a NO-OP here
   void BeginInformHostOfParamChange(int idx) override {};

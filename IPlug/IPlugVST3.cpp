@@ -73,37 +73,9 @@ protected:
   IParam* mIPlugParam;
 };
 
-IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
-                     int nParams,
-                     const char* channelIOStr,
-                     int nPresets,
-                     const char* effectName,
-                     const char* productName,
-                     const char* mfrName,
-                     int vendorVersion,
-                     int uniqueID,
-                     int mfrID,
-                     int latency,
-                     bool plugDoesMidi,
-                     bool plugDoesChunks,
-                     bool plugIsInst,
-                     int plugScChans)
-  : IPLUG_BASE_CLASS(nParams,
-              channelIOStr,
-              nPresets,
-              effectName,
-              productName,
-              mfrName,
-              vendorVersion,
-              uniqueID,
-              mfrID,
-              latency,
-              plugDoesMidi,
-              plugDoesChunks,
-              plugIsInst,
-              kAPIVST3)
-  , mScChans(plugScChans)
-  , mSidechainActive(false)
+IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+: IPLUG_BASE_CLASS(c, kAPIVST3)
+, mScChans(c.plugScChans)
 {
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
@@ -111,7 +83,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
   if (NInChannels()) 
   {
     mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
-    mLatencyDelay->SetDelayTime(latency);
+    mLatencyDelay->SetDelayTime(c.latency);
   }
 
   // initialize the bus labels
@@ -125,7 +97,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo,
   if (IsInst())
   {
     int busNum = 0;
-    char label[32];
+    char label[32]; //TODO: 32!!!
 
     for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only
     {

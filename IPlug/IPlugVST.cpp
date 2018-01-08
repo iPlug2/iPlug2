@@ -29,39 +29,11 @@ double VSTString2Parameter(IParam* pParam, char* ptr)
   return v;
 }
 
-IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo,
-                   int nParams,
-                   const char* channelIOStr,
-                   int nPresets,
-                   const char* effectName,
-                   const char* productName,
-                   const char* mfrName,
-                   int vendorVersion,
-                   int uniqueID,
-                   int mfrID,
-                   int latency,
-                   bool plugDoesMidi,
-                   bool plugDoesChunks,
-                   bool plugIsInst,
-                   int plugScChans)
-  : IPLUG_BASE_CLASS(nParams,
-              channelIOStr,
-              nPresets,
-              effectName,
-              productName,
-              mfrName,
-              vendorVersion,
-              uniqueID,
-              mfrID,
-              latency,
-              plugDoesMidi,
-              plugDoesChunks,
-              plugIsInst,
-              kAPIVST2)
+IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+  : IPLUG_BASE_CLASS(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
-  , mHostSpecificInitDone(false)
 {
-  Trace(TRACELOC, "%s", effectName);
+  Trace(TRACELOC, "%s", c.effectName);
 
   mHasVSTExtensions = VSTEXT_NONE;
 
@@ -73,22 +45,22 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo,
   mAEffect.dispatcher = VSTDispatcher;
   mAEffect.getParameter = VSTGetParameter;
   mAEffect.setParameter = VSTSetParameter;
-  mAEffect.numPrograms = nPresets;
-  mAEffect.numParams = nParams;
+  mAEffect.numPrograms = c.nPresets;
+  mAEffect.numParams = c.nParams;
   mAEffect.numInputs = nInputs;
   mAEffect.numOutputs = nOutputs;
-  mAEffect.uniqueID = uniqueID;
+  mAEffect.uniqueID = c.uniqueID;
   mAEffect.version = GetEffectVersion(true);
   mAEffect.__ioRatioDeprecated = 1.0f;
   mAEffect.__processDeprecated = VSTProcess;
   mAEffect.processReplacing = VSTProcessReplacing;
   mAEffect.processDoubleReplacing = VSTProcessDoubleReplacing;
-  mAEffect.initialDelay = latency;
+  mAEffect.initialDelay = c.latency;
   mAEffect.flags = effFlagsCanReplacing | effFlagsCanDoubleReplacing;
   
-  if (plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
+  if (c.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (plugIsInst) { mAEffect.flags |= effFlagsIsSynth; }
+  if (c.plugIsInst) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));

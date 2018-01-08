@@ -292,6 +292,6 @@ extern "C"
 #define PUBLIC_NAME PLUG_NAME
 
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
-  IPlug(instanceInfo, nParams, PLUG_CHANNEL_IO, nPresets, \
+  IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VER, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INST, PLUG_SC_CHANS)
+    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INST, PLUG_SC_CHANS))

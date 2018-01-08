@@ -8,64 +8,50 @@
 
 #include "IPlugBase.h"
 
-IPlugBase::IPlugBase(int nParams,
-                     const char* channelIOStr,
-                     int nPresets,
-                     const char* effectName,
-                     const char* productName,
-                     const char* mfrName,
-                     int vendorVersion,
-                     int uniqueID,
-                     int mfrID,
-                     int latency,
-                     bool plugDoesMidi,
-                     bool plugDoesChunks,
-                     bool plugIsInst,
-                     EAPI plugAPI)
-  : mUniqueID(uniqueID)
-  , mMfrID(mfrID)
-  , mVersion(vendorVersion)
-  , mLatency(latency)
-  , mHost(kHostUninit)
-  , mStateChunks(plugDoesChunks)
-  , mIsInst(plugIsInst)
-  , mDoesMIDI(plugDoesMidi)
+IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
+  : mUniqueID(c.uniqueID)
+  , mMfrID(c.mfrID)
+  , mVersion(c.vendorVersion)
+  , mLatency(c.latency)
+  , mStateChunks(c.plugDoesChunks)
+  , mIsInst(c.plugIsInst)
+  , mDoesMIDI(c.plugDoesMidi)
+  , mEffectName(c.effectName, MAX_EFFECT_NAME_LEN)
+  , mProductName(c.productName, MAX_EFFECT_NAME_LEN)
+  , mMfrName(c.mfrName, MAX_EFFECT_NAME_LEN)
   , mAPI(plugAPI)
-  , mEffectName(effectName, MAX_EFFECT_NAME_LEN)
-  , mProductName(productName, MAX_EFFECT_NAME_LEN)
-  , mMfrName(mfrName, MAX_EFFECT_NAME_LEN)
 {
-  Trace(TRACELOC, "%s:%s", effectName, CurrentTime());
+  Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
 
-  for (int i = 0; i < nParams; ++i)
+  for (int i = 0; i < c.nParams; ++i)
   {
-    mParams.Add(new IParam);
+    mParams.Add(new IParam());
   }
 
-  for (int i = 0; i < nPresets; ++i)
+  for (int i = 0; i < c.nPresets; ++i)
   {
     mPresets.Add(new IPreset(i));
   }
 
   int nInputs = 0, nOutputs = 0;
 
-  while (channelIOStr)
+  while (c.channelIOStr)
   {
     int nIn = 0, nOut = 0;
 #ifndef NDEBUG
-    bool channelIOStrValid = sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2;
+    bool channelIOStrValid = sscanf(c.channelIOStr, "%d-%d", &nIn, &nOut) == 2;
     assert(channelIOStrValid);
 #else
-    sscanf(channelIOStr, "%d-%d", &nIn, &nOut);
+    sscanf(c.channelIOStr, "%d-%d", &nIn, &nOut);
 #endif
     nInputs = std::max(nInputs, nIn);
     nOutputs = std::max(nOutputs, nOut);
     mChannelIO.Add(new ChannelIO(nIn, nOut));
-    channelIOStr = strstr(channelIOStr, " ");
+    c.channelIOStr = strstr(c.channelIOStr, " ");
     
-    if (channelIOStr)
+    if (c.channelIOStr)
     {
-      ++channelIOStr;
+      ++c.channelIOStr;
     }
   }
 

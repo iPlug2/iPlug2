@@ -80,40 +80,11 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID iParameter
   return AAX_ERROR_INVALID_PARAMETER_ID;
 }
 
-IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, 
-                                 int nParams, 
-                                 const char* channelIOStr, 
-                                 int nPresets,
-                                 const char* effectName, 
-                                 const char* productName, 
-                                 const char* mfrName,
-                                 int vendorVersion, 
-                                 int uniqueID, 
-                                 int mfrID, 
-                                 int latency,
-                                 bool plugDoesMidi, 
-                                 bool plugDoesChunks, 
-                                 bool plugIsInst,
-                                 int plugScChans)
-: IPLUG_BASE_CLASS(nParams,
-            channelIOStr,
-            nPresets,
-            effectName,
-            productName,
-            mfrName,
-            vendorVersion,
-            uniqueID,
-            mfrID,
-            latency,
-            plugDoesMidi,
-            plugDoesChunks,
-            plugIsInst,
-            kAPIAAX)
-
+IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+: IPLUG_BASE_CLASS(c, kAPIAAX)
 , AAX_CIPlugParameters()
-, mTransport(0)
 {
-  Trace(TRACELOC, "%s%s", effectName, channelIOStr);
+  Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
@@ -121,11 +92,11 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo,
   if (NInChannels()) 
   {
     mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
-    mLatencyDelay->SetDelayTime(latency);
+    mLatencyDelay->SetDelayTime(c.latency);
   }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("ProTools", vendorVersion); // TODO:vendor version correct?  
+  SetHost("ProTools", 0); // TODO:vendor version correct?
 }
 
 IPlugAAX::~IPlugAAX()
@@ -149,7 +120,6 @@ AAX_Result IPlugAAX::EffectInit()
   mBypassParameter->SetType( AAX_eParameterType_Discrete );
   mParameterManager.AddParameter(mBypassParameter);
       
-  // TODO: UI thread only? If not, need to lock mParams_mutex
   for (int i=0;i<NParams();i++)
   {
     IParam *p = GetParam(i);

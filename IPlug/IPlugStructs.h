@@ -7,6 +7,55 @@
 #include "IPlugByteChunk.h"
 #include "IPlugOSDetect.h"
 
+struct IPlugConfig
+{
+  int nParams;
+  int nPresets;
+  const char* channelIOStr;
+  const char* effectName;
+  const char* productName;
+  const char* mfrName;
+  int vendorVersion;
+  int uniqueID;
+  int mfrID;
+  int latency;
+  bool plugDoesMidi;
+  bool plugDoesChunks;
+  bool plugIsInst;
+  int plugScChans;
+  
+  IPlugConfig(int nParams,
+              int nPresets,
+              const char* channelIOStr,
+              const char* effectName,
+              const char* productName,
+              const char* mfrName,
+              int vendorVersion,
+              int uniqueID,
+              int mfrID,
+              int latency,
+              bool plugDoesMidi,
+              bool plugDoesChunks,
+              bool plugIsInst,
+              int plugScChans)
+              
+  : nParams(nParams)
+  , nPresets(nPresets)
+  , channelIOStr(channelIOStr)
+  , effectName(effectName)
+  , productName(productName)
+  , mfrName(mfrName)
+  , vendorVersion(vendorVersion)
+  , uniqueID(uniqueID)
+  , mfrID(mfrID)
+  , latency(latency)
+  , plugDoesMidi(plugDoesMidi)
+  , plugDoesChunks(plugDoesChunks)
+  , plugIsInst(plugIsInst)
+  , plugScChans(plugScChans)
+  {};
+};
+
 struct ChannelIO
 {
   int mIn, mOut;
