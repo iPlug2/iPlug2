@@ -11,8 +11,8 @@ class IParam
 public:
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
 
-  IParam();
-  ~IParam();
+  IParam() {};
+  ~IParam() {};
 
   EParamType Type() const { return mType; }
 
@@ -75,16 +75,21 @@ public:
   void GetJSON(WDL_String& json, int idx) const;
 
 private:
-  EParamType mType;
-  double mValue, mMin, mMax, mStep, mShape, mDefault;
-  int mDisplayPrecision;
-  char mName[MAX_PARAM_NAME_LEN];
-  char mLabel[MAX_PARAM_LABEL_LEN];
-  char mParamGroup[MAX_PARAM_LABEL_LEN];
-  bool mNegateDisplay;
-  bool mSignDisplay;
-  bool mCanAutomate;
-  bool mIsMeta;
+  WDL_String mName = WDL_String("", MAX_PARAM_NAME_LEN);
+  WDL_String mLabel = WDL_String("", MAX_PARAM_NAME_LEN);
+  WDL_String mParamGroup = WDL_String("", MAX_PARAM_NAME_LEN);
+  EParamType mType = kTypeNone;
+  double mValue = 0.0;
+  double mMin = 0.0;
+  double mMax = 1.0;
+  double mStep = 1.0;
+  double mShape = 1.0;
+  double mDefault = 0.0;
+  int mDisplayPrecision = 0;
+  bool mNegateDisplay = false;
+  bool mSignDisplay = false;
+  bool mCanAutomate = true;
+  bool mIsMeta = false;
   
   struct DisplayText
   {

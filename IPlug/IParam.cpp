@@ -2,26 +2,6 @@
 #include <cstdio>
 #include <algorithm>
 
-IParam::IParam()
-  : mType(kTypeNone)
-  , mValue(0.0)
-  , mMin(0.0)
-  , mMax(1.0)
-  , mStep(1.0)
-  , mDisplayPrecision(0)
-  , mNegateDisplay(false)
-  , mShape(1.0)
-  , mCanAutomate(true)
-  , mDefault(0.)
-  , mIsMeta(false)
-{
-  memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
-  memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
-  memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
-}
-
-IParam::~IParam() {}
-
 void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group)
 {
   if (mType == kTypeNone) mType = kTypeBool;
@@ -50,9 +30,9 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
-  strcpy(mName, name);
-  strcpy(mLabel, label);
-  strcpy(mParamGroup, group);
+  mName.Set(name);
+  mLabel.Set(label);
+  mParamGroup.Set(group);
   mValue = defaultVal;
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
@@ -154,18 +134,18 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
 
 const char* IParam::GetNameForHost() const
 {
-  return mName;
+  return mName.Get();
 }
 
 const char* IParam::GetLabelForHost() const
 {
   const char* displayText = GetDisplayText((int) mValue);
-  return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel;
+  return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel.Get();
 }
 
 const char* IParam::GetParamGroupForHost() const
 {
-  return mParamGroup;
+  return mParamGroup.Get();
 }
 
 int IParam::GetNDisplayTexts() const
