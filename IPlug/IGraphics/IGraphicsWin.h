@@ -25,7 +25,7 @@ class IGraphicsWin : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps);
-  virtual ~IGraphicsWin();
+  ~IGraphicsWin();
 
   void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
 
@@ -64,7 +64,6 @@ public:
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
 
-  // Specialty use!
   void* GetWindow() { return mPlugWnd; }
   HWND GetParentWindow() { return mParentWnd; }
   HWND GetMainWnd();
@@ -83,19 +82,24 @@ protected:
   void ShowTooltip();
   void HideTooltip();
 
-private:
-  HINSTANCE mHInstance;
-  HWND mPlugWnd, mParamEditWnd, mTooltipWnd;
-  IControl* mEdControl;
-  IParam* mEdParam;
-  WNDPROC mDefEditProc;
-  int mParamEditMsg;
-  bool mShowingTooltip;
-  int mTooltipIdx;
-  COLORREF* mCustomColorStorage;
 
-  DWORD mPID;
-  HWND mParentWnd, mMainWnd;
+private:
+  HINSTANCE mHInstance = nullptr;
+  HWND mPlugWnd = nullptr;
+  HWND mParamEditWnd = nullptr;
+  HWND mTooltipWnd = nullptr;
+  HWND mParentWnd = nullptr;
+  HWND mMainWnd = nullptr;
+  COLORREF* mCustomColorStorage = nullptr;
+  WNDPROC mDefEditProc = nullptr;
+  DWORD mPID = 0;
+
+  IControl* mEdControl = nullptr;
+  IParam* mEdParam = nullptr;
+  int mParamEditMsg = kNone;
+  bool mShowingTooltip = false;
+  int mTooltipIdx = -1;
+
   WDL_String mMainWndClassName;
 
 public:
