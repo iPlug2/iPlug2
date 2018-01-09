@@ -19,7 +19,9 @@ struct IPlugInstanceInfo
   audioMasterCallback mVSTHostCallback;
 };
 
-/*! VST2.4 API base class for an IPlug plug-in */
+/*! @brief VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase
+*   @ingroup APIClasses
+*/
 class IPlugVST : public IPLUG_BASE_CLASS
 {
 public:

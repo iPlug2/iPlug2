@@ -5,7 +5,7 @@
 extern HWND gHWND;
 
 IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPLUG_BASE_CLASS(config, kAPISA)
+: IPLUG_BASE_CLASS(c, kAPISA)
 {
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 

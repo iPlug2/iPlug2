@@ -3,7 +3,7 @@
 #include "IControl.h"
 
 /**
- * \defgroup IControls
+ * \defgroup Controls IGraphics::IControls
  * @{
  */
 

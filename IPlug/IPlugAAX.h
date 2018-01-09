@@ -23,7 +23,7 @@ struct IPlugInstanceInfo {};
 
 class IPlugAAX;
 
-/*! AAX_CEffectGUI base class for an IPlug AAX view */
+/*! @brief AAX_CEffectGUI base class for an IPlug AAX view */
 class AAX_CEffectGUI_IPLUG : public AAX_CEffectGUI
 {
 public:
@@ -43,7 +43,9 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
-/*! AAX API base class for an IPlug plug-in */
+/*! @brief AAX API base class for an IPlug plug-in, inherits from IPlugBase 
+*   @ingroup APIClasses
+*/
 class IPlugAAX : public IPLUG_BASE_CLASS,
                  public AAX_CIPlugParameters
 {

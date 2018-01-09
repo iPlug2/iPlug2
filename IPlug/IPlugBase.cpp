@@ -30,7 +30,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 
   for (int i = 0; i < c.nPresets; ++i)
   {
-    mPresets.Add(new IPreset(i));
+    mPresets.Add(new IPreset());
   }
 
   int nInputs = 0, nOutputs = 0;

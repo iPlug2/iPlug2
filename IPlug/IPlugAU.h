@@ -36,7 +36,9 @@ struct IPlugInstanceInfo
   WDL_String mCocoaViewFactoryClassName;
 };
 
-/*! AudioUnit v2 API base class for an IPlug plug-in */
+/*! @brief AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugBase
+*   @ingroup APIClasses
+*/
 class IPlugAU : public IPLUG_BASE_CLASS
 {
   friend class IPlugAUFactory;

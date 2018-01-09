@@ -84,6 +84,9 @@ been declared, so it is propbably best to include it in your plug-in's main
 
 */
 
+/** @brief A (musical) keyboard control
+*   @ingroup Controls
+*/
 class IKeyboardControl: public IControl
 {
 public:

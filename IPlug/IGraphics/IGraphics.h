@@ -15,8 +15,8 @@ class IControl;
 class IParam;
 
 /**
- * \defgroup IGraphicsDrawClasses
- * \defgroup IGraphicsPlatformClasses
+ * \defgroup DrawClasses IGraphics::DrawClasses
+ * \defgroup PlatformClasses IGraphics::PlatformClasses
 */
 
 class IGraphics

@@ -12,7 +12,7 @@
 #include "IGraphics.h"
 
 /** @brief IGraphics draw class using Cockos' LICE  
-*   @ingroup IGraphicsDrawClasses
+*   @ingroup DrawClasses
 */
 class IGraphicsLice : public IGraphics
 {

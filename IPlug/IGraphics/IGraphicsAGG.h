@@ -59,7 +59,7 @@
 #endif
 
 /** @brief IGraphics draw class using Antigrain Geometry  
-*   @ingroup IGraphicsDrawClasses
+*   @ingroup DrawClasses
 */
 class IGraphicsAGG : public IGraphics
 {
