@@ -14,6 +14,11 @@ class IPlugBaseGraphics;
 class IControl;
 class IParam;
 
+/**
+ * \defgroup IGraphicsDrawClasses
+ * \defgroup IGraphicsPlatformClasses
+*/
+
 class IGraphics
 #ifdef AAX_API
 : public IPlugAAXView_Interface

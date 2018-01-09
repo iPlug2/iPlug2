@@ -2,6 +2,12 @@
 
 #include "IControl.h"
 
+/**
+ * \defgroup IControls
+ * @{
+ */
+
+
 // A switch.  Click to cycle through the bitmap states.
 class ISwitchControl : public IBitmapControl
 {
@@ -319,3 +325,4 @@ protected:
   bool mVCentre;
 };
 
+/**@}*/

@@ -21,6 +21,9 @@
   #endif
 #endif
 
+/** @brief IGraphics platform class for Windows  
+*   @ingroup IGraphicsPlatformClasses
+*/
 class IGraphicsWin : public IGRAPHICS_DRAW_CLASS
 {
 public:

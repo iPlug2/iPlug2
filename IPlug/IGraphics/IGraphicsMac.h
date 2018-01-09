@@ -44,6 +44,9 @@
 #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
 #define IGRAPHICS_FORMATTER CONCAT(IGraphicsFormatter_)
 
+/** @brief IGraphics platform class for macOS  
+*   @ingroup IGraphicsPlatformClasses
+*/
 class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
 {
 public:

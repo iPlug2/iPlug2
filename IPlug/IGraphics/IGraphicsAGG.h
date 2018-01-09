@@ -58,6 +58,9 @@
 #pragma clang diagnostic pop
 #endif
 
+/** @brief IGraphics draw class using Antigrain Geometry  
+*   @ingroup IGraphicsDrawClasses
+*/
 class IGraphicsAGG : public IGraphics
 {
 public:

@@ -9,6 +9,9 @@
 
 #include "IGraphics.h"
 
+/** @brief IGraphics draw class using Cairo  
+*   @ingroup IGraphicsDrawClasses
+*/
 class IGraphicsCairo : public IGraphics
 {
 public:

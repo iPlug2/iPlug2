@@ -19,7 +19,7 @@
 *xcuserdata*
 *.xcschememanagement.plist
 build-*
-/IPlugExamples/*/*.vcxproj.user
+*.vcxproj.user
 
 _*
 PCH/*
@@ -29,26 +29,22 @@ PT9_SDK/*
 AAX_SDK/*
 ASIO_SDK/*
 CA_SDK/*
-Projects/*
 */*/gui/*
 
 Icon?
 .DS_Stor*
 
-/WDL/IPlug/IPlug.vcxproj.user
-/WDL/lice/lice.vcxproj.user
-/WDL/IPlug/doc/
-/WorkProjects/
-/ObsoleteProjects/
+/Documentation/
 IPlugExamples/build_errors.log
+IPlugExamples/IPlugEEL/libEEL/build
+IPlugExamples/duplicate.pyc
 
-/IPlugExamples/IPlugEEL/libEEL/build/
+Projects/*
+WorkProjects/*
+ObsoleteProjects/*
+Ports/*
 
-/Ports/
-
-/ReaperExtensions/
-
-/IPlugExamples/duplicate.pyc
+/ReaperExtensions
 *.db-shm
 *.db-wal
 *.opendb
