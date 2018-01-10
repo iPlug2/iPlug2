@@ -16,6 +16,7 @@ WDL-OL/IPlug requires a compiler that supports C++11, and is tested with MS Visu
 
 ## Beginner Developers - Getting Started
 
+//TODO!
 
 ## Experienced Developers
 Here are some docs for budding developers who want to try and understand IPlug better, fix bugs and contribute pull requests!
@@ -42,7 +43,7 @@ IPlugProcessor is a lightweight base class to handle purely the audio processing
 
 ### IGraphics (optional)
 
-IGraphics is the pure virtual *interface* primarily for drawing but also for doing platform specific stuff such as locating certain folders or creating native controls such as pop-up menus. There are several different classes that inherit the IGraphics interface depending on which drawing API we want to use and which platform we are running on. To make this more complicated - on macOS, there are two different types of platform API: Cocoa (which uses Objective-C) and Carbon. Carbon is a deprecated API which does not support 64 -bit but you may decide it is necessary to support this for compatibility with some older 32 bit hosts. IPlug is designed to abstract these things away from plug-in implementation but it's good to know about them.
+IGraphics is the pure virtual *interface* primarily for drawing but also for doing platform specific stuff such as locating certain folders or creating native controls such as pop-up menus. There are several different classes that inherit the IGraphics interface depending on which drawing API we want to use and which platform we are running on. To make this more complicated - on macOS, there are two different types of platform API: Cocoa (which uses Objective-C) and Carbon (which is a deprecated API that doesn't work on 64bit architectures). The original version of IPlug supported Carbon, but as of IPlug2, support has been removed, because it was difficult to maintain. IPlug is designed to abstract these things away from plug-in implementation but it's good to know about them.
 
 Different drawing APIs have different benefits:
 
