@@ -8,13 +8,15 @@
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
 
-// A control is anything on the GUI, it could be a static bitmap, or
-// something that moves or changes.  The control could manipulate
-// bitmaps or do run-time vector drawing, or whatever.
-//
-// Some controls respond to mouse actions, either by moving a bitmap,
-// transforming a bitmap, or cycling through a set of bitmaps.
-// Other controls are readouts only.
+/*!
+  A control is anything on the GUI, it could be a static bitmap, or
+  something that moves or changes.  The control could manipulate
+  bitmaps or do run-time vector drawing, or whatever.
+
+  Some controls respond to mouse actions, either by moving a bitmap,
+  transforming a bitmap, or cycling through a set of bitmaps.
+  Other controls are readouts only.
+*/
 
 class IControl
 #ifdef VST3_API
@@ -64,7 +66,13 @@ public:
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
   
+  /*!
+   * @param tooltip Text to be displayed
+   */
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
+  /*!
+   * \return Currently set tooltip text
+   */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
   int ParamIdx() { return mParamIdx; }
@@ -83,7 +91,14 @@ public:
   virtual void TextFromTextEntry( const char* txt ) {}
   virtual void OnContextSelection(int itemSelected) {}
 
+  /*!
+   * Shows or hides the IControl
+   * @param hide Set to true to hide the control
+   */
   virtual void Hide(bool hide);
+  /*!
+   * @return True if the control is hidden. Defaults to false
+   */
   bool IsHidden() const { return mHide; }
 
   virtual void GrayOut(bool gray);
