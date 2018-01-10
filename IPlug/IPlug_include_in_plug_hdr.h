@@ -1,6 +1,6 @@
 #pragma once
 
-/*! \file IPlug_include_in_plug_hdr.h
+/** \file IPlug_include_in_plug_hdr.h
     \brief IPlug header include
 
     Include this file in the main header for your plugin

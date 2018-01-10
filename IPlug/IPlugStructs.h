@@ -7,7 +7,7 @@
 #include "IPlugByteChunk.h"
 #include "IPlugOSDetect.h"
 
-/*! Helper struct to set compile time options to an API class constructor  */
+/** Helper struct to set compile time options to an API class constructor  */
 struct IPlugConfig
 {
   int nParams;
@@ -57,14 +57,14 @@ struct IPlugConfig
   {};
 };
 
-/*! Used to store channel i/o count together */
+/** Used to store channel i/o count together */
 struct ChannelIO
 {
   int mIn, mOut;
   ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
 };
 
-/*! Encapsulates a MIDI message and provides helper functions */
+/** Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg
 {
   int mOffset;
@@ -187,7 +187,7 @@ struct IMidiMsg
   void LogMsg();
 };
 
-/*! Encapsulates information about the host transport state */
+/** Encapsulates information about the host transport state */
 struct ITimeInfo
 {
   double mTempo = DEFAULT_TEMPO;
@@ -207,7 +207,7 @@ struct ITimeInfo
   {}
 };
 
-/*! A struct for dealing with SysEx messages. Does not store the data. */
+/** A struct for dealing with SysEx messages. Does not store the data. */
 struct ISysEx
 {
   int mOffset, mSize;
@@ -223,7 +223,7 @@ struct ISysEx
   void LogMsg();
 };
 
-/*! A struct used for specifying baked-in factory presets */
+/** A struct used for specifying baked-in factory presets */
 struct IPreset
 {
   bool mInitialized = false;

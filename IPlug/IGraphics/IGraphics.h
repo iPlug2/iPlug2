@@ -19,6 +19,7 @@ class IParam;
  * \defgroup PlatformClasses IGraphics::PlatformClasses
 */
 
+/**  The lowest level base class of an IGraphics control */
 class IGraphics
 #ifdef AAX_API
 : public IPlugAAXView_Interface
@@ -37,7 +38,30 @@ public:
   virtual void Draw(const IRECT& rect);
   virtual void DrawScreen(const IRECT& rect) = 0;
   
+  /**
+   Draws a bitmap into the graphics context
+
+   @param bitmap - the bitmap to draw
+   @param rect - where to draw the bitmap
+   @param bmpState - the frame of the bitmap to draw
+   @param pBlend - blend operation
+   */
   void DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState = 1, const IBlend* pBlend = 0);
+  
+  
+  /**
+   Draws monospace bitmapped text. Useful for identical looking text on multiple platforms.
+   @param bitmap - the bitmap containing glyphs to draw
+   @param rect - where to draw the bitmap
+   @param text - text properties (note - many of these are irrelevant for bitmapped text)
+   @param pBlend - blend operation
+   @param str - the string to draw
+   @param vCenter - centre the text vertically
+   @param multiline - should the text spill onto multiple lines
+   @param charWidth how wide is a character in the bitmap
+   @param charHeight how high is a character in the bitmap
+   @param charOffset what is the offset between characters drawn
+   */
   void DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
   
 #pragma mark - IGraphics API  impl drawing (pure virtual)

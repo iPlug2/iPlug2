@@ -8,14 +8,10 @@
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
 
-// A control is anything on the GUI, it could be a static bitmap, or
-// something that moves or changes.  The control could manipulate
-// bitmaps or do run-time vector drawing, or whatever.
-//
-// Some controls respond to mouse actions, either by moving a bitmap,
-// transforming a bitmap, or cycling through a set of bitmaps.
-// Other controls are readouts only.
-
+/** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
+ * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
+ * Other controls are readouts only.
+ */
 class IControl
 #ifdef VST3_API
 : public Steinberg::Vst::IContextMenuTarget
@@ -23,7 +19,14 @@ class IControl
 #endif
 {
 public:
-  // If paramIdx is > -1 (kNoParameter) this control will be associated with a plugin parameter.
+  /**
+   Constructor
+
+   @param plug - the IPlugBaseGraphics that the control belongs to
+   @param rect - the rectangular area that the control occupies
+   @param paramIdx - if this is > -1 (kNoParameter) this control will be associated with a plugin parameter
+   @param blendType - blend operation
+   */
   IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone)
   : mPlug(plug)
   , mRECT(rect)
@@ -182,7 +185,7 @@ protected:
 #endif
 };
 
-// Fills a rectangle with a color
+/** A basic control to fill a rectangle with a color */
 class IPanelControl : public IControl
 {
 public:
@@ -197,7 +200,7 @@ protected:
   IColor mColor;
 };
 
-// Draws a bitmap, or one frame of a stacked bitmap depending on the current value.
+/** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */
 class IBitmapControl : public IControl
 {
 public:
@@ -216,7 +219,7 @@ protected:
   IBitmap mBitmap;
 };
 
-// Output text to the screen.
+/** A basic control to output text to the screen. */
 class ITextControl : public IControl
 {
 public:

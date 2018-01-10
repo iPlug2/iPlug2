@@ -1,6 +1,6 @@
 #pragma once
 
-/*! \file IPlug_include_in_plug_src.h
+/** \file IPlug_include_in_plug_src.h
     \brief IPlug source include
 
     Include this file in the main source for your plugin, after #including the main header for your plugin.

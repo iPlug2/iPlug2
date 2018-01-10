@@ -33,7 +33,7 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 
 #endif
 
-/*! @brief Standalone application base class for an IPlug plug-in, inherits from IPlugBase
+/**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
 class IPlugStandalone : public IPLUG_BASE_CLASS

@@ -11,7 +11,7 @@
 
 struct NanoVGBitmap;
 
-/** @brief IGraphics draw class using NanoVG  
+/** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses
 */
 class IGraphicsNanoVG : public IGraphics

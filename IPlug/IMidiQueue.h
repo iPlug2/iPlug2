@@ -74,7 +74,7 @@ void MyPlug::ProcessDoubleReplacing(double** inputs, double** outputs, int nFram
 
 */
 
-/*! A class to help with queuing timestamped MIDI messages */
+/** A class to help with queuing timestamped MIDI messages */
 class IMidiQueue
 {
 public:

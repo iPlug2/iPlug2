@@ -4,7 +4,7 @@
 
 #ifndef NO_IGRAPHICS
 
-/** @brief IGraphics platform class for the Web (WAM) UI  
+/** IGraphics platform class for the Web (WAM) UI  
 *   @ingroup PlatformClasses
 */
 class IGraphicsWeb

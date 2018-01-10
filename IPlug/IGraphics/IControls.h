@@ -7,8 +7,7 @@
  * @{
  */
 
-
-// A switch.  Click to cycle through the bitmap states.
+/** A switch. Click to cycle through the bitmap states. */
 class ISwitchControl : public IBitmapControl
 {
 public:
@@ -20,7 +19,7 @@ public:
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
 };
 
-// Like ISwitchControl except it puts up a popup menu instead of cycling through states on click
+/** Like ISwitchControl except it puts up a popup menu instead of cycling through states on click. */
 class ISwitchPopUpControl : public ISwitchControl
 {
 public:
@@ -35,7 +34,7 @@ public:
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
 };
 
-// A switch where each frame of the bitmap contains images for multiple button states. The Control's mRect will be divided into clickable areas.
+/** A switch where each frame of the bitmap contains images for multiple button states. The Control's mRect will be divided into clickable areas. */
 class ISwitchFramesControl : public ISwitchControl
 {
 public:
@@ -48,7 +47,7 @@ protected:
   WDL_TypedBuf<IRECT> mRECTs;
 };
 
-// On/off switch that has a target area only.
+/** On/Off switch that has a target area only. */
 class IInvisibleSwitchControl : public IControl
 {
 public:
@@ -58,7 +57,7 @@ public:
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
 };
 
-// A set of buttons that maps to a single selection.  Bitmap has 2 states, off and on.
+/** A set of buttons that maps to a single selection. The Bitmap has 2 states, Off and On. */
 class IRadioButtonsControl : public IControl
 {
 public:
@@ -73,7 +72,7 @@ protected:
   IBitmap mBitmap;
 };
 
-// A switch that reverts to 0.0 when released.
+/** A switch that reverts to 0.0 when released. */
 class IContactControl : public ISwitchControl
 {
 public:
@@ -84,7 +83,7 @@ public:
   void OnMouseUp(int x, int y, const IMouseMod& mod) override;
 };
 
-// A fader. The bitmap snaps to a mouse click or drag.
+/** A fader with a bitmap for the handle. The bitmap snaps to a mouse click or drag. */
 class IFaderControl : public IControl
 {
 public:
@@ -93,19 +92,13 @@ public:
   ~IFaderControl() {}
   
   int GetLength() const { return mLen; }
-  // Size of the handle in pixels.
   int GetHandleHeadroom() const { return mHandleHeadroom; }
-  // Size of the handle in terms of the control value.
   double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
-  // Where is the handle right now?
   IRECT GetHandleRECT(double value = -1.0) const;
-  
   virtual void OnMouseDown(int x, int y, const IMouseMod& mod) override;
   virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) override;
   virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d) override;
-  
   virtual void Draw(IGraphics& graphics) override;
-  
   virtual bool IsHit(int x, int y) const override;
   virtual void OnRescale() override;
   
@@ -114,11 +107,11 @@ protected:
   int mLen, mHandleHeadroom;
   IBitmap mBitmap;
   EDirection mDirection;
-  bool mOnlyHandle; // if true only by clicking on the handle do you click the slider
+  bool mOnlyHandle;
   
 };
 
-// Parent for knobs, to handle mouse action and ballistics.
+/** Parent for knobs, to handle mouse action and ballistics. */
 class IKnobControl : public IControl
 {
 public:
@@ -135,7 +128,7 @@ protected:
   double mGearing;
 };
 
-// A knob that is just a line.
+/** A knob that is just a line. */
 class IKnobLineControl : public IKnobControl
 {
 public:
@@ -151,7 +144,7 @@ protected:
   float mMinAngle, mMaxAngle, mInnerRadius, mOuterRadius;
 };
 
-// A rotating knob.  The bitmap rotates with any mouse drag.
+/** A rotating knob.  The bitmap rotates with any mouse drag. */
 class IKnobRotaterControl : public IKnobControl
 {
 public:
@@ -168,7 +161,7 @@ protected:
   int mYOffset;
 };
 
-// A multibitmap knob.  The bitmap cycles through states as the mouse drags.
+/** A multibitmap knob.  The bitmap cycles through states as the mouse drags. */
 class IKnobMultiControl : public IKnobControl
 {
 public:
@@ -183,8 +176,9 @@ protected:
   IBitmap mBitmap;
 };
 
-// A knob that consists of a static base, a rotating mask, and a rotating top.
-// The bitmaps are assumed to be symmetrical and identical sizes.
+/** A knob that consists of a static base, a rotating mask, and a rotating top.
+ *  The bitmaps are assumed to be symmetrical and identical sizes.
+*/
 class IKnobRotatingMaskControl : public IKnobControl
 {
 public:
@@ -200,8 +194,7 @@ protected:
   double mMinAngle, mMaxAngle;
 };
 
-// Bitmap shows when value = 0, then toggles its target area to the whole bitmap
-// and waits for another click to hide itself.
+/** Bitmap shows when value = 0, then toggles its target area to the whole bitmap and waits for another click to hide itself. */
 class IBitmapOverlayControl : public ISwitchControl
 {
 public:
@@ -218,11 +211,13 @@ public:
   void Draw(IGraphics& graphics) override;
   
 protected:
-  IRECT mTargetArea;  // Keep this around to swap in & out.
+  IRECT mTargetArea;
 };
 
-// If paramIdx is specified, the text is automatically set to the output
-// of Param::GetDisplayForHost().  If showParamLabel = true, Param::GetLabelForHost() is appended.
+/** Displays the value of a parameter.
+ * If paramIdx is specified, the text is automatically set to the output of Param::GetDisplayForHost().
+ * If showParamLabel = true, Param::GetLabelForHost() is appended.  
+*/
 class ICaptionControl : public ITextControl
 {
 public:
@@ -238,19 +233,22 @@ protected:
   bool mShowParamLabel;
 };
 
+/** Clickable URL area */
 class IURLControl : public IControl
 {
 public:
   IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, const char* backupURL = 0, const char* errMsgOnFailure = 0);
   ~IURLControl() {}
   
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
-  virtual void Draw(IGraphics& graphics) {}
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override;
+  void Draw(IGraphics& graphics) override {}
   
 protected:
   WDL_String mURL, mBackupURL, mErrMsg;
 };
 
+/** A control to allow selection of a file from the file system */
+// TODO: does this actually work?
 class IFileSelectorControl : public IControl
 {
 public:
@@ -258,7 +256,11 @@ public:
   
   IFileSelectorControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBitmap& bitmap, EFileAction action, const char* dir = "", const char* extensions = "")
   : IControl(plug, rect, paramIdx)
-  , mBitmap(bitmap) , mFileAction(action), mDir(dir), mExtensions(extensions), mState(kFSNone) {}
+  , mBitmap(bitmap)
+  , mFileAction(action)
+  , mDir(dir)
+  , mExtensions(extensions) 
+  {}
   ~IFileSelectorControl() {}
   
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
@@ -273,11 +275,11 @@ protected:
   IBitmap mBitmap;
   WDL_String mDir, mFile, mExtensions;
   EFileAction mFileAction;
-  EFileSelectorState mState;
+  EFileSelectorState mState = kFSNone;
 };
 
-//TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
-
+/** Display monospace bitmap font text */
+// TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
 class IBitmapTextControl : public IControl
 {
 public:

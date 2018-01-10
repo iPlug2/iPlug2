@@ -19,7 +19,7 @@
 
 struct IPlugConfig;
 
-/*! The lowest level base class of an IPlug plug-in */
+/** The lowest level base class of an IPlug plug-in */
 class IPlugBase
 {
 public:
