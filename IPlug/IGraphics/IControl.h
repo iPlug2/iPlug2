@@ -22,10 +22,10 @@ public:
   /**
    Constructor
 
-   @param plug - the IPlugBaseGraphics that the control belongs to
-   @param rect - the rectangular area that the control occupies
-   @param paramIdx - if this is > -1 (kNoParameter) this control will be associated with a plugin parameter
-   @param blendType - blend operation
+   @param plug The IPlugBaseGraphics that the control belongs to
+   @param rect The rectangular area that the control occupies
+   @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
+   @param blendType Blend operation
    */
   IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone)
   : mPlug(plug)
@@ -92,7 +92,7 @@ public:
    * @param hide Set to true to hide the control 
    */
   virtual void Hide(bool hide);
-  /** @return True if the control is hidden. */
+  /** @return \c True if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
   virtual void GrayOut(bool gray);
