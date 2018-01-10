@@ -33,7 +33,7 @@ struct IBitmap
   int W;
   /** Bitmap height (in pixels) */
   int H;
-  /** Number of frames (for multibitmaps) */
+  /** Number of frames (for stacked bitmaps) */
   int N;
   /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
