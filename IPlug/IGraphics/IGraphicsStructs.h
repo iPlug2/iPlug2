@@ -38,6 +38,7 @@ struct IBitmap
   /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
   /** Maximum scaling allowed for the bitmap (typically 1) */
+  /** @todo Check this */
   double mSourceScale;
   /** Resource name for the bitmap */
   WDL_String mResourceName;
@@ -105,7 +106,9 @@ const IColor COLOR_ORANGE(255, 255, 127, 0);
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
-  /** @enum EType Blend type */
+  /** @enum EType Blend type
+   * @todo This could use some documentation
+  */
   enum EType
   {
     kBlendNone,     // Copy over whatever is already there, but look at src alpha.
@@ -119,7 +122,8 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * @param weight @todo complete this
+   * @todo IBlend::weight needs documentation
+   * @param weight
   */
   IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };

@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <algorithm>
 
+/**
+ * Creates an empty IParam object
+ */
 IParam::IParam()
 {
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
@@ -9,6 +12,14 @@ IParam::IParam()
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
 };
 
+/**
+ * Initializes to a bool (true/false) parameter
+ * @param defaultVal Default value
+ * @todo Fill in InitBool() parameters
+ * @param name 
+ * @param label
+ * @param group
+ */
 void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group)
 {
   if (mType == kTypeNone) mType = kTypeBool;

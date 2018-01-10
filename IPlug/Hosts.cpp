@@ -5,6 +5,11 @@
 #include "Hosts.h"
 #include "Log.h"
 
+/**
+ * @file
+ * @brief Host application name lookup
+ */
+
 EHost LookUpHost(const char* inHost)
 {
   char host[256];

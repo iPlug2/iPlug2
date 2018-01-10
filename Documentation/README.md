@@ -1,7 +1,9 @@
 # WDL-OL/IPlug
 
 ## Disclaimer
-This documentation is a work-in-progress reference. You'll need to have some understanding of C++ concepts to find your way around. We're working on some simpler tutorials as well. Stay tuned. Any help is welcome!
+This documentation is a work-in-progress reference. You'll need to have some understanding of C++ concepts to find your way around. We're working on some simpler tutorials as well. Stay tuned.
+
+Any help is welcome! If you want to join us, start with the [Todo List](todo.html)
 
 ### Requirements
 WDL-OL/IPlug requires a compiler that supports C++11, and is tested with MS Visual Studio 2017 and Xcode 9. It supports Windows XP or higher and macOS 10.7+.

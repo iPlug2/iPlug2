@@ -232,7 +232,9 @@ public:
   }
   
   /** Resizes the chunk
-   *  @param newSize Desired size (in bytes)
+   * @param newSize Desired size (in bytes)
+   * @todo Check this
+   * @return Old size (in bytes)
    */
   inline int Resize(int newSize)
   {
