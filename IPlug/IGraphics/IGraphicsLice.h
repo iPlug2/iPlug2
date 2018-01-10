@@ -11,7 +11,7 @@
 
 #include "IGraphics.h"
 
-/** @brief IGraphics draw class using Cockos' LICE  
+/** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses
 */
 class IGraphicsLice : public IGraphics

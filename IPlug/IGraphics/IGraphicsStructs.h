@@ -18,7 +18,13 @@ enum EFileAction { kFileOpen, kFileSave };
 
 enum EDirection { kVertical, kHorizontal };
 
-//An IBitmap's dimensions are always 1:1. Any scaling happens at the drawing stage.
+/**
+ * \defgroup IGraphicsStructs IGraphics::Structs
+ * @{
+ */
+
+/** Used to manage bitmap data, independant of draw class/platform.
+ * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 struct IBitmap
 {
   void* mData;
@@ -41,6 +47,7 @@ struct IBitmap
   inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
 };
 
+/** Used to manage Color data, independant of draw class/platform.*/
 struct IColor
 {
   int A, R, G, B;
@@ -71,6 +78,7 @@ const IColor COLOR_BLUE(255, 0, 0, 255);
 const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
+/** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
   enum EType
@@ -91,16 +99,7 @@ const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
 
-#ifdef OS_WIN
-  const char* const DEFAULT_FONT = "Verdana";
-  const int DEFAULT_TEXT_SIZE = 12;
-#elif defined OS_OSX
-  const char* const DEFAULT_FONT = "Monaco";
-  const int DEFAULT_TEXT_SIZE = 10;
-#endif
-
-const int FONT_LEN = 32;
-
+/** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
 {
   char mFont[FONT_LEN];
@@ -146,8 +145,9 @@ struct IText
 
 const IText DEFAULT_TEXT = IText();
 
-// An IRECT is always specified in 1:1 pixels, any scaling for HiDPI happens in the drawing
-// IGraphics 0,0 is top left
+/** Used to manage a rectangular area, independant of draw class/platform.
+ * An IRECT is always specified in 1:1 pixels, any scaling for HiDPI happens in the drawing class.
+ * In IGraphics 0,0 is top left. */
 struct IRECT
 {
   int L, T, R, B;
@@ -321,6 +321,7 @@ struct IRECT
   }
 };
 
+/** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
 struct IMouseMod
 {
   bool L, R, S, C, A;
@@ -415,3 +416,5 @@ public:
     mDatas.Empty(true);
   }
 };
+
+/**@}*/

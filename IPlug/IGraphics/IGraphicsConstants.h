@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IPlugOSDetect.h"
+
 static const int DEFAULT_FPS = 25;
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
@@ -28,3 +30,12 @@ static const double DEFAULT_GEARING = 4.0;
 
 static const float GRAYED_ALPHA = 0.25f;
 
+#ifdef OS_WIN
+const char* const DEFAULT_FONT = "Verdana";
+const int DEFAULT_TEXT_SIZE = 12;
+#elif defined OS_OSX
+const char* const DEFAULT_FONT = "Monaco";
+const int DEFAULT_TEXT_SIZE = 10;
+#endif
+
+const int FONT_LEN = 32;

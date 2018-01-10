@@ -6,10 +6,10 @@
 
 // #include "Processor.h"
 
-/*! Used to pass various instance info to the API class */
+/** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo {};
 
-/*! @brief Web Audio Module (WAM) API base class for an IPlug plug-in, inherits from IPlugBase
+/**  Web Audio Module (WAM) API base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
 class IPlugWAM : public IPLUG_BASE_CLASS

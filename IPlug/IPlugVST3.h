@@ -26,7 +26,7 @@ struct IPlugInstanceInfo
 
 class IPlugVST3View;
 
-/*! @brief VST3 base class for an IPlug plug-in, inherits from IPlugBase
+/**  VST3 base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
 class IPlugVST3 : public IPLUG_BASE_CLASS
@@ -136,7 +136,7 @@ private:
 
 IPlugVST3* MakePlug();
 
-/*! IPlug VST3 View  */
+/** IPlug VST3 View  */
 class IPlugVST3View : public Steinberg::CPluginView
 {
 public:

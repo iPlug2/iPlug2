@@ -7,7 +7,7 @@
 #include "IPlugUtilities.h"
 
 
-/*! IPlug's parameter class */
+/** IPlug's parameter class */
 class IParam
 {
 public:
