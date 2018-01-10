@@ -27,14 +27,29 @@ enum EDirection { kVertical, kHorizontal };
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 struct IBitmap
 {
+  /** Pointer to the raw bitmap data */
   void* mData;
+  /** Bitmap width (in pixels) */
   int W;
+  /** Bitmap height (in pixels) */
   int H;
-  /** Number of states (for multibitmaps) */
+  /** Number of frames (for multibitmaps) */
   int N;
+  /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
-  double mSourceScale; // i.e. highest res available for this resource
+  /** Maximum scaling allowed for the bitmap (typically 1) */
+  double mSourceScale;
+  /** Resource name for the bitmap */
   WDL_String mResourceName;
+  /** Creates a new IBitmap object
+   * @param pData Pointer to the raw bitmap data
+   * @param w Bitmap width (in pixels)
+   * @param h Bitmap height (in pixels)
+   * @param n Number of frames (for multibitmaps)
+   * @param framesAreHorizontal \c True if the frames are positioned horizontally
+   * @param sourceScale Maximum scaling allowed for the bitmap (typically 1)
+   * @param name Resource name for the bitmap
+   */
   IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double sourceScale = 1., const char* name = "")
     : mData(pData)
     , W(w)
@@ -46,7 +61,13 @@ struct IBitmap
   {
   }
 
+  /**
+   * @return Width of a single frame
+  */
   inline int frameWidth() const { return (mFramesAreHorizontal ? W / N : W); }
+  /**
+   * @return Height of a single frame
+   */
   inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
 };
 
