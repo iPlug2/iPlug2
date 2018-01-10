@@ -67,13 +67,9 @@ public:
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
   
-  /*!
-   * @param tooltip Text to be displayed
-   */
+  /** @param tooltip Text to be displayed */
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
-  /*!
-   * \return Currently set tooltip text
-   */
+  /** \return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
   int ParamIdx() { return mParamIdx; }
@@ -92,14 +88,11 @@ public:
   virtual void TextFromTextEntry( const char* txt ) {}
   virtual void OnContextSelection(int itemSelected) {}
 
-  /*!
-   * Shows or hides the IControl
-   * @param hide Set to \c true to hide the control
+  /** Shows or hides the IControl.
+   * @param hide Set to true to hide the control 
    */
   virtual void Hide(bool hide);
-  /*!
-   * @return \c true if the control is hidden. Defaults to \c false
-   */
+  /** @return \c True if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
   virtual void GrayOut(bool gray);
