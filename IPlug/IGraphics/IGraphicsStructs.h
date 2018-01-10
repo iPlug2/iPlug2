@@ -105,9 +105,10 @@ const IColor COLOR_ORANGE(255, 255, 127, 0);
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
+  /** @enum EType Blend type */
   enum EType
   {
-    kBlendNone,   // Copy over whatever is already there, but look at src alpha.
+    kBlendNone,     // Copy over whatever is already there, but look at src alpha.
     kBlendClobber,  // Copy completely over whatever is already there.
     kBlendAdd,
     kBlendColorDodge,
@@ -116,6 +117,10 @@ struct IBlend
   EType mMethod;
   float mWeight;
 
+  /** Creates a new IBlend
+   * @param type Blend type (defaults to none)
+   * @param weight @todo complete this
+  */
   IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 

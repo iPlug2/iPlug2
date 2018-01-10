@@ -112,11 +112,11 @@ WARN_LOGFILE           = doxygen_warnings.txt
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 
-INPUT                  = README.md \
+INPUT                  = . \
                          ../IPlug
-USE_MDFILE_AS_MAINPAGE = README.md
+USE_MDFILE_AS_MAINPAGE = ./README.md
 INPUT_ENCODING         = UTF-8
-FILE_PATTERNS          = 
+FILE_PATTERNS          =
 RECURSIVE              = YES
 EXCLUDE                = ../IPlug/IGraphics/nanovg \
                          ../IPlug/IGraphics/freetype \
