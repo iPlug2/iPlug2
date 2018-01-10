@@ -34,7 +34,24 @@ public:
   virtual void Reset() { TRACE; }
   virtual void OnParamChange(int paramIdx) {}
 
-  // Default passthrough.  Inputs and outputs are [nChannel][nSample].
+  /** Default passthrough.
+   * Inputs and outputs are two-dimensional arrays [nChannel][nSample]
+   * @param inputs 2D array containing the input buffer for all channels. To access a specific channel:
+   * @code
+   * double* inLeft  = inputs[0];
+   * double* inRight = inputs[1];
+   * @endcode
+   * The result is a double array, indexed from 0 to nFrames which can be accessed in this manner:
+   * @code
+   * for (int i = 0; i < nFrames; ++i) {
+   *    double sampleL = inLeft[i];
+   *    double sampleR = inRight[i];
+   * }
+   * @endcode
+   * For multi-channel plugins, use subsequent index numbers
+   * @param outputs 2D output array. The output of your DSP goes here
+   * @param nFrames Number of samples per array (buffer size)
+  */
   virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
   
   // In case the audio processing thread needs to do anything when the GUI opens
