@@ -69,13 +69,15 @@ public:
   
   /** @param tooltip Text to be displayed */
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
-  /** \return Currently set tooltip text */
+  /** @return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
+  /** @return Parameter index */
   int ParamIdx() { return mParamIdx; }
   IParam* GetParam() { return mPlug.GetParam(mParamIdx); }
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
+  /** @return Value of the control */
   double GetValue() { return mValue; }
 
   IText& GetText() { return mText; }
@@ -95,7 +97,11 @@ public:
   /** @return \c True if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
+  /** Sets grayout for the control to be true or false
+   * @param gray \c True for grayed out
+   */
   virtual void GrayOut(bool gray);
+  /** @return \c True if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
@@ -123,10 +129,13 @@ public:
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
   
-  // a struct that contain a parameter index and normalized value
-  struct AuxParam 
+  
+  /** A struct that contains a parameter index and normalized value */
+   struct AuxParam 
   {
+    /** Normalized value */
     double mValue  = 0.;
+    /** Parameter index */
     int mParamIdx;
     
     AuxParam(int idx) : mParamIdx(idx)
@@ -134,16 +143,22 @@ public:
       assert(idx > kNoParameter); // no negative params please
     }
   };
-  
-  // return a pointer to the AuxParam instance at idx in the mAuxParams array
+
+  /** @name Auxiliary parameter
+   *  TODO: Insert a meaningful description here
+   */
+  /**@{*/
+  /** @return A pointer to the AuxParam instance at idx in the mAuxParams array */
   AuxParam* GetAuxParam(int idx);
-  // return the index of the auxillary parameter that holds the paramIdx
+  /** @return Index of the auxillary parameter that holds the paramIdx */
   int AuxParamIdx(int paramIdx);
-  // add an auxilliary parameter linked to paramIdx
+  /** Adds an auxilliary parameter linked to paramIdx */
   void AddAuxParam(int paramIdx);
-  virtual void SetAuxParamValueFromPlug(int auxParamIdx, double value); // can override if nessecary
+  /** Can override if necessary */
+  virtual void SetAuxParamValueFromPlug(int auxParamIdx, double value);
   void SetAllAuxParamsFromGUI();
   int NAuxParams() { return mAuxParams.GetSize(); }
+  /**@}*/
   
   IPlugBaseGraphics& GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
@@ -157,6 +172,7 @@ public:
 protected:
   IPlugBaseGraphics& mPlug;
   IRECT mRECT, mTargetRECT;
+  /** Parameter index */
   int mParamIdx;
   IBlend mBlend;
   IText mText;

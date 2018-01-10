@@ -28,7 +28,10 @@ enum EDirection { kVertical, kHorizontal };
 struct IBitmap
 {
   void* mData;
-  int W, H, N;    // N = number of states (for multibitmaps).
+  int W;
+  int H;
+  /** Number of states (for multibitmaps) */
+  int N;
   bool mFramesAreHorizontal;
   double mSourceScale; // i.e. highest res available for this resource
   WDL_String mResourceName;
