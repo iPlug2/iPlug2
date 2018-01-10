@@ -14,7 +14,9 @@
 #include "NChanDelay.h"
 
 /**
- * \defgroup APIClasses IPlug::APIClasses
+ * @file
+ * @copydoc IPlugBase
+ * @defgroup APIClasses IPlug::APIClasses
 */
 
 struct IPlugConfig;
@@ -96,15 +98,31 @@ public:
   int NParams() const { return mParams.GetSize(); }
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
-  const char* GetEffectName() const { return mEffectName.Get(); }
-  int GetEffectVersion(bool decimal) const;   // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
+  const char* GetEffectName() const { return mEffectName.Get(); }\
+  /** Get version code
+   * @param decimal Sets the output format
+   * @return Effect version in VVVVRRMM (if \p decimal is \c true) or 0xVVVVRRMM (if \p decimal is \c false) format
+   */
+  int GetEffectVersion(bool decimal) const;
+
+  /** Get a printable version string
+   * @param str String buffer to write to
+   * 
+   * Make sure to allocate enough memory (add 2 bytes of margin for possible debug suffix as well as null termination)
+   * 
+   * The output format is vX.M.m, where X - version, M - major, m - minor
+   * 
+   * @todo Please check this and remove this note once done
+   * @note If \c _DEBUG is defined, \c D is appended to the version string
+   * @note If \c TRACER_BUILD is defined, \c T is appended to the version string
+   */
   void GetEffectVersionStr(char* str) const;
+  /** Get manufacturer name string */
   const char* GetMfrName() const { return mMfrName.Get(); }
+  /** Get product name string */
   const char* GetProductName() const { return mProductName.Get(); }
   int GetUniqueID() const { return mUniqueID; }
   int GetMfrID() const { return mMfrID; }
-
-  //
   
   virtual void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) {}; // call from plugin API class to update GUI prior to calling OnParamChange();
   virtual void SetParameterFromUI(int idx, double normalizedValue); // called from GUI to update
@@ -119,9 +137,16 @@ public:
   // Useful stuff for your plugin class or an outsider to call,
   // most of which is implemented by the API class.
 
+  /** @brief Get sample rate (in Hz)
+   * @return Sample rate (in Hz). Defaults to 44100.0
+   */
   double GetSampleRate() const { return mSampleRate; }
   int GetBlockSize() const { return mBlockSize; }
+  /** @return Plugin latency (in samples)
+   * @todo Please check this and remove this note once done
+   */
   int GetLatency() const { return mLatency; }
+  /** @return \c True if the plugin is currently bypassed */
   bool GetIsBypassed() const { return mIsBypassed; }
 
   // In ProcessDoubleReplacing you are always guaranteed to get valid pointers
@@ -172,8 +197,15 @@ protected:
   const WDL_String* GetInputLabel(int idx) { return &(mInChannels.Get(idx)->mLabel); }
   const WDL_String* GetOutputLabel(int idx) { return &(mOutChannels.Get(idx)->mLabel); }
 
-  // for labelling bus inputs/outputs (AU/VST3)
+  /** Sets labels for the inputs (AU/VST3)
+   * @param idx Input index. Range: 0-1 (it's only possible to have two input buses)
+   * @param pLabel Label text
+   */
   void SetInputBusLabel(int idx, const char* pLabel);
+  /** Sets labels for the outputs (AU/VST3)
+   * @param idx Output index
+   * @param pLabel Label text
+   */
   void SetOutputBusLabel(int idx, const char* pLabel);
 
   const WDL_String* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx); }
@@ -295,7 +327,9 @@ public:
 
 private:
   WDL_String mEffectName;
+  /** Product name */
   WDL_String mProductName;
+  /** Manufacturer name */
   WDL_String mMfrName;
   
   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
@@ -303,6 +337,8 @@ private:
   int mMfrID;
   int mVersion;
   int mHostVersion = 0;
+  /**
+   * @brief Plugin API */
   EAPI mAPI;
   EHost mHost = kHostUninit;
 
@@ -314,10 +350,12 @@ private:
     WDL_String mLabel;
   };
 
+  /** @struct OutChannel */
   struct OutChannel
   {
     bool mConnected;
-    double** mDest;  // Points into mOutData.
+    /** Points into mOutData */
+    double** mDest;
     float* mFDest;
     WDL_TypedBuf<double> mScratchBuf;
     WDL_String mLabel;
@@ -325,9 +363,15 @@ private:
 
 protected:
   bool mStateChunks;
+  /** \c True if the plug-in is an instrument */
   bool mIsInst;
+  /** \c True if the plug-in requires MIDI input */
+  /** @todo Someone check this please */
   bool mDoesMIDI;
+  /** Plug-in latency (in samples) */
+  /** @todo Someone check this please */
   int mLatency;
+  /** \c True if the plug-in is bypassed */
   bool mIsBypassed = false;
   bool mHasUI = false;
   int mCurrentPresetIdx = 0;
@@ -346,5 +390,6 @@ protected:
   WDL_PtrList<ChannelIO> mChannelIO;
   
 public:
-  WDL_Mutex mParams_mutex; // lock when accessing mParams (including via GetParam) from the audio thread
+  /** Lock when accessing mParams (including via GetParam) from the audio thread */
+  WDL_Mutex mParams_mutex;
 };
