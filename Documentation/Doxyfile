@@ -112,8 +112,9 @@ WARN_LOGFILE           = doxygen_warnings.txt
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 
-INPUT                  = ../IPlug \
-                         Documentation/src
+INPUT                  = README.md \
+                         ../IPlug
+USE_MDFILE_AS_MAINPAGE = README.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = 
 RECURSIVE              = YES
@@ -164,7 +165,6 @@ INPUT_FILTER           =
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO
 FILTER_SOURCE_PATTERNS = 
-USE_MDFILE_AS_MAINPAGE = 
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -181,7 +181,6 @@ USE_HTAGS              = NO
 VERBATIM_HEADERS       = YES
 CLANG_ASSISTED_PARSING = NO
 CLANG_OPTIONS          = 
-CLANG_COMPILATION_DATABASE_PATH= 0
 
 #---------------------------------------------------------------------------
 # Configuration options related to the alphabetical class index
@@ -268,8 +267,6 @@ MAN_LINKS              = NO
 
 GENERATE_XML           = NO
 XML_OUTPUT             = xml
-XML_SCHEMA             =
-XML_DTD                =
 XML_PROGRAMLISTING     = YES
 
 #---------------------------------------------------------------------------
@@ -317,7 +314,7 @@ CLASS_DIAGRAMS         = NO
 MSCGEN_PATH            = 
 DIA_PATH               = 
 HIDE_UNDOC_RELATIONS   = YES
-HAVE_DOT               = YES
+HAVE_DOT               = NO
 DOT_NUM_THREADS        = 0
 DOT_FONTNAME           = Helvetica
 DOT_FONTSIZE           = 10
@@ -341,7 +338,6 @@ DOTFILE_DIRS           =
 MSCFILE_DIRS           = 
 DIAFILE_DIRS           = 
 PLANTUML_JAR_PATH      = 
-PLANTUML_CFG_FILE      = 
 PLANTUML_INCLUDE_PATH  = 
 DOT_GRAPH_MAX_NODES    = 50
 MAX_DOT_GRAPH_DEPTH    = 0
