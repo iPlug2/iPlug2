@@ -40,6 +40,11 @@ IPlugExamples/build_errors.log
 IPlugExamples/IPlugEEL/libEEL/build
 IPlugExamples/duplicate.pyc
 
+# Ignore VS Code workspace and Doxygen output
+html/
+doxygen_warnings.txt
+.vscode/
+
 Projects/*
 WorkProjects/*
 ObsoleteProjects/*
