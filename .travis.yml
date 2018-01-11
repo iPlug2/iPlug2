@@ -33,4 +33,4 @@ deploy:
   local_dir: $TRAVIS_BUILD_DIR/Documentation/html
   github_token: $GITHUB_API_KEY
   on:
-    branch: master
+    branch: iplugquake
