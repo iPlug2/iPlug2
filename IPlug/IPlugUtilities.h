@@ -38,22 +38,23 @@
 #define MAKE_QUOTE(str) #str
 #define MAKE_STR(str) MAKE_QUOTE(str)
 
+/** @hideinitializer */
 #define GET_PARAM_FROM_VARARG(paramType, vp, v) \
 { \
-v = 0.0; \
-switch (paramType) { \
-case IParam::kTypeBool: \
-case IParam::kTypeInt: \
-case IParam::kTypeEnum: { \
-v = (double) va_arg(vp, int); \
-break; \
-} \
-case IParam::kTypeDouble: \
-default: { \
-v = (double) va_arg(vp, double); \
-break; \
-} \
-} \
+  v = 0.0; \
+  switch (paramType) { \
+    case IParam::kTypeBool: \
+    case IParam::kTypeInt: \
+    case IParam::kTypeEnum: { \
+      v = (double) va_arg(vp, int); \
+      break; \
+    } \
+    case IParam::kTypeDouble: \
+    default: { \
+      v = (double) va_arg(vp, double); \
+      break; \
+    } \
+  } \
 }
 
 /** @brief Calculates gain from a given dB value
