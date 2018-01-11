@@ -1294,20 +1294,26 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return success;
 }
 
-bool IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param)
+BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param)
 {
-  if (IS_INTRESOURCE(name))
-  {
-    return true;
+  if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
+  else {
+    WDL_String* search = (WDL_String*) param;
+    if (search != 0 && name != 0)
+    {
+      //strip off extra quotes
+      WDL_String strippedName(strlwr(name+1)); 
+      strippedName.SetLen(strippedName.GetLength() - 1);
+
+      if (strcmp(search->Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
+      {
+        search->SetFormatted("Found: %s", strippedName.Get());
+        return false;
+      }
+    }
+    else
+      return true; // keep enumerating
   }
-  
-  int* resourceID = (int*) param;
-  if (resourceID != 0 && name != 0)
-  {
-    
-  }
-  
-  return true;
 }
 
 void IGraphicsWin::OSLoadBitmap(const char* name, WDL_String& result)
@@ -1322,11 +1328,11 @@ void IGraphicsWin::OSLoadBitmap(const char* name, WDL_String& result)
   if (!stricmp(ext, "png")) ispng = true;
   else if (!stricmp(ext, "jpg")) isjpg = true;
   
-  int resourceID = -1;
+  WDL_String search(name);
+  EnumResourceNames(mHInstance, ispng ? "PNG" : "JPG", (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
   
-  EnumResourceNames(mHInstance, ispng ? "PNG" : "JPG", (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &resourceID);
-  
-  if (resourceID > -1)
-    result.SetFormatted("%i", resourceID);
+  //if (strcmp(search.Get(), "") == 0)
+  result.Set(search.Get(), MAX_PATH);
+
   //TODO:  else search location?
 }
