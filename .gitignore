@@ -34,7 +34,8 @@ CA_SDK/*
 Icon?
 .DS_Stor*
 
-/Documentation/html
+Documentation/html
+Documentation/doxygen_warnings.txt
 IPlugExamples/build_errors.log
 IPlugExamples/IPlugEEL/libEEL/build
 IPlugExamples/duplicate.pyc

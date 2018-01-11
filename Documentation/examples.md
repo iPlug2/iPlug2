@@ -1,6 +1,6 @@
-# Examples Instructions
+# Examples
 
-@todo this is obsolete, but here to be updated
+@todo This is obsolete, but here to be updated
 
 ##Introduction
 
@@ -14,13 +14,16 @@ Some of these are optional, but without them the build-scripts will need to be e
 
 **Windows**
 
-* [GIT for windows](http://code.google.com/p/msysgit/) (version control) 
+* [Git for Windows](http://gitforwindows.org/) (version control)
+@todo MSYSGIT is obsolete and replaced by [Git for Windows](http://gitforwindows.org/). That said, Visual Studio comes with Git support out of the box, which isn't nearly as messy. How about basing this guide on the built-in Git extension?
+
 * [Microsoft Visual Studio 2017 Community](https://www.visualstudio.com/downloads/) (or one of the premium versions)
-  * @todo which options for visual studio install?
+@todo Add a list of Visual Studio packages required
+
 * [Python 2.7 or 3](http://www.python.org/)
-* [Innosetup](http://www.jrsoftware.org/isinfo.php) 
-* [7zip](http://www.7-zip.org/) (if you want to zip instead of make an installer)
-* Pace tools and certificate for code signing AAX binaries (consult Avid documentation)
+* [Inno Setup](http://www.jrsoftware.org/isinfo.php) 
+* [7-Zip](http://www.7-zip.org/) (if you want to create a ZIP instead of making an installer)
+* PACE tools and certificate for code signing AAX binaries (AAX only, consult Avid documentation)
 
 **Mac**
 
@@ -28,34 +31,34 @@ Some of these are optional, but without them the build-scripts will need to be e
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) for building OSX installers 
 * [setfileicon utility](http://maxao.free.fr/telechargements/setfileicon.gz) for changing icons
 * Mac Developer ID Certificates for code signing installers for 10.8>
-* Pace tools and certificate for code signing AAX binaries (consult Avid documentation)
+* PACE tools and certificate for code signing AAX binaries (AAX only, consult Avid documentation)
 
-##About the examples:
+##Example Projects
 
-* IPlugChunks - shows how to use chunks in a plugin. Chunks allow you to store arbitrary data in the plugin's state as opposed to just a value for each parameter.
-* IPlugControls -  demos the various IControl classes (example by Captain Caveman)
-* IPlugConvoEngine - demos WDL_ConvolutionEngine() - Cockos' fast convolution engine (example by Tale)
-* IPlugDistortion - demos Tale's bessel filter implementation for realtime oversampling (example by Tale)
-* IPlugEEL - demonstrates using Cockos' EEL library for run-time expression evaluation
-* IPlugEffect - The most basic IPlug plugin, a gain control similar to AGain in the VST2 SDK, however it has a GUI
-* IPlugGUIResize - has three buttons to choose different gui sizes at runtime
-* IPlugHostDetect - displays the host name and version (not very reliable at the moment)
-* IPlugMonoSynth - a basic monophonic IPlug synth, showing how to handle MIDI messages sample accurately. Also shows how to use Tale's IKeyboardControl.
-* IPlugMouseTest - demonstrates an XY pad IControl which is linked to two plugin parameters
-* IPlugMultiChannel  - demos a multi-channel IPlug plugin, and how to test if channels are connected
-* IPlugMultiTargets - a midi effect plugin that also demos compilation to IOS, getting tempo info, and pop up menus
-* IPlugOpenGL - using OpenGL in IPlug
-* IPlugPlush -  shows how to use Cockos' Plush to do basic 3D Graphics
-* IPlugPolySynth - a basic polyphonic IPlug synth
-* IPlugResampler - demonstrates using WDL_Resampler
-* IPlugSideChain - a plugin that shows how to setup a sidechain input, for VST3, AU
-* IPlugText - demos different ways to draw text
+* **IPlugChunks** - shows how to use chunks in a plugin. Chunks allow you to store arbitrary data in the plugin's state as opposed to just a value for each parameter.
+* **IPlugControls** -  demos the various IControl classes (example by Captain Caveman)
+* **IPlugConvoEngine** - demos WDL_ConvolutionEngine() - Cockos' fast convolution engine (example by Tale)
+* **IPlugDistortion** - demos Tale's bessel filter implementation for realtime oversampling (example by Tale)
+* **IPlugEEL** - demonstrates using Cockos' EEL library for run-time expression evaluation
+* **IPlugEffect** - The most basic IPlug plugin, a gain control similar to AGain in the VST2 SDK, however it has a GUI
+* **IPlugGUIResize** - has three buttons to choose different gui sizes at runtime
+* **IPlugHostDetect** - displays the host name and version (not very reliable at the moment)
+* **IPlugMonoSynth** - a basic monophonic IPlug synth, showing how to handle MIDI messages sample accurately. Also shows how to use Tale's IKeyboardControl.
+* **IPlugMouseTest** - demonstrates an XY pad IControl which is linked to two plugin parameters
+* **IPlugMultiChannel**  - demos a multi-channel IPlug plugin, and how to test if channels are connected
+* **IPlugMultiTargets** - a midi effect plugin that also demos compilation to IOS, getting tempo info, and pop up menus
+* **IPlugOpenGL** - using OpenGL in IPlug
+* **IPlugPlush** -  shows how to use Cockos' Plush to do basic 3D Graphics
+* **IPlugPolySynth** - a basic polyphonic IPlug synth
+* **IPlugResampler** - demonstrates using WDL_Resampler
+* **IPlugSideChain** - a plugin that shows how to setup a sidechain input, for VST3, AU
+* **IPlugText** - demos different ways to draw text
 
-The IPlugEffect project is the main starting project I use. If you are not interested in AAX / APP etc, I suggest you duplicate this and manually remove those targets to give you a new clean starting template with just your preferred formats in it.
+The **IPlugEffect** project is the main starting project I use. If you are not interested in AAX/standalone etc, I suggest you [duplicate](md_duplicate.html) this and manually remove those targets to give you a new clean starting template with just your preferred formats in it.
 
 Rather than changing settings for individual targets/projects inside the Xcode Project/Visual Studio solutions, most customisations can be done in the xcconfig and property sheets.
 
-##About the supported formats:
+##Supported Formats
 
 ###VST2
 
@@ -69,12 +72,14 @@ Extract the Steinberg VST3.6.X SDK to the folder VST3_SDK but get ready to rever
 
 - WDL-OL has customised Xcode and VS2017 projects for the VST3 base library. Make sure you didn't overwrite them when you extracted the VST3 SDK or if you did just revert the changes in git.
 
-   VST3_SDK\base\mac\base.Xcodeproj/*
-	 VST3_SDK\base\win\base.vcxproj
+```
+VST3_SDK\base\mac\base.Xcodeproj/*
+VST3_SDK\base\win\base.vcxproj
+```
 
-- On windows, make sure you have a folder C:\Program Files\Common Files\VST3, otherwise the copy files build stage will cause the build to fail
+- On Windows, make sure *C:\\Program Files\\Common Files\\VST3* exists, otherwise the copy files build stage will cause the build to fail
 
-- On OSX by default I build to the system VST3 folder /Library/Audio/Plug-Ins/VST3/ - You will need to have write permissions to this folder. If you want to build to the user VST3 folder, you'll need to edit the common.xcconfig file and also modify the installer scripts
+- On OSX by default I build to the system VST3 folder /Library/Audio/Plug-Ins/VST3/. You will need to have *write permissions* to this folder. If you want to build to the user VST3 folder, you'll need to edit the common.xcconfig file and also modify the installer scripts
 
 ###AAX
 
@@ -89,13 +94,13 @@ MACOSX_DEPLOYMENT_TARGET = 10.X
 ARCHS = x86_64 i386
 ```
 
-- In order to compile AAX binaries that run in the release build of ProTools, you will need to code-sign those binaries (see Avid docs)
+- In order to compile AAX binaries that run in the release build of Pro Tools, you will need to code-sign those binaries (see Avid documentation)
 
-###AudioUnit v2
+###AU
 
 - When building AUs, bear in mind that some hosts keep a cache... see debugging notes below.
-- there is a special shell script validate_audiounit.command that will run the auvaltool command line app with the correct IDs for your plugin (see below) and can also set up the leaks test, which is useful for debugging. Type man auval  or see here for info.
-- By default I build to the system audiounits folder /Library/Audio/Plug-Ins/Components/ - You will need to have write permissions to this folder. If you want to build to the user audiounits folder, you'll need to edit the .xcconfig file and also modify the installer scripts
+- There is a shell script *validate_audiounit.command* that will run *auvaltool* with the correct IDs for your plugin (see below) and can also set up the leaks test, which is useful for debugging. Type *man auval* or see [here](todo.html) for info.
+- By default I build to the system AU folder /Library/Audio/Plug-Ins/Components/. You will need to have *write permissions* to this folder. If you want to build to the user AU folder, you'll need to edit the .xcconfig file and also modify the installer scripts
 
 ###Standalone
 
@@ -112,25 +117,7 @@ For OSX 10.8 GateKeeper you will need to code-sign your installer and the .app w
 
 If compiling against the 10.7 SDK or higher carbon GUIs will be inefficient due to unnecessary redraws
 
-##Duplicating Projects
-
-The IPlugExamples folder contains a python script to duplicate an IPlug project. This allows you to very quickly create a new project based on one of the examples. It does a multiple file find and replace to substitute the new name of the project for the old name, and also to change the manufacturer name. Once you have done this you only need to change two more things by hand in resource.h to make your plugin unique.
-
-You can duplicate a project as follows with the following commands in the OSX terminal or on the windows command prompt. In this example i will copy the IPlugEffect project to a new project called MyNewPlugin
-
-- open terminal or cmd.exe and navigate to the IPlugExamples folder
-- type
-	duplicate.py [inputprojectname] [outputprojectname] [manufacturername]
-
-e.g
-	duplicate.py IPlugEffect MyNewPlugin OliLarkin
-
-you might need to do ./duplicate.py on OSX
-
-- open  MyNewPlugin/resource.h and change PLUG_UNIQUE_ID and PLUG_MFR_ID
-
-
-##Debugging Setups
+##Debugging
 
 .xcscheme files are set up to use some common hosts for debugging the various formats in Xcode.
 
@@ -140,10 +127,16 @@ AU hosts cache information about the plugin I/O channels etc, so I have added a 
 
 There is also a validate_audiounit.command shell script which will is a helper that runs auval with your plugins' unique IDs, and optionally performs the leaks test.
 
-You should install VSTHost to C:\Program Files\VSTHost\vsthost.exe (on x64 you should install the 64bit version here)
+You should install [VSTHost](http://hermannseib.com/english/vsthost.htm) to *C:\\Program Files\\VSTHost\\vsthost.exe* (on x64 you should install the 64bit version)
 
-To debug AAX you need to install the PT Dev build
+To debug AAX, you need to install a development build of Pro Tools. Consult Avid documentation for details.
 
 ##Installers & one-click build scripts
 
-The example projects contain shell scripts for both Windows (makedist-win.bat) and OSX (makedist-mac.command) that build everything, code-sign (where relevant) and package the products in an installer including license, readme.txt, changelog.txt and manual. On Windows the installer program "Innosetup" is used, on OSX "Packages". A python script update_version.py is called to look at resource.h and get the version from the PLUG_VER #define. It then updates the info.plist files and installer scripts with the version number (in the format major.minor.bugfix). If you aren't building some components, e.g. RTAS, the build scripts may need to be modified. Please alter the license and readme text and remove my name from them if you release a plugin publicly. On OSX the script can also code-sign the standalone app and builds a .pkg for the appstore (commented out).
+The example projects contain shell scripts for both Windows (makedist-win.bat) and OSX (makedist-mac.command) that build everything, code-sign (where relevant) and package the products in an installer including license, readme.txt, changelog.txt and manual. On Windows *Inno Setup* is used, on OSX - *Packages*.
+
+A Python script *update_version.py* is called to get the version from `#define PLUG_VER` in *resource.h*. It then updates the info.plist files and installer scripts with the version number (in the format major.minor.bugfix). If you aren't building some components, e.g. AAX, the build scripts may need to be modified.
+
+**Please alter the license and readme text and remove my name from the build scripts if you're releasing a plugin publicly**.
+
+On OSX the script can also code-sign the standalone app and builds a .pkg for the appstore (commented out).
