@@ -14,6 +14,11 @@ public:
   ByteChunk() {}
   ~ByteChunk() {}
   
+  /**
+   * Copies data into the chunk
+   * @param pBuf Pointer to the object to copy data from
+   * @param size Number of bytes to copy
+   */
   inline int PutBytes(const void* pBuf, int size)
   {
     int n = mBytes.GetSize();
@@ -45,7 +50,7 @@ public:
   
   // Handle endian conversion for integer and floating point data types.
   // Data is always stored in the chunk in little endian format, so nothing needs
-  //  changing on Intel x86 platforms.
+  // changing on Intel x86 platforms.
   
 #ifdef WDL_BIG_ENDIAN
   inline int Put(const unsigned short* pVal)
@@ -208,16 +213,29 @@ public:
     return PutBytes(pRHS->GetBytes(), pRHS->Size());
   }
   
+  /** @brief Clears the chunk
+   * 
+   * This also sets the size to 0 bytes
+  */
   inline void Clear()
   {
     mBytes.Resize(0);
   }
   
+  /**
+   * Returns the current size of the chunk
+   * @return Current size (in bytes)
+   */
   inline int Size()
   {
     return mBytes.GetSize();
   }
   
+  /** Resizes the chunk
+   * @param newSize Desired size (in bytes)
+   * @todo Check this
+   * @return Old size (in bytes)
+   */
   inline int Resize(int newSize)
   {
     int n = mBytes.GetSize();

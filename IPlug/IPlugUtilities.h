@@ -16,10 +16,23 @@
 #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
 
+/**
+ * @file
+ * Utility functions and macros
+ */
+
 #define FREE_NULL(p) {free(p);p=nullptr;}
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
+
+/** Clamps the value \p x between \p lo and \p hi
+ * @param x Input value
+ * @param lo Minimum value to be allowed
+ * @param hi Maximum value to be allowed
+ * If \p x is outside given range, it will be set to one of the boundaries
+*/
 #define BOUNDED(x,lo,hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+
 #define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
 
 #define MAKE_QUOTE(str) #str

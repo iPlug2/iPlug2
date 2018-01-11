@@ -3,6 +3,11 @@
 #include <cstdlib>
 #include <cstring>
 
+/**
+ * @file
+ * @brief API and host definitions
+ */
+
 enum EAPI
 {
   kAPIVST2 = 0,
@@ -13,6 +18,9 @@ enum EAPI
   kAPISA = 5
 };
 
+/** @enum EHost
+ * Host identifier
+ */
 enum EHost
 {
   kHostUninit = -1,
@@ -57,6 +65,24 @@ enum EHost
   // MiniHost
 };
 
+/** Gets the host ID from a human-readable name
+ * @param host Host name to search for
+ * @return Identifier of the host (see ::EHost)
+ */
 EHost LookUpHost(const char* host);
+
+/**
+ * Gets a human-readable name from host identifier
+ * @param host Host identifier (see ::EHost)
+ * @param pHostName Pointer to a string to write to
+ * @code
+ *    int hostID = EHost::kHostAbletonLive;
+ *    char buffer[20];
+ *    GetHostNameStr(hostID, buffer);
+ * @endcode
+ * 
+ * The longest string returned by GetHostNameStr is 18 characters long (+1 for the null terminator).
+ * Make sure your buffer can handle the size!
+ */
 void GetHostNameStr(EHost host, char* pHostName);
 

@@ -34,7 +34,7 @@ CA_SDK/*
 Icon?
 .DS_Stor*
 
-/Documentation/
+/Documentation/html
 IPlugExamples/build_errors.log
 IPlugExamples/IPlugEEL/libEEL/build
 IPlugExamples/duplicate.pyc

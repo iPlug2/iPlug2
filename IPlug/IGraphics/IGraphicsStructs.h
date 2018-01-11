@@ -27,14 +27,30 @@ enum EDirection { kVertical, kHorizontal };
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 struct IBitmap
 {
+  /** Pointer to the raw bitmap data */
   void* mData;
+  /** Bitmap width (in pixels) */
   int W;
+  /** Bitmap height (in pixels) */
   int H;
-  /** Number of states (for multibitmaps) */
+  /** Number of frames (for stacked bitmaps) */
   int N;
+  /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
-  double mSourceScale; // i.e. highest res available for this resource
+  /** Maximum scaling allowed for the bitmap (typically 1) */
+  /** @todo Subject to change */
+  double mSourceScale;
+  /** Resource path/name for the bitmap */
   WDL_String mResourceName;
+  /** Creates a new IBitmap object
+   * @param pData Pointer to the raw bitmap data
+   * @param w Bitmap width (in pixels)
+   * @param h Bitmap height (in pixels)
+   * @param n Number of frames (for multibitmaps)
+   * @param framesAreHorizontal \c True if the frames are positioned horizontally
+   * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
+   * @param name Resource name for the bitmap
+   */
   IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double sourceScale = 1., const char* name = "")
     : mData(pData)
     , W(w)
@@ -46,7 +62,13 @@ struct IBitmap
   {
   }
 
+  /**
+   * @return Width of a single frame
+  */
   inline int frameWidth() const { return (mFramesAreHorizontal ? W / N : W); }
+  /**
+   * @return Height of a single frame
+   */
   inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
 };
 
@@ -84,9 +106,12 @@ const IColor COLOR_ORANGE(255, 255, 127, 0);
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
+  /** @enum EType Blend type
+   * @todo This could use some documentation
+  */
   enum EType
   {
-    kBlendNone,   // Copy over whatever is already there, but look at src alpha.
+    kBlendNone,     // Copy over whatever is already there, but look at src alpha.
     kBlendClobber,  // Copy completely over whatever is already there.
     kBlendAdd,
     kBlendColorDodge,
@@ -95,6 +120,11 @@ struct IBlend
   EType mMethod;
   float mWeight;
 
+  /** Creates a new IBlend
+   * @param type Blend type (defaults to none)
+   * @todo IBlend::weight needs documentation
+   * @param weight
+  */
   IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
