@@ -2,26 +2,23 @@
 
 @todo This is obsolete, but here to be updated
 
-##Introduction
+## Introduction
 
 The Examples folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects are working. Each folder contains scripts which automate the build process and package everything along with a pdf manual in an installer. The scripts also code sign binaries/installers and set icons where required.
 
 Projects are provided for Visual Studio 2017+ and Xcode *+. You cannot downgrade the VS2017 projects to work with older versions.  
 
-###Requirements:
+### Requirements:
 
 Some of these are optional, but without them the build-scripts will need to be edited, otherwise you'll get errors.
 
 **Windows**
 
-* [Git for Windows](http://gitforwindows.org/) (version control)
-@todo MSYSGIT is obsolete and replaced by [Git for Windows](http://gitforwindows.org/). That said, Visual Studio comes with Git support out of the box, which isn't nearly as messy. How about basing this guide on the built-in Git extension?
-
 * [Microsoft Visual Studio 2017 Community](https://www.visualstudio.com/downloads/) (or one of the premium versions)
 @todo Add a list of Visual Studio packages required
 
-* [Python 2.7 or 3](http://www.python.org/)
-* [Inno Setup](http://www.jrsoftware.org/isinfo.php) 
+* [Python 2.7 or 3](http://www.python.org/) for running various scripts
+* [Inno Setup](http://www.jrsoftware.org/isinfo.php) for creating installers
 * [7-Zip](http://www.7-zip.org/) (if you want to create a ZIP instead of making an installer)
 * PACE tools and certificate for code signing AAX binaries (AAX only, consult Avid documentation)
 
@@ -30,10 +27,10 @@ Some of these are optional, but without them the build-scripts will need to be e
 * Xcode 9 installed, including command-line tools
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) for building OSX installers 
 * [setfileicon utility](http://maxao.free.fr/telechargements/setfileicon.gz) for changing icons
-* Mac Developer ID Certificates for code signing installers for 10.8>
+* Mac Developer ID Certificates for code signing installers and dmg files
 * PACE tools and certificate for code signing AAX binaries (AAX only, consult Avid documentation)
 
-##Example Projects
+## Example Projects
 
 * **IPlugChunks** - shows how to use chunks in a plugin. Chunks allow you to store arbitrary data in the plugin's state as opposed to just a value for each parameter.
 * **IPlugControls** -  demos the various IControl classes (example by Captain Caveman)
@@ -58,15 +55,15 @@ The **IPlugEffect** project is the main starting project I use. If you are not i
 
 Rather than changing settings for individual targets/projects inside the Xcode Project/Visual Studio solutions, most customisations can be done in the xcconfig and property sheets.
 
-##Supported Formats
+## Supported Formats
 
-###VST2
+### VST2
 
 You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt
 
 - On OSX by default I build to the system VST2 folder /Library/Audio/Plug-Ins/VST/ - You will need to have write permissions to this folder. If you want to build to the user VST2 folder, you'll need to edit the common.xcconfig file and also modify the installer scripts
 
-###VST3
+### VST3
 
 Extract the Steinberg VST3.6.X SDK to the folder VST3_SDK but get ready to revert two of the files using git...
 
@@ -81,7 +78,7 @@ VST3_SDK\base\win\base.vcxproj
 
 - On OSX by default I build to the system VST3 folder /Library/Audio/Plug-Ins/VST3/. You will need to have *write permissions* to this folder. If you want to build to the user VST3 folder, you'll need to edit the common.xcconfig file and also modify the installer scripts
 
-###AAX
+### AAX
 
 - Extract AAX_SDK_2XXXX.zip to the AAX_SDK folder
 
@@ -96,28 +93,27 @@ ARCHS = x86_64 i386
 
 - In order to compile AAX binaries that run in the release build of Pro Tools, you will need to code-sign those binaries (see Avid documentation)
 
-###AU
+### AU (AudioUnit v2)
 
 - When building AUs, bear in mind that some hosts keep a cache... see debugging notes below.
-- There is a shell script *validate_audiounit.command* that will run *auvaltool* with the correct IDs for your plugin (see below) and can also set up the leaks test, which is useful for debugging. Type *man auval* or see [here](todo.html) for info.
+- There is a shell script *validate_audiounit.command* that will run *auvaltool* with the correct IDs for your plugin (see below) and can also set up the leaks test, which is useful for debugging. Type *man auval* on the command line for documentation. 
 - By default I build to the system AU folder /Library/Audio/Plug-Ins/Components/. You will need to have *write permissions* to this folder. If you want to build to the user AU folder, you'll need to edit the .xcconfig file and also modify the installer scripts
 
-###Standalone
+### Standalone
 
 - Audio and Midi is provided via RTAudio and RTMidi by Gary Scavone. To build on windows you need to extract some files into ASIO_SDK, see ASIO_SDK/README.md
 
 
-##Windows Issues
+## Windows Issues
 
-The template projects use static linking with the MSVC2013 runtime libraries (/MT). If you change that you may need to provide the MSVC redistributable in your installer, google for "Microsoft Visual C++ 2013 Redistributable Package"
+The template projects use static linking with the MSVC2017 runtime libraries (/MT). If you change that you may need to provide the MSVC redistributable in your installer, google for "Microsoft Visual C++ 2017 Redistributable Package". @todo this may have to change due to recent microsoft changes
 
-##OSX Issues
+## macOS Issues
 
-For OSX 10.8 GateKeeper you will need to code-sign your installer and the .app with a valid signature obtained from Apple (maybe eventually also the plugin binaries). For the app store you need to add entitlements in order to comply with the sandbox regulations. These things are done by the makedist-* build scripts.
+Since macOS 10.8 you will need to code-sign your installer and the .app with a valid signature obtained from Apple, to prevent an unidentified developer warning when a user tries to open your installer or dmg file. For the app store you need to add entitlements in order to comply with the sandbox regulations. These things are done by the makedist-* build scripts.
 
-If compiling against the 10.7 SDK or higher carbon GUIs will be inefficient due to unnecessary redraws
 
-##Debugging
+### Debugging
 
 .xcscheme files are set up to use some common hosts for debugging the various formats in Xcode.
 
