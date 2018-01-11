@@ -153,8 +153,9 @@
       <AdditionalDependencies>$(APP_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <ResourceCompile />
     <ResourceCompile>
-      <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
+      <Culture />
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -171,8 +172,9 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <ResourceCompile />
     <ResourceCompile>
-      <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
+      <Culture />
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -271,12 +273,37 @@
     <ClInclude Include="..\..\ASIO_SDK\asiosys.h" />
     <ClInclude Include="..\..\ASIO_SDK\ginclude.h" />
     <ClInclude Include="..\..\ASIO_SDK\iasiodrv.h" />
+    <ClInclude Include="..\..\IPlug\Hosts.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IAutoGUI.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControls.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsConstants.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLice.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsStructs.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsUtilites.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsWin.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IKeyboardControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h" />
+    <ClInclude Include="..\..\IPlug\IMidiQueue.h" />
+    <ClInclude Include="..\..\IPlug\IParam.h" />
+    <ClInclude Include="..\..\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\IPlug\IPlugByteChunk.h" />
+    <ClInclude Include="..\..\IPlug\IPlugConstants.h" />
+    <ClInclude Include="..\..\IPlug\IPlugOSDetect.h" />
     <ClInclude Include="..\..\IPlug\IPlugStandalone.h" />
+    <ClInclude Include="..\..\IPlug\IPlugStructs.h" />
+    <ClInclude Include="..\..\IPlug\IPlugUtilities.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\IPlug\Log.h" />
+    <ClInclude Include="..\..\IPlug\NChanDelay.h" />
     <ClInclude Include="..\..\IPlug\rtaudiomidi\RtAudio.h" />
     <ClInclude Include="..\..\IPlug\rtaudiomidi\RtError.h" />
     <ClInclude Include="..\..\IPlug\rtaudiomidi\RtMidi.h" />
     <ClInclude Include="app_wrapper\app_main.h" />
-    <ClInclude Include="app_wrapper\app_resource.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="IPlugEffect.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -284,12 +311,30 @@
     <ClCompile Include="..\..\ASIO_SDK\asio.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiodrivers.cpp" />
     <ClCompile Include="..\..\ASIO_SDK\asiolist.cpp" />
+    <ClCompile Include="..\..\IPlug\Hosts.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControls.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLice.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp" />
+    <ClCompile Include="..\..\IPlug\IParam.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugBase.cpp" />
     <ClCompile Include="..\..\IPlug\IPlugStandalone.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugStructs.cpp" />
+    <ClCompile Include="..\..\IPlug\Log.cpp" />
     <ClCompile Include="..\..\IPlug\rtaudiomidi\RtAudio.cpp" />
     <ClCompile Include="..\..\IPlug\rtaudiomidi\RtMidi.cpp" />
     <ClCompile Include="app_wrapper\app_dialog.cpp" />
     <ClCompile Include="app_wrapper\app_main.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\IPlugEffect.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\IPlug\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc" />

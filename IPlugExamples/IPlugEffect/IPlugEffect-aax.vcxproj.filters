@@ -112,7 +112,7 @@
       <Filter>IPlug\AAX</Filter>
     </ClInclude>
     <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc" />

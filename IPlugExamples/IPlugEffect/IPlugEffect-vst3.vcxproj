@@ -344,8 +344,8 @@
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstspeakerarray.h" />
     <ClInclude Include="..\..\IPlug\IPlugVST3.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\VST3_SDK\base\source\baseiids.cpp" />

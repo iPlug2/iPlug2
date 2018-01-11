@@ -38,10 +38,12 @@
     <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp">
       <Filter>IPlug\IGraphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\IPlug\IGraphics\IControls.cpp">
+      <Filter>IPlug\IGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\IPlug\NChanDelay.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -118,6 +120,10 @@
       <Filter>IPlug\IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h">
+      <Filter>IPlug\IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControls.h">
       <Filter>IPlug\IGraphics</Filter>
     </ClInclude>
   </ItemGroup>

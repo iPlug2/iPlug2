@@ -43,6 +43,7 @@
 #include <string>
 #include <vector>
 
+#include "../resource.h" // change this to match your iplug resource .h file
 #include "../IPlugEffect.h" // change this to match your iplug plugin .h file
 
 typedef unsigned short UInt16;
@@ -95,7 +96,7 @@ struct AppState
 
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern HINSTANCE gHINST;
+extern HINSTANCE gHInstance;
 extern HWND gHWND;
 extern UINT gScrollMessage;
 extern IPlug* gPluginInstance; // The iplug plugin instance

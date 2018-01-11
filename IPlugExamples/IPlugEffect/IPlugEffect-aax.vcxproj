@@ -482,8 +482,8 @@
     <ClInclude Include="..\..\IPlug\Log.h" />
     <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugParameters.h" />
     <ClInclude Include="..\..\IPlug\IPlugAAX.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc" />

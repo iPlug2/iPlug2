@@ -7,8 +7,6 @@
 #endif
 
 HWND gHWND;
-
-HINSTANCE gHINST;
 UINT gScrollMessage;
 IPlug* gPluginInstance;
 RtAudio* gDAC = 0;
@@ -679,7 +677,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       return 0;
     }
 
-    gHINST=hInstance;
+    gHInstance=hInstance;
 
     InitCommonControls();
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
@@ -745,7 +743,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     Init();
 
-    CreateDialog(gHINST,MAKEINTRESOURCE(IDD_DIALOG_MAIN),GetDesktopWindow(),MainDlgProc);
+    CreateDialog(gHInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN),GetDesktopWindow(),MainDlgProc);
 
     for(;;)
     {

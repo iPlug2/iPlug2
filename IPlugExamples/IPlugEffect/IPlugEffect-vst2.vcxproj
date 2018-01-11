@@ -251,6 +251,7 @@
     <ClInclude Include="..\..\IPlug\IGraphics\IAutoGUI.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IBitmapMonoText.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControls.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IGraphics.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsConstants.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLice.h" />
@@ -273,12 +274,13 @@
     <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\..\IPlug\Log.h" />
     <ClInclude Include="..\..\IPlug\NChanDelay.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\IPlug\Hosts.cpp" />
     <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControls.cpp" />
     <ClCompile Include="..\..\IPlug\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLice.cpp" />
     <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
