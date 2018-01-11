@@ -35,12 +35,12 @@ enum EIPlugKeyCodes
 //TODO: these should be in a namespace, to avoid conflicts with third-party libraries
 static const double PI = 3.141592653589793238;
 
-/** @brief Magic number for gain to dB conversion
+/** @brief Magic number for gain to dB conversion.
  * Approximates \f$ 20*log_{10}(x) \f$
  * @see AmpToDB
 */
 static const double AMP_DB = 8.685889638065036553;
-/** @brief Magic number for dB to gain conversion
+/** @brief Magic number for dB to gain conversion.
  * Approximates \f$ 10^{\frac{x}{20}} \f$
  * @see DBToAmp
 */
