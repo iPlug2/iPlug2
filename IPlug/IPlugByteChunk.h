@@ -7,7 +7,7 @@ template <class T> inline void SWAP(T& a, T& b)
   T tmp = a; a = b; b = tmp;
 }
 
-/** Helps deal with a block of memory, used for plug-in state saving/recall */
+/** Manages a block of memory, for plug-in settings store/recall */
 class ByteChunk
 {
 public:

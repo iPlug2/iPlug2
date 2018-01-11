@@ -38,32 +38,41 @@
 #define MAKE_QUOTE(str) #str
 #define MAKE_STR(str) MAKE_QUOTE(str)
 
+/** @hideinitializer */
 #define GET_PARAM_FROM_VARARG(paramType, vp, v) \
 { \
-v = 0.0; \
-switch (paramType) { \
-case IParam::kTypeBool: \
-case IParam::kTypeInt: \
-case IParam::kTypeEnum: { \
-v = (double) va_arg(vp, int); \
-break; \
-} \
-case IParam::kTypeDouble: \
-default: { \
-v = (double) va_arg(vp, double); \
-break; \
-} \
-} \
+  v = 0.0; \
+  switch (paramType) { \
+    case IParam::kTypeBool: \
+    case IParam::kTypeInt: \
+    case IParam::kTypeEnum: { \
+      v = (double) va_arg(vp, int); \
+      break; \
+    } \
+    case IParam::kTypeDouble: \
+    default: { \
+      v = (double) va_arg(vp, double); \
+      break; \
+    } \
+  } \
 }
 
-/**
+/** @brief Calculates gain from a given dB value
  * @param dB Value in dB
+ * @return Gain calculated as an approximation of
+ * \f$ 10^{\frac{x}{20}} \f$
+ * @see #IAMP_DB
  */
 inline double DBToAmp(double dB)
 {
   return exp(IAMP_DB * dB);
 }
 
+/**
+ * @return dB calculated as an approximation of
+ * \f$ 20*log_{10}(x) \f$
+ * @see #AMP_DB
+ */
 inline double AmpToDB(double amp)
 {
   return AMP_DB * log(fabs(amp));
