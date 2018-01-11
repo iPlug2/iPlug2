@@ -6,7 +6,6 @@
 
 #include "IPlugUtilities.h"
 
-
 /** IPlug's parameter class */
 class IParam
 {
