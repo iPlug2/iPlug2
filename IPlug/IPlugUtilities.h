@@ -56,6 +56,9 @@ break; \
 } \
 }
 
+/**
+ * @param dB Value in dB
+ */
 inline double DBToAmp(double dB)
 {
   return exp(IAMP_DB * dB);

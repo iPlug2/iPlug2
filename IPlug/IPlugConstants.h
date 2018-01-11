@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file
+ * @brief Constant definitions, magic numbers
+ */
+
 typedef unsigned char BYTE;
 
 #ifndef VstInt32
@@ -29,7 +34,10 @@ enum EIPlugKeyCodes
 
 //TODO: these should be in a namespace, to avoid conflicts with third-party libraries
 static const double PI = 3.141592653589793238;
+
+// Magic number. Approximates 20 * log10(x) for gain to dB conversion
 static const double AMP_DB = 8.685889638065036553;
+// Reverse conversion
 static const double IAMP_DB = 0.11512925464970;
 static const double DEFAULT_SAMPLE_RATE = 44100.0;
 static const int MAX_PRESET_NAME_LEN = 256;
