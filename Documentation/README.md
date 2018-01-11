@@ -21,7 +21,7 @@ WDL-OL/IPlug requires a compiler that supports C++11, and is tested with MS Visu
 
 ## About this documentation
 ### Where do I begin?
-see [Getting Started](md_quickstart.html)
+see [Getting Started](md_quickstart.html) and check out the [Examples](md_examples.html)
 
 ### How do I upgrade an old WDL-OL/IPlug project?
 see [How to Upgrade](md_upgrade.html)
