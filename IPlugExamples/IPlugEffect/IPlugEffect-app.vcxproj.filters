@@ -194,9 +194,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\IPlugEffect.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\IPlug\README.md">
       <Filter>IPlug</Filter>
     </None>
