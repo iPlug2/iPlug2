@@ -26,8 +26,8 @@ see [Getting Started](md_quickstart.html) and check out the [Examples](md_exampl
 ### How do I upgrade an old WDL-OL/IPlug project?
 see [How to Upgrade](md_upgrade.html)
 
-### Experienced developersVBAP
-see [Advanced Documentation](md_advanced.html)
+### Experienced developers
+see [Advanced Documentation](md_advanced.html) and if you would like to contribute to the project [Coding Style](md_codingstyle.html)
 
 ## Credits
 Some of the bug fixes and extra features in WDL-OL/IPlug are thanks to, or inspired by the work of other people. Significant contributions over the years have come from [Theo Niessink](https://www.taletn.com), [Justin Frankel](www.askjf.com), [Julijan Nikolic](https://youlean.co/), [Alex Harker](http://www.alexanderjharker.co.uk/) and [Benjamin Klum](https://www.benjamin-klum.com/it/), amongst others. See individual source code files for any extra credits or license information.
