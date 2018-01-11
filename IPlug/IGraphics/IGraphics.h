@@ -19,7 +19,7 @@ class IParam;
  * \defgroup PlatformClasses IGraphics::PlatformClasses
 */
 
-/**  The lowest level base class of an IGraphics control */
+/**  The lowest level base class of an IGraphics context */
 class IGraphics
 #ifdef AAX_API
 : public IPlugAAXView_Interface
