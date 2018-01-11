@@ -16,16 +16,6 @@ static const char* wndClassName = "IPlugWndClass";
 static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
-
-enum EParamEditMsg
-{
-  kNone,
-  kEditing,
-  kUpdate,
-  kCancel,
-  kCommit
-};
-
 #define IPLUG_TIMER_ID 2
 
 inline IMouseMod GetMouseMod(WPARAM wParam)
@@ -1307,7 +1297,7 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
       if (strcmp(search->Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
-        search->SetFormatted("Found: %s", strippedName.Get());
+        search->SetFormatted(strippedName.GetLength() + 7, "Found: %s", strippedName.Get());
         return false;
       }
     }
