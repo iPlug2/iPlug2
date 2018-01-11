@@ -1,4 +1,4 @@
-# Coding style guidelines
+# Code Style
 
 These guidelines exist in order to try and tidy up the IPlug code base. Every developer has their own preferences, here we are stuck with some legacy choices that may not be the best/most modern approaches, but are used widely. We want to aim for consistency across the code base. 
 
