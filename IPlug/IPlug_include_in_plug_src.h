@@ -24,7 +24,7 @@
   IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(plug, w, h, fps);
-    pGraphics->SetHInstance(gHInstance);
+    pGraphics->SetPlatformInstance(gHInstance);
     return pGraphics;
   }
   #endif

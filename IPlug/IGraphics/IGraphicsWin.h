@@ -30,8 +30,9 @@ public:
   IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsWin();
 
-  void SetHInstance(HINSTANCE hInstance) { mHInstance = hInstance; }
-
+  void SetPlatformInstance(void* instance) override { mHInstance = (HINSTANCE) instance; }
+  void* GetPlatformInstance() override { return mHInstance; }
+  
   void ForceEndUserEdit() override;
 
   void Resize(int w, int h) override;

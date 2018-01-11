@@ -108,7 +108,7 @@ public:
   virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h);
 
-#pragma mark - IGraphicsPlatform impl
+#pragma mark - IGraphics Platform impl
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) = 0;
@@ -134,6 +134,12 @@ public:
   virtual void* GetWindow() = 0;
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
+  //Todo: These methods could be combined. Used to set CGContext for LICE mac and HINSTNACE for LICE windows. and others?
+  virtual void SetPlatformInstance(void* instance) {}
+  virtual void* GetPlatformInstance() { return nullptr; }
+  virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
+  void* GetPlatformContext() { return mPlatformContext; }
+  
 #pragma mark -
   IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0);
   virtual ~IGraphics();
@@ -220,8 +226,6 @@ public:
 //  virtual void* OSLoadSVG(const char* name, const int size) = 0;
 
   IRECT GetDrawRect() const { return mDrawRECT; }
-  void* GetPlatformContext() { return mPlatformContext; }
-  virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
  
 protected:
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
