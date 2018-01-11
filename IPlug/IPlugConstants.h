@@ -35,9 +35,15 @@ enum EIPlugKeyCodes
 //TODO: these should be in a namespace, to avoid conflicts with third-party libraries
 static const double PI = 3.141592653589793238;
 
-// Magic number. Approximates 20 * log10(x) for gain to dB conversion
+/** @brief Magic number for gain to dB conversion
+ * Approximates \f$ 20*log_{10}(x) \f$
+ * @see AmpToDB
+*/
 static const double AMP_DB = 8.685889638065036553;
-// Reverse conversion
+/** @brief Magic number for dB to gain conversion
+ * Approximates \f$ 10^{\frac{x}{20}} \f$
+ * @see DBToAmp
+*/
 static const double IAMP_DB = 0.11512925464970;
 static const double DEFAULT_SAMPLE_RATE = 44100.0;
 static const int MAX_PRESET_NAME_LEN = 256;

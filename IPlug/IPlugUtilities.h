@@ -56,14 +56,22 @@ break; \
 } \
 }
 
-/**
+/** @brief Calculates gain from a given dB value
  * @param dB Value in dB
+ * @return Gain calculated as an approximation of
+ * \f$ 10^{\frac{x}{20}} \f$
+ * @see #IAMP_DB
  */
 inline double DBToAmp(double dB)
 {
   return exp(IAMP_DB * dB);
 }
 
+/**
+ * @return dB calculated as an approximation of
+ * \f$ 20*log_{10}(x) \f$
+ * @see #AMP_DB
+ */
 inline double AmpToDB(double amp)
 {
   return AMP_DB * log(fabs(amp));
