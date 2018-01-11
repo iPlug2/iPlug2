@@ -107,18 +107,19 @@ void GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
   bool isCorrectType = !stricmp(ext, searchExt);
 
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(bundleID)];
-  NSString* pFile = [[[NSString stringWithCString:fileName] lastPathComponent] stringByDeletingPathExtension];
+  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
   
   if (isCorrectType && pBundle && pFile)
   {
     NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
     
     if (pPath)
-    {
       fullPath.Set([pPath cString]);
-      return;
-    }
+    else
+      fullPath.Set("");
   }
+  else
+    fullPath.Set("");
 }
 
 void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& result)
