@@ -26,7 +26,7 @@ see [Getting Started](md_quickstart.html) and check out the [Examples](md_exampl
 ### How do I upgrade an old WDL-OL/IPlug project?
 see [How to Upgrade](md_upgrade.html)
 
-### Experienced developers
+### Experienced developersVBAP
 see [Advanced Documentation](md_advanced.html)
 
 ## Credits
