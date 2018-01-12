@@ -2,6 +2,11 @@
 #define _IPLUGAPI_
 // Only load one API class!
 
+/**
+ * @file
+ * @copydoc IPlugVST3
+ */
+
 #include <vector>
 #ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
@@ -26,7 +31,7 @@ struct IPlugInstanceInfo
 
 class IPlugVST3View;
 
-/**  VST3 base class for an IPlug plug-in, inherits from IPlugBase
+/**  VST3 base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
 class IPlugVST3 : public IPLUG_BASE_CLASS

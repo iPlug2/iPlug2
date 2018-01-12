@@ -2,6 +2,12 @@
 #define _IPLUGAPI_
 // Only load one API class!
 
+/**
+ * @file
+ * @copydoc IPlugAU
+ */
+
+
 #include <CoreServices/CoreServices.h>
 #include <AudioUnit/AUComponent.h>
 #include <AudioUnit/AudioUnitProperties.h>
@@ -36,7 +42,7 @@ struct IPlugInstanceInfo
   WDL_String mCocoaViewFactoryClassName;
 };
 
-/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugBase
+/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
 class IPlugAU : public IPLUG_BASE_CLASS

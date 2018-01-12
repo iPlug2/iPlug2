@@ -9,7 +9,7 @@
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo {};
 
-/**  Web Audio Module (WAM) API base class for an IPlug plug-in, inherits from IPlugBase
+/**  Web Audio Module (WAM) API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
 class IPlugWAM : public IPLUG_BASE_CLASS
