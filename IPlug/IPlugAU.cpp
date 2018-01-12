@@ -804,7 +804,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_SupportedChannelLayoutTags:
     {
       // kAudioUnitProperty_SupportedChannelLayoutTags is only needed for multi-output bus instruments
-      if (!IsInst() || (mOutBuses.GetSize()==1))
+      if (!IsInstrument() || (mOutBuses.GetSize()==1))
         return kAudioUnitErr_InvalidProperty;
 
       if (!pData) // GetPropertyInfo
@@ -926,7 +926,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kMusicDeviceProperty_InstrumentCount:
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      if (IsInst())
+      if (IsInstrument())
       {
         *pDataSize = sizeof(UInt32);
         if (pData)
@@ -1753,12 +1753,12 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     PtrListInitialize(&mInBuses, 0);
   }
 
-  if(c.plugIsInst) // TODO: support instruments with multichannel outputs, i.e. 5.1?
+  if(c.plugIsInstrument) // TODO: support instruments with multichannel outputs, i.e. 5.1?
   {
     int nOutBuses = (int) ceil(NOutChannels() / 2.);
 
     PtrListInitialize(&mOutBuses, nOutBuses);
-    char label[32];
+    char label[32]; //TODO: 32!
 
     for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2)
     {

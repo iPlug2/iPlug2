@@ -60,7 +60,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   
   if (c.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (c.plugIsInst) { mAEffect.flags |= effFlagsIsSynth; }
+  if (c.plugIsInstrument) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));
@@ -622,7 +622,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetPlugCategory:
     {
-      if (_this->IsInst()) return kPlugCategSynth;
+      if (_this->IsInstrument()) return kPlugCategSynth;
       return kPlugCategEffect;
     }
     case effProcessVarIo:

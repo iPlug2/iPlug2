@@ -94,7 +94,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     SetInputBusLabel(1, "Aux Input");
   }
 
-  if (IsInst())
+  if (IsInstrument())
   {
     int busNum = 0;
     char label[32]; //TODO: 32!!!
@@ -150,7 +150,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       addAudioInput(tmpStringBuf, maxInputs);
     }
 
-    if(!mIsInst) // if effect, just add one output bus with max chan count
+    if(!mIsInstrument) // if effect, just add one output bus with max chan count
     {
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
       addAudioOutput(tmpStringBuf, getSpeakerArrForChans(NOutChannels()) );
@@ -187,7 +187,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                                             ParameterInfo::kIsProgramChange));
     }
 
-    if(!mIsInst)
+    if(!mIsInstrument)
     {
       StringListParameter * bypass = new StringListParameter(STR16("Bypass"),
                                                             kBypassParam,
