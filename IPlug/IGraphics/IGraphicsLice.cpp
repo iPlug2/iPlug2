@@ -427,11 +427,14 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
   while (ext > path && *ext != '.') --ext;
   ++ext;
   
+  WDL_String withQuotes;
+  withQuotes.SetFormatted(MAX_PATH, "\"%s\"", path);
+
   if (!stricmp(ext, "png"))
-    LICE_LoadPNGFromResource(mHInstance, ID, 0);
+    return LICE_LoadPNGFromResource((HINSTANCE) GetPlatformInstance(), withQuotes.Get(), 0);
 #ifdef IPLUG_JPEG_SUPPORT
   if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg"))
-    LICE_LoadJPGFromResource(mHInstance, ID, 0);
+    return LICE_LoadJPGFromResource((HINSTANCE) GetPlatformInstance(), withQuotes.Get(), 0);
 #endif
 #endif
     
