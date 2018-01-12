@@ -29,7 +29,6 @@ script:
 deploy:
   provider: pages
   skip_cleanup: true
-  local_dir: $TRAVIS_BUILD_DIR/html
   github_token: $GITHUB_API_KEY
   on:
     branch: iplugquake
