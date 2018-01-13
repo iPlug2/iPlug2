@@ -1948,7 +1948,17 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffectCairo-AU-Info.plist";
-				OTHER_LDFLAGS = "-bundle";
+				OTHER_LDFLAGS = (
+					"$(PKG_MAN_PATH)/lib/libcairo.a",
+					"$(PKG_MAN_PATH)/lib/libfreetype.a",
+					"$(PKG_MAN_PATH)/lib/libpixman-1.a",
+					"$(PKG_MAN_PATH)/lib/libpng.a",
+					"$(PKG_MAN_PATH)/lib/libfontconfig.a",
+					/usr/local/opt/zlib/lib/libz.a,
+					/usr/local/opt/bzip2/lib/libbz2.a,
+					/usr/local/opt/expat/lib/libexpat.a,
+					"-bundle",
+				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
@@ -1971,7 +1981,17 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffectCairo-AU-Info.plist";
-				OTHER_LDFLAGS = "-bundle";
+				OTHER_LDFLAGS = (
+					"$(PKG_MAN_PATH)/lib/libcairo.a",
+					"$(PKG_MAN_PATH)/lib/libfreetype.a",
+					"$(PKG_MAN_PATH)/lib/libpixman-1.a",
+					"$(PKG_MAN_PATH)/lib/libpng.a",
+					"$(PKG_MAN_PATH)/lib/libfontconfig.a",
+					/usr/local/opt/zlib/lib/libz.a,
+					/usr/local/opt/bzip2/lib/libbz2.a,
+					/usr/local/opt/expat/lib/libexpat.a,
+					"-bundle",
+				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
@@ -1994,7 +2014,17 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffectCairo-AU-Info.plist";
-				OTHER_LDFLAGS = "-bundle";
+				OTHER_LDFLAGS = (
+					"$(PKG_MAN_PATH)/lib/libcairo.a",
+					"$(PKG_MAN_PATH)/lib/libfreetype.a",
+					"$(PKG_MAN_PATH)/lib/libpixman-1.a",
+					"$(PKG_MAN_PATH)/lib/libpng.a",
+					"$(PKG_MAN_PATH)/lib/libfontconfig.a",
+					/usr/local/opt/zlib/lib/libz.a,
+					/usr/local/opt/bzip2/lib/libbz2.a,
+					/usr/local/opt/expat/lib/libexpat.a,
+					"-bundle",
+				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";

@@ -1956,7 +1956,7 @@ void IPlugAU::HostSpecificInit()
   OnHostIdentified(); // might get called again
 }
 
-void IPlugAU::ResizeGraphics(int w, int h)
+void IPlugAU::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {

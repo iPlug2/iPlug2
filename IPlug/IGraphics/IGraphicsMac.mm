@@ -179,8 +179,6 @@ void IGraphicsMac::CloseWindow()
 
     if (view->mGraphics)
     {
-      SetPlatformContext(nullptr);
-      view->mGraphics = nullptr;
       [view removeFromSuperview];   // Releases.
     }
   }
@@ -191,16 +189,17 @@ bool IGraphicsMac::WindowIsOpen()
   return mView;
 }
 
-void IGraphicsMac::Resize(int w, int h)
+void IGraphicsMac::Resize(int w, int h, double scale)
 {
-  if (w == Width() && h == Height()) return;
+  if (w == Width() && h == Height() && scale == Scale()) return;
 
-  IGraphics::Resize(w, h);
+  IGraphics::Resize(w, h, scale);
 
   if (mView)
   {
-    NSSize size = { static_cast<CGFloat>(w), static_cast<CGFloat>(h) };
+    NSSize size = { static_cast<CGFloat>(w * scale), static_cast<CGFloat>(h * scale) };
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
+    [(IGRAPHICS_VIEW*) mView setBoundsSize:NSMakeSize(w, h)];
   }
 }
 

@@ -14,12 +14,13 @@ IPlugBaseGraphics::~IPlugBaseGraphics()
 
 int IPlugBaseGraphics::GetUIWidth()
 {
-  return mGraphics->Width();
+  return mGraphics->WindowWidth();
 }
 
 int IPlugBaseGraphics::GetUIHeight()
 {
-  return mGraphics->Height();
+  return mGraphics->WindowHeight();
+    
 }
 
 void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)

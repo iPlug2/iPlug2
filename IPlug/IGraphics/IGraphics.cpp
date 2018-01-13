@@ -20,15 +20,23 @@ IGraphics::~IGraphics()
   mControls.Empty(true);
 }
 
-void IGraphics::Resize(int w, int h)
+void IGraphics::Resize(int w, int h, double scale)
 {
   ReleaseMouseCapture();
-//  mControls.Empty(true); // TODO fix
-//  PrepDraw();
-//  mPlug.ResizeGraphics(w, h);
-  
+//  mControls.Empty(true); // TODO fix (AH - this isn't necessary any longer - agreed?)
+
+  //  PrepDraw();
+
+  double oldScale = mScale;
+  mScale = scale;
+    
+  if (oldScale != scale)
+      ReScale();
+    
   for (int i = 0; i < mPlug.NParams(); ++i)
     SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
+    
+  mPlug.ResizeGraphics(w, h, scale);
 }
 
 void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)

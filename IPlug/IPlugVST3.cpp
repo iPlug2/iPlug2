@@ -896,7 +896,7 @@ int IPlugVST3::GetSamplePos()
   return (int) mProcessContext.projectTimeSamples;
 }
 
-void IPlugVST3::ResizeGraphics(int w, int h)
+void IPlugVST3::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {

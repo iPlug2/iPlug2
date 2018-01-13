@@ -222,10 +222,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   mGraphics = pGraphics;
   NSRect r;
   r.origin.x = r.origin.y = 0.0f;
-  r.size.width = (float) pGraphics->Width();
-  r.size.height = (float) pGraphics->Height();
+  r.size.width = (float) pGraphics->WindowWidth();
+  r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
-  
+  [self setBoundsSize:NSMakeSize(pGraphics->Width(), pGraphics->Height())];
+
 #ifdef IGRAPHICS_NANOVG
   if (!self.wantsLayer) {
     self.layer = (CALayer*) mGraphics->mLayer;
@@ -271,11 +272,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       mGraphics->SetAllControlsDirty();
     }
   }
-  else
-  {
-    if (mGraphics)
-      mGraphics->SetPlatformContext(nullptr);
-  }
 }
 
 // not called for opengl/metal
@@ -310,8 +306,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   mGraphics->BeginFrame();
   
   //TODO: this is redrawing every IControl!
-  r.R = mGraphics->Width();
-  r.B = mGraphics->Height();
+  r.R = mGraphics->WindowWidth();
+  r.B = mGraphics->WindowHeight();
 //  if(mGraphics->IsDirty(r))
   mGraphics->Draw(r);
 
@@ -493,7 +489,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics)
   {
     IGraphics* graphics = mGraphics;
-    mGraphics = 0;
+    mGraphics = nullptr;
+    graphics->SetPlatformContext(nullptr);
     graphics->CloseWindow();
   }
   [super removeFromSuperview];

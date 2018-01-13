@@ -28,12 +28,47 @@ public:
   };
 };
 
+class MyCairoSizeSwitch : public IControl
+{
+public:
+  MyCairoSizeSwitch(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  : IControl(plug, rect, paramIdx)
+  {
+  };
+  
+  ~MyCairoSizeSwitch()
+  {
+  };
+  
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override
+  {
+    state = (state + 1) % 3;
+    mValue = state / 2.0;
+    SetDirty();
+  }
+  
+  void Draw(IGraphics& graphics) override
+  {
+    cairo_t* cr = (cairo_t*) graphics.GetData();
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_rectangle(cr, mRECT.L + (mRECT.W() / 3.0) * state, mRECT.T, mRECT.W() / 3.0, mRECT.H());
+    cairo_fill(cr);
+    cairo_set_line_width(cr, 1.0);
+    cairo_rectangle(cr, mRECT.L, mRECT.T, mRECT.W(), mRECT.H());
+    cairo_stroke(cr);
+  }
+  
+private:
+  int state = 0;
+};
+
 
 const int kNumPrograms = 1;
 
 enum EParams
 {
   kGain = 0,
+  kSize,
   kNumParams
 };
 
@@ -56,7 +91,11 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
-
+  GetParam(kSize)->InitEnum("Size", 0, 3);
+  GetParam(kSize)->SetDisplayText(0, "small");
+  GetParam(kSize)->SetDisplayText(1, "med");
+  GetParam(kSize)->SetDisplayText(2, "large");
+  
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
 
@@ -71,13 +110,17 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+48, kGainY+48), kGain, COLOR_BLACK));
 
   pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 100, 100), -1));
-//  IText basic;
+  
+  pGraphics->AttachControl(new MyCairoSizeSwitch(*this, IRECT(10, 250, 90, 270), kSize));
+
+  //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
 
 //  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), basic, builddatestr));
-
+  
   AttachGraphics(pGraphics);
+  
   //pGraphics->ShowControlBounds(true);
   pGraphics->ShowAreaDrawn(true);
   //MakePreset("preset 1", ... );
@@ -117,6 +160,12 @@ void IPlugEffectCairo::OnParamChange(int paramIdx)
     {
       break;
     }
+      
+    case kSize:
+      GetGUI()->Resize(kWidth, kHeight, 1.0 + 0.5 * GetParam(kSize)->Int());
+
+      break;
+      
     default:
       break;
   }

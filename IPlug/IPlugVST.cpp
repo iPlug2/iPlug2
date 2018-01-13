@@ -213,7 +213,7 @@ void IPlugVST::OnGUICreated()
   }
 }
 
-void IPlugVST::ResizeGraphics(int w, int h)
+void IPlugVST::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {

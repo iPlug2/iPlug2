@@ -61,7 +61,7 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void Resize(int w, int h) override;
+  void Resize(int w, int h, double scale) override;
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
