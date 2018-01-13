@@ -332,4 +332,70 @@ protected:
   bool mVCentre;
 };
 
+class IXYPad : public IControl
+{
+public:
+  IXYPad(IPlugBaseGraphics& pPlug, IRECT rect, int handleRadius, int paramIdxX, int paramIdxY, const IColor& hcOn = COLOR_WHITE, const IColor& hcOff = COLOR_BLACK)
+  : IControl(pPlug, rect)
+  , mHandleRadius(handleRadius)
+  , mHandleColorOn(hcOn)
+  , mHandleColorOff(hcOff)
+  , mCurrentHandleColor(hcOff)
+  {
+    AddAuxParam(paramIdxX);
+    AddAuxParam(paramIdxY);
+  }
+  
+  bool Draw(IGraphics* pGraphics)
+  {
+    const double xpos = GetAuxParam(0)->mValue * mRECT.W();
+    const double ypos = GetAuxParam(1)->mValue * mRECT.H();
+    
+    pGraphics->DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0, false);
+    pGraphics->DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0, false);
+    pGraphics->FillCircle(mCurrentHandleColor, xpos+mRECT.L, ypos+mRECT.T, mHandleRadius, 0, true);
+    
+    return true;
+  }
+
+  void OnMouseDown(int x, int y, IMouseMod* pMod)
+  {
+    mCurrentHandleColor = mHandleColorOn;
+    return SnapToMouse(x, y);
+  }
+  
+  void OnMouseUp(int x, int y, IMouseMod* pMod)
+  {
+    mCurrentHandleColor = mHandleColorOff;
+  }
+  
+  void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod* pMod)
+  {
+    return SnapToMouse(x, y);
+  }
+  
+  void SnapToMouse(int x, int y)
+  {
+    GetAuxParam(0)->mValue = BOUNDED((double)x / (double)mRECT.W(), 0, 1);
+    GetAuxParam(1)->mValue = BOUNDED((double)y / (double)mRECT.H(), 0, 1);
+    
+    SetDirty();
+  }
+  
+  void SetDirty(bool pushParamToPlug = true)
+  {
+    mDirty = true;
+    
+    if (pushParamToPlug)
+    {
+      SetAllAuxParamsFromGUI();
+    }
+  }
+private:
+  int mHandleRadius;
+  IColor mHandleColorOff;
+  IColor mHandleColorOn;
+  IColor mCurrentHandleColor;
+};
+
 /**@}*/
