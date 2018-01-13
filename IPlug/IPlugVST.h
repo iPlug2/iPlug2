@@ -2,6 +2,11 @@
 #define _IPLUGAPI_
 // Only load one API class!
 
+/**
+ * @file
+ * @copydoc IPlugVST
+ */
+
 //TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
 #ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
@@ -19,7 +24,7 @@ struct IPlugInstanceInfo
   audioMasterCallback mVSTHostCallback;
 };
 
-/**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase
+/**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
 class IPlugVST : public IPLUG_BASE_CLASS

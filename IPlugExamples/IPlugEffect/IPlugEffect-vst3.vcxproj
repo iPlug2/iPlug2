@@ -267,13 +267,38 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\IPlug\Hosts.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IAutoGUI.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControls.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsConstants.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLice.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsStructs.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsUtilites.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsWin.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IKeyboardControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h" />
+    <ClInclude Include="..\..\IPlug\IMidiQueue.h" />
+    <ClInclude Include="..\..\IPlug\IParam.h" />
+    <ClInclude Include="..\..\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\IPlug\IPlugByteChunk.h" />
+    <ClInclude Include="..\..\IPlug\IPlugConstants.h" />
+    <ClInclude Include="..\..\IPlug\IPlugOSDetect.h" />
+    <ClInclude Include="..\..\IPlug\IPlugStructs.h" />
+    <ClInclude Include="..\..\IPlug\IPlugUtilities.h" />
+    <ClInclude Include="..\..\IPlug\IPlugVST3.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\IPlug\Log.h" />
+    <ClInclude Include="..\..\IPlug\NChanDelay.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\classfactoryhelpers.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fbuffer.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fcleanup.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fcommandline.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fdebug.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fdynlib.h" />
-    <ClInclude Include="..\..\VST3_SDK\base\source\flock.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fobject.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fstdmethods.h" />
     <ClInclude Include="..\..\VST3_SDK\base\source\fstreamer.h" />
@@ -343,21 +368,34 @@
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
     <ClInclude Include="..\..\VST3_SDK\public.sdk\source\vst\vstspeakerarray.h" />
-    <ClInclude Include="..\..\IPlug\IPlugVST3.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="IPlugEffect.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\IPlug\Hosts.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControls.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLice.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp" />
+    <ClCompile Include="..\..\IPlug\IParam.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugBase.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugStructs.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugVST3.cpp" />
+    <ClCompile Include="..\..\IPlug\Log.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\baseiids.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\fbuffer.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\fdebug.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\fdynlib.cpp" />
-    <ClCompile Include="..\..\VST3_SDK\base\source\flock.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\fobject.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\fstreamer.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\fstring.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\timer.cpp" />
     <ClCompile Include="..\..\VST3_SDK\base\source\updatehandler.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\thread\source\fcondition.cpp" />
+    <ClCompile Include="..\..\VST3_SDK\base\thread\source\flock.cpp" />
     <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\conststringtable.cpp" />
     <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\funknown.cpp" />
     <ClCompile Include="..\..\VST3_SDK\pluginterfaces\base\ustring.cpp" />
@@ -376,13 +414,13 @@
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstpresetfile.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.cpp" />
     <ClCompile Include="..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
-    <ClCompile Include="..\..\IPlug\IPlugVST3.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\IPlug\IPlugVST3.def" />
     <None Include="..\..\VST3_SDK\public.sdk\source\main\winexport.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

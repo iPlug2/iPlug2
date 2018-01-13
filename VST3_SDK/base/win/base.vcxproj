@@ -24,12 +24,13 @@
     <ClCompile Include="..\source\fbuffer.cpp" />
     <ClCompile Include="..\source\fdebug.cpp" />
     <ClCompile Include="..\source\fdynlib.cpp" />
-    <ClCompile Include="..\source\flock.cpp" />
     <ClCompile Include="..\source\fobject.cpp" />
     <ClCompile Include="..\source\fstreamer.cpp" />
     <ClCompile Include="..\source\fstring.cpp" />
     <ClCompile Include="..\source\timer.cpp" />
     <ClCompile Include="..\source\updatehandler.cpp" />
+    <ClCompile Include="..\thread\source\fcondition.cpp" />
+    <ClCompile Include="..\thread\source\flock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\classfactoryhelpers.h" />

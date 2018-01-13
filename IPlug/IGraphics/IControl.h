@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file
+ * @copydoc IControl
+ */
+
 #ifdef VST3_API
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "base/source/fobject.h"

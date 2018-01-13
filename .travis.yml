@@ -1,0 +1,35 @@
+# This will run on Travis' 'new' container-based infrastructure
+sudo: false
+
+# Blacklist
+branches:
+  only:
+    - iplugquake
+
+# Environment variables
+env:
+  global:
+    - GH_REPO_REF: https://github.com/olilarkin/wdl-ol.git
+    
+# Install dependencies
+addons:
+  apt:
+    packages:
+      - doxygen
+      - doxygen-doc
+      - doxygen-gui
+      - graphviz
+
+# Build your code e.g. by calling make
+script:
+  - cd Documentation
+  - doxygen Doxyfile
+
+# Deploy using travis builtin GitHub Pages support
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: html
+  github_token: $GITHUB_API_KEY
+  on:
+    branch: iplugquake

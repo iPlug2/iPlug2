@@ -1,6 +1,12 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
+/**
+ * @file
+ * @copydoc IPlugStandalone
+ */
+
+
 #include "IPlugOSDetect.h"
 
 //TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
@@ -33,7 +39,7 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 
 #endif
 
-/**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase
+/**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
 class IPlugStandalone : public IPLUG_BASE_CLASS

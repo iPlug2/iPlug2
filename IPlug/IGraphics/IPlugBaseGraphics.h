@@ -2,8 +2,14 @@
 
 #include "IPlugBase.h"
 
+/**
+ * @file
+ * @copydoc IPlugBaseGraphics
+ */
+
 class IGraphics;
 
+/** An IPlugBase class for an IPlug plug-in that uses IGraphics for it's UI */
 class IPlugBaseGraphics : public IPlugBase
 {
 public:

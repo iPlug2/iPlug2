@@ -8,10 +8,17 @@
 #include "wdlstring.h"
 #include "ptrlist.h"
 
+/**
+ * @file
+ * @copydoc IPopupMenu
+ * @ingroup IGraphicsStructs
+ */
+
 // this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
 
 class IPopupMenu;
 
+/** A class to specify an item of a pop up menu */
 class IPopupMenuItem
 {
 public:
@@ -26,7 +33,6 @@ public:
 
   IPopupMenuItem(const char* text, int flags = kNoFlags)
     : mFlags(flags)
-    , mSubmenu(nullptr)
   {
     SetText(text);
   }
@@ -57,18 +63,18 @@ public:
 
 protected:
   WDL_String mText;
-  IPopupMenu* mSubmenu;
+  IPopupMenu* mSubmenu = nullptr;
   int mFlags;
 };
 
+/** A class for setting the contents of a pop up menu */
 class IPopupMenu
 {
 public:
 
   IPopupMenu(int prefix = 0, bool multicheck = false)
-    : mChosenItemIdx(-1)
-    , mPrefix(prefix)
-    , mCanMultiCheck(multicheck)
+  : mPrefix(prefix)
+  , mCanMultiCheck(multicheck)
   {}
 
   ~IPopupMenu()
@@ -100,7 +106,7 @@ public:
 
 private:
   int mPrefix; // 0 = no prefix, 1 = numbers no leading zeros, 2 = 1 lz, 3 = 2lz
-  int mChosenItemIdx;
+  int mChosenItemIdx = -1;
   bool mCanMultiCheck; // multicheck = 0 doesn't actually prohibit multichecking, you should do that in your code, by calling CheckItemAlone instead of CheckItem
   WDL_PtrList<IPopupMenuItem> mMenuItems;
 };

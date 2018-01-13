@@ -22,7 +22,7 @@ struct IPlugConfig
   int latency;
   bool plugDoesMidi;
   bool plugDoesChunks;
-  bool plugIsInst;
+  bool plugIsInstrument;
   int plugScChans;
   
   IPlugConfig(int nParams,
@@ -37,7 +37,7 @@ struct IPlugConfig
               int latency,
               bool plugDoesMidi,
               bool plugDoesChunks,
-              bool plugIsInst,
+              bool plugIsInstrument,
               int plugScChans)
               
   : nParams(nParams)
@@ -52,7 +52,7 @@ struct IPlugConfig
   , latency(latency)
   , plugDoesMidi(plugDoesMidi)
   , plugDoesChunks(plugDoesChunks)
-  , plugIsInst(plugIsInst)
+  , plugIsInstrument(plugIsInstrument)
   , plugScChans(plugScChans)
   {};
 };

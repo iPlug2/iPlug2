@@ -1,6 +1,12 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
+/**
+ * @file
+ * @copydoc IPlugAAX
+ */
+
+
 #include "IPlugOSDetect.h"
 
 #ifdef NO_IGRAPHICS
@@ -43,7 +49,7 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
-/**  AAX API base class for an IPlug plug-in, inherits from IPlugBase 
+/**  AAX API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics 
 *   @ingroup APIClasses
 */
 class IPlugAAX : public IPLUG_BASE_CLASS,

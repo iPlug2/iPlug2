@@ -106,18 +106,24 @@ ARCHS = x86_64 i386
 
 ## Windows Issues
 
-The template projects use static linking with the MSVC2017 runtime libraries (/MT). If you change that you may need to provide the MSVC redistributable in your installer, google for "Microsoft Visual C++ 2017 Redistributable Package". @todo this may have to change due to recent microsoft changes
+The template projects use static linking with the MSVC2017 runtime libraries (/MT).
+
+If you change your project to dynamic linking, you'll need to provide the redistributable in your installer, google for "Microsoft Visual C++ 2017 Redistributable Package".
+
+@todo This may need to be updated due to recent Microsoft changes
 
 ## macOS Issues
 
-Since macOS 10.8 you will need to code-sign your installer and the .app with a valid signature obtained from Apple, to prevent an unidentified developer warning when a user tries to open your installer or dmg file. For the app store you need to add entitlements in order to comply with the sandbox regulations. These things are done by the makedist-* build scripts.
+Since macOS 10.8 you will need to code-sign your installer and the .app with a valid signature obtained from Apple, to prevent an unidentified developer warning when a user tries to open your installer or dmg file. For the app store you need to add entitlements in order to comply with the sandbox regulations. These things are done by the `makedist-*` build scripts.
 
 
 ### Debugging
 
-.xcscheme files are set up to use some common hosts for debugging the various formats in Xcode.
+`.xcscheme` files are set up to use some common hosts for debugging the various formats in Xcode.
 
-To debug an Audiounit using auval, remember to change the auval executable arguments to match plugin's type and IDs: aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID
+To debug an Audiounit using *auval*, remember to change the auval executable arguments to match plugin's type and IDs:
+
+`aufx/aumf/aumu PLUG_UNIQUE_ID PLUG_MFR_ID`
 
 AU hosts cache information about the plugin I/O channels etc, so I have added a build script that deletes the caches after a build. If this becomes annoying (it will cause Logic to rescan plugins) you can disable it.
 

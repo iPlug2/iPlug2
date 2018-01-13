@@ -101,10 +101,8 @@ public:
   void* mLayer;
 
 protected:
-  void OSLoadBitmap(const char* name, WDL_String& result) override;
-//  void OSLoadFont(const char* name, const int size) override;
-//  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
-  
+  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
+
 private:
   void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
   

@@ -12,11 +12,6 @@ static StaticStorage<LICE_IFont> s_fontCache;
 
 IGraphicsLice::IGraphicsLice(IPlugBaseGraphics& plug, int w, int h, int fps)
 : IGraphics(plug, w, h, fps)
-, mDrawBitmap(nullptr)
-, mTmpBitmap(nullptr)
-#ifdef OS_OSX
-, mColorSpace(nullptr)
-#endif
 {}
 
 IGraphicsLice::~IGraphicsLice() 
@@ -42,12 +37,12 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
   if (!pLB) // if bitmap not in cache allready at targetScale
   {
     WDL_String fullPath;
-    OSLoadBitmap(name, fullPath);
+    bool resourceFound = OSFindResource(name, "png", fullPath);
+    assert(resourceFound); // Protect against typos in resource.h and .rc files.
+
     pLB = LoadAPIBitmap(fullPath.Get());
-#ifndef NDEBUG
-    bool imgResourceFound = pLB;
-#endif
-    assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
+    resourceFound = pLB != nullptr;
+    assert(resourceFound); // Protect against typos in resource.h and .rc files.
 
     const IBitmap bitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
@@ -113,6 +108,10 @@ void IGraphicsLice::PrepDraw()
 
   mDrawBitmap = new LICE_SysBitmap(w, h);
   mTmpBitmap = new LICE_MemBitmap();
+
+#ifdef OS_WIN
+  SetPlatformContext((void*) mDrawBitmap->getDC());
+#endif
 }
 
 void IGraphicsLice::ReScale()
@@ -402,40 +401,23 @@ bool IGraphicsLice::MeasureIText(const IText& text, const char* str, IRECT& dest
 
 LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 {
+  bool ispng = strstr(path, "png") != nullptr;
 #ifdef OS_OSX
-  if (CSTR_NOT_EMPTY(path))
-  {
-    const char* ext = path +strlen(path)-1;
-    while (ext >= path && *ext != '.') --ext;
-    ++ext;
-    
-    bool ispng = !stricmp(ext, "png");
-#ifndef IPLUG_JPEG_SUPPORT
-    if (!ispng) return 0;
-#else
-    bool isjpg = !stricmp(ext, "jpg");
-    if (!isjpg && !ispng) return 0;
-#endif
-    
-    if (ispng) return LICE_LoadPNG(path);
-#ifdef IPLUG_JPEG_SUPPORT
-    if (isjpg) return LICE_LoadJPG(path);
-#endif
-  }
+  if (ispng) return LICE_LoadPNG(path);
 #else //OS_WIN
-  const char* ext = path+strlen(path)-1;
-  while (ext > path && *ext != '.') --ext;
-  ++ext;
-  
-  if (!stricmp(ext, "png"))
-    LICE_LoadPNGFromResource(mHInstance, ID, 0);
+  if (ispng) return LICE_LoadPNGFromResource((HINSTANCE) GetPlatformInstance(), path, 0);
+#endif
+
 #ifdef IPLUG_JPEG_SUPPORT
-  if (!stricmp(ext, "jpg") || !stricmp(ext, "jpeg"))
-    LICE_LoadJPGFromResource(mHInstance, ID, 0);
+  bool isjpg = (strstr(path, "jpg") != nullptr) && (strstr(path, "jpeg") != nullptr);
+#ifdef OS_OSX
+  if (isjpg) return LICE_LoadJPG(path);
+#else //OS_WIN
+  if (isjpg) return LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0);
 #endif
 #endif
-    
-  return 0;
+
+  return nullptr;
 }
 
 void IGraphicsLice::RenderAPIBitmap(void *pContext)

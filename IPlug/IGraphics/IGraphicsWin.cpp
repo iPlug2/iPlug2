@@ -16,16 +16,6 @@ static const char* wndClassName = "IPlugWndClass";
 static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
-
-enum EParamEditMsg
-{
-  kNone,
-  kEditing,
-  kUpdate,
-  kCancel,
-  kCommit
-};
-
 #define IPLUG_TIMER_ID 2
 
 inline IMouseMod GetMouseMod(WPARAM wParam)
@@ -35,7 +25,7 @@ inline IMouseMod GetMouseMod(WPARAM wParam)
                    (wParam & MK_SHIFT), 
                    (wParam & MK_CONTROL), 
                    
-#if defined(AAX_API)
+#ifdef AAX_API
                    GetAsyncKeyState(VK_MENU) < 0
 #else
                    GetKeyState(VK_MENU) < 0
@@ -561,7 +551,7 @@ void IGraphicsWin::DrawScreen(const IRECT& rect)
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
-  //TODO:BitBlt(dc, rect.L, rect.T, rect.W(), rect.H(), mDrawBitmap->getDC(), rect.L, rect.T, SRCCOPY);
+  BitBlt(dc, rect.L, rect.T, rect.W(), rect.H(), (HDC) GetPlatformContext(), rect.L, rect.T, SRCCOPY);
   EndPaint(hWnd, &ps);
 }
 
@@ -1307,32 +1297,30 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
       if (strcmp(search->Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
-        search->SetFormatted("Found: %s", strippedName.Get());
+        search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
         return false;
       }
     }
-    else
-      return true; // keep enumerating
   }
+
+  return true; // keep enumerating
 }
 
-void IGraphicsWin::OSLoadBitmap(const char* name, WDL_String& result)
+bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  const char* ext = name+strlen(name)-1;
-  while (ext > name && *ext != '.') --ext;
-  ++ext;
-  
-  bool ispng = false;
-  bool isjpg = false;
-  
-  if (!stricmp(ext, "png")) ispng = true;
-  else if (!stricmp(ext, "jpg")) isjpg = true;
-  
   WDL_String search(name);
-  EnumResourceNames(mHInstance, ispng ? "PNG" : "JPG", (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
+  EnumResourceNames(mHInstance, strupr(type), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
   
-  //if (strcmp(search.Get(), "") == 0)
-  result.Set(search.Get(), MAX_PATH);
+  if (strstr(search.Get(), "found: ") != 0)
+  {
+    result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
+    return true;
+  }
+  else
+  {
+    //TODO: search some other path - for instance if the plug-in developer wishes to store graphics resources in Program Files, to reduce the size of plug-in binaries
+    return false;
+  }
 
-  //TODO:  else search location?
+  return false;
 }

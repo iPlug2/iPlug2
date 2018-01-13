@@ -1,2 +1,2 @@
-# Upgrading from previous versions
-@todo write this!
+# How to Upgrade
+@todo Write this!

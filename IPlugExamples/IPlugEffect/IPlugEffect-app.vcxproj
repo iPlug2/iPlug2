@@ -331,9 +331,6 @@
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\IPlugEffect.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\IPlug\README.md" />
   </ItemGroup>
   <ItemGroup>

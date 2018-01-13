@@ -58,16 +58,15 @@ public:
 
 protected:
   void RenderAPIBitmap(void* pContext) override;
-  
 private:
-#ifdef OS_OSX
-  CGColorSpaceRef mColorSpace;
-#endif
   LICE_IBitmap* LoadAPIBitmap(const char* path);
-
-  LICE_SysBitmap* mDrawBitmap;
   LICE_IFont* CacheFont(const IText& text, double scale);
-  LICE_MemBitmap* mTmpBitmap;
+
+  LICE_SysBitmap* mDrawBitmap = nullptr;
+  LICE_MemBitmap* mTmpBitmap = nullptr;
+#ifdef OS_OSX
+  CGColorSpaceRef mColorSpace = nullptr;
+#endif
 };
 
 inline LICE_pixel LiceColor(const IColor& color)

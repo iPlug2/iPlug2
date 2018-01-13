@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file
+ * @brief A collection of IControls for common UI widgets, such as knobs, sliders, switches
+ */
+
 #include "IControl.h"
 
 /**

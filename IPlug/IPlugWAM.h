@@ -9,27 +9,13 @@
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo {};
 
-/**  Web Audio Module (WAM) API base class for an IPlug plug-in, inherits from IPlugBase
+/**  Web Audio Module (WAM) API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
 class IPlugWAM : public IPLUG_BASE_CLASS
 {
 public:
-  IPlugWAM(IPlugInstanceInfo instanceInfo,
-           int nParams,
-           const char* channelIOStr,
-           int nPresets,
-           const char* effectName,
-           const char* productName,
-           const char* mfrName,
-           int vendorVersion,
-           int uniqueID,
-           int mfrID,
-           int latency = 0,
-           bool plugDoesMidi = false,
-           bool plugDoesChunks = false,
-           bool plugIsInst = false,
-           int plugScChans = 0);
+  IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;

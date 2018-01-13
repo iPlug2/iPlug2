@@ -21,16 +21,11 @@
 
 struct IPlugConfig;
 
-/** The lowest level base class of an IPlug plug-in */
+/** The lowest level base class of an IPlug plug-in. No UI framework code included. */
 class IPlugBase
 {
 public:
-  // Use IPLUG_CTOR instead of calling directly (defined in IPlug_include_in_plug_src.h).
   IPlugBase(IPlugConfig config, EAPI plugAPI);
-
-  // ----------------------------------------
-  // Your plugin class implements these.
-  // There are default impls, mostly just for reference.
   virtual ~IPlugBase();
 
   virtual void Reset() { TRACE; }
@@ -55,15 +50,15 @@ public:
    * @param nFrames Number of samples per array (buffer size)
   */
   virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
-  
+
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
   virtual void OnGUIOpen() { TRACE; }
   virtual void OnGUIClose() { TRACE; }
-  
+
   virtual void* OpenWindow(void* handle) { return nullptr; }
   virtual void CloseWindow() {} // plugin api asking to close window
-  
+
   // This is an idle call from the audio processing thread
   // Only active if USE_IDLE_CALLS is defined
   virtual void OnIdle() {}
@@ -80,10 +75,10 @@ public:
   virtual bool SerializeState(ByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
   // Return the new chunk position (endPos). Implementations should call UnserializeParams() after custom data is unserialized
   virtual int UnserializeState(ByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
-  
+
   // Only used by AAX, override in plugins that do chunks
   virtual bool CompareState(const unsigned char* incomingState, int startPos);
-  
+
   virtual void OnWindowResize() {}
   // implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone
   virtual bool OnHostRequestingAboutBox() { return false; }
@@ -94,7 +89,6 @@ public:
 
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
-
   int NParams() const { return mParams.GetSize(); }
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
@@ -107,11 +101,11 @@ public:
 
   /** Get a printable version string
    * @param str String buffer to write to
-   * 
+   *
    * Make sure to allocate enough memory (add 2 bytes of margin for possible debug suffix as well as null termination)
-   * 
+   *
    * The output format is vX.M.m, where X - version, M - major, m - minor
-   * 
+   *
    * @todo Please check this and remove this note once done
    * @note If \c _DEBUG is defined, \c D is appended to the version string
    * @note If \c TRACER_BUILD is defined, \c T is appended to the version string
@@ -123,7 +117,7 @@ public:
   const char* GetProductName() const { return mProductName.Get(); }
   int GetUniqueID() const { return mUniqueID; }
   int GetMfrID() const { return mMfrID; }
-  
+
   virtual void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) {}; // call from plugin API class to update GUI prior to calling OnParamChange();
   virtual void SetParameterFromUI(int idx, double normalizedValue); // called from GUI to update
   // If a parameter change comes from the GUI, midi, or external input,
@@ -132,7 +126,7 @@ public:
   virtual void InformHostOfParamChange(int idx, double normalizedValue) = 0;
   virtual void EndInformHostOfParamChange(int idx) = 0;
   virtual void InformHostOfProgramChange() = 0;
-  
+
   // ----------------------------------------
   // Useful stuff for your plugin class or an outsider to call,
   // most of which is implemented by the API class.
@@ -158,7 +152,7 @@ public:
   bool IsOutChannelConnected(int chIdx) const;
   int GetNumInputsConnected() const;
   int GetNumOutputsConnected() const;
-  
+
   virtual bool IsRenderingOffline() { return false; };
   virtual int GetSamplePos() = 0;   // Samples since start of project.
   virtual double GetTempo() = 0;
@@ -171,13 +165,13 @@ public:
   int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetHostVersionStr(char* str);
   const char* GetArchString();
-  
+
   int GetTailSize() { return mTailSize; }
-  
+
   virtual bool GetHasUI() { return mHasUI; }
   virtual int GetUIWidth() { return 0; }
   virtual int GetUIHeight() { return 0; }
-  
+
   // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics::AttachGraphics)
   virtual void OnGUICreated() {};
 
@@ -202,6 +196,7 @@ protected:
    * @param pLabel Label text
    */
   void SetInputBusLabel(int idx, const char* pLabel);
+
   /** Sets labels for the outputs (AU/VST3)
    * @param idx Output index
    * @param pLabel Label text
@@ -222,17 +217,17 @@ protected:
 
   // If latency changes after initialization (often not supported by the host).
   virtual void SetLatency(int samples);
-  
+
   // set to 0xffffffff for infinite tail (VST3), or 0 for none (default)
   // for VST2 setting to 1 means no tail, but it would be better i think to leave it at 0, the default
   void SetTailSize(unsigned int tailSizeSamples) { mTailSize = tailSizeSamples; }
-  
+
   virtual bool SendMidiMsg(IMidiMsg& msg) = 0;
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   virtual bool SendSysEx(ISysEx& msg) { return false; }
-  bool IsInst() { return mIsInst; }
+  bool IsInstrument() { return mIsInstrument; }
   bool DoesMIDI() { return mDoesMIDI; }
-  
+
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
   // MakePreset(name, param1, param2, ..., paramN)
@@ -280,15 +275,15 @@ protected:
   void ProcessBuffers(double sampleType, int nFrames);
   void ProcessBuffersAccumulating(float sampleType, int nFrames);
   void ZeroScratchBuffers();
-  
+
 public:
-  void ModifyCurrentPreset(const char* name = 0);     // Sets the currently active preset to whatever current params are.
+  void ModifyCurrentPreset(const char* name = 0); // Sets the currently active preset to whatever current params are.
   int NPresets() { return mPresets.GetSize(); }
   int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
   bool RestorePreset(int idx);
   bool RestorePreset(const char* name);
   const char* GetPresetName(int idx);
-  
+
   virtual void DirtyPTCompareState() {}; // needed in chunks based plugins to tell PT a non-indexed param changed and to turn on the compare light
   virtual void* GetAAXViewInterface() { return nullptr; }
 
@@ -296,10 +291,10 @@ public:
   void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
   void DumpPresetBlob(const char* file);
   void DumpBankBlob(const char* file);
-  
+
   virtual void PresetsChangedByHost() {} // does nothing by default
   void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
-  
+
   //VST2 Presets
   bool SaveProgramAsFXP(const char* file);
   bool SaveBankAsFXB(const char* file);
@@ -311,27 +306,28 @@ public:
 //   bool SaveProgramAsVSTPreset(const char* file);
 //   bool LoadProgramFromVSTPreset(const char* file);
 //   bool SaveBankAsVSTPresets(const char* path);
-//   
+//
 //   AU format
 //   bool SaveProgramAsAUPreset(const char* name, const char* file);
 //   bool LoadProgramFromAUPreset(const char* file);
 //   bool SaveBankAsAUPresets(const char* path);
-//   
+//
 //   ProTools format
 //   bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID);
 //   bool LoadProgramFromProToolsPreset(const char* file);
 //   bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID);
-  
+
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
 
 private:
+  /** Effect name @todo WAT? */
   WDL_String mEffectName;
-  /** Product name */
+  /** Product name @todo WAT? */
   WDL_String mProductName;
   /** Manufacturer name */
   WDL_String mMfrName;
-  
+
   //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
   int mUniqueID;
   int mMfrID;
@@ -364,7 +360,7 @@ private:
 protected:
   bool mStateChunks;
   /** \c True if the plug-in is an instrument */
-  bool mIsInst;
+  bool mIsInstrument;
   /** \c True if the plug-in requires MIDI input */
   /** @todo Someone check this please */
   bool mDoesMIDI;
@@ -388,7 +384,7 @@ protected:
   WDL_PtrList<WDL_String> mInputBusLabels;
   WDL_PtrList<WDL_String> mOutputBusLabels;
   WDL_PtrList<ChannelIO> mChannelIO;
-  
+
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;

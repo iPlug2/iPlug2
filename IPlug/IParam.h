@@ -22,6 +22,9 @@ public:
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
   void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1.);
 
+  /** Sets the parameter value
+   * @param value Value to be set. Will be clamped between \c mMin and \c mMax
+   */
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
   void SetDisplayText(int value, const char* text);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
@@ -39,8 +42,17 @@ public:
 
   // Accessors / converters.
   // These all return the readable value, not the VST (0,1).
+  /** Gets a readable value of the parameter
+   * @return Current value of the parameter
+   */
   double Value() const { return mValue; }
+  /** Returns the parameter's value as a boolean
+   * @return \c True if value >= 0.5, else otherwise
+   */
   bool Bool() const { return (mValue >= 0.5); }
+  /** Returns the parameter's value as an integer
+   * @return Current value of the parameter
+   */
   int Int() const { return int(mValue); }
   double DBToAmp() const;
 

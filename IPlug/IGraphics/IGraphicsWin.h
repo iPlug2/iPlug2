@@ -80,7 +80,7 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str);
   
-  void OSLoadBitmap(const char* name, WDL_String& result) override;
+  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 protected:
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
@@ -88,6 +88,15 @@ protected:
 
 
 private:
+  enum EParamEditMsg
+  {
+    kNone,
+    kEditing,
+    kUpdate,
+    kCancel,
+    kCommit
+  };
+
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
   HWND mParamEditWnd = nullptr;
@@ -100,7 +109,7 @@ private:
 
   IControl* mEdControl = nullptr;
   IParam* mEdParam = nullptr;
-  int mParamEditMsg = kNone;
+  EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
   int mTooltipIdx = -1;
 
