@@ -2,12 +2,12 @@
 
 @todo Lots more to do here!
 
-## Adding/modifying image resources
+## Adding/modifying resources
 
-One of the most common things people post about on the WDL Forum is how to add an image resource. Perhaps they tried and got an assertion when they try and run the plug-in or app. Something like:
+One of the most common things people post about on the WDL Forum is how to add a resource, such as an image. Perhaps they tried and got an assertion when they try and run the plug-in or app. Something like:
 
 ```cpp
-Assertion failed: (imgResourceFound), function LoadIBitmap...
+Assertion failed: (resourceFound), function LoadIBitmap...
 ```
 
 This basically means that the resource has not been found. Perhaps it didn't get included in the bundle (OSX) or baked into the binary (WIN) or perhaps it is there but was not referenced correctly in the source code.
@@ -30,9 +30,9 @@ The IPlug Project should exist at the same level as _WDL-OL/IPlugExamples/IPlugE
 
 * Now add a reference to the file location to _WDL-OL/Projects/MyNewPlugin/config.h_
 
-```Cpp
-// Image resource locations for this plug.
-#define KNOB_FN "resources/img/knob.png"
+```cpp
+// Image resource locations for this plug.  
+#define KNOB_FN "resources/img/knob.png"  
 #define CAT_FN "resources/img/cat.png" 
 ```
 

@@ -1,5 +1,5 @@
 # WDL-OL/IPlug v2
-***IPlug2: Make IPlug great again!***
+**IPlug2: Make IPlug great again!**
 
 **Disclaimer:**  
 This documentation is work-in-progress. You'll need to have some understanding of C++ concepts to find your way around. We're working on some simpler tutorials as well. Stay tuned.
