@@ -54,7 +54,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
   if (!pCB) // if bitmap not in cache already at targetScale
   {
     WDL_String fullPath;
-    OSLoadBitmap(name, fullPath);
+    OSFindResource(name, "png", fullPath);
 
     cairo_surface_t* pSurface = cairo_image_surface_create_from_png(fullPath.Get());
       
