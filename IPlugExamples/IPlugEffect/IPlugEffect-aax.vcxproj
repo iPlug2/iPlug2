@@ -419,19 +419,21 @@
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
+    <ClCompile Include="..\..\IPlug\AAX\AAX_CIPlugParameters.cpp" />
+    <ClCompile Include="..\..\IPlug\AAX\IPlugAAX_Describe.cpp" />
     <ClCompile Include="..\..\IPlug\Hosts.cpp" />
-    <ClCompile Include="..\..\IPlug\IBitmapMonoText.cpp" />
-    <ClCompile Include="..\..\IPlug\IControl.cpp" />
-    <ClCompile Include="..\..\IPlug\IGraphics.cpp" />
-    <ClCompile Include="..\..\IPlug\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IControls.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLice.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp" />
+    <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp" />
     <ClCompile Include="..\..\IPlug\IParam.cpp" />
+    <ClCompile Include="..\..\IPlug\IPlugAAX.cpp" />
     <ClCompile Include="..\..\IPlug\IPlugBase.cpp" />
     <ClCompile Include="..\..\IPlug\IPlugStructs.cpp" />
-    <ClCompile Include="..\..\IPlug\IPopupMenu.cpp" />
     <ClCompile Include="..\..\IPlug\Log.cpp" />
-    <ClCompile Include="..\..\IPlug\AAX\AAX_CIPlugParameters.cpp" />
-    <ClCompile Include="..\..\IPlug\IPlugAAX.cpp" />
-    <ClCompile Include="..\..\IPlug\AAX\IPlugAAX_Describe.cpp" />
     <ClCompile Include="IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -464,26 +466,39 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\IPlug\Containers.h" />
+    <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugParameters.h" />
+    <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugTaperDelegate.h" />
+    <ClInclude Include="..\..\IPlug\AAX\IPlugAAX_view_interface.h" />
     <ClInclude Include="..\..\IPlug\Hosts.h" />
-    <ClInclude Include="..\..\IPlug\IBitmapMonoText.h" />
-    <ClInclude Include="..\..\IPlug\IControl.h" />
-    <ClInclude Include="..\..\IPlug\IGraphics.h" />
-    <ClInclude Include="..\..\IPlug\IGraphicsWin.h" />
-    <ClInclude Include="..\..\IPlug\IKeyboardControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IAutoGUI.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IControls.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsConstants.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLice.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsStructs.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsUtilites.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsView.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsWin.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IKeyboardControl.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.h" />
+    <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h" />
     <ClInclude Include="..\..\IPlug\IMidiQueue.h" />
     <ClInclude Include="..\..\IPlug\IParam.h" />
-    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\IPlug\IPlugAAX.h" />
     <ClInclude Include="..\..\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\IPlug\IPlugByteChunk.h" />
+    <ClInclude Include="..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\IPlug\IPlugOSDetect.h" />
     <ClInclude Include="..\..\IPlug\IPlugStructs.h" />
-    <ClInclude Include="..\..\IPlug\IPopupMenu.h" />
+    <ClInclude Include="..\..\IPlug\IPlugUtilities.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\..\IPlug\Log.h" />
-    <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugParameters.h" />
-    <ClInclude Include="..\..\IPlug\IPlugAAX.h" />
+    <ClInclude Include="..\..\IPlug\NChanDelay.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="IPlugEffect.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffect.rc" />
@@ -515,6 +530,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\IPlug\IPlug_Prefix.pch" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
