@@ -1309,7 +1309,9 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   WDL_String search(name);
-  EnumResourceNames(mHInstance, strupr(type), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
+  WDL_String typeUpper(type);
+
+  EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
   
   if (strstr(search.Get(), "found: ") != 0)
   {
