@@ -113,7 +113,7 @@ public:
   virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h);
 
-#pragma mark - IGraphics Platform impl
+#pragma mark - IGraphics Platform Implementation
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) = 0;
@@ -139,9 +139,13 @@ public:
   virtual void* GetWindow() = 0;
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
-  //Todo: These methods could be combined. Used to set CGContext for LICE mac and HINSTNACE for LICE windows. and others?
+  /** Used on Windows to set the HINSTANCE handle, which allows graphics APIs to load resources from the binary*/
   virtual void SetPlatformInstance(void* instance) {}
   virtual void* GetPlatformInstance() { return nullptr; }
+
+  /** Used with IGraphicsLice (possibly others) in order to set the core graphics draw context on macOS and the GDI HDC draw context handle on Windows
+   * On macOS, this is called by the platform IGraphics class IGraphicsMac, on Windows it is called by the drawing class e.g. IGraphicsLice.
+  */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
   void* GetPlatformContext() { return mPlatformContext; }
   
@@ -226,9 +230,9 @@ public:
   virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
 
-  virtual void OSLoadBitmap(const char* name, WDL_String& result) = 0;
-//  virtual void OSLoadFont(const char* name, const int size, WDL_String& fullPath) = 0;
-//  virtual void* OSLoadSVG(const char* name, const int size) = 0;
+  /** Try to ascertain the full path of a resource. 
+  */
+  virtual bool OSFindResource(const char* name, const char* type, WDL_String& result) = 0;
 
   IRECT GetDrawRect() const { return mDrawRECT; }
  

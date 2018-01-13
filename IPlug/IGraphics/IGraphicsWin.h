@@ -80,7 +80,7 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str);
   
-  void OSLoadBitmap(const char* name, WDL_String& result) override;
+  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 protected:
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
