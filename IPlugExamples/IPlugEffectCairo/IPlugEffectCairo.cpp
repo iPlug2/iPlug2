@@ -79,7 +79,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   AttachGraphics(pGraphics);
   //pGraphics->ShowControlBounds(true);
-  pGraphics->ShowAreaDrawn(true);
+ // pGraphics->ShowAreaDrawn(true);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }
