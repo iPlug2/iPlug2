@@ -22,9 +22,6 @@
     <ClCompile Include="..\source\fdynlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\flock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\fobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -38,6 +35,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\source\updatehandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thread\source\fcondition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thread\source\flock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
