@@ -470,12 +470,12 @@ void IGraphicsWin::ForceEndUserEdit()
 
 #define SETPOS_FLAGS SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE
 
-void IGraphicsWin::Resize(int w, int h)
+void IGraphicsWin::Resize(int w, int h, double scale)
 {
   if (w == Width() && h == Height()) return;
 
   int dw = w - Width(), dh = h - Height();
-  IGraphics::Resize(w, h);
+  IGraphics::Resize(w, h, scale);
 
   if (WindowIsOpen())
   {
@@ -1308,8 +1308,9 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
+  WDL_String typeUppercase(type);
   WDL_String search(name);
-  EnumResourceNames(mHInstance, strupr(type), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
+  EnumResourceNames(mHInstance, _strupr(typeUppercase.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
   
   if (strstr(search.Get(), "found: ") != 0)
   {

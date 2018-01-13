@@ -35,7 +35,7 @@ public:
   
   void ForceEndUserEdit() override;
 
-  void Resize(int w, int h) override;
+  void Resize(int w, int h, double scale) override;
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
