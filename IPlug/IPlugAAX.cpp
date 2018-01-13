@@ -393,7 +393,7 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CB
 		return AAX_SUCCESS; 
 	}
   
-	*aIsEqualP = _this->CompareState((const u_int8_t*) aChunkP->fData, 0);
+	*aIsEqualP = _this->CompareState((const unsigned char*) aChunkP->fData, 0);
     
   return AAX_SUCCESS;
 }  
