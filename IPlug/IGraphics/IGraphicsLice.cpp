@@ -37,7 +37,7 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
   if (!pLB) // if bitmap not in cache allready at targetScale
   {
     WDL_String fullPath;
-    bool resourceFound = OSFindResource(name, "PNG", fullPath);
+    bool resourceFound = OSFindResource(name, "png", fullPath);
     assert(resourceFound); // Protect against typos in resource.h and .rc files.
 
     pLB = LoadAPIBitmap(fullPath.Get());

@@ -96,7 +96,7 @@ void IGraphicsMac::CreateMetalLayer()
 #endif
 }
 
-void GetResourcePathFromBundle(const char* bundleID, const char* fileName, const char* searchExt, WDL_String& fullPath)
+bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const char* searchExt, WDL_String& fullPath)
 {
   CocoaAutoReleasePool pool;
 
@@ -114,18 +114,19 @@ void GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
     NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
     
     if (pPath)
+    {
       fullPath.Set([pPath cString]);
-    else
-      fullPath.Set("");
+      return true;
+    }
   }
-  else
-    fullPath.Set("");
+
+  fullPath.Set("");
+  return false;
 }
 
-void IGraphicsMac::OSLoadBitmap(const char* name, WDL_String& result)
+bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  //TODO: no jpg?
-  GetResourcePathFromBundle(GetBundleID(), name, "png", result);
+  return GetResourcePathFromBundle(GetBundleID(), name, type, result);
 }
 
 void IGraphicsMac::DrawScreen(const IRECT& rect)
