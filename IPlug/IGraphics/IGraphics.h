@@ -111,7 +111,7 @@ public:
   void SetStrictDrawing(bool strict);
 
   virtual void ForceEndUserEdit() = 0;
-  virtual void Resize(int w, int h);
+  virtual void Resize(int w, int h, double scale);
 
 #pragma mark - IGraphics Platform Implementation
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
@@ -155,9 +155,10 @@ public:
 
   int Width() const { return mWidth; }
   int Height() const { return mHeight; }
+  int WindowWidth() const { return mWidth * mScale; }
+  int WindowHeight() const { return mHeight * mScale; }
   int FPS() const { return mFPS; }
-  double GetScale() const { return mScale; }
-  void SetScale(double scale) { mScale = scale; }
+  double Scale() const { return mScale; }
   double GetDisplayScale() const { return mDisplayScale; }
   void SetDisplayScale(double scale) { mDisplayScale = scale; }
   IPlugBase& GetPlug() { return mPlug; }

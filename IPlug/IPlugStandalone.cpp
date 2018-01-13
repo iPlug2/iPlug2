@@ -19,7 +19,7 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mMidiOut = instanceInfo.mRTMidiOut;
 }
 
-void IPlugStandalone::ResizeGraphics(int w, int h)
+void IPlugStandalone::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {

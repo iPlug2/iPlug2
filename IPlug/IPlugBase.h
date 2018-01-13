@@ -176,7 +176,7 @@ public:
   virtual void OnGUICreated() {};
 
   // Tell the host that the graphics resized.
-  virtual void ResizeGraphics(int w, int h) = 0;
+  virtual void ResizeGraphics(int w, int h, double scale) = 0;
 
   void EnsureDefaultPreset();
 

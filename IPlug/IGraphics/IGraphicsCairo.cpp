@@ -54,7 +54,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
   if (!pCB) // if bitmap not in cache already at targetScale
   {
     WDL_String fullPath;
-    OSLoadBitmap(name, fullPath);
+    OSFindResource(name, "png", fullPath);
 
     cairo_surface_t* pSurface = cairo_image_surface_create_from_png(fullPath.Get());
       
@@ -198,10 +198,9 @@ void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2,
 {
   SetCairoSourceRGBA(color, pBlend);
   cairo_set_line_width(mContext, 1);
-  cairo_move_to (mContext, x1, y1);
-  cairo_line_to (mContext, x2, y2);
-  cairo_set_line_width (mContext, 1);
-  cairo_stroke (mContext);
+  cairo_move_to(mContext, x1, y1);
+  cairo_line_to(mContext, x2, y2);
+  cairo_stroke(mContext);
 }
 
 void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect)
@@ -227,8 +226,8 @@ void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, f
 {
   SetCairoSourceRGBA(color, pBlend);
   cairo_set_line_width(mContext, 1);
-  cairo_arc (mContext, cx, cy, r, minAngle, maxAngle);
-  cairo_stroke (mContext);
+  cairo_arc(mContext, cx, cy, r, minAngle, maxAngle);
+  cairo_stroke(mContext);
 }
 
 void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, bool aa)
@@ -349,7 +348,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   else if(!mSurface)
   {
 #ifdef OS_OSX
-    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width() , Height());
+    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
 #endif
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, 1, -1);

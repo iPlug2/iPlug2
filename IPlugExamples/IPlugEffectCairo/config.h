@@ -7,11 +7,11 @@
 #define BUNDLE_NAME "IPlugEffectCairo"
 
 #define PLUG_ENTRY IPlugEffectCairo_Entry
-#define PLUG_VIEW_ENTRY IPlugEffectCairo_ViewEntry
+//#define PLUG_VIEW_ENTRY IPlugEffectCairo_ViewEntry
 #define PLUG_FACTORY IPlugEffectCairo_Factory
 
 #define PLUG_ENTRY_STR "IPlugEffectCairo_Entry"
-#define PLUG_VIEW_ENTRY_STR "IPlugEffectCairo_ViewEntry"
+//#define PLUG_VIEW_ENTRY_STR "IPlugEffectCairo_ViewEntry"
 
 #define VIEW_CLASS IPlugEffectCairo_View
 #define VIEW_CLASS_STR "IPlugEffectCairo_View"

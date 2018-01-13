@@ -3,7 +3,7 @@
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
-  int B = pGraphics->Height() - rect.B;
+  int B = (pGraphics->Height() - rect.B);
   return NSMakeRect(rect.L, B, rect.W(), rect.H());
 }
 
