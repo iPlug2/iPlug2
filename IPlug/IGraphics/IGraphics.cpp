@@ -589,7 +589,7 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
 {
   int c = GetMouseControlIdx(x, y);
-  mMouseCapture = mMouseX = mMouseY = -1;
+  ReleaseMouseCapture();
   if (c >= 0)
   {
     IControl* pControl = mControls.Get(c);
