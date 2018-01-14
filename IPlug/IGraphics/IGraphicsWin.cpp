@@ -125,13 +125,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         IRECT dirtyR;
         if (pGraphics->IsDirty(dirtyR))
         {
+		  dirtyR.ScaleBounds(pGraphics->Scale());
           RECT r = { dirtyR.L, dirtyR.T, dirtyR.R, dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
 
           if (pGraphics->mParamEditWnd)
           {
-            IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
+			IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
+			notDirtyR.ScaleBounds(pGraphics->Scale());
             RECT r2 = { notDirtyR.L, notDirtyR.T, notDirtyR.R, notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -157,14 +159,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
-      pGraphics->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
+      pGraphics->OnMouseDown(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam));
       return 0;
 
     case WM_MOUSEMOVE:
     {
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
       {
-        if (pGraphics->OnMouseOver(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam)))
+        if (pGraphics->OnMouseOver(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam)))
         {
           TRACKMOUSEEVENT eventTrack = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hWnd, HOVER_DEFAULT };
           if (pGraphics->TooltipsEnabled()) 
@@ -183,7 +185,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       else if (GetCapture() == hWnd && !pGraphics->mParamEditWnd)
       {
-        pGraphics->OnMouseDrag(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
+        pGraphics->OnMouseDrag(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam));
       }
 
       return 0;
@@ -203,12 +205,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONUP:
     {
       ReleaseCapture();
-      pGraphics->OnMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam));
+      pGraphics->OnMouseUp(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam));
       return 0;
     }
     case WM_LBUTTONDBLCLK:
     {
-      if (pGraphics->OnMouseDblClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &GetMouseMod(wParam)))
+      if (pGraphics->OnMouseDblClick(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam)))
       {
         SetCapture(hWnd);
       }
@@ -225,7 +227,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       else
       {
         int d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-        int x = GET_X_LPARAM(lParam), y = GET_Y_LPARAM(lParam);
+        int x = pGraphics->GetXCoord(lParam), y = pGraphics->GetYCoord(lParam);
         RECT r;
         GetWindowRect(hWnd, &r);
         pGraphics->OnMouseWheel(x - r.left, y - r.top, &GetMouseMod(wParam), d);
@@ -275,8 +277,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE))
-      {
-        const IRECT ir(r.left, r.top, r.right, r.bottom);
+      { 
+		  IRECT ir(r.left, r.top, r.right, r.bottom);
+		ir.ScaleBounds(1. / pGraphics->Scale());
         pGraphics->Draw(ir);
       }
       return 0;
@@ -472,10 +475,12 @@ void IGraphicsWin::ForceEndUserEdit()
 
 void IGraphicsWin::Resize(int w, int h, double scale)
 {
-  if (w == Width() && h == Height()) return;
+  if (w == Width() && h == Height() && scale == Scale()) return;
 
-  int dw = w - Width(), dh = h - Height();
+  int oldWindowWidth = WindowWidth(), oldWindowHeight = WindowHeight();
   IGraphics::Resize(w, h, scale);
+
+  int dw = WindowWidth() - oldWindowWidth, dh = WindowHeight() - oldWindowHeight;
 
   if (WindowIsOpen())
   {
@@ -511,7 +516,7 @@ void IGraphicsWin::Resize(int w, int h, double scale)
       }
     }
 
-    RECT r = { 0, 0, Width(), Height() };
+    RECT r = { 0, 0, WindowWidth(), WindowHeight() };
     InvalidateRect(mPlugWnd, &r, FALSE);
   }
 }
@@ -548,16 +553,16 @@ int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type
 
 void IGraphicsWin::DrawScreen(const IRECT& rect)
 {
-  PAINTSTRUCT ps;
-  HWND hWnd = (HWND) GetWindow();
-  HDC dc = BeginPaint(hWnd, &ps);
-  BitBlt(dc, rect.L, rect.T, rect.W(), rect.H(), (HDC) GetPlatformContext(), rect.L, rect.T, SRCCOPY);
-  EndPaint(hWnd, &ps);
+	if (!GetPlatformContext())
+		return;
+
+	//TODO: this is silly, adapt api
+	RenderAPIBitmap(GetPlatformContext());
 }
 
 void* IGraphicsWin::OpenWindow(void* pParentWnd)
 {
-  int x = 0, y = 0, w = Width(), h = Height();
+  int x = 0, y = 0, w = WindowWidth(), h = WindowHeight();
   mParentWnd = (HWND) pParentWnd;
 
   if (mPlugWnd)
@@ -865,7 +870,7 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
     }
     DestroyMenu(hMenu);
 
-    RECT r = { 0, 0, Width(), Height() };
+    RECT r = { 0, 0, WindowWidth(), WindowHeight() };
     InvalidateRect(mPlugWnd, &r, FALSE);
   }
   return result;
