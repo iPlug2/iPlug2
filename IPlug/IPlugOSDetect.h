@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file
+ * @brief Include to get consistently named preprocessor macros for different platforms
+ */
+
 #ifdef _WIN32
   #define OS_WIN
 #elif defined __APPLE__
