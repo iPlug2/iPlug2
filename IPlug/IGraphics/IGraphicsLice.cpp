@@ -108,10 +108,6 @@ void IGraphicsLice::PrepDraw()
 
   mDrawBitmap = new LICE_SysBitmap(w, h);
   mTmpBitmap = new LICE_MemBitmap();
-
-#ifdef OS_WIN
-  SetPlatformContext((void*) mDrawBitmap->getDC());
-#endif
 }
 
 void IGraphicsLice::ReScale()
@@ -475,11 +471,11 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
 
   if (Scale() == 1.0)
   {
- 	BitBlt(dc, 0, 0, Width(), Height(), (HDC)GetPlatformContext(), 0, 0, SRCCOPY); 
+ 	BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   }
   else
   {
-	StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), (HDC)GetPlatformContext(), 0, 0, Width(), Height(), SRCCOPY);
+	StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
   }
   EndPaint(hWnd, &ps);
 #endif
