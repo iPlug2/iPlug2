@@ -67,7 +67,7 @@ public:
     cairo_reset_clip(mContext);
   }
   
-public:
+protected:
   inline float CairoWeight(const IBlend* pBlend)
   {
     return (pBlend ? pBlend->mWeight : 1.0f);
@@ -111,7 +111,7 @@ public:
   {
     cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
   }
-protected:
+
   cairo_t *mContext;
   cairo_surface_t *mSurface;
 };
