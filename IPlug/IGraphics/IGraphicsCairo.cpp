@@ -408,7 +408,6 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     HDC dc = (HDC) pContext;
 	mSurface = cairo_win32_surface_create(HDC(pContext));
 	mContext = cairo_create(mSurface);
-	cairo_surface_flush(mSurface);
 #endif
   }
   

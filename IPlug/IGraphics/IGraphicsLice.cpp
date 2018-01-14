@@ -465,7 +465,6 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
   }
 #else // OS_WIN
   PAINTSTRUCT ps;
-  XFORM xForm;
   HWND hWnd = (HWND)GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
 

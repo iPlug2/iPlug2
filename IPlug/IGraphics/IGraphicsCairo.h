@@ -55,7 +55,14 @@ public:
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   
-  void RenderAPIBitmap(void* pContext) override { cairo_surface_flush(mSurface); }
+#ifdef OS_WIN
+  void RenderAPIBitmap(void* pContext) override
+  {
+	  cairo_surface_flush(mSurface);
+	  ValidateRect((HWND)GetWindow(), nullptr);
+  }
+#endif 
+  
   void SetPlatformContext(void* pContext) override;
   
   inline void ClipRegion(const IRECT& r) override
