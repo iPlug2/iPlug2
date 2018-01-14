@@ -4,6 +4,10 @@
 #include "pluginterfaces/base/ustring.h"
 #endif
 
+#ifndef NDEBUG
+#include "IGraphicsLiveEdit.h"
+#endif
+
 IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
 : mPlug(plug)
 , mWidth(w)
@@ -17,13 +21,15 @@ IGraphics::~IGraphics()
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
   
+  if (mLiveEdit)
+    DELETE_NULL(mLiveEdit);
+  
   mControls.Empty(true);
 }
 
 void IGraphics::Resize(int w, int h, double scale)
 {
   ReleaseMouseCapture();
-//  mControls.Empty(true); // TODO fix (AH - this isn't necessary any longer - agreed?)
 
   //  PrepDraw();
 
@@ -332,39 +338,39 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   }
 }
 
-void IGraphics::DrawRect(const IColor& color, const IRECT& rect)
+void IGraphics::DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
-  DrawHorizontalLine(color, rect.T, rect.L, rect.R);
-  DrawHorizontalLine(color, rect.B, rect.L, rect.R);
-  DrawVerticalLine(color, rect.L, rect.T, rect.B);
-  DrawVerticalLine(color, rect.R, rect.T, rect.B);
+  DrawHorizontalLine(color, rect.T, rect.L, rect.R, pBlend);
+  DrawHorizontalLine(color, rect.B, rect.L, rect.R, pBlend);
+  DrawVerticalLine(color, rect.L, rect.T, rect.B, pBlend);
+  DrawVerticalLine(color, rect.R, rect.T, rect.B, pBlend);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
+void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
   int xi = rect.L + int(x * (float) (rect.R - rect.L));
-  return DrawVerticalLine(color, xi, rect.T, rect.B);
+  return DrawVerticalLine(color, xi, rect.T, rect.B, pBlend);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
+void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend)
 {
   y = BOUNDED(y, 0.0f, 1.0f);
   int yi = rect.B - int(y * (float) (rect.B - rect.T));
-  return DrawHorizontalLine(color, yi, rect.L, rect.R);
+  return DrawHorizontalLine(color, yi, rect.L, rect.R, pBlend);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
+void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend)
 {
-  DrawLine(color, xi, yLo, xi, yHi);
+  DrawLine(color, xi, yLo, xi, yHi, pBlend);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
+void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend)
 {
-  DrawLine(color, xLo, yi, xHi, yi);
+  DrawLine(color, xLo, yi, xHi, yi, pBlend);
 }
 
-void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa, const IBlend* pBlend)
 {
   float sinV = sinf(angle);
   float cosV = cosf(angle);
@@ -372,7 +378,27 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
   float xHi = (cx + rMax * sinV);
   float yLo = (cy - rMin * cosV);
   float yHi = (cy - rMax * cosV);
-  return DrawLine(color, xLo, yLo, xHi, yHi, 0, aa);
+  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend, aa);
+}
+
+void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)
+{
+  // Vertical Lines grid
+  if (gridSizeH > 1)
+  {
+    for (int x = 0; x < rect.W(); x += gridSizeH)
+    {
+      DrawVerticalLine(color, rect, (float)x/(float) rect.W(), pBlend);
+    }
+  }
+    // Horizontal Lines grid
+  if (gridSizeV > 1)
+  {
+    for (int y = 0; y < rect.H(); y += gridSizeV)
+    {
+      DrawHorizontalLine(color, rect, (float)y/(float) rect.H(), pBlend);
+    }
+  }
 }
 
 bool IGraphics::IsDirty(IRECT& rect)
@@ -505,7 +531,7 @@ void IGraphics::Draw(const IRECT& rect)
     FillIRect(c, rect);
   }
   
-  if (mShowControlBounds) 
+  if(mShowControlBounds)
   {
     for (int j = 1; j < mControls.GetSize(); j++)
     {
@@ -513,6 +539,9 @@ void IGraphics::Draw(const IRECT& rect)
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
   }
+  
+  if(mLiveEdit)
+    mLiveEdit->Draw(*this);
   
 //  WDL_String str;
 //  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
@@ -537,6 +566,14 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
+#ifndef NDEBUG
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseDown(x, y, mod);
+    return;
+  }
+#endif
+  
   ReleaseMouseCapture();
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
@@ -588,6 +625,13 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
 {
+#ifndef NDEBUG
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseUp(x, y, mod);
+    return;
+  }
+#endif
   int c = GetMouseControlIdx(x, y);
   ReleaseMouseCapture();
   if (c >= 0)
@@ -605,6 +649,14 @@ void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(int x, int y, const IMouseMod& mod)
 {
+#ifndef NDEBUG
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseOver(x, y, mod);
+    return true;
+  }
+#endif
+  
   if (mHandleMouseOver)
   {
     int c = GetMouseControlIdx(x, y, true);
@@ -637,6 +689,14 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(int x, int y, const IMouseMod& mod)
 {
+#ifndef NDEBUG
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseDrag(x, y, 0, 0, mod);
+    return;
+  }
+#endif
+  
   int c = mMouseCapture;
   if (c >= 0)
   {
@@ -864,4 +924,16 @@ void IGraphics::OnDrop(const char* str, int x, int y)
   IControl* pControl = GetControl(i);
   if (pControl != nullptr)
     pControl->OnDrop(str);
+}
+
+void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
+{
+#ifndef NDEBUG
+  if(enable)
+    mLiveEdit = new IGraphicsLiveEdit(GetPlug(), file, gridsize);
+  else {
+    if(mLiveEdit)
+      DELETE_NULL(mLiveEdit);
+  }
+#endif
 }

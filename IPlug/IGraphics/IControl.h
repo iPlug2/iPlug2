@@ -90,8 +90,9 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
+  void SetRECT(IRECT& rect) { mRECT = rect; }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetArea(IRECT rect) { mTargetRECT = rect; }
+  void SetTargetRECT(IRECT& rect) { mTargetRECT = rect; }
   virtual void TextFromTextEntry( const char* txt ) {}
   virtual void OnContextSelection(int itemSelected) {}
 
@@ -176,9 +177,12 @@ public:
 
 protected:
   IPlugBaseGraphics& mPlug;
-  IRECT mRECT, mTargetRECT;
-  /** Parameter index */
+  IRECT mRECT;
+  IRECT mTargetRECT;
+  
+  /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
+  
   IBlend mBlend;
   IText mText;
   

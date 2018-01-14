@@ -184,7 +184,9 @@ void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlen
 
 void IGraphicsLice::DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
 {
-  //TODO:
+  LICE_Line(mDrawBitmap, (int) x1 * mDisplayScale, (int) y1 * mDisplayScale, (int) x2 * mDisplayScale, (int) y2 * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), false);
+  LICE_Line(mDrawBitmap, (int) x2 * mDisplayScale, (int) y2 * mDisplayScale, (int) x3 * mDisplayScale, (int) y3 * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), false);
+  LICE_Line(mDrawBitmap, (int) x3 * mDisplayScale, (int) y3 * mDisplayScale, (int) x1 * mDisplayScale, (int) y1 * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), false);
 }
 
 void IGraphicsLice::ForcePixel(const IColor& color, int x, int y)
@@ -215,6 +217,21 @@ void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const 
   r.Scale(mDisplayScale);
   
   LICE_RoundRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), cr * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+}
+
+void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+{
+  IRECT r = rect;
+  r.Scale(mDisplayScale);
+  bool aa = false;
+  const int dash = 2 * mDisplayScale;
+  LICE_DashedLine(mDrawBitmap, r.L, r.T, r.R, r.T, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  //B
+  LICE_DashedLine(mDrawBitmap, r.L, r.B, r.R, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  //L
+  LICE_DashedLine(mDrawBitmap, r.L, r.T, r.L, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  //R
+  LICE_DashedLine(mDrawBitmap, r.R, r.T, r.R, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
 }
 
 void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)

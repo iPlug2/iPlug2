@@ -82,7 +82,8 @@ public:
   virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0, bool aa = false) = 0;
   virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
   virtual void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
-  
+  virtual void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
+
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
   virtual void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
   virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
@@ -98,13 +99,14 @@ public:
   virtual const char* GetDrawingAPIStr() = 0;
 
 #pragma mark - IGraphics impl drawing helpers
-  virtual void DrawRect(const IColor& color, const IRECT& rect);
-  void DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
-  void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
-  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
-  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
-  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
-
+  virtual void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0);
+  void DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend = 0);
+  void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
+  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend = 0);
+  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend = 0);
+  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false, const IBlend* pBlend = 0);
+  void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH = 10, int gridSizeV = 10, const IBlend* pBlend = 0);
+  
 #pragma mark - IGraphics impl
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
@@ -161,7 +163,7 @@ public:
   double Scale() const { return mScale; }
   double GetDisplayScale() const { return mDisplayScale; }
   void SetDisplayScale(double scale) { mDisplayScale = scale; }
-  IPlugBase& GetPlug() { return mPlug; }
+  IPlugBaseGraphics& GetPlug() { return mPlug; }
 
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
   virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
@@ -222,17 +224,18 @@ public:
   void AssignParamNameToolTips();
   virtual void UpdateTooltips() = 0;
 
+  //debugging tools
   inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
   inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
-
+  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
+  
   void OnGUIIdle();
   void OnDrop(const char* str, int x, int y);
   
   virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
 
-  /** Try to ascertain the full path of a resource. 
-  */
+  /** Try to ascertain the full path of a resource. */
   virtual bool OSFindResource(const char* name, const char* type, WDL_String& result) = 0;
 
   IRECT GetDrawRect() const { return mDrawRECT; }
@@ -259,6 +262,8 @@ protected:
   double mDisplayScale = 1.; // the scaling of the display that the ui is currently on e.g. 2. for retina
 
 private:
+  friend class IGraphicsLiveEdit;
+  
   int GetMouseControlIdx(int x, int y, bool mo = false);
 
   int mWidth, mHeight, mFPS;
@@ -274,4 +279,8 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   IControl* mKeyCatcher = nullptr;
+  
+#ifndef NDEBUG
+  IControl* mLiveEdit = nullptr;
+#endif
 };
