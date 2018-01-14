@@ -56,10 +56,10 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
     WDL_String fullPath;
     OSFindResource(name, "png", fullPath);
 
-    cairo_surface_t* pSurface = cairo_image_surface_create_from_png(fullPath.Get());
+	cairo_surface_t* pSurface = cairo_image_surface_create_from_png(fullPath.Get());
       
 #ifndef NDEBUG
-    bool imgResourceFound = pSurface;
+    bool imgResourceFound = cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS;
 #endif
     assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
     
