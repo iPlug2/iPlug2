@@ -464,9 +464,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
     CGImageRelease(img);
   }
 #else // OS_WIN
-  PAINTSTRUCT ps;
-  HWND hWnd = (HWND)GetWindow();
-  HDC dc = BeginPaint(hWnd, &ps);
+  HDC dc = (HDC) pContext;
 
   if (Scale() == 1.0)
   {
@@ -476,6 +474,5 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
   {
 	StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
   }
-  EndPaint(hWnd, &ps);
 #endif
 }
