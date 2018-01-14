@@ -85,7 +85,7 @@ public:
   void GetTimeSig(int& numerator, int& nominator);
   void GetTime(ITimeInfo& timeInfo);
 
-  void ResizeGraphics(int w, int h);
+  void ResizeGraphics(int w, int h, double scale);
 
   void SetLatency(int samples);
   void DirtyPTCompareState() { mNumPlugInChanges++; }

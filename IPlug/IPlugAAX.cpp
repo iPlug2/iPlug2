@@ -463,7 +463,7 @@ void IPlugAAX::GetTimeSig(int& numerator, int& denominator)
   denominator = (int) denom;
 }
 
-void IPlugAAX::ResizeGraphics(int w, int h)
+void IPlugAAX::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {
