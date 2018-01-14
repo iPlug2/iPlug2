@@ -6,6 +6,18 @@
 #include "IControl.h"
 #include "Log.h"
 
+#ifdef OS_OSX
+cairo_surface_t* LoadPNGResource(const WDL_String &path)
+{
+    return cairo_image_surface_create_from_png(path.Get());
+}
+#else
+cairo_surface_t* LoadPNGResource(const WDL_String &path)
+{
+  return cairo_image_surface_create_from_png(path.Get());
+}
+#endif
+
 struct CairoBitmap {
   cairo_surface_t* surface = nullptr;
   int width = 0;
@@ -55,8 +67,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
   {
     WDL_String fullPath;
     OSFindResource(name, "png", fullPath);
-
-	cairo_surface_t* pSurface = cairo_image_surface_create_from_png(fullPath.Get());
+	cairo_surface_t* pSurface = LoadPNGResource(fullPath);
       
 #ifndef NDEBUG
     bool imgResourceFound = cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS;
