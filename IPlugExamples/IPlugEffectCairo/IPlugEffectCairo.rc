@@ -1,4 +1,4 @@
-#include "resource.h"
+#include "config.h"
 
 KNOB_ID       PNG KNOB_FN
 
