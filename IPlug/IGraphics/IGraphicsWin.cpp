@@ -1313,10 +1313,11 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  WDL_String typeUppercase(type);
   WDL_String search(name);
-  EnumResourceNames(mHInstance, _strupr(typeUppercase.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
+  WDL_String typeUpper(type);
   
+  EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
+    
   if (strstr(search.Get(), "found: ") != 0)
   {
     result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")

@@ -31,15 +31,14 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
   if (!pixel_map) //do we have a bitmap for this display scale
   {
     WDL_String fullPath;
-    OSLoadBitmap(name, fullPath);
+    bool resourceFound = OSFindResource(name, "png", fullPath);
+    assert(resourceFound); // Protect against typos in resource.h and .rc files.
 
     if(CSTR_NOT_EMPTY(fullPath.Get()))
     {
       pixel_map = LoadAPIBitmap(fullPath.Get());
-  #ifndef NDEBUG
-      bool imgResourceFound = pixel_map;
-  #endif
-      assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
+      resourceFound = pixel_map != nullptr;
+      assert(resourceFound); // Protect against typos in resource.h and .rc files.
       
       if (scale != mDisplayScale) {
         IBitmap bitmap(pixel_map, pixel_map->width(), pixel_map->height(), nStates, framesAreHoriztonal, scale, name);
@@ -55,6 +54,8 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
 
 void IGraphicsAGG::ReScale()
 {
+  //TODO: rewrite this method
+  
   // resize draw bitmap
   PrepDraw();
   
@@ -65,7 +66,7 @@ void IGraphicsAGG::ReScale()
     const char* path = s_bitmapCache.mDatas.Get(i)->path.Get();
 
     WDL_String fullPath;
-    OSLoadBitmap(path, fullPath);
+    OSFindResource(path, "png", fullPath);
     
     agg::pixel_map* pixel_map = s_bitmapCache.Find(fullPath.Get(), 1.);
     
@@ -547,13 +548,13 @@ agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
   return pixel_map;
 }
 
-agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* pPath)
+agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* path)
 {
 #ifdef OS_OSX
-  if (CSTR_NOT_EMPTY(pPath))
+  if (CSTR_NOT_EMPTY(path))
   {
-    const char* ext = pPath+strlen(pPath)-1;
-    while (ext >= pPath && *ext != '.') --ext;
+    const char* ext = path+strlen(path)-1;
+    while (ext >= path && *ext != '.') --ext;
     ++ext;
     
     bool ispng = !stricmp(ext, "png");
@@ -565,7 +566,7 @@ agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* pPath)
 #endif
     
     agg::pixel_map_mac * pixel_map = new agg::pixel_map_mac();
-    if (pixel_map->load_img(pPath, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+    if (pixel_map->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
       return pixel_map;
     else
       delete pixel_map;

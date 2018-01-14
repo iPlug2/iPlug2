@@ -25,7 +25,7 @@ GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
 //EXTRA_RELEASE_DEFS =
 //EXTRA_TRACER_DEFS =
 
-EXTRA_ALL_DEFS = COCOA_PREFIX=vIPlugEffectCairo SWELL_APP_PREFIX=Swell_vIPlugEffectCairo IGRAPHICS_CAIRO GRAPHICS_SCALING
+EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugEffectCairo SWELL_APP_PREFIX=Swell_vIPlugEffectCairo IGRAPHICS_CAIRO GRAPHICS_SCALING
 
 //------------------------------
 // Release build options

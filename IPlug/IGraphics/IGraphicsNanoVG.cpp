@@ -45,7 +45,7 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 IBitmap IGraphicsNanoVG::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
   WDL_String fullPath;
-  OSLoadBitmap(name, fullPath);
+  bool resourceFound = OSFindResource(name, "png", fullPath);
   
   NanoVGBitmap* nvgbmp = new NanoVGBitmap(mVG, fullPath.Get(), sourceScale);
   mBitmaps.Add(nvgbmp);
