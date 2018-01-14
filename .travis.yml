@@ -24,7 +24,7 @@ addons:
 script:
   - cd Documentation
   - doxygen Doxyfile
-  - echo "" > .nojekyll
+  - echo "" > html/.nojekyll
 
 # Deploy using travis builtin GitHub Pages support
 deploy:
