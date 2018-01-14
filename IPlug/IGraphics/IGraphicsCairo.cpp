@@ -349,10 +349,15 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   {
 #ifdef OS_OSX
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
+	mContext = cairo_create(mSurface);
+	cairo_surface_set_device_scale(mSurface, 1, -1);
+	cairo_surface_set_device_offset(mSurface, 0, Height());
+#else
+    HDC dc = (HDC) pContext;
+	mSurface = cairo_win32_surface_create(HDC(pContext));
+	mContext = cairo_create(mSurface);
+	cairo_surface_flush(mSurface);
 #endif
-    mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, 1, -1);
-    cairo_surface_set_device_offset(mSurface, 0, Height());
   }
   
   IGraphics::SetPlatformContext(pContext);

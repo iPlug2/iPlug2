@@ -5,6 +5,8 @@
 #include "cairo/cairo.h"
 #ifdef OS_OSX
 #include "cairo/cairo-quartz.h"
+#else
+#include "cairo/cairo-win32.h"
 #endif
 
 #include "IGraphics.h"
@@ -53,6 +55,7 @@ public:
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   
+  void RenderAPIBitmap(void* pContext) override { cairo_surface_flush(mSurface); }
   void SetPlatformContext(void* pContext) override;
   
   inline void ClipRegion(const IRECT& r) override
