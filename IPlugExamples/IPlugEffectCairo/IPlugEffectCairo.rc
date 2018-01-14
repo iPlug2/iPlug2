@@ -1,6 +1,8 @@
 #include "config.h"
 
-KNOB_ID       PNG KNOB_FN
+
+KNOB_FN           PNG                     KNOB_FN
+
 
 #ifdef SA_API
 //Standalone stuff

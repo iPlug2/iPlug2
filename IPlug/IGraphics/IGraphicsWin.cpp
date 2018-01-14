@@ -588,6 +588,10 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
                           x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
   //SetWindowLong(mPlugWnd, GWL_USERDATA, (LPARAM) this);
 
+  HDC dc = GetDC(mPlugWnd);
+  SetPlatformContext(dc);
+  ReleaseDC(mPlugWnd, dc);
+
   if (!mPlugWnd && --nWndClassReg == 0)
   {
     UnregisterClass(wndClassName, mHInstance);
@@ -693,6 +697,8 @@ void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
   {
+	SetPlatformContext(nullptr);
+
     if (mTooltipWnd)
     {
       DestroyWindow(mTooltipWnd);
