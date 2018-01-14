@@ -23,15 +23,8 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 {
   Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
 
-  for (int i = 0; i < c.nParams; ++i)
-  {
-    mParams.Add(new IParam());
-  }
-
-  for (int i = 0; i < c.nPresets; ++i)
-  {
-    mPresets.Add(new IPreset());
-  }
+  for (int i = 0; i < c.nParams; ++i) mParams.Add(new IParam());
+  for (int i = 0; i < c.nPresets; ++i) mPresets.Add(new IPreset());
 
   int nInputs = 0, nOutputs = 0;
 
