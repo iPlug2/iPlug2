@@ -35,7 +35,7 @@ public:
   
   void ForceEndUserEdit() override;
 
-  void Resize(int w, int h) override;
+  void Resize(int w, int h, double scale) override;
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
@@ -96,6 +96,9 @@ private:
     kCancel,
     kCommit
   };
+
+  int GetXCoord(LONG param) { return round(GET_X_LPARAM(param) / Scale()); }
+  int GetYCoord(LONG param) { return round(GET_Y_LPARAM(param) / Scale()); }
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
