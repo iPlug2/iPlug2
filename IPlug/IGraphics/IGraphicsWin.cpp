@@ -278,7 +278,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE))
       { 
-		  IRECT ir(r.left, r.top, r.right, r.bottom);
+        IRECT ir(r.left, r.top, r.right, r.bottom);
 		ir.ScaleBounds(1. / pGraphics->Scale());
         pGraphics->Draw(ir);
       }
