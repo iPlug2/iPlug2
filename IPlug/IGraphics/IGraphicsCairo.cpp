@@ -7,14 +7,55 @@
 #include "Log.h"
 
 #ifdef OS_OSX
-cairo_surface_t* LoadPNGResource(const WDL_String &path)
+cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
 {
     return cairo_image_surface_create_from_png(path.Get());
 }
 #else
-cairo_surface_t* LoadPNGResource(const WDL_String &path)
+class PNGStreamReader
 {
-  return cairo_image_surface_create_from_png(path.Get());
+public:
+  PNGStreamReader(HMODULE hInst, const WDL_String &path) : mData(nullptr), mSize(0), mCount(0)
+  {
+    HRSRC resInfo = FindResource(hInst, path.Get(), "PNG");
+	if (resInfo)
+	{
+	  HGLOBAL res = LoadResource(hInst, resInfo);
+	  if (res)
+	  {
+		mData = (unsigned char *) LockResource(res);
+		mSize = SizeofResource(hInst, resInfo);
+	  }
+	}
+  }
+
+  cairo_status_t Read(unsigned char *data, unsigned int length)
+  {
+	mCount += length;
+	if (mCount <= mSize)
+	{
+	  memcpy(data, mData + mCount - length, length);
+   	  return CAIRO_STATUS_SUCCESS;
+	}
+
+	return CAIRO_STATUS_READ_ERROR;
+  }
+
+  static cairo_status_t StaticRead(void *reader, unsigned char *data, unsigned int length) 
+  { 
+    return ((PNGStreamReader *)reader)->Read(data, length);
+  }
+  
+private:  
+
+  const unsigned char *mData;
+  size_t mCount;
+  size_t mSize;
+};
+cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
+{
+  PNGStreamReader reader((HMODULE)hInst, path);
+  return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
 }
 #endif
 
@@ -67,7 +108,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
   {
     WDL_String fullPath;
     OSFindResource(name, "png", fullPath);
-	cairo_surface_t* pSurface = LoadPNGResource(fullPath);
+	cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), fullPath);
       
 #ifndef NDEBUG
     bool imgResourceFound = cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS;
