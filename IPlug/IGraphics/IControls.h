@@ -24,6 +24,58 @@ public:
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
 };
 
+/** A vector switch control. Click to cycle through states. */
+class IVSwitchControl : public IControl
+{
+public:
+  IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, int numStates = 0, const IColor& fgColor = COLOR_BLACK, const IColor& bgColor = COLOR_WHITE, EDirection dir = kVertical, IBlend::EType blendMethod = IBlend::kBlendNone)
+  : IControl(plug, rect, paramIdx, blendMethod)
+  , mFGColor(fgColor)
+  , mBGColor(bgColor)
+  , mState(0)
+  {
+    if(mParamIdx > -1)
+    {
+      mNumStates = (int) mPlug.GetParam(paramIdx)->GetRange() + 1;
+    }
+    else
+    {
+      assert(numStates > 2);
+      mNumStates = numStates;
+    }
+  }
+  
+  ~IVSwitchControl() {}
+  
+  void OnMouseDown(int x, int y, const IMouseMod& mod) override
+  {
+    mState = (mState + 1) % mNumStates;
+    mValue = mState / double (mNumStates-1);
+    SetDirty();
+  }
+  
+  void Draw(IGraphics& graphics)  override
+  {
+    graphics.FillIRect(mBGColor, mRECT);
+    
+    IRECT handle;
+    
+    if(mDirection == kHorizontal)
+      handle = mRECT.SubRectHorizontal(mNumStates, mState);
+    if(mDirection == kVertical)
+      handle = mRECT.SubRectVertical(mNumStates, mState);
+  
+    graphics.FillIRect(mFGColor, handle);
+  }
+  
+private:
+  int mState;
+  int mNumStates;
+  IColor mFGColor;
+  IColor mBGColor;
+  EDirection mDirection;
+};
+
 /** Like ISwitchControl except it puts up a popup menu instead of cycling through states on click. */
 class ISwitchPopUpControl : public ISwitchControl
 {

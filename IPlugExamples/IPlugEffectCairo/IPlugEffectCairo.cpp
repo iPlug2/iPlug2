@@ -28,41 +28,6 @@ public:
   };
 };
 
-class MyCairoSizeSwitch : public IControl
-{
-public:
-  MyCairoSizeSwitch(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
-  : IControl(plug, rect, paramIdx)
-  {
-  };
-  
-  ~MyCairoSizeSwitch()
-  {
-  };
-  
-  void OnMouseDown(int x, int y, const IMouseMod& mod) override
-  {
-    state = (state + 1) % 3;
-    mValue = state / 2.0;
-    SetDirty();
-  }
-  
-  void Draw(IGraphics& graphics) override
-  {
-    cairo_t* cr = (cairo_t*) graphics.GetData();
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_rectangle(cr, mRECT.L + (mRECT.W() / 3.0) * state, mRECT.T, mRECT.W() / 3.0, mRECT.H());
-    cairo_fill(cr);
-    cairo_set_line_width(cr, 1.0);
-    cairo_rectangle(cr, mRECT.L, mRECT.T, mRECT.W(), mRECT.H());
-    cairo_stroke(cr);
-  }
-  
-private:
-  int state = 0;
-};
-
-
 const int kNumPrograms = 1;
 
 enum EParams
@@ -111,7 +76,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 100, 100), -1));
   
-  pGraphics->AttachControl(new MyCairoSizeSwitch(*this, IRECT(10, 250, 90, 270), kSize));
+  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
 
   //  IText basic;
 //  char builddatestr[80];
