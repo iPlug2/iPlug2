@@ -474,13 +474,10 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
   HDC dc = BeginPaint(hWnd, &ps);
 
   if (Scale() == 1.0)
-  {
- 	BitBlt(dc, 0, 0, Width(), Height(), (HDC)GetPlatformContext(), 0, 0, SRCCOPY); 
-  }
+    BitBlt(dc, 0, 0, Width(), Height(), (HDC) pContext, 0, 0, SRCCOPY); 
   else
-  {
-	StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), (HDC)GetPlatformContext(), 0, 0, Width(), Height(), SRCCOPY);
-  }
+    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), (HDC) pContext, 0, 0, Width(), Height(), SRCCOPY);
+    
   EndPaint(hWnd, &ps);
 #endif
 }

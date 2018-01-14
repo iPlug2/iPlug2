@@ -125,15 +125,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         IRECT dirtyR;
         if (pGraphics->IsDirty(dirtyR))
         {
-		  dirtyR.ScaleBounds(pGraphics->Scale());
+          dirtyR.ScaleBounds(pGraphics->Scale());
           RECT r = { dirtyR.L, dirtyR.T, dirtyR.R, dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
 
           if (pGraphics->mParamEditWnd)
           {
-			IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-			notDirtyR.ScaleBounds(pGraphics->Scale());
+            IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
+            notDirtyR.ScaleBounds(pGraphics->Scale());
             RECT r2 = { notDirtyR.L, notDirtyR.T, notDirtyR.R, notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -193,7 +193,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_MOUSEHOVER: 
     {
       pGraphics->ShowTooltip();
-		  return 0;
+      return 0;
     }
     case WM_MOUSELEAVE:
     {
@@ -278,8 +278,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE))
       { 
-		  IRECT ir(r.left, r.top, r.right, r.bottom);
-		ir.ScaleBounds(1. / pGraphics->Scale());
+        IRECT ir(r.left, r.top, r.right, r.bottom);
+        ir.ScaleBounds(1. / pGraphics->Scale());
         pGraphics->Draw(ir);
       }
       return 0;
@@ -553,11 +553,11 @@ int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type
 
 void IGraphicsWin::DrawScreen(const IRECT& rect)
 {
-	if (!GetPlatformContext())
-		return;
+  if (!GetPlatformContext())
+    return;
 
-	//TODO: this is silly, adapt api
-	RenderAPIBitmap(GetPlatformContext());
+  //TODO: this is silly, adapt api
+  RenderAPIBitmap(GetPlatformContext());
 }
 
 void* IGraphicsWin::OpenWindow(void* pParentWnd)

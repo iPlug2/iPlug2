@@ -350,10 +350,10 @@ struct IRECT
 
   void ScaleBounds(double scale)
   {
-	  L = (int)std::floor(L * scale);
-	  T = (int)std::floor(T * scale);
-	  R = (int)std::ceil(R * scale);
-	  B = (int)std::ceil(B * scale);
+    L = (int)std::floor(L * scale);
+    T = (int)std::floor(T * scale);
+    R = (int)std::ceil(R * scale);
+    B = (int)std::ceil(B * scale);
   }
   
   IRECT GetFlipped(int graphicsHeight) const
