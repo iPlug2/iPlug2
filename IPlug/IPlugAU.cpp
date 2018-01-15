@@ -92,6 +92,7 @@ int PtrListInitialize(WDL_PtrList<C>* pList, int size)
 
 #define NO_OP(select) case select: return badComponentSelector;
 
+#ifndef AU_NO_COMPONENT_ENTRY
 #pragma mark COMPONENT MANAGER ENTRY POINT
 // static
 OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
@@ -299,6 +300,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     default: return badComponentSelector;
   }
 }
+#endif //AU_NO_COMPONENT_ENTRY
 
 //TODO: support more tags
 

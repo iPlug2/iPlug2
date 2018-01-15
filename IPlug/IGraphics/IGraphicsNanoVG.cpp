@@ -158,6 +158,14 @@ void IGraphicsNanoVG::DrawCircle(const IColor& color, float cx, float cy, float 
   nvgStroke(mVG);
 }
 
+void IGraphicsNanoVG::DrawRect(const IColor &color, const IRECT &rect, const IBlend *pBlend)
+{
+  nvgBeginPath(mVG);
+  nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H());
+  nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
+  nvgStroke(mVG);
+}
+
 void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)
 {
   nvgBeginPath(mVG);
@@ -192,6 +200,7 @@ void IGraphicsNanoVG::FillCircle(const IColor& color, int cx, int cy, float r, c
 
 void IGraphicsNanoVG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
 {
+  //TODO: FillTriangle
 //  nvgFillColor(mVG, NanoVGColor(color, pBlend));
 //  nvgFill(mVG);
 }
@@ -213,24 +222,6 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-void IGraphicsNanoVG::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
-{
-  nvgBeginPath(mVG);
-  nvgMoveTo(mVG, xi, yLo);
-  nvgLineTo(mVG, xi, yHi);
-  nvgStrokeColor(mVG, NanoVGColor(color));
-  nvgStroke(mVG);
-}
-
-void IGraphicsNanoVG::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
-{
-  nvgBeginPath(mVG);
-  nvgMoveTo(mVG, xLo, yi);
-  nvgLineTo(mVG, xHi, yi);
-  nvgStrokeColor(mVG, NanoVGColor(color));
-  nvgStroke(mVG);
-}
-
 bool IGraphicsNanoVG::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   return true;
@@ -245,3 +236,6 @@ void IGraphicsNanoVG::RenderAPIBitmap(void *pContext)
 {
   //TODO: change this api
 }
+
+
+
