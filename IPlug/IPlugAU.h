@@ -172,7 +172,9 @@ private:
   void SendAUEvent(AudioUnitEventType type, AudioComponentInstance ci, int idx);
   
 public:
+#ifndef AU_NO_COMPONENT_ENTRY
   static OSStatus IPlugAUEntry(ComponentParameters *params, void* pVPlug);
+#endif
   
   static OSStatus GetParamProc(void* pPlug, 
                                       AudioUnitParameterID paramID, 
