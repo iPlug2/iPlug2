@@ -1,4 +1,15 @@
+#ifndef NDEBUG
+
 #include "IGraphicsLiveEdit.h"
+
+IGraphicsLiveEdit::IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathToSourceFile, int gridSize)
+: IControl(plug, IRECT(0, 0, 300, 300))
+, mPathToSourceFile(pathToSourceFile)
+, mGridSize(gridSize)
+{
+  mTargetRECT = mRECT;
+  mBlend.mWeight = 0.2f;
+}
 
 void IGraphicsLiveEdit::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
@@ -24,7 +35,7 @@ void IGraphicsLiveEdit::OnMouseDown(int x, int y, const IMouseMod& mod)
       {
         WDL_String json;
         pControl->GetJSON(json, c);
-        printf("%s\n", json.Get());
+        //printf("%s\n", json.Get());
         mClickedOnControl = GetGUI()->AttachControl(new IPanelControl(mPlug, mMouseDownRECT, COLOR_BLACK));
       }
     }
@@ -133,3 +144,5 @@ void IGraphicsLiveEdit::Draw(IGraphics& graphics)
     graphics.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
   }
 }
+
+#endif // !NDEBUG

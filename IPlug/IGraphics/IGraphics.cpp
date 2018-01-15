@@ -21,8 +21,10 @@ IGraphics::~IGraphics()
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
   
+#ifndef NDEBUG
   if (mLiveEdit)
     DELETE_NULL(mLiveEdit);
+#endif
   
   mControls.Empty(true);
 }

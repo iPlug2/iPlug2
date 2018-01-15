@@ -1,19 +1,12 @@
 #pragma once
+#ifndef NDEBUG
 
 #include "IControl.h"
 
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathToSourceFile, int gridSize)
-  : IControl(plug, IRECT(0, 0, 300, 300))
-  , mPathToSourceFile(pathToSourceFile)
-  , mGridSize(gridSize)
-  {
-    mTargetRECT = mRECT;
-    mBlend.mWeight = 0.2f;
-  }
-
+  IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathToSourceFile, int gridSize);
   ~IGraphicsLiveEdit() {}
 
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
@@ -59,3 +52,5 @@ private:
   int mGridSize = 10;
   int mClickedOnControl = -1;
 };
+
+#endif // !NDEBUG
