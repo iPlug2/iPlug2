@@ -332,14 +332,6 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   }
 }
 
-void IGraphics::DrawRect(const IColor& color, const IRECT& rect)
-{
-  DrawHorizontalLine(color, rect.T, rect.L, rect.R);
-  DrawHorizontalLine(color, rect.B, rect.L, rect.R);
-  DrawVerticalLine(color, rect.L, rect.T, rect.B);
-  DrawVerticalLine(color, rect.R, rect.T, rect.B);
-}
-
 void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
@@ -864,4 +856,11 @@ void IGraphics::OnDrop(const char* str, int x, int y)
   IControl* pControl = GetControl(i);
   if (pControl != nullptr)
     pControl->OnDrop(str);
+}
+
+void IGraphics::EnableTooltips(bool enable)
+{
+  mEnableTooltips = enable;
+  if (enable)
+    mHandleMouseOver = enable;
 }
