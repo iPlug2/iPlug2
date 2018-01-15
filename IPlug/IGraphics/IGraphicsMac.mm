@@ -129,23 +129,6 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
   return GetResourcePathFromBundle(GetBundleID(), name, type, result);
 }
 
-void IGraphicsMac::DrawScreen(const IRECT& rect)
-{
-  if (!GetPlatformContext())
-    return;
-  
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-  double tm=gettm();
-#endif
-
-  //TODO: this is silly, adapt api
-  RenderAPIBitmap(GetPlatformContext());
-
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-  printf("blit %fms\n",(gettm()-tm)*1000.0);
-#endif
-}
-
 bool IGraphicsMac::MeasureIText(const IText& text, const char* str, IRECT& destRect)
 {
   CocoaAutoReleasePool pool;

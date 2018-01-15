@@ -426,6 +426,11 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 void IGraphicsLice::RenderAPIBitmap(void *pContext)
 {
 #ifdef OS_OSX
+
+#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
+  double tm=gettm();
+#endif
+    
   CGImageRef img = NULL;
   CGRect r = CGRectMake(0, 0, Width(), Height());
 
@@ -470,6 +475,11 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
     CGContextDrawImage((CGContext*) pContext, r, img);
     CGImageRelease(img);
   }
+    
+#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
+    printf("blit %fms\n",(gettm()-tm)*1000.0);
+#endif
+    
 #else // OS_WIN
   HDC dc = (HDC) pContext;
 

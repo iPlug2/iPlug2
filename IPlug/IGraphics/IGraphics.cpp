@@ -518,7 +518,11 @@ void IGraphics::Draw(const IRECT& rect)
 
 #endif
 
-  DrawScreen(rect);
+  if (!GetPlatformContext())
+    return;
+        
+  //TODO: this is silly, adapt api
+  RenderAPIBitmap(GetPlatformContext());
 }
 
 void IGraphics::SetStrictDrawing(bool strict)

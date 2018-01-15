@@ -3,17 +3,17 @@
 //TODO: would be nice not to put this here
 #ifndef NO_IGRAPHICS
   #ifdef IGRAPHICS_AGG
-    #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
     #include "IGraphicsAGG.h"
+    typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
   #elif defined IGRAPHICS_CAIRO
-    #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
     #include "IGraphicsCairo.h"
+    typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
   #elif defined IGRAPHICS_NANOVG
-    #define IGRAPHICS_DRAW_CLASS IGraphicsNanoVG
     #include "IGraphicsNanoVG.h"
+    typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
   #else
-    #define IGRAPHICS_DRAW_CLASS IGraphicsLice
     #include "IGraphicsLice.h"
+    typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
   #endif
 #endif
 
@@ -55,9 +55,7 @@ public:
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
   void CreateMetalLayer();
-  
-  void DrawScreen(const IRECT& rect) override;
-  
+    
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;

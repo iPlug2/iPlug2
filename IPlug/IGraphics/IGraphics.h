@@ -115,7 +115,6 @@ public:
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
   
 #pragma mark - IGraphics platform implementation
-  virtual void DrawScreen(const IRECT& rect) = 0;
   virtual void HideMouseCursor() {};
   virtual void ShowMouseCursor() {};
   virtual void ForceEndUserEdit() = 0;
