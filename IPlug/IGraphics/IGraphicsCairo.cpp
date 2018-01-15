@@ -203,10 +203,10 @@ void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2,
   cairo_stroke(mContext);
 }
 
-void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect)
+void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   cairo_set_line_width(mContext, 1);
-  SetCairoSourceRGBA(color);
+  SetCairoSourceRGBA(color, pBlend);
   CairoDrawRect(rect);
   cairo_stroke(mContext);
 }

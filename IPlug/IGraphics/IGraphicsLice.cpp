@@ -209,6 +209,13 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
   LICE_Circle(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
 }
 
+void IGraphicsLice::DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+{
+  IRECT r = rect;
+  r.Scale(mDisplayScale);
+  LICE_DrawRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
+}
+
 void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)
 {
   IRECT r = rect;

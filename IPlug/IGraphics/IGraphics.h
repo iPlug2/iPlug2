@@ -69,7 +69,7 @@ public:
   inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics drawing classes to clip drawing
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
   
-  #pragma mark - IGraphics drawing API implementation (bitmap handling)
+#pragma mark - IGraphics drawing API implementation (bitmap handling)
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
   virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
   virtual IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
