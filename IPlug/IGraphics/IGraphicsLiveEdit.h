@@ -18,6 +18,7 @@ public:
 
   void OnMouseDown(int x, int y, const IMouseMod& mod) override;
   void OnMouseUp(int x, int y, const IMouseMod& mod) override;
+  void OnMouseDblClick(int x, int y, const IMouseMod& mod) override;
   void OnMouseOver(int x, int y, const IMouseMod& mod) override;
   void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) override;
   

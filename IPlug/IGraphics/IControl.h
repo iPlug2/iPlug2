@@ -175,6 +175,8 @@ public:
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
 
+  void GetJSON(WDL_String& json, int idx) const;
+  
 protected:
   IPlugBaseGraphics& mPlug;
   IRECT mRECT;

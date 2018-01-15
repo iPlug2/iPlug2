@@ -22,6 +22,9 @@ void IGraphicsLiveEdit::OnMouseDown(int x, int y, const IMouseMod& mod)
     {
       if(mod.A)
       {
+        WDL_String json;
+        pControl->GetJSON(json, c);
+        printf("%s\n", json.Get());
         mClickedOnControl = GetGUI()->AttachControl(new IPanelControl(mPlug, mMouseDownRECT, COLOR_BLACK));
       }
     }
@@ -54,6 +57,19 @@ void IGraphicsLiveEdit::OnMouseUp(int x, int y, const IMouseMod& mod)
   mClickedOnControl = -1;
   mMouseClickedOnResizeHandle = false;
   GetGUI()->SetAllControlsDirty();
+}
+
+void IGraphicsLiveEdit::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+{
+//  int c = GetGUI()->GetMouseControlIdx(x, y, true);
+//  
+//  if (c > 0)
+//  {
+//    mMouseDownX = x;
+//    mMouseDownY = y;
+//    
+//    IControl* pControl = GetGUI()->GetControl(c);
+//  }
 }
 
 void IGraphicsLiveEdit::OnMouseOver(int x, int y, const IMouseMod& mod)
