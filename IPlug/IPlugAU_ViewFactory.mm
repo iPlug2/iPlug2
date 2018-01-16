@@ -4,19 +4,13 @@
 
 #include "Log.h"
 #include "config.h"   // This is your plugin's config.h.
-
-#ifdef NO_IGRAPHICS
 #include "IPlugBase.h"
-typedef IPlugBase IPLUG_BASE_CLASS;
-#else
-#include "IPlugBaseGraphics.h"
-typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
-#endif
+
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 @interface VIEW_CLASS : NSObject <AUCocoaUIBase>
 {
-  IPLUG_BASE_CLASS* mPlug;
+  IPlugBase* mPlug;
 }
 - (id) init;
 - (NSView*) uiViewForAudioUnit: (AudioUnit) audioUnit withSize: (NSSize) preferredSize;
@@ -43,7 +37,7 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
   if (AudioUnitGetProperty (audioUnit, kIPlugObjectPropertyID,
                             kAudioUnitScope_Global, 0, pointers, &propertySize) == noErr)
   {
-    mPlug = (IPLUG_BASE_CLASS*) pointers[0];
+    mPlug = (IPlugBase*) pointers[0];
     if (mPlug) {
       if (mPlug->GetHasUI()) {
         NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);

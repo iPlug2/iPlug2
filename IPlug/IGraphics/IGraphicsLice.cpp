@@ -3,7 +3,7 @@
 #include "IGraphicsLice.h"
 #include "Log.h"
 
-signed int GetSystemVersion();
+extern int GetSystemVersion();
 
 static StaticStorage<LICE_IBitmap> s_bitmapCache;
 static StaticStorage<LICE_IFont> s_fontCache;
@@ -436,7 +436,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
 
   if (!mColorSpace)
   {
-    SInt32 v = GetSystemVersion();
+    int v = GetSystemVersion();
     
     if (v >= 0x1070)
     {

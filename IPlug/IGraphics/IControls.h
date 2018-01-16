@@ -33,8 +33,9 @@ public:
   , mFGColor(fgColor)
   , mBGColor(bgColor)
   , mState(0)
+  , mDirection(dir)
   {
-    if(mParamIdx > -1)
+    if(paramIdx > -1)
     {
       mNumStates = (int) mPlug.GetParam(paramIdx)->GetRange() + 1;
     }
