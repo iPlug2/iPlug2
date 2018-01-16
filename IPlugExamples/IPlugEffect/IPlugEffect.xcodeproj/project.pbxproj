@@ -111,7 +111,6 @@
 		4F78DAB213B640470032E0F3 /* swell-dlggen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D0313B63494001D0217 /* swell-dlggen.h */; };
 		4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D4513B635C8001D0217 /* swellappmain.h */; };
 		4F78DAB813B640530032E0F3 /* RtAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C013B63A700032E0F3 /* RtAudio.h */; };
-		4F78DAB913B640530032E0F3 /* RtError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C113B63A700032E0F3 /* RtError.h */; };
 		4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C313B63A700032E0F3 /* RtMidi.h */; };
 		4F78DABB13B640620032E0F3 /* IPlugStandalone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9EA13B63BE90032E0F3 /* IPlugStandalone.h */; };
 		4F8C7038200D6906008F9269 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C7036200D6906008F9269 /* AVFoundation.framework */; };
@@ -156,6 +155,8 @@
 		4FADA400200E2A2500263F72 /* IPlugEffectViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C7039200D6CD7008F9269 /* IPlugEffectViewController.xib */; };
 		4FADA402200E2A4A00263F72 /* IPlugEffectAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF2891FFD2CE2005EC390 /* IPlugEffectAUv3.mm */; };
 		4FADA403200E2A4A00263F72 /* IPlugEffectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF28C1FFD2CE2005EC390 /* IPlugEffectViewController.m */; };
+		4FADA404200E302100263F72 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C7036200D6906008F9269 /* AVFoundation.framework */; };
+		4FADA40C200E398C00263F72 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D920D14C2D600A0943B /* AudioToolbox.framework */; };
 		4FB3624F13B648FE00DB6B76 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.mm */; };
 		4FB4BA8A200D570600A445C0 /* IPlugEffect.appex in Embed AUv3 */ = {isa = PBXBuildFile; fileRef = 4FADF2861FFD2CE2005EC390 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4FB600161567CB0A0020189A /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -496,7 +497,6 @@
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
 		4F78D8BF13B63A700032E0F3 /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtAudio.cpp; sourceTree = "<group>"; };
 		4F78D8C013B63A700032E0F3 /* RtAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtAudio.h; sourceTree = "<group>"; };
-		4F78D8C113B63A700032E0F3 /* RtError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtError.h; sourceTree = "<group>"; };
 		4F78D8C213B63A700032E0F3 /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtMidi.cpp; sourceTree = "<group>"; };
 		4F78D8C313B63A700032E0F3 /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtMidi.h; sourceTree = "<group>"; };
 		4F78D8D213B63B5D0032E0F3 /* aeffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aeffect.h; sourceTree = "<group>"; };
@@ -660,10 +660,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FADA404200E302100263F72 /* AVFoundation.framework in Frameworks */,
 				4FF9B9D71FFA8A8E008320C6 /* Carbon.framework in Frameworks */,
 				4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */,
 				4F78D7D013B637790032E0F3 /* CoreMIDI.framework in Frameworks */,
 				4F78D70B13B637340032E0F3 /* CoreFoundation.framework in Frameworks */,
+				4FADA40C200E398C00263F72 /* AudioToolbox.framework in Frameworks */,
 				4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */,
 				4F78D87013B637A20032E0F3 /* CoreAudio.framework in Frameworks */,
 				4F78D87113B637A20032E0F3 /* Cocoa.framework in Frameworks */,
@@ -969,7 +971,6 @@
 			children = (
 				4F78D8BF13B63A700032E0F3 /* RtAudio.cpp */,
 				4F78D8C013B63A700032E0F3 /* RtAudio.h */,
-				4F78D8C113B63A700032E0F3 /* RtError.h */,
 				4F78D8C213B63A700032E0F3 /* RtMidi.cpp */,
 				4F78D8C313B63A700032E0F3 /* RtMidi.h */,
 			);
@@ -1304,7 +1305,6 @@
 				4FF142C51FD4A61E00A65575 /* IGraphicsUtilites.h in Headers */,
 				4FF142CC1FD4A61E00A65575 /* IGraphicsMac.h in Headers */,
 				4FF142D21FD4A61E00A65575 /* IGraphicsLice.h in Headers */,
-				4F78DAB913B640530032E0F3 /* RtError.h in Headers */,
 				4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */,
 				4F78DAB113B640470032E0F3 /* swell-menugen.h in Headers */,
 				4FF142D41FD4A61E00A65575 /* IGraphicsView.h in Headers */,
@@ -1457,7 +1457,7 @@
 				4FD16A0613B63081001D0217 /* Sources */,
 				4FD16A0713B63081001D0217 /* Frameworks */,
 				4FB4BA89200D56F000A445C0 /* Embed AUv3 */,
-				4FB4BA8E200D58ED00A445C0 /* Run Script register AUv3 */,
+				4FB4BA8E200D58ED00A445C0 /* Run Script - register AUv3 */,
 			);
 			buildRules = (
 			);
@@ -1657,21 +1657,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#pluginkit -r -v /Applications/IPlugEffect.app/Contents/PlugIns/IPlugEffect.appex";
+			shellScript = "result=$(pluginkit -r -v /Applications/IPlugEffect.app/Contents/PlugIns/IPlugEffect.appex)\n\necho $result";
+			showEnvVarsInLog = 0;
 		};
-		4FB4BA8E200D58ED00A445C0 /* Run Script register AUv3 */ = {
+		4FB4BA8E200D58ED00A445C0 /* Run Script - register AUv3 */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Run Script register AUv3";
+			name = "Run Script - register AUv3";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pluginkit -a -v /Applications/IPlugEffect.app/Contents/PlugIns/IPlugEffect.appex";
+			shellScript = "result=$(pluginkit -a -v /Applications/IPlugEffect.app/Contents/PlugIns/IPlugEffect.appex)\n\necho $result\n\npluginkit -v -m -D -i com.AcmeInc.standalone.IPlugEffect.AUv3";
+			showEnvVarsInLog = 0;
 		};
 		4FBCC1A21FD59C7300EFE550 /* Run Script - generate plists */ = {
 			isa = PBXShellScriptBuildPhase;
