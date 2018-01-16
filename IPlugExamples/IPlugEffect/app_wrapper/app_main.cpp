@@ -623,6 +623,8 @@ void Init()
   ChooseMidiOutput(gState->mMidiOutDev);
 
   TryToChangeAudio();
+  
+  CheckAU();
 }
 
 void Cleanup()

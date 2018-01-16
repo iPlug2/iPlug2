@@ -137,6 +137,7 @@ extern unsigned int gBufIndex; // index for signal vector, loops from 0 to gSigV
 
 extern char *gINIPath; // path of ini file
 extern void UpdateINI();
+extern void CheckAU();
 
 extern std::vector<unsigned int> gAudioInputDevs;
 extern std::vector<unsigned int> gAudioOutputDevs;
