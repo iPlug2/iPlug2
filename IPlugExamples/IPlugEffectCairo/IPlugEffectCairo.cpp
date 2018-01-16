@@ -34,9 +34,7 @@ public:
     double scale = xScale < yScale ? xScale : yScale;
     
     cairo_scale(cr, scale, scale);
-    cairo_set_source_rgba(cr, 1, 1, 1, 1);
-    cairo_rectangle(cr, 0, 0, mImage->width,mImage->height);
-    cairo_fill(cr);
+  
     CairoNanoSVGRender::RenderNanoSVG(cr, mImage);
     
     cairo_restore(cr);
