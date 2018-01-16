@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -21,7 +21,7 @@
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.9.0</string>
+	<string>10.12.0</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -31,10 +31,15 @@
 				<dict>
 					<key>description</key>
 					<string>IPlugEffect</string>
+					<key>factoryFunction</key>
+					<string>IPlugEffect_Factory</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
 					<string>AcmeInc: IPlugEffect</string>
+					<key>resourceUsage</key>
+					<dict>
+					</dict>
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>

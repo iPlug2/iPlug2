@@ -44,6 +44,7 @@
 		4F3EE94913B65A350097B791 /* IPlugOSDetect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3EE94513B65A350097B791 /* IPlugOSDetect.h */; };
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
+		4F5DCC94200E77430067A051 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142761FD4A61D00A65575 /* IGraphicsMac.mm */; };
 		4F78D70B13B637340032E0F3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D62313B637200032E0F3 /* CoreFoundation.framework */; };
 		4F78D7D013B637790032E0F3 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78D7CF13B637790032E0F3 /* CoreMIDI.framework */; };
 		4F78D86E13B637A20032E0F3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F7E65807B2D6F200F64583 /* CoreData.framework */; };
@@ -148,7 +149,6 @@
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4FA208CB200E6F7D00657767 /* IPlugDSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA208C7200E6F6800657767 /* IPlugDSPKernel.mm */; };
 		4FA208CC200E6F8A00657767 /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA208CA200E6F6800657767 /* IPlugViewController.xib */; };
-		4FA208CF200E6FE300657767 /* IPlugEffect-AUv3-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4FA208CE200E6FE300657767 /* IPlugEffect-AUv3-Info.plist */; };
 		4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
@@ -715,8 +715,8 @@
 				4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */,
 				4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */,
-				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
 				4FA208CE200E6FE300657767 /* IPlugEffect-AUv3-Info.plist */,
+				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */,
 			);
 			name = Resources;
@@ -1602,7 +1602,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FA208CF200E6FE300657767 /* IPlugEffect-AUv3-Info.plist in Resources */,
 				4FA208CC200E6F8A00657767 /* IPlugViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1805,6 +1804,7 @@
 				4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
 				4F78DA0A13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
 				4F296BDA1678E6C800C0F5C2 /* dfx-au-utilities.c in Sources */,
+				4F5DCC94200E77430067A051 /* IGraphicsMac.mm in Sources */,
 				4FF142B71FD4A61E00A65575 /* IPopupMenu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

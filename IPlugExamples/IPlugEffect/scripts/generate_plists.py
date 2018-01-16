@@ -201,8 +201,6 @@ def main():
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AU-Info.plist"
   au = plistlib.readPlist(plistpath)
-#  au['AudioComponents'] = [{}]
-  au['AudioUnit Version'] = PLUG_VER_STR
   au['CFBundleExecutable'] = BUNDLE_NAME
   au['CFBundleGetInfoString'] = CFBundleGetInfoString
   au['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".audiounit." + BUNDLE_NAME + ""
@@ -221,6 +219,7 @@ def main():
   else:
      COMP_TYPE = kAudioUnitType_Effect
 
+  au['AudioUnit Version'] = PLUG_VER_STR
   au['AudioComponents'] = [{}]
   au['AudioComponents'][0]['resourceUsage'] = {}
 
@@ -239,24 +238,25 @@ def main():
   
 # AUDIOUNIT v3
 
-#  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
-#  auv3 = plistlib.readPlist(plistpath)
-#  auv3['AudioComponents'] = au['AudioComponents']
+  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
+  auv3 = plistlib.readPlist(plistpath)
 #  auv3['AudioUnit Version'] = PLUG_VER_STR
-#  auv3['CFBundleExecutable'] = BUNDLE_NAME
-#  auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
-#  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".standalone." + BUNDLE_NAME + ".AUv3"
-#  auv3['CFBundleName'] = BUNDLE_NAME
-#  auv3['CFBundleVersion'] = CFBundleVersion
-#  auv3['CFBundleShortVersionString'] = CFBundleVersion
-#  auv3['LSMinimumSystemVersion'] = LSMinimumSystemVersion
-#  auv3['CFBundlePackageType'] = CFBundlePackageType
-#  auv3['CFBundleSignature'] = PLUG_UID
-#  auv3['CSResourcesFileMapped'] = CSResourcesFileMapped
-#  #auv3['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
-#  
-#  plistlib.writePlist(auv3, plistpath)
-#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  auv3['CFBundleExecutable'] = BUNDLE_NAME
+  auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
+  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".standalone." + BUNDLE_NAME + ".AUv3"
+  auv3['CFBundleName'] = BUNDLE_NAME
+  auv3['CFBundleVersion'] = CFBundleVersion
+  auv3['CFBundleShortVersionString'] = CFBundleVersion
+  auv3['LSMinimumSystemVersion'] = "10.12.0"
+  auv3['CFBundlePackageType'] = "XPC!"
+  auv3['NSExtension'] = dict(
+  NSExtensionAttributes = dict(AudioComponents = au['AudioComponents']),
+  NSExtensionPointIdentifier = "com.apple.AudioUnit-UI",
+  NSExtensionPrincipalClass = "IPlugViewController",
+  )
+
+  plistlib.writePlist(auv3, plistpath)
+  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
 # AAX
 
@@ -297,7 +297,7 @@ def main():
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 
-print "Processing .exp symbol export file for audiounit..."
+  print "Processing .exp symbol export file for audiounit v2 entry points..."
 
   expfile = open(BUNDLE_NAME + ".exp", "w")
   expfile.write("_" + PLUG_FACTORY + "\n")

@@ -2,32 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>IPlugEffect</string>
-	<key>CFBundleGetInfoString</key>
-	<string>IPlugEffect v1.0.0 Copyright 2017 Acme Inc</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.audiounit.IPlugEffect</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>IPlugEffect</string>
-	<key>CFBundlePackageType</key>
-	<string>BNDL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
-	<key>CFBundleSignature</key>
-	<string>Ipef</string>
-	<key>CFBundleVersion</key>
-	<string>1.0.0</string>
-	<key>CSResourcesFileMapped</key>
-	<true/>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.7.0</string>
-	<key>NSPrincipalClass</key>
-	<string>IPlugEffect_View</string>
 	<key>AudioComponents</key>
 	<array>
 		<dict>
@@ -54,5 +28,31 @@
 	</array>
 	<key>AudioUnit Version</key>
 	<string>0x00010000</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>IPlugEffect</string>
+	<key>CFBundleGetInfoString</key>
+	<string>IPlugEffect v1.0.0 Copyright 2017 Acme Inc</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.AcmeInc.audiounit.IPlugEffect</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>IPlugEffect</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleSignature</key>
+	<string>Ipef</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.7.0</string>
+	<key>NSPrincipalClass</key>
+	<string>IPlugEffect_View</string>
 </dict>
 </plist>
