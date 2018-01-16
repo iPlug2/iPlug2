@@ -4,6 +4,40 @@
 #include "config.h"
 
 #include "cairo/cairo.h"
+#include "CairoNanoSVG.h"
+
+class MyCairoSVGControl : public IControl
+{
+public:
+  MyCairoSVGControl(IPlugBaseGraphics& plug, const char *file, IRECT rect, int paramIdx)
+  : IControl(plug, rect, paramIdx)
+  {
+    mImage = nsvgParseFromFile(file, "px", 72);
+  };
+  
+  ~MyCairoSVGControl()
+  {
+    nsvgDelete(mImage);
+  };
+  
+  void Draw(IGraphics& graphics)
+  {
+    cairo_t* cr = (cairo_t*) graphics.GetData();
+
+    cairo_save(cr);
+    cairo_translate(cr, mRECT.L, mRECT.T);
+    cairo_rectangle(cr, 0, 0, mRECT.W(), mRECT.H());
+    cairo_clip(cr);
+    cairo_scale(cr, 0.4, 0.4);
+    
+    CairoNanoSVGRender::RenderNanoSVG(cr, mImage);
+    
+    cairo_restore(cr);
+  };
+  
+private:
+  NSVGimage *mImage;
+};
 
 class MyCairoControl : public IControl
 {
@@ -78,6 +112,13 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
 
+  WDL_String svgFile;
+  
+  pGraphics->OSFindResource("resources/img/23.svg", "svg", svgFile);
+
+  pGraphics->AttachControl(new MyCairoSVGControl(*this, svgFile.Get(), IRECT(150, 200, 350, 400), -1));
+  pGraphics->ShowControlBounds(true);
+  
   //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
