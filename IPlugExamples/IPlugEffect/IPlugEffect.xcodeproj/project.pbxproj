@@ -157,6 +157,7 @@
 		4FADA403200E2A4A00263F72 /* IPlugEffectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF28C1FFD2CE2005EC390 /* IPlugEffectViewController.m */; };
 		4FADA404200E302100263F72 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C7036200D6906008F9269 /* AVFoundation.framework */; };
 		4FADA40C200E398C00263F72 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D920D14C2D600A0943B /* AudioToolbox.framework */; };
+		4FADA41E200E617500263F72 /* IPlugEffectDSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FADA41B200E617500263F72 /* IPlugEffectDSPKernel.mm */; };
 		4FB3624F13B648FE00DB6B76 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.mm */; };
 		4FB4BA8A200D570600A445C0 /* IPlugEffect.appex in Embed AUv3 */ = {isa = PBXBuildFile; fileRef = 4FADF2861FFD2CE2005EC390 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4FB600161567CB0A0020189A /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -534,6 +535,9 @@
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FAADA351FFEF98C00ADCCD4 /* IPlugWAM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugWAM.h; path = ../../IPlug/IPlugWAM.h; sourceTree = "<group>"; };
 		4FAADA361FFEF98C00ADCCD4 /* IPlugWAM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWAM.cpp; path = ../../IPlug/IPlugWAM.cpp; sourceTree = "<group>"; };
+		4FADA41B200E617500263F72 /* IPlugEffectDSPKernel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugEffectDSPKernel.mm; path = auv3/IPlugEffectDSPKernel.mm; sourceTree = SOURCE_ROOT; };
+		4FADA41C200E617500263F72 /* IPlugEffectDSPKernel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = IPlugEffectDSPKernel.hpp; path = auv3/IPlugEffectDSPKernel.hpp; sourceTree = SOURCE_ROOT; };
+		4FADA41D200E617500263F72 /* BufferedAudioBus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = BufferedAudioBus.hpp; path = auv3/BufferedAudioBus.hpp; sourceTree = SOURCE_ROOT; };
 		4FADF2861FFD2CE2005EC390 /* IPlugEffect.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugEffect.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FADF2881FFD2CE2005EC390 /* IPlugEffectAUv3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugEffectAUv3.h; sourceTree = "<group>"; };
 		4FADF2891FFD2CE2005EC390 /* IPlugEffectAUv3.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugEffectAUv3.mm; sourceTree = "<group>"; };
@@ -1123,6 +1127,9 @@
 		4FADF2871FFD2CE2005EC390 /* AUv3 */ = {
 			isa = PBXGroup;
 			children = (
+				4FADA41D200E617500263F72 /* BufferedAudioBus.hpp */,
+				4FADA41C200E617500263F72 /* IPlugEffectDSPKernel.hpp */,
+				4FADA41B200E617500263F72 /* IPlugEffectDSPKernel.mm */,
 				4F8C7039200D6CD7008F9269 /* IPlugEffectViewController.xib */,
 				4FADF2881FFD2CE2005EC390 /* IPlugEffectAUv3.h */,
 				4FADF2891FFD2CE2005EC390 /* IPlugEffectAUv3.mm */,
@@ -1843,6 +1850,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FADA41E200E617500263F72 /* IPlugEffectDSPKernel.mm in Sources */,
 				4FADA402200E2A4A00263F72 /* IPlugEffectAUv3.mm in Sources */,
 				4FADA403200E2A4A00263F72 /* IPlugEffectViewController.m in Sources */,
 			);
