@@ -197,11 +197,11 @@ def main():
   plistlib.writePlist(vst2, plistpath)
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
-# AUDIOUNIT
+# AUDIOUNIT v2
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AU-Info.plist"
   au = plistlib.readPlist(plistpath)
-  au['AudioComponents'] = [{}]
+#  au['AudioComponents'] = [{}]
   au['AudioUnit Version'] = PLUG_VER_STR
   au['CFBundleExecutable'] = BUNDLE_NAME
   au['CFBundleGetInfoString'] = CFBundleGetInfoString
@@ -213,12 +213,7 @@ def main():
   au['CFBundlePackageType'] = CFBundlePackageType
   au['CFBundleSignature'] = PLUG_UID
   au['CSResourcesFileMapped'] = CSResourcesFileMapped
-  
-  #Steinberg AU Wrapper stuff
-  
-  #Apple 10.7+ SDK stuff
-  #https://developer.apple.com/library/mac/technotes/tn2276/_index.html
-  
+
   if PLUG_IS_INST:
     COMP_TYPE = kAudioUnitType_MusicDevice
   elif PLUG_DOES_MIDI:
@@ -226,31 +221,42 @@ def main():
   else:
      COMP_TYPE = kAudioUnitType_Effect
 
-  #if compiling against 10.6 sdk, delete AudioComponents key
-  if (BASE_SDK == "macosx10.5") or (BASE_SDK == "macosx10.6"):
-    print "Component manager entry point only"
-    if(au['AudioComponents']):
-      del au['AudioComponents']
-  else:
-    print "AudioComponent and Component manager entry points"
-    au['AudioComponents'] = [{}]
-    au['AudioComponents'][0]['resourceUsage'] = {}
-  
-    au['AudioComponents'][0]['description'] = PLUG_NAME_STR
-    au['AudioComponents'][0]['factoryFunction'] = PLUG_FACTORY
-    au['AudioComponents'][0]['manufacturer'] = PLUG_MFR_UID
-    au['AudioComponents'][0]['name'] = PLUG_MFR_NAME_STR + ": " + PLUG_NAME_STR
-    au['AudioComponents'][0]['subtype'] = PLUG_UID
-    au['AudioComponents'][0]['type'] = COMP_TYPE
-    au['AudioComponents'][0]['version'] = PLUG_VER
-    
-    #Sandbox stuff
-    # https://developer.apple.com/library/Mac/technotes/tn2247/_index.html
-    au['AudioComponents'][0]['sandboxSafe'] = True
-    #au['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
+  au['AudioComponents'] = [{}]
+  au['AudioComponents'][0]['resourceUsage'] = {}
+
+  au['AudioComponents'][0]['description'] = PLUG_NAME_STR
+  au['AudioComponents'][0]['factoryFunction'] = PLUG_FACTORY
+  au['AudioComponents'][0]['manufacturer'] = PLUG_MFR_UID
+  au['AudioComponents'][0]['name'] = PLUG_MFR_NAME_STR + ": " + PLUG_NAME_STR
+  au['AudioComponents'][0]['subtype'] = PLUG_UID
+  au['AudioComponents'][0]['type'] = COMP_TYPE
+  au['AudioComponents'][0]['version'] = PLUG_VER
+  au['AudioComponents'][0]['sandboxSafe'] = True
+  #au['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
   
   plistlib.writePlist(au, plistpath)
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  
+# AUDIOUNIT v3
+
+#  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
+#  auv3 = plistlib.readPlist(plistpath)
+#  auv3['AudioComponents'] = au['AudioComponents']
+#  auv3['AudioUnit Version'] = PLUG_VER_STR
+#  auv3['CFBundleExecutable'] = BUNDLE_NAME
+#  auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
+#  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".standalone." + BUNDLE_NAME + ".AUv3"
+#  auv3['CFBundleName'] = BUNDLE_NAME
+#  auv3['CFBundleVersion'] = CFBundleVersion
+#  auv3['CFBundleShortVersionString'] = CFBundleVersion
+#  auv3['LSMinimumSystemVersion'] = LSMinimumSystemVersion
+#  auv3['CFBundlePackageType'] = CFBundlePackageType
+#  auv3['CFBundleSignature'] = PLUG_UID
+#  auv3['CSResourcesFileMapped'] = CSResourcesFileMapped
+#  #auv3['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
+#  
+#  plistlib.writePlist(auv3, plistpath)
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
 # AAX
 
@@ -290,14 +296,15 @@ def main():
   plistlib.writePlist(osxapp, plistpath)
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
-  print "Processing .exp symbol export file..."
 
-#  expfile = open(BUNDLE_NAME + ".exp", "w")
+print "Processing .exp symbol export file for audiounit..."
 
-#  expfile.write("_" + PLUG_FACTORY + "\n")
-#  expfile.write("_" + PLUG_ENTRY + "\n")
+  expfile = open(BUNDLE_NAME + ".exp", "w")
+  expfile.write("_" + PLUG_FACTORY + "\n")
+  #if !AU_NO_COMPONENT_ENTRY
+  expfile.write("_" + PLUG_ENTRY + "\n")
 
-#  expfile.close()
+  expfile.close()
 
 if __name__ == '__main__':
   main()
