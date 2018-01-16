@@ -115,7 +115,6 @@
 		4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C313B63A700032E0F3 /* RtMidi.h */; };
 		4F78DABB13B640620032E0F3 /* IPlugStandalone.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9EA13B63BE90032E0F3 /* IPlugStandalone.h */; };
 		4F8C7038200D6906008F9269 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C7036200D6906008F9269 /* AVFoundation.framework */; };
-		4F8C703B200D6CD7008F9269 /* IPlugEffectViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C7039200D6CD7008F9269 /* IPlugEffectViewController.xib */; };
 		4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
@@ -154,6 +153,9 @@
 		4FA6B9581FF9C23800049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9591FF9C23800049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
+		4FADA400200E2A2500263F72 /* IPlugEffectViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C7039200D6CD7008F9269 /* IPlugEffectViewController.xib */; };
+		4FADA402200E2A4A00263F72 /* IPlugEffectAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF2891FFD2CE2005EC390 /* IPlugEffectAUv3.mm */; };
+		4FADA403200E2A4A00263F72 /* IPlugEffectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF28C1FFD2CE2005EC390 /* IPlugEffectViewController.m */; };
 		4FB3624F13B648FE00DB6B76 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.mm */; };
 		4FB4BA8A200D570600A445C0 /* IPlugEffect.appex in Embed AUv3 */ = {isa = PBXBuildFile; fileRef = 4FADF2861FFD2CE2005EC390 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4FB600161567CB0A0020189A /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -1410,6 +1412,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FADF29B1FFD2CE2005EC390 /* Build configuration list for PBXNativeTarget "AUv3" */;
 			buildPhases = (
+				4FADA401200E2A3000263F72 /* Sources */,
 				4FADF2831FFD2CE2005EC390 /* Frameworks */,
 				4FADF2841FFD2CE2005EC390 /* Resources */,
 			);
@@ -1590,7 +1593,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F8C703B200D6CD7008F9269 /* IPlugEffectViewController.xib in Resources */,
+				4FADA400200E2A2500263F72 /* IPlugEffectViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1831,6 +1834,15 @@
 				4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */,
 				4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */,
 				4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FADA401200E2A3000263F72 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FADA402200E2A4A00263F72 /* IPlugEffectAUv3.mm in Sources */,
+				4FADA403200E2A4A00263F72 /* IPlugEffectViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
