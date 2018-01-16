@@ -146,18 +146,19 @@
 		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4FA208CB200E6F7D00657767 /* IPlugDSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA208C7200E6F6800657767 /* IPlugDSPKernel.mm */; };
+		4FA208CC200E6F8A00657767 /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4FA208CA200E6F6800657767 /* IPlugViewController.xib */; };
+		4FA208CF200E6FE300657767 /* IPlugEffect-AUv3-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4FA208CE200E6FE300657767 /* IPlugEffect-AUv3-Info.plist */; };
 		4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9581FF9C23800049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9591FF9C23800049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
-		4FADA400200E2A2500263F72 /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C7039200D6CD7008F9269 /* IPlugViewController.xib */; };
 		4FADA402200E2A4A00263F72 /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF2891FFD2CE2005EC390 /* IPlugAUv3.mm */; };
 		4FADA403200E2A4A00263F72 /* IPlugViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FADF28C1FFD2CE2005EC390 /* IPlugViewController.m */; };
 		4FADA404200E302100263F72 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C7036200D6906008F9269 /* AVFoundation.framework */; };
 		4FADA40C200E398C00263F72 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E41D920D14C2D600A0943B /* AudioToolbox.framework */; };
-		4FADA41E200E617500263F72 /* IPlugDSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FADA41B200E617500263F72 /* IPlugDSPKernel.mm */; };
 		4FB3624F13B648FE00DB6B76 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.mm */; };
 		4FB4BA8A200D570600A445C0 /* IPlugEffect.appex in Embed AUv3 */ = {isa = PBXBuildFile; fileRef = 4FADF2861FFD2CE2005EC390 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4FB600161567CB0A0020189A /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -526,24 +527,24 @@
 		4F78D9FE13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_ViewFactory.mm; path = ../../IPlug/IPlugAU_ViewFactory.mm; sourceTree = SOURCE_ROOT; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugEffect.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F8C7036200D6906008F9269 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		4F8C703A200D6CD7008F9269 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = auv3/Base.lproj/IPlugViewController.xib; sourceTree = SOURCE_ROOT; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FA208C7200E6F6800657767 /* IPlugDSPKernel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugDSPKernel.mm; sourceTree = "<group>"; };
+		4FA208C8200E6F6800657767 /* IPlugDSPKernel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IPlugDSPKernel.hpp; sourceTree = "<group>"; };
+		4FA208C9200E6F6800657767 /* BufferedAudioBus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BufferedAudioBus.hpp; sourceTree = "<group>"; };
+		4FA208CA200E6F6800657767 /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = IPlugViewController.xib; sourceTree = "<group>"; };
+		4FA208CD200E6FCB00657767 /* IPlugEffectAUv3.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = IPlugEffectAUv3.entitlements; path = resources/IPlugEffectAUv3.entitlements; sourceTree = "<group>"; };
+		4FA208CE200E6FE300657767 /* IPlugEffect-AUv3-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-AUv3-Info.plist"; path = "resources/IPlugEffect-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4FA6B9531FF9C22700049441 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControls.h; path = ../../IPlug/IGraphics/IControls.h; sourceTree = "<group>"; };
 		4FA6B9541FF9C22700049441 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IControls.cpp; path = ../../IPlug/IGraphics/IControls.cpp; sourceTree = "<group>"; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FAADA351FFEF98C00ADCCD4 /* IPlugWAM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugWAM.h; path = ../../IPlug/IPlugWAM.h; sourceTree = "<group>"; };
 		4FAADA361FFEF98C00ADCCD4 /* IPlugWAM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWAM.cpp; path = ../../IPlug/IPlugWAM.cpp; sourceTree = "<group>"; };
-		4FADA41B200E617500263F72 /* IPlugDSPKernel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugDSPKernel.mm; path = auv3/IPlugDSPKernel.mm; sourceTree = SOURCE_ROOT; };
-		4FADA41C200E617500263F72 /* IPlugDSPKernel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = IPlugDSPKernel.hpp; path = auv3/IPlugDSPKernel.hpp; sourceTree = SOURCE_ROOT; };
-		4FADA41D200E617500263F72 /* BufferedAudioBus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = BufferedAudioBus.hpp; path = auv3/BufferedAudioBus.hpp; sourceTree = SOURCE_ROOT; };
 		4FADF2861FFD2CE2005EC390 /* IPlugEffect.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugEffect.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FADF2881FFD2CE2005EC390 /* IPlugAUv3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugAUv3.h; sourceTree = "<group>"; };
 		4FADF2891FFD2CE2005EC390 /* IPlugAUv3.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugAUv3.mm; sourceTree = "<group>"; };
 		4FADF28C1FFD2CE2005EC390 /* IPlugViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IPlugViewController.m; sourceTree = "<group>"; };
-		4FADF2911FFD2CE2005EC390 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4FADF2921FFD2CE2005EC390 /* IPlugAUv3.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IPlugAUv3.entitlements; sourceTree = "<group>"; };
 		4FB3624E13B648FE00DB6B76 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC1EA3D1F82692C00780C58 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
@@ -708,12 +709,14 @@
 			isa = PBXGroup;
 			children = (
 				4F75B2F51FFD4F3A0081B17F /* IPlugEffect.entitlements */,
+				4FA208CD200E6FCB00657767 /* IPlugEffectAUv3.entitlements */,
 				4FD16A0213B6303B001D0217 /* img */,
 				4F23BA1413B647E50097A67E /* IPlugEffect-OSXAPP-Info.plist */,
 				4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */,
 				4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */,
 				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
+				4FA208CE200E6FE300657767 /* IPlugEffect-AUv3-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */,
 			);
 			name = Resources;
@@ -1127,17 +1130,16 @@
 		4FADF2871FFD2CE2005EC390 /* AUv3 */ = {
 			isa = PBXGroup;
 			children = (
-				4FADA41D200E617500263F72 /* BufferedAudioBus.hpp */,
-				4FADA41C200E617500263F72 /* IPlugDSPKernel.hpp */,
-				4FADA41B200E617500263F72 /* IPlugDSPKernel.mm */,
-				4F8C7039200D6CD7008F9269 /* IPlugViewController.xib */,
+				4FA208C9200E6F6800657767 /* BufferedAudioBus.hpp */,
+				4FA208C8200E6F6800657767 /* IPlugDSPKernel.hpp */,
+				4FA208C7200E6F6800657767 /* IPlugDSPKernel.mm */,
+				4FA208CA200E6F6800657767 /* IPlugViewController.xib */,
 				4FADF2881FFD2CE2005EC390 /* IPlugAUv3.h */,
 				4FADF2891FFD2CE2005EC390 /* IPlugAUv3.mm */,
 				4FADF28C1FFD2CE2005EC390 /* IPlugViewController.m */,
-				4FADF2911FFD2CE2005EC390 /* Info.plist */,
-				4FADF2921FFD2CE2005EC390 /* IPlugAUv3.entitlements */,
 			);
-			path = AUv3;
+			name = AUv3;
+			path = ../../IPlug/AUv3;
 			sourceTree = "<group>";
 		};
 		4FD16A0213B6303B001D0217 /* img */ = {
@@ -1600,7 +1602,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FADA400200E2A2500263F72 /* IPlugViewController.xib in Resources */,
+				4FA208CF200E6FE300657767 /* IPlugEffect-AUv3-Info.plist in Resources */,
+				4FA208CC200E6F8A00657767 /* IPlugViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1850,9 +1853,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FADA41E200E617500263F72 /* IPlugDSPKernel.mm in Sources */,
 				4FADA402200E2A4A00263F72 /* IPlugAUv3.mm in Sources */,
 				4FADA403200E2A4A00263F72 /* IPlugViewController.m in Sources */,
+				4FA208CB200E6F7D00657767 /* IPlugDSPKernel.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2007,14 +2010,6 @@
 			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
-		4F8C7039200D6CD7008F9269 /* IPlugViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4F8C703A200D6CD7008F9269 /* Base */,
-			);
-			name = IPlugViewController.xib;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -2059,6 +2054,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -2133,6 +2129,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -2383,7 +2380,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = AUv3/IPlugAUv3.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Resources/IPlugEffectAUv3.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -2399,7 +2396,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = AUv3/Info.plist;
+				INFOPLIST_FILE = "resources/IPlugEffect-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -2426,7 +2423,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = AUv3/IPlugAUv3.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Resources/IPlugEffectAUv3.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
@@ -2438,7 +2435,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = AUv3/Info.plist;
+				INFOPLIST_FILE = "resources/IPlugEffect-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2465,7 +2462,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = AUv3/IPlugAUv3.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Resources/IPlugEffectAUv3.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
@@ -2477,7 +2474,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = AUv3/Info.plist;
+				INFOPLIST_FILE = "resources/IPlugEffect-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2770,6 +2767,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
