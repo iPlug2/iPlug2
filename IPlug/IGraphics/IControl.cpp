@@ -211,6 +211,18 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
   }
 }
 
+void IControl::GetJSON(WDL_String& json, int idx) const
+{
+  json.AppendFormatted(8192, "{");
+  json.AppendFormatted(8192, "\"id\":%i, ", idx);
+  json.AppendFormatted(8192, "\"class\":\"%s\", ", typeid(*this).name());
+//  json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
+//  json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
+//  json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
+  json.AppendFormatted(8192, "\"rate\":\"audio\"");
+  json.AppendFormatted(8192, "}");
+}
+
 void IPanelControl::Draw(IGraphics& graphics)
 {
   graphics.FillIRect(mColor, mRECT, &mBlend);

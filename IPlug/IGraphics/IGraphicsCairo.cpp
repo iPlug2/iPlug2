@@ -302,6 +302,11 @@ void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const
   cairo_stroke(mContext);
 }
 
+void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+{
+  DrawRect(color, rect, pBlend);
+}
+
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int corner, bool aa)
 {
   const double y = rect.B - rect.H();

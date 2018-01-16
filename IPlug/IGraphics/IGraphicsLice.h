@@ -37,7 +37,8 @@ public:
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, bool aa) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
-  
+  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) override;
+
   void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa) override;
   void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
