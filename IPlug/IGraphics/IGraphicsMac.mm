@@ -6,41 +6,33 @@
 #include "IGraphicsMac.h"
 #import "IGraphicsView.h"
 #include "IControl.h"
-#include "Log.h"
 
 #include "swell.h"
 
+#include "Log.h"
+
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-//https://gist.github.com/ccgus/3716936
-SInt32 GetSystemVersion() {
-  
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1090
-  static dispatch_once_t once;
-  static int SysVersionVal = 0x00;
-  
-  dispatch_once(&once, ^{
-    NSDictionary *d = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-    
-    NSString *prodVersion = [d objectForKey:@"ProductVersion"];
-    
-    if ([[prodVersion componentsSeparatedByString:@"."] count] < 3) {
-      prodVersion = [prodVersion stringByAppendingString:@".0"];
+int GetSystemVersion() 
+{
+  static SInt32 v;
+  if (!v)
+  {
+    if (NSAppKitVersionNumber >= 1266.0) 
+    {
+      if (NSAppKitVersionNumber >= 1404.0)
+        v = 0x10b0;
+      else
+        v = 0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
     }
-    
-    NSString *junk = [prodVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
-    
-    char *e = nil;
-    SysVersionVal = (int) strtoul([junk UTF8String], &e, 16);
-    
-  });
-  
-  return SysVersionVal;
-#else
-  SInt32 v;
-  Gestalt(gestaltSystemVersion, &v);
+    else 
+    {
+      SInt32 a = 0x1040;
+      Gestalt(gestaltSystemVersion,&a);
+      v=a;
+    }
+  }
   return v;
-#endif
 }
 
 struct CocoaAutoReleasePool
