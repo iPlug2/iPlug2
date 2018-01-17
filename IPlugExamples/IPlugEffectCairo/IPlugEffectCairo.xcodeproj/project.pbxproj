@@ -51,10 +51,6 @@
 		4F4628501FD8039F0063A1B4 /* IGraphicsCairo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F46284B1FD802620063A1B4 /* IGraphicsCairo.cpp */; };
 		4F4628511FD803A00063A1B4 /* IGraphicsCairo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F46284B1FD802620063A1B4 /* IGraphicsCairo.cpp */; };
 		4F4628521FD803A00063A1B4 /* IGraphicsCairo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F46284B1FD802620063A1B4 /* IGraphicsCairo.cpp */; };
-		4F5DCCAA200E93620067A051 /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E76200E61F5005BE0EB /* 23.svg */; };
-		4F5DCCAC200E93630067A051 /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E76200E61F5005BE0EB /* 23.svg */; };
-		4F5DCCAD200E93630067A051 /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E76200E61F5005BE0EB /* 23.svg */; };
-		4F5DCCAE200E93660067A051 /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E76200E61F5005BE0EB /* 23.svg */; };
 		4F5DCCB4200E955E0067A051 /* IGraphicsLiveEdit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5DCCB1200E955D0067A051 /* IGraphicsLiveEdit.h */; };
 		4F5DCCB5200E955E0067A051 /* IGraphicsLiveEdit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5DCCB1200E955D0067A051 /* IGraphicsLiveEdit.h */; };
 		4F5DCCB6200E955E0067A051 /* IGraphicsLiveEdit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5DCCB3200E955D0067A051 /* IGraphicsLiveEdit.cpp */; };
@@ -177,6 +173,11 @@
 		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F9828DA140A9EB700F3FCC1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
 		4F9828DB140A9EB700F3FCC1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C4DB180D0E51270007A920 /* Carbon.framework */; };
+		4F9E36F1200FBA8600B8E4FB /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9E36F0200FBA8600B8E4FB /* 23.svg */; };
+		4F9E36F2200FBA8600B8E4FB /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9E36F0200FBA8600B8E4FB /* 23.svg */; };
+		4F9E36F3200FBA8600B8E4FB /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9E36F0200FBA8600B8E4FB /* 23.svg */; };
+		4F9E36F4200FBA8600B8E4FB /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9E36F0200FBA8600B8E4FB /* 23.svg */; };
+		4F9E36F5200FBA8600B8E4FB /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9E36F0200FBA8600B8E4FB /* 23.svg */; };
 		4FA88B931444E4C4006CB8DA /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */; };
 		4FB3624F13B648FE00DB6B76 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB3624E13B648FE00DB6B76 /* main.mm */; };
 		4FB600161567CB0A0020189A /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F23B9E413B647A00097A67E /* knob.png */; };
@@ -262,12 +263,21 @@
 		4FF142CF1FD4A61E00A65575 /* IAutoGUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427A1FD4A61E00A65575 /* IAutoGUI.h */; };
 		4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
 		4FF142D71FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
+		B8106D0F200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
+		B8106D10200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
+		B8106D11200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
+		B8106D12200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
+		B8106D13200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
+		B8106D14200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
+		B8106D15200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
+		B8106D16200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
+		B8106D17200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
+		B8106D18200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
 		B8E34E78200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
 		B8E34E79200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
 		B8E34E7A200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
 		B8E34E7B200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
 		B8E34E7C200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
-		B8E34E7D200E63A2005BE0EB /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E76200E61F5005BE0EB /* 23.svg */; };
 		B8E34E80200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
 		B8E34E81200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
 		B8E34E82200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
@@ -275,16 +285,6 @@
 		B8E34E84200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
 		B8E34E85200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
 		B8E34E86200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
-		B8E34E96200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
-		B8E34E97200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
-		B8E34E98200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
-		B8E34E99200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
-		B8E34E9A200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
-		B8E34EA0200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
-		B8E34EA1200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
-		B8E34EA2200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
-		B8E34EA3200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
-		B8E34EA4200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -498,6 +498,7 @@
 		4F78DB5F13B6462B0032E0F3 /* IPlugEffectCairo.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffectCairo.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F8AFFD91FDCA841000076E1 /* ISwitchControl_x3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ISwitchControl_x3.png; path = resources/img/ISwitchControl_x3.png; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffectCairo.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffectCairo.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F9E36F0200FBA8600B8E4FB /* 23.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = 23.svg; path = resources/img/23.svg; sourceTree = "<group>"; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FB3624E13B648FE00DB6B76 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
@@ -558,13 +559,12 @@
 		52FBBED00D0CF139001C8B8A /* IPlugEffectCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugEffectCairo.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		52FBBED20D0CF13D001C8B8A /* IPlugEffectCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = IPlugEffectCairo.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = radialgradient2.svg; sourceTree = "<group>"; };
+		B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lineargradient1.svg; sourceTree = "<group>"; };
 		B8E34E75200E4E83005BE0EB /* nanosvg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = nanosvg.h; path = ../../IPlug/IGraphics/NanoSVG/nanosvg.h; sourceTree = "<group>"; };
-		B8E34E76200E61F5005BE0EB /* 23.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = 23.svg; sourceTree = "<group>"; };
 		B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = NanoSVG_Impl.c; path = ../../IPlug/IGraphics/NanoSVG/NanoSVG_Impl.c; sourceTree = "<group>"; };
 		B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CairoNanoSVG.cpp; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.cpp; sourceTree = "<group>"; };
 		B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
-		B8E34E95200EBA71005BE0EB /* lineargradient1.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lineargradient1.svg; sourceTree = "<group>"; };
-		B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = radialgradient2.svg; sourceTree = "<group>"; };
 		D2F7E65807B2D6F200F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -1056,9 +1056,9 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
-				B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */,
-				B8E34E95200EBA71005BE0EB /* lineargradient1.svg */,
-				B8E34E76200E61F5005BE0EB /* 23.svg */,
+				B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */,
+				B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */,
+				4F9E36F0200FBA8600B8E4FB /* 23.svg */,
 				4F8AFFD91FDCA841000076E1 /* ISwitchControl_x3.png */,
 				4F23B9E413B647A00097A67E /* knob.png */,
 			);
@@ -1435,11 +1435,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8E34E97200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F8AFFDD1FDCA8A1000076E1 /* ISwitchControl_x3.png in Resources */,
-				B8E34EA1200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F23B9F313B647A00097A67E /* knob.png in Resources */,
-				4F5DCCAC200E93630067A051 /* 23.svg in Resources */,
+				B8106D15200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
+				B8106D10200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
+				4F9E36F2200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1447,11 +1447,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8E34EA3200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F8AFFE11FDCA8A6000076E1 /* ISwitchControl_x3.png in Resources */,
-				B8E34E7D200E63A2005BE0EB /* 23.svg in Resources */,
 				4F23BA0C13B647A00097A67E /* knob.png in Resources */,
-				B8E34E99200EBA71005BE0EB /* lineargradient1.svg in Resources */,
+				B8106D17200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
+				B8106D12200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
+				4F9E36F4200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1459,11 +1459,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8E34E98200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F8AFFDF1FDCA8A3000076E1 /* ISwitchControl_x3.png in Resources */,
-				B8E34EA2200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */,
-				4F5DCCAD200E93630067A051 /* 23.svg in Resources */,
+				B8106D16200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
+				B8106D11200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
+				4F9E36F3200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1471,11 +1471,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8E34E9A200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F8AFFE01FDCA8A5000076E1 /* ISwitchControl_x3.png in Resources */,
-				B8E34EA4200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4FB600161567CB0A0020189A /* knob.png in Resources */,
-				4F5DCCAE200E93660067A051 /* 23.svg in Resources */,
+				B8106D18200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
+				B8106D13200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
+				4F9E36F5200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1486,11 +1486,11 @@
 				4F78D88613B6382B0032E0F3 /* IPlugEffectCairo.icns in Resources */,
 				4F78D89913B639100032E0F3 /* InfoPlist.strings in Resources */,
 				4F78D89A13B639100032E0F3 /* MainMenu.xib in Resources */,
-				B8E34E96200EBA71005BE0EB /* lineargradient1.svg in Resources */,
+				B8106D14200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
 				4F23B9FD13B647A00097A67E /* knob.png in Resources */,
-				B8E34EA0200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F8AFFDB1FDCA89F000076E1 /* ISwitchControl_x3.png in Resources */,
-				4F5DCCAA200E93620067A051 /* 23.svg in Resources */,
+				B8106D0F200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
+				4F9E36F1200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

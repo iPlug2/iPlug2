@@ -45,6 +45,11 @@
 #ifndef __RTAUDIO_H
 #define __RTAUDIO_H
 
+#ifdef __MACOSX_CORE__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+
 #define RTAUDIO_VERSION "5.0.0"
 
 #if defined _WIN32 || defined __CYGWIN__
