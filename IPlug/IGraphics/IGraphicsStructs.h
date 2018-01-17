@@ -78,27 +78,10 @@ struct ISVG
 {
   NSVGimage* mImage = nullptr;
 
-  ISVG()
-  {}
-
-  ISVG(const char* file)
+  ISVG(NSVGimage* image)
   {
-    mImage = nsvgParseFromFile(file, "px", 72);
+    mImage = image;
     assert(mImage != nullptr);
-  }
-
-  ISVG(char* str)
-  {
-    mImage = nsvgParse(str, "px", 72);
-    assert(mImage != nullptr);
-  }
-
-  ~ISVG()
-  {
-    if(mImage)
-      nsvgDelete(mImage); // todo: this should not delete the image, storage class should do that
-  
-    mImage = nullptr;
   }
 
   int W()
@@ -445,7 +428,7 @@ public:
   
   WDL_PtrList<DataKey> mDatas;
   
-  T* Find(const char* str, double scale)
+  T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
@@ -464,7 +447,7 @@ public:
     return nullptr;
   }
   
-  void Add(T* data, const char* str, double scale = 1. /* scale where 2x = retina */)
+  void Add(T* data, const char* str, double scale = 1. /* scale where 2x = retina, omit if not needed */)
   {
     DataKey* key = mDatas.Add(new DataKey);
     

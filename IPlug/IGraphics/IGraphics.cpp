@@ -8,6 +8,26 @@
 #include "IGraphicsLiveEdit.h"
 #endif
 
+struct SVGHolder
+{
+  NSVGimage* mImage = nullptr;
+  
+  SVGHolder(NSVGimage* image)
+  : mImage(image)
+  {
+  }
+  
+  ~SVGHolder()
+  {
+    if(mImage)
+      nsvgDelete(mImage);
+    
+    mImage = nullptr;
+  }
+};
+
+static StaticStorage<SVGHolder> s_SVGCache;
+
 IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
 : mPlug(plug)
 , mWidth(w)
@@ -947,7 +967,20 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 ISVG IGraphics::LoadISVG(const char* name)
 {
 #ifdef OS_OSX
-  return ISVG(name); //TODO: static storage caching/string/resource loading
+  WDL_String path;
+  bool found = OSFindResource(name, "svg", path);
+  assert(found);
+  
+  SVGHolder* pHolder = s_SVGCache.Find(path.Get());
+  
+  if(!pHolder)
+  {
+    NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
+    pHolder  = new SVGHolder(pImage);
+    s_SVGCache.Add(pHolder, path.Get());
+  }
+  
+  return ISVG(pHolder->mImage);
 #else
   return ISVG();
 #endif
