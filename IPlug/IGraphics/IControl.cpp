@@ -245,6 +245,10 @@ void IBitmapControl::OnRescale()
   mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
 }
 
+void ISVGControl::Draw(IGraphics& graphics)
+{
+  graphics.DrawSVG(mSVG, mRECT);
+};
 
 void ITextControl::SetTextFromPlug(const char* str)
 {

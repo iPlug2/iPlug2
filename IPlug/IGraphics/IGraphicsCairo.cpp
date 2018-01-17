@@ -2,6 +2,8 @@
 
 #include "png.h"
 
+#include "CairoNanoSVG.h"
+
 #include "IGraphicsCairo.h"
 #include "IControl.h"
 #include "Log.h"
@@ -192,6 +194,24 @@ void IGraphicsCairo::PrepDraw()
 void IGraphicsCairo::ReScale()
 {
   IGraphics::ReScale(); // will cause all the controls to update their bitmaps
+}
+
+void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
+{
+  cairo_save(mContext);
+  cairo_translate(mContext, dest.L, dest.T);
+  cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
+  cairo_clip(mContext);
+
+  double xScale = dest.W() / svg.W();
+  double yScale = dest.H() / svg.H();
+  double scale = xScale < yScale ? xScale : yScale;
+
+  cairo_scale(mContext, scale, scale);
+
+  CairoNanoSVGRender::RenderNanoSVG(mContext, svg.mImage);
+
+  cairo_restore(mContext);
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)

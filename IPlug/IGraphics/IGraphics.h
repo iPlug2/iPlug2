@@ -39,6 +39,8 @@ public:
   virtual void EndFrame() {};
   virtual void ViewInitialized(void* layer) {};
   //
+
+  virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
   
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
@@ -69,7 +71,7 @@ public:
   
   inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics drawing classes to clip drawing
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
-  
+
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
   virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
   virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
@@ -147,13 +149,11 @@ public:
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Used with IGraphicsLice (possibly others) in order to set the core graphics draw context on macOS and the GDI HDC draw context handle on Windows
-   * On macOS, this is called by the platform IGraphics class IGraphicsMac, on Windows it is called by the drawing class e.g. IGraphicsLice.
-  */
+   * On macOS, this is called by the platform IGraphics class IGraphicsMac, on Windows it is called by the drawing class e.g. IGraphicsLice.*/
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
   void* GetPlatformContext() { return mPlatformContext; }
   
-  /** Try to ascertain the full path of a resource.
-   */
+  /** Try to ascertain the full path of a resource.*/
   virtual bool OSFindResource(const char* name, const char* type, WDL_String& result) = 0;
   
 #pragma mark - IGraphics base implementation
@@ -163,6 +163,8 @@ public:
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   
+  virtual ISVG LoadISVG(const char* name); // correct place?
+
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }

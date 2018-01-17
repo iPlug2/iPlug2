@@ -4,45 +4,6 @@
 #include "config.h"
 
 #include "cairo/cairo.h"
-#include "CairoNanoSVG.h"
-
-class MyCairoSVGControl : public IControl
-{
-public:
-  MyCairoSVGControl(IPlugBaseGraphics& plug, const char *file, IRECT rect, int paramIdx)
-  : IControl(plug, rect, paramIdx)
-  {
-    mImage = nsvgParseFromFile(file, "px", 72);
-  };
-  
-  ~MyCairoSVGControl()
-  {
-    nsvgDelete(mImage);
-  };
-  
-  void Draw(IGraphics& graphics)
-  {
-    cairo_t* cr = (cairo_t*) graphics.GetData();
-
-    cairo_save(cr);
-    cairo_translate(cr, mRECT.L, mRECT.T);
-    cairo_rectangle(cr, 0, 0, mRECT.W(), mRECT.H());
-    cairo_clip(cr);
-    
-    double xScale = mRECT.W() / mImage->width;
-    double yScale = mRECT.H() / mImage->height;
-    double scale = xScale < yScale ? xScale : yScale;
-    
-    cairo_scale(cr, scale, scale);
-  
-    CairoNanoSVGRender::RenderNanoSVG(cr, mImage);
-    
-    cairo_restore(cr);
-  };
-  
-private:
-  NSVGimage *mImage;
-};
 
 class MyCairoControl : public IControl
 {
@@ -117,14 +78,13 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
 
-  WDL_String svgFile;
-  
-  pGraphics->OSFindResource("resources/img/23.svg", "svg", svgFile);
+  ISVG tiger = pGraphics->LoadISVG(TIGER_FN);
 
-  pGraphics->AttachControl(new MyCairoSVGControl(*this, svgFile.Get(), IRECT(150, 200, 350, 400), -1));
-  pGraphics->ShowControlBounds(true);
+  if(tiger.mImage)
+    pGraphics->AttachControl(new ISVGControl(*this, tiger, IRECT(150, 200, 350, 400), -1));
   
-  //  IText basic;
+ 
+//  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
 
@@ -133,7 +93,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   AttachGraphics(pGraphics);
   
   //pGraphics->ShowControlBounds(true);
- // pGraphics->ShowAreaDrawn(true);
+  //pGraphics->ShowAreaDrawn(true);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }

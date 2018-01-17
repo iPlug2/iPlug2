@@ -942,3 +942,12 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
   }
 #endif
 }
+
+ISVG IGraphics::LoadISVG(const char* name)
+{
+#ifdef OS_OSX
+  return ISVG(name); //TODO: static storage caching/string/resource loading
+#else
+  return ISVG();
+#endif
+}

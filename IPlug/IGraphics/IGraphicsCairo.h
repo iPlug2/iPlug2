@@ -25,6 +25,8 @@ public:
   void PrepDraw() override;
   void ReScale() override;
 
+  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
+
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;

@@ -257,6 +257,25 @@ protected:
   IBitmap mBitmap;
 };
 
+class ISVGControl : public IControl
+{
+public:
+  ISVGControl(IPlugBaseGraphics& plug, ISVG& svg, IRECT rect, int paramIdx)
+    : IControl(plug, rect, paramIdx)
+    , mSVG(svg)
+  {
+  };
+
+  ~ISVGControl()
+  {
+  };
+
+  void Draw(IGraphics& graphics);
+
+private:
+  ISVG mSVG;
+};
+
 /** A basic control to output text to the screen. */
 class ITextControl : public IControl
 {
