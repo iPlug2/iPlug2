@@ -2,7 +2,7 @@
 
 
 KNOB_FN           PNG                     KNOB_FN
-
+TIGER_FN          SVG                     TIGER_FN
 
 #ifdef SA_API
 //Standalone stuff

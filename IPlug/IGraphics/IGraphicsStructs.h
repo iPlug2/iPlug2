@@ -9,6 +9,8 @@
 #include "swell.h"
 #endif
 
+#include "nanosvg.h"
+
 #include "IPlugOSDetect.h"
 #include "Log.h"
 
@@ -70,6 +72,50 @@ struct IBitmap
    * @return Height of a single frame
    */
   inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
+};
+
+struct ISVG
+{
+  NSVGimage* mImage = nullptr;
+
+  ISVG()
+  {}
+
+  ISVG(const char* file)
+  {
+    mImage = nsvgParseFromFile(file, "px", 72);
+    assert(mImage != nullptr);
+  }
+
+  ISVG(char* str)
+  {
+    mImage = nsvgParse(str, "px", 72);
+    assert(mImage != nullptr);
+  }
+
+  ~ISVG()
+  {
+    if(mImage)
+      nsvgDelete(mImage); // todo: this should not delete the image, storage class should do that
+  
+    mImage = nullptr;
+  }
+
+  int W()
+  {
+    if (mImage)
+      return mImage->width;
+    else
+      return 0;
+  }
+
+  int H()
+  {
+    if (mImage)
+      return mImage->height;
+    else
+      return 0;
+  }
 };
 
 /** Used to manage Color data, independant of draw class/platform.*/

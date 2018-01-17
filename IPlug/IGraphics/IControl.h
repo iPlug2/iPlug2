@@ -90,8 +90,9 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
+  void SetRECT(IRECT& rect) { mRECT = rect; }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetArea(IRECT rect) { mTargetRECT = rect; }
+  void SetTargetRECT(IRECT& rect) { mTargetRECT = rect; }
   virtual void TextFromTextEntry( const char* txt ) {}
   virtual void OnContextSelection(int itemSelected) {}
 
@@ -174,11 +175,16 @@ public:
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
 
+  void GetJSON(WDL_String& json, int idx) const;
+  
 protected:
   IPlugBaseGraphics& mPlug;
-  IRECT mRECT, mTargetRECT;
-  /** Parameter index */
+  IRECT mRECT;
+  IRECT mTargetRECT;
+  
+  /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
+  
   IBlend mBlend;
   IText mText;
   
@@ -249,6 +255,25 @@ public:
   
 protected:
   IBitmap mBitmap;
+};
+
+class ISVGControl : public IControl
+{
+public:
+  ISVGControl(IPlugBaseGraphics& plug, ISVG& svg, IRECT rect, int paramIdx)
+    : IControl(plug, rect, paramIdx)
+    , mSVG(svg)
+  {
+  };
+
+  ~ISVGControl()
+  {
+  };
+
+  void Draw(IGraphics& graphics);
+
+private:
+  ISVG mSVG;
 };
 
 /** A basic control to output text to the screen. */

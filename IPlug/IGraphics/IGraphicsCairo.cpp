@@ -2,6 +2,8 @@
 
 #include "png.h"
 
+#include "CairoNanoSVG.h"
+
 #include "IGraphicsCairo.h"
 #include "IControl.h"
 #include "Log.h"
@@ -9,55 +11,55 @@
 #ifdef OS_OSX
 cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
 {
-    return cairo_image_surface_create_from_png(path.Get());
+  return cairo_image_surface_create_from_png(path.Get());
 }
-#else
+#else //OS_WIN
 class PNGStreamReader
 {
 public:
   PNGStreamReader(HMODULE hInst, const WDL_String &path) : mData(nullptr), mSize(0), mCount(0)
   {
     HRSRC resInfo = FindResource(hInst, path.Get(), "PNG");
-	if (resInfo)
-	{
-	  HGLOBAL res = LoadResource(hInst, resInfo);
-	  if (res)
-	  {
-		mData = (unsigned char *) LockResource(res);
-		mSize = SizeofResource(hInst, resInfo);
-	  }
-	}
+    if (resInfo)
+    {
+      HGLOBAL res = LoadResource(hInst, resInfo);
+      if (res)
+      {
+      mData = (unsigned char *) LockResource(res);
+      mSize = SizeofResource(hInst, resInfo);
+      }
+    }
   }
 
   cairo_status_t Read(unsigned char *data, unsigned int length)
   {
-	mCount += length;
-	if (mCount <= mSize)
-	{
-	  memcpy(data, mData + mCount - length, length);
-   	  return CAIRO_STATUS_SUCCESS;
-	}
+    mCount += length;
+    if (mCount <= mSize)
+    {
+      memcpy(data, mData + mCount - length, length);
+        return CAIRO_STATUS_SUCCESS;
+    }
 
-	return CAIRO_STATUS_READ_ERROR;
-  }
+    return CAIRO_STATUS_READ_ERROR;
+    }
 
-  static cairo_status_t StaticRead(void *reader, unsigned char *data, unsigned int length) 
-  { 
-    return ((PNGStreamReader *)reader)->Read(data, length);
-  }
+    static cairo_status_t StaticRead(void *reader, unsigned char *data, unsigned int length) 
+    { 
+      return ((PNGStreamReader *)reader)->Read(data, length);
+    }
   
-private:  
-
+private:
   const unsigned char *mData;
   size_t mCount;
   size_t mSize;
 };
+
 cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
 {
   PNGStreamReader reader((HMODULE)hInst, path);
   return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
 }
-#endif
+#endif //OS_WIN
 
 struct CairoBitmap {
   cairo_surface_t* surface = nullptr;
@@ -108,8 +110,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
   {
     WDL_String fullPath;
     OSFindResource(name, "png", fullPath);
-	cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), fullPath);
-      
+    cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), fullPath);
 #ifndef NDEBUG
     bool imgResourceFound = cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS;
 #endif
@@ -119,12 +120,10 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
 
     const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
-    if (sourceScale != targetScale) {
+    if (sourceScale != targetScale)
       return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
-    }
-    else {
+    else
       s_bitmapCache.Add(pCB, name, sourceScale);
-    }
   }
 
   return IBitmap(pCB->surface, pCB->width / targetScale, pCB->height / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
@@ -197,6 +196,24 @@ void IGraphicsCairo::ReScale()
   IGraphics::ReScale(); // will cause all the controls to update their bitmaps
 }
 
+void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
+{
+  cairo_save(mContext);
+  cairo_translate(mContext, dest.L, dest.T);
+  cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
+  cairo_clip(mContext);
+
+  double xScale = dest.W() / svg.W();
+  double yScale = dest.H() / svg.H();
+  double scale = xScale < yScale ? xScale : yScale;
+
+  cairo_scale(mContext, scale, scale);
+
+  CairoNanoSVGRender::RenderNanoSVG(mContext, svg.mImage);
+
+  cairo_restore(mContext);
+}
+
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   cairo_save(mContext);
@@ -226,8 +243,8 @@ void IGraphicsCairo::DrawPoint(const IColor& color, float x, float y, const IBle
   
   if (!aa)
   {
-    x = floor(x);
-    y = floor(y);
+    x = std::floor(x);
+    y = std::floor(y);
   }
   
   cairo_move_to(mContext, x + 0.5, y + 0.5);
@@ -300,6 +317,12 @@ void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const
   cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
   cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
   cairo_stroke(mContext);
+}
+
+void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+{
+  //TODO: stipple?
+  DrawRect(color, rect, pBlend);
 }
 
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int corner, bool aa)
@@ -401,14 +424,14 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   {
 #ifdef OS_OSX
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
-	mContext = cairo_create(mSurface);
-	cairo_surface_set_device_scale(mSurface, 1, -1);
-	cairo_surface_set_device_offset(mSurface, 0, Height());
+    mContext = cairo_create(mSurface);
+    cairo_surface_set_device_scale(mSurface, 1, -1);
+    cairo_surface_set_device_offset(mSurface, 0, Height());
 #else
     HDC dc = (HDC) pContext;
-	mSurface = cairo_win32_surface_create(HDC(pContext));
-	mContext = cairo_create(mSurface);
-	cairo_surface_set_device_scale(mSurface, Scale(), Scale());
+    mSurface = cairo_win32_surface_create(HDC(pContext));
+    mContext = cairo_create(mSurface);
+    cairo_surface_set_device_scale(mSurface, Scale(), Scale());
 #endif
   }
   

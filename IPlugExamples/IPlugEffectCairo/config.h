@@ -57,7 +57,7 @@ instrument determined by PLUG _IS _INST
 
 // Image resource locations for this plug.
 #define KNOB_FN "resources/img/knob.png"
-#define SWITCH_FN "resources/img/ISwitchControl_x3.png"
+#define TIGER_FN "resources/img/23.svg"
 // GUI default dimensions
 #define GUI_WIDTH 500
 #define GUI_HEIGHT 500

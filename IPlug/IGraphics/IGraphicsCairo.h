@@ -25,6 +25,8 @@ public:
   void PrepDraw() override;
   void ReScale() override;
 
+  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
+
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
@@ -37,7 +39,8 @@ public:
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, bool aa) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
-  
+  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
+
   void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa) override;
   void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;

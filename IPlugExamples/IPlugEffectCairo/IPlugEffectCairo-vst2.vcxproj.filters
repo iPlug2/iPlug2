@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="IPlugEffectCairo.cpp" />
-    <ClCompile Include="..\..\IPlug\IPlugVST.cpp">
-      <Filter>vst2</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\IPlug\IParam.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -41,13 +38,22 @@
     <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp">
       <Filter>IPlug\IGraphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.cpp">
+      <Filter>IPlug\IGraphics\NanoSVG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\NanoSVG_Impl.c">
+      <Filter>IPlug\IGraphics\NanoSVG</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLiveEdit.cpp">
+      <Filter>IPlug\IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\IPlug\IPlugVST.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugEffectCairo.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="..\..\IPlug\IPlugVST.h">
-      <Filter>vst2</Filter>
-    </ClInclude>
     <ClInclude Include="config.h" />
     <ClInclude Include="..\..\IPlug\IMidiQueue.h">
       <Filter>IPlug</Filter>
@@ -130,19 +136,31 @@
     <ClInclude Include="..\..\IPlug\IGraphics\IControl.h">
       <Filter>IPlug\IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.h">
+      <Filter>IPlug\IGraphics\NanoSVG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\nanosvg.h">
+      <Filter>IPlug\IGraphics\NanoSVG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IPlug\IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\IPlug\IPlugVST.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffectCairo.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="vst2">
-      <UniqueIdentifier>{ea16de74-9d15-4c60-ba09-d0924088d3e5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IPlug">
       <UniqueIdentifier>{76328b9e-912e-4347-bb78-588c52d266cf}</UniqueIdentifier>
     </Filter>
     <Filter Include="IPlug\IGraphics">
       <UniqueIdentifier>{fc701abe-4a00-4c2a-b58a-57d33d9fef79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\IGraphics\NanoSVG">
+      <UniqueIdentifier>{cf0273f2-66c0-40c0-8a0d-a273bbfdd7ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
