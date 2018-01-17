@@ -6,47 +6,6 @@
 #include "cairo/cairo.h"
 #include "CairoNanoSVG.h"
 
-class MyCairoSVGControl : public IControl
-{
-public:
-  MyCairoSVGControl(IPlugBaseGraphics& plug, const char *file, IRECT rect, int paramIdx)
-  : IControl(plug, rect, paramIdx)
-  {
-    mImage = nsvgParseFromFile(file, "px", 72);
-  };
-  
-  ~MyCairoSVGControl()
-  {
-    nsvgDelete(mImage);
-  };
-  
-  void Draw(IGraphics& graphics)
-  {
-    cairo_t* cr = (cairo_t*) graphics.GetData();
-
-    cairo_save(cr);
-    cairo_translate(cr, mRECT.L, mRECT.T);
-    cairo_rectangle(cr, 0, 0, mRECT.W(), mRECT.H());
-    cairo_clip(cr);
-    
-    double xScale = mRECT.W() / mImage->width;
-    double yScale = mRECT.H() / mImage->height;
-    double scale = xScale < yScale ? xScale : yScale;
-    
-    cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_rectangle(cr, 0, 0, mRECT.W(), mRECT.H());
-    cairo_fill(cr);
-    cairo_scale(cr, scale, scale);
-    
-    CairoNanoSVGRender::RenderNanoSVG(cr, mImage);
-    
-    cairo_restore(cr);
-  };
-  
-private:
-  NSVGimage *mImage;
-};
-
 class MyCairoControl : public IControl
 {
 public:
@@ -119,12 +78,12 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 100, 100), -1));
   
   pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
-
-  WDL_String svgFile;
   
-  pGraphics->OSFindResource("resources/img/radialgradient2.svg", "svg", svgFile);
+  ISVG tiger = pGraphics->LoadISVG("resources/img/23.svg");
+  
+  if (tiger.mImage)
+    pGraphics->AttachControl(new ISVGControl(*this, tiger, IRECT(150, 200, 350, 400), -1));
 
-  pGraphics->AttachControl(new MyCairoSVGControl(*this, svgFile.Get(), IRECT(150, 200, 350, 400), -1));
   pGraphics->ShowControlBounds(true);
   
   //  IText basic;

@@ -3,6 +3,8 @@
 #include "IGraphicsNanoVG.h"
 #include "Log.h"
 
+#include "NanoVGNanoSVG.h"
+
 #pragma mark -
 
 struct NanoVGBitmap {
@@ -97,6 +99,24 @@ void IGraphicsNanoVG::ReScale()
   IGraphics::ReScale(); // will cause all the controls to update their bitmaps
 }
 
+void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
+{
+  nvgSave(mVG);
+  nvgTranslate(mVG, dest.L, dest.T);
+  //cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
+  //cairo_clip(mContext);
+  
+  double xScale = (double) dest.W() / (double) svg.W();
+  double yScale = (double) dest.H() / (double) svg.H();
+  double scale = xScale < yScale ? xScale : yScale;
+    
+  nvgScale(mVG, scale, scale);
+    
+  NanoVGNanoSVGRender::RenderNanoSVG(mVG, svg.mImage);
+
+  nvgRestore(mVG);
+}
+
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   NanoVGBitmap* pBmp = (NanoVGBitmap*) bitmap.mData;
@@ -119,6 +139,11 @@ void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destC
 
 void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
+}
+
+void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+{
+  //TODO - implement
 }
 
 void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
