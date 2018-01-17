@@ -21,7 +21,7 @@ IGraphics::~IGraphics()
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
   
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   if (mLiveEdit)
     DELETE_NULL(mLiveEdit);
 #endif
@@ -534,9 +534,10 @@ void IGraphics::Draw(const IRECT& rect)
     }
   }
   
+#if defined(SA_API)
   if(mLiveEdit)
     mLiveEdit->Draw(*this);
-  
+#endif
 //  WDL_String str;
 //  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
   IText txt(20, CONTROL_BOUNDS_COLOR);
@@ -564,7 +565,7 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDown(x, y, mod);
@@ -623,7 +624,7 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseUp(x, y, mod);
@@ -647,7 +648,7 @@ void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(int x, int y, const IMouseMod& mod)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseOver(x, y, mod);
@@ -687,7 +688,7 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(int x, int y, const IMouseMod& mod)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDrag(x, y, 0, 0, mod);
@@ -933,7 +934,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   if(enable)
     mLiveEdit = new IGraphicsLiveEdit(GetPlug(), file, gridsize);
   else {

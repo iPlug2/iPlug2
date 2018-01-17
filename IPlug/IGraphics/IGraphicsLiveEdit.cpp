@@ -1,4 +1,4 @@
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
 
 #include "IGraphicsLiveEdit.h"
 

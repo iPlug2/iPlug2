@@ -266,7 +266,7 @@ private:
   bool mShowAreaDrawn = false;
   IControl* mKeyCatcher = nullptr;
   
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(SA_API)
   IControl* mLiveEdit = nullptr;
 #endif
 };
