@@ -3,20 +3,68 @@
 
 namespace CairoNanoSVGRender
 {
+    double colorR(unsigned int color)
+    {
+        return ((color >> 0) & 0xFF) / 255.0;
+    }
+
+    double colorG(unsigned int color)
+    {
+        return ((color >> 8) & 0xFF) / 255.0;
+    }
+
+    double colorB(unsigned int color)
+    {
+        return ((color >> 16) & 0xFF) / 255.0;
+    }
+    
     void setSource(cairo_t* cr, const NSVGpaint& paint, float opacity)
     {
         switch (paint.type)
         {
             case NSVG_PAINT_COLOR:
             {
-                float r = ((paint.color >> 0) & 0xFF) / 255.0;
-                float g = ((paint.color >> 8) & 0xFF) / 255.0;
-                float b = ((paint.color >> 16) & 0xFF) / 255.0;
+                float r = colorR(paint.color);
+                float g = colorG(paint.color);
+                float b = colorB(paint.color);
                 cairo_set_source_rgba(cr, r, g, b, opacity);
                 break;
             }
-                //case NSVG_PAINT_LINEAR_GRADIENT:
-                //case NSVG_PAINT_RADIAL_GRADIENT:
+            
+            case NSVG_PAINT_LINEAR_GRADIENT:
+            case NSVG_PAINT_RADIAL_GRADIENT:
+            {
+                NSVGgradient *grad = paint.gradient;
+                
+                // float fx, fy; ??
+                
+                cairo_pattern_t* pattern;
+                
+                if (paint.type == NSVG_PAINT_LINEAR_GRADIENT)
+                    pattern = cairo_pattern_create_linear(0, 0, 0, 1);
+                else
+                    pattern = cairo_pattern_create_radial(0, 0, 1, 1, 0, 1);
+                
+                switch (grad->spread)
+                {
+                    case NSVG_SPREAD_PAD:       cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);        break;
+                    case NSVG_SPREAD_REFLECT:   cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REFLECT);    break;
+                    case NSVG_SPREAD_REPEAT:    cairo_pattern_set_extend(pattern, CAIRO_EXTEND_REPEAT);     break;
+                }
+                
+                for (int i = 0; i < grad->nstops; i++)
+                {
+                    const NSVGgradientStop& stop = grad->stops[i];
+                    cairo_pattern_add_color_stop_rgb(pattern, stop.offset, colorR(stop.color), colorG(stop.color), colorB(stop.color));
+                }
+                
+                cairo_matrix_t matrix;
+                cairo_matrix_init(&matrix, grad->xform[0], grad->xform[1], grad->xform[2], grad->xform[3], grad->xform[4], grad->xform[5]);
+                cairo_pattern_set_matrix(pattern, &matrix);
+                cairo_set_source(cr, pattern);
+                cairo_pattern_destroy(pattern);
+            }
+            break;
                 
             default:
                 cairo_set_source_rgba(cr, 0, 0, 0, opacity);
@@ -30,16 +78,8 @@ namespace CairoNanoSVGRender
             if (!(shape->flags & NSVG_FLAGS_VISIBLE))
                 continue;
             
-            //cairo_save(cr);
-            //cairo_rectangle(cr, shape->bounds[0], shape->bounds[1], shape->bounds[2] - shape->bounds[0], shape->bounds[3] - shape->bounds[1]);
-            //cairo_clip(cr);
-            
             for (NSVGpath *path = shape->paths; path; path = path->next)
             {
-                //cairo_save(cr);
-                //cairo_rectangle(cr, path->bounds[0], path->bounds[1], path->bounds[2] - path->bounds[0], path->bounds[3] - path->bounds[1]);
-                //cairo_clip();
-                
                 cairo_move_to(cr, path->pts[0], path->pts[1]);
                 
                 for (int i = 0; i < path->npts - 1; i += 3)
@@ -50,7 +90,6 @@ namespace CairoNanoSVGRender
                 
                 if (path->closed)
                     cairo_close_path(cr);
-                //cairo_restore(cr);
             }
             
             // Fill
@@ -100,7 +139,6 @@ namespace CairoNanoSVGRender
                 setSource(cr, shape->stroke, shape->opacity);
                 cairo_stroke(cr);
             }
-            //cairo_restore(cr);
         }
     }
 }

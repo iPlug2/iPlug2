@@ -264,6 +264,16 @@
 		B8E34E84200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
 		B8E34E85200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
 		B8E34E86200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
+		B8E34E96200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
+		B8E34E97200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
+		B8E34E98200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
+		B8E34E99200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
+		B8E34E9A200EBA71005BE0EB /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E95200EBA71005BE0EB /* lineargradient1.svg */; };
+		B8E34EA0200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
+		B8E34EA1200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
+		B8E34EA2200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
+		B8E34EA3200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
+		B8E34EA4200EBEF4005BE0EB /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -540,6 +550,8 @@
 		B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = NanoSVG_Impl.c; path = ../../IPlug/IGraphics/NanoSVG/NanoSVG_Impl.c; sourceTree = "<group>"; };
 		B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CairoNanoSVG.cpp; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.cpp; sourceTree = "<group>"; };
 		B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
+		B8E34E95200EBA71005BE0EB /* lineargradient1.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lineargradient1.svg; sourceTree = "<group>"; };
+		B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = radialgradient2.svg; sourceTree = "<group>"; };
 		D2F7E65807B2D6F200F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -1031,6 +1043,8 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				B8E34E9F200EBEF4005BE0EB /* radialgradient2.svg */,
+				B8E34E95200EBA71005BE0EB /* lineargradient1.svg */,
 				B8E34E76200E61F5005BE0EB /* 23.svg */,
 				4F8AFFD91FDCA841000076E1 /* ISwitchControl_x3.png */,
 				4F23B9E413B647A00097A67E /* knob.png */,
@@ -1404,7 +1418,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8E34E97200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F8AFFDD1FDCA8A1000076E1 /* ISwitchControl_x3.png in Resources */,
+				B8E34EA1200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F23B9F313B647A00097A67E /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1413,9 +1429,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8E34EA3200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F8AFFE11FDCA8A6000076E1 /* ISwitchControl_x3.png in Resources */,
 				B8E34E7D200E63A2005BE0EB /* 23.svg in Resources */,
 				4F23BA0C13B647A00097A67E /* knob.png in Resources */,
+				B8E34E99200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1423,7 +1441,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8E34E98200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F8AFFDF1FDCA8A3000076E1 /* ISwitchControl_x3.png in Resources */,
+				B8E34EA2200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1432,7 +1452,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8E34E9A200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F8AFFE01FDCA8A5000076E1 /* ISwitchControl_x3.png in Resources */,
+				B8E34EA4200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4FB600161567CB0A0020189A /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1444,7 +1466,9 @@
 				4F78D88613B6382B0032E0F3 /* IPlugEffectCairo.icns in Resources */,
 				4F78D89913B639100032E0F3 /* InfoPlist.strings in Resources */,
 				4F78D89A13B639100032E0F3 /* MainMenu.xib in Resources */,
+				B8E34E96200EBA71005BE0EB /* lineargradient1.svg in Resources */,
 				4F23B9FD13B647A00097A67E /* knob.png in Resources */,
+				B8E34EA0200EBEF4005BE0EB /* radialgradient2.svg in Resources */,
 				4F8AFFDB1FDCA89F000076E1 /* ISwitchControl_x3.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

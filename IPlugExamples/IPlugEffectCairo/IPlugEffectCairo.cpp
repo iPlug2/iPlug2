@@ -33,8 +33,11 @@ public:
     double yScale = mRECT.H() / mImage->height;
     double scale = xScale < yScale ? xScale : yScale;
     
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_rectangle(cr, 0, 0, mRECT.W(), mRECT.H());
+    cairo_fill(cr);
     cairo_scale(cr, scale, scale);
-  
+    
     CairoNanoSVGRender::RenderNanoSVG(cr, mImage);
     
     cairo_restore(cr);
@@ -119,7 +122,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   WDL_String svgFile;
   
-  pGraphics->OSFindResource("resources/img/23.svg", "svg", svgFile);
+  pGraphics->OSFindResource("resources/img/radialgradient2.svg", "svg", svgFile);
 
   pGraphics->AttachControl(new MyCairoSVGControl(*this, svgFile.Get(), IRECT(150, 200, 350, 400), -1));
   pGraphics->ShowControlBounds(true);
