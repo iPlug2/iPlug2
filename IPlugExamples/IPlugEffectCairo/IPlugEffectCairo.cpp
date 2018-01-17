@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include "cairo/cairo.h"
+#include "CairoNanoSVG.h"
 
 class MyCairoControl : public IControl
 {
@@ -77,14 +78,15 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 100, 100), -1));
   
   pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
-
-  ISVG tiger = pGraphics->LoadISVG(TIGER_FN);
-
-  if(tiger.mImage)
-    pGraphics->AttachControl(new ISVGControl(*this, tiger, IRECT(150, 200, 350, 400), -1));
   
- 
-//  IText basic;
+  ISVG tiger = pGraphics->LoadISVG("resources/img/23.svg");
+  
+  if (tiger.mImage)
+    pGraphics->AttachControl(new ISVGControl(*this, tiger, IRECT(150, 200, 350, 400), -1));
+
+  pGraphics->ShowControlBounds(true);
+  
+  //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
 
@@ -93,7 +95,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   AttachGraphics(pGraphics);
   
   //pGraphics->ShowControlBounds(true);
-  //pGraphics->ShowAreaDrawn(true);
+ // pGraphics->ShowAreaDrawn(true);
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }

@@ -29,12 +29,14 @@ public:
   void PrepDraw() override;
   void ReScale() override;
 
+  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) override;
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa) override;
   void ForcePixel(const IColor& color, int x, int y) override;
   
+  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) override;
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa) override;
   void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend, bool aa) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
