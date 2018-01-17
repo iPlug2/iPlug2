@@ -129,6 +129,9 @@
     <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h">
       <Filter>IPlug\IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IPlug\IGraphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\IPlug\rtaudiomidi\RtAudio.cpp">
@@ -190,6 +193,9 @@
       <Filter>IPlug\IGraphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp">
+      <Filter>IPlug\IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLiveEdit.cpp">
       <Filter>IPlug\IGraphics</Filter>
     </ClCompile>
   </ItemGroup>

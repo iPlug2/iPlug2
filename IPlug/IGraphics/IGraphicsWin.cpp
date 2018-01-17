@@ -555,15 +555,6 @@ int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type
   return MessageBox(GetMainWnd(), text, caption, type);
 }
 
-void IGraphicsWin::DrawScreen(const IRECT& rect)
-{
-  if (!GetPlatformContext())
-    return;
-
-  //TODO: this is silly, adapt api
-  RenderAPIBitmap(GetPlatformContext());
-}
-
 void* IGraphicsWin::OpenWindow(void* pParentWnd)
 {
   int x = 0, y = 0, w = WindowWidth(), h = WindowHeight();

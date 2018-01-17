@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ADDITIONAL_INCLUDES);$(IGRAPHICS_PATH);$(LICE_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADDITIONAL_INCLUDES);$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\NanoSVG;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>IGRAPHICS_CAIRO;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

@@ -110,17 +110,17 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
 
   pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX+48, kGainY+48), kGain, COLOR_BLACK));
 
-  pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 300, 300), -1));
+ // pGraphics->AttachControl(new MyCairoControl(*this, IRECT(0, 0, 300, 300), -1));
   
   pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
 
   WDL_String svgFile;
   
-  pGraphics->OSFindResource("resources/img/23.svg", "svg", svgFile);
+  pGraphics->OSFindResource(TIGER_FN, "svg", svgFile);
 
-  pGraphics->AttachControl(new MyCairoSVGControl(*this, svgFile.Get(), IRECT(150, 200, 350, 400), -1));
+ // pGraphics->AttachControl(new MyCairoSVGControl(*this, svgFile.Get(), IRECT(150, 200, 350, 400), -1));
   //pGraphics->ShowControlBounds(true);
-  pGraphics->EnableLiveEdit(true);
+ // pGraphics->EnableLiveEdit(true);
   //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
@@ -129,6 +129,7 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   
   AttachGraphics(pGraphics);
   
+  pGraphics->EnableLiveEdit(true);
   //pGraphics->ShowControlBounds(true);
  // pGraphics->ShowAreaDrawn(true);
   //MakePreset("preset 1", ... );

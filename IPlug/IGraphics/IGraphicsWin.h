@@ -41,8 +41,6 @@ public:
   void ShowMouseCursor() override;
   int ShowMessageBox(const char* str, const char* caption, int type) override;
 
-  void DrawScreen(const IRECT& rect) override;
-
   void* OpenWindow(void* pParentWnd) override;
   void CloseWindow() override;
   bool WindowIsOpen() override { return (mPlugWnd); }
@@ -85,7 +83,6 @@ protected:
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
   void HideTooltip();
-
 
 private:
   enum EParamEditMsg
