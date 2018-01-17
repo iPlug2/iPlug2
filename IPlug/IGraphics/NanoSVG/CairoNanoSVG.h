@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "nanosvg.h"
@@ -6,6 +5,6 @@
 
 namespace CairoNanoSVGRender
 {
-    void RenderNanoSVG(cairo_t* cr, NSVGimage *image);
+  void RenderNanoSVG(cairo_t* cr, NSVGimage *image);
 }
 
