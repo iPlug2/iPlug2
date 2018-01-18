@@ -138,10 +138,17 @@ void IGraphicsLiveEdit::Draw(IGraphics& graphics)
   
   for(int i = 1; i < graphics.GetNControls(); i++)
   {
-    IRECT cr = graphics.GetControl(i)->GetRECT();
+    IControl* pControl = graphics.GetControl(i);
+    IRECT cr = pControl->GetRECT();
     
-    graphics.DrawDottedRect(mRectColor, cr);
     
+    if(pControl->IsHidden())
+      graphics.DrawDottedRect(COLOR_RED, cr);
+    else if(pControl->IsGrayed())
+      graphics.DrawDottedRect(COLOR_GREEN, cr);
+    else
+      graphics.DrawDottedRect(COLOR_BLUE, cr);
+
     IRECT h = GetHandleRect(cr);
     graphics.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
     graphics.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
