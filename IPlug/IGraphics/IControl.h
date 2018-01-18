@@ -90,7 +90,7 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
-  void SetRECT(IRECT& rect) { mRECT = rect; }
+  void SetRECT(IRECT& rect) { mRECT = rect; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
   void SetTargetRECT(IRECT& rect) { mTargetRECT = rect; }
   virtual void TextFromTextEntry( const char* txt ) {}
@@ -169,8 +169,9 @@ public:
   IPlugBaseGraphics& GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
   
-  virtual void OnRescale() {};
-  
+  virtual void OnRescale() {}
+  virtual void OnResize() {}
+
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
@@ -257,6 +258,7 @@ protected:
   IBitmap mBitmap;
 };
 
+/** A basic control to draw an SVG image to the screen. */
 class ISVGControl : public IControl
 {
 public:
@@ -273,6 +275,7 @@ public:
   void Draw(IGraphics& graphics);
 
 private:
+  //TODO: should draw the SVG to intermediate bitmap
   ISVG mSVG;
 };
 
