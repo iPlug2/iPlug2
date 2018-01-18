@@ -262,8 +262,6 @@
     <ClInclude Include="..\..\IPlug\IGraphics\IKeyboardControl.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.h" />
     <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h" />
-    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.h" />
-    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\nanosvg.h" />
     <ClInclude Include="..\..\IPlug\IMidiQueue.h" />
     <ClInclude Include="..\..\IPlug\IParam.h" />
     <ClInclude Include="..\..\IPlug\IPlugBase.h" />
@@ -292,8 +290,6 @@
     <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
     <ClCompile Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp" />
-    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.cpp" />
-    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\NanoSVG_Impl.c" />
     <ClCompile Include="..\..\IPlug\IParam.cpp" />
     <ClCompile Include="..\..\IPlug\IPlugBase.cpp" />
     <ClCompile Include="..\..\IPlug\IPlugStructs.cpp" />

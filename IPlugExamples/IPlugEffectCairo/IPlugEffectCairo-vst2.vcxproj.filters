@@ -38,12 +38,6 @@
     <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp">
       <Filter>IPlug\IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.cpp">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\NanoSVG_Impl.c">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLiveEdit.cpp">
       <Filter>IPlug\IGraphics</Filter>
     </ClCompile>
@@ -136,12 +130,6 @@
     <ClInclude Include="..\..\IPlug\IGraphics\IControl.h">
       <Filter>IPlug\IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.h">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\nanosvg.h">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
       <Filter>IPlug\IGraphics</Filter>
     </ClInclude>
@@ -158,9 +146,6 @@
     </Filter>
     <Filter Include="IPlug\IGraphics">
       <UniqueIdentifier>{fc701abe-4a00-4c2a-b58a-57d33d9fef79}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IPlug\IGraphics\NanoSVG">
-      <UniqueIdentifier>{cf0273f2-66c0-40c0-8a0d-a273bbfdd7ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
