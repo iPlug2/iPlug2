@@ -290,11 +290,11 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   {
     if (bitmap.mFramesAreHorizontal)
     {
-      srcX = int(0.5 + (double) bitmap.W * (double) (bmpState - 1) / (double) bitmap.N);
+      srcX = int(0.5f + bitmap.W * (float) (bmpState - 1) / (float) bitmap.N);
     }
     else
     {
-      srcY = int(0.5 + (double) bitmap.H * (double) (bmpState - 1) / (double) bitmap.N);
+      srcY = int(0.5f + bitmap.H * (float) (bmpState - 1) / (float) bitmap.N);
     }
   }
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
