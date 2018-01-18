@@ -29,16 +29,16 @@ namespace NanoVGNanoSVGRender
       case NSVG_PAINT_LINEAR_GRADIENT:
       case NSVG_PAINT_RADIAL_GRADIENT:
       {
-        NSVGgradient* gradient = paint.gradient;
-        NVGcolor icol = GetNVGColor(gradient->stops[0].color);
-        NVGcolor ocol = GetNVGColor(gradient->stops[gradient->nstops - 1].color);
+        NSVGgradient* pGradient = paint.gradient;
+        NVGcolor icol = GetNVGColor(pGradient->stops[0].color);
+        NVGcolor ocol = GetNVGColor(pGradient->stops[pGradient->nstops - 1].color);
         NVGpaint vgpaint;
         
         float inverse[6];
         float s[2];
         float e[2];
         
-        nvgTransformInverse(inverse, gradient->xform);
+        nvgTransformInverse(inverse, pGradient->xform);
         nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
         nvgTransformPoint(&e[0], &e[1], inverse, 0, 1);
         
