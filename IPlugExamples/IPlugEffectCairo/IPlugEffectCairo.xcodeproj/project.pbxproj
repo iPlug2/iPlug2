@@ -263,16 +263,6 @@
 		4FF142CF1FD4A61E00A65575 /* IAutoGUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427A1FD4A61E00A65575 /* IAutoGUI.h */; };
 		4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
 		4FF142D71FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
-		B8106D0F200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
-		B8106D10200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
-		B8106D11200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
-		B8106D12200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
-		B8106D13200FE5F700ED84A4 /* radialgradient2.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */; };
-		B8106D14200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
-		B8106D15200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
-		B8106D16200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
-		B8106D17200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
-		B8106D18200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
 		B8E34E85200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
 		B8E34E86200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
 /* End PBXBuildFile section */
@@ -549,8 +539,6 @@
 		52FBBED00D0CF139001C8B8A /* IPlugEffectCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugEffectCairo.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		52FBBED20D0CF13D001C8B8A /* IPlugEffectCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = IPlugEffectCairo.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
-		B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = radialgradient2.svg; sourceTree = "<group>"; };
-		B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lineargradient1.svg; sourceTree = "<group>"; };
 		B8E34E75200E4E83005BE0EB /* nanosvg.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = nanosvg.h; path = ../../IPlug/IGraphics/NanoSVG/nanosvg.h; sourceTree = "<group>"; };
 		B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
 		D2F7E65807B2D6F200F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
@@ -1042,8 +1030,6 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
-				B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */,
-				B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */,
 				4F9E36F0200FBA8600B8E4FB /* 23.svg */,
 				4F8AFFD91FDCA841000076E1 /* ISwitchControl_x3.png */,
 				4F23B9E413B647A00097A67E /* knob.png */,
@@ -1423,8 +1409,6 @@
 			files = (
 				4F8AFFDD1FDCA8A1000076E1 /* ISwitchControl_x3.png in Resources */,
 				4F23B9F313B647A00097A67E /* knob.png in Resources */,
-				B8106D15200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
-				B8106D10200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
 				4F9E36F2200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1435,8 +1419,6 @@
 			files = (
 				4F8AFFE11FDCA8A6000076E1 /* ISwitchControl_x3.png in Resources */,
 				4F23BA0C13B647A00097A67E /* knob.png in Resources */,
-				B8106D17200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
-				B8106D12200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
 				4F9E36F4200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1447,8 +1429,6 @@
 			files = (
 				4F8AFFDF1FDCA8A3000076E1 /* ISwitchControl_x3.png in Resources */,
 				4F9828B1140A9EB700F3FCC1 /* knob.png in Resources */,
-				B8106D16200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
-				B8106D11200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
 				4F9E36F3200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1459,8 +1439,6 @@
 			files = (
 				4F8AFFE01FDCA8A5000076E1 /* ISwitchControl_x3.png in Resources */,
 				4FB600161567CB0A0020189A /* knob.png in Resources */,
-				B8106D18200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
-				B8106D13200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
 				4F9E36F5200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1472,10 +1450,8 @@
 				4F78D88613B6382B0032E0F3 /* IPlugEffectCairo.icns in Resources */,
 				4F78D89913B639100032E0F3 /* InfoPlist.strings in Resources */,
 				4F78D89A13B639100032E0F3 /* MainMenu.xib in Resources */,
-				B8106D14200FE5F700ED84A4 /* lineargradient1.svg in Resources */,
 				4F23B9FD13B647A00097A67E /* knob.png in Resources */,
 				4F8AFFDB1FDCA89F000076E1 /* ISwitchControl_x3.png in Resources */,
-				B8106D0F200FE5F700ED84A4 /* radialgradient2.svg in Resources */,
 				4F9E36F1200FBA8600B8E4FB /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

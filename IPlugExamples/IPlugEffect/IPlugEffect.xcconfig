@@ -6,7 +6,7 @@
 // the basename of the vst, vst3, app, component, aaxplugin
 BINARY_NAME = IPlugEffect
 
-ADDITIONAL_INCLUDES = $(IGRAPHICS_PATH) $(LICE_PATH)
+ADDITIONAL_INCLUDES = $(IGRAPHICS_PATH) $(LICE_PATH) $(NANOSVG_PATH)
 //ADDITIONAL_LIBRARY_PATHS = //
 
 // for jack headers
