@@ -56,7 +56,7 @@ public:
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   
-  void RenderAPIBitmap(void* pContext) override;
+  void RenderDrawBitmap() override;
   
   void SetPlatformContext(void* pContext) override;
   

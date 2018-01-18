@@ -605,10 +605,10 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* src_pixel_map, int 
   return copy;
 }
 
-void IGraphicsAGG::RenderAPIBitmap(void *pContext)
+void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_OSX
-  mPixelMap.draw((CGContext*) pContext, mDisplayScale);
+  mPixelMap.draw((CGContext*) GetPlatformContext(), mDisplayScale);
 #else // OS_WIN
   //TODO: win
 #endif

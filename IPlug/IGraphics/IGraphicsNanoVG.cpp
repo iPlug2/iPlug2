@@ -245,10 +245,4 @@ bool IGraphicsNanoVG::MeasureIText(const IText& text, const char* str, IRECT& de
   return true;
 }
 
-void IGraphicsNanoVG::RenderAPIBitmap(void *pContext)
-{
-  //TODO: change this api
-}
-
-
 

@@ -59,7 +59,6 @@ public:
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
-  void RenderAPIBitmap(void* pContext) override;
 
 protected:
   WDL_PtrList<NanoVGBitmap> mBitmaps;

@@ -438,7 +438,7 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
   return nullptr;
 }
 
-void IGraphicsLice::RenderAPIBitmap(void *pContext)
+void IGraphicsLice::RenderDrawBitmap()
 {
 #ifdef OS_OSX
 
@@ -487,7 +487,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
 
   if (img)
   {
-    CGContextDrawImage((CGContext*) pContext, r, img);
+    CGContextDrawImage((CGContext*) GetPlatformContext(), r, img);
     CGImageRelease(img);
   }
     
@@ -497,7 +497,7 @@ void IGraphicsLice::RenderAPIBitmap(void *pContext)
     
 #else // OS_WIN
   PAINTSTRUCT ps;
-  HWND hWnd = (HWND)GetWindow();
+  HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   
   if (Scale() == 1.0)

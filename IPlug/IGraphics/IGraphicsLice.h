@@ -61,7 +61,7 @@ public:
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
-  void RenderAPIBitmap(void* pContext) override;
+  void RenderDrawBitmap() override;
 private:
   LICE_IBitmap* LoadAPIBitmap(const char* path);
   LICE_IFont* CacheFont(const IText& text, double scale);

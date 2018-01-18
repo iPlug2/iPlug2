@@ -83,8 +83,8 @@ public:
   IBitmap GetScaledBitmap(IBitmap& src);
   virtual void ReScale();
   
-  // this is called by some drawing API classes to blit the bitmap onto the screen (IGraphicsLice)
-  virtual void RenderAPIBitmap(void* pContext) {}
+  /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
+  virtual void RenderDrawBitmap() {}
 
 #pragma mark - IGraphics base implementation - drawing helpers
   /**
@@ -178,8 +178,8 @@ public:
   int WindowWidth() const { return mWidth * mScale; }
   int WindowHeight() const { return mHeight * mScale; }
   int FPS() const { return mFPS; }
-  double Scale() const { return mScale; }
-  double GetDisplayScale() const { return mDisplayScale; }
+  float Scale() const { return mScale; }
+  float GetDisplayScale() const { return mDisplayScale; }
   IPlugBaseGraphics& GetPlug() { return mPlug; }
 
   void AttachBackground(const char* name, double scale = 1.);

@@ -428,7 +428,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   IGraphics::SetPlatformContext(pContext);
 }
 
-void IGraphicsCairo::RenderAPIBitmap(void* pContext)
+void IGraphicsCairo::RenderDrawBitmap()
 {
   cairo_surface_flush(mSurface);
 
@@ -437,7 +437,8 @@ void IGraphicsCairo::RenderAPIBitmap(void* pContext)
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
-  if (Scale() == 1.0)
+  
+  if (Scale() == 1.f)
     BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
   else
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);

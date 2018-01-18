@@ -128,7 +128,7 @@ public:
 //  void ReleaseIBitmap(IBitmap& bitmap) override {};
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
-  void RenderAPIBitmap(void* pContext) override;
+  void RenderAPIBitmap() override;
 
   //IFontData LoadIFont(const char * name, const int size);
   
