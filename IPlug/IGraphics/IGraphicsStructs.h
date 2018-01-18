@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <assert.h>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
