@@ -670,7 +670,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (newBackingScaleFactor != oldBackingScaleFactor)
   {
     mGraphics->SetDisplayScale(newBackingScaleFactor);
-    mGraphics->ReScale();
   }
 #endif
 }

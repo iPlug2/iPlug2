@@ -26,9 +26,6 @@ public:
   void EndFrame() override;
   void ViewInitialized(void* layer) override;
   
-  void PrepDraw() override;
-  void ReScale() override;
-
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) override;
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;

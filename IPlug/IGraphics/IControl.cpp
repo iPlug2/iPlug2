@@ -3,6 +3,15 @@
 #include "IControl.h"
 #include "Log.h"
 
+IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBlend blendType)
+: mPlug(plug)
+, mRECT(rect)
+, mTargetRECT(rect)
+, mParamIdx(paramIdx)
+, mBlend(blendType)
+{
+}
+
 void IControl::SetValueFromPlug(double value)
 {
   if (mDefaultValue < 0.0)

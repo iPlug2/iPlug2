@@ -52,36 +52,22 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
   return IBitmap(pixel_map, pixel_map->width() / targetScale, pixel_map->height() / targetScale, nStates, framesAreHoriztonal, scale, name);
 }
 
-void IGraphicsAGG::ReScale()
+void IGraphicsAGG::SetDisplayScale(int scale)
 {
-  //TODO: rewrite this method
-  
-  // resize draw bitmap
-  PrepDraw();
-  
-  const int cacheSize = s_bitmapCache.mDatas.GetSize();
-  
-  for ( int i = 0; i<cacheSize; i++)
-  {
-    const char* path = s_bitmapCache.mDatas.Get(i)->path.Get();
+  IGraphics::SetDisplayScale(scale);
 
-    WDL_String fullPath;
-    OSFindResource(path, "png", fullPath);
-    
-    agg::pixel_map* pixel_map = s_bitmapCache.Find(fullPath.Get(), 1.);
-    
-    if (!pixel_map)
-    {
-      if(CSTR_NOT_EMPTY(fullPath.Get()))
-      {
-        pixel_map = LoadAPIBitmap(fullPath.Get());
-        if (pixel_map)
-        {
-          s_bitmapCache.Add(pixel_map, fullPath.Get(), 1.);
-        }
-      }
-    }
-  }
+  //TODO: rewrite this method
+//
+//  int w = Width() * mDisplayScale;
+//  int h = Height() * mDisplayScale;
+//
+//  mPixelMap.create(w, h);
+//  mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
+//  mPixf = PixfmtType(mRenBuf);
+//  mRenBase = RenbaseType(mPixf);
+//  mRenBase.clear(agg::rgba(0, 0, 0, 0));
+//
+}
   
 //  printf("cache size %i\n", s_bitmapCache.mDatas.GetSize());
   
@@ -109,18 +95,6 @@ void IGraphicsAGG::ReScale()
 //  }
 //  return IFontData(font_buf);
 //}
-
-void IGraphicsAGG::PrepDraw()
-{
-  int w = Width() * mDisplayScale;
-  int h = Height() * mDisplayScale;
-  
-  mPixelMap.create(w, h);
-  mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
-  mPixf = PixfmtType(mRenBuf);
-  mRenBase = RenbaseType(mPixf);
-  mRenBase.clear(agg::rgba(0, 0, 0, 0));
-}
 
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {

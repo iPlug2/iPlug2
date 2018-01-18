@@ -59,8 +59,6 @@ void IGraphics::Resize(int w, int h, double scale)
 {
   ReleaseMouseCapture();
 
-  //  PrepDraw();
-
   double oldScale = mScale;
   mScale = scale;
     
@@ -868,6 +866,9 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x
   {
     pControl->CreateContextMenu(contextMenu);
     
+    if(!contextMenu.GetNItems())
+      return;
+    
 #ifdef VST3_API
     
     IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mPlug);
@@ -933,6 +934,7 @@ void IGraphics::ReScale()
   {
     IControl* pControl = *ppControl;
     pControl->OnRescale();
+    pControl->OnResize();
   }
   
   SetAllControlsDirty();

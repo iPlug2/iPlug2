@@ -186,16 +186,6 @@ IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& inBitmap, const IRECT& rect, 
   return IBitmap(pOutSurface, newW, newH); //TODO: surface will not be destroyed, unless this is retained
 }
 
-void IGraphicsCairo::PrepDraw()
-{
-// not sure if needed yet may change api
-}
-
-void IGraphicsCairo::ReScale()
-{
-  IGraphics::ReScale(); // will cause all the controls to update their bitmaps
-}
-
 void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
   cairo_save(mContext);

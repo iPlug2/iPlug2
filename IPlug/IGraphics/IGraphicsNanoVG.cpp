@@ -89,26 +89,14 @@ void IGraphicsNanoVG::EndFrame()
   nvgEndFrame(mVG);
 }
 
-void IGraphicsNanoVG::PrepDraw()
-{
-}
-
-void IGraphicsNanoVG::ReScale()
-{
-//   mDrawBitmap->resize(Width() * mDisplayScale, Height() * mDisplayScale);
-  IGraphics::ReScale(); // will cause all the controls to update their bitmaps
-}
-
 void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
   nvgSave(mVG);
   nvgTranslate(mVG, dest.L, dest.T);
-  //cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
-  //cairo_clip(mContext);
-  
-  double xScale = (double) dest.W() / (double) svg.W();
-  double yScale = (double) dest.H() / (double) svg.H();
-  double scale = xScale < yScale ? xScale : yScale;
+
+  float xScale = dest.W() / svg.W();
+  float yScale = dest.H() / svg.H();
+  float scale = xScale < yScale ? xScale : yScale;
     
   nvgScale(mVG, scale, scale);
     
@@ -149,7 +137,7 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, con
 void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
 {
   nvgBeginPath(mVG);
-  nvgCircle(mVG, x, y, 0.01);
+  nvgCircle(mVG, x, y, 0.01); // TODO:  0.01 - is there a better way to draw a point?
   nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
   nvgStroke(mVG);
 }

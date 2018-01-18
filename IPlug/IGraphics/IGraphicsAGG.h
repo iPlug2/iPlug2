@@ -90,8 +90,9 @@ public:
   
   IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsAGG();
+  
+  void SetDisplayScale(int scale) override;
 
-  void PrepDraw() override;
   void Draw(const IRECT& rect) override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
@@ -126,7 +127,6 @@ public:
 //  void RetainIBitmap(IBitmap& bitmap, const char* cacheName) override {};
 //  void ReleaseIBitmap(IBitmap& bitmap) override {};
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
-  void ReScale() override;
 
   void RenderAPIBitmap(void* pContext) override;
 

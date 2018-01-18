@@ -33,13 +33,14 @@ class IGraphics
 {
 public:
 #pragma mark - IGraphics drawing API implementation
-  virtual void PrepDraw() = 0;
-
   //These are NanoVG only, may be refactored
   virtual void BeginFrame() {};
   virtual void EndFrame() {};
   virtual void ViewInitialized(void* layer) {};
   //
+  
+  /** Called by platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation */
+  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; ReScale(); };
 
   virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
   
@@ -179,7 +180,6 @@ public:
   int FPS() const { return mFPS; }
   double Scale() const { return mScale; }
   double GetDisplayScale() const { return mDisplayScale; }
-  void SetDisplayScale(double scale) { mDisplayScale = scale; }
   IPlugBaseGraphics& GetPlug() { return mPlug; }
 
   void AttachBackground(const char* name, double scale = 1.);
@@ -246,8 +246,8 @@ protected:
   bool mCursorHidden = false;
   int mHiddenMousePointX = -1;
   int mHiddenMousePointY = -1;
-  double mScale = 1.; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  double mDisplayScale = 1.; // the scaling of the display that the ui is currently on e.g. 2. for retina
+  float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
+  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:
   friend class IGraphicsLiveEdit;
   

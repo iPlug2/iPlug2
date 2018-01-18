@@ -34,7 +34,6 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
       pGraphics->SetParameterFromPlug(i, GetParam(i)->GetNormalized(), true);
     }
     
-    pGraphics->PrepDraw();
     mGraphics = pGraphics;
     mHasUI = true;
   }

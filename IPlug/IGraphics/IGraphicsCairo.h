@@ -22,9 +22,6 @@ public:
   IGraphicsCairo(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsCairo();
 
-  void PrepDraw() override;
-  void ReScale() override;
-
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;

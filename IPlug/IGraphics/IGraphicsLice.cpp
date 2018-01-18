@@ -28,6 +28,19 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
+void IGraphicsLice::SetDisplayScale(int scale)
+{
+  if(!mDrawBitmap)
+  {
+    mDrawBitmap = new LICE_SysBitmap(Width() * scale, Height() * scale);
+    mTmpBitmap = new LICE_MemBitmap();
+  }
+  else
+    mDrawBitmap->resize(Width() * scale, Height() * scale);
+  
+  IGraphics::SetDisplayScale(scale);
+}
+
 IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
   const double targetScale = GetDisplayScale(); // targetScale = what this screen is
@@ -99,21 +112,6 @@ IBitmap IGraphicsLice::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, con
   IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, bitmap.mSourceScale, name);
   s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
   return bmp;
-}
-
-void IGraphicsLice::PrepDraw()
-{
-  int w = Width() * mDisplayScale;
-  int h = Height() * mDisplayScale;
-
-  mDrawBitmap = new LICE_SysBitmap(w, h);
-  mTmpBitmap = new LICE_MemBitmap();
-}
-
-void IGraphicsLice::ReScale()
-{
-  mDrawBitmap->resize(Width() * mDisplayScale, Height() * mDisplayScale);
-  IGraphics::ReScale(); // will cause all the controls to update their bitmaps
 }
 
 void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
