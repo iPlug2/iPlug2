@@ -523,11 +523,9 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_INITDIALOG:
 
       gHWND=hwndDlg;
-
-      if(!AttachGUI()) printf("couldn't attach gui\n");
-
+      
 #ifdef _WIN32
-      ClientResize(hwndDlg, GUI_WIDTH, GUI_HEIGHT);
+      ClientResize(hwndDlg, gPluginInstance->GetUIWidth(), gPluginInstance->GetUIHeight();
       //SendMessage(hwndDlg, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
       //SendMessage(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
 
