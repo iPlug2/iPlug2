@@ -214,25 +214,25 @@ struct IRECT
 {
   float L, T, R, B;
 
-  IRECT() { L = T = R = B = 0.0; }
+  IRECT() { L = T = R = B = 0.f; }
   IRECT(float l, float t, float r, float b) : L(l), R(r), T(t), B(b) {}
   
   IRECT(int x, int y, IBitmap& bitmap)
   {
     L = x;
     T = y;
-    R = L + bitmap.frameWidth();
-    B = T + bitmap.frameHeight();
+    R = L + (float) bitmap.frameWidth();
+    B = T + (float) bitmap.frameHeight();
   }
 
   bool Empty() const
   {
-    return (L == 0.0 && T == 0.0 && R == 0.0 && B == 0.0);
+    return (L == 0.f && T == 0.f && R == 0.f && B == 0.f);
   }
 
   void Clear()
   {
-    L = T = R = B = 0.;
+    L = T = R = B = 0.f;
   }
 
   bool operator==(const IRECT& rhs) const
@@ -247,8 +247,8 @@ struct IRECT
 
   inline float W() const { return R - L; }
   inline float H() const { return B - T; }
-  inline float MW() const { return 0.5 * (L + R); }
-  inline float MH() const { return 0.5 * (T + B); }
+  inline float MW() const { return 0.5f * (L + R); }
+  inline float MH() const { return 0.5f * (T + B); }
 
   inline IRECT Union(const IRECT& pRHS)
   {
@@ -364,10 +364,10 @@ struct IRECT
   
   void Scale(float scale)
   {
-    L = std::floor(0.5 + (L * scale));
-    T = std::floor(0.5 + (T * scale));
-    R = std::floor(0.5 + (R * scale));
-    B = std::floor(0.5 + (B * scale));
+    L = std::floor(0.5f + (L * scale));
+    T = std::floor(0.5f + (T * scale));
+    R = std::floor(0.5f + (R * scale));
+    B = std::floor(0.5f + (B * scale));
   }
   
   IRECT GetScaled(float scale) const
