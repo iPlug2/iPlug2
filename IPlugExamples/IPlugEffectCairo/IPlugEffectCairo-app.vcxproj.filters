@@ -16,9 +16,6 @@
     <Filter Include="IPlug\IGraphics">
       <UniqueIdentifier>{ffa85343-d4c8-4d51-bbef-2712945f0af4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IPlug\IGraphics\NanoSVG">
-      <UniqueIdentifier>{b90387e3-b918-4882-b24b-7f424affbec1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\IPlug\rtaudiomidi\RtAudio.h">
@@ -135,12 +132,6 @@
     <ClInclude Include="app_wrapper\app_main.h">
       <Filter>app</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.h">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\NanoSVG\nanosvg.h">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\IPlug\rtaudiomidi\RtAudio.cpp">
@@ -207,19 +198,8 @@
     <ClCompile Include="app_wrapper\app_main.cpp">
       <Filter>app</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\CairoNanoSVG.cpp">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\NanoSVG\NanoSVG_Impl.c">
-      <Filter>IPlug\IGraphics\NanoSVG</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IPlugEffectCairo.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\IPlug\IPlug_Prefix.pch">
-      <Filter>IPlug</Filter>
-    </None>
   </ItemGroup>
 </Project>
