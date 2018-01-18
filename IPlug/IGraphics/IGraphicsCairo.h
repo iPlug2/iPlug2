@@ -56,10 +56,7 @@ public:
   void ReleaseIBitmap(IBitmap& bitmap) override;
   void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
   
-  void RenderAPIBitmap(void* pContext) override
-  {
-	  cairo_surface_flush(mSurface);
-  }
+  void RenderAPIBitmap(void* pContext) override;
   
   void SetPlatformContext(void* pContext) override;
   

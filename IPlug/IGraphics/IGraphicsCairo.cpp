@@ -419,7 +419,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     cairo_surface_set_device_offset(mSurface, 0, Height());
 #else
     HDC dc = (HDC) pContext;
-    mSurface = cairo_win32_surface_create(HDC(pContext));
+    mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, Scale(), Scale());
 #endif
@@ -428,3 +428,20 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   IGraphics::SetPlatformContext(pContext);
 }
 
+void IGraphicsCairo::RenderAPIBitmap(void* pContext)
+{
+  cairo_surface_flush(mSurface);
+
+#ifdef OS_WIN
+  PAINTSTRUCT ps;
+  HWND hWnd = (HWND) GetWindow();
+  HDC dc = BeginPaint(hWnd, &ps);
+  HDC cdc = cairo_win32_surface_get_dc(mSurface);
+  if (Scale() == 1.0)
+    BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
+  else
+    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);
+
+  EndPaint(hWnd, &ps);
+#endif
+}
