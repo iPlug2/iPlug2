@@ -84,7 +84,7 @@ struct ISVG
     assert(mImage != nullptr);
   }
 
-  int W()
+  float W()
   {
     if (mImage)
       return mImage->width;
@@ -92,7 +92,7 @@ struct ISVG
       return 0;
   }
 
-  int H()
+  float H()
   {
     if (mImage)
       return mImage->height;
@@ -212,10 +212,10 @@ const IText DEFAULT_TEXT = IText();
  * In IGraphics 0,0 is top left. */
 struct IRECT
 {
-  int L, T, R, B;
+  float L, T, R, B;
 
-  IRECT() { L = T = R = B = 0; }
-  IRECT(int l, int t, int r, int b) : L(l), R(r), T(t), B(b) {}
+  IRECT() { L = T = R = B = 0.0; }
+  IRECT(float l, float t, float r, float b) : L(l), R(r), T(t), B(b) {}
   
   IRECT(int x, int y, IBitmap& bitmap)
   {
@@ -227,12 +227,12 @@ struct IRECT
 
   bool Empty() const
   {
-    return (L == 0 && T == 0 && R == 0 && B == 0);
+    return (L == 0.0 && T == 0.0 && R == 0.0 && B == 0.0);
   }
 
   void Clear()
   {
-    L = T = R = B = 0;
+    L = T = R = B = 0.;
   }
 
   bool operator==(const IRECT& rhs) const
@@ -245,10 +245,10 @@ struct IRECT
     return !(*this == rhs);
   }
 
-  inline int W() const { return R - L; }
-  inline int H() const { return B - T; }
-  inline float MW() const { return 0.5f * (float) (L + R); }
-  inline float MH() const { return 0.5f * (float) (T + B); }
+  inline float W() const { return R - L; }
+  inline float H() const { return B - T; }
+  inline float MW() const { return 0.5 * (L + R); }
+  inline float MH() const { return 0.5 * (T + B); }
 
   inline IRECT Union(const IRECT& pRHS)
   {
@@ -276,12 +276,12 @@ struct IRECT
     return (!Empty() && !pRHS.Empty() && pRHS.L >= L && pRHS.R <= R && pRHS.T >= T && pRHS.B <= B);
   }
 
-  inline bool Contains(int x, int y) const
+  inline bool Contains(float x, float y) const
   {
     return (!Empty() && x >= L && x < R && y >= T && y < B);
   }
 
-  inline void Constrain(int* x, int* y)
+  inline void Constrain(double* x, double* y)
   {
     if (*x < L)
     {
@@ -304,36 +304,36 @@ struct IRECT
 
   inline IRECT SubRectVertical(int numSlices, int sliceIdx)
   {
-    float heightOfSubRect = (float(H()) / numSlices);
-    int t = int(heightOfSubRect) * sliceIdx;
+    float heightOfSubRect = H() / (double) numSlices;
+    float t = heightOfSubRect * (float )sliceIdx;
 
-    return IRECT(L, T + t, R, T + t + (int) heightOfSubRect);
+    return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
   inline IRECT SubRectHorizontal(int numSlices, int sliceIdx)
   {
-    float widthOfSubRect = (float(W()) / numSlices);
-    int l = int(widthOfSubRect) * sliceIdx;
+    float widthOfSubRect = W() / (double) numSlices;
+    float l = widthOfSubRect * (double)sliceIdx;
 
-    return IRECT(L + l, T, L + l + (int) widthOfSubRect, B);
+    return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
   
-  inline IRECT GetPadded(int padding)
+  inline IRECT GetPadded(float padding)
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
   
-  inline IRECT GetPadded(int padL, int padT, int padR, int padB)
+  inline IRECT GetPadded(float padL, float padT, float padR, float padB)
   {
     return IRECT(L+padL, T+padT, R+padR, B+padB);
   }
   
-  inline IRECT GetHPadded(int padding)
+  inline IRECT GetHPadded(float padding)
   {
     return IRECT(L-padding, T, R+padding, B);
   }
 
-  inline IRECT GetVPadded(int padding)
+  inline IRECT GetVPadded(float padding)
   {
     return IRECT(L, T-padding, R, B+padding);
   }
@@ -362,27 +362,27 @@ struct IRECT
     }
   }
   
-  void Scale(double scale)
+  void Scale(float scale)
   {
-    L = (int) std::floor(0.5 + (L * scale));
-    T = (int) std::floor(0.5 + (T * scale));
-    R = (int) std::floor(0.5 + (R * scale));
-    B = (int) std::floor(0.5 + (B * scale));
+    L = std::floor(0.5 + (L * scale));
+    T = std::floor(0.5 + (T * scale));
+    R = std::floor(0.5 + (R * scale));
+    B = std::floor(0.5 + (B * scale));
   }
   
-  IRECT GetScaled(double scale) const
+  IRECT GetScaled(float scale) const
   {
     IRECT r = *this;
     r.Scale(scale);
     return r;
   }
 
-  void ScaleBounds(double scale)
+  void ScaleBounds(float scale)
   {
-    L = (int)std::floor(L * scale);
-    T = (int)std::floor(T * scale);
-    R = (int)std::ceil(R * scale);
-    B = (int)std::ceil(B * scale);
+    L = std::floor(L * scale);
+    T = std::floor(T * scale);
+    R = std::ceil(R * scale);
+    B = std::ceil(B * scale);
   }
   
   IRECT GetFlipped(int graphicsHeight) const

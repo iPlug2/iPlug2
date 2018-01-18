@@ -308,15 +308,15 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   {
     int stringLength = (int) strlen(str);
     
-    int basicYOffset, basicXOffset;
+    float basicYOffset, basicXOffset;
     
     if (vCenter)
-      basicYOffset = rect.T + ((rect.H() - charHeight) / 2);
+      basicYOffset = rect.T + ((rect.H() - charHeight) / 2.);
     else
       basicYOffset = rect.T;
     
     if (text.mAlign == IText::kAlignCenter)
-      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2);
+      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2.);
     else if (text.mAlign == IText::kAlignNear)
       basicXOffset = rect.L;
     else if (text.mAlign == IText::kAlignFar)
@@ -350,7 +350,7 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     
     for(int line=0; line<nLines; line++)
     {
-      int yOffset = basicYOffset + line * charHeight;
+      float yOffset = basicYOffset + line * charHeight;
       
       for(int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
       {

@@ -348,7 +348,7 @@ bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, b
   {
     IRECT r = rect;
     r.Scale(mDisplayScale);
-    RECT R = { r.L, r.T, r.R, r.B };
+    RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
     font->DrawText(mDrawBitmap, str, -1, &R, fmt);
   }
   
