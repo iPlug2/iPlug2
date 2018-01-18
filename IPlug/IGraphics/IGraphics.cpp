@@ -1,4 +1,10 @@
+
 #include "IGraphics.h"
+
+#define NANOSVG_IMPLEMENTATION
+#include <cstdio>
+#include "nanosvg.h"
+
 #ifdef VST3_API
 #include "IPlugVST3.h"
 #include "pluginterfaces/base/ustring.h"

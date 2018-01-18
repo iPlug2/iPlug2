@@ -273,16 +273,6 @@
 		B8106D16200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
 		B8106D17200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
 		B8106D18200FE5F700ED84A4 /* lineargradient1.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */; };
-		B8E34E78200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
-		B8E34E79200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
-		B8E34E7A200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
-		B8E34E7B200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
-		B8E34E7C200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */; };
-		B8E34E80200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
-		B8E34E81200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
-		B8E34E82200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
-		B8E34E83200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
-		B8E34E84200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */; };
 		B8E34E85200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
 		B8E34E86200E8786005BE0EB /* CairoNanoSVG.h in Headers */ = {isa = PBXBuildFile; fileRef = B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */; };
 /* End PBXBuildFile section */
@@ -561,9 +551,7 @@
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		B8106D0D200FE5F700ED84A4 /* radialgradient2.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = radialgradient2.svg; sourceTree = "<group>"; };
 		B8106D0E200FE5F700ED84A4 /* lineargradient1.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lineargradient1.svg; sourceTree = "<group>"; };
-		B8E34E75200E4E83005BE0EB /* nanosvg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = nanosvg.h; path = ../../IPlug/IGraphics/NanoSVG/nanosvg.h; sourceTree = "<group>"; };
-		B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = NanoSVG_Impl.c; path = ../../IPlug/IGraphics/NanoSVG/NanoSVG_Impl.c; sourceTree = "<group>"; };
-		B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CairoNanoSVG.cpp; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.cpp; sourceTree = "<group>"; };
+		B8E34E75200E4E83005BE0EB /* nanosvg.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; name = nanosvg.h; path = ../../IPlug/IGraphics/NanoSVG/nanosvg.h; sourceTree = "<group>"; };
 		B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
 		D2F7E65807B2D6F200F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
@@ -632,10 +620,8 @@
 			children = (
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				B8E34E75200E4E83005BE0EB /* nanosvg.h */,
-				B8E34E77200E62F5005BE0EB /* NanoSVG_Impl.c */,
 				52FBBED20D0CF13D001C8B8A /* IPlugEffectCairo.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugEffectCairo.cpp */,
-				B8E34E7E200E8786005BE0EB /* CairoNanoSVG.cpp */,
 				B8E34E7F200E8786005BE0EB /* CairoNanoSVG.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
@@ -1370,7 +1356,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0920;
 			};
 			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugEffectCairo" */;
 			compatibilityVersion = "Xcode 8.0";
@@ -1606,9 +1592,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F72878B1FFAAAB90052658E /* IControls.cpp in Sources */,
-				B8E34E79200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */,
 				4F20EECB132C69FE0030E34C /* IPlugEffectCairo.cpp in Sources */,
-				B8E34E81200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */,
 				4FF142C81FD4A61E00A65575 /* IPlugBaseGraphics.cpp in Sources */,
 				4FF142B51FD4A61E00A65575 /* IPopupMenu.cpp in Sources */,
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
@@ -1642,7 +1626,6 @@
 				4F78D95313B63BA50032E0F3 /* Log.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IParam.cpp in Sources */,
 				4FF142CA1FD4A61E00A65575 /* IPlugBaseGraphics.cpp in Sources */,
-				B8E34E7B200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */,
 				4FF142921FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
 				4F78DA0A13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
@@ -1651,7 +1634,6 @@
 				4F5DCCB9200E955E0067A051 /* IGraphicsLiveEdit.cpp in Sources */,
 				4F72878F1FFAAABA0052658E /* IControls.cpp in Sources */,
 				4FF142B71FD4A61E00A65575 /* IPopupMenu.cpp in Sources */,
-				B8E34E83200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1673,12 +1655,10 @@
 				4F9828C7140A9EB700F3FCC1 /* macmain.cpp in Sources */,
 				4F9828C8140A9EB700F3FCC1 /* pluginfactoryvst3.cpp in Sources */,
 				4FF142C91FD4A61E00A65575 /* IPlugBaseGraphics.cpp in Sources */,
-				B8E34E82200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */,
 				4F9828C9140A9EB700F3FCC1 /* vstaudioeffect.cpp in Sources */,
 				4F4628501FD8039F0063A1B4 /* IGraphicsCairo.cpp in Sources */,
 				4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */,
 				4F9828CB140A9EB700F3FCC1 /* vstcomponent.cpp in Sources */,
-				B8E34E7A200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */,
 				4F9828CC140A9EB700F3FCC1 /* vstcomponentbase.cpp in Sources */,
 				4FF142C21FD4A61E00A65575 /* IGraphicsMac.mm in Sources */,
 				4F72878E1FFAAAB90052658E /* IGraphicsView.mm in Sources */,
@@ -1703,12 +1683,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F5DCCBA200E955E0067A051 /* IGraphicsLiveEdit.cpp in Sources */,
-				B8E34E84200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */,
 				4FB600181567CB0A0020189A /* IPlugEffectCairo.cpp in Sources */,
 				4FF142C41FD4A61E00A65575 /* IGraphicsMac.mm in Sources */,
 				4FB600191567CB0A0020189A /* swell-gdi.mm in Sources */,
 				4FF142B81FD4A61E00A65575 /* IPopupMenu.cpp in Sources */,
-				B8E34E7C200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugBase.cpp in Sources */,
 				4F4628521FD803A00063A1B4 /* IGraphicsCairo.cpp in Sources */,
 				4FB6001B1567CB0A0020189A /* IPlugStructs.cpp in Sources */,
@@ -1734,7 +1712,6 @@
 				4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */,
-				B8E34E80200E8786005BE0EB /* CairoNanoSVG.cpp in Sources */,
 				4F5DCCB6200E955E0067A051 /* IGraphicsLiveEdit.cpp in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
@@ -1745,7 +1722,6 @@
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
-				B8E34E78200E62F5005BE0EB /* NanoSVG_Impl.c in Sources */,
 				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
 				4F78D8C413B63A700032E0F3 /* RtAudio.cpp in Sources */,
 				4F78D8C513B63A700032E0F3 /* RtMidi.cpp in Sources */,

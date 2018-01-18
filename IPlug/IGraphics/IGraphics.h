@@ -5,6 +5,7 @@
  * @copydoc IGraphics
  */
 
+
 #ifdef AAX_API
 #include "IPlugAAX_view_interface.h"
 #endif
