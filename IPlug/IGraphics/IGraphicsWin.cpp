@@ -581,11 +581,12 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
   sFPS = FPS();
   mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                           x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
-  //SetWindowLong(mPlugWnd, GWL_USERDATA, (LPARAM) this);
 
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
+
+  SetDisplayScale(1);
 
   if (!mPlugWnd && --nWndClassReg == 0)
   {
