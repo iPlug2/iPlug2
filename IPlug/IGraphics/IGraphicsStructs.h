@@ -220,8 +220,8 @@ struct IRECT
   
   IRECT(int x, int y, IBitmap& bitmap)
   {
-    L = x;
-    T = y;
+    L = (float) x;
+    T = (float) y;
     R = L + (float) bitmap.frameWidth();
     B = T + (float) bitmap.frameHeight();
   }
@@ -305,16 +305,16 @@ struct IRECT
 
   inline IRECT SubRectVertical(int numSlices, int sliceIdx)
   {
-    float heightOfSubRect = H() / (double) numSlices;
-    float t = heightOfSubRect * (float )sliceIdx;
+    float heightOfSubRect = H() / (float) numSlices;
+    float t = heightOfSubRect * (float) sliceIdx;
 
     return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
   inline IRECT SubRectHorizontal(int numSlices, int sliceIdx)
   {
-    float widthOfSubRect = W() / (double) numSlices;
-    float l = widthOfSubRect * (double)sliceIdx;
+    float widthOfSubRect = W() / (float) numSlices;
+    float l = widthOfSubRect * (float) sliceIdx;
 
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }

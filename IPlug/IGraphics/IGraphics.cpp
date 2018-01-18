@@ -990,6 +990,6 @@ ISVG IGraphics::LoadISVG(const char* name)
   
   return ISVG(pHolder->mImage);
 #else
-  return ISVG();
+  return ISVG(0);
 #endif
 }

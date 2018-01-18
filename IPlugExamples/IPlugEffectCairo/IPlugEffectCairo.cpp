@@ -79,11 +79,10 @@ IPlugEffectCairo::IPlugEffectCairo(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(10, 250, 90, 270), kSize));
   
+  #ifdef OS_OSX
   ISVG tiger = pGraphics->LoadISVG(TIGER_FN);
-  
-  if (tiger.mImage)
-    pGraphics->AttachControl(new ISVGControl(*this, tiger, IRECT(150, 200, 350, 400), -1));
-
+  pGraphics->AttachControl(new ISVGControl(*this, tiger, IRECT(150, 200, 350, 400), -1));
+  #endif
   //  IText basic;
 //  char builddatestr[80];
 //  sprintf(builddatestr, "IPlugEffectCairo %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
