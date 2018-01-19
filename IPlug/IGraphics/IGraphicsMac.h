@@ -17,33 +17,6 @@
   #endif
 #endif
 
-//objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
-//so that binaries using different versions don't conflict
-#ifndef OBJC_PREFIX
-  #define OBJC_PREFIX vWDLOL
-#endif
-
-#if defined(VST_API)
-  #define API _vst
-#elif defined(AU_API)
-  #define API _au
-#elif defined(AAX_API)
-  #define API _aax
-#elif defined(VST3_API)
-  #define API _vst3
-#elif defined(SA_API)
-  #define API _sa
-#endif
-
-#define CONCAT3(a,b,c) a##b##c
-#define CONCAT2(a,b,c) CONCAT3(a,b,c)
-#define CONCAT(cname) CONCAT2(cname,OBJC_PREFIX,API)
-
-#define IGRAPHICS_VIEW CONCAT(IGraphicsView_)
-#define IGRAPHICS_MENU CONCAT(IGraphicsMenu_)
-#define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
-#define IGRAPHICS_FORMATTER CONCAT(IGraphicsFormatter_)
-
 /** IGraphics platform class for macOS  
 *   @ingroup PlatformClasses
 */
