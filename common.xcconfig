@@ -78,7 +78,7 @@ LIB_EX = /usr/local/opt/expat/lib/libexpat.a
 // you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
 IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_FC) $(LIB_Z) $(LIB_BZ) $(LIB_EX)
 
-ALL_FRAMESWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices
 APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio
 

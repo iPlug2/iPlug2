@@ -156,6 +156,10 @@
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
 		4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; };
+		4FDA1DE62012711D0027C868 /* app_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA1DE4201271160027C868 /* app_dialog.cpp */; };
+		4FDA1DE72012711D0027C868 /* app_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA1DE5201271160027C868 /* app_main.cpp */; };
+		4FDA1DE82012711D0027C868 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDA1DE2201271150027C868 /* main.mm */; };
+		4FDA1DED201277B30027C868 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F21A6EE2001270400B7B057 /* coreiids.cpp */; };
 		4FF016F7134E14E2001447BA /* mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F4134E14E2001447BA /* mutex.h */; };
 		4FF016F8134E14E2001447BA /* ptrlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F5134E14E2001447BA /* ptrlist.h */; };
 		4FF016F9134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
@@ -490,6 +494,10 @@
 		4FDA1DD92012439E0027C868 /* NanoVGNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NanoVGNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/NanoVGNanoSVG.h; sourceTree = "<group>"; };
 		4FDA1DDA2012439E0027C868 /* CairoNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
 		4FDA1DDB201252AA0027C868 /* IPlugTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugTypes.h; path = ../../IPlug/IPlugTypes.h; sourceTree = "<group>"; };
+		4FDA1DE2201271150027C868 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
+		4FDA1DE3201271150027C868 /* app_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_main.h; path = app_wrapper/app_main.h; sourceTree = "<group>"; };
+		4FDA1DE4201271160027C868 /* app_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app_dialog.cpp; path = app_wrapper/app_dialog.cpp; sourceTree = "<group>"; };
+		4FDA1DE5201271160027C868 /* app_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app_main.cpp; path = app_wrapper/app_main.cpp; sourceTree = "<group>"; };
 		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
 		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
@@ -567,6 +575,10 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
+				4FDA1DE4201271160027C868 /* app_dialog.cpp */,
+				4FDA1DE5201271160027C868 /* app_main.cpp */,
+				4FDA1DE3201271150027C868 /* app_main.h */,
+				4FDA1DE2201271150027C868 /* main.mm */,
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				52FBBED20D0CF13D001C8B8A /* IPlugEffect.h */,
 				52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */,
@@ -1011,23 +1023,23 @@
 			name = AGG;
 			sourceTree = "<group>";
 		};
-		4FDA1DD320123CDA0027C868 /* NanoVG */ = {
+		4FDA1DD320123CDA0027C868 /* NVG */ = {
 			isa = PBXGroup;
 			children = (
 				4FDA1DD420123CEC0027C868 /* IGraphicsNanoVG.h */,
 				4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */,
 			);
-			name = NanoVG;
+			name = NVG;
 			sourceTree = "<group>";
 		};
-		4FDA1DD7201243860027C868 /* NanoSVG */ = {
+		4FDA1DD7201243860027C868 /* NSVG */ = {
 			isa = PBXGroup;
 			children = (
 				4FDA1DD82012439E0027C868 /* nanosvg.h */,
 				4FDA1DDA2012439E0027C868 /* CairoNanoSVG.h */,
 				4FDA1DD92012439E0027C868 /* NanoVGNanoSVG.h */,
 			);
-			name = NanoSVG;
+			name = NSVG;
 			sourceTree = "<group>";
 		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
@@ -1048,10 +1060,10 @@
 		4FF142621FD4A5FD00A65575 /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
-				4FDA1DD7201243860027C868 /* NanoSVG */,
+				4FDA1DD320123CDA0027C868 /* NVG */,
+				4FDA1DD7201243860027C868 /* NSVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
-				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DD020123CB30027C868 /* AGG */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
@@ -1558,6 +1570,7 @@
 				4F9828C9140A9EB700F3FCC1 /* vstaudioeffect.cpp in Sources */,
 				4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */,
 				4FF1429F1FD4A61E00A65575 /* IGraphicsView.mm in Sources */,
+				4FDA1DED201277B30027C868 /* coreiids.cpp in Sources */,
 				4F9828CB140A9EB700F3FCC1 /* vstcomponent.cpp in Sources */,
 				4F9828CC140A9EB700F3FCC1 /* vstcomponentbase.cpp in Sources */,
 				4FF142C21FD4A61E00A65575 /* IGraphicsMac.mm in Sources */,
@@ -1611,11 +1624,14 @@
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
+				4FDA1DE82012711D0027C868 /* main.mm in Sources */,
+				4FDA1DE72012711D0027C868 /* app_main.cpp in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
 				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
+				4FDA1DE62012711D0027C868 /* app_dialog.cpp in Sources */,
 				4F78D8C413B63A700032E0F3 /* RtAudio.cpp in Sources */,
 				4F78D8C513B63A700032E0F3 /* RtMidi.cpp in Sources */,
 				4F78D90A13B63BA50032E0F3 /* IPlugStandalone.cpp in Sources */,
@@ -1755,7 +1771,6 @@
 					"$(DEBUG_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -1782,7 +1797,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(EXTRA_LNK_FLAGS)",
-					"$(ALL_FRAMESWORKS)",
+					"$(ALL_FRAMEWORKS)",
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
@@ -1830,7 +1845,6 @@
 					"$(RELEASE_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1858,7 +1872,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(EXTRA_LNK_FLAGS)",
-					"$(ALL_FRAMESWORKS)",
+					"$(ALL_FRAMEWORKS)",
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
@@ -2084,29 +2098,30 @@
 			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AAX_FOLDER)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(AAX_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
 					"$(DEBUG_DEFS)",
 					"_DEBUG=1",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "$(inherited)";
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
+					"$(IPLUG_INC_PATHS)",
+					"$(EXTRA_INC_PATHS)",
 					"$(AAX_SDK)/Interfaces",
 					"$(AAX_SDK)/Interfaces/ACF",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffect-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
-					"$(ADDITIONAL_LIBRARY_PATHS)",
+					"$(EXTRA_LIB_PATHS)",
 					"$(AAX_SDK)/Libs/Debug",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
@@ -2127,34 +2142,43 @@
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(AAX_FOLDER)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(AAX_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",
 					"$(RELEASE_DEFS)",
 					"_NDEBUG=1",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "$(inherited)";
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
+					"$(IPLUG_INC_PATHS)",
+					"$(EXTRA_INC_PATHS)",
 					"$(AAX_SDK)/Interfaces",
 					"$(AAX_SDK)/Interfaces/ACF",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffect-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
-					"$(ADDITIONAL_LIBRARY_PATHS)",
+					"$(EXTRA_LIB_PATHS)",
 					"$(AAX_SDK)/Libs/Release",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+					"-Xlinker",
+					"\"-headerpad\"",
+					"-Xlinker",
+					1500,
+				);
 				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
@@ -2173,34 +2197,43 @@
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(AAX_FOLDER)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(AAX_DEFS)",
 					"$(EXTRA_TRACER_DEFS)",
 					"$(TRACER_DEFS)",
 					"_NDEBUG=1",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "$(inherited)";
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
+					"$(IPLUG_INC_PATHS)",
+					"$(EXTRA_INC_PATHS)",
 					"$(AAX_SDK)/Interfaces",
 					"$(AAX_SDK)/Interfaces/ACF",
 				);
 				INFOPLIST_FILE = "resources/IPlugEffect-AAX-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
-					"$(ADDITIONAL_LIBRARY_PATHS)",
+					"$(EXTRA_LIB_PATHS)",
 					"$(AAX_SDK)/Libs/Release",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(EXTRA_ALL_FRAMEWORKS)",
+					"-Xlinker",
+					"\"-headerpad\"",
+					"-Xlinker",
+					1500,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
@@ -2322,7 +2355,6 @@
 					"$(TRACER_DEFS)",
 					"$(EXTRA_TRACER_DEFS)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -2348,7 +2380,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(EXTRA_LNK_FLAGS)",
-					"$(ALL_FRAMESWORKS)",
+					"$(ALL_FRAMEWORKS)",
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
