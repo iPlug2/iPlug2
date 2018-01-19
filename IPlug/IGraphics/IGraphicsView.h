@@ -1,12 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #include "IGraphicsMac.h"
 
-struct MouseInfo
-{
-    float x, y;
-    IMouseMod ms;
-};
-
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
   float B = (pGraphics->Height() - rect.B);
@@ -76,8 +70,8 @@ NSString* ToNSString(const char* cStr);
 - (void) drawRect: (NSRect) rect;
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
-- (MouseInfo) getMouseLeft: (NSEvent*) pEvent;
-- (MouseInfo) getMouseRight: (NSEvent*) pEvent;
+- (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
+- (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;
