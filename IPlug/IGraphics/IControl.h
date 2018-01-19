@@ -286,7 +286,7 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char* str = "")
+  ITextControl(IPlugBaseGraphics& plug, IRECT rect, const IText& text, const char* str = "")
   : IControl(plug, rect)
   , mStr(str)
   {
