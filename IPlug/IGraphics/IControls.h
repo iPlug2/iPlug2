@@ -57,7 +57,7 @@ public:
   
   void Draw(IGraphics& graphics)  override
   {
-    graphics.FillIRect(mBGColor, mRECT);
+    graphics.FillRect(mBGColor, mRECT);
     
     IRECT handle;
     
@@ -66,7 +66,7 @@ public:
     if(mDirection == kVertical)
       handle = mRECT.SubRectVertical(mNumStates, mState);
   
-    graphics.FillIRect(mFGColor, handle);
+    graphics.FillRect(mFGColor, handle);
   }
   
 private:
@@ -473,7 +473,7 @@ private:
 //
 //  bool Draw(IGraphics* pGraphics)
 //  {
-//    return pGraphics->FillIRect(&COLOR_WHITE, &mRECT);;
+//    return pGraphics->FillRect(&COLOR_WHITE, &mRECT);;
 //  }
 //
 //  void OnMouseDown(int x, int y, IMouseMod* pMod)
@@ -524,7 +524,7 @@ private:
 //
 //  bool Draw(IGraphics* pGraphics)
 //  {
-//    return pGraphics->FillIRect(&COLOR_WHITE, &mRECT);;
+//    return pGraphics->FillRect(&COLOR_WHITE, &mRECT);;
 //  }
 //
 //  void OnMouseDown(int x, int y, IMouseMod* pMod)
@@ -575,7 +575,7 @@ private:
 //    int pNumber = mPlug->GetCurrentPresetIdx();
 //    mDisp.SetFormatted(32, "%02d: %s", pNumber+1, mPlug->GetPresetName(pNumber));
 //
-//    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+//    pGraphics->FillRect(&COLOR_WHITE, &mRECT);
 //
 //    if (CSTR_NOT_EMPTY(mDisp.Get()))
 //    {
@@ -659,7 +659,7 @@ private:
 //
 //  bool Draw(IGraphics* pGraphics)
 //  {
-//    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+//    pGraphics->FillRect(&COLOR_WHITE, &mRECT);
 //
 //    char disp[32];
 //    mPlug->GetParam(mParamIdx)->GetDisplayForHost(disp);
@@ -767,7 +767,7 @@ private:
 //    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
 //    i = BOUNDED(i, 1, mBitmap.N);
 //    pGraphics->DrawBitmap(&mBitmap, &mImgRECT, i, &mBlend);
-//    //pGraphics->FillIRect(&COLOR_WHITE, &mTextRECT);
+//    //pGraphics->FillRect(&COLOR_WHITE, &mTextRECT);
 //
 //    char disp[20];
 //    mPlug->GetParam(mParamIdx)->GetDisplayForHost(disp);
@@ -828,12 +828,12 @@ private:
 //  bool Draw(IGraphics* pGraphics)
 //  {
 //    //IRECT(mRECT.L, mRECT.T, mRECT.W , mRECT.T + (mValue * mRECT.H));
-//    pGraphics->FillIRect(&COLOR_RED, &mRECT);
+//    pGraphics->FillRect(&COLOR_RED, &mRECT);
 //
-//    //pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
+//    //pGraphics->FillRect(&COLOR_BLUE, &mRECT);
 //
 //    IRECT filledBit = IRECT(mRECT.L, mRECT.T, mRECT.R , mRECT.B - (mValue * mRECT.H()));
-//    pGraphics->FillIRect(&mColor, &filledBit);
+//    pGraphics->FillRect(&mColor, &filledBit);
 //    return true;
 //  }
 //
@@ -849,9 +849,9 @@ private:
 //
 //  bool Draw(IGraphics* pGraphics)
 //  {
-//    pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
+//    pGraphics->FillRect(&COLOR_BLUE, &mRECT);
 //    IRECT filledBit = IRECT(mRECT.L, mRECT.T, mRECT.L + (mValue * mRECT.W() ) , mRECT.B );
-//    pGraphics->FillIRect(&mColor, &filledBit);
+//    pGraphics->FillRect(&mColor, &filledBit);
 //    return true;
 //  }
 //};
@@ -905,7 +905,7 @@ private:
 //
 //  bool Draw(IGraphics* pGraphics)
 //  {
-//    pGraphics->FillIRect(&mBgColor, &mRECT);
+//    pGraphics->FillRect(&mBgColor, &mRECT);
 //
 //    for(int i=0; i<mNumSliders; i++)
 //    {
@@ -918,7 +918,7 @@ private:
 //      if(i == mHighlighted) color = &mHlColor;
 //
 //      IRECT srect = IRECT(mSliderBounds[i]->L, top, mSliderBounds[i]->R-1, bottom);
-//      pGraphics->FillIRect(color, &srect );
+//      pGraphics->FillRect(color, &srect );
 //    }
 //
 //    return true;
@@ -1030,13 +1030,13 @@ private:
 //
 //  bool Draw(IGraphics* pGraphics)
 //  {
-//    pGraphics->FillIRect(&mBgColor, &mRECT);
+//    pGraphics->FillRect(&mBgColor, &mRECT);
 //
 //    float yPos = mValue * mRECT.H();
 //    int top = mRECT.B - yPos;
 //
 //    IRECT innerRect = IRECT(mRECT.L+2, top, mRECT.R-2, mRECT.B);
-//    pGraphics->FillIRect(&mFgColor, &innerRect);
+//    pGraphics->FillRect(&mFgColor, &innerRect);
 //
 //    return true;
 //  }

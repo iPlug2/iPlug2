@@ -366,7 +366,7 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
+void IGraphicsAGG::FillRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
 {
   IRECT rect = destRect;
   rect.Scale(mDisplayScale);

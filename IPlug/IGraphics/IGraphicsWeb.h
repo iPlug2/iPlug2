@@ -24,7 +24,7 @@ public:
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, bool aa) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
   void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa) override;
-  void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
+  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
   void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
   void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;

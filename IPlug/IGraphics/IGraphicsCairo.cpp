@@ -327,7 +327,7 @@ void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const
   cairo_fill(mContext);
 }
 
-void IGraphicsCairo::FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+void IGraphicsCairo::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   SetCairoSourceRGBA(color, pBlend);
   CairoDrawRect(rect);

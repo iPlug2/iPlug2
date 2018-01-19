@@ -554,7 +554,7 @@ void IGraphics::Draw(const IRECT& rect)
   {
     static IColor c;
     c.Randomise(50);
-    FillIRect(c, rect);
+    FillRect(c, rect);
   }
   
   if(mShowControlBounds)
@@ -577,7 +577,7 @@ void IGraphics::Draw(const IRECT& rect)
   IRECT r;
 //  DrawIText(txt, str.Get(), r);
   MeasureIText(txt, GetDrawingAPIStr(), r);
-  FillIRect(COLOR_BLACK, r);
+  FillRect(COLOR_BLACK, r);
   DrawIText(txt, GetDrawingAPIStr(), r);
 
 #endif

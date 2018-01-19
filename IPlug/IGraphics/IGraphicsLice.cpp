@@ -262,7 +262,7 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const 
   LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, aa);
 }
 
-void IGraphicsLice::FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+void IGraphicsLice::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);

@@ -20,6 +20,10 @@
 #include "IPopupMenu.h"
 #include "IControl.h"
 
+#ifdef FillRect
+#undef FillRect
+#endif
+
 class IPlugBaseGraphics;
 class IControl;
 class IParam;
@@ -62,7 +66,7 @@ public:
   virtual void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
   virtual void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
 
-  virtual void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
+  virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
   virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
   virtual void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
