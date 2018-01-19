@@ -59,7 +59,17 @@ public:
 
   IPopupMenu* GetSubmenu() const { return mSubmenu; }
 
-  void SetChecked(bool state);
+  void SetChecked(bool state)
+  {
+    if (state)
+    {
+      mFlags |= kChecked;
+    }
+    else
+    {
+      mFlags &= ~kChecked;
+    }
+  }
 
 protected:
   WDL_String mText;
@@ -82,11 +92,40 @@ public:
     mMenuItems.Empty(true);
   }
 
-  IPopupMenuItem* AddItem(IPopupMenuItem* pItem, int index = -1);
-  IPopupMenuItem* AddItem(const char* text, int index, IPopupMenu* pSubmenu);
-  IPopupMenuItem* AddItem(const char* text, IPopupMenu* pSubmenu);
-  IPopupMenuItem* AddItem(const char* text, int index = -1, int itemFlags = IPopupMenuItem::kNoFlags);
-  IPopupMenuItem* AddSeparator(int index = -1);
+  IPopupMenuItem* AddItem(IPopupMenuItem* pItem, int index = -1)
+  {
+    if (index == -1)
+    {
+      mMenuItems.Add(pItem); // add it to the end
+    }
+    else
+    {
+      mMenuItems.Insert(index, pItem);
+    }
+    
+    return pItem;
+  }
+  
+  IPopupMenuItem* AddItem(const char* text, int index = -1, int itemFlags = IPopupMenuItem::kNoFlags)
+  {
+    return AddItem(new IPopupMenuItem(text, itemFlags), index);
+  }
+  
+  IPopupMenuItem* AddItem(const char* text, int index, IPopupMenu* pSubmenu)
+  {
+    return AddItem(new IPopupMenuItem(text, pSubmenu), index);
+  }
+  
+  IPopupMenuItem* AddItem(const char* text, IPopupMenu* pSubmenu)
+  {
+    return AddItem(new IPopupMenuItem(text, pSubmenu), -1);
+  }
+  
+  IPopupMenuItem* AddSeparator(int index = -1)
+  {
+    IPopupMenuItem* pItem = new IPopupMenuItem ("", IPopupMenuItem::kSeparator);
+    return AddItem(pItem, index);
+  }
 
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
   int GetChosenItemIdx() { return mChosenItemIdx; }
@@ -94,15 +133,66 @@ public:
   int GetPrefix() { return mPrefix; }
   bool GetCanMultiCheck() { return mCanMultiCheck; }
 
-  IPopupMenuItem* GetItem(int index);
-  const char* GetItemText(int index);
-  void SetPrefix(int count);
+  IPopupMenuItem* GetItem(int index)
+  {
+    int nItems = GetNItems();
+    
+    if (index >= 0 && index < nItems)
+    {
+      return mMenuItems.Get(index);
+    }
+    else
+    {
+      return nullptr;
+    }
+  }
+  
+  const char* GetItemText(int index)
+  {
+    return GetItem(index)->GetText();
+  }
+  
+  void SetPrefix(int count)
+  {
+    if (count >= 0 && count < 4)
+    {
+      mPrefix = count;
+    }
+  }
+  
   void SetMultiCheck(bool multicheck) { mCanMultiCheck = multicheck; }
-
-  bool CheckItem(int index, bool state);
-  void CheckItemAlone(int index);
-
-  bool IsItemChecked(int index);
+  
+  bool CheckItem(int index, bool state)
+  {
+    IPopupMenuItem* pItem = mMenuItems.Get(index);
+    
+    if (pItem)
+    {
+      pItem->SetChecked(state);
+      return true;
+    }
+    return false;
+  }
+  
+  void CheckItemAlone(int index)
+  {
+    for (int i = 0; i < mMenuItems.GetSize(); i++)
+    {
+      mMenuItems.Get(i)->SetChecked(i == index);
+    }
+  }
+  
+  bool IsItemChecked(int index)
+  {
+    IPopupMenuItem* item = mMenuItems.Get(index);
+    
+    if (item)
+    {
+      return item->GetChecked();
+    }
+    
+    return false;
+  }
 
 private:
   int mPrefix; // 0 = no prefix, 1 = numbers no leading zeros, 2 = 1 lz, 3 = 2lz
