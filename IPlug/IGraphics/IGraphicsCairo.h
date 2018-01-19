@@ -10,7 +10,7 @@
 #endif
 
 #ifndef NO_FREETYPE
-#include "cairo-ft.h"
+#include "cairo/cairo-ft.h"
 #endif
 
 #include "IGraphics.h"

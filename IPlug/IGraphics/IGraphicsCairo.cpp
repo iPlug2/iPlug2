@@ -390,8 +390,9 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 
 bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
-	// TODO: lots!
-	LoadIFont("C:/Windows/Fonts/Verdana.ttf");
+#ifdef OS_WIN
+  // TODO: lots!
+  LoadIFont("C:/Windows/Fonts/Verdana.ttf");
 
   assert(mFTFace != nullptr);
 
@@ -428,6 +429,7 @@ bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, 
   SetCairoSourceRGBA(text.mColor);
   cairo_show_text(mContext, str);
   cairo_font_face_destroy(pFace);
+#endif
   
 	return true;
 }
