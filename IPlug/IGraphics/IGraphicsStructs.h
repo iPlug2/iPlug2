@@ -400,6 +400,12 @@ struct IMouseMod
     : L(l), R(r), S(s), C(c), A(a) {}
 };
 
+struct IMouseInfo
+{
+    float x, y;
+    IMouseMod ms;
+};
+
 // TODO: static storage needs thread safety mechanism
 template <class T>
 class StaticStorage
