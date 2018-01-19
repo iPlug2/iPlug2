@@ -100,17 +100,12 @@ public:
   int GetEffectVersion(bool decimal) const;
 
   /** Get a printable version string
-   * @param str String buffer to write to
-   *
-   * Make sure to allocate enough memory (add 2 bytes of margin for possible debug suffix as well as null termination)
-   *
+   * @param str WDL_String to write to
    * The output format is vX.M.m, where X - version, M - major, m - minor
-   *
-   * @todo Please check this and remove this note once done
    * @note If \c _DEBUG is defined, \c D is appended to the version string
    * @note If \c TRACER_BUILD is defined, \c T is appended to the version string
    */
-  void GetEffectVersionStr(char* str) const;
+  void GetEffectVersionStr(WDL_String& str) const;
   /** Get manufacturer name string */
   const char* GetMfrName() const { return mMfrName.Get(); }
   /** Get product name string */
@@ -132,13 +127,11 @@ public:
   // most of which is implemented by the API class.
 
   /** @brief Get sample rate (in Hz)
-   * @return Sample rate (in Hz). Defaults to 44100.0
-   */
+   * @return Sample rate (in Hz). Defaults to 44100.0 */
   double GetSampleRate() const { return mSampleRate; }
   int GetBlockSize() const { return mBlockSize; }
   /** @return Plugin latency (in samples)
-   * @todo Please check this and remove this note once done
-   */
+   * @todo Please check this and remove this note once done */
   int GetLatency() const { return mLatency; }
   /** @return \c True if the plugin is currently bypassed */
   bool GetIsBypassed() const { return mIsBypassed; }
@@ -161,11 +154,16 @@ public:
   virtual void GetTime(ITimeInfo& timeInfo) = 0;
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
-  const char* GetAPIString();
+  const char* GetAPIStr();
+  const char* GetArchStr();
+  
+  /** @brief Used to get the build date of the plug-in and architecture/api details in one string
+  * @note since the implementation is in IPlugBase.cpp, you may want to touch that file as part of your build script to force recompilation
+  * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
+  void GetBuildInfoStr(WDL_String& str);
   int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
-  void GetHostVersionStr(char* str);
-  const char* GetArchString();
-
+  void GetHostVersionStr(WDL_String& str);
+  
   int GetTailSize() { return mTailSize; }
 
   virtual bool GetHasUI() { return mHasUI; }
@@ -193,14 +191,12 @@ protected:
 
   /** Sets labels for the inputs (AU/VST3)
    * @param idx Input index. Range: 0-1 (it's only possible to have two input buses)
-   * @param pLabel Label text
-   */
+   * @param pLabel Label text */
   void SetInputBusLabel(int idx, const char* pLabel);
 
   /** Sets labels for the outputs (AU/VST3)
    * @param idx Output index
-   * @param pLabel Label text
-   */
+   * @param pLabel Label text */
   void SetOutputBusLabel(int idx, const char* pLabel);
 
   const WDL_String* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx); }

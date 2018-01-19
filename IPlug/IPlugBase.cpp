@@ -101,7 +101,7 @@ int IPlugBase::GetHostVersion(bool decimal)
   return mHostVersion;
 }
 
-void IPlugBase::GetHostVersionStr(char* str)
+void IPlugBase::GetHostVersionStr(WDL_String& str)
 {
   GetHost();
   GetVersionStr(mHostVersion, str);
@@ -142,9 +142,9 @@ void IPlugBase::SetHost(const char* host, int version)
   mHost = LookUpHost(host);
   mHostVersion = version;
 
-  char vStr[32];
+  WDL_String vStr;
   GetVersionStr(version, vStr);
-  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr);
+  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
 }
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.

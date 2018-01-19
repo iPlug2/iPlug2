@@ -92,11 +92,11 @@ inline int GetDecimalVersion(int version)
   return 10000 * ver + 100 * rmaj + rmin;
 }
 
-inline void GetVersionStr(int version, char* str)
+inline void GetVersionStr(int version, WDL_String& str)
 {
   int ver, rmaj, rmin;
   GetVersionParts(version, &ver, &rmaj, &rmin);
-  sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
+  str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
 inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)
