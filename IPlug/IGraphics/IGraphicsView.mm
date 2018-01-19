@@ -359,8 +359,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) mouseUp: (NSEvent*) pEvent
 {
   MouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics)
-    mGraphics->OnMouseUp(info.x, info.y, info.ms);
+  if (mGraphics) mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) mouseDragged: (NSEvent*) pEvent
@@ -368,22 +367,19 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   MouseInfo info = [self getMouseLeft:pEvent];
   float dX = [pEvent deltaX];
   float dY = [pEvent deltaY];
-  if (mGraphics && !mTextFieldView)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+  if (mGraphics && !mTextFieldView) mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) rightMouseDown: (NSEvent*) pEvent
 {
   MouseInfo info = [self getMouseRight:pEvent];
-  if (mGraphics)
-    mGraphics->OnMouseDown(info.x, info.y, info.ms);
+  if (mGraphics) mGraphics->OnMouseDown(info.x, info.y, info.ms);
 }
 
 - (void) rightMouseUp: (NSEvent*) pEvent
 {
   MouseInfo info = [self getMouseRight:pEvent];
-  if (mGraphics)
-    mGraphics->OnMouseUp(info.x, info.y, info.ms);
+  if (mGraphics) mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) rightMouseDragged: (NSEvent*) pEvent
@@ -391,15 +387,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   MouseInfo info = [self getMouseRight:pEvent];
   float dX = [pEvent deltaX];
   float dY = [pEvent deltaY];
-  if (mGraphics && !mTextFieldView)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+  if (mGraphics && !mTextFieldView) mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) mouseMoved: (NSEvent*) pEvent
 {
   MouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics)
-    mGraphics->OnMouseOver(info.x, info.y, info.ms);
+  if (mGraphics) mGraphics->OnMouseOver(info.x, info.y, info.ms);
 }
 
 - (void)keyDown: (NSEvent *)pEvent
@@ -439,15 +433,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) scrollWheel: (NSEvent*) pEvent
 {
-  if (mGraphics)
-  {
-    if(mTextFieldView) [self endUserInput ];
-
-    MouseInfo info = [self getMouseLeft:pEvent];
-    float d = [pEvent deltaY];
-
-    mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
-  }
+  if (mTextFieldView) [self endUserInput ];
+  MouseInfo info = [self getMouseLeft:pEvent];
+  float d = [pEvent deltaY];
+  if (mGraphics) mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
 }
 
 - (void) killTimer
@@ -541,7 +530,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSString* font = [NSString stringWithUTF8String: text.mFont];
   [mTextFieldView setFont: [NSFont fontWithName:font size: (float) AdjustFontSize(text.mSize)]];
 
-  switch ( text.mAlign )
+  switch (text.mAlign)
   {
     case IText::kAlignNear:
       [mTextFieldView setAlignment: NSLeftTextAlignment];
@@ -631,14 +620,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self addToolTipRect: ToNSRect(mGraphics, rect) owner: self userData: nil];
 }
 
-- (void)viewDidChangeBackingProperties:(NSNotification *) notification
+- (void) viewDidChangeBackingProperties:(NSNotification *) notification
 {
 #if GRAPHICS_SCALING
   NSWindow* pWindow = [self window];
   CGFloat newBackingScaleFactor = [pWindow backingScaleFactor];
   CGFloat oldBackingScaleFactor = [[[notification userInfo] objectForKey:@"NSBackingPropertyOldScaleFactorKey"] doubleValue];
   
-  if(!pWindow)
+  if (!pWindow)
     return;
   
   if (newBackingScaleFactor != oldBackingScaleFactor)
