@@ -6,14 +6,9 @@
 // the basename of the vst, vst3, app, component, aaxplugin
 BINARY_NAME = IPlugEffectCairo
 
-PKG_MAN_PATH = /usr/local/
-
-ADDITIONAL_INCLUDES = $(IGRAPHICS_PATH) $(PKG_MAN_PATH)/include $(LICE_PATH)
-ADDITIONAL_LIBRARY_PATHS = $(PKG_MAN_PATH)/lib
-
-OTHER_LDFLAGS = $(PKG_MAN_PATH)/lib/libcairo.a $(PKG_MAN_PATH)/lib/libfreetype.a $(PKG_MAN_PATH)/lib/libpixman-1.a $(PKG_MAN_PATH)/lib/libpng.a $(PKG_MAN_PATH)/lib/libfontconfig.a /usr/local/opt/zlib/lib/libz.a /usr/local/opt/bzip2/lib/libbz2.a /usr/local/opt/expat/lib/libexpat.a
-// for jack headers
-//ADDITIONAL_APP_INCLUDES = /usr/local/include
+ADDITIONAL_INCLUDES = $(GRAPHICS_PATHS)
+ADDITIONAL_LIBRARY_PATHS = $(GRAPHICS_LINK_PATHS)
+OTHER_LDFLAGS = $(GRAPHICS_LIBS_PATHS)
 
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
