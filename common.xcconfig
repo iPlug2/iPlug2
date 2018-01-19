@@ -32,16 +32,41 @@ AAX_DEFS = AAX_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
 APP_DEFS = SA_API __MACOSX_CORE__ $ALL_DEFS
 
 // Where the SDKs etc. are located in relation to the plug-in Xcode project
+PKG_MAN_PATH = /usr/local/
 WDL_PATH = $(SRCROOT)/../../WDL
+
 IPLUG_PATH = $(SRCROOT)/../../IPlug
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
-NANOSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
-SWELL_PATH = $(WDL_PATH)/swell
 LICE_PATH = $(WDL_PATH)/lice
+SWELL_PATH = $(WDL_PATH)/swell
+NSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
+NVG_PATH = $(IGRAPHICS_PATH)/nanovg/src
+AGG_PATH = $(IGRAPHICS_PATH)/agg
+PKG_PATH = $(PKG_MAN_PATH)/include
+FT_PATH = $(PKG_PATH)/freetype2/
+
+GRAPHICS_PATHS = $(IGRAPHICS_PATH) $(LICE_PATH) $(FT_PATH) $(NSVG_PATH) $(NVG_PATH) $(AGG_PATH) $(PKG_PATH)
 
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
 CA_SDK = $(SRCROOT)/../../CA_SDK
+
+//Linker paths for static libraries
+PKG_LIB_PATH = $(PKG_MAN_PATH)/lib
+
+GRAPHICS_LINK_PATHS = $(PKG_LIB_PATH)
+
+//Static Libraries Paths
+LIB_CAIRO = $(PKG_LIB_PATH)/libcairo.a
+LIB_FT = $(PKG_LIB_PATH)/libfreetype.a
+LIB_PIXMAN = $(PKG_LIB_PATH)/libpixman-1.a
+LIB_PNG = $(PKG_LIB_PATH)/libpng.a
+LIB_FC = $(PKG_LIB_PATH)/libfontconfig.a
+LIB_Z = /usr/local/opt/zlib/lib/libz.a
+LIB_BZ = /usr/local/opt/bzip2/lib/libbz2.a
+LIB_EX = /usr/local/opt/expat/lib/libexpat.a
+
+GRAPHICS_LIBS_PATHS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_FC) $(LIB_Z) $(LIB_BZ) $(LIB_EX)
 
 SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO

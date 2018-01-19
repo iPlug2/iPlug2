@@ -9,6 +9,10 @@
 #include "cairo/cairo-win32.h"
 #endif
 
+#ifndef NO_FREETYPE
+#include "cairo/cairo-ft.h"
+#endif
+
 #include "IGraphics.h"
 
 /** IGraphics draw class using Cairo  
@@ -117,6 +121,7 @@ protected:
     cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
   }
 
-  cairo_t *mContext;
-  cairo_surface_t *mSurface;
+private:
+  cairo_t* mContext;
+  cairo_surface_t* mSurface;
 };

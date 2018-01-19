@@ -5,6 +5,10 @@
  * @copydoc IGraphics
  */
 
+#ifndef NO_FREETYPE
+#include "ft2build.h"
+#include FT_FREETYPE_H
+#endif
 
 #ifdef AAX_API
 #include "IPlugAAX_view_interface.h"
@@ -234,6 +238,8 @@ public:
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
+
+  virtual void LoadIFont(const char* name);
   
 protected:
   WDL_PtrList<IControl> mControls;
@@ -263,5 +269,11 @@ private:
   
 #if !defined(NDEBUG) && defined(SA_API)
   IControl* mLiveEdit = nullptr;
+#endif
+
+#if !defined(NO_FREETYPE) 
+protected:
+  FT_Library mFTLibrary = nullptr;
+  FT_Face mFTFace = nullptr;
 #endif
 };
