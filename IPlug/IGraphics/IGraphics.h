@@ -7,7 +7,7 @@
 
 #ifndef NO_FREETYPE
 #include "ft2build.h"
-#include "freetype\freetype.h"
+#include FT_FREETYPE_H
 #endif
 
 #ifdef AAX_API
