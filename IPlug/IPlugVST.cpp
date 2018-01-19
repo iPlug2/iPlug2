@@ -516,7 +516,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         chunk.Resize((int) value);
         memcpy(chunk.GetBytes(), ptr, value);
         int pos = 0;
-        int iplugVer = _this->GetIPlugVerFromChunk(chunk, &pos);
+        int iplugVer = _this->GetIPlugVerFromChunk(chunk, pos);
         isBank &= (iplugVer >= 0x010000);
         
         if (isBank)

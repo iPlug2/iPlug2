@@ -160,17 +160,17 @@ int IPlugBase::GetEffectVersion(bool decimal) const
   }
 }
 
-void IPlugBase::GetEffectVersionStr(char* str) const
+void IPlugBase::GetEffectVersionStr(WDL_String& str) const
 {
   GetVersionStr(mVersion, str);
 #if defined _DEBUG
-  strcat(str, "D");
+  str.Append("D");
 #elif defined TRACER_BUILD
-  strcat(str, "T");
+  str.Append("T");
 #endif
 }
 
-const char* IPlugBase::GetAPIString()
+const char* IPlugBase::GetAPIStr()
 {
   switch (GetAPI()) 
   {
@@ -183,13 +183,21 @@ const char* IPlugBase::GetAPIString()
   }
 }
 
-const char* IPlugBase::GetArchString()
+const char* IPlugBase::GetArchStr()
 {
 #ifdef ARCH_64BIT
   return "x64";
 #else
   return "x86";
 #endif
+}
+
+
+void IPlugBase::GetBuildInfoStr(WDL_String& str)
+{
+  WDL_String version;
+  GetEffectVersionStr(version);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetEffectName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
 }
 
 double IPlugBase::GetSamplesPerBeat()
@@ -1194,7 +1202,7 @@ bool IPlugBase::LoadProgramFromFXP(const char* file)
         pos = pgm.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GetIPlugVerFromChunk(pgm, &pos);
+        GetIPlugVerFromChunk(pgm, pos);
         UnserializeState(pgm, pos);
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
@@ -1289,7 +1297,7 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
         pos = bnk.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GetIPlugVerFromChunk(bnk, &pos);
+        GetIPlugVerFromChunk(bnk, pos);
         UnserializePresets(bnk, pos);
         //RestorePreset(currentPgm);
         InformHostOfProgramChange();
@@ -1371,13 +1379,13 @@ void IPlugBase::InitChunkWithIPlugVer(ByteChunk& chunk)
   chunk.Put(&ver);
 }
 
-int IPlugBase::GetIPlugVerFromChunk(ByteChunk& chunk, int* pPos)
+int IPlugBase::GetIPlugVerFromChunk(ByteChunk& chunk, int& position)
 {
   int magic = 0, ver = 0;
-  int pos = chunk.Get(&magic, *pPos);
-  if (pos > *pPos && magic == IPLUG_VERSION_MAGIC)
+  int magicpos = chunk.Get(&magic, position);
+  if (magicpos > position && magic == IPLUG_VERSION_MAGIC)
   {
-    *pPos = chunk.Get(&ver, pos);
+    position = chunk.Get(&ver, magicpos);
   }
   return ver;
 }

@@ -210,7 +210,7 @@ protected:
   void LimitToStereoIO();
 
   void InitChunkWithIPlugVer(ByteChunk& chunk);
-  int GetIPlugVerFromChunk(ByteChunk& chunk, int* pPos);
+  int GetIPlugVerFromChunk(ByteChunk& chunk, int& pos);
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() {};
