@@ -95,9 +95,9 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
-  void SetRECT(IRECT& rect) { mRECT = rect; OnResize(); }
+  void SetRECT(const IRECT& rect) { mRECT = rect; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetRECT(IRECT& rect) { mTargetRECT = rect; }
+  void SetTargetRECT(const IRECT& rect) { mTargetRECT = rect; }
 
 
   /** Shows or hides the IControl.
