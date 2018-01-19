@@ -51,6 +51,14 @@ IGraphics::~IGraphics()
   if (mLiveEdit)
     DELETE_NULL(mLiveEdit);
 #endif
+
+#if !defined(NO_FREETYPE)
+  if (mFTFace != nullptr)
+  {
+    FT_Done_Face(mFTFace);
+    FT_Done_FreeType(mFTLibrary);
+  }
+#endif
   
   mControls.Empty(true);
 }
@@ -987,5 +995,19 @@ ISVG IGraphics::LoadISVG(const char* name)
   return ISVG(pHolder->mImage);
 #else
   return ISVG(0);
+#endif
+}
+
+void IGraphics::LoadIFont(const char* name)
+{
+#ifndef NO_FREETYPE
+  if (mFTFace)
+  {
+    FT_Done_Face(mFTFace);
+    FT_Done_FreeType(mFTLibrary);
+  }
+
+  FT_Init_FreeType(&mFTLibrary);
+  FT_New_Face(mFTLibrary, name, 0, &mFTFace);
 #endif
 }
