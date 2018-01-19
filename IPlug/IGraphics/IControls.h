@@ -369,7 +369,7 @@ public:
     SetTextFromPlug("");
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     if (CSTR_NOT_EMPTY(mStr.Get()))
     {
@@ -399,30 +399,28 @@ public:
     AddAuxParam(paramIdxY);
   }
   
-  bool Draw(IGraphics* pGraphics)
+  void Draw(IGraphics& graphics) override
   {
     const double xpos = GetAuxParam(0)->mValue * mRECT.W();
     const double ypos = GetAuxParam(1)->mValue * mRECT.H();
     
-    pGraphics->DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0, false);
-    pGraphics->DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0, false);
-    pGraphics->FillCircle(mCurrentHandleColor, xpos+mRECT.L, ypos+mRECT.T, mHandleRadius, 0, true);
-    
-    return true;
-  }
+    graphics.DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0, false);
+    graphics.DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0, false);
+    graphics.FillCircle(mCurrentHandleColor, xpos+mRECT.L, ypos+mRECT.T, mHandleRadius, 0, true);
+}
 
-  void OnMouseDown(float x, float y, IMouseMod* pMod)
+  void OnMouseDown(float x, float y, const IMouseMod& pMod) override
   {
     mCurrentHandleColor = mHandleColorOn;
     return SnapToMouse(x, y);
   }
   
-  void OnMouseUp(float x, float y, IMouseMod* pMod)
+  void OnMouseUp(float x, float y, const IMouseMod& pMod) override
   {
     mCurrentHandleColor = mHandleColorOff;
   }
   
-  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod* pMod)
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& pMod) override
   {
     return SnapToMouse(x, y);
   }
@@ -435,7 +433,7 @@ public:
     SetDirty();
   }
   
-  void SetDirty(bool pushParamToPlug = true)
+  void SetDirty(bool pushParamToPlug = true) override
   {
     mDirty = true;
     
@@ -471,12 +469,12 @@ private:
 //    mMainMenu.AddItem("sub menu", &mSubMenu);
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
-//    return pGraphics->FillIRect(&COLOR_WHITE, &mRECT);;
+//    gGraphics.FillIRect(&COLOR_WHITE, &mRECT);;
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    doPopupMenu();
 //
@@ -522,12 +520,12 @@ private:
 //    mMainMenu.AddItem("third item");
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
-//    return pGraphics->FillIRect(&COLOR_WHITE, &mRECT);;
+//    graphics.FillIRect(&COLOR_WHITE, &mRECT);;
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    doPopupMenu();
 //
@@ -570,22 +568,20 @@ private:
 //    mText = IText(14, &COLOR_BLACK, "Arial", IText::kStyleNormal, IText::kAlignNear);
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
 //    int pNumber = mPlug->GetCurrentPresetIdx();
 //    mDisp.SetFormatted(32, "%02d: %s", pNumber+1, mPlug->GetPresetName(pNumber));
 //
-//    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+//    graphics.FillIRect(&COLOR_WHITE, &mRECT);
 //
 //    if (CSTR_NOT_EMPTY(mDisp.Get()))
 //    {
-//      return pGraphics->DrawIText(&mText, mDisp.Get(), &mRECT);
+//      graphics.DrawIText(&mText, mDisp.Get(), &mRECT);
 //    }
-//
-//    return true;
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    if (pMod->R)
 //    {
@@ -657,22 +653,20 @@ private:
 //    mText = IText(14);
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
-//    pGraphics->FillIRect(&COLOR_WHITE, &mRECT);
+//    graphics.FillIRect(&COLOR_WHITE, &mRECT);
 //
 //    char disp[32];
 //    mPlug->GetParam(mParamIdx)->GetDisplayForHost(disp);
 //
 //    if (CSTR_NOT_EMPTY(disp))
 //    {
-//      return pGraphics->DrawIText(&mText, disp, &mRECT);
+//      graphics.DrawIText(&mText, disp, &mRECT);
 //    }
-//
-//    return true;
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    if (pMod->L)
 //    {
@@ -682,7 +676,7 @@ private:
 //    mPlug->GetGUI()->SetAllControlsDirty();
 //  }
 //
-//  //void OnMouseWheel(float x, float y, IMouseMod* pMod, float d){} //TODO: popup menus seem to hog the mousewheel
+//  //void OnMouseWheel(float x, float y, IMouseMod* pMod, float d) override {} //TODO: popup menus seem to hog the mousewheel
 //
 //};
 //
@@ -694,9 +688,9 @@ private:
 //  : IControl(pPlug, pR) {}
 //
 //  // this never gets called but is needed for an IControl
-//  bool Draw(IGraphics* pGraphics) { return false; }
+//  void Draw(IGraphics& graphics) { return false; }
 //
-//  bool OnKeyDown(float x, float y, int key)
+//  bool OnKeyDown(float x, float y, int key) override
 //  {
 //    switch (key)
 //    {
@@ -735,10 +729,10 @@ private:
 //    mTimeInfo = pTimeInfo;
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
 //    mDisplay.SetFormatted(80, "Tempo: %f, SamplePos: %i, PPQPos: %f", mTimeInfo->mTempo, (int) mTimeInfo->mSamplePos, mTimeInfo->mPPQPos);
-//    return pGraphics->DrawIText(&mText, mDisplay.Get(), &mRECT);
+//    graphics.DrawIText(&mText, mDisplay.Get(), &mRECT);
 //  }
 //
 //  bool IsDirty() { return true;}
@@ -762,24 +756,23 @@ private:
 //
 //  ~IKnobMultiControlText() {}
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
 //    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
 //    i = BOUNDED(i, 1, mBitmap.N);
-//    pGraphics->DrawBitmap(&mBitmap, &mImgRECT, i, &mBlend);
-//    //pGraphics->FillIRect(&COLOR_WHITE, &mTextRECT);
+//    graphics.DrawBitmap(&mBitmap, &mImgRECT, i, &mBlend);
+//    //graphics.FillIRect(&COLOR_WHITE, &mTextRECT);
 //
 //    char disp[20];
 //    mPlug->GetParam(mParamIdx)->GetDisplayForHost(disp);
 //
 //    if (CSTR_NOT_EMPTY(disp))
 //    {
-//      return pGraphics->DrawIText(&mText, disp, &mTextRECT);
+//      graphics.DrawIText(&mText, disp, &mTextRECT);
 //    }
-//    return true;
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    if (mTextRECT.Contains(x, y)) PromptUserInput(&mTextRECT);
 //#ifdef RTAS_API
@@ -798,7 +791,7 @@ private:
 //    }
 //  }
 //
-//  void OnMouseDblClick(float x, float y, IMouseMod* pMod)
+//  void OnMouseDblClick(float x, float y, IMouseMod* pMod) override
 //  {
 //#ifdef PROTOOLS
 //    PromptUserInput(&mTextRECT);
@@ -825,16 +818,15 @@ private:
 //
 //  ~IPeakMeterVert() {}
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
 //    //IRECT(mRECT.L, mRECT.T, mRECT.W , mRECT.T + (mValue * mRECT.H));
-//    pGraphics->FillIRect(&COLOR_RED, &mRECT);
+//    graphics.FillIRect(&COLOR_RED, &mRECT);
 //
-//    //pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
+//    //graphics.FillIRect(&COLOR_BLUE, &mRECT);
 //
 //    IRECT filledBit = IRECT(mRECT.L, mRECT.T, mRECT.R , mRECT.B - (mValue * mRECT.H()));
-//    pGraphics->FillIRect(&mColor, &filledBit);
-//    return true;
+//    graphics.FillIRect(&mColor, &filledBit);
 //  }
 //
 //  bool IsDirty() { return true;}
@@ -847,12 +839,11 @@ private:
 //{
 //public:
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
-//    pGraphics->FillIRect(&COLOR_BLUE, &mRECT);
+//    graphics.FillIRect(&COLOR_BLUE, &mRECT);
 //    IRECT filledBit = IRECT(mRECT.L, mRECT.T, mRECT.L + (mValue * mRECT.W() ) , mRECT.B );
-//    pGraphics->FillIRect(&mColor, &filledBit);
-//    return true;
+//    graphics.FillIRect(&mColor, &filledBit);
 //  }
 //};
 
@@ -903,9 +894,9 @@ private:
 //    }
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
-//    pGraphics->FillIRect(&mBgColor, &mRECT);
+//    graphics.FillIRect(&mBgColor, &mRECT);
 //
 //    for(int i=0; i<mNumSliders; i++)
 //    {
@@ -918,25 +909,23 @@ private:
 //      if(i == mHighlighted) color = &mHlColor;
 //
 //      IRECT srect = IRECT(mSliderBounds[i]->L, top, mSliderBounds[i]->R-1, bottom);
-//      pGraphics->FillIRect(color, &srect );
+//      graphics.FillIRect(color, &srect );
 //    }
-//
-//    return true;
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    SnapToMouse(x, y);
 //  }
 //
-//  void OnMouseUp(float x, float y, IMouseMod* pMod)
+//  void OnMouseUp(float x, float y, IMouseMod* pMod) override
 //  {
 //    //TODO: check this isn't going to cause problems... this will happen from the gui thread
 //    mPlug->ModifyCurrentPreset();
 //    mPlug->DirtyPTCompareState();
 //  }
 //
-//  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod* pMod)
+//  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod* pMod) override
 //  {
 //    SnapToMouse(x, y);
 //  }
@@ -1028,25 +1017,24 @@ private:
 //    mHandleWidth = handleWidth;
 //  }
 //
-//  bool Draw(IGraphics* pGraphics)
+//  void Draw(IGraphics& graphics) override
 //  {
-//    pGraphics->FillIRect(&mBgColor, &mRECT);
+//    graphics.FillIRect(&mBgColor, &mRECT);
 //
 //    float yPos = mValue * mRECT.H();
 //    int top = mRECT.B - yPos;
 //
 //    IRECT innerRect = IRECT(mRECT.L+2, top, mRECT.R-2, mRECT.B);
-//    pGraphics->FillIRect(&mFgColor, &innerRect);
-//
-//    return true;
+//    graphics.FillIRect(&mFgColor, &innerRect);
+
 //  }
 //
-//  void OnMouseDown(float x, float y, IMouseMod* pMod)
+//  void OnMouseDown(float x, float y, IMouseMod* pMod) override
 //  {
 //    SnapToMouse(x, y);
 //  }
 //
-//  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod* pMod)
+//  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod* pMod) override
 //  {
 //    SnapToMouse(x, y);
 //  }
