@@ -5,13 +5,6 @@
  * @brief Constant definitions, magic numbers
  */
 
-typedef unsigned char BYTE;
-
-#ifndef VstInt32
-#include <stdint.h>
-typedef int32_t VstInt32;
-#endif
-
 enum EIPlugKeyCodes
 {
   KEY_SPACE,
@@ -74,6 +67,5 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
-// #define USE_IDLE_CALLS
 
 

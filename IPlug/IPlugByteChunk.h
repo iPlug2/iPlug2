@@ -1,6 +1,9 @@
 #pragma once
-#include "IPlugUtilities.h"
+
 #include "wdlendian.h"
+
+#include "IPlugTypes.h"
+#include "IPlugUtilities.h"
 
 template <class T> inline void SWAP(T& a, T& b)
 {

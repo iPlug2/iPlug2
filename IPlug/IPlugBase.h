@@ -5,6 +5,7 @@
 #include "ptrlist.h"
 #include "mutex.h"
 
+#include "IPlugTypes.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugByteChunk.h"
