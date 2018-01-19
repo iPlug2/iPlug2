@@ -13,14 +13,13 @@ enum EParams
 
 enum ELayout
 {
-  kWidth = GUI_WIDTH,
-  kHeight = GUI_HEIGHT,
+  kWidth = 300,
+  kHeight = 300,
 
   kTextX = 10,
   kTextY = 10,
   kGainX = 100,
-  kGainY = 100,
-  kKnobFrames = 60
+  kGainY = 100
 };
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
@@ -32,21 +31,19 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
   GetParam(kGain)->SetShape(2.);
 
+  //create user interface
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
-
-  IBitmap knob = pGraphics->LoadIBitmap(KNOB_FN, kKnobFrames, false, 2. /* this bitmap is 2* = hidpi */);
   
-  pGraphics->AttachControl(new IKnobMultiControl(*this, kGainX, kGainY, kGain, knob));
+//  pGraphics->AttachControl(new IVKnobControl(*this, kGainX, kGainY, kGain));
 
-  IText basic;
-  char builddatestr[80];
-  sprintf(builddatestr, "IPlugEffect %s %s, built on %s at %.5s ", GetArchString(), GetAPIString(), __DATE__, __TIME__);
+//  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), DEFAULT_TEXT, GetBuildInfoStr()));
 
-  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), basic, builddatestr));
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  printf("%s", buildInfo.Get());
 
   AttachGraphics(pGraphics);
-  //pGraphics->ShowControlBounds(true);
   
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
@@ -74,18 +71,4 @@ void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int 
 
 void IPlugEffect::Reset()
 {
-  TRACE;
-}
-
-void IPlugEffect::OnParamChange(int paramIdx)
-{
-  switch (paramIdx)
-  {
-    case kGain:
-    {
-      break;
-    }
-    default:
-      break;
-  }
 }
