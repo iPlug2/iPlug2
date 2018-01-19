@@ -713,7 +713,7 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 #endif
   
   int c = mMouseCapture;
-  if (c >= 0 && dX != 0 || dY != 0)
+  if (c >= 0 && (dX != 0 || dY != 0))
     mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
 }
 

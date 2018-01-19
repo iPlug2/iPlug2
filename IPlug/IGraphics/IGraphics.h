@@ -169,7 +169,7 @@ public:
 
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, float x, float y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
   
   void SetStrictDrawing(bool strict);
 
@@ -242,8 +242,6 @@ protected:
   IPlugBaseGraphics& mPlug;
   
   bool mCursorHidden = false;
-  float mHiddenMousePointX = -1;
-  float mHiddenMousePointY = -1;
   float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
   float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:

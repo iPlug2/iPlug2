@@ -114,7 +114,10 @@ private:
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-
+  
+  float mHiddenMousePointX = -1;
+  float mHiddenMousePointY = -1;
+    
 public:
   static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

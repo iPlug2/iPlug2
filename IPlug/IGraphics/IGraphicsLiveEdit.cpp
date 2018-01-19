@@ -25,13 +25,13 @@ void IGraphicsLiveEdit::OnMouseDown(float x, float y, const IMouseMod& mod)
     mMouseDownTargetRECT = pControl->GetTargetRECT();
     mClickedOnControl = c;
 
-    if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+    if (GetHandleRect(mMouseDownRECT).Contains(x, y))
     {
       mMouseClickedOnResizeHandle = true;
     }
     else
     {
-      if(mod.A)
+      if (mod.A)
       {
         WDL_String json;
         pControl->GetJSON(json, c);
@@ -40,7 +40,7 @@ void IGraphicsLiveEdit::OnMouseDown(float x, float y, const IMouseMod& mod)
       }
     }
   }
-  else if(mod.R)
+  else if (mod.R)
   {
     IPopupMenu menu;
     menu.AddItem("IBitmapControl");
@@ -52,14 +52,14 @@ void IGraphicsLiveEdit::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IGraphicsLiveEdit::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  if(mMouseClickedOnResizeHandle)
+  if (mMouseClickedOnResizeHandle)
   {
     IControl* pControl = GetGUI()->GetControl(mClickedOnControl);
     IRECT r = pControl->GetRECT();
     int w = r.R - r.L;
     int h = r.B - r.T;
 
-    if(w < 0 || h < 0)
+    if (w < 0 || h < 0)
     {
       pControl->SetRECT(mMouseDownRECT);
       pControl->SetTargetRECT(mMouseDownTargetRECT);
@@ -91,7 +91,7 @@ void IGraphicsLiveEdit::OnMouseOver(float x, float y, const IMouseMod& mod)
     IRECT cr = GetGUI()->GetControl(c)->GetRECT();
     IRECT h = GetHandleRect(cr);
     
-    if(h.Contains(x, y))
+    if (h.Contains(x, y))
     {
       SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
       return;
@@ -105,18 +105,18 @@ void IGraphicsLiveEdit::OnMouseOver(float x, float y, const IMouseMod& mod)
 
 void IGraphicsLiveEdit::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  if(mClickedOnControl > 0)
+  if (mClickedOnControl > 0)
   {
     IControl* pControl = GetGUI()->GetControl(mClickedOnControl);
     IRECT r = pControl->GetRECT();
     
-    if(mMouseClickedOnResizeHandle)
+    if (mMouseClickedOnResizeHandle)
     {
       r.R = SnapToGrid(mMouseDownRECT.R + (x - mMouseDownX));
       r.B = SnapToGrid(mMouseDownRECT.B + (y - mMouseDownY));
       
-      if(r.R < mMouseDownRECT.L +mGridSize) r.R = mMouseDownRECT.L+mGridSize;
-      if(r.B < mMouseDownRECT.T +mGridSize) r.B = mMouseDownRECT.T+mGridSize;
+      if (r.R < mMouseDownRECT.L +mGridSize) r.R = mMouseDownRECT.L+mGridSize;
+      if (r.B < mMouseDownRECT.T +mGridSize) r.B = mMouseDownRECT.T+mGridSize;
     }
     else
     {
@@ -136,15 +136,15 @@ void IGraphicsLiveEdit::Draw(IGraphics& graphics)
 {
   graphics.DrawGrid(mGridColor, graphics.GetDrawRect(), mGridSize, mGridSize, &mBlend);
   
-  for(int i = 1; i < graphics.GetNControls(); i++)
+  for (int i = 1; i < graphics.GetNControls(); i++)
   {
     IControl* pControl = graphics.GetControl(i);
     IRECT cr = pControl->GetRECT();
     
     
-    if(pControl->IsHidden())
+    if (pControl->IsHidden())
       graphics.DrawDottedRect(COLOR_RED, cr);
-    else if(pControl->IsGrayed())
+    else if (pControl->IsGrayed())
       graphics.DrawDottedRect(COLOR_GREEN, cr);
     else
       graphics.DrawDottedRect(COLOR_BLUE, cr);
