@@ -184,9 +184,7 @@ void IGraphicsMac::HideMouseCursor()
   if (!mCursorHidden)
   {
     if (CGDisplayHideCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = true;
-    NSPoint mouse = [NSEvent mouseLocation];
-    mHiddenMousePointX = mouse.x;
-    mHiddenMousePointY = CGDisplayPixelsHigh(CGMainDisplayID())-mouse.y; //get current mouse position
+    if (!mTabletInput) CGAssociateMouseAndMouseCursorPosition(false);
   }
 }
 
@@ -194,10 +192,8 @@ void IGraphicsMac::ShowMouseCursor()
 {
   if (mCursorHidden)
   {
-    CGPoint point; point.x = mHiddenMousePointX; point.y = mHiddenMousePointY;
-    CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-
     if (CGDisplayShowCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = false;
+    CGAssociateMouseAndMouseCursorPosition(true);
   }
 }
 

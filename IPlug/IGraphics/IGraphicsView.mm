@@ -318,6 +318,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     *pY = mGraphics->Height() - pt.y - 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
+    
+    // Detect tablet input correctly
+      
+    mGraphics->SetTabletInput(pEvent.subtype == NSTabletPointEventSubtype);
   }
 }
 
