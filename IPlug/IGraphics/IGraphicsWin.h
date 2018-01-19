@@ -94,8 +94,8 @@ private:
     kCommit
   };
 
-  float GetXCoord(LONG param) { return GET_X_LPARAM(param) / Scale(); }
-  float GetYCoord(LONG param) { return GET_Y_LPARAM(param) / Scale(); }
+  inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
+  inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
@@ -115,6 +115,8 @@ private:
 
   WDL_String mMainWndClassName;
   
+  float mMouseX;
+  float mMouseY;
   float mHiddenMousePointX = -1;
   float mHiddenMousePointY = -1;
     
