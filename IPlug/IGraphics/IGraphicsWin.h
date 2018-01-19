@@ -94,8 +94,8 @@ private:
     kCommit
   };
 
-  int GetXCoord(LONG param) { return round(GET_X_LPARAM(param) / Scale()); }
-  int GetYCoord(LONG param) { return round(GET_Y_LPARAM(param) / Scale()); }
+  float GetXCoord(LONG param) { return GET_X_LPARAM(param) / Scale(); }
+  float GetYCoord(LONG param) { return GET_Y_LPARAM(param) / Scale(); }
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;

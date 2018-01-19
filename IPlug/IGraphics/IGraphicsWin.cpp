@@ -225,8 +225,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       else
       {
-        int d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-        int x = pGraphics->GetXCoord(lParam), y = pGraphics->GetYCoord(lParam);
+        float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+		float x = pGraphics->GetXCoord(lParam), y = pGraphics->GetYCoord(lParam);
         RECT r;
         GetWindowRect(hWnd, &r);
         pGraphics->OnMouseWheel(x - r.left, y - r.top, &GetMouseMod(wParam), d);
