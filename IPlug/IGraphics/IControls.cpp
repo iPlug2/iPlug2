@@ -30,7 +30,7 @@ void ISwitchPopUpControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IBlend::EType blendType)
+ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IBlend::EType blendType)
 : ISwitchControl(plug, x, y, paramIdx, bitmap, blendType)
 {
   mDisablePrompt = false;
@@ -90,9 +90,9 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
   {
     if (direction == kHorizontal)
     {
-      int dX = int((double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
-      int x = mRECT.R - bitmap.W - dX;
-      int y = mRECT.T;
+      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
+      float x = mRECT.R - bitmap.W - dX;
+      float y = mRECT.T;
       
       for (int i = 0; i < nButtons; ++i)
       {
@@ -102,9 +102,9 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
     }
     else
     {
-      int dY = int((double) (rect.H() - nButtons * h) /  (double) (nButtons - 1));
-      int x = mRECT.L;
-      int y = mRECT.B - h - dY;
+      float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
+      float x = mRECT.L;
+      float y = mRECT.B - h - dY;
       
       for (int i = 0; i < nButtons; ++i)
       {
@@ -116,11 +116,11 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
   }
   else
   {
-    int x = mRECT.L, y = mRECT.T;
+    float x = mRECT.L, y = mRECT.T;
     
     if (direction == kHorizontal)
     {
-      int dX = int((double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
+      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
       for (int i = 0; i < nButtons; ++i)
       {
         mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
@@ -129,7 +129,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
     }
     else
     {
-      int dY = int((double) (rect.H() - nButtons * h) /  (double) (nButtons - 1));
+      float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
       for (int i = 0; i < nButtons; ++i)
       {
         mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
@@ -197,7 +197,7 @@ void IContactControl::OnMouseUp(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IFaderControl::IFaderControl(IPlugBaseGraphics& plug, int x, int y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IFaderControl::IFaderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : IControl(plug, IRECT(), paramIdx)
 , mLen(len), mBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {

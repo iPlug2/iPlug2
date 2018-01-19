@@ -9,13 +9,13 @@ struct MouseInfo
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
-  int B = (pGraphics->Height() - rect.B);
+  float B = (pGraphics->Height() - rect.B);
   return NSMakeRect(rect.L, B, rect.W(), rect.H());
 }
 
 inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
 {
-  int x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
+  float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
   return IRECT(x, gh - (y + h), x + w, gh - y);
 }
 

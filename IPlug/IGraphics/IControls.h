@@ -16,7 +16,7 @@
 class ISwitchControl : public IBitmapControl
 {
 public:
-  ISwitchControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendMethod = IBlend::kBlendNone)
+  ISwitchControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendMethod = IBlend::kBlendNone)
   : IBitmapControl(plug, x, y, paramIdx, bitmap, blendMethod) {}
   ~ISwitchControl() {}
   
@@ -81,7 +81,7 @@ private:
 class ISwitchPopUpControl : public ISwitchControl
 {
 public:
-  ISwitchPopUpControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendMethod = IBlend::kBlendNone)
+  ISwitchPopUpControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendMethod = IBlend::kBlendNone)
   : ISwitchControl(plug, x, y, paramIdx, bitmap, blendMethod)
   {
     mDisablePrompt = false;
@@ -96,7 +96,7 @@ public:
 class ISwitchFramesControl : public ISwitchControl
 {
 public:
-  ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IBlend::EType blendMethod = IBlend::kBlendNone);
+  ISwitchFramesControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal = false, IBlend::EType blendMethod = IBlend::kBlendNone);
   ~ISwitchFramesControl() {}
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -134,7 +134,7 @@ protected:
 class IContactControl : public ISwitchControl
 {
 public:
-  IContactControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap)
+  IContactControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap)
   : ISwitchControl(plug, x, y, paramIdx, bitmap) {}
   ~IContactControl() {}
   
@@ -145,7 +145,7 @@ public:
 class IFaderControl : public IControl
 {
 public:
-  IFaderControl(IPlugBaseGraphics& plug, int x, int y, int len, int paramIdx, IBitmap& bitmap,
+  IFaderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap,
                 EDirection direction = kVertical, bool onlyHandle = false);
   ~IFaderControl() {}
   
@@ -206,7 +206,7 @@ protected:
 class IKnobRotaterControl : public IKnobControl
 {
 public:
-  IKnobRotaterControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , mBitmap(bitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
   ~IKnobRotaterControl() {}
@@ -223,7 +223,7 @@ protected:
 class IKnobMultiControl : public IKnobControl
 {
 public:
-  IKnobMultiControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IKnobMultiControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing), mBitmap(bitmap) {}
   ~IKnobMultiControl() {}
   
@@ -240,7 +240,7 @@ protected:
 class IKnobRotatingMaskControl : public IKnobControl
 {
 public:
-  IKnobRotatingMaskControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& base, IBitmap& mask, IBitmap& top, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IKnobRotatingMaskControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& base, IBitmap& mask, IBitmap& top, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControl(plug, IRECT(x, y, base), paramIdx, direction, gearing),
   mBase(base), mMask(mask), mTop(top), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
   ~IKnobRotatingMaskControl() {}
@@ -256,11 +256,11 @@ protected:
 class IBitmapOverlayControl : public ISwitchControl
 {
 public:
-  IBitmapOverlayControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IRECT targetArea)
+  IBitmapOverlayControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IRECT targetArea)
   : ISwitchControl(plug, x, y, paramIdx, bitmap)
   , mTargetArea(targetArea) {}
   
-  IBitmapOverlayControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IRECT targetArea)
+  IBitmapOverlayControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, IRECT targetArea)
   : ISwitchControl(plug, x, y, kNoParameter, bitmap)
   , mTargetArea(targetArea) {}
   

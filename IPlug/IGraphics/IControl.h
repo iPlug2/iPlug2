@@ -243,11 +243,11 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
   : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
   : IControl(plug, IRECT(x, y, bitmap), kNoParameter, blendType), mBitmap(bitmap) {}
 
   virtual ~IBitmapControl() {}

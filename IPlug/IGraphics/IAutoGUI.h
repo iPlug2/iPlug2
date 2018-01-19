@@ -146,7 +146,7 @@ public:
     graphics.DrawLine(mfgcolor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
     
     // Draw Slider handle
-    int xPos = int(mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1)));
+    float xPos = mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1));
   
     IRECT sliderHandleRect = IRECT(mSliderRECT.L + xPos, mRECT.T+4, mSliderRECT.L + xPos + SLIDER_HANDLE_WIDTH, mRECT.B-4);
     graphics.FillRoundRect(mfgcolor, sliderHandleRect, &mBlend, 2, true);
