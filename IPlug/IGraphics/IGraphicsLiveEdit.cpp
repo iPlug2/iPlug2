@@ -11,7 +11,7 @@ IGraphicsLiveEdit::IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathTo
   mBlend.mWeight = 0.2f;
 }
 
-void IGraphicsLiveEdit::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IGraphicsLiveEdit::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   int c = GetGUI()->GetMouseControlIdx(x, y, true);
   
@@ -50,7 +50,7 @@ void IGraphicsLiveEdit::OnMouseDown(int x, int y, const IMouseMod& mod)
   }
 }
 
-void IGraphicsLiveEdit::OnMouseUp(int x, int y, const IMouseMod& mod)
+void IGraphicsLiveEdit::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   if(mMouseClickedOnResizeHandle)
   {
@@ -70,7 +70,7 @@ void IGraphicsLiveEdit::OnMouseUp(int x, int y, const IMouseMod& mod)
   GetGUI()->SetAllControlsDirty();
 }
 
-void IGraphicsLiveEdit::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+void IGraphicsLiveEdit::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
 //  int c = GetGUI()->GetMouseControlIdx(x, y, true);
 //  
@@ -83,7 +83,7 @@ void IGraphicsLiveEdit::OnMouseDblClick(int x, int y, const IMouseMod& mod)
 //  }
 }
 
-void IGraphicsLiveEdit::OnMouseOver(int x, int y, const IMouseMod& mod)
+void IGraphicsLiveEdit::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
   int c = GetGUI()->GetMouseControlIdx(x, y, true);
   if (c > 0)
@@ -103,7 +103,7 @@ void IGraphicsLiveEdit::OnMouseOver(int x, int y, const IMouseMod& mod)
     SetCursor(LoadCursor(NULL, IDC_ARROW));
 }
 
-void IGraphicsLiveEdit::OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod)
+void IGraphicsLiveEdit::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   if(mClickedOnControl > 0)
   {

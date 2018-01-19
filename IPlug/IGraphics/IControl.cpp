@@ -85,7 +85,7 @@ void IControl::GrayOut(bool gray)
   SetDirty(false);
 }
 
-void IControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
   if (mod.A && mDefaultValue >= 0.0)
@@ -100,7 +100,7 @@ void IControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 	}
 }
 
-void IControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
   PromptUserInput();

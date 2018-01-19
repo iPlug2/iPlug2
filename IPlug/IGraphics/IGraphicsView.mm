@@ -101,18 +101,6 @@
 
 @end
 
-inline IMouseMod GetMouseMod(NSEvent* pEvent)
-{
-  int mods = (int) [pEvent modifierFlags];
-  return IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
-}
-
-inline IMouseMod GetRightMouseMod(NSEvent* pEvent)
-{
-  int mods = (int) [pEvent modifierFlags];
-  return IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
-}
-
 NSString* ToNSString(const char* cStr)
 {
   return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
@@ -321,109 +309,97 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 #endif
 }
 
-- (void) getMouseXY: (NSEvent*) pEvent x: (int*) pX y: (int*) pY
+- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY
 {
   if (mGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
-    *pX = (int) pt.x - 2;
-    *pY = mGraphics->Height() - (int) pt.y - 3;
+    *pX = pt.x - 2.f;
+    *pY = mGraphics->Height() - pt.y - 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
   }
 }
 
+- (MouseInfo) getMouseLeft: (NSEvent*) pEvent
+{
+  MouseInfo info;
+  [self getMouseXY:pEvent x:&info.x y:&info.y];
+  int mods = (int) [pEvent modifierFlags];
+  info.ms = IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+  return info;
+}
+
+- (MouseInfo) getMouseRight: (NSEvent*) pEvent
+{
+  MouseInfo info;
+  [self getMouseXY:pEvent x:&info.x y:&info.y];
+  int mods = (int) [pEvent modifierFlags];
+  info.ms = IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+
+  return info;
+}
+
 - (void) mouseDown: (NSEvent*) pEvent
 {
+  MouseInfo info = [self getMouseLeft:pEvent];
   if (mGraphics)
   {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetMouseMod(pEvent);
-
     if ([pEvent clickCount] > 1)
     {
-      mGraphics->OnMouseDblClick(x, y, ms);
+      mGraphics->OnMouseDblClick(info.x, info.y, info.ms);
     }
     else
     {
-      mGraphics->OnMouseDown(x, y, ms);
+      mGraphics->OnMouseDown(info.x, info.y, info.ms);
     }
   }
 }
 
 - (void) mouseUp: (NSEvent*) pEvent
 {
+  MouseInfo info = [self getMouseLeft:pEvent];
   if (mGraphics)
-  {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetMouseMod(pEvent);
-    mGraphics->OnMouseUp(x, y, ms);
-  }
+    mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) mouseDragged: (NSEvent*) pEvent
 {
-  if (mGraphics)
-  {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetMouseMod(pEvent);
-
-    if(!mTextFieldView)
-    {
-      mGraphics->OnMouseDrag(x, y, ms);
-    }
-  }
+  MouseInfo info = [self getMouseLeft:pEvent];
+  float dX = [pEvent deltaX];
+  float dY = [pEvent deltaY];
+  if (mGraphics && !mTextFieldView)
+    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) rightMouseDown: (NSEvent*) pEvent
 {
+  MouseInfo info = [self getMouseRight:pEvent];
   if (mGraphics)
-  {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetRightMouseMod(pEvent);
-    mGraphics->OnMouseDown(x, y, ms);
-  }
+    mGraphics->OnMouseDown(info.x, info.y, info.ms);
 }
 
 - (void) rightMouseUp: (NSEvent*) pEvent
 {
+  MouseInfo info = [self getMouseRight:pEvent];
   if (mGraphics)
-  {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetRightMouseMod(pEvent);
-    mGraphics->OnMouseUp(x, y, ms);
-  }
+    mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) rightMouseDragged: (NSEvent*) pEvent
 {
-  if (mGraphics)
-  {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetRightMouseMod(pEvent);
-
-    if(!mTextFieldView)
-    {
-      mGraphics->OnMouseDrag(x, y, ms);
-    }
-  }
+  MouseInfo info = [self getMouseRight:pEvent];
+  float dX = [pEvent deltaX];
+  float dY = [pEvent deltaY];
+  if (mGraphics && !mTextFieldView)
+    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) mouseMoved: (NSEvent*) pEvent
 {
+  MouseInfo info = [self getMouseLeft:pEvent];
   if (mGraphics)
-  {
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    IMouseMod ms = GetMouseMod(pEvent);
-    mGraphics->OnMouseOver(x, y, ms);
-  }
+    mGraphics->OnMouseOver(info.x, info.y, info.ms);
 }
 
 - (void)keyDown: (NSEvent *)pEvent
@@ -467,12 +443,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   {
     if(mTextFieldView) [self endUserInput ];
 
-    int x, y;
-    [self getMouseXY:pEvent x:&x y:&y];
-    int d = [pEvent deltaY];
+    MouseInfo info = [self getMouseLeft:pEvent];
+    float d = [pEvent deltaY];
 
-    IMouseMod ms = GetMouseMod(pEvent);
-    mGraphics->OnMouseWheel(x, y, ms, d);
+    mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
   }
 }
 

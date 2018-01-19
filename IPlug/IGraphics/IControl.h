@@ -35,15 +35,15 @@ public:
   IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone);
   virtual ~IControl() {}
 
-  virtual void OnMouseDown(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseUp(int x, int y, const IMouseMod& mod) {}
-  virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) {}
-  virtual void OnMouseDblClick(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d) {};
-  virtual bool OnKeyDown(int x, int y, int key) { return false; }
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
+  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) {}
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) {}
+  virtual void OnMouseDblClick(float x, float y, const IMouseMod& mod);
+  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {};
+  virtual bool OnKeyDown(float x, float y, int key) { return false; }
   
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
-  virtual void OnMouseOver(int x, int y, const IMouseMod& mod) {}
+  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) {}
   virtual void OnMouseOut() {}
   
   /** Implement to do something when something was drag n dropped onto this control */
@@ -117,7 +117,7 @@ public:
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
-  virtual bool IsHit(int x, int y) const { return mTargetRECT.Contains(x, y); }
+  virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
   void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
   

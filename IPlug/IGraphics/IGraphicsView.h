@@ -1,6 +1,12 @@
 #import <Cocoa/Cocoa.h>
 #include "IGraphicsMac.h"
 
+struct MouseInfo
+{
+    float x, y;
+    IMouseMod ms;
+};
+
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
   int B = (pGraphics->Height() - rect.B);
@@ -57,7 +63,7 @@ NSString* ToNSString(const char* cStr);
   NSTextField* mTextFieldView;
   IControl* mEdControl; // the control linked to the open text edit
   IParam* mEdParam; // the param linked to the open text edit (optional)
-  int mPrevX, mPrevY;
+  float mPrevX, mPrevY;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
@@ -69,7 +75,9 @@ NSString* ToNSString(const char* cStr);
 - (void) viewDidMoveToWindow;
 - (void) drawRect: (NSRect) rect;
 - (void) onTimer: (NSTimer*) pTimer;
-- (void) getMouseXY: (NSEvent*) pEvent x: (int*) pX y: (int*) pY;
+- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
+- (MouseInfo) getMouseLeft: (NSEvent*) pEvent;
+- (MouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;

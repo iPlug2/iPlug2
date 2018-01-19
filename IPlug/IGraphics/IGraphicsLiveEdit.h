@@ -9,11 +9,11 @@ public:
   IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathToSourceFile, int gridSize);
   ~IGraphicsLiveEdit() {}
 
-  void OnMouseDown(int x, int y, const IMouseMod& mod) override;
-  void OnMouseUp(int x, int y, const IMouseMod& mod) override;
-  void OnMouseDblClick(int x, int y, const IMouseMod& mod) override;
-  void OnMouseOver(int x, int y, const IMouseMod& mod) override;
-  void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   
   void Draw(IGraphics& graphics) override;
   bool IsDirty() override { return true; }
@@ -46,8 +46,8 @@ private:
   IRECT mMouseDownRECT = IRECT(0, 0, 0, 0);
   IRECT mMouseDownTargetRECT = IRECT(0, 0, 0, 0);
 
-  int mMouseDownX = 0;
-  int mMouseDownY = 0;
+  float mMouseDownX = 0;
+  float mMouseDownY = 0;
   
   int mGridSize = 10;
   int mClickedOnControl = -1;

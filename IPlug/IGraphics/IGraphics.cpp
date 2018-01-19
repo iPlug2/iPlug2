@@ -583,7 +583,7 @@ void IGraphics::SetStrictDrawing(bool strict)
   SetAllControlsDirty();
 }
 
-void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
 #if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
@@ -598,8 +598,6 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
   if (c >= 0)
   {
     mMouseCapture = c;
-    mMouseX = x;
-    mMouseY = y;
 
     IControl* pControl = mControls.Get(c);
     int paramIdx = pControl->ParamIdx();
@@ -642,7 +640,7 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
   }
 }
 
-void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
+void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
 #if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
@@ -666,7 +664,7 @@ void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
   }
 }
 
-bool IGraphics::OnMouseOver(int x, int y, const IMouseMod& mod)
+bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
 #if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
@@ -681,8 +679,6 @@ bool IGraphics::OnMouseOver(int x, int y, const IMouseMod& mod)
     int c = GetMouseControlIdx(x, y, true);
     if (c >= 0)
     {
-      mMouseX = x;
-      mMouseY = y;
       mControls.Get(c)->OnMouseOver(x, y, mod);
       if (mMouseOver >= 0 && mMouseOver != c)
       {
@@ -706,7 +702,7 @@ void IGraphics::OnMouseOut()
   mMouseOver = -1;
 }
 
-void IGraphics::OnMouseDrag(int x, int y, const IMouseMod& mod)
+void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
 #if !defined(NDEBUG) && defined(SA_API)
   if(mLiveEdit)
@@ -717,20 +713,11 @@ void IGraphics::OnMouseDrag(int x, int y, const IMouseMod& mod)
 #endif
   
   int c = mMouseCapture;
-  if (c >= 0)
-  {
-    int dX = x - mMouseX;
-    int dY = y - mMouseY;
-    if (dX != 0 || dY != 0)
-    {
-      mMouseX = x;
-      mMouseY = y;
-      mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
-    }
-  }
+  if (c >= 0 && dX != 0 || dY != 0)
+    mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
 }
 
-bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   ReleaseMouseCapture();
   bool newCapture = false;
@@ -741,8 +728,6 @@ bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
     if (pControl->MouseDblAsSingleClick())
     {
       mMouseCapture = c;
-      mMouseX = x;
-      mMouseY = y;
       pControl->OnMouseDown(x, y, mod);
       newCapture = true;
     }
@@ -754,7 +739,7 @@ bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
   return newCapture;
 }
 
-void IGraphics::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
+void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
@@ -765,10 +750,10 @@ void IGraphics::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
 
 void IGraphics::ReleaseMouseCapture()
 {
-  mMouseCapture = mMouseX = mMouseY = -1;
+  mMouseCapture = -1;
 }
 
-bool IGraphics::OnKeyDown(int x, int y, int key)
+bool IGraphics::OnKeyDown(float x, float y, int key)
 {
   int c = GetMouseControlIdx(x, y);
   if (c > 0)
@@ -779,7 +764,7 @@ bool IGraphics::OnKeyDown(int x, int y, int key)
     return false;
 }
 
-int IGraphics::GetMouseControlIdx(int x, int y, bool mo)
+int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
 {
   if (mMouseCapture >= 0)
   {
@@ -816,7 +801,7 @@ int IGraphics::GetMouseControlIdx(int x, int y, bool mo)
   return -1;
 }
 
-int IGraphics::GetParamIdxForPTAutomation(int x, int y)
+int IGraphics::GetParamIdxForPTAutomation(float x, float y)
 {
   int ctrl = GetMouseControlIdx(x, y, false);
   int idx = -1;
@@ -853,7 +838,7 @@ void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color
   }
 }
 
-void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x, int y)
+void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y)
 {
   IPopupMenu contextMenu;
   IControl* pControl = GetControl(controlIdx);
@@ -941,7 +926,7 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
   return LoadIBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
 }
 
-void IGraphics::OnDrop(const char* str, int x, int y)
+void IGraphics::OnDrop(const char* str, float x, float y)
 {
   int i = GetMouseControlIdx(x, y);
   IControl* pControl = GetControl(i);
