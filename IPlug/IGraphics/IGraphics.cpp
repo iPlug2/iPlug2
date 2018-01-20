@@ -119,7 +119,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 
 void IGraphics::AttachBackground(const char* name, double scale)
 {
-  IBitmap bg = LoadIBitmap(name, 1, false, scale);
+  IBitmap bg = LoadBitmap(name, 1, false, scale);
   mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
 }
 
@@ -589,10 +589,10 @@ void IGraphics::Draw(const IRECT& rect)
   IText txt(20, CONTROL_BOUNDS_COLOR);
   txt.mAlign = IText::kAlignNear;
   IRECT r;
-//  DrawIText(txt, str.Get(), r);
-  MeasureIText(txt, GetDrawingAPIStr(), r);
+//  DrawText(txt, str.Get(), r);
+  MeasureText(txt, GetDrawingAPIStr(), r);
   FillRect(COLOR_BLACK, r);
-  DrawIText(txt, GetDrawingAPIStr(), r);
+  DrawText(txt, GetDrawingAPIStr(), r);
 
 #endif
 
@@ -931,7 +931,7 @@ void IGraphics::OnGUIIdle()
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadIBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
+  return LoadBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -961,7 +961,7 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #endif
 }
 
-ISVG IGraphics::LoadISVG(const char* name)
+ISVG IGraphics::LoadSVG(const char* name)
 {
 #ifdef OS_OSX
   WDL_String path;
@@ -983,7 +983,7 @@ ISVG IGraphics::LoadISVG(const char* name)
 #endif
 }
 
-void IGraphics::LoadIFont(const char* name)
+void IGraphics::LoadFont(const char* name)
 {
 #ifndef NO_FREETYPE
   if (mFTFace)

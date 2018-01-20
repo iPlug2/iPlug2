@@ -41,8 +41,8 @@ are actually used, the coordinates for the "regular" keys are ignored.)
 Here is code snippet defining a 4-octave keyboard starting at MIDI note 48
 (C3):
 
-IBitmap regular = graphics.LoadIBitmap(REGULAR_KEYS_ID, REGULAR_KEYS_PNG, 6);
-IBitmap sharp   = graphics.LoadIBitmap(SHARP_KEY_ID,    SHARP_KEY_PNG);
+IBitmap regular = graphics.LoadBitmap(REGULAR_KEYS_ID, REGULAR_KEYS_PNG, 6);
+IBitmap sharp   = graphics.LoadBitmap(SHARP_KEY_ID,    SHARP_KEY_PNG);
 
 //                    C#      D#          F#      G#        A#
 int coords[12] = { 0, 13, 23, 39, 46, 69, 82, 92, 107, 115, 131, 138 };

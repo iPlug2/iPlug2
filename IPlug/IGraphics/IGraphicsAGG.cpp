@@ -21,7 +21,7 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
+IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
 {
   double targetScale = mDisplayScale / scale;
   double scaleRes = scale * targetScale;
@@ -42,7 +42,7 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
       
       if (scale != mDisplayScale) {
         IBitmap bitmap(pixel_map, pixel_map->width(), pixel_map->height(), nStates, framesAreHoriztonal, scale, name);
-        return ScaleIBitmap(bitmap, name, targetScale);
+        return ScaleBitmap(bitmap, name, targetScale);
       }
       
       s_bitmapCache.Add(pixel_map, name, targetScale);
@@ -72,7 +72,7 @@ void IGraphicsAGG::SetDisplayScale(int scale)
   IGraphics::SetDisplayScale(scale);
 }
 
-//IFontData IGraphicsAGG::LoadIFont(const char* name, const int size)
+//IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
 //{
 //  WDL_String cacheName(name);
 //  char buf [6] = {0};
@@ -456,7 +456,7 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
+IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
 {
   const int destW = srcbitmap.W * scale;
   const int destH = srcbitmap.H * scale;
@@ -468,7 +468,7 @@ IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheNa
   return IBitmap(copy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, scale, cacheName);
 }
 
-IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
+IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
 {
   agg::pixel_map* pixel_map = (agg::pixel_map *)srcbitmap.mData;
   agg::pixel_map* copy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());
@@ -667,7 +667,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
   }
 }
 
-bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure)
+bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect, bool measure)
 {
 //  if (!str || str[0] == '\0')
 //  {
@@ -713,7 +713,7 @@ bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect
 //
 //  mFontContour.width(-weight * (text.mSize * 0.05) * mScale);
 //
-//  IFontData font = LoadIFont(text.mFont, text.mSize);
+//  IFontData font = LoadFont(text.mFont, text.mSize);
 //  agg::font * font_data = (agg::font *)font.mData;
 //
 //  if (font_data != 0 && mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
@@ -812,7 +812,7 @@ bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect
   return false;
 }
 
-bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
 //  if (!str || str[0] == '\0')
 //  {
@@ -855,7 +855,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
 //
 //  mFontContour.width(-weight * (text.mSize * 0.05) * mScale);
 //
-//  IFontData font = LoadIFont(text.mFont, text.mSize);
+//  IFontData font = LoadFont(text.mFont, text.mSize);
 //  agg::font * font_data = (agg::font *)font.mData;
 //
 //  if (mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
@@ -923,7 +923,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
 
 agg::pixel_map * IGraphicsAGG::load_image(const char* filename)
 {
-  IBitmap bitmap = LoadIBitmap(filename, 1, 1.0);
+  IBitmap bitmap = LoadBitmap(filename, 1, 1.0);
   return (agg::pixel_map *)bitmap.mData;
 }
 

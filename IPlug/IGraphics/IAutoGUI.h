@@ -103,7 +103,7 @@ public:
         graphics.FillRect(mOnColor, mTabs.Get(t)->mRECT);
       }
       graphics.DrawRect(mfgcolor, mTabs.Get(t)->mRECT);
-      graphics.DrawIText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
+      graphics.DrawText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
     }
   }
 };
@@ -140,7 +140,7 @@ public:
   {
     //graphics.RoundRect(&mfgcolor, &mRECT, &mBlend, 2, true);
 
-    graphics.DrawIText(mText, mParamNameStr.Get(), mParamNameRECT);
+    graphics.DrawText(mText, mParamNameStr.Get(), mParamNameRECT);
     
     // Draw Slider track
     graphics.DrawLine(mfgcolor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
@@ -156,7 +156,7 @@ public:
     mParamValueStr.Set(cstr);
     mParamValueStr.Append(" ");
     mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
-    graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
+    graphics.DrawText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -239,7 +239,7 @@ public:
     graphics.DrawRoundRect(mfgcolor, mRECT, &mBlend, 2, true);
 
     // Draw Param Name
-    graphics.DrawIText(mText, mParamNameStr.Get(), mParamNameRECT);
+    graphics.DrawText(mText, mParamNameStr.Get(), mParamNameRECT);
 
     // Draw Knob
     double v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
@@ -274,7 +274,7 @@ public:
     mParamValueStr.Set(cstr);
     mParamValueStr.Append(" ");
     mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
-    graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
+    graphics.DrawText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
   void OnMouseDown(float x, float y, IMouseMod& mod) override
@@ -327,7 +327,7 @@ public:
   void Draw(IGraphics& graphics) override
   {
     graphics.FillRect(mColor, mRECT);
-    graphics.DrawIText(mText, "Dump preset", mRECT);
+    graphics.DrawText(mText, "Dump preset", mRECT);
   }
 };
 
@@ -356,7 +356,7 @@ void GenerateKnobGUI(IGraphics& graphics,
   {
     IRECT thisParamNameMaxBounds;
     tmtext.Set(plug.GetParam(p)->GetNameForHost());
-    graphics.MeasureIText(text, tmtext.Get(), thisParamNameMaxBounds);
+    graphics.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
@@ -365,7 +365,7 @@ void GenerateKnobGUI(IGraphics& graphics,
     {
       IRECT thisParamValueMaxBounds;
       tmtext.Set(plug.GetParam(p)->GetDisplayTextAtIdx(dt));
-      graphics.MeasureIText(text, tmtext.Get(), thisParamValueMaxBounds);
+      graphics.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(thisParamValueMaxBounds);
     }
   }
@@ -432,7 +432,7 @@ void GenerateSliderGUI(IGraphics& graphics, IPlug& plug, IText& text, const ICol
   {
     IRECT thisParamNameMaxBounds;
     tmtext.Set(plug.GetParam(p)->GetNameForHost());
-    graphics.MeasureIText(text, tmtext.Get(), thisParamNameMaxBounds);
+    graphics.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
@@ -441,7 +441,7 @@ void GenerateSliderGUI(IGraphics& graphics, IPlug& plug, IText& text, const ICol
     {
       IRECT thisParamValueMaxBounds;
       tmtext.Set(plug.GetParam(p)->GetDisplayTextAtIdx(dt));
-      graphics.MeasureIText(text, tmtext.Get(), thisParamValueMaxBounds);
+      graphics.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(thisParamValueMaxBounds);
     }
     

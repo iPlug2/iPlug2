@@ -119,11 +119,11 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
   return GetResourcePathFromBundle(GetBundleID(), name, type, result);
 }
 
-bool IGraphicsMac::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
   CocoaAutoReleasePool pool;
 
-  return IGRAPHICS_DRAW_CLASS::MeasureIText(text, str, destRect);
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, destRect);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)

@@ -41,7 +41,7 @@ void IGraphicsLice::SetDisplayScale(int scale)
   IGraphics::SetDisplayScale(scale);
 }
 
-IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+IBitmap IGraphicsLice::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
   const double targetScale = GetDisplayScale(); // targetScale = what this screen is
 
@@ -60,7 +60,7 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
     const IBitmap bitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
     if (sourceScale != targetScale) {
-      return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
+      return ScaleBitmap(bitmap, name, targetScale); // will add to cache
     }
     else {
       s_bitmapCache.Add(pLB, name, sourceScale);
@@ -76,17 +76,17 @@ IBitmap IGraphicsLice::LoadIBitmap(const char* name, int nStates, bool framesAre
     return IBitmap(pLB, pLB->getWidth(), pLB->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
 }
 
-void IGraphicsLice::ReleaseIBitmap(IBitmap& bitmap)
+void IGraphicsLice::ReleaseBitmap(IBitmap& bitmap)
 {
   s_bitmapCache.Remove((LICE_IBitmap*) bitmap.mData);
 }
 
-void IGraphicsLice::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
+void IGraphicsLice::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
   s_bitmapCache.Add((LICE_IBitmap*)bitmap.mData, cacheName);
 }
 
-IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
+IBitmap IGraphicsLice::ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale)
 {
   const double scalingFactor = targetScale / bitmap.mSourceScale;
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
@@ -102,7 +102,7 @@ IBitmap IGraphicsLice::ScaleIBitmap(const IBitmap& bitmap, const char* name, dou
   return bmp;
 }
 
-IBitmap IGraphicsLice::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
+IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
 {
   int destW = rect.W(), destH = rect.H();
   LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
@@ -292,7 +292,7 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
+bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   if (!str || str[0] == '\0')
   {
@@ -323,8 +323,11 @@ bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, b
   {
     fmt |= DT_CALCRECT;
     RECT R = {0,0,0,0};
+#ifdef OS_OSX
+    font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
+#else
     font->DrawText(mDrawBitmap, str, -1, &R, fmt);
-    
+#endif
     if( text.mAlign == IText::kAlignNear)
     {
       rect.R = R.right;
@@ -347,7 +350,11 @@ bool IGraphicsLice::DrawIText(const IText& text, const char* str, IRECT& rect, b
     IRECT r = rect;
     r.Scale(mDisplayScale);
     RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
+#ifdef OS_OSX
+    font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
+#else
     font->DrawText(mDrawBitmap, str, -1, &R, fmt);
+#endif
   }
   
   return true;
@@ -408,9 +415,9 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
   return font;
 }
 
-bool IGraphicsLice::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsLice::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
-  bool success = IGraphicsLice::DrawIText(text, str, destRect, true);
+  bool success = IGraphicsLice::DrawText(text, str, destRect, true);
   
   destRect.Scale(1.0 / mDisplayScale);
 

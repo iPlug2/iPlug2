@@ -273,6 +273,6 @@ void ITextControl::Draw(IGraphics& graphics)
   char* cStr = mStr.Get();
   if (CSTR_NOT_EMPTY(cStr))
   {
-    graphics.DrawIText(mText, cStr, mRECT);
+    graphics.DrawText(mText, cStr, mRECT);
   }
 }

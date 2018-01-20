@@ -44,7 +44,7 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 #endif
 }
 
-IBitmap IGraphicsNanoVG::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
   WDL_String fullPath;
   bool resourceFound = OSFindResource(name, "png", fullPath);
@@ -54,20 +54,20 @@ IBitmap IGraphicsNanoVG::LoadIBitmap(const char* name, int nStates, bool framesA
   return IBitmap(nvgbmp, nvgbmp->w, nvgbmp->h, nStates, framesAreHoriztonal, sourceScale, name);
 }
 
-void IGraphicsNanoVG::ReleaseIBitmap(IBitmap& bitmap)
+void IGraphicsNanoVG::ReleaseBitmap(IBitmap& bitmap)
 {
 }
 
-void IGraphicsNanoVG::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
+void IGraphicsNanoVG::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
 }
 
-IBitmap IGraphicsNanoVG::ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale)
+IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale)
 {
   return bitmap;
 }
 
-IBitmap IGraphicsNanoVG::CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
+IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
 {
   return bitmap;
 }
@@ -235,12 +235,12 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsNanoVG::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
+bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
   return true;
 }
 
-bool IGraphicsNanoVG::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
   return true;
 }

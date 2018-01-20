@@ -115,18 +115,18 @@ public:
   void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
   void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend) override;
   
-  bool DrawIText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
-  bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
+  bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
   
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return 0; } //todo
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
-  IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
-  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, double scale) override;
-  void RetainIBitmap(IBitmap& bitmap, const char* cacheName) override {};
-  void ReleaseIBitmap(IBitmap& bitmap) override {};
+  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
+  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
+  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, double scale) override;
+  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
+  void ReleaseBitmap(IBitmap& bitmap) override {};
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;

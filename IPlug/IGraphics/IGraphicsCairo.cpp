@@ -100,7 +100,7 @@ IGraphicsCairo::~IGraphicsCairo()
     cairo_surface_destroy(mSurface);
 }
 
-IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+IBitmap IGraphicsCairo::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
 {
   const double targetScale = GetDisplayScale(); // targetScale = what this screen is
 
@@ -121,7 +121,7 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
     const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
 
     if (sourceScale != targetScale)
-      return ScaleIBitmap(bitmap, name, targetScale); // will add to cache
+      return ScaleBitmap(bitmap, name, targetScale); // will add to cache
     else
       s_bitmapCache.Add(pCB, name, sourceScale);
   }
@@ -129,15 +129,15 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
   return IBitmap(pCB->surface, pCB->width / targetScale, pCB->height / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
 }
 
-void IGraphicsCairo::ReleaseIBitmap(IBitmap& bitmap)
+void IGraphicsCairo::ReleaseBitmap(IBitmap& bitmap)
 {
 }
 
-void IGraphicsCairo::RetainIBitmap(IBitmap& bitmap, const char * cacheName)
+void IGraphicsCairo::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
 }
 
-IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& inBitmap, const char* name, double targetScale)
+IBitmap IGraphicsCairo::ScaleBitmap(const IBitmap& inBitmap, const char* name, double targetScale)
 {
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
@@ -162,7 +162,7 @@ IBitmap IGraphicsCairo::ScaleIBitmap(const IBitmap& inBitmap, const char* name, 
   return IBitmap(pCB->surface, inBitmap.W, inBitmap.H, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
 }
 
-IBitmap IGraphicsCairo::CropIBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, double targetScale)
+IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, double targetScale)
 {
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
@@ -381,11 +381,11 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, bool measure)
+bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
 #ifdef OS_WIN
   // TODO: lots!
-  LoadIFont("C:/Windows/Fonts/Verdana.ttf");
+  LoadFont("C:/Windows/Fonts/Verdana.ttf");
 
   assert(mFTFace != nullptr);
 
@@ -427,9 +427,9 @@ bool IGraphicsCairo::DrawIText(const IText& text, const char* str, IRECT& rect, 
 	return true;
 }
 
-bool IGraphicsCairo::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
-  return DrawIText(text, str, destRect, true);
+  return DrawText(text, str, destRect, true);
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)

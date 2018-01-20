@@ -24,6 +24,10 @@
 #undef FillRect
 #endif
 
+#ifdef DrawText
+#undef DrawText
+#endif
+
 class IPlugBaseGraphics;
 class IControl;
 class IParam;
@@ -72,8 +76,8 @@ public:
   virtual void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
   virtual void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
 
-  virtual bool DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
-  virtual bool MeasureIText(const IText& text, const char* str, IRECT& destRect) = 0;
+  virtual bool DrawText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
+  virtual bool MeasureText(const IText& text, const char* str, IRECT& destRect) = 0;
 
   virtual IColor GetPoint(int x, int y)  = 0;
   virtual void* GetData() = 0;
@@ -83,11 +87,11 @@ public:
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
-  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
-  virtual IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
-  virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
-  virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
+  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
+  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
+  virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
+  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
+  virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
   IBitmap GetScaledBitmap(IBitmap& src);
   virtual void OnDisplayScale();
   
@@ -173,7 +177,7 @@ public:
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   
-  virtual ISVG LoadISVG(const char* name); // correct place?
+  virtual ISVG LoadSVG(const char* name); // correct place?
 
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
@@ -243,7 +247,7 @@ public:
   inline int GetMouseOver() const { return mMouseOver; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
-  virtual void LoadIFont(const char* name);
+  virtual void LoadFont(const char* name);
   
 protected:
   WDL_PtrList<IControl> mControls;

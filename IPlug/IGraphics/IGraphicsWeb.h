@@ -33,14 +33,14 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return nullptr; }
 
-  bool DrawIText(const IText& text, const char* str, IRECT& rect, bool measure) override;
-  bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
+  bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
   
-  IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
-  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) override;
-  void ReleaseIBitmap(IBitmap& bitmap) override;
-  void RetainIBitmap(IBitmap& bitmap, const char * cacheName) override;
+  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
+  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
+  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) override;
+  void ReleaseBitmap(IBitmap& bitmap) override;
+  void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
 
   void DrawScreen(const IRECT& rect) override;
   
@@ -81,7 +81,7 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
 protected:
   void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
 //  void OSLoadFont(const char* name, const int size) override;

@@ -577,7 +577,7 @@ private:
 //
 //    if (CSTR_NOT_EMPTY(mDisp.Get()))
 //    {
-//      graphics.DrawIText(&mText, mDisp.Get(), &mRECT);
+//      graphics.DrawText(&mText, mDisp.Get(), &mRECT);
 //    }
 //  }
 //
@@ -662,7 +662,7 @@ private:
 //
 //    if (CSTR_NOT_EMPTY(disp))
 //    {
-//      graphics.DrawIText(&mText, disp, &mRECT);
+//      graphics.DrawText(&mText, disp, &mRECT);
 //    }
 //  }
 //
@@ -732,7 +732,7 @@ private:
 //  void Draw(IGraphics& graphics) override
 //  {
 //    mDisplay.SetFormatted(80, "Tempo: %f, SamplePos: %i, PPQPos: %f", mTimeInfo->mTempo, (int) mTimeInfo->mSamplePos, mTimeInfo->mPPQPos);
-//    graphics.DrawIText(&mText, mDisplay.Get(), &mRECT);
+//    graphics.DrawText(&mText, mDisplay.Get(), &mRECT);
 //  }
 //
 //  bool IsDirty() { return true;}
@@ -768,7 +768,7 @@ private:
 //
 //    if (CSTR_NOT_EMPTY(disp))
 //    {
-//      graphics.DrawIText(&mText, disp, &mTextRECT);
+//      graphics.DrawText(&mText, disp, &mTextRECT);
 //    }
 //  }
 //
