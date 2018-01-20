@@ -659,19 +659,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)viewDidChangeBackingProperties:(NSNotification *) notification
 {
-#if GRAPHICS_SCALING
   NSWindow* pWindow = [self window];
-  CGFloat newBackingScaleFactor = [pWindow backingScaleFactor];
-  CGFloat oldBackingScaleFactor = [[[notification userInfo] objectForKey:@"NSBackingPropertyOldScaleFactorKey"] doubleValue];
   
   if(!pWindow)
     return;
   
-  if (newBackingScaleFactor != oldBackingScaleFactor)
+  CGFloat newScale = [pWindow backingScaleFactor];
+
+  if (newScale != mGraphics->GetDisplayScale())
   {
-    mGraphics->SetDisplayScale(newBackingScaleFactor);
+    mGraphics->SetDisplayScale(newScale);
   }
-#endif
 }
 
 - (NSDragOperation)draggingEntered: (id <NSDraggingInfo>) sender

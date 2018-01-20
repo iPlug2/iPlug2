@@ -19,7 +19,7 @@ CLANG_CXX_LIBRARY = libc++
 DEPLOYMENT_TARGET = 10.7
 
 
-// PREPROCESSOR MACROS TO ENABLE DIFFERENT PATHS------------------------------------------------------------------------------------------------------------------------
+// BUILD SETTINGS TO ENABLE DIFFERENT PREPROCESSOR MACROS, INCLUDE PATHS AND FUNCIONALITY-------------------------------
 
 // macros for all debug/release/tracer builds
 DEBUG_DEFS = DEVELOPMENT=1 DEBUG=1 _DEBUG
@@ -28,11 +28,11 @@ TRACER_DEFS = $RELEASE_DEFS TRACER_BUILD
 
 // macros for individual plug-in format builds etc
 ALL_DEFS = NOMINMAX
-VST2_DEFS = VST_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-VST3_DEFS = VST3_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-AU_DEFS = AU_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-AAX_DEFS = AAX_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-APP_DEFS = SA_API __MACOSX_CORE__ $ALL_DEFS
+VST2_DEFS = VST_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+VST3_DEFS = VST3_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+AU_DEFS = AU_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+AAX_DEFS = AAX_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+APP_DEFS = SA_API __MACOSX_CORE__
 
 // Where the SDKs etc. are located in relation to the plug-in Xcode project
 PKG_MAN_PATH = /usr/local/
@@ -47,12 +47,13 @@ IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 LICE_PATH = $(WDL_PATH)/lice
 NSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
 NVG_PATH = $(IGRAPHICS_PATH)/nanovg/src
+NVGMTL_PATH = $(IGRAPHICS_PATH)/MetalNanoVG/src
 AGG_PATH = $(IGRAPHICS_PATH)/agg
 PKG_PATH = $(PKG_MAN_PATH)/include
 FT_PATH = $(PKG_PATH)/freetype2
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(LICE_PATH) $(FT_PATH) $(NSVG_PATH) $(NVG_PATH) $(AGG_PATH) $(PKG_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(LICE_PATH) $(FT_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(PKG_PATH)
 
 // Plug-in SDK paths
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
@@ -78,12 +79,12 @@ LIB_EX = /usr/local/opt/expat/lib/libexpat.a
 // you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
 IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_FC) $(LIB_Z) $(LIB_BZ) $(LIB_EX)
 
-ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework QuartzCore
 APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio
 
 
-// BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
+// BUILD SETTINGS FOR BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 
 // Where to build the plug-ins / app bundles ...
 // By default WDL-OL/IPlug builds to system plug-in folder
