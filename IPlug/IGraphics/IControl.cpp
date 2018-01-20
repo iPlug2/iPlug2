@@ -256,7 +256,8 @@ void IBitmapControl::OnRescale()
 
 void ISVGControl::Draw(IGraphics& graphics)
 {
-  graphics.DrawSVG(mSVG, mRECT);
+  graphics.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
+    //graphics.DrawSVG(mSVG, mRECT);
 };
 
 void ITextControl::SetTextFromPlug(const char* str)

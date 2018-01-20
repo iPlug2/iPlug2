@@ -109,7 +109,7 @@ void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, 
 {
   nvgSave(mVG);
   nvgTranslate(mVG, destCtrX, destCtrY);
-  nvgRotate(mVG, angle * PI / 180.0);
+  nvgRotate(mVG, angle);
   DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
   nvgRestore(mVG);
 }

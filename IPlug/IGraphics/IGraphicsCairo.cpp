@@ -206,7 +206,7 @@ void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, f
 {
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle * PI / 180.0);
+  cairo_rotate(mContext, angle);
   DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
   cairo_restore(mContext);
 }
@@ -224,14 +224,31 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
 
 void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
-  //TODO:
+  //TODO: offset support
+    
+  float width = bitmap.W;
+  float height = bitmap.H;
 
+  cairo_save(mContext);
+  cairo_translate(mContext, destCtrX, destCtrY);
+  cairo_rotate(mContext, angle);
+  DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
+  cairo_restore(mContext);
 }
 
 void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
-  //TODO:
+  float width = base.W;
+  float height = base.H;
 
+  IBlend addBlend(IBlend::kBlendAdd);
+  cairo_save(mContext);
+  DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
+  cairo_translate(mContext, x + 0.5 * width, y + 0.5 * height);
+  cairo_rotate(mContext, angle);
+  DrawBitmap(mask, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, &addBlend);
+  DrawBitmap(top, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
+  cairo_restore(mContext);
 }
 
 void IGraphicsCairo::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
