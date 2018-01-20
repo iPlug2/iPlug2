@@ -357,25 +357,24 @@ void IGraphicsCairo::FillIConvexPolygon(const IColor& color, int* x, int* y, int
 
 IColor IGraphicsCairo::GetPoint(int x, int y)
 {
-  // Convert suface to cairo image surface
-  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, Width(), Height());
+  // Convert suface to cairo image surface of one pixel (avoid copying the whole surface)
+    
+  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1);
   cairo_t* pOutContext = cairo_create(pOutSurface);
-  cairo_set_source_surface(pOutContext, mSurface, 0, 0);
+  cairo_set_source_surface(pOutContext, mSurface, -x, -y);
   cairo_paint(pOutContext);
-  
+  cairo_surface_flush(pOutSurface);
+
   unsigned char* pData = cairo_image_surface_get_data(pOutSurface);
-  int stride = cairo_image_surface_get_stride(pOutSurface);
-  
-  unsigned int* pPixel = (unsigned int*)(pData + y * stride);
-  pPixel += x;
-  
-  int A = ((*pPixel) >> 0) & 0xff;
-  int R = ((*pPixel) >> 8) & 0xff;
-  int G = ((*pPixel) >> 16) & 0xff;
-  int B = ((*pPixel) >> 24) & 0xff;
+  unsigned int px = *((unsigned int*)(pData));
   
   cairo_surface_destroy(pOutSurface);
   cairo_destroy(pOutContext);
+    
+  int A = (px >> 0) & 0xFF;
+  int R = (px >> 8) & 0xFF;
+  int G = (px >> 16) & 0xFF;
+  int B = (px >> 24) & 0xFF;
     
   return IColor(A, R, G, B);
 }
