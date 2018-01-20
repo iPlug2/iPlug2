@@ -111,10 +111,8 @@ IBitmap IGraphicsCairo::LoadIBitmap(const char* name, int nStates, bool framesAr
     WDL_String fullPath;
     OSFindResource(name, "png", fullPath);
     cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), fullPath);
-#ifndef NDEBUG
-    bool imgResourceFound = cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS;
-#endif
-    assert(imgResourceFound); // Protect against typos in resource.h and .rc files.
+
+    assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
     
     pCB = new CairoBitmap(pSurface, sourceScale);
 
