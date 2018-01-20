@@ -44,9 +44,9 @@ public:
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
-  void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
+  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
+  void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;

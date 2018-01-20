@@ -322,7 +322,7 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
   Stroke(color, pBlend);
 }
 
-void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, float corner)
+void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
 {
   CairoDrawRoundRect(rect, corner);
   Stroke(color, pBlend);
