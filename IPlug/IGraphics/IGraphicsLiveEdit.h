@@ -100,7 +100,7 @@ public:
       SetCursor(LoadCursor(NULL, IDC_ARROW));
   }
   
-  void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) override
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     if(mClickedOnControl > 0)
     {
