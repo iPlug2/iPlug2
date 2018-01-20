@@ -18,25 +18,23 @@ typedef IPlugBase IPLUG_BASE_CLASS;
 typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #endif
 
+
+#include "RtMidi.h"
+
 #ifdef OS_WIN
-  #include "RtMidi.h"
-  
   struct IPlugInstanceInfo
   {
     RtMidiOut* mRTMidiOut;
-    unsigned short* mMidiOutChan; // 0 = any, 1 = midi chan 1
+    uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
   };
 
 #elif defined OS_OSX
-  #include "RtMidi.h"
-  
   struct IPlugInstanceInfo
   {
     WDL_String mOSXBundleID;
     RtMidiOut* mRTMidiOut;
-    unsigned short* mMidiOutChan; // 0 = any, 1 = midi chan 1
+    unsigned short mMidiOutChan; // 0 = any, 1 = midi chan 1
   };
-
 #endif
 
 /**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
@@ -66,9 +64,9 @@ protected:
 
 private:
   RtMidiOut* mMidiOut = nullptr;
-  unsigned short* mMidiOutChan = nullptr; //TODO: sort this out
+  uint16_t mMidiOutChan;
 };
 
-IPlugStandalone* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan);
+IPlugStandalone* MakePlug(void* pMidiOutput, uint16_t& midiOutChannel);
 
 #endif

@@ -40,7 +40,7 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg& msg)
     // if the midi channel out filter is set, reassign the status byte appropriately
     if (mMidiOutChan)
     {
-      msg.mStatus = (*mMidiOutChan)-1 | ((unsigned int) msg.StatusMsg() << 4) ;
+      msg.mStatus = mMidiOutChan-1 | ((unsigned int) msg.StatusMsg() << 4) ;
     }
 
     std::vector<unsigned char> message;
