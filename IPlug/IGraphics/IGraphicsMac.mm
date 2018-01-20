@@ -554,53 +554,17 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
-//void IGraphicsMac::OSLoadFont(const char* name, const int size, WDL_String& fullPath)
-//{
-//  CocoaAutoReleasePool pool;
-//
-//  NSBundle * bundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
-//
-//  NSString * fontFilePath = [bundle resourcePath];
-//  NSURL * fontsURL = [NSURL fileURLWithPath:fontFilePath];
-//  if (fontsURL != nil)
-//  {
-//    OSStatus status;
-//    FSRef fsRef;
-//    CFURLGetFSRef((CFURLRef)fontsURL, &fsRef);
-//    status = ATSFontActivateFromFileReference(&fsRef, kATSFontContextLocal, kATSFontFormatUnspecified, NULL, kATSOptionFlagsDefault, NULL);
-//    if (status != noErr)
-//    {
-//      NSLog(@"Failed to activate local font path");
-//    }
-//  }
-
-//  agg::font_mac * font = new agg::font_mac();
-//
-//  if (font->load_font(name, size))
-//  {
-//    return font;
-//  }
-//  else
-//  {
-//    delete font;
-//  }
-
-//  return;
-//}
-//
-//bool IGraphicsMac::LoadSVGFile(const WDL_String & file, WDL_String & fileOut)
-//{
-//  NSBundle * bundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
-//  NSString * svgFilePath = [[bundle resourcePath] stringByAppendingPathComponent:[NSString stringWithUTF8String:file.Get()]];
-//
-//  NSError * error = nil;
-//  NSString * contents = [NSString stringWithContentsOfFile:svgFilePath encoding:NSUTF8StringEncoding error:&error];
-//  if (contents != nil && error == nil)
-//  {
-//    fileOut.Set([contents UTF8String]);
-//    return true;
-//  }
-//
-//  return false;
-//}
-
+//TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
+#ifndef NO_IGRAPHICS
+#ifdef IGRAPHICS_AGG
+#include "IGraphicsAGG.cpp"
+#elif defined IGRAPHICS_CAIRO
+#include "IGraphicsCairo.cpp"
+#elif defined IGRAPHICS_NANOVG
+#include "IGraphicsNanoVG.cpp"
+#include "nanovg.c"
+//#include "nanovg_mtl.m"
+#else
+#include "IGraphicsLice.cpp"
+#endif
+#endif
