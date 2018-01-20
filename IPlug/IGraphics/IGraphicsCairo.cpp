@@ -263,7 +263,7 @@ void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect, const IBle
   cairo_stroke(mContext);
 }
 
-void IGraphicsCairo::DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
+void IGraphicsCairo::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
   SetCairoSourceRGBA(color, pBlend);
   cairo_set_line_width(mContext, 1);
@@ -334,7 +334,7 @@ void IGraphicsCairo::FillCircle(const IColor& color, int cx, int cy, float r, co
   cairo_fill(mContext);
 }
 
-void IGraphicsCairo::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
+void IGraphicsCairo::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
   SetCairoSourceRGBA(color, pBlend);
   cairo_move_to(mContext, x1, y1);

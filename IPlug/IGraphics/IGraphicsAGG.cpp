@@ -412,7 +412,7 @@ void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, cons
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
+void IGraphicsAGG::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
   int x[3] = { x1, x2, x3 };
   int y[3] = { y1, y2, y3 };
