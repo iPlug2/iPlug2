@@ -1,4 +1,6 @@
 #pragma once
+#include <cassert>
+
 #include "IPlugTypes.h"
 #include "IPlugConstants.h"
 
