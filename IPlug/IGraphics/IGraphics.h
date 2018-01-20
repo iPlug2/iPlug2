@@ -55,7 +55,8 @@ public:
   virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
 
   virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
-  
+  virtual void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
+    
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
@@ -72,7 +73,7 @@ public:
 
   virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
-  virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0) = 0;
+  virtual void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
   virtual void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
   virtual void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
 

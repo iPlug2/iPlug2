@@ -25,7 +25,8 @@ public:
   void SetDisplayScale(int) override;
 
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override {}
-  
+  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
+
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
@@ -40,10 +41,10 @@ public:
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
-  void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend) override;
-  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
+  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
+  void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
+  void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;

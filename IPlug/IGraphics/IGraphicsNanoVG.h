@@ -11,6 +11,49 @@
 
 struct NanoVGBitmap;
 
+inline float NanoVGWeight(const IBlend* pBlend)
+{
+    return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
+inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
+{
+    NVGcolor c;
+    c.r = (float) color.R / 255.0f;
+    c.g = (float) color.G / 255.0f;
+    c.b = (float) color.B / 255.0f;
+    c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
+    return c;
+}
+
+inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
+{
+    if (!pBlend)
+    {
+        return NVG_COPY;
+    }
+    switch (pBlend->mMethod)
+    {
+        case IBlend::kBlendClobber:
+        {
+            return NVG_SOURCE_OVER;
+        }
+        case IBlend::kBlendAdd:
+            //    {
+            //      return NVG_ATOP;
+            //    }
+        case IBlend::kBlendColorDodge:
+            //    {
+            //      return CAIRO_OPERATOR_COLOR_DODGE;
+            //    }
+        case IBlend::kBlendNone:
+        default:
+        {
+            return NVG_COPY;
+        }
+    }
+}
+
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses
 */
@@ -27,6 +70,8 @@ public:
   void ViewInitialized(void* layer) override;
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
+  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override;
+  
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
@@ -61,49 +106,21 @@ public:
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
 
 protected:
+    
+  void Stroke(const IColor& color, const IBlend* pBlend = 0)
+  {
+    nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
+    nvgStroke(mVG);
+  }
+    
+  void Fill(const IColor& color, const IBlend* pBlend = 0)
+  {
+    nvgFillColor(mVG, NanoVGColor(color, pBlend));
+    nvgFill(mVG);
+  }
+
+  void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+    
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
 };
-
-inline float NanoVGWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
-inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
-{
-  NVGcolor c;
-  c.r = (float) color.R / 255.0f;
-  c.g = (float) color.G / 255.0f;
-  c.b = (float) color.B / 255.0f;
-  c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
-  return c;
-}
-
-inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return NVG_COPY;
-  }
-  switch (pBlend->mMethod)
-  {
-    case IBlend::kBlendClobber:
-    {
-      return NVG_SOURCE_OVER;
-    }
-    case IBlend::kBlendAdd:
-//    {
-//      return NVG_ATOP;
-//    }
-    case IBlend::kBlendColorDodge:
-//    {
-//      return CAIRO_OPERATOR_COLOR_DODGE;
-//    }
-    case IBlend::kBlendNone:
-    default:
-    {
-      return NVG_COPY;
-    }
-  }
-}
