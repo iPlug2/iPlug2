@@ -116,12 +116,29 @@ protected:
     cairo_set_operator(mContext, CairoBlendMode(pBlend));
     cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
   }
+    
+  void Stroke(const IColor& color, const IBlend* pBlend = nullptr)
+  {
+    SetCairoSourceRGBA(color, pBlend);
+    cairo_set_line_width(mContext, 1);
+    cairo_stroke(mContext);
+  }
   
+  void Fill(const IColor& color, const IBlend* pBlend = nullptr)
+  {
+    SetCairoSourceRGBA(color, pBlend);
+    cairo_fill(mContext);
+  }
+    
   inline void CairoDrawRect(const IRECT& rect)
   {
     cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
   }
-
+    
+  inline void CairoDrawCircle(float cx, float cy, float r);
+  inline void CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+  inline void CairoDrawRoundRect(const IRECT& rect, float corner);
+    
 private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;
