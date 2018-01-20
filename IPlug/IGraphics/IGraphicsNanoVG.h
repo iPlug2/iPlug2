@@ -13,45 +13,40 @@ struct NanoVGBitmap;
 
 inline float NanoVGWeight(const IBlend* pBlend)
 {
-    return (pBlend ? pBlend->mWeight : 1.0f);
+  return (pBlend ? pBlend->mWeight : 1.0f);
 }
 
 inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
-    NVGcolor c;
-    c.r = (float) color.R / 255.0f;
-    c.g = (float) color.G / 255.0f;
-    c.b = (float) color.B / 255.0f;
-    c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
-    return c;
+  NVGcolor c;
+  c.r = (float) color.R / 255.0f;
+  c.g = (float) color.G / 255.0f;
+  c.b = (float) color.B / 255.0f;
+  c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
+  return c;
 }
 
 inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
 {
-    if (!pBlend)
+  if (!pBlend)
+  {
+    return NVG_COPY;
+  }
+  
+  switch (pBlend->mMethod)
+  {
+    case IBlend::kBlendClobber:
     {
-        return NVG_COPY;
+      return NVG_SOURCE_OVER;
     }
-    switch (pBlend->mMethod)
+    case IBlend::kBlendAdd:
+    case IBlend::kBlendColorDodge:
+    case IBlend::kBlendNone:
+    default:
     {
-        case IBlend::kBlendClobber:
-        {
-            return NVG_SOURCE_OVER;
-        }
-        case IBlend::kBlendAdd:
-            //    {
-            //      return NVG_ATOP;
-            //    }
-        case IBlend::kBlendColorDodge:
-            //    {
-            //      return CAIRO_OPERATOR_COLOR_DODGE;
-            //    }
-        case IBlend::kBlendNone:
-        default:
-        {
-            return NVG_COPY;
-        }
+      return NVG_COPY;
     }
+  }
 }
 
 /** IGraphics draw class using NanoVG  
