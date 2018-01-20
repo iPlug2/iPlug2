@@ -243,7 +243,7 @@ def main():
 #  auv3['AudioUnit Version'] = PLUG_VER_STR
   auv3['CFBundleExecutable'] = BUNDLE_NAME
   auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
-  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".standalone." + BUNDLE_NAME + ".AUv3"
+  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ".AUv3"
   auv3['CFBundleName'] = BUNDLE_NAME
   auv3['CFBundleVersion'] = CFBundleVersion
   auv3['CFBundleShortVersionString'] = CFBundleVersion
@@ -280,7 +280,7 @@ def main():
   osxapp = plistlib.readPlist(plistpath)
   osxapp['CFBundleExecutable'] = BUNDLE_NAME
   osxapp['CFBundleGetInfoString'] = CFBundleGetInfoString
-  osxapp['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".standalone." + BUNDLE_NAME + ""
+  osxapp['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
   osxapp['CFBundleName'] = BUNDLE_NAME
   osxapp['CFBundleVersion'] = CFBundleVersion
   osxapp['CFBundleShortVersionString'] = CFBundleVersion

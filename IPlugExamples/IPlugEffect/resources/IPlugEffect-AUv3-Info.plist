@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugEffect v1.0.0 Copyright 2017 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.standalone.IPlugEffect.AUv3</string>
+	<string>com.AcmeInc.app.IPlugEffect.AUv3</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
