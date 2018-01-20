@@ -25,8 +25,8 @@ public:
       HGLOBAL res = LoadResource(hInst, resInfo);
       if (res)
       {
-      mData = (unsigned char *) LockResource(res);
-      mSize = SizeofResource(hInst, resInfo);
+        mData = (unsigned char *) LockResource(res);
+        mSize = SizeofResource(hInst, resInfo);
       }
     }
   }
@@ -37,16 +37,16 @@ public:
     if (mCount <= mSize)
     {
       memcpy(data, mData + mCount - length, length);
-        return CAIRO_STATUS_SUCCESS;
+      return CAIRO_STATUS_SUCCESS;
     }
 
     return CAIRO_STATUS_READ_ERROR;
-    }
+  }
 
-    static cairo_status_t StaticRead(void *reader, unsigned char *data, unsigned int length) 
-    { 
-      return ((PNGStreamReader *)reader)->Read(data, length);
-    }
+  static cairo_status_t StaticRead(void *reader, unsigned char *data, unsigned int length)
+  {
+    return ((PNGStreamReader *)reader)->Read(data, length);
+  }
   
 private:
   const unsigned char *mData;
@@ -273,28 +273,28 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
 
 inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
 {
-    cairo_new_path(mContext);
-    cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
-    cairo_close_path(mContext);
+  cairo_new_path(mContext);
+  cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
+  cairo_close_path(mContext);
 }
 
 inline void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-    cairo_move_to(mContext, x1, y1);
-    cairo_line_to(mContext, x2, y2);
-    cairo_line_to(mContext, x3, y3);
-    cairo_close_path(mContext);
+  cairo_move_to(mContext, x1, y1);
+  cairo_line_to(mContext, x2, y2);
+  cairo_line_to(mContext, x3, y3);
+  cairo_close_path(mContext);
 }
 
 inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
 {
-    const double y = rect.B - rect.H();
-    cairo_new_path(mContext);
-    cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
-    cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
-    cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
-    cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
-    cairo_close_path(mContext);
+  const double y = rect.B - rect.H();
+  cairo_new_path(mContext);
+  cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
+  cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
+  cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
+  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
+  cairo_close_path(mContext);
 }
 
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa)
