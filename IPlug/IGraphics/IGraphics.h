@@ -253,7 +253,7 @@ protected:
   
   bool mCursorHidden = false;
   float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  float mDisplayScale = 0.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
+  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:
   friend class IGraphicsLiveEdit;
   

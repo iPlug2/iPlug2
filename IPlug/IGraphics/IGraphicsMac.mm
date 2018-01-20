@@ -69,6 +69,7 @@ IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
   , mView(nullptr)
 {
+  SetDisplayScale(1);
   NSApplicationLoad();
 }
 
