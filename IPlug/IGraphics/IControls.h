@@ -404,9 +404,9 @@ public:
     const double xpos = GetAuxParam(0)->mValue * mRECT.W();
     const double ypos = GetAuxParam(1)->mValue * mRECT.H();
     
-    graphics.DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0, false);
-    graphics.DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0, false);
-    graphics.FillCircle(mCurrentHandleColor, xpos+mRECT.L, ypos+mRECT.T, mHandleRadius, 0, true);
+    graphics.DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0);
+    graphics.DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0);
+    graphics.FillCircle(mCurrentHandleColor, xpos+mRECT.L, ypos+mRECT.T, mHandleRadius, 0);
 }
 
   void OnMouseDown(float x, float y, const IMouseMod& pMod) override

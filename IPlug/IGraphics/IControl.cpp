@@ -216,7 +216,7 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
 {
   if (mPTisHighlighted)
   {
-    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend, true);
+    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
   }
 }
 

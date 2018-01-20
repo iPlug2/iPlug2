@@ -393,7 +393,7 @@ void IKnobLineControl::Draw(IGraphics& graphics)
   const float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
   
   graphics.DrawCircle(mColor, cx, cy, (mRECT.W()/2.) - 2.);
-  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend, true);
+  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend);
 }
 
 void IKnobRotaterControl::Draw(IGraphics& graphics)

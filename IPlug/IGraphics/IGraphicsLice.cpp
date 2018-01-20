@@ -170,7 +170,7 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   LICE_Blit(mDrawBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, LiceWeight(pBlend), LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
+void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   float weight = (pBlend ? pBlend->mWeight : 1.0f);
   LICE_PutPixel(mDrawBitmap, int((x * mDisplayScale) + 0.5f), int((y  * mDisplayScale) + 0.5f), LiceColor(color), weight, LiceBlendMode(pBlend));
@@ -190,19 +190,19 @@ void IGraphicsLice::ForcePixel(const IColor& color, int x, int y)
   *px = LiceColor(color);
 }
 
-void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa)
+void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
-  LICE_Line(mDrawBitmap, (int) x1 * mDisplayScale, (int) y1 * mDisplayScale, (int) x2 * mDisplayScale, (int) y2 * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_Line(mDrawBitmap, (int) x1 * mDisplayScale, (int) y1 * mDisplayScale, (int) x2 * mDisplayScale, (int) y2 * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend, bool aa)
+void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
 {
-  LICE_Arc(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, minAngle, maxAngle, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_Arc(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, minAngle, maxAngle, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, bool aa)
+void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
-  LICE_Circle(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_Circle(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
@@ -212,12 +212,12 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& rect, const IBlen
   LICE_DrawRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)
+void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
   
-  LICE_RoundRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), cr * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_RoundRect(mDrawBitmap, (float) r.L, (float) r.T, (float) r.W(), (float) r.H(), cr * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
@@ -226,16 +226,16 @@ void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& rect, const
   r.Scale(mDisplayScale);
   bool aa = false;
   const int dash = 2 * mDisplayScale;
-  LICE_DashedLine(mDrawBitmap, r.L, r.T, r.R, r.T, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_DashedLine(mDrawBitmap, r.L, r.T, r.R, r.T, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
   //B
-  LICE_DashedLine(mDrawBitmap, r.L, r.B, r.R, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_DashedLine(mDrawBitmap, r.L, r.B, r.R, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
   //L
-  LICE_DashedLine(mDrawBitmap, r.L, r.T, r.L, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_DashedLine(mDrawBitmap, r.L, r.T, r.L, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
   //R
-  LICE_DashedLine(mDrawBitmap, r.R, r.T, r.R, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_DashedLine(mDrawBitmap, r.R, r.T, r.R, r.B, dash, dash, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)
+void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
@@ -255,11 +255,11 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const 
   LICE_FillRect(mDrawBitmap, x1, y1+cr, cr, h-2*cr,lcolor, weight, mode);
   LICE_FillRect(mDrawBitmap, x1+w-cr, y1+cr, cr, h-2*cr, lcolor, weight, mode);
   
-  //void LICE_FillCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel color, float alpha, int mode, bool aa)
-  LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+cr, (float) cr, lcolor, weight, mode, aa);
-  LICE_FillCircle(mDrawBitmap, (float) x1+w-cr-1, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, aa);
-  LICE_FillCircle(mDrawBitmap, (float) x1+w-cr-1, (float) y1+cr, (float) cr, lcolor, weight, mode, aa);
-  LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, aa);
+  //void LICE_FillCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel color, float alpha, int mode)
+  LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+cr, (float) cr, lcolor, weight, mode, true);
+  LICE_FillCircle(mDrawBitmap, (float) x1+w-cr-1, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, true);
+  LICE_FillCircle(mDrawBitmap, (float) x1+w-cr-1, (float) y1+cr, (float) cr, lcolor, weight, mode, true);
+  LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, true);
 }
 
 void IGraphicsLice::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
@@ -270,9 +270,9 @@ void IGraphicsLice::FillRect(const IColor& color, const IRECT& rect, const IBlen
   LICE_FillRect(mDrawBitmap, r.L, r.T, r.W(), r.H(), LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa)
+void IGraphicsLice::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend)
 {
-  LICE_FillCircle(mDrawBitmap, (float) cx * mDisplayScale, (float) cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), aa);
+  LICE_FillCircle(mDrawBitmap, (float) cx * mDisplayScale, (float) cy * mDisplayScale, r * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)

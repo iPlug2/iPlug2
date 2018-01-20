@@ -134,7 +134,7 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, con
   //TODO - implement
 }
 
-void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
+void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
   nvgCircle(mVG, x, y, 0.01); // TODO:  0.01 - is there a better way to draw a point?
@@ -146,7 +146,7 @@ void IGraphicsNanoVG::ForcePixel(const IColor& color, int x, int y)
 {
 }
 
-void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa)
+void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
   nvgMoveTo(mVG, x1, y1);
@@ -155,7 +155,7 @@ void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2
   nvgStroke(mVG);
 }
 
-void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend, bool aa)
+void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
   nvgArc(mVG, cx, cy, r, minAngle, maxAngle, 0);
@@ -163,7 +163,7 @@ void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, 
   nvgStroke(mVG);
 }
 
-void IGraphicsNanoVG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, bool aa)
+void IGraphicsNanoVG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
   nvgCircle(mVG, cx, cy, r);
@@ -179,7 +179,7 @@ void IGraphicsNanoVG::DrawRect(const IColor &color, const IRECT &rect, const IBl
   nvgStroke(mVG);
 }
 
-void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)
+void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr)
 {
   nvgBeginPath(mVG);
   nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
@@ -187,7 +187,7 @@ void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, cons
   nvgStroke(mVG);
 }
 
-void IGraphicsNanoVG::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa)
+void IGraphicsNanoVG::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr)
 {
   nvgBeginPath(mVG);
   nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
@@ -203,7 +203,7 @@ void IGraphicsNanoVG::FillRect(const IColor& color, const IRECT& rect, const IBl
   nvgFill(mVG);
 }
 
-void IGraphicsNanoVG::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa)
+void IGraphicsNanoVG::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
   nvgCircle(mVG, cx, cy, r);

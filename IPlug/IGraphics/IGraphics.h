@@ -55,20 +55,20 @@ public:
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
-  virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0, bool aa = false) = 0;
+  virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
   virtual void ForcePixel(const IColor& color, int x, int y) = 0;
  
-  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, bool aa = false) = 0;
-  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0, bool aa = false) = 0;
+  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0) = 0;
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0) = 0;
   virtual void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  virtual void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
-  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
+  virtual void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5) = 0;
+  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
   virtual void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
   virtual void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
 
   virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
-  virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
+  virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5) = 0;
+  virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0) = 0;
   virtual void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
   virtual void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
 
@@ -125,7 +125,7 @@ public:
   void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
   void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend = 0);
   void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend = 0);
-  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false, const IBlend* pBlend = 0);
+  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
   void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
   
 #pragma mark - IGraphics platform implementation

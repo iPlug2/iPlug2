@@ -410,7 +410,7 @@ void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi
   DrawLine(color, xLo, yi, xHi, yi, pBlend);
 }
 
-void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa, const IBlend* pBlend)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
 {
   float sinV = sinf(angle);
   float cosV = cosf(angle);
@@ -418,7 +418,7 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
   float xHi = (cx + rMax * sinV);
   float yLo = (cy - rMin * cosV);
   float yHi = (cy - rMax * cosV);
-  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend, aa);
+  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
 }
 
 void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)
