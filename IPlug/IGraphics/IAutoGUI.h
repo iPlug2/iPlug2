@@ -50,7 +50,7 @@ public:
     mTabs.Add(tab);
   }
   
-  void OnMouseWheel(float x, float y, IMouseMod& mod) override {}
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override {}
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
@@ -168,7 +168,7 @@ public:
     else SnapToMouse(x, y);      
   }
   
-  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod& mod) override
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     SnapToMouse(x, y);
   }
@@ -277,7 +277,7 @@ public:
     graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
-  void OnMouseDown(float x, float y, IMouseMod& mod) override
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -372,11 +372,11 @@ void GenerateKnobGUI(IGraphics& graphics,
 
   paramNameMaxBounds = paramNameMaxBounds.Union(paramValueMaxBounds);
   
-  int width = std::max(paramNameMaxBounds.W(), minWidth);
+  int width = std::max(paramNameMaxBounds.W(), float(minWidth));
   
   width = (width % 2 == 0) ? width : (width + 1); // make sure it's an even number, otherwise LICE draw errors
   
-  int height = std::max(paramNameMaxBounds.H(), minHeight);
+  int height = std::max(paramNameMaxBounds.H(), float(minHeight));
   int row = 0;
   int column = 0;
   int xoffs = 2;
