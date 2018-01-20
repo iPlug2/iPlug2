@@ -315,8 +315,10 @@ void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, const
 
 void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
-  //TODO: stipple?
+  double dashLength = 2;
+  cairo_set_dash(mContext, &dashLength, 1, 0.0);
   DrawRect(color, rect, pBlend);
+  cairo_set_dash(mContext, nullptr, 0, 0.0);
 }
 
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, float corner, bool aa)
