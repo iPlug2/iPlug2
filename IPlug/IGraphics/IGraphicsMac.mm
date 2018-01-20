@@ -551,6 +551,8 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 #ifndef NO_IGRAPHICS
 #ifdef IGRAPHICS_AGG
 #include "IGraphicsAGG.cpp"
+#include "agg_mac_pmap.mm"
+#include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
 #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG

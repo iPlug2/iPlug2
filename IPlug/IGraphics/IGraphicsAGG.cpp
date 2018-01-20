@@ -54,8 +54,6 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
 
 void IGraphicsAGG::SetDisplayScale(int scale)
 {
-  IGraphics::SetDisplayScale(scale);
-
   //TODO: rewrite this method
 //
 //  int w = Width() * mDisplayScale;
@@ -67,12 +65,11 @@ void IGraphicsAGG::SetDisplayScale(int scale)
 //  mRenBase = RenbaseType(mPixf);
 //  mRenBase.clear(agg::rgba(0, 0, 0, 0));
 //
-}
+//}
   
 //  printf("cache size %i\n", s_bitmapCache.mDatas.GetSize());
   
-  // notify IControls
-  IGraphics::ReScale();
+  IGraphics::SetDisplayScale(scale);
 }
 
 //IFontData IGraphicsAGG::LoadIFont(const char* name, const int size)
@@ -943,3 +940,5 @@ void IGraphicsAGG::ToPixel(float & pixel)
 {
   pixel = floorf(pixel + 0.5f) + 0.5f;
 }
+
+#include "IGraphicsAGG_src.cpp"
