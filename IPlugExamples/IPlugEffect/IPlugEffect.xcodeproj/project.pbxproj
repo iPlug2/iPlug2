@@ -2158,6 +2158,7 @@
 					"$(EXTRA_DEBUG_DEFS)",
 					"$(DEBUG_DEFS)",
 					"_DEBUG=1",
+					"$(ALL_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -2204,6 +2205,7 @@
 					"$(EXTRA_RELEASE_DEFS)",
 					"$(RELEASE_DEFS)",
 					"_NDEBUG=1",
+					"$(ALL_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -2259,6 +2261,7 @@
 					"$(EXTRA_TRACER_DEFS)",
 					"$(TRACER_DEFS)",
 					"_NDEBUG=1",
+					"$(ALL_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
