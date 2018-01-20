@@ -25,7 +25,7 @@ public:
   void SetDisplayScale(int) override;
 
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override {}
-  void DrawRotatedSVG(ISVG& bitmap, float destCtrX, float destCtrY, double angle, float yOffsetZeroDeg, const IBlend* pBlend) override {}
+  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;

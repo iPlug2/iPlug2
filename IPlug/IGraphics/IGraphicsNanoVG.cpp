@@ -105,9 +105,13 @@ void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend
   nvgRestore(mVG);
 }
 
-void IGraphicsNanoVG::DrawRotatedSVG(ISVG& bitmap, float destCtrX, float destCtrY, double angle, float yOffsetZeroDeg, const IBlend* pBlend)
+void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-    //TODO:
+  nvgSave(mVG);
+  nvgTranslate(mVG, destCtrX, destCtrY);
+  nvgRotate(mVG, angle * PI / 180.0);
+  DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
+  nvgRestore(mVG);
 }
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)

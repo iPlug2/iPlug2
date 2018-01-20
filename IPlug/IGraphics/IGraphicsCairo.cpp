@@ -202,9 +202,13 @@ void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
   cairo_restore(mContext);
 }
 
-void IGraphicsCairo::DrawRotatedSVG(ISVG& bitmap, float destCtrX, float destCtrY, double angle, float yOffsetZeroDeg, const IBlend* pBlend)
+void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-  //TODO:
+  cairo_save(mContext);
+  cairo_translate(mContext, destCtrX, destCtrY);
+  cairo_rotate(mContext, angle * PI / 180.0);
+  DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
+  cairo_restore(mContext);
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
