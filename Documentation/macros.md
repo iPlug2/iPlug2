@@ -21,3 +21,5 @@ IPlug uses preprocessor macros to select certain APIs and functionality at compi
 * IGRAPHICS_AGG: define this in order to build your plug-in using Anti-Grain Geometry as the drawing API
 * CONTROL_BOUNDS_COLOR=COLOR_WHITE : you can define this 2 change the color of control bounds when IGraphics::ShowControlBounds(true) is set (debug mode only). The default color is green. 
 * USE_IDLE_CALLS: if this is enabled as a preprocessor macro IGraphics::OnGUIIdle() will be called
+* IGRAPHICS_NO_CONTEXT_MENU: if this is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. 
+* IPLUG_JPEG_SUPPORT: Declare and include libjpeg files from WDL folder and lice jpg files if you need to load JPGs with IGRAPHICS_LICE

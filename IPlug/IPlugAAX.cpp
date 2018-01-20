@@ -364,7 +364,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
     ByteChunk chunk;
     chunk.PutBytes(iChunk->fData, iChunk->fSize);
     int pos = 0;
-    //GetIPlugVerFromChunk(chunk, &pos); // TODO: IPlugVer should be in chunk!
+    //GetIPlugVerFromChunk(chunk, pos); // TODO: IPlugVer should be in chunk!
     pos = UnserializeState(chunk, pos);
     
     for (int i = 0; i< NParams(); i++)

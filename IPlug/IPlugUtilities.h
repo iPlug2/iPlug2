@@ -25,6 +25,7 @@
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
 
+// TODO: replace BOUNDED with template based alternative
 /** Clamps the value \p x between \p lo and \p hi
  * @param x Input value
  * @param lo Minimum value to be allowed
@@ -78,25 +79,25 @@ inline double AmpToDB(double amp)
   return AMP_DB * log(fabs(amp));
 }
 
-inline void GetVersionParts(int version, int* pVer, int* pMaj, int* pMin)
+inline void GetVersionParts(int version, int& ver, int& maj, int& min)
 {
-  *pVer = (version & 0xFFFF0000) >> 16;
-  *pMaj = (version & 0x0000FF00) >> 8;
-  *pMin = version & 0x000000FF;
+  ver = (version & 0xFFFF0000) >> 16;
+  maj = (version & 0x0000FF00) >> 8;
+  min = version & 0x000000FF;
 }
 
 inline int GetDecimalVersion(int version)
 {
   int ver, rmaj, rmin;
-  GetVersionParts(version, &ver, &rmaj, &rmin);
+  GetVersionParts(version, ver, rmaj, rmin);
   return 10000 * ver + 100 * rmaj + rmin;
 }
 
-inline void GetVersionStr(int version, char* str)
+inline void GetVersionStr(int version, WDL_String& str)
 {
   int ver, rmaj, rmin;
-  GetVersionParts(version, &ver, &rmaj, &rmin);
-  sprintf(str, "v%d.%d.%d", ver, rmaj, rmin);
+  GetVersionParts(version, ver, rmaj, rmin);
+  str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
 inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)

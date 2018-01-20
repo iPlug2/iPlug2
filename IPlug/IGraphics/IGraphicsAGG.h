@@ -64,8 +64,6 @@
 class IGraphicsAGG : public IGraphics
 {
 public:
-  const char* GetDrawingAPIStr() override { return "AGG"; }
-
   struct LineInfo {
     int start_char;
     int end_char;
@@ -90,47 +88,48 @@ public:
   
   IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsAGG();
+  
+  void SetDisplayScale(int scale) override;
 
-  void PrepDraw() override;
   void Draw(const IRECT& rect) override;
+  
+  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override {}
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa) override;
+  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   void ForcePixel(const IColor& color, int x, int y) override;
   
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend, bool aa) override;
-  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, bool aa) override;
-  void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, bool aa) override;
-  void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend) override {}
+  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override {}
+  void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
+  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
+  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override {}
+  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override {}
+
+  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
+  void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
+  void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend) override;
+  void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
+  void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   
-  void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend, int cr, bool aa) override;
-  void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa) override;
-  void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
-  void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend) override;
-  
-  bool DrawIText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
-  bool MeasureIText(const IText& text, const char* str, IRECT& destRect) override;
+  bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
   
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return 0; } //todo
-  const char* GetDrawingAPIStr() { return "AGG"; }
+  const char* GetDrawingAPIStr() override { return "AGG"; }
 
-  IBitmap LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleIBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
-  IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, double scale) override;
-//  void RetainIBitmap(IBitmap& bitmap, const char* cacheName) override {};
-//  void ReleaseIBitmap(IBitmap& bitmap) override {};
+  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
+  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
+  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, double scale) override;
+  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
+  void ReleaseBitmap(IBitmap& bitmap) override {};
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
-  void ReScale() override;
 
-  void RenderAPIBitmap(void* pContext) override;
-
-  //IFontData LoadIFont(const char * name, const int size);
+  void RenderDrawBitmap() override;
   
   inline const agg::rgba8 IColorToAggColor(const IColor& color)
   {

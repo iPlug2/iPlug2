@@ -41,8 +41,8 @@ are actually used, the coordinates for the "regular" keys are ignored.)
 Here is code snippet defining a 4-octave keyboard starting at MIDI note 48
 (C3):
 
-IBitmap regular = graphics.LoadIBitmap(REGULAR_KEYS_ID, REGULAR_KEYS_PNG, 6);
-IBitmap sharp   = graphics.LoadIBitmap(SHARP_KEY_ID,    SHARP_KEY_PNG);
+IBitmap regular = graphics.LoadBitmap(REGULAR_KEYS_ID, REGULAR_KEYS_PNG, 6);
+IBitmap sharp   = graphics.LoadBitmap(SHARP_KEY_ID,    SHARP_KEY_PNG);
 
 //                    C#      D#          F#      G#        A#
 int coords[12] = { 0, 13, 23, 39, 46, 69, 82, 92, 107, 115, 131, 138 };
@@ -90,7 +90,7 @@ been declared, so it is propbably best to include it in your plug-in's main
 class IKeyboardControl: public IControl
 {
 public:
-  IKeyboardControl(IPlugBase& plug, int x, int y, int minNote, int nOctaves, IBitmap& regularKeys, IBitmap& sharpKey, const int *pKeyCoords = 0):
+  IKeyboardControl(IPlugBase& plug, float x, float y, int minNote, int nOctaves, IBitmap& regularKeys, IBitmap& sharpKey, const int *pKeyCoords = 0):
     IControl(plug, IRECT(x, y, regularKeys), kNoParameter),
     mMinNote(minNote), mNumOctaves(nOctaves), mRegularKeys(regularKeys), mSharpKey(sharpKey),
     mOctaveWidth(pRegularKeys->W * 7), mMaxKey(nOctaves * 12), mKey(-1)
@@ -111,7 +111,7 @@ public:
   // Returns the velocity as a floating point value.
   inline double GetReal() const { return mVelocity; }
 
-  virtual void OnMouseDown(int x, int y, IMouseMod& mod)
+void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if (mod.R) return;
 
@@ -127,7 +127,7 @@ public:
     SetDirty();
   }
 
-  virtual void OnMouseUp(int x, int y, IMouseMod& mod)
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     // Skip if no key is playing.
     if (mKey < 0) return;
@@ -137,16 +137,16 @@ public:
     SetDirty();
   }
 
-  virtual void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod& mod)
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     //if(y < mTargetRECT.T || y >= mTargetRECT.B);
     OnMouseDown(x, y, mod);
   }
 
-  virtual void OnMouseWheel(int x, int y, IMouseMod& mod, int d) {}
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override {}
 
   // Draws only the keys that are currently playing.
-  virtual bool Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     // Skip if no keys are playing.
     if (((PLUG_CLASS_NAME*)mPlug)->GetNumKeys() == 0 && mKey == -1) return true;
@@ -227,7 +227,7 @@ protected:
   */
 
   // Returns the key number at the (x, y) coordinates.
-  int GetMouseKey(int x, int y)
+  int GetMouseKey(float x, float y)
   {
     // Skip if the coordinates are outside the keyboard's rectangle.
     if (x < mTargetRECT.L || x >= mTargetRECT.R || y < mTargetRECT.T || y >= mTargetRECT.B) return -1;

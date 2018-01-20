@@ -43,6 +43,11 @@
 #ifndef RTMIDI_H
 #define RTMIDI_H
 
+#ifdef __MACOSX_CORE__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+
 #if defined _WIN32 || defined __CYGWIN__
   #define RTMIDI_DLL_PUBLIC
 #else

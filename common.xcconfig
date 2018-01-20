@@ -1,8 +1,8 @@
 // common.xcconfig
-// this file sets the compiler and base SDK for the IPlug projects and the lice library xcode project
-// along with some other global build variables
+// This file sets the compiler and base SDK for the individual IPlug projects and the LICE, AAX and VST3 Base library xcode projects
+// Along with some other global build settings, which are used in the makedist-mac shell script
 
-// this is used for Developer ID / Appstore code-signing and is used in the makedist-mac shell script
+// this is used for macOS Developer ID / Appstore code-signing
 CERTIFICATE_ID = Oliver Larkin
 
 // Which compiler to use
@@ -18,40 +18,79 @@ CLANG_CXX_LIBRARY = libc++
 // the minimum OS to support
 DEPLOYMENT_TARGET = 10.7
 
-// preprocessor macros for all debug/release/tracer builds
+
+// BUILD SETTINGS TO ENABLE DIFFERENT PREPROCESSOR MACROS, INCLUDE PATHS AND FUNCIONALITY-------------------------------
+
+// macros for all debug/release/tracer builds
 DEBUG_DEFS = DEVELOPMENT=1 DEBUG=1 _DEBUG
 RELEASE_DEFS = RELEASE=1 NDEBUG=1
 TRACER_DEFS = $RELEASE_DEFS TRACER_BUILD
 
-// preprocessor macros for all VST2 builds etc
+// macros for individual plug-in format builds etc
 ALL_DEFS = NOMINMAX
-VST2_DEFS = VST_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-VST3_DEFS = VST3_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-AU_DEFS = AU_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-AAX_DEFS = AAX_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD $ALL_DEFS
-APP_DEFS = SA_API __MACOSX_CORE__ $ALL_DEFS
+VST2_DEFS = VST_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+VST3_DEFS = VST3_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+AU_DEFS = AU_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+AAX_DEFS = AAX_API SWELL_JUST_FOR_THREADING SWELL_CLEANUP_ON_UNLOAD
+APP_DEFS = SA_API __MACOSX_CORE__
 
 // Where the SDKs etc. are located in relation to the plug-in Xcode project
+PKG_MAN_PATH = /usr/local/
 WDL_PATH = $(SRCROOT)/../../WDL
-IPLUG_PATH = $(SRCROOT)/../../IPlug
-IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 SWELL_PATH = $(WDL_PATH)/swell
-LICE_PATH = $(WDL_PATH)/lice
+IPLUG_PATH = $(SRCROOT)/../../IPlug
 
+//this build setting is included at the xcode project level, since we need all these include paths
+IPLUG_INC_PATHS = $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
+
+IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
+LICE_PATH = $(WDL_PATH)/lice
+NSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
+NVG_PATH = $(IGRAPHICS_PATH)/nanovg/src
+NVGMTL_PATH = $(IGRAPHICS_PATH)/MetalNanoVG/src
+AGG_PATH = $(IGRAPHICS_PATH)/agg
+PKG_PATH = $(PKG_MAN_PATH)/include
+FT_PATH = $(PKG_PATH)/freetype2
+
+// you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(LICE_PATH) $(FT_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(PKG_PATH)
+
+// Plug-in SDK paths
 VST3_SDK = $(SRCROOT)/../../VST3_SDK
 AAX_SDK = $(SRCROOT)/../../AAX_SDK
 CA_SDK = $(SRCROOT)/../../CA_SDK
 
-SHARED_PRECOMPS_DIR = $(SRCROOT)/../../PCH
-GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
-CLANG_LINK_OBJC_RUNTIME = NO
+//Linker paths for static libraries
+PKG_LIB_PATH = $(PKG_MAN_PATH)/lib
+
+IGRAPHICS_LIB_PATHS = $(PKG_LIB_PATH)
+
+//Static library Paths - on macOS we need to supply an absolute path to the static library, otherwise it will pick up a dynamic library with the same name
+LIB_CAIRO = $(PKG_LIB_PATH)/libcairo.a
+LIB_FT = $(PKG_LIB_PATH)/libfreetype.a
+LIB_PIXMAN = $(PKG_LIB_PATH)/libpixman-1.a
+LIB_PNG = $(PKG_LIB_PATH)/libpng.a
+LIB_FC = $(PKG_LIB_PATH)/libfontconfig.a
+//the following 3 libraries are "keg only" in homebrew so are not installed in /usr/local/lib
+LIB_Z = /usr/local/opt/zlib/lib/libz.a
+LIB_BZ = /usr/local/opt/bzip2/lib/libbz2.a
+LIB_EX = /usr/local/opt/expat/lib/libexpat.a
+
+// you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
+IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_FC) $(LIB_Z) $(LIB_BZ) $(LIB_EX)
+
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework QuartzCore
+APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
+AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio
+
+
+// BUILD SETTINGS FOR BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 
 // Where to build the plug-ins / app bundles ...
-
-// build to system plug-in folder
-// you need to explicitly add write permissions to put stuff here
-// you can also build to the user plug-in folder, but the installer scripts assume that the binarys are in the system folder
-// AAX folder should be the location of the PT Dev build plug-ins folder
+// By default WDL-OL/IPlug builds to system plug-in folder
+// You need to explicitly add write permissions to put stuff here
+// You can also build to the user plug-in folder, but the installer scripts assume that the binaries are in the system folder
+// The AAX folder should be the location of the PT Dev build plug-ins folder, installer scripts will copy to the non-developer build
 
 VST_FOLDER = /Library/Audio/Plug-Ins/VST
 VST3_FOLDER = /Library/Audio/Plug-Ins/VST3

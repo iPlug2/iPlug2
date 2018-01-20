@@ -1,6 +1,6 @@
 #include "IControls.h"
 
-void ISwitchControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void ISwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mBitmap.N > 1)
   {
@@ -18,19 +18,19 @@ void ISwitchControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   SetDirty();
 }
 
-void ISwitchControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+void ISwitchControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   OnMouseDown(x, y, mod);
 }
 
-void ISwitchPopUpControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void ISwitchPopUpControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   PromptUserInput();
   
   SetDirty();
 }
 
-ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IBlend::EType blendType)
+ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IBlend::EType blendType)
 : ISwitchControl(plug, x, y, paramIdx, bitmap, blendType)
 {
   mDisablePrompt = false;
@@ -44,7 +44,7 @@ ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, int x, int y
   }
 }
 
-void ISwitchFramesControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void ISwitchFramesControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   int n = mRECTs.GetSize();
   
@@ -66,7 +66,7 @@ IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBaseGraphics& plug, IRECT 
   mDisablePrompt = true;
 }
 
-void IInvisibleSwitchControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IInvisibleSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mValue < 0.5)
   {
@@ -90,9 +90,9 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
   {
     if (direction == kHorizontal)
     {
-      int dX = int((double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
-      int x = mRECT.R - bitmap.W - dX;
-      int y = mRECT.T;
+      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
+      float x = mRECT.R - bitmap.W - dX;
+      float y = mRECT.T;
       
       for (int i = 0; i < nButtons; ++i)
       {
@@ -102,9 +102,9 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
     }
     else
     {
-      int dY = int((double) (rect.H() - nButtons * h) /  (double) (nButtons - 1));
-      int x = mRECT.L;
-      int y = mRECT.B - h - dY;
+      float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
+      float x = mRECT.L;
+      float y = mRECT.B - h - dY;
       
       for (int i = 0; i < nButtons; ++i)
       {
@@ -116,11 +116,11 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
   }
   else
   {
-    int x = mRECT.L, y = mRECT.T;
+    float x = mRECT.L, y = mRECT.T;
     
     if (direction == kHorizontal)
     {
-      int dX = int((double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1));
+      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
       for (int i = 0; i < nButtons; ++i)
       {
         mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
@@ -129,7 +129,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
     }
     else
     {
-      int dY = int((double) (rect.H() - nButtons * h) /  (double) (nButtons - 1));
+      float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
       for (int i = 0; i < nButtons; ++i)
       {
         mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
@@ -139,7 +139,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
   }
 }
 
-void IRadioButtonsControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IRadioButtonsControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
 #ifdef PROTOOLS
   if (mod.A)
@@ -191,13 +191,13 @@ void IRadioButtonsControl::Draw(IGraphics& graphics)
   }
 }
 
-void IContactControl::OnMouseUp(int x, int y, const IMouseMod& mod)
+void IContactControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   mValue = 0.0;
   SetDirty();
 }
 
-IFaderControl::IFaderControl(IPlugBaseGraphics& plug, int x, int y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IFaderControl::IFaderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : IControl(plug, IRECT(), paramIdx)
 , mLen(len), mBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
@@ -235,7 +235,7 @@ IRECT IFaderControl::GetHandleRECT(double value) const
   return r;
 }
 
-void IFaderControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IFaderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
 #ifdef PROTOOLS
   if (mod.A)
@@ -258,12 +258,12 @@ void IFaderControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   return SnapToMouse(x, y);
 }
 
-void IFaderControl::OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod)
+void IFaderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   return SnapToMouse(x, y);
 }
 
-void IFaderControl::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
+void IFaderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
 #ifdef PROTOOLS
   if (mod.C)
@@ -284,7 +284,7 @@ void IFaderControl::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
   SetDirty();
 }
 
-void IFaderControl::SnapToMouse(int x, int y)
+void IFaderControl::SnapToMouse(float x, float y)
 {
   if (mDirection == kVertical)
   {
@@ -303,7 +303,7 @@ void IFaderControl::Draw(IGraphics& graphics)
   graphics.DrawBitmap(mBitmap, r, 1, &mBlend);
 }
 
-bool IFaderControl::IsHit(int x, int y) const
+bool IFaderControl::IsHit(float x, float y) const
 {
   if(mOnlyHandle)
   {
@@ -321,7 +321,7 @@ void IFaderControl::OnRescale()
   mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
 }
 
-void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod)
+void IKnobControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   double gearing = mGearing;
   
@@ -347,7 +347,7 @@ void IKnobControl::OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mo
   SetDirty();
 }
 
-void IKnobControl::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
+void IKnobControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
 #ifdef PROTOOLS
   if (mod.C)
@@ -393,7 +393,7 @@ void IKnobLineControl::Draw(IGraphics& graphics)
   const float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
   
   graphics.DrawCircle(mColor, cx, cy, (mRECT.W()/2.) - 2.);
-  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend, true);
+  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend);
 }
 
 void IKnobRotaterControl::Draw(IGraphics& graphics)
@@ -444,7 +444,7 @@ ICaptionControl::ICaptionControl(IPlugBaseGraphics& plug, IRECT rect, int paramI
   mParamIdx = paramIdx;
 }
 
-void ICaptionControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mod.L || mod.R)
   {
@@ -452,7 +452,7 @@ void ICaptionControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   }
 }
 
-void ICaptionControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+void ICaptionControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   PromptUserInput();
 }
@@ -484,7 +484,7 @@ IURLControl::IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, c
   assert(strlen(errMsgOnFailure) < MAX_NET_ERR_MSG_LEN);
 }
 
-void IURLControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   bool opened = false;
   opened = mPlug.GetGUI()->OpenURL(mURL.Get(), mErrMsg.Get());
@@ -495,7 +495,7 @@ void IURLControl::OnMouseDown(int x, int y, const IMouseMod& mod)
   }
 }
 
-void IFileSelectorControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IFileSelectorControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mPlug.GetGUI())
   {

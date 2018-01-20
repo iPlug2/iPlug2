@@ -524,10 +524,9 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
       gHWND=hwndDlg;
 
-      if(!AttachGUI()) printf("couldn't attach gui\n");
-
 #ifdef _WIN32
-      ClientResize(hwndDlg, GUI_WIDTH, GUI_HEIGHT);
+      if(!AttachGUI()) printf("couldn't attach gui\n");
+      ClientResize(hwndDlg, gPluginInstance->GetUIWidth(), gPluginInstance->GetUIHeight());
       //SendMessage(hwndDlg, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
       //SendMessage(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
 
@@ -567,9 +566,9 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case ID_ABOUT:
           if(!gPluginInstance->OnHostRequestingAboutBox())
           {
-            char version[50];
-            sprintf(version, BUNDLE_MFR"\nBuilt on " __DATE__);
-            MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
+            WDL_String version;
+            version.SetFormatted(100, "%s\nBuilt on %s", BUNDLE_MFR, __DATE__);
+            MessageBox(hwndDlg, version.Get(), BUNDLE_NAME, MB_OK);
           }
           return 0;
         case ID_PREFERENCES:

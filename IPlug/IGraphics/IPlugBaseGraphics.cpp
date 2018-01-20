@@ -1,6 +1,5 @@
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
-#include "IControl.h"
 
 IPlugBaseGraphics::IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI)
 : IPlugBase(config, plugAPI)
@@ -14,13 +13,14 @@ IPlugBaseGraphics::~IPlugBaseGraphics()
 
 int IPlugBaseGraphics::GetUIWidth()
 {
+  assert(mGraphics);
   return mGraphics->WindowWidth();
 }
 
 int IPlugBaseGraphics::GetUIHeight()
 {
+  assert(mGraphics);
   return mGraphics->WindowHeight();
-    
 }
 
 void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
@@ -34,7 +34,6 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
       pGraphics->SetParameterFromPlug(i, GetParam(i)->GetNormalized(), true);
     }
     
-    pGraphics->PrepDraw();
     mGraphics = pGraphics;
     mHasUI = true;
   }

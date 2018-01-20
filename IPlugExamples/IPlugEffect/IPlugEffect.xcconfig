@@ -1,31 +1,34 @@
 #include "../../common.xcconfig"
 
 //------------------------------
-// Global settings
+// Global build settings
 
 // the basename of the vst, vst3, app, component, aaxplugin
 BINARY_NAME = IPlugEffect
 
-ADDITIONAL_INCLUDES = $(IGRAPHICS_PATH) $(LICE_PATH)
-//ADDITIONAL_LIBRARY_PATHS = //
 
-// for jack headers
-//ADDITIONAL_APP_INCLUDES = /usr/local/include
 
-// Flags to pass to compiler for all builds
-GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
+// ------------------------------
+// HEADER AND LIBRARY SEARCH PATHS
+EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
+EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
+EXTRA_LNK_FLAGS = $(IGRAPHICS_LNK_FLAGS)
+
+
+
 
 //------------------------------
-// Preprocessor definitions
+// PREPROCESSOR MACROS
 
+EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugEffect SWELL_APP_PREFIX=Swell_vIPlugEffect GRAPHICS_SCALING //IGRAPHICS_NANOVG
 //EXTRA_DEBUG_DEFS =
 //EXTRA_RELEASE_DEFS =
 //EXTRA_TRACER_DEFS =
 
-EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugEffect SWELL_APP_PREFIX=Swell_vIPlugEffect GRAPHICS_SCALING
+
 
 //------------------------------
-// Release build options
+// RELEASE BUILD OPTIONS
 
 //Enable/Disable Profiling code
 PROFILE = NO //NO, YES - enable this if you want to use instruments to profile a plugin
@@ -34,7 +37,20 @@ PROFILE = NO //NO, YES - enable this if you want to use instruments to profile a
 // None: [-O0] Fast: [-O, -O1] Faster:[-O2] Fastest: [-O3] Fastest, smallest: Optimize for size. [-Os]
 RELEASE_OPTIMIZE = 3 //0,1,2,3,s
 
+
+
 //------------------------------
-// Debug build options
+// DEBUG BUILD OPTIONS
 DEBUG_OPTIMIZE = 0 //0,1,2,3,s
 
+
+
+//------------------------------
+// MISCELLANEOUS COMPILER OPTIONS
+
+SHARED_PRECOMPS_DIR = $(SRCROOT)/build-mac/PCH
+
+GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
+
+// Flags to pass to compiler for all builds
+GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx

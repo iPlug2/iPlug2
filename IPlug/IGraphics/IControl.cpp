@@ -3,6 +3,15 @@
 #include "IControl.h"
 #include "Log.h"
 
+IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBlend blendType)
+: mPlug(plug)
+, mRECT(rect)
+, mTargetRECT(rect)
+, mParamIdx(paramIdx)
+, mBlend(blendType)
+{
+}
+
 void IControl::SetValueFromPlug(double value)
 {
   if (mDefaultValue < 0.0)
@@ -76,7 +85,7 @@ void IControl::GrayOut(bool gray)
   SetDirty(false);
 }
 
-void IControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
   if (mod.A && mDefaultValue >= 0.0)
@@ -91,7 +100,7 @@ void IControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 	}
 }
 
-void IControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
   PromptUserInput();
@@ -110,17 +119,17 @@ void IControl::PromptUserInput()
   {
     if (mPlug.GetParam(mParamIdx)->GetNDisplayTexts()) // popup menu
     {
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT );
+      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT);
     }
     else // text entry
     {
-      int cX = (int) mRECT.MW();
-      int cY = (int) mRECT.MH();
-      int halfW = int(float(PARAM_EDIT_W)/2.f);
-      int halfH = int(float(PARAM_EDIT_H)/2.f);
+      float cX = mRECT.MW();
+      float cY = mRECT.MH();
+      float halfW = float(PARAM_EDIT_W)/2.f;
+      float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT );
+      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT);
     }
 
     Redraw();
@@ -207,13 +216,25 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
 {
   if (mPTisHighlighted)
   {
-    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend, true);
+    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
   }
+}
+
+void IControl::GetJSON(WDL_String& json, int idx) const
+{
+  json.AppendFormatted(8192, "{");
+  json.AppendFormatted(8192, "\"id\":%i, ", idx);
+//  json.AppendFormatted(8192, "\"class\":\"%s\", ", typeid(*this).name());
+//  json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
+//  json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
+//  json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
+  json.AppendFormatted(8192, "\"rate\":\"audio\"");
+  json.AppendFormatted(8192, "}");
 }
 
 void IPanelControl::Draw(IGraphics& graphics)
 {
-  graphics.FillIRect(mColor, mRECT, &mBlend);
+  graphics.FillRect(mColor, mRECT, &mBlend);
 }
 
 void IBitmapControl::Draw(IGraphics& graphics)
@@ -233,6 +254,11 @@ void IBitmapControl::OnRescale()
   mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
 }
 
+void ISVGControl::Draw(IGraphics& graphics)
+{
+  graphics.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
+    //graphics.DrawSVG(mSVG, mRECT);
+};
 
 void ITextControl::SetTextFromPlug(const char* str)
 {
@@ -248,6 +274,6 @@ void ITextControl::Draw(IGraphics& graphics)
   char* cStr = mStr.Get();
   if (CSTR_NOT_EMPTY(cStr))
   {
-    graphics.DrawIText(mText, cStr, mRECT);
+    graphics.DrawText(mText, cStr, mRECT);
   }
 }

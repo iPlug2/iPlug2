@@ -50,9 +50,9 @@ public:
     mTabs.Add(tab);
   }
   
-  void OnMouseWheel(int x, int y, IMouseMod& mod) {}
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override {}
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     int i, n = mTabs.GetSize();
     int hit = -1;
@@ -95,15 +95,15 @@ public:
     SetDirty();
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     for (int t = 0; t < mTabs.GetSize(); t++) 
     {
       if (t == mActive) {
-        graphics.FillIRect(mOnColor, mTabs.Get(t)->mRECT);
+        graphics.FillRect(mOnColor, mTabs.Get(t)->mRECT);
       }
       graphics.DrawRect(mfgcolor, mTabs.Get(t)->mRECT);
-      graphics.DrawIText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
+      graphics.DrawText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
     }
   }
 };
@@ -136,17 +136,17 @@ public:
     mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     //graphics.RoundRect(&mfgcolor, &mRECT, &mBlend, 2, true);
 
-    graphics.DrawIText(mText, mParamNameStr.Get(), mParamNameRECT);
+    graphics.DrawText(mText, mParamNameStr.Get(), mParamNameRECT);
     
     // Draw Slider track
     graphics.DrawLine(mfgcolor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
     
     // Draw Slider handle
-    int xPos = int(mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1)));
+    float xPos = mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1));
   
     IRECT sliderHandleRect = IRECT(mSliderRECT.L + xPos, mRECT.T+4, mSliderRECT.L + xPos + SLIDER_HANDLE_WIDTH, mRECT.B-4);
     graphics.FillRoundRect(mfgcolor, sliderHandleRect, &mBlend, 2, true);
@@ -156,10 +156,10 @@ public:
     mParamValueStr.Set(cstr);
     mParamValueStr.Append(" ");
     mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
-    graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
+    graphics.DrawText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -168,7 +168,7 @@ public:
     else SnapToMouse(x, y);      
   }
   
-  void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod& mod)
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     SnapToMouse(x, y);
   }
@@ -183,11 +183,11 @@ private:
   IRECT mTextEntryRect;
   WDL_String mParamNameStr, mParamValueStr;
   
-  void SnapToMouse(int x, int y)
+  void SnapToMouse(float x, float y)
   {
     if (mSliderRECT.Contains(x, mSliderRECT.T+3))
     {
-      float xValue =  (float) (x-mSliderRECT.L -2) / (float) (mSliderRECT.W() - 4);
+      float xValue = (x-mSliderRECT.L -2.f) / (mSliderRECT.W() - 4.f);
       mValue = BOUNDED(xValue, 0., 1.);
     }
     
@@ -234,12 +234,12 @@ public:
   
   ~AGKnobControl() {}
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     graphics.DrawRoundRect(mfgcolor, mRECT, &mBlend, 2, true);
 
     // Draw Param Name
-    graphics.DrawIText(mText, mParamNameStr.Get(), mParamNameRECT);
+    graphics.DrawText(mText, mParamNameStr.Get(), mParamNameRECT);
 
     // Draw Knob
     double v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
@@ -274,10 +274,10 @@ public:
     mParamValueStr.Set(cstr);
     mParamValueStr.Append(" ");
     mParamValueStr.Append(mPlug.GetParam(mParamIdx)->GetLabelForHost());
-    graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
+    graphics.DrawText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -312,7 +312,7 @@ public:
     mText.mAlign = IText::kAlignCenter;
   }
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, IMouseMod& mod)
   {
     WDL_String presetFilePath, desktopPath;
     
@@ -324,10 +324,10 @@ public:
     }
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
-    graphics.FillIRect(mColor, mRECT);
-    graphics.DrawIText(mText, "Dump preset", mRECT);
+    graphics.FillRect(mColor, mRECT);
+    graphics.DrawText(mText, "Dump preset", mRECT);
   }
 };
 
@@ -356,7 +356,7 @@ void GenerateKnobGUI(IGraphics& graphics,
   {
     IRECT thisParamNameMaxBounds;
     tmtext.Set(plug.GetParam(p)->GetNameForHost());
-    graphics.MeasureIText(text, tmtext.Get(), thisParamNameMaxBounds);
+    graphics.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
@@ -365,18 +365,18 @@ void GenerateKnobGUI(IGraphics& graphics,
     {
       IRECT thisParamValueMaxBounds;
       tmtext.Set(plug.GetParam(p)->GetDisplayTextAtIdx(dt));
-      graphics.MeasureIText(text, tmtext.Get(), thisParamValueMaxBounds);
+      graphics.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(thisParamValueMaxBounds);
     }
   }
 
   paramNameMaxBounds = paramNameMaxBounds.Union(paramValueMaxBounds);
   
-  int width = std::max(paramNameMaxBounds.W(), minWidth);
+  int width = std::max(paramNameMaxBounds.W(), float(minWidth));
   
   width = (width % 2 == 0) ? width : (width + 1); // make sure it's an even number, otherwise LICE draw errors
   
-  int height = std::max(paramNameMaxBounds.H(), minHeight);
+  int height = std::max(paramNameMaxBounds.H(), float(minHeight));
   int row = 0;
   int column = 0;
   int xoffs = 2;
@@ -432,7 +432,7 @@ void GenerateSliderGUI(IGraphics& graphics, IPlug& plug, IText& text, const ICol
   {
     IRECT thisParamNameMaxBounds;
     tmtext.Set(plug.GetParam(p)->GetNameForHost());
-    graphics.MeasureIText(text, tmtext.Get(), thisParamNameMaxBounds);
+    graphics.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
     paramNameMaxBounds = paramNameMaxBounds.Union(thisParamNameMaxBounds);
     
     // hope that the display texts are longer than normal values for double params etc
@@ -441,7 +441,7 @@ void GenerateSliderGUI(IGraphics& graphics, IPlug& plug, IText& text, const ICol
     {
       IRECT thisParamValueMaxBounds;
       tmtext.Set(plug.GetParam(p)->GetDisplayTextAtIdx(dt));
-      graphics.MeasureIText(text, tmtext.Get(), thisParamValueMaxBounds);
+      graphics.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
       paramValueMaxBounds = paramValueMaxBounds.Union(thisParamValueMaxBounds);
     }
     

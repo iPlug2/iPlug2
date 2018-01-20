@@ -1,8 +1,38 @@
+
 #include "IGraphics.h"
+
+#define NANOSVG_IMPLEMENTATION
+#include <cstdio>
+#include "nanosvg.h"
+
 #ifdef VST3_API
 #include "IPlugVST3.h"
 #include "pluginterfaces/base/ustring.h"
 #endif
+
+#ifndef NDEBUG
+#include "IGraphicsLiveEdit.h"
+#endif
+
+struct SVGHolder
+{
+  NSVGimage* mImage = nullptr;
+  
+  SVGHolder(NSVGimage* image)
+  : mImage(image)
+  {
+  }
+  
+  ~SVGHolder()
+  {
+    if(mImage)
+      nsvgDelete(mImage);
+    
+    mImage = nullptr;
+  }
+};
+
+static StaticStorage<SVGHolder> s_SVGCache;
 
 IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
 : mPlug(plug)
@@ -17,26 +47,50 @@ IGraphics::~IGraphics()
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
   
+#if !defined(NDEBUG) && defined(SA_API)
+  if (mLiveEdit)
+    DELETE_NULL(mLiveEdit);
+#endif
+
+#if !defined(NO_FREETYPE)
+  if (mFTFace != nullptr)
+  {
+    FT_Done_Face(mFTFace);
+    FT_Done_FreeType(mFTLibrary);
+  }
+#endif
+  
   mControls.Empty(true);
 }
 
 void IGraphics::Resize(int w, int h, double scale)
 {
   ReleaseMouseCapture();
-//  mControls.Empty(true); // TODO fix (AH - this isn't necessary any longer - agreed?)
-
-  //  PrepDraw();
 
   double oldScale = mScale;
   mScale = scale;
     
   if (oldScale != scale)
-      ReScale();
+      OnDisplayScale();
     
   for (int i = 0; i < mPlug.NParams(); ++i)
     SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
     
   mPlug.ResizeGraphics(w, h, scale);
+}
+
+void IGraphics::OnDisplayScale()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    pControl->OnRescale();
+    pControl->OnResize();
+  }
+  
+  SetAllControlsDirty();
 }
 
 void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
@@ -65,7 +119,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 
 void IGraphics::AttachBackground(const char* name, double scale)
 {
-  IBitmap bg = LoadIBitmap(name, 1, false, scale);
+  IBitmap bg = LoadBitmap(name, 1, false, scale);
   mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
 }
 
@@ -258,11 +312,11 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   {
     if (bitmap.mFramesAreHorizontal)
     {
-      srcX = int(0.5 + (double) bitmap.W * (double) (bmpState - 1) / (double) bitmap.N);
+      srcX = int(0.5f + bitmap.W * (float) (bmpState - 1) / (float) bitmap.N);
     }
     else
     {
-      srcY = int(0.5 + (double) bitmap.H * (double) (bmpState - 1) / (double) bitmap.N);
+      srcY = int(0.5f + bitmap.H * (float) (bmpState - 1) / (float) bitmap.N);
     }
   }
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
@@ -274,15 +328,15 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   {
     int stringLength = (int) strlen(str);
     
-    int basicYOffset, basicXOffset;
+    float basicYOffset, basicXOffset;
     
     if (vCenter)
-      basicYOffset = rect.T + ((rect.H() - charHeight) / 2);
+      basicYOffset = rect.T + ((rect.H() - charHeight) / 2.);
     else
       basicYOffset = rect.T;
     
     if (text.mAlign == IText::kAlignCenter)
-      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2);
+      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2.);
     else if (text.mAlign == IText::kAlignNear)
       basicXOffset = rect.L;
     else if (text.mAlign == IText::kAlignFar)
@@ -316,7 +370,7 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     
     for(int line=0; line<nLines; line++)
     {
-      int yOffset = basicYOffset + line * charHeight;
+      float yOffset = basicYOffset + line * charHeight;
       
       for(int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
       {
@@ -332,31 +386,31 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   }
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x)
+void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
   int xi = rect.L + int(x * (float) (rect.R - rect.L));
-  return DrawVerticalLine(color, xi, rect.T, rect.B);
+  return DrawVerticalLine(color, xi, rect.T, rect.B, pBlend);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y)
+void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend)
 {
   y = BOUNDED(y, 0.0f, 1.0f);
   int yi = rect.B - int(y * (float) (rect.B - rect.T));
-  return DrawHorizontalLine(color, yi, rect.L, rect.R);
+  return DrawHorizontalLine(color, yi, rect.L, rect.R, pBlend);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi)
+void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend)
 {
-  DrawLine(color, xi, yLo, xi, yHi);
+  DrawLine(color, xi, yLo, xi, yHi, pBlend);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi)
+void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend)
 {
-  DrawLine(color, xLo, yi, xHi, yi);
+  DrawLine(color, xLo, yi, xHi, yi, pBlend);
 }
 
-void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
 {
   float sinV = sinf(angle);
   float cosV = cosf(angle);
@@ -364,7 +418,27 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
   float xHi = (cx + rMax * sinV);
   float yLo = (cy - rMin * cosV);
   float yHi = (cy - rMax * cosV);
-  return DrawLine(color, xLo, yLo, xHi, yHi, 0, aa);
+  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+}
+
+void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)
+{
+  // Vertical Lines grid
+  if (gridSizeH > 1)
+  {
+    for (int x = 0; x < rect.W(); x += gridSizeH)
+    {
+      DrawVerticalLine(color, rect, (float)x/(float) rect.W(), pBlend);
+    }
+  }
+    // Horizontal Lines grid
+  if (gridSizeV > 1)
+  {
+    for (int y = 0; y < rect.H(); y += gridSizeV)
+    {
+      DrawHorizontalLine(color, rect, (float)y/(float) rect.H(), pBlend);
+    }
+  }
 }
 
 bool IGraphics::IsDirty(IRECT& rect)
@@ -494,10 +568,10 @@ void IGraphics::Draw(const IRECT& rect)
   {
     static IColor c;
     c.Randomise(50);
-    FillIRect(c, rect);
+    FillRect(c, rect);
   }
   
-  if (mShowControlBounds) 
+  if(mShowControlBounds)
   {
     for (int j = 1; j < mControls.GetSize(); j++)
     {
@@ -506,19 +580,23 @@ void IGraphics::Draw(const IRECT& rect)
     }
   }
   
+#if defined(SA_API)
+  if(mLiveEdit)
+    mLiveEdit->Draw(*this);
+#endif
 //  WDL_String str;
 //  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
   IText txt(20, CONTROL_BOUNDS_COLOR);
   txt.mAlign = IText::kAlignNear;
   IRECT r;
-//  DrawIText(txt, str.Get(), r);
-  MeasureIText(txt, GetDrawingAPIStr(), r);
-  FillIRect(COLOR_BLACK, r);
-  DrawIText(txt, GetDrawingAPIStr(), r);
+//  DrawText(txt, str.Get(), r);
+  MeasureText(txt, GetDrawingAPIStr(), r);
+  FillRect(COLOR_BLACK, r);
+  DrawText(txt, GetDrawingAPIStr(), r);
 
 #endif
 
-  DrawScreen(rect);
+  RenderDrawBitmap();
 }
 
 void IGraphics::SetStrictDrawing(bool strict)
@@ -527,15 +605,21 @@ void IGraphics::SetStrictDrawing(bool strict)
   SetAllControlsDirty();
 }
 
-void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+#if !defined(NDEBUG) && defined(SA_API)
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseDown(x, y, mod);
+    return;
+  }
+#endif
+  
   ReleaseMouseCapture();
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
   {
     mMouseCapture = c;
-    mMouseX = x;
-    mMouseY = y;
 
     IControl* pControl = mControls.Get(c);
     int paramIdx = pControl->ParamIdx();
@@ -578,8 +662,15 @@ void IGraphics::OnMouseDown(int x, int y, const IMouseMod& mod)
   }
 }
 
-void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
+void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
+#if !defined(NDEBUG) && defined(SA_API)
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseUp(x, y, mod);
+    return;
+  }
+#endif
   int c = GetMouseControlIdx(x, y);
   ReleaseMouseCapture();
   if (c >= 0)
@@ -595,15 +686,21 @@ void IGraphics::OnMouseUp(int x, int y, const IMouseMod& mod)
   }
 }
 
-bool IGraphics::OnMouseOver(int x, int y, const IMouseMod& mod)
+bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
+#if !defined(NDEBUG) && defined(SA_API)
+  if(mLiveEdit)
+  {
+    mLiveEdit->OnMouseOver(x, y, mod);
+    return true;
+  }
+#endif
+  
   if (mHandleMouseOver)
   {
     int c = GetMouseControlIdx(x, y, true);
     if (c >= 0)
     {
-      mMouseX = x;
-      mMouseY = y;
       mControls.Get(c)->OnMouseOver(x, y, mod);
       if (mMouseOver >= 0 && mMouseOver != c)
       {
@@ -627,23 +724,22 @@ void IGraphics::OnMouseOut()
   mMouseOver = -1;
 }
 
-void IGraphics::OnMouseDrag(int x, int y, const IMouseMod& mod)
+void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  int c = mMouseCapture;
-  if (c >= 0)
+#if !defined(NDEBUG) && defined(SA_API)
+  if(mLiveEdit)
   {
-    int dX = x - mMouseX;
-    int dY = y - mMouseY;
-    if (dX != 0 || dY != 0)
-    {
-      mMouseX = x;
-      mMouseY = y;
-      mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
-    }
+    mLiveEdit->OnMouseDrag(x, y, 0, 0, mod);
+    return;
   }
+#endif
+  
+  int c = mMouseCapture;
+  if (c >= 0 && (dX != 0 || dY != 0))
+    mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
 }
 
-bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   ReleaseMouseCapture();
   bool newCapture = false;
@@ -654,8 +750,6 @@ bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
     if (pControl->MouseDblAsSingleClick())
     {
       mMouseCapture = c;
-      mMouseX = x;
-      mMouseY = y;
       pControl->OnMouseDown(x, y, mod);
       newCapture = true;
     }
@@ -667,7 +761,7 @@ bool IGraphics::OnMouseDblClick(int x, int y, const IMouseMod& mod)
   return newCapture;
 }
 
-void IGraphics::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
+void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
@@ -678,10 +772,10 @@ void IGraphics::OnMouseWheel(int x, int y, const IMouseMod& mod, int d)
 
 void IGraphics::ReleaseMouseCapture()
 {
-  mMouseCapture = mMouseX = mMouseY = -1;
+  mMouseCapture = -1;
 }
 
-bool IGraphics::OnKeyDown(int x, int y, int key)
+bool IGraphics::OnKeyDown(float x, float y, int key)
 {
   int c = GetMouseControlIdx(x, y);
   if (c > 0)
@@ -692,7 +786,7 @@ bool IGraphics::OnKeyDown(int x, int y, int key)
     return false;
 }
 
-int IGraphics::GetMouseControlIdx(int x, int y, bool mo)
+int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
 {
   if (mMouseCapture >= 0)
   {
@@ -729,7 +823,7 @@ int IGraphics::GetMouseControlIdx(int x, int y, bool mo)
   return -1;
 }
 
-int IGraphics::GetParamIdxForPTAutomation(int x, int y)
+int IGraphics::GetParamIdxForPTAutomation(float x, float y)
 {
   int ctrl = GetMouseControlIdx(x, y, false);
   int idx = -1;
@@ -766,7 +860,7 @@ void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color
   }
 }
 
-void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x, int y)
+void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y)
 {
   IPopupMenu contextMenu;
   IControl* pControl = GetControl(controlIdx);
@@ -774,6 +868,9 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x
   if(pControl)
   {
     pControl->CreateContextMenu(contextMenu);
+    
+    if(!contextMenu.GetNItems())
+      return;
     
 #ifdef VST3_API
     
@@ -832,25 +929,12 @@ void IGraphics::OnGUIIdle()
   }
 }
 
-void IGraphics::ReScale()
-{
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    pControl->OnRescale();
-  }
-  
-  SetAllControlsDirty();
-}
-
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadIBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
+  return LoadBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
 }
 
-void IGraphics::OnDrop(const char* str, int x, int y)
+void IGraphics::OnDrop(const char* str, float x, float y)
 {
   int i = GetMouseControlIdx(x, y);
   IControl* pControl = GetControl(i);
@@ -863,4 +947,52 @@ void IGraphics::EnableTooltips(bool enable)
   mEnableTooltips = enable;
   if (enable)
     mHandleMouseOver = enable;
+}
+
+void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
+{
+#if !defined(NDEBUG) && defined(SA_API)
+  if(enable)
+    mLiveEdit = new IGraphicsLiveEdit(GetPlug(), file, gridsize);
+  else {
+    if(mLiveEdit)
+      DELETE_NULL(mLiveEdit);
+  }
+#endif
+}
+
+ISVG IGraphics::LoadSVG(const char* name)
+{
+#ifdef OS_OSX
+  WDL_String path;
+  bool found = OSFindResource(name, "svg", path);
+  assert(found);
+  
+  SVGHolder* pHolder = s_SVGCache.Find(path.Get());
+  
+  if(!pHolder)
+  {
+    NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
+    pHolder  = new SVGHolder(pImage);
+    s_SVGCache.Add(pHolder, path.Get());
+  }
+  
+  return ISVG(pHolder->mImage);
+#else
+  return ISVG(0);
+#endif
+}
+
+void IGraphics::LoadFont(const char* name)
+{
+#ifndef NO_FREETYPE
+  if (mFTFace)
+  {
+    FT_Done_Face(mFTFace);
+    FT_Done_FreeType(mFTLibrary);
+  }
+
+  FT_Init_FreeType(&mFTLibrary);
+  FT_New_Face(mFTLibrary, name, 0, &mFTFace);
+#endif
 }

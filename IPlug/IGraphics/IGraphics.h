@@ -5,6 +5,11 @@
  * @copydoc IGraphics
  */
 
+#ifndef NO_FREETYPE
+#include "ft2build.h"
+#include FT_FREETYPE_H
+#endif
+
 #ifdef AAX_API
 #include "IPlugAAX_view_interface.h"
 #endif
@@ -14,6 +19,14 @@
 #include "IGraphicsUtilites.h"
 #include "IPopupMenu.h"
 #include "IControl.h"
+
+#ifdef FillRect
+#undef FillRect
+#endif
+
+#ifdef DrawText
+#undef DrawText
+#endif
 
 class IPlugBaseGraphics;
 class IControl;
@@ -32,35 +45,40 @@ class IGraphics
 {
 public:
 #pragma mark - IGraphics drawing API implementation
-  virtual void PrepDraw() = 0;
-
   //These are NanoVG only, may be refactored
   virtual void BeginFrame() {};
   virtual void EndFrame() {};
   virtual void ViewInitialized(void* layer) {};
   //
   
+  /** Called by platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation */
+  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
+
+  virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
+    
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
-  virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0, bool aa = false) = 0;
+  virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
   virtual void ForcePixel(const IColor& color, int x, int y) = 0;
  
-  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, bool aa = false) = 0;
-  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0, bool aa = false) = 0;
+  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0) = 0;
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0) = 0;
   virtual void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  virtual void DrawRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
-  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
-  virtual void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
-  
-  virtual void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
-  virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
-  virtual void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
-  virtual void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
+  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
+  virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
+  virtual void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
 
-  virtual bool DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
-  virtual bool MeasureIText(const IText& text, const char* str, IRECT& destRect) = 0;
+  virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
+  virtual void FillRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
+  virtual void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
+  virtual void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
+  virtual void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
+
+  virtual bool DrawText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
+  virtual bool MeasureText(const IText& text, const char* str, IRECT& destRect) = 0;
 
   virtual IColor GetPoint(int x, int y)  = 0;
   virtual void* GetData() = 0;
@@ -68,18 +86,18 @@ public:
   
   inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics drawing classes to clip drawing
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
-  
+
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap LoadIBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
-  virtual IBitmap ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
-  virtual IBitmap CropIBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
-  virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
-  virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
+  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
+  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
+  virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
+  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
+  virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
   IBitmap GetScaledBitmap(IBitmap& src);
-  virtual void ReScale();
+  virtual void OnDisplayScale();
   
-  // this is called by some drawing API classes to blit the bitmap onto the screen (IGraphicsLice)
-  virtual void RenderAPIBitmap(void* pContext) {}
+  /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
+  virtual void RenderDrawBitmap() {}
 
 #pragma mark - IGraphics base implementation - drawing helpers
   /**
@@ -108,14 +126,14 @@ public:
    */
   void DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
   
-  void DrawVerticalLine(const IColor& color, const IRECT& rect, float x);
-  void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y);
-  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi);
-  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi);
-  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, bool aa = false);
+  void DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend = 0);
+  void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
+  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend = 0);
+  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend = 0);
+  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
+  void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
   
 #pragma mark - IGraphics platform implementation
-  virtual void DrawScreen(const IRECT& rect) = 0;
   virtual void HideMouseCursor() {};
   virtual void ShowMouseCursor() {};
   virtual void ForceEndUserEdit() = 0;
@@ -146,13 +164,11 @@ public:
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Used with IGraphicsLice (possibly others) in order to set the core graphics draw context on macOS and the GDI HDC draw context handle on Windows
-   * On macOS, this is called by the platform IGraphics class IGraphicsMac, on Windows it is called by the drawing class e.g. IGraphicsLice.
-  */
+   * On macOS, this is called by the platform IGraphics class IGraphicsMac, on Windows it is called by the drawing class e.g. IGraphicsLice.*/
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
   void* GetPlatformContext() { return mPlatformContext; }
   
-  /** Try to ascertain the full path of a resource.
-   */
+  /** Try to ascertain the full path of a resource.*/
   virtual bool OSFindResource(const char* name, const char* type, WDL_String& result) = 0;
   
 #pragma mark - IGraphics base implementation
@@ -162,9 +178,11 @@ public:
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   
+  virtual ISVG LoadSVG(const char* name); // correct place?
+
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, float x, float y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
   
   void SetStrictDrawing(bool strict);
 
@@ -173,10 +191,9 @@ public:
   int WindowWidth() const { return mWidth * mScale; }
   int WindowHeight() const { return mHeight * mScale; }
   int FPS() const { return mFPS; }
-  double Scale() const { return mScale; }
-  double GetDisplayScale() const { return mDisplayScale; }
-  void SetDisplayScale(double scale) { mDisplayScale = scale; }
-  IPlugBase& GetPlug() { return mPlug; }
+  float Scale() const { return mScale; }
+  float GetDisplayScale() const { return mDisplayScale; }
+  IPlugBaseGraphics& GetPlug() { return mPlug; }
 
   void AttachBackground(const char* name, double scale = 1.);
   void AttachPanelBackground(const IColor& color);
@@ -194,24 +211,24 @@ public:
   void SetParameterFromPlug(int paramIdx, double value, bool normalized);
   void SetParameterFromGUI(int paramIdx, double normalizedValue);
 
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
-  void OnMouseUp(int x, int y, const IMouseMod& mod);
-  void OnMouseDrag(int x, int y, const IMouseMod& mod);
-  bool OnMouseDblClick(int x, int y, const IMouseMod& mod);
-  void OnMouseWheel(int x, int y, const IMouseMod& mod, int d);
-  bool OnKeyDown(int x, int y, int key);
-  bool OnMouseOver(int x, int y, const IMouseMod& mod);
+  void OnMouseDown(float x, float y, const IMouseMod& mod);
+  void OnMouseUp(float x, float y, const IMouseMod& mod);
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
+  bool OnMouseDblClick(float x, float y, const IMouseMod& mod);
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d);
+  bool OnKeyDown(float x, float y, int key);
+  bool OnMouseOver(float x, float y, const IMouseMod& mod);
   void OnMouseOut();
-  void OnDrop(const char* str, int x, int y);
+  void OnDrop(const char* str, float x, float y);
   void OnGUIIdle();
 
   // AAX only
-  int GetParamIdxForPTAutomation(int x, int y);
+  int GetParamIdxForPTAutomation(float x, float y);
   int GetLastClickedParamForPTAutomation();
   void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
   
   // VST3 primarily
-  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x, int y);
+  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
   
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
   void ReleaseMouseCapture();
@@ -220,16 +237,18 @@ public:
   
   void AssignParamNameToolTips();
 
+  //debugging tools
   inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
   inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
+  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
 
   IRECT GetDrawRect() const { return mDrawRECT; }
  
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
-  inline int GetMouseX() const { return mMouseX; }
-  inline int GetMouseY() const { return mMouseY; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
+
+  virtual void LoadFont(const char* name);
   
 protected:
   WDL_PtrList<IControl> mControls;
@@ -238,19 +257,17 @@ protected:
   IPlugBaseGraphics& mPlug;
   
   bool mCursorHidden = false;
-  int mHiddenMousePointX = -1;
-  int mHiddenMousePointY = -1;
-  double mScale = 1.; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  double mDisplayScale = 1.; // the scaling of the display that the ui is currently on e.g. 2. for retina
+  float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
+  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:
-  int GetMouseControlIdx(int x, int y, bool mo = false);
+  friend class IGraphicsLiveEdit;
+  
+  int GetMouseControlIdx(float x, float y, bool mo = false);
 
   int mWidth, mHeight, mFPS;
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
-  int mMouseX = 0;
-  int mMouseY = 0;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;
@@ -258,4 +275,14 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   IControl* mKeyCatcher = nullptr;
+  
+#if !defined(NDEBUG) && defined(SA_API)
+  IControl* mLiveEdit = nullptr;
+#endif
+
+#if !defined(NO_FREETYPE) 
+protected:
+  FT_Library mFTLibrary = nullptr;
+  FT_Face mFTFace = nullptr;
+#endif
 };

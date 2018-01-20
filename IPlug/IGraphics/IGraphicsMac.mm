@@ -69,9 +69,7 @@ IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
   , mView(nullptr)
 {
-#if GRAPHICS_SCALING
-  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
-#endif
+  SetDisplayScale(1);
   NSApplicationLoad();
 }
 
@@ -121,28 +119,11 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
   return GetResourcePathFromBundle(GetBundleID(), name, type, result);
 }
 
-void IGraphicsMac::DrawScreen(const IRECT& rect)
-{
-  if (!GetPlatformContext())
-    return;
-  
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-  double tm=gettm();
-#endif
-
-  //TODO: this is silly, adapt api
-  RenderAPIBitmap(GetPlatformContext());
-
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-  printf("blit %fms\n",(gettm()-tm)*1000.0);
-#endif
-}
-
-bool IGraphicsMac::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
   CocoaAutoReleasePool pool;
 
-  return IGRAPHICS_DRAW_CLASS::MeasureIText(text, str, destRect);
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, destRect);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
@@ -201,9 +182,7 @@ void IGraphicsMac::HideMouseCursor()
   if (!mCursorHidden)
   {
     if (CGDisplayHideCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = true;
-    NSPoint mouse = [NSEvent mouseLocation];
-    mHiddenMousePointX = mouse.x;
-    mHiddenMousePointY = CGDisplayPixelsHigh(CGMainDisplayID())-mouse.y; //get current mouse position
+    if (!mTabletInput) CGAssociateMouseAndMouseCursorPosition(false);
   }
 }
 
@@ -211,10 +190,8 @@ void IGraphicsMac::ShowMouseCursor()
 {
   if (mCursorHidden)
   {
-    CGPoint point; point.x = mHiddenMousePointX; point.y = mHiddenMousePointY;
-    CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-
     if (CGDisplayShowCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = false;
+    CGAssociateMouseAndMouseCursorPosition(true);
   }
 }
 
@@ -571,53 +548,19 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
-//void IGraphicsMac::OSLoadFont(const char* name, const int size, WDL_String& fullPath)
-//{
-//  CocoaAutoReleasePool pool;
-//
-//  NSBundle * bundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
-//
-//  NSString * fontFilePath = [bundle resourcePath];
-//  NSURL * fontsURL = [NSURL fileURLWithPath:fontFilePath];
-//  if (fontsURL != nil)
-//  {
-//    OSStatus status;
-//    FSRef fsRef;
-//    CFURLGetFSRef((CFURLRef)fontsURL, &fsRef);
-//    status = ATSFontActivateFromFileReference(&fsRef, kATSFontContextLocal, kATSFontFormatUnspecified, NULL, kATSOptionFlagsDefault, NULL);
-//    if (status != noErr)
-//    {
-//      NSLog(@"Failed to activate local font path");
-//    }
-//  }
-
-//  agg::font_mac * font = new agg::font_mac();
-//
-//  if (font->load_font(name, size))
-//  {
-//    return font;
-//  }
-//  else
-//  {
-//    delete font;
-//  }
-
-//  return;
-//}
-//
-//bool IGraphicsMac::LoadSVGFile(const WDL_String & file, WDL_String & fileOut)
-//{
-//  NSBundle * bundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
-//  NSString * svgFilePath = [[bundle resourcePath] stringByAppendingPathComponent:[NSString stringWithUTF8String:file.Get()]];
-//
-//  NSError * error = nil;
-//  NSString * contents = [NSString stringWithContentsOfFile:svgFilePath encoding:NSUTF8StringEncoding error:&error];
-//  if (contents != nil && error == nil)
-//  {
-//    fileOut.Set([contents UTF8String]);
-//    return true;
-//  }
-//
-//  return false;
-//}
-
+//TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
+#ifndef NO_IGRAPHICS
+#ifdef IGRAPHICS_AGG
+#include "IGraphicsAGG.cpp"
+#include "agg_mac_pmap.mm"
+#include "agg_mac_font.mm"
+#elif defined IGRAPHICS_CAIRO
+#include "IGraphicsCairo.cpp"
+#elif defined IGRAPHICS_NANOVG
+#include "IGraphicsNanoVG.cpp"
+#include "nanovg.c"
+//#include "nanovg_mtl.m"
+#else
+#include "IGraphicsLice.cpp"
+#endif
+#endif

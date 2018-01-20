@@ -6,6 +6,7 @@
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(ProjectDir)..\..\IPlug</IPLUG_PATH>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
+    <NANOSVG_PATH>$(IGRAPHICS_PATH)\NanoSVG</NANOSVG_PATH>
     <VST_SDK>$(ProjectDir)..\..\VST_SDK</VST_SDK>
     <VST3_SDK>$(ProjectDir)..\..\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(ProjectDir)..\..\ASIO_SDK</ASIO_SDK>
@@ -69,6 +70,9 @@
     </BuildMacro>
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="NANOSVG_PATH">
+      <Value>$(NANOSVG_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="VST_SDK">
       <Value>$(VST_SDK)</Value>

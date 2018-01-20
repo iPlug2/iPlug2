@@ -118,16 +118,16 @@ USE_MDFILE_AS_MAINPAGE = ./README.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          =
 RECURSIVE              = YES
-EXCLUDE                = ../IPlug/IGraphics/nanovg \
+EXCLUDE                = ../IPlug/IGraphics/NanoVG \
+                         ../IPlug/IGraphics/NanoSVG \
                          ../IPlug/IGraphics/freetype \
                          ../IPlug/IGraphics/MetalNanoVG \
                          ../IPlug/IGraphics/agg \
                          ../IPlug/IGraphics/stb \
                          ../IPlug/AAX \
                          ../IPlug/dfx \
-                         ../IPlug/rtaudiomidi \
+                         ../IPlug/RTAudioMidi \
                          ../IPlug/app_wrapper \
-                         ../IPlug/IGraphics/IAutoGUI.h
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = IPlugVST3Parameter \
@@ -156,7 +156,9 @@ EXCLUDE_SYMBOLS        = IPlugVST3Parameter \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \
-                         AuxParam
+                         AuxParam \ 
+                         PNGStreamReader \
+                         SVGHolder \
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO

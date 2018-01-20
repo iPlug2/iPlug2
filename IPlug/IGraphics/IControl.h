@@ -32,31 +32,36 @@ public:
    @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    @param blendType Blend operation
    */
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone)
-  : mPlug(plug)
-  , mRECT(rect)
-  , mTargetRECT(rect)
-  , mParamIdx(paramIdx)
-  , mBlend(blendType)
-  {
-  }
-
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone);
   virtual ~IControl() {}
 
-  virtual void OnMouseDown(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseUp(int x, int y, const IMouseMod& mod) {}
-  virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) {}
-  virtual void OnMouseDblClick(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d) {};
-  virtual bool OnKeyDown(int x, int y, int key) { return false; }
-  virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
-
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
+  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) {}
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) {}
+  virtual void OnMouseDblClick(float x, float y, const IMouseMod& mod);
+  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {};
+  virtual bool OnKeyDown(float x, float y, int key) { return false; }
+  
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
-  virtual void OnMouseOver(int x, int y, const IMouseMod& mod) {}
+  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) {}
   virtual void OnMouseOut() {}
   
-  // Something was drag n dropped
+  /** Implement to do something when something was drag n dropped onto this control */
   virtual void OnDrop(const char* str) {};
+  
+  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen) */
+  virtual void OnRescale() {}
+  
+  /** Called when IControl is constructed or resized using SetRect() */
+  virtual void OnResize() {}
+  
+  /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
+  virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
+  
+  virtual void TextFromTextEntry( const char* txt ) {}
+  
+  /** Called in response to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
+  virtual void OnContextSelection(int itemSelected) {}
   
   // By default, mouse double click has its own handler.  A control can set mDblAsSingleClick to true to change,
   // which maps double click to single click for this control (and also causes the mouse to be
@@ -64,11 +69,11 @@ public:
   bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
 
   virtual void Draw(IGraphics& graphics) = 0;
-
+  
   virtual void DrawPTHighlight(IGraphics& graphics);
   virtual void SetPTParameterHighlight(bool isHighlighted, int color);
   
-  // Ask the IGraphics object to open an edit box so the user can enter a value for this control.
+  // Create an edit box so the user can enter a value for this control.
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
   
@@ -90,10 +95,10 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
+  void SetRECT(const IRECT& rect) { mRECT = rect; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetArea(IRECT rect) { mTargetRECT = rect; }
-  virtual void TextFromTextEntry( const char* txt ) {}
-  virtual void OnContextSelection(int itemSelected) {}
+  void SetTargetRECT(const IRECT& rect) { mTargetRECT = rect; }
+
 
   /** Shows or hides the IControl.
    * @param hide Set to true to hide the control 
@@ -112,7 +117,7 @@ public:
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
-  virtual bool IsHit(int x, int y) const { return mTargetRECT.Contains(x, y); }
+  virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
   void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
   
@@ -167,18 +172,21 @@ public:
   
   IPlugBaseGraphics& GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
-  
-  virtual void OnRescale() {};
-  
+
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
 
+  void GetJSON(WDL_String& json, int idx) const;
+  
 protected:
   IPlugBaseGraphics& mPlug;
-  IRECT mRECT, mTargetRECT;
-  /** Parameter index */
+  IRECT mRECT;
+  IRECT mTargetRECT;
+  
+  /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
+  
   IBlend mBlend;
   IText mText;
   
@@ -235,27 +243,50 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
   : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
   : IControl(plug, IRECT(x, y, bitmap), kNoParameter, blendType), mBitmap(bitmap) {}
 
   virtual ~IBitmapControl() {}
 
   virtual void Draw(IGraphics& graphics) override;
+  
+  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen), if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
   
 protected:
   IBitmap mBitmap;
 };
 
+/** A basic control to draw an SVG image to the screen. */
+class ISVGControl : public IControl
+{
+public:
+  ISVGControl(IPlugBaseGraphics& plug, ISVG& svg, IRECT rect, int paramIdx)
+    : IControl(plug, rect, paramIdx)
+    , mSVG(svg)
+  {
+  };
+
+  ~ISVGControl()
+  {
+  };
+
+  void Draw(IGraphics& graphics);
+
+private:
+  //TODO: should draw the SVG to intermediate bitmap
+  ISVG mSVG;
+};
+
 /** A basic control to output text to the screen. */
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IPlugBaseGraphics& plug, IRECT rect, IText& text, const char* str = "")
+  ITextControl(IPlugBaseGraphics& plug, IRECT rect, const IText& text, const char* str = "")
   : IControl(plug, rect)
   , mStr(str)
   {

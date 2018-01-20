@@ -10,23 +10,23 @@ HWND gHWND;
 UINT gScrollMessage;
 IPlug* gPluginInstance;
 RtAudio* gDAC = nullptr;
-RtMidiIn *gMidiIn = nullptr;
-RtMidiOut *gMidiOut = nullptr;
+RtMidiIn* gMidiIn = nullptr;
+RtMidiOut* gMidiOut = nullptr;
 
-AppState *gState;
-AppState *gTempState;
-AppState *gActiveState;
+AppState* gState;
+AppState* gTempState;
+AppState* gActiveState;
 
-char *gINIPath = new char[200]; // path of ini file
+char gINIPath[MAX_PATH]; // path of ini file
 
-unsigned int gIOVS = 512;
-unsigned int gSigVS = 32;
-unsigned int gBufIndex = 0; // Loops 0 to SigVS
-unsigned int gVecElapsed = 0;
+uint32_t gIOVS = 512;
+uint32_t gSigVS = 32;
+uint32_t gBufIndex = 0; // Loops 0 to SigVS
+uint32_t gVecElapsed = 0;
 double gFadeMult = 0.; // Fade multiplier
 
-std::vector<unsigned int> gAudioInputDevs;
-std::vector<unsigned int> gAudioOutputDevs;
+std::vector<uint32_t> gAudioInputDevs;
+std::vector<uint32_t> gAudioOutputDevs;
 std::vector<std::string> gMIDIInputDevNames;
 std::vector<std::string> gMIDIOutputDevNames;
 std::vector<std::string> gAudioIDDevNames;
@@ -86,7 +86,7 @@ int GetAudioDeviceID(char* deviceNameToTest)
   return -1;
 }
 
-unsigned int GetMIDIInPortNumber(const char* nameToTest)
+uint32_t GetMIDIInPortNumber(const char* nameToTest)
 {
   int start = 1;
 
@@ -106,7 +106,7 @@ unsigned int GetMIDIInPortNumber(const char* nameToTest)
   return -1;
 }
 
-unsigned int GetMIDIOutPortNumber(const char* nameToTest)
+uint32_t GetMIDIOutPortNumber(const char* nameToTest)
 {
   int start = 1;
 
@@ -137,7 +137,7 @@ void ProbeAudioIO()
   gAudioOutputDevs.clear();
   gAudioIDDevNames.clear();
 
-  unsigned int nDevices = gDAC->getDeviceCount();
+  uint32_t nDevices = gDAC->getDeviceCount();
 
   for (int i=0; i<nDevices; i++)
   {
@@ -268,7 +268,7 @@ void MIDICallback( double deltatime, std::vector< unsigned char > *message, void
 
 int AudioCallback(void *outputBuffer,
                   void *inputBuffer,
-                  unsigned int nFrames,
+                  uint32_t nFrames,
                   double streamTime,
                   RtAudioStreamStatus status,
                   void *userData )
@@ -384,13 +384,13 @@ bool TryToChangeAudio()
   return false;
 }
 
-bool InitialiseAudio(unsigned int inId,
-                     unsigned int outId,
-                     unsigned int sr,
-                     unsigned int iovs,
-                     unsigned int chnls,
-                     unsigned int inChanL,
-                     unsigned int outChanL
+bool InitialiseAudio(uint32_t inId,
+                     uint32_t outId,
+                     uint32_t sr,
+                     uint32_t iovs,
+                     uint32_t chnls,
+                     uint32_t inChanL,
+                     uint32_t outChanL
                     )
 {
   TRACE;
@@ -487,7 +487,7 @@ bool InitialiseMidi()
 
 bool ChooseMidiInput(const char* pPortName)
 {
-  unsigned int port = GetMIDIInPortNumber(pPortName);
+  uint32_t port = GetMIDIInPortNumber(pPortName);
 
   if(port == -1)
   {
@@ -541,7 +541,7 @@ bool ChooseMidiInput(const char* pPortName)
 
 bool ChooseMidiOutput(const char* pPortName)
 {
-  unsigned int port = GetMIDIOutPortNumber(pPortName);
+  uint32_t port = GetMIDIOutPortNumber(pPortName);
 
   if(port == -1)
   {
@@ -616,7 +616,7 @@ void Init()
   ProbeMidiIO(); // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
 
   // Initialise the plugin
-  gPluginInstance = MakePlug(gMidiOut, &gState->mMidiOutChan);
+  gPluginInstance = MakePlug(gMidiOut, gState->mMidiOutChan);
   gPluginInstance->RestorePreset(0);
 
   ChooseMidiInput(gState->mMidiInDev);
@@ -652,7 +652,6 @@ void Cleanup()
   delete gMidiIn;
   delete gMidiOut;
   delete gDAC;
-  delete [] gINIPath;
 }
 
 #ifdef OS_WIN
@@ -953,12 +952,12 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
 #endif
 
+#ifndef OS_WIN
+#define CBS_HASSTRINGS 0
 #define SWELL_DLG_SCALE_AUTOGEN 1
 #define SET_IDD_DIALOG_PREF_SCALE 1.5
-#define CBS_HASSTRINGS 0
-#ifndef OS_WIN
 #include "swell-dlggen.h"
-#include "../IPlugEffect.rc_mac_dlg"
+#include "../resources/IPlugEffect.rc_mac_dlg"
 #include "swell-menugen.h"
-#include "../IPlugEffect.rc_mac_menu"
+#include "../resources/IPlugEffect.rc_mac_menu"
 #endif

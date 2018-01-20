@@ -21,7 +21,7 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
+IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
 {
   double targetScale = mDisplayScale / scale;
   double scaleRes = scale * targetScale;
@@ -42,7 +42,7 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
       
       if (scale != mDisplayScale) {
         IBitmap bitmap(pixel_map, pixel_map->width(), pixel_map->height(), nStates, framesAreHoriztonal, scale, name);
-        return ScaleIBitmap(bitmap, name, targetScale);
+        return ScaleBitmap(bitmap, name, targetScale);
       }
       
       s_bitmapCache.Add(pixel_map, name, targetScale);
@@ -52,44 +52,27 @@ IBitmap IGraphicsAGG::LoadIBitmap(const char* name, int nStates, bool framesAreH
   return IBitmap(pixel_map, pixel_map->width() / targetScale, pixel_map->height() / targetScale, nStates, framesAreHoriztonal, scale, name);
 }
 
-void IGraphicsAGG::ReScale()
+void IGraphicsAGG::SetDisplayScale(int scale)
 {
   //TODO: rewrite this method
-  
-  // resize draw bitmap
-  PrepDraw();
-  
-  const int cacheSize = s_bitmapCache.mDatas.GetSize();
-  
-  for ( int i = 0; i<cacheSize; i++)
-  {
-    const char* path = s_bitmapCache.mDatas.Get(i)->path.Get();
-
-    WDL_String fullPath;
-    OSFindResource(path, "png", fullPath);
-    
-    agg::pixel_map* pixel_map = s_bitmapCache.Find(fullPath.Get(), 1.);
-    
-    if (!pixel_map)
-    {
-      if(CSTR_NOT_EMPTY(fullPath.Get()))
-      {
-        pixel_map = LoadAPIBitmap(fullPath.Get());
-        if (pixel_map)
-        {
-          s_bitmapCache.Add(pixel_map, fullPath.Get(), 1.);
-        }
-      }
-    }
-  }
+//
+//  int w = Width() * mDisplayScale;
+//  int h = Height() * mDisplayScale;
+//
+//  mPixelMap.create(w, h);
+//  mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
+//  mPixf = PixfmtType(mRenBuf);
+//  mRenBase = RenbaseType(mPixf);
+//  mRenBase.clear(agg::rgba(0, 0, 0, 0));
+//
+//}
   
 //  printf("cache size %i\n", s_bitmapCache.mDatas.GetSize());
   
-  // notify IControls
-  IGraphics::ReScale();
+  IGraphics::SetDisplayScale(scale);
 }
 
-//IFontData IGraphicsAGG::LoadIFont(const char* name, const int size)
+//IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
 //{
 //  WDL_String cacheName(name);
 //  char buf [6] = {0};
@@ -109,18 +92,6 @@ void IGraphicsAGG::ReScale()
 //  }
 //  return IFontData(font_buf);
 //}
-
-void IGraphicsAGG::PrepDraw()
-{
-  int w = Width() * mDisplayScale;
-  int h = Height() * mDisplayScale;
-  
-  mPixelMap.create(w, h);
-  mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
-  mPixf = PixfmtType(mRenBuf);
-  mRenBase = RenbaseType(mPixf);
-  mRenBase.clear(agg::rgba(0, 0, 0, 0));
-}
 
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
@@ -241,7 +212,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
 }
 
-void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   mRenBase.blend_pixel(x * mScale, y * mScale, IColorToAggColor(color), 255);
 }
@@ -251,7 +222,7 @@ void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
   mRenBase.copy_pixel(x * mScale, y * mScale, IColorToAggColor(color));
 }
 
-void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
   ToPixel(x1);
   ToPixel(y1);
@@ -284,7 +255,7 @@ void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, f
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
 {
   cx *= mScale;
   cy *= mScale;
@@ -313,7 +284,7 @@ void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, flo
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, bool aa)
+void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
   cx *= mScale;
   cy *= mScale;
@@ -342,7 +313,7 @@ void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, 
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr, bool aa)
+void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -370,7 +341,7 @@ void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr, bool aa)
+void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
@@ -392,7 +363,7 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
+void IGraphicsAGG::FillRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
 {
   IRECT rect = destRect;
   rect.Scale(mDisplayScale);
@@ -421,7 +392,7 @@ void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const I
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend, bool aa)
+void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend)
 {
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
   
@@ -441,14 +412,14 @@ void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, cons
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend)
+void IGraphicsAGG::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
   int x[3] = { x1, x2, x3 };
   int y[3] = { y1, y2, y3 };
-  FillIConvexPolygon(color, x, y, 3, pBlend);
+  FillConvexPolygon(color, x, y, 3, pBlend);
 }
 
-void IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
+void IGraphicsAGG::FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
   typedef agg::conv_stroke<agg::path_storage> agg_strokes;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
@@ -485,7 +456,7 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
+IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
 {
   const int destW = srcbitmap.W * scale;
   const int destH = srcbitmap.H * scale;
@@ -497,7 +468,7 @@ IBitmap IGraphicsAGG::ScaleIBitmap(const IBitmap& srcbitmap, const char* cacheNa
   return IBitmap(copy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, scale, cacheName);
 }
 
-IBitmap IGraphicsAGG::CropIBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
+IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
 {
   agg::pixel_map* pixel_map = (agg::pixel_map *)srcbitmap.mData;
   agg::pixel_map* copy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());
@@ -631,10 +602,10 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* src_pixel_map, int 
   return copy;
 }
 
-void IGraphicsAGG::RenderAPIBitmap(void *pContext)
+void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_OSX
-  mPixelMap.draw((CGContext*) pContext, mDisplayScale);
+  mPixelMap.draw((CGContext*) GetPlatformContext(), mDisplayScale);
 #else // OS_WIN
   //TODO: win
 #endif
@@ -696,7 +667,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
   }
 }
 
-bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure)
+bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect, bool measure)
 {
 //  if (!str || str[0] == '\0')
 //  {
@@ -742,7 +713,7 @@ bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect
 //
 //  mFontContour.width(-weight * (text.mSize * 0.05) * mScale);
 //
-//  IFontData font = LoadIFont(text.mFont, text.mSize);
+//  IFontData font = LoadFont(text.mFont, text.mSize);
 //  agg::font * font_data = (agg::font *)font.mData;
 //
 //  if (font_data != 0 && mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
@@ -841,7 +812,7 @@ bool IGraphicsAGG::DrawIText(const IText& text, const char* str, IRECT& destRect
   return false;
 }
 
-bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
 //  if (!str || str[0] == '\0')
 //  {
@@ -884,7 +855,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
 //
 //  mFontContour.width(-weight * (text.mSize * 0.05) * mScale);
 //
-//  IFontData font = LoadIFont(text.mFont, text.mSize);
+//  IFontData font = LoadFont(text.mFont, text.mSize);
 //  agg::font * font_data = (agg::font *)font.mData;
 //
 //  if (mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
@@ -952,7 +923,7 @@ bool IGraphicsAGG::MeasureIText(const IText& text, const char* str, IRECT& destR
 
 agg::pixel_map * IGraphicsAGG::load_image(const char* filename)
 {
-  IBitmap bitmap = LoadIBitmap(filename, 1, 1.0);
+  IBitmap bitmap = LoadBitmap(filename, 1, 1.0);
   return (agg::pixel_map *)bitmap.mData;
 }
 
@@ -969,3 +940,5 @@ void IGraphicsAGG::ToPixel(float & pixel)
 {
   pixel = floorf(pixel + 0.5f) + 0.5f;
 }
+
+#include "IGraphicsAGG_src.cpp"
