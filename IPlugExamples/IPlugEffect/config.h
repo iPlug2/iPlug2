@@ -29,8 +29,6 @@
 #define PLUG_IS_INST 0
 #define PLUG_DOES_MIDI 0
 #define PLUG_DOES_STATE_CHUNKS 0
-#define GUI_WIDTH 300
-#define GUI_HEIGHT 300
 #define MFR_URL "www.olilarkin.co.uk"
 #define MFR_EMAIL "spam@me.com"
 #define EFFECT_TYPE_VST3 "Fx"
@@ -40,4 +38,5 @@
 #define NUM_CHANNELS 2
 #define N_VECTOR_WAIT 50
 #define APP_MULT 0.25
-#define KNOB_FN "resources/img/knob.png"
+//#define KNOB_FN "resources/img/knob.png"
+

@@ -366,7 +366,7 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, con
   agg::render_scanlines(rasterizer, scanline, renderer);
 }
 
-void IGraphicsAGG::FillIRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
+void IGraphicsAGG::FillRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
 {
   IRECT rect = destRect;
   rect.Scale(mDisplayScale);
@@ -419,10 +419,10 @@ void IGraphicsAGG::FillTriangle(const IColor& color, int x1, int y1, int x2, int
 {
   int x[3] = { x1, x2, x3 };
   int y[3] = { y1, y2, y3 };
-  FillIConvexPolygon(color, x, y, 3, pBlend);
+  FillConvexPolygon(color, x, y, 3, pBlend);
 }
 
-void IGraphicsAGG::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
+void IGraphicsAGG::FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
   typedef agg::conv_stroke<agg::path_storage> agg_strokes;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;

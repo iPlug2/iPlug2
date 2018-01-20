@@ -71,12 +71,26 @@ void IGraphics::Resize(int w, int h, double scale)
   mScale = scale;
     
   if (oldScale != scale)
-      ReScale();
+      OnDisplayScale();
     
   for (int i = 0; i < mPlug.NParams(); ++i)
     SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
     
   mPlug.ResizeGraphics(w, h, scale);
+}
+
+void IGraphics::OnDisplayScale()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    pControl->OnRescale();
+    pControl->OnResize();
+  }
+  
+  SetAllControlsDirty();
 }
 
 void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
@@ -554,7 +568,7 @@ void IGraphics::Draw(const IRECT& rect)
   {
     static IColor c;
     c.Randomise(50);
-    FillIRect(c, rect);
+    FillRect(c, rect);
   }
   
   if(mShowControlBounds)
@@ -577,7 +591,7 @@ void IGraphics::Draw(const IRECT& rect)
   IRECT r;
 //  DrawIText(txt, str.Get(), r);
   MeasureIText(txt, GetDrawingAPIStr(), r);
-  FillIRect(COLOR_BLACK, r);
+  FillRect(COLOR_BLACK, r);
   DrawIText(txt, GetDrawingAPIStr(), r);
 
 #endif
@@ -913,20 +927,6 @@ void IGraphics::OnGUIIdle()
     IControl* pControl = *ppControl;
     pControl->OnGUIIdle();
   }
-}
-
-void IGraphics::ReScale()
-{
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    pControl->OnRescale();
-    pControl->OnResize();
-  }
-  
-  SetAllControlsDirty();
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)

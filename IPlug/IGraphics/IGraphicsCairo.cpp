@@ -327,7 +327,7 @@ void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, const
   cairo_fill(mContext);
 }
 
-void IGraphicsCairo::FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+void IGraphicsCairo::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   SetCairoSourceRGBA(color, pBlend);
   CairoDrawRect(rect);
@@ -351,7 +351,7 @@ void IGraphicsCairo::FillTriangle(const IColor& color, int x1, int y1, int x2, i
   cairo_fill(mContext);
 }
 
-void IGraphicsCairo::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
+void IGraphicsCairo::FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
   SetCairoSourceRGBA(color, pBlend);
 

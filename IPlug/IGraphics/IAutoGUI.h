@@ -100,7 +100,7 @@ public:
     for (int t = 0; t < mTabs.GetSize(); t++) 
     {
       if (t == mActive) {
-        graphics.FillIRect(mOnColor, mTabs.Get(t)->mRECT);
+        graphics.FillRect(mOnColor, mTabs.Get(t)->mRECT);
       }
       graphics.DrawRect(mfgcolor, mTabs.Get(t)->mRECT);
       graphics.DrawIText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
@@ -326,7 +326,7 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-    graphics.FillIRect(mColor, mRECT);
+    graphics.FillRect(mColor, mRECT);
     graphics.DrawIText(mText, "Dump preset", mRECT);
   }
 };

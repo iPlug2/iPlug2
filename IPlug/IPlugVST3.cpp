@@ -619,7 +619,11 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   TRACE;
 
   ByteChunk chunk;
-
+  
+// TODO: IPlugVer should be in chunk!
+//  int pos;
+//  GetIPlugVerFromChunk(chunk, pos)
+  
   if (SerializeState(chunk))
   {
     state->write(chunk.GetBytes(), chunk.Size());

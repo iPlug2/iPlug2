@@ -1403,11 +1403,16 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
   RestorePreset(presetName);
 
   ByteChunk chunk;
+
   if (!GetDataFromDict(pDict, kAUPresetDataKey, &chunk))
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
 
+  // TODO: IPlugVer should be in chunk!
+  //  int pos;
+  //  GetIPlugVerFromChunk(chunk, pos)
+  
   if (!UnserializeState(chunk, 0))
   {
     return kAudioUnitErr_InvalidPropertyValue;

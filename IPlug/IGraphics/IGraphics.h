@@ -20,6 +20,10 @@
 #include "IPopupMenu.h"
 #include "IControl.h"
 
+#ifdef FillRect
+#undef FillRect
+#endif
+
 class IPlugBaseGraphics;
 class IControl;
 class IParam;
@@ -44,7 +48,7 @@ public:
   //
   
   /** Called by platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation */
-  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; ReScale(); };
+  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
 
   virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
   
@@ -62,10 +66,10 @@ public:
   virtual void DrawTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
   virtual void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
 
-  virtual void FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
+  virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0, int cr = 5, bool aa = false) = 0;
   virtual void FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend = 0, bool aa = false) = 0;
-  virtual void FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
+  virtual void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend = 0) = 0;
   virtual void FillTriangle(const IColor& color, int x1, int y1, int x2, int y2, int x3, int y3, const IBlend* pBlend = 0) = 0;
 
   virtual bool DrawIText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
@@ -85,7 +89,7 @@ public:
   virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
   IBitmap GetScaledBitmap(IBitmap& src);
-  virtual void ReScale();
+  virtual void OnDisplayScale();
   
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
   virtual void RenderDrawBitmap() {}
@@ -249,7 +253,7 @@ protected:
   
   bool mCursorHidden = false;
   float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
+  float mDisplayScale = 0.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:
   friend class IGraphicsLiveEdit;
   

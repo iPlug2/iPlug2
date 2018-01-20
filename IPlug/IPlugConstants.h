@@ -5,13 +5,6 @@
  * @brief Constant definitions, magic numbers
  */
 
-typedef unsigned char BYTE;
-
-#ifndef VstInt32
-#include <stdint.h>
-typedef int32_t VstInt32;
-#endif
-
 enum EIPlugKeyCodes
 {
   KEY_SPACE,
@@ -56,6 +49,8 @@ static const int MAX_PRESET_NAME_LEN = 256;
 #define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
 #define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
+#define MAX_VERSION_STR_LEN 32
+#define MAX_BUILD_INFO_STR_LEN 256
 static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 
 #define PARAM_UNINIT 99.99e-9
@@ -72,6 +67,5 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
-// #define USE_IDLE_CALLS
 
 

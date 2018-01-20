@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cstdio>
 #include <ctime>
-#include <assert.h>
+#include <cassert>
 
 #include "wdlendian.h"
 #include "base64encdec.h"
@@ -101,7 +101,7 @@ int IPlugBase::GetHostVersion(bool decimal)
   return mHostVersion;
 }
 
-void IPlugBase::GetHostVersionStr(char* str)
+void IPlugBase::GetHostVersionStr(WDL_String& str)
 {
   GetHost();
   GetVersionStr(mHostVersion, str);
@@ -142,9 +142,9 @@ void IPlugBase::SetHost(const char* host, int version)
   mHost = LookUpHost(host);
   mHostVersion = version;
 
-  char vStr[32];
+  WDL_String vStr;
   GetVersionStr(version, vStr);
-  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr);
+  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
 }
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
@@ -160,17 +160,17 @@ int IPlugBase::GetEffectVersion(bool decimal) const
   }
 }
 
-void IPlugBase::GetEffectVersionStr(char* str) const
+void IPlugBase::GetEffectVersionStr(WDL_String& str) const
 {
   GetVersionStr(mVersion, str);
 #if defined _DEBUG
-  strcat(str, "D");
+  str.Append("D");
 #elif defined TRACER_BUILD
-  strcat(str, "T");
+  str.Append("T");
 #endif
 }
 
-const char* IPlugBase::GetAPIString()
+const char* IPlugBase::GetAPIStr()
 {
   switch (GetAPI()) 
   {
@@ -183,13 +183,21 @@ const char* IPlugBase::GetAPIString()
   }
 }
 
-const char* IPlugBase::GetArchString()
+const char* IPlugBase::GetArchStr()
 {
 #ifdef ARCH_64BIT
   return "x64";
 #else
   return "x86";
 #endif
+}
+
+
+void IPlugBase::GetBuildInfoStr(WDL_String& str)
+{
+  WDL_String version;
+  GetEffectVersionStr(version);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetEffectName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
 }
 
 double IPlugBase::GetSamplesPerBeat()
@@ -965,13 +973,13 @@ bool IPlugBase::SaveProgramAsFXP(const char* file)
 
     ByteChunk pgm;
 
-    VstInt32 chunkMagic = WDL_bswap32('CcnK');
-    VstInt32 byteSize = 0;
-    VstInt32 fxpMagic;
-    VstInt32 fxpVersion = WDL_bswap32(kFXPVersionNum);
-    VstInt32 pluginID = WDL_bswap32(GetUniqueID());
-    VstInt32 pluginVersion = WDL_bswap32(GetEffectVersion(true));
-    VstInt32 numParams = WDL_bswap32(NParams());
+    int32_t chunkMagic = WDL_bswap32('CcnK');
+    int32_t byteSize = 0;
+    int32_t fxpMagic;
+    int32_t fxpVersion = WDL_bswap32(kFXPVersionNum);
+    int32_t pluginID = WDL_bswap32(GetUniqueID());
+    int32_t pluginVersion = WDL_bswap32(GetEffectVersion(true));
+    int32_t numParams = WDL_bswap32(NParams());
     char prgName[28];
     memset(prgName, 0, 28);
     strcpy(prgName, GetPresetName(GetCurrentPresetIdx()));
@@ -981,7 +989,7 @@ bool IPlugBase::SaveProgramAsFXP(const char* file)
     if (DoesStateChunks())
     {
       ByteChunk state;
-      VstInt32 chunkSize;
+      int32_t chunkSize;
 
       fxpMagic = WDL_bswap32('FPCh');
 
@@ -1038,14 +1046,14 @@ bool IPlugBase::SaveBankAsFXB(const char* file)
 
     ByteChunk bnk;
 
-    VstInt32 chunkMagic = WDL_bswap32('CcnK');
-    VstInt32 byteSize = 0;
-    VstInt32 fxbMagic;
-    VstInt32 fxbVersion = WDL_bswap32(kFXBVersionNum);
-    VstInt32 pluginID = WDL_bswap32(GetUniqueID());
-    VstInt32 pluginVersion = WDL_bswap32(GetEffectVersion(true));
-    VstInt32 numPgms =  WDL_bswap32(NPresets());
-    VstInt32 currentPgm = WDL_bswap32(GetCurrentPresetIdx());
+    int32_t chunkMagic = WDL_bswap32('CcnK');
+    int32_t byteSize = 0;
+    int32_t fxbMagic;
+    int32_t fxbVersion = WDL_bswap32(kFXBVersionNum);
+    int32_t pluginID = WDL_bswap32(GetUniqueID());
+    int32_t pluginVersion = WDL_bswap32(GetEffectVersion(true));
+    int32_t numPgms =  WDL_bswap32(NPresets());
+    int32_t currentPgm = WDL_bswap32(GetCurrentPresetIdx());
     char future[124];
     memset(future, 0, 124);
 
@@ -1054,7 +1062,7 @@ bool IPlugBase::SaveBankAsFXB(const char* file)
     if (DoesStateChunks())
     {
       ByteChunk state;
-      VstInt32 chunkSize;
+      int32_t chunkSize;
 
       fxbMagic = WDL_bswap32('FBCh');
 
@@ -1089,9 +1097,9 @@ bool IPlugBase::SaveBankAsFXB(const char* file)
       bnk.Put(&currentPgm);
       bnk.PutBytes(&future, 124);
 
-      VstInt32 fxpMagic = WDL_bswap32('FxCk');
-      VstInt32 fxpVersion = WDL_bswap32(kFXPVersionNum);
-      VstInt32 numParams = WDL_bswap32(NParams());
+      int32_t fxpMagic = WDL_bswap32('FxCk');
+      int32_t fxpVersion = WDL_bswap32(kFXPVersionNum);
+      int32_t numParams = WDL_bswap32(NParams());
 
       for (int p = 0; p < NPresets(); p++)
       {
@@ -1157,13 +1165,13 @@ bool IPlugBase::LoadProgramFromFXP(const char* file)
 
       int pos = 0;
 
-      VstInt32 chunkMagic;
-      VstInt32 byteSize = 0;
-      VstInt32 fxpMagic;
-      VstInt32 fxpVersion;
-      VstInt32 pluginID;
-      VstInt32 pluginVersion;
-      VstInt32 numParams;
+      int32_t chunkMagic;
+      int32_t byteSize = 0;
+      int32_t fxpMagic;
+      int32_t fxpVersion;
+      int32_t pluginID;
+      int32_t pluginVersion;
+      int32_t numParams;
       char prgName[28];
 
       pos = pgm.Get(&chunkMagic, pos);
@@ -1190,11 +1198,11 @@ bool IPlugBase::LoadProgramFromFXP(const char* file)
 
       if (DoesStateChunks() && fxpMagic == 'FPCh')
       {
-        VstInt32 chunkSize;
+        int32_t chunkSize;
         pos = pgm.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GetIPlugVerFromChunk(pgm, &pos);
+        GetIPlugVerFromChunk(pgm, pos);
         UnserializeState(pgm, pos);
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
@@ -1248,14 +1256,14 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
 
       int pos = 0;
 
-      VstInt32 chunkMagic;
-      VstInt32 byteSize = 0;
-      VstInt32 fxbMagic;
-      VstInt32 fxbVersion;
-      VstInt32 pluginID;
-      VstInt32 pluginVersion;
-      VstInt32 numPgms;
-      VstInt32 currentPgm;
+      int32_t chunkMagic;
+      int32_t byteSize = 0;
+      int32_t fxbMagic;
+      int32_t fxbVersion;
+      int32_t pluginID;
+      int32_t pluginVersion;
+      int32_t numPgms;
+      int32_t currentPgm;
       char future[124];
       memset(future, 0, 124);
 
@@ -1285,11 +1293,11 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
 
       if (DoesStateChunks() && fxbMagic == 'FBCh')
       {
-        VstInt32 chunkSize;
+        int32_t chunkSize;
         pos = bnk.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GetIPlugVerFromChunk(bnk, &pos);
+        GetIPlugVerFromChunk(bnk, pos);
         UnserializePresets(bnk, pos);
         //RestorePreset(currentPgm);
         InformHostOfProgramChange();
@@ -1297,13 +1305,13 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
       }
       else if (fxbMagic == 'FxBk')
       {
-        VstInt32 chunkMagic;
-        VstInt32 byteSize;
-        VstInt32 fxpMagic;
-        VstInt32 fxpVersion;
-        VstInt32 pluginID;
-        VstInt32 pluginVersion;
-        VstInt32 numParams;
+        int32_t chunkMagic;
+        int32_t byteSize;
+        int32_t fxpMagic;
+        int32_t fxpVersion;
+        int32_t pluginID;
+        int32_t pluginVersion;
+        int32_t numParams;
         char prgName[28];
 
         for(int i = 0; i<numPgms; i++)
@@ -1371,13 +1379,13 @@ void IPlugBase::InitChunkWithIPlugVer(ByteChunk& chunk)
   chunk.Put(&ver);
 }
 
-int IPlugBase::GetIPlugVerFromChunk(ByteChunk& chunk, int* pPos)
+int IPlugBase::GetIPlugVerFromChunk(ByteChunk& chunk, int& position)
 {
   int magic = 0, ver = 0;
-  int pos = chunk.Get(&magic, *pPos);
-  if (pos > *pPos && magic == IPLUG_VERSION_MAGIC)
+  int magicpos = chunk.Get(&magic, position);
+  if (magicpos > position && magic == IPLUG_VERSION_MAGIC)
   {
-    *pPos = chunk.Get(&ver, pos);
+    position = chunk.Get(&ver, magicpos);
   }
   return ver;
 }

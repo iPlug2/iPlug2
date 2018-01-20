@@ -262,7 +262,7 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& rect, const 
   LICE_FillCircle(mDrawBitmap, (float) x1+cr, (float) y1+h-cr-1, (float) cr, lcolor, weight, mode, aa);
 }
 
-void IGraphicsLice::FillIRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+void IGraphicsLice::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   IRECT r = rect;
   r.Scale(mDisplayScale);
@@ -280,9 +280,9 @@ void IGraphicsLice::FillTriangle(const IColor& color, int x1, int y1, int x2, in
   LICE_FillTriangle(mDrawBitmap, x1 * mDisplayScale, y1 * mDisplayScale, x2 * mDisplayScale, y2 * mDisplayScale, x3 * mDisplayScale, y3 * mDisplayScale, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::FillIConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
+void IGraphicsLice::FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
 {
-  //TODO: FillIConvexPolygon won't scale
+  //TODO: FillConvexPolygon won't scale
   LICE_FillConvexPolygon(mDrawBitmap, x, y, npoints, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend));
 }
 

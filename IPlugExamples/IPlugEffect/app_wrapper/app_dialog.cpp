@@ -566,9 +566,9 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case ID_ABOUT:
           if(!gPluginInstance->OnHostRequestingAboutBox())
           {
-            char version[50];
-            sprintf(version, BUNDLE_MFR"\nBuilt on " __DATE__);
-            MessageBox(hwndDlg,version, BUNDLE_NAME, MB_OK);
+            WDL_String version;
+            version.SetFormatted(100, "%s\nBuilt on %s", BUNDLE_MFR, __DATE__);
+            MessageBox(hwndDlg, version.Get(), BUNDLE_NAME, MB_OK);
           }
           return 0;
         case ID_PREFERENCES:

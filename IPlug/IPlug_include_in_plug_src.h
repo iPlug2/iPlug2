@@ -258,16 +258,14 @@ extern "C"
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #elif defined SA_API
-  IPlug* MakePlug(void* pMidiOutput, unsigned short* pMidiOutChan)
+  IPlug* MakePlug(void* pMidiOutput, uint16_t& midiOutChan)
   {
     IPlugInstanceInfo instanceInfo;
 
-    #if defined OS_WIN
-      instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
-      instanceInfo.mMidiOutChan = pMidiOutChan;
-    #elif defined OS_OSX
-      instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
-      instanceInfo.mMidiOutChan = pMidiOutChan;
+    instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
+    instanceInfo.mMidiOutChan = midiOutChan;
+    
+    #if defined OS_OSX
       instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
     #endif
 
