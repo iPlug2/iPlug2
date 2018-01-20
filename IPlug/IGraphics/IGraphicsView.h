@@ -3,13 +3,13 @@
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
 {
-  int B = (pGraphics->Height() - rect.B);
+  float B = (pGraphics->Height() - rect.B);
   return NSMakeRect(rect.L, B, rect.W(), rect.H());
 }
 
 inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
 {
-  int x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
+  float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
   return IRECT(x, gh - (y + h), x + w, gh - y);
 }
 
@@ -57,7 +57,7 @@ NSString* ToNSString(const char* cStr);
   NSTextField* mTextFieldView;
   IControl* mEdControl; // the control linked to the open text edit
   IParam* mEdParam; // the param linked to the open text edit (optional)
-  int mPrevX, mPrevY;
+  float mPrevX, mPrevY;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
@@ -69,7 +69,9 @@ NSString* ToNSString(const char* cStr);
 - (void) viewDidMoveToWindow;
 - (void) drawRect: (NSRect) rect;
 - (void) onTimer: (NSTimer*) pTimer;
-- (void) getMouseXY: (NSEvent*) pEvent x: (int*) pX y: (int*) pY;
+- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
+- (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
+- (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;

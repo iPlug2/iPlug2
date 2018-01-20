@@ -177,7 +177,7 @@ public:
 
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, int x, int y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
+  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, float x, float y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
   
   void SetStrictDrawing(bool strict);
 
@@ -206,24 +206,24 @@ public:
   void SetParameterFromPlug(int paramIdx, double value, bool normalized);
   void SetParameterFromGUI(int paramIdx, double normalizedValue);
 
-  void OnMouseDown(int x, int y, const IMouseMod& mod);
-  void OnMouseUp(int x, int y, const IMouseMod& mod);
-  void OnMouseDrag(int x, int y, const IMouseMod& mod);
-  bool OnMouseDblClick(int x, int y, const IMouseMod& mod);
-  void OnMouseWheel(int x, int y, const IMouseMod& mod, int d);
-  bool OnKeyDown(int x, int y, int key);
-  bool OnMouseOver(int x, int y, const IMouseMod& mod);
+  void OnMouseDown(float x, float y, const IMouseMod& mod);
+  void OnMouseUp(float x, float y, const IMouseMod& mod);
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
+  bool OnMouseDblClick(float x, float y, const IMouseMod& mod);
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d);
+  bool OnKeyDown(float x, float y, int key);
+  bool OnMouseOver(float x, float y, const IMouseMod& mod);
   void OnMouseOut();
-  void OnDrop(const char* str, int x, int y);
+  void OnDrop(const char* str, float x, float y);
   void OnGUIIdle();
 
   // AAX only
-  int GetParamIdxForPTAutomation(int x, int y);
+  int GetParamIdxForPTAutomation(float x, float y);
   int GetLastClickedParamForPTAutomation();
   void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
   
   // VST3 primarily
-  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, int x, int y);
+  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
   
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
   void ReleaseMouseCapture();
@@ -241,8 +241,6 @@ public:
  
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
   inline int GetMouseOver() const { return mMouseOver; }
-  inline int GetMouseX() const { return mMouseX; }
-  inline int GetMouseY() const { return mMouseY; }
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
   virtual void LoadIFont(const char* name);
@@ -254,21 +252,17 @@ protected:
   IPlugBaseGraphics& mPlug;
   
   bool mCursorHidden = false;
-  int mHiddenMousePointX = -1;
-  int mHiddenMousePointY = -1;
   float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  float mDisplayScale = 0.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
+  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:
   friend class IGraphicsLiveEdit;
   
-  int GetMouseControlIdx(int x, int y, bool mo = false);
+  int GetMouseControlIdx(float x, float y, bool mo = false);
 
   int mWidth, mHeight, mFPS;
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
-  int mMouseX = 0;
-  int mMouseY = 0;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;

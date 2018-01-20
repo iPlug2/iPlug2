@@ -85,7 +85,7 @@ void IControl::GrayOut(bool gray)
   SetDirty(false);
 }
 
-void IControl::OnMouseDown(int x, int y, const IMouseMod& mod)
+void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
   if (mod.A && mDefaultValue >= 0.0)
@@ -100,7 +100,7 @@ void IControl::OnMouseDown(int x, int y, const IMouseMod& mod)
 	}
 }
 
-void IControl::OnMouseDblClick(int x, int y, const IMouseMod& mod)
+void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
   PromptUserInput();
@@ -119,17 +119,17 @@ void IControl::PromptUserInput()
   {
     if (mPlug.GetParam(mParamIdx)->GetNDisplayTexts()) // popup menu
     {
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT );
+      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT);
     }
     else // text entry
     {
-      int cX = (int) mRECT.MW();
-      int cY = (int) mRECT.MH();
-      int halfW = int(float(PARAM_EDIT_W)/2.f);
-      int halfH = int(float(PARAM_EDIT_H)/2.f);
+      float cX = mRECT.MW();
+      float cY = mRECT.MH();
+      float halfW = float(PARAM_EDIT_W)/2.f;
+      float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT );
+      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT);
     }
 
     Redraw();

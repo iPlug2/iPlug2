@@ -17,7 +17,7 @@ public:
   
   ~IGraphicsLiveEdit() {}
 
-  void OnMouseDown(int x, int y, const IMouseMod& mod) override
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     int c = GetGUI()->GetMouseControlIdx(x, y, true);
     
@@ -56,7 +56,7 @@ public:
     }
   }
   
-  void OnMouseUp(int x, int y, const IMouseMod& mod) override
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     if(mMouseClickedOnResizeHandle)
     {
@@ -76,11 +76,11 @@ public:
     GetGUI()->SetAllControlsDirty();
   }
   
-  void OnMouseDblClick(int x, int y, const IMouseMod& mod) override
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
   {
   }
   
-  void OnMouseOver(int x, int y, const IMouseMod& mod) override
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
     int c = GetGUI()->GetMouseControlIdx(x, y, true);
     if (c > 0)
@@ -100,7 +100,7 @@ public:
       SetCursor(LoadCursor(NULL, IDC_ARROW));
   }
   
-  void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) override
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     if(mClickedOnControl > 0)
     {
@@ -182,8 +182,8 @@ private:
   IRECT mMouseDownRECT = IRECT(0, 0, 0, 0);
   IRECT mMouseDownTargetRECT = IRECT(0, 0, 0, 0);
 
-  int mMouseDownX = 0;
-  int mMouseDownY = 0;
+  float mMouseDownX = 0;
+  float mMouseDownY = 0;
   
   int mGridSize = 10;
   int mClickedOnControl = -1;

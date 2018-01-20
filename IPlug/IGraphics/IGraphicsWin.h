@@ -94,8 +94,8 @@ private:
     kCommit
   };
 
-  int GetXCoord(LONG param) { return round(GET_X_LPARAM(param) / Scale()); }
-  int GetYCoord(LONG param) { return round(GET_Y_LPARAM(param) / Scale()); }
+  inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
+  inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
@@ -114,7 +114,12 @@ private:
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-
+  
+  float mMouseX;
+  float mMouseY;
+  float mHiddenMousePointX = -1;
+  float mHiddenMousePointY = -1;
+    
 public:
   static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

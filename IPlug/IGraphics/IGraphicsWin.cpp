@@ -18,19 +18,36 @@ static double sFPS = 0.0;
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
 
-inline IMouseMod GetMouseMod(WPARAM wParam)
+inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
-  return IMouseMod((wParam & MK_LBUTTON), 
-                   (wParam & MK_RBUTTON),
-                   (wParam & MK_SHIFT), 
-                   (wParam & MK_CONTROL), 
-                   
+  IMouseInfo info;
+  info.x = mMouseX = GET_X_LPARAM(lParam) / Scale();
+  info.y = mMouseY = GET_Y_LPARAM(lParam) / Scale();
+  info.ms = IMouseMod((wParam & MK_LBUTTON),
+	  (wParam & MK_RBUTTON),
+	  (wParam & MK_SHIFT),
+	  (wParam & MK_CONTROL),
+
 #ifdef AAX_API
-                   GetAsyncKeyState(VK_MENU) < 0
+	  GetAsyncKeyState(VK_MENU) < 0
 #else
-                   GetKeyState(VK_MENU) < 0
+	  GetKeyState(VK_MENU) < 0
 #endif
-                   );
+      );
+  return info;
+}
+
+inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float& dX, float& dY, LPARAM lParam, WPARAM wParam)
+{
+  float oldX = mMouseX;
+  float oldY = mMouseY;
+  
+  IMouseInfo info = GetMouseInfo(lParam, wParam);
+
+  dX = info.x - oldX;
+  dY = info.y - oldY;
+  
+  return info;
 }
 
 // static
@@ -150,6 +167,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
+	{
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
@@ -158,14 +176,17 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
-      pGraphics->OnMouseDown(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam));
+      IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+      pGraphics->OnMouseDown(info.x, info.y, info.ms);
       return 0;
+    }
 
     case WM_MOUSEMOVE:
     {
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
       {
-        if (pGraphics->OnMouseOver(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam)))
+        IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+		if (pGraphics->OnMouseOver(info.x, info.y, info.ms))
         {
           TRACKMOUSEEVENT eventTrack = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hWnd, HOVER_DEFAULT };
           if (pGraphics->TooltipsEnabled()) 
@@ -184,7 +205,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       else if (GetCapture() == hWnd && !pGraphics->mParamEditWnd)
       {
-        pGraphics->OnMouseDrag(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam));
+        float dX, dY;
+        IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
+        pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
       }
 
       return 0;
@@ -204,12 +227,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONUP:
     {
       ReleaseCapture();
-      pGraphics->OnMouseUp(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam));
+      IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+      pGraphics->OnMouseUp(info.x, info.y, info.ms);
       return 0;
     }
     case WM_LBUTTONDBLCLK:
     {
-      if (pGraphics->OnMouseDblClick(pGraphics->GetXCoord(lParam), pGraphics->GetYCoord(lParam), &GetMouseMod(wParam)))
+      IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+      if (pGraphics->OnMouseDblClick(info.x, info.y, info.ms))
       {
         SetCapture(hWnd);
       }
@@ -217,7 +242,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_MOUSEWHEEL:
     {
-
       if (pGraphics->mParamEditWnd)
       {
         pGraphics->mParamEditMsg = kCancel;
@@ -225,11 +249,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       else
       {
-        int d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-        int x = pGraphics->GetXCoord(lParam), y = pGraphics->GetYCoord(lParam);
+        IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+        float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
         RECT r;
         GetWindowRect(hWnd, &r);
-        pGraphics->OnMouseWheel(x - r.left, y - r.top, &GetMouseMod(wParam), d);
+        pGraphics->OnMouseWheel(info.x - r.left, info.y - r.top, info.ms, d);
         return 0;
       }
     }

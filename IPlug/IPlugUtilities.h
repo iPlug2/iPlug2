@@ -25,6 +25,7 @@
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
 
+// TODO: replace BOUNDED with template based alternative
 /** Clamps the value \p x between \p lo and \p hi
  * @param x Input value
  * @param lo Minimum value to be allowed

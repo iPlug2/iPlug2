@@ -50,9 +50,9 @@ public:
     mTabs.Add(tab);
   }
   
-  void OnMouseWheel(int x, int y, IMouseMod& mod) {}
+  void OnMouseWheel(float x, float y, IMouseMod& mod) override {}
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     int i, n = mTabs.GetSize();
     int hit = -1;
@@ -95,7 +95,7 @@ public:
     SetDirty();
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     for (int t = 0; t < mTabs.GetSize(); t++) 
     {
@@ -136,7 +136,7 @@ public:
     mParamNameStr.Set(mPlug.GetParam(mParamIdx)->GetNameForHost());
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     //graphics.RoundRect(&mfgcolor, &mRECT, &mBlend, 2, true);
 
@@ -146,7 +146,7 @@ public:
     graphics.DrawLine(mfgcolor, (float) mSliderRECT.L, (float) mSliderRECT.MH(), (float) mSliderRECT.R, (float) mSliderRECT.MH(), &mBlend, false);
     
     // Draw Slider handle
-    int xPos = int(mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1)));
+    float xPos = mValue * (mSliderRECT.W() - (SLIDER_HANDLE_WIDTH-1));
   
     IRECT sliderHandleRect = IRECT(mSliderRECT.L + xPos, mRECT.T+4, mSliderRECT.L + xPos + SLIDER_HANDLE_WIDTH, mRECT.B-4);
     graphics.FillRoundRect(mfgcolor, sliderHandleRect, &mBlend, 2, true);
@@ -159,7 +159,7 @@ public:
     graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -168,7 +168,7 @@ public:
     else SnapToMouse(x, y);      
   }
   
-  void OnMouseDrag(int x, int y, int dX, int dY, IMouseMod& mod)
+  void OnMouseDrag(float x, float y, float dX, float dY, IMouseMod& mod) override
   {
     SnapToMouse(x, y);
   }
@@ -183,11 +183,11 @@ private:
   IRECT mTextEntryRect;
   WDL_String mParamNameStr, mParamValueStr;
   
-  void SnapToMouse(int x, int y)
+  void SnapToMouse(float x, float y)
   {
     if (mSliderRECT.Contains(x, mSliderRECT.T+3))
     {
-      float xValue =  (float) (x-mSliderRECT.L -2) / (float) (mSliderRECT.W() - 4);
+      float xValue = (x-mSliderRECT.L -2.f) / (mSliderRECT.W() - 4.f);
       mValue = BOUNDED(xValue, 0., 1.);
     }
     
@@ -234,7 +234,7 @@ public:
   
   ~AGKnobControl() {}
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     graphics.DrawRoundRect(mfgcolor, mRECT, &mBlend, 2, true);
 
@@ -277,7 +277,7 @@ public:
     graphics.DrawIText(mText, mParamValueStr.Get(), mParamValueRECT);
   }
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, IMouseMod& mod) override
   {
     if (mParamValueRECT.Contains(x, y)) 
     {
@@ -312,7 +312,7 @@ public:
     mText.mAlign = IText::kAlignCenter;
   }
   
-  void OnMouseDown(int x, int y, IMouseMod& mod)
+  void OnMouseDown(float x, float y, IMouseMod& mod)
   {
     WDL_String presetFilePath, desktopPath;
     
@@ -324,7 +324,7 @@ public:
     }
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     graphics.FillRect(mColor, mRECT);
     graphics.DrawIText(mText, "Dump preset", mRECT);

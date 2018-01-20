@@ -69,6 +69,7 @@ IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
   , mView(nullptr)
 {
+  SetDisplayScale(1);
   NSApplicationLoad();
 }
 
@@ -181,9 +182,7 @@ void IGraphicsMac::HideMouseCursor()
   if (!mCursorHidden)
   {
     if (CGDisplayHideCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = true;
-    NSPoint mouse = [NSEvent mouseLocation];
-    mHiddenMousePointX = mouse.x;
-    mHiddenMousePointY = CGDisplayPixelsHigh(CGMainDisplayID())-mouse.y; //get current mouse position
+    if (!mTabletInput) CGAssociateMouseAndMouseCursorPosition(false);
   }
 }
 
@@ -191,10 +190,8 @@ void IGraphicsMac::ShowMouseCursor()
 {
   if (mCursorHidden)
   {
-    CGPoint point; point.x = mHiddenMousePointX; point.y = mHiddenMousePointY;
-    CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-
     if (CGDisplayShowCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = false;
+    CGAssociateMouseAndMouseCursorPosition(true);
   }
 }
 
@@ -555,6 +552,8 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 #ifndef NO_IGRAPHICS
 #ifdef IGRAPHICS_AGG
 #include "IGraphicsAGG.cpp"
+#include "agg_mac_pmap.mm"
+#include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
 #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG

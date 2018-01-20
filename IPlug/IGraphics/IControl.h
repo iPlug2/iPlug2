@@ -35,15 +35,15 @@ public:
   IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone);
   virtual ~IControl() {}
 
-  virtual void OnMouseDown(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseUp(int x, int y, const IMouseMod& mod) {}
-  virtual void OnMouseDrag(int x, int y, int dX, int dY, const IMouseMod& mod) {}
-  virtual void OnMouseDblClick(int x, int y, const IMouseMod& mod);
-  virtual void OnMouseWheel(int x, int y, const IMouseMod& mod, int d) {};
-  virtual bool OnKeyDown(int x, int y, int key) { return false; }
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
+  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) {}
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) {}
+  virtual void OnMouseDblClick(float x, float y, const IMouseMod& mod);
+  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {};
+  virtual bool OnKeyDown(float x, float y, int key) { return false; }
   
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
-  virtual void OnMouseOver(int x, int y, const IMouseMod& mod) {}
+  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) {}
   virtual void OnMouseOut() {}
   
   /** Implement to do something when something was drag n dropped onto this control */
@@ -95,9 +95,9 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
-  void SetRECT(IRECT& rect) { mRECT = rect; OnResize(); }
+  void SetRECT(const IRECT& rect) { mRECT = rect; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetRECT(IRECT& rect) { mTargetRECT = rect; }
+  void SetTargetRECT(const IRECT& rect) { mTargetRECT = rect; }
 
 
   /** Shows or hides the IControl.
@@ -117,7 +117,7 @@ public:
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
-  virtual bool IsHit(int x, int y) const { return mTargetRECT.Contains(x, y); }
+  virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
   void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
   
@@ -243,11 +243,11 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
   : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IPlugBaseGraphics& plug, int x, int y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
   : IControl(plug, IRECT(x, y, bitmap), kNoParameter, blendType), mBitmap(bitmap) {}
 
   virtual ~IBitmapControl() {}

@@ -218,10 +218,10 @@ struct IRECT
   IRECT() { L = T = R = B = 0.f; }
   IRECT(float l, float t, float r, float b) : L(l), R(r), T(t), B(b) {}
   
-  IRECT(int x, int y, IBitmap& bitmap)
+  IRECT(float x, float y, IBitmap& bitmap)
   {
-    L = (float) x;
-    T = (float) y;
+    L = x;
+    T = y;
     R = L + (float) bitmap.frameWidth();
     B = T + (float) bitmap.frameHeight();
   }
@@ -398,6 +398,12 @@ struct IMouseMod
   bool L, R, S, C, A;
   IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
     : L(l), R(r), S(s), C(c), A(a) {}
+};
+
+struct IMouseInfo
+{
+    float x, y;
+    IMouseMod ms;
 };
 
 // TODO: static storage needs thread safety mechanism

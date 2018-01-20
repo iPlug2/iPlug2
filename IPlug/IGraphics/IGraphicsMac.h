@@ -34,8 +34,11 @@ public:
   bool WindowIsOpen() override;
   void Resize(int w, int h, double scale) override;
 
+  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
+  
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
+ 
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
@@ -79,6 +82,8 @@ private:
   
   WDL_String mBundleID;
   
+  bool mTabletInput = false;
+    
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 
