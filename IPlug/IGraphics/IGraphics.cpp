@@ -71,12 +71,26 @@ void IGraphics::Resize(int w, int h, double scale)
   mScale = scale;
     
   if (oldScale != scale)
-      ReScale();
+      OnDisplayScale();
     
   for (int i = 0; i < mPlug.NParams(); ++i)
     SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
     
   mPlug.ResizeGraphics(w, h, scale);
+}
+
+void IGraphics::OnDisplayScale()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    pControl->OnRescale();
+    pControl->OnResize();
+  }
+  
+  SetAllControlsDirty();
 }
 
 void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
@@ -928,20 +942,6 @@ void IGraphics::OnGUIIdle()
     IControl* pControl = *ppControl;
     pControl->OnGUIIdle();
   }
-}
-
-void IGraphics::ReScale()
-{
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    pControl->OnRescale();
-    pControl->OnResize();
-  }
-  
-  SetAllControlsDirty();
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)

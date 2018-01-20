@@ -48,7 +48,7 @@ public:
   //
   
   /** Called by platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation */
-  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; ReScale(); };
+  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
 
   virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
   
@@ -89,7 +89,7 @@ public:
   virtual void RetainIBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseIBitmap(IBitmap& bitmap) = 0;
   IBitmap GetScaledBitmap(IBitmap& src);
-  virtual void ReScale();
+  virtual void OnDisplayScale();
   
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
   virtual void RenderDrawBitmap() {}
@@ -257,7 +257,7 @@ protected:
   int mHiddenMousePointX = -1;
   int mHiddenMousePointY = -1;
   float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
+  float mDisplayScale = 0.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
 private:
   friend class IGraphicsLiveEdit;
   
