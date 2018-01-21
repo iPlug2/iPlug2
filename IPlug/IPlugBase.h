@@ -9,8 +9,8 @@
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugByteChunk.h"
+#include "IPlugUtilities.h"
 #include "IParam.h"
-#include "Hosts.h"
 #include "Log.h"
 #include "NChanDelay.h"
 

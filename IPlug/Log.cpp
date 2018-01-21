@@ -2,8 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
-#include <ctype.h>
-#include <assert.h>
+#include <cassert>
 
 #include "mutex.h"
 #include "Log.h"
@@ -81,16 +80,6 @@ bool Timer::Every(double sec)
 bool IsWhitespace(char c)
 {
   return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
-}
-
-void ToLower(char* cDest, const char* cSrc)
-{
-  int i, n = (int) strlen(cSrc);
-  for (i = 0; i < n; ++i)
-  {
-    cDest[i] = tolower(cSrc[i]);
-  }
-  cDest[i] = '\0';
 }
 
 const char* CurrentTime()

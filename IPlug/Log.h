@@ -53,7 +53,6 @@ struct Timer
   bool Every(double sec);
 };
 
-void ToLower(char* cDest, const char* cSrc);
 const char* CurrentTime();
 void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr);
 const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr);

@@ -77,3 +77,49 @@ enum EAPI
   kAPISA = 5
 };
 
+/** @enum EHost
+ * Host identifier
+ */
+enum EHost
+{
+  kHostUninit = -1,
+  kHostUnknown = 0,
+  kHostReaper,
+  kHostProTools,
+  kHostCubase,
+  kHostNuendo,
+  kHostSonar,
+  kHostVegas,
+  kHostFL,
+  kHostSamplitude,
+  kHostAbletonLive,
+  kHostTracktion,
+  kHostNTracks,
+  kHostMelodyneStudio,
+  kHostVSTScanner,
+  kHostAULab,
+  kHostForte,
+  kHostChainer,
+  kHostAudition,
+  kHostOrion,
+  kHostBias,
+  kHostSAWStudio,
+  kHostLogic,
+  kHostGarageBand,
+  kHostDigitalPerformer,
+  kHostStandalone,
+  kHostAudioMulch,
+  kHostStudioOne,
+  kHostVST3TestHost,
+  kHostArdour,
+  kHostRenoise,
+  kHostOpenMPT,
+  kHostWaveLab,
+  kHostWaveLabElements,
+  kHostTwistedWave,
+  kHostBitwig
+  
+  // These hosts don't report the host name:
+  // EnergyXT2
+  // MiniHost
+};

@@ -28,7 +28,6 @@
 		4F1B0880201433E700CE2770 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F1B08822014387400CE2770 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
-		4F1B08832014387400CE2770 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
 		4F1B08842014387400CE2770 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
 		4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
 		4F1B0886201438C600CE2770 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF1426D1FD4A61D00A65575 /* IControl.cpp */; };
@@ -75,14 +74,11 @@
 		4F78D8DA13B63B5D0032E0F3 /* aeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8D313B63B5D0032E0F3 /* aeffectx.h */; };
 		4F78D90A13B63BA50032E0F3 /* IPlugStandalone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8EB13B63BA40032E0F3 /* IPlugStandalone.cpp */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F78D90D13B63BA50032E0F3 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
 		4F78D91313B63BA50032E0F3 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
 		4F78D91813B63BA50032E0F3 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
 		4F78D93E13B63BA50032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E613B63BA40032E0F3 /* IPlug_include_in_plug_hdr.h */; };
 		4F78D94013B63BA50032E0F3 /* IPlug_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */; };
 		4F78D94513B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F78D94A13B63BA50032E0F3 /* Hosts.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8F213B63BA50032E0F3 /* Hosts.h */; };
-		4F78D94B13B63BA50032E0F3 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
 		4F78D95213B63BA50032E0F3 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FA13B63BA50032E0F3 /* Log.h */; };
 		4F78D95313B63BA50032E0F3 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
 		4F78D95613B63BA50032E0F3 /* IPlugStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */; };
@@ -90,7 +86,6 @@
 		4F78D95C13B63BA50032E0F3 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
 		4F78D95D13B63BA50032E0F3 /* IPlugMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90513B63BA50032E0F3 /* IPlugMidi.h */; };
 		4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F78D9BD13B63BA50032E0F3 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
 		4F78D9C313B63BA50032E0F3 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
 		4F78D9C813B63BA50032E0F3 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
 		4F78D9F313B63C6A0032E0F3 /* IPlugVST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D9EC13B63C6A0032E0F3 /* IPlugVST.cpp */; };
@@ -114,7 +109,6 @@
 		4F78DA9413B640050032E0F3 /* aeffectx.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8D313B63B5D0032E0F3 /* aeffectx.h */; };
 		4F78DA9513B640050032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E613B63BA40032E0F3 /* IPlug_include_in_plug_hdr.h */; };
 		4F78DA9613B640050032E0F3 /* IPlug_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */; };
-		4F78DA9D13B640050032E0F3 /* Hosts.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8F213B63BA50032E0F3 /* Hosts.h */; };
 		4F78DA9F13B640050032E0F3 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FA13B63BA50032E0F3 /* Log.h */; };
 		4F78DAA113B640050032E0F3 /* IPlugStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */; };
 		4F78DAA313B640050032E0F3 /* IParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D90313B63BA50032E0F3 /* IParam.h */; };
@@ -131,7 +125,6 @@
 		4F9828B6140A9EB700F3FCC1 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F9828BA140A9EB700F3FCC1 /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
 		4F9828BF140A9EB700F3FCC1 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
 		4F9828C1140A9EB700F3FCC1 /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
 		4F9828C4140A9EB700F3FCC1 /* IPlugVST3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E69041409746500C4D749 /* IPlugVST3.cpp */; };
@@ -163,7 +156,6 @@
 		4FB600181567CB0A0020189A /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52FBBED00D0CF139001C8B8A /* IPlugEffect.cpp */; };
 		4FB600191567CB0A0020189A /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4FB6001A1567CB0A0020189A /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4FB6001C1567CB0A0020189A /* Hosts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8F313B63BA50032E0F3 /* Hosts.cpp */; };
 		4FB600211567CB0A0020189A /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8FB13B63BA50032E0F3 /* Log.cpp */; };
 		4FB600231567CB0A0020189A /* IParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IParam.cpp */; };
 		4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC38A1549B91100A9EA21 /* AAX_Exports.cpp */; };
@@ -499,8 +491,6 @@
 		4F78D8EB13B63BA40032E0F3 /* IPlugStandalone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugStandalone.cpp; path = ../../IPlug/IPlugStandalone.cpp; sourceTree = SOURCE_ROOT; };
 		4F78D8EC13B63BA40032E0F3 /* IPlugBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugBase.h; path = ../../IPlug/IPlugBase.h; sourceTree = SOURCE_ROOT; };
 		4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugBase.cpp; path = ../../IPlug/IPlugBase.cpp; sourceTree = SOURCE_ROOT; };
-		4F78D8F213B63BA50032E0F3 /* Hosts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Hosts.h; path = ../../IPlug/Hosts.h; sourceTree = SOURCE_ROOT; };
-		4F78D8F313B63BA50032E0F3 /* Hosts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Hosts.cpp; path = ../../IPlug/Hosts.cpp; sourceTree = SOURCE_ROOT; };
 		4F78D8FA13B63BA50032E0F3 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Log.h; path = ../../IPlug/Log.h; sourceTree = SOURCE_ROOT; };
 		4F78D8FB13B63BA50032E0F3 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Log.cpp; path = ../../IPlug/Log.cpp; sourceTree = SOURCE_ROOT; };
 		4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugStructs.h; path = ../../IPlug/IPlugStructs.h; sourceTree = SOURCE_ROOT; };
@@ -987,8 +977,6 @@
 				4F78D90513B63BA50032E0F3 /* IPlugMidi.h */,
 				4F78D90313B63BA50032E0F3 /* IParam.h */,
 				4F78D90413B63BA50032E0F3 /* IParam.cpp */,
-				4F78D8F213B63BA50032E0F3 /* Hosts.h */,
-				4F78D8F313B63BA50032E0F3 /* Hosts.cpp */,
 				4F78D8FA13B63BA50032E0F3 /* Log.h */,
 				4F78D8FB13B63BA50032E0F3 /* Log.cpp */,
 			);
@@ -1257,7 +1245,6 @@
 				4F78D93E13B63BA50032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */,
 				4F78D94013B63BA50032E0F3 /* IPlug_include_in_plug_src.h in Headers */,
 				4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */,
-				4F78D94A13B63BA50032E0F3 /* Hosts.h in Headers */,
 				4FF142C61FD4A61E00A65575 /* IGraphicsUtilites.h in Headers */,
 				4FF142A81FD4A61E00A65575 /* IGraphicsConstants.h in Headers */,
 				4F78D95213B63BA50032E0F3 /* Log.h in Headers */,
@@ -1302,7 +1289,6 @@
 				4FF142BE1FD4A61E00A65575 /* IGraphics.h in Headers */,
 				4F78DA9513B640050032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */,
 				4F78DA9613B640050032E0F3 /* IPlug_include_in_plug_src.h in Headers */,
-				4F78DA9D13B640050032E0F3 /* Hosts.h in Headers */,
 				4F78DA9F13B640050032E0F3 /* Log.h in Headers */,
 				4FF142A71FD4A61E00A65575 /* IGraphicsConstants.h in Headers */,
 				4F78DAA113B640050032E0F3 /* IPlugStructs.h in Headers */,
@@ -1714,7 +1700,6 @@
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F69BB6A2013C532002C8948 /* IGraphicsMac.mm in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
-				4F78D9BD13B63BA50032E0F3 /* Hosts.cpp in Sources */,
 				4FF142A31FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F78D9C313B63BA50032E0F3 /* Log.cpp in Sources */,
 				4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */,
@@ -1741,7 +1726,6 @@
 				4F1B08822014387400CE2770 /* IParam.cpp in Sources */,
 				4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */,
 				4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */,
-				4F1B08832014387400CE2770 /* Hosts.cpp in Sources */,
 				4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1754,7 +1738,6 @@
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F69BB6F2013C533002C8948 /* IGraphicsMac.m in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
-				4F78D94B13B63BA50032E0F3 /* Hosts.cpp in Sources */,
 				4FF142A51FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4FA6B9581FF9C23800049441 /* IControls.cpp in Sources */,
 				4F69BB702013C533002C8948 /* IGraphicsMac.mm in Sources */,
@@ -1776,7 +1759,6 @@
 				4F9828B6140A9EB700F3FCC1 /* IPlugEffect.cpp in Sources */,
 				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */,
-				4F9828BA140A9EB700F3FCC1 /* Hosts.cpp in Sources */,
 				4F9828BF140A9EB700F3FCC1 /* Log.cpp in Sources */,
 				4F9828C1140A9EB700F3FCC1 /* IParam.cpp in Sources */,
 				4F69BB6C2013C532002C8948 /* IGraphicsMac.m in Sources */,
@@ -1817,7 +1799,6 @@
 				4FB600191567CB0A0020189A /* swell-gdi.mm in Sources */,
 				4F69BB732013C534002C8948 /* IGraphicsMac.mm in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugBase.cpp in Sources */,
-				4FB6001C1567CB0A0020189A /* Hosts.cpp in Sources */,
 				4FF142931FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4FF142A61FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F69BB722013C534002C8948 /* IGraphicsMac.m in Sources */,
@@ -1856,7 +1837,6 @@
 				4F78D90A13B63BA50032E0F3 /* IPlugStandalone.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
 				4F69BB682013C531002C8948 /* IGraphicsView.mm in Sources */,
-				4F78D90D13B63BA50032E0F3 /* Hosts.cpp in Sources */,
 				4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F78D91313B63BA50032E0F3 /* Log.cpp in Sources */,
 				4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */,

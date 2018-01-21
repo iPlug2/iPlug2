@@ -2,6 +2,9 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctype.h>
 
 #include "IPlugConstants.h"
 #include "IPlugOSDetect.h"
@@ -116,6 +119,173 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
   for (int i = 0; i < n; ++i, ++pDest, ++pSrc)
   {
     *pDest = (DEST) *pSrc;
+  }
+}
+
+static void ToLower(char* cDest, const char* cSrc)
+{
+  int i, n = (int) strlen(cSrc);
+  for (i = 0; i < n; ++i)
+  {
+    cDest[i] = tolower(cSrc[i]);
+  }
+  cDest[i] = '\0';
+}
+
+/** Gets the host ID from a human-readable name
+ * @param host Host name to search for
+ * @return Identifier of the host (see ::EHost)
+ */
+static EHost LookUpHost(const char* inHost)
+{
+  char host[256];
+  ToLower(host, inHost);
+  
+  // C4 is version >= 8.2
+  if (strstr(host, "cubase")) return kHostCubase;
+  if (strstr(host, "reaper")) return kHostReaper;
+  if (strstr(host, "nuendo")) return kHostNuendo;
+  if (strstr(host, "cakewalk")) return kHostSonar;
+  if (strstr(host, "samplitude")) return kHostSamplitude;
+  if (strstr(host, "fruity")) return kHostFL;
+  if (strstr(host, "live")) return kHostAbletonLive;
+  if (strstr(host, "melodyne")) return kHostMelodyneStudio;
+  if (strstr(host, "vstmanlib")) return kHostVSTScanner;
+  if (strstr(host, "aulab")) return kHostAULab;
+  if (strstr(host, "garageband")) return kHostGarageBand;
+  if (strstr(host, "forte")) return kHostForte;
+  if (strstr(host, "chainer")) return kHostChainer;
+  if (strstr(host, "audition")) return kHostAudition;
+  if (strstr(host, "orion")) return kHostOrion;
+  if (strstr(host, "sawstudio")) return kHostSAWStudio;
+  if (strstr(host, "logic")) return kHostLogic;
+  if (strstr(host, "digital")) return kHostDigitalPerformer;
+  if (strstr(host, "audiomulch")) return kHostAudioMulch;
+  if (strstr(host, "presonus")) return kHostStudioOne;
+  if (strstr(host, "vst3plugintesthost")) return kHostVST3TestHost;
+  if (strstr(host, "protools")) return kHostProTools;
+  if (strstr(host, "ardour")) return kHostArdour;
+  if (strstr(host, "openmpt")) return kHostOpenMPT;
+  if (strstr(host, "renoise")) return kHostRenoise;
+  if (strstr(host, "standalone")) return kHostStandalone;
+  if (strstr(host, "wavelab")) return kHostWaveLab;
+  if (strstr(host, "wavelab elements")) return kHostWaveLabElements;
+  if (strstr(host, "bitwig studio")) return kHostBitwig;
+  if (strstr(host, "twistedwave")) return kHostTwistedWave;
+  
+  return kHostUnknown;
+}
+
+/**
+ * Gets a human-readable name from host identifier
+ * @param host Host identifier (see ::EHost)
+ * @param pHostName Pointer to a string to write to
+ * @code
+ *    int hostID = EHost::kHostAbletonLive;
+ *    char buffer[20];
+ *    GetHostNameStr(hostID, buffer);
+ * @endcode
+ *
+ * The longest string returned by GetHostNameStr is 18 characters long (+1 for the null terminator).
+ * Make sure your buffer can handle the size!
+ */
+static void GetHostNameStr(EHost host, char* pHostName)
+{
+  switch (host)
+  {
+    case kHostCubase:
+      strcpy(pHostName, "Cubase");
+      break;
+    case kHostNuendo:
+      strcpy(pHostName, "Nuendo");
+      break;
+    case kHostLogic:
+      strcpy(pHostName, "Logic");
+      break;
+    case kHostAULab:
+      strcpy(pHostName, "AULab");
+      break;
+    case kHostGarageBand:
+      strcpy(pHostName, "GarageBand");
+      break;
+    case kHostAbletonLive:
+      strcpy(pHostName, "Live");
+      break;
+    case kHostReaper:
+      strcpy(pHostName, "Reaper");
+      break;
+    case kHostSonar:
+      strcpy(pHostName, "Sonar");
+      break;
+    case kHostVST3TestHost:
+      strcpy(pHostName, "VST3PluginTestHost");
+      break;
+    case kHostStudioOne:
+      strcpy(pHostName, "StudioOne");
+      break;
+    case kHostSAWStudio:
+      strcpy(pHostName, "SAWStudio");
+      break;
+    case kHostSamplitude:
+      strcpy(pHostName, "Samplitude");
+      break;
+    case kHostOrion:
+      strcpy(pHostName, "Orion");
+      break;
+    case kHostAudition:
+      strcpy(pHostName, "Audition");
+      break;
+    case kHostChainer:
+      strcpy(pHostName, "Chainer");
+      break;
+    case kHostVSTScanner:
+      strcpy(pHostName, "VSTScanner"); // ??
+      break;
+    case kHostForte:
+      strcpy(pHostName, "Forte");
+      break;
+    case kHostVegas:
+      strcpy(pHostName, "Vegas");
+      break;
+    case kHostFL:
+      strcpy(pHostName, "FLStudio");
+      break;
+    case kHostProTools:
+      strcpy(pHostName, "ProTools");
+      break;
+    case kHostAudioMulch:
+      strcpy(pHostName, "AudioMulch");
+      break;
+    case kHostDigitalPerformer:
+      strcpy(pHostName, "DigitalPerformer");
+      break;
+    case kHostArdour:
+      strcpy(pHostName, "Ardour");
+      break;
+    case kHostOpenMPT:
+      strcpy(pHostName, "OpenMPT");
+      break;
+    case kHostRenoise:
+      strcpy(pHostName, "Renoise");
+      break;
+    case kHostStandalone:
+      strcpy(pHostName, "Standalone");
+      break;
+    case kHostWaveLab:
+      strcpy(pHostName, "WaveLab");
+      break;
+    case kHostWaveLabElements:
+      strcpy(pHostName, "WaveLabElements");
+      break;
+    case kHostTwistedWave:
+      strcpy(pHostName, "TwistedWave");
+      break;
+    case kHostBitwig:
+      strcpy(pHostName, "Bitwig");
+      break;
+    default:
+      strcpy(pHostName, "Unknown");
+      break;
   }
 }
 
