@@ -125,12 +125,14 @@ EXCLUDE                = ../IPlug/IGraphics/NanoVG \
                          ../IPlug/IGraphics/agg \
                          ../IPlug/IGraphics/stb \
                          ../IPlug/AAX \
+                         ../IPlug/AUv3 \
                          ../IPlug/dfx \
                          ../IPlug/RTAudioMidi \
                          ../IPlug/app_wrapper \
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
-EXCLUDE_SYMBOLS        = IPlugVST3Parameter \
+EXCLUDE_SYMBOLS        = IAutoGUI \
+                         IPlugVST3Parameter \
                          NChanDelayLine \
                          IPlugVST3View \
                          AAX_CEffectGUI_IPLUG \
