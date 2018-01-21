@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdio>
-#include <ctype.h>
+#include <cctype>
 #include <cstdarg>
 #include <cstdint>
 #include <cstring>
