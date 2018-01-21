@@ -369,7 +369,7 @@ protected:
   int mCurrentPresetIdx = 0;
   double mSampleRate  = DEFAULT_SAMPLE_RATE;
   int mBlockSize = 0;
-  unsigned int mTailSize = 0;
+  int mTailSize = 0;
   NChanDelayLine<double>* mLatencyDelay = nullptr;
   WDL_PtrList<const char> mParamGroups;
   WDL_PtrList<IParam> mParams;
