@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ADDITIONAL_INCLUDES);$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EXTRA_INC_PATHS);$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);;$(NANOVG_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>lice.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>

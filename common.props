@@ -7,6 +7,7 @@
     <IPLUG_PATH>$(SolutionDir)..\..\IPlug</IPLUG_PATH>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
     <NANOSVG_PATH>$(IGRAPHICS_PATH)\NanoSVG</NANOSVG_PATH>
+    <NANOVG_PATH>$(IGRAPHICS_PATH)\NanoVG</NANOVG_PATH>
     <VST_SDK>$(SolutionDir)..\..\VST_SDK</VST_SDK>
     <VST3_SDK>$(SolutionDir)..\..\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(SolutionDir)..\..\ASIO_SDK</ASIO_SDK>
@@ -26,19 +27,20 @@
     <VST2_64_COMMAND_ARGS />
     <VST3_32_COMMAND_ARGS />
     <VST3_64_COMMAND_ARGS />
+    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;</ALL_DEFS>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
     <VST_DEFS>VST_API;VST_FORCE_DEPRECATED;</VST_DEFS>
     <VST3_DEFS>VST3_API</VST3_DEFS>
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
     <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
-    <APP_INCLUDES>$(ASIO_SDK);$(IPLUG_PATH)\rtaudiomidi;</APP_INCLUDES>
+    <APP_INC_PATHS>$(ASIO_SDK);$(IPLUG_PATH)\rtaudiomidi;</APP_INC_PATHS>
     <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
-    <VST3_INCLUDES>$(VST3_SDK);</VST3_INCLUDES>
-    <AAX_INCLUDES>$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;$(IPLUG_PATH)\AAX;.</AAX_INCLUDES>
+    <VST3_INC_PATHS>$(VST3_SDK);</VST3_INC_PATHS>
+    <AAX_INC_PATHS>$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;$(IPLUG_PATH)\AAX;.</AAX_INC_PATHS>
     <AAX_DEFS>AAX_API;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</AAX_DEFS>
     <AAX_LIBS>lice.lib;wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
-    <VST_INCLUDES>$(VST_SDK)</VST_INCLUDES>
+    <VST_INC_PATHS>$(VST_SDK)</VST_INC_PATHS>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -46,7 +48,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(ALL_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4250;4018;4267;4068;</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -149,17 +151,17 @@
     <BuildMacro Include="TRACER_DEFS">
       <Value>$(TRACER_DEFS)</Value>
     </BuildMacro>
-    <BuildMacro Include="APP_INCLUDES">
-      <Value>$(APP_INCLUDES)</Value>
+    <BuildMacro Include="APP_INC_PATHS">
+      <Value>$(APP_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="APP_LIBS">
       <Value>$(APP_LIBS)</Value>
     </BuildMacro>
-    <BuildMacro Include="VST3_INCLUDES">
-      <Value>$(VST3_INCLUDES)</Value>
+    <BuildMacro Include="VST3_INC_PATHS">
+      <Value>$(VST3_INC_PATHS)</Value>
     </BuildMacro>
-    <BuildMacro Include="AAX_INCLUDES">
-      <Value>$(AAX_INCLUDES)</Value>
+    <BuildMacro Include="AAX_INC_PATHS">
+      <Value>$(AAX_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="AAX_DEFS">
       <Value>$(AAX_DEFS)</Value>
@@ -167,8 +169,8 @@
     <BuildMacro Include="AAX_LIBS">
       <Value>$(AAX_LIBS)</Value>
     </BuildMacro>
-    <BuildMacro Include="VST_INCLUDES">
-      <Value>$(VST_INCLUDES)</Value>
+    <BuildMacro Include="VST_INC_PATHS">
+      <Value>$(VST_INC_PATHS)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
