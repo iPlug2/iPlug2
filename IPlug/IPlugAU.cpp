@@ -1015,7 +1015,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_SampleRate:                  // 2,
     {
       SetSampleRate(*((Float64*) pData));
-      Reset();
+      OnReset();
       return noErr;
     }
     NO_OP(kAudioUnitProperty_ParameterList);             // 3,
@@ -1063,7 +1063,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_MaximumFramesPerSlice:       // 14,
     {
       SetBlockSize(*((UInt32*) pData));
-      Reset();
+      OnReset();
       return noErr;
     }
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
@@ -1075,7 +1075,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       mIsBypassed = (*((UInt32*) pData) != 0);
       OnActivate(!mIsBypassed);
-      Reset();
+      OnReset();
       return noErr;
     }
     NO_OP(kAudioUnitProperty_LastRenderError);           // 22,
@@ -2336,7 +2336,7 @@ OSStatus IPlugAU::DoRender(IPlugAU *_this, AudioUnitRenderActionFlags *ioActionF
 //static
 OSStatus IPlugAU::DoReset(IPlugAU *_this)
 {
-  _this->Reset();
+  _this->OnReset();
   return noErr;
 }
 

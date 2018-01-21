@@ -42,7 +42,7 @@ Source: "..\build-win\aax\bin\IPlugEffect.aaxplugin\*.*"; DestDir: "{cf}\Avid\Au
 
 Source: "..\manual\IPlugEffect_manual.pdf"; DestDir: "{app}"
 Source: "changelog.txt"; DestDir: "{app}"
-Source: "readmewin.rtf"; DestDir: "{app}"; DestName: "readme.rtf"; Flags: isreadme
+Source: "readme-win.rtf"; DestDir: "{app}"; DestName: "readme.rtf"; Flags: isreadme
 
 [Icons]
 Name: "{group}\IPlugEffect"; Filename: "{app}\IPlugEffect.exe"

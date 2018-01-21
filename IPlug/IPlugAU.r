@@ -111,7 +111,7 @@ resource 'dlle' (RES_ID) {
 };
 
 resource 'thng' (RES_ID, RES_NAME) {
-#if PLUG_IS_INST
+#if PLUG_IS_INSTRUMENT
 kAudioUnitType_MusicDevice,
 #elif PLUG_DOES_MIDI
 kAudioUnitType_MusicEffect,
@@ -124,7 +124,7 @@ kAudioUnitType_Effect,
   'STR ', RES_ID,
   'STR ', RES_ID + 1,
   0,  0,      // icon 
-  PLUG_VER,
+  PLUG_VERSION_HEX,
   componentHasMultiplePlatforms | componentDoAutoVersion,
   0,
   {
@@ -155,40 +155,40 @@ kAudioUnitType_Effect,
 #undef RES_NAME
 #define RES_NAME PLUG_MFR ": " PLUG_PUBLIC_NAME " Carbon View"
 
-resource 'STR ' (RES_ID, purgeable) {
-  RES_NAME
-};
+//resource 'STR ' (RES_ID, purgeable) {
+//  RES_NAME
+//};
 
-resource 'STR ' (RES_ID + 1, purgeable) {
-  PLUG_PUBLIC_NAME " AU Carbon View"
-};
+//resource 'STR ' (RES_ID + 1, purgeable) {
+//  PLUG_PUBLIC_NAME " AU Carbon View"
+//};
 
-resource 'dlle' (RES_ID) {
-  PLUG_VIEW_ENTRY_STR
-};
-
-resource 'thng' (RES_ID, RES_NAME) {
-  kAudioUnitCarbonViewComponentType,
-  PLUG_UNIQUE_ID,
-  PLUG_MFR_ID,
-  0, 0, 0, 0,               //  no 68K
-  'STR ', RES_ID,
-  'STR ', RES_ID + 1,
-  0,  0,      // icon 
-  PLUG_VER,
-  componentHasMultiplePlatforms | componentDoAutoVersion,
-  0,
-  {
-    cmpThreadSafeOnMac, 
-    Target_CodeResType, RES_ID,
-    Target_PlatformType,
-#if TARGET_REZ_FAT_COMPONENTS_4 || (TARGET_REZ_FAT_COMPONENTS_2 && TARGET_REZ_MAC_PPC && TARGET_REZ_MAC_X86)
-    cmpThreadSafeOnMac, 
-    Target_CodeResType, RES_ID,
-    Target_SecondPlatformType,
-#endif
-  }
-};
+//resource 'dlle' (RES_ID) {
+//  PLUG_VIEW_ENTRY_STR
+//};
+//
+//resource 'thng' (RES_ID, RES_NAME) {
+//  kAudioUnitCarbonViewComponentType,
+//  PLUG_UNIQUE_ID,
+//  PLUG_MFR_ID,
+//  0, 0, 0, 0,               //  no 68K
+//  'STR ', RES_ID,
+//  'STR ', RES_ID + 1,
+//  0,  0,      // icon
+//  PLUG_VER,
+//  componentHasMultiplePlatforms | componentDoAutoVersion,
+//  0,
+//  {
+//    cmpThreadSafeOnMac,
+//    Target_CodeResType, RES_ID,
+//    Target_PlatformType,
+//#if TARGET_REZ_FAT_COMPONENTS_4 || (TARGET_REZ_FAT_COMPONENTS_2 && TARGET_REZ_MAC_PPC && TARGET_REZ_MAC_X86)
+//    cmpThreadSafeOnMac,
+//    Target_CodeResType, RES_ID,
+//    Target_SecondPlatformType,
+//#endif
+//  }
+//};
 
 #undef RES_ID
 

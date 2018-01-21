@@ -70,10 +70,10 @@ CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
 if [ $DEMO == 1 ]
 then
   echo "making $PLUGIN_NAME version $FULL_VERSION DEMO mac distribution..."
-  cp "resources/img/AboutBox_Demo.png" "resources/img/AboutBox.png"
+#   cp "resources/img/AboutBox_Demo.png" "resources/img/AboutBox.png"
 else
   echo "making $PLUGIN_NAME version $FULL_VERSION mac distribution..."
-  cp "resources/img/AboutBox_Registered.png" "resources/img/AboutBox.png"
+#   cp "resources/img/AboutBox_Registered.png" "resources/img/AboutBox.png"
 fi
 
 echo ""
@@ -83,7 +83,7 @@ echo ""
 ./scripts/update_installer_version.py $DEMO
 
 echo "touching source to force recompile" 
-touch ./source/*.cpp
+touch *.cpp
 
 #---------------------------------------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ fi
 
 # build xcode project. Change target to build individual formats 
 
-xcodebuild -project $PLUGIN_NAME.xcodeproj -xcconfig $PLUGIN_NAME.xcconfig DEMO_VERSION=$DEMO -target "All" -configuration Release 2> ./build-mac.log
+xcodebuild -project ./projects/$PLUGIN_NAME.xcodeproj -xcconfig ./projects/$PLUGIN_NAME.xcconfig DEMO_VERSION=$DEMO -target "All" -configuration Release 2> ./build-mac.log
 
 if [ -s build-mac.log ]
 then
@@ -253,8 +253,8 @@ sudo rm -R -f installer/build-mac/
 
 if [ $DEMO == 1 ]
 then
-git checkout installer/VirtualCZ.iss
-git checkout installer/VirtualCZ.pkgproj
+git checkout installer/IPlugEffect.iss
+git checkout installer/IPlugEffect.pkgproj
 git checkout resources/img/AboutBox.png
 fi
 

@@ -266,12 +266,7 @@ void MIDICallback( double deltatime, std::vector< unsigned char > *message, void
   }
 }
 
-int AudioCallback(void *outputBuffer,
-                  void *inputBuffer,
-                  uint32_t nFrames,
-                  double streamTime,
-                  RtAudioStreamStatus status,
-                  void *userData )
+int AudioCallback(void *outputBuffer, void *inputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void *userData )
 {
   if ( status )
     std::cout << "Stream underflow detected!" << std::endl;
@@ -284,7 +279,7 @@ int AudioCallback(void *outputBuffer,
   if(!gState->mAudioInIsMono)
     inRightOffset = nFrames;
 
-  if (gVecElapsed > N_VECTOR_WAIT) // wait N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  if (gVecElapsed > APP_N_VECTOR_WAIT) // wait N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
   {
     for (int i=0; i<nFrames; i++)
     {
@@ -295,7 +290,7 @@ int AudioCallback(void *outputBuffer,
         double* inputs[2] = {inputBufferD + i, inputBufferD + inRightOffset + i};
         double* outputs[2] = {outputBufferD + i, outputBufferD + nFrames + i};
 
-        gPluginInstance->ProcessDoubleReplacing(inputs, outputs, gSigVS);
+        gPluginInstance->ProcessBlock(inputs, outputs, gSigVS);
       }
 
       // fade in
@@ -378,7 +373,7 @@ bool TryToChangeAudio()
 
   if (inputID != -1 && outputID != -1)
   {
-    return InitialiseAudio(inputID, outputID, samplerate, iovs, NUM_CHANNELS, gState->mAudioInChanL - 1, gState->mAudioOutChanL - 1);
+    return InitialiseAudio(inputID, outputID, samplerate, iovs, APP_NUM_CHANNELS, gState->mAudioInChanL - 1, gState->mAudioOutChanL - 1);
   }
 
   return false;
@@ -436,7 +431,7 @@ bool InitialiseAudio(uint32_t inId,
 
   gPluginInstance->SetBlockSize(gSigVS);
   gPluginInstance->SetSampleRate(sr);
-  gPluginInstance->Reset();
+  gPluginInstance->OnReset();
 
   try
   {
@@ -480,7 +475,7 @@ bool InitialiseMidi()
   }
 
   gMidiIn->setCallback( &MIDICallback );
-  gMidiIn->ignoreTypes( !ENABLE_SYSEX, !ENABLE_MIDICLOCK, !ENABLE_ACTIVE_SENSING );
+  gMidiIn->ignoreTypes( !APP_ENABLE_SYSEX, !APP_ENABLE_MIDICLOCK, !APP_ENABLE_ACTIVE_SENSING );
 
   return true;
 }

@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <ctype.h>
+#include <cctype>
 
 #include "IPlugConstants.h"
 #include "IPlugOSDetect.h"

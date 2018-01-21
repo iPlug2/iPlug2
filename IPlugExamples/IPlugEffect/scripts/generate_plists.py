@@ -57,6 +57,7 @@ def main():
   
   BUNDLE_MFR = ""
   BUNDLE_NAME = ""
+  BUNDLE_DOMAIN = ""
   PLUG_NAME_STR = ""
   PLUG_MFR_NAME_STR = ""
   PLUG_CHANNEL_IO = ""
@@ -66,13 +67,13 @@ def main():
   PLUG_FACTORY = ""
   PLUG_ENTRY = ""
   PLUG_VIEW_ENTRY = ""
-  PLUG_IS_INST = 0
+  PLUG_IS_INSTRUMENT = 0
   PLUG_DOES_MIDI = 0
   
   # extract values from config.h
   for line in fileinput.input(projectpath + "/config.h", inplace=0):
-    if "#define PLUG_VER " in line:
-      PLUG_VER_STR = string.lstrip(line, "#define PLUG_VER ")
+    if "#define PLUG_VERSION_HEX " in line:
+      PLUG_VER_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
       PLUG_VER = int(PLUG_VER_STR, 16)
       MAJOR = PLUG_VER & 0xFFFF0000
       MAJORSTR = str(MAJOR >> 16)
@@ -91,12 +92,15 @@ def main():
       
     if "#define BUNDLE_NAME " in line:
       BUNDLE_NAME = string.lstrip(line, "#define BUNDLE_NAME ")
-       
+    
+    if "#define BUNDLE_DOMAIN " in line:
+      BUNDLE_DOMAIN = string.lstrip(line, "#define BUNDLE_DOMAIN ")
+
     if "#define PLUG_CHANNEL_IO " in line:
       PLUG_CHANNEL_IO = string.lstrip(line, "#define PLUG_CHANNEL_IO ")
       
-    if "#define PLUG_COPYRIGHT " in line:
-      PLUG_COPYRIGHT = string.lstrip(line, "#define PLUG_COPYRIGHT ")
+    if "#define PLUG_COPYRIGHT_STR " in line:
+      PLUG_COPYRIGHT = string.lstrip(line, "#define PLUG_COPYRIGHT_STR ")
 
     if "#define PLUG_UNIQUE_ID " in line:
       PLUG_UID = string.lstrip(line, "#define PLUG_UNIQUE_ID ")
@@ -113,8 +117,8 @@ def main():
     if "#define PLUG_VIEW_ENTRY " in line:
       PLUG_VIEW_ENTRY = string.lstrip(line, "#define PLUG_VIEW_ENTRY")
       
-    if "#define PLUG_IS_INST " in line:
-      PLUG_IS_INST = int(string.lstrip(line, "#define PLUG_IS_INST "), 16)
+    if "#define PLUG_IS_INSTRUMENT " in line:
+      PLUG_IS_INSTRUMENT = int(string.lstrip(line, "#define PLUG_IS_INSTRUMENT "), 16)
     
     if "#define PLUG_DOES_MIDI " in line:
       PLUG_DOES_MIDI = int(string.lstrip(line, "#define PLUG_DOES_MIDI "), 16)
@@ -125,6 +129,8 @@ def main():
   PLUG_VER_STR = PLUG_VER_STR[0:-1]
   BUNDLE_MFR = BUNDLE_MFR[1:-2]
   BUNDLE_NAME = BUNDLE_NAME[1:-2]
+  BUNDLE_DOMAIN = BUNDLE_DOMAIN[1:-2]
+
   PLUG_NAME_STR = PLUG_NAME_STR[1:-2]
   PLUG_MFR_NAME_STR = PLUG_MFR_NAME_STR[1:-2]
   PLUG_CHANNEL_IO = PLUG_CHANNEL_IO[1:-2]
@@ -167,7 +173,7 @@ def main():
   vst3 = plistlib.readPlist(plistpath)
   vst3['CFBundleExecutable'] = BUNDLE_NAME
   vst3['CFBundleGetInfoString'] = CFBundleGetInfoString
-  vst3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".vst3." + BUNDLE_NAME + ""
+  vst3['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".vst3." + BUNDLE_NAME + ""
   vst3['CFBundleName'] = BUNDLE_NAME
   vst3['CFBundleVersion'] = CFBundleVersion
   vst3['CFBundleShortVersionString'] = CFBundleVersion
@@ -177,7 +183,7 @@ def main():
   vst3['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(vst3, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 # VST2
 
@@ -185,7 +191,7 @@ def main():
   vst2 = plistlib.readPlist(plistpath)
   vst2['CFBundleExecutable'] = BUNDLE_NAME
   vst2['CFBundleGetInfoString'] = CFBundleGetInfoString
-  vst2['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".vst." + BUNDLE_NAME + ""
+  vst2['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".vst." + BUNDLE_NAME + ""
   vst2['CFBundleName'] = BUNDLE_NAME
   vst2['CFBundleVersion'] = CFBundleVersion
   vst2['CFBundleShortVersionString'] = CFBundleVersion
@@ -195,7 +201,7 @@ def main():
   vst2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(vst2, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 # AUDIOUNIT v2
 
@@ -203,7 +209,7 @@ def main():
   au = plistlib.readPlist(plistpath)
   au['CFBundleExecutable'] = BUNDLE_NAME
   au['CFBundleGetInfoString'] = CFBundleGetInfoString
-  au['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".audiounit." + BUNDLE_NAME + ""
+  au['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".audiounit." + BUNDLE_NAME + ""
   au['CFBundleName'] = BUNDLE_NAME
   au['CFBundleVersion'] = CFBundleVersion
   au['CFBundleShortVersionString'] = CFBundleVersion
@@ -212,7 +218,7 @@ def main():
   au['CFBundleSignature'] = PLUG_UID
   au['CSResourcesFileMapped'] = CSResourcesFileMapped
 
-  if PLUG_IS_INST:
+  if PLUG_IS_INSTRUMENT:
     COMP_TYPE = kAudioUnitType_MusicDevice
   elif PLUG_DOES_MIDI:
      COMP_TYPE = kAudioUnitType_MusicEffect
@@ -234,8 +240,8 @@ def main():
   #au['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
   
   plistlib.writePlist(au, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
-  
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+
 # AUDIOUNIT v3
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
@@ -243,7 +249,7 @@ def main():
 #  auv3['AudioUnit Version'] = PLUG_VER_STR
   auv3['CFBundleExecutable'] = BUNDLE_NAME
   auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
-  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ".AUv3"
+  auv3['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ".AUv3"
   auv3['CFBundleName'] = BUNDLE_NAME
   auv3['CFBundleVersion'] = CFBundleVersion
   auv3['CFBundleShortVersionString'] = CFBundleVersion
@@ -258,15 +264,15 @@ def main():
   )
 
   plistlib.writePlist(auv3, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
-  
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+
 # AAX
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AAX-Info.plist"
   aax = plistlib.readPlist(plistpath)
   aax['CFBundleExecutable'] = BUNDLE_NAME
   aax['CFBundleGetInfoString'] = CFBundleGetInfoString
-  aax['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".aax." + BUNDLE_NAME + ""
+  aax['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".aax." + BUNDLE_NAME + ""
   aax['CFBundleName'] = BUNDLE_NAME
   aax['CFBundleVersion'] = CFBundleVersion
   aax['CFBundleShortVersionString'] = CFBundleVersion
@@ -274,7 +280,7 @@ def main():
   aax['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(aax, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 # APP
 
@@ -282,7 +288,7 @@ def main():
   osxapp = plistlib.readPlist(plistpath)
   osxapp['CFBundleExecutable'] = BUNDLE_NAME
   osxapp['CFBundleGetInfoString'] = CFBundleGetInfoString
-  osxapp['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
+  osxapp['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
   osxapp['CFBundleName'] = BUNDLE_NAME
   osxapp['CFBundleVersion'] = CFBundleVersion
   osxapp['CFBundleShortVersionString'] = CFBundleVersion
@@ -296,7 +302,7 @@ def main():
   osxapp['CFBundleIconFile'] = BUNDLE_NAME + ".icns"
 
   plistlib.writePlist(osxapp, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 
 #  print "Processing .exp symbol export file for audiounit v2 entry points..."

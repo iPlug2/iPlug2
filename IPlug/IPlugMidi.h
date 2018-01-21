@@ -375,7 +375,7 @@ protected:
 
 MyPlug.cpp:
 
-void MyPlug::Reset()
+void MyPlug::OnReset()
 {
   mMidiQueue.Resize(GetBlockSize());
 }
@@ -385,7 +385,7 @@ void MyPlug::ProcessMidiMsg(IMidiMsg* pMsg)
   mMidiQueue.Add(pMsg);
 }
 
-void MyPlug::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
+void MyPlug::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
   for (int offset = 0; offset < nFrames; ++offset)
   {

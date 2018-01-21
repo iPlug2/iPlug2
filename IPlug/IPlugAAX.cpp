@@ -196,7 +196,7 @@ AAX_Result IPlugAAX::EffectInit()
   AAX_CSampleRate sr;
   Controller()->GetSampleRate(&sr);
   SetSampleRate(sr);
-  Reset();
+  OnReset();
   
   return AAX_SUCCESS;
 }

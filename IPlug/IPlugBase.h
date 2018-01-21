@@ -28,7 +28,7 @@ public:
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
-  virtual void Reset() { TRACE; }
+  virtual void OnReset() { TRACE; }
   virtual void OnParamChange(int paramIdx) {}
 
   /** Default passthrough.
@@ -49,7 +49,7 @@ public:
    * @param outputs 2D output array. The output of your DSP goes here
    * @param nFrames Number of samples per array (buffer size)
   */
-  virtual void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames);
+  virtual void ProcessBlock(double** inputs, double** outputs, int nFrames);
 
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
@@ -136,7 +136,7 @@ public:
   /** @return \c True if the plugin is currently bypassed */
   bool GetIsBypassed() const { return mIsBypassed; }
 
-  // In ProcessDoubleReplacing you are always guaranteed to get valid pointers
+  // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
   int NInChannels() const { return mInChannels.GetSize(); }
@@ -247,7 +247,7 @@ protected:
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
 
-  void OnParamReset();  // Calls OnParamChange(each param) + Reset().
+  void OnParamReset();  // Calls OnParamChange(each param) + OnReset().
 
   void PruneUninitializedPresets();
 

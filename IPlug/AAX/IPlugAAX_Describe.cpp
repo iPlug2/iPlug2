@@ -50,7 +50,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
 
   WDL_String subStr;
 
-  char *plugNameStr = PLUG_NAME_PT;
+  char *plugNameStr = AAX_PLUG_NAME_STR;
     
   while (plugNameStr)
   {
@@ -73,19 +73,19 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   }
   
   AAX_EPlugInCategory category = AAX_ePlugInCategory_None;
-  if (PLUG_IS_INST) category = AAX_ePlugInCategory_SWGenerators;
-  else if(strcmp(PLUG_TYPE_PT, "None") == (0)) category = AAX_ePlugInCategory_None;
-  else if(strcmp(PLUG_TYPE_PT, "EQ") == (0)) category = AAX_ePlugInCategory_EQ;
-  else if(strcmp(PLUG_TYPE_PT, "Dynamics") == (0)) category = AAX_ePlugInCategory_Dynamics;
-  else if(strcmp(PLUG_TYPE_PT, "PitchShift") == (0)) category = AAX_ePlugInCategory_PitchShift;
-  else if(strcmp(PLUG_TYPE_PT, "Reverb") == (0)) category = AAX_ePlugInCategory_Reverb;
-  else if(strcmp(PLUG_TYPE_PT, "Delay") == (0)) category = AAX_ePlugInCategory_Delay;
-  else if(strcmp(PLUG_TYPE_PT, "Modulation") == (0)) category = AAX_ePlugInCategory_Modulation;
-  else if(strcmp(PLUG_TYPE_PT, "Harmonic") == (0)) category = AAX_ePlugInCategory_Harmonic;
-  else if(strcmp(PLUG_TYPE_PT, "NoiseReduction") == (0)) category = AAX_ePlugInCategory_NoiseReduction;
-  else if(strcmp(PLUG_TYPE_PT, "Dither") == (0)) category = AAX_ePlugInCategory_Dither;
-  else if(strcmp(PLUG_TYPE_PT, "SoundField") == (0)) category = AAX_ePlugInCategory_SoundField;
-  else if(strcmp(PLUG_TYPE_PT, "Effect") == (0)) category = AAX_ePlugInCategory_None;
+  if (PLUG_IS_INSTRUMENT) category = AAX_ePlugInCategory_SWGenerators;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "None") == (0)) category = AAX_ePlugInCategory_None;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "EQ") == (0)) category = AAX_ePlugInCategory_EQ;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == (0)) category = AAX_ePlugInCategory_Dynamics;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "PitchShift") == (0)) category = AAX_ePlugInCategory_PitchShift;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Reverb") == (0)) category = AAX_ePlugInCategory_Reverb;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Delay") == (0)) category = AAX_ePlugInCategory_Delay;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Modulation") == (0)) category = AAX_ePlugInCategory_Modulation;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Harmonic") == (0)) category = AAX_ePlugInCategory_Harmonic;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "NoiseReduction") == (0)) category = AAX_ePlugInCategory_NoiseReduction;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Dither") == (0)) category = AAX_ePlugInCategory_Dither;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "SoundField") == (0)) category = AAX_ePlugInCategory_SoundField;
+  else if(strcmp(AAX_PLUG_CATEGORY_STR, "Effect") == (0)) category = AAX_ePlugInCategory_None;
   err |= effectDescriptor->AddCategory(category);
   
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
@@ -114,7 +114,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mManufacturerID = PLUG_MFR_ID;
       setupInfo.mProductID = PLUG_UNIQUE_ID;
       setupInfo.mPluginID = typeId;
-      #if PLUG_DOES_AUDIOSUITE
+      #if AAX_DOES_AUDIOSUITE
       setupInfo.mAudioSuiteID = PLUG_TYPE_IDS_AS[ioConfigIdx];
       #endif
       setupInfo.mCanBypass = true;
@@ -150,7 +150,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   
   AAX_ASSERT (err == AAX_SUCCESS);
   
-  char *mfrNameStr = PLUG_MFR_PT;
+  char* mfrNameStr = AAX_PLUG_MFR_STR;
   
   while (mfrNameStr)
   {
@@ -171,7 +171,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     }
   }
   
-  outCollection->SetPackageVersion(PLUG_VER);   
+  outCollection->SetPackageVersion(PLUG_VERSION_HEX);
   
   return err;
 }

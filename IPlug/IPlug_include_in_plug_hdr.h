@@ -32,10 +32,10 @@
   typedef IPlugAAX IPlug;
   #define API_EXT "aax"
   #define PROTOOLS
-#elif defined SA_API
-  #include "IPlugStandalone.h"
-  typedef IPlugStandalone IPlug;
-  #define API_EXT "standalone"
+#elif defined APP_API
+  #include "IPlugAPP.h"
+  typedef IPlugAPP IPlug;
+  #define API_EXT "app"
 #elif defined WAM_API
   typedef IPlugWAM IPlug;
 #else
@@ -56,7 +56,7 @@
   #include "IGraphicsMac.h"
 #endif
   #define EXPORT __attribute__ ((visibility("default")))
-  #define BUNDLE_ID "com." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
+  #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
 #elif defined OS_WEB
 #ifndef NO_IGRAPHICS
   #include "IGraphicsWeb.h"

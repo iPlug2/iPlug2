@@ -317,7 +317,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
   mSampleRate = newSetup.sampleRate;
   mIsBypassed = false;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
-  Reset();
+  OnReset();
 
   processSetup = newSetup;
 

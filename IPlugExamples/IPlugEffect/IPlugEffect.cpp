@@ -3,25 +3,6 @@
 #include "IControls.h"
 #include "config.h"
 
-const int kNumPrograms = 1;
-
-enum EParams
-{
-  kGain = 0,
-  kNumParams
-};
-
-enum ELayout
-{
-  kWidth = 300,
-  kHeight = 300,
-
-  kTextX = 10,
-  kTextY = 10,
-  kGainX = 100,
-  kGainY = 100
-};
-
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
@@ -51,7 +32,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
 IPlugEffect::~IPlugEffect() {}
 
-void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
+void IPlugEffect::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
   mParams_mutex.Enter();
   const double gain = GetParam(kGain)->Value() / 100.;
@@ -67,8 +48,4 @@ void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int 
     *out1 = *in1 * gain;
     *out2 = *in2 * gain;
   }
-}
-
-void IPlugEffect::Reset()
-{
 }

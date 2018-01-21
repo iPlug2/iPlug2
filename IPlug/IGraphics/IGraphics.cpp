@@ -47,7 +47,7 @@ IGraphics::~IGraphics()
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
   
-#if !defined(NDEBUG) && defined(SA_API)
+#if !defined(NDEBUG) && defined(APP_API)
   if (mLiveEdit)
     DELETE_NULL(mLiveEdit);
 #endif
@@ -581,7 +581,7 @@ void IGraphics::Draw(const IRECT& rect)
     }
   }
   
-#if defined(SA_API)
+#if defined(APP_API)
   if(mLiveEdit)
     mLiveEdit->Draw(*this);
 #endif
@@ -608,7 +608,7 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-#if !defined(NDEBUG) && defined(SA_API)
+#if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDown(x, y, mod);
@@ -665,7 +665,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-#if !defined(NDEBUG) && defined(SA_API)
+#if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseUp(x, y, mod);
@@ -689,7 +689,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-#if !defined(NDEBUG) && defined(SA_API)
+#if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseOver(x, y, mod);
@@ -727,7 +727,7 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-#if !defined(NDEBUG) && defined(SA_API)
+#if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDrag(x, y, 0, 0, mod);
@@ -952,7 +952,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
-#if !defined(NDEBUG) && defined(SA_API)
+#if !defined(NDEBUG) && defined(APP_API)
   if(enable)
     mLiveEdit = new IGraphicsLiveEdit(GetPlug(), file, gridsize);
   else {
