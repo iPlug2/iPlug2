@@ -290,7 +290,7 @@ int AudioCallback(void *outputBuffer, void *inputBuffer, uint32_t nFrames, doubl
         double* inputs[2] = {inputBufferD + i, inputBufferD + inRightOffset + i};
         double* outputs[2] = {outputBufferD + i, outputBufferD + nFrames + i};
 
-        gPluginInstance->ProcessDoubleReplacing(inputs, outputs, gSigVS);
+        gPluginInstance->ProcessBlock(inputs, outputs, gSigVS);
       }
 
       // fade in
@@ -431,7 +431,7 @@ bool InitialiseAudio(uint32_t inId,
 
   gPluginInstance->SetBlockSize(gSigVS);
   gPluginInstance->SetSampleRate(sr);
-  gPluginInstance->Reset();
+  gPluginInstance->OnReset();
 
   try
   {

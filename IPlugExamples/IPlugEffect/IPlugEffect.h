@@ -28,5 +28,5 @@ public:
   ~IPlugEffect();
 //   void OnReset() override;
 //  void OnParamChange(int paramIdx) override;
-  void ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames) override;
+  void ProcessBlock(double** inputs, double** outputs, int nFrames) override;
 };

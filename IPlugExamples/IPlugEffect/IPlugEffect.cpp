@@ -32,7 +32,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
 IPlugEffect::~IPlugEffect() {}
 
-void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
+void IPlugEffect::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
   mParams_mutex.Enter();
   const double gain = GetParam(kGain)->Value() / 100.;
