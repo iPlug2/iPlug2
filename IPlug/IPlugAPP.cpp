@@ -1,10 +1,10 @@
-#include "IPlugStandalone.h"
+#include "IPlugAPP.h"
 #ifdef OS_OSX
 #include "swell.h"
 #endif
 extern HWND gHWND;
 
-IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPISA)
 {
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
@@ -19,7 +19,7 @@ IPlugStandalone::IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mMidiOut = instanceInfo.mRTMidiOut;
 }
 
-void IPlugStandalone::ResizeGraphics(int w, int h, double scale)
+void IPlugAPP::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {
@@ -33,7 +33,7 @@ void IPlugStandalone::ResizeGraphics(int w, int h, double scale)
   }
 }
 
-bool IPlugStandalone::SendMidiMsg(IMidiMsg& msg)
+bool IPlugAPP::SendMidiMsg(IMidiMsg& msg)
 {
   if (DoesMIDI())
   {
@@ -55,7 +55,7 @@ bool IPlugStandalone::SendMidiMsg(IMidiMsg& msg)
   return false;
 }
 
-bool IPlugStandalone::SendSysEx(ISysEx& msg)
+bool IPlugAPP::SendSysEx(ISysEx& msg)
 {
   if (mMidiOut)
   {  

@@ -3,7 +3,7 @@
 
 /**
  * @file
- * @copydoc IPlugStandalone
+ * @copydoc IPlugAPP
  */
 
 
@@ -40,10 +40,10 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 /**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
-class IPlugStandalone : public IPLUG_BASE_CLASS
+class IPlugAPP : public IPLUG_BASE_CLASS
 {
 public:
-  IPlugStandalone(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   // these methods aren't needed in standalones but they are pure virtual in IPlugBase so must have a NO-OP here
   void BeginInformHostOfParamChange(int idx) override {};
@@ -67,6 +67,6 @@ private:
   uint16_t mMidiOutChan;
 };
 
-IPlugStandalone* MakePlug(void* pMidiOutput, uint16_t& midiOutChannel);
+IPlugAPP* MakePlug(void* pMidiOutput, uint16_t& midiOutChannel);
 
 #endif

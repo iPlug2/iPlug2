@@ -32,10 +32,10 @@
   typedef IPlugAAX IPlug;
   #define API_EXT "aax"
   #define PROTOOLS
-#elif defined SA_API
-  #include "IPlugStandalone.h"
-  typedef IPlugStandalone IPlug;
-  #define API_EXT "standalone"
+#elif defined APP_API
+  #include "IPlugAPP.h"
+  typedef IPlugAPP IPlug;
+  #define API_EXT "app"
 #elif defined WAM_API
   typedef IPlugWAM IPlug;
 #else

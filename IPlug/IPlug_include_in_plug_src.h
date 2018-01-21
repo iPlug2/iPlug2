@@ -263,7 +263,7 @@ extern "C"
     
     return new PLUG_CLASS_NAME(instanceInfo);
   }
-#elif defined SA_API
+#elif defined APP_API
   IPlug* MakePlug(void* pMidiOutput, uint16_t& midiOutChan)
   {
     IPlugInstanceInfo instanceInfo;
