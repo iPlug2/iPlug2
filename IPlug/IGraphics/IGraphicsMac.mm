@@ -9,8 +9,6 @@
 
 #include "swell.h"
 
-#include "Log.h"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 int GetSystemVersion() 

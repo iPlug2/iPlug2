@@ -11,7 +11,7 @@
 #include "IPlugByteChunk.h"
 #include "IPlugUtilities.h"
 #include "IParam.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 #include "NChanDelay.h"
 
 /**

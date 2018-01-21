@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "IControl.h"
-#include "Log.h"
 
 IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBlend blendType)
 : mPlug(plug)
