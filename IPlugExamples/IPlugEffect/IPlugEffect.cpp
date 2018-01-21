@@ -3,25 +3,6 @@
 #include "IControls.h"
 #include "config.h"
 
-const int kNumPrograms = 1;
-
-enum EParams
-{
-  kGain = 0,
-  kNumParams
-};
-
-enum ELayout
-{
-  kWidth = 300,
-  kHeight = 300,
-
-  kTextX = 10,
-  kTextY = 10,
-  kGainX = 100,
-  kGainY = 100
-};
-
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
