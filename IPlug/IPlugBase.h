@@ -8,7 +8,6 @@
 
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
-#include "IPlugByteChunk.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"

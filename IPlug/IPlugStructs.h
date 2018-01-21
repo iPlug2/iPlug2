@@ -4,7 +4,6 @@
 #include "wdlstring.h"
 
 #include "IPlugConstants.h"
-#include "IPlugByteChunk.h"
 #include "IPlugOSDetect.h"
 #include "IPlugMidi.h" // <- Midi related structs in here
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "IPlugConstants.h"
+#include "IPlugUtilities.h"
 
 /** Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg

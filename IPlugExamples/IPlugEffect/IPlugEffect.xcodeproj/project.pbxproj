@@ -384,7 +384,6 @@
 		4F3E69051409746500C4D749 /* IPlugVST3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3.h; path = ../../IPlug/IPlugVST3.h; sourceTree = SOURCE_ROOT; };
 		4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST3-Info.plist"; path = "resources/IPlugEffect-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F4237201FC852FE0067D58C /* IPlugConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugConstants.h; path = ../../IPlug/IPlugConstants.h; sourceTree = "<group>"; };
-		4F4237211FC85ABA0067D58C /* IPlugByteChunk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugByteChunk.h; path = ../../IPlug/IPlugByteChunk.h; sourceTree = "<group>"; };
 		4F4237231FC863060067D58C /* IPlugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugUtilities.h; path = ../../IPlug/IPlugUtilities.h; sourceTree = "<group>"; };
 		4F4ACFF5140996A10068A6D4 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
 		4F4ACFF6140996A10068A6D4 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memorystream.h; sourceTree = "<group>"; };
@@ -966,7 +965,6 @@
 				4F4237201FC852FE0067D58C /* IPlugConstants.h */,
 				4F4237231FC863060067D58C /* IPlugUtilities.h */,
 				4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */,
-				4F4237211FC85ABA0067D58C /* IPlugByteChunk.h */,
 				4F78D90513B63BA50032E0F3 /* IPlugMidi.h */,
 				4F78D8FA13B63BA50032E0F3 /* IPlugLogger.h */,
 				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
