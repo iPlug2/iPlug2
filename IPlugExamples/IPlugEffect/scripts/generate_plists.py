@@ -251,7 +251,9 @@ def main():
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(AudioComponents = au['AudioComponents']),
-  NSExtensionPointIdentifier = "com.apple.AudioUnit-UI",
+#  NSExtensionPointIdentifier = "com.apple.AudioUnit-UI",
+  NSExtensionPointIdentifier = "com.apple.AudioUnit",
+#  NSExtensionPrincipalClass = "IPlugViewController",
   NSExtensionPrincipalClass = "IPlugViewController",
   )
 
@@ -297,14 +299,13 @@ def main():
   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 
-  print "Processing .exp symbol export file for audiounit v2 entry points..."
+#  print "Processing .exp symbol export file for audiounit v2 entry points..."
 
-  expfile = open(BUNDLE_NAME + ".exp", "w")
-  expfile.write("_" + PLUG_FACTORY + "\n")
-  #if !AU_NO_COMPONENT_ENTRY
-  expfile.write("_" + PLUG_ENTRY + "\n")
-
-  expfile.close()
+#  expfile = open(BUNDLE_NAME + ".exp", "w")
+#  expfile.write("_" + PLUG_FACTORY + "\n")
+#  #if !AU_NO_COMPONENT_ENTRY
+#  expfile.write("_" + PLUG_ENTRY + "\n")
+#  expfile.close()
 
 if __name__ == '__main__':
   main()
