@@ -152,20 +152,27 @@ private:
     agg::renderer_scanline_aa_solid<RenbaseType> renderer(mRenBase);
     
     renderer.color(IColorToAggColor(color));
-    
     rasterizer.filling_rule(agg::fill_non_zero);
-    rasterizer.add_path(path);
     
+    rasterizer.add_path(path);
     agg::render_scanlines(rasterizer, scanline, renderer);
+  }
+    
+  template <typename path_type>
+  void Fill(const IColor& color, path_type& path)
+  {
+    Rasterize(color, path);
   }
     
   template <typename path_type>
   void Stroke(const IColor& color, path_type& path)
   {
     agg::conv_stroke<path_type> strokes(path);
-    strokes.width(1.0);
+    strokes.width(1.0 * ScaleFactor());
     Rasterize(color, strokes);
   }
+    
+  double ScaleFactor() { return mDisplayScale; }
     
   RenbaseType mRenBase;
   PixfmtType mPixf;
