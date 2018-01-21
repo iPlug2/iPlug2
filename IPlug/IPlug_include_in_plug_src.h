@@ -123,15 +123,15 @@ static Steinberg::FUnknown* createInstance (void*) {
 }
 
 // Company Information
-BEGIN_FACTORY_DEF (PLUG_MFR, MFR_URL, MFR_EMAIL)
+BEGIN_FACTORY_DEF (PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
 DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
             Steinberg::PClassInfo::kManyInstances,              // cardinality
             kVstAudioEffectClass,                               // the component category (don't change this)
             PLUG_NAME,                                          // plug-in name
             Steinberg::Vst::kSimpleModeSupported,               // kSimpleModeSupported because we can't split the gui and plugin
-            EFFECT_TYPE_VST3,                                   // Subcategory for this plug-in
-            VST3_VER_STR,                                       // plug-in version
+            VST3_SUBCATEGORY,                                   // Subcategory for this plug-in
+            PLUG_VERSION_STR,                                       // plug-in version
             kVstVersionString,                                  // the VST 3 SDK version (dont changed this, use always this define)
             createInstance)                                     // function pointer called when this component should be instantiated
 
@@ -303,5 +303,5 @@ extern "C"
 
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
-    PUBLIC_NAME, "", PLUG_MFR, PLUG_VER, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INST, PLUG_SC_CHANS))
+    PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
+    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, PLUG_SC_CHANS))

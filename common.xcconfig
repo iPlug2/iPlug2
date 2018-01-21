@@ -94,8 +94,8 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 // You can also build to the user plug-in folder, but the installer scripts assume that the binaries are in the system folder
 // The AAX folder should be the location of the PT Dev build plug-ins folder, installer scripts will copy to the non-developer build
 
-VST_FOLDER = /Library/Audio/Plug-Ins/VST
-VST3_FOLDER = /Library/Audio/Plug-Ins/VST3
-AU_FOLDER = /Library/Audio/Plug-Ins/Components
-AAX_FOLDER = /Applications/Avid/ProTools_3PDev/Plug-Ins
-APP_FOLDER = /Applications
+VST2_PATH = /Library/Audio/Plug-Ins/VST
+VST3_PATH = /Library/Audio/Plug-Ins/VST3
+AU_PATH = /Library/Audio/Plug-Ins/Components
+AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
+APP_PATH = /Applications

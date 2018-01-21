@@ -29,7 +29,7 @@ def main():
   BUNDLE_NAME = ""
   
   # extract values from config.h
-  for line in fileinput.input(projectpath + "config.h", inplace=0):
+  for line in fileinput.input(projectpath + "/config.h", inplace=0):
     if "#define PLUG_VERSION_HEX " in line:
       PLUG_VERSION_HEX_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
       PLUG_VERSION_HEX = int(PLUG_VERSION_HEX_STR, 16)
@@ -55,7 +55,9 @@ def main():
   plistpath = projectpath + "/installer/" + BUNDLE_NAME + ".pkgproj"
   installer = plistlib.readPlist(plistpath)
   
-  for x in range(0,9):
+  # range  = number of items in the installer (VST 2, VST 3, app, audiounit, aax)
+  for x in range(0,5):
+    print(x) 
     installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = FULLVERSIONSTR
 
   if demo:
@@ -66,7 +68,7 @@ def main():
     installer['PROJECT']['PROJECT_PRESENTATION']['INTRODUCTION']['LOCALIZATIONS'][0]['VALUE']['PATH'] = "intro.rtf"
 
   plistlib.writePlist(installer, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
   
 # WIN INSTALLER
   print "Updating Windows Installer version info..."
@@ -76,9 +78,9 @@ def main():
       line="AppVersion=" + FULLVERSIONSTR + "\n"
     if "OutputBaseFilename" in line:
       if demo:
-        line="OutputBaseFilename=VirtualCZ Demo Installer\n"
+        line="OutputBaseFilename=IPlugEffect Demo Installer\n"
       else:
-        line="OutputBaseFilename=VirtualCZ Installer\n"
+        line="OutputBaseFilename=IPlugEffect Installer\n"
         
     if 'Source: "readme' in line:
      if demo:
@@ -88,15 +90,15 @@ def main():
     
     if "WelcomeLabel1" in line:
      if demo:
-       line="WelcomeLabel1=Welcome to the VirtualCZ Demo installer\n"
+       line="WelcomeLabel1=Welcome to the IPlugEffect Demo installer\n"
      else:
-       line="WelcomeLabel1=Welcome to the VirtualCZ installer\n"
+       line="WelcomeLabel1=Welcome to the IPlugEffect installer\n"
        
     if "SetupWindowTitle" in line:
      if demo:
-       line="SetupWindowTitle=VirtualCZ Demo installer\n"
+       line="SetupWindowTitle=IPlugEffect Demo installer\n"
      else:
-       line="SetupWindowTitle=VirtualCZ installer\n"
+       line="SetupWindowTitle=IPlugEffect installer\n"
        
     sys.stdout.write(line)
     

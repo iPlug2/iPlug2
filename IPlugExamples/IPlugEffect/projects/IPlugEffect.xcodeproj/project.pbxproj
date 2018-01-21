@@ -35,6 +35,7 @@
 		4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F1B088C20143A0600CE2770 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
+		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F296BDA1678E6C800C0F5C2 /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */; };
 		4F3862EF2014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -362,6 +363,7 @@
 /* Begin PBXFileReference section */
 		4F017360154D4BFC0034BE1A /* AAX_CIPlugParameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AAX_CIPlugParameters.cpp; path = ../../../IPlug/AAX/AAX_CIPlugParameters.cpp; sourceTree = SOURCE_ROOT; };
 		4F017361154D4BFC0034BE1A /* AAX_CIPlugParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AAX_CIPlugParameters.h; path = ../../../IPlug/AAX/AAX_CIPlugParameters.h; sourceTree = SOURCE_ROOT; };
+		4F1B4AE32014D33600BC64D4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../resources/MainMenu.xib; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F20EF33132C69FE0030E34C /* IPlugEffect.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F21A6EC2001233700B7B057 /* vstspeakerarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstspeakerarray.h; sourceTree = "<group>"; };
@@ -652,8 +654,8 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4F1B4AE32014D33600BC64D4 /* MainMenu.xib */,
 				4FD16A0213B6303B001D0217 /* img */,
-				4F78D89413B639100032E0F3 /* English.lproj */,
 				4FDA1E0F2012CDB30027C868 /* IPlugEffect.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* IPlugEffect.rc_mac_menu */,
 				4FDA1E102012CDB30027C868 /* resource.h */,
@@ -913,14 +915,6 @@
 				4F69BB5F2013C520002C8948 /* IGraphicsWin.h */,
 			);
 			name = PlatformClasses;
-			sourceTree = "<group>";
-		};
-		4F78D89413B639100032E0F3 /* English.lproj */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = English.lproj;
-			path = ../resources/English.lproj;
 			sourceTree = "<group>";
 		};
 		4F78D8BE13B63A700032E0F3 /* RTAudioMidi */ = {
@@ -1537,6 +1531,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
+				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1895,7 +1890,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1948,6 +1943,7 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -1964,7 +1960,7 @@
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = "";
 			};
 			name = Debug;
@@ -1973,7 +1969,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2026,6 +2022,7 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
@@ -2040,7 +2037,7 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = "";
 			};
 			name = Release;
@@ -2048,7 +2045,7 @@
 		4F20EF30132C69FE0030E34C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(VST_FOLDER)";
+				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2064,7 +2061,7 @@
 		4F20EF31132C69FE0030E34C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(VST_FOLDER)";
+				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2080,7 +2077,7 @@
 		4F20EF32132C69FE0030E34C /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(VST_FOLDER)";
+				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2228,7 +2225,7 @@
 		4F3AE1DD12C0E5E2001FD7A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(AU_FOLDER)";
+				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2253,7 +2250,7 @@
 		4F3AE1DE12C0E5E2001FD7A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(AU_FOLDER)";
+				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2278,7 +2275,7 @@
 		4F3AE1DF12C0E5E2001FD7A4 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(AU_FOLDER)";
+				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2331,7 +2328,7 @@
 		4F9828DD140A9EB700F3FCC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(VST3_FOLDER)";
+				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2350,7 +2347,7 @@
 		4F9828DE140A9EB700F3FCC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(VST3_FOLDER)";
+				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2369,7 +2366,7 @@
 		4F9828DF140A9EB700F3FCC1 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DSTROOT = "$(VST3_FOLDER)";
+				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2390,9 +2387,9 @@
 			baseConfigurationReference = 4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */;
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = "$(AAX_FOLDER)";
+				DSTROOT = "$(AAX_PATH)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2435,11 +2432,11 @@
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DSTROOT = "$(AAX_FOLDER)";
+				DSTROOT = "$(AAX_PATH)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2491,11 +2488,11 @@
 			baseConfigurationReference = 4F4CC38D1549B92900A9EA21 /* CommonReleaseSettings.xcconfig */;
 			buildSettings = {
 				AAX_SDK_ROOT = "$(AAX_SDK)";
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DSTROOT = "$(AAX_FOLDER)";
+				DSTROOT = "$(AAX_PATH)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2548,7 +2545,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
-				DSTROOT = "$(APP_FOLDER)";
+				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(APP_DEFS)",
 					"$(inherited)",
@@ -2578,7 +2575,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
-				DSTROOT = "$(APP_FOLDER)";
+				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(APP_DEFS)",
 					"$(inherited)",
@@ -2608,7 +2605,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
-				DSTROOT = "$(APP_FOLDER)";
+				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(APP_DEFS)",
 					"$(inherited)",
@@ -2635,7 +2632,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2686,6 +2683,7 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
@@ -2700,7 +2698,7 @@
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = "";
 			};
 			name = Tracer;

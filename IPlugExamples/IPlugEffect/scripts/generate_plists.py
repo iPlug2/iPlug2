@@ -66,13 +66,13 @@ def main():
   PLUG_FACTORY = ""
   PLUG_ENTRY = ""
   PLUG_VIEW_ENTRY = ""
-  PLUG_IS_INST = 0
+  PLUG_IS_INSTRUMENT = 0
   PLUG_DOES_MIDI = 0
   
   # extract values from config.h
   for line in fileinput.input(projectpath + "/config.h", inplace=0):
-    if "#define PLUG_VER " in line:
-      PLUG_VER_STR = string.lstrip(line, "#define PLUG_VER ")
+    if "#define PLUG_VERSION_HEX " in line:
+      PLUG_VER_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
       PLUG_VER = int(PLUG_VER_STR, 16)
       MAJOR = PLUG_VER & 0xFFFF0000
       MAJORSTR = str(MAJOR >> 16)
@@ -95,8 +95,8 @@ def main():
     if "#define PLUG_CHANNEL_IO " in line:
       PLUG_CHANNEL_IO = string.lstrip(line, "#define PLUG_CHANNEL_IO ")
       
-    if "#define PLUG_COPYRIGHT " in line:
-      PLUG_COPYRIGHT = string.lstrip(line, "#define PLUG_COPYRIGHT ")
+    if "#define PLUG_COPYRIGHT_STR " in line:
+      PLUG_COPYRIGHT = string.lstrip(line, "#define PLUG_COPYRIGHT_STR ")
 
     if "#define PLUG_UNIQUE_ID " in line:
       PLUG_UID = string.lstrip(line, "#define PLUG_UNIQUE_ID ")
@@ -113,8 +113,8 @@ def main():
     if "#define PLUG_VIEW_ENTRY " in line:
       PLUG_VIEW_ENTRY = string.lstrip(line, "#define PLUG_VIEW_ENTRY")
       
-    if "#define PLUG_IS_INST " in line:
-      PLUG_IS_INST = int(string.lstrip(line, "#define PLUG_IS_INST "), 16)
+    if "#define PLUG_IS_INSTRUMENT " in line:
+      PLUG_IS_INSTRUMENT = int(string.lstrip(line, "#define PLUG_IS_INSTRUMENT "), 16)
     
     if "#define PLUG_DOES_MIDI " in line:
       PLUG_DOES_MIDI = int(string.lstrip(line, "#define PLUG_DOES_MIDI "), 16)
@@ -212,7 +212,7 @@ def main():
   au['CFBundleSignature'] = PLUG_UID
   au['CSResourcesFileMapped'] = CSResourcesFileMapped
 
-  if PLUG_IS_INST:
+  if PLUG_IS_INSTRUMENT:
     COMP_TYPE = kAudioUnitType_MusicDevice
   elif PLUG_DOES_MIDI:
      COMP_TYPE = kAudioUnitType_MusicEffect
