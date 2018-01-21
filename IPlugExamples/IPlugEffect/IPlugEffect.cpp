@@ -3,6 +3,35 @@
 #include "IControls.h"
 #include "config.h"
 
+class MyControl : public IControl
+{
+private:
+  double mPhase = 0.;
+public:
+  MyControl(IPlugBaseGraphics& plug, IRECT rect)
+  : IControl(plug, rect)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    //g.DrawRect(COLOR_BLUE, mRECT.GetPadded(-50));
+    g.FillRect(COLOR_BLUE, mRECT.GetScaled(mPhase));
+    //g.FillRect(COLOR_GREEN, mRECT.GetScaled(1.-mPhase));
+  }
+  
+  bool IsDirty() override
+  {
+    mPhase += 0.01;
+    
+    if (mPhase > 1.)
+      mPhase-=1.;
+    
+    return true;
+  }
+};
+
+
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
@@ -16,13 +45,14 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX + 50, kGainY + 50), kGain, COLOR_BLACK));
-
-//  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), DEFAULT_TEXT, GetBuildInfoStr()));
+  pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
+  //pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX + 50, kGainY + 50), kGain, COLOR_BLACK));
 
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
-  printf("%s\n%s Graphics\n", buildInfo.Get(), pGraphics->GetDrawingAPIStr());
+  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), DEFAULT_TEXT, buildInfo.Get()));
+  
+  DBGMSG("%s\n%s Graphics\n", buildInfo.Get(), pGraphics->GetDrawingAPIStr());
 
   AttachGraphics(pGraphics);
   
