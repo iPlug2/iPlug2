@@ -177,7 +177,7 @@ def main():
   vst3['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(vst3, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 # VST2
 
@@ -195,7 +195,7 @@ def main():
   vst2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(vst2, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 # AUDIOUNIT v2
 
@@ -234,8 +234,8 @@ def main():
   #au['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
   
   plistlib.writePlist(au, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
-  
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+
 # AUDIOUNIT v3
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
@@ -258,8 +258,8 @@ def main():
   )
 
   plistlib.writePlist(auv3, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
-  
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+
 # AAX
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AAX-Info.plist"
@@ -274,7 +274,7 @@ def main():
   aax['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(aax, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 # APP
 
@@ -296,7 +296,7 @@ def main():
   osxapp['CFBundleIconFile'] = BUNDLE_NAME + ".icns"
 
   plistlib.writePlist(osxapp, plistpath)
-  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+#  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 
 #  print "Processing .exp symbol export file for audiounit v2 entry points..."
