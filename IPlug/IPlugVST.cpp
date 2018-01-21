@@ -336,7 +336,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effOpen:
     {
       _this->HostSpecificInit();
-      _this->OnParamOnReset();
+      _this->OnParamReset();
       return 0;
     }
     case effClose:
