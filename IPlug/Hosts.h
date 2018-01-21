@@ -5,18 +5,8 @@
 
 /**
  * @file
- * @brief API and host definitions
+ * @brief Host definitions
  */
-
-enum EAPI
-{
-  kAPIVST2 = 0,
-  kAPIVST3 = 1,
-  kAPIAU = 2,
-  //kAPIRTAS = 3,
-  kAPIAAX = 4,
-  kAPISA = 5
-};
 
 /** @enum EHost
  * Host identifier

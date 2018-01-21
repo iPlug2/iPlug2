@@ -23,6 +23,10 @@
   #include "IPlugAU.h"
   typedef IPlugAU IPlug;
   #define API_EXT "audiounit"
+#elif defined AUv3_API
+  #include "IPlugAUv3.h"
+  typedef IPlugAUv3 IPlug;
+  #define API_EXT "appex"
 #elif defined AAX_API
   #include "IPlugAAX.h"
   typedef IPlugAAX IPlug;

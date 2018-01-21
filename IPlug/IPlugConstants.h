@@ -67,5 +67,13 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
-
+enum EAPI
+{
+  kAPIVST2 = 0,
+  kAPIVST3 = 1,
+  kAPIAU = 2,
+  kAPIAUv3 = 3,
+  kAPIAAX = 4,
+  kAPISA = 5
+};
 
