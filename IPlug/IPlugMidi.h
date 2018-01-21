@@ -1,6 +1,6 @@
 #pragma once
 #include <cassert>
-#include <stdint.h>
+#include <cstdint>
 
 #include "IPlugConstants.h"
 #include "IPlugUtilities.h"

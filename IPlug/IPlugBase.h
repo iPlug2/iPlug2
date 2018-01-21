@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstring>
-#include <stdint.h>
+#include <cstdint>
 
 #include "ptrlist.h"
 #include "mutex.h"
