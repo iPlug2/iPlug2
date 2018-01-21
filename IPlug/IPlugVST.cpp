@@ -485,7 +485,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (ppData)
       {
         bool isBank = (!idx);
-        ByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
+        IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
         _this->InitChunkWithIPlugVer(chunk);
         bool savedOK = true;
         
@@ -512,7 +512,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (ptr)
       {
         bool isBank = (!idx);
-        ByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
+        IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
         chunk.Resize((int) value);
         memcpy(chunk.GetBytes(), ptr, value);
         int pos = 0;

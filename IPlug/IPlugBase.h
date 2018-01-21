@@ -72,9 +72,9 @@ public:
 
   virtual bool MidiNoteName(int noteNumber, char* pNameStr) { *pNameStr = '\0'; return false; }
 
-  virtual bool SerializeState(ByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
+  virtual bool SerializeState(IByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
   // Return the new chunk position (endPos). Implementations should call UnserializeParams() after custom data is unserialized
-  virtual int UnserializeState(ByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
+  virtual int UnserializeState(IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
 
   // Only used by AAX, override in plugins that do chunks
   virtual bool CompareState(const unsigned char* incomingState, int startPos);
@@ -205,8 +205,8 @@ protected:
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
 
-  void InitChunkWithIPlugVer(ByteChunk& chunk);
-  int GetIPlugVerFromChunk(ByteChunk& chunk, int& pos);
+  void InitChunkWithIPlugVer(IByteChunk& chunk);
+  int GetIPlugVerFromChunk(IByteChunk& chunk, int& pos);
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() {};
@@ -233,14 +233,14 @@ protected:
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
 
   // Use these methods with chunks-based plugins
-  void MakePresetFromChunk(const char* name, ByteChunk& chunk);
+  void MakePresetFromChunk(const char* name, IByteChunk& chunk);
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
 
   bool DoesStateChunks() { return mStateChunks; }
 
   // Will append if the chunk is already started
-  bool SerializeParams(ByteChunk& chunk);
-  int UnserializeParams(ByteChunk& chunk, int startPos); // Returns the new chunk position (endPos)
+  bool SerializeParams(IByteChunk& chunk);
+  int UnserializeParams(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos)
 
   virtual void RedrawParamControls() {};  // Called after restoring state.
 
@@ -252,8 +252,8 @@ protected:
   void PruneUninitializedPresets();
 
   // Unserialize / SerializePresets - Only used by VST2
-  bool SerializePresets(ByteChunk& chunk);
-  int UnserializePresets(ByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
+  bool SerializePresets(IByteChunk& chunk);
+  int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
 
   // Set connection state for n channels.
   // If a channel is connected, we expect a call to attach the buffers before each process call.

@@ -597,7 +597,7 @@ void IPlugBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, ..
   }
 }
 
-void IPlugBase::MakePresetFromChunk(const char* name, ByteChunk& chunk)
+void IPlugBase::MakePresetFromChunk(const char* name, IByteChunk& chunk)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -611,7 +611,7 @@ void IPlugBase::MakePresetFromChunk(const char* name, ByteChunk& chunk)
 
 void IPlugBase::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
 {
-  ByteChunk presetChunk;
+  IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
   base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
 
@@ -730,7 +730,7 @@ void IPlugBase::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPlugBase::SerializePresets(ByteChunk& chunk)
+bool IPlugBase::SerializePresets(IByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -751,7 +751,7 @@ bool IPlugBase::SerializePresets(ByteChunk& chunk)
   return savedOK;
 }
 
-int IPlugBase::UnserializePresets(ByteChunk& chunk, int startPos)
+int IPlugBase::UnserializePresets(IByteChunk& chunk, int startPos)
 {
   TRACE;
   WDL_String name;
@@ -779,7 +779,7 @@ int IPlugBase::UnserializePresets(ByteChunk& chunk, int startPos)
   return pos;
 }
 
-bool IPlugBase::SerializeParams(ByteChunk& chunk)
+bool IPlugBase::SerializeParams(IByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -794,7 +794,7 @@ bool IPlugBase::SerializeParams(ByteChunk& chunk)
   return savedOK;
 }
 
-int IPlugBase::UnserializeParams(ByteChunk& chunk, int startPos)
+int IPlugBase::UnserializeParams(IByteChunk& chunk, int startPos)
 {
   TRACE;
   WDL_MutexLock lock(&mParams_mutex); 
@@ -884,7 +884,7 @@ void IPlugBase::DumpPresetBlob(const char* filename)
 
   char buf[MAX_BLOB_LENGTH];
 
-  ByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
+  IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
   uint8_t* byteStart = pPresetChunk->GetBytes();
 
   base64encode(byteStart, buf, pPresetChunk->Size());
@@ -907,7 +907,7 @@ void IPlugBase::DumpBankBlob(const char* filename)
     IPreset* pPreset = mPresets.Get(i);
     fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
     
-    ByteChunk* pPresetChunk = &pPreset->mChunk;
+    IByteChunk* pPresetChunk = &pPreset->mChunk;
     base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
     
     fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
@@ -961,7 +961,7 @@ void IPlugBase::SetOutputBusLabel(int idx, const char* pLabel)
 const int kFXPVersionNum = 1;
 const int kFXBVersionNum = 2;
 
-// confusing... bytechunk will force storage as little endian on big endian platforms,
+// confusing... IByteChunk will force storage as little endian on big endian platforms,
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
@@ -971,7 +971,7 @@ bool IPlugBase::SaveProgramAsFXP(const char* file)
   {
     FILE* fp = fopen(file, "wb");
 
-    ByteChunk pgm;
+    IByteChunk pgm;
 
     int32_t chunkMagic = WDL_bswap32('CcnK');
     int32_t byteSize = 0;
@@ -988,7 +988,7 @@ bool IPlugBase::SaveProgramAsFXP(const char* file)
 
     if (DoesStateChunks())
     {
-      ByteChunk state;
+      IByteChunk state;
       int32_t chunkSize;
 
       fxpMagic = WDL_bswap32('FPCh');
@@ -1044,7 +1044,7 @@ bool IPlugBase::SaveBankAsFXB(const char* file)
   {
     FILE* fp = fopen(file, "wb");
 
-    ByteChunk bnk;
+    IByteChunk bnk;
 
     int32_t chunkMagic = WDL_bswap32('CcnK');
     int32_t byteSize = 0;
@@ -1061,7 +1061,7 @@ bool IPlugBase::SaveBankAsFXB(const char* file)
 
     if (DoesStateChunks())
     {
-      ByteChunk state;
+      IByteChunk state;
       int32_t chunkSize;
 
       fxbMagic = WDL_bswap32('FBCh');
@@ -1151,7 +1151,7 @@ bool IPlugBase::LoadProgramFromFXP(const char* file)
 
     if (fp)
     {
-      ByteChunk pgm;
+      IByteChunk pgm;
       long fileSize;
 
       fseek(fp , 0 , SEEK_END);
@@ -1242,7 +1242,7 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
 
     if (fp)
     {
-      ByteChunk bnk;
+      IByteChunk bnk;
       long fileSize;
 
       fseek(fp , 0 , SEEK_END);
@@ -1370,7 +1370,7 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
   return false;
 }
 
-void IPlugBase::InitChunkWithIPlugVer(ByteChunk& chunk)
+void IPlugBase::InitChunkWithIPlugVer(IByteChunk& chunk)
 {
   chunk.Clear();
   int magic = IPLUG_VERSION_MAGIC;
@@ -1379,7 +1379,7 @@ void IPlugBase::InitChunkWithIPlugVer(ByteChunk& chunk)
   chunk.Put(&ver);
 }
 
-int IPlugBase::GetIPlugVerFromChunk(ByteChunk& chunk, int& position)
+int IPlugBase::GetIPlugVerFromChunk(IByteChunk& chunk, int& position)
 {
   int magic = 0, ver = 0;
   int magicpos = chunk.Get(&magic, position);
