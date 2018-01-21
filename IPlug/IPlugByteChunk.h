@@ -1,8 +1,9 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "wdlendian.h"
 
-#include "IPlugTypes.h"
 #include "IPlugUtilities.h"
 
 template <class T> inline void SWAP(T& a, T& b)
@@ -82,7 +83,7 @@ public:
 //     Put(&numItems);
 //     int n = mBytes.GetSize();
 //     mBytes.Resize(n + numItems * sizeof(double));
-//     memcpy(mBytes.Get() + n, (BYTE*) data, numItems * sizeof(double));
+//     memcpy(mBytes.Get() + n, (uint8_t*) data, numItems * sizeof(double));
 //     return mBytes.GetSize();
 //   }
 //   
@@ -106,7 +107,7 @@ public:
   {
     int n = mBytes.GetSize();
     mBytes.Resize(n + 1);
-    *(mBytes.Get() + n) = (BYTE) (b ? 1 : 0);
+    *(mBytes.Get() + n) = (uint8_t) (b ? 1 : 0);
     return mBytes.GetSize();
   }
   
@@ -115,7 +116,7 @@ public:
     int endPos = startPos + 1;
     if (startPos >= 0 && endPos <= mBytes.GetSize())
     {
-      BYTE byt = *(mBytes.Get() + startPos);
+      uint8_t byt = *(mBytes.Get() + startPos);
       *pB = (byt);
       return endPos;
     }
@@ -161,7 +162,7 @@ public:
     return n;
   }
   
-  inline BYTE* GetBytes()
+  inline uint8_t* GetBytes()
   {
     return mBytes.Get();
   }

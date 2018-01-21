@@ -554,7 +554,6 @@
 		4FDA1DD82012439E0027C868 /* nanosvg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanosvg.h; path = ../../IPlug/IGraphics/NanoSVG/nanosvg.h; sourceTree = "<group>"; };
 		4FDA1DD92012439E0027C868 /* NanoVGNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NanoVGNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/NanoVGNanoSVG.h; sourceTree = "<group>"; };
 		4FDA1DDA2012439E0027C868 /* CairoNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
-		4FDA1DDB201252AA0027C868 /* IPlugTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugTypes.h; path = ../../IPlug/IPlugTypes.h; sourceTree = "<group>"; };
 		4FDA1DE2201271150027C868 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = app_wrapper/main.mm; sourceTree = "<group>"; };
 		4FDA1DE3201271150027C868 /* app_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app_main.h; path = app_wrapper/app_main.h; sourceTree = "<group>"; };
 		4FDA1DE4201271160027C868 /* app_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app_dialog.cpp; path = app_wrapper/app_dialog.cpp; sourceTree = "<group>"; };
@@ -981,7 +980,6 @@
 				4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */,
 				4F78D8EC13B63BA40032E0F3 /* IPlugBase.h */,
 				4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */,
-				4FDA1DDB201252AA0027C868 /* IPlugTypes.h */,
 				4F4237201FC852FE0067D58C /* IPlugConstants.h */,
 				4F4237231FC863060067D58C /* IPlugUtilities.h */,
 				4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */,

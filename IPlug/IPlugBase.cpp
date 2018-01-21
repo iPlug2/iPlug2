@@ -885,7 +885,7 @@ void IPlugBase::DumpPresetBlob(const char* filename)
   char buf[MAX_BLOB_LENGTH];
 
   ByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
-  BYTE* byteStart = pPresetChunk->GetBytes();
+  uint8_t* byteStart = pPresetChunk->GetBytes();
 
   base64encode(byteStart, buf, pPresetChunk->Size());
 

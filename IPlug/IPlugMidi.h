@@ -1,14 +1,14 @@
 #pragma once
 #include <cassert>
+#include <stdint.h>
 
-#include "IPlugTypes.h"
 #include "IPlugConstants.h"
 
 /** Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg
 {
   int mOffset;
-  BYTE mStatus, mData1, mData2;
+  uint8_t mStatus, mData1, mData2;
   
   enum EStatusMsg
   {
@@ -100,7 +100,7 @@ struct IMidiMsg
     kAllNotesOff = 123
   };
   
-  IMidiMsg(int offs = 0, BYTE s = 0, BYTE d1 = 0, BYTE d2 = 0)
+  IMidiMsg(int offs = 0, uint8_t s = 0, uint8_t d1 = 0, uint8_t d2 = 0)
   : mOffset(offs)
   , mStatus(s)
   , mData1(d1)
@@ -286,9 +286,9 @@ struct IMidiMsg
 struct ISysEx
 {
   int mOffset, mSize;
-  const BYTE* mData;
+  const uint8_t* mData;
   
-  ISysEx(int offs = 0, const BYTE* pData = nullptr, int size = 0)
+  ISysEx(int offs = 0, const uint8_t* pData = nullptr, int size = 0)
   : mOffset(offs)
   , mData(pData)
   , mSize(size)
@@ -300,7 +300,7 @@ struct ISysEx
     mData = NULL;
   }
   
-  char* SysExStr(char *str, int maxlen, const BYTE* pData, int size)
+  char* SysExStr(char *str, int maxlen, const uint8_t* pData, int size)
   {
     assert(str != NULL && maxlen >= 3);
     
