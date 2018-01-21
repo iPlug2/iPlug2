@@ -75,7 +75,7 @@
 
   #ifdef OS_WIN
   #define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions?
-  void DBGMSG(const char *format, ...)
+  static void DBGMSG(const char *format, ...)
   {
     char    buf[4096], *p = buf;
     va_list args;

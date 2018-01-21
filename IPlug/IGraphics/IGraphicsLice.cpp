@@ -371,7 +371,7 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& rect, bo
 #ifdef OS_OSX
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
 #else
-    font->DrawText(mDrawBitmap, str, -1, &R, fmt);
+    font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
 #endif
     if( text.mAlign == IText::kAlignNear)
     {
@@ -400,7 +400,7 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& rect, bo
 #ifdef OS_OSX
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
 #else
-    font->DrawText(mDrawBitmap, str, -1, &R, fmt);
+    font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
 #endif
   }
   
