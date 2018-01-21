@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "resource.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 
 audioMasterCallback gHostCallback;
 

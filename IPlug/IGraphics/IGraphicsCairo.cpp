@@ -6,7 +6,7 @@
 
 #include "IGraphicsCairo.h"
 #include "IControl.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 
 #ifdef OS_OSX
 cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)

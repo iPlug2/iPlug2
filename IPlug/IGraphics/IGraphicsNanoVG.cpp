@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 
 #include "NanoVGNanoSVG.h"
 

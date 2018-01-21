@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "IGraphicsAGG.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 
 static StaticStorage<agg::pixel_map> s_bitmapCache;
 static StaticStorage<agg::font> s_fontCache;
