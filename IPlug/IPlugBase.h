@@ -28,7 +28,7 @@ public:
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
-  virtual void Reset() { TRACE; }
+  virtual void OnReset() { TRACE; }
   virtual void OnParamChange(int paramIdx) {}
 
   /** Default passthrough.
@@ -247,7 +247,7 @@ protected:
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
 
-  void OnParamReset();  // Calls OnParamChange(each param) + Reset().
+  void OnParamReset();  // Calls OnParamChange(each param) + OnReset().
 
   void PruneUninitializedPresets();
 

@@ -375,7 +375,7 @@ protected:
 
 MyPlug.cpp:
 
-void MyPlug::Reset()
+void MyPlug::OnReset()
 {
   mMidiQueue.Resize(GetBlockSize());
 }

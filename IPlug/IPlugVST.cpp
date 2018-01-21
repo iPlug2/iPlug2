@@ -336,7 +336,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effOpen:
     {
       _this->HostSpecificInit();
-      _this->OnParamReset();
+      _this->OnParamOnReset();
       return 0;
     }
     case effClose:
@@ -424,13 +424,13 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effSetSampleRate:
     {
       _this->SetSampleRate(opt);
-      _this->Reset();
+      _this->OnReset();
       return 0;
     }
     case effSetBlockSize:
     {
       _this->SetBlockSize((int) value);
-      _this->Reset();
+      _this->OnReset();
       return 0;
     }
     case effMainsChanged:
@@ -438,7 +438,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (!value)
       {
         _this->OnActivate(false);
-        _this->Reset();
+        _this->OnReset();
       }
       else
       {

@@ -68,7 +68,3 @@ void IPlugEffect::ProcessDoubleReplacing(double** inputs, double** outputs, int 
     *out2 = *in2 * gain;
   }
 }
-
-void IPlugEffect::Reset()
-{
-}
