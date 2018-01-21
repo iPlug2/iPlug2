@@ -2,12 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
+    <NANOVG_PATH>$(IGRAPHICS_PATH)\NanoVG</NANOVG_PATH>
+    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;</ALL_DEFS>
     <WDL_PATH>$(SolutionDir)..\..\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(SolutionDir)..\..\IPlug</IPLUG_PATH>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
     <NANOSVG_PATH>$(IGRAPHICS_PATH)\NanoSVG</NANOSVG_PATH>
-    <NANOVG_PATH>$(IGRAPHICS_PATH)\NanoVG</NANOVG_PATH>
+    <AGG_PATH>$(IGRAPHICS_PATH)\AGG</AGG_PATH>
     <VST_SDK>$(SolutionDir)..\..\VST_SDK</VST_SDK>
     <VST3_SDK>$(SolutionDir)..\..\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(SolutionDir)..\..\ASIO_SDK</ASIO_SDK>
@@ -27,7 +29,6 @@
     <VST2_64_COMMAND_ARGS />
     <VST3_32_COMMAND_ARGS />
     <VST3_64_COMMAND_ARGS />
-    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;</ALL_DEFS>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
     <VST_DEFS>VST_API;VST_FORCE_DEPRECATED;</VST_DEFS>
     <VST3_DEFS>VST3_API</VST3_DEFS>
@@ -73,8 +74,14 @@
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
     </BuildMacro>
+    <BuildMacro Include="NANOVG_PATH">
+      <Value>$(NANOVG_PATH)</Value>
+    </BuildMacro>
     <BuildMacro Include="NANOSVG_PATH">
       <Value>$(NANOSVG_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="AGG_PATH">
+      <Value>$(AGG_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="VST_SDK">
       <Value>$(VST_SDK)</Value>

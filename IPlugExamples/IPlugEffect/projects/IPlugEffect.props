@@ -6,6 +6,10 @@
   <PropertyGroup Label="UserMacros">
     <BINARY_NAME>IPlugEffect</BINARY_NAME>
     <AAX_BUNDLE>$(SolutionDir)build-win\aax\bin\$(BINARY_NAME).aaxplugin</AAX_BUNDLE>
+    <EXTRA_DEBUG_DEFS />
+    <EXTRA_RELEASE_DEFS />
+    <EXTRA_TRACER_DEFS />
+    <EXTRA_ALL_DEFS>IGRAPHICS_CAIRO</EXTRA_ALL_DEFS>
   </PropertyGroup>
   <PropertyGroup>
     <TargetName>$(BINARY_NAME)</TargetName>
@@ -16,6 +20,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(EXTRA_INC_PATHS);$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);;$(NANOVG_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>$(EXTRA_ALL_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>lice.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -33,6 +38,18 @@
     </BuildMacro>
     <BuildMacro Include="AAX_BUNDLE">
       <Value>$(AAX_BUNDLE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="EXTRA_DEBUG_DEFS">
+      <Value>$(EXTRA_DEBUG_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="EXTRA_RELEASE_DEFS">
+      <Value>$(EXTRA_RELEASE_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="EXTRA_TRACER_DEFS">
+      <Value>$(EXTRA_TRACER_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="EXTRA_ALL_DEFS">
+      <Value>$(EXTRA_ALL_DEFS)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
