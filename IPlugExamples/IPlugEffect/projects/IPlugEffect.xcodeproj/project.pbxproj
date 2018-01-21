@@ -25,6 +25,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4F08481F20150FD600F9E881 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F1B08822014387400CE2770 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
@@ -1682,6 +1683,7 @@
 			files = (
 				4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */,
 				4F3907802013EC1000DDA490 /* IPlugViewController.m in Sources */,
+				4F08481F20150FD600F9E881 /* IGraphicsMac.m in Sources */,
 				4F5E01DA20142D8000C4EDEA /* IPlugAUv3.mm in Sources */,
 				4F3862F42014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */,

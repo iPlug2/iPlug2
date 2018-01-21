@@ -22,7 +22,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
-  printf("%s", buildInfo.Get());
+  printf("%s\n%s Graphics\n", buildInfo.Get(), pGraphics->GetDrawingAPIStr());
 
   AttachGraphics(pGraphics);
   
