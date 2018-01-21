@@ -55,7 +55,7 @@ public:
     return PutBytes(str, slen);
   }
   
-  inline int GetStr(WDL_String* pStr, int startPos)
+  inline int GetStr(WDL_String& str, int startPos)
   {
     int len;
     int strStartPos = Get(&len, startPos);
@@ -65,9 +65,9 @@ public:
       if (strEndPos <= mBytes.GetSize())
       {
         if (len > 0)
-          pStr->Set((char*) (mBytes.Get() + strStartPos), len);
+          str.Set((char*) (mBytes.Get() + strStartPos), len);
         else
-          pStr->Set("");
+          str.Set("");
       }
       return strEndPos;
     }
@@ -138,9 +138,9 @@ public:
     return mBytes.Get();
   }
   
-  inline bool IsEqual(IByteChunk* pRHS)
+  inline bool IsEqual(IByteChunk& otherChunk)
   {
-    return (pRHS && pRHS->Size() == Size() && !memcmp(pRHS->GetBytes(), GetBytes(), Size()));
+    return (otherChunk.Size() == Size() && !memcmp(otherChunk.GetBytes(), GetBytes(), Size()));
   }
   
 private:

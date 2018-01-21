@@ -759,7 +759,7 @@ int IPlugBase::UnserializePresets(IByteChunk& chunk, int startPos)
   for (int i = 0; i < n && pos >= 0; ++i)
   {
     IPreset* pPreset = mPresets.Get(i);
-    pos = chunk.GetStr(&name, pos);
+    pos = chunk.GetStr(name, pos);
     strcpy(pPreset->mName, name.Get());
 
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
