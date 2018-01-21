@@ -21,7 +21,7 @@ Name: "vst2_32"; Description: "32-bit VST2 Plugin (.dll)"; Types: full custom;
 Name: "vst2_64"; Description: "64-bit VST2 Plugin (.dll)"; Types: full custom; Check: Is64BitInstallMode;
 Name: "vst3_32"; Description: "32-bit VST3 Plugin (.vst3)"; Types: full custom;
 Name: "vst3_64"; Description: "64-bit VST3 Plugin (.vst3)"; Types: full custom; Check: Is64BitInstallMode;
-Name: "aax_32"; Description: "32-bit AAX Plugin (.aaxplugin)"; Types: full custom;
+;Name: "aax_32"; Description: "32-bit AAX Plugin (.aaxplugin)"; Types: full custom;
 Name: "aax_64"; Description: "64-bit AAX Plugin (.aaxplugin)"; Types: full custom; Check: Is64BitInstallMode;
 Name: "manual"; Description: "User guide"; Types: full custom; Flags: fixed
 
@@ -37,16 +37,16 @@ Source: "..\build-win\vst3\Win32\bin\IPlugEffect.vst3"; DestDir: "{cf}\VST3\"; C
 Source: "..\build-win\vst3\Win32\bin\IPlugEffect.vst3"; DestDir: "{cf32}\VST3\"; Check: Is64BitInstallMode; Components:vst3_32; Flags: ignoreversion;
 Source: "..\build-win\vst3\x64\bin\IPlugEffect.vst3"; DestDir: "{cf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64; Flags: ignoreversion;
 
-Source: "..\build-win\aax\bin\IPlugEffect.aaxplugin\*.*"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\IPlugEffect.aaxplugin\"; Components:aax_32; Flags: ignoreversion recursesubdirs;
+;Source: "..\build-win\aax\bin\IPlugEffect.aaxplugin\*.*"; DestDir: "{cf32}\Avid\Audio\Plug-Ins\IPlugEffect.aaxplugin\"; Components:aax_32; Flags: ignoreversion recursesubdirs;
 Source: "..\build-win\aax\bin\IPlugEffect.aaxplugin\*.*"; DestDir: "{cf}\Avid\Audio\Plug-Ins\IPlugEffect.aaxplugin\"; Components:aax_64; Flags: ignoreversion recursesubdirs;
 
-Source: "..\manual\IPlugEffect_manual.pdf"; DestDir: "{app}"
+Source: "..\manual\IPlugEffect manual.pdf"; DestDir: "{app}"
 Source: "changelog.txt"; DestDir: "{app}"
 Source: "readme-win.rtf"; DestDir: "{app}"; DestName: "readme.rtf"; Flags: isreadme
 
 [Icons]
 Name: "{group}\IPlugEffect"; Filename: "{app}\IPlugEffect.exe"
-Name: "{group}\User guide"; Filename: "{app}\IPlugEffect_manual.pdf"
+Name: "{group}\User guide"; Filename: "{app}\IPlugEffect manual.pdf"
 Name: "{group}\Changelog"; Filename: "{app}\changelog.txt"
 ;Name: "{group}\readme"; Filename: "{app}\readme.rtf"
 Name: "{group}\Uninstall IPlugEffect"; Filename: "{app}\unins000.exe"

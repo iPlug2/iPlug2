@@ -26,10 +26,10 @@ def main():
   PLUG_TYPE = 0
   
   # extract values from config.h
-  for line in fileinput.input(projectpath + "/config.h",inplace=0):
-    if "#define PLUG_VER " in line:
-      PLUG_VER_STR = string.lstrip(line, "#define PLUG_VER ")
-      PLUG_VER = int(PLUG_VER_STR, 16)
+  for line in fileinput.input(projectpath + "\config.h",inplace=0):
+    if "#define PLUG_VERSION_HEX " in line:
+      PLUG_VERSION_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
+      PLUG_VER = int(PLUG_VERSION_STR, 16)
       MAJOR = PLUG_VER & 0xFFFF0000
       MAJORSTR = str(MAJOR >> 16)
       MINOR = PLUG_VER & 0x0000FF00
