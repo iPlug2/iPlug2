@@ -328,7 +328,8 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   {
     int stringLength = (int) strlen(str);
     
-    float basicYOffset, basicXOffset;
+    float basicYOffset = 0.;
+    float basicXOffset = 0.;
     
     if (vCenter)
       basicYOffset = rect.T + ((rect.H() - charHeight) / 2.);

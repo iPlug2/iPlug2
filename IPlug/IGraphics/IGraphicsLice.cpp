@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsLice.h"
-#include "Log.h"
 
 extern int GetSystemVersion();
 

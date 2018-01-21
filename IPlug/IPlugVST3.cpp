@@ -11,8 +11,6 @@
 using namespace Steinberg;
 using namespace Vst;
 
-#include "IParam.h"
-
 class IPlugVST3Parameter : public Parameter
 {
 public:
@@ -588,7 +586,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 {
   TRACE;
 
-  ByteChunk chunk;
+  IByteChunk chunk;
   //InitChunkWithIPlugVer(&chunk); // TODO: IPlugVer should be in chunk!
 
   SerializeState(chunk); // to get the size
@@ -618,7 +616,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 {
   TRACE;
 
-  ByteChunk chunk;
+  IByteChunk chunk;
   
 // TODO: IPlugVer should be in chunk!
 //  int pos;

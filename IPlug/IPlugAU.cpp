@@ -1,9 +1,8 @@
-#include "IPlugAU.h"
-#include "Log.h"
-#include "Hosts.h"
+#include <algorithm>
 
 #include "dfx/dfx-au-utilities.h"
-#include <algorithm>
+
+#include "IPlugAU.h"
 
 inline CFStringRef MakeCFString(const char* cStr)
 {
@@ -1283,7 +1282,7 @@ inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const ch
   CFDictionarySetValue(pDict, cfKey.mCFStr, cfValue.mCFStr);
 }
 
-inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, ByteChunk* pChunk)
+inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = CFDataCreate(0, pChunk->GetBytes(), pChunk->Size());
@@ -1317,7 +1316,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
   return false;
 }
 
-inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, ByteChunk* pChunk)
+inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.mCFStr);
@@ -1355,7 +1354,7 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
   PutNumberInDict(pDict, kAUPresetManufacturerKey, &(cd.componentManufacturer), kCFNumberSInt32Type);
   PutStrInDict(pDict, kAUPresetNameKey, GetPresetName(GetCurrentPresetIdx()));
 
-  ByteChunk chunk;
+  IByteChunk chunk;
   //InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
 
   if (SerializeState(chunk))
@@ -1402,7 +1401,7 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
   
   RestorePreset(presetName);
 
-  ByteChunk chunk;
+  IByteChunk chunk;
 
   if (!GetDataFromDict(pDict, kAUPresetDataKey, &chunk))
   {

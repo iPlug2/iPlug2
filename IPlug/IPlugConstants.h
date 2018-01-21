@@ -15,7 +15,8 @@ enum EIPlugKeyCodes
   KEY_DIGIT_0,
   KEY_DIGIT_9=KEY_DIGIT_0+9,
   KEY_ALPHA_A,
-  KEY_ALPHA_Z=KEY_ALPHA_A+25
+  KEY_ALPHA_Z=KEY_ALPHA_A+25,
+  KEY_NONE
 };
 
 //enum EVST3ParamIDs
@@ -67,5 +68,59 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
+enum EAPI
+{
+  kAPIVST2 = 0,
+  kAPIVST3 = 1,
+  kAPIAU = 2,
+  kAPIAUv3 = 3,
+  kAPIAAX = 4,
+  kAPISA = 5
+};
 
-
+/** @enum EHost
+ * Host identifier
+ */
+enum EHost
+{
+  kHostUninit = -1,
+  kHostUnknown = 0,
+  kHostReaper,
+  kHostProTools,
+  kHostCubase,
+  kHostNuendo,
+  kHostSonar,
+  kHostVegas,
+  kHostFL,
+  kHostSamplitude,
+  kHostAbletonLive,
+  kHostTracktion,
+  kHostNTracks,
+  kHostMelodyneStudio,
+  kHostVSTScanner,
+  kHostAULab,
+  kHostForte,
+  kHostChainer,
+  kHostAudition,
+  kHostOrion,
+  kHostBias,
+  kHostSAWStudio,
+  kHostLogic,
+  kHostGarageBand,
+  kHostDigitalPerformer,
+  kHostStandalone,
+  kHostAudioMulch,
+  kHostStudioOne,
+  kHostVST3TestHost,
+  kHostArdour,
+  kHostRenoise,
+  kHostOpenMPT,
+  kHostWaveLab,
+  kHostWaveLabElements,
+  kHostTwistedWave,
+  kHostBitwig
+  
+  // These hosts don't report the host name:
+  // EnergyXT2
+  // MiniHost
+};

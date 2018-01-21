@@ -1,11 +1,11 @@
 #pragma once
 
-#include "IParam.h"
+#include <cmath>
 
 #include "AAX_ITaperDelegate.h"
 #include "AAX.h"
 
-#include <cmath>
+#include "IPlugParameter.h"
 
 template <typename T>
 class AAX_CIPlugTaperDelegate : public AAX_ITaperDelegate<T>

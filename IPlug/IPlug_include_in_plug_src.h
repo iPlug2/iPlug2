@@ -138,8 +138,7 @@ DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
 END_FACTORY
 
 #elif defined AU_API
-#include <AvailabilityMacros.h>
-
+//#include <AvailabilityMacros.h>
   IPlug* MakePlug(void* pMemory)
   {
     IPlugInstanceInfo instanceInfo;
@@ -250,6 +249,13 @@ extern "C"
     }
 
   };
+#elif defined AUv3_API
+  IPlug* MakePlug()
+  {
+    IPlugInstanceInfo instanceInfo;
+    instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
+    return new PLUG_CLASS_NAME(instanceInfo);
+  }
 #elif defined AAX_API
   IPlug* MakePlug()
   {

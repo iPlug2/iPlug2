@@ -314,7 +314,7 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
   
   if (chunkID == _this->GetUniqueID()) 
   {
-    ByteChunk chunk;
+    IByteChunk chunk;
     
     //_this->InitChunkWithIPlugVer(&IPlugChunk);
     
@@ -339,7 +339,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) c
 
   if (chunkID == _this->GetUniqueID()) 
   {
-    ByteChunk chunk;
+    IByteChunk chunk;
     
     //_this->InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
     
@@ -361,7 +361,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
   
   if (chunkID == GetUniqueID())
   {    
-    ByteChunk chunk;
+    IByteChunk chunk;
     chunk.PutBytes(iChunk->fData, iChunk->fSize);
     int pos = 0;
     //GetIPlugVerFromChunk(chunk, pos); // TODO: IPlugVer should be in chunk!

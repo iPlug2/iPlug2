@@ -481,11 +481,11 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetChunk:
     {
-      BYTE** ppData = (BYTE**) ptr;
+      uint8_t** ppData = (uint8_t**) ptr;
       if (ppData)
       {
         bool isBank = (!idx);
-        ByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
+        IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
         _this->InitChunkWithIPlugVer(chunk);
         bool savedOK = true;
         
@@ -512,7 +512,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (ptr)
       {
         bool isBank = (!idx);
-        ByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
+        IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
         chunk.Resize((int) value);
         memcpy(chunk.GetBytes(), ptr, value);
         int pos = 0;
@@ -559,7 +559,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             else if (pEvent->type == kVstSysExType) 
             {
               VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
-              ISysEx sysex(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
+              ISysEx sysex(pSE->deltaFrames, (const uint8_t*)pSE->sysexDump, pSE->dumpBytes);
               _this->ProcessSysEx(sysex);
             }
           }
