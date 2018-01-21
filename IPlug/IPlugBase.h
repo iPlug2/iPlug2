@@ -10,7 +10,7 @@
 #include "IPlugStructs.h"
 #include "IPlugByteChunk.h"
 #include "IPlugUtilities.h"
-#include "IParam.h"
+#include "IPlugParameter.h"
 #include "IPlugLogger.h"
 #include "NChanDelay.h"
 

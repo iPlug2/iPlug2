@@ -481,7 +481,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetChunk:
     {
-      BYTE** ppData = (BYTE**) ptr;
+      uint8_t** ppData = (uint8_t**) ptr;
       if (ppData)
       {
         bool isBank = (!idx);
@@ -559,7 +559,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             else if (pEvent->type == kVstSysExType) 
             {
               VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
-              ISysEx sysex(pSE->deltaFrames, (const BYTE*)pSE->sysexDump, pSE->dumpBytes);
+              ISysEx sysex(pSE->deltaFrames, (const uint8_t*)pSE->sysexDump, pSE->dumpBytes);
               _this->ProcessSysEx(sysex);
             }
           }

@@ -1,9 +1,8 @@
-#include "IPlugAU.h"
-#include "Log.h"
-#include "Hosts.h"
+#include <algorithm>
 
 #include "dfx/dfx-au-utilities.h"
-#include <algorithm>
+
+#include "IPlugAU.h"
 
 inline CFStringRef MakeCFString(const char* cStr)
 {

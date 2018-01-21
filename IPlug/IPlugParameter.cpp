@@ -1,6 +1,7 @@
-#include "IParam.h"
 #include <cstdio>
 #include <algorithm>
+
+#include "IPlugParameter.h"
 
 IParam::IParam()
 {

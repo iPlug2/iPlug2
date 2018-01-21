@@ -11,8 +11,6 @@
 using namespace Steinberg;
 using namespace Vst;
 
-#include "IParam.h"
-
 class IPlugVST3Parameter : public Parameter
 {
 public:
