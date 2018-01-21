@@ -6,7 +6,7 @@
 #include "AAX_CLinearTaperDelegate.h"
 
 // custom taper for IParam::kTypeDouble
-#include "AAX/AAX_CIPlugTaperDelegate.h"
+#include "IPlugAAX_TaperDelegate.h"
 #include "AAX_CNumberDisplayDelegate.h"
 #include "AAX_CUnitDisplayDelegateDecorator.h"
 

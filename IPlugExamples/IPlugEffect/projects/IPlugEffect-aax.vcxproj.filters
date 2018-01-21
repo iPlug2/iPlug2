@@ -44,10 +44,13 @@
     <ClCompile Include="..\..\..\IPlug\IPlugAAX.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_CIPlugParameters.cpp">
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp">
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,10 +149,11 @@
     <ClInclude Include="..\..\..\IPlug\IPlugAAX.h">
       <Filter>IPlug\AAX</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_CIPlugParameters.h">
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_TaperDelegate.h">
       <Filter>IPlug\AAX</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_CIPlugTaperDelegate.h">
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h">
       <Filter>IPlug\AAX</Filter>
     </ClInclude>
   </ItemGroup>
@@ -172,6 +176,9 @@
     <Filter Include="IPlug\AAX">
       <UniqueIdentifier>{1fc481f5-85f5-43e6-924f-2be0689a4710}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPlug\AAX\Libs">
+      <UniqueIdentifier>{7d636beb-b5d6-4b75-b2a5-27b00d8f37d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\IPlugEffect.rc">
@@ -188,5 +195,13 @@
     <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.mm">
       <Filter>IGraphics\PlatformClasses</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
+      <Filter>IPlug\AAX\Libs</Filter>
+    </Library>
+    <Library Include="..\..\..\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
+      <Filter>IPlug\AAX\Libs</Filter>
+    </Library>
   </ItemGroup>
 </Project>

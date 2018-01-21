@@ -134,6 +134,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugVST3.cpp">
       <Filter>IPlug\VST3</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp">
+      <Filter>IPlug\VST3\public.sdk\main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -455,6 +458,9 @@
     </ClInclude>
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.h">
+      <Filter>IPlug\VST3\public.sdk\main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
