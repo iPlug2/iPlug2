@@ -392,7 +392,7 @@ void IKnobLineControl::Draw(IGraphics& graphics)
   const float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
   const float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
   
-  graphics.DrawCircle(mColor, cx, cy, (mRECT.W()/2.) - 2.);
+  graphics.DrawCircle(mColor, cx, cy, (mRECT.W()/2.f) - 2.f);
   graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend);
 }
 
