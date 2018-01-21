@@ -28,7 +28,7 @@ import fileinput, glob, string, sys, os, re, uuid
 from shutil import copy, copytree, ignore_patterns, rmtree
 from os.path import join
 
-VERSION = "0.9"
+VERSION = "0.91"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -36,6 +36,7 @@ FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wa
 DONT_COPY = (".vs", "*.exe", "*.dmg", "*.pkg", "*.mpkg", "*.svn", "*.ncb", "*.suo", "*sdf", "ipch", "build-*", "*.layout", "*.depend", ".DS_Store")
 
 SUBFOLDERS_TO_SEARCH = [
+"projects",
 "app_wrapper",
 "resources",
 "installer",
@@ -82,6 +83,13 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
         fullpath = os.path.join(dir, replaceproject + ".xcodeproj")
         
         print("recursing in main xcode project directory: ")
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+          yield x
+      elif checkdirname(f, searchproject + ".xcworkspace"):
+        os.rename(fullpath, os.path.join(dir, replaceproject + ".xcworkspace"))
+        fullpath = os.path.join(dir, replaceproject + ".xcworkspace")
+        
+        print("recursing in main xcode workspace directory: ")
         for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
           yield x
       elif (f in SUBFOLDERS_TO_SEARCH):
