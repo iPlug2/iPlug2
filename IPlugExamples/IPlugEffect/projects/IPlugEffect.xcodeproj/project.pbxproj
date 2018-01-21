@@ -32,7 +32,7 @@
 		4F1B0887201438C600CE2770 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4F1B0888201438C600CE2770 /* IPlugBaseGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142781FD4A61D00A65575 /* IPlugBaseGraphics.cpp */; };
 		4F1B0889201438D100CE2770 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F1B088A201438D100CE2770 /* IGraphicsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsView.mm */; };
+		4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F1B088C20143A0600CE2770 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
@@ -55,19 +55,19 @@
 		4F5E01DA20142D8000C4EDEA /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5E01D820142D7F00C4EDEA /* IPlugAUv3.mm */; };
 		4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F69BB682013C531002C8948 /* IGraphicsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsView.mm */; };
+		4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F69BB692013C532002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB6A2013C532002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F69BB6B2013C532002C8948 /* IGraphicsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsView.mm */; };
+		4F69BB6B2013C532002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F69BB6C2013C532002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB6D2013C532002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F69BB6E2013C532002C8948 /* IGraphicsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsView.mm */; };
+		4F69BB6E2013C532002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F69BB6F2013C533002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB702013C533002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F69BB712013C533002C8948 /* IGraphicsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsView.mm */; };
+		4F69BB712013C533002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F69BB722013C534002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB732013C534002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F69BB742013C534002C8948 /* IGraphicsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsView.mm */; };
+		4F69BB742013C534002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */; };
 		4F78D8C413B63A700032E0F3 /* RtAudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8BF13B63A700032E0F3 /* RtAudio.cpp */; };
 		4F78D8C513B63A700032E0F3 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8C213B63A700032E0F3 /* RtMidi.cpp */; };
@@ -468,8 +468,8 @@
 		4F69BB602013C520002C8948 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IPlug/IGraphics/IGraphicsWeb.cpp; sourceTree = "<group>"; };
 		4F69BB612013C520002C8948 /* IGraphicsMac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IGraphicsMac.m; path = ../../../IPlug/IGraphics/IGraphicsMac.m; sourceTree = "<group>"; };
 		4F69BB622013C521002C8948 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWin.cpp; path = ../../../IPlug/IGraphics/IGraphicsWin.cpp; sourceTree = "<group>"; };
-		4F69BB632013C521002C8948 /* IGraphicsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsView.h; path = ../../../IPlug/IGraphics/IGraphicsView.h; sourceTree = "<group>"; };
-		4F69BB642013C521002C8948 /* IGraphicsView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsView.mm; path = ../../../IPlug/IGraphics/IGraphicsView.mm; sourceTree = "<group>"; };
+		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
+		4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IPlug/IGraphics/IGraphicsMac_view.mm; sourceTree = "<group>"; };
 		4F69BB652013C521002C8948 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IPlug/IGraphics/IGraphicsMac.mm; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
 		4F78D8BF13B63A700032E0F3 /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtAudio.cpp; sourceTree = "<group>"; };
@@ -905,8 +905,8 @@
 				4F69BB652013C521002C8948 /* IGraphicsMac.mm */,
 				4F69BB5D2013C520002C8948 /* IGraphicsMac.h */,
 				4F69BB612013C520002C8948 /* IGraphicsMac.m */,
-				4F69BB632013C521002C8948 /* IGraphicsView.h */,
-				4F69BB642013C521002C8948 /* IGraphicsView.mm */,
+				4F69BB632013C521002C8948 /* IGraphicsMac_view.h */,
+				4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */,
 				4F69BB602013C520002C8948 /* IGraphicsWeb.cpp */,
 				4F69BB5E2013C520002C8948 /* IGraphicsWeb.h */,
 				4F69BB622013C521002C8948 /* IGraphicsWin.cpp */,
@@ -1669,7 +1669,7 @@
 				4F69BB692013C532002C8948 /* IGraphicsMac.m in Sources */,
 				4FF142C81FD4A61E00A65575 /* IPlugBaseGraphics.cpp in Sources */,
 				4F3862F02014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
-				4F69BB6B2013C532002C8948 /* IGraphicsView.mm in Sources */,
+				4F69BB6B2013C532002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F69BB6A2013C532002C8948 /* IGraphicsMac.mm in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
@@ -1689,7 +1689,7 @@
 				4F3907802013EC1000DDA490 /* IPlugViewController.m in Sources */,
 				4F5E01DA20142D8000C4EDEA /* IPlugAUv3.mm in Sources */,
 				4F3862F42014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
-				4F1B088A201438D100CE2770 /* IGraphicsView.mm in Sources */,
+				4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */,
 				4F1B0888201438C600CE2770 /* IPlugBaseGraphics.cpp in Sources */,
 				4F1B0889201438D100CE2770 /* IGraphicsMac.mm in Sources */,
 				4F1B0886201438C600CE2770 /* IControl.cpp in Sources */,
@@ -1716,7 +1716,7 @@
 				4F3862F22014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4FF142921FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
-				4F69BB712013C533002C8948 /* IGraphicsView.mm in Sources */,
+				4F69BB712013C533002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4F78DA0A13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
 				4F296BDA1678E6C800C0F5C2 /* dfx-au-utilities.c in Sources */,
 			);
@@ -1737,7 +1737,7 @@
 				4F3862F12014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4F9828C8140A9EB700F3FCC1 /* pluginfactoryvst3.cpp in Sources */,
 				4FF142C91FD4A61E00A65575 /* IPlugBaseGraphics.cpp in Sources */,
-				4F69BB6E2013C532002C8948 /* IGraphicsView.mm in Sources */,
+				4F69BB6E2013C532002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4F9828C9140A9EB700F3FCC1 /* vstaudioeffect.cpp in Sources */,
 				4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */,
 				4FDA1DED201277B30027C868 /* coreiids.cpp in Sources */,
@@ -1763,7 +1763,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F69BB742013C534002C8948 /* IGraphicsView.mm in Sources */,
+				4F69BB742013C534002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4FB600191567CB0A0020189A /* swell-gdi.mm in Sources */,
 				4F69BB732013C534002C8948 /* IGraphicsMac.mm in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugBase.cpp in Sources */,
@@ -1805,7 +1805,7 @@
 				4F78D8C513B63A700032E0F3 /* RtMidi.cpp in Sources */,
 				4F78D90A13B63BA50032E0F3 /* IPlugAPP.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
-				4F69BB682013C531002C8948 /* IGraphicsView.mm in Sources */,
+				4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,

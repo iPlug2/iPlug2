@@ -1,4 +1,4 @@
-#import "IGraphicsView.h"
+#import "IGraphicsMac_view.h"
 
 @implementation IGRAPHICS_MENU_RCVR
 

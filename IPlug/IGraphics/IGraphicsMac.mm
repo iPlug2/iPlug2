@@ -4,7 +4,7 @@
 #endif
 
 #include "IGraphicsMac.h"
-#import "IGraphicsView.h"
+#import "IGraphicsMac_View.h"
 #include "IControl.h"
 
 #include "swell.h"
