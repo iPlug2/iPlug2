@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FADF2851FFD2CE2005EC390"
+               BlueprintIdentifier = "4F39075F2013EBA300DDA490"
                BuildableName = "IPlugEffect.appex"
                BlueprintName = "AUv3"
                ReferencedContainer = "container:IPlugEffect.xcodeproj">
@@ -48,7 +48,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FADF2851FFD2CE2005EC390"
+            BlueprintIdentifier = "4F39075F2013EBA300DDA490"
             BuildableName = "IPlugEffect.appex"
             BlueprintName = "AUv3"
             ReferencedContainer = "container:IPlugEffect.xcodeproj">

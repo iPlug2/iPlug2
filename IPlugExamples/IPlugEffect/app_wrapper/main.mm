@@ -1,11 +1,20 @@
-#include "config.h"
 #import <Cocoa/Cocoa.h>
 #import <AVFoundation/AVFoundation.h>
 
+#include "wdlstring.h"
 #include "swell.h"
 
 int main(int argc, char *argv[])
 {
+  //if invoked with an argument registerauv3 use plug-in kit to explicitly register auv3 app extension (doesn't happen from debugger)
+  if(strcmp(argv[2], "registerauv3"))
+  {
+    WDL_String appexPath(argv[0]);
+    appexPath.SetFormatted(1024, "pluginkit -a %s%s%s.appex", argv[0], "/../../Plugins/", appexPath.get_filepart());
+    system(appexPath.Get());
+    printf("registered audiounit app extension\n");
+  }
+  
   return NSApplicationMain(argc,  (const char **) argv);
 }
 
@@ -24,26 +33,4 @@ void CenterWindow(HWND hwnd)
   {
     [turd center];
   }
-}
-
-void CheckAU()
-{
-//  AudioComponentDescription desc;
-//  
-//  desc.componentType = 'aufx';
-//  desc.componentSubType = PLUG_UNIQUE_ID;
-//  desc.componentManufacturer = PLUG_MFR_ID;
-//  desc.componentFlags = 0;
-//  desc.componentFlagsMask = 0;
-//  
-//  AudioComponentInstantiationOptions options = kAudioComponentInstantiation_LoadOutOfProcess;
-//  
-//  __block AVAudioUnit* pAU;
-//  
-//  [AVAudioUnit instantiateWithComponentDescription:desc
-//                                           options:options
-//                                 completionHandler:^(__kindof AVAudioUnit * _Nullable audioUnit,
-//                                                     NSError * _Nullable error) {
-//                                   pAU = audioUnit;
-//                                 }];
 }

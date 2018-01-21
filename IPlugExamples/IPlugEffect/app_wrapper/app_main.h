@@ -130,7 +130,6 @@ extern uint32_t gBufIndex; // index for signal vector, loops from 0 to gSigVS
 
 extern char gINIPath[1024];
 extern void UpdateINI();
-extern void CheckAU();
 
 extern std::vector<uint32_t> gAudioInputDevs;
 extern std::vector<uint32_t> gAudioOutputDevs;
