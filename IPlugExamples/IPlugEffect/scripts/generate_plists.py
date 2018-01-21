@@ -57,6 +57,7 @@ def main():
   
   BUNDLE_MFR = ""
   BUNDLE_NAME = ""
+  BUNDLE_DOMAIN = ""
   PLUG_NAME_STR = ""
   PLUG_MFR_NAME_STR = ""
   PLUG_CHANNEL_IO = ""
@@ -91,7 +92,10 @@ def main():
       
     if "#define BUNDLE_NAME " in line:
       BUNDLE_NAME = string.lstrip(line, "#define BUNDLE_NAME ")
-       
+    
+    if "#define BUNDLE_DOMAIN " in line:
+      BUNDLE_DOMAIN = string.lstrip(line, "#define BUNDLE_DOMAIN ")
+
     if "#define PLUG_CHANNEL_IO " in line:
       PLUG_CHANNEL_IO = string.lstrip(line, "#define PLUG_CHANNEL_IO ")
       
@@ -125,6 +129,8 @@ def main():
   PLUG_VER_STR = PLUG_VER_STR[0:-1]
   BUNDLE_MFR = BUNDLE_MFR[1:-2]
   BUNDLE_NAME = BUNDLE_NAME[1:-2]
+  BUNDLE_DOMAIN = BUNDLE_DOMAIN[1:-2]
+
   PLUG_NAME_STR = PLUG_NAME_STR[1:-2]
   PLUG_MFR_NAME_STR = PLUG_MFR_NAME_STR[1:-2]
   PLUG_CHANNEL_IO = PLUG_CHANNEL_IO[1:-2]
@@ -167,7 +173,7 @@ def main():
   vst3 = plistlib.readPlist(plistpath)
   vst3['CFBundleExecutable'] = BUNDLE_NAME
   vst3['CFBundleGetInfoString'] = CFBundleGetInfoString
-  vst3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".vst3." + BUNDLE_NAME + ""
+  vst3['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".vst3." + BUNDLE_NAME + ""
   vst3['CFBundleName'] = BUNDLE_NAME
   vst3['CFBundleVersion'] = CFBundleVersion
   vst3['CFBundleShortVersionString'] = CFBundleVersion
@@ -185,7 +191,7 @@ def main():
   vst2 = plistlib.readPlist(plistpath)
   vst2['CFBundleExecutable'] = BUNDLE_NAME
   vst2['CFBundleGetInfoString'] = CFBundleGetInfoString
-  vst2['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".vst." + BUNDLE_NAME + ""
+  vst2['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".vst." + BUNDLE_NAME + ""
   vst2['CFBundleName'] = BUNDLE_NAME
   vst2['CFBundleVersion'] = CFBundleVersion
   vst2['CFBundleShortVersionString'] = CFBundleVersion
@@ -203,7 +209,7 @@ def main():
   au = plistlib.readPlist(plistpath)
   au['CFBundleExecutable'] = BUNDLE_NAME
   au['CFBundleGetInfoString'] = CFBundleGetInfoString
-  au['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".audiounit." + BUNDLE_NAME + ""
+  au['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".audiounit." + BUNDLE_NAME + ""
   au['CFBundleName'] = BUNDLE_NAME
   au['CFBundleVersion'] = CFBundleVersion
   au['CFBundleShortVersionString'] = CFBundleVersion
@@ -243,7 +249,7 @@ def main():
 #  auv3['AudioUnit Version'] = PLUG_VER_STR
   auv3['CFBundleExecutable'] = BUNDLE_NAME
   auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
-  auv3['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ".AUv3"
+  auv3['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ".AUv3"
   auv3['CFBundleName'] = BUNDLE_NAME
   auv3['CFBundleVersion'] = CFBundleVersion
   auv3['CFBundleShortVersionString'] = CFBundleVersion
@@ -266,7 +272,7 @@ def main():
   aax = plistlib.readPlist(plistpath)
   aax['CFBundleExecutable'] = BUNDLE_NAME
   aax['CFBundleGetInfoString'] = CFBundleGetInfoString
-  aax['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".aax." + BUNDLE_NAME + ""
+  aax['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".aax." + BUNDLE_NAME + ""
   aax['CFBundleName'] = BUNDLE_NAME
   aax['CFBundleVersion'] = CFBundleVersion
   aax['CFBundleShortVersionString'] = CFBundleVersion
@@ -282,7 +288,7 @@ def main():
   osxapp = plistlib.readPlist(plistpath)
   osxapp['CFBundleExecutable'] = BUNDLE_NAME
   osxapp['CFBundleGetInfoString'] = CFBundleGetInfoString
-  osxapp['CFBundleIdentifier'] = "com." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
+  osxapp['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
   osxapp['CFBundleName'] = BUNDLE_NAME
   osxapp['CFBundleVersion'] = CFBundleVersion
   osxapp['CFBundleShortVersionString'] = CFBundleVersion

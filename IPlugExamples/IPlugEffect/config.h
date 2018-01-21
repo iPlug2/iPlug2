@@ -10,6 +10,7 @@
 
 #define BUNDLE_NAME "IPlugEffect"
 #define BUNDLE_MFR "AcmeInc"
+#define BUNDLE_DOMAIN "com"
 
 #define PLUG_CLASS_NAME IPlugEffect
 #define PLUG_ENTRY IPlugEffect_Entry

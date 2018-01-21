@@ -56,7 +56,7 @@
   #include "IGraphicsMac.h"
 #endif
   #define EXPORT __attribute__ ((visibility("default")))
-  #define BUNDLE_ID "com." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
+  #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
 #elif defined OS_WEB
 #ifndef NO_IGRAPHICS
   #include "IGraphicsWeb.h"
