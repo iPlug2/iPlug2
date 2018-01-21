@@ -168,7 +168,7 @@ private:
   void Stroke(const IColor& color, path_type& path)
   {
     agg::conv_stroke<path_type> strokes(path);
-    strokes.width(1.0);
+    strokes.width(1.0 * ScaleFactor());
     Rasterize(color, strokes);
   }
     
