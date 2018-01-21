@@ -209,10 +209,10 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& rect, const IBlen
   IRECT r = rect;
   r.Scale(mDisplayScale);
     
-  LICE_FLine(mDrawBitmap, rect.L, rect.T, rect.R, rect.T, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_FLine(mDrawBitmap, rect.R, rect.T, rect.R, rect.B, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_FLine(mDrawBitmap, rect.L, rect.B, rect.R, rect.B, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_FLine(mDrawBitmap, rect.L, rect.T, rect.L, rect.B, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_FLine(mDrawBitmap, r.L, r.T, r.R, r.T, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_FLine(mDrawBitmap, r.R, r.T, r.R, r.B, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_FLine(mDrawBitmap, r.L, r.B, r.R, r.B, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_FLine(mDrawBitmap, r.L, r.T, r.L, r.B, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend)
