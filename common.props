@@ -2,15 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <WDL_PATH>$(ProjectDir)..\..\WDL</WDL_PATH>
+    <WDL_PATH>$(SolutionDir)..\..\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
-    <IPLUG_PATH>$(ProjectDir)..\..\IPlug</IPLUG_PATH>
+    <IPLUG_PATH>$(SolutionDir)..\..\IPlug</IPLUG_PATH>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
     <NANOSVG_PATH>$(IGRAPHICS_PATH)\NanoSVG</NANOSVG_PATH>
-    <VST_SDK>$(ProjectDir)..\..\VST_SDK</VST_SDK>
-    <VST3_SDK>$(ProjectDir)..\..\VST3_SDK</VST3_SDK>
-    <ASIO_SDK>$(ProjectDir)..\..\ASIO_SDK</ASIO_SDK>
-    <AAX_SDK>$(ProjectDir)..\..\AAX_SDK</AAX_SDK>
+    <VST_SDK>$(SolutionDir)..\..\VST_SDK</VST_SDK>
+    <VST3_SDK>$(SolutionDir)..\..\VST3_SDK</VST3_SDK>
+    <ASIO_SDK>$(SolutionDir)..\..\ASIO_SDK</ASIO_SDK>
+    <AAX_SDK>$(SolutionDir)..\..\AAX_SDK</AAX_SDK>
     <VST2_32_HOST_PATH>$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
     <VST2_64_HOST_PATH>$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
     <VST3_32_HOST_PATH>$(ProgramFiles)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe</VST3_32_HOST_PATH>
@@ -26,7 +26,7 @@
     <VST2_64_COMMAND_ARGS />
     <VST3_32_COMMAND_ARGS />
     <VST3_64_COMMAND_ARGS />
-    <APP_DEFS>SA_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
+    <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
     <VST_DEFS>VST_API;VST_FORCE_DEPRECATED;</VST_DEFS>
     <VST3_DEFS>VST3_API</VST3_DEFS>
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
@@ -51,7 +51,7 @@
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(WDL_PATH)\IPlug\build-win\$(Platform)\$(Configuration)\;$(LICE_PATH)\build-win\$(Platform)\$(Configuration)\;$(IPLUG_PATH)\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(LICE_PATH)\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>

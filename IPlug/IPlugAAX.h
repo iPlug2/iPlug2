@@ -17,8 +17,8 @@ typedef IPlugBase IPLUG_BASE_CLASS;
 typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #endif
 
-#include "AAX_CIPlugParameters.h"
-#include "AAX_CEffectGUI.h"
+#include "IPlugAAX_CIPlugParameters.h"
+#include "IPlugAAX_CEffectGUI.h"
 
 #include "AAX_Push8ByteStructAlignment.h"
 

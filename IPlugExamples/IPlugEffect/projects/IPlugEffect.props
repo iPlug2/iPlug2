@@ -1,15 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\..\common.props" />
+    <Import Project="$(SolutionDir)..\..\common.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <BINARY_NAME>IPlugEffect</BINARY_NAME>
-    <AAX_BUNDLE>$(ProjectDir)build-win\aax\bin\$(BINARY_NAME).aaxplugin</AAX_BUNDLE>
+    <AAX_BUNDLE>$(SolutionDir)build-win\aax\bin\$(BINARY_NAME).aaxplugin</AAX_BUNDLE>
   </PropertyGroup>
   <PropertyGroup>
     <TargetName>$(BINARY_NAME)</TargetName>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <VcpkgTriplet Condition="'$(Platform)'=='Win32'">x86-windows-static</VcpkgTriplet>
+    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -19,10 +21,10 @@
       <AdditionalDependencies>lice.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>CALL "$(ProjectDir)\scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(AAX_BUNDLE)"</Command>
+      <Command>CALL "$(SolutionDir)\scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(AAX_BUNDLE)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>CALL "$(ProjectDir)\scripts\prebuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(TargetPath)" "$(OutDir)" ..\..\AAX_SDK\Utilities\PlugIn.ico "$(AAX_BUNDLE)"</Command>
+      <Command>CALL "$(SolutionDir)\scripts\prebuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(TargetPath)" "$(OutDir)" ..\..\AAX_SDK\Utilities\PlugIn.ico "$(AAX_BUNDLE)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
