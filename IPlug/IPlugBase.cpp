@@ -368,7 +368,7 @@ void IPlugBase::PassThroughBuffers(double sampleType, int nFrames)
   }
   else 
   {
-    IPlugBase::ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+    IPlugBase::ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
   }
 }
 
@@ -392,12 +392,12 @@ void IPlugBase::PassThroughBuffers(float sampleType, int nFrames)
 
 void IPlugBase::ProcessBuffers(double sampleType, int nFrames)
 {
-  ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
 }
 
 void IPlugBase::ProcessBuffers(float sampleType, int nFrames)
 {
-  ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
   OutChannel** ppOutChannel = mOutChannels.GetList();
   
@@ -414,7 +414,7 @@ void IPlugBase::ProcessBuffers(float sampleType, int nFrames)
 
 void IPlugBase::ProcessBuffersAccumulating(float sampleType, int nFrames)
 {
-  ProcessDoubleReplacing(mInData.Get(), mOutData.Get(), nFrames);
+  ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
   OutChannel** ppOutChannel = mOutChannels.GetList();
   
@@ -480,7 +480,7 @@ void IPlugBase::OnParamReset()
 }
 
 // Default passthrough.
-void IPlugBase::ProcessDoubleReplacing(double** inputs, double** outputs, int nFrames)
+void IPlugBase::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
   int i, nIn = mInChannels.GetSize(), nOut = mOutChannels.GetSize();
   int j = 0;
