@@ -6,7 +6,7 @@
 
 #include "IGraphicsCairo.h"
 #include "IControl.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 
 #ifdef OS_OSX
 cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
@@ -265,18 +265,19 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
   Stroke(color);
 }
 
-inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
-{
-  cairo_new_path(mContext);
-  cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
-  cairo_close_path(mContext);
-}
-
 inline void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   cairo_move_to(mContext, x1, y1);
   cairo_line_to(mContext, x2, y2);
   cairo_line_to(mContext, x3, y3);
+  cairo_close_path(mContext);
+}
+
+inline void IGraphicsCairo::CairoDrawConvexPolygon(float* x, float* y, int npoints)
+{
+  cairo_move_to(mContext, x[0], y[0]);
+  for(int i = 1; i < npoints; i++)
+    cairo_line_to(mContext, x[i], y[i]);
   cairo_close_path(mContext);
 }
 
@@ -291,10 +292,23 @@ inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
   cairo_close_path(mContext);
 }
 
+inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
+{
+    cairo_new_path(mContext);
+    cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
+    cairo_close_path(mContext);
+}
+
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
   cairo_move_to(mContext, x1, y1);
   cairo_line_to(mContext, x2, y2);
+  Stroke(color, pBlend);
+}
+
+void IGraphicsCairo::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
+{
+  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
   Stroke(color, pBlend);
 }
 
@@ -304,9 +318,15 @@ void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect, const IBle
   Stroke(color, pBlend);
 }
 
-void IGraphicsCairo::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
+void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
 {
-  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
+  CairoDrawRoundRect(rect, corner);
+  Stroke(color, pBlend);
+}
+
+void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
+{
+  CairoDrawConvexPolygon(x, y, npoints);
   Stroke(color, pBlend);
 }
 
@@ -322,12 +342,6 @@ void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r
   Stroke(color, pBlend);
 }
 
-void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
-{
-  CairoDrawRoundRect(rect, corner);
-  Stroke(color, pBlend);
-}
-
 void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   double dashLength = 2;
@@ -336,9 +350,9 @@ void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, cons
   cairo_set_dash(mContext, nullptr, 0, 0.0);
 }
 
-void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
+void IGraphicsCairo::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
-  CairoDrawRoundRect(rect, corner);
+  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
   Fill(color, pBlend);
 }
 
@@ -348,25 +362,29 @@ void IGraphicsCairo::FillRect(const IColor& color, const IRECT& rect, const IBle
   Fill(color, pBlend);
 }
 
+void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
+{
+  CairoDrawRoundRect(rect, corner);
+  Fill(color, pBlend);
+}
+
+void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
+{
+  CairoDrawConvexPolygon(x, y, npoints);
+  Fill(color, pBlend);
+}
+
+void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+{
+  cairo_move_to(mContext, cx, cy);
+  cairo_arc(mContext, cx, cy, r, minAngle, maxAngle);
+  cairo_close_path(mContext);
+  Fill(color, pBlend);
+}
+
 void IGraphicsCairo::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
   CairoDrawCircle(cx, cy, r);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
-{
-  cairo_move_to(mContext, x[0], y[0]);
-  
-  for(int i = 1; i < npoints; i++)
-    cairo_line_to(mContext, x[i], y[i]);
-  
   Fill(color, pBlend);
 }
 

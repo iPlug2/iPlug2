@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "IGraphicsAGG.h"
-#include "Log.h"
+#include "IPlugLogger.h"
 
 static StaticStorage<agg::pixel_map> s_bitmapCache;
 static StaticStorage<agg::font> s_fontCache;
@@ -221,232 +221,122 @@ void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
 {
   mRenBase.copy_pixel(x * mScale, y * mScale, IColorToAggColor(color));
 }
-
+ 
 void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
-  ToPixel(x1);
-  ToPixel(y1);
-  ToPixel(x2);
-  ToPixel(y2);
-  
-  typedef agg::conv_stroke<agg::path_storage> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
+  //ToPixel(x1);
+  //ToPixel(y1);
+  //ToPixel(x2);
+  //ToPixel(y2);
+
   agg::path_storage path;
-  agg_strokes strokes(path);
   
   path.move_to(x1, y1);
   path.line_to(x2, y2);
   
-  strokes.width(1.0);
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  rasterizer.reset();
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  
-  rasterizer.filling_rule(agg::fill_non_zero);
-  rasterizer.add_path(strokes);
-  
-  agg::render_scanlines(rasterizer, scanline, renderer);
+  Stroke(color, path);
 }
 
-void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsAGG::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
-  cx *= mScale;
-  cy *= mScale;
-  r *= mScale;
-  
-  typedef agg::conv_stroke<agg::arc> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
-  agg::arc arc(cx, cy, r, r, agg::deg2rad(minAngle), agg::deg2rad(maxAngle));
-  agg_strokes strokes(arc);
-  
-  strokes.width(1.0);
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  rasterizer.reset();
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  
-  rasterizer.filling_rule(agg::fill_non_zero);
-  rasterizer.reset();
-  rasterizer.add_path(strokes);
-  agg::render_scanlines(rasterizer, scanline, renderer);
+  float x[3] = { x1, x2, x3 };
+  float y[3] = { y1, y2, y3 };
+  DrawConvexPolygon(color, x, y, 3, pBlend);
 }
 
-void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
+void IGraphicsAGG::DrawRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
 {
-  cx *= mScale;
-  cy *= mScale;
-  r *= mScale;
-  
-  typedef agg::conv_stroke<agg::ellipse> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
-  agg::ellipse ellipse(cx, cy, r, r);
-  agg_strokes strokes(ellipse);
-  
-  strokes.width(1.0);
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  rasterizer.reset();
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  
-  rasterizer.filling_rule(agg::fill_non_zero);
-  rasterizer.reset();
-  rasterizer.add_path(strokes);
-  agg::render_scanlines(rasterizer, scanline, renderer);
+  float x[4] = { destRect.L, destRect.R, destRect.R, destRect.L };
+  float y[4] = { destRect.T, destRect.T, destRect.B, destRect.B };
+  DrawConvexPolygon(color, x, y, 4, pBlend);
 }
 
-void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr)
+void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, float cr, const IBlend* pBlend)
 {
   IRECT rect = destRect;
   rect.Scale(mScale);
-  
-  typedef agg::conv_stroke<agg::rounded_rect> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
+    
   agg::rounded_rect agg_rect(rect.L - 0.5, rect.T - 0.5, rect.L - 0.5 + rect.W(), rect.T - 0.5 + rect.H(), cr);
-  agg_strokes strokes(agg_rect);
-  
-  strokes.width(1.0);
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  rasterizer.reset();
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  
-  rasterizer.filling_rule(agg::fill_non_zero);
-  rasterizer.reset();
-  rasterizer.add_path(strokes);
-  agg::render_scanlines(rasterizer, scanline, renderer);
+  Stroke(color, agg_rect);
 }
 
-void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend, int cr)
+void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
 {
-  IRECT rect = destRect;
-  rect.Scale(mScale);
-  
-  typedef agg::conv_stroke<agg::path_storage> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
-  agg::rounded_rect agg_rect(rect.L, rect.T, rect.L + rect.W(), rect.T + rect.H(), cr);
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  
-  rasterizer.add_path(agg_rect);
-  agg::render_scanlines(rasterizer, scanline, renderer);
-}
-
-void IGraphicsAGG::FillRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
-{
-  IRECT rect = destRect;
-  rect.Scale(mDisplayScale);
-  
-  typedef agg::conv_stroke<agg::path_storage> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
-  agg::path_storage path;
-
-  path.move_to(rect.L, rect.T);
-  path.line_to(rect.R, rect.T);
-  path.line_to(rect.R, rect.B);
-  path.line_to(rect.L, rect.B);
-  
-  path.close_polygon();
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  
-  rasterizer.add_path(path);
-  agg::render_scanlines(rasterizer, scanline, renderer);
-}
-
-void IGraphicsAGG::FillCircle(const IColor& color, int cx, int cy, float r, const IBlend* pBlend)
-{
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
-  agg::ellipse ellipse(cx * mScale, cy * mScale, r * mScale, r * mScale);
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  rasterizer.reset();
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  rasterizer.reset();
-  
-  rasterizer.add_path(ellipse);
-  agg::render_scanlines(rasterizer, scanline, renderer);
-}
-
-void IGraphicsAGG::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  int x[3] = { x1, x2, x3 };
-  int y[3] = { y1, y2, y3 };
-  FillConvexPolygon(color, x, y, 3, pBlend);
-}
-
-void IGraphicsAGG::FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend)
-{
-  typedef agg::conv_stroke<agg::path_storage> agg_strokes;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_type;
-  
   agg::path_storage path;
   
   path.move_to(x[0] * mScale, y[0] * mScale);
-  
   for (int i=1; i<npoints; ++i)
   {
     path.line_to(x[i] * mScale, y[i] * mScale);
   }
+  path.close_polygon();
 
+  Stroke(color, path);
+}
+
+void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+{
+  agg::arc arc(cx * mScale, cy * mScale, r * mScale, r * mScale, agg::deg2rad(minAngle), agg::deg2rad(maxAngle));
+  Stroke(color, arc);
+}
+
+void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
+{
+  agg::ellipse ellipse(cx * mScale, cy * mScale, r * mScale, r * mScale);
+  Stroke(color, ellipse);
+}
+
+void IGraphicsAGG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
+{
+  // TODO:
+}
+
+void IGraphicsAGG::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
+{
+  float x[3] = { x1, x2, x3 };
+  float y[3] = { y1, y2, y3 };
+  FillConvexPolygon(color, x, y, 3, pBlend);
+}
+
+void IGraphicsAGG::FillRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
+{
+  float x[4] = { destRect.L, destRect.R, destRect.R, destRect.L };
+  float y[4] = { destRect.T, destRect.T, destRect.B, destRect.B };
+  FillConvexPolygon(color, x, y, 4, pBlend);
+}
+
+void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect,  float cr, const IBlend* pBlend)
+{
+  IRECT rect = destRect;
+  rect.Scale(mScale);
+  
+  agg::rounded_rect agg_rect(rect.L, rect.T, rect.L + rect.W(), rect.T + rect.H(), cr);
+  Rasterize(color, agg_rect);
+}
+
+void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend)
+{
+  //TODO:
+}
+
+void IGraphicsAGG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
+{
+  agg::ellipse ellipse(cx * mScale, cy * mScale, r * mScale, r * mScale);
+  Rasterize(color, ellipse);
+}
+
+void IGraphicsAGG::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
+{
+  agg::path_storage path;
+  
+  path.move_to(x[0] * mScale, y[0] * mScale);
+  for (int i=1; i<npoints; ++i)
+  {
+    path.line_to(x[i] * mScale, y[i] * mScale);
+  }
   path.close_polygon();
   
-  agg::rasterizer_scanline_aa<> rasterizer;
-  rasterizer.reset();
-  
-  agg::scanline_p8 scanline;
-  
-  renderer_type renderer(mRenBase);
-  
-  renderer.color(IColorToAggColor(color));
-  rasterizer.reset();
-  
-  rasterizer.add_path(path);
-  agg::render_scanlines(rasterizer, scanline, renderer);
+  Rasterize(color, path);
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)

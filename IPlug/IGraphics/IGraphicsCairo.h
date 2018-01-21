@@ -37,18 +37,21 @@ public:
   
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
+    
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
-  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
+  void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void FillConvexPolygon(const IColor& color, int* x, int* y, int npoints, const IBlend* pBlend) override;
-  void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  
+  void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
+
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mContext; }
 
@@ -134,11 +137,12 @@ protected:
   {
     cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
   }
-    
-  inline void CairoDrawCircle(float cx, float cy, float r);
+
   inline void CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
   inline void CairoDrawRoundRect(const IRECT& rect, float corner);
-    
+  inline void CairoDrawConvexPolygon(float* x, float* y, int npoints);
+  inline void CairoDrawCircle(float cx, float cy, float r);
+
 private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;

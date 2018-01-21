@@ -116,9 +116,9 @@ struct IColor
   {
     const int mod = int(c * 255.);
     IColor n = *this;
-    n.R   = std::min(n.R += mod, 255);
+    n.R = std::min(n.R += mod, 255);
     n.G = std::min(n.G += mod, 255);
-    n.B  = std::min(n.B += mod, 255);
+    n.B = std::min(n.B += mod, 255);
     return n;
   }
 };
