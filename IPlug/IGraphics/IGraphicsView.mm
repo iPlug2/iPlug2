@@ -410,7 +410,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     unichar c = [s characterAtIndex:0];
 
     bool handle = true;
-    int key;
+    int key = KEY_NONE;
 
     if (k == 49) key = KEY_SPACE;
     else if (k == 126) key = KEY_UPARROW;
