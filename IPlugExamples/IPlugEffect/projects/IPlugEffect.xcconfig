@@ -1,4 +1,4 @@
-#include "../../common.xcconfig"
+#include "../../../common.xcconfig"
 
 //------------------------------
 // Global build settings
@@ -48,7 +48,6 @@ DEBUG_OPTIMIZE = 0 //0,1,2,3,s
 //------------------------------
 // MISCELLANEOUS COMPILER OPTIONS
 
-SHARED_PRECOMPS_DIR = $(SRCROOT)/build-mac/PCH
 
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
