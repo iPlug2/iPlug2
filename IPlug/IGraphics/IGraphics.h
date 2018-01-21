@@ -131,8 +131,8 @@ public:
   
   void DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend = 0);
   void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
-  void DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend = 0);
-  void DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend = 0);
+  void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
+  void DrawHorizontalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
   void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
   
@@ -140,7 +140,7 @@ public:
   virtual void HideMouseCursor() {};
   virtual void ShowMouseCursor() {};
   virtual void ForceEndUserEdit() = 0;
-  virtual void Resize(int w, int h, double scale);
+  virtual void Resize(int w, int h, float scale);
   virtual void* OpenWindow(void* pParentWnd) = 0;
   virtual void CloseWindow() = 0;
   virtual void* GetWindow() = 0;
@@ -191,8 +191,8 @@ public:
 
   int Width() const { return mWidth; }
   int Height() const { return mHeight; }
-  int WindowWidth() const { return mWidth * mScale; }
-  int WindowHeight() const { return mHeight * mScale; }
+  int WindowWidth() const { return int((float) mWidth * mScale); }
+  int WindowHeight() const { return int((float) mHeight * mScale); }
   int FPS() const { return mFPS; }
   float Scale() const { return mScale; }
   float GetDisplayScale() const { return mDisplayScale; }

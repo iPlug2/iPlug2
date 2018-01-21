@@ -401,8 +401,8 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-    const double xpos = GetAuxParam(0)->mValue * mRECT.W();
-    const double ypos = GetAuxParam(1)->mValue * mRECT.H();
+    const float xpos = GetAuxParam(0)->mValue * mRECT.W();
+    const float ypos = GetAuxParam(1)->mValue * mRECT.H();
     
     graphics.DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0);
     graphics.DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0);

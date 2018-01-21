@@ -62,10 +62,10 @@ public:
     {
       IControl* pControl = GetGUI()->GetControl(mClickedOnControl);
       IRECT r = pControl->GetRECT();
-      int w = r.R - r.L;
-      int h = r.B - r.T;
+      float w = r.R - r.L;
+      float h = r.B - r.T;
       
-      if(w < 0 || h < 0)
+      if(w < 0.f || h < 0.f)
       {
         pControl->SetRECT(mMouseDownRECT);
         pControl->SetTargetRECT(mMouseDownTargetRECT);
@@ -159,10 +159,10 @@ public:
     return IRECT(r.R - RESIZE_HANDLE_SIZE, r.B - RESIZE_HANDLE_SIZE, r.R, r.B);
   }
 
-  inline int SnapToGrid(int input)
+  inline float SnapToGrid(float input)
   {
     if (mGridSize > 1)
-      return (input / mGridSize) * mGridSize;
+      return std::round((input / mGridSize) * (float) mGridSize);
     else
       return input;
   }

@@ -142,7 +142,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         if (pGraphics->IsDirty(dirtyR))
         {
           dirtyR.ScaleBounds(pGraphics->Scale());
-          RECT r = { dirtyR.L, dirtyR.T, dirtyR.R, dirtyR.B };
+          RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
 
@@ -150,7 +150,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
             notDirtyR.ScaleBounds(pGraphics->Scale());
-            RECT r2 = { notDirtyR.L, notDirtyR.T, notDirtyR.R, notDirtyR.B };
+            RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
             pGraphics->mParamEditMsg = kUpdate;
@@ -496,7 +496,7 @@ void IGraphicsWin::ForceEndUserEdit()
 
 #define SETPOS_FLAGS SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE
 
-void IGraphicsWin::Resize(int w, int h, double scale)
+void IGraphicsWin::Resize(int w, int h, float scale)
 {
   if (w == Width() && h == Height() && scale == Scale()) return;
 
@@ -1352,3 +1352,20 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 
   return false;
 }
+
+//TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
+#ifndef NO_IGRAPHICS
+#ifdef IGRAPHICS_AGG
+#include "IGraphicsAGG.cpp"
+#include "agg_win_pmap.cpp"
+#include "agg_win_font.cpp"
+#elif defined IGRAPHICS_CAIRO
+#include "IGraphicsCairo.cpp"
+#elif defined IGRAPHICS_NANOVG
+#include "IGraphicsNanoVG.cpp"
+#include "nanovg.c"
+//#include "nanovg_mtl.m"
+#else
+#include "IGraphicsLice.cpp"
+#endif
+#endif

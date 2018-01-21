@@ -63,11 +63,11 @@ IGraphics::~IGraphics()
   mControls.Empty(true);
 }
 
-void IGraphics::Resize(int w, int h, double scale)
+void IGraphics::Resize(int w, int h, float scale)
 {
   ReleaseMouseCapture();
 
-  double oldScale = mScale;
+  float oldScale = mScale;
   mScale = scale;
     
   if (oldScale != scale)
@@ -125,7 +125,7 @@ void IGraphics::AttachBackground(const char* name, double scale)
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mPlug, IRECT(0, 0, mWidth, mHeight), color);
+  IControl* pBG = new IPanelControl(mPlug, IRECT(0.f, 0.f, mWidth, mHeight), color);
   mControls.Insert(0, pBG);
 }
 
@@ -332,12 +332,12 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     float basicXOffset = 0.;
     
     if (vCenter)
-      basicYOffset = rect.T + ((rect.H() - charHeight) / 2.);
+      basicYOffset = rect.T + ((rect.H() - charHeight) / 2.f);
     else
       basicYOffset = rect.T;
     
     if (text.mAlign == IText::kAlignCenter)
-      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2.);
+      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2.f);
     else if (text.mAlign == IText::kAlignNear)
       basicXOffset = rect.L;
     else if (text.mAlign == IText::kAlignFar)
@@ -354,8 +354,8 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     {
       if (widthAsOneLine > rect.W())
       {
-        nCharsThatFitIntoLine = rect.W() / charWidth;
-        nLines = (widthAsOneLine / rect.W()) + 1;
+        nCharsThatFitIntoLine = int(rect.W() / (float)charWidth);
+        nLines = int(float(widthAsOneLine) / rect.W()) + 1;
       }
       else // line is shorter than width of rect
       {
@@ -365,7 +365,7 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     }
     else
     {
-      nCharsThatFitIntoLine = rect.W() / charWidth;
+      nCharsThatFitIntoLine = int(rect.W() / (float) charWidth);
       nLines = 1;
     }
     
@@ -379,7 +379,7 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
         
         int frameOffset = (int) str[stridx++] - 31; // calculate which frame to look up
         
-        int xOffset = (linepos * (charWidth + charOffset)) + basicXOffset;    // calculate xOffset for character we're drawing
+        float xOffset = ((float) linepos * ((float) charWidth + (float) charOffset)) + basicXOffset;    // calculate xOffset for character we're drawing
         IRECT charRect = IRECT(xOffset, yOffset, xOffset + charWidth, yOffset + charHeight);
         DrawBitmap(bitmap, charRect, frameOffset, pBlend);
       }
@@ -390,23 +390,23 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
 void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
-  int xi = rect.L + int(x * (float) (rect.R - rect.L));
+  float xi = rect.L + int(x * (rect.R - rect.L));
   return DrawVerticalLine(color, xi, rect.T, rect.B, pBlend);
 }
 
 void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend)
 {
   y = BOUNDED(y, 0.0f, 1.0f);
-  int yi = rect.B - int(y * (float) (rect.B - rect.T));
+  float yi = rect.B - (y * (float) (rect.B - rect.T));
   return DrawHorizontalLine(color, yi, rect.L, rect.R, pBlend);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, int xi, int yLo, int yHi, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend)
 {
   DrawLine(color, xi, yLo, xi, yHi, pBlend);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, int yi, int xLo, int xHi, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend)
 {
   DrawLine(color, xLo, yi, xHi, yi, pBlend);
 }
