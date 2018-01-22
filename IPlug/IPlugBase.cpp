@@ -283,7 +283,7 @@ bool IPlugBase::IsOutChannelConnected(int chIdx) const
   return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected);
 }
 
-int IPlugBase::GetNumInputsConnected() const
+int IPlugBase::NInChansConnected() const
 {
   int count = 0;
   
@@ -294,7 +294,7 @@ int IPlugBase::GetNumInputsConnected() const
   return count;
 }
 
-int IPlugBase::GetNumOutputsConnected() const
+int IPlugBase::NOutChansConnected() const
 {
   int count = 0;
   

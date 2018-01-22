@@ -143,8 +143,8 @@ public:
   int NOutChannels() const { return mOutChannels.GetSize(); }
   bool IsInChannelConnected(int chIdx) const;
   bool IsOutChannelConnected(int chIdx) const;
-  int GetNumInputsConnected() const;
-  int GetNumOutputsConnected() const;
+  int NInChansConnected() const;
+  int NOutChansConnected() const;
 
   virtual bool IsRenderingOffline() { return false; };
   virtual int GetSamplePos() = 0;   // Samples since start of project.
