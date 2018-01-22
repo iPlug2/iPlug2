@@ -21,8 +21,8 @@ static double sFPS = 0.0;
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
-  info.x = mMouseX = GET_X_LPARAM(lParam) / Scale();
-  info.y = mMouseY = GET_Y_LPARAM(lParam) / Scale();
+  info.x = mMouseX = GET_X_LPARAM(lParam) / GetScale();
+  info.y = mMouseY = GET_Y_LPARAM(lParam) / GetScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON),
 	  (wParam & MK_RBUTTON),
 	  (wParam & MK_SHIFT),
@@ -302,7 +302,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (GetUpdateRect(hWnd, &r, FALSE))
       { 
         IRECT ir(r.left, r.top, r.right, r.bottom);
-        ir.ScaleBounds(1. / pGraphics->Scale());
+        ir.ScaleBounds(1. / pGraphics->GetScale());
         pGraphics->Draw(ir);
       }
       return 0;
@@ -498,7 +498,7 @@ void IGraphicsWin::ForceEndUserEdit()
 
 void IGraphicsWin::Resize(int w, int h, float scale)
 {
-  if (w == Width() && h == Height() && scale == Scale()) return;
+  if (w == Width() && h == Height() && scale == GetScale()) return;
 
   int oldWindowWidth = WindowWidth(), oldWindowHeight = WindowHeight();
   IGraphics::Resize(w, h, scale);
