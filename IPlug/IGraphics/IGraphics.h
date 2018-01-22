@@ -132,7 +132,7 @@ public:
   void DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend = 0);
   void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
   void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
-  void DrawHorizontalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
+  void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
   void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
   
