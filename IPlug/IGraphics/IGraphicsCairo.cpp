@@ -294,9 +294,9 @@ inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
 
 inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
 {
-    cairo_new_path(mContext);
-    cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
-    cairo_close_path(mContext);
+  cairo_new_path(mContext);
+  cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
+  cairo_close_path(mContext);
 }
 
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)

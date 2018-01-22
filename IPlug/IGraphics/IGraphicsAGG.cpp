@@ -277,7 +277,7 @@ void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, in
 void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
 {
   const float s = ScaleFactor();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, agg::deg2rad(minAngle), agg::deg2rad(maxAngle));
+  agg::arc arc(cx * s, cy * s, r * s, r * s, minAngle, maxAngle);
   Stroke(color, arc);
 }
 
@@ -316,7 +316,13 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect,  fl
 
 void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend)
 {
-  //TODO:
+  agg::path_storage path;
+  const float s = ScaleFactor();
+  agg::arc arc(cx * s, cy * s, r * s, r * s, minAngle, maxAngle);
+  path.concat_path(arc);
+  path.line_to(cx * s, cy * s);
+  path.close_polygon();
+  Fill(color, path);
 }
 
 void IGraphicsAGG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
