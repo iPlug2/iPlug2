@@ -288,7 +288,7 @@ inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
   cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
-  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
+  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.5);
   cairo_close_path(mContext);
 }
 
