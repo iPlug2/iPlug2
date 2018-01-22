@@ -8,15 +8,7 @@
 
 
 #include "IPlugOSDetect.h"
-
-#ifdef NO_IGRAPHICS
-#include "IPlugBase.h"
-typedef IPlugBase IPLUG_BASE_CLASS;
-#else
-#include "IPlugBaseGraphics.h"
-typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
-#endif
-
+#include "IPlugBase_select.h"
 #include "IPlugAAX_Parameters.h"
 #include "AAX_CEffectGUI.h"
 
