@@ -36,6 +36,9 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
     
     mGraphics = pGraphics;
     mHasUI = true;
+    
+    // TODO: is it safe/sensible to do this here
+    pGraphics->OnDisplayScale();
   }
   
   OnGUICreated();
