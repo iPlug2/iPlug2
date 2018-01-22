@@ -168,12 +168,10 @@ private:
   void Stroke(const IColor& color, path_type& path)
   {
     agg::conv_stroke<path_type> strokes(path);
-    strokes.width(1.0 * ScaleFactor());
+    strokes.width(1.0 * GetDisplayScale());
     Rasterize(color, strokes);
   }
-    
-  double ScaleFactor() { return mDisplayScale; }
-    
+
   RenbaseType mRenBase;
   PixfmtType mPixf;
   FontEngineType mFontEngine;
