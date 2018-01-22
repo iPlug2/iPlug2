@@ -966,16 +966,13 @@ void IGraphicsWin::PluginPath(WDL_String& path)
 
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
-  #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
   SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
   path.Set(strPath, MAX_PATH_LEN);
-  #endif
 }
 
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
-#ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
 
   if (isSystem)
@@ -984,7 +981,6 @@ void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
     SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
 
   path.Set(strPath, MAX_PATH_LEN);
-#endif
 }
 
 void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
@@ -1137,12 +1133,10 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   if (rc)
   {
     char drive[_MAX_DRIVE];
-    #ifndef __MINGW_H // TODO: alternative for gcc
     if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
     {
       path.SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
     }
-    #endif
     filename.Set(ofn.lpstrFile);
   }
   else
