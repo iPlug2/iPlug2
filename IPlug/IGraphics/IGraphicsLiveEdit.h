@@ -162,7 +162,7 @@ public:
   inline float SnapToGrid(float input)
   {
     if (mGridSize > 1)
-      return std::round((input / mGridSize) * (float) mGridSize);
+      return (float) std::round(input / (float) mGridSize) * mGridSize;
     else
       return input;
   }
