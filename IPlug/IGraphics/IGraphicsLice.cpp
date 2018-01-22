@@ -328,6 +328,21 @@ void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r,
 
 void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend)
 {
+  float xarray[361];
+  float yarray[361];
+  
+  int arcpoints = 360.0 * std::min(1.0, fabs(maxAngle - minAngle) / 2.0 * PI);
+  double arcincrement = (maxAngle - minAngle) / arcpoints;
+  for(int i = 0; i < arcpoints; i++)
+  {
+    xarray[i] = cx + cos(i * arcincrement + minAngle) * r;
+    yarray[i] = cy + sin(i * arcincrement + minAngle) * r;
+  }
+    
+  xarray[arcpoints] = cx;
+  yarray[arcpoints] = cy;
+
+  FillConvexPolygon(color, xarray, yarray, arcpoints + 1, pBlend);
   //TODO:
 }
 
