@@ -134,7 +134,7 @@ public:
    * @todo Please check this and remove this note once done */
   int GetLatency() const { return mLatency; }
   /** @return \c True if the plugin is currently bypassed */
-  bool GetIsBypassed() const { return mIsBypassed; }
+  bool GetBypassed() const { return mBypassed; }
 
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
@@ -366,7 +366,7 @@ protected:
   /** @todo Someone check this please */
   int mLatency;
   /** \c True if the plug-in is bypassed */
-  bool mIsBypassed = false;
+  bool mBypassed = false;
   bool mHasUI = false;
   int mCurrentPresetIdx = 0;
   double mSampleRate  = DEFAULT_SAMPLE_RATE;

@@ -315,7 +315,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
   mSampleRate = newSetup.sampleRate;
-  mIsBypassed = false;
+  mBypassed = false;
   IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
   OnReset();
 
@@ -359,9 +359,9 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             {
               bool bypassed = (value > 0.5);
               
-              if (bypassed != mIsBypassed)
+              if (bypassed != mBypassed)
               {
-                mIsBypassed = bypassed;
+                mBypassed = bypassed;
               }
 
               break;
@@ -467,7 +467,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       chanOffset += busChannels;
     }
 
-    if (mIsBypassed)
+    if (GetBypassed())
       PassThroughBuffers(0.0f, data.numSamples);
     else
       ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
@@ -518,7 +518,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       chanOffset += busChannels;
     }
 
-    if (mIsBypassed)
+    if (mBypassed)
       PassThroughBuffers(0.0, data.numSamples);
     else
       ProcessBuffers(0.0, data.numSamples); // process buffers double precision
@@ -603,7 +603,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
       return kResultFalse;
     }
     
-    mIsBypassed = (bool) savedBypass;
+    mBypassed = (bool) savedBypass;
     
     RedrawParamControls();
     return kResultOk;
@@ -631,7 +631,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
     return kResultFalse;
   }  
   
-  int32 toSaveBypass = mIsBypassed ? 1 : 0;
+  int32 toSaveBypass = mBypassed ? 1 : 0;
   state->write(&toSaveBypass, sizeof (int32));  
 
   return kResultOk;
@@ -654,7 +654,7 @@ ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
   if (tag == kBypassParam) 
   {
-    return (ParamValue) mIsBypassed;
+    return (ParamValue) mBypassed;
   }
 //   else if (tag == kPresetParam) 
 //   {
