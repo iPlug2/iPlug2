@@ -2,11 +2,8 @@
 
 #include "png.h"
 
-#include "CairoNanoSVG.h"
-
 #include "IGraphicsCairo.h"
-#include "IControl.h"
-#include "IPlugLogger.h"
+#include "CairoNanoSVG.h"
 
 #ifdef OS_OSX
 cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)

@@ -4,7 +4,6 @@
 
 #include "config.h"   // This is your plugin's config.h.
 #include "IPlugBase.h"
-//#include "IPlugLogger.h"
 
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 

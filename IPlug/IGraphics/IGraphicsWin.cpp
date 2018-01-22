@@ -3,7 +3,6 @@
 #include <commctrl.h>
 
 #include "IGraphicsWin.h"
-#include "IPlugLogger.h"
 
 #include <wininet.h>
 

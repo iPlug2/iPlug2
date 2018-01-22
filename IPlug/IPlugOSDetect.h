@@ -23,3 +23,6 @@
 #if defined(_WIN64) || defined(__LP64__)
   #define ARCH_64BIT 
 #endif
+
+#include "IPlugLogger.h"
+

@@ -6,11 +6,11 @@
 #include "ptrlist.h"
 #include "mutex.h"
 
+#include "IPlugOSDetect.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
-#include "IPlugLogger.h"
 #include "NChanDelay.h"
 
 /**

@@ -1,8 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "IPlugLogger.h"
-
 #include "NanoVGNanoSVG.h"
 
 #pragma mark -
