@@ -216,7 +216,7 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_save(mContext);
   ClipRegion(dest);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
-  cairo_set_source_surface(mContext, surface, dest.L - srcX, dest.T - srcY);
+  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
   cairo_restore(mContext);
