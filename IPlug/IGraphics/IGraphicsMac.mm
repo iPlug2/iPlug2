@@ -163,7 +163,7 @@ bool IGraphicsMac::WindowIsOpen()
 
 void IGraphicsMac::Resize(int w, int h, float scale)
 {
-  if (w == Width() && h == Height() && scale == Scale()) return;
+  if (w == Width() && h == Height() && scale == GetScale()) return;
 
   IGraphics::Resize(w, h, scale);
 

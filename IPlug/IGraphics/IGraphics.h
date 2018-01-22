@@ -181,7 +181,7 @@ public:
   bool IsDirty(IRECT& rect);
   virtual void Draw(const IRECT& rect);
   
-  virtual ISVG LoadSVG(const char* name); // correct place?
+  virtual ISVG LoadSVG(const char* name); // TODO: correct place?
 
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
@@ -194,7 +194,7 @@ public:
   int WindowWidth() const { return int((float) mWidth * mScale); }
   int WindowHeight() const { return int((float) mHeight * mScale); }
   int FPS() const { return mFPS; }
-  float Scale() const { return mScale; }
+  float GetScale() const { return mScale; }
   float GetDisplayScale() const { return mDisplayScale; }
   IPlugBaseGraphics& GetPlug() { return mPlug; }
 
