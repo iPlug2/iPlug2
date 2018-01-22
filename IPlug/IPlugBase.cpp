@@ -1400,3 +1400,10 @@ bool IPlugBase::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   }
   return rc;
 }
+
+void IPlugBase::PrintDebugInfo()
+{
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  DBGMSG("%s\n NO_IGRAPHICS\n", buildInfo.Get());
+}

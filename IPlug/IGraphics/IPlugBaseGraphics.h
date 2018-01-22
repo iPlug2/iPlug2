@@ -29,6 +29,8 @@ public:
   void AttachGraphics(IGraphics* pGraphics);
   void RedrawParamControls() override;
   void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) override;
+  
+  void PrintDebugInfo() override;
 private:
   IGraphics* mGraphics = nullptr;
 };

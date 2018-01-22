@@ -48,14 +48,10 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
   //pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX + 50, kGainY + 50), kGain, COLOR_BLACK));
 
-  WDL_String buildInfo;
-  GetBuildInfoStr(buildInfo);
-  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), DEFAULT_TEXT, buildInfo.Get()));
-  
-  DBGMSG("%s\n%s Graphics\n", buildInfo.Get(), pGraphics->GetDrawingAPIStr());
-
   AttachGraphics(pGraphics);
-  
+
+  PrintDebugInfo();
+
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }

@@ -316,6 +316,8 @@ public:
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
 
+  virtual void PrintDebugInfo();
+  
 private:
   /** Effect name @todo WAT? */
   WDL_String mEffectName;
