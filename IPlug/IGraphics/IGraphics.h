@@ -204,7 +204,7 @@ public:
   int AttachControl(IControl* control);
 
   IControl* GetControl(int idx) { return mControls.Get(idx); }
-  int GetNControls() const { return mControls.GetSize(); }
+  int NControls() const { return mControls.GetSize(); }
   void HideControl(int paramIdx, bool hide);
   void GrayOutControl(int paramIdx, bool gray);
   void ClampControl(int paramIdx, double lo, double hi, bool normalized);

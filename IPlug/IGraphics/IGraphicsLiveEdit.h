@@ -133,7 +133,7 @@ public:
   {
     graphics.DrawGrid(mGridColor, graphics.GetDrawRect(), mGridSize, mGridSize, &mBlend);
     
-    for(int i = 1; i < graphics.GetNControls(); i++)
+    for(int i = 1; i < graphics.NControls(); i++)
     {
       IControl* pControl = graphics.GetControl(i);
       IRECT cr = pControl->GetRECT();
