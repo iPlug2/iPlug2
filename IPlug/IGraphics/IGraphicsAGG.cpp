@@ -22,7 +22,7 @@ IGraphicsAGG::~IGraphicsAGG()
 
 IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
 {
-  double targetScale = mDisplayScale / scale;
+  double targetScale = GetDisplayScale() / scale;
   double scaleRes = scale * targetScale;
   
   agg::pixel_map* pPixelMap = s_bitmapCache.Find(name, scaleRes);
@@ -39,7 +39,7 @@ IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHo
       resourceFound = pPixelMap != nullptr;
       assert(resourceFound); // Protect against typos in resource.h and .rc files.
       
-      if (scale != mDisplayScale) {
+      if (scale != GetDisplayScale()) {
         IBitmap bitmap(pPixelMap, pPixelMap->width(), pPixelMap->height(), nStates, framesAreHoriztonal, scale, name);
         return ScaleBitmap(bitmap, name, targetScale);
       }
@@ -86,10 +86,10 @@ void IGraphicsAGG::SetDisplayScale(int scale)
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   IRECT rect = dest;
-  rect.Scale(mDisplayScale);
+  rect.Scale(GetDisplayScale());
   
-  srcX *= mDisplayScale;
-  srcY *= mDisplayScale;
+  srcX *= GetDisplayScale();
+  srcY *= GetDisplayScale();
 
   agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
@@ -482,7 +482,7 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
 void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_OSX
-  mPixelMap.draw((CGContext*) GetPlatformContext(), mDisplayScale / mScale);
+  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale() / GetScale());
 #else // OS_WIN
   //TODO: win
 #endif
