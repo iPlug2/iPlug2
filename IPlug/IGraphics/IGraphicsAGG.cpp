@@ -506,11 +506,11 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
   
   while (*cstr)
   {
-    const agg::glyph_cache* glyph = manager.glyph(*cstr);
+    const agg::glyph_cache* pGlyph = manager.glyph(*cstr);
     
-    if (glyph)
+    if (pGlyph)
     {
-      xCount += glyph->advance_x;
+      xCount +pGlyph->advance_x;
     }
 
     cstr++;
@@ -623,18 +623,18 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //      for (size_t c=pLines->start_char; c<pLines->end_char; c++)
 //      {
-//        const agg::glyph_cache * glyph = mFontManager.glyph(str[c]);
+//        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
 //
-//        if (glyph)
+//        if (pGlyph)
 //        {
 //          if (kerning)
 //          {
 //            mFontManager.add_kerning(&x, &y);
 //          }
 //
-//          mFontManager.init_embedded_adaptors(glyph, x, y);
+//          mFontManager.init_embedded_adaptors(pGlyph, x, y);
 //
-//          switch (glyph->dataType)
+//          switch (pGlyph->dataType)
 //          {
 //            case agg::glyph_data_mono:
 //
@@ -676,8 +676,8 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //          }
 //
 //          //increment pen position
-//          x += glyph->advance_x;
-//          y += glyph->advance_y;
+//          x += pGlyph->advance_x;
+//          y += pGlyph->advance_y;
 //        }
 //      }
 //      y += text.mSize * GetDisplayScale();
