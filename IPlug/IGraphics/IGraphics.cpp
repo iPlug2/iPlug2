@@ -415,10 +415,10 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
 {
   float sinV = sinf(angle);
   float cosV = cosf(angle);
-  float xLo = (cx + rMin * sinV);
-  float xHi = (cx + rMax * sinV);
-  float yLo = (cy - rMin * cosV);
-  float yHi = (cy - rMax * cosV);
+  float xLo = (cx + rMin * cosV);
+  float xHi = (cx + rMax * cosV);
+  float yLo = (cy - rMin * sinV);
+  float yHi = (cy - rMax * sinV);
   return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
 }
 

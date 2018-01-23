@@ -233,7 +233,7 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
 
 void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
 {
-  LICE_Arc(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, minAngle, maxAngle, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_Arc(mDrawBitmap, cx * mDisplayScale, cy * mDisplayScale, r * mDisplayScale, minAngle + 0.5 * PI, maxAngle + 0.5 * PI, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
