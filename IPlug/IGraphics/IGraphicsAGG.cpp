@@ -91,8 +91,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcX *= mDisplayScale;
   srcY *= mDisplayScale;
 
-  agg::pixel_map* pixel_map = (agg::pixel_map*) bitmap.mData;
-  agg::rendering_buffer buf(pixel_map->buf(), pixel_map->width(), pixel_map->height(), pixel_map->row_bytes());
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
+  agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
 //  mPixf.comp_op(agg::comp_op_src_over);//TODO
   
