@@ -6,6 +6,8 @@
  */
 
 #ifdef VST3_API
+#undef stricmp
+#undef strnicmp
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "base/source/fobject.h"
 #endif
