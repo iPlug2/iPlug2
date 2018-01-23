@@ -64,11 +64,12 @@
 class IGraphicsAGG : public IGraphics
 {
 public:
-  struct LineInfo {
-    int start_char;
-    int end_char;
-    double width;
-    LineInfo() : width(0.0), start_char(0), end_char(0) {}
+  struct LineInfo
+  {
+    int mStartChar;
+    int mEndChar;
+    double mWidth;
+    LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
   
 #ifdef OS_WIN
@@ -76,7 +77,6 @@ public:
 #else
   typedef agg::order_argb PixelOrder;
 #endif
-
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
   typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
@@ -85,14 +85,13 @@ public:
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
-  typedef agg::span_interpolator_linear<> interpolator_type;
-  typedef agg::image_accessor_clip<PixfmtType> img_source_type;
-  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolator_type> span_gen_type;
-  //typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_solid;
-  //typedef agg::renderer_scanline_bin_solid<RenbaseType> renderer_bin;
-  typedef agg::renderer_base<agg::pixfmt_gray8> mask_ren_base;
-  typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanline_type;
-
+  typedef agg::span_interpolator_linear<> interpolatorType;
+  typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
+  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolatorType> spanGenType;
+  //typedef agg::renderer_scanline_aa_solid<RenbaseType> rendererSolid;
+  //typedef agg::renderer_scanline_bin_solid<RenbaseType> rendererBin;
+  typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
+  typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
   
   IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsAGG();
@@ -149,8 +148,8 @@ public:
   }
 private:
     
-  template <typename path_type>
-  void Rasterize(const IColor& color, path_type& path)
+  template <typename pathType>
+  void Rasterize(const IColor& color, pathType& path)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
@@ -166,16 +165,16 @@ private:
     agg::render_scanlines(rasterizer, scanline, renderer);
   }
     
-  template <typename path_type>
-  void Fill(const IColor& color, path_type& path)
+  template <typename pathType>
+  void Fill(const IColor& color, pathType& path)
   {
     Rasterize(color, path);
   }
     
-  template <typename path_type>
-  void Stroke(const IColor& color, path_type& path)
+  template <typename pathType>
+  void Stroke(const IColor& color, pathType& path)
   {
-    agg::conv_stroke<path_type> strokes(path);
+    agg::conv_stroke<pathType> strokes(path);
     strokes.width(1.0 * GetDisplayScale());
     Rasterize(color, strokes);
   }

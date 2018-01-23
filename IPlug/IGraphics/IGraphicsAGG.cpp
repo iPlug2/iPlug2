@@ -108,7 +108,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
-  PixfmtType img_pixf(buf);
+  PixfmtType imgPixf(buf);
   
   const double width = bitmap.W * GetDisplayScale();
   const double height = bitmap.H * GetDisplayScale();
@@ -118,16 +118,16 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   srcMatrix *= agg::trans_affine_rotation(angle);
   srcMatrix *= agg::trans_affine_translation(destCtrX, destCtrY);
   
-  agg::trans_affine img_mtx = srcMatrix;
-  img_mtx.invert();
+  agg::trans_affine imgMtx = srcMatrix;
+  imgMtx.invert();
   
   agg::span_allocator<agg::rgba8> sa;
   
-  interpolator_type interpolator(img_mtx);
+  interpolatorType interpolator(imgMtx);
 
-  img_source_type img_src(img_pixf, agg::rgba_pre(0, 0, 0, 0));
+  imgSourceType imgSrc(imgPixf, agg::rgba_pre(0, 0, 0, 0));
 
-  span_gen_type sg(img_pixf, agg::rgba_pre(0, 0, 0, 0), interpolator);
+  spanGenType sg(imgPixf, agg::rgba_pre(0, 0, 0, 0), interpolator);
   
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
@@ -172,16 +172,16 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   srcMatrix *= agg::trans_affine_rotation(angle);
   srcMatrix *= agg::trans_affine_translation(x + (width / 2), y + (height / 2));
   
-  agg::trans_affine img_mtx = srcMatrix;
-  img_mtx.invert();
+  agg::trans_affine imgMtx = srcMatrix;
+  imgMtx.invert();
   
   agg::span_allocator<agg::rgba8> sa;
 
-  interpolator_type interpolator(img_mtx);
+  interpolatorType interpolator(imgMtx);
   
-  img_source_type img_src(img_base, agg::rgba_pre(0, 0, 0, 0));
+  imgSourceType imgSrc(img_base, agg::rgba_pre(0, 0, 0, 0));
   
-  span_gen_type sg(img_base, agg::rgba_pre(0, 0, 0, 0), interpolator);
+  spanGenType sg(img_base, agg::rgba_pre(0, 0, 0, 0), interpolator);
   
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
@@ -361,16 +361,16 @@ IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, co
   src.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   dest.attach(pCopy->buf(), pCopy->width(), pCopy->height(), pCopy->row_bytes());
   
-  PixfmtType img_pixf_src(src);
-  PixfmtType img_pixf_dest(dest);
+  PixfmtType imgPixfSrc(src);
+  PixfmtType imgPixfDest(dest);
   
-  RenbaseType renbase(img_pixf_dest);
+  RenbaseType renbase(imgPixfDest);
 
   renbase.clear(agg::rgba(0, 0, 0, 0));
   
   agg::rect_i src_r(rect.L, rect.T, rect.R, rect.B);
   
-  renbase.copy_from(img_pixf_src, &src_r, -rect.L, -rect.T);
+  renbase.copy_from(imgPixfSrc, &src_r, -rect.L, -rect.T);
   
   s_bitmapCache.Add(pCopy, cacheName, scale);
   
@@ -442,10 +442,10 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
   src.attach(pSourcePixelMap->buf(), pSourcePixelMap->width(), pSourcePixelMap->height(), pSourcePixelMap->row_bytes());
   dest.attach(pCopy->buf(), pCopy->width(), pCopy->height(), pCopy->row_bytes());
   
-  PixfmtType img_pixf_src(src);
-  PixfmtType img_pixf_dest(dest);
+  PixfmtType imgPixfSrc(src);
+  PixfmtType imgPixfDest(dest);
   
-  RenbaseType renbase(img_pixf_dest);
+  RenbaseType renbase(imgPixfDest);
   
   renbase.clear(agg::rgba(0, 0, 0, 0));
   
@@ -455,16 +455,16 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_scaling(ratioW, ratioH);
   
-  agg::trans_affine img_mtx = srcMatrix;
-  img_mtx.invert();
+  agg::trans_affine imgMtx = srcMatrix;
+  imgMtx.invert();
   
   agg::span_allocator<agg::rgba8> sa;
   
-  interpolator_type interpolator(img_mtx);
+  interpolatorType interpolator(imgMtx);
   
-  img_source_type img_src(img_pixf_src, agg::rgba(0, 0, 0, 0));
+  imgSourceType imgSrc(imgPixfSrc, agg::rgba(0, 0, 0, 0));
   
-  span_gen_type sg(img_pixf_src, agg::rgba(0, 0, 0, 0), interpolator);
+  spanGenType sg(imgPixfSrc, agg::rgba(0, 0, 0, 0), interpolator);
   
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
@@ -491,45 +491,45 @@ void IGraphicsAGG::RenderDrawBitmap()
 void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char* str, FontManagerType& manager)
 {
   LineInfo info;
-  info.start_char = 0;
-  info.end_char = (int) strlen(str);
+  info.mStartChar = 0;
+  info.mEndChar = (int) strlen(str);
   lines->Add(info);
   
   LineInfo* pLines = lines->Get();
   
-  size_t line_start = 0;
-  size_t line_width = 0;
-  size_t line_pos = 0;
-  double x_count = 0.0;
+  size_t lineStart = 0;
+  size_t lineWidth = 0;
+  size_t linePos = 0;
+  double xCount = 0.0;
   
-  const char* string = str;
+  const char* cstr = str;
   
-  while (*string)
+  while (*cstr)
   {
-    const agg::glyph_cache* glyph = manager.glyph(*string);
+    const agg::glyph_cache* glyph = manager.glyph(*cstr);
     
     if (glyph)
     {
-      x_count += glyph->advance_x;
+      xCount += glyph->advance_x;
     }
 
-    string++;
-    line_pos++;
+    cstr++;
+    linePos++;
     
-    if (*string == ' ' || *string == 0)
+    if (*cstr == ' ' || *cstr == 0)
     {
-      pLines->start_char = line_start;
-      pLines->end_char = line_pos;
-      pLines->width = x_count;
+      pLines->mStartChar = (int) lineStart;
+      pLines->mEndChar = (int)  linePos;
+      pLines->mWidth = xCount;
     }
     
-    if (rect.W() > 0 && x_count >= rect.W())
+    if (rect.W() > 0 && xCount >= rect.W())
     {
       assert(pLines);
       
-      string = &str[pLines->end_char];
-      line_start = pLines->end_char + 1;
-      line_pos = pLines->end_char;
+      cstr = &str[pLines->mEndChar];
+      lineStart = pLines->mEndChar + 1;
+      linePos = pLines->mEndChar;
       
       LineInfo info;
       lines->Add(info);
@@ -537,8 +537,8 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
       
       assert(pLines);
       
-      x_count = 0;
-      line_width = 0;
+      xCount = 0;
+      lineWidth = 0;
     }
     
   }
@@ -634,7 +634,7 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //          mFontManager.init_embedded_adaptors(glyph, x, y);
 //
-//          switch (glyph->data_type)
+//          switch (glyph->dataType)
 //          {
 //            case agg::glyph_data_mono:
 //
@@ -778,7 +778,7 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
   mask_ren_base maskRenBase(pixf);
   
   agg::alpha_mask_gray8 mask(mAlphaMaskRenBuf);
-  scanline_type msl(mask);
+  scanlineType msl(mask);
     
 #ifdef WIN32
   agg::alpha_mask_rgba32gray img_mask_pixf;
@@ -797,7 +797,6 @@ agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 }
 
 */
-
 
 void IGraphicsAGG::Draw(const IRECT& rect)
 {
