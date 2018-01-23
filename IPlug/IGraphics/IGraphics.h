@@ -261,14 +261,13 @@ protected:
   
   bool mCursorHidden = false;
 private:
-  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
-  float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
-
   friend class IGraphicsLiveEdit;
   
   int GetMouseControlIdx(float x, float y, bool mo = false);
 
   int mWidth, mHeight, mFPS;
+  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
+  float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
