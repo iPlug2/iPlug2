@@ -53,19 +53,12 @@ IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHo
 
 void IGraphicsAGG::SetDisplayScale(int scale)
 {
-  //TODO: rewrite this method
-
-  int w = Width() * scale;
-  int h = Height() * scale;
- 
-  mPixelMap.create(w, h);
+  mPixelMap.create(Width() * scale, Height() * scale);
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
   mPixf = PixfmtType(mRenBuf);
   mRenBase = RenbaseType(mPixf);
   mRenBase.clear(agg::rgba(0, 0, 0, 0));
-  
-  //  printf("cache size %i\n", s_bitmapCache.mDatas.GetSize());
-  
+
   IGraphics::SetDisplayScale(scale);
 }
 
@@ -111,20 +104,21 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
 {
   destCtrX *= GetDisplayScale();
   destCtrY *= GetDisplayScale();
-  agg::pixel_map* pixel_map = (agg::pixel_map*)bitmap.mData;
-  agg::rendering_buffer buf(pixel_map->buf(), pixel_map->width(), pixel_map->height(), pixel_map->row_bytes());
+
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
+  agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
   PixfmtType img_pixf(buf);
   
   const double width = bitmap.W * GetDisplayScale();
   const double height = bitmap.H * GetDisplayScale();
 
-  agg::trans_affine src_mtx;
-  src_mtx *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  src_mtx *= agg::trans_affine_rotation(angle);
-  src_mtx *= agg::trans_affine_translation(destCtrX, destCtrY);
+  agg::trans_affine srcMatrix;
+  srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
+  srcMatrix *= agg::trans_affine_rotation(angle);
+  srcMatrix *= agg::trans_affine_translation(destCtrX, destCtrY);
   
-  agg::trans_affine img_mtx = src_mtx;
+  agg::trans_affine img_mtx = srcMatrix;
   img_mtx.invert();
   
   agg::span_allocator<agg::rgba8> sa;
@@ -140,7 +134,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   
   agg::rounded_rect rect(0, 0, width, height, 0);
   
-  agg::conv_transform<agg::rounded_rect> tr(rect, src_mtx);
+  agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
   
   ras.add_path(tr);
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
@@ -173,12 +167,12 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   const double width = base.W * GetDisplayScale();
   const double height = base.H * GetDisplayScale();
   
-  agg::trans_affine src_mtx;
-  src_mtx *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  src_mtx *= agg::trans_affine_rotation(angle);
-  src_mtx *= agg::trans_affine_translation(x + (width / 2), y + (height / 2));
+  agg::trans_affine srcMatrix;
+  srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
+  srcMatrix *= agg::trans_affine_rotation(angle);
+  srcMatrix *= agg::trans_affine_translation(x + (width / 2), y + (height / 2));
   
-  agg::trans_affine img_mtx = src_mtx;
+  agg::trans_affine img_mtx = srcMatrix;
   img_mtx.invert();
   
   agg::span_allocator<agg::rgba8> sa;
@@ -194,7 +188,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   
   agg::rounded_rect rect(0, 0, width, height, 0);
   
-  agg::conv_transform<agg::rounded_rect> tr(rect, src_mtx);
+  agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
   
   ras.add_path(tr);
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
@@ -458,10 +452,10 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
   double ratioW = (double) destW / pSourcePixelMap->width();
   double ratioH = (double) destH / pSourcePixelMap->height();
   
-  agg::trans_affine src_mtx;
-  src_mtx *= agg::trans_affine_scaling(ratioW, ratioH);
+  agg::trans_affine srcMatrix;
+  srcMatrix *= agg::trans_affine_scaling(ratioW, ratioH);
   
-  agg::trans_affine img_mtx = src_mtx;
+  agg::trans_affine img_mtx = srcMatrix;
   img_mtx.invert();
   
   agg::span_allocator<agg::rgba8> sa;
@@ -477,7 +471,7 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
   
   agg::rounded_rect rect(0, 0, pSourcePixelMap->width(), pSourcePixelMap->height(), 0);
   
-  agg::conv_transform<agg::rounded_rect> tr(rect, src_mtx);
+  agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
   
   ras.add_path(tr);
   agg::render_scanlines_aa(ras, sl, renbase, sa, sg);
@@ -501,7 +495,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
   info.end_char = (int) strlen(str);
   lines->Add(info);
   
-  LineInfo * pLines = lines->Get();
+  LineInfo* pLines = lines->Get();
   
   size_t line_start = 0;
   size_t line_width = 0;
@@ -512,7 +506,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
   
   while (*string)
   {
-    const agg::glyph_cache * glyph = manager.glyph(*string);
+    const agg::glyph_cache* glyph = manager.glyph(*string);
     
     if (glyph)
     {
