@@ -96,7 +96,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   
 //  mPixf.comp_op(agg::comp_op_src_over);//TODO
   
-  agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
+  agg::rect_i r(srcX, srcY, srcX + rect.W()-1, srcY + rect.H()); //TODO: suspicious -1 here necessary to avoid problems with DrawBitmappedText
   mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T);
 }
 
