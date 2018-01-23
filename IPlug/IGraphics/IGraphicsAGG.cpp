@@ -111,11 +111,6 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
 {
   destCtrX *= GetDisplayScale();
   destCtrY *= GetDisplayScale();
-  
-  typedef agg::span_interpolator_linear<> interpolator_type;
-  typedef agg::image_accessor_clip<PixfmtType> img_source_type;
-  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolator_type> span_gen_type;
-  
   agg::pixel_map* pixel_map = (agg::pixel_map*)bitmap.mData;
   agg::rendering_buffer buf(pixel_map->buf(), pixel_map->width(), pixel_map->height(), pixel_map->row_bytes());
   
@@ -155,11 +150,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
 {
   x *= GetDisplayScale();
   y *= GetDisplayScale();
-  
-  typedef agg::span_interpolator_linear<> interpolator_type;
-  typedef agg::image_accessor_clip<PixfmtType> img_source_type;
-  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolator_type> span_gen_type;
-  
+
   agg::pixel_map* pm_base = (agg::pixel_map*)base.mData;
   agg::pixel_map* pm_mask = (agg::pixel_map*)mask.mData;
   agg::pixel_map* pm_top = (agg::pixel_map*)top.mData;
@@ -475,14 +466,9 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
   
   agg::span_allocator<agg::rgba8> sa;
   
-  typedef agg::span_interpolator_linear<> interpolator_type;
   interpolator_type interpolator(img_mtx);
   
-  typedef agg::image_accessor_clip<PixfmtType> img_source_type;
-  
   img_source_type img_src(img_pixf_src, agg::rgba(0, 0, 0, 0));
-  
-  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolator_type> span_gen_type;
   
   span_gen_type sg(img_pixf_src, agg::rgba(0, 0, 0, 0), interpolator);
   
@@ -573,10 +559,7 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //  IRECT rect = destRect;
 //  rect.Scale(GetDisplayScale());
-//
-//  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_solid;
-//  typedef agg::renderer_scanline_bin_solid<RenbaseType> renderer_bin;
-//
+
 //  renderer_solid ren_solid(mRenBase);
 //  renderer_bin ren_bin(mRenBase);
 //
@@ -716,10 +699,7 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
 //    destRect.Clear();
 //    return true;
 //  }
-//
-//  typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_solid;
-//  typedef agg::renderer_scanline_bin_solid<RenbaseType> renderer_bin;
-//
+
 //  renderer_solid ren_solid(mRenBase);
 //  renderer_bin ren_bin(mRenBase);
 //
@@ -800,11 +780,9 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
   
   agg::rect_i cb(0, 0, Width() * GetDisplayScale(), Height() * GetDisplayScale());
   
-  typedef agg::renderer_base<agg::pixfmt_gray8> mask_ren_base;
   agg::pixfmt_gray8 pixf(mAlphaMaskRenBuf);
   mask_ren_base maskRenBase(pixf);
   
-  typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanline_type;
   agg::alpha_mask_gray8 mask(mAlphaMaskRenBuf);
   scanline_type msl(mask);
     

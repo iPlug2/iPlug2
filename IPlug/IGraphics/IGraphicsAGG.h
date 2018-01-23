@@ -85,6 +85,14 @@ public:
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
+  typedef agg::span_interpolator_linear<> interpolator_type;
+  typedef agg::image_accessor_clip<PixfmtType> img_source_type;
+  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolator_type> span_gen_type;
+  //typedef agg::renderer_scanline_aa_solid<RenbaseType> renderer_solid;
+  //typedef agg::renderer_scanline_bin_solid<RenbaseType> renderer_bin;
+  typedef agg::renderer_base<agg::pixfmt_gray8> mask_ren_base;
+  typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanline_type;
+
   
   IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps);
   ~IGraphicsAGG();
