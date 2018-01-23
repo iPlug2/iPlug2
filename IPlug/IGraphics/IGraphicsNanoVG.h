@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 
 #include "nanovg.h"
 #ifdef OS_OSX

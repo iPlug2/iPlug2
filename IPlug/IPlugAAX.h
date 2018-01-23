@@ -7,7 +7,7 @@
  */
 
 
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 #include "IPlugBase_select.h"
 #include "IPlugAAX_Parameters.h"
 #include "AAX_CEffectGUI.h"

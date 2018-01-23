@@ -12,7 +12,7 @@
 
 #include "nanosvg.h"
 
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 
 class LICE_IFont;
 

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * @brief Include to get consistently named preprocessor macros for different platforms
+ * @brief Include to get consistently named preprocessor macros for different platforms and logging functionality
  */
 
 #ifdef _WIN32

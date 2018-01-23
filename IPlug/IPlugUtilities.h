@@ -7,7 +7,7 @@
 #include <cctype>
 
 #include "IPlugConstants.h"
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 
 #ifdef OS_WIN
 #undef _WIN32_WINNT

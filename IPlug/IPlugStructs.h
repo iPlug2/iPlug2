@@ -4,7 +4,7 @@
 #include "wdlstring.h"
 
 #include "IPlugConstants.h"
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 #include "IPlugMidi.h" // <- Midi related structs in here
 
 /** Manages a block of memory, for plug-in settings store/recall */

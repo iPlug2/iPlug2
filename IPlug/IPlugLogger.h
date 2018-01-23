@@ -9,7 +9,6 @@
 
 #include "wdlstring.h"
 #include "IPlugUtilities.h"
-#include "IPlugOSDetect.h"
 
 #if defined OS_WIN
   void DBGMSG(const char *format, ...);

@@ -6,7 +6,7 @@
 #include "ptrlist.h"
 #include "mutex.h"
 
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
