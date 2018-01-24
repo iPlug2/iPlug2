@@ -510,7 +510,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
     
     if (pGlyph)
     {
-      xCount +pGlyph->advance_x;
+      xCount += pGlyph->advance_x;
     }
 
     cstr++;
@@ -553,9 +553,9 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //  IRECT rect = destRect;
 //  rect.Scale(GetDisplayScale());
-
-//  renderer_solid ren_solid(mRenBase);
-//  renderer_bin ren_bin(mRenBase);
+//
+//  rendererSolid renSolid(mRenBase);
+//  rendererBin renBin(mRenBase);
 //
 //  agg::scanline_u8 sl;
 //  agg::rasterizer_scanline_aa<> ras;
@@ -588,9 +588,9 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
 //
 //  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font * font_data = (agg::font *)font.mData;
+//  agg::font* pFontData = (agg::font *)font.mData;
 //
-//  if (font_data != 0 && mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
+//  if (pFontData != 0 && mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
 //  {
 //    mFontEngine.hinting(hinting);
 //    mFontEngine.height(text.mSize * GetDisplayScale());
@@ -614,14 +614,14 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //          x = rect.L;
 //          break;
 //        case IText::kAlignCenter:
-//          x = rect.L + ((rect.W() - pLines->width) / 2);
+//          x = rect.L + ((rect.W() - pLines->mWidth) / 2);
 //          break;
 //        case IText::kAlignFar:
-//          x = rect.L + (rect.W() - pLines->width);
+//          x = rect.L + (rect.W() - pLines->mWidth);
 //          break;
 //      }
 //
-//      for (size_t c=pLines->start_char; c<pLines->end_char; c++)
+//      for (size_t c=pLines->mStartChar; c<pLines->mEndChar; c++)
 //      {
 //        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
 //
@@ -634,22 +634,22 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //          mFontManager.init_embedded_adaptors(pGlyph, x, y);
 //
-//          switch (pGlyph->dataType)
+//          switch (pGlyph->data_type)
 //          {
 //            case agg::glyph_data_mono:
 //
-//              ren_bin.color(IColorToAggColor(text.mColor));
+//              renBin.color(IColorToAggColor(text.mColor));
 //              agg::render_scanlines(mFontManager.mono_adaptor(),
 //                                    mFontManager.mono_scanline(),
-//                                    ren_bin);
+//                                    renBin);
 //              break;
 //
 //            case agg::glyph_data_gray8:
 //
-//              ren_solid.color(IColorToAggColor(text.mColor));
+//              renSolid.color(IColorToAggColor(text.mColor));
 //              agg::render_scanlines(mFontManager.gray8_adaptor(),
 //                                    mFontManager.gray8_scanline(),
-//                                    ren_solid);
+//                                    renSolid);
 //              break;
 //
 //            case agg::glyph_data_outline:
@@ -667,8 +667,8 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //                ras.add_path(mFontContour);
 //              }
 //
-//              ren_solid.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(ras, sl, ren_solid);
+//              renSolid.color(IColorToAggColor(text.mColor));
+//              agg::render_scanlines(ras, sl, renSolid);
 //
 //              break;
 //
@@ -727,9 +727,9 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
 //  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
 //
 //  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font * font_data = (agg::font *)font.mData;
+//  agg::font * pFontData = (agg::font *)font.mData;
 //
-//  if (mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
+//  if (mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
 //  {
 //    mFontEngine.hinting(hinting);
 //    mFontEngine.height(text.mSize * GetDisplayScale());
