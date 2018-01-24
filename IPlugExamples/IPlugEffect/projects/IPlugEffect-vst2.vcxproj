@@ -326,7 +326,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugOSDetect.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />

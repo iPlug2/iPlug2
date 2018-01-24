@@ -129,7 +129,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugOSDetect.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
