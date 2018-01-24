@@ -36,6 +36,9 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
     
     mGraphics = pGraphics;
     mHasUI = true;
+    
+    // TODO: is it safe/sensible to do this here
+    pGraphics->OnDisplayScale();
   }
   
   OnGUICreated();
@@ -68,4 +71,13 @@ void IPlugBaseGraphics::SetParameterInUIFromAPI(int paramIdx, double value, bool
 {
   if(mGraphics)
     mGraphics->SetParameterFromPlug(paramIdx, value, normalized);
+}
+
+void IPlugBaseGraphics::PrintDebugInfo()
+{
+  assert(mGraphics); // must call after AttachGraphics()
+  
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  DBGMSG("%s\n%s Graphics %i FPS\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
 }

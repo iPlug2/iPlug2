@@ -2,7 +2,7 @@
 
 /**
  * @file
- * @brief Include to get consistently named preprocessor macros for different platforms
+ * @brief Include to get consistently named preprocessor macros for different platforms and logging functionality
  */
 
 #ifdef _WIN32
@@ -23,3 +23,6 @@
 #if defined(_WIN64) || defined(__LP64__)
   #define ARCH_64BIT 
 #endif
+
+#include "IPlugLogger.h"
+

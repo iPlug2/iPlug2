@@ -2,14 +2,11 @@
 
 #include "png.h"
 
+#include "IGraphicsCairo.h"
 #include "CairoNanoSVG.h"
 
-#include "IGraphicsCairo.h"
-#include "IControl.h"
-#include "IPlugLogger.h"
-
 #ifdef OS_OSX
-cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
+cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 {
   return cairo_image_surface_create_from_png(path.Get());
 }
@@ -17,7 +14,8 @@ cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
 class PNGStreamReader
 {
 public:
-  PNGStreamReader(HMODULE hInst, const WDL_String &path) : mData(nullptr), mSize(0), mCount(0)
+  PNGStreamReader(HMODULE hInst, const WDL_String &path)
+  : mData(nullptr), mSize(0), mCount(0)
   {
     HRSRC resInfo = FindResource(hInst, path.Get(), "PNG");
     if (resInfo)
@@ -25,13 +23,13 @@ public:
       HGLOBAL res = LoadResource(hInst, resInfo);
       if (res)
       {
-        mData = (unsigned char *) LockResource(res);
+        mData = (uint8_t *) LockResource(res);
         mSize = SizeofResource(hInst, resInfo);
       }
     }
   }
 
-  cairo_status_t Read(unsigned char *data, unsigned int length)
+  cairo_status_t Read(uint8_t* data, uint32_t length)
   {
     mCount += length;
     if (mCount <= mSize)
@@ -43,25 +41,26 @@ public:
     return CAIRO_STATUS_READ_ERROR;
   }
 
-  static cairo_status_t StaticRead(void *reader, unsigned char *data, unsigned int length)
+  static cairo_status_t StaticRead(void *reader, uint8_t *data, uint32_t length)
   {
-    return ((PNGStreamReader *)reader)->Read(data, length);
+    return ((PNGStreamReader*)reader)->Read(data, length);
   }
   
 private:
-  const unsigned char *mData;
+  const uint8_t* mData;
   size_t mCount;
   size_t mSize;
 };
 
-cairo_surface_t* LoadPNGResource(void *hInst, const WDL_String &path)
+cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 {
-  PNGStreamReader reader((HMODULE)hInst, path);
+  PNGStreamReader reader((HMODULE) hInst, path);
   return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
 }
 #endif //OS_WIN
 
-struct CairoBitmap {
+struct CairoBitmap 
+{
   cairo_surface_t* surface = nullptr;
   int width = 0;
   int height = 0;
@@ -165,7 +164,7 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
     
-  unsigned char* pOutBuffer = new unsigned char[newW * newH * 4];
+  uint8_t* pOutBuffer = new uint8_t[newW * newH * 4];
   
   // Convert output to cairo
   cairo_surface_t* pOutSurface = cairo_image_surface_create_for_data(pOutBuffer, CAIRO_FORMAT_ARGB32, newW, newH, 0);
@@ -216,7 +215,7 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_save(mContext);
   ClipRegion(dest);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
-  cairo_set_source_surface(mContext, surface, dest.L - srcX, dest.T - srcY);
+  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
   cairo_restore(mContext);
@@ -330,9 +329,9 @@ void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, 
   Stroke(color, pBlend);
 }
 
-void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
-  cairo_arc(mContext, cx, cy, r, minAngle, maxAngle);
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax));
   Stroke(color, pBlend);
 }
 
@@ -374,10 +373,10 @@ void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, 
   Fill(color, pBlend);
 }
 
-void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   cairo_move_to(mContext, cx, cy);
-  cairo_arc(mContext, cx, cy, r, minAngle, maxAngle);
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax));
   cairo_close_path(mContext);
   Fill(color, pBlend);
 }
@@ -398,8 +397,8 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   cairo_paint(pOutContext);
   cairo_surface_flush(pOutSurface);
 
-  unsigned char* pData = cairo_image_surface_get_data(pOutSurface);
-  unsigned int px = *((unsigned int*)(pData));
+  uint8_t* pData = cairo_image_surface_get_data(pOutSurface);
+  uint32_t px = *((uint32_t*)(pData));
   
   cairo_surface_destroy(pOutSurface);
   cairo_destroy(pOutContext);
@@ -486,7 +485,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     HDC dc = (HDC) pContext;
     mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
     mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, Scale(), Scale());
+    cairo_surface_set_device_scale(mSurface, GetScale(),GetScale());
 #endif
   }
   
@@ -503,7 +502,7 @@ void IGraphicsCairo::RenderDrawBitmap()
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
   
-  if (Scale() == 1.f)
+  if (GetScale() == 1.f)
     BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
   else
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);

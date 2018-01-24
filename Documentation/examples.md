@@ -6,7 +6,9 @@
 
 The Examples folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects are working. Each folder contains scripts which automate the build process and package everything along with a pdf manual in an installer. The scripts also code sign binaries/installers and set icons where required.
 
-Projects are provided for Visual Studio 2017+ and Xcode *+. You cannot downgrade the VS2017 projects to work with older versions.  
+Visual Studio 2017+ and Xcode 8+, which are both available for free are supported. If you know what you're doing you may be able to get things to compile with other IDEs/versions, you are highly recommended to use the latest versions. No effort is made to make the code compatible with other IDEs, or compilers such as mingw. 
+
+Note: although Visual Studio and Xcode required to build IPlug plug-ins, projects are setup in such a way that you may easily use your favourite text editor and call build scripts, to build the binaries (although then you lack the debugger functionality of the IDE).
 
 ### Requirements:
 

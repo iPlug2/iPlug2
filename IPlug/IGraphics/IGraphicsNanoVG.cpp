@@ -1,8 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "IPlugLogger.h"
-
 #include "NanoVGNanoSVG.h"
 
 #pragma mark -
@@ -117,7 +115,7 @@ void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   NanoVGBitmap* pBmp = (NanoVGBitmap*) bitmap.mData;
-  NVGpaint imgPaint = nvgImagePattern(mVG, dest.L - srcX, dest.T - srcY, bitmap.W, bitmap.H, 0.f, pBmp->idx, NanoVGWeight(pBlend));
+  NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W, bitmap.H, 0.f, pBmp->idx, NanoVGWeight(pBlend));
   nvgBeginPath(mVG);
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
@@ -206,10 +204,10 @@ void IGraphicsNanoVG::DrawConvexPolygon(const IColor& color, float* x, float* y,
   Stroke(color, pBlend);
 }
 
-void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
-  nvgArc(mVG, cx, cy, r, minAngle, maxAngle, NVG_CW);
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);
   Stroke(color, pBlend);
 }
 
@@ -246,11 +244,11 @@ void IGraphicsNanoVG::FillConvexPolygon(const IColor& color, float* x, float* y,
   Fill(color, pBlend);
 }
 
-void IGraphicsNanoVG::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsNanoVG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
   nvgMoveTo(mVG, cx, cy);
-  nvgArc(mVG, cx, cy, r, minAngle, maxAngle, NVG_CW);
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);
   nvgClosePath(mVG);
   Fill(color, pBlend);
 }

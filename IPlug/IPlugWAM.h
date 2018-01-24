@@ -1,7 +1,6 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
-#include "IPlugOSDetect.h"
 #include "IPlugBase.h"
 
 // #include "Processor.h"

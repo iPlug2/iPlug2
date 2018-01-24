@@ -693,7 +693,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pDataSize = sizeof(UInt32);
       if (pData)
       {
-        *((UInt32*) pData) = (mIsBypassed ? 1 : 0);
+        *((UInt32*) pData) = (mBypassed ? 1 : 0);
       }
       return noErr;
     }
@@ -1073,8 +1073,8 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
-      mIsBypassed = (*((UInt32*) pData) != 0);
-      OnActivate(!mIsBypassed);
+      mBypassed = (*((UInt32*) pData) != 0);
+      OnActivate(!mBypassed);
       OnReset();
       return noErr;
     }
@@ -1646,7 +1646,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       _this->SetOutputChannelConnections(nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses
     }
 
-    if (_this->mIsBypassed)
+    if (_this->GetBypassed())
     {
       _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
     }

@@ -3,7 +3,6 @@
 #include <commctrl.h>
 
 #include "IGraphicsWin.h"
-#include "IPlugLogger.h"
 
 #include <wininet.h>
 
@@ -21,8 +20,8 @@ static double sFPS = 0.0;
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
-  info.x = mMouseX = GET_X_LPARAM(lParam) / Scale();
-  info.y = mMouseY = GET_Y_LPARAM(lParam) / Scale();
+  info.x = mMouseX = GET_X_LPARAM(lParam) / GetScale();
+  info.y = mMouseY = GET_Y_LPARAM(lParam) / GetScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON),
 	  (wParam & MK_RBUTTON),
 	  (wParam & MK_SHIFT),
@@ -141,16 +140,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         IRECT dirtyR;
         if (pGraphics->IsDirty(dirtyR))
         {
-          dirtyR.ScaleBounds(pGraphics->Scale());
-          RECT r = { dirtyR.L, dirtyR.T, dirtyR.R, dirtyR.B };
+          dirtyR.ScaleBounds(pGraphics->GetScale());
+          RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
 
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->Scale());
-            RECT r2 = { notDirtyR.L, notDirtyR.T, notDirtyR.R, notDirtyR.B };
+            notDirtyR.ScaleBounds(pGraphics->GetScale());
+            RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
             pGraphics->mParamEditMsg = kUpdate;
@@ -302,7 +301,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (GetUpdateRect(hWnd, &r, FALSE))
       { 
         IRECT ir(r.left, r.top, r.right, r.bottom);
-        ir.ScaleBounds(1. / pGraphics->Scale());
+        ir.ScaleBounds(1. / pGraphics->GetScale());
         pGraphics->Draw(ir);
       }
       return 0;
@@ -496,9 +495,9 @@ void IGraphicsWin::ForceEndUserEdit()
 
 #define SETPOS_FLAGS SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE
 
-void IGraphicsWin::Resize(int w, int h, double scale)
+void IGraphicsWin::Resize(int w, int h, float scale)
 {
-  if (w == Width() && h == Height() && scale == Scale()) return;
+  if (w == Width() && h == Height() && scale == GetScale()) return;
 
   int oldWindowWidth = WindowWidth(), oldWindowHeight = WindowHeight();
   IGraphics::Resize(w, h, scale);
@@ -966,16 +965,13 @@ void IGraphicsWin::PluginPath(WDL_String& path)
 
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
-  #ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
   SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
   path.Set(strPath, MAX_PATH_LEN);
-  #endif
 }
 
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
-#ifndef __MINGW_H // TODO: alternative for gcc?
   TCHAR strPath[MAX_PATH_LEN];
 
   if (isSystem)
@@ -984,7 +980,6 @@ void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
     SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
 
   path.Set(strPath, MAX_PATH_LEN);
-#endif
 }
 
 void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
@@ -1137,12 +1132,10 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   if (rc)
   {
     char drive[_MAX_DRIVE];
-    #ifndef __MINGW_H // TODO: alternative for gcc
     if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
     {
       path.SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
     }
-    #endif
     filename.Set(ofn.lpstrFile);
   }
   else
@@ -1352,3 +1345,20 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 
   return false;
 }
+
+//TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
+#ifndef NO_IGRAPHICS
+#ifdef IGRAPHICS_AGG
+#include "IGraphicsAGG.cpp"
+#include "agg_win_pmap.cpp"
+#include "agg_win_font.cpp"
+#elif defined IGRAPHICS_CAIRO
+#include "IGraphicsCairo.cpp"
+#elif defined IGRAPHICS_NANOVG
+#include "IGraphicsNanoVG.cpp"
+#include "nanovg.c"
+//#include "nanovg_mtl.m"
+#else
+#include "IGraphicsLice.cpp"
+#endif
+#endif

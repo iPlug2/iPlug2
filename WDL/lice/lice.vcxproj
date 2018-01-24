@@ -120,21 +120,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\libpng\png.c" />
-    <ClCompile Include="..\libpng\pngerror.c" />
-    <ClCompile Include="..\libpng\pngget.c" />
-    <ClCompile Include="..\libpng\pngmem.c" />
-    <ClCompile Include="..\libpng\pngpread.c" />
-    <ClCompile Include="..\libpng\pngread.c" />
-    <ClCompile Include="..\libpng\pngrio.c" />
-    <ClCompile Include="..\libpng\pngrtran.c" />
-    <ClCompile Include="..\libpng\pngrutil.c" />
-    <ClCompile Include="..\libpng\pngset.c" />
-    <ClCompile Include="..\libpng\pngtrans.c" />
-    <ClCompile Include="..\libpng\pngwio.c" />
-    <ClCompile Include="..\libpng\pngwrite.c" />
-    <ClCompile Include="..\libpng\pngwtran.c" />
-    <ClCompile Include="..\libpng\pngwutil.c" />
     <ClCompile Include="..\lice\lice.cpp" />
     <ClCompile Include="..\lice\lice_arc.cpp" />
     <ClCompile Include="..\lice\lice_colorspace.cpp" />
@@ -160,13 +145,6 @@
     <ClCompile Include="..\zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libpng\png.h" />
-    <ClInclude Include="..\libpng\pngconf.h" />
-    <ClInclude Include="..\libpng\pngdebug.h" />
-    <ClInclude Include="..\libpng\pnginfo.h" />
-    <ClInclude Include="..\libpng\pnglibconf.h" />
-    <ClInclude Include="..\libpng\pngpriv.h" />
-    <ClInclude Include="..\libpng\pngstruct.h" />
     <ClInclude Include="..\lice\lice_combine.h" />
     <ClInclude Include="..\lice\lice_extended.h" />
     <ClInclude Include="..\lice\lice_text.h" />

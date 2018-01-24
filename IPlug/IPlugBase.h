@@ -6,11 +6,11 @@
 #include "ptrlist.h"
 #include "mutex.h"
 
+#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
-#include "IPlugLogger.h"
 #include "NChanDelay.h"
 
 /**
@@ -134,7 +134,7 @@ public:
    * @todo Please check this and remove this note once done */
   int GetLatency() const { return mLatency; }
   /** @return \c True if the plugin is currently bypassed */
-  bool GetIsBypassed() const { return mIsBypassed; }
+  bool GetBypassed() const { return mBypassed; }
 
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
@@ -143,8 +143,8 @@ public:
   int NOutChannels() const { return mOutChannels.GetSize(); }
   bool IsInChannelConnected(int chIdx) const;
   bool IsOutChannelConnected(int chIdx) const;
-  int GetNumInputsConnected() const;
-  int GetNumOutputsConnected() const;
+  int NInChansConnected() const;
+  int NOutChansConnected() const;
 
   virtual bool IsRenderingOffline() { return false; };
   virtual int GetSamplePos() = 0;   // Samples since start of project.
@@ -316,6 +316,8 @@ public:
   void SetSampleRate(double sampleRate);
   virtual void SetBlockSize(int blockSize); // overridden in IPlugAU
 
+  virtual void PrintDebugInfo();
+  
 private:
   /** Effect name @todo WAT? */
   WDL_String mEffectName;
@@ -364,12 +366,12 @@ protected:
   /** @todo Someone check this please */
   int mLatency;
   /** \c True if the plug-in is bypassed */
-  bool mIsBypassed = false;
+  bool mBypassed = false;
   bool mHasUI = false;
   int mCurrentPresetIdx = 0;
   double mSampleRate  = DEFAULT_SAMPLE_RATE;
   int mBlockSize = 0;
-  unsigned int mTailSize = 0;
+  int mTailSize = 0;
   NChanDelayLine<double>* mLatencyDelay = nullptr;
   WDL_PtrList<const char> mParamGroups;
   WDL_PtrList<IParam> mParams;

@@ -7,17 +7,8 @@
  */
 
 
-#include "IPlugOSDetect.h"
-
-//TODO: Shouldn't have to do this here, but couldn't make it work in IPlug_include_in_plug_hdr.h
-#ifdef NO_IGRAPHICS
-#include "IPlugBase.h"
-typedef IPlugBase IPLUG_BASE_CLASS;
-#else
-#include "IPlugBaseGraphics.h"
-typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
-#endif
-
+#include "IPlugPlatform.h"
+#include "IPlugBase_select.h"
 
 #include "RtMidi.h"
 

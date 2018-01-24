@@ -1,4 +1,4 @@
-#include "AAX_CIPlugParameters.h"
+#include "IPlugAAX_Parameters.h"
 
 AAX_Result AAX_CIPlugParameters::ResetFieldData (AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const  //override from CEffectParameters.
 {   

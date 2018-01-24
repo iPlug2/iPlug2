@@ -1,5 +1,5 @@
 @echo off
-REM - CALL "$(ProjectDir)\scripts\postbuild.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)"
+REM - CALL "$(SolutionDir)\scripts\postbuild.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)"
 set FORMAT=%1
 set NAME=%2
 set PLATFORM=%3
@@ -41,11 +41,11 @@ if %PLATFORM% == "Win32" (
     echo copying 32bit binary to 32bit VST3 Plugins folder ... 
     copy /y %BUILT_BINARY% %VST3_32_PATH%
   )
-  if %FORMAT% == ".aaxplugin" (
-    echo copying 32bit binary to 32bit AAX Plugins folder ... 
-    echo %AAX_BUNDLE% %AAX_32_PATH%
-    xcopy /E /H /Y %AAX_BUNDLE%\* %AAX_32_PATH%\%NAME%.aaxplugin\
-  )
+REM -  if %FORMAT% == ".aaxplugin" (
+REM -    echo copying 32bit binary to 32bit AAX Plugins folder ... 
+REM -    echo %AAX_BUNDLE% %AAX_32_PATH%
+REM -    xcopy /E /H /Y %AAX_BUNDLE%\* %AAX_32_PATH%\%NAME%.aaxplugin\
+REM -  )
 )
 
 if %PLATFORM% == "x64" (

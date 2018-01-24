@@ -8,13 +8,6 @@
  */
 
 #include <vector>
-#ifdef NO_IGRAPHICS
-#include "IPlugBase.h"
-typedef IPlugBase IPLUG_BASE_CLASS;
-#else
-#include "IPlugBaseGraphics.h"
-typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
-#endif
 
 #undef stricmp
 #undef strnicmp
@@ -22,7 +15,8 @@ typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
-//#include "IMidiQueue.h"
+
+#include "IPlugBase_select.h"
 
 struct IPlugInstanceInfo
 {

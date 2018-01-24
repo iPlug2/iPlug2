@@ -12,8 +12,7 @@
 
 #include "nanosvg.h"
 
-#include "IPlugOSDetect.h"
-#include "IPlugLogger.h"
+#include "IPlugPlatform.h"
 
 class LICE_IFont;
 
@@ -68,11 +67,11 @@ struct IBitmap
   /**
    * @return Width of a single frame
   */
-  inline int frameWidth() const { return (mFramesAreHorizontal ? W / N : W); }
+  inline int FW() const { return (mFramesAreHorizontal ? W / N : W); }
   /**
    * @return Height of a single frame
    */
-  inline int frameHeight() const { return (mFramesAreHorizontal ? H : H / N); }
+  inline int FH() const { return (mFramesAreHorizontal ? H : H / N); }
 };
 
 struct ISVG
@@ -112,7 +111,7 @@ struct IColor
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
-  IColor addContrast(double c)
+  IColor AddContrast(double c)
   {
     const int mod = int(c * 255.);
     IColor n = *this;
@@ -157,6 +156,11 @@ struct IBlend
   */
   IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
+
+const IBlend BLEND_75 = IBlend(IBlend::kBlendNone, 0.75f);
+const IBlend BLEND_50 = IBlend(IBlend::kBlendNone, 0.5f);
+const IBlend BLEND_25 = IBlend(IBlend::kBlendNone, 0.25f);
+const IBlend BLEND_10 = IBlend(IBlend::kBlendNone, 0.1f);
 
 const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
@@ -222,8 +226,8 @@ struct IRECT
   {
     L = x;
     T = y;
-    R = L + (float) bitmap.frameWidth();
-    B = T + (float) bitmap.frameHeight();
+    R = L + (float) bitmap.FW();
+    B = T + (float) bitmap.FH();
   }
 
   bool Empty() const
@@ -251,30 +255,29 @@ struct IRECT
   inline float MW() const { return 0.5f * (L + R); }
   inline float MH() const { return 0.5f * (T + B); }
 
-  inline IRECT Union(const IRECT& pRHS)
+  inline IRECT Union(const IRECT& rhs)
   {
-    if (Empty()) { return pRHS; }
-    if (pRHS.Empty()) { return *this; }
-    return IRECT(std::min(L, pRHS.L), std::min(T, pRHS.T), std::max(R, pRHS.R), std::max(B, pRHS.B));
+    if (Empty()) { return rhs; }
+    if (rhs.Empty()) { return *this; }
+    return IRECT(std::min(L, rhs.L), std::min(T, rhs.T), std::max(R, rhs.R), std::max(B, rhs.B));
   }
 
-  inline IRECT Intersect(const IRECT& pRHS) const
+  inline IRECT Intersect(const IRECT& rhs) const
   {
-    if (Intersects(pRHS))
-    {
-      return IRECT(std::max(L, pRHS.L), std::max(T, pRHS.T), std::min(R, pRHS.R), std::min(B, pRHS.B));
-    }
+    if (Intersects(rhs))
+      return IRECT(std::max(L, rhs.L), std::max(T, rhs.T), std::min(R, rhs.R), std::min(B, rhs.B));
+    
     return IRECT();
   }
 
-  inline bool Intersects(const IRECT& pRHS) const
+  inline bool Intersects(const IRECT& rhs) const
   {
-    return (!Empty() && !pRHS.Empty() && R >= pRHS.L && L < pRHS.R && B >= pRHS.T && T < pRHS.B);
+    return (!Empty() && !rhs.Empty() && R >= rhs.L && L < rhs.R && B >= rhs.T && T < rhs.B);
   }
 
-  inline bool Contains(const IRECT& pRHS) const
+  inline bool Contains(const IRECT& rhs) const
   {
-    return (!Empty() && !pRHS.Empty() && pRHS.L >= L && pRHS.R <= R && pRHS.T >= T && pRHS.B <= B);
+    return (!Empty() && !rhs.Empty() && rhs.L >= L && rhs.R <= R && rhs.T >= T && rhs.B <= B);
   }
 
   inline bool Contains(float x, float y) const
@@ -282,25 +285,13 @@ struct IRECT
     return (!Empty() && x >= L && x < R && y >= T && y < B);
   }
 
-  inline void Constrain(double* x, double* y)
+  inline void Constrain(float& x, float& y)
   {
-    if (*x < L)
-    {
-      *x = L;
-    }
-    else if (*x > R)
-    {
-      *x = R;
-    }
+    if (x < L) x = L;
+    else if (x > R) x = R;
 
-    if (*y < T)
-    {
-      *y = T;
-    }
-    else if (*y > B)
-    {
-      *y = B;
-    }
+    if (y < T) y = T;
+    else if (y > B) y = B;
   }
 
   inline IRECT SubRectVertical(int numSlices, int sliceIdx)
@@ -339,27 +330,27 @@ struct IRECT
     return IRECT(L, T-padding, R, B+padding);
   }
   
-  void Clank(const IRECT& pRHS)
+  void Clank(const IRECT& rhs)
   {
-    if (L < pRHS.L)
+    if (L < rhs.L)
     {
-      R = std::min(pRHS.R - 1, R + pRHS.L - L);
-      L = pRHS.L;
+      R = std::min(rhs.R - 1, R + rhs.L - L);
+      L = rhs.L;
     }
-    if (T < pRHS.T)
+    if (T < rhs.T)
     {
-      B = std::min(pRHS.B - 1, B + pRHS.T - T);
-      T = pRHS.T;
+      B = std::min(rhs.B - 1, B + rhs.T - T);
+      T = rhs.T;
     }
-    if (R >= pRHS.R)
+    if (R >= rhs.R)
     {
-      L = std::max(pRHS.L, L - (R - pRHS.R + 1));
-      R = pRHS.R - 1;
+      L = std::max(rhs.L, L - (R - rhs.R + 1));
+      R = rhs.R - 1;
     }
-    if (B >= pRHS.B)
+    if (B >= rhs.B)
     {
-      T = std::max(pRHS.T, T - (B - pRHS.B + 1));
-      B = pRHS.B - 1;
+      T = std::max(rhs.T, T - (B - rhs.B + 1));
+      B = rhs.B - 1;
     }
   }
   

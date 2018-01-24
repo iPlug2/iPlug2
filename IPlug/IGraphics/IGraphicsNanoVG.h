@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 
 #include "nanovg.h"
 #ifdef OS_OSX
@@ -78,7 +78,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
@@ -87,7 +87,7 @@ public:
   void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;

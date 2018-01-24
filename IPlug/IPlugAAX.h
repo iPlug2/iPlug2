@@ -7,17 +7,9 @@
  */
 
 
-#include "IPlugOSDetect.h"
-
-#ifdef NO_IGRAPHICS
-#include "IPlugBase.h"
-typedef IPlugBase IPLUG_BASE_CLASS;
-#else
-#include "IPlugBaseGraphics.h"
-typedef IPlugBaseGraphics IPLUG_BASE_CLASS;
-#endif
-
-#include "AAX_CIPlugParameters.h"
+#include "IPlugPlatform.h"
+#include "IPlugBase_select.h"
+#include "IPlugAAX_Parameters.h"
 #include "AAX_CEffectGUI.h"
 
 #include "AAX_Push8ByteStructAlignment.h"
@@ -82,7 +74,7 @@ public:
       
   int GetSamplePos();
   double GetTempo();
-  void GetTimeSig(int& numerator, int& nominator);
+  void GetTimeSig(int& numerator, int& denominator);
   void GetTime(ITimeInfo& timeInfo);
 
   void ResizeGraphics(int w, int h, double scale);

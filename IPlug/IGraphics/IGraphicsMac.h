@@ -32,7 +32,7 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void Resize(int w, int h, double scale) override;
+  void Resize(int w, int h, float scale) override;
 
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   

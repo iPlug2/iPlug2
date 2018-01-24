@@ -187,37 +187,35 @@ protected:
 };
 
 /** A knob that is just a line. */
-class IKnobLineControl : public IKnobControl
+class IVKnobControl : public IKnobControl
 {
 public:
-  IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius = 10, double outerRadius = 20.,
-                   double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI,
-                   EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
-  ~IKnobLineControl() {}
+  IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f, EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
+  ~IVKnobControl() {}
   
   void Draw(IGraphics& graphics) override;
   
 protected:
   IColor mColor;
-  float mMinAngle, mMaxAngle, mInnerRadius, mOuterRadius;
+  float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
 };
 
-/** A rotating knob.  The bitmap rotates with any mouse drag. */
-class IKnobRotaterControl : public IKnobControl
-{
-public:
-  IKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
-  , mBitmap(bitmap), mMinAngle(minAngle), mMaxAngle(maxAngle), mYOffset(yOffsetZeroDeg) {}
-  ~IKnobRotaterControl() {}
-  
-  void Draw(IGraphics& graphics) override;
-  
-protected:
-  IBitmap mBitmap;
-  double mMinAngle, mMaxAngle;
-  int mYOffset;
-};
+///** A rotating knob.  The bitmap rotates with any mouse drag. */
+//class IKnobRotaterControl : public IKnobControl
+//{
+//public:
+//  IKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, double aMin = -0.75 * PI, double aMax = 0.75 * PI, int yOffsetZeroDeg = 0, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+//  : IKnobControl(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
+//  , mBitmap(bitmap), mAngleMin(aMin), mAngleMax(aMax), mYOffset(yOffsetZeroDeg) {}
+//  ~IKnobRotaterControl() {}
+//
+//  void Draw(IGraphics& graphics) override;
+//
+//protected:
+//  IBitmap mBitmap;
+//  double mAngleMin, mAngleMax;
+//  int mYOffset;
+//};
 
 /** A multibitmap knob.  The bitmap cycles through states as the mouse drags. */
 class IKnobMultiControl : public IKnobControl
@@ -237,20 +235,20 @@ protected:
 /** A knob that consists of a static base, a rotating mask, and a rotating top.
  *  The bitmaps are assumed to be symmetrical and identical sizes.
 */
-class IKnobRotatingMaskControl : public IKnobControl
-{
-public:
-  IKnobRotatingMaskControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& base, IBitmap& mask, IBitmap& top, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControl(plug, IRECT(x, y, base), paramIdx, direction, gearing),
-  mBase(base), mMask(mask), mTop(top), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
-  ~IKnobRotatingMaskControl() {}
-  
-  void Draw(IGraphics& graphics) override;
-  
-protected:
-  IBitmap mBase, mMask, mTop;
-  double mMinAngle, mMaxAngle;
-};
+//class IKnobRotatingMaskControl : public IKnobControl
+//{
+//public:
+//  IKnobRotatingMaskControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& base, IBitmap& mask, IBitmap& top, double minAngle = -0.75 * PI, double maxAngle = 0.75 * PI, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+//  : IKnobControl(plug, IRECT(x, y, base), paramIdx, direction, gearing),
+//  mBase(base), mMask(mask), mTop(top), mMinAngle(minAngle), mMaxAngle(maxAngle) {}
+//  ~IKnobRotatingMaskControl() {}
+//  
+//  void Draw(IGraphics& graphics) override;
+//
+//protected:
+//  IBitmap mBase, mMask, mTop;
+//  double mMinAngle, mMaxAngle;
+//};
 
 /** Bitmap shows when value = 0, then toggles its target area to the whole bitmap and waits for another click to hide itself. */
 class IBitmapOverlayControl : public ISwitchControl
@@ -401,8 +399,8 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-    const double xpos = GetAuxParam(0)->mValue * mRECT.W();
-    const double ypos = GetAuxParam(1)->mValue * mRECT.H();
+    const float xpos = GetAuxParam(0)->mValue * mRECT.W();
+    const float ypos = GetAuxParam(1)->mValue * mRECT.H();
     
     graphics.DrawLine(mCurrentHandleColor, xpos+mRECT.L, mRECT.T, xpos+mRECT.L, mRECT.B, 0);
     graphics.DrawLine(mCurrentHandleColor, mRECT.L, ypos+mRECT.T, mRECT.R, ypos+mRECT.T, 0);

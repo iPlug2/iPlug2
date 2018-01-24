@@ -283,7 +283,7 @@ bool IPlugBase::IsOutChannelConnected(int chIdx) const
   return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected);
 }
 
-int IPlugBase::GetNumInputsConnected() const
+int IPlugBase::NInChansConnected() const
 {
   int count = 0;
   
@@ -294,7 +294,7 @@ int IPlugBase::GetNumInputsConnected() const
   return count;
 }
 
-int IPlugBase::GetNumOutputsConnected() const
+int IPlugBase::NOutChansConnected() const
 {
   int count = 0;
   
@@ -759,7 +759,7 @@ int IPlugBase::UnserializePresets(IByteChunk& chunk, int startPos)
   for (int i = 0; i < n && pos >= 0; ++i)
   {
     IPreset* pPreset = mPresets.Get(i);
-    pos = chunk.GetStr(&name, pos);
+    pos = chunk.GetStr(name, pos);
     strcpy(pPreset->mName, name.Get());
 
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
@@ -1399,4 +1399,11 @@ bool IPlugBase::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
     rc &= SendMidiMsg(*pMsg);
   }
   return rc;
+}
+
+void IPlugBase::PrintDebugInfo()
+{
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  DBGMSG("%s\n NO_IGRAPHICS\n", buildInfo.Get());
 }

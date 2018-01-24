@@ -76,7 +76,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   TRACE; 
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
   GetParam(kGain)->SetShape(2.);
 
   //create user interface
@@ -92,7 +92,9 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   printf("%s", buildInfo.Get());
 
   AttachGraphics(pGraphics);
-  
+//  pGraphics->EnableLiveEdit(true);
+  PrintDebugInfo();
+
   //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }

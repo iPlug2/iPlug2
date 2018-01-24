@@ -1,185 +1,207 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Libs">
-      <UniqueIdentifier>{57d1624e-a679-47da-bd3e-9609f02fdd7b}</UniqueIdentifier>
+    <ClCompile Include="..\IPlugEffect.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG_src.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsLice.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugAAX.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\IPlugEffect.h" />
+    <ClInclude Include="..\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IAutoGUI.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsConstants.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsStructs.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLice.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\NChanDelay.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugAAX.h">
+      <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_TaperDelegate.h">
+      <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h">
+      <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="resources">
+      <UniqueIdentifier>{a579504a-f161-47bd-bd30-7f18317f0e93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics">
+      <UniqueIdentifier>{9cd3663b-c350-48a3-9b49-df75c3d48225}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\PlatformClasses">
+      <UniqueIdentifier>{b42fdab9-955d-4eaa-a49a-5364ce463b6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\DrawClasses">
+      <UniqueIdentifier>{8a1be953-11bb-495d-84f0-46e5555e22f0}</UniqueIdentifier>
     </Filter>
     <Filter Include="IPlug">
-      <UniqueIdentifier>{8dc7a8e3-4de6-4250-8ae0-dc34e3372af4}</UniqueIdentifier>
+      <UniqueIdentifier>{047ecfad-1a55-49a2-8621-1a4ad2905606}</UniqueIdentifier>
     </Filter>
     <Filter Include="IPlug\AAX">
-      <UniqueIdentifier>{7bfe5fd1-6d75-47df-a571-1e58e26b8784}</UniqueIdentifier>
+      <UniqueIdentifier>{1fc481f5-85f5-43e6-924f-2be0689a4710}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IPlug\IGraphics">
-      <UniqueIdentifier>{b92e7f5b-af76-4502-aa68-79036d1476bc}</UniqueIdentifier>
+    <Filter Include="IPlug\AAX\Libs">
+      <UniqueIdentifier>{7d636beb-b5d6-4b75-b2a5-27b00d8f37d2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IPlugEffect.cpp" />
-    <ClCompile Include="..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
-      <Filter>Libs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\Hosts.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IParam.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IPlugAAX.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IPlugBase.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IPlugStructs.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\Log.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\AAX\AAX_CIPlugParameters.cpp">
-      <Filter>IPlug\AAX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\AAX\IPlugAAX_Describe.cpp">
-      <Filter>IPlug\AAX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IControl.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IControls.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IGraphics.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsLice.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IGraphicsWin.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\IPlug\IGraphics\IPopupMenu.cpp">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClCompile>
+    <ResourceCompile Include="..\resources\IPlugEffect.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IPlugEffect.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="..\..\IPlug\Hosts.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IMidiQueue.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IParam.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_hdr.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlug_include_in_plug_src.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugAAX.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugBase.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugByteChunk.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugConstants.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugOSDetect.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugStructs.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IPlugUtilities.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\Log.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\NChanDelay.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugParameters.h">
-      <Filter>IPlug\AAX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\AAX\AAX_CIPlugTaperDelegate.h">
-      <Filter>IPlug\AAX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\AAX\IPlugAAX_view_interface.h">
-      <Filter>IPlug\AAX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IAutoGUI.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IControl.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IControls.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphics.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsConstants.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsLice.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsStructs.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsUtilites.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsView.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IGraphicsWin.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IKeyboardControl.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IPlugBaseGraphics.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPlug\IGraphics\IPopupMenu.h">
-      <Filter>IPlug\IGraphics</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="IPlugEffect.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
-      <Filter>Libs</Filter>
-    </Library>
-    <Library Include="..\..\AAX_SDK\Libs\Release\AAXLibrary.lib">
-      <Filter>Libs</Filter>
-    </Library>
-    <Library Include="..\..\AAX_SDK\Libs\Debug\AAXLibrary_D.lib">
-      <Filter>Libs</Filter>
-    </Library>
-    <Library Include="..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
-      <Filter>Libs</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\IPlug\IPlug_Prefix.pch">
-      <Filter>IPlug</Filter>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
+      <Filter>IGraphics\PlatformClasses</Filter>
     </None>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.mm">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.mm">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
+      <Filter>IPlug\AAX\Libs</Filter>
+    </Library>
+    <Library Include="..\..\..\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
+      <Filter>IPlug\AAX\Libs</Filter>
+    </Library>
   </ItemGroup>
 </Project>

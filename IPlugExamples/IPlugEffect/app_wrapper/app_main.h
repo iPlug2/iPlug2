@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 
 /*
 
@@ -128,7 +128,7 @@ extern AppState* gActiveState; // When the audio driver is started the current s
 extern uint32_t gSigVS;
 extern uint32_t gBufIndex; // index for signal vector, loops from 0 to gSigVS
 
-extern char gINIPath[1024];
+extern char gINIPath[MAX_PATH];
 extern void UpdateINI();
 
 extern std::vector<uint32_t> gAudioInputDevs;

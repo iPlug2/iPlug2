@@ -8,7 +8,7 @@
 */
 
 #include <cstdio>
-#include "IPlugOSDetect.h"
+#include "IPlugPlatform.h"
 #include "config.h" // This is your plugin's config.h
 
 #ifdef VST_API
