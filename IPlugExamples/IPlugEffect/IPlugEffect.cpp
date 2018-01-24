@@ -3,31 +3,71 @@
 #include "IControls.h"
 #include "config.h"
 
-class MyControl : public IControl
+class IArcControl : public IKnobControl
 {
-private:
-  double mPhase = 0.;
 public:
-  MyControl(IPlugBaseGraphics& plug, IRECT rect)
-  : IControl(plug, rect)
+  IArcControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f) : IKnobControl(plug, rect, paramIdx), mAngle1(angle1), mAngle2(angle2)
   {
+    
   }
   
-  void Draw(IGraphics& g) override
+  void Draw(IGraphics& graphics)
   {
-    //g.DrawRect(COLOR_BLUE, mRECT.GetPadded(-50));
-    g.FillRect(COLOR_BLUE, mRECT.GetScaled(mPhase));
-    //g.FillRect(COLOR_GREEN, mRECT.GetScaled(1.-mPhase));
+    graphics.FillRect(COLOR_GRAY, mRECT.GetPadded(-2));
+    graphics.DrawRect(COLOR_BLACK, mRECT.GetPadded(-2));
+    double angle = mAngle1 + mValue * (mAngle2 - mAngle1);
+    graphics.FillArc(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44, mAngle1, angle);
+    graphics.DrawArc(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44, mAngle1, angle);
+    graphics.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), angle, 0., mRECT.W() * 0.49);
+    graphics.FillCircle(COLOR_WHITE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1);
+    graphics.DrawCircle(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1);
+    
+    angle = DegToRad(angle);
+    
+    float x1 = mRECT.MW() + cos(angle - 0.3) * mRECT.W() * 0.3;
+    float y1 = mRECT.MH() + sin(angle - 0.3) * mRECT.W() * 0.3;
+    float x2 = mRECT.MW() + cos(angle + 0.3) * mRECT.W() * 0.3;
+    float y2 = mRECT.MH() + sin(angle + 0.3) * mRECT.W() * 0.3;
+    float x3 = mRECT.MW() + cos(angle) * mRECT.W() * 0.44;
+    float y3 = mRECT.MH() + sin(angle) * mRECT.W() * 0.44;
+    
+    graphics.FillTriangle(COLOR_WHITE, x1, y1, x2, y2, x3, y3);
+    graphics.DrawTriangle(COLOR_BLACK, x1, y1, x2, y2, x3, y3);
+  }
+
+  double mAngle1;
+  double mAngle2;
+};
+
+class IPolyControl : public IKnobControl
+{
+public:
+  IPolyControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx) : IKnobControl(plug, rect, paramIdx)
+  {
+    
   }
   
-  bool IsDirty() override
+  void Draw(IGraphics& graphics)
   {
-    mPhase += 0.01;
+    float xarray[32];
+    float yarray[32];
+    int npoints = 3 + round(mValue * 29);
+    double angle = (-0.75 * PI) + mValue * (1.5 * PI);
+    double incr = (2 * PI) / npoints;
+    double cr = mValue * (mRECT.W() / 2.0);
     
-    if (mPhase > 1.)
-      mPhase-=1.;
+    graphics.FillRoundRect(COLOR_GRAY, mRECT.GetPadded(-2), cr);
+    graphics.DrawRoundRect(COLOR_BLACK, mRECT.GetPadded(-2), cr);
     
-    return true;
+    for (int i = 0; i < npoints; i++)
+    {
+      xarray[i] = mRECT.MW() + sin(angle + i * incr) * mRECT.W() * 0.45;
+      yarray[i] = mRECT.MH() + cos(angle + i * incr) * mRECT.W() * 0.45;
+    }
+    
+    graphics.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
+    graphics.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
+    
   }
 };
 
@@ -45,8 +85,13 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  //pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
-  pGraphics->AttachControl(new IVKnobControl(*this, IRECT(kGainX, kGainY, kGainX + 100, kGainY + 100), kGain, COLOR_BLACK));
+  pGraphics->AttachControl(new IArcControl(*this, IRECT(30, 100, 130, 200), kGain));
+  pGraphics->AttachControl(new IPolyControl(*this, IRECT(150, 100, 250, 200), -1));
+//  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), DEFAULT_TEXT, GetBuildInfoStr()));
+
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  printf("%s", buildInfo.Get());
 
   AttachGraphics(pGraphics);
 //  pGraphics->EnableLiveEdit(true);
