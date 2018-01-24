@@ -6,7 +6,7 @@
 class IArcControl : public IKnobControl
 {
 public:
-  IArcControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, float angle1 = -PI * 0.75, float angle2 = PI * 0.75) : IKnobControl(plug, rect, paramIdx), mAngle1(angle1), mAngle2(angle2)
+  IArcControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f) : IKnobControl(plug, rect, paramIdx), mAngle1(angle1), mAngle2(angle2)
   {
     
   }
@@ -18,9 +18,11 @@ public:
     double angle = mAngle1 + mValue * (mAngle2 - mAngle1);
     graphics.FillArc(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44, mAngle1, angle);
     graphics.DrawArc(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44, mAngle1, angle);
-    graphics.DrawLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.MW() + cos(angle) * mRECT.W() * 0.49, mRECT.MH() + sin(angle)* mRECT.W() * 0.49);
+    graphics.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), angle, 0., mRECT.W() * 0.49);
     graphics.FillCircle(COLOR_WHITE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1);
     graphics.DrawCircle(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1);
+    
+    angle = DegToRad(angle);
     
     float x1 = mRECT.MW() + cos(angle - 0.3) * mRECT.W() * 0.3;
     float y1 = mRECT.MH() + sin(angle - 0.3) * mRECT.W() * 0.3;
