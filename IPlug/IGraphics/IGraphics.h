@@ -180,8 +180,8 @@ public:
    @param cx centre point x coordinate
    @param cy centre point y coordinate
    @param angle the angle to draw at in degrees clockwise where 0 is up /see IGraphicsDrawing documentation
-   @param rMin minima of the radial line
-   @param rMax maxima of the radial line
+   @param rMin minima of the radial line (distance from cx,cy)
+   @param rMax maxima of the radial line (distance from cx,cy)
    @param pBlend blend operation
    */
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
