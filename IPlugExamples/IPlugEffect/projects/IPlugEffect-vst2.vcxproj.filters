@@ -17,9 +17,6 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
       <Filter>IGraphics\PlatformClasses</Filter>
     </ClCompile>
@@ -43,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugVST.cpp">
       <Filter>IPlug\VST2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
+      <Filter>IPlug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -105,9 +105,6 @@
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
@@ -146,6 +143,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugVST.h">
       <Filter>IPlug\VST2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

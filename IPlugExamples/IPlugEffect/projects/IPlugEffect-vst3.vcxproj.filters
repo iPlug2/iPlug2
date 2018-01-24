@@ -17,9 +17,6 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
       <Filter>IGraphics\PlatformClasses</Filter>
     </ClCompile>
@@ -137,6 +134,9 @@
     <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp">
       <Filter>IPlug\VST3\public.sdk\main</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -196,9 +196,6 @@
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
@@ -461,6 +458,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.h">
       <Filter>IPlug\VST3\public.sdk\main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -305,8 +305,15 @@ void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, flo
   agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
   path.concat_path(arc);
   path.line_to(cx * s, cy * s);
-  path.close_polygon();
-  Fill(color, path);
+  if (path.total_vertices() > 2)
+  {
+    path.close_polygon();
+    Fill(color, path);
+  }
+  else
+  {
+    Stroke(color, path);
+  }
 }
 
 void IGraphicsAGG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)

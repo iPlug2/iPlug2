@@ -473,9 +473,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAAX.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\IPlugEffect.cpp" />
   </ItemGroup>
@@ -583,10 +583,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAAX.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
