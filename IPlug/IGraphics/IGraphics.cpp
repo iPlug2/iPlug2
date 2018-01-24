@@ -813,7 +813,10 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
     }
     else
     {
-      allow = !pControl->IsGrayed();
+      if (pControl->GetMEWhenGrayed())
+        allow = true;
+      else
+        allow = !pControl->IsGrayed();
     }
 
     if (!pControl->IsHidden() && allow && pControl->IsHit(x, y))
