@@ -1,12 +1,11 @@
-// disable unknown pragmas warning MSVC
-#pragma warning (disable : 4068 )
-
-#include "IPlugVST3.h"
 #include <cstdio>
+
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/base/ibstream.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstevents.h"
+
+#include "IPlugVST3.h"
 
 using namespace Steinberg;
 using namespace Vst;
@@ -27,7 +26,7 @@ public:
     else
       info.stepCount = 0; // continuous
     
-    int32 flags = 0;
+    int32_t flags = 0;
 
     if (pParam->GetCanAutomate())
     {
@@ -240,7 +239,7 @@ tresult PLUGIN_API IPlugVST3::terminate ()
   return SingleComponentEffect::terminate();
 }
 
-tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
+tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32_t numIns, SpeakerArrangement* outputs, int32_t numOuts)
 {
   TRACE;
 
@@ -248,8 +247,8 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   SetInputChannelConnections(0, NInChannels(), false);
   SetOutputChannelConnections(0, NOutChannels(), false);
 
-  int32 reqNumInputChannels = SpeakerArr::getChannelCount(inputs[0]);  //requested # input channels
-  int32 reqNumOutputChannels = SpeakerArr::getChannelCount(outputs[0]);//requested # output channels
+  int32_t reqNumInputChannels = SpeakerArr::getChannelCount(inputs[0]);  //requested # input channels
+  int32_t reqNumOutputChannels = SpeakerArr::getChannelCount(outputs[0]);//requested # output channels
 
   // legal io doesn't consider sidechain inputs
   if (!LegalIO(reqNumInputChannels, reqNumOutputChannels))
@@ -283,7 +282,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
 
   if (mScChans && numIns == 2) // numIns = num Input BUSes
   {
-    int32 reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
+    int32_t reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
 
     bus = FCast<AudioBus>(audioInputs.at(1));
 
@@ -335,18 +334,18 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   IParameterChanges* paramChanges = data.inputParameterChanges;
   if (paramChanges)
   {
-    int32 numParamsChanged = paramChanges->getParameterCount();
+    int32_t numParamsChanged = paramChanges->getParameterCount();
 
     //it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
     //for now we just grab the last one
 
-    for (int32 i = 0; i < numParamsChanged; i++)
+    for (int32_t i = 0; i < numParamsChanged; i++)
     {
       IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
       if (paramQueue)
       {
-        int32 numPoints = paramQueue->getPointCount();
-        int32 offsetSamples;
+        int32_t numPoints = paramQueue->getPointCount();
+        int32_t offsetSamples;
         double value;
 
         if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
@@ -394,8 +393,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     IEventList* eventList = data.inputEvents;
     if (eventList)
     {
-      int32 numEvent = eventList->getEventCount();
-      for (int32 i=0; i<numEvent; i++)
+      int32_t numEvent = eventList->getEventCount();
+      for (int32_t i=0; i<numEvent; i++)
       {
         Event event;
         if (eventList->getEvent(i, event) == kResultOk)
@@ -544,7 +543,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
 //TODO: VST3 State needs work
 
-tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
+tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32_t symbolicSampleSize)
 {
   tresult retval = kResultFalse;
 
@@ -562,7 +561,7 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
   return retval;
 }
 
-Steinberg::uint32 PLUGIN_API IPlugVST3::getLatencySamples () 
+uint32_t PLUGIN_API IPlugVST3::getLatencySamples ()
 { 
   return mLatency;
 } 
@@ -596,9 +595,9 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
     state->read(chunk.GetBytes(), chunk.Size());
     UnserializeState(chunk, 0);
     
-    int32 savedBypass = 0;
+    int32_t savedBypass = 0;
     
-    if (state->read (&savedBypass, sizeof (int32)) != kResultOk)
+    if (state->read (&savedBypass, sizeof (int32_t)) != kResultOk)
     {
       return kResultFalse;
     }
@@ -631,8 +630,8 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
     return kResultFalse;
   }  
   
-  int32 toSaveBypass = mBypassed ? 1 : 0;
-  state->write(&toSaveBypass, sizeof (int32));  
+  int32_t toSaveBypass = mBypassed ? 1 : 0;
+  state->write(&toSaveBypass, sizeof (int32_t));
 
   return kResultOk;
 }
@@ -738,20 +737,20 @@ tresult IPlugVST3::endEdit(ParamID tag)
   return kResultFalse;
 }
 
-AudioBus* IPlugVST3::getAudioInput (int32 index)
+AudioBus* IPlugVST3::getAudioInput (int32_t index)
 {
   AudioBus* bus = FCast<AudioBus> (audioInputs.at(index));
   return bus;
 }
 
-AudioBus* IPlugVST3::getAudioOutput (int32 index)
+AudioBus* IPlugVST3::getAudioOutput (int32_t index)
 {
   AudioBus* bus = FCast<AudioBus> (audioOutputs.at(index));
   return bus;
 }
 
 // TODO: more speaker arrs
-SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
+SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32_t chans)
 {
   switch (chans)
   {
@@ -776,14 +775,14 @@ SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32 chans)
 #pragma mark -
 #pragma mark IUnitInfo overrides
 
-int32 PLUGIN_API IPlugVST3::getUnitCount()
+int32_t PLUGIN_API IPlugVST3::getUnitCount()
 {
   TRACE;
   
   return mParamGroups.GetSize() + 1;
 }
 
-tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
+tresult PLUGIN_API IPlugVST3::getUnitInfo(int32_t unitIndex, UnitInfo& info)
 {
   TRACE;
   
@@ -815,7 +814,7 @@ tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
   return kResultFalse;
 }
 
-int32 PLUGIN_API IPlugVST3::getProgramListCount()
+int32_t PLUGIN_API IPlugVST3::getProgramListCount()
 {
 #ifdef VST3_PRESET_LIST
   return (NPresets() > 0);
@@ -824,12 +823,12 @@ int32 PLUGIN_API IPlugVST3::getProgramListCount()
 #endif
 }
 
-tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/)
+tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32_t listIndex, ProgramListInfo& info /*out*/)
 {
   if (listIndex == 0)
   {
     info.id = kPresetParam;
-    info.programCount = (int32) NPresets();
+    info.programCount = (int32_t) NPresets();
     UString name(info.name, 128);
     name.fromAscii("Factory Presets");
     return kResultTrue;
@@ -837,7 +836,7 @@ tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32 listIndex, ProgramListInf
   return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
+tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32_t programIndex, String128 name /*out*/)
 {
   if (listId == kPresetParam)
   {
