@@ -74,7 +74,7 @@ public:
       
   int GetSamplePos();
   double GetTempo();
-  void GetTimeSig(int& numerator, int& nominator);
+  void GetTimeSig(int& numerator, int& denominator);
   void GetTime(ITimeInfo& timeInfo);
 
   void ResizeGraphics(int w, int h, double scale);
