@@ -40,36 +40,12 @@ protected:
 class IButtonControlBase : public IControl
 {
 public:
-  IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter,  std::function<void(IGraphics*)> actionFunc = nullptr,
-                     uint32_t numStates = 2)
-  : IControl(plug, rect, paramIdx, actionFunc)
-  {
-    if(paramIdx > -1)
-      mNumStates = (uint32_t) mPlug.GetParam(paramIdx)->GetRange() + 1;
-    else
-      mNumStates = numStates;
-    
-    assert(mNumStates > 1);
-  }
+  IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter,  std::function<void(IControl*)> actionFunc = nullptr,
+                     uint32_t numStates = 2);
   
   virtual ~IButtonControlBase() {}
   
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    if(mNumStates == 2)
-      mValue = !mValue;
-    else
-    {
-      const float step = 1.f/float(mNumStates) - 1.;
-      mValue += step;
-      mValue = fmod(1., mValue);
-    }
-    
-    if (mActionFunc != nullptr)
-      mActionFunc(GetGUI());
-    
-    SetDirty();
-  }
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   
 protected:
   uint32_t mNumStates;
@@ -81,36 +57,13 @@ protected:
 class IVSwitchControl : public IButtonControlBase
 {
 public:
-  IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, std::function<void(IGraphics*)> actionFunc = nullptr,
+  IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, std::function<void(IControl*)> actionFunc = nullptr,
                   const IColor& fgColor = COLOR_BLACK, const IColor& bgColor = COLOR_WHITE,
-                  uint32_t numStates = 2, EDirection dir = kVertical)
-  : IButtonControlBase(plug, rect, paramIdx, actionFunc, numStates)
-  , mFGColor(fgColor)
-  , mBGColor(bgColor)
-  , mDirection(dir)
-  {
-    mStep = 1.f/float(mNumStates) - 1.;
-  }
+                  uint32_t numStates = 2, EDirection dir = kVertical);
   
   ~IVSwitchControl() {}
   
-  void Draw(IGraphics& graphics)  override
-  {
-    const int state = mValue / mStep;
-    
-    graphics.FillRect(mBGColor, mRECT);
-    
-    IRECT handle;
-    
-    if(mDirection == kHorizontal)
-      handle = mRECT.SubRectHorizontal(mNumStates, state);
-    if(mDirection == kVertical)
-      handle = mRECT.SubRectVertical(mNumStates, state);
-    
-    handle = handle.GetPadded(-10);
-    
-    graphics.FillRect(mFGColor, handle);
-  }
+  void Draw(IGraphics& graphics)  override;
   
 private:
   float mStep;

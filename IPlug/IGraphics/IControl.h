@@ -35,7 +35,7 @@ public:
    @param rect The rectangular area that the control occupies
    @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    */
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, std::function<void(IGraphics*)> mActionFunc = nullptr);
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, std::function<void(IControl*)> mActionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -190,7 +190,7 @@ protected:
   IRECT mRECT;
   IRECT mTargetRECT;
   
-  std::function<void(IGraphics*)> mActionFunc = nullptr;
+  std::function<void(IControl*)> mActionFunc = nullptr;
   
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;

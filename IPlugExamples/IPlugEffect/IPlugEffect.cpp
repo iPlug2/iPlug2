@@ -46,10 +46,10 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachPanelBackground(COLOR_RED);
   
   // lamda function for custom actions on stock IControls
-  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200), kNoParameter, [pGraphics](IGraphics* pGraphics)
+  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200), kNoParameter, [](IControl* pControl)
   {
     //pGraphics->ShowMessageBox("do you like lambdas?", "", MB_YESNO); // blocks
-    pGraphics->GetControl(1)->Hide(true);
+    pControl->Hide(true);
   }));
   
 //  pGraphics->AttachControl(new IVKnobControl(*this, IRECT(kGainX, kGainY, kGainX + 100, kGainY + 100), kGain, COLOR_BLACK));
