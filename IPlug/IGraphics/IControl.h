@@ -114,6 +114,8 @@ public:
   /** @return \c True if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
+  void SetMOWhenGrayed(bool allow) { mMOWhenGreyed = allow; }
+  void SetMEWhenGrayed(bool allow) { mMEWhenGreyed = allow; }
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
   bool GetMEWhenGrayed() { return mMEWhenGreyed; }
 
