@@ -157,6 +157,11 @@ struct IBlend
   IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
+const IBlend BLEND_75 = IBlend(IBlend::kBlendNone, 0.75f);
+const IBlend BLEND_50 = IBlend(IBlend::kBlendNone, 0.5f);
+const IBlend BLEND_25 = IBlend(IBlend::kBlendNone, 0.25f);
+const IBlend BLEND_10 = IBlend(IBlend::kBlendNone, 0.1f);
+
 const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;

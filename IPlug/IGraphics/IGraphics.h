@@ -55,10 +55,35 @@ public:
   virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
 
   virtual void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend = 0) = 0;
+  
+  /**
+   /todo
+   
+   @param base <#base description#>
+   @param mask <#mask description#>
+   @param top <#top description#>
+   @param x <#x description#>
+   @param y <#y description#>
+   @param angle the angle to rotate the svg in degrees clockwise /see IGraphicsDrawing documentation
+   @param pBlend <#pBlend description#>
+   */
   virtual void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
     
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
   virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
+  
+  
+  /**
+   /todo
+
+   @param base <#base description#>
+   @param mask <#mask description#>
+   @param top <#top description#>
+   @param x <#x description#>
+   @param y <#y description#>
+   @param angle the angle to rotate the bitmap mask at in degrees clockwise /see IGraphicsDrawing documentation
+   @param pBlend <#pBlend description#>
+   */
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
   virtual void ForcePixel(const IColor& color, int x, int y) = 0;
@@ -67,7 +92,23 @@ public:
   virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
   virtual void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
   virtual void DrawRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
-  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0) = 0;
+  
+  
+  
+  /**
+   /todo
+
+   @param color <#color description#>
+   @param cx <#cx description#>
+   @param cy <#cy description#>
+   @param r <#r description#>
+   @param aMin the start angle  of the arc at in degrees clockwise where 0 is up /see IGraphicsDrawing documentation
+   @param aMax the end angle  of the arc at in degrees clockwise where 0 is up /see IGraphicsDrawing documentation
+   @param pBlend <#pBlend description#>
+   */
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
+  
+  
   virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
   virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) = 0;
 
@@ -77,7 +118,7 @@ public:
   virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
   virtual void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
-  virtual void FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend = 0) = 0;
+  virtual void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
   virtual void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) = 0;
 
   virtual bool DrawText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
@@ -103,8 +144,7 @@ public:
   virtual void RenderDrawBitmap() {}
 
 #pragma mark - IGraphics base implementation - drawing helpers
-  /**
-   Draws a bitmap into the graphics context
+  /** Draws a bitmap into the graphics context
    
    @param bitmap - the bitmap to draw
    @param rect - where to draw the bitmap
@@ -114,15 +154,14 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState = 1, const IBlend* pBlend = 0);
   
   
-  /**
-   Draws monospace bitmapped text. Useful for identical looking text on multiple platforms.
-   @param bitmap - the bitmap containing glyphs to draw
-   @param rect - where to draw the bitmap
-   @param text - text properties (note - many of these are irrelevant for bitmapped text)
-   @param pBlend - blend operation
-   @param str - the string to draw
-   @param vCenter - centre the text vertically
-   @param multiline - should the text spill onto multiple lines
+  /** Draws monospace bitmapped text. Useful for identical looking text on multiple platforms.
+   @param bitmap the bitmap containing glyphs to draw
+   @param rect where to draw the bitmap
+   @param text text properties (note - many of these are irrelevant for bitmapped text)
+   @param pBlend blend operation
+   @param str the string to draw
+   @param vCenter centre the text vertically
+   @param multiline should the text spill onto multiple lines
    @param charWidth how wide is a character in the bitmap
    @param charHeight how high is a character in the bitmap
    @param charOffset what is the offset between characters drawn
@@ -133,6 +172,18 @@ public:
   void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
   void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
+  
+  /**
+   Helper function to draw a radial line, useful for pointers on dials
+
+   @param color the colour of the line
+   @param cx centre point x coordinate
+   @param cy centre point y coordinate
+   @param angle the angle to draw at in degrees clockwise where 0 is up /see IGraphicsDrawing documentation
+   @param rMin minima of the radial line
+   @param rMax maxima of the radial line
+   @param pBlend blend operation
+   */
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
   void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
   

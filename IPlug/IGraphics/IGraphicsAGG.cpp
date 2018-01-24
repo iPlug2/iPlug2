@@ -258,10 +258,10 @@ void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, in
   Stroke(color, path);
 }
 
-void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, minAngle, maxAngle);
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
   Stroke(color, arc);
 }
 
@@ -298,11 +298,11 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect,  fl
   Fill(color, agg_rect);
 }
 
-void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend)
+void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
 {
   agg::path_storage path;
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, minAngle, maxAngle);
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
   path.concat_path(arc);
   path.line_to(cx * s, cy * s);
   path.close_polygon();

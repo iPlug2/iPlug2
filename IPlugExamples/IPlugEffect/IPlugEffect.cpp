@@ -38,18 +38,18 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   TRACE; 
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
   GetParam(kGain)->SetShape(2.);
 
   //create user interface
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
-  //pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX + 50, kGainY + 50), kGain, COLOR_BLACK));
+  //pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
+  pGraphics->AttachControl(new IVKnobControl(*this, IRECT(kGainX, kGainY, kGainX + 100, kGainY + 100), kGain, COLOR_BLACK));
 
   AttachGraphics(pGraphics);
-
+//  pGraphics->EnableLiveEdit(true);
   PrintDebugInfo();
 
   //MakePreset("preset 1", ... );

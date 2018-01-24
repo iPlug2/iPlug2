@@ -368,41 +368,39 @@ void IKnobControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
   SetDirty();
 }
 
-IKnobLineControl::IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius, double outerRadius, double minAngle, double maxAngle, EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, float rMin, float rMax, float aMin, float aMax, EDirection direction, double gearing)
 : IKnobControl(plug, rect, paramIdx, direction, gearing)
 , mColor(color)
+, mAngleMin(aMin)
+, mAngleMax(aMax)
+, mInnerRadius(rMin)
+, mOuterRadius(rMax)
 {
-  mMinAngle = (float) minAngle;
-  mMaxAngle = (float) maxAngle;
-  mInnerRadius = (float) innerRadius;
-  mOuterRadius = (float) outerRadius;
   if (mOuterRadius == 0.0f)
   {
     mOuterRadius = 0.5f * (float) rect.W();
   }
+  
   mBlend = IBlend(IBlend::kBlendClobber);
 }
 
-void IKnobLineControl::Draw(IGraphics& graphics)
+void IVKnobControl::Draw(IGraphics& graphics)
 {
-  const float v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  const float sinV = sinf(v);
-  const float cosV = cosf(v);
+  const float v = mAngleMin + (mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
-  const float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
-  const float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
-  
-  graphics.DrawCircle(mColor, cx, cy, (mRECT.W()/2.f) - 2.f);
-  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend);
+  const float radius = (mRECT.W()/2.f) - 2.f;
+  graphics.DrawCircle(mColor, cx, cy, radius, &BLEND_50);
+  graphics.FillArc(mColor, cx, cy, radius, mAngleMin, v, &BLEND_50);
+  graphics.DrawRadialLine(mColor, cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
-void IKnobRotaterControl::Draw(IGraphics& graphics)
-{
-  int cX = (mRECT.L + mRECT.R) / 2;
-  int cY = (mRECT.T + mRECT.B) / 2;
-  double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  graphics.DrawRotatedBitmap(mBitmap, cX, cY, angle, mYOffset, &mBlend);
-}
+//void IKnobRotaterControl::Draw(IGraphics& graphics)
+//{
+//  int cX = (mRECT.L + mRECT.R) / 2;
+//  int cY = (mRECT.T + mRECT.B) / 2;
+//  double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
+//  graphics.DrawRotatedBitmap(mBitmap, cX, cY, angle, mYOffset, &mBlend);
+//}
 
 // Same as IBitmapControl::Draw.
 void IKnobMultiControl::Draw(IGraphics& graphics)
@@ -417,11 +415,11 @@ void IKnobMultiControl::OnRescale()
   mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
 }
 
-void IKnobRotatingMaskControl::Draw(IGraphics& graphics)
-{
-  double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  graphics.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle, &mBlend);
-}
+//void IKnobRotatingMaskControl::Draw(IGraphics& graphics)
+//{
+//  double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
+//  graphics.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle, &mBlend);
+//}
 
 void IBitmapOverlayControl::Draw(IGraphics& graphics)
 {

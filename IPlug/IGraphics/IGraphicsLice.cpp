@@ -241,10 +241,10 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
   LICE_FLine(mDrawBitmap, x[npoints - 1] * ds, y[npoints - 1] * ds, x[0] * ds, y[0] * ds, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   const float ds = GetDisplayScale();
-  LICE_Arc(mDrawBitmap, cx * ds, cy * ds, r * ds, minAngle, maxAngle, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_Arc(mDrawBitmap, cx * ds, cy * ds, r * ds, DegToRad(aMin) + (0.5 * PI), DegToRad(aMax) + (0.5 * PI), LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
@@ -344,8 +344,26 @@ void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r,
   LICE_FillCircle(mDrawBitmap, cx * ds, cy * ds, r * ds, LiceColor(color), LiceWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend)
+void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
 {
+  float xarray[361];
+  float yarray[361];
+  
+  aMin = DegToRad(aMin);
+  aMax = DegToRad(aMax);
+  
+  int arcpoints = 360.0 * std::min(1., std::fabs(aMax - aMin) / 2.f * PI);
+  double arcincrement = (aMax - aMin) / arcpoints;
+  for(int i = 0; i < arcpoints; i++)
+  {
+    xarray[i] = cx + cosf(i * arcincrement + aMin) * r;
+    yarray[i] = cy + sinf(i * arcincrement + aMin) * r;
+  }
+    
+  xarray[arcpoints] = cx;
+  yarray[arcpoints] = cy;
+
+  FillConvexPolygon(color, xarray, yarray, arcpoints + 1, pBlend);
   //TODO:
 }
 
