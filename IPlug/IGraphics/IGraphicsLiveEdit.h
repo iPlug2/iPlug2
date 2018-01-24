@@ -50,7 +50,7 @@ public:
     {
       IPopupMenu menu;
       menu.AddItem("IBitmapControl");
-      menu.AddItem("IKnobLineControl");
+      menu.AddItem("IVKnobControl");
       
       GetGUI()->CreateIPopupMenu(menu, x, y);
     }

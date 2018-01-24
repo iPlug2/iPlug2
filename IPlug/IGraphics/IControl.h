@@ -5,6 +5,8 @@
  * @copydoc IControl
  */
 
+#include <functional>
+
 #ifdef VST3_API
 #undef stricmp
 #undef strnicmp
@@ -32,9 +34,8 @@ public:
    @param plug The IPlugBaseGraphics that the control belongs to
    @param rect The rectangular area that the control occupies
    @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
-   @param blendType Blend operation
    */
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone);
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, std::function<void(IGraphics*)> mActionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -124,7 +125,7 @@ public:
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
-  void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
+  void SetBlendType(EBlendType blend) { mBlend = blend; }
   
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
@@ -177,7 +178,7 @@ public:
   
   IPlugBaseGraphics& GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
-
+  
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
@@ -188,6 +189,8 @@ protected:
   IPlugBaseGraphics& mPlug;
   IRECT mRECT;
   IRECT mTargetRECT;
+  
+  std::function<void(IGraphics*)> mActionFunc = nullptr;
   
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
@@ -249,12 +252,20 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), paramIdx)
+  , mBitmap(bitmap)
+  {
+    mBlend = blend;
+  }
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), kNoParameter, blendType), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), kNoParameter)
+  , mBitmap(bitmap)
+  {
+    mBlend = blend;
+  }
 
   virtual ~IBitmapControl() {}
 

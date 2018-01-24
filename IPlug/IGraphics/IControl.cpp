@@ -2,12 +2,12 @@
 
 #include "IControl.h"
 
-IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBlend blendType)
+IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IGraphics*)> actionFunc)
 : mPlug(plug)
 , mRECT(rect)
 , mTargetRECT(rect)
 , mParamIdx(paramIdx)
-, mBlend(blendType)
+, mActionFunc(actionFunc)
 {
 }
 

@@ -240,7 +240,7 @@ void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top,
   float width = base.W;
   float height = base.H;
 
-  IBlend addBlend(IBlend::kBlendAdd);
+  IBlend addBlend(kBlendAdd);
   cairo_save(mContext);
   DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
   cairo_translate(mContext, x + 0.5 * width, y + 0.5 * height);

@@ -120,7 +120,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 void IGraphics::AttachBackground(const char* name, double scale)
 {
   IBitmap bg = LoadBitmap(name, 1, false, scale);
-  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
+  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, kNoParameter, bg, kBlendClobber));
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)

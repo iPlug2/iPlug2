@@ -45,8 +45,14 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  //pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
-  pGraphics->AttachControl(new IVKnobControl(*this, IRECT(kGainX, kGainY, kGainX + 100, kGainY + 100), kGain, COLOR_BLACK));
+  // lamda function for custom actions on stock IControls
+  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200), kNoParameter, [pGraphics](IGraphics* pGraphics)
+  {
+    //pGraphics->ShowMessageBox("do you like lambdas?", "", MB_YESNO); // blocks
+    pGraphics->GetControl(1)->Hide(true);
+  }));
+  
+//  pGraphics->AttachControl(new IVKnobControl(*this, IRECT(kGainX, kGainY, kGainX + 100, kGainY + 100), kGain, COLOR_BLACK));
 
   AttachGraphics(pGraphics);
 //  pGraphics->EnableLiveEdit(true);

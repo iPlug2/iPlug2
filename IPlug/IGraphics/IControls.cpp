@@ -47,9 +47,12 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
   SetDirty();
 }
 
-IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, float rMin, float rMax, float aMin, float aMax, EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx,
+                             const IColor& fgcolor, const IColor& bgcolor,
+                             float rMin, float rMax, float aMin, float aMax, EDirection direction, double gearing)
 : IKnobControlBase(plug, rect, paramIdx, direction, gearing)
-, mColor(color)
+, mFGColor(fgcolor)
+, mBGColor(bgcolor)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
 , mInnerRadius(rMin)
@@ -59,8 +62,6 @@ IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, 
   {
     mOuterRadius = 0.5f * (float) rect.W();
   }
-
-  mBlend = IBlend(IBlend::kBlendClobber);
 }
 
 void IVKnobControl::Draw(IGraphics& graphics)
@@ -68,7 +69,7 @@ void IVKnobControl::Draw(IGraphics& graphics)
   const float v = mAngleMin + (mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
   const float radius = (mRECT.W()/2.f) - 2.f;
-  graphics.DrawCircle(mColor, cx, cy, radius, &BLEND_50);
-  graphics.FillArc(mColor, cx, cy, radius, mAngleMin, v, &BLEND_50);
-  graphics.DrawRadialLine(mColor, cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
+  graphics.DrawCircle(mFGColor, cx, cy, radius, &BLEND_50);
+  graphics.FillArc(mBGColor, cx, cy, radius, mAngleMin, v, &BLEND_50);
+  graphics.DrawRadialLine(mFGColor, cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }

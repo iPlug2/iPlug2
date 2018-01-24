@@ -39,3 +39,27 @@ const int DEFAULT_TEXT_SIZE = 10;
 #endif
 
 const int FONT_LEN = 32;
+
+/** @enum EType Blend type
+ * @todo This could use some documentation
+ */
+enum EBlendType
+{
+  kBlendNone,     // Copy over whatever is already there, but look at src alpha.
+  kBlendClobber,  // Copy completely over whatever is already there.
+  kBlendAdd,
+  kBlendColorDodge,
+  // etc
+};
+
+enum EFileAction
+{
+  kFileOpen,
+  kFileSave  
+};
+
+enum EDirection
+{
+  kVertical,
+  kHorizontal
+};

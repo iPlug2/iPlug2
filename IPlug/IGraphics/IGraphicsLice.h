@@ -96,19 +96,19 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case IBlend::kBlendClobber:
+    case EBlendType::kBlendClobber:
     {
       return LICE_BLIT_MODE_COPY;
     }
-    case IBlend::kBlendAdd:
+    case EBlendType::kBlendAdd:
     {
       return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
     }
-    case IBlend::kBlendColorDodge:
+    case EBlendType::kBlendColorDodge:
     {
       return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
     }
-    case IBlend::kBlendNone:
+    case EBlendType::kBlendNone:
     default:
     {
       return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;

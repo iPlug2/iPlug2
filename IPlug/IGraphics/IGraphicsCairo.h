@@ -94,23 +94,12 @@ protected:
     }
     switch (pBlend->mMethod)
     {
-      case IBlend::kBlendClobber:
-      {
-        return CAIRO_OPERATOR_OVER;
-      }
-      case IBlend::kBlendAdd:
-      {
-        return CAIRO_OPERATOR_ADD;
-      }
-      case IBlend::kBlendColorDodge:
-      {
-        return CAIRO_OPERATOR_COLOR_DODGE;
-      }
-      case IBlend::kBlendNone:
+      case kBlendClobber: return CAIRO_OPERATOR_OVER;
+      case kBlendAdd: return CAIRO_OPERATOR_ADD;
+      case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+      case kBlendNone:
       default:
-      {
         return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
-      }
     }
   }
   

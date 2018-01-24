@@ -13,13 +13,9 @@
 #include "nanosvg.h"
 
 #include "IPlugPlatform.h"
+#include "IGraphicsConstants.h"
 
 class LICE_IFont;
-
-enum EFileAction { kFileOpen, kFileSave };
-
-enum EDirection { kVertical, kHorizontal };
-
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -135,18 +131,7 @@ const IColor COLOR_ORANGE(255, 255, 127, 0);
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
-  /** @enum EType Blend type
-   * @todo This could use some documentation
-  */
-  enum EType
-  {
-    kBlendNone,     // Copy over whatever is already there, but look at src alpha.
-    kBlendClobber,  // Copy completely over whatever is already there.
-    kBlendAdd,
-    kBlendColorDodge,
-    // etc
-  };
-  EType mMethod;
+  EBlendType mMethod;
   float mWeight;
 
   /** Creates a new IBlend
@@ -154,17 +139,16 @@ struct IBlend
    * @todo IBlend::weight needs documentation
    * @param weight
   */
-  IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
-const IBlend BLEND_75 = IBlend(IBlend::kBlendNone, 0.75f);
-const IBlend BLEND_50 = IBlend(IBlend::kBlendNone, 0.5f);
-const IBlend BLEND_25 = IBlend(IBlend::kBlendNone, 0.25f);
-const IBlend BLEND_10 = IBlend(IBlend::kBlendNone, 0.1f);
+const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
+const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
+const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
+const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 
-const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
-const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
+const IColor DEFAULT_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_FGCOLOR = COLOR_BLACK;
 
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
@@ -172,8 +156,8 @@ struct IText
   char mFont[FONT_LEN];
   int mSize = DEFAULT_TEXT_SIZE;
   IColor mColor;
-  IColor mTextEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR;
-  IColor mTextEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR;
+  IColor mTextEntryBGColor = DEFAULT_BGCOLOR;
+  IColor mTextEntryFGColor = DEFAULT_FGCOLOR;
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle = kStyleNormal;
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign = kAlignCenter;
   int mOrientation = 0; // Degrees ccwise from normal.
@@ -182,22 +166,22 @@ struct IText
   mutable double mCachedScale = 1.0;
 
   IText(int size = DEFAULT_TEXT_SIZE,
-        const IColor& color = DEFAULT_TEXT_COLOR,
+        const IColor& color = DEFAULT_FGCOLOR,
         const char* font = nullptr,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         int orientation = 0,
         EQuality quality = kQualityDefault,
-        const IColor& textEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR,
-        const IColor& textEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR)
+        const IColor& teBGColor = DEFAULT_BGCOLOR,
+        const IColor& teFGColor = DEFAULT_FGCOLOR)
     : mSize(size)
     , mColor(color)
     , mStyle(style)
     , mAlign(align)
     , mOrientation(orientation)
     , mQuality(quality)
-    , mTextEntryBGColor(textEntryBGColor)
-    , mTextEntryFGColor(textEntryFGColor)
+    , mTextEntryBGColor(teBGColor)
+    , mTextEntryFGColor(teFGColor)
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }

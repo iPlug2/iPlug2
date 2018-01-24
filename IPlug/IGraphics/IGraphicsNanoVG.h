@@ -35,13 +35,13 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case IBlend::kBlendClobber:
+    case kBlendClobber:
     {
       return NVG_SOURCE_OVER;
     }
-    case IBlend::kBlendAdd:
-    case IBlend::kBlendColorDodge:
-    case IBlend::kBlendNone:
+    case kBlendAdd:
+    case kBlendColorDodge:
+    case kBlendNone:
     default:
     {
       return NVG_COPY;
