@@ -2,7 +2,7 @@
 
 #include "IControl.h"
 
-IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc)
+IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IActionFunction actionFunc)
 : mPlug(plug)
 , mRECT(rect)
 , mTargetRECT(rect)

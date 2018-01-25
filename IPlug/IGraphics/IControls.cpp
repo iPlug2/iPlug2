@@ -60,6 +60,23 @@ void IVSwitchControl::Draw(IGraphics& graphics)
   graphics.FillRect(mFGColor, handle.GetPadded(-10), &mBlend);
 }
 
+void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mBitmap.N > 1)
+  {
+    mValue += 1.0 / (double) (mBitmap.N - 1);
+  }
+  else
+  {
+    mValue += 1.0;
+  }
+  
+  if (mValue > 1.001)
+  {
+    mValue = 0.0;
+  }
+  SetDirty();
+}
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
@@ -135,3 +152,121 @@ void IVKnobControl::Draw(IGraphics& graphics)
   graphics.DrawRadialLine(mFGColor, cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
+IBSliderControl::IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+: IControl(plug, IRECT(), paramIdx)
+, mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
+{
+  if (direction == kVertical)
+  {
+    mHandleHeadroom = mHandleBitmap.H;
+    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W, y + len);
+  }
+  else
+  {
+    mHandleHeadroom = mHandleBitmap.W;
+    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H);
+  }
+}
+
+IRECT IBSliderControl::GetHandleRECT(double value) const
+{
+  if (value < 0.0)
+  {
+    value = mValue;
+  }
+  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W, mRECT.T + mHandleBitmap.H);
+  if (mDirection == kVertical)
+  {
+    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
+    r.T += offs;
+    r.B += offs;
+  }
+  else
+  {
+    int offs = int(value * (double) (mLen - mHandleHeadroom));
+    r.L += offs;
+    r.R += offs;
+  }
+  return r;
+}
+
+void IBSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+#ifdef PROTOOLS
+  if (mod.A)
+  {
+    if (mDefaultValue >= 0.0)
+    {
+      mValue = mDefaultValue;
+      SetDirty();
+      return;
+    }
+  }
+  else
+#endif
+    if (mod.R)
+    {
+      PromptUserInput();
+      return;
+    }
+  
+  return SnapToMouse(x, y);
+}
+
+void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+#ifdef PROTOOLS
+  if (mod.C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (mod.C || mod.S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+  
+  SetDirty();
+}
+
+void IBSliderControl::SnapToMouse(float x, float y)
+{
+  if (mDirection == kVertical)
+  {
+    mValue = 1.0 - (double) (y - mRECT.T - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
+  }
+  else
+  {
+    mValue = (double) (x - mRECT.L - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
+  }
+  SetDirty();
+}
+
+void IBSliderControl::Draw(IGraphics& graphics)
+{
+  IRECT r = GetHandleRECT();
+  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
+}
+
+bool IBSliderControl::IsHit(float x, float y) const
+{
+  if(mOnlyHandle)
+  {
+    IRECT r = GetHandleRECT();
+    return r.Contains(x, y);
+  }
+  else
+  {
+    return mTargetRECT.Contains(x, y);
+  }
+}
+
+void IBSliderControl::OnRescale()
+{
+  mHandleBitmap = GetGUI()->GetScaledBitmap(mHandleBitmap);
+}

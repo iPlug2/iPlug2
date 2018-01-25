@@ -17,6 +17,10 @@
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
 
+class IControl;
+
+typedef std::function<void(IControl*)> IActionFunction;
+
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
  * Other controls are readouts only.
@@ -35,7 +39,7 @@ public:
    @param rect The rectangular area that the control occupies
    @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    */
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, std::function<void(IControl*)> mActionFunc = nullptr);
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -190,7 +194,7 @@ protected:
   IRECT mRECT;
   IRECT mTargetRECT;
   
-  std::function<void(IControl*)> mActionFunc = nullptr;
+  IActionFunction mActionFunc = nullptr;
   
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
