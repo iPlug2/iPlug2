@@ -5,8 +5,6 @@
  * @copydoc IControl
  */
 
-#include <functional>
-
 #ifdef VST3_API
 #undef stricmp
 #undef strnicmp
@@ -16,10 +14,6 @@
 
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
-
-class IControl;
-
-typedef std::function<void(IControl*)> IActionFunction;
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
@@ -83,6 +77,8 @@ public:
   // Create an edit box so the user can enter a value for this control.
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
+  
+  inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
   
   /** @param tooltip Text to be displayed */
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }

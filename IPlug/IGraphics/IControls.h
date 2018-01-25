@@ -153,6 +153,11 @@ Key proportions, colors and some other design elements can be changed at any tim
 See the interface for details.
 */
 
+const IColor DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
+const IColor DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
+const IColor DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
+const IColor DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
+
 class IVKeyboardControl : public IControl
 {
 public:
@@ -179,7 +184,7 @@ public:
   void SetHeight(float h, bool keepProportions = false);
   void SetWidth(float w, bool keepProportions = false);
   void SetShowNotesAndVelocity(bool show);
-  void SetColors(IColor bkColor, IColor wkColor, IColor pkColor = IColor(60, 0, 0, 0), IColor frColor = IColor(255, 80, 80, 80));
+  void SetColors(const IColor bkColor, const IColor& wkColor, const IColor& pkColor = DEFAULT_PK_COLOR, const IColor& frColor = DEFAULT_FR_COLOR);
  
   void SetDrawShadows(bool draw)
   {
@@ -230,10 +235,10 @@ protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
   bool mDrawBorder = true;
-  IColor mBKColor = IColor(255, 70, 70, 70);
-  IColor mWKColor = IColor(255, 240, 240, 240);
-  IColor mPKColor = IColor(60, 0, 0, 0); // pressed key color
-  IColor mFRColor = mBKColor; // frame color
+  IColor mBKColor = DEFAULT_BK_COLOR;
+  IColor mWKColor = DEFAULT_WK_COLOR;
+  IColor mPKColor = DEFAULT_PK_COLOR; // pressed key color
+  IColor mFRColor = DEFAULT_FR_COLOR; // frame color
 
   float mBAlpha = 100.f; // needed cause not any mPKColor will have nice contrast on black keys ?
   float mBKWidthR = 0.6f;

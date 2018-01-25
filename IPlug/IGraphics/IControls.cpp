@@ -501,7 +501,7 @@ void IVKeyboardControl::SetShowNotesAndVelocity(bool show)
   mShowNoteAndVel = show;
 }
 
-void IVKeyboardControl::SetColors(IColor bkColor, IColor wkColor, IColor pkColor, IColor frColor)
+void IVKeyboardControl::SetColors(const IColor bkColor, const IColor& wkColor, const IColor& pkColor, const IColor& frColor)
 {
   mBKColor = bkColor;
   mWKColor = wkColor;
@@ -515,7 +515,7 @@ void IVKeyboardControl::SetColors(IColor bkColor, IColor wkColor, IColor pkColor
     return (min + max) / 2;
   };
 
-  mBAlpha = (float)pkColor.A;
+  mBAlpha = (float) pkColor.A;
 
   if (mBAlpha < 240)
   {

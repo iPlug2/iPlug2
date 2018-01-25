@@ -2,11 +2,11 @@
 
 #include "IControl.h"
 
-IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int param, IActionFunction actionFunc)
 : mPlug(plug)
 , mRECT(rect)
 , mTargetRECT(rect)
-, mParamIdx(paramIdx)
+, mParamIdx(param)
 , mActionFunc(actionFunc)
 {
 }
@@ -150,29 +150,29 @@ IControl::AuxParam* IControl::GetAuxParam(int idx)
   return mAuxParams.Get() + idx;
 }
 
-int IControl::AuxParamIdx(int paramIdx)
+int IControl::AuxParamIdx(int param)
 {
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
-    if(GetAuxParam(i)->mParamIdx == paramIdx)
+    if(GetAuxParam(i)->mParamIdx == param)
       return i;
   }
   
   return -1;
 }
 
-void IControl::AddAuxParam(int paramIdx)
+void IControl::AddAuxParam(int param)
 {
-  mAuxParams.Add(AuxParam(paramIdx));
+  mAuxParams.Add(AuxParam(param));
 }
 
-void IControl::SetAuxParamValueFromPlug(int auxParamIdx, double value)
+void IControl::SetAuxParamValueFromPlug(int auxParam, double value)
 {
-  AuxParam* auxParam = GetAuxParam(auxParamIdx);
+  AuxParam* pAuxParam = GetAuxParam(auxParam);
   
-  if (auxParam->mValue != value)
+  if (pAuxParam->mValue != value)
   {
-    auxParam->mValue = value;
+    pAuxParam->mValue = value;
     SetDirty(false);
     Redraw();
   }
@@ -182,8 +182,8 @@ void IControl::SetAllAuxParamsFromGUI()
 {
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
-    AuxParam* auxParam = GetAuxParam(i);
-    mPlug.SetParameterFromUI(auxParam->mParamIdx, auxParam->mValue);
+    AuxParam* pAuxParam = GetAuxParam(i);
+    mPlug.SetParameterFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
   }
 }
 

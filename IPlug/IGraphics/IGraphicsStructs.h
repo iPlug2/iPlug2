@@ -1,8 +1,9 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
 #include <cassert>
+#include <functional>
+#include <algorithm>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -14,6 +15,11 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
+
+
+class IControl;
+
+typedef std::function<void(IControl*)> IActionFunction;
 
 class LICE_IFont;
 /**
