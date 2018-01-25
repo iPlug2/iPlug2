@@ -31,13 +31,14 @@ public:
     kSeparator  = 1 << 3    // item is a separator
   };
 
-  IPopupMenuItem(const char* text, int flags = kNoFlags)
-    : mFlags(flags)
+  IPopupMenuItem(const char* text, int flags = kNoFlags, int tag = -1)
+  : mFlags(flags)
+  , mTag(tag)
   {
     SetText(text);
   }
 
-  IPopupMenuItem (const char* text, IPopupMenu *pSubMenu)
+  IPopupMenuItem (const char* text, IPopupMenu* pSubMenu)
     : mFlags(kNoFlags)
     , mSubmenu(pSubMenu)
   {
@@ -46,7 +47,8 @@ public:
 
   ~IPopupMenuItem()
   {
-    //don't need to delete submenu
+    if (mSubmenu)
+      DELETE_NULL(mSubmenu);
   }
 
   void SetText(const char* text) { mText.Set(text); }
@@ -56,7 +58,7 @@ public:
   bool GetChecked() const { return (mFlags & kChecked) != 0; }
   bool GetIsTitle() const { return (mFlags & kTitle) != 0; }
   bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
-
+  int GetTag() const { return mTag; }
   IPopupMenu* GetSubmenu() const { return mSubmenu; }
 
   void SetChecked(bool state)
@@ -75,6 +77,7 @@ protected:
   WDL_String mText;
   IPopupMenu* mSubmenu = nullptr;
   int mFlags;
+  int mTag = -1;
 };
 
 /** A class for setting the contents of a pop up menu */
@@ -162,6 +165,8 @@ public:
   
   void SetMultiCheck(bool multicheck) { mCanMultiCheck = multicheck; }
   
+  void Clear() { mMenuItems.Empty(true); }
+
   bool CheckItem(int index, bool state)
   {
     IPopupMenuItem* pItem = mMenuItems.Get(index);

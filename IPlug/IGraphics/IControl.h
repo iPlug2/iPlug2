@@ -5,12 +5,19 @@
  * @copydoc IControl
  */
 
+#include <cstring>
+#include <cstdlib>
+
 #ifdef VST3_API
 #undef stricmp
 #undef strnicmp
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "base/source/fobject.h"
 #endif
+
+#include "wdlstring.h"
+#include "dirscan.h"
+#include "ptrlist.h"
 
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
@@ -358,4 +365,103 @@ public:
 
 protected:
   uint32_t mNumStates;
+};
+
+/** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
+class IDirBrowseControlBase : public IControl
+{
+protected:
+  IPopupMenu mMainMenu;
+  WDL_PtrList<WDL_String> mPaths;
+  WDL_PtrList<WDL_String> mPathLabels;
+  WDL_PtrList<WDL_String> mFiles;
+  WDL_String mExtension;
+
+  int mSelectedIndex;
+  
+public:
+  IDirBrowseControlBase(IPlugBaseGraphics& plug, IRECT rect, const char* extension /* e.g. ".txt"*/)
+  : IControl(plug, rect)
+  , mSelectedIndex(-1)
+  {
+    mExtension.Set(extension);
+  }
+  
+  ~IDirBrowseControlBase()
+  {
+    mFiles.Empty(true);
+    mPaths.Empty(true);
+    mPathLabels.Empty(true);
+  }
+  
+  int NItems()
+  {
+    return mFiles.GetSize();
+  }
+  
+  void AddPath(const char* path, const char* label)
+  {
+    mPaths.Add(new WDL_String(path));
+    mPathLabels.Add(new WDL_String(label));
+  }
+  
+  void SetUpMenu()
+  {
+    mFiles.Empty(true);    
+    mMainMenu.Clear();
+    mSelectedIndex = -1;
+    
+    int idx = 0;
+    
+    for (int p=0; p<mPaths.GetSize(); p++) 
+    {
+      IPopupMenu* pNewMenu = new IPopupMenu();
+      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
+
+      IPopupMenu* pMenuToAddTo = pNewMenu;
+      ScanDirectory(mPaths.Get(p)->Get(), pMenuToAddTo);
+    }
+  }
+  
+private:
+  void ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo)
+  {
+    WDL_DirScan d;
+    IPopupMenu* pParentDirMenu = pMenuToAddTo;
+    
+    if (!d.First(path))
+    {
+      do
+      {
+        const char* f=d.GetCurrentFN();
+        if (f && f[0] != '.')
+        {
+          if (d.GetCurrentIsDirectory())
+          {
+            WDL_String subdir;
+            d.GetCurrentFullFN(&subdir);
+            IPopupMenu* pNewMenu = new IPopupMenu();
+            pMenuToAddTo->AddItem(d.GetCurrentFN(), pNewMenu);
+            ScanDirectory(subdir.Get(), pNewMenu);
+          }
+          else
+          {
+            const char* a=strstr(f, mExtension.Get());
+            if (a && a > f && strlen(a) == strlen(mExtension.Get()))
+            {
+              WDL_String menuEntry = WDL_String(f, a-f);
+              pParentDirMenu->AddItem(new IPopupMenuItem(menuEntry.Get(), IPopupMenuItem::kNoFlags, mFiles.GetSize()));
+              WDL_String* pFullPath = new WDL_String("");
+              d.GetCurrentFullFN(pFullPath);
+              mFiles.Add(pFullPath);
+            }
+          }
+        }
+      }
+      while (!d.Next());
+      
+      pMenuToAddTo = pParentDirMenu;
+    }
+  }
+  
 };
