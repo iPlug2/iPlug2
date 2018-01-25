@@ -43,18 +43,21 @@ void IVSwitchControl::Draw(IGraphics& graphics)
 {
   const int state = mValue / mStep;
   
-  graphics.FillRect(mBGColor, mRECT);
+  graphics.FillRect(mBGColor, mRECT, &mBlend);
   
   IRECT handle;
   
-  if(mDirection == kHorizontal)
-    handle = mRECT.SubRectHorizontal(mNumStates, state);
-  if(mDirection == kVertical)
-    handle = mRECT.SubRectVertical(mNumStates, state);
+  if(mNumStates > 2)
+  {
+    if(mDirection == kHorizontal)
+      handle = mRECT.SubRectHorizontal(mNumStates, state);
+    if(mDirection == kVertical)
+      handle = mRECT.SubRectVertical(mNumStates, state);
+  }
+  else
+    handle = mRECT;
   
-  handle = handle.GetPadded(-10);
-  
-  graphics.FillRect(mFGColor, handle);
+  graphics.FillRect(mFGColor, handle.GetPadded(-10), &mBlend);
 }
 
 
