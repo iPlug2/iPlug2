@@ -139,7 +139,7 @@ public:
     }
   }
   
-  const char* GetItemText(int index) return GetItem(index)->GetText(); }
+  const char* GetItemText(int index) { return GetItem(index)->GetText(); }
   
   void SetPrefix(int count)
   {
