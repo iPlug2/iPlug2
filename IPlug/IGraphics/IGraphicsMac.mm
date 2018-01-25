@@ -13,7 +13,7 @@
 
 int GetSystemVersion() 
 {
-  static SInt32 v;
+  static int32_t v;
   if (!v)
   {
     if (NSAppKitVersionNumber >= 1266.0) 
@@ -25,7 +25,7 @@ int GetSystemVersion()
     }
     else 
     {
-      SInt32 a = 0x1040;
+      int32_t a = 0x1040;
       Gestalt(gestaltSystemVersion,&a);
       v=a;
     }
@@ -497,7 +497,7 @@ void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const 
 bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")
-  NSURL* pNSURL = 0;
+  NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
   {
     pNSURL = [NSURL URLWithString:ToNSString(url)];
@@ -524,10 +524,7 @@ void* IGraphicsMac::GetWindow()
 // static
 int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
 {
-  SInt32 ver = GetSystemVersion();
-  
-  Trace(TRACELOC, "%x", ver);
-  return (int) ver;
+  return (int) GetSystemVersion();
 }
 
 bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
