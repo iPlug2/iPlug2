@@ -370,19 +370,9 @@ protected:
 /** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
 class IDirBrowseControlBase : public IControl
 {
-protected:
-  IPopupMenu mMainMenu;
-  WDL_PtrList<WDL_String> mPaths;
-  WDL_PtrList<WDL_String> mPathLabels;
-  WDL_PtrList<WDL_String> mFiles;
-  WDL_String mExtension;
-
-  int mSelectedIndex;
-  
 public:
   IDirBrowseControlBase(IPlugBaseGraphics& plug, IRECT rect, const char* extension /* e.g. ".txt"*/)
   : IControl(plug, rect)
-  , mSelectedIndex(-1)
   {
     mExtension.Set(extension);
   }
@@ -464,4 +454,11 @@ private:
     }
   }
   
+protected:
+  int mSelectedIndex = -1;
+  IPopupMenu mMainMenu;
+  WDL_PtrList<WDL_String> mPaths;
+  WDL_PtrList<WDL_String> mPathLabels;
+  WDL_PtrList<WDL_String> mFiles;
+  WDL_String mExtension;
 };
