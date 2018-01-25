@@ -106,8 +106,8 @@ private:
 class IBSliderControl : public IControl
 {
 public:
-  IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int param, IBitmap& bitmap,
-                EDirection direction = kVertical, bool onlyHandle = false);
+  IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int param,
+                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   ~IBSliderControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
