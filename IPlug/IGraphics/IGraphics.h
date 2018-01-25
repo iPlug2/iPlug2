@@ -325,7 +325,7 @@ private:
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;
-  bool mEnableTooltips;
+  bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   IControl* mKeyCatcher = nullptr;
