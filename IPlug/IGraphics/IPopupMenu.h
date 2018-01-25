@@ -21,6 +21,7 @@ class IPopupMenu
 {
 public:
   /** A class to specify an item of a pop up menu */
+#pragma mark - IPopupMenu::Item
   class Item
   {
   public:
@@ -33,18 +34,18 @@ public:
       kSeparator  = 1 << 3    // item is a separator
     };
     
-    Item(const char* text, int flags = kNoFlags, int tag = -1)
+    Item(const char* str, int flags = kNoFlags, int tag = -1)
     : mFlags(flags)
     , mTag(tag)
     {
-      SetText(text);
+      SetText(str);
     }
     
-    Item (const char* text, IPopupMenu* pSubMenu)
+    Item (const char* str, IPopupMenu* pSubMenu)
     : mFlags(kNoFlags)
     , mSubmenu(pSubMenu)
     {
-      SetText(text);
+      SetText(str);
     }
     
     ~Item()
@@ -53,7 +54,7 @@ public:
         DELETE_NULL(mSubmenu);
     }
     
-    void SetText(const char* text) { mText.Set(text); }
+    void SetText(const char* str) { mText.Set(str); }
     const char* GetText() { return mText.Get(); };
     
     bool GetEnabled() const { return !(mFlags & kDisabled); }
@@ -82,6 +83,7 @@ public:
     int mTag = -1;
   };
   
+  #pragma mark -
   
   IPopupMenu(int prefix = 0, bool multicheck = false)
   : mPrefix(prefix)
@@ -107,20 +109,9 @@ public:
     return pItem;
   }
   
-  Item* AddItem(const char* text, int index = -1, int itemFlags = Item::kNoFlags)
-  {
-    return AddItem(new Item(text, itemFlags), index);
-  }
-  
-  Item* AddItem(const char* text, int index, IPopupMenu* pSubmenu)
-  {
-    return AddItem(new Item(text, pSubmenu), index);
-  }
-  
-  Item* AddItem(const char* text, IPopupMenu* pSubmenu)
-  {
-    return AddItem(new Item(text, pSubmenu), -1);
-  }
+  Item* AddItem(const char* str, int index = -1, int itemFlags = Item::kNoFlags) { return AddItem(new Item(str, itemFlags), index); }
+  Item* AddItem(const char* str, int index, IPopupMenu* pSubmenu) { return AddItem(new Item(str, pSubmenu), index); }
+  Item* AddItem(const char* str, IPopupMenu* pSubmenu) { return AddItem(new Item(str, pSubmenu), -1); }
   
   Item* AddSeparator(int index = -1)
   {
@@ -148,10 +139,7 @@ public:
     }
   }
   
-  const char* GetItemText(int index)
-  {
-    return GetItem(index)->GetText();
-  }
+  const char* GetItemText(int index) return GetItem(index)->GetText(); }
   
   void SetPrefix(int count)
   {
