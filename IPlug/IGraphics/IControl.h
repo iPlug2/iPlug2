@@ -440,7 +440,7 @@ private:
             if (a && a > f && strlen(a) == strlen(mExtension.Get()))
             {
               WDL_String menuEntry = WDL_String(f, a-f);
-              pParentDirMenu->AddItem(new IPopupMenuItem(menuEntry.Get(), IPopupMenuItem::kNoFlags, mFiles.GetSize()));
+              pParentDirMenu->AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
               WDL_String* pFullPath = new WDL_String("");
               d.GetCurrentFullFN(pFullPath);
               mFiles.Add(pFullPath);

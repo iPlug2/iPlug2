@@ -746,7 +746,7 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
 
   for(int i = 0; i< baseMenu.GetNItems(); i++)
   {
-    IPopupMenuItem* menuItem = baseMenu.GetItem(i);
+    IPopupMenu::Item* menuItem = baseMenu.GetItem(i);
     if(menuItem->GetSubmenu())
     {
       menu = GetItemMenu(idx, idxInMenu, offsetIdx, *menuItem->GetSubmenu());
@@ -772,7 +772,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 
   for(int i = 0; i< nItems; i++)
   {
-    IPopupMenuItem* menuItem = menu.GetItem(i);
+    IPopupMenu::Item* menuItem = menu.GetItem(i);
 
     if (menuItem->GetIsSeparator())
     {
@@ -860,13 +860,7 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
 
     ClientToScreen(mPlugWnd, &cPos);
 
-    if (TrackPopupMenu(hMenu,
-                       TPM_LEFTALIGN,
-                       cPos.x,
-                       cPos.y,
-                       0,
-                       mPlugWnd,
-                       0))
+    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
     {
       MSG msg;
       if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))

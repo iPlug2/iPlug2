@@ -284,9 +284,9 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
       const char* str = pParam->GetDisplayText(i);
       // TODO: what if two parameters have the same text?
       if (!strcmp(str, currentText)) // strings are equal
-        menu.AddItem( new IPopupMenuItem(str, IPopupMenuItem::kChecked), -1 );
+        menu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
       else // not equal
-        menu.AddItem( new IPopupMenuItem(str), -1 );
+        menu.AddItem( new IPopupMenu::Item(str), -1 );
     }
 
     if(CreateIPopupMenu(menu, textRect))

@@ -29,7 +29,7 @@
 
   for (int i = 0; i < numItems; ++i)
   {
-    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+    IPopupMenu::Item* menuItem = pMenu->GetItem(i);
 
     nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:menuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
 
