@@ -12,45 +12,6 @@
  * @{
  */
 
-#pragma mark - Base Controls
-
-/** Parent for knobs, to handle mouse action and ballistics. */
-class IKnobControlBase : public IControl
-{
-public:
-  IKnobControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter,
-                   EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IControl(plug, rect, param)
-  , mDirection(direction)
-  , mGearing(gearing)
-  {}
-  
-  virtual ~IKnobControlBase() {}
-  
-  void SetGearing(double gearing) { mGearing = gearing; }
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-  
-protected:
-  EDirection mDirection;
-  double mGearing;
-};
-
-/** Parent for buttons/switch controls */
-class IButtonControlBase : public IControl
-{
-public:
-  IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter,  IActionFunction actionFunc = nullptr,
-                     uint32_t numStates = 2);
-  
-  virtual ~IButtonControlBase() {}
-  
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  
-protected:
-  uint32_t mNumStates;
-};
-
 #pragma mark - Vector Controls
 
 /** A vector switch control. Click to cycle through states. */

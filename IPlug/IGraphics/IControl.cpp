@@ -276,3 +276,79 @@ void ITextControl::Draw(IGraphics& graphics)
     graphics.DrawText(mText, cStr, mRECT);
   }
 }
+
+IButtonControlBase::IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+  uint32_t numStates)
+  : IControl(plug, rect, paramIdx, actionFunc)
+{
+  if (paramIdx > -1)
+    mNumStates = (uint32_t)mPlug.GetParam(paramIdx)->GetRange() + 1;
+  else
+    mNumStates = numStates;
+
+  assert(mNumStates > 1);
+}
+
+void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mNumStates == 2)
+    mValue = !mValue;
+  else
+  {
+    const float step = 1.f / float(mNumStates) - 1.f;
+    mValue += step;
+    mValue = fmod(1., mValue);
+  }
+
+  if (mActionFunc != nullptr)
+    mActionFunc(this);
+
+  SetDirty();
+}
+
+void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  double gearing = mGearing;
+
+#ifdef PROTOOLS
+#ifdef OS_WIN
+  if (mod.C) gearing *= 10.0;
+#else
+  if (mod.R) gearing *= 10.0;
+#endif
+#else
+  if (mod.C || mod.S) gearing *= 10.0;
+#endif
+
+  if (mDirection == kVertical)
+  {
+    mValue += (double)dY / (double)(mRECT.T - mRECT.B) / gearing;
+  }
+  else
+  {
+    mValue += (double)dX / (double)(mRECT.R - mRECT.L) / gearing;
+  }
+
+  SetDirty();
+}
+
+void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+#ifdef PROTOOLS
+  if (mod.C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (mod.C || mod.S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+
+  SetDirty();
+}
