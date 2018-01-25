@@ -77,7 +77,7 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     case kBlendColorDodge: return agg::comp_op_color_dodge;
     case kBlendNone:
     default:
-      return agg::comp_op_src;
+      return agg::comp_op_src_over;
   }
 }
 
