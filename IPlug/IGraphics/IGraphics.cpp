@@ -125,7 +125,7 @@ void IGraphics::AttachBackground(const char* name, double scale)
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mPlug, IRECT(0.f, 0.f, mWidth, mHeight), color);
+  IControl* pBG = new IPanelControl(mPlug, IRECT(0.f, 0.f, (float) Width(), (float) Height()), color);
   mControls.Insert(0, pBG);
 }
 

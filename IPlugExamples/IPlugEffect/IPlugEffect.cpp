@@ -16,7 +16,7 @@ public:
   void Draw(IGraphics& g) override
   {
     //g.DrawRect(COLOR_BLUE, mRECT.GetPadded(-50));
-    g.FillRect(COLOR_BLUE, mRECT.GetScaled(mPhase));
+    g.FillRect(COLOR_BLUE, mRECT.GetScaled((float) mPhase));
     //g.FillRect(COLOR_GREEN, mRECT.GetScaled(1.-mPhase));
   }
   
