@@ -80,12 +80,7 @@ public:
     cairo_reset_clip(mContext);
   }
   
-protected:
-  inline float CairoWeight(const IBlend* pBlend)
-  {
-    return (pBlend ? pBlend->mWeight : 1.0f);
-  }
-  
+protected:  
   inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   {
     if (!pBlend)
@@ -106,7 +101,7 @@ protected:
   inline void SetCairoSourceRGBA(const IColor& color, const IBlend* pBlend = nullptr)
   {
     cairo_set_operator(mContext, CairoBlendMode(pBlend));
-    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
+    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
   }
     
   void Stroke(const IColor& color, const IBlend* pBlend = nullptr)

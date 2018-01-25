@@ -11,18 +11,13 @@
 
 struct NanoVGBitmap;
 
-inline float NanoVGWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
 inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
   c.g = (float) color.G / 255.0f;
   c.b = (float) color.B / 255.0f;
-  c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
+  c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
   return c;
 }
 
@@ -105,13 +100,13 @@ public:
 
 protected:
     
-  void Stroke(const IColor& color, const IBlend* pBlend = 0)
+  inline void Stroke(const IColor& color, const IBlend* pBlend = 0)
   {
     nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
     nvgStroke(mVG);
   }
     
-  void Fill(const IColor& color, const IBlend* pBlend = 0)
+  inline void Fill(const IColor& color, const IBlend* pBlend = 0)
   {
     nvgFillColor(mVG, NanoVGColor(color, pBlend));
     nvgFill(mVG);

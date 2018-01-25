@@ -142,6 +142,11 @@ struct IBlend
   IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
+inline float BlendWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
 const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
 const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);

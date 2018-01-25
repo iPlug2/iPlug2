@@ -58,9 +58,31 @@
 #pragma clang diagnostic pop
 #endif
 
+
+inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+{
+  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+}
+
+inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return agg::comp_op_src;
+  }
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber: return agg::comp_op_src_over;
+    case kBlendAdd: return agg::comp_op_plus;
+    case kBlendColorDodge: return agg::comp_op_color_dodge;
+    case kBlendNone:
+    default:
+      return agg::comp_op_src;
+  }
+}
+
 /** IGraphics draw class using Antigrain Geometry  
-*   @ingroup DrawClasses
-*/
+*   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphics
 {
 public:

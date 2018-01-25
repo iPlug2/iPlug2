@@ -11,6 +11,39 @@
 
 #include "IGraphics.h"
 
+inline LICE_pixel LiceColor(const IColor& color)
+{
+  return LICE_RGBA(color.R, color.G, color.B, color.A);
+}
+
+inline int LiceBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
+  }
+  switch (pBlend->mMethod)
+  {
+    case EBlendType::kBlendClobber:
+    {
+      return LICE_BLIT_MODE_COPY;
+    }
+    case EBlendType::kBlendAdd:
+    {
+      return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    }
+    case EBlendType::kBlendColorDodge:
+    {
+      return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
+    }
+    case EBlendType::kBlendNone:
+    default:
+    {
+      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
+    }
+  }
+}
+
 /** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses
 */
@@ -77,41 +110,3 @@ private:
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };
-
-inline LICE_pixel LiceColor(const IColor& color)
-{
-  return LICE_RGBA(color.R, color.G, color.B, color.A);
-}
-
-inline float LiceWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
-inline int LiceBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-  }
-  switch (pBlend->mMethod)
-  {
-    case EBlendType::kBlendClobber:
-    {
-      return LICE_BLIT_MODE_COPY;
-    }
-    case EBlendType::kBlendAdd:
-    {
-      return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    }
-    case EBlendType::kBlendColorDodge:
-    {
-      return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
-    }
-    case EBlendType::kBlendNone:
-    default:
-    {
-      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-    }
-  }
-}
