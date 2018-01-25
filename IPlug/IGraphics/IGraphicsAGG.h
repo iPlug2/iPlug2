@@ -163,15 +163,11 @@ public:
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
-  
-  inline const agg::rgba8 IColorToAggColor(const IColor& color)
-  {
-    return agg::rgba8(color.R, color.G, color.B, color.A);
-  }
+
 private:
-    
+  
   template <typename pathType>
-  void Rasterize(const IColor& color, pathType& path)
+  void Rasterize(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
@@ -180,7 +176,7 @@ private:
     
     agg::renderer_scanline_aa_solid<RenbaseType> renderer(mRenBase);
     
-    renderer.color(IColorToAggColor(color));
+    renderer.color(AGGColor(color, pBlend));
     rasterizer.filling_rule(agg::fill_non_zero);
     
     rasterizer.add_path(path);
@@ -188,17 +184,17 @@ private:
   }
     
   template <typename pathType>
-  void Fill(const IColor& color, pathType& path)
+  void Fill(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
-    Rasterize(color, path);
+    Rasterize(color, path, pBlend);
   }
     
   template <typename pathType>
-  void Stroke(const IColor& color, pathType& path)
+  void Stroke(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
     agg::conv_stroke<pathType> strokes(path);
     strokes.width(1.0 * GetDisplayScale());
-    Rasterize(color, strokes);
+    Rasterize(color, strokes, pBlend);
   }
 
   RenbaseType mRenBase;
