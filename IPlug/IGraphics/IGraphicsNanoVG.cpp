@@ -108,7 +108,7 @@ void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, 
 {
   nvgSave(mVG);
   nvgTranslate(mVG, destCtrX, destCtrY);
-  nvgRotate(mVG, angle);
+  nvgRotate(mVG, DegToRad(angle));
   DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
   nvgRestore(mVG);
 }
@@ -126,7 +126,7 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
   NanoVGBitmap* pBmp = (NanoVGBitmap*) bitmap.mData;
-  NVGpaint imgPaint = nvgImagePattern(mVG, destCtrX, destCtrY, bitmap.W, bitmap.H, angle, pBmp->idx, BlendWeight(pBlend));
+  NVGpaint imgPaint = nvgImagePattern(mVG, destCtrX, destCtrY, bitmap.W, bitmap.H, DegToRad(angle), pBmp->idx, BlendWeight(pBlend));
   nvgBeginPath(mVG);
   nvgRect(mVG, destCtrX, destCtrY, destCtrX + bitmap.W, destCtrX + bitmap.H);
   nvgFillPaint(mVG, imgPaint);
@@ -135,6 +135,7 @@ void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destC
 
 void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
+  //TODO:
 }
 
 inline void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
@@ -157,7 +158,8 @@ inline void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoint
 
 void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
-  //TODO - implement
+  //TODO: NanoVG doesn't do dots
+  DrawRect(color, rect, pBlend);
 }
 
 void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
@@ -169,6 +171,7 @@ void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBl
 
 void IGraphicsNanoVG::ForcePixel(const IColor& color, int x, int y)
 {
+  //TODO:
 }
 
 void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)

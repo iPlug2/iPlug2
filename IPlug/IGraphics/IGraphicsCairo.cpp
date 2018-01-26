@@ -205,7 +205,7 @@ void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, f
 {
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle);
+  cairo_rotate(mContext, DegToRad(angle));
   DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
   cairo_restore(mContext);
 }
@@ -230,7 +230,7 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle);
+  cairo_rotate(mContext, DegToRad(angle));
   DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
   cairo_restore(mContext);
 }

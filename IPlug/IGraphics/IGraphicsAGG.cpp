@@ -117,7 +117,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
 
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  srcMatrix *= agg::trans_affine_rotation(angle);
+  srcMatrix *= agg::trans_affine_rotation(DegToRad(angle));
   srcMatrix *= agg::trans_affine_translation(destCtrX, destCtrY);
   
   agg::trans_affine imgMtx = srcMatrix;
