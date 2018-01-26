@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include "IGraphicsLice.h"
+#include "LiceNanoSVG.h"
 
 extern int GetSystemVersion();
 
@@ -116,10 +117,12 @@ IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, cons
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
   //TODO:
+  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
 }
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
+  DrawSVG(svg, GetDrawRect(), pBlend);
   //TODO:
 }
 
