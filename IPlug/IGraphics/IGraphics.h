@@ -145,23 +145,17 @@ public:
   virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0) = 0;
   
   /**
-   /todo <#Description#>
+   <#Description#>
 
-   @param color The colour to draw/fill the shape with>
+   @param color <#color description#>
    @param x1 <#x1 description#>
    @param y1 <#y1 description#>
-  /**
-   /todo
-
-   @param base <#base description#>
-   @param mask <#mask description#>
-   @param top <#top description#>
    @param x2 <#x2 description#>
    @param y2 <#y2 description#>
    @param x3 <#x3 description#>
    @param y3 <#y3 description#>
    @param pBlend Optional blend method, see IBlend documentation
-  */
+   */
   virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
   
   /**
@@ -347,21 +341,86 @@ public:
    @return <#return value description#>
   */
   inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics drawing classes to clip drawing
+  
+  /**
+   <#Description#>
+
+   @return <#return value description#>
+   */
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
+  
+  /**
+   <#Description#>
+
+   @param name <#name description#>
+   @param nStates <#nStates description#>
+   @param framesAreHoriztonal <#framesAreHoriztonal description#>
+   @param . <#. description#>
+   @return <#return value description#>
+   */
   virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
+  
+  /**
+   <#Description#>
+
+   @param srcbitmap <#srcbitmap description#>
+   @param cacheName <#cacheName description#>
+   @param targetScale <#targetScale description#>
+   @return <#return value description#>
+   */
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
+  
+  /**
+   <#Description#>
+
+   @param bitmap <#bitmap description#>
+   @param rect <#rect description#>
+   @param name <#name description#>
+   @param targetScale <#targetScale description#>
+   @return <#return value description#>
+   */
   virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
+  
+  /**
+   <#Description#>
+
+   @param bitmap <#bitmap description#>
+   @param cacheName <#cacheName description#>
+   */
   virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
+  
+  /**
+   <#Description#>
+
+   @param bitmap <#bitmap description#>
+   */
   virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
+  
+  /**
+   <#Description#>
+
+   @param src <#src description#>
+   @return <#return value description#>
+   */
   IBitmap GetScaledBitmap(IBitmap& src);
+  
+  /**
+   <#Description#>
+   */
   virtual void OnDisplayScale();
   
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
+  
+  
+  /**
+   <#Description#>
+   */
   virtual void RenderDrawBitmap() {}
 
 #pragma mark - IGraphics base implementation - drawing helpers
+  
   /** Draws a bitmap into the graphics context
    
  @param bitmap - the bitmap to draw
