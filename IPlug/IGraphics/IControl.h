@@ -377,103 +377,18 @@ public:
     mExtension.Set(extension);
   }
   
-  ~IDirBrowseControlBase()
-  {
-    mFiles.Empty(true);
-    mPaths.Empty(true);
-    mPathLabels.Empty(true);
-  }
+  ~IDirBrowseControlBase();
   
-  int NItems()
-  {
-    return mFiles.GetSize();
-  }
+  int NItems();
   
-  void AddPath(const char* path, const char* label)
-  {
-    mPaths.Add(new WDL_String(path));
-    mPathLabels.Add(new WDL_String(label));
-  }
+  void AddPath(const char* path, const char* label);
   
-  void SetUpMenu()
-  {
-    mFiles.Empty(true);    
-    mMainMenu.Clear();
-    mSelectedIndex = -1;
-    
-    int idx = 0;
-    
-    if(mPaths.GetSize() == 1)
-    {
-      ScanDirectory(mPaths.Get(0)->Get(), &mMainMenu);
-    }
-    else
-    {
-      for (int p=0; p<mPaths.GetSize(); p++)
-      {
-        IPopupMenu* pNewMenu = new IPopupMenu();
-        mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
-
-        IPopupMenu* pMenuToAddTo = pNewMenu;
-        ScanDirectory(mPaths.Get(p)->Get(), pMenuToAddTo);
-      }
-    }
-  }
+  void SetUpMenu();
   
-  void GetSelecteItemPath(WDL_String& path)
-  {
-    if(mSelectedMenu != nullptr) {
-      path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-#ifdef OS_WIN
-      path.Append("\\");
-#endif
-      path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-      path.Append(mExtension.Get());
-    }
-    else
-      path.Set("");
-  }
+  void GetSelecteItemPath(WDL_String& path);
   
 private:
-  void ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo)
-  {
-    WDL_DirScan d;
-    IPopupMenu* pParentDirMenu = pMenuToAddTo;
-    
-    if (!d.First(path))
-    {
-      do
-      {
-        const char* f=d.GetCurrentFN();
-        if (f && f[0] != '.')
-        {
-          if (d.GetCurrentIsDirectory())
-          {
-            WDL_String subdir;
-            d.GetCurrentFullFN(&subdir);
-            IPopupMenu* pNewMenu = new IPopupMenu();
-            pMenuToAddTo->AddItem(d.GetCurrentFN(), pNewMenu);
-            ScanDirectory(subdir.Get(), pNewMenu);
-          }
-          else
-          {
-            const char* a=strstr(f, mExtension.Get());
-            if (a && a > f && strlen(a) == strlen(mExtension.Get()))
-            {
-              WDL_String menuEntry = WDL_String(f, a-f);
-              pParentDirMenu->AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
-              WDL_String* pFullPath = new WDL_String("");
-              d.GetCurrentFullFN(pFullPath);
-              mFiles.Add(pFullPath);
-            }
-          }
-        }
-      }
-      while (!d.Next());
-      
-      pMenuToAddTo = pParentDirMenu;
-    }
-  }
+  void ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo);
   
 protected:
   int mSelectedIndex = -1;
