@@ -400,9 +400,6 @@ void IDirBrowseControlBase::GetSelecteItemPath(WDL_String & path)
 {
   if (mSelectedMenu != nullptr) {
     path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-#ifdef OS_WIN
-    path.Append("\\");
-#endif
     path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
     path.Append(mExtension.Get());
   }
@@ -435,7 +432,7 @@ void IDirBrowseControlBase::ScanDirectory(const char * path, IPopupMenu * pMenuT
           const char* a = strstr(f, mExtension.Get());
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
-            WDL_String menuEntry = WDL_String(f, a - f);
+            WDL_String menuEntry = WDL_String(f, (int) (a - f));
             pParentDirMenu->AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
