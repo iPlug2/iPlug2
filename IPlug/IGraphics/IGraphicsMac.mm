@@ -193,49 +193,56 @@ void IGraphicsMac::ShowMouseCursor()
   }
 }
 
-int IGraphicsMac::ShowMessageBox(const char* str, const char* pCaption, int type)
+int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 {
   int result = 0;
 
-  CFStringRef defaultButtonTitle = NULL;
-  CFStringRef alternateButtonTitle = NULL;
-  CFStringRef otherButtonTitle = NULL;
+  CFStringRef button1 = NULL;
+  CFStringRef button2 = NULL;
+  CFStringRef button3 = NULL;
 
   CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, str, 0, kCFAllocatorNull);
-  CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, pCaption, 0, kCFAllocatorNull);
+  CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, caption, 0, kCFAllocatorNull);
 
   switch (type)
   {
+    case MB_OK:
+      button1 = CFSTR("OK");
+      break;
     case MB_OKCANCEL:
-      alternateButtonTitle = CFSTR("Cancel");
+      button1 = CFSTR("OK");
+      button2 = CFSTR("Cancel");
       break;
     case MB_YESNO:
-      defaultButtonTitle = CFSTR("Yes");
-      alternateButtonTitle = CFSTR("No");
+      button1 = CFSTR("Yes");
+      button2 = CFSTR("No");
       break;
     case MB_YESNOCANCEL:
-      defaultButtonTitle = CFSTR("Yes");
-      alternateButtonTitle = CFSTR("No");
-      otherButtonTitle = CFSTR("Cancel");
+      button1 = CFSTR("Yes");
+      button2 = CFSTR("No");
+      button3 = CFSTR("Cancel");
       break;
   }
 
   CFOptionFlags response = 0;
-  CFUserNotificationDisplayAlert(0, kCFUserNotificationNoteAlertLevel, NULL, NULL, NULL,
-                                 alertHeader, alertMessage,
-                                 defaultButtonTitle, alternateButtonTitle, otherButtonTitle,
-                                 &response);
+  CFUserNotificationDisplayAlert(0, kCFUserNotificationNoteAlertLevel, NULL, NULL, NULL, alertHeader, alertMessage, button1, button2, button3, &response);
 
   CFRelease(alertMessage);
   CFRelease(alertHeader);
 
-  switch (response) // TODO: check the return type, what about IDYES
+  switch (response)
   {
     case kCFUserNotificationDefaultResponse:
-      result = IDOK;
+      if(type == MB_OK || type == MB_OKCANCEL)
+        result = IDOK;
+      else
+        result = IDYES;
       break;
     case kCFUserNotificationAlternateResponse:
-      result = IDNO;
+      if(type == MB_OKCANCEL)
+        result = IDCANCEL;
+      else
+        result = IDNO;
       break;
     case kCFUserNotificationOtherResponse:
       result = IDCANCEL;
