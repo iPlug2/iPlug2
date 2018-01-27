@@ -7,8 +7,10 @@
 
 #ifdef OS_OSX
 #define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
+#define KNOB_FN "resources/img/BefacoBigKnob.svg"
 #else
 #define SVG_FOLDER "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
+#define KNOB_FN "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\BefacoBigKnob.svg"
 #endif
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
