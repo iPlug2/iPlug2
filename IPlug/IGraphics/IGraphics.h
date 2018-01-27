@@ -1147,7 +1147,7 @@ public:
 
    @return An IRECT that corresponds to the entire UI area, with, L = 0, T = 0, R = Width() and B  = Height()
    */
-  IRECT GetBounds() const { return IRECT(0, 0, Width(), Height()); }
+  IRECT GetBounds() const { return IRECT(0.f, 0.f, (float) Width(), (float) Height()); }
 
   /**
    /todo <#Description#>

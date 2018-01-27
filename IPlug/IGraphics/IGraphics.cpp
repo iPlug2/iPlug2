@@ -413,7 +413,7 @@ void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, flo
 
 void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
 {
-  const float angleRadians = DegToRad(angle);
+  const float angleRadians = DegToRad(angle-90.f);
   const float sinV = sinf(angleRadians);
   const float cosV = cosf(angleRadians);
   const float xLo = (cx + rMin * cosV);

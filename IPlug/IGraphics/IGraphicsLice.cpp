@@ -248,7 +248,7 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
 void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   const float ds = GetDisplayScale();
-  LICE_Arc(mDrawBitmap, cx * ds, cy * ds, r * ds, DegToRad(aMin) + (0.5 * PI), DegToRad(aMax) + (0.5 * PI), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_Arc(mDrawBitmap, cx * ds, cy * ds, r * ds, DegToRad(aMin), DegToRad(aMax), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
@@ -353,10 +353,10 @@ void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, fl
   float xarray[361];
   float yarray[361];
   
-  aMin = DegToRad(aMin);
-  aMax = DegToRad(aMax);
+  aMin = DegToRad(aMin-90.f);
+  aMax = DegToRad(aMax-90.f);
   
-  int arcpoints = 360.0 * std::min(1., std::fabs(aMax - aMin) / 2.f * PI);
+  int arcpoints = 360.0 * std::min(1., aMax - aMin / 2.f * PI);
   double arcincrement = (aMax - aMin) / arcpoints;
   for(int i = 0; i < arcpoints; i++)
   {

@@ -331,7 +331,7 @@ void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, 
 
 void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax));
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   Stroke(color, pBlend);
 }
 
@@ -376,7 +376,7 @@ void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, 
 void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   cairo_move_to(mContext, cx, cy);
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax));
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   cairo_close_path(mContext);
   Fill(color, pBlend);
 }
