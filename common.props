@@ -60,6 +60,9 @@
     <Lib>
       <AdditionalDependencies />
     </Lib>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="WDL_PATH">

@@ -970,14 +970,18 @@ ISVG IGraphics::LoadSVG(const char* name)
 {
   WDL_String path;
   bool found = OSFindResource(name, "svg", path);
-  assert(found);
+  assert(found == true);
   
   SVGHolder* pHolder = s_SVGCache.Find(path.Get());
   
   if(!pHolder)
   {
     NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
-    pHolder  = new SVGHolder(pImage);
+
+    assert(pImage != nullptr);
+    //TODO: get win32 resource as string - nsvgParseFromFile won't work
+
+    pHolder = new SVGHolder(pImage);
     s_SVGCache.Add(pHolder, path.Get());
   }
   

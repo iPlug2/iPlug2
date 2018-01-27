@@ -8,7 +8,7 @@
 #ifdef OS_OSX
 #define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
 #else
-#define SVG_FOLDER"C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
+#define SVG_FOLDER "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
 #endif
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
@@ -40,7 +40,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
     pCaller->Hide(pGraphics->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
   }));
 
-  auto svg = pGraphics->LoadSVG("/Resources/img/BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
+  auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
   auto knobControl = new SVGKnob(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 0).GetPadded(-5.), svg, kGain);
   auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
                                            [pGraphics, knobControl](IControl* pCaller)

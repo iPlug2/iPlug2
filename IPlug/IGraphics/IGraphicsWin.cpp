@@ -1309,7 +1309,7 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
       WDL_String strippedName(strlwr(name+1)); 
       strippedName.SetLen(strippedName.GetLength() - 1);
 
-      if (strcmp(search->Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
+      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
         search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
         return false;
