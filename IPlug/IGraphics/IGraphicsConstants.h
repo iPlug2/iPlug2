@@ -33,7 +33,7 @@ static const float GRAYED_ALPHA = 0.25f;
 #ifdef OS_WIN
 const char* const DEFAULT_FONT = "Verdana";
 const int DEFAULT_TEXT_SIZE = 12;
-#elif defined OS_OSX
+#elif defined OS_MAC
 const char* const DEFAULT_FONT = "Monaco";
 const int DEFAULT_TEXT_SIZE = 10;
 #endif

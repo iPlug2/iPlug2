@@ -2,7 +2,7 @@
 
 #include "IGraphics.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
 #endif
@@ -52,7 +52,7 @@
 #include "agg_conv_segmentator.h"
 #include "agg_trans_single_path.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "agg_mac_pmap.h"
 #include "agg_mac_font.h"
 #pragma clang diagnostic pop
@@ -202,7 +202,7 @@ private:
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
-#ifdef OS_OSX
+#ifdef OS_MAC
   agg::pixel_map_mac mPixelMap;
 #else
 #endif

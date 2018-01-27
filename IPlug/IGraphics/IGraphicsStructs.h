@@ -7,7 +7,7 @@
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "swell.h"
 #endif
 

@@ -16,7 +16,7 @@ IGraphicsLice::IGraphicsLice(IPlugBaseGraphics& plug, int w, int h, int fps)
 
 IGraphicsLice::~IGraphicsLice() 
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   if (mColorSpace)
   {
     CFRelease(mColorSpace);
@@ -410,7 +410,7 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& rect, bo
   {
     fmt |= DT_CALCRECT;
     RECT R = {0,0,0,0};
-#ifdef OS_OSX
+#ifdef OS_MAC
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
 #else
     font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
@@ -439,7 +439,7 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& rect, bo
     IRECT r = rect;
     r.Scale(ds);
     RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
-#ifdef OS_OSX
+#ifdef OS_MAC
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
 #else
     font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
@@ -477,7 +477,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
       else // if (text.mQuality == IText::kQualityNonAntiAliased)
         q = NONANTIALIASED_QUALITY;
     
-#ifdef OS_OSX
+#ifdef OS_MAC
     bool resized = false;
   Resize:
     if (h < 2) h = 2;
@@ -489,7 +489,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
       return 0;
     }
     font->SetFromHFont(hFont, LICE_FONT_FLAG_OWNS_HFONT | LICE_FONT_FLAG_FORCE_NATIVE);
-#ifdef OS_OSX
+#ifdef OS_MAC
     if (!resized && font->GetLineHeight() != h)
     {
       h = int((double)(h * h) / (double)font->GetLineHeight() + 0.5);
@@ -512,7 +512,7 @@ bool IGraphicsLice::MeasureText(const IText& text, const char* str, IRECT& destR
 LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 {
   bool ispng = strstr(path, "png") != nullptr;
-#ifdef OS_OSX
+#ifdef OS_MAC
   if (ispng) return LICE_LoadPNG(path);
 #else //OS_WIN
   if (ispng) return LICE_LoadPNGFromResource((HINSTANCE) GetPlatformInstance(), path, 0);
@@ -520,7 +520,7 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 
 #ifdef IPLUG_JPEG_SUPPORT
   bool isjpg = (strstr(path, "jpg") != nullptr) && (strstr(path, "jpeg") != nullptr);
-#ifdef OS_OSX
+#ifdef OS_MAC
   if (isjpg) return LICE_LoadJPG(path);
 #else //OS_WIN
   if (isjpg) return LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0);
@@ -532,7 +532,7 @@ LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
 
 void IGraphicsLice::RenderDrawBitmap()
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
 
 #ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
   double tm=gettm();

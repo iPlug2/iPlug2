@@ -941,7 +941,7 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
     if (strcmp (type, kPlatformTypeHWND) == 0)
       return kResultTrue;
 
-#elif defined OS_OSX
+#elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
       return kResultTrue;
     else if (strcmp (type, kPlatformTypeHIView) == 0)
@@ -993,7 +993,7 @@ tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
     #ifdef OS_WIN
     if (strcmp (type, kPlatformTypeHWND) == 0)
       mPlug->OpenWindow(parent);
-    #elif defined OS_OSX
+    #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
       mPlug->OpenWindow(parent);
     else // Carbon

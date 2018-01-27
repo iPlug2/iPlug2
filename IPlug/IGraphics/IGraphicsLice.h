@@ -2,7 +2,7 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include <CoreGraphics/CoreGraphics.h>
 #include "swell.h"
 #endif
@@ -106,7 +106,7 @@ private:
 
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
-#ifdef OS_OSX
+#ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };

@@ -3,7 +3,7 @@
 #include "IPlugPlatform.h"
 
 #include "cairo/cairo.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "cairo/cairo-quartz.h"
 #else
 #include "cairo/cairo-win32.h"

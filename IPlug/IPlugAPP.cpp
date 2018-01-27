@@ -1,5 +1,5 @@
 #include "IPlugAPP.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "swell.h"
 #endif
 extern HWND gHWND;
@@ -23,7 +23,7 @@ void IPlugAPP::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
   {
-    #ifdef OS_OSX
+    #ifdef OS_MAC
     #define TITLEBAR_BODGE 22 //TODO: sort this out
     RECT r;
     GetWindowRect(gHWND, &r);

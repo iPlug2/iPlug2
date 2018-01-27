@@ -51,7 +51,7 @@
   #else
     #define EXPORT __declspec(dllexport)
   #endif
-#elif defined OS_OSX
+#elif defined OS_MAC
 #ifndef NO_IGRAPHICS
   #include "IGraphicsMac.h"
 #endif

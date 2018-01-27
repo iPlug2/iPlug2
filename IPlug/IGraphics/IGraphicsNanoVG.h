@@ -3,7 +3,7 @@
 #include "IPlugPlatform.h"
 
 #include "nanovg.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "nanovg_mtl.h"
 #endif
 

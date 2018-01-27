@@ -37,7 +37,7 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 {
   mBitmaps.Empty(true);
   
-#ifdef OS_OSX
+#ifdef OS_MAC
   if(mVG)
     nvgDeleteMTL(mVG);
 #endif
@@ -73,7 +73,7 @@ IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& rect, co
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 #endif
 }

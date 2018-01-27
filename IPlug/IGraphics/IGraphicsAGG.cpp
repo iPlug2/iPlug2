@@ -399,7 +399,7 @@ IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, co
 
 agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
 #else
   //TODO: win
@@ -412,7 +412,7 @@ agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 
 agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* path)
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   if (CSTR_NOT_EMPTY(path))
   {
     const char* ext = path+strlen(path)-1;
@@ -490,7 +490,7 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
 
 void IGraphicsAGG::RenderDrawBitmap()
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale() / GetScale());
 #else // OS_WIN
   //TODO: win

@@ -5,7 +5,7 @@
 #include "IGraphicsCairo.h"
 #include "CairoNanoSVG.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 {
   return cairo_image_surface_create_from_png(path.Get());
@@ -476,7 +476,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   }
   else if(!mSurface)
   {
-#ifdef OS_OSX
+#ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, 1, -1);
