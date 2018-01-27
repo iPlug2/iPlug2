@@ -403,14 +403,32 @@ public:
     
     int idx = 0;
     
-    for (int p=0; p<mPaths.GetSize(); p++) 
+    if(mPaths.GetSize() == 1)
     {
-      IPopupMenu* pNewMenu = new IPopupMenu();
-      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
-
-      IPopupMenu* pMenuToAddTo = pNewMenu;
-      ScanDirectory(mPaths.Get(p)->Get(), pMenuToAddTo);
+      ScanDirectory(mPaths.Get(0)->Get(), &mMainMenu);
     }
+    else
+    {
+      for (int p=0; p<mPaths.GetSize(); p++)
+      {
+        IPopupMenu* pNewMenu = new IPopupMenu();
+        mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
+
+        IPopupMenu* pMenuToAddTo = pNewMenu;
+        ScanDirectory(mPaths.Get(p)->Get(), pMenuToAddTo);
+      }
+    }
+  }
+  
+  void GetSelecteItemPath(WDL_String& path)
+  {
+    if(mSelectedMenu != nullptr) {
+      path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+      path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+      path.Append(mExtension.Get());
+    }
+    else
+      path.Set("");
   }
   
 private:
@@ -456,6 +474,7 @@ private:
   
 protected:
   int mSelectedIndex = -1;
+  IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;

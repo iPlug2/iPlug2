@@ -17,22 +17,20 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   
   
   // lamda function for custom actions on stock IControls
-  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(100, 100, 150, 150), kNoParameter, [](IControl* pControl)
+  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(100, 100, 150, 150), kNoParameter, [pGraphics](IControl* pCaller)
   {
-    pControl->Hide(pControl->GetGUI()->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
+    pCaller->Hide(pGraphics->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
   }));
   
   ISVG svg = pGraphics->LoadSVG("/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
   
   SVGKnob* knob = new SVGKnob(*this, 200, 200, svg, kGain);
   
-  pGraphics->AttachControl(new FileMenu(*this, IRECT(10,0,280,30), [pGraphics, knob](IControl* pControl)
+  pGraphics->AttachControl(new FileMenu(*this, IRECT(10,0,280,30), [pGraphics, knob](IControl* pCaller)
                                         {
-                                          WDL_String selectedText;
-                                          selectedText.Set("/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/");
-                                          dynamic_cast<IDirBrowseControlBase*>(pControl)->GetSelecteItemStr(selectedText);
-                                          selectedText.Append(".svg");
-                                          ISVG svg = pGraphics->LoadSVG(selectedText.Get());
+                                          WDL_String path;
+                                          dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
+                                          ISVG svg = pGraphics->LoadSVG(path.Get());
                                           knob->SetSVG(svg);
                                         }, "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"));
 
