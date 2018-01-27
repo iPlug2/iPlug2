@@ -396,7 +396,7 @@ void IDirBrowseControlBase::SetUpMenu()
   }
 }
 
-void IDirBrowseControlBase::GetSelecteItemPath(WDL_String & path)
+void IDirBrowseControlBase::GetSelecteItemPath(WDL_String& path)
 {
   if (mSelectedMenu != nullptr) {
     path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
@@ -407,7 +407,7 @@ void IDirBrowseControlBase::GetSelecteItemPath(WDL_String & path)
     path.Set("");
 }
 
-void IDirBrowseControlBase::ScanDirectory(const char * path, IPopupMenu * pMenuToAddTo)
+void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo)
 {
   WDL_DirScan d;
   IPopupMenu* pParentDirMenu = pMenuToAddTo;

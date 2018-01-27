@@ -263,7 +263,7 @@ void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, in
 void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   Stroke(color, arc);
 }
 
@@ -304,7 +304,7 @@ void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, flo
 {
   agg::path_storage path;
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   path.concat_path(arc);
   path.line_to(cx * s, cy * s);
   if (path.total_vertices() > 2)
