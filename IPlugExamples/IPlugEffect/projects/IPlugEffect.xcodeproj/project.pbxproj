@@ -648,7 +648,7 @@
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
 				4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */,
-				089C167CFE841241C02AAC07 /* Resources */,
+				089C167CFE841241C02AAC07 /* resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
@@ -666,7 +666,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		089C167CFE841241C02AAC07 /* Resources */ = {
+		089C167CFE841241C02AAC07 /* resources */ = {
 			isa = PBXGroup;
 			children = (
 				4FD16A0213B6303B001D0217 /* img */,
@@ -682,7 +682,7 @@
 				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */,
 			);
-			name = Resources;
+			name = resources;
 			sourceTree = "<group>";
 		};
 		19C28FB8FE9D52D311CA2CBB /* Products */ = {

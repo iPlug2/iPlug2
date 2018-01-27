@@ -6,6 +6,7 @@
 #include "IPlugEffect_controls.h"
 
 #ifdef OS_OSX
+#pragma mark - WATCH OUT IF APP IS SANDBOXED, YOU WON T FIND ANY FILES HERE
 #define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
 #define KNOB_FN "resources/img/BefacoBigKnob.svg"
 #else
@@ -39,7 +40,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   // lamda function for custom actions on stock IControls
   pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-20), kNoParameter, [pGraphics](IControl* pCaller)
   {
-    pCaller->Hide(pGraphics->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
+    pCaller->SetMEWhenGrayed(true);
+    pCaller->GrayOut(pGraphics->ShowMessageBox("Disable that box control?", "", MB_YESNO) == IDYES);
   }));
 
   auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
@@ -57,14 +59,15 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(fileMenuControl);
 
-  IRECT kbrect = bounds.GetGridCell(2, NRows, NColumns).Union(bounds.GetGridCell(3, NRows, NColumns));
+  IRECT kbrect = bounds.SubRectVertical(2, 1); // same as joining two cells
   pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
   pGraphics->AttachControl(knobControl);
 
   AttachGraphics(pGraphics);
   
-  //pGraphics->EnableLiveEdit(true);
-  pGraphics->ShowControlBounds(true);
+//  pGraphics->EnableLiveEdit(true);
+//  pGraphics->ShowControlBounds(true);
+//  pGraphics->ShowAreaDrawn(true);
 
   PrintDebugInfo();
 
