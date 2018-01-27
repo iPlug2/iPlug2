@@ -3,66 +3,51 @@
 #include "IControls.h"
 #include "config.h"
 
-class MyControl : public IControl
-{
-private:
-  double mPhase = 0.;
-public:
-  MyControl(IPlugBaseGraphics& plug, IRECT rect)
-  : IControl(plug, rect)
-  {
-  }
-  
-  void Draw(IGraphics& g) override
-  {
-    //g.DrawRect(COLOR_BLUE, mRECT.GetPadded(-50));
-    g.FillRect(COLOR_BLUE, mRECT.GetScaled((float) mPhase));
-    //g.FillRect(COLOR_GREEN, mRECT.GetScaled(1.-mPhase));
-  }
-  
-  bool IsDirty() override
-  {
-    mPhase += 0.01;
-    
-    if (mPhase > 1.)
-      mPhase-=1.;
-    
-    return true;
-  }
-};
-
+#include "IPlugEffectControls.h"
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE; 
 
-  //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
-  GetParam(kGain)->SetShape(2.);
 
-  //create user interface
-  IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
+  IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
+  
   // lamda function for custom actions on stock IControls
-  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200), kNoParameter, [](IControl* pControl)
+  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(100, 100, 150, 150), kNoParameter, [](IControl* pControl)
   {
-    //pGraphics->ShowMessageBox("do you like lambdas?", "", MB_YESNO); // blocks
-    pControl->Hide(true);
+    pControl->Hide(pControl->GetGUI()->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
   }));
   
-//  pGraphics->AttachControl(new IVKnobControl(*this, IRECT(kGainX, kGainY, kGainX + 100, kGainY + 100), kGain, COLOR_BLACK));
+  ISVG svg = pGraphics->LoadSVG("/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
+  
+  SVGKnob* knob = new SVGKnob(*this, 200, 200, svg, kGain);
+  
+  pGraphics->AttachControl(new FileMenu(*this, IRECT(10,0,280,30), [pGraphics, knob](IControl* pControl)
+                                        {
+                                          WDL_String selectedText;
+                                          selectedText.Set("/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/");
+                                          dynamic_cast<IDirBrowseControlBase*>(pControl)->GetSelecteItemStr(selectedText);
+                                          selectedText.Append(".svg");
+                                          ISVG svg = pGraphics->LoadSVG(selectedText.Get());
+                                          knob->SetSVG(svg);
+                                        }, "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"));
+
+  //pGraphics->AttachControl(new IVKeyboardControl(*this, IRECT(0, kHeight - 100, kWidth, kHeight), 36, 72));
+  pGraphics->AttachControl(knob);
 
   AttachGraphics(pGraphics);
-//  pGraphics->EnableLiveEdit(true);
+  
+  //pGraphics->EnableLiveEdit(true);
+  //pGraphics->ShowControlBounds(true);
+
   PrintDebugInfo();
 
-  //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }
-
-IPlugEffect::~IPlugEffect() {}
 
 void IPlugEffect::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
