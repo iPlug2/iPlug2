@@ -250,7 +250,7 @@ struct IRECT
   inline float MW() const { return 0.5f * (L + R); }
   inline float MH() const { return 0.5f * (T + B); }
 
-  inline IRECT Union(const IRECT& rhs)
+  inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
     if (rhs.Empty()) { return *this; }
@@ -289,7 +289,7 @@ struct IRECT
     else if (y > B) y = B;
   }
 
-  inline IRECT SubRectVertical(int numSlices, int sliceIdx)
+  inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
   {
     float heightOfSubRect = H() / (float) numSlices;
     float t = heightOfSubRect * (float) sliceIdx;
@@ -297,7 +297,7 @@ struct IRECT
     return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
-  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx)
+  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
   {
     float widthOfSubRect = W() / (float) numSlices;
     float l = widthOfSubRect * (float) sliceIdx;
@@ -305,22 +305,44 @@ struct IRECT
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
   
-  inline IRECT GetPadded(float padding)
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const
+  {
+    assert(cellIndex < nRows * nColumns);
+    
+    int cell = 0;
+    for(int column = 0; column<nColumns; column++)
+    {
+      for(int row = 0; row<nRows; row++)
+      {
+        if(cell == cellIndex)
+        {
+          const IRECT hrect = SubRectHorizontal(nRows, row);
+          return hrect.SubRectVertical(nColumns, column);
+        }
+        
+        cell++;
+      }
+    }
+    
+    return *this;
+  }
+  
+  inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
   
-  inline IRECT GetPadded(float padL, float padT, float padR, float padB)
+  inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
     return IRECT(L+padL, T+padT, R+padR, B+padB);
   }
   
-  inline IRECT GetHPadded(float padding)
+  inline IRECT GetHPadded(float padding) const
   {
     return IRECT(L-padding, T, R+padding, B);
   }
 
-  inline IRECT GetVPadded(float padding)
+  inline IRECT GetVPadded(float padding) const
   {
     return IRECT(L, T-padding, R, B+padding);
   }
