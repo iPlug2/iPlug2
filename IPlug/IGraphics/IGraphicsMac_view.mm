@@ -523,7 +523,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     associatedIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return associatedIPopupMenu;
   }
-  else return 0;
+  else return nullptr;
 }
 
 - (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;
