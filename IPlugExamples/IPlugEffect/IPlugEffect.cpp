@@ -28,40 +28,43 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   const int NColumns = 2;
 
   IRECT bounds = pGraphics->GetBounds();
-//  IColor color;
-//
-//  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
-//  {
-//    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
-//    color.Randomise();
-//    pGraphics->AttachControl(new IPanelControl(*this, cellRect.GetPadded(-5.), color));
-//  }
+  IColor color;
+
+  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, NRows, NColumns), kGain));
+  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, NRows, NColumns), -1));
+
+  //for(auto cell = 0; cell < (NRows * NColumns); cell++ )
+  //{
+  //  IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
+  //  color.Randomise();
+  //  pGraphics->AttachControl(new IPanelControl(*this, cellRect.GetPadded(-5.), color));
+  //}
   
   // lamda function for custom actions on stock IControls
-  pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-20), kNoParameter, [pGraphics](IControl* pCaller)
-  {
-    pCaller->SetMEWhenGrayed(true);
-    pCaller->GrayOut(pGraphics->ShowMessageBox("Disable that box control?", "", MB_YESNO) == IDYES);
-  }));
+  //pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-20), kNoParameter, [pGraphics](IControl* pCaller)
+  //{
+  //  pCaller->SetMEWhenGrayed(true);
+  //  pCaller->GrayOut(pGraphics->ShowMessageBox("Disable that box control?", "", MB_YESNO) == IDYES);
+  //}));
 
-  auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
-  auto knobControl = new SVGKnob(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 0).GetPadded(-5.), svg, kGain);
-  auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
-                                           [pGraphics, knobControl](IControl* pCaller)
-                                           {
-                                             WDL_String path;
-                                             dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
-                                             auto svg = pGraphics->LoadSVG(path.Get());
-                                             knobControl->SetSVG(svg);
-                                           },
-                                          DEFAULT_TEXT, ".svg");
-  fileMenuControl->SetPath(SVG_FOLDER);
-  
-  pGraphics->AttachControl(fileMenuControl);
+  //auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
+  //auto knobControl = new SVGKnob(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 0).GetPadded(-5.), svg, kGain);
+  //auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
+  //                                         [pGraphics, knobControl](IControl* pCaller)
+  //                                         {
+  //                                           WDL_String path;
+  //                                           dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
+  //                                           auto svg = pGraphics->LoadSVG(path.Get());
+  //                                           knobControl->SetSVG(svg);
+  //                                         },
+  //                                        DEFAULT_TEXT, ".svg");
+  //fileMenuControl->SetPath(SVG_FOLDER);
+  //
+  //pGraphics->AttachControl(fileMenuControl);
 
-  IRECT kbrect = bounds.SubRectVertical(2, 1); // same as joining two cells
-  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
-  pGraphics->AttachControl(knobControl);
+  //IRECT kbrect = bounds.SubRectVertical(2, 1); // same as joining two cells
+  //pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
+  //pGraphics->AttachControl(knobControl);
 
   AttachGraphics(pGraphics);
   

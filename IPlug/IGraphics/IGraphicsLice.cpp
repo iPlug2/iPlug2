@@ -592,7 +592,7 @@ void IGraphicsLice::RenderDrawBitmap()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   
-  if (Scale() == 1.0)
+  if (GetScale() == 1.0)
  	  BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   else
 	  StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);

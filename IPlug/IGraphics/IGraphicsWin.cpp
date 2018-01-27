@@ -765,7 +765,6 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
   HMENU hMenu = CreatePopupMenu();
 
   int flags = 0;
-  long idxSubmenu = 0;
   long offset = *offsetIdx;
   long nItems = menu.GetNItems();
   *offsetIdx += nItems;
