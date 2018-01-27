@@ -11,12 +11,12 @@
 
 static inline double DegToRad(double degrees)
 {
-  return PI * ((degrees - 90.0) / 180.0);
+  return PI * (degrees / 180.0);
 }
 
 static inline float DegToRad(float degrees)
 {
-  return (float) PI * ((degrees - 90.f) / 180.f);
+ return (float) PI * (degrees / 180.f);
 }
 
 #ifdef AAX_API
