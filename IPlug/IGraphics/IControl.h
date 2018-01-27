@@ -424,6 +424,9 @@ public:
   {
     if(mSelectedMenu != nullptr) {
       path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+#ifdef OS_WIN
+      path.Append("\\");
+#endif
       path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
       path.Append(mExtension.Get());
     }

@@ -1,5 +1,6 @@
 
 #include <Shlobj.h>
+#include <Shlwapi.h>
 #include <commctrl.h>
 
 #include "IGraphicsWin.h"
@@ -1321,22 +1322,27 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  WDL_String search(name);
-  WDL_String typeUpper(type);
-  
-  EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
-    
-  if (strstr(search.Get(), "found: ") != 0)
+  if (CSTR_NOT_EMPTY(name))
   {
-    result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
-    return true;
-  }
-  else
-  {
-    //TODO: search some other path - for instance if the plug-in developer wishes to store graphics resources in Program Files, to reduce the size of plug-in binaries
-    return false;
-  }
+    WDL_String search(name);
+    WDL_String typeUpper(type);
 
+    EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
+
+    if (strstr(search.Get(), "found: ") != 0)
+    {
+      result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
+      return true;
+    }
+    else
+    {
+      if (PathFileExists(name))
+      {
+        result.Set(name);
+        return true;
+      }
+    }
+  }
   return false;
 }
 

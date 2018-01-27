@@ -968,7 +968,6 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 
 ISVG IGraphics::LoadSVG(const char* name)
 {
-#ifdef OS_OSX
   WDL_String path;
   bool found = OSFindResource(name, "svg", path);
   assert(found);
@@ -983,9 +982,6 @@ ISVG IGraphics::LoadSVG(const char* name)
   }
   
   return ISVG(pHolder->mImage);
-#else
-  return ISVG(0);
-#endif
 }
 
 void IGraphics::LoadFont(const char* name)

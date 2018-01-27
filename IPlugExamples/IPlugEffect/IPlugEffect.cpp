@@ -22,7 +22,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
     pCaller->Hide(pGraphics->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
   }));
   
-  ISVG svg = pGraphics->LoadSVG("/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
+  ISVG svg = pGraphics->LoadSVG("C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
   
   SVGKnob* knob = new SVGKnob(*this, 200, 200, svg, kGain);
   
@@ -32,7 +32,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
                                           dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
                                           ISVG svg = pGraphics->LoadSVG(path.Get());
                                           knob->SetSVG(svg);
-                                        }, "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"));
+                                        }, "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary"));
 
   //pGraphics->AttachControl(new IVKeyboardControl(*this, IRECT(0, kHeight - 100, kWidth, kHeight), 36, 72));
   pGraphics->AttachControl(knob);
