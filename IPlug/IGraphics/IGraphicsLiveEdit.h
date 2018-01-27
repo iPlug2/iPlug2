@@ -131,7 +131,7 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-    graphics.DrawGrid(mGridColor, graphics.GetDrawRect(), mGridSize, mGridSize, &mBlend);
+    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &mBlend);
     
     for(int i = 1; i < graphics.NControls(); i++)
     {

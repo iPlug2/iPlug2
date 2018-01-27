@@ -1135,12 +1135,20 @@ public:
   void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
   
   /**
-   /todo <#Description#>
+   /todo Get the area marked for drawing
 
-   @return <#return value description#>
+   @return An IRECT that corresponds to the area currently marked for drawing
   */
   IRECT GetDrawRect() const { return mDrawRECT; }
  
+  
+  /**
+   Get an IRECT that represents the entire UI bounds
+
+   @return An IRECT that corresponds to the entire UI area, with, L = 0, T = 0, R = Width() and B  = Height()
+   */
+  IRECT GetBounds() const { return IRECT(0, 0, Width(), Height()); }
+
   /**
    /todo <#Description#>
 
