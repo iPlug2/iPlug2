@@ -114,7 +114,25 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
 
 bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  return GetResourcePathFromBundle(GetBundleID(), name, type, result);
+  if(CSTR_NOT_EMPTY(name))
+  {
+    bool foundInBundle = GetResourcePathFromBundle(GetBundleID(), name, type, result);
+    
+    if(foundInBundle)
+      return true;
+    else
+    {
+      NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {        
+        result.Set(name);
+        return true;
+      }
+    }
+    
+  }
+  return false;
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& destRect)
