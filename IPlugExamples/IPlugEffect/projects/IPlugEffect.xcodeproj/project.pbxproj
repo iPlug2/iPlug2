@@ -153,6 +153,12 @@
 		4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
 		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
+		4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
@@ -509,8 +515,9 @@
 		4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
 		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F996297201BF3F600E7C158 /* IPlugEffectControls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEffectControls.h; path = ../IPlugEffectControls.h; sourceTree = "<group>"; };
+		4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEffect_controls.h; path = ../IPlugEffect_controls.h; sourceTree = "<group>"; };
 		4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLiveEdit.h; path = ../../../IPlug/IGraphics/IGraphicsLiveEdit.h; sourceTree = "<group>"; };
+		4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BefacoBigKnob.svg; path = ../resources/img/BefacoBigKnob.svg; sourceTree = "<group>"; };
 		4FA6B9531FF9C22700049441 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControls.h; path = ../../../IPlug/IGraphics/IControls.h; sourceTree = "<group>"; };
 		4FA6B9541FF9C22700049441 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IControls.cpp; path = ../../../IPlug/IGraphics/IControls.cpp; sourceTree = "<group>"; };
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
@@ -640,7 +647,7 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
-				4F996297201BF3F600E7C158 /* IPlugEffectControls.h */,
+				4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
@@ -1044,6 +1051,7 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */,
 			);
 			name = img;
 			sourceTree = "<group>";
@@ -1512,6 +1520,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1519,6 +1528,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1527,6 +1537,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3907812013EC1000DDA490 /* IPlugViewController.xib in Resources */,
+				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1534,6 +1545,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1541,6 +1553,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1549,6 +1562,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
+				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

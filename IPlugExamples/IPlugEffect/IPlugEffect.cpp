@@ -3,7 +3,13 @@
 #include "IControls.h"
 #include "config.h"
 
-#include "IPlugEffectControls.h"
+#include "IPlugEffect_controls.h"
+
+#ifdef OS_OSX
+#define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
+#else
+#define SVG_FOLDER"C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
+#endif
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
@@ -15,32 +21,48 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
+  const int NRows = 2;
+  const int NColumns = 2;
+
+  IRECT bounds = pGraphics->GetBounds();
+//  IColor color;
+//
+//  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
+//  {
+//    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
+//    color.Randomise();
+//    pGraphics->AttachControl(new IPanelControl(*this, cellRect.GetPadded(-5.), color));
+//  }
   
   // lamda function for custom actions on stock IControls
-  pGraphics->AttachControl(new IVSwitchControl(*this, IRECT(100, 100, 150, 150), kNoParameter, [pGraphics](IControl* pCaller)
+  pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-20), kNoParameter, [pGraphics](IControl* pCaller)
   {
     pCaller->Hide(pGraphics->ShowMessageBox("hide that box?", "", MB_YESNO) == IDYES);
   }));
-  
-  ISVG svg = pGraphics->LoadSVG("C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
-  
-  SVGKnob* knob = new SVGKnob(*this, 200, 200, svg, kGain);
-  
-  pGraphics->AttachControl(new FileMenu(*this, IRECT(10,0,280,30), [pGraphics, knob](IControl* pCaller)
-                                        {
-                                          WDL_String path;
-                                          dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
-                                          ISVG svg = pGraphics->LoadSVG(path.Get());
-                                          knob->SetSVG(svg);
-                                        }, "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary"));
 
-  //pGraphics->AttachControl(new IVKeyboardControl(*this, IRECT(0, kHeight - 100, kWidth, kHeight), 36, 72));
-  pGraphics->AttachControl(knob);
+  auto svg = pGraphics->LoadSVG("/Resources/img/BefacoBigKnob.svg"); // load initial svg, can be a resource or absolute path
+  auto knobControl = new SVGKnob(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 0).GetPadded(-5.), svg, kGain);
+  auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
+                                           [pGraphics, knobControl](IControl* pCaller)
+                                           {
+                                             WDL_String path;
+                                             dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
+                                             auto svg = pGraphics->LoadSVG(path.Get());
+                                             knobControl->SetSVG(svg);
+                                           },
+                                          DEFAULT_TEXT, ".svg");
+  fileMenuControl->SetPath(SVG_FOLDER);
+  
+  pGraphics->AttachControl(fileMenuControl);
+
+  IRECT kbrect = bounds.GetGridCell(2, NRows, NColumns).Union(bounds.GetGridCell(3, NRows, NColumns));
+  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
+  pGraphics->AttachControl(knobControl);
 
   AttachGraphics(pGraphics);
   
   //pGraphics->EnableLiveEdit(true);
-  //pGraphics->ShowControlBounds(true);
+  pGraphics->ShowControlBounds(true);
 
   PrintDebugInfo();
 
