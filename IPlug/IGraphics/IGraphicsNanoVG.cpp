@@ -211,7 +211,7 @@ void IGraphicsNanoVG::DrawConvexPolygon(const IColor& color, float* x, float* y,
 void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   nvgBeginPath(mVG);
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f), NVG_CW);
   Stroke(color, pBlend);
 }
 
@@ -252,7 +252,7 @@ void IGraphicsNanoVG::FillArc(const IColor& color, float cx, float cy, float r, 
 {
   nvgBeginPath(mVG);
   nvgMoveTo(mVG, cx, cy);
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f), NVG_CW);
   nvgClosePath(mVG);
   Fill(color, pBlend);
 }
