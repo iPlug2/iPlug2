@@ -186,12 +186,13 @@ public:
   IPlugBaseGraphics& GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
   
+  void GetJSON(WDL_String& json, int idx) const;
+
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
 
-  void GetJSON(WDL_String& json, int idx) const;
-  
+#pragma mark - IControl Member variables
 protected:
   IPlugBaseGraphics& mPlug;
   IRECT mRECT;
