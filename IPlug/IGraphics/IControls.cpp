@@ -206,8 +206,8 @@ IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int m
 {
   mText.mColor = mFRColor;
   mDblAsSingleClick = true;
-  bool keepWidth = !(rect.W() < 0.0);
-  if (rect.W() < 0.0)
+  bool keepWidth = !(rect.W() <= 0.0);
+  if (rect.W() <= 0.0)
   {
     mRECT.R = mRECT.L + mRECT.H();
     mTargetRECT = mRECT;
@@ -305,7 +305,7 @@ void IVKeyboardControl::OnResize()
 void IVKeyboardControl::Draw(IGraphics & graphics)
 {
   auto shadowColor = IColor(60, 0, 0, 0);
-  graphics.FillRect(mWKColor, mTargetRECT);
+  graphics.FillRect(mWKColor, mRECT);
 
   // first draw whites
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
@@ -360,7 +360,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   }
 
   if (mDrawBorder)
-    graphics.DrawRect(mFRColor, mTargetRECT);
+    graphics.DrawRect(mFRColor, mRECT);
 
   if (mShowNoteAndVel)
   {
@@ -389,9 +389,9 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   }
 
 #ifdef _DEBUG
-  //graphics->DrawRect(&COLOR_GREEN, &mTargetRECT);
-  //graphics->DrawRect(&COLOR_BLUE, &mRECT);
-  //for (int i = 0; i < mKeyRects.GetSize(); ++i) graphics->DrawRect(&COLOR_ORANGE, mKeyRects.Get(i));
+  graphics.DrawRect(COLOR_GREEN, mTargetRECT);
+  graphics.DrawRect(COLOR_BLUE, mRECT);
+  //for (int i = 0; i < mKeyRects.GetSize(); ++i) graphics.DrawRect(COLOR_ORANGE, *(mKeyRects.Get(i)));
   WDL_String ti;
   ti.SetFormatted(32, "key: %d, vel: %3.2f", mKey, GetVelocity());
   //ti.SetFormatted(32, "key: %d, vel: %d", mKey, GetVelocityInt());
@@ -419,8 +419,8 @@ void IVKeyboardControl::SetMinMaxNote(int min, int max, bool keepWidth)
 
   mNoteIsPlayed.Empty(true);
 
-  for (int n = mMinNote; n <= mMaxNote; ++n) // todo here use a call to host
-    mNoteIsPlayed.Add(new bool(false));    // to keep visible state actual
+  for (int n = mMinNote; n <= mMaxNote; ++n) // todo here use a call to plug
+    mNoteIsPlayed.Add(new bool(false));      // to keep visible state actual
 
   RecreateRects(keepWidth);
 }
@@ -440,8 +440,8 @@ void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float 
   mBKHeightR = heightR;
   float r = widthR / mBKWidthR;
   mBKWidthR = widthR;
-  auto& tR = mTargetRECT;
-  float bkBot = tR.T + tR.H() * heightR;
+  auto& mR = mRECT;
+  float bkBot = mR.T + mR.H() * heightR;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
     if (*(mKeyIsBlack.Get(i)))
@@ -452,8 +452,8 @@ void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float 
       float mid = 0.5f * (kr.L + kr.R);
       kr.L = mid - d * r;
       kr.R = mid + d * r;
-      if (kr.L < tR.L)kr.L = tR.L;
-      if (kr.R > tR.R)kr.R = tR.R;
+      if (kr.L < mR.L)kr.L = mR.L;
+      if (kr.R > mR.R)kr.R = mR.R;
     }
   }
   SetDirty();
@@ -462,9 +462,9 @@ void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float 
 void IVKeyboardControl::SetHeight(float h, bool keepProportions)
 {
   if (h < 0) return;
-  auto& tR = mTargetRECT;
-  auto r = h / tR.H();
-  tR.B = tR.T + tR.H() * r;
+  auto& mR = mRECT;
+  auto r = h / mR.H();
+  mR.B = mR.T + mR.H() * r;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
     auto& kr = *(mKeyRects.Get(i));
@@ -472,27 +472,27 @@ void IVKeyboardControl::SetHeight(float h, bool keepProportions)
   }
 
   if (keepProportions)
-    SetWidth(tR.W() * r);
+    SetWidth(mR.W() * r);
   SetDirty();
 }
 
 void IVKeyboardControl::SetWidth(float w, bool keepProportions)
 {
   if (w < 0) return;
-  auto& tR = mTargetRECT;
-  auto r = w / tR.W();
-  tR.R = tR.L + tR.W() * r;
+  auto& mR = mRECT;
+  auto r = w / mR.W();
+  mR.R = mR.L + mR.W() * r;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
     auto& kr = *(mKeyRects.Get(i));
     auto kw = kr.W();
-    auto d = kr.L - tR.L;
-    kr.L = tR.L + d * r;
+    auto d = kr.L - mR.L;
+    kr.L = mR.L + d * r;
     kr.R = kr.L + kw * r;
   }
 
   if (keepProportions)
-    SetHeight(tR.H() * r);
+    SetHeight(mR.H() * r);
   SetDirty();
 }
 
@@ -552,7 +552,7 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
       whiteW = mKeyRects.Get(0)->W();
       if (*(mKeyIsBlack.Get(0))) whiteW /= mBKWidthR;
     }
-    else whiteW = 0.2f * mTargetRECT.H();
+    else whiteW = 0.2f * mRECT.H();
   }
   mKeyRects.Empty(true);
 
@@ -594,20 +594,20 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
 
 
   // build rects
-  auto& top = mTargetRECT.T;
-  auto& whiteB = mTargetRECT.B;
-  float blackB = top + mTargetRECT.H() * mBKHeightR;
+  auto& top = mRECT.T;
+  auto& whiteB = mRECT.B;
+  float blackB = top + mRECT.H() * mBKHeightR;
 
-  if (whiteW == 0) whiteW = 0.2f * mTargetRECT.H(); // first call from the constructor
+  if (whiteW == 0) whiteW = 0.2f * mRECT.H(); // first call from the constructor
   if (keepWidth)
   {
-    whiteW = mTargetRECT.W();
+    whiteW = mRECT.W();
     if (numWhites) whiteW /= (numWhites + wPadStart + wPadEnd);
   }
   float blackW = whiteW;
   if (numWhites) blackW *= mBKWidthR;
 
-  float prevWhiteRectR = mTargetRECT.L;
+  float prevWhiteRectR = mRECT.L;
 
   for (int k = 0; k < mKeyIsBlack.GetSize(); ++k)
   {
@@ -629,8 +629,8 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
     }
   }
 
-  mTargetRECT.R = (mKeyRects.Get(mKeyRects.GetSize() - 1))->R;
-
+  mRECT.R = (mKeyRects.Get(mKeyRects.GetSize() - 1))->R;
+  mTargetRECT = mRECT;
   SetDirty();
 }
 
