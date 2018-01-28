@@ -134,7 +134,7 @@ void IBSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
       PromptUserInput();
       return;
     }
-  
+
   return SnapToMouse(x, y);
 }
 
@@ -155,7 +155,7 @@ void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float
   {
     mValue += 0.01 * d;
   }
-  
+
   SetDirty();
 }
 
@@ -310,13 +310,13 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   // first draw whites
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    if (!*(mKeyIsBlack.Get(i)))
+    if (!KeyIsBlack(i))
     {
-      graphics.DrawRect(mFRColor, *(mKeyRects.Get(i)));
+      graphics.DrawRect(mFRColor, KeyRect(i));
       if (i == mKey || *(mNoteIsPlayed.Get(i)))
       {
         // draw played white key
-        auto r = *mKeyRects.Get(i);
+        auto r = KeyRect(i);
         graphics.FillRect(mPKColor, r);
         if (mDrawShadows)
         {
@@ -330,13 +330,13 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   // then blacks
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    if (*(mKeyIsBlack.Get(i)))
+    if (KeyIsBlack(i))
     {
       // first draw underlying shadows
       if (mDrawShadows && i != mKey && !*(mNoteIsPlayed.Get(i))
         && i < mKeyRects.GetSize() - 1)
       {
-        auto r = *mKeyRects.Get(i);
+        auto r = KeyRect(i);
         float w = r.W();
         r.L += 0.6f * w;
         if (i + 1 == mKey || *(mNoteIsPlayed.Get(i + 1)))
@@ -348,13 +348,13 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
         r.R = r.L + w;
         graphics.FillRect(shadowColor, r);
       }
-      graphics.FillRect(mBKColor, *(mKeyRects.Get(i)));
+      graphics.FillRect(mBKColor, KeyRect(i));
       if (i == mKey || *(mNoteIsPlayed.Get(i)))
       {
         // draw played black key
         auto cBP = mPKColor;
         cBP.A = (int)mBAlpha;
-        graphics.FillRect(cBP, *(mKeyRects.Get(i)));
+        graphics.FillRect(cBP, KeyRect(i));
       }
     }
   }
@@ -366,7 +366,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   {
     if (mMouseOverKey > -1)
     {
-      auto r = *mKeyRects.Get(mMouseOverKey);
+      auto r = KeyRect(mMouseOverKey);
       r.B = r.T + 1.2f * mText.mSize;
       r.R = r.L + 35.0f;
       WDL_String t;
@@ -389,9 +389,9 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   }
 
 #ifdef _DEBUG
+  for (int i = 0; i < mKeyRects.GetSize(); ++i) graphics.DrawRect(COLOR_ORANGE, KeyRect(i));
   graphics.DrawRect(COLOR_GREEN, mTargetRECT);
   graphics.DrawRect(COLOR_BLUE, mRECT);
-  //for (int i = 0; i < mKeyRects.GetSize(); ++i) graphics.DrawRect(COLOR_ORANGE, *(mKeyRects.Get(i)));
   WDL_String ti;
   ti.SetFormatted(32, "key: %d, vel: %3.2f", mKey, GetVelocity());
   //ti.SetFormatted(32, "key: %d, vel: %d", mKey, GetVelocityInt());
@@ -444,9 +444,9 @@ void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float 
   float bkBot = mR.T + mR.H() * heightR;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    if (*(mKeyIsBlack.Get(i)))
+    if (KeyIsBlack(i))
     {
-      auto& kr = *(mKeyRects.Get(i));
+      auto& kr = *KeyRectPtr(i);
       kr.B = bkBot;
       auto d = 0.5f * kr.W();
       float mid = 0.5f * (kr.L + kr.R);
@@ -467,7 +467,7 @@ void IVKeyboardControl::SetHeight(float h, bool keepProportions)
   mR.B = mR.T + mR.H() * r;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    auto& kr = *(mKeyRects.Get(i));
+    auto& kr = *KeyRectPtr(i);
     kr.B = kr.T + kr.H() * r;
   }
 
@@ -484,7 +484,7 @@ void IVKeyboardControl::SetWidth(float w, bool keepProportions)
   mR.R = mR.L + mR.W() * r;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    auto& kr = *(mKeyRects.Get(i));
+    auto& kr = *KeyRectPtr(i);
     auto kw = kr.W();
     auto d = kr.L - mR.L;
     kr.L = mR.L + d * r;
@@ -549,8 +549,8 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
   {
     if (mKeyRects.GetSize())
     {
-      whiteW = mKeyRects.Get(0)->W();
-      if (*(mKeyIsBlack.Get(0))) whiteW /= mBKWidthR;
+      whiteW = KeyRectPtr(0)->W();
+      if (KeyIsBlack(0)) whiteW /= mBKWidthR;
     }
     else whiteW = 0.2f * mRECT.H();
   }
@@ -611,7 +611,7 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
 
   for (int k = 0; k < mKeyIsBlack.GetSize(); ++k)
   {
-    if (*(mKeyIsBlack.Get(k)))
+    if (KeyIsBlack(k))
     {
       float l = prevWhiteRectR;
       if (k != 0)
@@ -629,7 +629,7 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
     }
   }
 
-  mRECT.R = (mKeyRects.Get(mKeyRects.GetSize() - 1))->R;
+  mRECT.R = KeyRectPtr((mKeyRects.GetSize() - 1))->R;
   mTargetRECT = mRECT;
   SetDirty();
 }
@@ -640,7 +640,7 @@ int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
   int k = -1;
   for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    if (*(mKeyIsBlack.Get(i)) && mKeyRects.Get(i)->Contains(x, y))
+    if (KeyIsBlack(i) && KeyRectPtr(i)->Contains(x, y))
     {
       k = i;
       break;
@@ -648,7 +648,7 @@ int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
   }
   if (k < 0) for (int i = 0; i < mKeyRects.GetSize(); ++i)
   {
-    if (!*(mKeyIsBlack.Get(i)) && mKeyRects.Get(i)->Contains(x, y))
+    if (!KeyIsBlack(i) && KeyRectPtr(i)->Contains(x, y))
     {
       k = i;
       break;
@@ -662,7 +662,7 @@ void IVKeyboardControl::UpdateVelocity(float y)
 {
   if (mKey > -1)
   {
-    auto kr = mKeyRects.Get(mKey);
+    auto kr = KeyRectPtr(mKey);
     mVelocity = (float)(y - kr->T) / (0.95f * kr->H());
     // 0.95 is to get max velocity around the bottom
     mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);

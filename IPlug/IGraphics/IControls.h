@@ -230,7 +230,22 @@ private:
   {
     return (int)(mVelocity * 127. + 0.5);
   }
-  
+
+  bool KeyIsBlack(int i) const
+  {
+    return *(mKeyIsBlack.Get(i));
+  }
+
+  IRECT KeyRect(int i)
+  {
+    return *(mKeyRects.Get(i));
+  }
+
+  IRECT* KeyRectPtr(int i)
+  {
+    return mKeyRects.Get(i);
+  }
+
 protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
