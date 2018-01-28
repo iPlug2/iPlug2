@@ -310,7 +310,6 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   {
     if (!KeyIsBlack(i))
     {
-      graphics.DrawRect(mFRColor, KeyRect(i));
       if (i == mKey || *(mNoteIsPlayed.Get(i)))
       {
         // draw played white key
@@ -322,6 +321,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
           graphics.FillRect(shadowColor, r);
         }
       }
+      if (mDrawBorders) graphics.DrawRect(mFRColor, KeyRect(i));
     }
   }
 
@@ -354,11 +354,9 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
         cBP.A = (int)mBAlpha;
         graphics.FillRect(cBP, KeyRect(i));
       }
+      if (mDrawBorders) graphics.DrawRect(mFRColor, KeyRect(i));
     }
   }
-
-  if (mDrawBorder)
-    graphics.DrawRect(mFRColor, mRECT);
 
   if (mShowNoteAndVel)
   {

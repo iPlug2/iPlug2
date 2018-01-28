@@ -192,9 +192,9 @@ public:
     SetDirty();
   }
 
-  void SetDrawBorder(bool draw)
+  void SetDrawBorders(bool draw)
   {
-    mDrawBorder = draw;
+    mDrawBorders = draw;
     SetDirty();
   }
   
@@ -249,7 +249,7 @@ private:
 protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
-  bool mDrawBorder = true;
+  bool mDrawBorders = true;
   IColor mBKColor = DEFAULT_BK_COLOR;
   IColor mWKColor = DEFAULT_WK_COLOR;
   IColor mPKColor = DEFAULT_PK_COLOR; // pressed key color
