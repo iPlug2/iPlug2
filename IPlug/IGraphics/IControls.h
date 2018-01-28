@@ -124,9 +124,9 @@ protected:
 /*
 
 IVKeyboardControl by Eugene Yakshin, 2018
- 
+
  based on
- 
+
  IKeyboardControl
  (c) Theo Niessink 2009, 2010
  <http://www.taletn.com/>
@@ -162,13 +162,13 @@ class IVKeyboardControl : public IControl
 {
 public:
   IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect, int minNote, int maxNote);
-  
+
 //  IVKeyboardControl(IPlugBaseGraphics& pPlug, float x, float y, int minNote, int maxNote)
 //  : IVKeyboardControl(pPlug, x, y, -1.0, 70.0, minNote, maxNote) {}
 //
   ~IVKeyboardControl();
-  
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;  
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -177,15 +177,15 @@ public:
   void OnResize() override;
 
   void Draw(IGraphics& graphics) override;
-  
-  void SetMinMaxNote(int min, int max, bool keepWidth = true);  
+
+  void SetMinMaxNote(int min, int max, bool keepWidth = true);
   void SetNoteIsPlayed(int noteNum, bool played);
   void SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR = 0.6);
   void SetHeight(float h, bool keepProportions = false);
   void SetWidth(float w, bool keepProportions = false);
   void SetShowNotesAndVelocity(bool show);
   void SetColors(const IColor bkColor, const IColor& wkColor, const IColor& pkColor = DEFAULT_PK_COLOR, const IColor& frColor = DEFAULT_FR_COLOR);
- 
+
   void SetDrawShadows(bool draw)
   {
     mDrawShadows = draw;
@@ -197,13 +197,13 @@ public:
     mDrawBorders = draw;
     SetDirty();
   }
-  
-private:  
+
+private:
   void RecreateRects(bool keepWidth);
   int GetKeyUnderMouse(float x, float y);
   void UpdateVelocity(float y);
   void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
-  
+
   // returns pressed key number inside the keyboard
   int GetKey() const
   {
@@ -215,17 +215,17 @@ private:
     if (mKey > -1) return mMinNote + mKey;
     else return -1;
   }
-  
+
   double GetVelocity() const
   {
     return mVelocity * 127.f;
   }
-  
+
   double GetVelocityNormalized() const
   {
     return mVelocity;
   }
-  
+
   int GetVelocityInt() const
   {
     return (int)(mVelocity * 127. + 0.5);
@@ -244,6 +244,16 @@ private:
   IRECT* KeyRectPtr(int i)
   {
     return mKeyRects.Get(i);
+  }
+
+  bool NoteIsPlayed(int i) const
+  {
+    return *(mNoteIsPlayed.Get(i));
+  }
+
+  int NumKeys() const // faster than WDL_Ptrlist::GetSize(),
+  {                   // and ptrlist checks for boundries anyway
+    return mMaxNote - mMinNote + 1;
   }
 
 protected:
