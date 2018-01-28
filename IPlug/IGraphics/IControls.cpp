@@ -296,7 +296,7 @@ void IVKeyboardControl::OnMouseOver(float x, float y, const IMouseMod & pMod)
 
 void IVKeyboardControl::OnResize()
 {
-  mTargetRECT = mRECT;
+  // todo optimize
   SetWidth(mRECT.W());
   SetHeight(mRECT.H());
   RecreateRects(true);
@@ -389,7 +389,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   }
 
 #ifdef _DEBUG
-  for (int i = 0; i < mKeyRects.GetSize(); ++i) graphics.DrawRect(COLOR_ORANGE, KeyRect(i));
+  //for (int i = 0; i < mKeyRects.GetSize(); ++i) graphics.DrawRect(COLOR_ORANGE, KeyRect(i));
   graphics.DrawRect(COLOR_GREEN, mTargetRECT);
   graphics.DrawRect(COLOR_BLUE, mRECT);
   WDL_String ti;
@@ -545,18 +545,29 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
 {
   // save key width if needed
   float whiteW = 0.0;
-  if (!keepWidth)
+  if (!keepWidth && mKeyRects.GetSize())
   {
-    if (mKeyRects.GetSize())
-    {
-      whiteW = KeyRectPtr(0)->W();
-      if (KeyIsBlack(0)) whiteW /= mBKWidthR;
-    }
-    else whiteW = 0.2f * mRECT.H();
+    whiteW = KeyRectPtr(0)->W();
+    if (KeyIsBlack(0)) whiteW /= mBKWidthR;
   }
   mKeyRects.Empty(true);
 
   // create size-independent data.
+  mKeyIsBlack.Empty(true);
+  float numWhites = 0.f;
+  for (int n = mMinNote; n <= mMaxNote; ++n)
+  {
+    if (n % 12 == 1 || n % 12 == 3 || n % 12 == 6 || n % 12 == 8 || n % 12 == 10)
+    {
+      mKeyIsBlack.Add(new bool(true));
+    }
+    else
+    {
+      mKeyIsBlack.Add(new bool(false));
+      numWhites += 1.0;
+    }
+  }
+
   // black key middle isn't aligned exactly between whites
   float wPadStart = 0.0; // 1st note may be black
   float wPadEnd = 0.0;   // last note may be black
@@ -575,23 +586,7 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
   };
 
   wPadStart = ShiftForKey(mMinNote);
-  if (mMinNote != mMaxNote) wPadEnd = 1.f - ShiftForKey(mMaxNote);
-
-  mKeyIsBlack.Empty(true);
-  float numWhites = 0.f;
-  for (int n = mMinNote; n <= mMaxNote; ++n)
-  {
-    if (n % 12 == 1 || n % 12 == 3 || n % 12 == 6 || n % 12 == 8 || n % 12 == 10)
-    {
-      mKeyIsBlack.Add(new bool(true));
-    }
-    else
-    {
-      mKeyIsBlack.Add(new bool(false));
-      numWhites += 1.0;
-    }
-  }
-
+  if (mMinNote != mMaxNote && KeyIsBlack(mKeyIsBlack.GetSize() - 1)) wPadEnd = 1.f - ShiftForKey(mMaxNote);
 
   // build rects
   auto& top = mRECT.T;
@@ -602,7 +597,7 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
   if (keepWidth)
   {
     whiteW = mRECT.W();
-    if (numWhites) whiteW /= (numWhites + wPadStart + wPadEnd);
+    if (numWhites) whiteW /= (numWhites + mBKWidthR * (wPadStart + wPadEnd));
   }
   float blackW = whiteW;
   if (numWhites) blackW *= mBKWidthR;
