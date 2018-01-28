@@ -198,12 +198,6 @@ public:
     SetDirty();
   }
 
-private:
-  void RecreateRects(bool keepWidth);
-  int GetKeyUnderMouse(float x, float y);
-  void UpdateVelocity(float y);
-  void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
-
   // returns pressed key number inside the keyboard
   int GetKey() const
   {
@@ -230,6 +224,12 @@ private:
   {
     return (int)(mVelocity * 127. + 0.5);
   }
+
+private:
+  void RecreateRects(bool keepWidth);
+  int GetKeyUnderMouse(float x, float y);
+  void UpdateVelocity(float y);
+  void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
 
   bool KeyIsBlack(int i) const
   {
