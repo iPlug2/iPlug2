@@ -297,8 +297,6 @@ void IVKeyboardControl::OnMouseOver(float x, float y, const IMouseMod & pMod)
 void IVKeyboardControl::OnResize()
 {
   // todo optimize
-  SetWidth(mRECT.W());
-  SetHeight(mRECT.H());
   RecreateRects(true);
 }
 
@@ -471,6 +469,8 @@ void IVKeyboardControl::SetHeight(float h, bool keepProportions)
     kr.B = kr.T + kr.H() * r;
   }
 
+  mTargetRECT = mRECT;
+
   if (keepProportions)
     SetWidth(mR.W() * r);
   SetDirty();
@@ -490,6 +490,8 @@ void IVKeyboardControl::SetWidth(float w, bool keepProportions)
     kr.L = mR.L + d * r;
     kr.R = kr.L + kw * r;
   }
+
+  mTargetRECT = mRECT;
 
   if (keepProportions)
     SetHeight(mR.H() * r);
