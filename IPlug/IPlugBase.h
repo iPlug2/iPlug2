@@ -392,4 +392,6 @@ protected:
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
+  
+  WDL_String mParamDisplayStr = WDL_String("", MAX_PARAM_DISPLAY_LEN);
 };

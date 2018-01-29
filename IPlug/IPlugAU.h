@@ -80,7 +80,6 @@ protected:
 private:
   WDL_String mOSXBundleID;
   WDL_String mCocoaViewFactoryClassName;
-  char mParamValueString[MAX_PARAM_DISPLAY_LEN];
   AudioComponentInstance mCI = nullptr;
   bool mActive = false;
   bool mIsOffline = false;

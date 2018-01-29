@@ -270,8 +270,8 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
   if (!pControl || !pParam) return;
 
   IParam::EParamType type = pParam->Type();
-  char currentText[MAX_PARAM_LEN];
   int n = pParam->NDisplayTexts();
+  WDL_String currentText;
 
   if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && n))
   {
@@ -283,7 +283,7 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
     {
       const char* str = pParam->GetDisplayText(i);
       // TODO: what if two parameters have the same text?
-      if (!strcmp(str, currentText)) // strings are equal
+      if (!strcmp(str, currentText.Get())) // strings are equal
         menu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
       else // not equal
         menu.AddItem( new IPopupMenu::Item(str), -1 );
@@ -297,8 +297,8 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
   // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
   else // type == IParam::kTypeInt || type == IParam::kTypeDouble
   {
-    pParam->GetDisplayForHostNoDisplayText(currentText);
-    CreateTextEntry(pControl, pControl->GetText(), textRect, currentText, pParam);
+    pParam->GetDisplayForHost(currentText, false);
+    CreateTextEntry(pControl, pControl->GetText(), textRect, currentText.Get(), pParam);
   }
 
 }

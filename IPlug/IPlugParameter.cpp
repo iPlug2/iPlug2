@@ -105,39 +105,34 @@ double IParam::GetNonNormalized(double normalizedValue) const
   return FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
 }
 
-void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText)
+void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText, bool withLabel)
 {
   if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape);
 
   if (withDisplayText)
   {
-    const char* displayText = GetDisplayText( (int) value);
-
-    if (CSTR_NOT_EMPTY(displayText))
-    {
-      strcpy(rDisplay, displayText);
-      return;
-    }
+    display.Set(GetDisplayText((int) value));
   }
 
   double displayValue = value;
 
-  if (mNegateDisplay) displayValue = -displayValue;
+  if (mNegateDisplay)
+    displayValue = -displayValue;
 
   if (mDisplayPrecision == 0)
-  {
-    sprintf(rDisplay, "%d", int(displayValue));
-  }
-//   else if(mSignDisplay)
-//   {
-//     char fmt[16];
-//     sprintf(fmt, "%%+.%df", mDisplayPrecision);
-//     sprintf(rDisplay, fmt, displayValue);
-//   }
+    display.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(displayValue));
+ else if(mSignDisplay)
+ {
+//   TODO: check this
+   char fmt[16];
+   sprintf(fmt, "%%+.%df", mDisplayPrecision);
+   display.SetFormatted(MAX_PARAM_DISPLAY_LEN, fmt, displayValue);
+ }
   else
-  {
-    sprintf(rDisplay, "%.*f", mDisplayPrecision, displayValue);
-  }
+    display.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%.*f", mDisplayPrecision, displayValue);
+  
+  if(withLabel)
+    display.AppendFormatted(MAX_PARAM_DISPLAY_LEN, " %s", GetLabelForHost());
 }
 
 const char* IParam::GetNameForHost() const

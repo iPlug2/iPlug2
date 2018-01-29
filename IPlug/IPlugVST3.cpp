@@ -42,9 +42,9 @@ public:
   
   virtual void toString (ParamValue valueNormalized, String128 string) const override
   {
-    char disp[MAX_PARAM_DISPLAY_LEN];
-    mIPlugParam->GetDisplayForHost(valueNormalized, true, disp);
-    Steinberg::UString(string, 128).fromAscii(disp);
+    WDL_String display;
+    mIPlugParam->GetDisplayForHost(valueNormalized, true, display);
+    Steinberg::UString(string, 128).fromAscii(display.Get());
   }
   
   virtual bool fromString (const TChar* string, ParamValue& valueNormalized) const override
@@ -690,9 +690,9 @@ tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valu
 
   if (param)
   {
-    char disp[MAX_PARAM_NAME_LEN];
-    param->GetDisplayForHost(valueNormalized, true, disp);
-    Steinberg::UString(string, 128).fromAscii(disp);
+    WDL_String display;
+    param->GetDisplayForHost(valueNormalized, true, display);
+    Steinberg::UString(string, 128).fromAscii(display.Get());
     return kResultTrue;
   }
 

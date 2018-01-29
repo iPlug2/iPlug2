@@ -358,7 +358,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       WDL_MutexLock lock(&_this->mParams_mutex);
       if (idx >= 0 && idx < _this->NParams())
       {
-        _this->GetParam(idx)->GetDisplayForHost((char*) ptr);
+        _this->GetParam(idx)->GetDisplayForHost(_this->mParamDisplayStr);
+        strcpy((char*) ptr, _this->mParamDisplayStr.Get());
       }
       return 0;
     }
@@ -753,7 +754,8 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           {
             if (value >= 0 && value < _this->NParams())
             {
-              _this->GetParam((int) value)->GetDisplayForHost((double) opt, true, (char*) ptr);
+              _this->GetParam((int) value)->GetDisplayForHost((double) opt, true, _this->mParamDisplayStr);
+              strcpy((char*) ptr, _this->mParamDisplayStr.Get());
             }
             return 0xbeef;
           }

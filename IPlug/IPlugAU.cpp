@@ -889,8 +889,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(pSFV->inParamID);
         
-        pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamValueString);
-        pSFV->outString = MakeCFString((const char*) mParamValueString);
+        pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
+        pSFV->outString = MakeCFString((const char*) mParamDisplayStr.Get());
       }
       return noErr;
     }
@@ -1715,7 +1715,6 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
-  memset(mParamValueString, 0, MAX_PARAM_DISPLAY_LEN * sizeof(char));
 
   mOSXBundleID.Set(instanceInfo.mOSXBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());

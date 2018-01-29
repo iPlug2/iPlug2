@@ -61,9 +61,9 @@ public:
   double GetNormalized(double nonNormalizedValue) const;
   double GetNonNormalized(double normalizedValue) const;
 
-  void GetDisplayForHost(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay); }
-  void GetDisplayForHostNoDisplayText(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay, false); }
-  void GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText = true);
+  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true, bool withLabel = false) { GetDisplayForHost(mValue, withDisplayText, display, withDisplayText, withLabel); }
+  void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true, bool withLabel = false);
+  
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
   const char* GetParamGroupForHost() const;
@@ -102,7 +102,7 @@ private:
   bool mIsMeta = false;
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
-  char mParamGroup[MAX_PARAM_LABEL_LEN];
+  char mParamGroup[MAX_PARAM_GROUP_LEN];
   
   struct DisplayText
   {
