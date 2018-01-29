@@ -35,18 +35,13 @@ void IVSwitchControl::Draw(IGraphics& graphics)
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mBitmap.N > 1)
-  {
     mValue += 1.0 / (double)(mBitmap.N - 1);
-  }
   else
-  {
     mValue += 1.0;
-  }
 
   if (mValue > 1.001)
-  {
     mValue = 0.0;
-  }
+
   SetDirty();
 }
 
@@ -62,9 +57,7 @@ IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx,
 , mOuterRadius(rMax)
 {
   if (mOuterRadius == 0.0f)
-  {
     mOuterRadius = 0.5f * (float) rect.W();
-  }
 }
 
 void IVKnobControl::Draw(IGraphics& graphics)
@@ -142,19 +135,13 @@ void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float
 {
 #ifdef PROTOOLS
   if (mod.C)
-  {
     mValue += 0.001 * d;
-  }
 #else
   if (mod.C || mod.S)
-  {
     mValue += 0.001 * d;
-  }
 #endif
   else
-  {
     mValue += 0.01 * d;
-  }
 
   SetDirty();
 }
@@ -162,13 +149,10 @@ void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float
 void IBSliderControl::SnapToMouse(float x, float y)
 {
   if (mDirection == kVertical)
-  {
     mValue = 1.0 - (double) (y - mRECT.T - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-  }
   else
-  {
     mValue = (double) (x - mRECT.L - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-  }
+
   SetDirty();
 }
 
@@ -196,11 +180,6 @@ void IBSliderControl::OnRescale()
   mHandleBitmap = GetGUI()->GetScaledBitmap(mHandleBitmap);
 }
 
-
-//  IVKeyboardControl(IPlugBaseGraphics& pPlug, float x, float y, int minNote, int maxNote)
-//  : IVKeyboardControl(pPlug, x, y, -1.0, 70.0, minNote, maxNote) {}
-//
-
 IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int minNote, int maxNote)
   : IControl(plug, rect)
 {
@@ -214,10 +193,6 @@ IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int m
   }
 
   SetMinMaxNote(minNote, maxNote, keepWidth);
-}
-
-IVKeyboardControl::~IVKeyboardControl()
-{
 }
 
 void IVKeyboardControl::OnMouseDown(float x, float y, const IMouseMod & mod)

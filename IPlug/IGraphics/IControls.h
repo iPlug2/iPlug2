@@ -162,7 +162,6 @@ class IVKeyboardControl : public IControl
 {
 public:
   IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect, int minNote, int maxNote);
-  ~IVKeyboardControl();
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
