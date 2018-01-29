@@ -31,10 +31,6 @@ public:
 
   void InformHostOfProgramChange() override;
 
-  int GetSamplePos() override;
-  double GetTempo() override;
-  void GetTimeSig(int& numerator, int& denominator) override;
-  void GetTime(ITimeInfo& timeInfo) override;
   EHost GetHost() override;
 
   void ResizeGraphics(int w, int h, double scale) override;
@@ -54,6 +50,8 @@ protected:
 private:
   template <class SAMPLETYPE>
   void VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames);
+  
+  void GetTimeInfo() override;
 
   ERect mEditRect;
 

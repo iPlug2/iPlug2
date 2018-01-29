@@ -18,10 +18,7 @@
 
 #include "IPlugBase_select.h"
 
-struct IPlugInstanceInfo
-{
-  // not needed
-};
+struct IPlugInstanceInfo {};
 
 class IPlugVST3View;
 
@@ -65,28 +62,23 @@ public:
   Steinberg::tresult PLUGIN_API getProgramListInfo(Steinberg::int32 listIndex, Steinberg::Vst::ProgramListInfo& info) override;
   Steinberg::tresult PLUGIN_API getProgramName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name) override;
 
-  virtual Steinberg::tresult PLUGIN_API getProgramInfo(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::CString attributeId, Steinberg::Vst::String128 attributeValue) override {return Steinberg::kNotImplemented;}
-  virtual Steinberg::tresult PLUGIN_API hasProgramPitchNames(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex) override {return Steinberg::kNotImplemented;}
-  virtual Steinberg::tresult PLUGIN_API getProgramPitchName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::int16 midiPitch, Steinberg::Vst::String128 name) override {return Steinberg::kNotImplemented;}
-  virtual Steinberg::Vst::UnitID PLUGIN_API getSelectedUnit () override {return Steinberg::Vst::kRootUnitId;}
-  virtual Steinberg::tresult PLUGIN_API selectUnit(Steinberg::Vst::UnitID unitId) override {return Steinberg::kNotImplemented;}
-  virtual Steinberg::tresult PLUGIN_API getUnitByBus(Steinberg::Vst::MediaType type, Steinberg::Vst::BusDirection dir, Steinberg::int32 busIndex, Steinberg::int32 channel, Steinberg::Vst::UnitID& unitId) override {return Steinberg::kNotImplemented;}
-  virtual Steinberg::tresult PLUGIN_API setUnitProgramData(Steinberg::int32 listOrUnitId, Steinberg::int32 programIndex, Steinberg::IBStream* data) override {return Steinberg::kNotImplemented;}
+  Steinberg::tresult PLUGIN_API getProgramInfo(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::CString attributeId, Steinberg::Vst::String128 attributeValue) override {return Steinberg::kNotImplemented;}
+  Steinberg::tresult PLUGIN_API hasProgramPitchNames(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex) override {return Steinberg::kNotImplemented;}
+  Steinberg::tresult PLUGIN_API getProgramPitchName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::int16 midiPitch, Steinberg::Vst::String128 name) override {return Steinberg::kNotImplemented;}
+  Steinberg::Vst::UnitID PLUGIN_API getSelectedUnit () override {return Steinberg::Vst::kRootUnitId;}
+  Steinberg::tresult PLUGIN_API selectUnit(Steinberg::Vst::UnitID unitId) override {return Steinberg::kNotImplemented;}
+  Steinberg::tresult PLUGIN_API getUnitByBus(Steinberg::Vst::MediaType type, Steinberg::Vst::BusDirection dir, Steinberg::int32 busIndex, Steinberg::int32 channel, Steinberg::Vst::UnitID& unitId) override {return Steinberg::kNotImplemented;}
+  Steinberg::tresult PLUGIN_API setUnitProgramData(Steinberg::int32 listOrUnitId, Steinberg::int32 programIndex, Steinberg::IBStream* data) override {return Steinberg::kNotImplemented;}
   
   //IPlugBase
-  virtual void BeginInformHostOfParamChange(int idx) override;
-  virtual void InformHostOfParamChange(int idx, double normalizedValue) override;
-  virtual void EndInformHostOfParamChange(int idx) override;
-  virtual void InformHostOfProgramChange() override {};
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfProgramChange() override {};
   
-  virtual bool IsRenderingOffline() override { return (processSetup.processMode == Steinberg::Vst::kOffline); }
-
-  virtual int GetSamplePos() override;
-  virtual double GetTempo() override;
-  virtual void GetTimeSig(int& numerator, int& denominator) override;
-  virtual void GetTime(ITimeInfo& timeInfo) override;
-
-  virtual void ResizeGraphics(int w, int h, double scale) override;
+  bool IsRenderingOffline() override { return (processSetup.processMode == Steinberg::Vst::kOffline); }
+  
+  void ResizeGraphics(int w, int h, double scale) override;
   void SetLatency(int samples) override;
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
@@ -112,17 +104,19 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
 
 protected:
-  virtual bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
 
 private:
   void addDependentView (IPlugVST3View* view);
   void removeDependentView (IPlugVST3View* view);
-  virtual Steinberg::tresult beginEdit(Steinberg::Vst::ParamID tag) override;
-  virtual Steinberg::tresult performEdit(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue valueNormalized) override;
-  virtual Steinberg::tresult endEdit(Steinberg::Vst::ParamID tag) override;
+  Steinberg::tresult beginEdit(Steinberg::Vst::ParamID tag) override;
+  Steinberg::tresult performEdit(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue valueNormalized) override;
+  Steinberg::tresult endEdit(Steinberg::Vst::ParamID tag) override;
   Steinberg::Vst::AudioBus* getAudioInput(Steinberg::int32 index);
   Steinberg::Vst::AudioBus* getAudioOutput(Steinberg::int32 index);
   Steinberg::Vst::SpeakerArrangement getSpeakerArrForChans(Steinberg::int32 chans);
+
+  void GetTimeInfo() override;
 
   bool mSidechainActive = false;
 //  IMidiQueue mMidiOutputQueue;

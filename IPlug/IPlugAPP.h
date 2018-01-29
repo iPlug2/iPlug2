@@ -24,7 +24,7 @@
   {
     WDL_String mOSXBundleID;
     RtMidiOut* mRTMidiOut;
-    unsigned short mMidiOutChan; // 0 = any, 1 = midi chan 1
+    uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
   };
 #endif
 
@@ -41,12 +41,6 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-
-  int GetSamplePos() override { return 0; }
-  double GetTempo() override { return DEFAULT_TEMPO; }
-  void GetTimeSig(int& numerator, int& denominator) override { return; }
-  void GetTime(ITimeInfo& timeInfo) override { return; }
-
   void ResizeGraphics(int w, int h, double scale) override;
 
 protected:

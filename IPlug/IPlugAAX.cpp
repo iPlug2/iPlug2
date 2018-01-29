@@ -287,6 +287,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
   }
   else 
   {
+    GetTimeInfo();
     ProcessBuffers(0.0f, numSamples);
   }
 }
@@ -416,51 +417,29 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-int IPlugAAX::GetSamplePos()
-{ 
-  int64_t samplePos;
-  mTransport->GetCurrentNativeSampleLocation(&samplePos);
-  return (int) samplePos;
-}
-
-double IPlugAAX::GetTempo()
-{
-  double tempo;
-  mTransport->GetCurrentTempo(&tempo);
-  return tempo;
-}
-
-void IPlugAAX::GetTime(ITimeInfo& timeInfo)
+void IPlugAAX::GetTimeInfo()
 {
   int32_t num, denom;
   int64_t ppqPos, samplePos, cStart, cEnd;
 
-  mTransport->GetCurrentTempo(&timeInfo.mTempo);
-  mTransport->IsTransportPlaying(&timeInfo.mTransportIsRunning);
+  mTransport->GetCurrentTempo(&mTimeInfo.mTempo);
+  mTransport->IsTransportPlaying(&mTimeInfo.mTransportIsRunning);
   
   mTransport->GetCurrentMeter(&num, &denom);
-  timeInfo.mNumerator = (int) num;
-  timeInfo.mDenominator = (int) denom;
+  mTimeInfo.mNumerator = (int) num;
+  mTimeInfo.mDenominator = (int) denom;
   
   mTransport->GetCurrentTickPosition(&ppqPos);
-  timeInfo.mPPQPos = (double) ppqPos / 960000.0;
+  mTimeInfo.mPPQPos = (double) ppqPos / 960000.0;
   
   mTransport->GetCurrentNativeSampleLocation(&samplePos);
-  timeInfo.mSamplePos = (double) samplePos;
+  mTimeInfo.mSamplePos = (double) samplePos;
   
-  mTransport->GetCurrentLoopPosition(&timeInfo.mTransportLoopEnabled, &cStart, &cEnd);
-  timeInfo.mCycleStart = (double) cStart / 960000.0;
-  timeInfo.mCycleEnd = (double) cEnd / 960000.0;
+  mTransport->GetCurrentLoopPosition(&mTimeInfo.mTransportLoopEnabled, &cStart, &cEnd);
+  mTimeInfo.mCycleStart = (double) cStart / 960000.0;
+  mTimeInfo.mCycleEnd = (double) cEnd / 960000.0;
   
-  //timeInfo.mLastBar ??
-}
-
-void IPlugAAX::GetTimeSig(int& numerator, int& denominator)
-{
-  int32_t num, denom;
-  mTransport->GetCurrentMeter(&num, &denom);
-  numerator = (int) num;
-  denominator = (int) denom;
+  //mTimeInfo.mLastBar ??
 }
 
 void IPlugAAX::ResizeGraphics(int w, int h, double scale)

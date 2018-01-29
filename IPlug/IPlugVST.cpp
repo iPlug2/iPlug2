@@ -97,81 +97,29 @@ void IPlugVST::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-inline VstTimeInfo* GetTimeInfo(audioMasterCallback hostCallback, AEffect* pAEffect, int filter = 0)
+void IPlugVST::GetTimeInfo()
 {
-#pragma warning(disable:4312) // Pointer size cast mismatch.
-  VstTimeInfo* pTI = (VstTimeInfo*) hostCallback(pAEffect, audioMasterGetTime, 0, filter, 0, 0);
-#pragma warning(default:4312)
-  if (pTI && (!filter || (pTI->flags & filter)))
-  {
-    return pTI;
-  }
-  return 0;
-}
-
-int IPlugVST::GetSamplePos()
-{
-  VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect);
-  if (pTI && pTI->samplePos >= 0.0)
-  {
-    return int(pTI->samplePos + 0.5);
-  }
-  return 0;
-}
-
-double IPlugVST::GetTempo()
-{
-  if (mHostCallback)
-  {
-    VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect, kVstTempoValid);
-    if (pTI && pTI->tempo >= 0.0)
-    {
-      return pTI->tempo;
-    }
-  }
-  return 0.0;
-}
-
-void IPlugVST::GetTimeSig(int& numerator, int& denominator)
-{
-  numerator = denominator = 0;
-  VstTimeInfo* pTI = GetTimeInfo(mHostCallback, &mAEffect, kVstTimeSigValid);
-  if (pTI && pTI->timeSigNumerator >= 0.0 && pTI->timeSigDenominator >= 0.0)
-  {
-    numerator = pTI->timeSigNumerator;
-    denominator = pTI->timeSigDenominator;
-  }
-}
-
-void IPlugVST::GetTime(ITimeInfo& timeInfo)
-{
-  VstTimeInfo* pTI = GetTimeInfo(mHostCallback,
-                                 &mAEffect,
-                                 kVstPpqPosValid |
-                                 kVstTempoValid |
-                                 kVstBarsValid |
-                                 kVstCyclePosValid |
-                                 kVstTimeSigValid );
+  VstTimeInfo* pTI = (VstTimeInfo*) mHostCallback(&mAEffect, audioMasterGetTime, 0, kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
 
   if (pTI)
   {
-    timeInfo.mSamplePos = pTI->samplePos;
+    mTimeInfo.mSamplePos = pTI->samplePos;
 
-    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) timeInfo.mPPQPos = pTI->ppqPos;
-    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) timeInfo.mTempo = pTI->tempo;
-    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) timeInfo.mLastBar = pTI->barStartPos;
+    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) mTimeInfo.mPPQPos = pTI->ppqPos;
+    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) mTimeInfo.mTempo = pTI->tempo;
+    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) mTimeInfo.mLastBar = pTI->barStartPos;
     if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0)
     {
-      timeInfo.mCycleStart = pTI->cycleStartPos;
-      timeInfo.mCycleEnd = pTI->cycleEndPos;
+      mTimeInfo.mCycleStart = pTI->cycleStartPos;
+      mTimeInfo.mCycleEnd = pTI->cycleEndPos;
     }
     if ((pTI->flags & kVstTimeSigValid) && pTI->timeSigNumerator > 0.0 && pTI->timeSigDenominator > 0.0)
     {
-      timeInfo.mNumerator = pTI->timeSigNumerator;
-      timeInfo.mDenominator = pTI->timeSigDenominator;
+      mTimeInfo.mNumerator = pTI->timeSigNumerator;
+      mTimeInfo.mDenominator = pTI->timeSigDenominator;
     }
-    timeInfo.mTransportIsRunning = pTI->flags & kVstTransportPlaying;
-    timeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
+    mTimeInfo.mTransportIsRunning = pTI->flags & kVstTransportPlaying;
+    mTimeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
   }
 }
 
@@ -878,6 +826,7 @@ void IPlugVST::VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
   }
   AttachInputBuffers(0, NInChannels(), inputs, nFrames);
   AttachOutputBuffers(0, NOutChannels(), outputs);
+  GetTimeInfo();
 }
 
 // Deprecated.

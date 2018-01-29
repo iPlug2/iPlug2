@@ -52,40 +52,37 @@ public:
   IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugAAX();
   
-  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource );
+  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource ) override;
   
   // AAX_CIPlugParameters Overrides
   static AAX_CEffectParameters *AAX_CALLBACK Create();
-  AAX_Result EffectInit();
-  void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo);
+  AAX_Result EffectInit() override;
+  void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo) override;
   
   // AAX_CEffectParameters Overrides
-  AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID * chunkID ) const;
-  AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const ;
-  AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const ;   
-  AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChunk );
-  AAX_Result CompareActiveChunk(const AAX_SPlugInChunk * iChunk, AAX_CBoolean * oIsEqual )  const ;
+  AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID* chunkID ) const override;
+  AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t* oSize ) const override;
+  AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* oChunk ) const override;
+  AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* iChunk ) override;
+  AAX_Result CompareActiveChunk(const AAX_SPlugInChunk* iChunk, AAX_CBoolean* oIsEqual ) const override;
   
   // IPlugBase Overrides
-  void BeginInformHostOfParamChange(int idx);
-  void InformHostOfParamChange(int idx, double normalizedValue);
-  void EndInformHostOfParamChange(int idx);
-  void InformHostOfProgramChange() { }; //NA
-      
-  int GetSamplePos();
-  double GetTempo();
-  void GetTimeSig(int& numerator, int& denominator);
-  void GetTime(ITimeInfo& timeInfo);
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfProgramChange() override { }; //NA
+  
+  void ResizeGraphics(int w, int h, double scale) override;
 
-  void ResizeGraphics(int w, int h, double scale);
-
-  void SetLatency(int samples);
-  void DirtyPTCompareState() { mNumPlugInChanges++; }
+  void SetLatency(int samples) override;
+  void DirtyPTCompareState() override { mNumPlugInChanges++; }
   
 protected:
-  bool SendMidiMsg(IMidiMsg& msg);
+  bool SendMidiMsg(IMidiMsg& msg) override;
 
 private:
+  void GetTimeInfo() override;
+
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;

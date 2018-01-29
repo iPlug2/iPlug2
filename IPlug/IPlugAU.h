@@ -50,17 +50,9 @@ public:
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-
   void InformHostOfProgramChange() override;
-
-  int GetSamplePos() override;
-  double GetTempo() override;
-  void GetTimeSig(int& numerator, int& denominator) override;
-  void GetTime(ITimeInfo& timeinfo) override;
   EHost GetHost() override;
-
   void ResizeGraphics(int w, int h, double scale) override;
-
   bool IsRenderingOffline() override;
 
   enum EAUInputType
@@ -78,13 +70,14 @@ protected:
   void HostSpecificInit() override;
   
 private:
+  void GetTimeInfo() override;
+
   WDL_String mOSXBundleID;
   WDL_String mCocoaViewFactoryClassName;
   AudioComponentInstance mCI = nullptr;
   bool mActive = false;
   bool mIsOffline = false;
   double mRenderTimestamp = -1.0;
-  bool mTempo = DEFAULT_TEMPO;
   HostCallbackInfo mHostCallbacks;
 
 // InScratchBuf is only needed if the upstream connection is a callback.

@@ -328,6 +328,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   if(data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
 
+  GetTimeInfo();
+  
   //process parameters
   IParameterChanges* paramChanges = data.inputParameterChanges;
   if (paramChanges)
@@ -865,34 +867,18 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
-void IPlugVST3::GetTime(ITimeInfo& timeInfo)
+void IPlugVST3::GetTimeInfo()
 {
-  timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
-  timeInfo.mPPQPos = mProcessContext.projectTimeMusic;
-  timeInfo.mTempo = mProcessContext.tempo;
-  timeInfo.mLastBar = mProcessContext.barPositionMusic;
-  timeInfo.mCycleStart = mProcessContext.cycleStartMusic;
-  timeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
-  timeInfo.mNumerator = mProcessContext.timeSigNumerator;
-  timeInfo.mDenominator = mProcessContext.timeSigDenominator;
-  timeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
-  timeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
-}
-
-double IPlugVST3::GetTempo()
-{
-  return mProcessContext.tempo;
-}
-
-void IPlugVST3::GetTimeSig(int& numerator, int& denominator)
-{
-  numerator = mProcessContext.timeSigNumerator;
-  denominator = mProcessContext.timeSigDenominator;
-}
-
-int IPlugVST3::GetSamplePos()
-{
-  return (int) mProcessContext.projectTimeSamples;
+  mTimeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
+  mTimeInfo.mPPQPos = mProcessContext.projectTimeMusic;
+  mTimeInfo.mTempo = mProcessContext.tempo;
+  mTimeInfo.mLastBar = mProcessContext.barPositionMusic;
+  mTimeInfo.mCycleStart = mProcessContext.cycleStartMusic;
+  mTimeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
+  mTimeInfo.mNumerator = mProcessContext.timeSigNumerator;
+  mTimeInfo.mDenominator = mProcessContext.timeSigDenominator;
+  mTimeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
+  mTimeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
 }
 
 void IPlugVST3::ResizeGraphics(int w, int h, double scale)

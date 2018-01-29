@@ -147,11 +147,16 @@ public:
   int NOutChansConnected() const;
 
   virtual bool IsRenderingOffline() { return false; };
-  virtual int GetSamplePos() = 0;   // Samples since start of project.
-  virtual double GetTempo() = 0;
+  
+  
+  /**
+   Called by api class prior to a block render
+   */
+  virtual void GetTimeInfo() {};
+  virtual int GetSamplePos() { return mTimeInfo.mSamplePos; }  // Samples since start of project.
+  virtual double GetTempo() { return mTimeInfo.mTempo; }
   double GetSamplesPerBeat();
-  virtual void GetTimeSig(int& numerator, int& denominator) = 0;
-  virtual void GetTime(ITimeInfo& timeInfo) = 0;
+  virtual void GetTimeSig(int& numerator, int& denominator) { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
   const char* GetAPIStr();
@@ -392,6 +397,6 @@ protected:
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
-  
+  ITimeInfo mTimeInfo;
   WDL_String mParamDisplayStr = WDL_String("", MAX_PARAM_DISPLAY_LEN);
 };
