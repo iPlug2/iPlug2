@@ -156,7 +156,7 @@ const char* IParam::GetParamGroupForHost() const
   return mParamGroup;
 }
 
-int IParam::GetNDisplayTexts() const
+int IParam::NDisplayTexts() const
 {
   return mDisplayTexts.GetSize();
 }

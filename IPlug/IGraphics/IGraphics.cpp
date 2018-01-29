@@ -270,8 +270,8 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
   if (!pControl || !pParam) return;
 
   IParam::EParamType type = pParam->Type();
-  int n = pParam->GetNDisplayTexts();
   char currentText[MAX_PARAM_LEN];
+  int n = pParam->NDisplayTexts();
 
   if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && n))
   {

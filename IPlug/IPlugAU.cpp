@@ -646,7 +646,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       ASSERT_ELEMENT(NParams());
       WDL_MutexLock lock(&mParams_mutex);
       IParam* pParam = GetParam(element);
-      int n = pParam->GetNDisplayTexts();
+      int n = pParam->NDisplayTexts();
       if (!n)
       {
         *pDataSize = 0;
@@ -905,7 +905,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           CStrLocal cStr(pVFS->inString);
           WDL_MutexLock lock(&mParams_mutex);
           IParam* pParam = GetParam(pVFS->inParamID);
-          if (pParam->GetNDisplayTexts())
+          if (pParam->NDisplayTexts())
           {
             int v;
             if (pParam->MapDisplayText(cStr.mCStr, &v))

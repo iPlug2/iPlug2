@@ -68,7 +68,7 @@ public:
   const char* GetLabelForHost() const;
   const char* GetParamGroupForHost() const;
   
-  int GetNDisplayTexts() const;
+  int NDisplayTexts() const;
   const char* GetDisplayText(int value) const;
   const char* GetDisplayTextAtIdx(int idx, int* value = 0) const;
   bool MapDisplayText(const char* pStr, int* pValue) const;  // Reverse map back to value.

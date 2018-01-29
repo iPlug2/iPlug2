@@ -162,11 +162,11 @@ AAX_Result IPlugAAX::EffectInit()
       case IParam::kTypeEnum:
       case IParam::kTypeBool: 
       {
-        int nTexts = p->GetNDisplayTexts();
+        int nTexts = p->NDisplayTexts();
         
         std::map<int, AAX_CString> displayTexts;
         
-        for (int j=0; j<p->GetNDisplayTexts(); j++) 
+        for (int j=0; j<p->NDisplayTexts(); j++) 
         {
           int value;
           const char* text = p->GetDisplayTextAtIdx(j, &value);

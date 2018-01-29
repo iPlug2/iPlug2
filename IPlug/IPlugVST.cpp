@@ -14,7 +14,7 @@ int VSTSpkrArrType(int nchan)
 double VSTString2Parameter(IParam* pParam, char* ptr)
 {
   double v;
-  bool mapped = pParam->GetNDisplayTexts();
+  bool mapped = pParam->NDisplayTexts();
   if (mapped)
   {
     int vi;

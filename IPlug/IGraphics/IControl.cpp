@@ -116,7 +116,7 @@ void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    if (mPlug.GetParam(mParamIdx)->GetNDisplayTexts()) // popup menu
+    if (mPlug.GetParam(mParamIdx)->NDisplayTexts()) // popup menu
     {
       mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT);
     }
