@@ -21,11 +21,11 @@ public:
   IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IColor& fgColor = COLOR_BLACK, const IColor& bgColor = COLOR_WHITE,
                   uint32_t numStates = 2, EDirection dir = kVertical);
-  
+
   ~IVSwitchControl() {}
-  
+
   void Draw(IGraphics& graphics)  override;
-  
+
 private:
   float mStep;
   IColor mFGColor;
@@ -39,9 +39,9 @@ class IVKnobControl : public IKnobControlBase
 public:
   IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int param, const IColor& fgcolor = DEFAULT_FGCOLOR, const IColor& bgcolor = DEFAULT_BGCOLOR, float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f, EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IVKnobControl() {}
-  
+
   void Draw(IGraphics& graphics) override;
-  
+
 protected:
   IColor mFGColor, mBGColor;
   float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
@@ -56,10 +56,10 @@ public:
   IBSwitchControl(IPlugBaseGraphics& plug, float x, float y, int param, IBitmap& bitmap)
   : IBitmapControl(plug, x, y, param, bitmap) {}
   ~IBSwitchControl() {}
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
-  
+
 private:
 };
 
@@ -70,14 +70,14 @@ public:
   IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int param,
                   IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   ~IBSliderControl() {}
-  
+
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y); }
   virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   virtual void Draw(IGraphics& graphics) override;
   virtual bool IsHit(float x, float y) const override;
   virtual void OnRescale() override;
-  
+
   int GetLength() const { return mLen; }
   int GetHandleHeadroom() const { return mHandleHeadroom; }
   double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
@@ -112,7 +112,7 @@ public:
   {
     graphics.DrawBitmapedText(mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
-  
+
 protected:
   WDL_String mStr;
   int mCharWidth, mCharHeight, mCharOffset;
@@ -124,9 +124,9 @@ protected:
 /*
 
 IVKeyboardControl by Eugene Yakshin, 2018
- 
+
  based on
- 
+
  IKeyboardControl
  (c) Theo Niessink 2009, 2010
  <http://www.taletn.com/>
@@ -162,13 +162,9 @@ class IVKeyboardControl : public IControl
 {
 public:
   IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect, int minNote, int maxNote);
-  
-//  IVKeyboardControl(IPlugBaseGraphics& pPlug, float x, float y, int minNote, int maxNote)
-//  : IVKeyboardControl(pPlug, x, y, -1.0, 70.0, minNote, maxNote) {}
-//
   ~IVKeyboardControl();
-  
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;  
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -177,33 +173,27 @@ public:
   void OnResize() override;
 
   void Draw(IGraphics& graphics) override;
-  
-  void SetMinMaxNote(int min, int max, bool keepWidth = true);  
+
+  void SetMinMaxNote(int min, int max, bool keepWidth = true);
   void SetNoteIsPlayed(int noteNum, bool played);
   void SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR = 0.6);
   void SetHeight(float h, bool keepProportions = false);
   void SetWidth(float w, bool keepProportions = false);
   void SetShowNotesAndVelocity(bool show);
   void SetColors(const IColor bkColor, const IColor& wkColor, const IColor& pkColor = DEFAULT_PK_COLOR, const IColor& frColor = DEFAULT_FR_COLOR);
- 
+
   void SetDrawShadows(bool draw)
   {
     mDrawShadows = draw;
     SetDirty();
   }
 
-  void SetDrawBorder(bool draw)
+  void SetDrawBorders(bool draw)
   {
-    mDrawBorder = draw;
+    mDrawBorders = draw;
     SetDirty();
   }
-  
-private:  
-  void RecreateRects(bool keepWidth);
-  int GetKeyUnderMouse(float x, float y);
-  void UpdateVelocity(float y);
-  void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
-  
+
   // returns pressed key number inside the keyboard
   int GetKey() const
   {
@@ -215,43 +205,52 @@ private:
     if (mKey > -1) return mMinNote + mKey;
     else return -1;
   }
-  
-  double GetVelocity() const
+
+  double GetVelocity() const { return mVelocity * 127.f; }
+  double GetVelocityNormalized() const { return mVelocity; }
+  int GetVelocityInt() const { return (int)(mVelocity * 127. + 0.5); }
+
+private:
+  void RecreateKeyBounds(bool keepWidth);
+  int GetKeyUnderMouse(float x, float y);
+  void UpdateVelocity(float y);
+  void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
+  bool IsBlackKey(int i) const { return *(mIsBlackKeyList.Get() + i); }
+  float KeyLCoord(int i) { return *(mKeyLCoords.Get() + i); }
+  float* KeyLCoordPtr(int i) { return mKeyLCoords.Get() + i; }
+  bool NoteIsPlayed(int i) const { return *(mNoteIsPlayed.Get() + i); }
+  int NumKeys() const { return mMaxNote - mMinNote + 1; }
+
+  float CalcBKWidth() const
   {
-    return mVelocity * 127.f;
+    auto w = mWKWidth;
+    if (NumKeys() > 1)
+      w *= mBKWidthR;
+    return w;
   }
-  
-  double GetVelocityNormalized() const
-  {
-    return mVelocity;
-  }
-  
-  int GetVelocityInt() const
-  {
-    return (int)(mVelocity * 127. + 0.5);
-  }
-  
+
 protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
-  bool mDrawBorder = true;
+  bool mDrawBorders = true;
   IColor mBKColor = DEFAULT_BK_COLOR;
   IColor mWKColor = DEFAULT_WK_COLOR;
   IColor mPKColor = DEFAULT_PK_COLOR; // pressed key color
-  IColor mFRColor = DEFAULT_FR_COLOR; // frame color
+  IColor mFRColor = DEFAULT_FR_COLOR; // keys borders color
 
-  float mBAlpha = 100.f; // needed cause not any mPKColor will have nice contrast on black keys ?
+  float mWKWidth = 0.f;
   float mBKWidthR = 0.6f;
-  float mBKHeightR = 0.6f;
+  float mBKHeightRatio = 0.6f;
+  float mBKAlpha = 100.f; // needed because not any mPKColor will have nice contrast on black keys ? TODO: ?
   int mKey = -1;
   int mMouseOverKey = -1;
   float mVelocity = 0.f;
   bool mVelByWheel = false;
 
   int mMinNote, mMaxNote;
-  WDL_PtrList<bool> mKeyIsBlack;
-  WDL_PtrList<bool> mNoteIsPlayed;
-  WDL_PtrList<IRECT> mKeyRects;
+  WDL_TypedBuf<bool> mIsBlackKeyList;
+  WDL_TypedBuf<bool> mNoteIsPlayed;
+  WDL_TypedBuf<float> mKeyLCoords;
 };
 
 /**@}*/
