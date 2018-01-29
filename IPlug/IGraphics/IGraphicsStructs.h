@@ -113,7 +113,16 @@ struct IColor
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
-  IColor AddContrast(double c)
+  
+  void AddContrast(double c)
+  {
+    const int mod = int(c * 255.);
+    R = std::min(R += mod, 255);
+    G = std::min(G += mod, 255);
+    B = std::min(B += mod, 255);
+  }
+  
+  IColor GetContrasted(double c) const
   {
     const int mod = int(c * 255.);
     IColor n = *this;
@@ -122,6 +131,14 @@ struct IColor
     n.B = std::min(n.B += mod, 255);
     return n;
   }
+  
+  int GetLuminocity() const
+  {
+    auto min = R < G ? (R < B ? R : B) : (G < B ? G : B);
+    auto max = R > G ? (R > B ? R : B) : (G > B ? G : B);
+    return (min + max) / 2;
+  };
+
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);

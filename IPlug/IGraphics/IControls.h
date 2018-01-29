@@ -162,10 +162,6 @@ class IVKeyboardControl : public IControl
 {
 public:
   IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect, int minNote, int maxNote);
-
-//  IVKeyboardControl(IPlugBaseGraphics& pPlug, float x, float y, int minNote, int maxNote)
-//  : IVKeyboardControl(pPlug, x, y, -1.0, 70.0, minNote, maxNote) {}
-//
   ~IVKeyboardControl();
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -210,51 +206,20 @@ public:
     else return -1;
   }
 
-  double GetVelocity() const
-  {
-    return mVelocity * 127.f;
-  }
-
-  double GetVelocityNormalized() const
-  {
-    return mVelocity;
-  }
-
-  int GetVelocityInt() const
-  {
-    return (int)(mVelocity * 127. + 0.5);
-  }
+  double GetVelocity() const { return mVelocity * 127.f; }
+  double GetVelocityNormalized() const { return mVelocity; }
+  int GetVelocityInt() const { return (int)(mVelocity * 127. + 0.5); }
 
 private:
-  void RecreateRects(bool keepWidth);
+  void RecreateKeyBounds(bool keepWidth);
   int GetKeyUnderMouse(float x, float y);
   void UpdateVelocity(float y);
   void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
-
-  bool IsBlackKey(int i) const
-  {
-    return *(mIsBlackKeyList.Get(i));
-  }
-
-  float KeyLCoord(int i)
-  {
-    return *(mKeyLCoords.Get(i));
-  }
-
-  float* KeyLCoordPtr(int i)
-  {
-    return mKeyLCoords.Get(i);
-  }
-
-  bool NoteIsPlayed(int i) const
-  {
-    return *(mNoteIsPlayed.Get(i));
-  }
-
-  int NumKeys() const // faster than WDL_Ptrlist::GetSize(),
-  {                   // and ptrlist checks for boundries anyway
-    return mMaxNote - mMinNote + 1;
-  }
+  bool IsBlackKey(int i) const { return *(mIsBlackKeyList.Get() + i); }
+  float KeyLCoord(int i) { return *(mKeyLCoords.Get() + i); }
+  float* KeyLCoordPtr(int i) { return mKeyLCoords.Get() + i; }
+  bool NoteIsPlayed(int i) const { return *(mNoteIsPlayed.Get() + i); }
+  int NumKeys() const { return mMaxNote - mMinNote + 1; }
 
   float CalcBKWidth() const
   {
@@ -275,17 +240,17 @@ protected:
 
   float mWKWidth = 0.f;
   float mBKWidthR = 0.6f;
-  float mBKHeightR = 0.6f;
-  float mBAlpha = 100.f; // needed cause not any mPKColor will have nice contrast on black keys ?
+  float mBKHeightRatio = 0.6f;
+  float mBKAlpha = 100.f; // needed because not any mPKColor will have nice contrast on black keys ? TODO: ?
   int mKey = -1;
   int mMouseOverKey = -1;
   float mVelocity = 0.f;
   bool mVelByWheel = false;
 
   int mMinNote, mMaxNote;
-  WDL_PtrList<bool> mIsBlackKeyList;
-  WDL_PtrList<bool> mNoteIsPlayed;
-  WDL_PtrList<float> mKeyLCoords;
+  WDL_TypedBuf<bool> mIsBlackKeyList;
+  WDL_TypedBuf<bool> mNoteIsPlayed;
+  WDL_TypedBuf<float> mKeyLCoords;
 };
 
 /**@}*/
