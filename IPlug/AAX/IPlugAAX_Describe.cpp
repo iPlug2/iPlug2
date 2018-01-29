@@ -13,6 +13,10 @@
   #define BUNDLE_ID "com." BUNDLE_MFR ".aax." BUNDLE_NAME
 #endif
 
+#define args(...) __VA_ARGS__
+#define AAX_TYPE_ID_ARRAY(VARNAME, ARR_DATA) AAX_CTypeID VARNAME[] = {args ARR_DATA}
+
+//TODO: this is extremely limited
 static AAX_EStemFormat getStemFormatForChans(const int numChans)
 {
   switch (numChans)
@@ -41,11 +45,12 @@ static AAX_EStemFormat getStemFormatForChans(const int numChans)
   }
 }
 
-AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
+AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 {
-  AAX_Result        err = AAX_SUCCESS;
-  AAX_IEffectDescriptor * effectDescriptor = outCollection->NewDescriptor();
-  if ( effectDescriptor == NULL )
+  AAX_Result err = AAX_SUCCESS;
+  AAX_IEffectDescriptor* pDesc = pC->NewDescriptor();
+ 
+  if (pDesc == NULL)
     return AAX_ERROR_NULL_OBJECT;
 
   WDL_String subStr;
@@ -58,9 +63,9 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     
     if (span)
     {
-      subStr.Set(plugNameStr, span);
-      err |= effectDescriptor->AddName(subStr.Get());
-      outCollection->AddPackageName(subStr.Get());
+      subStr.Set(plugNameStr, (int) span);
+      err |= pDesc->AddName(subStr.Get());
+      pC->AddPackageName(subStr.Get());
       plugNameStr = strstr(plugNameStr, "\n");
       
       if (plugNameStr)
@@ -86,7 +91,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Dither") == (0)) category = AAX_ePlugInCategory_Dither;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "SoundField") == (0)) category = AAX_ePlugInCategory_SoundField;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Effect") == (0)) category = AAX_ePlugInCategory_None;
-  err |= effectDescriptor->AddCategory(category);
+  err |= pDesc->AddCategory(category);
   
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
   
@@ -94,6 +99,9 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   
   int ioConfigIdx = 0;
   int nSIn = 0;//(PLUG_SC_CHANS > 0); // force it to 1
+
+  AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
+  AAX_TYPE_ID_ARRAY(aaxTypeIDsAudioSuite,(AAX_TYPE_IDS_AUDIOSUITE));
   
   while (channelIOStr) 
   {
@@ -105,8 +113,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       if (nIn > 1)
         nIn -= nSIn;
       
-      AAX_CTypeID typeId = PLUG_TYPE_IDS[ioConfigIdx];
-
+      AAX_CTypeID typeId = aaxTypeIDs[ioConfigIdx];
       // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
       AAX_SIPlugSetupInfo setupInfo;
       setupInfo.mInputStemFormat = getStemFormatForChans(nIn);
@@ -115,7 +122,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mProductID = PLUG_UNIQUE_ID;
       setupInfo.mPluginID = typeId;
       #if AAX_DOES_AUDIOSUITE
-      setupInfo.mAudioSuiteID = PLUG_TYPE_IDS_AS[ioConfigIdx];
+      setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[ioConfigIdx];
       #endif
       setupInfo.mCanBypass = true;
       setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
@@ -126,7 +133,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
       setupInfo.mNeedsTransport = true;
       setupInfo.mLatency = PLUG_LATENCY;
             
-      err |= AAX_CIPlugParameters::StaticDescribe(effectDescriptor, setupInfo);
+      err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
       
       AAX_ASSERT (err == AAX_SUCCESS);
           
@@ -140,13 +147,13 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   }
   
   // Data model
-  err |= effectDescriptor->AddProcPtr( (void *) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
+  err |= pDesc->AddProcPtr( (void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
   
   // GUI
-  err |= effectDescriptor->AddProcPtr( (void *) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
+  err |= pDesc->AddProcPtr( (void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
   
   if ( err == AAX_SUCCESS )
-    err = outCollection->AddEffect(BUNDLE_ID, effectDescriptor );
+    err = pC->AddEffect(BUNDLE_ID, pDesc );
   
   AAX_ASSERT (err == AAX_SUCCESS);
   
@@ -158,8 +165,8 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     
     if (span)
     {
-      subStr.Set(mfrNameStr, span);
-      outCollection->SetManufacturerName(subStr.Get());
+      subStr.Set(mfrNameStr, (int) span);
+      pC->SetManufacturerName(subStr.Get());
       mfrNameStr = strstr(mfrNameStr, "\n");
       
       if (mfrNameStr)
@@ -171,7 +178,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     }
   }
   
-  outCollection->SetPackageVersion(PLUG_VERSION_HEX);
+  pC->SetPackageVersion(PLUG_VERSION_HEX);
   
   return err;
 }
