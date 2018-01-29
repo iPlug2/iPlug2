@@ -60,11 +60,11 @@ public:
   void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo) override;
   
   // AAX_CEffectParameters Overrides
-  AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID* chunkID ) const override;
-  AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t* oSize ) const override;
-  AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* oChunk ) const override;
-  AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* iChunk ) override;
-  AAX_Result CompareActiveChunk(const AAX_SPlugInChunk* iChunk, AAX_CBoolean* oIsEqual ) const override;
+  AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID* pChunkID) const override;
+  AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t* pChunkSize) const override;
+  AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) const override;
+  AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChunk) override;
+  AAX_Result CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoolean* pIsEqual) const override;
   
   // IPlugBase Overrides
   void BeginInformHostOfParamChange(int idx) override;

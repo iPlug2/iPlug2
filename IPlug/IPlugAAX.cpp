@@ -25,16 +25,16 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
 {
   TRACE;
   
-  void* winPtr = GetViewContainerPtr();
+  void* pWindow = GetViewContainerPtr();
   
-  if (winPtr && mPlug->GetHasUI())
+  if (pWindow && mPlug->GetHasUI())
   {
-    IPlugAAXView_Interface* viewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
+    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
-    if(viewInterface)
-      viewInterface->SetViewContainer(GetViewContainer());
+    if(pViewInterface)
+      pViewInterface->SetViewContainer(GetViewContainer());
     
-    mPlug->OpenWindow(winPtr);
+    mPlug->OpenWindow(pWindow);
   }
 }
 
@@ -54,7 +54,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
   return AAX_SUCCESS; 
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(const char* iParameterID)
+AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(const char* paramID)
 {
   return AAX_SUCCESS;
 } 
@@ -64,15 +64,15 @@ AAX_IEffectGUI* AAX_CALLBACK AAX_CEffectGUI_IPLUG::Create()
   return new AAX_CEffectGUI_IPLUG;
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID iParameterID, AAX_CBoolean iIsHighlighted, AAX_EHighlightColor iColor)
+AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, AAX_CBoolean iIsHighlighted, AAX_EHighlightColor iColor)
 {
-  IPlugAAXView_Interface* viewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
+  IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
   
-  if (viewInterface)
+  if (pViewInterface)
   {
-    int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
+    int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
 
-    viewInterface->SetPTParameterHighlight(paramIdx, (bool) iIsHighlighted, (int) iColor);
+    pViewInterface->SetPTParameterHighlight(paramIdx, (bool) iIsHighlighted, (int) iColor);
     return AAX_SUCCESS;
     
   }
@@ -123,10 +123,10 @@ AAX_Result IPlugAAX::EffectInit()
   for (int i=0;i<NParams();i++)
   {
     IParam *p = GetParam(i);
-    AAX_IParameter* param = 0;
+    AAX_IParameter* param = nullptr;
     
     WDL_String* paramID = new WDL_String("_", 1);
-    paramID->SetFormatted(32, "%i", i+kAAXParamIdxOffset);
+    paramID->SetFormatted(MAX_AAX_PARAMID_LEN, "%i", i+kAAXParamIdxOffset);
     mParamIDs.Add(paramID);
     
     switch (p->Type()) 
@@ -201,21 +201,21 @@ AAX_Result IPlugAAX::EffectInit()
   return AAX_SUCCESS;
 }
 
-AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource )
+AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double iValue, AAX_EUpdateSource iSource )
 {
   TRACE;
   
   AAX_Result  result = AAX_SUCCESS;
   
-  AAX_IParameter* parameter = mParameterManager.GetParameterByID(iParameterID);
+  AAX_IParameter* pAAXParameter = mParameterManager.GetParameterByID(paramID);
     
-  if (parameter == 0)
+  if (pAAXParameter == nullptr)
     return AAX_ERROR_INVALID_PARAMETER_ID;
   
   // Store the value into the AAX parameter
-  parameter->UpdateNormalizedValue(iValue);
+  pAAXParameter->UpdateNormalizedValue(iValue);
   
-  int paramIdx = atoi(iParameterID) - kAAXParamIdxOffset;
+  int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
   
   // TODO: UI thread only? If not, need to lock mParams_mutex
   if ((paramIdx >= 0) && (paramIdx < NParams())) 
@@ -227,14 +227,14 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID iParameterID, d
   }
   
   // Now the control has changed
-  result = mPacketDispatcher.SetDirty(iParameterID);
+  result = mPacketDispatcher.SetDirty(paramID);
   
   mNumPlugInChanges++;
   
   return result;
 }
 
-void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
+void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
 {
   TRACE_PROCESS;
 
@@ -248,7 +248,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
   
   if (DoesMIDI()) 
   {
-    AAX_IMIDINode* midiIn = ioRenderInfo->mInputNode;
+    AAX_IMIDINode* midiIn = pRenderInfo->mInputNode;
     AAX_CMidiStream* midiBuffer = midiIn->GetNodeBuffer();
     AAX_CMidiPacket* midiBufferPtr = midiBuffer->mBuffer;
     uint32_t packets_count = midiBuffer->mBufferSize;
@@ -265,21 +265,21 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
     }
   }
   
-  AAX_IMIDINode* transportNode = ioRenderInfo->mTransportNode;
+  AAX_IMIDINode* transportNode = pRenderInfo->mTransportNode;
   mTransport = transportNode->GetTransport();
 
-  int32_t numSamples = *(ioRenderInfo->mNumSamples);
+  int32_t numSamples = *(pRenderInfo->mNumSamples);
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
   int32_t numOutChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(outFormat);
 
   SetInputChannelConnections(0, numInChannels, true);
   SetInputChannelConnections(numInChannels, NInChannels() - numInChannels, false);
-  AttachInputBuffers(0, NInChannels(), ioRenderInfo->mAudioInputs, numSamples);
+  AttachInputBuffers(0, NInChannels(), pRenderInfo->mAudioInputs, numSamples);
   
   SetOutputChannelConnections(0, numOutChannels, true);
   SetOutputChannelConnections(numOutChannels, NOutChannels() - numOutChannels, false);
   
-  AttachOutputBuffers(0, NOutChannels(), ioRenderInfo->mAudioOutputs);
+  AttachOutputBuffers(0, NOutChannels(), pRenderInfo->mAudioOutputs);
   
   if (bypass) 
   {
@@ -292,22 +292,22 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo)
   }
 }
 
-AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID * chunkID )  const 
+AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID* pChunkID) const
 {
   IPlugAAX* _this = const_cast<IPlugAAX*>(this);
 
 	if (index != 0)
 	{
-		*chunkID = AAX_CTypeID(0);
+		*pChunkID = AAX_CTypeID(0);
 		return AAX_ERROR_INVALID_CHUNK_INDEX;
 	}
 	
-	*chunkID = _this->GetUniqueID();
+	*pChunkID = _this->GetUniqueID();
   
 	return AAX_SUCCESS;	
 }
 
-AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
+AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
 {
   TRACE;
   
@@ -321,19 +321,19 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t * oSize ) const
     
     if (_this->SerializeState(chunk))
     {
-      *oSize = chunk.Size();
+      *pSize = chunk.Size();
     }
     
     return AAX_SUCCESS;
   }
   else 
   {
-    *oSize = 0;
+    *pSize = 0;
     return AAX_ERROR_INVALID_CHUNK_ID;
   }
 }
 
-AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) const
+AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) const
 {
   TRACE;
   IPlugAAX* _this = const_cast<IPlugAAX*>(this);
@@ -346,8 +346,8 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) c
     
     if (_this->SerializeState(chunk))
     {
-      oChunk->fSize = chunk.Size();
-      memcpy(oChunk->fData, chunk.GetBytes(), chunk.Size());
+      pChunk->fSize = chunk.Size();
+      memcpy(pChunk->fData, chunk.GetBytes(), chunk.Size());
       return AAX_SUCCESS;
     }
   }
@@ -355,7 +355,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk * oChunk ) c
   return AAX_ERROR_INVALID_CHUNK_ID;
 }
 
-AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChunk )
+AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChunk)
 {
   TRACE;
   // TODO: UI thread only?
@@ -363,7 +363,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
   if (chunkID == GetUniqueID())
   {    
     IByteChunk chunk;
-    chunk.PutBytes(iChunk->fData, iChunk->fSize);
+    chunk.PutBytes(pChunk->fData, pChunk->fSize);
     int pos = 0;
     //GetIPlugVerFromChunk(chunk, pos); // TODO: IPlugVer should be in chunk!
     pos = UnserializeState(chunk, pos);
@@ -382,19 +382,19 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk * iChu
   return AAX_ERROR_INVALID_CHUNK_ID;
 }
 
-AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk * aChunkP, AAX_CBoolean * aIsEqualP ) const 
+AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoolean* pIsEqual) const
 {
   TRACE;
 
   IPlugAAX* _this = const_cast<IPlugAAX*>(this);
 
-	if (aChunkP->fChunkID != _this->GetUniqueID()) 
+	if (pChunk->fChunkID != _this->GetUniqueID())
 	{
-		*aIsEqualP = true;
+		*pIsEqual = true;
 		return AAX_SUCCESS; 
 	}
   
-	*aIsEqualP = _this->CompareState((const unsigned char*) aChunkP->fData, 0);
+	*pIsEqual = _this->CompareState((const unsigned char*) pChunk->fData, 0);
     
   return AAX_SUCCESS;
 }  
@@ -450,9 +450,9 @@ void IPlugAAX::ResizeGraphics(int w, int h, double scale)
     oEffectViewSize.horz = (float) w;
     oEffectViewSize.vert = (float) h;
     
-    IPlugAAXView_Interface* viewInterface = dynamic_cast<IPlugAAXView_Interface*>(this);
-    if(viewInterface)
-      viewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
+    IPlugAAXView_Interface* pViewInterface = dynamic_cast<IPlugAAXView_Interface*>(this);
+    if(pViewInterface)
+      pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
     OnWindowResize();
   }

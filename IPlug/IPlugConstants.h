@@ -58,6 +58,8 @@ static const int MAX_PRESET_NAME_LEN = 256;
 #define MAX_BUILD_INFO_STR_LEN 256
 static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 
+#define MAX_AAX_PARAMID_LEN 32
+
 #define PARAM_UNINIT 99.99e-9
 
 #ifndef MAX_BLOB_LENGTH
