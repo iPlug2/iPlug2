@@ -65,7 +65,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   }
 
   IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-  char txt[MAX_PARAM_LEN];
+  char txt[MAX_WIN32_PARAM_LEN];
   double v;
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
@@ -95,7 +95,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           {
             case kCommit:
             {
-              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) txt);
+              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
 
               if(pGraphics->mEdParam)
               {
@@ -928,9 +928,9 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const 
 void GetModulePath(HMODULE hModule, WDL_String& path)
 {
   path.Set("");
-  char pathCStr[MAX_PATH_LEN];
+  char pathCStr[MAX_WIN32_PATH_LEN];
   pathCStr[0] = '\0';
-  if (GetModuleFileName(hModule, pathCStr, MAX_PATH_LEN))
+  if (GetModuleFileName(hModule, pathCStr, MAX_WIN32_PATH_LEN))
   {
     int s = -1;
     for (int i = 0; i < strlen(pathCStr); ++i)
@@ -959,40 +959,40 @@ void IGraphicsWin::PluginPath(WDL_String& path)
 
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
-  TCHAR strPath[MAX_PATH_LEN];
+  TCHAR strPath[MAX_WIN32_PATH_LEN];
   SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
-  path.Set(strPath, MAX_PATH_LEN);
+  path.Set(strPath, MAX_WIN32_PATH_LEN);
 }
 
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_PATH_LEN];
+  TCHAR strPath[MAX_WIN32_PATH_LEN];
 
   if (isSystem)
     SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
   else
     SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
 
-  path.Set(strPath, MAX_PATH_LEN);
+  path.Set(strPath, MAX_WIN32_PATH_LEN);
 }
 
 void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_PATH_LEN];
+  TCHAR strPath[MAX_WIN32_PATH_LEN];
 
   if (!isSystem)
   {
-    TCHAR strPath[MAX_PATH_LEN];
+    TCHAR strPath[MAX_WIN32_PATH_LEN];
     SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
-    path.Set(strPath, MAX_PATH_LEN);
+    path.Set(strPath, MAX_WIN32_PATH_LEN);
   }
   else
   {
     SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-    path.Set(strPath, MAX_PATH_LEN);
+    path.Set(strPath, MAX_WIN32_PATH_LEN);
   }
 
-  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrName(), mPlug.GetProductName());
+  path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrName(), mPlug.GetProductName());
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
@@ -1037,8 +1037,8 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     return;
   }
 
-  char fnCStr[MAX_PATH_LEN];
-  char dirCStr[MAX_PATH_LEN];
+  char fnCStr[MAX_WIN32_PATH_LEN];
+  char dirCStr[MAX_WIN32_PATH_LEN];
 
   if (filename.GetLength())
     strcpy(fnCStr, filename.Get());
@@ -1060,7 +1060,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hwndOwner = mPlugWnd;
   ofn.lpstrFile = fnCStr;
-  ofn.nMaxFile = MAX_PATH_LEN - 1;
+  ofn.nMaxFile = MAX_WIN32_PATH_LEN - 1;
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
 
@@ -1128,7 +1128,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     char drive[_MAX_DRIVE];
     if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
     {
-      path.SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
+      path.SetFormatted(MAX_WIN32_PATH_LEN, "%s%s", drive, dirCStr);
     }
     filename.Set(ofn.lpstrFile);
   }

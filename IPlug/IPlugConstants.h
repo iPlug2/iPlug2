@@ -44,8 +44,9 @@ static const int MAX_PRESET_NAME_LEN = 256;
 #define UNUSED_PRESET_NAME "empty"
 #define DEFAULT_USER_PRESET_NAME "user preset"
 
-#define MAX_PATH_LEN 256
-#define MAX_PARAM_LEN 256
+#define MAX_WIN32_PATH_LEN 256
+#define MAX_WIN32_PARAM_LEN 256
+
 #define MAX_EFFECT_NAME_LEN 128
 
 #define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
