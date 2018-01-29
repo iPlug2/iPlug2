@@ -236,14 +236,14 @@ private:
     return *(mKeyIsBlack.Get(i));
   }
 
-  IRECT KeyRect(int i)
+  float KeyLCoord(int i)
   {
-    return *(mKeyRects.Get(i));
+    return *(mKeyLCoords.Get(i));
   }
 
-  IRECT* KeyRectPtr(int i)
+  float* KeyLCoordPtr(int i)
   {
-    return mKeyRects.Get(i);
+    return mKeyLCoords.Get(i);
   }
 
   bool NoteIsPlayed(int i) const
@@ -285,7 +285,7 @@ protected:
   int mMinNote, mMaxNote;
   WDL_PtrList<bool> mKeyIsBlack;
   WDL_PtrList<bool> mNoteIsPlayed;
-  WDL_PtrList<IRECT> mKeyRects;
+  WDL_PtrList<float> mKeyLCoords;
 };
 
 /**@}*/
