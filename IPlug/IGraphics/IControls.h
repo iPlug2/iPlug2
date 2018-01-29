@@ -21,11 +21,11 @@ public:
   IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IColor& fgColor = COLOR_BLACK, const IColor& bgColor = COLOR_WHITE,
                   uint32_t numStates = 2, EDirection dir = kVertical);
-  
+
   ~IVSwitchControl() {}
-  
+
   void Draw(IGraphics& graphics)  override;
-  
+
 private:
   float mStep;
   IColor mFGColor;
@@ -39,9 +39,9 @@ class IVKnobControl : public IKnobControlBase
 public:
   IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int param, const IColor& fgcolor = DEFAULT_FGCOLOR, const IColor& bgcolor = DEFAULT_BGCOLOR, float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f, EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IVKnobControl() {}
-  
+
   void Draw(IGraphics& graphics) override;
-  
+
 protected:
   IColor mFGColor, mBGColor;
   float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
@@ -56,10 +56,10 @@ public:
   IBSwitchControl(IPlugBaseGraphics& plug, float x, float y, int param, IBitmap& bitmap)
   : IBitmapControl(plug, x, y, param, bitmap) {}
   ~IBSwitchControl() {}
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
-  
+
 private:
 };
 
@@ -70,14 +70,14 @@ public:
   IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int param,
                   IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   ~IBSliderControl() {}
-  
+
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y); }
   virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   virtual void Draw(IGraphics& graphics) override;
   virtual bool IsHit(float x, float y) const override;
   virtual void OnRescale() override;
-  
+
   int GetLength() const { return mLen; }
   int GetHandleHeadroom() const { return mHandleHeadroom; }
   double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
@@ -112,7 +112,7 @@ public:
   {
     graphics.DrawBitmapedText(mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
-  
+
 protected:
   WDL_String mStr;
   int mCharWidth, mCharHeight, mCharOffset;
