@@ -266,7 +266,7 @@ void PopulatePreferencesDialog(HWND hwndDlg)
   PopulateMidiDialogs(hwndDlg);
 }
 
-#elif defined OS_OSX
+#elif defined OS_MAC
 void PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"CoreAudio");
@@ -449,7 +449,7 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
         case IDC_BUTTON_ASIO:
           if (HIWORD(wParam) == BN_CLICKED)
-            #ifdef OS_OSX
+            #ifdef OS_MAC
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
             #elif defined OS_WIN
             if( gState->mAudioDriverType == DAC_ASIO && gDAC->isStreamRunning()) // TODO: still not right

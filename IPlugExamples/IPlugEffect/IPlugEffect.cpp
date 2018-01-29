@@ -5,7 +5,7 @@
 
 #include "IPlugEffect_controls.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 #pragma mark - WATCH OUT IF APP IS SANDBOXED, YOU WON T FIND ANY FILES HERE
 #define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
 #define KNOB_FN "resources/img/BefacoBigKnob.svg"

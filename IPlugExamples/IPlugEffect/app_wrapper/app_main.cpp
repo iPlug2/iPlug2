@@ -92,7 +92,7 @@ uint32_t GetMIDIInPortNumber(const char* nameToTest)
 
   if(!strcmp(nameToTest, "off")) return 0;
 
-  #ifdef OS_OSX
+  #ifdef OS_MAC
   start = 2;
   if(!strcmp(nameToTest, "virtual input")) return 1;
   #endif
@@ -112,7 +112,7 @@ uint32_t GetMIDIOutPortNumber(const char* nameToTest)
 
   if(!strcmp(nameToTest, "off")) return 0;
 
-  #ifdef OS_OSX
+  #ifdef OS_MAC
   start = 2;
   if(!strcmp(nameToTest, "virtual output")) return 1;
   #endif
@@ -144,7 +144,7 @@ void ProbeAudioIO()
     info = gDAC->getDeviceInfo(i);
     std::string deviceName = info.name;
 
-    #ifdef OS_OSX
+    #ifdef OS_MAC
     size_t colonIdx = deviceName.rfind(": ");
 
     if(colonIdx != std::string::npos && deviceName.length() >= 2)
@@ -337,7 +337,7 @@ bool TryToChangeAudioDriverType()
     gDAC = new RtAudio(RtAudio::WINDOWS_ASIO);
   else
     gDAC = new RtAudio(RtAudio::WINDOWS_DS);
-#elif defined OS_OSX
+#elif defined OS_MAC
   if(gState->mAudioDriverType == DAC_COREAUDIO)
     gDAC = new RtAudio(RtAudio::MACOSX_CORE);
   //else
