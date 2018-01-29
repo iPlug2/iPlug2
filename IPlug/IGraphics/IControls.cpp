@@ -296,8 +296,18 @@ void IVKeyboardControl::OnMouseOver(float x, float y, const IMouseMod & pMod)
 
 void IVKeyboardControl::OnResize()
 {
-  // todo optimize
-  RecreateRects(true);
+  auto r = mRECT.W() / mTargetRECT.W();
+  auto dx = mRECT.L - mTargetRECT.L;
+  mWKWidth *= r;
+  for (int i = 0; i < NumKeys(); ++i)
+    {
+    auto kl = &(KeyRectPtr(i)->L);
+    auto d = *kl - mRECT.L;
+    *kl = mRECT.L + d * r + dx;
+    }
+
+  mTargetRECT = mRECT;
+  SetDirty();
 }
 
 void IVKeyboardControl::Draw(IGraphics & graphics)
