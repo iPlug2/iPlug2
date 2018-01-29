@@ -467,23 +467,18 @@ void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float 
   if (widthR <= 0.0 || heightR <= 0.0) return;
   if (widthR > 1.0) widthR = 1.0;
   if (heightR > 1.0) heightR = 1.0;
-  mBKHeightR = heightR;
+  auto halfW = 0.5f * mWKWidth * mBKWidthR;
   float r = widthR / mBKWidthR;
   mBKWidthR = widthR;
-  auto& mR = mRECT;
-  float bkBot = mR.T + mR.H() * heightR;
+  mBKHeightR = heightR;
   for (int i = 0; i < NumKeys(); ++i)
   {
     if (KeyIsBlack(i))
     {
-      auto& kr = *KeyRectPtr(i);
-      kr.B = bkBot;
-      auto d = 0.5f * kr.W();
-      float mid = 0.5f * (kr.L + kr.R);
-      kr.L = mid - d * r;
-      kr.R = mid + d * r;
-      if (kr.L < mR.L)kr.L = mR.L;
-      if (kr.R > mR.R)kr.R = mR.R;
+      auto kl = &(KeyRectPtr(i)->L);
+      float mid = *kl + halfW;
+      *kl = mid - halfW * r;
+      if (*kl < mRECT.L) *kl = mRECT.L;
     }
   }
   SetDirty();
@@ -491,15 +486,10 @@ void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float 
 
 void IVKeyboardControl::SetHeight(float h, bool keepProportions)
 {
-  if (h < 0) return;
+  if (h <= 0.0) return;
   auto& mR = mRECT;
   auto r = h / mR.H();
   mR.B = mR.T + mR.H() * r;
-  for (int i = 0; i < NumKeys(); ++i)
-  {
-    auto& kr = *KeyRectPtr(i);
-    kr.B = kr.T + kr.H() * r;
-  }
 
   mTargetRECT = mRECT;
 
@@ -510,17 +500,16 @@ void IVKeyboardControl::SetHeight(float h, bool keepProportions)
 
 void IVKeyboardControl::SetWidth(float w, bool keepProportions)
 {
-  if (w < 0) return;
+  if (w <= 0.0) return;
   auto& mR = mRECT;
   auto r = w / mR.W();
   mR.R = mR.L + mR.W() * r;
+  mWKWidth *= r;
   for (int i = 0; i < NumKeys(); ++i)
   {
-    auto& kr = *KeyRectPtr(i);
-    auto kw = kr.W();
-    auto d = kr.L - mR.L;
-    kr.L = mR.L + d * r;
-    kr.R = kr.L + kw * r;
+    auto kl = &(KeyRectPtr(i)->L);
+    auto d = *kl - mR.L;
+    *kl = mR.L + d * r;
   }
 
   mTargetRECT = mRECT;
@@ -660,22 +649,38 @@ void IVKeyboardControl::RecreateRects(bool keepWidth)
 
 int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
 {
+  auto& top = mRECT.T;
+  auto& wBot = mRECT.B;
+  auto bBot = top + mRECT.H() * mBKHeightR;
+  auto bKWidth = CalcBKWidth();
+
   // black keys are on top
   int k = -1;
   for (int i = 0; i < NumKeys(); ++i)
   {
-    if (KeyIsBlack(i) && KeyRectPtr(i)->Contains(x, y))
+    if (KeyIsBlack(i))
     {
-      k = i;
-      break;
+      auto kL = KeyRect(i).L;
+      auto kRect = IRECT(kL, top, kL + bKWidth, bBot);
+      if (kRect.Contains(x, y))
+      {
+        k = i;
+        break;
+      }
     }
   }
+
   if (k < 0) for (int i = 0; i < NumKeys(); ++i)
   {
-    if (!KeyIsBlack(i) && KeyRectPtr(i)->Contains(x, y))
+    if (!KeyIsBlack(i))
     {
-      k = i;
-      break;
+      auto kL = KeyRect(i).L;
+      auto kRect = IRECT(kL, top, kL + mWKWidth, wBot);
+      if (kRect.Contains(x, y))
+      {
+        k = i;
+        break;
+      }
     }
   }
 
