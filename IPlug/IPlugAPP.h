@@ -19,7 +19,7 @@
     uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
   };
 
-#elif defined OS_OSX
+#elif defined OS_MAC
   struct IPlugInstanceInfo
   {
     WDL_String mOSXBundleID;

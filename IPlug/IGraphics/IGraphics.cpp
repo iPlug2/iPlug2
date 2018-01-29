@@ -120,12 +120,12 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 void IGraphics::AttachBackground(const char* name, double scale)
 {
   IBitmap bg = LoadBitmap(name, 1, false, scale);
-  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
+  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, kNoParameter, bg, kBlendClobber));
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mPlug, IRECT(0.f, 0.f, mWidth, mHeight), color);
+  IControl* pBG = new IPanelControl(mPlug, IRECT(0.f, 0.f, (float) Width(), (float) Height()), color);
   mControls.Insert(0, pBG);
 }
 
@@ -284,9 +284,9 @@ void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textR
       const char* str = pParam->GetDisplayText(i);
       // TODO: what if two parameters have the same text?
       if (!strcmp(str, currentText)) // strings are equal
-        menu.AddItem( new IPopupMenuItem(str, IPopupMenuItem::kChecked), -1 );
+        menu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
       else // not equal
-        menu.AddItem( new IPopupMenuItem(str), -1 );
+        menu.AddItem( new IPopupMenu::Item(str), -1 );
     }
 
     if(CreateIPopupMenu(menu, textRect))
@@ -413,12 +413,13 @@ void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, flo
 
 void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
 {
-  float sinV = sinf(angle);
-  float cosV = cosf(angle);
-  float xLo = (cx + rMin * sinV);
-  float xHi = (cx + rMax * sinV);
-  float yLo = (cy - rMin * cosV);
-  float yHi = (cy - rMax * cosV);
+  const float angleRadians = DegToRad(angle-90.f);
+  const float sinV = sinf(angleRadians);
+  const float cosV = cosf(angleRadians);
+  const float xLo = (cx + rMin * cosV);
+  const float xHi = (cx + rMax * cosV);
+  const float yLo = (cy + rMin * sinV);
+  const float yHi = (cy + rMax * sinV);
   return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
 }
 
@@ -813,7 +814,10 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
     }
     else
     {
-      allow = !pControl->IsGrayed();
+      if (pControl->GetMEWhenGrayed())
+        allow = true;
+      else
+        allow = !pControl->IsGrayed();
     }
 
     if (!pControl->IsHidden() && allow && pControl->IsHit(x, y))
@@ -964,24 +968,24 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 
 ISVG IGraphics::LoadSVG(const char* name)
 {
-#ifdef OS_OSX
   WDL_String path;
   bool found = OSFindResource(name, "svg", path);
-  assert(found);
+  assert(found == true);
   
   SVGHolder* pHolder = s_SVGCache.Find(path.Get());
   
   if(!pHolder)
   {
     NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
-    pHolder  = new SVGHolder(pImage);
+
+    assert(pImage != nullptr);
+    //TODO: get win32 resource as string - nsvgParseFromFile won't work
+
+    pHolder = new SVGHolder(pImage);
     s_SVGCache.Add(pHolder, path.Get());
   }
   
   return ISVG(pHolder->mImage);
-#else
-  return ISVG(0);
-#endif
 }
 
 void IGraphics::LoadFont(const char* name)

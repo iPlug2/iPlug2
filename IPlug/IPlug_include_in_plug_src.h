@@ -28,7 +28,7 @@
     return pGraphics;
   }
   #endif
-#elif defined OS_OSX
+#elif defined OS_MAC
   #ifndef NO_IGRAPHICS
   IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
   {
@@ -69,7 +69,7 @@
     }
     EXPORT int main(int hostCallback)
     {
-    #if defined OS_OSX
+    #if defined OS_MAC
       return (VstIntPtr) VSTPluginMain((audioMasterCallback)hostCallback);
     #else
       return (int) VSTPluginMain((audioMasterCallback)hostCallback);
@@ -271,7 +271,7 @@ extern "C"
     instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
     instanceInfo.mMidiOutChan = midiOutChan;
     
-    #if defined OS_OSX
+    #if defined OS_MAC
       instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
     #endif
 

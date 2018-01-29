@@ -25,7 +25,7 @@ class IPlugEffect : public IPlug
 {
 public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
-  ~IPlugEffect();
+//  ~IPlugEffect();
 //   void OnReset() override;
 //  void OnParamChange(int paramIdx) override;
   void ProcessBlock(double** inputs, double** outputs, int nFrames) override;

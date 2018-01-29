@@ -3,7 +3,7 @@
 #include "IPlugPlatform.h"
 
 #include "nanovg.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "nanovg_mtl.h"
 #endif
 
@@ -11,18 +11,13 @@
 
 struct NanoVGBitmap;
 
-inline float NanoVGWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
 inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
   c.g = (float) color.G / 255.0f;
   c.b = (float) color.B / 255.0f;
-  c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
+  c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
   return c;
 }
 
@@ -35,13 +30,13 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case IBlend::kBlendClobber:
+    case kBlendClobber:
     {
       return NVG_SOURCE_OVER;
     }
-    case IBlend::kBlendAdd:
-    case IBlend::kBlendColorDodge:
-    case IBlend::kBlendNone:
+    case kBlendAdd:
+    case kBlendColorDodge:
+    case kBlendNone:
     default:
     {
       return NVG_COPY;
@@ -78,7 +73,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
@@ -87,7 +82,7 @@ public:
   void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;
@@ -100,18 +95,18 @@ public:
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
   IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) override;
   void ReleaseBitmap(IBitmap& bitmap) override;
-  void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
+  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
 
 protected:
     
-  void Stroke(const IColor& color, const IBlend* pBlend = 0)
+  inline void Stroke(const IColor& color, const IBlend* pBlend = 0)
   {
     nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
     nvgStroke(mVG);
   }
     
-  void Fill(const IColor& color, const IBlend* pBlend = 0)
+  inline void Fill(const IColor& color, const IBlend* pBlend = 0)
   {
     nvgFillColor(mVG, NanoVGColor(color, pBlend));
     nvgFill(mVG);

@@ -94,7 +94,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
-//  mPixf.comp_op(agg::comp_op_src_over);//TODO
+  mPixf.comp_op(AGGBlendMode(pBlend));
   
   agg::rect_i r(srcX, srcY, srcX + rect.W()-1, srcY + rect.H()); //TODO: suspicious -1 here necessary to avoid problems with DrawBitmappedText
   mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T);
@@ -102,6 +102,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
 
 void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
+  //TODO: blend?
+  
   destCtrX *= GetDisplayScale();
   destCtrY *= GetDisplayScale();
 
@@ -115,7 +117,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
 
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  srcMatrix *= agg::trans_affine_rotation(angle);
+  srcMatrix *= agg::trans_affine_rotation(DegToRad(angle));
   srcMatrix *= agg::trans_affine_translation(destCtrX, destCtrY);
   
   agg::trans_affine imgMtx = srcMatrix;
@@ -197,13 +199,13 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
 void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
-  mRenBase.blend_pixel(x * s, y * s, IColorToAggColor(color), 255);
+  mRenBase.blend_pixel(x * s, y * s, AGGColor(color), 255);
 }
 
 void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
 {
   const float s = GetDisplayScale();
-  mRenBase.copy_pixel(x * s, y * s, IColorToAggColor(color));
+  mRenBase.copy_pixel(x * s, y * s, AGGColor(color));
 }
  
 void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
@@ -258,10 +260,10 @@ void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, in
   Stroke(color, path);
 }
 
-void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, minAngle, maxAngle);
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   Stroke(color, arc);
 }
 
@@ -295,25 +297,32 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect,  fl
 {
   const float s = GetDisplayScale();
   agg::rounded_rect agg_rect(destRect.L * s, destRect.T * s, (destRect.L + destRect.W()) * s, (destRect.T + destRect.H()) * s, cr * s);
-  Fill(color, agg_rect);
+  Fill(color, agg_rect, pBlend);
 }
 
-void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend)
+void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
 {
   agg::path_storage path;
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, minAngle, maxAngle);
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   path.concat_path(arc);
   path.line_to(cx * s, cy * s);
-  path.close_polygon();
-  Fill(color, path);
+  if (path.total_vertices() > 2)
+  {
+    path.close_polygon();
+    Fill(color, path, pBlend);
+  }
+  else
+  {
+    Stroke(color, path, pBlend);
+  }
 }
 
 void IGraphicsAGG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
   agg::ellipse ellipse(cx * s, cy * s, r * s, r * s);
-  Fill(color, ellipse);
+  Fill(color, ellipse, pBlend);
 }
 
 void IGraphicsAGG::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
@@ -328,7 +337,7 @@ void IGraphicsAGG::FillConvexPolygon(const IColor& color, float* x, float* y, in
   }
   path.close_polygon();
   
-  Fill(color, path);
+  Fill(color, path, pBlend);
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)
@@ -390,7 +399,7 @@ IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, co
 
 agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
 #else
   //TODO: win
@@ -403,7 +412,7 @@ agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 
 agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* path)
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   if (CSTR_NOT_EMPTY(path))
   {
     const char* ext = path+strlen(path)-1;
@@ -481,7 +490,7 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
 
 void IGraphicsAGG::RenderDrawBitmap()
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale() / GetScale());
 #else // OS_WIN
   //TODO: win

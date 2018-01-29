@@ -29,7 +29,7 @@
 
   for (int i = 0; i < numItems; ++i)
   {
-    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+    IPopupMenu::Item* menuItem = pMenu->GetItem(i);
 
     nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:menuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
 
@@ -523,7 +523,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     associatedIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return associatedIPopupMenu;
   }
-  else return 0;
+  else return nullptr;
 }
 
 - (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;

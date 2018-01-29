@@ -3,7 +3,7 @@
 #include "IPlugPlatform.h"
 
 #include "cairo/cairo.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "cairo/cairo-quartz.h"
 #else
 #include "cairo/cairo-win32.h"
@@ -40,7 +40,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
@@ -49,7 +49,7 @@ public:
   void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
 
   IColor GetPoint(int x, int y) override;
@@ -80,12 +80,7 @@ public:
     cairo_reset_clip(mContext);
   }
   
-protected:
-  inline float CairoWeight(const IBlend* pBlend)
-  {
-    return (pBlend ? pBlend->mWeight : 1.0f);
-  }
-  
+protected:  
   inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   {
     if (!pBlend)
@@ -94,30 +89,19 @@ protected:
     }
     switch (pBlend->mMethod)
     {
-      case IBlend::kBlendClobber:
-      {
-        return CAIRO_OPERATOR_OVER;
-      }
-      case IBlend::kBlendAdd:
-      {
-        return CAIRO_OPERATOR_ADD;
-      }
-      case IBlend::kBlendColorDodge:
-      {
-        return CAIRO_OPERATOR_COLOR_DODGE;
-      }
-      case IBlend::kBlendNone:
+      case kBlendClobber: return CAIRO_OPERATOR_OVER;
+      case kBlendAdd: return CAIRO_OPERATOR_ADD;
+      case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+      case kBlendNone:
       default:
-      {
         return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
-      }
     }
   }
   
   inline void SetCairoSourceRGBA(const IColor& color, const IBlend* pBlend = nullptr)
   {
     cairo_set_operator(mContext, CairoBlendMode(pBlend));
-    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
+    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
   }
     
   void Stroke(const IColor& color, const IBlend* pBlend = nullptr)

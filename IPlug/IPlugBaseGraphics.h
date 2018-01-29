@@ -17,7 +17,7 @@ public:
   
   ~IPlugBaseGraphics();
   
-  IGraphics* GetGUI() { return mGraphics; }
+  IGraphics* GetGUI() { assert(mGraphics); return mGraphics; }
   void* GetAAXViewInterface() override { return (void*) GetGUI(); }
 
   int GetUIWidth() override;

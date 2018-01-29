@@ -1,5 +1,6 @@
 
 #include <Shlobj.h>
+#include <Shlwapi.h>
 #include <commctrl.h>
 
 #include "IGraphicsWin.h"
@@ -746,7 +747,7 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
 
   for(int i = 0; i< baseMenu.GetNItems(); i++)
   {
-    IPopupMenuItem* menuItem = baseMenu.GetItem(i);
+    IPopupMenu::Item* menuItem = baseMenu.GetItem(i);
     if(menuItem->GetSubmenu())
     {
       menu = GetItemMenu(idx, idxInMenu, offsetIdx, *menuItem->GetSubmenu());
@@ -764,7 +765,6 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
   HMENU hMenu = CreatePopupMenu();
 
   int flags = 0;
-  long idxSubmenu = 0;
   long offset = *offsetIdx;
   long nItems = menu.GetNItems();
   *offsetIdx += nItems;
@@ -772,7 +772,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 
   for(int i = 0; i< nItems; i++)
   {
-    IPopupMenuItem* menuItem = menu.GetItem(i);
+    IPopupMenu::Item* menuItem = menu.GetItem(i);
 
     if (menuItem->GetIsSeparator())
     {
@@ -860,13 +860,7 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
 
     ClientToScreen(mPlugWnd, &cPos);
 
-    if (TrackPopupMenu(hMenu,
-                       TPM_LEFTALIGN,
-                       cPos.x,
-                       cPos.y,
-                       0,
-                       mPlugWnd,
-                       0))
+    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
     {
       MSG msg;
       if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
@@ -1314,7 +1308,7 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
       WDL_String strippedName(strlwr(name+1)); 
       strippedName.SetLen(strippedName.GetLength() - 1);
 
-      if (strcmp(search->Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
+      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
         search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
         return false;
@@ -1327,22 +1321,27 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  WDL_String search(name);
-  WDL_String typeUpper(type);
-  
-  EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
-    
-  if (strstr(search.Get(), "found: ") != 0)
+  if (CSTR_NOT_EMPTY(name))
   {
-    result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
-    return true;
-  }
-  else
-  {
-    //TODO: search some other path - for instance if the plug-in developer wishes to store graphics resources in Program Files, to reduce the size of plug-in binaries
-    return false;
-  }
+    WDL_String search(name);
+    WDL_String typeUpper(type);
 
+    EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
+
+    if (strstr(search.Get(), "found: ") != 0)
+    {
+      result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
+      return true;
+    }
+    else
+    {
+      if (PathFileExists(name))
+      {
+        result.Set(name);
+        return true;
+      }
+    }
+  }
   return false;
 }
 

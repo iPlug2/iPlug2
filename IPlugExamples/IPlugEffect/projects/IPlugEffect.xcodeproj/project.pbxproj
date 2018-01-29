@@ -739,8 +739,8 @@
 			isa = PBXGroup;
 			children = (
 				4F3E696A1409778C00C4D749 /* VST3_SDK */,
-				4F3E69051409746500C4D749 /* IPlugVST3.h */,
 				4F3E69041409746500C4D749 /* IPlugVST3.cpp */,
+				4F3E69051409746500C4D749 /* IPlugVST3.h */,
 			);
 			name = VST3;
 			sourceTree = "<group>";
@@ -1439,7 +1439,7 @@
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Sandbox = {
-								enabled = 1;
+								enabled = 0;
 							};
 						};
 					};

@@ -10,7 +10,7 @@
 #elif defined __APPLE__
   #include <TargetConditionals.h>
   #if TARGET_OS_MAC
-    #define OS_OSX
+    #define OS_MAC
   #endif
 #elif defined __linux || defined __linux__ || defined linux
   #define OS_LINUX

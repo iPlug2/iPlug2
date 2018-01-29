@@ -13,7 +13,7 @@ This version of IPlug targets the VST2, VST3, AudioUnit and AAX (Native) plug-in
 WDL-OL/IPlug is not a fully blown application framework such as Qt or JUCE, and lacks many of the useful functionality that those frameworks provide. It is designed for making audio plug-ins and experimenting/hacking, saving you from the painful task of supporting many different plug-in APIs on multiple platforms and architectures, and lets you focus on the DSP and the UI/UX a.k.a the fun stuff.
 
 Discuss IPlug on the [WDL forum](http://forum.cockos.com/forumdisplay.php?f=32
-) or on the [Discord server](https://discord.gg/DySxqNH).
+) or on the [Slack channel](https://join.slack.com/t/iplug-users/shared_invite/enQtMzA1NzA1NzE0OTY1LWYyODdjNzkyYTk4MDRmYzZjZTI4ZGVkYTIxZTk0OWRiYWE2MTA0ZWVlODM1NjkzNDAyNDFhMDdjNGI4OTY2YTU).
 
 
 ### Requirements

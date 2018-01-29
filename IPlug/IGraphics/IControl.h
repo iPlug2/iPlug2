@@ -5,12 +5,19 @@
  * @copydoc IControl
  */
 
+#include <cstring>
+#include <cstdlib>
+
 #ifdef VST3_API
 #undef stricmp
 #undef strnicmp
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "base/source/fobject.h"
 #endif
+
+#include "wdlstring.h"
+#include "dirscan.h"
+#include "ptrlist.h"
 
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
@@ -32,9 +39,8 @@ public:
    @param plug The IPlugBaseGraphics that the control belongs to
    @param rect The rectangular area that the control occupies
    @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
-   @param blendType Blend operation
    */
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IBlend blendType = IBlend::kBlendNone);
+  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -79,6 +85,8 @@ public:
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
   
+  inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
+  
   /** @param tooltip Text to be displayed */
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
   /** @return Currently set tooltip text */
@@ -116,13 +124,16 @@ public:
   /** @return \c True if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
+  void SetMOWhenGrayed(bool allow) { mMOWhenGreyed = allow; }
+  void SetMEWhenGrayed(bool allow) { mMEWhenGreyed = allow; }
   bool GetMOWhenGrayed() { return mMOWhenGreyed; }
+  bool GetMEWhenGrayed() { return mMEWhenGreyed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
-  void SetBlendType(IBlend::EType blendType) { mBlend = IBlend(blendType); }
-  
+  void SetBlend(IBlend blend) { mBlend = blend; }
+    
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
@@ -174,17 +185,20 @@ public:
   
   IPlugBaseGraphics& GetPlug() { return mPlug; }
   IGraphics* GetGUI() { return mPlug.GetGUI(); }
+  
+  void GetJSON(WDL_String& json, int idx) const;
 
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
 
-  void GetJSON(WDL_String& json, int idx) const;
-  
+#pragma mark - IControl Member variables
 protected:
   IPlugBaseGraphics& mPlug;
   IRECT mRECT;
   IRECT mTargetRECT;
+  
+  IActionFunction mActionFunc = nullptr;
   
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
@@ -206,6 +220,7 @@ protected:
   bool mClamped = false;
   bool mDblAsSingleClick = false;
   bool mMOWhenGreyed = false;
+  bool mMEWhenGreyed = false;
   IControl* mValDisplayControl = nullptr;
   IControl* mNameDisplayControl = nullptr;
   WDL_String mTooltip;
@@ -245,12 +260,20 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), paramIdx, blendType), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), paramIdx)
+  , mBitmap(bitmap)
+  {
+    mBlend = blend;
+  }
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, IBlend::EType blendType = IBlend::kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), kNoParameter, blendType), mBitmap(bitmap) {}
+  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : IControl(plug, IRECT(x, y, bitmap), kNoParameter)
+  , mBitmap(bitmap)
+  {
+    mBlend = blend;
+  }
 
   virtual ~IBitmapControl() {}
 
@@ -304,4 +327,76 @@ public:
   
 protected:
   WDL_String mStr;
+};
+
+#pragma mark - Base Controls
+
+/** Parent for knobs, to handle mouse action and ballistics. */
+class IKnobControlBase : public IControl
+{
+public:
+  IKnobControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter,
+    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    : IControl(plug, rect, param)
+    , mDirection(direction)
+    , mGearing(gearing)
+  {}
+
+  virtual ~IKnobControlBase() {}
+
+  void SetGearing(double gearing) { mGearing = gearing; }
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
+
+protected:
+  EDirection mDirection;
+  double mGearing;
+};
+
+/** Parent for buttons/switch controls */
+class IButtonControlBase : public IControl
+{
+public:
+  IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
+    uint32_t numStates = 2);
+
+  virtual ~IButtonControlBase() {}
+
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+
+protected:
+  uint32_t mNumStates;
+};
+
+/** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
+class IDirBrowseControlBase : public IControl
+{
+public:
+  IDirBrowseControlBase(IPlugBaseGraphics& plug, IRECT rect, const char* extension /* e.g. ".txt"*/)
+  : IControl(plug, rect)
+  {
+    mExtension.Set(extension);
+  }
+  
+  ~IDirBrowseControlBase();
+  
+  int NItems();
+  
+  void AddPath(const char* path, const char* label);
+  
+  void SetUpMenu();
+  
+  void GetSelecteItemPath(WDL_String& path);
+  
+private:
+  void ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo);
+  
+protected:
+  int mSelectedIndex = -1;
+  IPopupMenu* mSelectedMenu = nullptr;
+  IPopupMenu mMainMenu;
+  WDL_PtrList<WDL_String> mPaths;
+  WDL_PtrList<WDL_String> mPathLabels;
+  WDL_PtrList<WDL_String> mFiles;
+  WDL_String mExtension;
 };

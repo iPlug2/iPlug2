@@ -13,7 +13,7 @@
 #if defined OS_WIN
   void DBGMSG(const char *format, ...);
   #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-#elif defined OS_OSX
+#elif defined OS_MAC
   #define SYS_THREAD_ID (intptr_t) pthread_self()
   #define DBGMSG(...) printf(__VA_ARGS__)
 #elif defined OS_WEB
@@ -93,9 +93,7 @@
     *p++ = '\n';
     *p   = '\0';
     
-    #ifndef VST3_API //todo: unicode conflict
     OutputDebugString(buf);
-    #endif
   }
 
   #else // OSX

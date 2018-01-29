@@ -2,12 +2,12 @@
 
 #include "IControl.h"
 
-IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBlend blendType)
+IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int param, IActionFunction actionFunc)
 : mPlug(plug)
 , mRECT(rect)
 , mTargetRECT(rect)
-, mParamIdx(paramIdx)
-, mBlend(blendType)
+, mParamIdx(param)
+, mActionFunc(actionFunc)
 {
 }
 
@@ -150,29 +150,29 @@ IControl::AuxParam* IControl::GetAuxParam(int idx)
   return mAuxParams.Get() + idx;
 }
 
-int IControl::AuxParamIdx(int paramIdx)
+int IControl::AuxParamIdx(int param)
 {
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
-    if(GetAuxParam(i)->mParamIdx == paramIdx)
+    if(GetAuxParam(i)->mParamIdx == param)
       return i;
   }
   
   return -1;
 }
 
-void IControl::AddAuxParam(int paramIdx)
+void IControl::AddAuxParam(int param)
 {
-  mAuxParams.Add(AuxParam(paramIdx));
+  mAuxParams.Add(AuxParam(param));
 }
 
-void IControl::SetAuxParamValueFromPlug(int auxParamIdx, double value)
+void IControl::SetAuxParamValueFromPlug(int auxParam, double value)
 {
-  AuxParam* auxParam = GetAuxParam(auxParamIdx);
+  AuxParam* pAuxParam = GetAuxParam(auxParam);
   
-  if (auxParam->mValue != value)
+  if (pAuxParam->mValue != value)
   {
-    auxParam->mValue = value;
+    pAuxParam->mValue = value;
     SetDirty(false);
     Redraw();
   }
@@ -182,8 +182,8 @@ void IControl::SetAllAuxParamsFromGUI()
 {
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
-    AuxParam* auxParam = GetAuxParam(i);
-    mPlug.SetParameterFromUI(auxParam->mParamIdx, auxParam->mValue);
+    AuxParam* pAuxParam = GetAuxParam(i);
+    mPlug.SetParameterFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
   }
 }
 
@@ -274,5 +274,174 @@ void ITextControl::Draw(IGraphics& graphics)
   if (CSTR_NOT_EMPTY(cStr))
   {
     graphics.DrawText(mText, cStr, mRECT);
+  }
+}
+
+IButtonControlBase::IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+  uint32_t numStates)
+  : IControl(plug, rect, paramIdx, actionFunc)
+{
+  if (paramIdx > -1)
+    mNumStates = (uint32_t)mPlug.GetParam(paramIdx)->GetRange() + 1;
+  else
+    mNumStates = numStates;
+
+  assert(mNumStates > 1);
+}
+
+void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mNumStates == 2)
+    mValue = !mValue;
+  else
+  {
+    const float step = 1.f / float(mNumStates) - 1.f;
+    mValue += step;
+    mValue = fmod(1., mValue);
+  }
+
+  if (mActionFunc != nullptr)
+    mActionFunc(this);
+
+  SetDirty();
+}
+
+void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  double gearing = mGearing;
+
+#ifdef PROTOOLS
+#ifdef OS_WIN
+  if (mod.C) gearing *= 10.0;
+#else
+  if (mod.R) gearing *= 10.0;
+#endif
+#else
+  if (mod.C || mod.S) gearing *= 10.0;
+#endif
+
+  if (mDirection == kVertical)
+  {
+    mValue += (double)dY / (double)(mRECT.T - mRECT.B) / gearing;
+  }
+  else
+  {
+    mValue += (double)dX / (double)(mRECT.R - mRECT.L) / gearing;
+  }
+
+  SetDirty();
+}
+
+void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+#ifdef PROTOOLS
+  if (mod.C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (mod.C || mod.S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+
+  SetDirty();
+}
+
+IDirBrowseControlBase::~IDirBrowseControlBase()
+{
+  mFiles.Empty(true);
+  mPaths.Empty(true);
+  mPathLabels.Empty(true);
+}
+
+int IDirBrowseControlBase::NItems()
+{
+  return mFiles.GetSize();
+}
+
+void IDirBrowseControlBase::AddPath(const char * path, const char * label)
+{
+  mPaths.Add(new WDL_String(path));
+  mPathLabels.Add(new WDL_String(label));
+}
+
+void IDirBrowseControlBase::SetUpMenu()
+{
+  mFiles.Empty(true);
+  mMainMenu.Clear();
+  mSelectedIndex = -1;
+
+  int idx = 0;
+
+  if (mPaths.GetSize() == 1)
+  {
+    ScanDirectory(mPaths.Get(0)->Get(), &mMainMenu);
+  }
+  else
+  {
+    for (int p = 0; p<mPaths.GetSize(); p++)
+    {
+      IPopupMenu* pNewMenu = new IPopupMenu();
+      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
+
+      IPopupMenu* pMenuToAddTo = pNewMenu;
+      ScanDirectory(mPaths.Get(p)->Get(), pMenuToAddTo);
+    }
+  }
+}
+
+void IDirBrowseControlBase::GetSelecteItemPath(WDL_String& path)
+{
+  if (mSelectedMenu != nullptr) {
+    path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+    path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+    path.Append(mExtension.Get());
+  }
+  else
+    path.Set("");
+}
+
+void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo)
+{
+  WDL_DirScan d;
+  IPopupMenu* pParentDirMenu = pMenuToAddTo;
+
+  if (!d.First(path))
+  {
+    do
+    {
+      const char* f = d.GetCurrentFN();
+      if (f && f[0] != '.')
+      {
+        if (d.GetCurrentIsDirectory())
+        {
+          WDL_String subdir;
+          d.GetCurrentFullFN(&subdir);
+          IPopupMenu* pNewMenu = new IPopupMenu();
+          pMenuToAddTo->AddItem(d.GetCurrentFN(), pNewMenu);
+          ScanDirectory(subdir.Get(), pNewMenu);
+        }
+        else
+        {
+          const char* a = strstr(f, mExtension.Get());
+          if (a && a > f && strlen(a) == strlen(mExtension.Get()))
+          {
+            WDL_String menuEntry = WDL_String(f, (int) (a - f));
+            pParentDirMenu->AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
+            WDL_String* pFullPath = new WDL_String("");
+            d.GetCurrentFullFN(pFullPath);
+            mFiles.Add(pFullPath);
+          }
+        }
+      }
+    } while (!d.Next());
+
+    pMenuToAddTo = pParentDirMenu;
   }
 }

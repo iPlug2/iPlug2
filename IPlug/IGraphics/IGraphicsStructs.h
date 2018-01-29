@@ -1,25 +1,27 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
 #include <cassert>
+#include <functional>
+#include <algorithm>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "swell.h"
 #endif
 
 #include "nanosvg.h"
 
 #include "IPlugPlatform.h"
+#include "IGraphicsConstants.h"
+
+
+class IControl;
+
+typedef std::function<void(IControl*)> IActionFunction;
 
 class LICE_IFont;
-
-enum EFileAction { kFileOpen, kFileSave };
-
-enum EDirection { kVertical, kHorizontal };
-
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -111,7 +113,16 @@ struct IColor
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
-  IColor AddContrast(double c)
+  
+  void AddContrast(double c)
+  {
+    const int mod = int(c * 255.);
+    R = std::min(R += mod, 255);
+    G = std::min(G += mod, 255);
+    B = std::min(B += mod, 255);
+  }
+  
+  IColor GetContrasted(double c) const
   {
     const int mod = int(c * 255.);
     IColor n = *this;
@@ -120,6 +131,14 @@ struct IColor
     n.B = std::min(n.B += mod, 255);
     return n;
   }
+  
+  int GetLuminocity() const
+  {
+    auto min = R < G ? (R < B ? R : B) : (G < B ? G : B);
+    auto max = R > G ? (R > B ? R : B) : (G > B ? G : B);
+    return (min + max) / 2;
+  };
+
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -135,18 +154,7 @@ const IColor COLOR_ORANGE(255, 255, 127, 0);
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
-  /** @enum EType Blend type
-   * @todo This could use some documentation
-  */
-  enum EType
-  {
-    kBlendNone,     // Copy over whatever is already there, but look at src alpha.
-    kBlendClobber,  // Copy completely over whatever is already there.
-    kBlendAdd,
-    kBlendColorDodge,
-    // etc
-  };
-  EType mMethod;
+  EBlendType mMethod;
   float mWeight;
 
   /** Creates a new IBlend
@@ -154,12 +162,21 @@ struct IBlend
    * @todo IBlend::weight needs documentation
    * @param weight
   */
-  IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
-const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
-const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
+inline float BlendWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
+const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
+const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
+const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
+const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
+
+const IColor DEFAULT_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_FGCOLOR = COLOR_BLACK;
 
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
@@ -167,8 +184,8 @@ struct IText
   char mFont[FONT_LEN];
   int mSize = DEFAULT_TEXT_SIZE;
   IColor mColor;
-  IColor mTextEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR;
-  IColor mTextEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR;
+  IColor mTextEntryBGColor = DEFAULT_BGCOLOR;
+  IColor mTextEntryFGColor = DEFAULT_FGCOLOR;
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle = kStyleNormal;
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign = kAlignCenter;
   int mOrientation = 0; // Degrees ccwise from normal.
@@ -177,22 +194,22 @@ struct IText
   mutable double mCachedScale = 1.0;
 
   IText(int size = DEFAULT_TEXT_SIZE,
-        const IColor& color = DEFAULT_TEXT_COLOR,
+        const IColor& color = DEFAULT_FGCOLOR,
         const char* font = nullptr,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         int orientation = 0,
         EQuality quality = kQualityDefault,
-        const IColor& textEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR,
-        const IColor& textEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR)
+        const IColor& teBGColor = DEFAULT_BGCOLOR,
+        const IColor& teFGColor = DEFAULT_FGCOLOR)
     : mSize(size)
     , mColor(color)
     , mStyle(style)
     , mAlign(align)
     , mOrientation(orientation)
     , mQuality(quality)
-    , mTextEntryBGColor(textEntryBGColor)
-    , mTextEntryFGColor(textEntryFGColor)
+    , mTextEntryBGColor(teBGColor)
+    , mTextEntryFGColor(teFGColor)
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
@@ -250,7 +267,7 @@ struct IRECT
   inline float MW() const { return 0.5f * (L + R); }
   inline float MH() const { return 0.5f * (T + B); }
 
-  inline IRECT Union(const IRECT& rhs)
+  inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
     if (rhs.Empty()) { return *this; }
@@ -289,7 +306,7 @@ struct IRECT
     else if (y > B) y = B;
   }
 
-  inline IRECT SubRectVertical(int numSlices, int sliceIdx)
+  inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
   {
     float heightOfSubRect = H() / (float) numSlices;
     float t = heightOfSubRect * (float) sliceIdx;
@@ -297,7 +314,7 @@ struct IRECT
     return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
-  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx)
+  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
   {
     float widthOfSubRect = W() / (float) numSlices;
     float l = widthOfSubRect * (float) sliceIdx;
@@ -305,22 +322,44 @@ struct IRECT
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
   
-  inline IRECT GetPadded(float padding)
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const
+  {
+    assert(cellIndex < nRows * nColumns);
+    
+    int cell = 0;
+    for(int column = 0; column<nColumns; column++)
+    {
+      for(int row = 0; row<nRows; row++)
+      {
+        if(cell == cellIndex)
+        {
+          const IRECT hrect = SubRectHorizontal(nRows, row);
+          return hrect.SubRectVertical(nColumns, column);
+        }
+        
+        cell++;
+      }
+    }
+    
+    return *this;
+  }
+  
+  inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
   
-  inline IRECT GetPadded(float padL, float padT, float padR, float padB)
+  inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
     return IRECT(L+padL, T+padT, R+padR, B+padB);
   }
   
-  inline IRECT GetHPadded(float padding)
+  inline IRECT GetHPadded(float padding) const
   {
     return IRECT(L-padding, T, R+padding, B);
   }
 
-  inline IRECT GetVPadded(float padding)
+  inline IRECT GetVPadded(float padding) const
   {
     return IRECT(L, T-padding, R, B+padding);
   }

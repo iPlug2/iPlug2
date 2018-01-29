@@ -333,13 +333,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugOSDetect.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
@@ -479,8 +479,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugVST3.cpp" />
     <ClCompile Include="..\..\..\VST3_SDK\base\source\baseiids.cpp" />

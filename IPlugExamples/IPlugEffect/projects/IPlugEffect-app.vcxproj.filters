@@ -35,9 +35,6 @@
     <ClCompile Include="..\..\..\IPlug\rtaudiomidi\RtMidi.cpp">
       <Filter>IPlug\APP\RTAudioMidi</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
@@ -67,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugAPP.cpp">
       <Filter>IPlug\APP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
+      <Filter>IPlug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -129,7 +129,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugOSDetect.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
@@ -151,9 +151,6 @@
       <Filter>IPlug\APP\RTAudioMidi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.h">
@@ -203,6 +200,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugAPP.h">
       <Filter>IPlug\APP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

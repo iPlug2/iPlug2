@@ -1,225 +1,98 @@
 #include "IControls.h"
 
-void ISwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+
+IVSwitchControl::IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
+  , const IColor& fgColor, const IColor &bgColor, uint32_t numStates, EDirection dir)
+  :IButtonControlBase(plug, rect, paramIdx, actionFunc, numStates)
+  , mFGColor(fgColor)
+  , mBGColor(bgColor)
+  , mDirection(dir)
+{
+  mStep = 1.f / float(mNumStates) - 1.f;
+}
+
+void IVSwitchControl::Draw(IGraphics& graphics)
+{
+  const int state = (int)std::round(mValue / mStep);
+
+  graphics.FillRect(mBGColor, mRECT, &mBlend);
+
+  IRECT handle;
+
+  if (mNumStates > 2)
+  {
+    if (mDirection == kHorizontal)
+      handle = mRECT.SubRectHorizontal(mNumStates, state);
+    if (mDirection == kVertical)
+      handle = mRECT.SubRectVertical(mNumStates, state);
+  }
+  else
+    handle = mRECT;
+
+  graphics.FillRect(mFGColor, handle.GetPadded(-10), &mBlend);
+}
+
+void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mBitmap.N > 1)
-  {
-    mValue += 1.0 / (double) (mBitmap.N - 1);
-  }
+    mValue += 1.0 / (double)(mBitmap.N - 1);
   else
-  {
     mValue += 1.0;
-  }
-  
+
   if (mValue > 1.001)
-  {
     mValue = 0.0;
-  }
+
   SetDirty();
 }
 
-void ISwitchControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
+IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx,
+                             const IColor& fgcolor, const IColor& bgcolor,
+                             float rMin, float rMax, float aMin, float aMax, EDirection direction, double gearing)
+: IKnobControlBase(plug, rect, paramIdx, direction, gearing)
+, mFGColor(fgcolor)
+, mBGColor(bgcolor)
+, mAngleMin(aMin)
+, mAngleMax(aMax)
+, mInnerRadius(rMin)
+, mOuterRadius(rMax)
 {
-  OnMouseDown(x, y, mod);
+  if (mOuterRadius == 0.0f)
+    mOuterRadius = 0.5f * (float) rect.W();
 }
 
-void ISwitchPopUpControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+void IVKnobControl::Draw(IGraphics& graphics)
 {
-  PromptUserInput();
-  
-  SetDirty();
+  const float v = mAngleMin + ((float) mValue * (mAngleMax - mAngleMin));
+  const float cx = mRECT.MW(), cy = mRECT.MH();
+  const float radius = (mRECT.W()/2.f) - 2.f;
+  graphics.DrawCircle(mFGColor, cx, cy, radius, &BLEND_50);
+  graphics.FillArc(mBGColor, cx, cy, radius, mAngleMin, v, &BLEND_50);
+  graphics.DrawRadialLine(mFGColor, cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
-ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, bool imagesAreHorizontal, IBlend::EType blendType)
-: ISwitchControl(plug, x, y, paramIdx, bitmap, blendType)
-{
-  mDisablePrompt = false;
-  
-  for(int i = 0; i < bitmap.N; i++)
-  {
-    if (imagesAreHorizontal)
-      mRECTs.Add(mRECT.SubRectHorizontal(bitmap.N, i));
-    else
-      mRECTs.Add(mRECT.SubRectVertical(bitmap.N, i));
-  }
-}
-
-void ISwitchFramesControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-  int n = mRECTs.GetSize();
-  
-  for (int i = 0; i < n; i++)
-  {
-    if (mRECTs.Get()[i].Contains(x, y))
-    {
-      mValue = (double) i / (double) (n - 1);
-      break;
-    }
-  }
-  
-  SetDirty();
-}
-
-IInvisibleSwitchControl::IInvisibleSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
-:   IControl(plug, rect, paramIdx, IBlend::kBlendClobber)
-{
-  mDisablePrompt = true;
-}
-
-void IInvisibleSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-  if (mValue < 0.5)
-  {
-    mValue = 1.0;
-  }
-  else
-  {
-    mValue = 0.0;
-  }
-  SetDirty();
-}
-
-IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, int nButtons,
-                                           IBitmap& bitmap, EDirection direction, bool reverse)
-:   IControl(plug, rect, paramIdx), mBitmap(bitmap)
-{
-  mRECTs.Resize(nButtons);
-  int h = int((double) bitmap.H / (double) bitmap.N);
-  
-  if (reverse)
-  {
-    if (direction == kHorizontal)
-    {
-      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
-      float x = mRECT.R - bitmap.W - dX;
-      float y = mRECT.T;
-      
-      for (int i = 0; i < nButtons; ++i)
-      {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
-        x -= bitmap.W + dX;
-      }
-    }
-    else
-    {
-      float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
-      float x = mRECT.L;
-      float y = mRECT.B - h - dY;
-      
-      for (int i = 0; i < nButtons; ++i)
-      {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
-        y -= h + dY;
-      }
-    }
-    
-  }
-  else
-  {
-    float x = mRECT.L, y = mRECT.T;
-    
-    if (direction == kHorizontal)
-    {
-      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
-      for (int i = 0; i < nButtons; ++i)
-      {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
-        x += bitmap.W + dX;
-      }
-    }
-    else
-    {
-      float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
-      for (int i = 0; i < nButtons; ++i)
-      {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
-        y += h + dY;
-      }
-    }
-  }
-}
-
-void IRadioButtonsControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-#ifdef PROTOOLS
-  if (mod.A)
-  {
-    if (mDefaultValue >= 0.0)
-    {
-      mValue = mDefaultValue;
-      SetDirty();
-      return;
-    }
-  }
-  else
-#endif
-    if (mod.R)
-    {
-      PromptUserInput();
-      return;
-    }
-  
-  int i, n = mRECTs.GetSize();
-  
-  for (i = 0; i < n; ++i)
-  {
-    if (mRECTs.Get()[i].Contains(x, y))
-    {
-      mValue = (double) i / (double) (n - 1);
-      break;
-    }
-  }
-  
-  SetDirty();
-}
-
-void IRadioButtonsControl::Draw(IGraphics& graphics)
-{
-  int i, n = mRECTs.GetSize();
-  int active = int(0.5 + mValue * (double) (n - 1));
-  active = BOUNDED(active, 0, n - 1);
-  for (i = 0; i < n; ++i)
-  {
-    if (i == active)
-    {
-      graphics.DrawBitmap(mBitmap, mRECTs.Get()[i], 2, &mBlend);
-    }
-    else
-    {
-      graphics.DrawBitmap(mBitmap, mRECTs.Get()[i], 1, &mBlend);
-    }
-  }
-}
-
-void IContactControl::OnMouseUp(float x, float y, const IMouseMod& mod)
-{
-  mValue = 0.0;
-  SetDirty();
-}
-
-IFaderControl::IFaderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IBSliderControl::IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : IControl(plug, IRECT(), paramIdx)
-, mLen(len), mBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
+, mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
   if (direction == kVertical)
   {
-    mHandleHeadroom = mBitmap.H;
-    mRECT = mTargetRECT = IRECT(x, y, x + mBitmap.W, y + len);
+    mHandleHeadroom = mHandleBitmap.H;
+    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W, y + len);
   }
   else
   {
-    mHandleHeadroom = mBitmap.W;
-    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mBitmap.H);
+    mHandleHeadroom = mHandleBitmap.W;
+    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H);
   }
 }
 
-IRECT IFaderControl::GetHandleRECT(double value) const
+IRECT IBSliderControl::GetHandleRECT(double value) const
 {
   if (value < 0.0)
   {
     value = mValue;
   }
-  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W, mRECT.T + mBitmap.H);
+  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W, mRECT.T + mHandleBitmap.H);
   if (mDirection == kVertical)
   {
     int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
@@ -235,7 +108,7 @@ IRECT IFaderControl::GetHandleRECT(double value) const
   return r;
 }
 
-void IFaderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+void IBSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
 #ifdef PROTOOLS
   if (mod.A)
@@ -254,56 +127,42 @@ void IFaderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
       PromptUserInput();
       return;
     }
-  
+
   return SnapToMouse(x, y);
 }
 
-void IFaderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
-{
-  return SnapToMouse(x, y);
-}
-
-void IFaderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
 #ifdef PROTOOLS
   if (mod.C)
-  {
     mValue += 0.001 * d;
-  }
 #else
   if (mod.C || mod.S)
-  {
     mValue += 0.001 * d;
-  }
 #endif
   else
-  {
     mValue += 0.01 * d;
-  }
-  
+
   SetDirty();
 }
 
-void IFaderControl::SnapToMouse(float x, float y)
+void IBSliderControl::SnapToMouse(float x, float y)
 {
   if (mDirection == kVertical)
-  {
     mValue = 1.0 - (double) (y - mRECT.T - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-  }
   else
-  {
     mValue = (double) (x - mRECT.L - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-  }
+
   SetDirty();
 }
 
-void IFaderControl::Draw(IGraphics& graphics)
+void IBSliderControl::Draw(IGraphics& graphics)
 {
   IRECT r = GetHandleRECT();
-  graphics.DrawBitmap(mBitmap, r, 1, &mBlend);
+  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
 }
 
-bool IFaderControl::IsHit(float x, float y) const
+bool IBSliderControl::IsHit(float x, float y) const
 {
   if(mOnlyHandle)
   {
@@ -316,232 +175,505 @@ bool IFaderControl::IsHit(float x, float y) const
   }
 }
 
-void IFaderControl::OnRescale()
+void IBSliderControl::OnRescale()
 {
-  mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
+  mHandleBitmap = GetGUI()->GetScaledBitmap(mHandleBitmap);
 }
 
-void IKnobControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int minNote, int maxNote)
+  : IControl(plug, rect)
 {
-  double gearing = mGearing;
-  
-#ifdef PROTOOLS
-#ifdef OS_WIN
-  if (mod.C) gearing *= 10.0;
-#else
-  if (mod.R) gearing *= 10.0;
-#endif
-#else
-  if (mod.C || mod.S) gearing *= 10.0;
-#endif
-  
-  if (mDirection == kVertical)
+  mText.mColor = mFRColor;
+  mDblAsSingleClick = true;
+  bool keepWidth = !(rect.W() <= 0.0);
+  if (rect.W() <= 0.0)
   {
-    mValue += (double) dY / (double) (mRECT.T - mRECT.B) / gearing;
-  }
-  else
-  {
-    mValue += (double) dX / (double) (mRECT.R - mRECT.L) / gearing;
-  }
-  
-  SetDirty();
-}
-
-void IKnobControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
-{
-#ifdef PROTOOLS
-  if (mod.C)
-  {
-    mValue += 0.001 * d;
-  }
-#else
-  if (mod.C || mod.S)
-  {
-    mValue += 0.001 * d;
-  }
-#endif
-  else
-  {
-    mValue += 0.01 * d;
-  }
-  
-  SetDirty();
-}
-
-IKnobLineControl::IKnobLineControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, const IColor& color, double innerRadius, double outerRadius, double minAngle, double maxAngle, EDirection direction, double gearing)
-: IKnobControl(plug, rect, paramIdx, direction, gearing)
-, mColor(color)
-{
-  mMinAngle = (float) minAngle;
-  mMaxAngle = (float) maxAngle;
-  mInnerRadius = (float) innerRadius;
-  mOuterRadius = (float) outerRadius;
-  if (mOuterRadius == 0.0f)
-  {
-    mOuterRadius = 0.5f * (float) rect.W();
-  }
-  mBlend = IBlend(IBlend::kBlendClobber);
-}
-
-void IKnobLineControl::Draw(IGraphics& graphics)
-{
-  const float v = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  const float sinV = sinf(v);
-  const float cosV = cosf(v);
-  const float cx = mRECT.MW(), cy = mRECT.MH();
-  const float x1 = cx + mInnerRadius * sinV, y1 = cy - mInnerRadius * cosV;
-  const float x2 = cx + mOuterRadius * sinV, y2 = cy - mOuterRadius * cosV;
-  
-  graphics.DrawCircle(mColor, cx, cy, (mRECT.W()/2.f) - 2.f);
-  graphics.DrawLine(mColor, x1, y1, x2, y2, &mBlend);
-}
-
-void IKnobRotaterControl::Draw(IGraphics& graphics)
-{
-  int cX = (mRECT.L + mRECT.R) / 2;
-  int cY = (mRECT.T + mRECT.B) / 2;
-  double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  graphics.DrawRotatedBitmap(mBitmap, cX, cY, angle, mYOffset, &mBlend);
-}
-
-// Same as IBitmapControl::Draw.
-void IKnobMultiControl::Draw(IGraphics& graphics)
-{
-  int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
-  i = BOUNDED(i, 1, mBitmap.N);
-  graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
-}
-
-void IKnobMultiControl::OnRescale()
-{
-  mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
-}
-
-void IKnobRotatingMaskControl::Draw(IGraphics& graphics)
-{
-  double angle = mMinAngle + mValue * (mMaxAngle - mMinAngle);
-  graphics.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle, &mBlend);
-}
-
-void IBitmapOverlayControl::Draw(IGraphics& graphics)
-{
-  if (mValue < 0.5)
-  {
-    mTargetRECT = mTargetArea;
-    return;  // Don't draw anything.
-  }
-  else
-  {
+    mRECT.R = mRECT.L + mRECT.H();
     mTargetRECT = mRECT;
-    IBitmapControl::Draw(graphics);
   }
+
+  SetMinMaxNote(minNote, maxNote, keepWidth);
 }
 
-ICaptionControl::ICaptionControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IText& text, bool showParamLabel)
-: ITextControl(plug, rect, text)
-, mShowParamLabel(showParamLabel)
+void IVKeyboardControl::OnMouseDown(float x, float y, const IMouseMod & mod)
 {
-  mParamIdx = paramIdx;
+  int oldK = mKey;
+  mKey = GetKeyUnderMouse(x, y);
+
+  if (oldK != mKey)
+    mVelByWheel = false;
+
+  mMouseOverKey = mKey;
+
+  if (!mVelByWheel)
+    UpdateVelocity(y);
+
+  SetDirty();
 }
 
-void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+void IVKeyboardControl::OnMouseUp(float x, float y, const IMouseMod & mod)
 {
-  if (mod.L || mod.R)
+  if (mKey > -1)
   {
-    PromptUserInput();
-  }
-}
-
-void ICaptionControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
-{
-  PromptUserInput();
-}
-
-void ICaptionControl::Draw(IGraphics& graphics)
-{
-  IParam* pParam = mPlug.GetParam(mParamIdx);
-  char cStr[32];
-  pParam->GetDisplayForHost(cStr);
-  mStr.Set(cStr);
-  
-  if (mShowParamLabel)
-  {
-    mStr.Append(" ");
-    mStr.Append(pParam->GetLabelForHost());
-  }
-  
-  ITextControl::Draw(graphics);
-}
-
-IURLControl::IURLControl(IPlugBaseGraphics& plug, IRECT rect, const char* URL, const char* backupURL, const char* errMsgOnFailure)
-: IControl(plug, rect)
-, mURL(URL)
-, mBackupURL(backupURL)
-, mErrMsg(errMsgOnFailure)
-{
-  assert(strlen(URL) < MAX_URL_LEN);
-  assert(strlen(backupURL) < MAX_URL_LEN);
-  assert(strlen(errMsgOnFailure) < MAX_NET_ERR_MSG_LEN);
-}
-
-void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-  bool opened = false;
-  opened = mPlug.GetGUI()->OpenURL(mURL.Get(), mErrMsg.Get());
-  
-  if (!opened && mBackupURL.GetLength() > 0)
-  {
-    opened = mPlug.GetGUI()->OpenURL(mBackupURL.Get(), mErrMsg.Get());
-  }
-}
-
-void IFileSelectorControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-  if (mPlug.GetGUI())
-  {
-    mState = kFSSelecting;
-    SetDirty(false);
-    
-    mPlug.GetGUI()->PromptForFile(mFile, mDir, mFileAction, mExtensions.Get());
-    mValue += 1.0;
-    if (mValue > 1.0)
-    {
-      mValue = 0.0;
-    }
-    mState = kFSDone;
+    mKey = -1;
+    mMouseOverKey = -1;
+    mVelocity = 0.0;
+    mVelByWheel = false;
     SetDirty();
   }
 }
 
-void IFileSelectorControl::Draw(IGraphics& graphics)
+void IVKeyboardControl::OnMouseOut()
 {
-  if (mState == kFSSelecting)
+  if (mKey > -1 || mShowNoteAndVel)
   {
-    graphics.DrawBitmap(mBitmap, mRECT, 0, 0);
+    mKey = -1;
+    mMouseOverKey = -1;
+    mVelocity = 0.0;
+    mVelByWheel = false;
+    SetDirty();
   }
 }
 
-void IFileSelectorControl::GetLastSelectedFileForPlug(WDL_String& str)
+void IVKeyboardControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod & mod)
 {
-  str.Set(mFile.Get());
+  OnMouseDown(x, y, mod);
 }
 
-void IFileSelectorControl::SetLastSelectedFileFromPlug(const char* file)
+void IVKeyboardControl::OnMouseWheel(float x, float y, const IMouseMod & mod, float d)
 {
-  mFile.Set(file);
-}
-
-bool IFileSelectorControl::IsDirty()
-{
-  if (mDirty)
+  if (mKey > -1)
   {
-    return true;
+    if (mod.C || mod.S) mVelocity += 0.003f * d;
+    else mVelocity += 0.03f * d;
+    mVelByWheel = true;
+    mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
+#ifdef _DEBUG
+    SetDirty();
+#else
+    if (mShowNoteAndVel)
+      SetDirty();
+#endif
   }
+}
+
+void IVKeyboardControl::OnMouseOver(float x, float y, const IMouseMod & pMod)
+{
+  if (mShowNoteAndVel)
+  {
+    mMouseOverKey = GetKeyUnderMouse(x, y);
+    SetDirty();
+  }
+}
+
+void IVKeyboardControl::OnResize()
+{
+  auto r = mRECT.W() / mTargetRECT.W();
+  auto dx = mRECT.L - mTargetRECT.L;
+  mWKWidth *= r;
+  for (int i = 0; i < NumKeys(); ++i)
+  {
+    auto kl = KeyLCoordPtr(i);
+    auto d = *kl - mRECT.L;
+    *kl = mRECT.L + d * r + dx;
+  }
+
+  mTargetRECT = mRECT;
+  SetDirty();
+}
+
+void IVKeyboardControl::Draw(IGraphics & graphics)
+{
+  auto shadowColor = IColor(60, 0, 0, 0);
+  graphics.FillRect(mWKColor, mRECT);
+
+  auto& top = mRECT.T;
+  auto& wBot = mRECT.B;
+  auto bBot = top + mRECT.H() * mBKHeightRatio;
+  auto bKWidth = CalcBKWidth();
+
+  // first draw whites
+  for (int i = 0; i < NumKeys(); ++i)
+  {
+    if (!IsBlackKey(i))
+    {
+      auto kL = KeyLCoord(i);
+      auto kRect = IRECT(kL, top, kL + mWKWidth, wBot);
+      if (i == mKey || NoteIsPlayed(i))
+      {
+        // draw played white key
+        graphics.FillRect(mPKColor, kRect);
+        if (mDrawShadows)
+        {
+          auto sr = kRect;
+          sr.R = sr.L + 0.35f * sr.W();
+          graphics.FillRect(shadowColor, sr);
+        }
+      }
+      if (mDrawBorders && i != 0)
+      { // only draw the left border if it doesn't overlay mRECT l border
+        graphics.DrawLine(mFRColor, kL, top, kL, wBot);
+        if (i == NumKeys() - 2 && IsBlackKey(NumKeys() - 1))
+          graphics.DrawLine(mFRColor, kL + mWKWidth, top, kL + mWKWidth, wBot);
+      }
+    }
+  }
+
+  // then blacks
+  for (int i = 0; i < NumKeys(); ++i)
+  {
+    if (IsBlackKey(i))
+    {
+      auto kL = KeyLCoord(i);
+      auto kRect = IRECT(kL, top, kL + bKWidth, bBot);
+      // first draw underlying shadows
+      if (mDrawShadows && i != mKey && !NoteIsPlayed(i) && i < NumKeys() - 1)
+      {
+        auto sr = kRect;
+        float w = sr.W();
+        sr.L += 0.6f * w;
+        if (i + 1 == mKey || NoteIsPlayed(i + 1))
+        {
+          // if white to the right is pressed, shadow is longer
+          w *= 1.3f;
+          sr.B = sr.T + 1.05f * sr.H();
+        }
+        sr.R = sr.L + w;
+        graphics.FillRect(shadowColor, sr);
+      }
+      graphics.FillRect(mBKColor, kRect);
+      if (i == mKey || NoteIsPlayed(i))
+      {
+        // draw played black key
+        auto cBP = mPKColor;
+        cBP.A = (int)mBKAlpha;
+        graphics.FillRect(cBP, kRect);
+      }
+      if (mDrawBorders)
+      { // draw l, r and bottom if they don't overlay the mRECT borders
+        if (mBKHeightRatio != 1.0)
+          graphics.DrawLine(mFRColor, kL, bBot, kL + bKWidth, bBot);
+        if (i != 0)
+          graphics.DrawLine(mFRColor, kL, top, kL, bBot);
+        if (i != NumKeys() - 1)
+          graphics.DrawLine(mFRColor, kL + bKWidth, top, kL + bKWidth, bBot);
+      }
+    }
+  }
+
+  if (mDrawBorders)
+    graphics.DrawRect(mFRColor, mRECT);
+
+  if (mShowNoteAndVel)
+  {
+    if (mMouseOverKey > -1)
+    {
+      auto r = IRECT(KeyLCoord(mMouseOverKey), top, 0, 0);
+      r.B = r.T + 1.2f * mText.mSize;
+      r.R = r.L + 35.0f;
+      WDL_String t;
+      GetNoteNameStr(mMinNote + mMouseOverKey, false, t);
+      if (mKey > -1)
+      {
+        t.AppendFormatted(16, ", vel: %3.2f", GetVelocity());
+        r.R += 60.0;
+      }
+      auto e = r.R - mRECT.R;
+      if (e > 0.0)
+      {
+        r.L -= e;
+        r.R -= e;
+      }
+      graphics.FillRect(mWKColor, r);
+      graphics.DrawRect(mFRColor, r);
+      graphics.DrawText(mText, t.Get(), r);
+    }
+  }
+
+#ifdef _DEBUG
+  //graphics.DrawRect(COLOR_GREEN, mTargetRECT);
+  //graphics.DrawRect(COLOR_BLUE, mRECT);
+  WDL_String ti;
+  ti.SetFormatted(32, "key: %d, vel: %3.2f", mKey, GetVelocity());
+  //ti.SetFormatted(32, "key: %d, vel: %d", mKey, GetVelocityInt());
+  //ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
+  IText txt(20, COLOR_RED);
+  auto& mr = mRECT;
+  IRECT tr(mr.L + 20, mr.B - 20, mr.L + 160, mr.B);
+  graphics.DrawText(txt, ti.Get(), tr);
+#endif
+}
+
+void IVKeyboardControl::SetMinMaxNote(int min, int max, bool keepWidth)
+{
+  if (min < 0 || max < 0) return;
+  if (min < max)
+  {
+    mMinNote = min;
+    mMaxNote = max;
+  }
+  else
+  {
+    mMinNote = max;
+    mMaxNote = min;
+  }
+
+  mNoteIsPlayed.Resize(NumKeys());
+  memset(mNoteIsPlayed.Get(), 0, mNoteIsPlayed.GetSize() * sizeof(bool));
   
-  if (mState == kFSDone)
+  //TODO: call to plug to retain pressed keys
+
+  RecreateKeyBounds(keepWidth);
+}
+
+void IVKeyboardControl::SetNoteIsPlayed(int noteNum, bool played)
+{
+  if (noteNum < mMinNote || noteNum > mMaxNote) return;
+  mNoteIsPlayed.Get()[noteNum - mMinNote] = played;
+  SetDirty();
+}
+
+void IVKeyboardControl::SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR)
+{
+  if (widthR <= 0.0 || heightR <= 0.0) return;
+  if (widthR > 1.0) widthR = 1.0;
+  if (heightR > 1.0) heightR = 1.0;
+  auto halfW = 0.5f * mWKWidth * mBKWidthR;
+  float r = widthR / mBKWidthR;
+  mBKWidthR = widthR;
+  mBKHeightRatio = heightR;
+  for (int i = 0; i < NumKeys(); ++i)
   {
-    mState = kFSNone;
-    return true;
+    if (IsBlackKey(i))
+    {
+      auto kl = KeyLCoordPtr(i);
+      float mid = *kl + halfW;
+      *kl = mid - halfW * r;
+      if (*kl < mRECT.L) *kl = mRECT.L;
+    }
   }
-  return false;
+  SetDirty();
+}
+
+void IVKeyboardControl::SetHeight(float h, bool keepProportions)
+{
+  if (h <= 0.0) return;
+  auto& mR = mRECT;
+  auto r = h / mR.H();
+  mR.B = mR.T + mR.H() * r;
+
+  mTargetRECT = mRECT;
+
+  if (keepProportions)
+    SetWidth(mR.W() * r);
+  SetDirty();
+}
+
+void IVKeyboardControl::SetWidth(float w, bool keepProportions)
+{
+  if (w <= 0.0) return;
+  auto& mR = mRECT;
+  auto r = w / mR.W();
+  mR.R = mR.L + mR.W() * r;
+  mWKWidth *= r;
+  for (int i = 0; i < NumKeys(); ++i)
+  {
+    auto kl = KeyLCoordPtr(i);
+    auto d = *kl - mR.L;
+    *kl = mR.L + d * r;
+  }
+
+  mTargetRECT = mRECT;
+
+  if (keepProportions)
+    SetHeight(mR.H() * r);
+  
+  SetDirty();
+}
+
+void IVKeyboardControl::SetShowNotesAndVelocity(bool show)
+{
+  mShowNoteAndVel = show;
+}
+
+void IVKeyboardControl::SetColors(const IColor BKColor, const IColor& WKColor, const IColor& PKColor, const IColor& FRColor)
+{
+  mBKColor = BKColor;
+  mWKColor = WKColor;
+  mPKColor = PKColor;
+  mFRColor = FRColor;
+
+  mBKAlpha = (float) PKColor.A;
+
+  if (mBKAlpha < 240.f)
+  {
+    const float lumWK = WKColor.GetLuminocity() * WKColor.A / 255.f;
+    const float adjustment = PKColor.A / 255.f;
+    const float lumPK = PKColor.GetLuminocity() * adjustment;
+    const float lumRes = (1.f - adjustment) * lumWK + lumPK;
+    const float lumDW = lumRes - lumWK;
+    const float lumBK = BKColor.GetLuminocity() * BKColor.A / 255.f;
+
+    if ((lumDW < 0 && lumBK < lumWK) || (lumDW > 0 && lumBK > lumWK))
+    {
+      float dbWB = lumWK - lumBK; // not used in the conditions ^^ for readability
+      mBKAlpha += (255.f - mBKAlpha) * (1.f - dbWB * dbWB / 255.f / 255.f) + 0.5f;
+    }
+    else
+      mBKAlpha += lumDW + 0.5f;
+
+    mBKAlpha = BOUNDED(mBKAlpha, 15.f, 255.f);
+  }
+
+  SetDirty();
+}
+
+void IVKeyboardControl::RecreateKeyBounds(bool keepWidth)
+{
+  if (keepWidth)
+    mWKWidth = 0.f;
+
+  // create size-independent data.
+  mIsBlackKeyList.Resize(NumKeys());
+  mKeyLCoords.Resize(NumKeys());
+
+  float numWhites = 0.f;
+  for (int n = mMinNote, i = 0; n <= mMaxNote; ++n, i++)
+  {
+    if (n % 12 == 1 || n % 12 == 3 || n % 12 == 6 || n % 12 == 8 || n % 12 == 10)
+    {
+      mIsBlackKeyList.Get()[i] = true;
+    }
+    else
+    {
+      mIsBlackKeyList.Get()[i] = false;
+      numWhites += 1.f;
+    }
+  }
+
+  // black key middle isn't aligned exactly between whites
+  float WKPadStart = 0.f; // 1st note may be black
+  float WKPadEnd = 0.f;   // last note may be black
+
+  auto ShiftForKey = [this](int note)
+  {
+    // usually black key width + distance to the closest black key = white key width,
+    // and often b width is ~0.6 * w width
+    if (note == 0) return 0.f;
+    else if (note % 12 == 1)  return 7.f / 12.f;
+    else if (note % 12 == 3)  return 5.f / 12.f;
+    else if (note % 12 == 6)  return 2.f / 3.f;
+    else if (note % 12 == 8)  return 0.5f;
+    else if (note % 12 == 10) return 1.f / 3.f;
+    else return 0.f;
+  };
+
+  WKPadStart = ShiftForKey(mMinNote);
+  
+  if (mMinNote != mMaxNote && IsBlackKey(mIsBlackKeyList.GetSize() - 1))
+    WKPadEnd = 1.f - ShiftForKey(mMaxNote);
+
+  // build rects
+  if (mWKWidth == 0.f)
+    mWKWidth = 0.2f * mRECT.H(); // first call from the constructor
+  
+  if (keepWidth)
+  {
+    mWKWidth = mRECT.W();
+    if (numWhites) mWKWidth /= (numWhites + mBKWidthR * (WKPadStart + WKPadEnd));
+  }
+  float blackW = mWKWidth;
+  if (numWhites) blackW *= mBKWidthR;
+
+  float prevWKLeft = mRECT.L;
+
+  for (int k = 0; k < mIsBlackKeyList.GetSize(); ++k)
+  {
+    if (IsBlackKey(k))
+    {
+      float l = prevWKLeft;
+      if (k != 0)
+      {
+        auto s = ShiftForKey(mMinNote + k);
+        l -= s * blackW;
+      }
+      else prevWKLeft += WKPadStart * blackW;
+      mKeyLCoords.Get()[k] = l;
+    }
+    else
+    {
+      mKeyLCoords.Get()[k] = prevWKLeft;
+      prevWKLeft += mWKWidth;
+    }
+  }
+
+  mTargetRECT = mRECT;
+  SetDirty();
+}
+
+int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
+{
+  auto& top = mRECT.T;
+  auto& WKBottom = mRECT.B;
+  auto BKBottom = top + mRECT.H() * mBKHeightRatio;
+  auto BKWidth = CalcBKWidth();
+
+  // black keys are on top
+  int k = -1;
+  for (int i = 0; i < NumKeys(); ++i)
+  {
+    if (IsBlackKey(i))
+    {
+      auto kL = KeyLCoord(i);
+      auto kRect = IRECT(kL, top, kL + BKWidth, BKBottom);
+      if (kRect.Contains(x, y))
+      {
+        k = i;
+        break;
+      }
+    }
+  }
+
+  if (k < 0) for (int i = 0; i < NumKeys(); ++i)
+  {
+    if (!IsBlackKey(i))
+    {
+      auto kL = KeyLCoord(i);
+      auto keyBounds = IRECT(kL, top, kL + mWKWidth, WKBottom);
+      if (keyBounds.Contains(x, y))
+      {
+        k = i;
+        break;
+      }
+    }
+  }
+
+  return k;
+}
+
+void IVKeyboardControl::UpdateVelocity(float y)
+{
+  if (mKey > -1)
+  {
+    auto h = mRECT.H();
+    
+    if (IsBlackKey(mKey))
+      h *= mBKHeightRatio;
+    
+    mVelocity = (float)(y - mRECT.T) / (0.95f * h);
+    // 0.95 is to get max velocity around the bottom
+    mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
+  }
+  else mVelocity = 0.f;
+}
+
+void IVKeyboardControl::GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str)
+{
+  int oct = midiNoteNum / 12;
+  midiNoteNum -= 12 * oct;
+  const char* notes[12] = { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+  const char* n = notes[midiNoteNum];
+  str.Set(n);
+  if (addOctave)
+    str.AppendFormatted(2, "%d", --oct);
 }

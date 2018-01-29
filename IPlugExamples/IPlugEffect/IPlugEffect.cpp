@@ -3,60 +3,79 @@
 #include "IControls.h"
 #include "config.h"
 
-class MyControl : public IControl
-{
-private:
-  double mPhase = 0.;
-public:
-  MyControl(IPlugBaseGraphics& plug, IRECT rect)
-  : IControl(plug, rect)
-  {
-  }
-  
-  void Draw(IGraphics& g) override
-  {
-    //g.DrawRect(COLOR_BLUE, mRECT.GetPadded(-50));
-    g.FillRect(COLOR_BLUE, mRECT.GetScaled(mPhase));
-    //g.FillRect(COLOR_GREEN, mRECT.GetScaled(1.-mPhase));
-  }
-  
-  bool IsDirty() override
-  {
-    mPhase += 0.01;
-    
-    if (mPhase > 1.)
-      mPhase-=1.;
-    
-    return true;
-  }
-};
+#include "IPlugEffect_controls.h"
 
+#ifdef OS_MAC
+#pragma mark - WATCH OUT IF APP IS SANDBOXED, YOU WON T FIND ANY FILES HERE
+#define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
+#define KNOB_FN "resources/img/BefacoBigKnob.svg"
+#else
+#define SVG_FOLDER "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
+#define KNOB_FN "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\BefacoBigKnob.svg"
+#endif
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE; 
 
-  //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
-  GetParam(kGain)->SetShape(2.);
+  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
-  //create user interface
-  IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 30);
+  IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  pGraphics->AttachControl(new MyControl(*this, IRECT(kGainX, kGainY, kGainX + 200, kGainY + 200)));
-  //pGraphics->AttachControl(new IKnobLineControl(*this, IRECT(kGainX, kGainY, kGainX + 50, kGainY + 50), kGain, COLOR_BLACK));
+  const int NRows = 2;
+  const int NColumns = 2;
+
+  IRECT bounds = pGraphics->GetBounds();
+  IColor color;
+
+  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, NRows, NColumns), kGain));
+  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, NRows, NColumns), -1));
+
+  //for(auto cell = 0; cell < (NRows * NColumns); cell++ )
+  //{
+  //  IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
+  //  color.Randomise();
+  //  pGraphics->AttachControl(new IPanelControl(*this, cellRect.GetPadded(-5.), color));
+  //}
+  
+  // lamda function for custom actions on stock IControls
+  //pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-20), kNoParameter, [pGraphics](IControl* pCaller)
+  //{
+  //  pCaller->SetMEWhenGrayed(true);
+  //  pCaller->GrayOut(pGraphics->ShowMessageBox("Disable that box control?", "", MB_YESNO) == IDYES);
+  //}));
+
+  //auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
+  //auto knobControl = new SVGKnob(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 0).GetPadded(-5.), svg, kGain);
+  //auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
+  //                                         [pGraphics, knobControl](IControl* pCaller)
+  //                                         {
+  //                                           WDL_String path;
+  //                                           dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
+  //                                           auto svg = pGraphics->LoadSVG(path.Get());
+  //                                           knobControl->SetSVG(svg);
+  //                                         },
+  //                                        DEFAULT_TEXT, ".svg");
+  //fileMenuControl->SetPath(SVG_FOLDER);
+  //
+  //pGraphics->AttachControl(fileMenuControl);
+
+  //IRECT kbrect = bounds.SubRectVertical(2, 1); // same as joining two cells
+  //pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
+  //pGraphics->AttachControl(knobControl);
 
   AttachGraphics(pGraphics);
+  
+//  pGraphics->EnableLiveEdit(true);
+//  pGraphics->ShowControlBounds(true);
+//  pGraphics->ShowAreaDrawn(true);
 
   PrintDebugInfo();
 
-  //MakePreset("preset 1", ... );
   MakeDefaultPreset("-", kNumPrograms);
 }
-
-IPlugEffect::~IPlugEffect() {}
 
 void IPlugEffect::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {

@@ -39,7 +39,6 @@ public:
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
  
-
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 

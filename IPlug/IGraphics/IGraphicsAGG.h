@@ -2,7 +2,7 @@
 
 #include "IGraphics.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
 #endif
@@ -52,15 +52,37 @@
 #include "agg_conv_segmentator.h"
 #include "agg_trans_single_path.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "agg_mac_pmap.h"
 #include "agg_mac_font.h"
 #pragma clang diagnostic pop
 #endif
 
+
+inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+{
+  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+}
+
+inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return agg::comp_op_src;
+  }
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber: return agg::comp_op_src_over;
+    case kBlendAdd: return agg::comp_op_plus;
+    case kBlendColorDodge: return agg::comp_op_color_dodge;
+    case kBlendNone:
+    default:
+      return agg::comp_op_src_over;
+  }
+}
+
 /** IGraphics draw class using Antigrain Geometry  
-*   @ingroup DrawClasses
-*/
+*   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphics
 {
 public:
@@ -114,7 +136,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
@@ -123,7 +145,7 @@ public:
   void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
   
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
@@ -141,15 +163,11 @@ public:
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
-  
-  inline const agg::rgba8 IColorToAggColor(const IColor& color)
-  {
-    return agg::rgba8(color.R, color.G, color.B, color.A);
-  }
+
 private:
-    
+  
   template <typename pathType>
-  void Rasterize(const IColor& color, pathType& path)
+  void Rasterize(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
@@ -158,7 +176,7 @@ private:
     
     agg::renderer_scanline_aa_solid<RenbaseType> renderer(mRenBase);
     
-    renderer.color(IColorToAggColor(color));
+    renderer.color(AGGColor(color, pBlend));
     rasterizer.filling_rule(agg::fill_non_zero);
     
     rasterizer.add_path(path);
@@ -166,17 +184,17 @@ private:
   }
     
   template <typename pathType>
-  void Fill(const IColor& color, pathType& path)
+  void Fill(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
-    Rasterize(color, path);
+    Rasterize(color, path, pBlend);
   }
     
   template <typename pathType>
-  void Stroke(const IColor& color, pathType& path)
+  void Stroke(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
     agg::conv_stroke<pathType> strokes(path);
     strokes.width(1.0 * GetDisplayScale());
-    Rasterize(color, strokes);
+    Rasterize(color, strokes, pBlend);
   }
 
   RenbaseType mRenBase;
@@ -184,7 +202,7 @@ private:
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
-#ifdef OS_OSX
+#ifdef OS_MAC
   agg::pixel_map_mac mPixelMap;
 #else
 #endif

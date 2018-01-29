@@ -6,10 +6,10 @@
   <PropertyGroup Label="UserMacros">
     <BINARY_NAME>IPlugEffect</BINARY_NAME>
     <AAX_BUNDLE>$(SolutionDir)build-win\aax\bin\$(BINARY_NAME).aaxplugin</AAX_BUNDLE>
+    <EXTRA_ALL_DEFS>IGRAPHICS_LICE</EXTRA_ALL_DEFS>
     <EXTRA_DEBUG_DEFS />
     <EXTRA_RELEASE_DEFS />
     <EXTRA_TRACER_DEFS />
-    <EXTRA_ALL_DEFS>IGRAPHICS_CAIRO</EXTRA_ALL_DEFS>
   </PropertyGroup>
   <PropertyGroup>
     <TargetName>$(BINARY_NAME)</TargetName>
@@ -23,7 +23,7 @@
       <PreprocessorDefinitions>$(EXTRA_ALL_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>lice.lib;wininet.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lice.lib;wininet.lib;comctl32.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(AAX_BUNDLE)"</Command>
@@ -39,6 +39,9 @@
     <BuildMacro Include="AAX_BUNDLE">
       <Value>$(AAX_BUNDLE)</Value>
     </BuildMacro>
+    <BuildMacro Include="EXTRA_ALL_DEFS">
+      <Value>$(EXTRA_ALL_DEFS)</Value>
+    </BuildMacro>
     <BuildMacro Include="EXTRA_DEBUG_DEFS">
       <Value>$(EXTRA_DEBUG_DEFS)</Value>
     </BuildMacro>
@@ -47,9 +50,6 @@
     </BuildMacro>
     <BuildMacro Include="EXTRA_TRACER_DEFS">
       <Value>$(EXTRA_TRACER_DEFS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="EXTRA_ALL_DEFS">
-      <Value>$(EXTRA_ALL_DEFS)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

@@ -11,9 +11,6 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
       <Filter>IGraphics\PlatformClasses</Filter>
     </ClCompile>
@@ -53,6 +50,9 @@
     <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugEffect.h" />
@@ -81,9 +81,6 @@
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPlugBaseGraphics.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
@@ -125,7 +122,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugOSDetect.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
@@ -155,6 +152,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h">
       <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

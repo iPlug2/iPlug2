@@ -5,7 +5,7 @@
 #include "IGraphicsCairo.h"
 #include "CairoNanoSVG.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 {
   return cairo_image_surface_create_from_png(path.Get());
@@ -205,7 +205,7 @@ void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, f
 {
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle);
+  cairo_rotate(mContext, DegToRad(angle));
   DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
   cairo_restore(mContext);
 }
@@ -217,7 +217,7 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
-  cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
+  cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
 }
 
@@ -230,7 +230,7 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle);
+  cairo_rotate(mContext, DegToRad(angle));
   DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
   cairo_restore(mContext);
 }
@@ -240,7 +240,7 @@ void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top,
   float width = base.W;
   float height = base.H;
 
-  IBlend addBlend(IBlend::kBlendAdd);
+  IBlend addBlend(kBlendAdd);
   cairo_save(mContext);
   DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
   cairo_translate(mContext, x + 0.5 * width, y + 0.5 * height);
@@ -287,7 +287,7 @@ inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
   cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
-  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.25);
+  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.5);
   cairo_close_path(mContext);
 }
 
@@ -329,9 +329,9 @@ void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, 
   Stroke(color, pBlend);
 }
 
-void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
-  cairo_arc(mContext, cx, cy, r, minAngle, maxAngle);
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   Stroke(color, pBlend);
 }
 
@@ -373,10 +373,10 @@ void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, 
   Fill(color, pBlend);
 }
 
-void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float minAngle, float maxAngle, const IBlend* pBlend)
+void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   cairo_move_to(mContext, cx, cy);
-  cairo_arc(mContext, cx, cy, r, minAngle, maxAngle);
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   cairo_close_path(mContext);
   Fill(color, pBlend);
 }
@@ -476,7 +476,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   }
   else if(!mSurface)
   {
-#ifdef OS_OSX
+#ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, 1, -1);

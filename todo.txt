@@ -1,6 +1,6 @@
 WDL-OL/IPlug2 TODOs:
 
-ALL - document all main interface headers with decent doxygen comments, remove random comments from source code this
+ALL - document all main interface headers with decent doxygen comments, remove random comments from source code
 ALL - bring disparate documentation together into doxygen pages
 ALL - use clang format to enforce clean and consistent code style
 

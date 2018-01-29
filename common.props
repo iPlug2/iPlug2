@@ -31,7 +31,7 @@
     <VST3_64_COMMAND_ARGS />
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
     <VST_DEFS>VST_API;VST_FORCE_DEPRECATED;</VST_DEFS>
-    <VST3_DEFS>VST3_API</VST3_DEFS>
+    <VST3_DEFS>VST3_API;UNICODE_OFF</VST3_DEFS>
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
     <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
@@ -60,6 +60,9 @@
     <Lib>
       <AdditionalDependencies />
     </Lib>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="WDL_PATH">
