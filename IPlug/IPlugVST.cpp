@@ -346,7 +346,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamLabel:
     {
-      WDL_MutexLock lock(&_this->mParams_mutex);
+      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         strcpy((char*) ptr, _this->GetParam(idx)->GetLabelForHost());
@@ -355,7 +355,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamDisplay:
     {
-      WDL_MutexLock lock(&_this->mParams_mutex);
+      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         _this->GetParam(idx)->GetDisplayForHost((char*) ptr);
@@ -364,7 +364,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamName:
     {
-      WDL_MutexLock lock(&_this->mParams_mutex);
+      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         strcpy((char*) ptr, _this->GetParam(idx)->GetNameForHost());
@@ -373,7 +373,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParameterProperties:
     {
-      WDL_MutexLock lock(&_this->mParams_mutex);
+      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         VstParameterProperties* props = (VstParameterProperties*) ptr;
@@ -406,7 +406,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effString2Parameter:
     {
-      WDL_MutexLock lock(&_this->mParams_mutex);
+      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         if (ptr)
@@ -907,7 +907,7 @@ float VSTCALLBACK IPlugVST::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
 {
   Trace(TRACELOC, "%d", idx);
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  WDL_MutexLock lock(&_this->mParams_mutex);
+  LOCK_PARAMS_MUTEX_STATIC;
   if (idx >= 0 && idx < _this->NParams())
   {
     return (float) _this->GetParam(idx)->GetNormalized();
@@ -919,7 +919,7 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
 {
   Trace(TRACELOC, "%d:%f", idx, value);
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  WDL_MutexLock lock(&_this->mParams_mutex);
+  LOCK_PARAMS_MUTEX_STATIC;
   if (idx >= 0 && idx < _this->NParams())
   {
     _this->GetParam(idx)->SetNormalized(value);

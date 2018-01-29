@@ -478,7 +478,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
                        kAudioUnitParameterFlag_HasCFNameString |
                        kAudioUnitParameterFlag_IsReadable;
         
-        WDL_MutexLock lock(&mParams_mutex);
+        LOCK_PARAMS_MUTEX;
         IParam* pParam = GetParam(element);
         
         if (pParam->GetCanAutomate()) 
@@ -644,7 +644,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
-      WDL_MutexLock lock(&mParams_mutex);
+      LOCK_PARAMS_MUTEX;
       IParam* pParam = GetParam(element);
       int n = pParam->GetNDisplayTexts();
       if (!n)
@@ -837,7 +837,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData && scope == kAudioUnitScope_Global)
       {
         AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
-        WDL_MutexLock lock(&mParams_mutex);
+        LOCK_PARAMS_MUTEX;
         IParam* pParam = GetParam(pIDName->inID);
         char cStr[MAX_PARAM_NAME_LEN];
         strcpy(cStr, pParam->GetNameForHost());
@@ -886,7 +886,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData && scope == kAudioUnitScope_Global)
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
-        WDL_MutexLock lock(&mParams_mutex);
+        LOCK_PARAMS_MUTEX;
         IParam* pParam = GetParam(pSFV->inParamID);
         
         pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamValueString);
@@ -903,7 +903,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         if (scope == kAudioUnitScope_Global)
         {
           CStrLocal cStr(pVFS->inString);
-          WDL_MutexLock lock(&mParams_mutex);
+          LOCK_PARAMS_MUTEX;
           IParam* pParam = GetParam(pVFS->inParamID);
           if (pParam->GetNDisplayTexts())
           {
@@ -1469,7 +1469,7 @@ OSStatus IPlugAU::GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
   assert(_this != NULL);
-  WDL_MutexLock lock(&_this->mParams_mutex);
+  LOCK_PARAMS_MUTEX_STATIC;
   *pValue = _this->GetParam(paramID)->Value();
   return noErr;
 }
@@ -1482,7 +1482,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   // In the SDK, offset frames is only looked at in group scope.
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
-  WDL_MutexLock lock(&_this->mParams_mutex);
+  LOCK_PARAMS_MUTEX_STATIC;
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
   _this->SetParameterInUIFromAPI(paramID, value, false);

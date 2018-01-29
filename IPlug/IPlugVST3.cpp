@@ -372,7 +372,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               //TODO: pitch bend, modwheel etc
             default:
               {
-                WDL_MutexLock lock(&mParams_mutex);
+                LOCK_PARAMS_MUTEX;
                 if (idx >= 0 && idx < NParams())
                 {
                   GetParam(idx)->SetNormalized((double)value);
@@ -639,7 +639,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
 {
-  WDL_MutexLock lock(&mParams_mutex);
+  LOCK_PARAMS_MUTEX;
   IParam* param = GetParam(tag);
 
   if (param)
@@ -661,7 +661,7 @@ ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 //     return (ParamValue) ToNormalizedParam(mCurrentPresetIdx, 0, NPresets(), 1.);
 //   }
 
-  WDL_MutexLock lock(&mParams_mutex);
+  LOCK_PARAMS_MUTEX;
   IParam* param = GetParam(tag);
 
   if (param)
@@ -674,7 +674,7 @@ ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  WDL_MutexLock lock(&mParams_mutex);
+  LOCK_PARAMS_MUTEX;
   IParam* param = GetParam(tag);
 
   if (param)
@@ -688,7 +688,7 @@ tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 
 tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valueNormalized, String128 string)
 {
-  WDL_MutexLock lock(&mParams_mutex);
+  LOCK_PARAMS_MUTEX;
   IParam* param = GetParam(tag);
 
   if (param)

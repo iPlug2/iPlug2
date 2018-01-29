@@ -105,9 +105,9 @@ IPlugEffect::~IPlugEffect() {}
 
 void IPlugEffect::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
-  mParams_mutex.Enter();
+  ENTER_PARAMS_MUTEX;
   const double gain = GetParam(kGain)->Value() / 100.;
-  mParams_mutex.Leave();
+  LEAVE_PARAMS_MUTEX;
   
   double* in1 = inputs[0];
   double* in2 = inputs[1];

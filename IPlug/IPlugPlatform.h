@@ -26,3 +26,14 @@
 
 #include "IPlugLogger.h"
 
+#ifdef NO_PARAMS_MUTEX
+#define LOCK_PARAMS_MUTEX
+#define LOCK_PARAMS_MUTEX_STATIC
+#define ENTER_PARAMS_MUTEX
+#define LEAVE_PARAMS_MUTEX
+#else
+#define LOCK_PARAMS_MUTEX WDL_MutexLock lock(&mParams_mutex)
+#define LOCK_PARAMS_MUTEX_STATIC WDL_MutexLock lock(&_this->mParams_mutex)
+#define ENTER_PARAMS_MUTEX mParams_mutex.Enter()
+#define LEAVE_PARAMS_MUTEX mParams_mutex.Leave()
+#endif
