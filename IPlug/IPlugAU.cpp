@@ -1764,7 +1764,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     int nOutBuses = (int) ceil(NOutChannels() / 2.);
 
     PtrListInitialize(&mOutBuses, nOutBuses);
-    char label[32]; //TODO: 32!
+    char label[MAX_BUS_NAME_LEN]
 
     for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2)
     {
@@ -1861,8 +1861,7 @@ void IPlugAU::GetTimeInfo()
   {
     double samplePos = 0.0, loopStartBeat=0.0, loopEndBeat=0.0;
     Boolean playing, changed, looping;
-    mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos,
-                                      &looping, &loopStartBeat, &loopEndBeat);
+    mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos, &looping, &loopStartBeat, &loopEndBeat);
 
     if (samplePos>0.0)mTimeInfo.mSamplePos = samplePos;
     if (loopStartBeat>0.0) mTimeInfo.mCycleStart = loopStartBeat;
@@ -1877,12 +1876,12 @@ void IPlugAU::GetTimeInfo()
   
   if (mHostCallbacks.musicalTimeLocationProc)
   {
-    mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat,
-                                           &tsNum, &tsDenom, &currentMeasureDownBeat);
+    mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat, &tsNum, &tsDenom, &currentMeasureDownBeat);
 
     mTimeInfo.mNumerator = (int) tsNum;
     mTimeInfo.mDenominator = (int) tsDenom;
-    if (currentMeasureDownBeat>0.0) mTimeInfo.mLastBar=currentMeasureDownBeat;
+    if (currentMeasureDownBeat>0.0)
+      mTimeInfo.mLastBar=currentMeasureDownBeat;
   }
 }
 

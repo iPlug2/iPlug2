@@ -356,12 +356,10 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           {
             case kBypassParam:
             {
-              bool bypassed = (value > 0.5);
+               const bool bypassed = (value > 0.5);
               
               if (bypassed != mBypassed)
-              {
                 mBypassed = bypassed;
-              }
 
               break;
             }

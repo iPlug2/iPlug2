@@ -53,6 +53,7 @@ static const int MAX_PRESET_NAME_LEN = 256;
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
 #define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
 #define MAX_PARAM_GROUP_LEN 32 // e.g. "oscillator section"
+#define MAX_BUS_NAME_LEN 32 // e.g. "sidechain input
 
 #define MAX_VERSION_STR_LEN 32
 #define MAX_BUILD_INFO_STR_LEN 256

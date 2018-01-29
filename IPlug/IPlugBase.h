@@ -139,6 +139,8 @@ public:
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
+  int NChannelIO() const { return mChannelIO.GetSize(); }
+  void GetChannelIO(int optionIdx, int& numInputs, int& numOutputs);
   int NInChannels() const { return mInChannels.GetSize(); }
   int NOutChannels() const { return mOutChannels.GetSize(); }
   bool IsInChannelConnected(int chIdx) const;
@@ -187,6 +189,7 @@ public:
   int NSidechainChannels() { return mNSidechainChannels; }
   bool IsInstrument() { return mIsInstrument; }
   bool DoesMIDI() { return mDoesMIDI; }
+  bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
 
 protected:
   // ----------------------------------------
@@ -212,7 +215,6 @@ protected:
   const WDL_String* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx); }
   const WDL_String* GetOutputBusLabel(int idx) { return mOutputBusLabels.Get(idx); }
 
-  bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
   void LimitToStereoIO();
 
   void InitChunkWithIPlugVer(IByteChunk& chunk);

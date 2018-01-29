@@ -44,9 +44,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
     c.channelIOStr = strstr(c.channelIOStr, " ");
     
     if (c.channelIOStr)
-    {
       ++c.channelIOStr;
-    }
   }
 
   mInData.Resize(nInputs);
@@ -272,6 +270,14 @@ void IPlugBase::SetOutputChannelConnections(int idx, int n, bool connected)
       *(pOutChannel->mDest) = pOutChannel->mScratchBuf.Get();
     }
   }
+}
+
+void IPlugBase::GetChannelIO(int optionIdx, int& numInputs, int& numOutputs)
+{
+  ChannelIO* pChannelIO = mChannelIO.Get(optionIdx);
+  
+  numInputs = pChannelIO->mIn;
+  numOutputs = pChannelIO->mOut;
 }
 
 bool IPlugBase::IsInChannelConnected(int chIdx) const
