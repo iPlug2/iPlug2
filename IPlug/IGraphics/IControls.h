@@ -231,9 +231,9 @@ private:
   void UpdateVelocity(float y);
   void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
 
-  bool KeyIsBlack(int i) const
+  bool IsBlackKey(int i) const
   {
-    return *(mKeyIsBlack.Get(i));
+    return *(mIsBlackKeyList.Get(i));
   }
 
   float KeyLCoord(int i)
@@ -283,7 +283,7 @@ protected:
   bool mVelByWheel = false;
 
   int mMinNote, mMaxNote;
-  WDL_PtrList<bool> mKeyIsBlack;
+  WDL_PtrList<bool> mIsBlackKeyList;
   WDL_PtrList<bool> mNoteIsPlayed;
   WDL_PtrList<float> mKeyLCoords;
 };
