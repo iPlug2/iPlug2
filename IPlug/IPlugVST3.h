@@ -124,7 +124,6 @@ private:
   Steinberg::Vst::AudioBus* getAudioOutput(Steinberg::int32 index);
   Steinberg::Vst::SpeakerArrangement getSpeakerArrForChans(Steinberg::int32 chans);
 
-  int mScChans;
   bool mSidechainActive = false;
 //  IMidiQueue mMidiOutputQueue;
   Steinberg::Vst::ProcessContext mProcessContext;

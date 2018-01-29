@@ -73,7 +73,6 @@ protected:
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIVST3)
-, mScChans(c.plugScChans)
 {
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
@@ -81,17 +80,15 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   if (NInChannels()) 
   {
     mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
-    mLatencyDelay->SetDelayTime(c.latency);
+    mLatencyDelay->SetDelayTime(GetLatency());
   }
 
   // initialize the bus labels
   SetInputBusLabel(0, "Main Input");
 
-  if (mScChans)
-  {
+  if (HasSidechainInput())
     SetInputBusLabel(1, "Aux Input");
-  }
-
+  
   if (IsInstrument())
   {
     int busNum = 0;
@@ -137,7 +134,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
   if (result == kResultOk)
   {
-    SpeakerArrangement maxInputs = getSpeakerArrForChans(NInChannels()-mScChans);
+    SpeakerArrangement maxInputs = getSpeakerArrForChans(NInChannels()-NSidechainChannels());
     if(maxInputs < 0) maxInputs = 0;
 
     // add io buses with the maximum i/o to start with
@@ -148,7 +145,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       addAudioInput(tmpStringBuf, maxInputs);
     }
 
-    if(!mIsInstrument) // if effect, just add one output bus with max chan count
+    if(!IsInstrument()) // if effect, just add one output bus with max chan count
     {
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
       addAudioOutput(tmpStringBuf, getSpeakerArrForChans(NOutChannels()) );
@@ -162,11 +159,11 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       }
     }
 
-    if (mScChans)
+    if (HasSidechainInput())
     {
-      if (mScChans > 2) mScChans = 2;
+      assert(NSidechainChannels() < 2); // TODO: side-chain input with more than 2 channels?
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
-      addAudioInput(tmpStringBuf, getSpeakerArrForChans(mScChans), kAux, 0);
+      addAudioInput(tmpStringBuf, getSpeakerArrForChans(NSidechainChannels()), kAux, 0);
     }
 
     if(DoesMIDI())
@@ -185,7 +182,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                                             ParameterInfo::kIsProgramChange));
     }
 
-    if(!mIsInstrument)
+    if(!IsInstrument())
     {
       StringListParameter * bypass = new StringListParameter(STR16("Bypass"),
                                                             kBypassParam,
@@ -276,12 +273,12 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
     addAudioOutput(USTRING("Output"), getSpeakerArrForChans(reqNumOutputChannels));
   }
 
-  if (!mScChans && numIns == 1) // No sidechain, every thing OK
+  if (!HasSidechainInput() && numIns == 1) // No sidechain, every thing OK
   {
     return kResultTrue;
   }
 
-  if (mScChans && numIns == 2) // numIns = num Input BUSes
+  if (HasSidechainInput() && numIns == 2) // numIns = num Input BUSes
   {
     int32 reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
 
@@ -428,7 +425,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   {
     if (data.numInputs)
     {
-      if (mScChans)
+      if (HasSidechainInput())
       {
         if (getAudioInput(1)->isActive()) // Sidechain is active
         {
@@ -444,11 +441,11 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           }
 
           SetInputChannelConnections(0, NInChannels(), true);
-          SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
+          SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - NSidechainChannels(), false);
         }
 
-        AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers32, data.numSamples);
-        AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers32, data.numSamples);
+        AttachInputBuffers(0, NInChannels() - NSidechainChannels(), data.inputs[0].channelBuffers32, data.numSamples);
+        AttachInputBuffers(NSidechainChannels(), NInChannels() - NSidechainChannels(), data.inputs[1].channelBuffers32, data.numSamples);
       }
       else
       {
@@ -479,7 +476,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   {
     if (data.numInputs)
     {
-      if (mScChans)
+      if (HasSidechainInput())
       {
         if (getAudioInput(1)->isActive()) // Sidechain is active
         {
@@ -495,11 +492,11 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           }
 
           SetInputChannelConnections(0, NInChannels(), true);
-          SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - mScChans, false);
+          SetInputChannelConnections(data.inputs[0].numChannels, NInChannels() - NSidechainChannels(), false);
         }
 
-        AttachInputBuffers(0, NInChannels() - mScChans, data.inputs[0].channelBuffers64, data.numSamples);
-        AttachInputBuffers(mScChans, NInChannels() - mScChans, data.inputs[1].channelBuffers64, data.numSamples);
+        AttachInputBuffers(0, NInChannels() - NSidechainChannels(), data.inputs[0].channelBuffers64, data.numSamples);
+        AttachInputBuffers(NSidechainChannels(), NInChannels() - NSidechainChannels(), data.inputs[1].channelBuffers64, data.numSamples);
       }
       else
       {

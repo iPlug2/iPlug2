@@ -177,6 +177,11 @@ public:
   virtual void ResizeGraphics(int w, int h, double scale) = 0;
 
   void EnsureDefaultPreset();
+  
+  bool HasSidechainInput() { return mNSidechainChannels > 0; }
+  int NSidechainChannels() { return mNSidechainChannels; }
+  bool IsInstrument() { return mIsInstrument; }
+  bool DoesMIDI() { return mDoesMIDI; }
 
 protected:
   // ----------------------------------------
@@ -221,8 +226,6 @@ protected:
   virtual bool SendMidiMsg(IMidiMsg& msg) = 0;
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   virtual bool SendSysEx(ISysEx& msg) { return false; }
-  bool IsInstrument() { return mIsInstrument; }
-  bool DoesMIDI() { return mDoesMIDI; }
 
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
@@ -367,7 +370,10 @@ protected:
   int mLatency;
   /** \c True if the plug-in is bypassed */
   bool mBypassed = false;
+  /** \c True if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
+  /** \c > 0 if the plug-in has a side-chain input bus, with N channels */
+  int mNSidechainChannels = 0;
   int mCurrentPresetIdx = 0;
   double mSampleRate  = DEFAULT_SAMPLE_RATE;
   int mBlockSize = 0;
