@@ -256,6 +256,14 @@ private:
     return mMaxNote - mMinNote + 1;
   }
 
+  float CalcBKWidth() const
+  {
+    auto w = mWKWidth;
+    if (NumKeys() > 1)
+      w *= mBKWidthR;
+    return w;
+  }
+
 protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
@@ -263,11 +271,12 @@ protected:
   IColor mBKColor = DEFAULT_BK_COLOR;
   IColor mWKColor = DEFAULT_WK_COLOR;
   IColor mPKColor = DEFAULT_PK_COLOR; // pressed key color
-  IColor mFRColor = DEFAULT_FR_COLOR; // frame color
+  IColor mFRColor = DEFAULT_FR_COLOR; // keys borders color
 
-  float mBAlpha = 100.f; // needed cause not any mPKColor will have nice contrast on black keys ?
+  float mWKWidth = 0.f;
   float mBKWidthR = 0.6f;
   float mBKHeightR = 0.6f;
+  float mBAlpha = 100.f; // needed cause not any mPKColor will have nice contrast on black keys ?
   int mKey = -1;
   int mMouseOverKey = -1;
   float mVelocity = 0.f;
