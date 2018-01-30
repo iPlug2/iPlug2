@@ -1,4 +1,13 @@
 #pragma once
+
+/**
+ * @file
+ * @brief IPlug Logging functionailty
+ * To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
+ * To simply create a trace entry in the log:    TRACE;
+ * No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
+ */
+
 #include <cstdio>
 #include <cctype>
 #include <cstdarg>
@@ -9,15 +18,13 @@
 
 #include "wdlstring.h"
 #include "mutex.h"
+
 #include "IPlugUtilities.h"
 
 #if defined OS_WIN
   void DBGMSG(const char *format, ...);
   #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-#elif defined OS_MAC
-  #define SYS_THREAD_ID (intptr_t) pthread_self()
-  #define DBGMSG(...) printf(__VA_ARGS__)
-#elif defined OS_WEB
+#elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) 
   #define SYS_THREAD_ID (intptr_t) pthread_self()
   #define DBGMSG(...) printf(__VA_ARGS__)
 #else
@@ -26,8 +33,8 @@
 
 #if defined TRACER_BUILD
     #define TRACE Trace(TRACELOC, "");
-    //#define TRACE_PROCESS Trace(TRACELOC, ""); // uncomment this to trace render callback
-    #define TRACE_PROCESS
+    //#define TRACE_PROCESS Trace(TRACELOC, ""); // uncomment this to trace render callback methods
+    #define TRACE_PROCESS // (and comment out this)
   #else
     #define TRACE
     #define TRACE_PROCESS
@@ -36,10 +43,6 @@
   #define TRACELOC __FUNCTION__,__LINE__
   static void Trace(const char* funcName, int line, const char* fmtStr, ...);
   #define TraceProcess Trace
-
-  // To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
-  // To simply create a trace entry in the log:    TRACE;
-  // No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
 
   struct Timer
   {
@@ -63,10 +66,8 @@
 
   #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
 
-//  #define TRACETOSTDOUT
-
   #ifdef OS_WIN
-  #define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions?
+  #define LOGFILE "C:\\IPlugLog.txt" // TODO: FIX: what if no write permissions?
   static void DBGMSG(const char *format, ...)
   {
     char buf[4096], *p = buf;
@@ -89,8 +90,8 @@
     OutputDebugString(buf);
   }
 
-  #else // OSX
-  #define LOGFILE "IPlugLog.txt" // will get put on Desktop
+  #else // macOS
+  #define LOGFILE "IPlugLog.txt"
   #endif
 
   struct LogFile
