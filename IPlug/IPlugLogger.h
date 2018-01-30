@@ -41,11 +41,6 @@
   // To simply create a trace entry in the log:    TRACE;
   // No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
 
-  //const char* VSTOpcodeStr(int opCode);
-  //const char* AUSelectStr(int select);
-  //const char* AUPropertyStr(int propID);
-  //const char* AUScopeStr(int scope);
-
   struct Timer
   {
     unsigned long mT;
