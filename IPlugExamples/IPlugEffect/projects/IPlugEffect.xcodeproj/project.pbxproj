@@ -183,7 +183,6 @@
 		4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD016140996A10068A6D4 /* conststringtable.cpp */; };
 		4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
 		4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
-		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
 		4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
@@ -203,6 +202,17 @@
 		4FB600271567CB0A0020189A /* IPlugAAX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */; };
 		4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */; };
 		4FBF95681F3F5DDC00A92E48 /* libAAXLibrary_libcpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F83C3721F3F599D0044D8B8 /* libAAXLibrary_libcpp.a */; };
+		4FCDBC9F202119BA000362CC /* fcondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9C20211993000362CC /* fcondition.cpp */; };
+		4FCDBCA0202119BA000362CC /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9E20211993000362CC /* flock.cpp */; };
+		4FCDBCA1202119BA000362CC /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC8420211956000362CC /* baseiids.cpp */; };
+		4FCDBCA2202119BA000362CC /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9420211957000362CC /* fbuffer.cpp */; };
+		4FCDBCA3202119BA000362CC /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9520211957000362CC /* fdebug.cpp */; };
+		4FCDBCA4202119BA000362CC /* fdynlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC8B20211956000362CC /* fdynlib.cpp */; };
+		4FCDBCA5202119BA000362CC /* fobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9820211957000362CC /* fobject.cpp */; };
+		4FCDBCA6202119BA000362CC /* fstreamer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC8620211956000362CC /* fstreamer.cpp */; };
+		4FCDBCA7202119BA000362CC /* fstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9320211957000362CC /* fstring.cpp */; };
+		4FCDBCA8202119BA000362CC /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC8F20211957000362CC /* timer.cpp */; };
+		4FCDBCA9202119BA000362CC /* updatehandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC8920211956000362CC /* updatehandler.cpp */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -264,13 +274,6 @@
 			remoteGlobalIDString = 4F39075F2013EBA300DDA490;
 			remoteInfo = AUv3;
 		};
-		4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = base;
-		};
 		4F789ECF16763E47009EF688 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
@@ -319,13 +322,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = AAXLibrary;
-		};
-		4F9828AE140A9EB700F3FCC1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = base;
 		};
 		4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -456,7 +452,6 @@
 		4F4AD03C140996A10068A6D4 /* vstpresetkeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstpresetkeys.h; sourceTree = "<group>"; };
 		4F4AD03D140996A10068A6D4 /* vstpshpack4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstpshpack4.h; sourceTree = "<group>"; };
 		4F4AD03E140996A10068A6D4 /* vsttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsttypes.h; sourceTree = "<group>"; };
-		4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = ../../../VST3_SDK/base/mac/base.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-AAX-Info.plist"; path = "../resources/IPlugEffect-AAX-Info.plist"; sourceTree = "<group>"; };
 		4F4CC38A1549B91100A9EA21 /* AAX_Exports.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AAX_Exports.cpp; path = ../../../AAX_SDK/Interfaces/AAX_Exports.cpp; sourceTree = SOURCE_ROOT; };
 		4F4CC38C1549B92900A9EA21 /* CommonDebugSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = CommonDebugSettings.xcconfig; path = ../../../AAX_SDK/ExamplePlugIns/Common/Mac/CommonDebugSettings.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -513,6 +508,32 @@
 		4FA88B901444E4C4006CB8DA /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/dfx/dfx-au-utilities.c"; sourceTree = SOURCE_ROOT; };
 		4FA88B911444E4C4006CB8DA /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../../IPlug/dfx/dfx-au-utilities.h"; sourceTree = SOURCE_ROOT; };
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FCDBC8320211956000362CC /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../../../VST3_SDK/base/source/fstring.h; sourceTree = "<group>"; };
+		4FCDBC8420211956000362CC /* baseiids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = baseiids.cpp; path = ../../../VST3_SDK/base/source/baseiids.cpp; sourceTree = "<group>"; };
+		4FCDBC8520211956000362CC /* fcommandline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fcommandline.h; path = ../../../VST3_SDK/base/source/fcommandline.h; sourceTree = "<group>"; };
+		4FCDBC8620211956000362CC /* fstreamer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fstreamer.cpp; path = ../../../VST3_SDK/base/source/fstreamer.cpp; sourceTree = "<group>"; };
+		4FCDBC8720211956000362CC /* fdebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fdebug.h; path = ../../../VST3_SDK/base/source/fdebug.h; sourceTree = "<group>"; };
+		4FCDBC8820211956000362CC /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = ../../../VST3_SDK/base/source/timer.h; sourceTree = "<group>"; };
+		4FCDBC8920211956000362CC /* updatehandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = updatehandler.cpp; path = ../../../VST3_SDK/base/source/updatehandler.cpp; sourceTree = "<group>"; };
+		4FCDBC8A20211956000362CC /* fstdmethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstdmethods.h; path = ../../../VST3_SDK/base/source/fstdmethods.h; sourceTree = "<group>"; };
+		4FCDBC8B20211956000362CC /* fdynlib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fdynlib.cpp; path = ../../../VST3_SDK/base/source/fdynlib.cpp; sourceTree = "<group>"; };
+		4FCDBC8C20211956000362CC /* fbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fbuffer.h; path = ../../../VST3_SDK/base/source/fbuffer.h; sourceTree = "<group>"; };
+		4FCDBC8D20211956000362CC /* fstreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstreamer.h; path = ../../../VST3_SDK/base/source/fstreamer.h; sourceTree = "<group>"; };
+		4FCDBC8E20211956000362CC /* fcleanup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fcleanup.h; path = ../../../VST3_SDK/base/source/fcleanup.h; sourceTree = "<group>"; };
+		4FCDBC8F20211957000362CC /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timer.cpp; path = ../../../VST3_SDK/base/source/timer.cpp; sourceTree = "<group>"; };
+		4FCDBC9020211957000362CC /* classfactoryhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = classfactoryhelpers.h; path = ../../../VST3_SDK/base/source/classfactoryhelpers.h; sourceTree = "<group>"; };
+		4FCDBC9120211957000362CC /* fdynlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fdynlib.h; path = ../../../VST3_SDK/base/source/fdynlib.h; sourceTree = "<group>"; };
+		4FCDBC9220211957000362CC /* hexbinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hexbinary.h; path = ../../../VST3_SDK/base/source/hexbinary.h; sourceTree = "<group>"; };
+		4FCDBC9320211957000362CC /* fstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fstring.cpp; path = ../../../VST3_SDK/base/source/fstring.cpp; sourceTree = "<group>"; };
+		4FCDBC9420211957000362CC /* fbuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fbuffer.cpp; path = ../../../VST3_SDK/base/source/fbuffer.cpp; sourceTree = "<group>"; };
+		4FCDBC9520211957000362CC /* fdebug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fdebug.cpp; path = ../../../VST3_SDK/base/source/fdebug.cpp; sourceTree = "<group>"; };
+		4FCDBC9620211957000362CC /* updatehandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = updatehandler.h; path = ../../../VST3_SDK/base/source/updatehandler.h; sourceTree = "<group>"; };
+		4FCDBC9720211957000362CC /* fobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fobject.h; path = ../../../VST3_SDK/base/source/fobject.h; sourceTree = "<group>"; };
+		4FCDBC9820211957000362CC /* fobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fobject.cpp; path = ../../../VST3_SDK/base/source/fobject.cpp; sourceTree = "<group>"; };
+		4FCDBC9B20211993000362CC /* flock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = flock.h; path = ../../../VST3_SDK/base/thread/include/flock.h; sourceTree = "<group>"; };
+		4FCDBC9C20211993000362CC /* fcondition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fcondition.cpp; path = ../../../VST3_SDK/base/thread/source/fcondition.cpp; sourceTree = "<group>"; };
+		4FCDBC9D20211993000362CC /* fcondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fcondition.h; path = ../../../VST3_SDK/base/thread/include/fcondition.h; sourceTree = "<group>"; };
+		4FCDBC9E20211993000362CC /* flock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = flock.cpp; path = ../../../VST3_SDK/base/thread/source/flock.cpp; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
@@ -603,7 +624,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,7 +652,7 @@
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
 				4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */,
-				089C167CFE841241C02AAC07 /* resources */,
+				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
@@ -650,7 +670,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		089C167CFE841241C02AAC07 /* resources */ = {
+		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 				4FD16A0213B6303B001D0217 /* img */,
@@ -666,7 +686,7 @@
 				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */,
 			);
-			name = resources;
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		19C28FB8FE9D52D311CA2CBB /* Products */ = {
@@ -749,7 +769,7 @@
 		4F3E696A1409778C00C4D749 /* VST3_SDK */ = {
 			isa = PBXGroup;
 			children = (
-				4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */,
+				4FCDBC812021192D000362CC /* Base */,
 				4F4ACFF2140996A10068A6D4 /* public.sdk */,
 				4F4AD014140996A10068A6D4 /* pluginterfaces */,
 			);
@@ -895,14 +915,6 @@
 			path = vst;
 			sourceTree = "<group>";
 		};
-		4F4AD1F21409A56A0068A6D4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4F4AD1F61409A56A0068A6D4 /* libbase.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		4F4CC4241549BEBF00A9EA21 /* AAX */ = {
 			isa = PBXGroup;
 			children = (
@@ -1039,6 +1051,55 @@
 				4FDA1DD020123CB30027C868 /* AGG */,
 			);
 			name = DrawClasses;
+			sourceTree = "<group>";
+		};
+		4FCDBC812021192D000362CC /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				4FCDBC9A2021197B000362CC /* thread */,
+				4FCDBC9920211964000362CC /* source */,
+			);
+			name = Base;
+			sourceTree = "<group>";
+		};
+		4FCDBC9920211964000362CC /* source */ = {
+			isa = PBXGroup;
+			children = (
+				4FCDBC8420211956000362CC /* baseiids.cpp */,
+				4FCDBC9020211957000362CC /* classfactoryhelpers.h */,
+				4FCDBC9420211957000362CC /* fbuffer.cpp */,
+				4FCDBC8C20211956000362CC /* fbuffer.h */,
+				4FCDBC8E20211956000362CC /* fcleanup.h */,
+				4FCDBC8520211956000362CC /* fcommandline.h */,
+				4FCDBC9520211957000362CC /* fdebug.cpp */,
+				4FCDBC8720211956000362CC /* fdebug.h */,
+				4FCDBC8B20211956000362CC /* fdynlib.cpp */,
+				4FCDBC9120211957000362CC /* fdynlib.h */,
+				4FCDBC9820211957000362CC /* fobject.cpp */,
+				4FCDBC9720211957000362CC /* fobject.h */,
+				4FCDBC8A20211956000362CC /* fstdmethods.h */,
+				4FCDBC8620211956000362CC /* fstreamer.cpp */,
+				4FCDBC8D20211956000362CC /* fstreamer.h */,
+				4FCDBC9320211957000362CC /* fstring.cpp */,
+				4FCDBC8320211956000362CC /* fstring.h */,
+				4FCDBC9220211957000362CC /* hexbinary.h */,
+				4FCDBC8F20211957000362CC /* timer.cpp */,
+				4FCDBC8820211956000362CC /* timer.h */,
+				4FCDBC8920211956000362CC /* updatehandler.cpp */,
+				4FCDBC9620211957000362CC /* updatehandler.h */,
+			);
+			name = source;
+			sourceTree = "<group>";
+		};
+		4FCDBC9A2021197B000362CC /* thread */ = {
+			isa = PBXGroup;
+			children = (
+				4FCDBC9C20211993000362CC /* fcondition.cpp */,
+				4FCDBC9D20211993000362CC /* fcondition.h */,
+				4FCDBC9E20211993000362CC /* flock.cpp */,
+				4FCDBC9B20211993000362CC /* flock.h */,
+			);
+			name = thread;
 			sourceTree = "<group>";
 		};
 		4FD16A0213B6303B001D0217 /* img */ = {
@@ -1354,7 +1415,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */,
 			);
 			name = VST3;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1449,10 +1509,6 @@
 					ProductGroup = 4F8B671E158B4EB2002FC25B /* Products */;
 					ProjectRef = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
 				},
-				{
-					ProductGroup = 4F4AD1F21409A56A0068A6D4 /* Products */;
-					ProjectRef = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -1468,13 +1524,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		4F4AD1F61409A56A0068A6D4 /* libbase.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libbase.a;
-			remoteRef = 4F4AD1F51409A56A0068A6D4 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		4F83C3721F3F599D0044D8B8 /* libAAXLibrary_libcpp.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1749,20 +1798,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3862F12014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
+				4FCDBCA0202119BA000362CC /* flock.cpp in Sources */,
 				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
 				4F1AF39620210A2E009AAE47 /* lice_line.cpp in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */,
+				4FCDBCA8202119BA000362CC /* timer.cpp in Sources */,
+				4FCDBCA7202119BA000362CC /* fstring.cpp in Sources */,
 				4F6D9DEE2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */,
+				4FCDBCA1202119BA000362CC /* baseiids.cpp in Sources */,
 				4F1AF39820210A2E009AAE47 /* lice_textnew.cpp in Sources */,
 				4F1AF39520210A2E009AAE47 /* lice_arc.cpp in Sources */,
 				4F1AF39920210A2E009AAE47 /* lice.cpp in Sources */,
+				4FCDBCA5202119BA000362CC /* fobject.cpp in Sources */,
 				4F69BB6C2013C532002C8948 /* IGraphicsMac.m in Sources */,
+				4FCDBCA2202119BA000362CC /* fbuffer.cpp in Sources */,
 				4F9828C4140A9EB700F3FCC1 /* IPlugVST3.cpp in Sources */,
 				4F9828C5140A9EB700F3FCC1 /* memorystream.cpp in Sources */,
 				4F9828C6140A9EB700F3FCC1 /* pluginview.cpp in Sources */,
+				4FCDBCA4202119BA000362CC /* fdynlib.cpp in Sources */,
 				4F9828C7140A9EB700F3FCC1 /* macmain.cpp in Sources */,
 				4F9828C8140A9EB700F3FCC1 /* pluginfactoryvst3.cpp in Sources */,
+				4FCDBC9F202119BA000362CC /* fcondition.cpp in Sources */,
 				4F69BB6E2013C532002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4F9828C9140A9EB700F3FCC1 /* vstaudioeffect.cpp in Sources */,
 				4F9828CA140A9EB700F3FCC1 /* vstbus.cpp in Sources */,
@@ -1773,14 +1830,17 @@
 				4F9828CF140A9EB700F3FCC1 /* vstnoteexpressiontypes.cpp in Sources */,
 				4F9828D0140A9EB700F3FCC1 /* vstparameters.cpp in Sources */,
 				4FF142911FD4A61E00A65575 /* IGraphics.cpp in Sources */,
+				4FCDBCA6202119BA000362CC /* fstreamer.cpp in Sources */,
 				4F69BB6D2013C532002C8948 /* IGraphicsMac.mm in Sources */,
 				4F9828D1140A9EB700F3FCC1 /* vstpresetfile.cpp in Sources */,
+				4FCDBCA9202119BA000362CC /* updatehandler.cpp in Sources */,
 				4F9828D2140A9EB700F3FCC1 /* vstrepresentation.cpp in Sources */,
 				4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */,
 				4F1AF39720210A2E009AAE47 /* lice_text.cpp in Sources */,
 				4F1AF3AB20210A45009AAE47 /* lice_png.cpp in Sources */,
 				4FF142A41FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F9828D3140A9EB700F3FCC1 /* vstsinglecomponenteffect.cpp in Sources */,
+				4FCDBCA3202119BA000362CC /* fdebug.cpp in Sources */,
 				4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */,
 				4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */,
 				4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */,
@@ -1887,11 +1947,6 @@
 			isa = PBXTargetDependency;
 			name = AAXLibrary_libcpp;
 			targetProxy = 4F83C3731F3F59A10044D8B8 /* PBXContainerItemProxy */;
-		};
-		4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = base;
-			targetProxy = 4F9828AE140A9EB700F3FCC1 /* PBXContainerItemProxy */;
 		};
 		4F9828F8140A9F0200F3FCC1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
