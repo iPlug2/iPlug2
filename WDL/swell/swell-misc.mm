@@ -530,7 +530,7 @@ void SWELL_Internal_PostMessage_Init()
   // set a timer to the delegate
 }
 
-#ifndef SWELL_JUST_FOR_THREADING
+
 void SWELL_MessageQueue_Flush()
 {
   if (!m_pmq_mutex) return;
@@ -575,7 +575,6 @@ void SWELL_MessageQueue_Flush()
     m_pmq_mutex->Leave();
   }
 }
-#endif
 
 void SWELL_Internal_PMQ_ClearAllMessages(HWND hwnd)
 {
