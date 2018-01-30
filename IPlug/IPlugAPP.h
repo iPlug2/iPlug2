@@ -22,7 +22,7 @@
 #elif defined OS_MAC
   struct IPlugInstanceInfo
   {
-    WDL_String mOSXBundleID;
+    WDL_String mBundleID;
     RtMidiOut* mRTMidiOut;
     uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
   };

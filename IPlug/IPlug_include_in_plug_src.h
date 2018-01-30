@@ -142,7 +142,7 @@ END_FACTORY
   IPlug* MakePlug(void* pMemory)
   {
     IPlugInstanceInfo instanceInfo;
-    instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
+    instanceInfo.mBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(VIEW_CLASS_STR);
     
     if(pMemory)
@@ -253,7 +253,7 @@ extern "C"
   IPlug* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
-    instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
+    instanceInfo.mBundleID.Set(BUNDLE_ID);
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #elif defined AAX_API
@@ -272,7 +272,7 @@ extern "C"
     instanceInfo.mMidiOutChan = midiOutChan;
     
     #if defined OS_MAC
-      instanceInfo.mOSXBundleID.Set(BUNDLE_ID);
+      instanceInfo.mBundleID.Set(BUNDLE_ID);
     #endif
 
     return new PLUG_CLASS_NAME(instanceInfo);

@@ -792,7 +792,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         if (pData)
         {
           AudioUnitCocoaViewInfo* pViewInfo = (AudioUnitCocoaViewInfo*) pData;
-          CFStrLocal bundleID(mOSXBundleID.Get());
+          CFStrLocal bundleID(mBundleID.Get());
           CFBundleRef pBundle = CFBundleGetBundleWithIdentifier(bundleID.mCFStr);
           CFURLRef url = CFBundleCopyBundleURL(pBundle);
           pViewInfo->mCocoaAUViewBundleLocation = url;
@@ -1717,7 +1717,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
 
-  mOSXBundleID.Set(instanceInfo.mOSXBundleID.Get());
+  mBundleID.Set(instanceInfo.mBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
   if (c.plugScChans && NInChannels()) // effect with side chain input... 2 input buses

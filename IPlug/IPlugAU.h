@@ -32,7 +32,7 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
 {
-  WDL_String mOSXBundleID;
+  WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;
 };
 
@@ -72,7 +72,7 @@ protected:
 private:
   void GetTimeInfo() override;
 
-  WDL_String mOSXBundleID;
+  WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;
   AudioComponentInstance mCI = nullptr;
   bool mActive = false;
