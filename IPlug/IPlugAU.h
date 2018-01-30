@@ -127,29 +127,10 @@ private:
   WDL_PtrList<PropertyListener> mPropertyListeners;
 
   UInt32 GetTagForNumChannels(int numChannels);
-  
-  UInt32 GetChannelLayoutTags(AudioUnitScope scope, 
-                              AudioUnitElement element, 
-                              AudioChannelLayoutTag* tags);
-
-  OSStatus GetPropertyInfo(AudioUnitPropertyID propID, 
-                                  AudioUnitScope scope, 
-                                  AudioUnitElement element,
-                                  UInt32* pDataSize, 
-                                  Boolean* pWriteable);
-  
-  OSStatus GetProperty(AudioUnitPropertyID propID, 
-                              AudioUnitScope scope, 
-                              AudioUnitElement element,
-                              UInt32* pDataSize, 
-                              Boolean* pWriteable, 
-                              void* pData);
-  
-  OSStatus SetProperty(AudioUnitPropertyID propID, 
-                              AudioUnitScope scope,
-                              AudioUnitElement element,
-                              UInt32* pDataSize, 
-                              const void* pData);
+  UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* pTags);
+  OSStatus GetPropertyInfo(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, Boolean* pWriteable);
+  OSStatus GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, Boolean* pWriteable, void* pData);
+  OSStatus SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, const void* pData);
   
   OSStatus GetProc(AudioUnitElement element, UInt32* pDataSize, void* pData);
   OSStatus GetState(CFPropertyListRef* ppPropList);
@@ -159,67 +140,51 @@ private:
   
 public:
 #ifndef AU_NO_COMPONENT_ENTRY
-  static OSStatus IPlugAUEntry(ComponentParameters *params, void* pVPlug);
+  static OSStatus IPlugAUEntry(ComponentParameters* pParams, void* pPlug);
 #endif
   
-  static OSStatus GetParamProc(void* pPlug, 
-                                      AudioUnitParameterID paramID, 
-                                      AudioUnitScope scope, 
-                                      AudioUnitElement element,
-                                      AudioUnitParameterValue* pValue);
-  
-  static OSStatus SetParamProc(void* pPlug, 
-                                      AudioUnitParameterID paramID, 
-                                      AudioUnitScope scope, 
-                                      AudioUnitElement element,
-                                      AudioUnitParameterValue value, 
-                                      UInt32 offsetFrames);
-  
-  static OSStatus RenderProc(void* pPlug,
-                                    AudioUnitRenderActionFlags* pFlags, 
-                                    const AudioTimeStamp* pTimestamp,
-                                    UInt32 outputBusIdx, 
-                                    UInt32 nFrames, 
-                                    AudioBufferList* pBufferList);
+  static OSStatus GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element, AudioUnitParameterValue* pValue);
+  static OSStatus SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element, AudioUnitParameterValue value, UInt32 offsetFrames);
+  static OSStatus RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pBufferList);
   
 #pragma mark Dispatch Methods
   
-  static OSStatus AUMethodInitialize(void *self);
-  static OSStatus AUMethodUninitialize(void *self);  
-  static OSStatus AUMethodGetPropertyInfo(void *self, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32 *outDataSize, Boolean *outWritable);
-  static OSStatus AUMethodGetProperty(void *self, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void *outData, UInt32 *ioDataSize);  
-  static OSStatus AUMethodSetProperty(void *self, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void *inData, UInt32 *inDataSize);
-  static OSStatus AUMethodAddPropertyListener(void *self, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void *userData);
-  static OSStatus AUMethodRemovePropertyListener(void *self, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc);
-  static OSStatus AUMethodRemovePropertyListenerWithUserData(void *self, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void *userData);
-  static OSStatus AUMethodAddRenderNotify(void *self, AURenderCallback proc, void *userData);
-  static OSStatus AUMethodRemoveRenderNotify(void *self, AURenderCallback proc, void *userData);
-  static OSStatus AUMethodGetParameter(void *self, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue *value);
-  static OSStatus AUMethodSetParameter(void *self, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset);
-  static OSStatus AUMethodScheduleParameters(void *self, const AudioUnitParameterEvent *pEvent, UInt32 nEvents);  
-  static OSStatus AUMethodRender(void *self, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
-  static OSStatus AUMethodReset(void *self, AudioUnitScope scope, AudioUnitElement elem);
-  static OSStatus AUMethodMIDIEvent(void *self, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
-  static OSStatus AUMethodSysEx(void *self, const UInt8 *inData, UInt32 inLength);
+  static OSStatus AUMethodInitialize(void* pSelf);
+  static OSStatus AUMethodUninitialize(void* pSelf);
+  static OSStatus AUMethodGetPropertyInfo(void* pSelf, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32* pOutDataSize, Boolean* pOutWritable);
+  static OSStatus AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void* pOutData, UInt32* pIODataSize);
+  static OSStatus AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* pInData, UInt32* pInDataSize);
+  static OSStatus AUMethodAddPropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
+  static OSStatus AUMethodRemovePropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc);
+  static OSStatus AUMethodRemovePropertyListenerWithUserData(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
+  static OSStatus AUMethodAddRenderNotify(void* pSelf, AURenderCallback proc, void* pUserData);
+  static OSStatus AUMethodRemoveRenderNotify(void* pSelf, AURenderCallback proc, void* pUserData);
+  static OSStatus AUMethodGetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue *value);
+  static OSStatus AUMethodSetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset);
+  static OSStatus AUMethodScheduleParameters(void* pSelf, const AudioUnitParameterEvent *pEvent, UInt32 nEvents);
+  static OSStatus AUMethodRender(void* pSelf, AudioUnitRenderActionFlags* pIOActionFlags, const AudioTimeStamp* pInTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* pIOData);
+  static OSStatus AUMethodReset(void* pSelf, AudioUnitScope scope, AudioUnitElement elem);
+  static OSStatus AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
+  static OSStatus AUMethodSysEx(void* pSelf, const UInt8 *inData, UInt32 inLength);
   
   //Actuall Impl
-  static OSStatus DoInitialize(IPlugAU *pPlug);
-  static OSStatus DoUninitialize(IPlugAU *pPlug);
-  static OSStatus DoGetPropertyInfo(IPlugAU *pPlug, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32 *outDataSize, Boolean *outWritable);
-  static OSStatus DoGetProperty(IPlugAU *pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void *outData, UInt32 *ioDataSize);
-  static OSStatus DoSetProperty(IPlugAU *pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void *inData, UInt32 *inDataSize);
-  static OSStatus DoAddPropertyListener(IPlugAU *pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void *userData);
-  static OSStatus DoRemovePropertyListener(IPlugAU *pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc);
-  static OSStatus DoRemovePropertyListenerWithUserData(IPlugAU *pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void *userData);
-  static OSStatus DoAddRenderNotify(IPlugAU *pPlug, AURenderCallback proc, void *userData);
-  static OSStatus DoRemoveRenderNotify(IPlugAU *pPlug, AURenderCallback proc, void *userData);
-  static OSStatus DoGetParameter(IPlugAU *pPlug, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue *value);
-  static OSStatus DoSetParameter(IPlugAU *pPlug, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset);
-  static OSStatus DoScheduleParameters(IPlugAU *pPlug, const AudioUnitParameterEvent *pEvent, UInt32 nEvents);
-  static OSStatus DoRender(IPlugAU *pPlug, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
-  static OSStatus DoReset(IPlugAU *pPlug);
-  static OSStatus DoMIDIEvent(IPlugAU *pPlug, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
-  static OSStatus DoSysEx(IPlugAU *pPlug, const UInt8 *inData, UInt32 inLength);
+  static OSStatus DoInitialize(IPlugAU* pPlug);
+  static OSStatus DoUninitialize(IPlugAU* pPlug);
+  static OSStatus DoGetPropertyInfo(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32 *pOutDataSize, Boolean* pOutWritable);
+  static OSStatus DoGetProperty(IPlugAU* pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void *pOutData, UInt32* pIODataSize);
+  static OSStatus DoSetProperty(IPlugAU* pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* pInData, UInt32* pInDataSize);
+  static OSStatus DoAddPropertyListener(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
+  static OSStatus DoRemovePropertyListener(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc);
+  static OSStatus DoRemovePropertyListenerWithUserData(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
+  static OSStatus DoAddRenderNotify(IPlugAU* pPlug, AURenderCallback proc, void* pUserData);
+  static OSStatus DoRemoveRenderNotify(IPlugAU* pPlug, AURenderCallback proc, void* pUserData);
+  static OSStatus DoGetParameter(IPlugAU* pPlug, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue* pValue);
+  static OSStatus DoSetParameter(IPlugAU* pPlug, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset);
+  static OSStatus DoScheduleParameters(IPlugAU* pPlug, const AudioUnitParameterEvent *pEvent, UInt32 nEvents);
+  static OSStatus DoRender(IPlugAU* pPlug, AudioUnitRenderActionFlags* pIOActionFlags, const AudioTimeStamp* pInTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* pIOData);
+  static OSStatus DoReset(IPlugAU* pPlug);
+  static OSStatus DoMIDIEvent(IPlugAU* pPlug, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
+  static OSStatus DoSysEx(IPlugAU* pPlug, const UInt8 *inData, UInt32 inLength);
 };
 
 IPlugAU* MakePlug(void* memory = 0);
