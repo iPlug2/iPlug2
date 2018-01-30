@@ -152,7 +152,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   // GUI
 #if PLUG_HAS_UI
   err |= pDesc->AddProcPtr( (void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
-#endf
+#endif
   
   if ( err == AAX_SUCCESS )
     err = pC->AddEffect(BUNDLE_ID, pDesc );
