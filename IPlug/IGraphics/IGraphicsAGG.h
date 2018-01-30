@@ -103,15 +103,14 @@ public:
   typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::pixfmt_custom_blend_rgba<BlenderTypePre, agg::rendering_buffer> PixfmtTypePre;
-  
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> interpolatorType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolatorType> spanGenType;
-  //typedef agg::renderer_scanline_aa_solid<RenbaseType> rendererSolid;
-  //typedef agg::renderer_scanline_bin_solid<RenbaseType> rendererBin;
+  typedef agg::renderer_scanline_aa_solid<RenbaseType> rendererSolid;
+  typedef agg::renderer_scanline_bin_solid<RenbaseType> rendererBin;
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
   
@@ -123,7 +122,7 @@ public:
   void Draw(const IRECT& rect) override;
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override {}
-    void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
+  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
@@ -205,6 +204,7 @@ private:
 #ifdef OS_MAC
   agg::pixel_map_mac mPixelMap;
 #else
+  //TODO:
 #endif
   
 private:
