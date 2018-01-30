@@ -162,10 +162,11 @@ int IPlugBase::GetEffectVersion(bool decimal) const
 void IPlugBase::GetEffectVersionStr(WDL_String& str) const
 {
   GetVersionStr(mVersion, str);
+#if defined TRACER_BUILD
+  str.Append("T");
+#endif
 #if defined _DEBUG
   str.Append("D");
-#elif defined TRACER_BUILD
-  str.Append("T");
 #endif
 }
 
