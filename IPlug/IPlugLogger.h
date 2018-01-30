@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "wdlstring.h"
+#include "mutex.h"
 #include "IPlugUtilities.h"
 
 #if defined OS_WIN
@@ -65,18 +66,15 @@
     };
   };
 
-  //const char* CurrentTime();
-  //void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr);
-  //const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr);
   #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
 
-  #define TRACETOSTDOUT
+//  #define TRACETOSTDOUT
 
   #ifdef OS_WIN
   #define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions?
   static void DBGMSG(const char *format, ...)
   {
-    char    buf[4096], *p = buf;
+    char buf[4096], *p = buf;
     va_list args;
     int     n;
     
@@ -110,8 +108,7 @@
       mFP = fopen(LOGFILE, "w");
   #else
       char logFilePath[100];
-      char* home = getenv("HOME");
-      sprintf(logFilePath, "%s/Desktop/%s", home, LOGFILE);
+      sprintf(logFilePath, "%s/%s", getenv("HOME"), LOGFILE);
       mFP = fopen(logFilePath, "w");
   #endif
       assert(mFP);
@@ -203,7 +200,7 @@
   strcat(str, "\r\n"); \
   }
 
-  intptr_t GetOrdinalThreadID(intptr_t sysThreadID)
+  static intptr_t GetOrdinalThreadID(intptr_t sysThreadID)
   {
     static WDL_TypedBuf<intptr_t> sThreadIDs;
     int i, n = sThreadIDs.GetSize();
@@ -228,6 +225,7 @@
     {
   #ifndef TRACETOSTDOUT
       static LogFile sLogFile;
+      assert(sLogFile.mFP);
   #endif
       static WDL_Mutex sLogMutex;
       char str[TXTLEN];
@@ -248,7 +246,7 @@
   }
 
   #ifdef VST_API
-  #include "../../VST_SDK/aeffectx.h"
+  #include "aeffectx.h"
   static const char* VSTOpcodeStr(int opCode)
   {
     switch (opCode)
