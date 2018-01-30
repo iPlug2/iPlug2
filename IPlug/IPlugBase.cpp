@@ -4,7 +4,7 @@
 #include <cassert>
 
 #include "wdlendian.h"
-#include "base64encdec.h"
+#include "wdl_base64.h"
 
 #include "IPlugBase.h"
 
@@ -621,7 +621,7 @@ void IPlugBase::MakePresetFromBlob(const char* name, const char* blob, int sizeO
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
-  base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
+  wdl_base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
 
   MakePresetFromChunk(name, presetChunk);
 }
@@ -895,7 +895,7 @@ void IPlugBase::DumpPresetBlob(const char* filename)
   IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
   uint8_t* byteStart = pPresetChunk->GetBytes();
 
-  base64encode(byteStart, buf, pPresetChunk->Size());
+  wdl_base64encode(byteStart, buf, pPresetChunk->Size());
 
   fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   fclose(fp);
@@ -916,7 +916,7 @@ void IPlugBase::DumpBankBlob(const char* filename)
     fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
     
     IByteChunk* pPresetChunk = &pPreset->mChunk;
-    base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
+    wdl_base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
     
     fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   }
