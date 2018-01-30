@@ -1764,7 +1764,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     int nOutBuses = (int) ceil(NOutChannels() / 2.);
 
     PtrListInitialize(&mOutBuses, nOutBuses);
-    char label[MAX_BUS_NAME_LEN]
+    char label[MAX_BUS_NAME_LEN];
 
     for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2)
     {
