@@ -19,7 +19,7 @@
 #define PLUG_IS_INSTRUMENT 0
 #define PLUG_DOES_MIDI 0
 #define PLUG_DOES_STATE_CHUNKS 0
-#define PLUG_HAS_UI 0
+#define PLUG_HAS_UI 1
 
 #define PLUG_CLASS_NAME IPlugEffect
 #define PLUG_ENTRY IPlugEffect_Entry
