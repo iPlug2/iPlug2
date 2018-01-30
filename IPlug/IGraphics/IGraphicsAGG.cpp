@@ -502,9 +502,9 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   LineInfo info;
   info.mStartChar = 0;
   info.mEndChar = (int) strlen(str);
-  lines->Add(info);
+  pLines->Add(info);
   
-  LineInfo* pLines = lines->Get();
+  LineInfo* pLine = pLines->Get();
   
   size_t lineStart = 0;
   size_t lineWidth = 0;
@@ -527,22 +527,22 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
     
     if (*cstr == ' ' || *cstr == 0)
     {
-      pLines->mStartChar = (int) lineStart;
-      pLines->mEndChar = (int)  linePos;
-      pLines->mWidth = xCount;
+      pLine->mStartChar = (int) lineStart;
+      pLine->mEndChar = (int)  linePos;
+      pLine->mWidth = xCount;
     }
     
     if (rect.W() > 0 && xCount >= rect.W())
     {
-      assert(pLines);
+      assert(pLine);
       
-      cstr = &str[pLines->mEndChar];
-      lineStart = pLines->mEndChar + 1;
-      linePos = pLines->mEndChar;
+      cstr = &str[pLine->mEndChar];
+      lineStart = pLine->mEndChar + 1;
+      linePos = pLine->mEndChar;
       
       LineInfo info;
-      lines->Add(info);
-      pLines++;
+      pLines->Add(info);
+      pLine++;
       
       assert(pLines);
       
