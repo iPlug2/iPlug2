@@ -372,7 +372,7 @@
 		4F21A6EC2001233700B7B057 /* vstspeakerarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstspeakerarray.h; sourceTree = "<group>"; };
 		4F21A6EE2001270400B7B057 /* coreiids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coreiids.cpp; sourceTree = "<group>"; };
 		4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-AU-Info.plist"; path = "../resources/IPlugEffect-AU-Info.plist"; sourceTree = "<group>"; };
-		4F23BA1413B647E50097A67E /* IPlugEffect-OSXAPP-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-OSXAPP-Info.plist"; path = "../resources/IPlugEffect-OSXAPP-Info.plist"; sourceTree = "<group>"; };
+		4F23BA1413B647E50097A67E /* IPlugEffect-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-macOS-Info.plist"; path = "../resources/IPlugEffect-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST2-Info.plist"; path = "../resources/IPlugEffect-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugEffect.cpp; path = ../IPlugEffect.cpp; sourceTree = "<group>"; };
 		4F3862EE2014BBEC0009F402 /* IPlugEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEffect.h; path = ../IPlugEffect.h; sourceTree = "<group>"; };
@@ -385,7 +385,7 @@
 		4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUAudioUnit.h; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.h; sourceTree = "<group>"; };
 		4F3907832013EC6A00DDA490 /* IPlugEffectAPP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = IPlugEffectAPP.entitlements; path = ../resources/IPlugEffectAPP.entitlements; sourceTree = "<group>"; };
 		4F3907842013EC6A00DDA490 /* IPlugEffectAUv3.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = IPlugEffectAUv3.entitlements; path = ../resources/IPlugEffectAUv3.entitlements; sourceTree = "<group>"; };
-		4F3907872013ED2F00DDA490 /* IPlugEffect-AUv3-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-AUv3-Info.plist"; path = "../resources/IPlugEffect-AUv3-Info.plist"; sourceTree = "<group>"; };
+		4F3907872013ED2F00DDA490 /* IPlugEffect-macOS-AUv3-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-macOS-AUv3-Info.plist"; path = "../resources/IPlugEffect-macOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E69041409746500C4D749 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../../IPlug/IPlugVST3.cpp; sourceTree = SOURCE_ROOT; };
 		4F3E69051409746500C4D749 /* IPlugVST3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3.h; path = ../../../IPlug/IPlugVST3.h; sourceTree = SOURCE_ROOT; };
 		4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST3-Info.plist"; path = "../resources/IPlugEffect-VST3-Info.plist"; sourceTree = "<group>"; };
@@ -658,11 +658,11 @@
 				4FDA1E0F2012CDB30027C868 /* IPlugEffect.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* IPlugEffect.rc_mac_menu */,
 				4FDA1E102012CDB30027C868 /* resource.h */,
-				4F23BA1413B647E50097A67E /* IPlugEffect-OSXAPP-Info.plist */,
+				4F23BA1413B647E50097A67E /* IPlugEffect-macOS-Info.plist */,
+				4F3907872013ED2F00DDA490 /* IPlugEffect-macOS-AUv3-Info.plist */,
 				4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */,
 				4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */,
-				4F3907872013ED2F00DDA490 /* IPlugEffect-AUv3-Info.plist */,
 				4F4CC3811549B8A700A9EA21 /* IPlugEffect-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */,
 			);
@@ -2134,7 +2134,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "../resources/IPlugEffect-AUv3-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -2178,7 +2178,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "../resources/IPlugEffect-AUv3-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2222,7 +2222,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				INFOPLIST_FILE = "../resources/IPlugEffect-AUv3-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2569,7 +2569,7 @@
 					"$(ADDITIONAL_APP_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "../resources/IPlugEffect-OSXAPP-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -2599,7 +2599,7 @@
 					"$(ADDITIONAL_APP_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "../resources/IPlugEffect-OSXAPP-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -2629,7 +2629,7 @@
 					"$(ADDITIONAL_APP_INCLUDES)",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "../resources/IPlugEffect-OSXAPP-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",

@@ -253,7 +253,7 @@ def main():
   else:
     NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit"
 
-  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
+  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-macOS-AUv3-Info.plist"
   auv3 = plistlib.readPlist(plistpath)
 #  auv3['AudioUnit Version'] = PLUG_VER_STR
   auv3['CFBundleExecutable'] = BUNDLE_NAME
@@ -291,7 +291,7 @@ def main():
 
 # APP
 
-  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-OSXAPP-Info.plist"
+  plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-macOS-Info.plist"
   osxapp = plistlib.readPlist(plistpath)
   osxapp['CFBundleExecutable'] = BUNDLE_NAME
   osxapp['CFBundleGetInfoString'] = CFBundleGetInfoString
