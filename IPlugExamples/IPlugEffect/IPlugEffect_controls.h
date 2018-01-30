@@ -75,7 +75,7 @@ public:
     graphics.DrawText(mText, mLabel.Get(), mRECT);
   }
   
-  void OnMouseDown(float x, float y, const IMouseMod& mod)
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     IPopupMenu* menu = GetGUI()->CreateIPopupMenu(mMainMenu, mRECT);
     
