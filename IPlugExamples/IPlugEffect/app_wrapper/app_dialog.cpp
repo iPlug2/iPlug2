@@ -4,6 +4,8 @@
 #include "asio.h"
 #endif
 
+extern void CenterWindow(HWND hwnd);
+
 const int kNumIOVSOptions = 9;
 const int kNumSIGVSOptions = 7;
 
