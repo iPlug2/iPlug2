@@ -1184,8 +1184,6 @@ protected:
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
 private:
-  friend class IGraphicsLiveEdit;
-  
   int GetMouseControlIdx(float x, float y, bool mo = false);
 
   int mWidth;
@@ -1213,4 +1211,6 @@ protected:
   FT_Library mFTLibrary = nullptr;
   FT_Face mFTFace = nullptr;
 #endif
+  
+  friend class IGraphicsLiveEdit;
 };
