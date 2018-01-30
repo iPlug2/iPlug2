@@ -19,13 +19,11 @@
 struct AudioComponentPlugInInstance
 {
   AudioComponentPlugInInterface mPlugInInterface;
-  void * (*mConstruct)(void *memory, AudioComponentInstance ci);
-  void (*mDestruct)(void *memory);
-  void *mPad[2];
+  void* (*mConstruct)(void* pMemory, AudioComponentInstance ci);
+  void   (*mDestruct)(void* pMemory);
+  void* mPad[2];
   UInt32 mInstanceStorage;
 };
-
-#define MAX_IO_CHANNELS 128
 
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
@@ -41,12 +39,11 @@ struct IPlugInstanceInfo
 */
 class IPlugAU : public IPLUG_BASE_CLASS
 {
-  friend class IPlugAUFactory;
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);
-
   virtual ~IPlugAU();
 
+#pragma mark - IPlugBase Methods
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
@@ -54,6 +51,17 @@ public:
   EHost GetHost() override;
   void ResizeGraphics(int w, int h, double scale) override;
   bool IsRenderingOffline() override;
+  void SetBlockSize(int blockSize) override;
+  void SetLatency(int samples) override;
+  bool SendMidiMsg(IMidiMsg& msg) override;
+  void HostSpecificInit() override;
+  
+#pragma mark - Helpers
+  static const char* AUInputTypeStr(int type);
+#ifndef AU_NO_COMPONENT_ENTRY
+  static OSStatus IPlugAUEntry(ComponentParameters* pParams, void* pPlug);
+#endif
+private:
 
   enum EAUInputType
   {
@@ -62,44 +70,20 @@ public:
     eDirectNoFastProc,
     eRenderCallback
   };
-
-protected:
-  void SetBlockSize(int blockSize) override;
-  void SetLatency(int samples) override;
-  bool SendMidiMsg(IMidiMsg& msg) override;
-  void HostSpecificInit() override;
   
-private:
-  void GetTimeInfo() override;
-
-  WDL_String mBundleID;
-  WDL_String mCocoaViewFactoryClassName;
-  AudioComponentInstance mCI = nullptr;
-  bool mActive = false;
-  bool mIsOffline = false;
-  double mRenderTimestamp = -1.0;
-  HostCallbackInfo mHostCallbacks;
-
-// InScratchBuf is only needed if the upstream connection is a callback.
-// OutScratchBuf is only needed if the downstream connection fails to give us a buffer.
-  WDL_TypedBuf<AudioSampleType> mInScratchBuf, mOutScratchBuf;
-  WDL_PtrList<AURenderCallbackStruct> mRenderNotify;
-  AUMIDIOutputCallbackStruct mMidiCallback;
-
-  // Every stereo pair of plugin input or output is a bus.
-  // Buses can have zero host channels if the host hasn't connected the bus at all,
-  // one host channel if the plugin supports mono and the host has supplied a mono stream,
-  // or two host channels if the host has supplied a stereo stream.
   struct BusChannels
   {
     bool mConnected;
-    int mNHostChannels, mNPlugChannels, mPlugChannelStartIdx;
+    int mNHostChannels;
+    int mNPlugChannels;
+    int mPlugChannelStartIdx;;
   };
   
-  WDL_PtrList<BusChannels> mInBuses, mOutBuses;
-  BusChannels* GetBus(AudioUnitScope scope, AudioUnitElement busIdx);
-  int NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int excludeIdx = -1);
-  void ClearConnections();
+  struct BufferList
+  {
+    int mNumberBuffers;
+    AudioBuffer mBuffers[AU_MAX_IO_CHANNELS];
+  };
 
   struct InputBusConnection
   {
@@ -111,12 +95,6 @@ private:
     EAUInputType mInputType;
   };
   
-  WDL_PtrList<InputBusConnection> mInBusConnections;
-
-  bool CheckLegalIO(AudioUnitScope scope, int busIdx, int nChannels);
-  bool CheckLegalIO();
-  void AssessInputConnections();
-
   struct PropertyListener
   {
     AudioUnitPropertyID mPropID;
@@ -124,10 +102,18 @@ private:
     void* mProcArgs;
   };
   
-  WDL_PtrList<PropertyListener> mPropertyListeners;
+  void GetTimeInfo() override;
+  int NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int excludeIdx = -1);
+  void ClearConnections();
+  BusChannels* GetBus(AudioUnitScope scope, AudioUnitElement busIdx);
+  bool CheckLegalIO(AudioUnitScope scope, int busIdx, int nChannels);
+  bool CheckLegalIO();
+  void AssessInputConnections();
 
   UInt32 GetTagForNumChannels(int numChannels);
   UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* pTags);
+  
+#pragma mark - Component Manager Methods
   OSStatus GetPropertyInfo(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, Boolean* pWriteable);
   OSStatus GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, Boolean* pWriteable, void* pData);
   OSStatus SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, const void* pData);
@@ -138,17 +124,11 @@ private:
   void InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope);
   void SendAUEvent(AudioUnitEventType type, AudioComponentInstance ci, int idx);
   
-public:
-#ifndef AU_NO_COMPONENT_ENTRY
-  static OSStatus IPlugAUEntry(ComponentParameters* pParams, void* pPlug);
-#endif
-  
   static OSStatus GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element, AudioUnitParameterValue* pValue);
   static OSStatus SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element, AudioUnitParameterValue value, UInt32 offsetFrames);
   static OSStatus RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pBufferList);
   
-#pragma mark Dispatch Methods
-  
+#pragma mark - Dispatch Methods
   static OSStatus AUMethodInitialize(void* pSelf);
   static OSStatus AUMethodUninitialize(void* pSelf);
   static OSStatus AUMethodGetPropertyInfo(void* pSelf, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32* pOutDataSize, Boolean* pOutWritable);
@@ -167,7 +147,7 @@ public:
   static OSStatus AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
   static OSStatus AUMethodSysEx(void* pSelf, const UInt8 *inData, UInt32 inLength);
   
-  //Actuall Impl
+#pragma mark - Implementation Methods
   static OSStatus DoInitialize(IPlugAU* pPlug);
   static OSStatus DoUninitialize(IPlugAU* pPlug);
   static OSStatus DoGetPropertyInfo(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32 *pOutDataSize, Boolean* pOutWritable);
@@ -185,6 +165,25 @@ public:
   static OSStatus DoReset(IPlugAU* pPlug);
   static OSStatus DoMIDIEvent(IPlugAU* pPlug, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
   static OSStatus DoSysEx(IPlugAU* pPlug, const UInt8 *inData, UInt32 inLength);
+  
+#pragma mark -
+private:
+  bool mActive = false;
+  bool mIsOffline = false;
+  double mRenderTimestamp = -1.0;
+  WDL_String mBundleID;
+  WDL_String mCocoaViewFactoryClassName;
+  AudioComponentInstance mCI = nullptr;
+  HostCallbackInfo mHostCallbacks;
+  WDL_PtrList<BusChannels> mInBuses, mOutBuses;
+  WDL_PtrList<InputBusConnection> mInBusConnections;
+  WDL_PtrList<PropertyListener> mPropertyListeners;
+  WDL_TypedBuf<AudioSampleType> mInScratchBuf;
+  WDL_TypedBuf<AudioSampleType> mOutScratchBuf;
+  WDL_PtrList<AURenderCallbackStruct> mRenderNotify;
+  AUMIDIOutputCallbackStruct mMidiCallback;
+  
+  friend class IPlugAUFactory;
 };
 
 IPlugAU* MakePlug(void* memory = 0);

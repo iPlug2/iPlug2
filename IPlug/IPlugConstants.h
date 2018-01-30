@@ -44,6 +44,8 @@ static const int MAX_PRESET_NAME_LEN = 256;
 #define UNUSED_PRESET_NAME "empty"
 #define DEFAULT_USER_PRESET_NAME "user preset"
 
+#define AU_MAX_IO_CHANNELS 128
+
 #define MAX_WIN32_PATH_LEN 256
 #define MAX_WIN32_PARAM_LEN 256
 
