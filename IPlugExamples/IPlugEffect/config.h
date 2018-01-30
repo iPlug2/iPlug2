@@ -14,6 +14,13 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
+#define PLUG_CHANNEL_IO "1-1 2-2"
+#define PLUG_LATENCY 0
+#define PLUG_IS_INSTRUMENT 0
+#define PLUG_DOES_MIDI 0
+#define PLUG_DOES_STATE_CHUNKS 0
+#define PLUG_HAS_UI 0
+
 #define PLUG_CLASS_NAME IPlugEffect
 #define PLUG_ENTRY IPlugEffect_Entry
 #define PLUG_VIEW_ENTRY IPlugEffect_ViewEntry
@@ -22,12 +29,6 @@
 #define PLUG_VIEW_ENTRY_STR "IPlugEffect_ViewEntry"
 #define VIEW_CLASS IPlugEffect_View
 #define VIEW_CLASS_STR "IPlugEffect_View"
-
-#define PLUG_CHANNEL_IO "1-1 2-2"
-#define PLUG_LATENCY 0
-#define PLUG_IS_INSTRUMENT 0
-#define PLUG_DOES_MIDI 0
-#define PLUG_DOES_STATE_CHUNKS 0
 
 #define AAX_TYPE_IDS 'EFN1', 'EFN2'
 #define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'

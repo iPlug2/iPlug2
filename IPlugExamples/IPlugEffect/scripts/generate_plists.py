@@ -69,6 +69,7 @@ def main():
   PLUG_VIEW_ENTRY = ""
   PLUG_IS_INSTRUMENT = 0
   PLUG_DOES_MIDI = 0
+  PLUG_HAS_UI = 0
   
   # extract values from config.h
   for line in fileinput.input(projectpath + "/config.h", inplace=0):
@@ -107,7 +108,7 @@ def main():
       
     if "#define PLUG_MFR_ID " in line:
       PLUG_MFR_UID = string.lstrip(line, "#define PLUG_MFR_ID ")
-    
+
     if "#define PLUG_ENTRY " in line:
       PLUG_ENTRY = string.lstrip(line, "#define PLUG_ENTRY ")
      
@@ -122,6 +123,9 @@ def main():
     
     if "#define PLUG_DOES_MIDI " in line:
       PLUG_DOES_MIDI = int(string.lstrip(line, "#define PLUG_DOES_MIDI "), 16)
+    
+    if "#define PLUG_HAS_UI " in line:
+      PLUG_HAS_UI = int(string.lstrip(line, "#define PLUG_HAS_UI "), 16)
       
   FULLVERSIONSTR = MAJORSTR + "." + MINORSTR + "." + BUGFIXSTR
   
@@ -244,6 +248,11 @@ def main():
 
 # AUDIOUNIT v3
 
+  if PLUG_HAS_UI:
+    NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit-UI"
+  else:
+    NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit"
+
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-AUv3-Info.plist"
   auv3 = plistlib.readPlist(plistpath)
 #  auv3['AudioUnit Version'] = PLUG_VER_STR
@@ -257,9 +266,7 @@ def main():
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(AudioComponents = au['AudioComponents']),
-#  NSExtensionPointIdentifier = "com.apple.AudioUnit-UI",
-  NSExtensionPointIdentifier = "com.apple.AudioUnit",
-#  NSExtensionPrincipalClass = "IPlugViewController",
+  NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
   NSExtensionPrincipalClass = "IPlugViewController",
   )
 
