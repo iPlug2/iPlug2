@@ -210,12 +210,12 @@ private:
 private:
   agg::pixel_map* LoadAPIBitmap(const char* pPath);
   agg::pixel_map* CreateAPIBitmap(int w, int h);
-  agg::pixel_map* ScaleAPIBitmap(agg::pixel_map* pixel_map, int destW, int destH);
+  agg::pixel_map* ScaleAPIBitmap(agg::pixel_map* pPixel_map, int destW, int destH);
 
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
   
-  void CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char * str, FontManagerType& manager);
+  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
   void ToPixel(float & pixel);
 };

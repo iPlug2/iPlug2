@@ -497,7 +497,7 @@ void IGraphicsAGG::RenderDrawBitmap()
 #endif
 }
 
-void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char* str, FontManagerType& manager)
+void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager)
 {
   LineInfo info;
   info.mStartChar = 0;
