@@ -69,7 +69,7 @@ public:
     SetUpMenu();
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     graphics.FillRect(COLOR_BLUE, mRECT);
     graphics.DrawText(mText, mLabel.Get(), mRECT);
@@ -106,7 +106,7 @@ public:
     
   }
   
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     graphics.FillRect(COLOR_GRAY, mRECT.GetPadded(-2));
     graphics.DrawRect(COLOR_BLACK, mRECT.GetPadded(-2));
@@ -144,7 +144,7 @@ public:
   }
   
 private:
-  void Draw(IGraphics& graphics)
+  void Draw(IGraphics& graphics) override
   {
     float xarray[32];
     float yarray[32];
