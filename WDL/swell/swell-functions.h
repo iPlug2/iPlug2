@@ -381,7 +381,6 @@ SWELL_API_DEFINE(HANDLE, RemoveProp, (HWND, const char *))
 SWELL_API_DEFINE(bool, IsWindowVisible,(HWND hwnd))
 
 SWELL_API_DEFINE(bool, IsWindow, (HWND hwnd)) // very costly (compared to win32) -- enumerates all windows, searches for hwnd
-SWELL_API_DEFINE(void, CenterWindow, (HWND hwnd))
 
 
 /*

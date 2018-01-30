@@ -651,8 +651,6 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     font->ct_FontRef = (void*)CTFontCreateWithName((CFStringRef)SWELL_GetCachedFontName(buf),fontwid,NULL);
     if (!font->ct_FontRef) font->ct_FontRef = (void*)[[NSFont labelFontOfSize:fontwid] retain]; 
 
-    font->font_quality = (!lfQuality || lfQuality == ANTIALIASED_QUALITY || lfQuality == NONANTIALIASED_QUALITY ? lfQuality : 0);
-
     // might want to make this conditional (i.e. only return font if created successfully), but I think we'd rather fallback to a system font than use ATSUI
     return font;
   }
@@ -674,19 +672,9 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     Boolean isItal=!!lfItalic;
     Boolean isUnder=!!lfUnderline;
     
-    ATSStyleRenderingOptions render;
-    if (!lfQuality)
-      render = kATSStyleNoOptions;
-    else if (lfQuality == ANTIALIASED_QUALITY)
-      render = kATSStyleApplyAntiAliasing;
-    else if (lfQuality == NONANTIALIASED_QUALITY)
-      render = kATSStyleNoAntiAliasing;
-    else
-      render = kATSStyleNoOptions;
-
-    ATSUAttributeTag        theTags[] = { kATSUQDBoldfaceTag, kATSUQDItalicTag, kATSUQDUnderlineTag,kATSUSizeTag,kATSUFontTag, kATSUStyleRenderingOptionsTag };
-    ByteCount               theSizes[] = { sizeof(Boolean),sizeof(Boolean),sizeof(Boolean), sizeof(Fixed),sizeof(ATSUFontID), sizeof(ATSStyleRenderingOptions)  };
-    ATSUAttributeValuePtr   theValues[] =  {&isBold, &isItal, &isUnder,  &fsize, &fontid, &render } ;
+    ATSUAttributeTag        theTags[] = { kATSUQDBoldfaceTag, kATSUQDItalicTag, kATSUQDUnderlineTag,kATSUSizeTag,kATSUFontTag };
+    ByteCount               theSizes[] = { sizeof(Boolean),sizeof(Boolean),sizeof(Boolean), sizeof(Fixed),sizeof(ATSUFontID)  };
+    ATSUAttributeValuePtr   theValues[] =  {&isBold, &isItal, &isUnder,  &fsize, &fontid  } ;
     
     int attrcnt=sizeof(theTags)/sizeof(theTags[0]);
     if (fontid == kATSUInvalidFontID) attrcnt--;    
@@ -1077,11 +1065,6 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     if (ct->curbkmode == OPAQUE)
     {      
       bgc = CreateColor(ct->curbkcol);
-    }
-
-    if (ct->curfont->font_quality)
-    {
-      CGContextSetShouldAntialias(ct->ctx, ct->curfont->font_quality == ANTIALIASED_QUALITY);
     }
 
     if (line) 

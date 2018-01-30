@@ -502,7 +502,6 @@ struct HGDIOBJ__
  
   // if using CoreText to draw text
   void *ct_FontRef;
-  char font_quality;
 };
 
 struct HDC__ {
