@@ -27,6 +27,42 @@
 /* Begin PBXBuildFile section */
 		4F08481F20150FD600F9E881 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
+		4F1AF38B20210A2D009AAE47 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38120210A1F009AAE47 /* lice_arc.cpp */; };
+		4F1AF38C20210A2D009AAE47 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38420210A1F009AAE47 /* lice_line.cpp */; };
+		4F1AF38D20210A2D009AAE47 /* lice_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38320210A1F009AAE47 /* lice_text.cpp */; };
+		4F1AF38E20210A2D009AAE47 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */; };
+		4F1AF38F20210A2D009AAE47 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38520210A1F009AAE47 /* lice.cpp */; };
+		4F1AF39020210A2D009AAE47 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38120210A1F009AAE47 /* lice_arc.cpp */; };
+		4F1AF39120210A2D009AAE47 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38420210A1F009AAE47 /* lice_line.cpp */; };
+		4F1AF39220210A2D009AAE47 /* lice_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38320210A1F009AAE47 /* lice_text.cpp */; };
+		4F1AF39320210A2D009AAE47 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */; };
+		4F1AF39420210A2D009AAE47 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38520210A1F009AAE47 /* lice.cpp */; };
+		4F1AF39520210A2E009AAE47 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38120210A1F009AAE47 /* lice_arc.cpp */; };
+		4F1AF39620210A2E009AAE47 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38420210A1F009AAE47 /* lice_line.cpp */; };
+		4F1AF39720210A2E009AAE47 /* lice_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38320210A1F009AAE47 /* lice_text.cpp */; };
+		4F1AF39820210A2E009AAE47 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */; };
+		4F1AF39920210A2E009AAE47 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38520210A1F009AAE47 /* lice.cpp */; };
+		4F1AF39A20210A2F009AAE47 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38120210A1F009AAE47 /* lice_arc.cpp */; };
+		4F1AF39B20210A2F009AAE47 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38420210A1F009AAE47 /* lice_line.cpp */; };
+		4F1AF39C20210A2F009AAE47 /* lice_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38320210A1F009AAE47 /* lice_text.cpp */; };
+		4F1AF39D20210A2F009AAE47 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */; };
+		4F1AF39E20210A2F009AAE47 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38520210A1F009AAE47 /* lice.cpp */; };
+		4F1AF39F20210A30009AAE47 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38120210A1F009AAE47 /* lice_arc.cpp */; };
+		4F1AF3A020210A30009AAE47 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38420210A1F009AAE47 /* lice_line.cpp */; };
+		4F1AF3A120210A30009AAE47 /* lice_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38320210A1F009AAE47 /* lice_text.cpp */; };
+		4F1AF3A220210A30009AAE47 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */; };
+		4F1AF3A320210A30009AAE47 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38520210A1F009AAE47 /* lice.cpp */; };
+		4F1AF3A420210A31009AAE47 /* lice_arc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38120210A1F009AAE47 /* lice_arc.cpp */; };
+		4F1AF3A520210A31009AAE47 /* lice_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38420210A1F009AAE47 /* lice_line.cpp */; };
+		4F1AF3A620210A31009AAE47 /* lice_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38320210A1F009AAE47 /* lice_text.cpp */; };
+		4F1AF3A720210A31009AAE47 /* lice_textnew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */; };
+		4F1AF3A820210A31009AAE47 /* lice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38520210A1F009AAE47 /* lice.cpp */; };
+		4F1AF3A920210A43009AAE47 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38A20210A1F009AAE47 /* lice_png.cpp */; };
+		4F1AF3AA20210A44009AAE47 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38A20210A1F009AAE47 /* lice_png.cpp */; };
+		4F1AF3AB20210A45009AAE47 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38A20210A1F009AAE47 /* lice_png.cpp */; };
+		4F1AF3AC20210A46009AAE47 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38A20210A1F009AAE47 /* lice_png.cpp */; };
+		4F1AF3AD20210A46009AAE47 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38A20210A1F009AAE47 /* lice_png.cpp */; };
+		4F1AF3AE20210A47009AAE47 /* lice_png.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1AF38A20210A1F009AAE47 /* lice_png.cpp */; };
 		4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F1B08822014387400CE2770 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
@@ -34,7 +70,6 @@
 		4F1B0887201438C600CE2770 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4F1B0889201438D100CE2770 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
 		4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
-		4F1B088C20143A0600CE2770 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
@@ -49,7 +84,7 @@
 		4F3862F62014BBEC0009F402 /* IPlugEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3862EE2014BBEC0009F402 /* IPlugEffect.h */; };
 		4F39076F2013EBA400DDA490 /* IPlugEffect.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
-		4F3907802013EC1000DDA490 /* IPlugViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.m */; };
+		4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.mm */; };
 		4F3907812013EC1000DDA490 /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F3907782013EC0400DDA490 /* IPlugViewController.xib */; };
 		4F3AE17B12C0E5E2001FD7A4 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* config.h */; };
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
@@ -127,9 +162,6 @@
 		4F78DAB813B640530032E0F3 /* RtAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C013B63A700032E0F3 /* RtAudio.h */; };
 		4F78DABA13B640530032E0F3 /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D8C313B63A700032E0F3 /* RtMidi.h */; };
 		4F78DABB13B640620032E0F3 /* IPlugAPP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78D9EA13B63BE90032E0F3 /* IPlugAPP.h */; };
-		4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
-		4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -152,7 +184,6 @@
 		4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD01D140996A10068A6D4 /* funknown.cpp */; };
 		4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4AD028140996A10068A6D4 /* ustring.cpp */; };
 		4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4AD1F61409A56A0068A6D4 /* libbase.a */; };
-		4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
@@ -172,7 +203,6 @@
 		4FB600271567CB0A0020189A /* IPlugAAX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */; };
 		4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */; };
 		4FBF95681F3F5DDC00A92E48 /* libAAXLibrary_libcpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F83C3721F3F599D0044D8B8 /* libAAXLibrary_libcpp.a */; };
-		4FBF95691F3F5DE700A92E48 /* lice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8D4BCC13E97664004F7633 /* lice.a */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -227,13 +257,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4F1B088D20143A0D00CE2770 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = lice;
-		};
 		4F39076D2013EBA400DDA490 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
@@ -247,13 +270,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = base;
-		};
-		4F678B6C13E984B200A6A9BB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = "lice_32&64_intel";
 		};
 		4F789ECF16763E47009EF688 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -304,27 +320,6 @@
 			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = AAXLibrary;
 		};
-		4F8D4BCB13E97664004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = lice;
-		};
-		4F8D4C2C13E977CD004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = "lice_32&64_intel";
-		};
-		4F8D4C3913E97859004F7633 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = "lice_32&64_intel";
-		};
 		4F9828AE140A9EB700F3FCC1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
@@ -332,26 +327,12 @@
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = base;
 		};
-		4F9828F2140A9ED500F3FCC1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = "lice_32&64_intel";
-		};
 		4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
 			remoteInfo = "VST3_32&64_intel";
-		};
-		4FBF95661F3F5D4400A92E48 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = lice;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -375,6 +356,16 @@
 		4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_Parameters.h; path = ../../../IPlug/AAX/IPlugAAX_Parameters.h; sourceTree = "<group>"; };
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; };
 		4F0848282015129400F9E881 /* IPlugAAX_TaperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_TaperDelegate.h; path = ../../../IPlug/AAX/IPlugAAX_TaperDelegate.h; sourceTree = "<group>"; };
+		4F1AF38120210A1F009AAE47 /* lice_arc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice_arc.cpp; path = ../../../WDL/lice/lice_arc.cpp; sourceTree = "<group>"; };
+		4F1AF38220210A1F009AAE47 /* lice_jpg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice_jpg.cpp; path = ../../../WDL/lice/lice_jpg.cpp; sourceTree = "<group>"; };
+		4F1AF38320210A1F009AAE47 /* lice_text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice_text.cpp; path = ../../../WDL/lice/lice_text.cpp; sourceTree = "<group>"; };
+		4F1AF38420210A1F009AAE47 /* lice_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice_line.cpp; path = ../../../WDL/lice/lice_line.cpp; sourceTree = "<group>"; };
+		4F1AF38520210A1F009AAE47 /* lice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice.cpp; path = ../../../WDL/lice/lice.cpp; sourceTree = "<group>"; };
+		4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice_textnew.cpp; path = ../../../WDL/lice/lice_textnew.cpp; sourceTree = "<group>"; };
+		4F1AF38720210A1F009AAE47 /* lice_bezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lice_bezier.h; path = ../../../WDL/lice/lice_bezier.h; sourceTree = "<group>"; };
+		4F1AF38820210A1F009AAE47 /* lice_text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lice_text.h; path = ../../../WDL/lice/lice_text.h; sourceTree = "<group>"; };
+		4F1AF38920210A1F009AAE47 /* lice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lice.h; path = ../../../WDL/lice/lice.h; sourceTree = "<group>"; };
+		4F1AF38A20210A1F009AAE47 /* lice_png.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lice_png.cpp; path = ../../../WDL/lice/lice_png.cpp; sourceTree = "<group>"; };
 		4F1B4AE32014D33600BC64D4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../resources/MainMenu.xib; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F20EF33132C69FE0030E34C /* IPlugEffect.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -387,10 +378,10 @@
 		4F3862EE2014BBEC0009F402 /* IPlugEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEffect.h; path = ../IPlugEffect.h; sourceTree = "<group>"; };
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F3907602013EBA300DDA490 /* IPlugEffect.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugEffect.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F3907772013EC0400DDA490 /* IPlugViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IPlugViewController.m; path = ../../../IPlug/AUv3/IPlugViewController.m; sourceTree = "<group>"; };
+		4F3907772013EC0400DDA490 /* IPlugViewController.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugViewController.mm; path = ../../../IPlug/AUv3/IPlugViewController.mm; sourceTree = "<group>"; };
 		4F3907782013EC0400DDA490 /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../../../IPlug/AUv3/IPlugViewController.xib; sourceTree = "<group>"; };
 		4F3907792013EC0400DDA490 /* BufferedAudioBus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = BufferedAudioBus.hpp; path = ../../../IPlug/AUv3/BufferedAudioBus.hpp; sourceTree = "<group>"; };
-		4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAUAudioUnit.mm; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.mm; sourceTree = "<group>"; };
+		4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAUAudioUnit.mm; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.mm; sourceTree = "<group>"; };
 		4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUAudioUnit.h; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.h; sourceTree = "<group>"; };
 		4F3907832013EC6A00DDA490 /* IPlugEffectAPP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = IPlugEffectAPP.entitlements; path = ../resources/IPlugEffectAPP.entitlements; sourceTree = "<group>"; };
 		4F3907842013EC6A00DDA490 /* IPlugEffectAUv3.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = IPlugEffectAUv3.entitlements; path = ../resources/IPlugEffectAUv3.entitlements; sourceTree = "<group>"; };
@@ -513,7 +504,6 @@
 		4F78D9FE13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_ViewFactory.mm; path = ../../../IPlug/IPlugAU_ViewFactory.mm; sourceTree = SOURCE_ROOT; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugEffect.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
-		4F8D4BC413E97664004F7633 /* lice.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = lice.xcodeproj; path = ../../../WDL/lice/lice.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEffect_controls.h; path = ../IPlugEffect_controls.h; sourceTree = "<group>"; };
 		4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLiveEdit.h; path = ../../../IPlug/IGraphics/IGraphicsLiveEdit.h; sourceTree = "<group>"; };
@@ -592,7 +582,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F8D4C2F13E97806004F7633 /* lice.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -600,7 +589,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F1B088C20143A0600CE2770 /* lice.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -608,7 +596,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F8D4C2813E9778D004F7633 /* lice.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -616,7 +603,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F9828F6140A9EEE00F3FCC1 /* lice.a in Frameworks */,
 				4F9828D8140A9EB700F3FCC1 /* libbase.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -625,7 +611,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBF95691F3F5DE700A92E48 /* lice.a in Frameworks */,
 				4FBF95681F3F5DDC00A92E48 /* libAAXLibrary_libcpp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -634,7 +619,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F8D4BCD13E97671004F7633 /* lice.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,6 +694,23 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		4F1AF380202109E0009AAE47 /* LICE */ = {
+			isa = PBXGroup;
+			children = (
+				4F1AF38120210A1F009AAE47 /* lice_arc.cpp */,
+				4F1AF38720210A1F009AAE47 /* lice_bezier.h */,
+				4F1AF38220210A1F009AAE47 /* lice_jpg.cpp */,
+				4F1AF38420210A1F009AAE47 /* lice_line.cpp */,
+				4F1AF38A20210A1F009AAE47 /* lice_png.cpp */,
+				4F1AF38320210A1F009AAE47 /* lice_text.cpp */,
+				4F1AF38820210A1F009AAE47 /* lice_text.h */,
+				4F1AF38620210A1F009AAE47 /* lice_textnew.cpp */,
+				4F1AF38520210A1F009AAE47 /* lice.cpp */,
+				4F1AF38920210A1F009AAE47 /* lice.h */,
+			);
+			name = LICE;
+			sourceTree = "<group>";
+		};
 		4F24EE751567A6A6006B889A /* AAX_SDK */ = {
 			isa = PBXGroup;
 			children = (
@@ -729,7 +730,7 @@
 				4F3907792013EC0400DDA490 /* BufferedAudioBus.hpp */,
 				4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */,
 				4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */,
-				4F3907772013EC0400DDA490 /* IPlugViewController.m */,
+				4F3907772013EC0400DDA490 /* IPlugViewController.mm */,
 				4F3907782013EC0400DDA490 /* IPlugViewController.xib */,
 			);
 			name = AUv3;
@@ -1028,14 +1029,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4F8D4BC513E97664004F7633 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4F8D4BCC13E97664004F7633 /* lice.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
@@ -1171,8 +1164,8 @@
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
+				4F1AF380202109E0009AAE47 /* LICE */,
 				4FD16CF713B6343B001D0217 /* SWELL */,
-				4F8D4BC413E97664004F7633 /* lice.xcodeproj */,
 				4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */,
 				4FF01719134E153A001447BA /* heapbuf.h */,
 				4FF016F4134E14E2001447BA /* mutex.h */,
@@ -1304,7 +1297,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4F8D4C2D13E977CD004F7633 /* PBXTargetDependency */,
 			);
 			name = VST2;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1323,7 +1315,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4F1B088E20143A0D00CE2770 /* PBXTargetDependency */,
 			);
 			name = AUv3;
 			productName = AUv3;
@@ -1345,7 +1336,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4F8D4C3A13E97859004F7633 /* PBXTargetDependency */,
 			);
 			name = AU;
 			productName = IPlugExampleAU;
@@ -1365,7 +1355,6 @@
 			);
 			dependencies = (
 				4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */,
-				4F9828F3140A9ED500F3FCC1 /* PBXTargetDependency */,
 			);
 			name = VST3;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -1385,7 +1374,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4FBF95671F3F5D4400A92E48 /* PBXTargetDependency */,
 				4F83C3741F3F59A10044D8B8 /* PBXTargetDependency */,
 			);
 			name = AAX;
@@ -1409,7 +1397,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4F678B6D13E984B200A6A9BB /* PBXTargetDependency */,
 				4F39076E2013EBA400DDA490 /* PBXTargetDependency */,
 			);
 			name = APP;
@@ -1466,10 +1453,6 @@
 					ProductGroup = 4F4AD1F21409A56A0068A6D4 /* Products */;
 					ProjectRef = 4F4AD1F11409A56A0068A6D4 /* base.xcodeproj */;
 				},
-				{
-					ProductGroup = 4F8D4BC513E97664004F7633 /* Products */;
-					ProjectRef = 4F8D4BC413E97664004F7633 /* lice.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -1504,13 +1487,6 @@
 			fileType = archive.ar;
 			path = libAAXLibrary.a;
 			remoteRef = 4F8B6722158B4EB2002FC25B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4F8D4BCC13E97664004F7633 /* lice.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = lice.a;
-			remoteRef = 4F8D4BCB13E97664004F7633 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1693,6 +1669,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F1AF39120210A2D009AAE47 /* lice_line.cpp in Sources */,
 				4F69BB692013C532002C8948 /* IGraphicsMac.m in Sources */,
 				4F3862F02014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4F69BB6B2013C532002C8948 /* IGraphicsMac_view.mm in Sources */,
@@ -1702,9 +1679,14 @@
 				4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
 				4FF142A31FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */,
+				4F1AF39420210A2D009AAE47 /* lice.cpp in Sources */,
 				4FF142901FD4A61E00A65575 /* IGraphics.cpp in Sources */,
+				4F1AF3AA20210A44009AAE47 /* lice_png.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4F1AF39320210A2D009AAE47 /* lice_textnew.cpp in Sources */,
+				4F1AF39220210A2D009AAE47 /* lice_text.cpp in Sources */,
 				4F78D9F313B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
+				4F1AF39020210A2D009AAE47 /* lice_arc.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1714,17 +1696,23 @@
 			files = (
 				4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */,
 				4F6D9DF12016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
-				4F3907802013EC1000DDA490 /* IPlugViewController.m in Sources */,
+				4F1AF3AE20210A47009AAE47 /* lice_png.cpp in Sources */,
+				4F1AF3A520210A31009AAE47 /* lice_line.cpp in Sources */,
+				4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */,
 				4F08481F20150FD600F9E881 /* IGraphicsMac.m in Sources */,
 				4F5E01DA20142D8000C4EDEA /* IPlugAUv3.mm in Sources */,
 				4F3862F42014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */,
+				4F1AF3A720210A31009AAE47 /* lice_textnew.cpp in Sources */,
 				4F1B0889201438D100CE2770 /* IGraphicsMac.mm in Sources */,
 				4F1B0886201438C600CE2770 /* IControl.cpp in Sources */,
 				4F1B0887201438C600CE2770 /* IControls.cpp in Sources */,
 				4F1B08822014387400CE2770 /* IPlugParameter.cpp in Sources */,
+				4F1AF3A820210A31009AAE47 /* lice.cpp in Sources */,
 				4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */,
+				4F1AF3A420210A31009AAE47 /* lice_arc.cpp in Sources */,
 				4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */,
+				4F1AF3A620210A31009AAE47 /* lice_text.cpp in Sources */,
 				4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1735,17 +1723,23 @@
 			files = (
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F6D9DEF2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
+				4F1AF3AC20210A46009AAE47 /* lice_png.cpp in Sources */,
+				4F1AF39B20210A2F009AAE47 /* lice_line.cpp in Sources */,
 				4F69BB6F2013C533002C8948 /* IGraphicsMac.m in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
 				4FF142A51FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4FA6B9581FF9C23800049441 /* IControls.cpp in Sources */,
 				4F69BB702013C533002C8948 /* IGraphicsMac.mm in Sources */,
+				4F1AF39D20210A2F009AAE47 /* lice_textnew.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4F3862F22014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4FF142921FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4F78DA0813B63CD90032E0F3 /* IPlugAU.cpp in Sources */,
+				4F1AF39E20210A2F009AAE47 /* lice.cpp in Sources */,
 				4F69BB712013C533002C8948 /* IGraphicsMac_view.mm in Sources */,
+				4F1AF39A20210A2F009AAE47 /* lice_arc.cpp in Sources */,
 				4F78DA0A13B63CD90032E0F3 /* IPlugAU_ViewFactory.mm in Sources */,
+				4F1AF39C20210A2F009AAE47 /* lice_text.cpp in Sources */,
 				4F296BDA1678E6C800C0F5C2 /* dfx-au-utilities.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1756,9 +1750,13 @@
 			files = (
 				4F3862F12014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
+				4F1AF39620210A2E009AAE47 /* lice_line.cpp in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */,
 				4F6D9DEE2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */,
+				4F1AF39820210A2E009AAE47 /* lice_textnew.cpp in Sources */,
+				4F1AF39520210A2E009AAE47 /* lice_arc.cpp in Sources */,
+				4F1AF39920210A2E009AAE47 /* lice.cpp in Sources */,
 				4F69BB6C2013C532002C8948 /* IGraphicsMac.m in Sources */,
 				4F9828C4140A9EB700F3FCC1 /* IPlugVST3.cpp in Sources */,
 				4F9828C5140A9EB700F3FCC1 /* memorystream.cpp in Sources */,
@@ -1779,6 +1777,8 @@
 				4F9828D1140A9EB700F3FCC1 /* vstpresetfile.cpp in Sources */,
 				4F9828D2140A9EB700F3FCC1 /* vstrepresentation.cpp in Sources */,
 				4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */,
+				4F1AF39720210A2E009AAE47 /* lice_text.cpp in Sources */,
+				4F1AF3AB20210A45009AAE47 /* lice_png.cpp in Sources */,
 				4FF142A41FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F9828D3140A9EB700F3FCC1 /* vstsinglecomponenteffect.cpp in Sources */,
 				4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */,
@@ -1794,8 +1794,11 @@
 				4F69BB742013C534002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4FB600191567CB0A0020189A /* swell-gdi.mm in Sources */,
 				4F69BB732013C534002C8948 /* IGraphicsMac.mm in Sources */,
+				4F1AF3A120210A30009AAE47 /* lice_text.cpp in Sources */,
 				4F6D9DF02016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
+				4F1AF3A020210A30009AAE47 /* lice_line.cpp in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugBase.cpp in Sources */,
+				4F1AF3A220210A30009AAE47 /* lice_textnew.cpp in Sources */,
 				4FF142931FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4FF142A61FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F69BB722013C534002C8948 /* IGraphicsMac.m in Sources */,
@@ -1806,6 +1809,9 @@
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4FB600271567CB0A0020189A /* IPlugAAX.cpp in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
+				4F1AF3AD20210A46009AAE47 /* lice_png.cpp in Sources */,
+				4F1AF3A320210A30009AAE47 /* lice.cpp in Sources */,
+				4F1AF39F20210A30009AAE47 /* lice_arc.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1825,6 +1831,7 @@
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
+				4F1AF38C20210A2D009AAE47 /* lice_line.cpp in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
 				4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */,
 				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
@@ -1832,12 +1839,17 @@
 				4FDA1DE62012711D0027C868 /* app_dialog.cpp in Sources */,
 				4F78D8C413B63A700032E0F3 /* RtAudio.cpp in Sources */,
 				4F78D8C513B63A700032E0F3 /* RtMidi.cpp in Sources */,
+				4F1AF38B20210A2D009AAE47 /* lice_arc.cpp in Sources */,
 				4F78D90A13B63BA50032E0F3 /* IPlugAPP.cpp in Sources */,
+				4F1AF38F20210A2D009AAE47 /* lice.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
 				4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */,
+				4F1AF3A920210A43009AAE47 /* lice_png.cpp in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4F1AF38D20210A2D009AAE47 /* lice_text.cpp in Sources */,
+				4F1AF38E20210A2D009AAE47 /* lice_textnew.cpp in Sources */,
 				4FF1428F1FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */,
 			);
@@ -1846,20 +1858,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4F1B088E20143A0D00CE2770 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = lice;
-			targetProxy = 4F1B088D20143A0D00CE2770 /* PBXContainerItemProxy */;
-		};
 		4F39076E2013EBA400DDA490 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4F39075F2013EBA300DDA490 /* AUv3 */;
 			targetProxy = 4F39076D2013EBA400DDA490 /* PBXContainerItemProxy */;
-		};
-		4F678B6D13E984B200A6A9BB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "lice_32&64_intel";
-			targetProxy = 4F678B6C13E984B200A6A9BB /* PBXContainerItemProxy */;
 		};
 		4F789ED016763E47009EF688 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1886,35 +1888,15 @@
 			name = AAXLibrary_libcpp;
 			targetProxy = 4F83C3731F3F59A10044D8B8 /* PBXContainerItemProxy */;
 		};
-		4F8D4C2D13E977CD004F7633 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "lice_32&64_intel";
-			targetProxy = 4F8D4C2C13E977CD004F7633 /* PBXContainerItemProxy */;
-		};
-		4F8D4C3A13E97859004F7633 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "lice_32&64_intel";
-			targetProxy = 4F8D4C3913E97859004F7633 /* PBXContainerItemProxy */;
-		};
 		4F9828AD140A9EB700F3FCC1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = base;
 			targetProxy = 4F9828AE140A9EB700F3FCC1 /* PBXContainerItemProxy */;
 		};
-		4F9828F3140A9ED500F3FCC1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "lice_32&64_intel";
-			targetProxy = 4F9828F2140A9ED500F3FCC1 /* PBXContainerItemProxy */;
-		};
 		4F9828F8140A9F0200F3FCC1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4F9828AA140A9EB700F3FCC1 /* VST3 */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
-		};
-		4FBF95671F3F5D4400A92E48 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = lice;
-			targetProxy = 4FBF95661F3F5D4400A92E48 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
