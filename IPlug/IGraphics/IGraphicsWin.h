@@ -24,7 +24,7 @@
 /** IGraphics platform class for Windows  
 *   @ingroup PlatformClasses
 */
-class IGraphicsWin : public IGRAPHICS_DRAW_CLASS
+class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps);

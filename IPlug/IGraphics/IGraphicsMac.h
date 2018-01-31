@@ -20,7 +20,7 @@
 /** IGraphics platform class for macOS  
 *   @ingroup PlatformClasses
 */
-class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
+class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps);

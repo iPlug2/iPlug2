@@ -10,7 +10,7 @@
 class IGraphicsWeb
 {
 public:
-  IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps);
+  IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)  final;
   virtual ~IGraphicsMac();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
