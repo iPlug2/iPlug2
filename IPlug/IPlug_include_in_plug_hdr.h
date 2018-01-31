@@ -9,7 +9,7 @@
 
 #include <cstdio>
 #include "IPlugPlatform.h"
-#include "config.h" // This is your plugin's config.h
+#include "config.h"
 
 #ifdef VST_API
   #include "IPlugVST.h"
