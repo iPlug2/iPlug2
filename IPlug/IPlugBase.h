@@ -191,6 +191,9 @@ public:
   bool DoesMIDI() { return mDoesMIDI; }
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
 
+  int NParamGroups() { return mParamGroups.GetSize(); }
+  const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
+  int AddParamGroup(const char* name) { mParamGroups.Add(name); return NParamGroups(); }
 protected:
   // ----------------------------------------
   // Useful stuff for your plugin class to call, implemented here or in the API class, or partly in both.
@@ -365,6 +368,7 @@ private:
     WDL_String mLabel;
   };
 
+  WDL_PtrList<const char> mParamGroups;
 protected:
   bool mStateChunks;
   /** \c True if the plug-in is an instrument */
@@ -386,7 +390,6 @@ protected:
   int mBlockSize = 0;
   int mTailSize = 0;
   NChanDelayLine<double>* mLatencyDelay = nullptr;
-  WDL_PtrList<const char> mParamGroups;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;
   WDL_TypedBuf<double*> mInData, mOutData;

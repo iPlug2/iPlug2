@@ -202,9 +202,9 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
       if (CSTR_NOT_EMPTY(paramGroupName))
       {        
-        for(int j = 0; j < mParamGroups.GetSize(); j++)
+        for(int j = 0; j < NParamGroups(); j++)
         {
-          if(strcmp(paramGroupName, mParamGroups.Get(j)) == 0)
+          if(strcmp(paramGroupName, GetParamGroupName(j)) == 0)
           {
             unitID = j+1;
           }
@@ -212,8 +212,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
         
         if (unitID == kRootUnitId) // new unit, nothing found, so add it
         {
-          mParamGroups.Add(paramGroupName);
-          unitID = mParamGroups.GetSize();
+          unitID = AddParamGroup(paramGroupName;
         }
       }
       

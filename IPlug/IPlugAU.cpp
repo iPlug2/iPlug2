@@ -595,19 +595,14 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           int clumpID = 0;
           
-          for(int i = 0; i< mParamGroups.GetSize(); i++)
+          for(int i = 0; i< NParamGroups(); i++)
           {
-            if(strcmp(paramGroupName, mParamGroups.Get(i)) == 0)
-            {
+            if(strcmp(paramGroupName, GetParamGroupName(i)) == 0)
               clumpID = i+1;
-            }
           }
           
           if (clumpID == 0) // new clump
-          {
-            mParamGroups.Add(paramGroupName);
-            clumpID = mParamGroups.GetSize();
-          }
+            clumpID = AddParamGroup(paramGroupName);
           
           pInfo->flags = pInfo->flags | kAudioUnitParameterFlag_HasClump;
           pInfo->clumpID = clumpID;
@@ -925,7 +920,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         if (clumpId < 1)
           return kAudioUnitErr_PropertyNotInUse;
         
-        parameterNameInfo->outName = CFStringCreateWithCString(0, mParamGroups.Get(clumpId-1), kCFStringEncodingUTF8);
+        parameterNameInfo->outName = CFStringCreateWithCString(0, GetParamGroupName(clumpId-1), kCFStringEncodingUTF8);
       }
       return noErr;
     }
