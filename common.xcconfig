@@ -64,20 +64,26 @@ AAX_SDK = $(SRCROOT)/../../../AAX_SDK
 CA_SDK = $(SRCROOT)/../../../CA_SDK
 
 //Linker paths for static libraries
-PKG_LIB_PATH = $(PKG_MAN_PATH)/lib
+//PKG_LIB_PATH = $(PKG_MAN_PATH)/lib
 
-IGRAPHICS_LIB_PATHS = $(PKG_LIB_PATH)
+//IGRAPHICS_LIB_PATHS = $(PKG_LIB_PATH) // homebrew
+IGRAPHICS_LIB_PATHS = $(SRCROOT)/../../../Libraries
 
-//Static library Paths - on macOS we need to supply an absolute path to the static library, otherwise it will pick up a dynamic library with the same name
-LIB_CAIRO = $(PKG_LIB_PATH)/libcairo.a
-LIB_FT = $(PKG_LIB_PATH)/libfreetype.a
-LIB_PIXMAN = $(PKG_LIB_PATH)/libpixman-1.a
-LIB_PNG = $(PKG_LIB_PATH)/libpng.a
-LIB_FC = $(PKG_LIB_PATH)/libfontconfig.a
+////Static library Paths - on macOS we need to supply an absolute path to the static library, otherwise it will pick up a dynamic library with the same name
+LIB_CAIRO = $(IGRAPHICS_LIB_PATHS)/libcairo.a
+LIB_FT = $(IGRAPHICS_LIB_PATHS)/libfreetype.a
+LIB_PIXMAN = $(IGRAPHICS_LIB_PATHS)/libpixman-1.a
+LIB_PNG = $(IGRAPHICS_LIB_PATHS)/libpng.a
+LIB_FC = $(IGRAPHICS_LIB_PATHS)/libfontconfig.a
+LIB_Z = $(IGRAPHICS_LIB_PATHS)/libz.a
+LIB_BZ = $(IGRAPHICS_LIB_PATHS)/libbz2.a
+LIB_EX = $(IGRAPHICS_LIB_PATHS)/libexpat.a
+
 //the following 3 libraries are "keg only" in homebrew so are not installed in /usr/local/lib
-LIB_Z = /usr/local/opt/zlib/lib/libz.a
-LIB_BZ = /usr/local/opt/bzip2/lib/libbz2.a
-LIB_EX = /usr/local/opt/expat/lib/libexpat.a
+//LIB_Z = /usr/local/opt/zlib/lib/libz.a
+//LIB_BZ = /usr/local/opt/bzip2/lib/libbz2.a
+//LIB_EX = /usr/local/opt/expat/lib/libexpat.a
+
 
 // you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
 IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_FC) $(LIB_Z) $(LIB_BZ) $(LIB_EX)
