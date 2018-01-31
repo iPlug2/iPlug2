@@ -64,9 +64,8 @@ def main():
   PLUG_COPYRIGHT = ""
   PLUG_UID = ""
   PLUG_MFR_UID = ""
-  PLUG_FACTORY = ""
-  PLUG_ENTRY = ""
-  PLUG_VIEW_ENTRY = ""
+  AUV2_FACTORY = ""
+  AUV2_ENTRY = ""
   PLUG_IS_INSTRUMENT = 0
   PLUG_DOES_MIDI = 0
   PLUG_HAS_UI = 0
@@ -109,15 +108,12 @@ def main():
     if "#define PLUG_MFR_ID " in line:
       PLUG_MFR_UID = string.lstrip(line, "#define PLUG_MFR_ID ")
 
-    if "#define PLUG_ENTRY " in line:
-      PLUG_ENTRY = string.lstrip(line, "#define PLUG_ENTRY ")
+    if "#define AUV2_ENTRY " in line:
+      AUV2_ENTRY = string.lstrip(line, "#define AUV2_ENTRY ")
      
-    if "#define PLUG_FACTORY " in line:
-      PLUG_FACTORY = string.lstrip(line, "#define PLUG_FACTORY ")
-    
-    if "#define PLUG_VIEW_ENTRY " in line:
-      PLUG_VIEW_ENTRY = string.lstrip(line, "#define PLUG_VIEW_ENTRY")
-      
+    if "#define AUV2_FACTORY " in line:
+      AUV2_FACTORY = string.lstrip(line, "#define AUV2_FACTORY ")
+
     if "#define PLUG_IS_INSTRUMENT " in line:
       PLUG_IS_INSTRUMENT = int(string.lstrip(line, "#define PLUG_IS_INSTRUMENT "), 16)
     
@@ -141,9 +137,8 @@ def main():
   PLUG_COPYRIGHT = PLUG_COPYRIGHT[1:-2]
   PLUG_MFR_UID = PLUG_MFR_UID[1:-2]
   PLUG_UID = PLUG_UID[1:-2]
-  PLUG_FACTORY = PLUG_FACTORY[0:-1]
-  PLUG_ENTRY = PLUG_ENTRY[0:-1]
-  PLUG_VIEW_ENTRY = PLUG_VIEW_ENTRY[0:-1]
+  AUV2_FACTORY = AUV2_FACTORY[0:-1]
+  AUV2_ENTRY = AUV2_ENTRY[0:-1]
 
   CFBundleGetInfoString = BUNDLE_NAME + " v" + FULLVERSIONSTR + " " + PLUG_COPYRIGHT
   CFBundleVersion = FULLVERSIONSTR
@@ -234,7 +229,7 @@ def main():
   au['AudioComponents'][0]['resourceUsage'] = {}
 
   au['AudioComponents'][0]['description'] = PLUG_NAME_STR
-  au['AudioComponents'][0]['factoryFunction'] = PLUG_FACTORY
+  au['AudioComponents'][0]['factoryFunction'] = AUV2_FACTORY
   au['AudioComponents'][0]['manufacturer'] = PLUG_MFR_UID
   au['AudioComponents'][0]['name'] = PLUG_MFR_NAME_STR + ": " + PLUG_NAME_STR
   au['AudioComponents'][0]['subtype'] = PLUG_UID
@@ -315,9 +310,9 @@ def main():
 #  print "Processing .exp symbol export file for audiounit v2 entry points..."
 
 #  expfile = open(BUNDLE_NAME + ".exp", "w")
-#  expfile.write("_" + PLUG_FACTORY + "\n")
+#  expfile.write("_" + AUV2_FACTORY + "\n")
 #  #if !AU_NO_COMPONENT_ENTRY
-#  expfile.write("_" + PLUG_ENTRY + "\n")
+#  expfile.write("_" + AUV2_ENTRY + "\n")
 #  expfile.close()
 
 if __name__ == '__main__':

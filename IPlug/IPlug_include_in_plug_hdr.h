@@ -43,24 +43,24 @@
 #endif
 
 #ifdef OS_WIN
-#ifndef NO_IGRAPHICS
-  #include "IGraphicsWin.h"
-#endif
-  #ifdef __MINGW32__
-    #define EXPORT __attribute__ ((visibility("default")))
-  #else
-    #define EXPORT __declspec(dllexport)
+  #ifndef NO_IGRAPHICS
+    #include "IGraphicsWin.h"
   #endif
+  #define EXPORT __declspec(dllexport)
+
 #elif defined OS_MAC
-#ifndef NO_IGRAPHICS
-  #include "IGraphicsMac.h"
-#endif
+  #ifndef NO_IGRAPHICS
+    #include "IGraphicsMac.h"
+  #endif
   #define EXPORT __attribute__ ((visibility("default")))
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
+
 #elif defined OS_WEB
+
 #ifndef NO_IGRAPHICS
   #include "IGraphicsWeb.h"
 #endif
+
 #elif defined OS_LINUX
   //TODO
 #endif

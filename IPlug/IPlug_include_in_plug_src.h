@@ -236,14 +236,14 @@ extern "C"
   {
 #ifndef AU_NO_COMPONENT_ENTRY
     //Component Manager
-    EXPORT ComponentResult PLUG_ENTRY(ComponentParameters* pParams, void* pPlug)
+    EXPORT ComponentResult AUV2_ENTRY(ComponentParameters* pParams, void* pPlug)
     {
       return IPlugAU::IPlugAUEntry(pParams, pPlug);
     }
 #endif
 
     //>10.7 SDK AUPlugin
-    EXPORT void* PLUG_FACTORY(const AudioComponentDescription* pInDesc)
+    EXPORT void* AUV2_FACTORY(const AudioComponentDescription* pInDesc)
     {
       return IPlugAUFactory::Factory(pInDesc);
     }

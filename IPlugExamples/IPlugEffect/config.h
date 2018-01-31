@@ -22,11 +22,9 @@
 #define PLUG_HAS_UI 1
 
 #define PLUG_CLASS_NAME IPlugEffect
-#define PLUG_ENTRY IPlugEffect_Entry
-#define PLUG_VIEW_ENTRY IPlugEffect_ViewEntry
-#define PLUG_FACTORY IPlugEffect_Factory
-#define PLUG_ENTRY_STR "IPlugEffect_Entry"
-#define PLUG_VIEW_ENTRY_STR "IPlugEffect_ViewEntry"
+#define AUV2_ENTRY IPlugEffect_Entry
+#define AUV2_ENTRY_STR "IPlugEffect_Entry"
+#define AUV2_FACTORY IPlugEffect_Factory
 #define VIEW_CLASS IPlugEffect_View
 #define VIEW_CLASS_STR "IPlugEffect_View"
 
