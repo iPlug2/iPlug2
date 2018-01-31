@@ -25,7 +25,7 @@ int GetSystemVersion()
     }
     else 
     {
-      int32_t a = 0x1040;
+      SInt32 a = 0x1040;
       Gestalt(gestaltSystemVersion,&a);
       v=a;
     }
