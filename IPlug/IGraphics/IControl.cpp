@@ -376,7 +376,7 @@ void IDirBrowseControlBase::SetUpMenu()
 
   if (mPaths.GetSize() == 1)
   {
-    ScanDirectory(mPaths.Get(0)->Get(), &mMainMenu);
+    ScanDirectory(mPaths.Get(0)->Get(), mMainMenu);
   }
   else
   {
@@ -384,9 +384,7 @@ void IDirBrowseControlBase::SetUpMenu()
     {
       IPopupMenu* pNewMenu = new IPopupMenu();
       mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
-
-      IPopupMenu* pMenuToAddTo = pNewMenu;
-      ScanDirectory(mPaths.Get(p)->Get(), pMenuToAddTo);
+      ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
     }
   }
 }
@@ -402,10 +400,10 @@ void IDirBrowseControlBase::GetSelecteItemPath(WDL_String& path)
     path.Set("");
 }
 
-void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo)
+void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
   WDL_DirScan d;
-  IPopupMenu* pParentDirMenu = pMenuToAddTo;
+  IPopupMenu& parentDirMenu = menuToAddTo;
 
   if (!d.First(path))
   {
@@ -419,8 +417,8 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu* pMenuToA
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
           IPopupMenu* pNewMenu = new IPopupMenu();
-          pMenuToAddTo->AddItem(d.GetCurrentFN(), pNewMenu);
-          ScanDirectory(subdir.Get(), pNewMenu);
+          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu);
+          ScanDirectory(subdir.Get(), *pNewMenu);
         }
         else
         {
@@ -428,7 +426,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu* pMenuToA
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry = WDL_String(f, (int) (a - f));
-            pParentDirMenu->AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
+            parentDirMenu.AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
             mFiles.Add(pFullPath);
@@ -437,6 +435,6 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu* pMenuToA
       }
     } while (!d.Next());
 
-    pMenuToAddTo = pParentDirMenu;
+    menuToAddTo = parentDirMenu;
   }
 }

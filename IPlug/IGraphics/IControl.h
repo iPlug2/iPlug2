@@ -389,7 +389,7 @@ public:
   void GetSelecteItemPath(WDL_String& path);
   
 private:
-  void ScanDirectory(const char* path, IPopupMenu* pMenuToAddTo);
+  void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
   
 protected:
   int mSelectedIndex = -1;
