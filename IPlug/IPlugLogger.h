@@ -415,6 +415,7 @@
 
   #if defined AU_API
   #include <AudioUnit/AudioUnitProperties.h>
+  #include <CoreServices/CoreServices.h>
   static const char* AUSelectStr(int select)
   {
     switch (select)
@@ -455,12 +456,6 @@
         return "kAudioUnitResetSelect";
       case kComponentCanDoSelect:
         return "kComponentCanDoSelect";
-      case kAudioUnitCarbonViewRange:
-        return "kAudioUnitCarbonViewRange";
-      case kAudioUnitCarbonViewCreateSelect:
-        return "kAudioUnitCarbonViewCreateSelect";
-      case kAudioUnitCarbonViewSetEventListenerSelect:
-        return "kAudioUnitCarbonViewSetEventListenerSelect";
       case kAudioUnitComplexRenderSelect:
         return "kAudioUnitComplexRenderSelect";
       case kAudioUnitProcessSelect:
