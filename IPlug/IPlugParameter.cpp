@@ -115,7 +115,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
 
     if (CSTR_NOT_EMPTY(displayText))
     {
-      str.Set(displayText, MAX_PARAM_NAME_LEN);
+      str.Set(displayText, MAX_PARAM_DISPLAY_LEN);
       return;
     }
   }
@@ -127,17 +127,17 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
 
   if (mDisplayPrecision == 0)
   {
-    str.SetFormatted(MAX_PARAM_NAME_LEN, "%d", int(displayValue));
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(displayValue));
   }
   else if(mSignDisplay)
   {
     char fmt[16];
     sprintf(fmt, "%%+.%df", mDisplayPrecision);
-    str.SetFormatted(MAX_PARAM_NAME_LEN, fmt, displayValue);
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, fmt, displayValue);
   }
   else
   {
-    str.SetFormatted(MAX_PARAM_NAME_LEN, "%.*f", mDisplayPrecision, displayValue);
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%.*f", mDisplayPrecision, displayValue);
   }
 }
 
