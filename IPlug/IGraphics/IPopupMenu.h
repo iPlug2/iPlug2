@@ -121,13 +121,13 @@ public:
 
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
   int GetChosenItemIdx() { return mChosenItemIdx; }
-  int GetNItems() { return mMenuItems.GetSize(); }
+  int NItems() { return mMenuItems.GetSize(); }
   int GetPrefix() { return mPrefix; }
   bool GetCanMultiCheck() { return mCanMultiCheck; }
 
   Item* GetItem(int index)
   {
-    int nItems = GetNItems();
+    int nItems = NItems();
     
     if (index >= 0 && index < nItems)
     {

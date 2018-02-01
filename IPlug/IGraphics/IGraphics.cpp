@@ -874,7 +874,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
   {
     pControl->CreateContextMenu(contextMenu);
     
-    if(!contextMenu.GetNItems())
+    if(!contextMenu.NItems())
       return;
     
 #ifdef VST3_API
@@ -897,7 +897,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     {
       Steinberg::Vst::IContextMenu::Item item = {0};
       
-      for (int i = 0; i < contextMenu.GetNItems(); i++)
+      for (int i = 0; i < contextMenu.NItems(); i++)
       {
         Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
         item.tag = i;

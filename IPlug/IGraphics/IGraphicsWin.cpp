@@ -735,7 +735,7 @@ void IGraphicsWin::CloseWindow()
 IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu)
 {
   long oldIDx = offsetIdx;
-  offsetIdx += baseMenu.GetNItems();
+  offsetIdx += baseMenu.NItems();
 
   if (idx < offsetIdx)
   {
@@ -745,7 +745,7 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
 
   IPopupMenu* menu = 0;
 
-  for(int i = 0; i< baseMenu.GetNItems(); i++)
+  for(int i = 0; i< baseMenu.NItems(); i++)
   {
     IPopupMenu::Item* menuItem = baseMenu.GetItem(i);
     if(menuItem->GetSubmenu())
@@ -766,7 +766,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 
   int flags = 0;
   long offset = *offsetIdx;
-  long nItems = menu.GetNItems();
+  long nItems = menu.NItems();
   *offsetIdx += nItems;
   long inc = 0;
 

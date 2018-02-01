@@ -25,7 +25,7 @@
 
   [self setAutoenablesItems:NO];
 
-  int numItems = pMenu->GetNItems();
+  int numItems = pMenu->NItems();
 
   for (int i = 0; i < numItems; ++i)
   {
