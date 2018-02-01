@@ -11,6 +11,7 @@
 #include "IPlugPlatform.h"
 #include "config.h"
 
+#define API_EXT2
 #ifdef VST_API
   #include "IPlugVST.h"
   typedef IPlugVST IPlug;
@@ -26,7 +27,9 @@
 #elif defined AUv3_API
   #include "IPlugAUv3.h"
   typedef IPlugAUv3 IPlug;
-  #define API_EXT "appex"
+  #define API_EXT "app"
+  #undef API_EXT2
+  #define API_EXT2 ".AUv3"
 #elif defined AAX_API
   #include "IPlugAAX.h"
   typedef IPlugAAX IPlug;
@@ -53,7 +56,7 @@
     #include "IGraphicsMac.h"
   #endif
   #define EXPORT __attribute__ ((visibility("default")))
-  #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME
+  #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
 
 #elif defined OS_WEB
 
