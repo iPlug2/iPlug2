@@ -75,8 +75,9 @@ void IPlugBaseGraphics::SetParameterInUIFromAPI(int paramIdx, double value, bool
 
 void IPlugBaseGraphics::PrintDebugInfo()
 {
-  assert(mGraphics); // must call after AttachGraphics()
-  
+  if(!mGraphics)
+    return IPlugBase::PrintDebugInfo();
+    
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
   DBGMSG("%s\n%s Graphics %i FPS\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
