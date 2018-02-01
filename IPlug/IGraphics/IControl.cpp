@@ -48,7 +48,7 @@ void IControl::SetDirty(bool pushParamToPlug)
     if (mValDisplayControl) 
     {
       WDL_String display;
-      pParam->GetDisplayForHost(display, true, true);
+      pParam->GetDisplayForHost(display);
       ((ITextControl*)mValDisplayControl)->SetTextFromPlug(display.Get());
     }
     
