@@ -367,7 +367,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               break;
             }
             case kPresetParam:
-              RestorePreset(FromNormalizedParam(value, 0, NPresets(), 1.));
+              RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.)));
               break;
               //TODO: pitch bend, modwheel etc
             default:
