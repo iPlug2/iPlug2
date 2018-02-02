@@ -86,7 +86,7 @@ public:
 
   /** @return Parameter index */
   int ParamIdx() { return mParamIdx; }
-  IParam* GetParam() { return mPlug.GetParam(mParamIdx); }
+  IParam* GetParam() { return (mParamIdx >= 0) ? mPlug.GetParam(mParamIdx) : nullptr; }
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
@@ -143,7 +143,6 @@ public:
   // IPlugBase::OnIdle which is called from the audio processing thread.
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
-  
   
   /** A struct that contains a parameter index and normalized value */
    struct AuxParam 
