@@ -24,12 +24,16 @@ struct IPlugConfig;
 /** The lowest level base class of an IPlug plug-in. No UI framework code included. */
 class IPlugBase
 {
+
 public:
+
+  enum ParamSource { kReset, kAutomation, kPresetRecall, kGUI };
+
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
   virtual void OnReset() { TRACE; }
-  virtual void OnParamChange(int paramIdx) {}
+  virtual void OnParamChange(int paramIdx, ParamSource source) {}
 
   /** Default passthrough.
    * Inputs and outputs are two-dimensional arrays [nChannel][nSample]
@@ -247,7 +251,7 @@ protected:
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
 
-  void OnParamReset();  // Calls OnParamChange(each param) + OnReset().
+  void OnParamReset(ParamSource source);  // Calls OnParamChange(each param) + OnReset().
 
   void PruneUninitializedPresets();
 

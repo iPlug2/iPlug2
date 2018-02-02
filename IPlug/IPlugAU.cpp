@@ -1486,7 +1486,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
   _this->SetParameterInUIFromAPI(paramID, value, false);
-  _this->OnParamChange(paramID);
+  _this->OnParamChange(paramID, kAutomation);
   return noErr;
 }
 
@@ -2151,7 +2151,7 @@ OSStatus IPlugAU::DoInitialize(IPlugAU *_this)
     return badComponentSelector;
   }
   _this->mActive = true;
-  _this->OnParamReset();
+  _this->OnParamReset(kReset);
   _this->OnActivate(true);
   
   return noErr;

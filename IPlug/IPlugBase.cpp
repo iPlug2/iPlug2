@@ -468,14 +468,14 @@ void IPlugBase::SetParameterFromUI(int idx, double normalizedValue)
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
   GetParam(idx)->SetNormalized(normalizedValue);
   InformHostOfParamChange(idx, normalizedValue);
-  OnParamChange(idx);
+  OnParamChange(idx, kGUI);
 }
 
-void IPlugBase::OnParamReset()
+void IPlugBase::OnParamReset(ParamSource source)
 {
   for (int i = 0; i < mParams.GetSize(); ++i)
   {
-    OnParamChange(i);
+    OnParamChange(i, source);
   }
 }
 
@@ -807,7 +807,7 @@ int IPlugBase::UnserializeParams(IByteChunk& chunk, int startPos)
     pParam->Set(v);
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
   }
-  OnParamReset();
+  OnParamReset(kPresetRecall);
   return pos;
 }
 

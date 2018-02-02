@@ -954,7 +954,7 @@ private:
 //      //mHighlighted = sliderTest;
 //      mSteps[sliderTest] = 1. - BOUNDED(yValue, 0., 1.);
 //      mSliderThatChanged = sliderTest;
-//      mPlug->OnParamChange(mParamIdx); // TODO: rethink this WRT threading
+//      mPlug->OnParamChange(mParamIdx, kGUI); // TODO: rethink this WRT threading
 //    }
 //    else
 //    {

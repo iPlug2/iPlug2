@@ -336,7 +336,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     case effOpen:
     {
       _this->HostSpecificInit();
-      _this->OnParamReset();
+      _this->OnParamReset(kReset);
       return 0;
     }
     case effClose:
@@ -415,7 +415,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           const double v = VSTString2Parameter(pParam, (char*)ptr);
           pParam->Set(v);
           _this->SetParameterInUIFromAPI(idx, v, false);
-          _this->OnParamChange(idx);
+          _this->OnParamChange(idx, kAutomation);
         }
         return 1;
       }
@@ -924,6 +924,6 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
   {
     _this->GetParam(idx)->SetNormalized(value);
     _this->SetParameterInUIFromAPI(idx, value, true);
-    _this->OnParamChange(idx);
+    _this->OnParamChange(idx, kAutomation);
   }
 }
