@@ -83,7 +83,7 @@ void IParam::SetNormalized(double normalizedValue)
   
   if (mType != kTypeDouble)
   {
-    mValue = floor(0.5 + mValue / mStep) * mStep;
+    mValue = round(mValue / mStep) * mStep;
   }
   
   mValue = std::min(mValue, mMax);
@@ -130,7 +130,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
   
   if (mDisplayPrecision == 0)
   {
-    sprintf(rDisplay, "%d", int(displayValue));
+    sprintf(rDisplay, "%d", int(round(displayValue)));
   }
   else if (mSignDisplay && displayValue)
   {
