@@ -37,8 +37,11 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
                             kAudioUnitScope_Global, 0, pointers, &propertySize) == noErr)
   {
     mPlug = (IPlugBase*) pointers[0];
-    if (mPlug) {
-      if (mPlug->GetHasUI()) {
+    
+    if (mPlug)
+    {
+      if (mPlug->GetHasUI())
+      {
         NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);
         mPlug->OnGUIOpen();
         return pView;
