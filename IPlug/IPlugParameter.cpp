@@ -128,12 +128,12 @@ void IParam::GetDisplayForHost(double value, bool normalized, char* rDisplay, bo
   {
     sprintf(rDisplay, "%d", int(displayValue));
   }
-//   else if(mSignDisplay)
-//   {
-//     char fmt[16];
-//     sprintf(fmt, "%%+.%df", mDisplayPrecision);
-//     sprintf(rDisplay, fmt, displayValue);
-//   }
+  else if (mSignDisplay && displayValue)
+  {
+    char fmt[16];
+    sprintf(fmt, "%%+.%df", mDisplayPrecision);
+    sprintf(rDisplay, fmt, displayValue);
+  }
   else
   {
     sprintf(rDisplay, "%.*f", mDisplayPrecision, displayValue);
