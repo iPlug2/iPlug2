@@ -21,20 +21,27 @@
 
 #include "IPlugUtilities.h"
 
-#if defined OS_WIN
-  void DBGMSG(const char *format, ...);
-  #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-#elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) 
-  #define SYS_THREAD_ID (intptr_t) pthread_self()
-  #define DBGMSG(...) printf(__VA_ARGS__)
+#ifdef NDEBUG
+  #define DBGMSG(...)
 #else
-  #error "No OS defined!"
+  #if defined OS_WIN
+    void DBGMSG(const char *format, ...);
+  #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+    #define DBGMSG(...) printf(__VA_ARGS__)
+  #endif
 #endif
 
 #if defined TRACER_BUILD
     #define TRACE Trace(TRACELOC, "");
     //#define TRACE_PROCESS Trace(TRACELOC, ""); // uncomment this to trace render callback methods
     #define TRACE_PROCESS // (and comment out this)
+
+    #if defined OS_WIN
+      #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
+    #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+      #define SYS_THREAD_ID (intptr_t) pthread_self()
+    #endif
+
   #else
     #define TRACE
     #define TRACE_PROCESS
