@@ -136,6 +136,19 @@ public:
   /** @return \c True if the plugin is currently bypassed */
   bool GetBypassed() const { return mBypassed; }
 
+  /**
+   Static method to parse the config.h channel i/o string.
+
+   @param IOStr Space separated cstring list of i/o configurations for this plug-in in the format ninchans-noutchans. A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character. For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string of "1.1-1". A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
+   @param channelIOList A list of pointers to ChannelIO structs, where we will store here
+   @param totalNInChans The total number of input channels across all buses will be stored here
+   @param totalNOutChans The total number of output channels across all buses will be stored here
+   @param totalNInBuses The total number of input buses across all channel io configs will be stored here
+   @param totalNOutBuses The total number of output buses across all channel io configs will be stored here
+   @return The number of space separated channel io configs that have been detected in IOStr
+   */
+  static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
+  
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
@@ -185,8 +198,8 @@ public:
 
   void EnsureDefaultPreset();
   
-  bool HasSidechainInput() { return mNSidechainChannels > 0; }
-  int NSidechainChannels() { return mNSidechainChannels; }
+  bool HasSidechainInput() { return mMaxNInBuses > 1; }
+  int NSidechainChannels() { return 1; } // TODO: this needs to be more flexible, based on channel i/o
   bool IsInstrument() { return mIsInstrument; }
   bool DoesMIDI() { return mDoesMIDI; }
   bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
@@ -383,12 +396,11 @@ protected:
   bool mBypassed = false;
   /** \c True if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
-  /** \c > 0 if the plug-in has a side-chain input bus, with N channels */
-  int mNSidechainChannels = 0;
   int mCurrentPresetIdx = 0;
   double mSampleRate  = DEFAULT_SAMPLE_RATE;
   int mBlockSize = 0;
   int mTailSize = 0;
+  int mMaxNInBuses, mMaxNNOutBuses;
   NChanDelayLine<double>* mLatencyDelay = nullptr;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;

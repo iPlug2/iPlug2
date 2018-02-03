@@ -16,7 +16,6 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mStateChunks(c.plugDoesChunks)
   , mIsInstrument(c.plugIsInstrument)
   , mDoesMIDI(c.plugDoesMidi)
-  , mNSidechainChannels(c.plugScChans)
   , mEffectName(c.effectName, MAX_EFFECT_NAME_LEN)
   , mProductName(c.productName, MAX_EFFECT_NAME_LEN)
   , mMfrName(c.mfrName, MAX_EFFECT_NAME_LEN)
@@ -24,35 +23,22 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 {
   Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
 
-  for (int i = 0; i < c.nParams; ++i) mParams.Add(new IParam());
-  for (int i = 0; i < c.nPresets; ++i) mPresets.Add(new IPreset());
+  for (int i = 0; i < c.nParams; ++i)
+    mParams.Add(new IParam());
+  
+  for (int i = 0; i < c.nPresets; ++i)
+    mPresets.Add(new IPreset());
+  
+  int totalNInChans, totalNOutChans;
 
-  int nInputs = 0, nOutputs = 0;
+  ParseChannelIOStr(c.channelIOStr, mChannelIO, totalNInChans, totalNOutChans, mMaxNInBuses, mMaxNNOutBuses);
 
-  while (c.channelIOStr)
-  {
-    int nIn = 0, nOut = 0;
-#ifndef NDEBUG
-    bool channelIOStrValid = sscanf(c.channelIOStr, "%d-%d", &nIn, &nOut) == 2;
-    assert(channelIOStrValid);
-#else
-    sscanf(c.channelIOStr, "%d-%d", &nIn, &nOut);
-#endif
-    nInputs = std::max(nInputs, nIn);
-    nOutputs = std::max(nOutputs, nOut);
-    mChannelIO.Add(new ChannelIO(nIn, nOut));
-    c.channelIOStr = strstr(c.channelIOStr, " ");
-    
-    if (c.channelIOStr)
-      ++c.channelIOStr;
-  }
-
-  mInData.Resize(nInputs);
-  mOutData.Resize(nOutputs);
+  mInData.Resize(totalNInChans);
+  mOutData.Resize(totalNOutChans);
   
   double** ppInData = mInData.Get();
 
-  for (int i = 0; i < nInputs; ++i, ++ppInData)
+  for (int i = 0; i < totalNInChans; ++i, ++ppInData)
   {
     InChannel* pInChannel = new InChannel;
     pInChannel->mConnected = false;
@@ -62,7 +48,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 
   double** ppOutData = mOutData.Get();
 
-  for (int i = 0; i < nOutputs; ++i, ++ppOutData)
+  for (int i = 0; i < totalNOutChans; ++i, ++ppOutData)
   {
     OutChannel* pOutChannel = new OutChannel;
     pOutChannel->mConnected = false;
@@ -114,7 +100,7 @@ bool IPlugBase::LegalIO(int nIn, int nOut)
   for (i = 0; i < n && !legal; ++i)
   {
     ChannelIO* pIO = mChannelIO.Get(i);
-    legal = ((nIn < 0 || nIn == pIO->mIn) && (nOut < 0 || nOut == pIO->mOut));
+    legal = ((nIn < 0 || nIn == pIO->GetTotalNInputChannels()) && (nOut < 0 || nOut == pIO->GetTotalNOutputChannels()));
   }
   
   Trace(TRACELOC, "%d:%d:%s", nIn, nOut, (legal ? "legal" : "illegal"));
@@ -277,8 +263,8 @@ void IPlugBase::GetChannelIO(int optionIdx, int& numInputs, int& numOutputs)
 {
   ChannelIO* pChannelIO = mChannelIO.Get(optionIdx);
   
-  numInputs = pChannelIO->mIn;
-  numOutputs = pChannelIO->mOut;
+  numInputs = pChannelIO->GetTotalNInputChannels();
+  numOutputs = pChannelIO->GetTotalNOutputChannels();
 }
 
 bool IPlugBase::IsInChannelConnected(int chIdx) const
@@ -1414,4 +1400,113 @@ void IPlugBase::PrintDebugInfo()
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
   DBGMSG("%s\n NO_IGRAPHICS\n", buildInfo.Get());
+}
+
+//static
+int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
+{
+  totalNInChans = 0; totalNOutChans = 0;
+  totalNInBuses = 0; totalNOutBuses = 0;
+  
+  char* pChannelIOStr = strdup(IOStr);
+  
+  int IOConfigIndex = 0;
+  
+  char* pIOStrEnd;
+  char* pIOStr = strtok_r(pChannelIOStr, " ", &pIOStrEnd); // a single IO string
+  
+  // iterate through the space separated IO configs
+  while (pIOStr != NULL)
+  {
+    ChannelIO* pConfig = new ChannelIO();
+    
+    int NInChans = 0, NOutChans = 0;
+    int NInBuses = 0, NOutBuses = 0;
+    
+    char* pIStr = strtok(pIOStr, "-"); // Input buses part of string
+    char* pOStr = strtok(NULL, "-");   // Output buses part of string
+    
+    char* pIBusStrEnd;
+    char* pIBusStr = strtok_r(pIStr, ".", &pIBusStrEnd); // a single input bus
+    
+    // iterate through the period separated input buses
+    while (pIBusStr != NULL)
+    {
+      int NInOnBus = 0;
+      
+      if (sscanf(pIBusStr, "%d", &NInOnBus) == 1)
+      {
+        NInChans += NInOnBus;
+      }
+      
+      pIBusStr = strtok_r(NULL, ".", &pIBusStrEnd);
+      
+      pConfig->AddInputBus(NInOnBus);
+      
+      NInBuses++;
+    }
+    
+#ifndef NDEBUG
+    auto CheckBusses = [](const WDL_TypedBuf<int>& buses, int numBuses, const char* msg)
+    {
+      if(numBuses > 1)
+      {
+        for(int i=0; i < numBuses; i++)
+        {
+          bool validChannelCount = buses.Get()[i] > 0;
+          if(!validChannelCount)
+            DBGMSG("Error: with multiple %s buses you can't have one with no channels!\n", msg);
+          assert(validChannelCount);
+        }
+      }
+    };
+    
+    CheckBusses(pConfig->mInputBuses, NInBuses, "input");
+#endif
+    
+    char* pOBusStrEnd;
+    char* pOBusStr = strtok_r(pOStr, ".", &pOBusStrEnd);
+    
+    // iterate through the period separated output buses
+    while (pOBusStr != NULL)
+    {
+      int NOutOnBus = 0;
+      
+      if (sscanf(pOBusStr, "%d", &NOutOnBus) == 1)
+      {
+        NOutChans += NOutOnBus;
+      }
+      
+      pOBusStr = strtok_r(NULL, ".", &pOBusStrEnd);
+      
+      pConfig->AddOutputBus(NOutOnBus);
+      
+      NOutBuses++;
+    }
+  
+#ifndef NDEBUG
+    CheckBusses(pConfig->mOutputBuses, NOutBuses, "output");
+#endif
+    
+    DBGMSG("Channel I/O #%i - input bus count: %i, output bus count %i\n", IOConfigIndex + 1, NInBuses, NOutBuses);
+    DBGMSG("Channel I/O #%i - input channel count: %i, output channel count %i\n\n", IOConfigIndex + 1, NInChans, NOutChans);
+    
+    totalNInChans = std::max(totalNInChans, NInChans);
+    totalNOutChans = std::max(totalNOutChans, NOutChans);
+    totalNInBuses = std::max(totalNInBuses, NInBuses);
+    totalNOutBuses = std::max(totalNOutBuses, NOutBuses);
+    
+    channelIOList.Add(pConfig);
+    
+    IOConfigIndex++;
+    
+    pIOStr = strtok_r(NULL, " ", &pIOStrEnd); // go to next io string
+  }
+  
+  free(pChannelIOStr);
+  
+  DBGMSG("%i I/O configs detected\n", IOConfigIndex);
+  DBGMSG("Total # in chans: %i, Total # out chans: %i \n", totalNInChans, totalNOutChans);
+  
+  return IOConfigIndex;
 }

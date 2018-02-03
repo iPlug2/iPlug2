@@ -163,7 +163,6 @@ struct IPlugConfig
   bool plugDoesMidi;
   bool plugDoesChunks;
   bool plugIsInstrument;
-  int plugScChans;
   
   IPlugConfig(int nParams,
               int nPresets,
@@ -177,8 +176,7 @@ struct IPlugConfig
               int latency,
               bool plugDoesMidi,
               bool plugDoesChunks,
-              bool plugIsInstrument,
-              int plugScChans)
+              bool plugIsInstrument)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -193,15 +191,49 @@ struct IPlugConfig
   , plugDoesMidi(plugDoesMidi)
   , plugDoesChunks(plugDoesChunks)
   , plugIsInstrument(plugIsInstrument)
-  , plugScChans(plugScChans)
   {};
 };
 
-/** Used to store channel i/o count together */
+/** Used to store channel i/o count together per bus */
 struct ChannelIO
 {
-  int mIn, mOut;
-  ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
+  WDL_TypedBuf<int> mInputBuses;
+  WDL_TypedBuf<int> mOutputBuses;
+  
+  void AddInputBus(int NChans) { mInputBuses.Add(NChans); }
+  void AddOutputBus(int NChans) { mOutputBuses.Add(NChans); }
+  
+  int NChansOnInputBus(int busIdx)
+  {
+    assert(busIdx < mInputBuses.GetSize());
+    return mInputBuses.Get()[busIdx];
+  }
+
+  int NChansOnOutputBus(int busIdx)
+  {
+    assert(busIdx < mOutputBuses.GetSize());
+    return mOutputBuses.Get()[busIdx];
+  }
+  
+  int GetTotalNInputChannels() const
+  {
+    int total = 0;
+    
+    for(int i = 0; i < mInputBuses.GetSize(); i++)
+      total += mInputBuses.Get()[i];
+    
+    return total;
+  }
+  
+  int GetTotalNOutputChannels() const
+  {
+    int total = 0;
+    
+    for(int i = 0; i < mOutputBuses.GetSize(); i++)
+      total += mOutputBuses.Get()[i];
+    
+    return total;
+  }
 };
 
 /** Encapsulates information about the host transport state */

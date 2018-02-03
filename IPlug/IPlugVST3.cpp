@@ -7,6 +7,26 @@
 
 #include "IPlugVST3.h"
 
+#ifndef MULTICHANNEL_BUSTYPE_FUNC
+static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
+{
+  switch (numChans)
+  {
+    case 1:
+      return (uint64_t) Steinberg::Vst::SpeakerArr::kMono;
+    case 2:
+      return (uint64_t) Steinberg::Vst::SpeakerArr::kStereo;
+    case 0:
+    default:
+      DBGMSG("for anything other than mono or stereo buses, you need to implement GetAPIBusTypeForChannelIOConfig() and #define MULTICHANNEL_BUSTYPE_FUNC\n");
+      assert(numChans > 2);
+      return (uint64_t) Steinberg::Vst::SpeakerArr::kEmpty;
+  }
+}
+#else
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans);
+#endif //MULTICHANNEL_BUSTYPE_FUNC
+
 using namespace Steinberg;
 using namespace Vst;
 
@@ -88,22 +108,22 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   if (HasSidechainInput())
     SetInputBusLabel(1, "Aux Input");
   
-  if (IsInstrument())
-  {
-    int busNum = 0;
-    char label[32]; //TODO: 32!!!
-
-    for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only
-    {
-      sprintf(label, "Output %i", busNum+1);
-      SetOutputBusLabel(busNum++, label);
-    }
-  }
-  else
-  {
+//  if (IsInstrument())
+//  {
+//    int busNum = 0;
+//    char label[32]; //TODO: 32!!!
+//
+//    for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only
+//    {
+//      sprintf(label, "Output %i", busNum+1);
+//      SetOutputBusLabel(busNum++, label);
+//    }
+//  }
+//  else
+//  {
     SetOutputBusLabel(0, "Output");
-  }
-    
+//  }
+  
   // Make sure the process context is predictably initialised in case it is used before process is called
  
   memset(&mProcessContext, 0, sizeof(ProcessContext));
@@ -133,37 +153,32 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
   if (result == kResultOk)
   {
-    SpeakerArrangement maxInputs = getSpeakerArrForChans(NInChannels()-NSidechainChannels());
-    if(maxInputs < 0) maxInputs = 0;
-
-    // add io buses with the maximum i/o to start with
-
-    if (maxInputs)
+    if (NInChannels())
     {
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(0)->Get(), 128);
-      addAudioInput(tmpStringBuf, maxInputs);
+      addAudioInput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(0, NInChannels()));
     }
 
-    if(!IsInstrument()) // if effect, just add one output bus with max chan count
-    {
+//    if(!IsInstrument()) // if effect, just add one output bus with max chan count
+//    {
       Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
-      addAudioOutput(tmpStringBuf, getSpeakerArrForChans(NOutChannels()) );
-    }
-    else
-    {
-      for (int i = 0, busIdx = 0; i < NOutChannels(); i+=2, busIdx++)
-      {
-        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(busIdx)->Get(), 128);
-        addAudioOutput(tmpStringBuf, SpeakerArr::kStereo );
-      }
-    }
+      addAudioOutput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(0, NOutChannels()) );
+//    }
+//    else
+//    {
+//      for (int bus = 0; bus < NOutputBuses(); bus++)
+//      {
+//        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
+//        addAudioOutput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(0, NOutChannels()) );
+//      }
+//    }
 
-    if (HasSidechainInput())
-    {
-      assert(NSidechainChannels() < 2); // TODO: side-chain input with more than 2 channels?
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
-      addAudioInput(tmpStringBuf, getSpeakerArrForChans(NSidechainChannels()), kAux, 0);
-    }
+//    if (HasSidechainInput())
+//    {
+//      assert(NSidechainChannels() < 2); // TODO: side-chain input with more than 2 channels?
+//      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
+//      addAudioInput(tmpStringBuf, getSpeakerArrForChans(NSidechainChannels()), kAux, 0);
+//    }
 
     if(DoesMIDI())
     {
@@ -212,7 +227,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
         
         if (unitID == kRootUnitId) // new unit, nothing found, so add it
         {
-          unitID = AddParamGroup(paramGroupName;
+          unitID = AddParamGroup(paramGroupName);
         }
       }
       
@@ -259,7 +274,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumInputChannels)
   {
     audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), bus));
-    addAudioInput(USTRING("Input"), getSpeakerArrForChans(reqNumInputChannels));
+    addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(0 /*TODO*/, reqNumInputChannels));
   }
 
   // handle output
@@ -268,7 +283,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumOutputChannels)
   {
     audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), bus));
-    addAudioOutput(USTRING("Output"), getSpeakerArrForChans(reqNumOutputChannels));
+    addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(0 /*TODO*/, reqNumOutputChannels));
   }
 
   if (!HasSidechainInput() && numIns == 1) // No sidechain, every thing OK
@@ -276,20 +291,20 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
     return kResultTrue;
   }
 
-  if (HasSidechainInput() && numIns == 2) // numIns = num Input BUSes
-  {
-    int32_t reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
-
-    bus = FCast<AudioBus>(audioInputs.at(1));
-
-    if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumSideChainChannels)
-    {
-      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), bus));
-      addAudioInput(USTRING("Sidechain Input"), getSpeakerArrForChans(reqNumSideChainChannels), kAux, 0); // either mono or stereo
-    }
-
-    return kResultTrue;
-  }
+//  if (HasSidechainInput() && numIns == 2) // numIns = num Input BUSes
+//  {
+//    int32_t reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
+//
+//    bus = FCast<AudioBus>(audioInputs.at(1));
+//
+//    if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumSideChainChannels)
+//    {
+//      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), bus));
+//      addAudioInput(USTRING("Sidechain Input"), getSpeakerArrForChans(reqNumSideChainChannels), kAux, 0); // either mono or stereo
+//    }
+//
+//    return kResultTrue;
+//  }
 
   return kResultFalse;
 }
@@ -745,29 +760,6 @@ AudioBus* IPlugVST3::getAudioOutput (int32_t index)
   return bus;
 }
 
-// TODO: more speaker arrs
-SpeakerArrangement IPlugVST3::getSpeakerArrForChans(int32_t chans)
-{
-  switch (chans)
-  {
-    case 1:
-      return SpeakerArr::kMono;
-    case 2:
-      return SpeakerArr::kStereo;
-    case 3:
-      return SpeakerArr::k30Music;
-    case 4:
-      return SpeakerArr::kAmbi1stOrderACN;
-    case 5:
-      return SpeakerArr::k50;
-    case 6:
-      return SpeakerArr::k51;
-    default:
-      return SpeakerArr::kEmpty;
-      break;
-  }
-}
-
 #pragma mark -
 #pragma mark IUnitInfo overrides
 
@@ -775,7 +767,7 @@ int32_t PLUGIN_API IPlugVST3::getUnitCount()
 {
   TRACE;
   
-  return mParamGroups.GetSize() + 1;
+  return NParamGroups() + 1;
 }
 
 tresult PLUGIN_API IPlugVST3::getUnitInfo(int32_t unitIndex, UnitInfo& info)
@@ -795,14 +787,14 @@ tresult PLUGIN_API IPlugVST3::getUnitInfo(int32_t unitIndex, UnitInfo& info)
 #endif
     return kResultTrue;
   }
-  else if (unitIndex > 0 && mParamGroups.GetSize()) 
+  else if (unitIndex > 0 && NParamGroups())
   {
     info.id = unitIndex;
     info.parentUnitId = kRootUnitId;
     info.programListId = kNoProgramListId;
     
     UString name(info.name, 128);
-    name.fromAscii(mParamGroups.Get(unitIndex-1));
+    name.fromAscii(GetParamGroupName(unitIndex-1));
     
     return kResultTrue;
   }

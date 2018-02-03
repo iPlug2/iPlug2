@@ -16,34 +16,26 @@
 #define args(...) __VA_ARGS__
 #define AAX_TYPE_ID_ARRAY(VARNAME, ARR_DATA) AAX_CTypeID VARNAME[] = {args ARR_DATA}
 
-//TODO: this is extremely limited
-static AAX_EStemFormat getStemFormatForChans(const int numChans)
+#ifndef MULTICHANNEL_BUSTYPE_FUNC
+uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
 {
   switch (numChans)
   {
     case 0:
-      return AAX_eStemFormat_None;
+      return (uint64_t) AAX_eStemFormat_None;
     case 1:
-      return AAX_eStemFormat_Mono;
+      return (uint64_t) AAX_eStemFormat_Mono;
     case 2:
-      return AAX_eStemFormat_Stereo;
-    case 3:
-      return AAX_eStemFormat_LCR;
-    case 4:
-      return AAX_eStemFormat_Quad;
-    case 5:
-      return AAX_eStemFormat_5_0;
-    case 6:
-      return AAX_eStemFormat_5_1;
-    case 7:
-      return AAX_eStemFormat_6_1;
-    case 8:
-      return AAX_eStemFormat_7_1_DTS;
+      return (uint64_t) AAX_eStemFormat_Stereo;
     default:
+      DBGMSG("for anything other than mono or stereo buses, you need to implement GetAPIBusTypeForChannelIOConfig() and #define MULTICHANNEL_BUSTYPE_FUNC\n");
+      assert(numChans > 2);
       return AAX_eStemFormat_None;
-      break;
   }
 }
+#else
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans);
+#endif //MULTICHANNEL_BUSTYPE_FUNC
 
 AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 {
@@ -95,57 +87,42 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
   
-  char *channelIOStr = PLUG_CHANNEL_IO;
-  
-  int ioConfigIdx = 0;
-  int nSIn = 0;//(PLUG_SC_CHANS > 0); // force it to 1
-
   AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
   AAX_TYPE_ID_ARRAY(aaxTypeIDsAudioSuite,(AAX_TYPE_IDS_AUDIOSUITE));
+
+  WDL_PtrList<ChannelIO> channelIO;
+  int totalNInChans = 0, totalNOutChans = 0;
+  int totalNInBuses = 0, totalNOutBuses = 0;
   
-  while (channelIOStr) 
+  int NIOConfigs = IPlugBase::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  
+  for (int ioConfigIdx = 0; ioConfigIdx < NIOConfigs; ioConfigIdx++)
   {
-    int nIn = 0, nOut = 0;
-    
-    if (sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2)    
-    {
-      // if we have a 1-N config + sidechain we don't want to include the sidechain
-      if (nIn > 1)
-        nIn -= nSIn;
-      
-      AAX_CTypeID typeId = aaxTypeIDs[ioConfigIdx];
-      // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
-      AAX_SIPlugSetupInfo setupInfo;
-      setupInfo.mInputStemFormat = getStemFormatForChans(nIn);
-      setupInfo.mOutputStemFormat = getStemFormatForChans(nOut);
-      setupInfo.mManufacturerID = PLUG_MFR_ID;
-      setupInfo.mProductID = PLUG_UNIQUE_ID;
-      setupInfo.mPluginID = typeId;
-      #if AAX_DOES_AUDIOSUITE
-      setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[ioConfigIdx];
-      #endif
-      setupInfo.mCanBypass = true;
-      setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
-      setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
-      setupInfo.mInputMIDIChannelMask = 0x0001;
-//      setupInfo.mNeedsGlobalMIDI = PLUG_DOES_MIDI;
-//      setupInfo.mGlobalMIDIEventMask = 0x3;
-      setupInfo.mNeedsTransport = true;
-      setupInfo.mLatency = PLUG_LATENCY;
-            
-      err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
-      
-      AAX_ASSERT (err == AAX_SUCCESS);
-          
-      ioConfigIdx++;
-    }
-    
-    channelIOStr = strstr(channelIOStr, " ");
-    
-    if (channelIOStr)
-      ++channelIOStr;
+    AAX_CTypeID typeId = aaxTypeIDs[ioConfigIdx];
+    // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
+    AAX_SIPlugSetupInfo setupInfo;
+    setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, channelIO.Get(ioConfigIdx)->NChansOnInputBus(0));
+    setupInfo.mOutputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, channelIO.Get(ioConfigIdx)->NChansOnOutputBus(0));
+    setupInfo.mManufacturerID = PLUG_MFR_ID;
+    setupInfo.mProductID = PLUG_UNIQUE_ID;
+    setupInfo.mPluginID = typeId;
+    #if AAX_DOES_AUDIOSUITE
+    setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[ioConfigIdx];
+    #endif
+    setupInfo.mCanBypass = true;
+    setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
+    setupInfo.mInputMIDIChannelMask = 0x0001;
+//    setupInfo.mNeedsGlobalMIDI = PLUG_DOES_MIDI;
+//    setupInfo.mGlobalMIDIEventMask = 0x3;
+    setupInfo.mNeedsTransport = true;
+    setupInfo.mLatency = PLUG_LATENCY;
+
+    err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
+
+    AAX_ASSERT (err == AAX_SUCCESS);
   }
-  
+
   // Data model
   err |= pDesc->AddProcPtr( (void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
   

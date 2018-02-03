@@ -20,7 +20,7 @@ struct AudioComponentPlugInInstance
 {
   AudioComponentPlugInInterface mPlugInInterface;
   void* (*mConstruct)(void* pMemory, AudioComponentInstance ci);
-  void   (*mDestruct)(void* pMemory);
+  void (*mDestruct)(void* pMemory);
   void* mPad[2];
   UInt32 mInstanceStorage;
 };

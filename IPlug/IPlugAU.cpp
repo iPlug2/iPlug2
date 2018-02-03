@@ -4,6 +4,26 @@
 
 #include "IPlugAU.h"
 
+#ifndef MULTICHANNEL_BUSTYPE_FUNC
+static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
+{
+  switch (numChans)
+  {
+    case 1:
+      return (uint64_t) kAudioChannelLayoutTag_Mono;
+    case 2:
+      return (uint64_t) kAudioChannelLayoutTag_Stereo;
+    case 0:
+    default:
+      DBGMSG("for anything other than mono or stereo buses, you need to implement GetAPIBusTypeForChannelIOConfig() and #define MULTICHANNEL_BUSTYPE_FUNC\n");
+      assert(numChans > 2);
+      return (uint64_t) kAudioChannelLayoutTag_Unknown;
+  }
+}
+#else
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans);
+#endif //MULTICHANNEL_BUSTYPE_FUNC
+
 inline CFStringRef MakeCFString(const char* cStr)
 {
   return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
@@ -365,30 +385,6 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 }
 #endif //AU_NO_COMPONENT_ENTRY
 
-//TODO: support more tags
-
-UInt32 IPlugAU::GetTagForNumChannels(int numChannels)
-{
-  switch (numChannels)
-  {
-    case 1:
-      return kAudioChannelLayoutTag_Mono;
-    case 2:
-      return kAudioChannelLayoutTag_Stereo;
-//    case 4:
-//      return kAudioChannelLayoutTag_Ambisonic_B_Format;
-//    case 6:
-//      return kAudioChannelLayoutTag_AudioUnit_5_1;
-//    case 7:
-//      return kAudioChannelLayoutTag_AudioUnit_6_1;
-//    case 8:
-//      return kAudioChannelLayoutTag_AudioUnit_7_1;
-    case 0:
-    default:
-      return kAudioChannelLayoutTag_Unknown;
-  }
-}
-
 UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags)
 {
   switch(scope)
@@ -397,59 +393,11 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
     {
       if (!mInBuses.Get(0)) // no inputs = synth
         return 0;
-
-      // this stuff is not currently needed
-
-//      if (element == 0 ) // main input
-//      {
-//        bool canDoMono = LegalIO(1, -1);
-//        bool canDoStereo = LegalIO(2, -1);
-//
-//        if (canDoMono && canDoStereo)
-//        {
-//          if(tags)
-//          {
-//            tags[0] = GetTagForNumChannels(1);
-//            tags[1] = GetTagForNumChannels(2);
-//          }
-//
-//          return 2;
-//        }
-//        else if (canDoMono)
-//        {
-//          if(tags)
-//          {
-//            tags[0] = GetTagForNumChannels(1);
-//          }
-//
-//          return 1;
-//        }
-//        else if (canDoStereo)
-//        {
-//          if(tags)
-//          {
-//            tags[0] = GetTagForNumChannels(2);
-//          }
-//
-//          return 1;
-//        }
-//      }
-//      else if (element == 1 ) // aux input
-//      {
-//        if(tags)
-//        {
-//          tags[0] = GetTagForNumChannels(mInBuses.Get(element)->mNPlugChannels);
-//        }
-//
-//        return 1;
-//      }
     }
     case kAudioUnitScope_Output:
     {
       if(tags)
-      {
-        tags[0] = GetTagForNumChannels(mOutBuses.Get(element)->mNPlugChannels);
-      }
+        tags[0] = (AudioChannelLayoutTag) GetAPIBusTypeForChannelIOConfig(element, mOutBuses.Get(element)->mNPlugChannels);
 
       return 1;
     }
@@ -679,9 +627,9 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         for (int i = 0; i < n; ++i, ++pChInfo)
         {
           ChannelIO* pIO = mChannelIO.Get(i);
-          pChInfo->inChannels = pIO->mIn;
-          pChInfo->outChannels = pIO->mOut;
-          Trace(TRACELOC, "IO:%d:%d", pIO->mIn, pIO->mOut);
+          pChInfo->inChannels = pIO->GetTotalNInputChannels();
+          pChInfo->outChannels = pIO->GetTotalNOutputChannels();
+          Trace(TRACELOC, "IO:%d:%d", pIO->GetTotalNInputChannels(), pIO->GetTotalNOutputChannels());
 
         }
       }
@@ -834,6 +782,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           }
           case kAudioUnitScope_Output:
           {
+            //TODO: live 5.1 crash?
             *(CFStringRef *)pData = MakeCFString(GetOutputBusLabel(element)->Get());
             return noErr;
           }
@@ -1712,25 +1661,26 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mBundleID.Set(instanceInfo.mBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
-  if (c.plugScChans && NInChannels()) // effect with side chain input... 2 input buses
+  if (HasSidechainInput() && NInChannels()) // effect with side chain input... 2 input buses
   {
-    int nNonScInputChans = NInChannels() - c.plugScChans;
-
-    PtrListInitialize(&mInBusConnections, 2);
-    PtrListInitialize(&mInBuses, 2);
-
-    BusChannels* pInBus = mInBuses.Get(0);
-    pInBus->mNHostChannels = -1;
-    pInBus->mPlugChannelStartIdx = 0;
-    pInBus->mNPlugChannels = nNonScInputChans;
-
-    BusChannels* pInBus2 = mInBuses.Get(1);
-    pInBus2->mNHostChannels = -1;
-    pInBus2->mPlugChannelStartIdx = nNonScInputChans;
-    pInBus2->mNPlugChannels = c.plugScChans;
-
-    SetInputBusLabel(0, "main input");
-    SetInputBusLabel(1, "aux input");
+//    TODO: implement this
+//    int nNonScInputChans = NInChannels() - c.plugScChans;
+//
+//    PtrListInitialize(&mInBusConnections, 2);
+//    PtrListInitialize(&mInBuses, 2);
+//
+//    BusChannels* pInBus = mInBuses.Get(0);
+//    pInBus->mNHostChannels = -1;
+//    pInBus->mPlugChannelStartIdx = 0;
+//    pInBus->mNPlugChannels = nNonScInputChans;
+//
+//    BusChannels* pInBus2 = mInBuses.Get(1);
+//    pInBus2->mNHostChannels = -1;
+//    pInBus2->mPlugChannelStartIdx = nNonScInputChans;
+//    pInBus2->mNPlugChannels = c.plugScChans;
+//
+//    SetInputBusLabel(0, "main input");
+//    SetInputBusLabel(1, "aux input");
   }
   else if (NInChannels()) // effect with no side chain... 1 bus
   {
