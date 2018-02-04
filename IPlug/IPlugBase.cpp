@@ -31,7 +31,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   
   int totalNInChans, totalNOutChans;
 
-  ParseChannelIOStr(c.channelIOStr, mChannelIO, totalNInChans, totalNOutChans, mMaxNInBuses, mMaxNNOutBuses);
+  ParseChannelIOStr(c.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, mMaxNInBuses, mMaxNOutBuses);
 
   mInData.Resize(totalNInChans);
   mOutData.Resize(totalNOutChans);
@@ -40,9 +40,9 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 
   for (int i = 0; i < totalNInChans; ++i, ++ppInData)
   {
-    InChannel* pInChannel = new InChannel;
+    ChannelData<>* pInChannel = new ChannelData<>;
     pInChannel->mConnected = false;
-    pInChannel->mSrc = ppInData;
+    pInChannel->mData = ppInData;
     mInChannels.Add(pInChannel);
   }
 
@@ -50,10 +50,10 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 
   for (int i = 0; i < totalNOutChans; ++i, ++ppOutData)
   {
-    OutChannel* pOutChannel = new OutChannel;
+    ChannelData<>* pOutChannel = new ChannelData<>;
     pOutChannel->mConnected = false;
-    pOutChannel->mDest = ppOutData;
-    pOutChannel->mFDest = 0;
+    pOutChannel->mData = ppOutData;
+    pOutChannel->mIncomingData = nullptr;
     mOutChannels.Add(pOutChannel);
   }
 }
@@ -64,11 +64,10 @@ IPlugBase::~IPlugBase()
 
   mParams.Empty(true);
   mPresets.Empty(true);
+  
   mInChannels.Empty(true);
   mOutChannels.Empty(true);
-  mChannelIO.Empty(true);
-  mInputBusLabels.Empty(true);
-  mOutputBusLabels.Empty(true);
+  mIOConfigs.Empty(true);
  
   if (mLatencyDelay)
   {
@@ -92,34 +91,30 @@ void IPlugBase::GetHostVersionStr(WDL_String& str)
   GetVersionStr(mHostVersion, str);
 }
 
-bool IPlugBase::LegalIO(int nIn, int nOut)
+bool IPlugBase::LegalIO(int NInputChans, int NOutputChans)
 {
   bool legal = false;
-  int i, n = mChannelIO.GetSize();
+  int NIOConfigs = mIOConfigs.GetSize();
   
-  for (i = 0; i < n && !legal; ++i)
+  for (auto i = 0; i < NIOConfigs && !legal; ++i)
   {
-    ChannelIO* pIO = mChannelIO.Get(i);
-    legal = ((nIn < 0 || nIn == pIO->GetTotalNInputChannels()) && (nOut < 0 || nOut == pIO->GetTotalNOutputChannels()));
+    IOConfig* pIO = mIOConfigs.Get(i);
+    legal = ((NInputChans < 0 || NInputChans == pIO->GetTotalNInputChannels()) && (NOutputChans < 0 || NOutputChans == pIO->GetTotalNOutputChannels()));
   }
   
-  Trace(TRACELOC, "%d:%d:%s", nIn, nOut, (legal ? "legal" : "illegal"));
+  Trace(TRACELOC, "%d:%d:%s", NInputChans, NOutputChans, (legal ? "legal" : "illegal"));
   return legal;
 }
 
 void IPlugBase::LimitToStereoIO()
 {
-  int nIn = NInChannels(), nOut = NOutChannels();
+  int NInputChans = NInChannels(), NOutputChans = NOutChannels();
   
-  if (nIn > 2)
-  {
-    SetInputChannelConnections(2, nIn - 2, false);
-  }
+  if (NInputChans > 2)
+    SetInputChannelConnections(2, NInputChans - 2, false);
   
-  if (nOut > 2)
-  {
-    SetOutputChannelConnections(2, nOut - 2, true);
-  }
+  if (NOutputChans > 2)
+    SetOutputChannelConnections(2, NOutputChans - 2, true);
 }
 
 void IPlugBase::SetHost(const char* host, int version)
@@ -136,13 +131,9 @@ void IPlugBase::SetHost(const char* host, int version)
 int IPlugBase::GetEffectVersion(bool decimal) const
 {
   if (decimal)
-  {
     return GetDecimalVersion(mVersion);
-  }
   else
-  {
     return mVersion;
-  }
 }
 
 void IPlugBase::GetEffectVersionStr(WDL_String& str) const
@@ -191,9 +182,7 @@ double IPlugBase::GetSamplesPerBeat()
   double tempo = GetTempo();
   
   if (tempo > 0.0)
-  {
     return GetSampleRate() * 60.0 / tempo;
-  }
   
   return 0.0;
 }
@@ -211,14 +200,14 @@ void IPlugBase::SetBlockSize(int blockSize)
     
     for (i = 0; i < nIn; ++i)
     {
-      InChannel* pInChannel = mInChannels.Get(i);
+      ChannelData<>* pInChannel = mInChannels.Get(i);
       pInChannel->mScratchBuf.Resize(blockSize);
       memset(pInChannel->mScratchBuf.Get(), 0, blockSize * sizeof(double));
     }
     
     for (i = 0; i < nOut; ++i)
     {
-      OutChannel* pOutChannel = mOutChannels.Get(i);
+      ChannelData<>* pOutChannel = mOutChannels.Get(i);
       pOutChannel->mScratchBuf.Resize(blockSize);
       memset(pOutChannel->mScratchBuf.Get(), 0, blockSize * sizeof(double));
     }
@@ -233,12 +222,12 @@ void IPlugBase::SetInputChannelConnections(int idx, int n, bool connected)
   
   for (int i = idx; i < iEnd; ++i)
   {
-    InChannel* pInChannel = mInChannels.Get(i);
+    ChannelData<>* pInChannel = mInChannels.Get(i);
     pInChannel->mConnected = connected;
     
     if (!connected)
     {
-      *(pInChannel->mSrc) = pInChannel->mScratchBuf.Get();
+      *(pInChannel->mData) = pInChannel->mScratchBuf.Get();
     }
   }
 }
@@ -249,19 +238,19 @@ void IPlugBase::SetOutputChannelConnections(int idx, int n, bool connected)
   
   for (int i = idx; i < iEnd; ++i)
   {
-    OutChannel* pOutChannel = mOutChannels.Get(i);
+    ChannelData<>* pOutChannel = mOutChannels.Get(i);
     pOutChannel->mConnected = connected;
     
     if (!connected)
     {
-      *(pOutChannel->mDest) = pOutChannel->mScratchBuf.Get();
+      *(pOutChannel->mData) = pOutChannel->mScratchBuf.Get();
     }
   }
 }
 
 void IPlugBase::GetChannelIO(int optionIdx, int& numInputs, int& numOutputs)
 {
-  ChannelIO* pChannelIO = mChannelIO.Get(optionIdx);
+  IOConfig* pChannelIO = mIOConfigs.Get(optionIdx);
   
   numInputs = pChannelIO->GetTotalNInputChannels();
   numOutputs = pChannelIO->GetTotalNOutputChannels();
@@ -298,16 +287,17 @@ int IPlugBase::NOutChansConnected() const
   
   return count;
 }
+
 void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
 {
   int iEnd = std::min(idx + n, mInChannels.GetSize());
   
   for (int i = idx; i < iEnd; ++i)
   {
-    InChannel* pInChannel = mInChannels.Get(i);
+    ChannelData<>* pInChannel = mInChannels.Get(i);
     if (pInChannel->mConnected)
     {
-      *(pInChannel->mSrc) = *(ppData++);
+      *(pInChannel->mData) = *(ppData++);
     }
   }
 }
@@ -317,12 +307,12 @@ void IPlugBase::AttachInputBuffers(int idx, int n, float** ppData, int nFrames)
   int iEnd = std::min(idx + n, mInChannels.GetSize());
   for (int i = idx; i < iEnd; ++i)
   {
-    InChannel* pInChannel = mInChannels.Get(i);
+    ChannelData<>* pInChannel = mInChannels.Get(i);
     if (pInChannel->mConnected)
     {
       double* pScratch = pInChannel->mScratchBuf.Get();
       CastCopy(pScratch, *(ppData++), nFrames);
-      *(pInChannel->mSrc) = pScratch;
+      *(pInChannel->mData) = pScratch;
     }
   }
 }
@@ -332,10 +322,10 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, double** ppData)
   int iEnd = std::min(idx + n, mOutChannels.GetSize());
   for (int i = idx; i < iEnd; ++i)
   {
-    OutChannel* pOutChannel = mOutChannels.Get(i);
+    ChannelData<>* pOutChannel = mOutChannels.Get(i);
     if (pOutChannel->mConnected)
     {
-      *(pOutChannel->mDest) = *(ppData++);
+      *(pOutChannel->mData) = *(ppData++);
     }
   }
 }
@@ -345,11 +335,11 @@ void IPlugBase::AttachOutputBuffers(int idx, int n, float** ppData)
   int iEnd = std::min(idx + n, mOutChannels.GetSize());
   for (int i = idx; i < iEnd; ++i)
   {
-    OutChannel* pOutChannel = mOutChannels.Get(i);
+    ChannelData<>* pOutChannel = mOutChannels.Get(i);
     if (pOutChannel->mConnected)
     {
-      *(pOutChannel->mDest) = pOutChannel->mScratchBuf.Get();
-      pOutChannel->mFDest = *(ppData++);
+      *(pOutChannel->mData) = pOutChannel->mScratchBuf.Get();
+      pOutChannel->mIncomingData = *(ppData++);
     }
   }
 }
@@ -372,14 +362,14 @@ void IPlugBase::PassThroughBuffers(float sampleType, int nFrames)
   PassThroughBuffers(0., nFrames);
   
   int i, n = NOutChannels();
-  OutChannel** ppOutChannel = mOutChannels.GetList();
+  ChannelData<>** ppOutChannel = mOutChannels.GetList();
   
   for (i = 0; i < n; ++i, ++ppOutChannel)
   {
-    OutChannel* pOutChannel = *ppOutChannel;
+    ChannelData<>* pOutChannel = *ppOutChannel;
     if (pOutChannel->mConnected)
     {
-      CastCopy(pOutChannel->mFDest, *(pOutChannel->mDest), nFrames);
+      CastCopy(pOutChannel->mIncomingData, *(pOutChannel->mData), nFrames);
     }
   }
 }
@@ -393,15 +383,15 @@ void IPlugBase::ProcessBuffers(float sampleType, int nFrames)
 {
   ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
-  OutChannel** ppOutChannel = mOutChannels.GetList();
+  ChannelData<>** ppOutChannel = mOutChannels.GetList();
   
   for (i = 0; i < n; ++i, ++ppOutChannel)
   {
-    OutChannel* pOutChannel = *ppOutChannel;
+    ChannelData<>* pOutChannel = *ppOutChannel;
     
     if (pOutChannel->mConnected)
     {
-      CastCopy(pOutChannel->mFDest, *(pOutChannel->mDest), nFrames);
+      CastCopy(pOutChannel->mIncomingData, *(pOutChannel->mData), nFrames);
     }
   }
 }
@@ -410,15 +400,15 @@ void IPlugBase::ProcessBuffersAccumulating(float sampleType, int nFrames)
 {
   ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
   int i, n = NOutChannels();
-  OutChannel** ppOutChannel = mOutChannels.GetList();
+  ChannelData<>** ppOutChannel = mOutChannels.GetList();
   
   for (i = 0; i < n; ++i, ++ppOutChannel)
   {
-    OutChannel* pOutChannel = *ppOutChannel;
+    ChannelData<>* pOutChannel = *ppOutChannel;
     if (pOutChannel->mConnected)
     {
-      float* pDest = pOutChannel->mFDest;
-      double* pSrc = *(pOutChannel->mDest);
+      float* pDest = pOutChannel->mIncomingData;
+      double* pSrc = *(pOutChannel->mData);
       
       for (int j = 0; j < nFrames; ++j, ++pDest, ++pSrc)
       {
@@ -434,13 +424,13 @@ void IPlugBase::ZeroScratchBuffers()
 
   for (i = 0; i < nIn; ++i)
   {
-    InChannel* pInChannel = mInChannels.Get(i);
+    ChannelData<>* pInChannel = mInChannels.Get(i);
     memset(pInChannel->mScratchBuf.Get(), 0, mBlockSize * sizeof(double));
   }
 
   for (i = 0; i < nOut; ++i)
   {
-    OutChannel* pOutChannel = mOutChannels.Get(i);
+    ChannelData<>* pOutChannel = mOutChannels.Get(i);
     memset(pOutChannel->mScratchBuf.Get(), 0, mBlockSize * sizeof(double));
   }
 }
@@ -1377,10 +1367,10 @@ int IPlugBase::GetIPlugVerFromChunk(IByteChunk& chunk, int& position)
 {
   int magic = 0, ver = 0;
   int magicpos = chunk.Get(&magic, position);
+  
   if (magicpos > position && magic == IPLUG_VERSION_MAGIC)
-  {
     position = chunk.Get(&ver, magicpos);
-  }
+  
   return ver;
 }
 
@@ -1389,9 +1379,10 @@ bool IPlugBase::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
   bool rc = true;
   int n = pMsgs->GetSize();
   IMidiMsg* pMsg = pMsgs->Get();
-  for (int i = 0; i < n; ++i, ++pMsg) {
+  
+  for (int i = 0; i < n; ++i, ++pMsg)
     rc &= SendMidiMsg(*pMsg);
-  }
+  
   return rc;
 }
 
@@ -1403,7 +1394,7 @@ void IPlugBase::PrintDebugInfo()
 }
 
 //static
-int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
+int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
 {
   totalNInChans = 0; totalNOutChans = 0;
   totalNInBuses = 0; totalNOutBuses = 0;
@@ -1418,7 +1409,7 @@ int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& chan
   // iterate through the space separated IO configs
   while (pIOStr != NULL)
   {
-    ChannelIO* pConfig = new ChannelIO();
+    IOConfig* pConfig = new IOConfig();
     
     int NInChans = 0, NOutChans = 0;
     int NInBuses = 0, NOutBuses = 0;
@@ -1441,19 +1432,21 @@ int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& chan
       
       pIBusStr = strtok_r(NULL, ".", &pIBusStrEnd);
       
-      pConfig->AddInputBus(NInOnBus);
-      
-      NInBuses++;
+      if(NInOnBus)
+      {
+        pConfig->AddInputBusInfo(NInOnBus);
+        NInBuses++;
+      }
     }
     
 #ifndef NDEBUG
-    auto CheckBusses = [](const WDL_TypedBuf<int>& buses, int numBuses, const char* msg)
+    auto CheckBusses = [](const WDL_PtrList<BusInfo>& buses, int numBuses, const char* msg)
     {
       if(numBuses > 1)
       {
         for(int i=0; i < numBuses; i++)
         {
-          bool validChannelCount = buses.Get()[i] > 0;
+          bool validChannelCount = buses.Get(i)->mNChans > 0;
           if(!validChannelCount)
             DBGMSG("Error: with multiple %s buses you can't have one with no channels!\n", msg);
           assert(validChannelCount);
@@ -1461,7 +1454,7 @@ int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& chan
       }
     };
     
-    CheckBusses(pConfig->mInputBuses, NInBuses, "input");
+    CheckBusses(pConfig->mInputBusInfo, NInBuses, "input");
 #endif
     
     char* pOBusStrEnd;
@@ -1479,13 +1472,13 @@ int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& chan
       
       pOBusStr = strtok_r(NULL, ".", &pOBusStrEnd);
       
-      pConfig->AddOutputBus(NOutOnBus);
+      pConfig->AddOutputBusInfo(NOutOnBus);
       
       NOutBuses++;
     }
   
 #ifndef NDEBUG
-    CheckBusses(pConfig->mOutputBuses, NOutBuses, "output");
+    CheckBusses(pConfig->mOutputBusInfo, NOutBuses, "output");
 #endif
     
     DBGMSG("Channel I/O #%i - input bus count: %i, output bus count %i\n", IOConfigIndex + 1, NInBuses, NOutBuses);

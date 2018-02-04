@@ -17,7 +17,7 @@
 #define AAX_TYPE_ID_ARRAY(VARNAME, ARR_DATA) AAX_CTypeID VARNAME[] = {args ARR_DATA}
 
 #ifndef MULTICHANNEL_BUSTYPE_FUNC
-uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
+uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans)
 {
   switch (numChans)
   {
@@ -34,7 +34,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans);
 #endif //MULTICHANNEL_BUSTYPE_FUNC
 
 AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
@@ -90,19 +90,24 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
   AAX_TYPE_ID_ARRAY(aaxTypeIDsAudioSuite,(AAX_TYPE_IDS_AUDIOSUITE));
 
-  WDL_PtrList<ChannelIO> channelIO;
+  WDL_PtrList<IOConfig> channelIO;
   int totalNInChans = 0, totalNOutChans = 0;
   int totalNInBuses = 0, totalNOutBuses = 0;
   
-  int NIOConfigs = IPlugBase::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  const int NIOConfigs = IPlugBase::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
   
   for (int ioConfigIdx = 0; ioConfigIdx < NIOConfigs; ioConfigIdx++)
   {
-    AAX_CTypeID typeId = aaxTypeIDs[ioConfigIdx];
+    AAX_CTypeID typeId = aaxTypeIDs[ioConfigIdx]; // TODO: aaxTypeIDs must be the same size as NIOConfigs, can we assert somehow if not?
+    
     // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
     AAX_SIPlugSetupInfo setupInfo;
-    setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, channelIO.Get(ioConfigIdx)->NChansOnInputBus(0));
-    setupInfo.mOutputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, channelIO.Get(ioConfigIdx)->NChansOnOutputBus(0));
+    if(PLUG_IS_INSTRUMENT) // For some reason in protools instruments need to have input buses. 
+      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, -1, channelIO.Get(ioConfigIdx)->GetOutputBusInfo(0)->mNChans);
+    else
+      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, -1, channelIO.Get(ioConfigIdx)->GetInputBusInfo(0)->mNChans);
+
+    setupInfo.mOutputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(ioConfigIdx, -1, channelIO.Get(ioConfigIdx)->GetOutputBusInfo(0)->mNChans);
     setupInfo.mManufacturerID = PLUG_MFR_ID;
     setupInfo.mProductID = PLUG_UNIQUE_ID;
     setupInfo.mPluginID = typeId;

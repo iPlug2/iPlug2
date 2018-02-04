@@ -5,7 +5,7 @@
 #include "IPlugAU.h"
 
 #ifndef MULTICHANNEL_BUSTYPE_FUNC
-static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans)
 {
   switch (numChans)
   {
@@ -21,7 +21,7 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numC
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans);
 #endif //MULTICHANNEL_BUSTYPE_FUNC
 
 inline CFStringRef MakeCFString(const char* cStr)
@@ -387,19 +387,59 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 
 UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags)
 {
+  const int NIOConfigs = mIOConfigs.GetSize();
+
   switch(scope)
   {
+
     case kAudioUnitScope_Input:
     {
-      if (!mInBuses.Get(0)) // no inputs = synth
-        return 0;
+      if(tags)
+      {
+        int maxInputChannelCountOnBuses[MaxNInputBuses()];
+        memset(maxInputChannelCountOnBuses, 0, MaxNInputBuses() * sizeof(int));
+        
+        //find the maximum channel count for each input bus
+        for (int i = 0; i < NIOConfigs; i++)
+        {
+          IOConfig* pIOConfig = mIOConfigs.Get(i);
+          
+          for (auto busIdx = 0; busIdx < MaxNInputBuses(); busIdx++)
+          {
+            maxInputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnInputBusSAFE(busIdx), maxInputChannelCountOnBuses[busIdx]);
+          }
+        }
+        
+        for(int busIdx = 0; busIdx < MaxNInputBuses(); busIdx++)
+          tags[busIdx] = (AudioChannelLayoutTag) GetAPIBusTypeForChannelIOConfig(-1, -1, maxInputChannelCountOnBuses[busIdx]);
+        return 1; // success in this case
+      }
+      else
+        return MaxNInputBuses();
     }
     case kAudioUnitScope_Output:
     {
       if(tags)
-        tags[0] = (AudioChannelLayoutTag) GetAPIBusTypeForChannelIOConfig(element, mOutBuses.Get(element)->mNPlugChannels);
-
-      return 1;
+      {
+        int maxOutputChannelCountOnBuses[MaxNOutputBuses()];
+        memset(maxOutputChannelCountOnBuses, 0, MaxNOutputBuses() * sizeof(int));
+        
+        for (int i = 0; i < NIOConfigs; i++)
+        {
+          IOConfig* pIOConfig = mIOConfigs.Get(i);
+          
+          for (auto busIdx = 0; busIdx < MaxNOutputBuses(); busIdx++)
+          {
+            maxOutputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnOutputBusSAFE(busIdx), maxOutputChannelCountOnBuses[busIdx]);
+          }
+        }
+        
+        for(int busIdx = 0; busIdx < MaxNOutputBuses(); busIdx++)
+          tags[busIdx] = (AudioChannelLayoutTag) GetAPIBusTypeForChannelIOConfig(-1, -1, maxOutputChannelCountOnBuses[busIdx]);
+        return 1; // success in this case
+      }
+      else
+        return MaxNOutputBuses();
     }
     default:
       return 0;
@@ -590,18 +630,14 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData)
       {
         int n = 0;
+        
         if (scope == kAudioUnitScope_Input)
-        {
           n = mInBuses.GetSize();
-        }
         else if (scope == kAudioUnitScope_Output)
-        {
           n = mOutBuses.GetSize();
-        }
         else if (scope == kAudioUnitScope_Global)
-        {
           n = 1;
-        }
+        
         *((UInt32*) pData) = n;
       }
       return noErr;
@@ -619,14 +655,14 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_SupportedNumChannels:        // 13,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      int n = mChannelIO.GetSize();
+      int n = mIOConfigs.GetSize();
       *pDataSize = n * sizeof(AUChannelInfo);
       if (pData)
       {
         AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
         for (int i = 0; i < n; ++i, ++pChInfo)
         {
-          ChannelIO* pIO = mChannelIO.Get(i);
+          IOConfig* pIO = mIOConfigs.Get(i);
           pChInfo->inChannels = pIO->GetTotalNInputChannels();
           pChInfo->outChannels = pIO->GetTotalNOutputChannels();
           Trace(TRACELOC, "IO:%d:%d", pIO->GetTotalNInputChannels(), pIO->GetTotalNOutputChannels());
@@ -774,7 +810,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           {
             if (element == 0 || element == 1)
             {
-              *(CFStringRef *)pData = MakeCFString(GetInputBusLabel(element)->Get());
+              *(CFStringRef *)pData = MakeCFString("input");
               return noErr;
             }
             else
@@ -783,7 +819,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           case kAudioUnitScope_Output:
           {
             //TODO: live 5.1 crash?
-            *(CFStringRef *)pData = MakeCFString(GetOutputBusLabel(element)->Get());
+            *(CFStringRef *)pData = MakeCFString("output");
             return noErr;
           }
           default:
@@ -812,10 +848,6 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_SupportedChannelLayoutTags:
     {
-      // kAudioUnitProperty_SupportedChannelLayoutTags is only needed for multi-output bus instruments
-      if (!IsInstrument() || (mOutBuses.GetSize()==1))
-        return kAudioUnitErr_InvalidProperty;
-
       if (!pData) // GetPropertyInfo
       {
         UInt32 numLayouts = GetChannelLayoutTags(scope, element, NULL);
@@ -824,6 +856,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           *pDataSize = numLayouts * sizeof(AudioChannelLayoutTag);
           *pWriteable = true;
+          return noErr;
+        }
+        else
+        {
+          *pDataSize = 0;
+          *pWriteable = false;
           return noErr;
         }
       }
@@ -1661,8 +1699,8 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mBundleID.Set(instanceInfo.mBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
-  if (HasSidechainInput() && NInChannels()) // effect with side chain input... 2 input buses
-  {
+//  if (HasSidechainInput() && NInChannels()) // effect with side chain input... 2 input buses
+//  {
 //    TODO: implement this
 //    int nNonScInputChans = NInChannels() - c.plugScChans;
 //
@@ -1681,56 +1719,66 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 //
 //    SetInputBusLabel(0, "main input");
 //    SetInputBusLabel(1, "aux input");
-  }
-  else if (NInChannels()) // effect with no side chain... 1 bus
+//  }
+//  else if (NInChannels()) // effect with no side chain... 1 bus
+//  {
+//    PtrListInitialize(&mInBusConnections, 1);
+//    PtrListInitialize(&mInBuses, 1);
+//
+//    BusChannels* pInBus = mInBuses.Get(0);
+//    pInBus->mNHostChannels = -1;
+//    pInBus->mPlugChannelStartIdx = 0;
+//    pInBus->mNPlugChannels = NInChannels();
+//
+//    SetInputBusLabel(0, "input");
+//    SetInputBusLabel(1, "aux input"); // Ableton Live seems to think a 4-2 audiounit has a sidechain input, even if it is not meant to, so name it just in case
+//  }
+//  else   // synth = no inputs // TODO: support synths with SC inputs?
+//  {
+//    PtrListInitialize(&mInBusConnections, 0);
+//    PtrListInitialize(&mInBuses, 0);
+//  }
+//
+//  if(IsInstrument())
+//  {
+//    int nOutBuses = (int) ceil(NOutChannels() / 2.);
+//
+//    PtrListInitialize(&mOutBuses, nOutBuses);
+//    char label[MAX_BUS_NAME_LEN];
+//
+//    for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2)
+//    {
+//      BusChannels* pOutBus = mOutBuses.Get(i);
+//      pOutBus->mNHostChannels = -1;
+//      pOutBus->mPlugChannelStartIdx = startCh;
+//      pOutBus->mNPlugChannels = std::min(NOutChannels() - startCh, 2);
+//
+//      sprintf(label, "output %i", i+1);
+//      SetOutputBusLabel(i, label);
+//    }
+//  }
+//  else
+//  {
+//    // one output bus
+//    int nOutBuses = 1;
+//    PtrListInitialize(&mOutBuses, nOutBuses);
+//
+//    BusChannels* pOutBus = mOutBuses.Get(0);
+//    pOutBus->mNHostChannels = -1;
+//    pOutBus->mPlugChannelStartIdx = 0;
+//    pOutBus->mNPlugChannels = NOutChannels();
+//
+//    SetOutputBusLabel(0, "output");
+//  }
+  
+  PtrListInitialize(&mOutBuses, mMaxNOutBuses);
+  
+  for (int bus = 0; bus < mMaxNOutBuses; bus++)
   {
-    PtrListInitialize(&mInBusConnections, 1);
-    PtrListInitialize(&mInBuses, 1);
-
-    BusChannels* pInBus = mInBuses.Get(0);
-    pInBus->mNHostChannels = -1;
-    pInBus->mPlugChannelStartIdx = 0;
-    pInBus->mNPlugChannels = NInChannels();
-
-    SetInputBusLabel(0, "input");
-    SetInputBusLabel(1, "aux input"); // Ableton Live seems to think a 4-2 audiounit has a sidechain input, even if it is not meant to, so name it just in case
-  }
-  else   // synth = no inputs // TODO: support synths with SC inputs?
-  {
-    PtrListInitialize(&mInBusConnections, 0);
-    PtrListInitialize(&mInBuses, 0);
-  }
-
-  if(c.plugIsInstrument) // TODO: support instruments with multichannel outputs, i.e. 5.1?
-  {
-    int nOutBuses = (int) ceil(NOutChannels() / 2.);
-
-    PtrListInitialize(&mOutBuses, nOutBuses);
-    char label[MAX_BUS_NAME_LEN];
-
-    for (int i = 0, startCh = 0; i < nOutBuses; ++i, startCh += 2)
-    {
-      BusChannels* pOutBus = mOutBuses.Get(i);
-      pOutBus->mNHostChannels = -1;
-      pOutBus->mPlugChannelStartIdx = startCh;
-      pOutBus->mNPlugChannels = std::min(NOutChannels() - startCh, 2);
-
-      sprintf(label, "output %i", i+1);
-      SetOutputBusLabel(i, label);
-    }
-  }
-  else
-  {
-    // one output bus
-    int nOutBuses = 1;
-    PtrListInitialize(&mOutBuses, nOutBuses);
-
-    BusChannels* pOutBus = mOutBuses.Get(0);
+    BusChannels* pOutBus = mOutBuses.Get(bus);
     pOutBus->mNHostChannels = -1;
     pOutBus->mPlugChannelStartIdx = 0;
     pOutBus->mNPlugChannels = NOutChannels();
-
-    SetOutputBusLabel(0, "output");
   }
 
   AssessInputConnections();

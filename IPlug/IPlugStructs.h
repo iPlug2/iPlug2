@@ -194,43 +194,104 @@ struct IPlugConfig
   {};
 };
 
-/** Used to store channel i/o count together per bus */
-struct ChannelIO
+/**
+ Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision
+ */
+template<class TIN  = float, class TOUT = double>
+struct ChannelData
 {
-  WDL_TypedBuf<int> mInputBuses;
-  WDL_TypedBuf<int> mOutputBuses;
+  bool mConnected = false;
+  TOUT** mData = nullptr; // If this is for an input channel, points into IPlugBase::mInData, if it's for an output channel points into IPlugBase::mOutData
+  TIN* mIncomingData = nullptr;
+  WDL_TypedBuf<TOUT> mScratchBuf;
+  WDL_String mLabel = WDL_String("");
+};
+
+struct BusInfo
+{
+  int mNChans;
+  WDL_String mLabel;
   
-  void AddInputBus(int NChans) { mInputBuses.Add(NChans); }
-  void AddOutputBus(int NChans) { mOutputBuses.Add(NChans); }
-  
-  int NChansOnInputBus(int busIdx)
+  BusInfo(int nchans = 0, const char* label = "")
+  : mNChans(nchans)
   {
-    assert(busIdx < mInputBuses.GetSize());
-    return mInputBuses.Get()[busIdx];
+    mLabel.Set(label);
+  }
+};
+
+/** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
+struct IOConfig
+{
+  WDL_PtrList<BusInfo> mInputBusInfo; // A particular valid io config may have multiple input buses
+  WDL_PtrList<BusInfo> mOutputBusInfo; // or multiple output busses
+  
+  ~IOConfig()
+  {
+    mInputBusInfo.Empty(true);
+    mOutputBusInfo.Empty(true);
+  }
+  
+  void AddInputBusInfo(int NChans, const char* label = "input")
+  {
+    mInputBusInfo.Add(new BusInfo(NChans, label));
+  }
+  
+  void AddOutputBusInfo(int NChans, const char* label = "output")
+  {
+    mOutputBusInfo.Add(new BusInfo(NChans, label));
   }
 
-  int NChansOnOutputBus(int busIdx)
+  BusInfo* GetInputBusInfo(int index)
   {
-    assert(busIdx < mOutputBuses.GetSize());
-    return mOutputBuses.Get()[busIdx];
+    assert(index >= 0 && index < mInputBusInfo.GetSize());
+
+    return mInputBusInfo.Get(index);
   }
   
+  BusInfo* GetOutputBusInfo(int index)
+  {
+    assert(index >= 0 && index < mOutputBusInfo.GetSize());
+  
+    return mOutputBusInfo.Get(index);
+  }
+  
+  int NChansOnInputBusSAFE(int index)
+  {
+    if(index >= 0 && index < mInputBusInfo.GetSize())
+      return mInputBusInfo.Get(index)->mNChans;
+    else
+      return 0;
+  }
+  
+  int NChansOnOutputBusSAFE(int index)
+  {
+    if(index >= 0 && index < mOutputBusInfo.GetSize())
+      return mOutputBusInfo.Get(index)->mNChans;
+    else
+      return 0;
+  }
+  
+  int NInputBuses() { return mInputBusInfo.GetSize(); }
+  int NOutputBuses() { return mOutputBusInfo.GetSize(); }
+
+  /** Get the total number of input channels across all input buses for this IOConfig */
   int GetTotalNInputChannels() const
   {
     int total = 0;
     
-    for(int i = 0; i < mInputBuses.GetSize(); i++)
-      total += mInputBuses.Get()[i];
+    for(int i = 0; i < mInputBusInfo.GetSize(); i++)
+      total += mInputBusInfo.Get(i)->mNChans;
     
     return total;
   }
   
+  /** Get the total number of output channels across all output buses for this IOConfig */
   int GetTotalNOutputChannels() const
   {
     int total = 0;
     
-    for(int i = 0; i < mOutputBuses.GetSize(); i++)
-      total += mOutputBuses.Get()[i];
+    for(int i = 0; i < mOutputBusInfo.GetSize(); i++)
+      total += mOutputBusInfo.Get(i)->mNChans;
     
     return total;
   }

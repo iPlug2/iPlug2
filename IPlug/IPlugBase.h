@@ -147,12 +147,13 @@ public:
    @param totalNOutBuses The total number of output buses across all channel io configs will be stored here
    @return The number of space separated channel io configs that have been detected in IOStr
    */
-  static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<ChannelIO>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
+  static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
   
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
-  int NChannelIO() const { return mChannelIO.GetSize(); }
+  
+  int NChannelIO() const { return mIOConfigs.GetSize(); }
   void GetChannelIO(int optionIdx, int& numInputs, int& numOutputs);
   int NInChannels() const { return mInChannels.GetSize(); }
   int NOutChannels() const { return mOutChannels.GetSize(); }
@@ -198,11 +199,24 @@ public:
 
   void EnsureDefaultPreset();
   
+  /**
+   @return the maximum input bus count across all channel i/o configs
+   */
+  int MaxNInputBuses() { return mMaxNInBuses; }
+  
+  /**
+   @return the maximum output bus count across all channel i/o configs
+   */
+  int MaxNOutputBuses() { return mMaxNOutBuses; }
+
+  /**
+   @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config
+   */
   bool HasSidechainInput() { return mMaxNInBuses > 1; }
   int NSidechainChannels() { return 1; } // TODO: this needs to be more flexible, based on channel i/o
   bool IsInstrument() { return mIsInstrument; }
   bool DoesMIDI() { return mDoesMIDI; }
-  bool LegalIO(int nIn, int nOut);    // -1 for either means check the other value only.
+  bool LegalIO(int NInputChans, int NOutputChans);    // -1 for either means check the other value only.
 
   int NParamGroups() { return mParamGroups.GetSize(); }
   const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
@@ -215,21 +229,18 @@ protected:
   void SetInputLabel(int idx, const char* label);
   void SetOutputLabel(int idx, const char* label);
 
-  const WDL_String* GetInputLabel(int idx) { return &(mInChannels.Get(idx)->mLabel); }
-  const WDL_String* GetOutputLabel(int idx) { return &(mOutChannels.Get(idx)->mLabel); }
+  const WDL_String& GetInputLabel(int idx) { return mInChannels.Get(idx)->mLabel; }
+  const WDL_String& GetOutputLabel(int idx) { return mOutChannels.Get(idx)->mLabel; }
 
   /** Sets labels for the inputs (AU/VST3)
    * @param idx Input index. Range: 0-1 (it's only possible to have two input buses)
    * @param pLabel Label text */
-  void SetInputBusLabel(int idx, const char* pLabel);
+  void SetInputBusLabel(int idx, const char* label);
 
   /** Sets labels for the outputs (AU/VST3)
    * @param idx Output index
    * @param pLabel Label text */
-  void SetOutputBusLabel(int idx, const char* pLabel);
-
-  const WDL_String* GetInputBusLabel(int idx) { return mInputBusLabels.Get(idx); }
-  const WDL_String* GetOutputBusLabel(int idx) { return mOutputBusLabels.Get(idx); }
+  void SetOutputBusLabel(int idx, const char* label);
 
   void LimitToStereoIO();
 
@@ -362,28 +373,18 @@ private:
   EAPI mAPI;
   EHost mHost = kHostUninit;
 
-  struct InChannel
-  {
-    bool mConnected;
-    double** mSrc;   // Points into mInData.
-    WDL_TypedBuf<double> mScratchBuf;
-    WDL_String mLabel;
-  };
-
-  /** @struct OutChannel */
-  struct OutChannel
-  {
-    bool mConnected;
-    /** Points into mOutData */
-    double** mDest;
-    float* mFDest;
-    WDL_TypedBuf<double> mScratchBuf;
-    WDL_String mLabel;
-  };
-
   WDL_PtrList<const char> mParamGroups;
 protected:
   bool mStateChunks;
+
+  /** \c True if the plug-in has a user interface. If false the host will provide a default interface */
+  bool mHasUI = false;
+  int mCurrentPresetIdx = 0;
+
+  WDL_PtrList<IParam> mParams;
+  WDL_PtrList<IPreset> mPresets;
+  
+  
   /** \c True if the plug-in is an instrument */
   bool mIsInstrument;
   /** \c True if the plug-in requires MIDI input */
@@ -394,23 +395,20 @@ protected:
   int mLatency;
   /** \c True if the plug-in is bypassed */
   bool mBypassed = false;
-  /** \c True if the plug-in has a user interface. If false the host will provide a default interface */
-  bool mHasUI = false;
-  int mCurrentPresetIdx = 0;
+  
   double mSampleRate  = DEFAULT_SAMPLE_RATE;
   int mBlockSize = 0;
   int mTailSize = 0;
-  int mMaxNInBuses, mMaxNNOutBuses;
+  
+  int mMaxNInBuses, mMaxNOutBuses;
   NChanDelayLine<double>* mLatencyDelay = nullptr;
-  WDL_PtrList<IParam> mParams;
-  WDL_PtrList<IPreset> mPresets;
   WDL_TypedBuf<double*> mInData, mOutData;
-  WDL_PtrList<InChannel> mInChannels;
-  WDL_PtrList<OutChannel> mOutChannels;
+  WDL_PtrList<ChannelData<>> mInChannels;
+  WDL_PtrList<ChannelData<>> mOutChannels;
+  WDL_PtrList<IOConfig> mIOConfigs;
   WDL_PtrList<WDL_String> mInputBusLabels;
   WDL_PtrList<WDL_String> mOutputBusLabels;
-  WDL_PtrList<ChannelIO> mChannelIO;
-
+  
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;

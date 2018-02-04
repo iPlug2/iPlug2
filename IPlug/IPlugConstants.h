@@ -77,6 +77,21 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
+#ifdef VST3_API
+#undef stricmp
+#undef strnicmp
+#include "vsttypes.h"
+static const uint64_t kInvalidBusType = Steinberg::Vst::SpeakerArr::kEmpty;
+#elif defined AU_API || AUv3_API
+#include <CoreAudio/CoreAudio.h>
+static const uint64_t kInvalidBusType = kAudioChannelLayoutTag_Unknown;
+#elif defined AAX_API
+#include "AAX_Enums.h"
+static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
+#else
+static const uint64_t kInvalidBusType = 0;
+#endif
+
 enum EAPI
 {
   kAPIVST2 = 0,
@@ -133,3 +148,5 @@ enum EHost
   // EnergyXT2
   // MiniHost
 };
+
+

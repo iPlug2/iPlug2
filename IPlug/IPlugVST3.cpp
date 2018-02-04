@@ -8,7 +8,7 @@
 #include "IPlugVST3.h"
 
 #ifndef MULTICHANNEL_BUSTYPE_FUNC
-static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans)
 {
   switch (numChans)
   {
@@ -18,13 +18,15 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numC
       return (uint64_t) Steinberg::Vst::SpeakerArr::kStereo;
     case 0:
     default:
+    {
       DBGMSG("for anything other than mono or stereo buses, you need to implement GetAPIBusTypeForChannelIOConfig() and #define MULTICHANNEL_BUSTYPE_FUNC\n");
       assert(numChans > 2);
       return (uint64_t) Steinberg::Vst::SpeakerArr::kEmpty;
+    }
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int numChans);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans);
 #endif //MULTICHANNEL_BUSTYPE_FUNC
 
 using namespace Steinberg;
@@ -103,10 +105,10 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   }
 
   // initialize the bus labels
-  SetInputBusLabel(0, "Main Input");
-
-  if (HasSidechainInput())
-    SetInputBusLabel(1, "Aux Input");
+//  SetInputBusLabel(0, "Main Input");
+//
+//  if (HasSidechainInput())
+//    SetInputBusLabel(1, "Aux Input");
   
 //  if (IsInstrument())
 //  {
@@ -121,7 +123,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 //  }
 //  else
 //  {
-    SetOutputBusLabel(0, "Output");
+//    SetOutputBusLabel(0, "Output");
 //  }
   
   // Make sure the process context is predictably initialised in case it is used before process is called
@@ -153,32 +155,48 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
   if (result == kResultOk)
   {
-    if (NInChannels())
+    //to do should move
+    const int NIOConfigs = mIOConfigs.GetSize();
+    int maxInputChannelCountOnBuses[MaxNInputBuses()];
+    memset(maxInputChannelCountOnBuses, 0, MaxNInputBuses() * sizeof(int));
+
+    int maxOutputChannelCountOnBuses[MaxNOutputBuses()];
+    memset(maxOutputChannelCountOnBuses, 0, MaxNOutputBuses() * sizeof(int));
+    
+    //find the maximum channel count for each input bus
+    for (int i = 0; i < NIOConfigs; i++)
     {
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(0)->Get(), 128);
-      addAudioInput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(0, NInChannels()));
+      IOConfig* pIOConfig = mIOConfigs.Get(i);
+      
+      for (auto busIdx = 0; busIdx < MaxNInputBuses(); busIdx++)
+      {
+        maxInputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnInputBusSAFE(busIdx), maxInputChannelCountOnBuses[busIdx]);
+      }
+      
+      for (auto busIdx = 0; busIdx < MaxNOutputBuses(); busIdx++)
+      {
+        maxOutputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnOutputBusSAFE(busIdx), maxOutputChannelCountOnBuses[busIdx]);
+      }
     }
-
-//    if(!IsInstrument()) // if effect, just add one output bus with max chan count
-//    {
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
-      addAudioOutput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(0, NOutChannels()) );
-//    }
-//    else
-//    {
-//      for (int bus = 0; bus < NOutputBuses(); bus++)
-//      {
-//        Steinberg::UString(tmpStringBuf, 128).fromAscii(GetOutputBusLabel(0)->Get(), 128);
-//        addAudioOutput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(0, NOutChannels()) );
-//      }
-//    }
-
-//    if (HasSidechainInput())
-//    {
-//      assert(NSidechainChannels() < 2); // TODO: side-chain input with more than 2 channels?
-//      Steinberg::UString(tmpStringBuf, 128).fromAscii(GetInputBusLabel(1)->Get(), 128);
-//      addAudioInput(tmpStringBuf, getSpeakerArrForChans(NSidechainChannels()), kAux, 0);
-//    }
+    //
+    
+    for (auto busIdx = 0; busIdx < MaxNInputBuses(); busIdx++)
+    {
+      int flags = 0;
+      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+      Steinberg::UString(tmpStringBuf, 128).fromAscii("", 128); // TODO: label can this be set later on?
+      addAudioInput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(-1, -1, maxInputChannelCountOnBuses[busIdx]),
+                    (BusTypes) busIdx > 0, flags);
+    }
+    
+    for (auto busIdx = 0; busIdx < MaxNOutputBuses(); busIdx++)
+    {
+      int flags = 0;
+      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+      Steinberg::UString(tmpStringBuf, 128).fromAscii("", 128); // TODO: label can this be set later on?
+      addAudioOutput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(-1, -1, maxOutputChannelCountOnBuses[busIdx]),
+                     (BusTypes) busIdx > 0, flags);
+    }
 
     if(DoesMIDI())
     {
@@ -258,55 +276,42 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   SetInputChannelConnections(0, NInChannels(), false);
   SetOutputChannelConnections(0, NOutChannels(), false);
 
-  int32_t reqNumInputChannels = SpeakerArr::getChannelCount(inputs[0]);  //requested # input channels
-  int32_t reqNumOutputChannels = SpeakerArr::getChannelCount(outputs[0]);//requested # output channels
-
-  // legal io doesn't consider sidechain inputs
-  if (!LegalIO(reqNumInputChannels, reqNumOutputChannels))
+  int NInputChannelCountOnBuses[MaxNInputBuses()];
+  memset(NInputChannelCountOnBuses, 0, MaxNInputBuses() * sizeof(int));
+  
+  int NOutputChannelCountOnBuses[MaxNOutputBuses()];
+  memset(NOutputChannelCountOnBuses, 0, MaxNOutputBuses() * sizeof(int));
+  
+  for(auto busIdx = 0; busIdx < numIns; busIdx++)
   {
-    return kResultFalse;
+    AudioBus* pBus = FCast<AudioBus>(audioInputs.at(busIdx));
+    const int NInputsRequired = SpeakerArr::getChannelCount(inputs[busIdx]);
+    // if existing input bus has a different number of channels to the input bus being connected
+    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
+    {
+      int flags = 0;
+      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
+      addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NInputsRequired), (BusTypes) busIdx > 0, flags);
+
+    }
   }
-
-  // handle input
-  AudioBus* bus = FCast<AudioBus>(audioInputs.at(0));
-
-  // if existing input bus has a different number of channels to the input bus being connected
-  if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumInputChannels)
+  
+  for(auto busIdx = 0; busIdx < numOuts; busIdx++)
   {
-    audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), bus));
-    addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(0 /*TODO*/, reqNumInputChannels));
+    AudioBus* pBus = FCast<AudioBus>(audioOutputs.at(busIdx));
+    const int NOutputsRequired = SpeakerArr::getChannelCount(outputs[busIdx]);
+    // if existing input bus has a different number of channels to the input bus being connected
+    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
+    {
+      int flags = 0;
+      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+      audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
+      addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NOutputsRequired), (BusTypes) busIdx > 0, flags);
+    }
   }
-
-  // handle output
-  bus = FCast<AudioBus>(audioOutputs.at(0));
-  // if existing output bus has a different number of channels to the output bus being connected
-  if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumOutputChannels)
-  {
-    audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), bus));
-    addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(0 /*TODO*/, reqNumOutputChannels));
-  }
-
-  if (!HasSidechainInput() && numIns == 1) // No sidechain, every thing OK
-  {
-    return kResultTrue;
-  }
-
-//  if (HasSidechainInput() && numIns == 2) // numIns = num Input BUSes
-//  {
-//    int32_t reqNumSideChainChannels = SpeakerArr::getChannelCount(inputs[1]);  //requested # sidechain input channels
-//
-//    bus = FCast<AudioBus>(audioInputs.at(1));
-//
-//    if (bus && SpeakerArr::getChannelCount(bus->getArrangement()) != reqNumSideChainChannels)
-//    {
-//      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), bus));
-//      addAudioInput(USTRING("Sidechain Input"), getSpeakerArrForChans(reqNumSideChainChannels), kAux, 0); // either mono or stereo
-//    }
-//
-//    return kResultTrue;
-//  }
-
-  return kResultFalse;
+  
+  return kResultTrue;
 }
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
