@@ -475,12 +475,12 @@ public:
   
   unsigned long hash(const char* str)
   {
-    unsigned long hash = 5381; // TODO: CHECK THIS
+    unsigned long hash = 5381;
     int c;
     
     while ((c = *str++))
     {
-      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+      hash = ((hash << 5) + hash) + c;
     }
     
     return hash;
@@ -488,8 +488,10 @@ public:
   
   struct DataKey
   {
-    unsigned long id;
-    WDL_String path;
+    // N.B. - hashID is not guaranteed to be unique
+      
+    unsigned long hashID;
+    WDL_String name;
     double scale;
     T* data;
   };
@@ -501,14 +503,16 @@ public:
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    unsigned long id = hash(cacheName.Get());
+    unsigned long hashedID = hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
       DataKey* key = mDatas.Get(i);
       
-      if (key->id == id) {
+      // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
+        
+      if (key->hashID == hashID && scale == key->scale && !strcmp(cacheName.Get(), key->name.Get())) {
         return key->data;
       }
     }
@@ -522,10 +526,10 @@ public:
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    key->id = hash(cacheName.Get());
+    key->hashID = hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
-    key->path.Set(str);
+    key->name.Set(str);
     
     DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
