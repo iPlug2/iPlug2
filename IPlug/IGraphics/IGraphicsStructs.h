@@ -25,12 +25,44 @@ enum EDirection { kVertical, kHorizontal };
  * @{
  */
 
+class APIBitmap
+{
+    
+public:
+    
+    APIBitmap(void* pBitmap, int w, int h, int s) : bitmap(pBitmap), width(w), height(h), scale(s) {}
+    APIBitmap() : bitmap(nullptr), width(0), height(0), scale(0) {}
+    virtual ~APIBitmap() {}
+    
+    void SetBitmap(void* pBitmap, int w, int h, int s)
+    {
+      assert(((w % s) == 0) && ((h % s) == 0));
+      
+      bitmap = pBitmap;
+      width = w;
+      height = h;
+      scale = s;
+    }
+    
+    void* GetBitmap() const { return bitmap; }
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
+    int GetScale() const { return scale; }
+    
+private:
+    
+    void* bitmap;
+    int width;
+    int height;
+    int scale;
+};
+
 /** Used to manage bitmap data, independant of draw class/platform.
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 struct IBitmap
 {
-  /** Pointer to the raw bitmap data */
-  void* mData;
+  /** Pointer to the API specific bitmap data */
+  APIBitmap* mAPIBitmap;
   /** Bitmap width (in pixels) */
   int W;
   /** Bitmap height (in pixels) */
@@ -55,19 +87,22 @@ struct IBitmap
    * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
    * @param name Resource name for the bitmap
    */
-  IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, int scale = 1, int sourceScale = 1, const char* name = "")
-    : mData(pData)
-    , W(w /scale)
-    , H(h /scale)
+  IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, int sourceScale, const char* name = "")
+    : mAPIBitmap(pAPIBitmap)
+    , W(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+    , H(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
     , N(n)
     , mFramesAreHorizontal(framesAreHorizontal)
-    , mScale(scale)
+    , mScale(pAPIBitmap->GetScale())
     , mSourceScale(sourceScale)
     , mResourceName(name, (int) strlen(name))
   {
-    assert(((w % scale) == 0) && ((h % scale) == 0));
   }
-
+    
+  IBitmap() : mAPIBitmap(nullptr) , W(0), H(0), N(0), mFramesAreHorizontal(false), mScale(0), mSourceScale(0)
+  {
+  }
+    
   /**
    * @return Width of a single frame
   */

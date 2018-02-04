@@ -14,6 +14,8 @@
 #include "IGraphicsLiveEdit.h"
 #endif
 
+static StaticStorage<APIBitmap> s_bitmapCache;
+
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
@@ -1000,4 +1002,53 @@ void IGraphics::LoadFont(const char* name)
   FT_Init_FreeType(&mFTLibrary);
   FT_New_Face(mFTLibrary, name, 0, &mFTFace);
 #endif
+}
+
+IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int sourceScale)
+{
+  const int targetScale = round(GetDisplayScale()); // targetScale = what this screen is
+    
+  APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
+    
+  if (!pAPIBitmap) // if bitmap not already in the cache at targetScale
+  {
+    WDL_String fullPath;
+    bool resourceFound = OSFindResource(name, "png", fullPath);
+    assert(resourceFound); // Protect against typos in resource.h and .rc files.
+        
+    pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+    assert(pAPIBitmap); // Protect against typos in resource.h and .rc files.
+        
+    if (sourceScale != targetScale)
+    {
+      const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, sourceScale, name);
+      IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale); // will add to cache
+      delete pAPIBitmap;
+      return scaledBitmap;
+    }
+    else
+      s_bitmapCache.Add(pAPIBitmap, name, sourceScale);
+  }
+    
+  return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, sourceScale, name);
+}
+
+void IGraphics::ReleaseBitmap(IBitmap& bitmap)
+{
+  s_bitmapCache.Remove(bitmap.mAPIBitmap);
+}
+
+void IGraphics::RetainBitmap(IBitmap& bitmap, const char * cacheName)
+{
+  s_bitmapCache.Add(bitmap.mAPIBitmap, cacheName);
+}
+
+IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
+{
+  // Cache and return as an IBitmap
+    
+  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.mAPIBitmap, scale);
+  s_bitmapCache.Add(pAPIBitmap, name, scale);
+    
+  return IBitmap(pAPIBitmap, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
 }

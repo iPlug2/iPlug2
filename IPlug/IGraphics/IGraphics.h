@@ -43,6 +43,7 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
+
 public:
 #pragma mark - IGraphics drawing API implementation
   //These are NanoVG only, may be refactored
@@ -132,11 +133,11 @@ public:
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, int scale = 1) = 0;
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale) = 0;
-  virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) = 0;
-  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
-  virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
+  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHorizontal = false, int scale = 1);
+  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+  //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) = 0;
+  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName);
+  virtual void ReleaseBitmap(IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
   virtual void OnDisplayScale();
   
@@ -305,6 +306,11 @@ public:
   virtual void LoadFont(const char* name);
   
 protected:
+    
+  virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
+  //virtual void* CreateAPIBitmap(int w, int h) = 0;
+  virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
+
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;

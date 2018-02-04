@@ -141,12 +141,8 @@ public:
   void* GetData() override { return 0; } //todo
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, int scale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* cacheName, int scale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, int scale) override;
-  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
-  void ReleaseBitmap(IBitmap& bitmap) override {};
-//  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
+ // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, int scale) override;
+ //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
   
@@ -198,9 +194,9 @@ private:
 #endif
   
 private:
-  agg::pixel_map* LoadAPIBitmap(const char* pPath);
+  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
-  agg::pixel_map* ScaleAPIBitmap(agg::pixel_map* pixel_map, int destW, int destH);
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
 
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
