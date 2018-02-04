@@ -9,7 +9,14 @@
 
 #include "IGraphics.h"
 
-struct NanoVGBitmap;
+class NanoVGBitmap : public APIBitmap
+{
+public:
+  NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale);
+  virtual ~NanoVGBitmap();
+private:
+  NVGcontext* mVG;
+};
 
 inline float NanoVGWeight(const IBlend* pBlend)
 {

@@ -59,25 +59,19 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 }
 #endif //OS_WIN
 
-class CairoBitmap : public APIBitmap
+CairoBitmap::CairoBitmap(cairo_surface_t* s, int scale)
 {
- 
-public:
-    
-  CairoBitmap(cairo_surface_t* s, int scale)
-  {
-    cairo_surface_set_device_scale(s, scale, scale);
-    int width = cairo_image_surface_get_width(s);
-    int height = cairo_image_surface_get_height(s);
-      
-    SetBitmap(s, width, height, scale);
-  }
+  cairo_surface_set_device_scale(s, scale, scale);
+  int width = cairo_image_surface_get_width(s);
+  int height = cairo_image_surface_get_height(s);
   
-  ~CairoBitmap()
-  {
-    cairo_surface_destroy((cairo_surface_t*) GetBitmap());
-  }
-};
+  SetBitmap(s, width, height, scale);
+}
+  
+CairoBitmap::~CairoBitmap()
+{
+  cairo_surface_destroy((cairo_surface_t*) GetBitmap());
+}
 
 #pragma mark -
 

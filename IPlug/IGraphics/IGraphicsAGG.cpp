@@ -2,22 +2,6 @@
 
 #include "IGraphicsAGG.h"
 
-class AGGBitmap : public APIBitmap
-{
-    
-public:
-    
-  AGGBitmap(agg::pixel_map* pPixMap, int scale) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale)
-  {
-  }
-
-  ~AGGBitmap()
-  {
-    delete ((agg::pixel_map*) GetBitmap());
-  }
-};
-
-static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<agg::font> s_fontCache;
 
 #pragma mark -

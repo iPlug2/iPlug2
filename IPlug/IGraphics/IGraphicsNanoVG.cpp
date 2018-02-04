@@ -5,32 +5,22 @@
 
 #pragma mark -
 
-class NanoVGBitmap : public APIBitmap
+NanoVGBitmap::NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale)
 {
-    
-public:
-    
-  NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale)
-  {
-    mVG = context;
-    int w = 0, h = 0;
-    long long idx = nvgCreateImage(mVG, path, 0);
-    nvgImageSize(mVG, idx, &w, &h);
+  mVG = context;
+  int w = 0, h = 0;
+  long long idx = nvgCreateImage(mVG, path, 0);
+  nvgImageSize(mVG, idx, &w, &h);
       
-    SetBitmap((void *) idx, w, h, sourceScale);
-  }
-  
-  ~NanoVGBitmap()
-  {
-    int idx = (int) ((long long) GetBitmap());
-    nvgDeleteImage(mVG, idx);
-  }
-  
-private:
-    
-  NVGcontext* mVG;
-};
+  SetBitmap((void *) idx, w, h, sourceScale);
+}
 
+NanoVGBitmap::~NanoVGBitmap()
+{
+  int idx = (int) ((long long) GetBitmap());
+  nvgDeleteImage(mVG, idx);
+}
+  
 IGraphicsNanoVG::IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps)
 : IGraphics(plug, w, h, fps)
 {

@@ -4,21 +4,6 @@
 
 extern int GetSystemVersion();
 
-class LICEBitmap : public APIBitmap
-{
-    
-public:
-    
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale)
-  {
-  }
-    
-  ~LICEBitmap()
-  {
-    delete ((LICE_IBitmap*) GetBitmap());
-  }
-};
-
 static StaticStorage<LICE_IFont> s_fontCache;
 
 #pragma mark -

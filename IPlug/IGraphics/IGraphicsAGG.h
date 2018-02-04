@@ -58,6 +58,13 @@
 #pragma clang diagnostic pop
 #endif
 
+class AGGBitmap : public APIBitmap
+{
+public:
+  AGGBitmap(agg::pixel_map* pPixMap, int scale) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale) {}
+  virtual ~AGGBitmap() { delete ((agg::pixel_map*) GetBitmap()); }
+};
+
 inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 {
   if (!pBlend)

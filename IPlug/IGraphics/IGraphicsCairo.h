@@ -15,6 +15,13 @@
 
 #include "IGraphics.h"
 
+class CairoBitmap : public APIBitmap
+{
+public:
+  CairoBitmap(cairo_surface_t* s, int scale);
+  virtual ~CairoBitmap();
+};
+
 /** IGraphics draw class using Cairo  
 *   @ingroup DrawClasses
 */

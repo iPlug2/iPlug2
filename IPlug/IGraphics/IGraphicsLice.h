@@ -11,6 +11,13 @@
 
 #include "IGraphics.h"
 
+class LICEBitmap : public APIBitmap
+{
+public:
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale) {}
+  virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
+};
+
 /** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses
 */
