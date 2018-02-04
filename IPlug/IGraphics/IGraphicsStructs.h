@@ -497,15 +497,13 @@ public:
     double scale;
     T* data;
   };
-  
-  WDL_PtrList<DataKey> mDatas;
-  
+    
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    unsigned long hashedID = hash(cacheName.Get());
+    unsigned long hashID = hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -550,7 +548,7 @@ public:
     }
   }
   
-  ~StaticStorage()
+  void Clear()
   {
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -558,7 +556,16 @@ public:
       delete(mDatas.Get(i)->data);
     }
     mDatas.Empty(true);
+  };
+    
+  ~StaticStorage()
+  {
+    Clear();
   }
+    
+private:
+    
+  WDL_PtrList<DataKey> mDatas;
 };
 
 /**@}*/
