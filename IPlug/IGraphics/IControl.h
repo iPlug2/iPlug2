@@ -116,10 +116,10 @@ public:
   /** @return \c True if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
-  void SetMOWhenGrayed(bool allow) { mMOWhenGreyed = allow; }
-  void SetMEWhenGrayed(bool allow) { mMEWhenGreyed = allow; }
-  bool GetMOWhenGrayed() { return mMOWhenGreyed; }
-  bool GetMEWhenGrayed() { return mMEWhenGreyed; }
+  void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
+  void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
+  bool GetMOWhenGrayed() { return mMOWhenGrayed; }
+  bool GetMEWhenGrayed() { return mMEWhenGrayed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
@@ -207,8 +207,8 @@ protected:
   bool mDisablePrompt = true;
   bool mClamped = false;
   bool mDblAsSingleClick = false;
-  bool mMOWhenGreyed = false;
-  bool mMEWhenGreyed = false;
+  bool mMOWhenGrayed = false;
+  bool mMEWhenGrayed = false;
   IControl* mValDisplayControl = nullptr;
   IControl* mNameDisplayControl = nullptr;
   WDL_String mTooltip;

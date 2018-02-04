@@ -797,7 +797,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
     return mMouseCapture;
   }
 
-  bool allow; // this is so that mouseovers can still be called when a control is greyed out
+  bool allow; // this is so that mouseovers can still be called when a control is grayed out
 
   // The BG is a control and will catch everything, so assume the programmer
   // attached the controls from back to front, and return the frontmost match.
