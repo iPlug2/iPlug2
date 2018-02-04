@@ -488,7 +488,7 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
 void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_OSX
-  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale() / GetScale());
+  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
 #else // OS_WIN
   //TODO: win
 #endif
