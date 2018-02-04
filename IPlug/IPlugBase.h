@@ -148,7 +148,6 @@ public:
    @return The number of space separated channel io configs that have been detected in IOStr
    */
   static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
-  
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
@@ -199,16 +198,47 @@ public:
 
   void EnsureDefaultPreset();
   
+
   /**
-   @return the maximum input bus count across all channel i/o configs
+   Used to determine the maximum number of input or output buses based on the channel io config string
+
+   @param direction Return input or output bus count
+   @return The maximum bus count across all channel i/o configs
    */
-  int MaxNInputBuses() { return mMaxNInBuses; }
+  int MaxNBuses(ERoutingDir direction)
+  {
+    if(direction == kInput)
+      return mMaxNInBuses;
+    else
+      return mMaxNOutBuses;
+  }
   
   /**
-   @return the maximum output bus count across all channel i/o configs
-   */
-  int MaxNOutputBuses() { return mMaxNOutBuses; }
+   For a given input or output bus what is the maximum possible number of channels
 
+   @param direction Return input or output bus count
+   @param busIdx The index of the bus to look up
+   @return return The maximum number of channels on that bus
+   */
+  int MaxNChannelsForBus(ERoutingDir direction, int busIdx);
+  
+  
+  /**
+   API class needs to know different bus channel count possibilities (e.g. audiounit needs to generate channel layout tags)
+
+   @param direction Populate chanCounts with input or output channel count possibilities
+   @param chanCounts Variable array to store the results
+   */
+  void GetBusVariations(ERoutingDir direction, WDL_TypedBuf<int>& chanCounts);
+  
+  /**
+   Check if we have any wildcard characters in the channel io configs
+
+   @param direction Return input or output bus count
+   @return /true if the bus has a wildcard, meaning channel count is flexible
+   */
+  bool HasWildcardBus(ERoutingDir direction) { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // only supports a single IO Config
+  
   /**
    @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config
    */
@@ -400,7 +430,7 @@ protected:
   int mBlockSize = 0;
   int mTailSize = 0;
   
-  int mMaxNInBuses, mMaxNOutBuses;
+  int mMaxNInBuses, mMaxNOutBuses; // could be private
   NChanDelayLine<double>* mLatencyDelay = nullptr;
   WDL_TypedBuf<double*> mInData, mOutData;
   WDL_PtrList<ChannelData<>> mInChannels;

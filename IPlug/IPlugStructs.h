@@ -207,15 +207,29 @@ struct ChannelData
   WDL_String mLabel = WDL_String("");
 };
 
+enum ERoutingDir
+{
+  kInvalid = 0,
+  kInput = 1,
+  kOutput = 2
+};
+
+static const char* RoutingDirStrs[3]  = { "invalid", "input", "output" };
+
 struct BusInfo
 {
+  ERoutingDir mDirection;
   int mNChans;
   WDL_String mLabel;
   
-  BusInfo(int nchans = 0, const char* label = "")
-  : mNChans(nchans)
+  BusInfo(ERoutingDir direction, int nchans = 0, const char* label = "")
+  : mDirection(direction)
+  , mNChans(nchans)
   {
-    mLabel.Set(label);
+    if(CSTR_NOT_EMPTY(label))
+      mLabel.Set(label);
+    else
+      mLabel.Set(RoutingDirStrs[direction]);
   }
 };
 
@@ -231,69 +245,90 @@ struct IOConfig
     mOutputBusInfo.Empty(true);
   }
   
-  void AddInputBusInfo(int NChans, const char* label = "input")
+  void AddBusInfo(ERoutingDir direction, int NChans, const char* label = "")
   {
-    mInputBusInfo.Add(new BusInfo(NChans, label));
+    if(direction == kInput)
+      mInputBusInfo.Add(new BusInfo(direction, NChans, label));
+    if(direction == kOutput)
+      mOutputBusInfo.Add(new BusInfo(direction, NChans, label));
   }
   
-  void AddOutputBusInfo(int NChans, const char* label = "output")
+  BusInfo* GetBusInfo(ERoutingDir direction, int index)
   {
-    mOutputBusInfo.Add(new BusInfo(NChans, label));
-  }
-
-  BusInfo* GetInputBusInfo(int index)
-  {
-    assert(index >= 0 && index < mInputBusInfo.GetSize());
-
-    return mInputBusInfo.Get(index);
-  }
-  
-  BusInfo* GetOutputBusInfo(int index)
-  {
-    assert(index >= 0 && index < mOutputBusInfo.GetSize());
-  
-    return mOutputBusInfo.Get(index);
+    if(direction == kInput)
+    {
+      assert(index >= 0 && index < mInputBusInfo.GetSize());
+      return mInputBusInfo.Get(index);
+    }
+    else //(direction == kOutput)
+    {
+      assert(index >= 0 && index < mOutputBusInfo.GetSize());
+      return mOutputBusInfo.Get(index);
+    }
   }
   
-  int NChansOnInputBusSAFE(int index)
+  int NChansOnBusSAFE(ERoutingDir direction, int index)
   {
-    if(index >= 0 && index < mInputBusInfo.GetSize())
-      return mInputBusInfo.Get(index)->mNChans;
-    else
-      return 0;
+    int NChans = 0;
+    if(direction == kInput)
+    {
+      if(index >= 0 && index < mInputBusInfo.GetSize())
+        NChans = mInputBusInfo.Get(index)->mNChans;
+    }
+    else //(direction == kOutput)
+    {
+      if(index >= 0 && index < mOutputBusInfo.GetSize())
+        NChans = mOutputBusInfo.Get(index)->mNChans;
+    }
+    
+    return NChans;
   }
   
-  int NChansOnOutputBusSAFE(int index)
+  int NBuses(ERoutingDir direction)
   {
-    if(index >= 0 && index < mOutputBusInfo.GetSize())
-      return mOutputBusInfo.Get(index)->mNChans;
-    else
-      return 0;
+    if(direction == kInput)
+      return mInputBusInfo.GetSize();
+    else //(direction == kOutput)
+      return mOutputBusInfo.GetSize();
   }
   
-  int NInputBuses() { return mInputBusInfo.GetSize(); }
-  int NOutputBuses() { return mOutputBusInfo.GetSize(); }
-
-  /** Get the total number of input channels across all input buses for this IOConfig */
-  int GetTotalNInputChannels() const
+  /** Get the total number of channels across all direction buses for this IOConfig */
+  int GetTotalNChannels(ERoutingDir direction) const
   {
     int total = 0;
     
-    for(int i = 0; i < mInputBusInfo.GetSize(); i++)
-      total += mInputBusInfo.Get(i)->mNChans;
-    
+    if(direction == kInput)
+    {
+      for(int i = 0; i < mInputBusInfo.GetSize(); i++)
+        total += mInputBusInfo.Get(i)->mNChans;
+    }
+    else //(direction == kOutput)
+    {
+      for(int i = 0; i < mOutputBusInfo.GetSize(); i++)
+        total += mOutputBusInfo.Get(i)->mNChans;
+    }
     return total;
   }
   
-  /** Get the total number of output channels across all output buses for this IOConfig */
-  int GetTotalNOutputChannels() const
+  bool ContainsWildcard(ERoutingDir direction)
   {
-    int total = 0;
-    
-    for(int i = 0; i < mOutputBusInfo.GetSize(); i++)
-      total += mOutputBusInfo.Get(i)->mNChans;
-    
-    return total;
+    if(direction == kInput)
+    {
+      for(auto i = 0; i < mInputBusInfo.GetSize(); i++)
+      {
+        if(mInputBusInfo.Get(i)->mNChans < 0)
+          return true;
+      }
+    }
+    else //(direction == kOutput)
+    {
+      for(auto i = 0; i < mOutputBusInfo.GetSize(); i++)
+      {
+        if(mOutputBusInfo.Get(i)->mNChans < 0)
+          return true;
+      }
+    }
+    return false;
   }
 };
 

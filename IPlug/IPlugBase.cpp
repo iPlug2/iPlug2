@@ -99,7 +99,7 @@ bool IPlugBase::LegalIO(int NInputChans, int NOutputChans)
   for (auto i = 0; i < NIOConfigs && !legal; ++i)
   {
     IOConfig* pIO = mIOConfigs.Get(i);
-    legal = ((NInputChans < 0 || NInputChans == pIO->GetTotalNInputChannels()) && (NOutputChans < 0 || NOutputChans == pIO->GetTotalNOutputChannels()));
+    legal = ((NInputChans < 0 || NInputChans == pIO->GetTotalNChannels(ERoutingDir::kInput)) && (NOutputChans < 0 || NOutputChans == pIO->GetTotalNChannels(ERoutingDir::kOutput)));
   }
   
   Trace(TRACELOC, "%d:%d:%s", NInputChans, NOutputChans, (legal ? "legal" : "illegal"));
@@ -252,8 +252,8 @@ void IPlugBase::GetChannelIO(int optionIdx, int& numInputs, int& numOutputs)
 {
   IOConfig* pChannelIO = mIOConfigs.Get(optionIdx);
   
-  numInputs = pChannelIO->GetTotalNInputChannels();
-  numOutputs = pChannelIO->GetTotalNOutputChannels();
+  numInputs = pChannelIO->GetTotalNChannels(kInput);
+  numOutputs = pChannelIO->GetTotalNChannels(kOutput);
 }
 
 bool IPlugBase::IsInChannelConnected(int chIdx) const
@@ -286,6 +286,45 @@ int IPlugBase::NOutChansConnected() const
   }
   
   return count;
+}
+
+int IPlugBase::MaxNChannelsForBus(ERoutingDir direction, int busIdx)
+{
+  if(HasWildcardBus(direction))
+    return -1;
+
+  const int maxNBuses = MaxNBuses(direction);
+  int maxChansOnBuses[maxNBuses];
+  memset(maxChansOnBuses, 0, maxNBuses * sizeof(int));
+  
+  //find the maximum channel count for each input bus
+  for (auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
+  {
+    IOConfig* pIOConfig = mIOConfigs.Get(configIdx);
+    
+    for (auto bus = 0; bus < maxNBuses; bus++)
+      maxChansOnBuses[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses[bus]);
+  }
+  
+  return maxChansOnBuses[busIdx];
+}
+
+void IPlugBase::GetBusVariations(ERoutingDir direction, WDL_TypedBuf<int>& chanCounts)
+{
+  const int maxNBuses = MaxNBuses(direction);
+
+  //find the maximum channel count for each input bus
+  for (auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
+  {
+    IOConfig* pIOConfig = mIOConfigs.Get(configIdx);
+    
+    for (auto busIdx = 0; busIdx < maxNBuses; busIdx++)
+    {
+      int nChans = pIOConfig->NChansOnBusSAFE(direction, busIdx);
+      if(chanCounts.Find(nChans) == -1)
+        chanCounts.Add(nChans);
+    }
+  }
 }
 
 void IPlugBase::AttachInputBuffers(int idx, int n, double** ppData, int nFrames)
@@ -1396,15 +1435,55 @@ void IPlugBase::PrintDebugInfo()
 //static
 int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
 {
+  bool foundAWildcard = false;
+  int IOConfigIndex = 0;
+
+  DBGMSG("BEGIN IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+  // lamda function to iterate through the period separated buses and check that none have 0 channel count
+  auto ParseBusToken = [&foundAWildcard, &IOConfigIndex](ERoutingDir busDir, char* pBusStr, char* pBusStrEnd, int& NBuses, int& NChans, IOConfig* pConfig)
+  {
+    while (pBusStr != NULL)
+    {
+      auto NChanOnBus = 0;
+      
+      if(strcmp(pBusStr, "*") == 0)
+      {
+        foundAWildcard = true;
+        NChanOnBus = -MAX_BUS_CHANS; // we put a negative number in here which will be picked up in the api classes in order to deal with NxN or NxM routings
+      }
+      else if (sscanf(pBusStr, "%d", &NChanOnBus) == 1)
+        ; //don't do anything
+      else
+      {
+        DBGMSG("Error: something wrong in the %s part of this io string.\n", RoutingDirStrs[busDir]);
+        assert(0);
+      }
+      NChans += NChanOnBus;
+      
+      pBusStr = strtok_r(NULL, ".", &pBusStrEnd);
+      
+      if(NChanOnBus)
+      {
+        pConfig->AddBusInfo(busDir, NChanOnBus);
+        NBuses++;
+      }
+      else if(NBuses > 0)
+      {
+        assert(NChanOnBus);
+        DBGMSG("Error: with multiple %s buses you can't define one with no channels!\n", RoutingDirStrs[busDir]);
+      }
+    }
+  };
+  
   totalNInChans = 0; totalNOutChans = 0;
   totalNInBuses = 0; totalNOutBuses = 0;
   
   char* pChannelIOStr = strdup(IOStr);
   
-  int IOConfigIndex = 0;
-  
   char* pIOStrEnd;
   char* pIOStr = strtok_r(pChannelIOStr, " ", &pIOStrEnd); // a single IO string
+  
+  WDL_PtrList<WDL_String> IOStrlist;
   
   // iterate through the space separated IO configs
   while (pIOStr != NULL)
@@ -1417,72 +1496,43 @@ int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& chann
     char* pIStr = strtok(pIOStr, "-"); // Input buses part of string
     char* pOStr = strtok(NULL, "-");   // Output buses part of string
     
-    char* pIBusStrEnd;
-    char* pIBusStr = strtok_r(pIStr, ".", &pIBusStrEnd); // a single input bus
+    WDL_String* thisIOStr  = new WDL_String();
+    thisIOStr->SetFormatted(10, "%s-%s", pIStr, pOStr);
     
-    // iterate through the period separated input buses
-    while (pIBusStr != NULL)
+    for (auto str = 0; str < IOStrlist.GetSize(); str++)
     {
-      int NInOnBus = 0;
-      
-      if (sscanf(pIBusStr, "%d", &NInOnBus) == 1)
+      if(strcmp(IOStrlist.Get(str)->Get(), thisIOStr->Get()) == 0)
       {
-        NInChans += NInOnBus;
-      }
-      
-      pIBusStr = strtok_r(NULL, ".", &pIBusStrEnd);
-      
-      if(NInOnBus)
-      {
-        pConfig->AddInputBusInfo(NInOnBus);
-        NInBuses++;
+        DBGMSG("Error: Duplicate IO string. %s\n", thisIOStr->Get());
+        assert(0);
       }
     }
+
+    IOStrlist.Add(thisIOStr);
     
-#ifndef NDEBUG
-    auto CheckBusses = [](const WDL_PtrList<BusInfo>& buses, int numBuses, const char* msg)
-    {
-      if(numBuses > 1)
-      {
-        for(int i=0; i < numBuses; i++)
-        {
-          bool validChannelCount = buses.Get(i)->mNChans > 0;
-          if(!validChannelCount)
-            DBGMSG("Error: with multiple %s buses you can't have one with no channels!\n", msg);
-          assert(validChannelCount);
-        }
-      }
-    };
-    
-    CheckBusses(pConfig->mInputBusInfo, NInBuses, "input");
-#endif
+    char* pIBusStrEnd;
+    char* pIBusStr = strtok_r(pIStr, ".", &pIBusStrEnd); // a single input bus
+  
+    ParseBusToken(kInput, pIBusStr, pIBusStrEnd, NInBuses, NInChans, pConfig);
     
     char* pOBusStrEnd;
     char* pOBusStr = strtok_r(pOStr, ".", &pOBusStrEnd);
     
-    // iterate through the period separated output buses
-    while (pOBusStr != NULL)
-    {
-      int NOutOnBus = 0;
-      
-      if (sscanf(pOBusStr, "%d", &NOutOnBus) == 1)
-      {
-        NOutChans += NOutOnBus;
-      }
-      
-      pOBusStr = strtok_r(NULL, ".", &pOBusStrEnd);
-      
-      pConfig->AddOutputBusInfo(NOutOnBus);
-      
-      NOutBuses++;
-    }
-  
-#ifndef NDEBUG
-    CheckBusses(pConfig->mOutputBusInfo, NOutBuses, "output");
-#endif
+    ParseBusToken(kOutput, pOBusStr, pOBusStrEnd, NOutBuses, NOutChans, pConfig);
     
-    DBGMSG("Channel I/O #%i - input bus count: %i, output bus count %i\n", IOConfigIndex + 1, NInBuses, NOutBuses);
-    DBGMSG("Channel I/O #%i - input channel count: %i, output channel count %i\n\n", IOConfigIndex + 1, NInChans, NOutChans);
+    if(foundAWildcard == true && IOConfigIndex > 0)
+    {
+      DBGMSG("Error: You can only have a single IO config when using wild cards.\n");
+      assert(0);
+    }
+    
+    DBGMSG("Channel I/O #%i - %s\n", IOConfigIndex + 1, thisIOStr->Get());
+    DBGMSG("               - input bus count: %i, output bus count %i\n", NInBuses, NOutBuses);
+    for (auto i = 0; i < NInBuses; i++)
+      DBGMSG("               - channel count on input bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(kInput, i));
+    for (auto i = 0; i < NOutBuses; i++)
+      DBGMSG("               - channel count on output bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(kOutput, i));
+    DBGMSG("               - input channel count across all buses: %i, output channel count across all buses %i\n\n", NInChans, NOutChans);
     
     totalNInChans = std::max(totalNInChans, NInChans);
     totalNOutChans = std::max(totalNOutChans, NOutChans);
@@ -1497,9 +1547,10 @@ int IPlugBase::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& chann
   }
   
   free(pChannelIOStr);
-  
+  IOStrlist.Empty(true);
   DBGMSG("%i I/O configs detected\n", IOConfigIndex);
-  DBGMSG("Total # in chans: %i, Total # out chans: %i \n", totalNInChans, totalNOutChans);
-  
+  DBGMSG("Total # in chans: %i, Total # out chans: %i \n\n", totalNInChans, totalNOutChans);
+  DBGMSG("END IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+
   return IOConfigIndex;
 }

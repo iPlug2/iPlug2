@@ -77,6 +77,8 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
+#define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
+
 #ifdef VST3_API
 #undef stricmp
 #undef strnicmp

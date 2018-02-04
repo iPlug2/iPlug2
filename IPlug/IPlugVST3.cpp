@@ -157,30 +157,30 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   {
     //to do should move
     const int NIOConfigs = mIOConfigs.GetSize();
-    int maxInputChannelCountOnBuses[MaxNInputBuses()];
-    memset(maxInputChannelCountOnBuses, 0, MaxNInputBuses() * sizeof(int));
+    int maxInputChannelCountOnBuses[MaxNBuses(ERoutingDir::kInput)];
+    memset(maxInputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kInput) * sizeof(int));
 
-    int maxOutputChannelCountOnBuses[MaxNOutputBuses()];
-    memset(maxOutputChannelCountOnBuses, 0, MaxNOutputBuses() * sizeof(int));
+    int maxOutputChannelCountOnBuses[MaxNBuses(ERoutingDir::kOutput)];
+    memset(maxOutputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kOutput) * sizeof(int));
     
     //find the maximum channel count for each input bus
     for (int i = 0; i < NIOConfigs; i++)
     {
       IOConfig* pIOConfig = mIOConfigs.Get(i);
       
-      for (auto busIdx = 0; busIdx < MaxNInputBuses(); busIdx++)
+      for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kInput); busIdx++)
       {
-        maxInputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnInputBusSAFE(busIdx), maxInputChannelCountOnBuses[busIdx]);
+        maxInputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnBusSAFE(ERoutingDir::kInput, busIdx), maxInputChannelCountOnBuses[busIdx]);
       }
       
-      for (auto busIdx = 0; busIdx < MaxNOutputBuses(); busIdx++)
+      for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kOutput); busIdx++)
       {
-        maxOutputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnOutputBusSAFE(busIdx), maxOutputChannelCountOnBuses[busIdx]);
+        maxOutputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnBusSAFE(ERoutingDir::kOutput, busIdx), maxOutputChannelCountOnBuses[busIdx]);
       }
     }
     //
     
-    for (auto busIdx = 0; busIdx < MaxNInputBuses(); busIdx++)
+    for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kInput); busIdx++)
     {
       int flags = 0;
       busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
@@ -189,7 +189,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
                     (BusTypes) busIdx > 0, flags);
     }
     
-    for (auto busIdx = 0; busIdx < MaxNOutputBuses(); busIdx++)
+    for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kOutput); busIdx++)
     {
       int flags = 0;
       busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
@@ -276,11 +276,11 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   SetInputChannelConnections(0, NInChannels(), false);
   SetOutputChannelConnections(0, NOutChannels(), false);
 
-  int NInputChannelCountOnBuses[MaxNInputBuses()];
-  memset(NInputChannelCountOnBuses, 0, MaxNInputBuses() * sizeof(int));
+  int NInputChannelCountOnBuses[MaxNBuses(ERoutingDir::kInput)];
+  memset(NInputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kInput) * sizeof(int));
   
-  int NOutputChannelCountOnBuses[MaxNOutputBuses()];
-  memset(NOutputChannelCountOnBuses, 0, MaxNOutputBuses() * sizeof(int));
+  int NOutputChannelCountOnBuses[MaxNBuses(ERoutingDir::kOutput)];
+  memset(NOutputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kOutput) * sizeof(int));
   
   for(auto busIdx = 0; busIdx < numIns; busIdx++)
   {
