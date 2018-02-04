@@ -778,7 +778,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 
     if (menuItem->GetIsSeparator())
     {
-      AppendMenu (hMenu, MF_SEPARATOR, 0, 0);
+      AppendMenu(hMenu, MF_SEPARATOR, 0, 0);
     }
     else
     {
@@ -978,39 +978,59 @@ void IGraphicsWin::PluginPath(WDL_String& path)
   GetModulePath(mHInstance, path);
 }
 
+void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+{
+  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+    
+  if(requiredSize > 0 && requiredSize <= maxLen)
+  {
+    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
+    return;
+  }
+    
+  utf16Str[0] = 0;
+}
+
+void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+{
+  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, uft16Str, -1, NULL, 0, NULL, NULL);
+    
+  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+  {
+    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    return;
+  }
+ 
+  utf8Str.Set("");
+}
+
+void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+{
+    wchar_t wideBuffer[1024];
+    
+    SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
+    UTF16ToUTF8(path, wideBuffer);
+}
+
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
-  TCHAR strPath[MAX_PATH_LEN];
-  SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
-  path.Set(strPath, MAX_PATH_LEN);
+  GetKnownFolder(path, CSIDL_DESKTOP);
 }
 
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_PATH_LEN];
-
-  if (isSystem)
-    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-  else
-    SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
-
-  path.Set(strPath, MAX_PATH_LEN);
+  GetKnownFolder(path, isSystem ? CSIDL_COMMON_APPDATA : CSIDL_LOCAL_APPDATA);
 }
 
 void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_PATH_LEN];
-
   if (!isSystem)
   {
-    TCHAR strPath[MAX_PATH_LEN];
-    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
-    path.Set(strPath, MAX_PATH_LEN);
+    GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
   }
   else
   {
-    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-    path.Set(strPath, MAX_PATH_LEN);
+    AppSupportPath(path, true);
   }
 
   path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrName(), mPlug.GetProductName());
