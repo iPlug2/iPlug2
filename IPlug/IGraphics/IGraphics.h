@@ -132,9 +132,9 @@ public:
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
-  virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
+  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, int scale = 1) = 0;
+  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale) = 0;
+  virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) = 0;
   virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
   virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
   IBitmap GetScaledBitmap(IBitmap& src);
@@ -249,7 +249,7 @@ public:
   float GetDisplayScale() const { return mDisplayScale; }
   IPlugBaseGraphics& GetPlug() { return mPlug; }
 
-  void AttachBackground(const char* name, double scale = 1.);
+  void AttachBackground(const char* name, int scale = 1);
   void AttachPanelBackground(const IColor& color);
   void AttachKeyCatcher(IControl& control);
   int AttachControl(IControl* control);

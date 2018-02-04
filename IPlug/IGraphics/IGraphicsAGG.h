@@ -58,6 +58,14 @@
 #pragma clang diagnostic pop
 #endif
 
+inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+{
+  if (!pBlend)
+    return 255;
+  
+  return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(pBlend->mWeight * 255.f)), agg::cover_type(255)));
+}
+
 /** IGraphics draw class using Antigrain Geometry  
 *   @ingroup DrawClasses
 */
@@ -133,9 +141,9 @@ public:
   void* GetData() override { return 0; } //todo
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, double scale) override;
+  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, int scale) override;
+  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* cacheName, int scale) override;
+  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, int scale) override;
   void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
   void ReleaseBitmap(IBitmap& bitmap) override {};
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;

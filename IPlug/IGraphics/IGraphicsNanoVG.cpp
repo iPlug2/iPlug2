@@ -42,14 +42,14 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 #endif
 }
 
-IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, int sourceScale)
 {
   WDL_String fullPath;
   bool resourceFound = OSFindResource(name, "png", fullPath);
   
   NanoVGBitmap* nvgbmp = new NanoVGBitmap(mVG, fullPath.Get(), sourceScale);
   mBitmaps.Add(nvgbmp);
-  return IBitmap(nvgbmp, nvgbmp->w, nvgbmp->h, nStates, framesAreHoriztonal, sourceScale, name);
+  return IBitmap(nvgbmp, nvgbmp->w, nvgbmp->h, nStates, framesAreHoriztonal, sourceScale, sourceScale, name);
 }
 
 void IGraphicsNanoVG::ReleaseBitmap(IBitmap& bitmap)
@@ -60,12 +60,12 @@ void IGraphicsNanoVG::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
 }
 
-IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale)
+IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale)
 {
   return bitmap;
 }
 
-IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
+IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale)
 {
   return bitmap;
 }

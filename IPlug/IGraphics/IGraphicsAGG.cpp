@@ -20,12 +20,11 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
+IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, int scale)
 {
-  double targetScale = GetDisplayScale() / scale;
-  double scaleRes = scale * targetScale;
+  int targetScale = round(GetDisplayScale());
   
-  agg::pixel_map* pPixelMap = s_bitmapCache.Find(name, scaleRes);
+  agg::pixel_map* pPixelMap = s_bitmapCache.Find(name, targetScale);
   
   if (!pPixelMap) //do we have a bitmap for this display scale
   {
@@ -40,7 +39,7 @@ IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHo
       assert(resourceFound); // Protect against typos in resource.h and .rc files.
       
       if (scale != GetDisplayScale()) {
-        IBitmap bitmap(pPixelMap, pPixelMap->width(), pPixelMap->height(), nStates, framesAreHoriztonal, scale, name);
+        IBitmap bitmap(pPixelMap, pPixelMap->width(), pPixelMap->height(), nStates, framesAreHoriztonal, scale, scale, name);
         return ScaleBitmap(bitmap, name, targetScale);
       }
       
@@ -48,7 +47,7 @@ IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHo
     }
   }
   
-  return IBitmap(pPixelMap, pPixelMap->width() / targetScale, pPixelMap->height() / targetScale, nStates, framesAreHoriztonal, scale, name);
+  return IBitmap(pPixelMap, pPixelMap->width(), pPixelMap->height(), nStates, framesAreHoriztonal, targetScale, scale, name);
 }
 
 void IGraphicsAGG::SetDisplayScale(int scale)
@@ -96,8 +95,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   
 //  mPixf.comp_op(agg::comp_op_src_over);//TODO
   
-  agg::rect_i r(srcX, srcY, srcX + rect.W()-1, srcY + rect.H()); //TODO: suspicious -1 here necessary to avoid problems with DrawBitmappedText
-  mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T);
+  agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
+  mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T, AGGCover(pBlend));
 }
 
 void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -345,7 +344,7 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
+IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int scale)
 {
   const int destW = srcbitmap.W * scale;
   const int destH = srcbitmap.H * scale;
@@ -354,10 +353,10 @@ IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, const char* cacheNam
 
   s_bitmapCache.Add(pCopy, cacheName, scale);
   
-  return IBitmap(pCopy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, scale, cacheName);
+  return IBitmap(pCopy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, scale, srcbitmap.mSourceScale, cacheName);
 }
 
-IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
+IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, int scale)
 {
   agg::pixel_map* pPixelMap = (agg::pixel_map*)srcbitmap.mData;
   agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());

@@ -39,9 +39,11 @@ struct IBitmap
   int N;
   /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
-  /** Maximum scaling allowed for the bitmap (typically 1) */
+  /** Scaling of the resource from which this originates */
   /** @todo Subject to change */
-  double mSourceScale;
+  int mSourceScale;
+  /** Scale of this bitmap */
+  int mScale;
   /** Resource path/name for the bitmap */
   WDL_String mResourceName;
   /** Creates a new IBitmap object
@@ -53,15 +55,17 @@ struct IBitmap
    * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
    * @param name Resource name for the bitmap
    */
-  IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double sourceScale = 1., const char* name = "")
+  IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, int scale = 1, int sourceScale = 1, const char* name = "")
     : mData(pData)
-    , W(w)
-    , H(h)
+    , W(w /scale)
+    , H(h /scale)
     , N(n)
     , mFramesAreHorizontal(framesAreHorizontal)
+    , mScale(scale)
     , mSourceScale(sourceScale)
     , mResourceName(name, (int) strlen(name))
   {
+    assert(((w % scale) == 0) && ((h % scale) == 0));
   }
 
   /**

@@ -99,7 +99,7 @@ IGraphicsCairo::~IGraphicsCairo()
     cairo_surface_destroy(mSurface);
 }
 
-IBitmap IGraphicsCairo::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+IBitmap IGraphicsCairo::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, int sourceScale)
 {
   const double targetScale = GetDisplayScale(); // targetScale = what this screen is
 
@@ -115,7 +115,7 @@ IBitmap IGraphicsCairo::LoadBitmap(const char* name, int nStates, bool framesAre
     
     pCB = new CairoBitmap(pSurface, sourceScale);
 
-    const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
+    const IBitmap bitmap(pCB->surface, pCB->width, pCB->height, nStates, framesAreHoriztonal, sourceScale, sourceScale, name);
 
     if (sourceScale != targetScale)
       return ScaleBitmap(bitmap, name, targetScale); // will add to cache
@@ -123,7 +123,7 @@ IBitmap IGraphicsCairo::LoadBitmap(const char* name, int nStates, bool framesAre
       s_bitmapCache.Add(pCB, name, sourceScale);
   }
 
-  return IBitmap(pCB->surface, pCB->width / targetScale, pCB->height / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
+  return IBitmap(pCB->surface, pCB->width, pCB->height, nStates, framesAreHoriztonal, targetScale, sourceScale, name);
 }
 
 void IGraphicsCairo::ReleaseBitmap(IBitmap& bitmap)
@@ -134,7 +134,7 @@ void IGraphicsCairo::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
 }
 
-IBitmap IGraphicsCairo::ScaleBitmap(const IBitmap& inBitmap, const char* name, double targetScale)
+IBitmap IGraphicsCairo::ScaleBitmap(const IBitmap& inBitmap, const char* name, int targetScale)
 {
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
@@ -156,10 +156,10 @@ IBitmap IGraphicsCairo::ScaleBitmap(const IBitmap& inBitmap, const char* name, d
   CairoBitmap* pCB = new CairoBitmap(pOutSurface, targetScale);
   s_bitmapCache.Add(pCB, name, targetScale);
 
-  return IBitmap(pCB->surface, inBitmap.W, inBitmap.H, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
+  return IBitmap(pCB->surface, newW, newH, inBitmap.N, inBitmap.mFramesAreHorizontal, targetScale, inBitmap.mSourceScale, name);
 }
 
-IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, double targetScale)
+IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, int targetScale)
 {
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
