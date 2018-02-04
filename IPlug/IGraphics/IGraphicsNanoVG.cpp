@@ -63,7 +63,7 @@ APIBitmap* IGraphicsNanoVG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return nullptr;
 }
 
-void IGraphicsNanoVG::RetainBitmap(IBitmap& bitmap, const char * cacheName)
+void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
 {
 }
 

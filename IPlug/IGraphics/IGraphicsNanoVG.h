@@ -106,8 +106,8 @@ public:
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override;
   //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
-  void ReleaseBitmap(IBitmap& bitmap) override;
-  void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
+  void ReleaseBitmap(const IBitmap& bitmap) override;
+  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
 
 protected:

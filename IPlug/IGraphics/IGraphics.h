@@ -136,8 +136,8 @@ public:
   virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHorizontal = false);
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
   //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) = 0;
-  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName);
-  virtual void ReleaseBitmap(IBitmap& bitmap);
+  virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
+  virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
   virtual void OnDisplayScale();
   
@@ -311,7 +311,7 @@ protected:
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
 
-  bool FindImage(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
+  bool FindImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;

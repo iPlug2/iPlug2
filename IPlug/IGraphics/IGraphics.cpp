@@ -1011,38 +1011,42 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
     
   // If the bitmap is not already cached at the targetScale
+    
   if (!pAPIBitmap)
   {
     // Asserts protect against typos in config.h and .rc files.
     
     WDL_String fullPath;
     int sourceScale = 0;
-    bool resourceFound = FindImage(name, "png", fullPath, targetScale, sourceScale);
+    bool resourceFound = FindImageResource(name, "png", fullPath, targetScale, sourceScale);
     assert(resourceFound);
         
     pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
     assert(pAPIBitmap);
-        
+      
+    const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
+      
     if (pAPIBitmap->GetScale() != targetScale)
     {
-      const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
-      IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale); // will add to cache
+      // Scaling adds to the cache but we need to dispose of the temporary APIBitmap
+        
+      IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale);
       delete pAPIBitmap;
       return scaledBitmap;
     }
-    else
-      s_bitmapCache.Add(pAPIBitmap, name, targetScale);
+    
+    RetainBitmap(bitmap, name);
   }
     
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
-void IGraphics::ReleaseBitmap(IBitmap& bitmap)
+void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 {
   s_bitmapCache.Remove(bitmap.GetAPIBitmap());
 }
 
-void IGraphics::RetainBitmap(IBitmap& bitmap, const char * cacheName)
+void IGraphics::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
 {
   s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
 }
@@ -1052,12 +1056,13 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   // Cache and return as an IBitmap
     
   APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
-  s_bitmapCache.Add(pAPIBitmap, name, scale);
+  IBitmap bitmap = IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  RetainBitmap(bitmap, name);
     
-  return IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  return bitmap;
 }
 
-bool IGraphics::FindImage(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
+bool IGraphics::FindImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
 {
   char fullName[4096];
   sourceScale = targetScale;
@@ -1068,12 +1073,14 @@ bool IGraphics::FindImage(const char* name, const char* type, WDL_String& result
   {
     if (sourceScale != 1)
     {
+      // Form altered name
+        
       char tempName[4096];
       tempName[4095] = 0;
     
       strncpy(tempName, name, 4095);
       char *filename = strtok(tempName, ".");
-      char *ext = strtok(NULL, ".");
+      char *ext = strtok(nullptr, ".");
       snprintf(fullName, 4095, "%s@%dx.%s", filename, sourceScale, ext);
     }
     else
@@ -1082,7 +1089,7 @@ bool IGraphics::FindImage(const char* name, const char* type, WDL_String& result
     if (OSFindResource(fullName, type, result))
       return true;
         
-    // Search downwards from 8, skipping target source
+    // Search downwards from 8, skipping target source before trying again
         
     if (sourceScale == targetScale)
       sourceScale = 8;
