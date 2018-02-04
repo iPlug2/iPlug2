@@ -43,7 +43,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
   WDL_String fullPath;
   const int targetScale = round(GetDisplayScale());
   int sourceScale = 0;
-  bool resourceFound = FindImage(name, "png", fullPath, targetScale, sourceScale);
+  bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
   assert(resourceFound);
     
   NanoVGBitmap* bitmap = (NanoVGBitmap*) LoadAPIBitmap(fullPath, sourceScale);

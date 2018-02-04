@@ -311,8 +311,9 @@ protected:
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
 
-  bool FindImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
-
+  bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
+  APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
+    
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
