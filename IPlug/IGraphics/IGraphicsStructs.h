@@ -59,54 +59,89 @@ private:
 
 /** Used to manage bitmap data, independant of draw class/platform.
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
-struct IBitmap
+class IBitmap
 {
-  /** Pointer to the API specific bitmap data */
-  APIBitmap* mAPIBitmap;
-  /** Bitmap width (in pixels) */
-  int W;
-  /** Bitmap height (in pixels) */
-  int H;
-  /** Number of frames (for stacked bitmaps) */
-  int N;
-  /** \c True if the frames are positioned horizontally */
-  bool mFramesAreHorizontal;
-  /** Scale of this bitmap */
-  int mScale;
-  /** Resource path/name for the bitmap */
-  WDL_String mResourceName;
+    
+public:
+    
   /** Creates a new IBitmap object
-   * @param pData Pointer to the raw bitmap data
-   * @param w Bitmap width (in pixels)
-   * @param h Bitmap height (in pixels)
-   * @param n Number of frames (for multibitmaps)
-   * @param framesAreHorizontal \c True if the frames are positioned horizontally
-   * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
-   * @param name Resource name for the bitmap
-   */
+  * @param pData Pointer to the raw bitmap data
+  * @param w Bitmap width (in pixels)
+  * @param h Bitmap height (in pixels)
+  * @param n Number of frames (for multibitmaps)
+  * @param framesAreHorizontal \c True if the frames are positioned horizontally
+  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
+  * @param name Resource name for the bitmap
+  */
+    
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
-    , W(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
-    , H(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
-    , N(n)
+    , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+    , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+    , mN(n)
     , mFramesAreHorizontal(framesAreHorizontal)
     , mScale(pAPIBitmap->GetScale())
     , mResourceName(name, (int) strlen(name))
   {
   }
     
-  IBitmap() : mAPIBitmap(nullptr) , W(0), H(0), N(0), mFramesAreHorizontal(false), mScale(0)
+  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false), mScale(0)
   {
   }
     
   /**
-   * @return Width of a single frame
+  * @return overall bitmap width
   */
-  inline int FW() const { return (mFramesAreHorizontal ? W / N : W); }
+  inline int W() const { return mW; }
   /**
-   * @return Height of a single frame
-   */
-  inline int FH() const { return (mFramesAreHorizontal ? H : H / N); }
+  * @return overall bitmap height
+  */
+  inline int H() const { return mH; }
+  /**
+  * @return Width of a single frame
+  */
+  inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  /**
+  * @return Height of a single frame
+  */
+  inline int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  /**
+  * @return number of frames
+  */
+  inline int N() const { return mN; }
+  /**
+  * @return a pointer to the referencied APIBitmap
+  */
+  inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
+  /**
+  * @return the raw underlying bitmap
+  */
+  inline void* GetRawBitmap() const { return mAPIBitmap->GetBitmap(); }
+  /**
+  * @return whether or not frames are stored horiztonally
+  */
+  inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
+  /**
+  * @return the resource name
+  */
+  inline const WDL_String& GetResourceName() const { return mResourceName; }
+    
+private:
+    
+  /** Pointer to the API specific bitmap data */
+  APIBitmap* mAPIBitmap;
+  /** Bitmap width (in pixels) */
+  int mW;
+  /** Bitmap height (in pixels) */
+  int mH;
+  /** Number of frames (for stacked bitmaps) */
+  int mN;
+  /** \c True if the frames are positioned horizontally */
+  bool mFramesAreHorizontal;
+  /** Scale of this bitmap */
+  int mScale;
+  /** Resource path/name for the bitmap */
+  WDL_String mResourceName;
 };
 
 struct ISVG

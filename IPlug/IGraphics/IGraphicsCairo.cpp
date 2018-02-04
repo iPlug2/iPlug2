@@ -178,7 +178,7 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
 {
   cairo_save(mContext);
   ClipRegion(dest);
-  cairo_surface_t* surface = (cairo_surface_t*) bitmap.mAPIBitmap->GetBitmap();
+  cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetRawBitmap();
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
@@ -189,8 +189,8 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 {
   //TODO: offset support
     
-  float width = bitmap.W;
-  float height = bitmap.H;
+  float width = bitmap.W();
+  float height = bitmap.H();
 
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
@@ -201,8 +201,8 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 
 void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
-  float width = base.W;
-  float height = base.H;
+  float width = base.W();
+  float height = base.H();
 
   IBlend addBlend(IBlend::kBlendAdd);
   cairo_save(mContext);

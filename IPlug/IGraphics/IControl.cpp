@@ -239,10 +239,10 @@ void IPanelControl::Draw(IGraphics& graphics)
 void IBitmapControl::Draw(IGraphics& graphics)
 {
   int i = 1;
-  if (mBitmap.N > 1)
+  if (mBitmap.N() > 1)
   {
-    i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
-    i = BOUNDED(i, 1, mBitmap.N);
+    i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    i = BOUNDED(i, 1, mBitmap.N());
   }
   
   graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);

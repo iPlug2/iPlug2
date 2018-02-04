@@ -310,15 +310,15 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   int srcX = 0;
   int srcY = 0;
 
-  if (bitmap.N > 1 && bmpState > 1)
+  if (bitmap.N() > 1 && bmpState > 1)
   {
-    if (bitmap.mFramesAreHorizontal)
+    if (bitmap.GetFramesAreHorizontal())
     {
-      srcX = int(0.5f + bitmap.W * (float) (bmpState - 1) / (float) bitmap.N);
+      srcX = int(0.5f + bitmap.W() * (float) (bmpState - 1) / (float) bitmap.N());
     }
     else
     {
-      srcY = int(0.5f + bitmap.H * (float) (bmpState - 1) / (float) bitmap.N);
+      srcY = int(0.5f + bitmap.H() * (float) (bmpState - 1) / (float) bitmap.N());
     }
   }
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
@@ -938,7 +938,7 @@ void IGraphics::OnGUIIdle()
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal());
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -1039,22 +1039,22 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
 void IGraphics::ReleaseBitmap(IBitmap& bitmap)
 {
-  s_bitmapCache.Remove(bitmap.mAPIBitmap);
+  s_bitmapCache.Remove(bitmap.GetAPIBitmap());
 }
 
 void IGraphics::RetainBitmap(IBitmap& bitmap, const char * cacheName)
 {
-  s_bitmapCache.Add(bitmap.mAPIBitmap, cacheName);
+  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
 }
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
   // Cache and return as an IBitmap
     
-  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.mAPIBitmap, scale);
+  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
   s_bitmapCache.Add(pAPIBitmap, name, scale);
     
-  return IBitmap(pAPIBitmap, inBitmap.N, inBitmap.mFramesAreHorizontal, name);
+  return IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
 }
 
 bool IGraphics::FindImage(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)

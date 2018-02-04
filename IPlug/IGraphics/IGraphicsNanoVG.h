@@ -114,8 +114,6 @@ protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-
-  int GetBitmapIdx(APIBitmap* pBitmap) { return (int) ((long long) pBitmap->GetBitmap()); }
     
   void Stroke(const IColor& color, const IBlend* pBlend = 0)
   {

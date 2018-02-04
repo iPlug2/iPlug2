@@ -59,7 +59,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcX *= GetDisplayScale();
   srcY *= GetDisplayScale();
 
-  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mAPIBitmap->GetBitmap();
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.GetRawBitmap();
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
 //  mPixf.comp_op(agg::comp_op_src_over);//TODO
@@ -73,13 +73,13 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   destCtrX *= GetDisplayScale();
   destCtrY *= GetDisplayScale();
 
-  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mAPIBitmap->GetBitmap();
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.GetRawBitmap();
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
   PixfmtType imgPixf(buf);
   
-  const double width = bitmap.W * GetDisplayScale();
-  const double height = bitmap.H * GetDisplayScale();
+  const double width = bitmap.W() * GetDisplayScale();
+  const double height = bitmap.H() * GetDisplayScale();
 
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
@@ -113,9 +113,9 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   x *= GetDisplayScale();
   y *= GetDisplayScale();
 
-  agg::pixel_map* pm_base = (agg::pixel_map*) base.mAPIBitmap->GetBitmap();
-  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.mAPIBitmap->GetBitmap();
-  agg::pixel_map* pm_top = (agg::pixel_map*) top.mAPIBitmap->GetBitmap();
+  agg::pixel_map* pm_base = (agg::pixel_map*) base.GetRawBitmap();
+  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.GetRawBitmap();
+  agg::pixel_map* pm_top = (agg::pixel_map*) top.GetRawBitmap();
   
   agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
   agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());
@@ -132,8 +132,8 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   ren_base.blend_from(img_mask, 0, 0, agg::cover_mask);
   ren_base.copy_from(img_top);
   
-  const double width = base.W * GetDisplayScale();
-  const double height = base.H * GetDisplayScale();
+  const double width = base.W() * GetDisplayScale();
+  const double height = base.H() * GetDisplayScale();
   
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
