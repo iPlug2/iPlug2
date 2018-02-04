@@ -16,6 +16,46 @@ static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
+#define IPLUG_WIN_MAX_WIDE_PATH 4096
+
+// Unicode helpers
+
+
+void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+{
+	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+
+	if (requiredSize > 0 && requiredSize <= maxLen)
+	{
+		MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
+		return;
+	}
+
+	utf16Str[0] = 0;
+}
+
+void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+{
+	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
+
+	if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+	{
+		WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+		return;
+	}
+
+	utf8Str.Set("");
+}
+
+// Helper for getting a known folder in UTF8
+
+void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+{
+	wchar_t wideBuffer[1024];
+
+	SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
+	UTF16ToUTF8(path, wideBuffer);
+}
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -978,40 +1018,6 @@ void IGraphicsWin::PluginPath(WDL_String& path)
   GetModulePath(mHInstance, path);
 }
 
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
-{
-  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
-    
-  if(requiredSize > 0 && requiredSize <= maxLen)
-  {
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-    return;
-  }
-    
-  utf16Str[0] = 0;
-}
-
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
-{
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, uft16Str, -1, NULL, 0, NULL, NULL);
-    
-  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
-  {
-    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
-    return;
-  }
- 
-  utf8Str.Set("");
-}
-
-void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
-{
-    wchar_t wideBuffer[1024];
-    
-    SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
-    UTF16ToUTF8(path, wideBuffer);
-}
-
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
   GetKnownFolder(path, CSIDL_DESKTOP);
@@ -1042,8 +1048,9 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   
   if (path.GetLength())
   {
-    TCHAR winDir[MAX_PATH];
-    UINT len = GetSystemDirectory(winDir, MAX_PATH);
+    WCHAR winDir[IPLUG_WIN_MAX_WIDE_PATH];
+	WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
+    UINT len = GetSystemDirectoryW(winDir, IPLUG_WIN_MAX_WIDE_PATH);
     
     if (len || !(len > MAX_PATH - 2))
     {
@@ -1059,9 +1066,10 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       explorerParams.Append(path.Get());
       explorerParams.Append("\\\"");
       
+	  UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
       HINSTANCE result;
       
-      if ((result=::ShellExecute(NULL, "open", "explorer.exe", (const TCHAR*)explorerParams.Get(), winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
+      if ((result=::ShellExecuteW(NULL, L"open", L"explorer.exe", explorerWide, winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
         success = true;
     }
   }
@@ -1232,7 +1240,9 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   DWORD inetStatus = 0;
   if (InternetGetConnectedState(&inetStatus, 0))
   {
-    if ((int) ShellExecute(mPlugWnd, "open", url, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+	WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
+	UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
+    if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
     {
       return true;
     }
