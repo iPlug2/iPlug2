@@ -1085,101 +1085,100 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     filename.Set("");
     return;
   }
-
-  char fnCStr[MAX_PATH_LEN];
-  char dirCStr[MAX_PATH_LEN];
-
+    
+  wchar_t fnCStr[_MAX_PATH];
+  wchar_t dirCStr[_MAX_PATH];
+    
   if (filename.GetLength())
-    strcpy(fnCStr, filename.Get());
+    UTF8ToUTF16(fnCStr, filename.Get(), _MAX_PATH);
   else
     fnCStr[0] = '\0';
-
+    
   dirCStr[0] = '\0';
-
+    
   if (!path.GetLength())
-  {
     DesktopPath(path);
-  }
-
-  strcpy(dirCStr, path.Get());
-
-  OPENFILENAME ofn;
-  memset(&ofn, 0, sizeof(OPENFILENAME));
-
-  ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.hwndOwner = mPlugWnd;
+    
+  UTF8ToUTF16(dirCStr, path.Get(), _MAX_PATH);
+    
+  OPENFILENAMEW ofn;
+  memset(&ofn, 0, sizeof(OPENFILENAMEW));
+    
+  ofn.lStructSize = sizeof(OPENFILENAMEW);
+  ofn.hwndOwner = GetWindow();
   ofn.lpstrFile = fnCStr;
-  ofn.nMaxFile = MAX_PATH_LEN - 1;
+  ofn.nMaxFile = _MAX_PATH - 1;
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
-
+    
   if (CSTR_NOT_EMPTY(extensions))
   {
-    char extStr[256];
-    char defExtStr[16];
+    wchar_t extStr[256];
+    wchar_t defExtStr[16];
     int i, p, n = strlen(extensions);
     bool seperator = true;
-
+        
     for (i = 0, p = 0; i < n; ++i)
     {
       if (seperator)
       {
         if (p)
-        {
           extStr[p++] = ';';
-        }
+                
         seperator = false;
         extStr[p++] = '*';
         extStr[p++] = '.';
       }
 
       if (extensions[i] == ' ')
-      {
         seperator = true;
-      }
       else
-      {
         extStr[p++] = extensions[i];
-      }
     }
     extStr[p++] = '\0';
-
-    strcpy(&extStr[p], extStr);
+        
+    wcscpy(&extStr[p], extStr);
     extStr[p + p] = '\0';
     ofn.lpstrFilter = extStr;
-
+        
     for (i = 0, p = 0; i < n && extensions[i] != ' '; ++i)
-    {
       defExtStr[p++] = extensions[i];
-    }
-
+    
     defExtStr[p++] = '\0';
     ofn.lpstrDefExt = defExtStr;
   }
-
+    
   bool rc = false;
+    
   switch (action)
   {
     case kFileSave:
       ofn.Flags |= OFN_OVERWRITEPROMPT;
-      rc = GetSaveFileName(&ofn);
+      rc = GetSaveFileNameW(&ofn);
       break;
-
+            
     case kFileOpen:
-    default:
+      default:
       ofn.Flags |= OFN_FILEMUSTEXIST;
-      rc = GetOpenFileName(&ofn);
+      rc = GetOpenFileNameW(&ofn);
       break;
   }
-
+    
   if (rc)
   {
     char drive[_MAX_DRIVE];
-    if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
+    char directoryOutCStr[_MAX_PATH];
+    
+    WDL_String tempUTF8;
+    UTF16ToUTF8(tempUTF8, ofn.lpstrFile);
+    
+    if (_splitpath_s(tempUTF8.Get(), drive, sizeof(drive), directoryOutCStr, sizeof(directoryOutCStr), NULL, 0, NULL, 0) == 0)
     {
-      path.SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
+      path.Set(drive);
+      path.Append(directoryOutCStr);
     }
-    filename.Set(ofn.lpstrFile);
+      
+    filename.Set(tempUTF8);
   }
   else
   {
