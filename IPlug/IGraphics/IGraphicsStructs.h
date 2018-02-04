@@ -473,6 +473,8 @@ class StaticStorage
 {
 public:
   
+  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
+    
   unsigned long hash(const char* str)
   {
     unsigned long hash = 5381;
