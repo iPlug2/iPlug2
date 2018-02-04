@@ -71,9 +71,6 @@ struct IBitmap
   int N;
   /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
-  /** Scaling of the resource from which this originates */
-  /** @todo Subject to change */
-  int mSourceScale;
   /** Scale of this bitmap */
   int mScale;
   /** Resource path/name for the bitmap */
@@ -87,19 +84,18 @@ struct IBitmap
    * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
    * @param name Resource name for the bitmap
    */
-  IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, int sourceScale, const char* name = "")
+  IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
     , W(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
     , H(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
     , N(n)
     , mFramesAreHorizontal(framesAreHorizontal)
     , mScale(pAPIBitmap->GetScale())
-    , mSourceScale(sourceScale)
     , mResourceName(name, (int) strlen(name))
   {
   }
     
-  IBitmap() : mAPIBitmap(nullptr) , W(0), H(0), N(0), mFramesAreHorizontal(false), mScale(0), mSourceScale(0)
+  IBitmap() : mAPIBitmap(nullptr) , W(0), H(0), N(0), mFramesAreHorizontal(false), mScale(0)
   {
   }
     

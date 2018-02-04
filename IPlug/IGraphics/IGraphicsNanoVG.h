@@ -96,9 +96,9 @@ public:
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
   
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int scale) override;
+  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
+  //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
   void ReleaseBitmap(IBitmap& bitmap) override;
   void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
@@ -108,6 +108,8 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
 
+  int GetBitmapIdx(APIBitmap* pBitmap) { return (int) ((long long) pBitmap->GetBitmap()); }
+    
   void Stroke(const IColor& color, const IBlend* pBlend = 0)
   {
     nvgStrokeColor(mVG, NanoVGColor(color, pBlend));

@@ -13,8 +13,8 @@ public:
   NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale)
   {
     mVG = context;
-    int idx = -1, w = 0, h = 0;
-    idx = nvgCreateImage(mVG, path, 0);
+    int w = 0, h = 0;
+    long long idx = nvgCreateImage(mVG, path, 0);
     nvgImageSize(mVG, idx, &w, &h);
       
     SetBitmap((void *) idx, w, h, sourceScale);
@@ -22,7 +22,7 @@ public:
   
   ~NanoVGBitmap()
   {
-    int idx = (int) GetBitmap();
+    int idx = (int) ((long long) GetBitmap());
     nvgDeleteImage(mVG, idx);
   }
   
@@ -46,17 +46,19 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 #endif
 }
 
-IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int sourceScale)
+IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
 {
   WDL_String fullPath;
-  bool resourceFound = OSFindResource(name, "png", fullPath);
+  const int targetScale = round(GetDisplayScale());
+  int sourceScale = 0;
+  bool resourceFound = FindImage(name, "png", fullPath, targetScale, sourceScale);
   assert(resourceFound);
     
   NanoVGBitmap* bitmap = (NanoVGBitmap*) LoadAPIBitmap(fullPath, sourceScale);
   assert(bitmap);
   mBitmaps.Add(bitmap);
   
-  return IBitmap(bitmap, nStates, framesAreHorizontal, sourceScale, name);
+  return IBitmap(bitmap, nStates, framesAreHorizontal, name);
 }
 
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
@@ -77,11 +79,11 @@ IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, in
 {
   return bitmap;
 }
-
+/*
 IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale)
 {
   return bitmap;
-}
+}*/
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
@@ -127,7 +129,7 @@ void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, 
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  int idx = (int) bitmap.mAPIBitmap->GetBitmap();
+  int idx = GetBitmapIdx(bitmap.mAPIBitmap);
   NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W, bitmap.H, 0.f, idx, NanoVGWeight(pBlend));
   nvgBeginPath(mVG);
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
@@ -137,7 +139,7 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 
 void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
-  int idx = (int) bitmap.mAPIBitmap->GetBitmap();
+  int idx = GetBitmapIdx(bitmap.mAPIBitmap);
   NVGpaint imgPaint = nvgImagePattern(mVG, destCtrX, destCtrY, bitmap.W, bitmap.H, angle, idx, NanoVGWeight(pBlend));
   nvgBeginPath(mVG);
   nvgRect(mVG, destCtrX, destCtrY, destCtrX + bitmap.W, destCtrX + bitmap.H);
