@@ -2,9 +2,9 @@
 
 void ISwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if (mBitmap.N > 1)
+  if (mBitmap.N() > 1)
   {
-    mValue += 1.0 / (double) (mBitmap.N - 1);
+    mValue += 1.0 / (double) (mBitmap.N() - 1);
   }
   else
   {
@@ -35,12 +35,12 @@ ISwitchFramesControl::ISwitchFramesControl(IPlugBaseGraphics& plug, float x, flo
 {
   mDisablePrompt = false;
   
-  for(int i = 0; i < bitmap.N; i++)
+  for(int i = 0; i < bitmap.N(); i++)
   {
     if (imagesAreHorizontal)
-      mRECTs.Add(mRECT.SubRectHorizontal(bitmap.N, i));
+      mRECTs.Add(mRECT.SubRectHorizontal(bitmap.N(), i));
     else
-      mRECTs.Add(mRECT.SubRectVertical(bitmap.N, i));
+      mRECTs.Add(mRECT.SubRectVertical(bitmap.N(), i));
   }
 }
 
@@ -84,20 +84,20 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
 :   IControl(plug, rect, paramIdx), mBitmap(bitmap)
 {
   mRECTs.Resize(nButtons);
-  int h = int((double) bitmap.H / (double) bitmap.N);
+  int h = int((double) bitmap.H() / (double) bitmap.N());
   
   if (reverse)
   {
     if (direction == kHorizontal)
     {
-      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
-      float x = mRECT.R - bitmap.W - dX;
+      float dX = (double) (rect.W() - nButtons * bitmap.W()) / (double) (nButtons - 1);
+      float x = mRECT.R - bitmap.W() - dX;
       float y = mRECT.T;
       
       for (int i = 0; i < nButtons; ++i)
       {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
-        x -= bitmap.W + dX;
+        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W(), y + h);
+        x -= bitmap.W() + dX;
       }
     }
     else
@@ -108,7 +108,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
       
       for (int i = 0; i < nButtons; ++i)
       {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
+        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W(), y + h);
         y -= h + dY;
       }
     }
@@ -120,11 +120,11 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
     
     if (direction == kHorizontal)
     {
-      float dX = (double) (rect.W() - nButtons * bitmap.W) / (double) (nButtons - 1);
+      float dX = (double) (rect.W() - nButtons * bitmap.W()) / (double) (nButtons - 1);
       for (int i = 0; i < nButtons; ++i)
       {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
-        x += bitmap.W + dX;
+        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W(), y + h);
+        x += bitmap.W() + dX;
       }
     }
     else
@@ -132,7 +132,7 @@ IRadioButtonsControl::IRadioButtonsControl(IPlugBaseGraphics& plug, IRECT rect, 
       float dY = (double) (rect.H() - nButtons * h) /  (double) (nButtons - 1);
       for (int i = 0; i < nButtons; ++i)
       {
-        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W, y + h);
+        mRECTs.Get()[i] = IRECT(x, y, x + bitmap.W(), y + h);
         y += h + dY;
       }
     }
@@ -203,13 +203,13 @@ IFaderControl::IFaderControl(IPlugBaseGraphics& plug, float x, float y, int len,
 {
   if (direction == kVertical)
   {
-    mHandleHeadroom = mBitmap.H;
-    mRECT = mTargetRECT = IRECT(x, y, x + mBitmap.W, y + len);
+    mHandleHeadroom = mBitmap.H();
+    mRECT = mTargetRECT = IRECT(x, y, x + mBitmap.W(), y + len);
   }
   else
   {
-    mHandleHeadroom = mBitmap.W;
-    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mBitmap.H);
+    mHandleHeadroom = mBitmap.W();
+    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mBitmap.H());
   }
 }
 
@@ -219,7 +219,7 @@ IRECT IFaderControl::GetHandleRECT(double value) const
   {
     value = mValue;
   }
-  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W, mRECT.T + mBitmap.H);
+  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
   if (mDirection == kVertical)
   {
     int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
@@ -405,8 +405,8 @@ void IVKnobControl::Draw(IGraphics& graphics)
 // Same as IBitmapControl::Draw.
 void IKnobMultiControl::Draw(IGraphics& graphics)
 {
-  int i = 1 + int(0.5 + mValue * (double) (mBitmap.N - 1));
-  i = BOUNDED(i, 1, mBitmap.N);
+  int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+  i = BOUNDED(i, 1, mBitmap.N());
   graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 

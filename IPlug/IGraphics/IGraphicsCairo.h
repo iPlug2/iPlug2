@@ -15,6 +15,13 @@
 
 #include "IGraphics.h"
 
+class CairoBitmap : public APIBitmap
+{
+public:
+  CairoBitmap(cairo_surface_t* s, int scale);
+  virtual ~CairoBitmap();
+};
+
 /** IGraphics draw class using Cairo  
 *   @ingroup DrawClasses
 */
@@ -58,12 +65,8 @@ public:
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
   
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) override;
-  void ReleaseBitmap(IBitmap& bitmap) override;
-  void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
-  
+  //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
+
   void RenderDrawBitmap() override;
   
   void SetPlatformContext(void* pContext) override;
@@ -81,6 +84,10 @@ public:
   }
   
 protected:
+    
+  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+
   inline float CairoWeight(const IBlend* pBlend)
   {
     return (pBlend ? pBlend->mWeight : 1.0f);

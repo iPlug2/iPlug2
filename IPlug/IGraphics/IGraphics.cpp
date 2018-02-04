@@ -32,6 +32,7 @@ struct SVGHolder
   }
 };
 
+static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 
 IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
@@ -117,9 +118,9 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
   }
 }
 
-void IGraphics::AttachBackground(const char* name, double scale)
+void IGraphics::AttachBackground(const char* name)
 {
-  IBitmap bg = LoadBitmap(name, 1, false, scale);
+  IBitmap bg = LoadBitmap(name, 1, false);
   mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, IBlend::kBlendClobber));
 }
 
@@ -308,15 +309,15 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   int srcX = 0;
   int srcY = 0;
 
-  if (bitmap.N > 1 && bmpState > 1)
+  if (bitmap.N() > 1 && bmpState > 1)
   {
-    if (bitmap.mFramesAreHorizontal)
+    if (bitmap.GetFramesAreHorizontal())
     {
-      srcX = int(0.5f + bitmap.W * (float) (bmpState - 1) / (float) bitmap.N);
+      srcX = int(0.5f + bitmap.W() * (float) (bmpState - 1) / (float) bitmap.N());
     }
     else
     {
-      srcY = int(0.5f + bitmap.H * (float) (bmpState - 1) / (float) bitmap.N);
+      srcY = int(0.5f + bitmap.H() * (float) (bmpState - 1) / (float) bitmap.N());
     }
   }
   return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
@@ -795,7 +796,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
     return mMouseCapture;
   }
 
-  bool allow; // this is so that mouseovers can still be called when a control is greyed out
+  bool allow; // this is so that mouseovers can still be called when a control is grayed out
 
   // The BG is a control and will catch everything, so assume the programmer
   // attached the controls from back to front, and return the frontmost match.
@@ -936,7 +937,7 @@ void IGraphics::OnGUIIdle()
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadBitmap(src.mResourceName.Get(), src.N, src.mFramesAreHorizontal, src.mSourceScale);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal());
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -1001,3 +1002,142 @@ void IGraphics::LoadFont(const char* name)
   FT_New_Face(mFTLibrary, name, 0, &mFTFace);
 #endif
 }
+
+IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
+{
+  const int targetScale = round(GetDisplayScale());
+    
+  APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
+    
+  // If the bitmap is not already cached at the targetScale
+    
+  if (!pAPIBitmap)
+  {
+    WDL_String fullPath;
+    int sourceScale = 0;
+    bool fromDisk = false;
+      
+    if (!SearchImageResource(name, "png", fullPath, targetScale, sourceScale))
+    {
+      // If no resource exists then search the cache for a suitable match
+
+      pAPIBitmap = SearchBitmapInCache(name, targetScale, sourceScale);
+    }
+    else
+    {
+      // Try again in cache for mismatched bitmaps, but load from disk if needed,
+
+      if (sourceScale != targetScale)
+        pAPIBitmap = s_bitmapCache.Find(name, sourceScale);
+      if (!pAPIBitmap)
+      {
+        pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+        fromDisk = true;
+      }
+    }
+
+    // Protection from searching for non-existant bitmaps (e.g. typos in config.h or .rc)
+      
+    assert(pAPIBitmap);
+      
+    const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
+      
+    // Scale if needed
+      
+    if (pAPIBitmap->GetScale() != targetScale)
+    {
+      // Scaling adds to the cache but if we've loaded from disk then we need to dispose of the temporary APIBitmap
+        
+      IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale);
+      if (fromDisk)
+        delete pAPIBitmap;
+      return scaledBitmap;
+    }
+    
+    // Retain if we've newly loaded from disk
+      
+    if (fromDisk)
+      RetainBitmap(bitmap, name);
+  }
+    
+  return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
+}
+
+void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
+{
+  s_bitmapCache.Remove(bitmap.GetAPIBitmap());
+}
+
+void IGraphics::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
+{
+  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
+}
+
+IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
+{
+  // Cache and return as an IBitmap
+    
+  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
+  IBitmap bitmap = IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  RetainBitmap(bitmap, name);
+    
+  return bitmap;
+}
+
+inline void SearchNextScale(int& sourceScale, const int targetScale)
+{
+  // Search downwards from 8, skipping targetScale before trying again
+
+  if (sourceScale == targetScale && (targetScale != 8))
+    sourceScale = 8;
+  else if (sourceScale == targetScale + 1)
+    sourceScale = targetScale - 1;
+  else
+    sourceScale--;
+}
+
+bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
+{
+  // Search target scale, then descending
+    
+  for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
+  {
+    char fullName[4096];
+
+    if (sourceScale != 1)
+    {
+      // Form altered name
+        
+      char tempName[4096];
+      tempName[4095] = 0;
+    
+      strncpy(tempName, name, 4095);
+      char *filename = strtok(tempName, ".");
+      char *ext = strtok(nullptr, ".");
+      snprintf(fullName, 4095, "%s@%dx.%s", filename, sourceScale, ext);
+    }
+    else
+      strncpy(fullName, name, 4095);
+    
+    if (OSFindResource(fullName, type, result))
+      return true;
+  }
+
+  return false;
+}
+
+APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
+{
+  // Search target scale, then descending
+
+  for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
+  {
+    APIBitmap* bitmap = s_bitmapCache.Find(name, sourceScale);
+      
+    if (bitmap)
+      return bitmap;
+  }
+    
+  return nullptr;
+}
+

@@ -806,7 +806,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
         }
       }
 
-      const char* entryText (titleWithPrefixNumbers ? titleWithPrefixNumbers : str);
+      const char* entryText(titleWithPrefixNumbers ? titleWithPrefixNumbers : str);
 
       // Escape ampersands if present
 

@@ -59,27 +59,19 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 }
 #endif //OS_WIN
 
-struct CairoBitmap 
+CairoBitmap::CairoBitmap(cairo_surface_t* s, int scale)
 {
-  cairo_surface_t* surface = nullptr;
-  int width = 0;
-  int height = 0;
+  cairo_surface_set_device_scale(s, scale, scale);
+  int width = cairo_image_surface_get_width(s);
+  int height = cairo_image_surface_get_height(s);
   
-  CairoBitmap(cairo_surface_t* s, double scale)
-  {
-    surface = s;
-    cairo_surface_set_device_scale(s, scale, scale);
-    width = cairo_image_surface_get_width(s);
-    height = cairo_image_surface_get_height(s);
-  }
+  SetBitmap(s, width, height, scale);
+}
   
-  ~CairoBitmap()
-  {
-    cairo_surface_destroy(surface);
-  }
-};
-
-static StaticStorage<CairoBitmap> s_bitmapCache;
+CairoBitmap::~CairoBitmap()
+{
+  cairo_surface_destroy((cairo_surface_t*) GetBitmap());
+}
 
 #pragma mark -
 
@@ -99,68 +91,40 @@ IGraphicsCairo::~IGraphicsCairo()
     cairo_surface_destroy(mSurface);
 }
 
-IBitmap IGraphicsCairo::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  const double targetScale = GetDisplayScale(); // targetScale = what this screen is
-
-  CairoBitmap* pCB = s_bitmapCache.Find(name, targetScale);
-
-  if (!pCB) // if bitmap not in cache already at targetScale
-  {
-    WDL_String fullPath;
-    OSFindResource(name, "png", fullPath);
-    cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), fullPath);
-
-    assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
+  cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), resourcePath);
     
-    pCB = new CairoBitmap(pSurface, sourceScale);
+  assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
 
-    const IBitmap bitmap(pCB->surface, pCB->width / sourceScale, pCB->height / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
-
-    if (sourceScale != targetScale)
-      return ScaleBitmap(bitmap, name, targetScale); // will add to cache
-    else
-      s_bitmapCache.Add(pCB, name, sourceScale);
-  }
-
-  return IBitmap(pCB->surface, pCB->width / targetScale, pCB->height / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
+  return new CairoBitmap(pSurface, scale);
 }
 
-void IGraphicsCairo::ReleaseBitmap(IBitmap& bitmap)
+APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
-}
-
-void IGraphicsCairo::RetainBitmap(IBitmap& bitmap, const char * cacheName)
-{
-}
-
-IBitmap IGraphicsCairo::ScaleBitmap(const IBitmap& inBitmap, const char* name, double targetScale)
-{
-  int newW = (int)(inBitmap.W * targetScale);
-  int newH = (int)(inBitmap.H * targetScale);
+  cairo_surface_t* pInSurface = (cairo_surface_t*) pBitmap->GetBitmap();
   
+  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
+  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
+    
   // Create resources to redraw
     
-  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, newW, newH);
+  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, destW, destH);
   cairo_t* pOutContext = cairo_create(pOutSurface);
-
+    
   // Scale and paint (destroying the context / the surface is retained)
     
-  cairo_scale(pOutContext, targetScale, targetScale);
-  cairo_set_source_surface(pOutContext, (cairo_surface_t*)inBitmap.mData, 0, 0);
+  cairo_scale(pOutContext, scale, scale);
+  cairo_set_source_surface(pOutContext, pInSurface, 0, 0);
   cairo_paint(pOutContext);
   cairo_destroy(pOutContext);
-
- // Cache and retun as an IBitmap
     
-  CairoBitmap* pCB = new CairoBitmap(pOutSurface, targetScale);
-  s_bitmapCache.Add(pCB, name, targetScale);
-
-  return IBitmap(pCB->surface, inBitmap.W, inBitmap.H, inBitmap.N, inBitmap.mFramesAreHorizontal, inBitmap.mSourceScale, name);
+  return new CairoBitmap(pOutSurface, scale);
 }
-
-IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, double targetScale)
+/*
+IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, int targetScale)
 {
+  cairo_surface_t* pInSurface = (cairo_surface_t*) inBitmap.mAPIBitmap->GetBitmap();
   int newW = (int)(inBitmap.W * targetScale);
   int newH = (int)(inBitmap.H * targetScale);
     
@@ -171,7 +135,7 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
   cairo_t* pOutContext = cairo_create(pOutSurface);
   
   // Paint from one surface to another
-  cairo_set_source_surface(pOutContext, (cairo_surface_t*) inBitmap.mData, 0, 0);
+  cairo_set_source_surface(pOutContext, pInSurface, 0, 0);
   cairo_rectangle(pOutContext, rect.L, rect.T, rect.W(), rect.H());
   cairo_scale(pOutContext, targetScale, targetScale);
   cairo_paint(pOutContext);
@@ -180,9 +144,9 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
   // Destroy cairo stuff
   cairo_destroy(pOutContext);
   
-  return IBitmap(pOutSurface, newW, newH); //TODO: surface will not be destroyed, unless this is retained
+  return IBitmap(new CairoBitmap(pOutSurface, targetScale)); //TODO: surface will not be destroyed, unless this is retained
 }
-
+*/
 void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
   cairo_save(mContext);
@@ -214,7 +178,7 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
 {
   cairo_save(mContext);
   ClipRegion(dest);
-  cairo_surface_t* surface = (cairo_surface_t*) bitmap.mData;
+  cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetRawBitmap();
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
@@ -225,8 +189,8 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 {
   //TODO: offset support
     
-  float width = bitmap.W;
-  float height = bitmap.H;
+  float width = bitmap.W();
+  float height = bitmap.H();
 
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
@@ -237,8 +201,8 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 
 void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
-  float width = base.W;
-  float height = base.H;
+  float width = base.W();
+  float height = base.H();
 
   IBlend addBlend(IBlend::kBlendAdd);
   cairo_save(mContext);
