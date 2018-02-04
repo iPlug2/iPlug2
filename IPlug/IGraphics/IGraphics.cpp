@@ -14,8 +14,6 @@
 #include "IGraphicsLiveEdit.h"
 #endif
 
-static StaticStorage<APIBitmap> s_bitmapCache;
-
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
@@ -34,6 +32,7 @@ struct SVGHolder
   }
 };
 
+static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 
 IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
