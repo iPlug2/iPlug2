@@ -85,11 +85,11 @@
 		4F39076F2013EBA400DDA490 /* IPlugEffect.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
 		4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.mm */; };
-		4F3907812013EC1000DDA490 /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F3907782013EC0400DDA490 /* IPlugViewController.xib */; };
 		4F3AE17B12C0E5E2001FD7A4 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* config.h */; };
 		4F3D2B4420212AD400842FF4 /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCDBC9520211957000362CC /* fdebug.cpp */; settings = {COMPILER_FLAGS = "-Wno-pointer-bool-conversion"; }; };
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
+		4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
 		4F5E01DA20142D8000C4EDEA /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5E01D820142D7F00C4EDEA /* IPlugAUv3.mm */; };
 		4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
@@ -375,7 +375,6 @@
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F3907602013EBA300DDA490 /* IPlugEffect.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugEffect.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F3907772013EC0400DDA490 /* IPlugViewController.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugViewController.mm; path = ../../../IPlug/AUv3/IPlugViewController.mm; sourceTree = "<group>"; };
-		4F3907782013EC0400DDA490 /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../../../IPlug/AUv3/IPlugViewController.xib; sourceTree = "<group>"; };
 		4F3907792013EC0400DDA490 /* BufferedAudioBus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = BufferedAudioBus.hpp; path = ../../../IPlug/AUv3/BufferedAudioBus.hpp; sourceTree = "<group>"; };
 		4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAUAudioUnit.mm; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.mm; sourceTree = "<group>"; };
 		4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUAudioUnit.h; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.h; sourceTree = "<group>"; };
@@ -459,6 +458,7 @@
 		4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX.cpp; path = ../../../IPlug/IPlugAAX.cpp; sourceTree = SOURCE_ROOT; };
 		4F4CC4261549BED600A9EA21 /* IPlugAAX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX.h; path = ../../../IPlug/IPlugAAX.h; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../../IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
+		4F56CC702022A55D00CF585F /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../../../IPlug/AUv3/IPlugViewController.xib; sourceTree = "<group>"; };
 		4F5E01D820142D7F00C4EDEA /* IPlugAUv3.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAUv3.mm; path = ../../../IPlug/IPlugAUv3.mm; sourceTree = "<group>"; };
 		4F5E01D920142D8000C4EDEA /* IPlugAUv3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUv3.h; path = ../../../IPlug/IPlugAUv3.h; sourceTree = "<group>"; };
 		4F69BB5D2013C520002C8948 /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac.h; path = ../../../IPlug/IGraphics/IGraphicsMac.h; sourceTree = "<group>"; };
@@ -749,8 +749,8 @@
 				4F3907792013EC0400DDA490 /* BufferedAudioBus.hpp */,
 				4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */,
 				4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */,
+				4F56CC702022A55D00CF585F /* IPlugViewController.xib */,
 				4F3907772013EC0400DDA490 /* IPlugViewController.mm */,
-				4F3907782013EC0400DDA490 /* IPlugViewController.xib */,
 			);
 			name = AUv3;
 			sourceTree = "<group>";
@@ -917,11 +917,11 @@
 		4F4CC4241549BEBF00A9EA21 /* AAX */ = {
 			isa = PBXGroup;
 			children = (
+				4F24EE751567A6A6006B889A /* AAX_SDK */,
 				4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */,
 				4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */,
 				4F0848282015129400F9E881 /* IPlugAAX_TaperDelegate.h */,
 				4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */,
-				4F24EE751567A6A6006B889A /* AAX_SDK */,
 				4F4CC4251549BED600A9EA21 /* IPlugAAX.cpp */,
 				4F4CC4261549BED600A9EA21 /* IPlugAAX.h */,
 				4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */,
@@ -1561,7 +1561,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F3907812013EC1000DDA490 /* IPlugViewController.xib in Resources */,
+				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2467,8 +2467,8 @@
 					"$(AAX_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
 					"$(DEBUG_DEFS)",
-					"_DEBUG=1",
 					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -2514,8 +2514,8 @@
 					"$(AAX_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",
 					"$(RELEASE_DEFS)",
-					"_NDEBUG=1",
 					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -2570,7 +2570,7 @@
 					"$(AAX_DEFS)",
 					"$(EXTRA_TRACER_DEFS)",
 					"$(TRACER_DEFS)",
-					"_NDEBUG=1",
+					"$(EXTRA_ALL_DEFS)",
 					"$(ALL_DEFS)",
 				);
 				GCC_VERSION = "$(COMPILER)";

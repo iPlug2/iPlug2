@@ -37,14 +37,14 @@ fi
 
 if [ "$1" == "leaks" ]
 then
-	echo "testing for leaks (i386 32 bit)"
+	echo "testing for leaks (i386 64 bit)"
 	echo 'launch a new shell and type: ps axc|awk "{if (\$5==\"auvaltool\") print \$1}" to get the pid';
 	echo "then leaks PID"
 	
 	export MallocStackLogging=1
 	set env MallocStackLoggingNoCompact=1
 
-	auval $x86_ARGS -v $TYPE $PUID $PMID -w -q
+	auval $x64_ARGS -v $TYPE $PUID $PMID -w -q
 	
 	unset MallocStackLogging
 

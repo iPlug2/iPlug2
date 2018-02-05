@@ -28,12 +28,12 @@ import fileinput, glob, string, sys, os, re, uuid
 from shutil import copy, copytree, ignore_patterns, rmtree
 from os.path import join
 
-VERSION = "0.91"
+VERSION = "0.92"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
 # files that we don't want to duplicate
-DONT_COPY = (".vs", "*.exe", "*.dmg", "*.pkg", "*.mpkg", "*.svn", "*.ncb", "*.suo", "*sdf", "ipch", "build-*", "*.layout", "*.depend", ".DS_Store")
+DONT_COPY = (".vs", "*.exe", "*.dmg", "*.pkg", "*.mpkg", "*.svn", "*.ncb", "*.suo", "*sdf", "ipch", "build-*", "*.layout", "*.depend", ".DS_Store", "xcuserdata")
 
 SUBFOLDERS_TO_SEARCH = [
 "projects",

@@ -1,3 +1,5 @@
+##LINUX ONLY FOR NOW
+
 APP=IPlugEffect
 
 WDL_PATH = ../../WDL
