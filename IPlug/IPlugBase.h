@@ -11,7 +11,6 @@
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
-#include "NChanDelay.h"
 
 /**
  * @file

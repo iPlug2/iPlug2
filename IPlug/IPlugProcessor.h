@@ -4,7 +4,6 @@
 #include <cstdint>
 
 #include "ptrlist.h"
-#include "mutex.h"
 
 #include "IPlugPlatform.h"
 #include "IPlugConstants.h"
