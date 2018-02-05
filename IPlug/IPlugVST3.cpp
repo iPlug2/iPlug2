@@ -46,11 +46,11 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 class IPlugVST3Parameter : public Parameter
 {
 public:
-  IPlugVST3Parameter (IParam* pParam, ParamID tag, UnitID unitID)
+  IPlugVST3Parameter(IParam* pParam, ParamID tag, UnitID unitID)
   : mIPlugParam(pParam)
   {
-    UString (info.title, str16BufferSize (String128)).assign (pParam->GetNameForHost());
-    UString (info.units, str16BufferSize (String128)).assign (pParam->GetLabelForHost());
+    UString(info.title, str16BufferSize(String128)).assign(pParam->GetNameForHost());
+    UString(info.units, str16BufferSize(String128)).assign(pParam->GetLabelForHost());
     
     precision = pParam->GetPrecision();
     
@@ -72,32 +72,32 @@ public:
     info.unitId = unitID;
   }
   
-  virtual void toString (ParamValue valueNormalized, String128 string) const override
+  virtual void toString(ParamValue valueNormalized, String128 string) const override
   {
     WDL_String display;
     mIPlugParam->GetDisplayForHost(valueNormalized, true, display);
     Steinberg::UString(string, 128).fromAscii(display.Get());
   }
   
-  virtual bool fromString (const TChar* string, ParamValue& valueNormalized) const override
+  virtual bool fromString(const TChar* string, ParamValue& valueNormalized) const override
   {
-    String str ((TChar*)string);
+    String str((TChar*)string);
     valueNormalized = mIPlugParam->GetNormalized(atof(str.text8()));
     
     return true;
   }
   
-  virtual Steinberg::Vst::ParamValue toPlain (ParamValue valueNormalized) const override
+  virtual Steinberg::Vst::ParamValue toPlain(ParamValue valueNormalized) const override
   {
     return mIPlugParam->GetNonNormalized(valueNormalized);
   }
   
-  virtual Steinberg::Vst::ParamValue toNormalized (ParamValue plainValue) const override
+  virtual Steinberg::Vst::ParamValue toNormalized(ParamValue plainValue) const override
   {
     return mIPlugParam->GetNormalized(valueNormalized);
   }
   
-  OBJ_METHODS (IPlugVST3Parameter, Parameter)
+  OBJ_METHODS(IPlugVST3Parameter, Parameter)
   
 protected:
   IParam* mIPlugParam;
@@ -127,7 +127,7 @@ IPlugVST3::~IPlugVST3() {}
 
 #pragma mark AudioEffect overrides
 
-tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
+tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 {
   TRACE;
 
@@ -175,7 +175,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
     if(DoesMIDI())
     {
-      addEventInput (STR16("MIDI Input"), 1);
+      addEventInput(STR16("MIDI Input"), 1);
       //addEventOutput(STR16("MIDI Output"), 1);
     }
 
@@ -235,7 +235,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
   return result;
 }
 
-tresult PLUGIN_API IPlugVST3::terminate ()
+tresult PLUGIN_API IPlugVST3::terminate()
 {
   TRACE;
 
@@ -298,7 +298,7 @@ tresult PLUGIN_API IPlugVST3::setActive(TBool state)
   return SingleComponentEffect::setActive(state);
 }
 
-tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
+tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 {
   TRACE;
 
@@ -357,7 +357,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               break;
             }
             case kPresetParam:
-              RestorePreset(FromNormalizedParam(value, 0, NPresets(), 1.));
+              RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.)));
               break;
               //TODO: pitch bend, modwheel etc
             default:
@@ -367,7 +367,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
                 {
                   GetParam(idx)->SetNormalized((double)value);
                   SetParameterInUIFromAPI(idx, (double) value, true);
-                  OnParamChange(idx);
+                  OnParamChange(idx, kAutomation);
                 }
               }
               break;
@@ -554,9 +554,9 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32_t symbolicSampleSize)
 
 #pragma mark IEditController overrides
 
-IPlugView* PLUGIN_API IPlugVST3::createView (const char* name)
+IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
-  if (name && strcmp (name, "editor") == 0)
+  if (name && strcmp(name, "editor") == 0)
   {
     IPlugVST3View* view = new IPlugVST3View(this);
     addDependentView(view);
@@ -686,9 +686,9 @@ tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valu
   return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3::getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized)
+tresult PLUGIN_API IPlugVST3::getParamValueByString(ParamID tag, TChar* string, ParamValue& valueNormalized)
 {
-  return SingleComponentEffect::getParamValueByString (tag, string, valueNormalized);
+  return SingleComponentEffect::getParamValueByString(tag, string, valueNormalized);
 }
 
 void IPlugVST3::addDependentView(IPlugVST3View* view)
@@ -724,13 +724,13 @@ tresult IPlugVST3::endEdit(ParamID tag)
 
 AudioBus* IPlugVST3::getAudioInput (int32_t index)
 {
-  AudioBus* bus = FCast<AudioBus> (audioInputs.at(index));
+  AudioBus* bus = FCast<AudioBus>(audioInputs.at(index));
   return bus;
 }
 
 AudioBus* IPlugVST3::getAudioOutput (int32_t index)
 {
-  AudioBus* bus = FCast<AudioBus> (audioOutputs.at(index));
+  AudioBus* bus = FCast<AudioBus>(audioOutputs.at(index));
   return bus;
 }
 
@@ -877,7 +877,7 @@ IPlugVST3View::~IPlugVST3View()
 {
   if (mPlug)
   {
-    mPlug->removeDependentView (this);
+    mPlug->removeDependentView(this);
     mPlug->release();
   }
 }
@@ -887,13 +887,13 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
   if(mPlug->GetHasUI()) // for no editor plugins
   {
 #ifdef OS_WIN
-    if (strcmp (type, kPlatformTypeHWND) == 0)
+    if (strcmp(type, kPlatformTypeHWND) == 0)
       return kResultTrue;
 
 #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
       return kResultTrue;
-    else if (strcmp (type, kPlatformTypeHIView) == 0)
+    else if (strcmp(type, kPlatformTypeHIView) == 0)
       return kResultTrue;
 #endif
   }
@@ -935,12 +935,12 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
   }
 }
 
-tresult PLUGIN_API IPlugVST3View::attached (void* parent, FIDString type)
+tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 {
   if (mPlug->GetHasUI())
   {
     #ifdef OS_WIN
-    if (strcmp (type, kPlatformTypeHWND) == 0)
+    if (strcmp(type, kPlatformTypeHWND) == 0)
       mPlug->OpenWindow(parent);
     #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)

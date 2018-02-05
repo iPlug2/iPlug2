@@ -23,11 +23,15 @@ struct IPlugConfig;
 /** The lowest level base class of an IPlug plug-in. No UI framework code included.  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugBase
 {
+
 public:
+
+  enum ParamSource { kReset, kAutomation, kPresetRecall, kGUI };
+
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
-  virtual void OnParamChange(int paramIdx) {}
+  virtual void OnParamChange(int paramIdx, ParamSource) {}
   
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
@@ -148,7 +152,7 @@ public:
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
 
-  void OnParamReset();  // Calls OnParamChange(each param) + OnReset().
+  void OnParamReset(ParamSource source);  // Calls OnParamChange(each param) + OnReset().
 
   void PruneUninitializedPresets();
 

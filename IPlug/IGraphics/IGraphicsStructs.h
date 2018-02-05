@@ -27,53 +27,123 @@ class LICE_IFont;
  * @{
  */
 
+class APIBitmap
+{
+    
+public:
+    
+    APIBitmap(void* pBitmap, int w, int h, int s) : bitmap(pBitmap), width(w), height(h), scale(s) {}
+    APIBitmap() : bitmap(nullptr), width(0), height(0), scale(0) {}
+    virtual ~APIBitmap() {}
+    
+    void SetBitmap(void* pBitmap, int w, int h, int s)
+    {
+      assert(((w % s) == 0) && ((h % s) == 0));
+      
+      bitmap = pBitmap;
+      width = w;
+      height = h;
+      scale = s;
+    }
+    
+    void* GetBitmap() const { return bitmap; }
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
+    int GetScale() const { return scale; }
+    
+private:
+    
+    void* bitmap;
+    int width;
+    int height;
+    int scale;
+};
+
 /** Used to manage bitmap data, independant of draw class/platform.
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
-struct IBitmap
+class IBitmap
 {
-  /** Pointer to the raw bitmap data */
-  void* mData;
-  /** Bitmap width (in pixels) */
-  int W;
-  /** Bitmap height (in pixels) */
-  int H;
-  /** Number of frames (for stacked bitmaps) */
-  int N;
-  /** \c True if the frames are positioned horizontally */
-  bool mFramesAreHorizontal;
-  /** Maximum scaling allowed for the bitmap (typically 1) */
-  /** @todo Subject to change */
-  double mSourceScale;
-  /** Resource path/name for the bitmap */
-  WDL_String mResourceName;
+    
+public:
+    
   /** Creates a new IBitmap object
-   * @param pData Pointer to the raw bitmap data
-   * @param w Bitmap width (in pixels)
-   * @param h Bitmap height (in pixels)
-   * @param n Number of frames (for multibitmaps)
-   * @param framesAreHorizontal \c True if the frames are positioned horizontally
-   * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
-   * @param name Resource name for the bitmap
-   */
-  IBitmap(void* pData = nullptr, int w = 0, int h = 0, int n = 1, bool framesAreHorizontal = false, double sourceScale = 1., const char* name = "")
-    : mData(pData)
-    , W(w)
-    , H(h)
-    , N(n)
+  * @param pData Pointer to the raw bitmap data
+  * @param w Bitmap width (in pixels)
+  * @param h Bitmap height (in pixels)
+  * @param n Number of frames (for multibitmaps)
+  * @param framesAreHorizontal \c True if the frames are positioned horizontally
+  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
+  * @param name Resource name for the bitmap
+  */
+    
+  IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
+    : mAPIBitmap(pAPIBitmap)
+    , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+    , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+    , mN(n)
     , mFramesAreHorizontal(framesAreHorizontal)
-    , mSourceScale(sourceScale)
+    , mScale(pAPIBitmap->GetScale())
     , mResourceName(name, (int) strlen(name))
   {
   }
-
+    
+  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false), mScale(0)
+  {
+  }
+    
   /**
-   * @return Width of a single frame
+  * @return overall bitmap width
   */
-  inline int FW() const { return (mFramesAreHorizontal ? W / N : W); }
+  inline int W() const { return mW; }
   /**
-   * @return Height of a single frame
-   */
-  inline int FH() const { return (mFramesAreHorizontal ? H : H / N); }
+  * @return overall bitmap height
+  */
+  inline int H() const { return mH; }
+  /**
+  * @return Width of a single frame
+  */
+  inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  /**
+  * @return Height of a single frame
+  */
+  inline int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  /**
+  * @return number of frames
+  */
+  inline int N() const { return mN; }
+  /**
+  * @return a pointer to the referencied APIBitmap
+  */
+  inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
+  /**
+  * @return the raw underlying bitmap
+  */
+  inline void* GetRawBitmap() const { return mAPIBitmap->GetBitmap(); }
+  /**
+  * @return whether or not frames are stored horiztonally
+  */
+  inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
+  /**
+  * @return the resource name
+  */
+  inline const WDL_String& GetResourceName() const { return mResourceName; }
+    
+private:
+    
+  /** Pointer to the API specific bitmap data */
+  APIBitmap* mAPIBitmap;
+  /** Bitmap width (in pixels) */
+  int mW;
+  /** Bitmap height (in pixels) */
+  int mH;
+  /** Number of frames (for stacked bitmaps) */
+  int mN;
+  /** \c True if the frames are positioned horizontally */
+  bool mFramesAreHorizontal;
+  /** Scale of this bitmap */
+  int mScale;
+  /** Resource path/name for the bitmap */
+  WDL_String mResourceName;
 };
 
 struct ISVG
@@ -464,14 +534,16 @@ class StaticStorage
 {
 public:
   
+  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
+    
   unsigned long hash(const char* str)
   {
-    unsigned long hash = 5381; // TODO: CHECK THIS
+    unsigned long hash = 5381;
     int c;
     
     while ((c = *str++))
     {
-      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+      hash = ((hash << 5) + hash) + c;
     }
     
     return hash;
@@ -479,27 +551,29 @@ public:
   
   struct DataKey
   {
-    unsigned long id;
-    WDL_String path;
+    // N.B. - hashID is not guaranteed to be unique
+      
+    unsigned long hashID;
+    WDL_String name;
     double scale;
     T* data;
   };
-  
-  WDL_PtrList<DataKey> mDatas;
-  
+    
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    unsigned long id = hash(cacheName.Get());
+    unsigned long hashID = hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
       DataKey* key = mDatas.Get(i);
       
-      if (key->id == id) {
+      // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
+        
+      if (key->hashID == hashID && scale == key->scale && !strcmp(cacheName.Get(), key->name.Get())) {
         return key->data;
       }
     }
@@ -513,10 +587,10 @@ public:
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    key->id = hash(cacheName.Get());
+    key->hashID = hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
-    key->path.Set(str);
+    key->name.Set(str);
     
     DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
@@ -535,7 +609,7 @@ public:
     }
   }
   
-  ~StaticStorage()
+  void Clear()
   {
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -543,7 +617,16 @@ public:
       delete(mDatas.Get(i)->data);
     }
     mDatas.Empty(true);
+  };
+    
+  ~StaticStorage()
+  {
+    Clear();
   }
+    
+private:
+    
+  WDL_PtrList<DataKey> mDatas;
 };
 
 /**@}*/

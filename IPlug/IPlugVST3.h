@@ -46,11 +46,11 @@ public:
   bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
   
   // AudioEffect
-  Steinberg::tresult PLUGIN_API initialize (FUnknown* context) override;
+  Steinberg::tresult PLUGIN_API initialize(FUnknown* context) override;
   Steinberg::tresult PLUGIN_API terminate() override;
   Steinberg::tresult PLUGIN_API setBusArrangements(uint64_t* inputs, int32_t numIns, uint64_t* outputs, int32_t numOuts) override;
   Steinberg::tresult PLUGIN_API setActive(Steinberg::TBool state) override;
-  Steinberg::tresult PLUGIN_API setupProcessing (Steinberg::Vst::ProcessSetup& newSetup) override;
+  Steinberg::tresult PLUGIN_API setupProcessing(Steinberg::Vst::ProcessSetup& newSetup) override;
   Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData& data) override;
 //  Steinberg::tresult PLUGIN_API setState(IBStream* state) override;
 //  Steinberg::tresult PLUGIN_API getState(IBStream* state) override;
@@ -107,9 +107,9 @@ private:
 //    kAftertouchParam = 'aftt',
   };
 
-  OBJ_METHODS (IPlugVST3, SingleComponentEffect)
+  OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
-  END_DEFINE_INTERFACES (SingleComponentEffect)
+  END_DEFINE_INTERFACES(SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
 
   void addDependentView (IPlugVST3View* view);
@@ -136,7 +136,7 @@ class IPlugVST3View : public Steinberg::CPluginView
 {
 public:
   IPlugVST3View(IPlugVST3* pPlug);
-  ~IPlugVST3View ();
+  ~IPlugVST3View();
 
   // CPluginView overides
   Steinberg::tresult PLUGIN_API attached(void* parent, Steinberg::FIDString type) override;

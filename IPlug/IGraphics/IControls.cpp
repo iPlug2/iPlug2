@@ -33,14 +33,14 @@ void IVSwitchControl::Draw(IGraphics& graphics)
   graphics.FillCircle(GetColor(EVColor::kFG), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
 
   //graphics.DrawRect(GetColor(EVColor::kFR), mRECT.GetPadded(-5), &mBlend);
-  graphics.DrawCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
+  graphics.FillCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), (handle.W()/2.)-2, &mBlend);
 }
 
 void IVSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
   if(!mMouseOver)
   {
-    SetColor(2, COLOR_GREEN);
+    SetColor(EVColor::kFR, DEFAULT_HLCOLOR);
     mMouseOver=true;
   }
   SetDirty();
@@ -49,14 +49,14 @@ void IVSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IVSwitchControl::OnMouseOut()
 {
   mMouseOver=false;
-  SetColor(2, COLOR_BLACK);
+  SetColor(EVColor::kFR, DEFAULT_FRCOLOR);
   SetDirty();
 }
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if (mBitmap.N > 1)
-    mValue += 1.0 / (double)(mBitmap.N - 1);
+  if (mBitmap.N() > 1)
+    mValue += 1.0 / (double)(mBitmap.N() - 1);
   else
     mValue += 1.0;
 
@@ -97,13 +97,13 @@ IBSliderControl::IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int 
 {
   if (direction == kVertical)
   {
-    mHandleHeadroom = mHandleBitmap.H;
-    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W, y + len);
+    mHandleHeadroom = mHandleBitmap.H();
+    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W(), y + len);
   }
   else
   {
-    mHandleHeadroom = mHandleBitmap.W;
-    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H);
+    mHandleHeadroom = mHandleBitmap.W();
+    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H());
   }
 }
 
@@ -113,7 +113,7 @@ IRECT IBSliderControl::GetHandleRECT(double value) const
   {
     value = mValue;
   }
-  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W, mRECT.T + mHandleBitmap.H);
+  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W(), mRECT.T + mHandleBitmap.H());
   if (mDirection == kVertical)
   {
     int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));

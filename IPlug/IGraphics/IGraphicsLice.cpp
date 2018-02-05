@@ -1,11 +1,9 @@
 #include <cmath>
 
 #include "IGraphicsLice.h"
-#include "LiceNanoSVG.h"
 
 extern int GetSystemVersion();
 
-static StaticStorage<LICE_IBitmap> s_bitmapCache;
 static StaticStorage<LICE_IFont> s_fontCache;
 
 #pragma mark -
@@ -41,83 +39,35 @@ void IGraphicsLice::SetDisplayScale(int scale)
   IGraphics::SetDisplayScale(scale);
 }
 
-IBitmap IGraphicsLice::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double sourceScale)
+APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
-  const double targetScale = GetDisplayScale(); // targetScale = what this screen is
-
-  LICE_IBitmap* pLB = s_bitmapCache.Find(name, targetScale);
-
-  if (!pLB) // if bitmap not in cache allready at targetScale
-  {
-    WDL_String fullPath;
-    bool resourceFound = OSFindResource(name, "png", fullPath);
-    assert(resourceFound); // Protect against typos in resource.h and .rc files.
-
-    pLB = LoadAPIBitmap(fullPath.Get());
-    resourceFound = pLB != nullptr;
-    assert(resourceFound); // Protect against typos in resource.h and .rc files.
-
-    const IBitmap bitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
-
-    if (sourceScale != targetScale) {
-      return ScaleBitmap(bitmap, name, targetScale); // will add to cache
-    }
-    else {
-      s_bitmapCache.Add(pLB, name, sourceScale);
-      return IBitmap(pLB, pLB->getWidth() / sourceScale, pLB->getHeight() / sourceScale, nStates, framesAreHoriztonal, sourceScale, name);
-    }
-  }
-
-  // if bitmap allready cached at scale
-  // TODO: this is horribly hacky
-  if(targetScale > 1.)
-    return IBitmap(pLB, pLB->getWidth() / targetScale, pLB->getHeight() / targetScale, nStates, framesAreHoriztonal, sourceScale, name);
-  else
-    return IBitmap(pLB, pLB->getWidth(), pLB->getHeight(), nStates, framesAreHoriztonal, sourceScale, name);
-}
-
-void IGraphicsLice::ReleaseBitmap(IBitmap& bitmap)
-{
-  s_bitmapCache.Remove((LICE_IBitmap*) bitmap.mData);
-}
-
-void IGraphicsLice::RetainBitmap(IBitmap& bitmap, const char * cacheName)
-{
-  s_bitmapCache.Add((LICE_IBitmap*)bitmap.mData, cacheName);
-}
-
-IBitmap IGraphicsLice::ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale)
-{
-  const double scalingFactor = targetScale / bitmap.mSourceScale;
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
-  
-  const int destW = pSrc->getWidth() * scalingFactor;
-  const int destH = pSrc->getHeight() * scalingFactor;
-  
+  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
+  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
+    
+  LICE_IBitmap* pSrc = (LICE_IBitmap*) pBitmap;
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
-  
-  IBitmap bmp(pDest, bitmap.W, bitmap.H, bitmap.N, bitmap.mFramesAreHorizontal, bitmap.mSourceScale, name);
-  s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
-  return bmp;
+    
+  return new LICEBitmap(pDest, scale);
 }
-
-IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale)
+/*
+IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale)
 {
   int destW = rect.W(), destH = rect.H();
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mData;
+  LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mAPIBitmap->GetBitmap();
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_Blit(pDest, pSrc, 0, 0, rect.L, rect.T, destW, destH, 1.0f, LICE_BLIT_MODE_COPY);
   
-  IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, bitmap.mSourceScale, name);
+  IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, targetScale, bitmap.mSourceScale, name);
   s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
   return bmp;
 }
+*/
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
   //TODO:
-  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
+//  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
 }
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
@@ -138,7 +88,7 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
   srcX *= ds;
   srcY *= ds;
   
-  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.mData;
+  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetRawBitmap();
   IRECT r = rect.Intersect(sdr);
   srcX += r.L - rect.L;
   srcY += r.T - rect.T;
@@ -148,10 +98,10 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
 void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
   const float ds = GetDisplayScale();
-  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.mData;
+  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetRawBitmap();
   
-  int W = bitmap.W * ds;
-  int H = bitmap.H * ds;
+  int W = bitmap.W() * ds;
+  int H = bitmap.H() * ds;
   int destX = (destCtrX * ds) - W / 2;
   int destY = (destCtrY * ds) - H / 2;
   
@@ -160,12 +110,13 @@ void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtr
 
 void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
-  LICE_IBitmap* pBase = (LICE_IBitmap*) base.mData;
-  LICE_IBitmap* pMask = (LICE_IBitmap*) mask.mData;
-  LICE_IBitmap* pTop = (LICE_IBitmap*) top.mData;
+  LICE_IBitmap* pBase = (LICE_IBitmap*) base.GetRawBitmap();
+  LICE_IBitmap* pMask = (LICE_IBitmap*) mask.GetRawBitmap();
+  LICE_IBitmap* pTop = (LICE_IBitmap*) top.GetRawBitmap();
   
-  int W = base.W;
-  int H = base.H;
+  double dA = angle * PI / 180.0;
+  int W = base.W();
+  int H = base.H();
   float xOffs = (W % 2 ? -0.5f : 0.0f);
   
   if (!mTmpBitmap)
@@ -509,25 +460,27 @@ bool IGraphicsLice::MeasureText(const IText& text, const char* str, IRECT& destR
   return DrawText(text, str, destRect, true);
 }
 
-LICE_IBitmap* IGraphicsLice::LoadAPIBitmap(const char* path)
+APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
+  const char *path = resourcePath.Get();
+    
   bool ispng = strstr(path, "png") != nullptr;
 #ifdef OS_MAC
-  if (ispng) return LICE_LoadPNG(path);
+  if (ispng) return new LICEBitmap(LICE_LoadPNG(path), scale);
 #else //OS_WIN
-  if (ispng) return LICE_LoadPNGFromResource((HINSTANCE) GetPlatformInstance(), path, 0);
+  if (ispng) return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetPlatformInstance(), path, 0), scale);
 #endif
 
 #ifdef IPLUG_JPEG_SUPPORT
   bool isjpg = (strstr(path, "jpg") != nullptr) && (strstr(path, "jpeg") != nullptr);
 #ifdef OS_MAC
-  if (isjpg) return LICE_LoadJPG(path);
+  if (isjpg) return new LICEBitmap(LICE_LoadJPG(path), scale);
 #else //OS_WIN
-  if (isjpg) return LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0);
+  if (isjpg) return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0), scale);
 #endif
 #endif
 
-  return nullptr;
+  return new APIBitmap();
 }
 
 void IGraphicsLice::RenderDrawBitmap()

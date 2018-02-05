@@ -43,6 +43,7 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
+
 public:
 #pragma mark - IGraphics drawing API implementation
   //These are NanoVG only, may be refactored
@@ -350,60 +351,11 @@ public:
   inline virtual void ResetClipRegion() {}; // overridden in some IGraphics drawing classes to reset clip
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  
-  /**
-   <#Description#>
-
-   @param name <#name description#>
-   @param nStates <#nStates description#>
-   @param framesAreHoriztonal <#framesAreHoriztonal description#>
-   @param . <#. description#>
-   @return <#return value description#>
-   */
-  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHoriztonal = false, double scale = 1.) = 0;
-  
-  /**
-   <#Description#>
-
-   @param srcbitmap <#srcbitmap description#>
-   @param cacheName <#cacheName description#>
-   @param targetScale <#targetScale description#>
-   @return <#return value description#>
-   */
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double targetScale) = 0;
-  
-  /**
-   <#Description#>
-
-   @param bitmap <#bitmap description#>
-   @param rect <#rect description#>
-   @param name <#name description#>
-   @param targetScale <#targetScale description#>
-   @return <#return value description#>
-   */
-  virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) = 0;
-  
-  /**
-   <#Description#>
-
-   @param bitmap <#bitmap description#>
-   @param cacheName <#cacheName description#>
-   */
-  virtual void RetainBitmap(IBitmap& bitmap, const char* cacheName) = 0;
-  
-  /**
-   <#Description#>
-
-   @param bitmap <#bitmap description#>
-   */
-  virtual void ReleaseBitmap(IBitmap& bitmap) = 0;
-  
-  /**
-   <#Description#>
-
-   @param src <#src description#>
-   @return <#return value description#>
-   */
+  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHorizontal = false);
+  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+  //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) = 0;
+  virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
+  virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
   
   /**
@@ -853,26 +805,8 @@ public:
   */
   IPlugBaseGraphics& GetPlug() { return mPlug; }
 
-  /**
-   /todo <#Description#>
-
-   @param name <#name description#>
-   @param . <#. description#>
-  */
-  void AttachBackground(const char* name, double scale = 1.);
-  
-  /**
-   /todo <#Description#>
-
-   @param color The colour to draw/fill the shape with>
-  */
-  void AttachPanelBackground(const IColor& color = DEFAULT_GRAPHICS_BGCOLOR);
-  
-  /**
-   /todo <#Description#>
-
-   @param control <#control description#>
-  */
+  void AttachBackground(const char* name);
+  void AttachPanelBackground(const IColor& color);
   void AttachKeyCatcher(IControl& control);
   
   /**
@@ -1179,6 +1113,14 @@ public:
   
 protected:
   IPlugBaseGraphics& mPlug;
+
+  virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
+  //virtual void* CreateAPIBitmap(int w, int h) = 0;
+  virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
+
+  bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
+  APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
+    
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
@@ -1214,3 +1156,4 @@ protected:
   
   friend class IGraphicsLiveEdit;
 };
+

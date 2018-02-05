@@ -58,6 +58,12 @@
 #pragma clang diagnostic pop
 #endif
 
+class AGGBitmap : public APIBitmap
+{
+public:
+  AGGBitmap(agg::pixel_map* pPixMap, int scale) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale) {}
+  virtual ~AGGBitmap() { delete ((agg::pixel_map*) GetBitmap()); }
+};
 
 inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
 {
@@ -67,9 +73,8 @@ inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nul
 inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
-  {
     return agg::comp_op_src;
-  }
+  
   switch (pBlend->mMethod)
   {
     case kBlendClobber: return agg::comp_op_src_over;
@@ -79,6 +84,14 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     default:
       return agg::comp_op_src_over;
   }
+}
+
+inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+{
+  if (!pBlend)
+    return 255;
+  
+  return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(pBlend->mWeight * 255.f)), agg::cover_type(255)));
 }
 
 /** IGraphics draw class using Antigrain Geometry  
@@ -154,12 +167,8 @@ public:
   void* GetData() override { return 0; } //todo
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* cacheName, double scale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, double scale) override;
-  void RetainBitmap(IBitmap& bitmap, const char* cacheName) override {};
-  void ReleaseBitmap(IBitmap& bitmap) override {};
-//  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
+ // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, int scale) override;
+ //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
 
@@ -208,9 +217,9 @@ private:
 #endif
   
 private:
-  agg::pixel_map* LoadAPIBitmap(const char* pPath);
+  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
-  agg::pixel_map* ScaleAPIBitmap(agg::pixel_map* pPixel_map, int destW, int destH);
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
 
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;

@@ -44,6 +44,13 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
 }
 
+class LICEBitmap : public APIBitmap
+{
+public:
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale) {}
+  virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
+};
+
 /** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses
 */
@@ -90,18 +97,18 @@ public:
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
   
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, double targetScale) override;
-  void ReleaseBitmap(IBitmap& bitmap) override;
-  void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
+  //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
   
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
+    
+  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+
   void RenderDrawBitmap() override;
+    
 private:
-  LICE_IBitmap* LoadAPIBitmap(const char* path);
   LICE_IFont* CacheFont(const IText& text, double scale);
 
   LICE_SysBitmap* mDrawBitmap = nullptr;

@@ -521,14 +521,19 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         memset(pInfo, 0, sizeof(AudioUnitParameterInfo));
         pInfo->flags = kAudioUnitParameterFlag_CFNameRelease |
                        kAudioUnitParameterFlag_HasCFNameString |
-                       kAudioUnitParameterFlag_IsReadable;
+                       kAudioUnitParameterFlag_IsWritable |
+                       kAudioUnitParameterFlag_IsReadable ;
+        
+        #ifndef IPLUG1_COMPATIBILITY
+        pInfo->flags |= kAudioUnitParameterFlag_IsHighResolution;
+        #endif
         
         WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(element);
         
-        if (pParam->GetCanAutomate()) 
+        if (!pParam->GetCanAutomate())
         {
-          pInfo->flags = pInfo->flags | kAudioUnitParameterFlag_IsWritable;
+          pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
         }
         
         if (pParam->GetIsMeta()) 
@@ -536,6 +541,11 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
         }
         
+        if (pParam->NDisplayTexts())
+        {
+          pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
+        }
+          
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
         strcpy(pInfo->name, paramName);   // Max 52.
@@ -568,7 +578,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pParam->GetBounds(lo, hi);
         pInfo->minValue = lo;
         pInfo->maxValue = hi;
-        pInfo->defaultValue = pParam->Value();
+        pInfo->defaultValue = pParam->GetDefault();
         
         const char* paramGroupName = pParam->GetParamGroupForHost();
 
@@ -956,8 +966,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           IParam* pParam = GetParam(pVFS->inParamID);
           if (pParam->NDisplayTexts())
           {
-            int v;
-            if (pParam->MapDisplayText(cStr.mCStr, &v))
+            int v = 0;
+            if (pParam->NDisplayTexts() && (pParam->MapDisplayText(cStr.mCStr, &v) || pParam->Type() == IParam::kTypeEnum))
               pVFS->outValue = (AudioUnitParameterValue) v;
           }
           else
@@ -1478,7 +1488,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
   _this->SetParameterInUIFromAPI(paramID, value, false);
-  _this->OnParamChange(paramID);
+  _this->OnParamChange(paramID, kAutomation);
   return noErr;
 }
 
@@ -2048,7 +2058,7 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
     return badComponentSelector;
   }
   _this->mActive = true;
-  _this->OnParamReset();
+  _this->OnParamReset(kReset);
   _this->OnActivate(true);
   
   return noErr;

@@ -94,7 +94,7 @@ public:
 
   /** @return Parameter index */
   int ParamIdx() { return mParamIdx; }
-  IParam* GetParam() { return mPlug.GetParam(mParamIdx); }
+  IParam* GetParam() { return (mParamIdx >= 0) ? mPlug.GetParam(mParamIdx) : nullptr; }
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
@@ -124,10 +124,10 @@ public:
   /** @return \c True if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
-  void SetMOWhenGrayed(bool allow) { mMOWhenGreyed = allow; }
-  void SetMEWhenGrayed(bool allow) { mMEWhenGreyed = allow; }
-  bool GetMOWhenGrayed() { return mMOWhenGreyed; }
-  bool GetMEWhenGrayed() { return mMEWhenGreyed; }
+  void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
+  void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
+  bool GetMOWhenGrayed() { return mMOWhenGrayed; }
+  bool GetMEWhenGrayed() { return mMEWhenGrayed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
@@ -151,7 +151,6 @@ public:
   // IPlugBase::OnIdle which is called from the audio processing thread.
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
-  
   
   /** A struct that contains a parameter index and normalized value */
    struct AuxParam 
@@ -219,8 +218,8 @@ protected:
   bool mDisablePrompt = true;
   bool mClamped = false;
   bool mDblAsSingleClick = false;
-  bool mMOWhenGreyed = false;
-  bool mMEWhenGreyed = false;
+  bool mMOWhenGrayed = false;
+  bool mMEWhenGrayed = false;
   IControl* mValDisplayControl = nullptr;
   IControl* mNameDisplayControl = nullptr;
   WDL_String mTooltip;
@@ -237,6 +236,7 @@ protected:
 #endif
 };
 
+/** A An interface for IVControls, in order for them to share a common set of colors. If you need more flexibility for theming, you're on your own! */
 class IVectorBase
 {
 public:

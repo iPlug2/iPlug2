@@ -2,7 +2,6 @@
 
 #include "IGraphicsAGG.h"
 
-static StaticStorage<agg::pixel_map> s_bitmapCache;
 static StaticStorage<agg::font> s_fontCache;
 
 #pragma mark -
@@ -18,37 +17,6 @@ IGraphicsAGG::IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps)
 
 IGraphicsAGG::~IGraphicsAGG()
 {
-}
-
-IBitmap IGraphicsAGG::LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale)
-{
-  double targetScale = GetDisplayScale() / scale;
-  double scaleRes = scale * targetScale;
-  
-  agg::pixel_map* pPixelMap = s_bitmapCache.Find(name, scaleRes);
-  
-  if (!pPixelMap) //do we have a bitmap for this display scale
-  {
-    WDL_String fullPath;
-    bool resourceFound = OSFindResource(name, "png", fullPath);
-    assert(resourceFound); // Protect against typos in resource.h and .rc files.
-
-    if(CSTR_NOT_EMPTY(fullPath.Get()))
-    {
-      pPixelMap = LoadAPIBitmap(fullPath.Get());
-      resourceFound = pPixelMap != nullptr;
-      assert(resourceFound); // Protect against typos in resource.h and .rc files.
-      
-      if (scale != GetDisplayScale()) {
-        IBitmap bitmap(pPixelMap, pPixelMap->width(), pPixelMap->height(), nStates, framesAreHoriztonal, scale, name);
-        return ScaleBitmap(bitmap, name, targetScale);
-      }
-      
-      s_bitmapCache.Add(pPixelMap, name, targetScale);
-    }
-  }
-  
-  return IBitmap(pPixelMap, pPixelMap->width() / targetScale, pPixelMap->height() / targetScale, nStates, framesAreHoriztonal, scale, name);
 }
 
 void IGraphicsAGG::SetDisplayScale(int scale)
@@ -91,13 +59,13 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcX *= GetDisplayScale();
   srcY *= GetDisplayScale();
 
-  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.GetRawBitmap();
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
   mPixf.comp_op(AGGBlendMode(pBlend));
   
-  agg::rect_i r(srcX, srcY, srcX + rect.W()-1, srcY + rect.H()); //TODO: suspicious -1 here necessary to avoid problems with DrawBitmappedText
-  mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T);
+  agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
+  mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T, AGGCover(pBlend));
 }
 
 void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -107,13 +75,13 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   destCtrX *= GetDisplayScale();
   destCtrY *= GetDisplayScale();
 
-  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.mData;
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.GetRawBitmap();
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
   PixfmtType imgPixf(buf);
   
-  const double width = bitmap.W * GetDisplayScale();
-  const double height = bitmap.H * GetDisplayScale();
+  const double width = bitmap.W() * GetDisplayScale();
+  const double height = bitmap.H() * GetDisplayScale();
 
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
@@ -147,9 +115,9 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   x *= GetDisplayScale();
   y *= GetDisplayScale();
 
-  agg::pixel_map* pm_base = (agg::pixel_map*)base.mData;
-  agg::pixel_map* pm_mask = (agg::pixel_map*)mask.mData;
-  agg::pixel_map* pm_top = (agg::pixel_map*)top.mData;
+  agg::pixel_map* pm_base = (agg::pixel_map*) base.GetRawBitmap();
+  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.GetRawBitmap();
+  agg::pixel_map* pm_top = (agg::pixel_map*) top.GetRawBitmap();
   
   agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
   agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());
@@ -166,8 +134,8 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   ren_base.blend_from(img_mask, 0, 0, agg::cover_mask);
   ren_base.copy_from(img_top);
   
-  const double width = base.W * GetDisplayScale();
-  const double height = base.H * GetDisplayScale();
+  const double width = base.W() * GetDisplayScale();
+  const double height = base.H() * GetDisplayScale();
   
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
@@ -346,22 +314,10 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   IColor color(point.a, point.r, point.g, point.b);
   return color;
 }
-
-IBitmap IGraphicsAGG::ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, double scale)
+/*
+IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, int scale)
 {
-  const int destW = srcbitmap.W * scale;
-  const int destH = srcbitmap.H * scale;
-  
-  agg::pixel_map* pCopy = ScaleAPIBitmap((agg::pixel_map*) srcbitmap.mData, destW, destH);
-
-  s_bitmapCache.Add(pCopy, cacheName, scale);
-  
-  return IBitmap(pCopy, destW, destH, srcbitmap.N, srcbitmap.mFramesAreHorizontal, scale, cacheName);
-}
-
-IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, double scale)
-{
-  agg::pixel_map* pPixelMap = (agg::pixel_map*)srcbitmap.mData;
+  agg::pixel_map* pPixelMap = (agg::pixel_map*) srcbitmap.mAPIBitmap->GetBitmap();
   agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());
   
   agg::rendering_buffer src;
@@ -381,11 +337,11 @@ IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, co
   
   renbase.copy_from(imgPixfSrc, &src_r, -rect.L, -rect.T);
   
-  s_bitmapCache.Add(pCopy, cacheName, scale);
+  AGGBitmap *pAPIBitmap = new AGGBitmap(pCopy, scale);
   
-  return IBitmap(pCopy, pCopy->width(), pCopy->height(), srcbitmap.N, srcbitmap.mFramesAreHorizontal);
+  return IBitmap(new AGGBitmap(pCopy, scale));  //TODO: surface will not be destroyed, unless this is retained
 }
-
+*/
 //IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
 //{
 //  agg::pixel_map* pPixelMap = (agg::pixel_map*) CreateAPIBitmap(w, h);
@@ -410,8 +366,9 @@ agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
   return pPixelMap;
 }
 
-agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* path)
+APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
+  const char *path = resourcePath.Get();
 #ifdef OS_MAC
   if (CSTR_NOT_EMPTY(path))
   {
@@ -427,9 +384,9 @@ agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* path)
     if (!isjpg && !ispng) return 0;
 #endif
     
-    agg::pixel_map_mac * pPixelMap = new agg::pixel_map_mac();
+    agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
     if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-      return pPixelMap;
+      return new AGGBitmap(pPixelMap, scale);
     else
       delete pPixelMap;
   }
@@ -438,11 +395,15 @@ agg::pixel_map* IGraphicsAGG::LoadAPIBitmap(const char* path)
   //TODO: win
 #endif
   
-  return 0;
+  return new APIBitmap();
 }
 
-agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, int destW, int destH)
+APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
+  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
+  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
+    
+  agg::pixel_map* pSourcePixelMap = (agg::pixel_map*) pBitmap->GetBitmap();
   agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(destW, destH);
   
   agg::rendering_buffer src;
@@ -485,13 +446,13 @@ agg::pixel_map* IGraphicsAGG::ScaleAPIBitmap(agg::pixel_map* pSourcePixelMap, in
   ras.add_path(tr);
   agg::render_scanlines_aa(ras, sl, renbase, sa, sg);
   
-  return pCopy;
+  return new AGGBitmap(pCopy, scale);
 }
 
 void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_MAC
-  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale() / GetScale());
+  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
 #else // OS_WIN
   //TODO: win
 #endif

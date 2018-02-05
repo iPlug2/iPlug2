@@ -83,7 +83,7 @@ void IParam::SetNormalized(double normalizedValue)
   
   if (mType != kTypeDouble)
   {
-    mValue = floor(0.5 + mValue / mStep) * mStep;
+    mValue = round(mValue / mStep) * mStep;
   }
   
   mValue = std::min(mValue, mMax);
@@ -125,11 +125,15 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
   if (mNegateDisplay)
     displayValue = -displayValue;
 
+  // Squash all zeros to positive
+  
+  if (!displayValue) displayValue = 0.0;
+
   if (mDisplayPrecision == 0)
   {
-    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(displayValue));
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(round(displayValue)));
   }
-  else if(mSignDisplay)
+  else if (mSignDisplay && displayValue)
   {
     char fmt[16];
     sprintf(fmt, "%%+.%df", mDisplayPrecision);
