@@ -497,7 +497,7 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
   return TRUE;
 }
 
-#ifdef _WIN32
+#ifdef OS_WIN
 void ClientResize(HWND hWnd, int nWidth, int nHeight)
 {
   RECT rcClient, rcWindow;
@@ -526,13 +526,14 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
       gHWND=hwndDlg;
 
-#ifdef _WIN32
+#ifdef OS_WIN
       if(!AttachGUI()) printf("couldn't attach gui\n");
       ClientResize(hwndDlg, gPluginInstance->GetUIWidth(), gPluginInstance->GetUIHeight());
       //SendMessage(hwndDlg, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
       //SendMessage(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
 
 #else // OSX
+//      ClientResize(hwndDlg, gPluginInstance->GetUIWidth(), gPluginInstance->GetUIHeight());
       CenterWindow(hwndDlg);
 #endif
 
@@ -541,7 +542,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
       gHWND=NULL;
 
-#ifdef _WIN32
+#ifdef OS_WIN
       PostQuitMessage(0);
 #else
       SWELL_PostQuitMessage(hwndDlg);

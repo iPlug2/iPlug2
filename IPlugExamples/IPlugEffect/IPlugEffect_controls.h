@@ -106,9 +106,21 @@ public:
     
   }
   
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetGUI()->HideMouseCursor();
+    IKnobControlBase::OnMouseDown(x, y, mod);
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    GetGUI()->ShowMouseCursor();
+    IKnobControlBase::OnMouseUp(x, y, mod);
+  }
+  
   void Draw(IGraphics& graphics) override
   {
-    graphics.FillRect(COLOR_GRAY, mRECT.GetPadded(-2));
+    graphics.FillRect(COLOR_WHITE, mRECT.GetPadded(-2));
     graphics.DrawRect(COLOR_BLACK, mRECT.GetPadded(-2));
     float angle = mAngle1 + (float) mValue * (mAngle2 - mAngle1);
     graphics.FillArc(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
@@ -143,6 +155,18 @@ public:
   {
   }
   
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetGUI()->HideMouseCursor();
+    IKnobControlBase::OnMouseDown(x, y, mod);
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    GetGUI()->ShowMouseCursor();
+    IKnobControlBase::OnMouseUp(x, y, mod);
+  }
+  
 private:
   void Draw(IGraphics& graphics) override
   {
@@ -153,7 +177,7 @@ private:
     float incr = (2.f * (float) PI) / npoints;
     float cr = (float) mValue * (mRECT.W() / 2.f);
     
-    graphics.FillRoundRect(COLOR_GRAY, mRECT.GetPadded(-2.f), cr);
+    graphics.FillRoundRect(COLOR_WHITE, mRECT.GetPadded(-2.f), cr);
     graphics.DrawRoundRect(COLOR_BLACK, mRECT.GetPadded(-2.f), cr);
     
     for (int i = 0; i < npoints; i++)
