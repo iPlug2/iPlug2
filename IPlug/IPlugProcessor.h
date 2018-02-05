@@ -30,14 +30,14 @@ public:
   /** Override in your plug-in class to process audio
    * In ProcessBlock you are always guaranteed to get valid pointers to all the channels the plugin requested (the maximum possible input channel count and the maximum possible output channel count including multiple buses). If the host hasn't connected all the pins,
    * the unconnected channels will be full of zeros.
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file i/o which could cause audio dropouts
+   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
   virtual void ProcessBlock(double** inputs, double** outputs, int nFrames);
 
   /** Override this method to get an "idle"" call from the audio processing thread in VST2 plug-ins.
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file i/o which could cause audio dropouts
+   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * Only active if USE_IDLE_CALLS preprocessor macro is defined */
   virtual void OnIdle() {}
 
@@ -46,19 +46,20 @@ public:
 
   /** Override OnActivate() which should be called by the API class when a plug-in is "switched on" by the host on a track when the channel count is known.
    * This may not work reliably because different hosts have different interpretations of "activate".
-   * Unlike OnReset() which called when the transport is reset or the sample rate changes OnActivate() is a good place to handle change of i/o connections.
+   * Unlike OnReset() which called when the transport is reset or the sample rate changes OnActivate() is a good place to handle change of I/O connections.
    * @param active \c True if the host has activated the plug-in */
   virtual void OnActivate(bool active) { TRACE; }
 
   /** Override this method which is called prior to ProcessBlock(), to handle incoming MIDI messages.
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file i/o which could cause audio dropouts
+   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * @param msg The incoming midi message (includes a timestamp to indicate the offset in the forthcoming block of audio to be processed in ProcessBlock()) */
   virtual void ProcessMidiMsg(IMidiMsg& msg);
   
   /** Override this method which is calledThis method is called prior to ProcessBlock(), to handle incoming MIDI System Exclusive (SysEx) messages.
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file i/o which could cause audio dropouts */
+   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
   virtual void ProcessSysEx(ISysEx& msg) {}
+  
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugProcessor.cpp
   
   /** Send a single MIDI message
@@ -111,7 +112,7 @@ public:
 #pragma mark -
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
-   * @return The maximum bus count across all channel i/o configs */
+   * @return The maximum bus count across all channel I/O configs */
   int MaxNBuses(ERoute direction) const { if(direction == kInput) { return mMaxNInBuses; } else { return mMaxNOutBuses; } }
   
   /** For a given input or output bus what is the maximum possible number of channels
@@ -123,9 +124,9 @@ public:
   /** Check if we have any wildcard characters in the channel io configs
    * @param direction Return input or output bus count
    * @return /true if the bus has a wildcard, meaning it should work on any number of channels */
-  bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // /todo only supports a single IO Config
+  bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // /todo only supports a single I/O config
   
-  /** @return The number of channel i/o configs derived from the channel io string*/
+  /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
   
   /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
@@ -155,9 +156,9 @@ public:
   bool HasSidechainInput() const { return mMaxNInBuses > 1; }
   
   /** @return The number of channels and the side-chain input /todo this will change */
-  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel i/o
+  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
   
-  /** Check if a certain configuration of input channels and output channels is allowed based on the channel i/o configs
+  /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
    * @param NOutputChans Number of outputs to test, if set to -1 = check NInputChans only
    * @return /c true if the configurations is valid */
@@ -195,8 +196,8 @@ public:
    * @param tailSizeSamples the new tailsize in samples*/
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
   
-  /** A static method to parse the config.h channel i/o string.
-   * @param IOStr Space separated cstring list of i/o configurations for this plug-in in the format ninchans-noutchans. A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character. For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string of "1.1-1". A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
+  /** A static method to parse the config.h channel I/O string.
+   * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans. A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character. For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string of "1.1-1". A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
    * @param channelIOList A list of pointers to ChannelIO structs, where we will store here
    * @param totalNInChans The total number of input channels across all buses will be stored here
    * @param totalNOutChans The total number of output channels across all buses will be stored here
