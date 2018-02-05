@@ -119,7 +119,7 @@ void IPlugBase::SetParameterFromUI(int idx, double normalizedValue)
   OnParamChange(idx, kGUI);
 }
 
-void IPlugBase::OnParamReset(ParamSource source)
+void IPlugBase::OnParamReset(EParamSource source)
 {
   for (int i = 0; i < mParams.GetSize(); ++i)
   {

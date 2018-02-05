@@ -111,6 +111,17 @@ static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
 static const uint64_t kInvalidBusType = 0;
 #endif
 
+/** @enum EParamSource
+ * Used to identify the source of a parameter change
+ */
+enum EParamSource
+{
+  kReset,
+  kAutomation,
+  kPresetRecall,
+  kGUI
+};
+
 /** @enum ERoute
  * Used to identify whether a bus/channel connection is an input or an output, maps to core audio scope
  */

@@ -25,14 +25,12 @@ class IPlugBase
 {
 
 public:
-
-  enum ParamSource { kReset, kAutomation, kPresetRecall, kGUI };
-
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
-  virtual void OnParamChange(int paramIdx, ParamSource) {}
-  
+  virtual void OnParamChange(int paramIdx, EParamSource source) { OnParamChange(paramIdx); }
+  virtual void OnParamChange(int paramIdx) {}
+
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
   virtual void OnGUIOpen() { TRACE; }
@@ -152,7 +150,7 @@ public:
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).
 
-  void OnParamReset(ParamSource source);  // Calls OnParamChange(each param) + OnReset().
+  void OnParamReset(EParamSource source);  // Calls OnParamChange(each param) + OnReset().
 
   void PruneUninitializedPresets();
 
