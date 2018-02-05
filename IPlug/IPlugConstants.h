@@ -77,6 +77,9 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
+static const char* RoutingDirStrs[3]  = { "invalid", "input", "output" };
+
+
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
 
 #ifdef VST3_API
@@ -93,6 +96,16 @@ static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
 #else
 static const uint64_t kInvalidBusType = 0;
 #endif
+
+/** @enum ERoute
+ * Used to identify whether a bus/channel connection is an input or an output, maps to core audio scope
+ */
+enum ERoute
+{
+  kInvalid = 0,
+  kInput = 1,
+  kOutput = 2
+};
 
 enum EAPI
 {

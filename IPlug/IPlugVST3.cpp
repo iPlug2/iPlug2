@@ -7,30 +7,41 @@
 
 #include "IPlugVST3.h"
 
-#ifndef MULTICHANNEL_BUSTYPE_FUNC
-static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans)
-{
-  switch (numChans)
-  {
-    case 1:
-      return (uint64_t) Steinberg::Vst::SpeakerArr::kMono;
-    case 2:
-      return (uint64_t) Steinberg::Vst::SpeakerArr::kStereo;
-    case 0:
-    default:
-    {
-      DBGMSG("for anything other than mono or stereo buses, you need to implement GetAPIBusTypeForChannelIOConfig() and #define MULTICHANNEL_BUSTYPE_FUNC\n");
-      assert(numChans > 2);
-      return (uint64_t) Steinberg::Vst::SpeakerArr::kEmpty;
-    }
-  }
-}
-#else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans);
-#endif //MULTICHANNEL_BUSTYPE_FUNC
 
 using namespace Steinberg;
 using namespace Vst;
+
+#ifndef CUSTOM_BUSTYPE_FUNC
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+{
+  assert(pConfig != nullptr);
+  assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
+
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
+
+  switch (numChans)
+  {
+    case 0: return kInvalidBusType;
+    case 1: return SpeakerArr::kMono;
+    case 2: return SpeakerArr::kStereo;
+    case 3: return SpeakerArr::k30Cine; // CHECK - not the same as protools
+    case 4: return SpeakerArr::kAmbi1stOrderACN;
+    case 5: return SpeakerArr::k50;
+    case 6: return SpeakerArr::k51;
+    case 7: return SpeakerArr::k70Cine;
+    case 8: return SpeakerArr::k71CineSideFill; // CHECK - not the same as protools
+    case 9: return SpeakerArr::kAmbi2cdOrderACN;
+    case 10:return SpeakerArr::k71_2; // aka k91Atmos
+    case 16:return SpeakerArr::kAmbi3rdOrderACN;
+    default:
+      DBGMSG("do not yet know what to do with here\n");
+      assert(0);
+      return kInvalidBusType;
+  }
+}
+#else
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
+#endif //CUSTOM_BUSTYPE_FUNC
 
 class IPlugVST3Parameter : public Parameter
 {
@@ -104,28 +115,6 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     mLatencyDelay->SetDelayTime(GetLatency());
   }
 
-  // initialize the bus labels
-//  SetInputBusLabel(0, "Main Input");
-//
-//  if (HasSidechainInput())
-//    SetInputBusLabel(1, "Aux Input");
-  
-//  if (IsInstrument())
-//  {
-//    int busNum = 0;
-//    char label[32]; //TODO: 32!!!
-//
-//    for (int i = 0; i < NOutChannels(); i+=2) // stereo buses only
-//    {
-//      sprintf(label, "Output %i", busNum+1);
-//      SetOutputBusLabel(busNum++, label);
-//    }
-//  }
-//  else
-//  {
-//    SetOutputBusLabel(0, "Output");
-//  }
-  
   // Make sure the process context is predictably initialised in case it is used before process is called
  
   memset(&mProcessContext, 0, sizeof(ProcessContext));
@@ -155,48 +144,31 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
   if (result == kResultOk)
   {
-    //to do should move
-    const int NIOConfigs = mIOConfigs.GetSize();
-    int maxInputChannelCountOnBuses[MaxNBuses(ERoutingDir::kInput)];
-    memset(maxInputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kInput) * sizeof(int));
+//    for(auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
+//    {
+      int configIdx = mIOConfigs.GetSize()-1;
+    
+      IOConfig* pConfig = mIOConfigs.Get(configIdx);
+      
+      for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
+      {
+        uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
+        
+        int flags = 0; busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+        Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
+        addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
+      }
+      
+      for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
+      {
+        uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
+        
+        int flags = 0; busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+        Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
+        addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
+      }
+//    }
 
-    int maxOutputChannelCountOnBuses[MaxNBuses(ERoutingDir::kOutput)];
-    memset(maxOutputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kOutput) * sizeof(int));
-    
-    //find the maximum channel count for each input bus
-    for (int i = 0; i < NIOConfigs; i++)
-    {
-      IOConfig* pIOConfig = mIOConfigs.Get(i);
-      
-      for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kInput); busIdx++)
-      {
-        maxInputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnBusSAFE(ERoutingDir::kInput, busIdx), maxInputChannelCountOnBuses[busIdx]);
-      }
-      
-      for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kOutput); busIdx++)
-      {
-        maxOutputChannelCountOnBuses[busIdx] = std::max(pIOConfig->NChansOnBusSAFE(ERoutingDir::kOutput, busIdx), maxOutputChannelCountOnBuses[busIdx]);
-      }
-    }
-    //
-    
-    for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kInput); busIdx++)
-    {
-      int flags = 0;
-      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      Steinberg::UString(tmpStringBuf, 128).fromAscii("", 128); // TODO: label can this be set later on?
-      addAudioInput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(-1, -1, maxInputChannelCountOnBuses[busIdx]),
-                    (BusTypes) busIdx > 0, flags);
-    }
-    
-    for (auto busIdx = 0; busIdx < MaxNBuses(ERoutingDir::kOutput); busIdx++)
-    {
-      int flags = 0;
-      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      Steinberg::UString(tmpStringBuf, 128).fromAscii("", 128); // TODO: label can this be set later on?
-      addAudioOutput(tmpStringBuf, GetAPIBusTypeForChannelIOConfig(-1, -1, maxOutputChannelCountOnBuses[busIdx]),
-                     (BusTypes) busIdx > 0, flags);
-    }
 
     if(DoesMIDI())
     {
@@ -268,7 +240,7 @@ tresult PLUGIN_API IPlugVST3::terminate ()
   return SingleComponentEffect::terminate();
 }
 
-tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int32_t numIns, SpeakerArrangement* outputs, int32_t numOuts)
+tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32_t numInBuses, SpeakerArrangement* pOutputBusArrangements, int32_t numOutBuses)
 {
   TRACE;
 
@@ -276,40 +248,40 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* inputs, int
   SetInputChannelConnections(0, NInChannels(), false);
   SetOutputChannelConnections(0, NOutChannels(), false);
 
-  int NInputChannelCountOnBuses[MaxNBuses(ERoutingDir::kInput)];
-  memset(NInputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kInput) * sizeof(int));
+  int NInputChannelCountOnBuses[MaxNBuses(ERoute::kInput)];
+  memset(NInputChannelCountOnBuses, 0, MaxNBuses(ERoute::kInput) * sizeof(int));
   
-  int NOutputChannelCountOnBuses[MaxNBuses(ERoutingDir::kOutput)];
-  memset(NOutputChannelCountOnBuses, 0, MaxNBuses(ERoutingDir::kOutput) * sizeof(int));
+  int NOutputChannelCountOnBuses[MaxNBuses(ERoute::kOutput)];
+  memset(NOutputChannelCountOnBuses, 0, MaxNBuses(ERoute::kOutput) * sizeof(int));
   
-  for(auto busIdx = 0; busIdx < numIns; busIdx++)
-  {
-    AudioBus* pBus = FCast<AudioBus>(audioInputs.at(busIdx));
-    const int NInputsRequired = SpeakerArr::getChannelCount(inputs[busIdx]);
-    // if existing input bus has a different number of channels to the input bus being connected
-    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
-    {
-      int flags = 0;
-      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
-      addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NInputsRequired), (BusTypes) busIdx > 0, flags);
-
-    }
-  }
-  
-  for(auto busIdx = 0; busIdx < numOuts; busIdx++)
-  {
-    AudioBus* pBus = FCast<AudioBus>(audioOutputs.at(busIdx));
-    const int NOutputsRequired = SpeakerArr::getChannelCount(outputs[busIdx]);
-    // if existing input bus has a different number of channels to the input bus being connected
-    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
-    {
-      int flags = 0;
-      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
-      addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NOutputsRequired), (BusTypes) busIdx > 0, flags);
-    }
-  }
+//  for(auto busIdx = 0; busIdx < numIns; busIdx++)
+//  {
+//    AudioBus* pBus = FCast<AudioBus>(audioInputs.at(busIdx));
+//    const int NInputsRequired = SpeakerArr::getChannelCount(inputs[busIdx]);
+//    // if existing input bus has a different number of channels to the input bus being connected
+//    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
+//    {
+//      int flags = 0;
+//      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+//      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
+//      addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NInputsRequired), (BusTypes) busIdx > 0, flags);
+//
+//    }
+//  }
+//  
+//  for(auto busIdx = 0; busIdx < numOuts; busIdx++)
+//  {
+//    AudioBus* pBus = FCast<AudioBus>(audioOutputs.at(busIdx));
+//    const int NOutputsRequired = SpeakerArr::getChannelCount(outputs[busIdx]);
+//    // if existing input bus has a different number of channels to the input bus being connected
+//    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
+//    {
+//      int flags = 0;
+//      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+//      audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
+//      addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NOutputsRequired), (BusTypes) busIdx > 0, flags);
+//    }
+//  }
   
   return kResultTrue;
 }

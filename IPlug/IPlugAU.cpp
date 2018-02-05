@@ -4,25 +4,34 @@
 
 #include "IPlugAU.h"
 
-#ifndef MULTICHANNEL_BUSTYPE_FUNC
-static uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans)
+#ifndef CUSTOM_BUSTYPE_FUNC
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
+  assert(pConfig != nullptr);
+  assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
+  
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
+  
   switch (numChans)
   {
-    case 1:
-      return (uint64_t) kAudioChannelLayoutTag_Mono;
-    case 2:
-      return (uint64_t) kAudioChannelLayoutTag_Stereo;
-    case 0:
-    default:
-      DBGMSG("for anything other than mono or stereo buses, you need to implement GetAPIBusTypeForChannelIOConfig() and #define MULTICHANNEL_BUSTYPE_FUNC\n");
-      assert(numChans > 2);
-      return (uint64_t) kAudioChannelLayoutTag_Unknown;
+    case 0: return kInvalidBusType;
+    case 1: return kAudioChannelLayoutTag_Mono;
+    case 2: return kAudioChannelLayoutTag_Stereo;
+    case 3: return kAudioChannelLayoutTag_ITU_3_0 | 3; // CHECK - not the same as protools
+    case 4: return kAudioChannelLayoutTag_HOA_ACN_SN3D | 4;
+    case 5: return kAudioChannelLayoutTag_AudioUnit_5_0;
+    case 6: return kAudioChannelLayoutTag_AudioUnit_5_1;
+    case 7: return kAudioChannelLayoutTag_AudioUnit_7_0;
+    case 8: return kAudioChannelLayoutTag_AudioUnit_7_1; // CHECK - not the same as protools
+    case 9: return kAudioChannelLayoutTag_HOA_ACN_SN3D | 9;
+    case 10:return kAudioChannelLayoutTag_DiscreteInOrder | 10; // NOT SUPPORTED BY CORE AUDIO
+    case 16:return kAudioChannelLayoutTag_HOA_ACN_SN3D | 16;
+    default:return kAudioChannelLayoutTag_DiscreteInOrder | numChans;
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int channelIOConfigIdx, int element, int numChans);
-#endif //MULTICHANNEL_BUSTYPE_FUNC
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
+#endif //CUSTOM_BUSTYPE_FUNC
 
 inline CFStringRef MakeCFString(const char* cStr)
 {
@@ -391,48 +400,39 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
 {
   switch(scope)
   {
-
     case kAudioUnitScope_Input:
     case kAudioUnitScope_Output:
     {
-      ERoutingDir dir = (ERoutingDir) scope;
+      ERoute dir = (ERoute) scope;
       
-      WDL_TypedBuf<int> busChanCountVariations;
-      GetBusVariations(dir, busChanCountVariations);
-      int NValidBusTypes = 0;
-      for(int v = 0; v < busChanCountVariations.GetSize(); v++)
+      WDL_TypedBuf<uint64_t> foundTags;
+      
+      for(auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
       {
-        uint64_t busType = GetAPIBusTypeForChannelIOConfig(-1, -1, busChanCountVariations.Get()[v]);
-        if(busType != kInvalidBusType)
-          NValidBusTypes++;
+        IOConfig* pConfig = mIOConfigs.Get(configIdx);
+        
+        for(auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
+        {
+          uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, dir, busIdx, pConfig);
+          
+          if(foundTags.Find(busType) == -1)
+            foundTags.Add(busType);
+        }
       }
       
       if(tags)
       {
-        if(HasWildcardBus(dir))
+        for (auto v = 0; v < foundTags.GetSize(); v++)
         {
-          for (auto v = 0; v < MAX_BUS_CHANS; v++)
-          {
-            tags[v] = kAudioChannelLayoutTag_DiscreteInOrder | v;
-          }
-          
-          return 1; // get property info so return success in this case
+          tags[v] = (AudioChannelLayoutTag) foundTags.Get()[v];
         }
         
-        for(int v = 0; v < NValidBusTypes; v++)
-        {
-          uint64_t busType = GetAPIBusTypeForChannelIOConfig(-1, -1, busChanCountVariations.Get()[v]);
-
-          if(busType != kInvalidBusType)
-            tags[v] = (AudioChannelLayoutTag) GetAPIBusTypeForChannelIOConfig(-1, -1, busChanCountVariations.Get()[v]);
-        }
-        return 1; // get property info so return success in this case
+        return 1; // success
       }
-      
-      if(HasWildcardBus(dir))
-        return MAX_BUS_CHANS;
       else
-        return NValidBusTypes;
+        return foundTags.GetSize();
+      
+//      TODO: what about wild cards?
     }
     default:
       return 0;
@@ -657,12 +657,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           IOConfig* pIO = mIOConfigs.Get(i);
           
-          if(pIO->ContainsWildcard(ERoutingDir::kInput))
+          if(pIO->ContainsWildcard(ERoute::kInput))
              pChInfo->inChannels = -1;
           else
             pChInfo->inChannels = pIO->GetTotalNChannels(kInput);
           
-          if(pIO->ContainsWildcard(ERoutingDir::kOutput))
+          if(pIO->ContainsWildcard(ERoute::kOutput))
             pChInfo->outChannels = -1;
           else
             pChInfo->outChannels = pIO->GetTotalNChannels(kOutput);
@@ -1702,8 +1702,8 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mBundleID.Set(instanceInfo.mBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
-  const int maxNIBuses = MaxNBuses(ERoutingDir::kInput);
-  const int maxNOBuses = MaxNBuses(ERoutingDir::kOutput);
+  const int maxNIBuses = MaxNBuses(ERoute::kInput);
+  const int maxNOBuses = MaxNBuses(ERoute::kOutput);
 
   PtrListInitialize(&mInBusConnections, maxNIBuses);
   PtrListInitialize(&mInBuses, maxNIBuses);
@@ -1713,7 +1713,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     BusChannels* pInBus = mInBuses.Get(bus);
     pInBus->mNHostChannels = -1;
     pInBus->mPlugChannelStartIdx = 0;
-    pInBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoutingDir::kInput, bus));
+    pInBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kInput, bus));
     
   }
   
@@ -1724,7 +1724,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     BusChannels* pOutBus = mOutBuses.Get(bus);
     pOutBus->mNHostChannels = -1;
     pOutBus->mPlugChannelStartIdx = 0;
-    pOutBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoutingDir::kOutput, bus));
+    pOutBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kOutput, bus));
   }
 
   AssessInputConnections();

@@ -198,7 +198,7 @@ struct IPlugConfig
  Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision
  */
 template<class TIN  = float, class TOUT = double>
-struct ChannelData
+struct IChannelData
 {
   bool mConnected = false;
   TOUT** mData = nullptr; // If this is for an input channel, points into IPlugBase::mInData, if it's for an output channel points into IPlugBase::mOutData
@@ -207,22 +207,13 @@ struct ChannelData
   WDL_String mLabel = WDL_String("");
 };
 
-enum ERoutingDir
+struct IBusInfo
 {
-  kInvalid = 0,
-  kInput = 1,
-  kOutput = 2
-};
-
-static const char* RoutingDirStrs[3]  = { "invalid", "input", "output" };
-
-struct BusInfo
-{
-  ERoutingDir mDirection;
+  ERoute mDirection;
   int mNChans;
   WDL_String mLabel;
   
-  BusInfo(ERoutingDir direction, int nchans = 0, const char* label = "")
+  IBusInfo(ERoute direction, int nchans = 0, const char* label = "")
   : mDirection(direction)
   , mNChans(nchans)
   {
@@ -236,8 +227,8 @@ struct BusInfo
 /** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
 struct IOConfig
 {
-  WDL_PtrList<BusInfo> mInputBusInfo; // A particular valid io config may have multiple input buses
-  WDL_PtrList<BusInfo> mOutputBusInfo; // or multiple output busses
+  WDL_PtrList<IBusInfo> mInputBusInfo;  // A particular valid io config may have multiple input buses
+  WDL_PtrList<IBusInfo> mOutputBusInfo; // or multiple output busses
   
   ~IOConfig()
   {
@@ -245,15 +236,15 @@ struct IOConfig
     mOutputBusInfo.Empty(true);
   }
   
-  void AddBusInfo(ERoutingDir direction, int NChans, const char* label = "")
+  void AddBusInfo(ERoute direction, int NChans, const char* label = "")
   {
     if(direction == kInput)
-      mInputBusInfo.Add(new BusInfo(direction, NChans, label));
+      mInputBusInfo.Add(new IBusInfo(direction, NChans, label));
     if(direction == kOutput)
-      mOutputBusInfo.Add(new BusInfo(direction, NChans, label));
+      mOutputBusInfo.Add(new IBusInfo(direction, NChans, label));
   }
   
-  BusInfo* GetBusInfo(ERoutingDir direction, int index)
+  IBusInfo* GetBusInfo(ERoute direction, int index)
   {
     if(direction == kInput)
     {
@@ -267,7 +258,7 @@ struct IOConfig
     }
   }
   
-  int NChansOnBusSAFE(ERoutingDir direction, int index)
+  int NChansOnBusSAFE(ERoute direction, int index)
   {
     int NChans = 0;
     if(direction == kInput)
@@ -284,7 +275,7 @@ struct IOConfig
     return NChans;
   }
   
-  int NBuses(ERoutingDir direction)
+  int NBuses(ERoute direction)
   {
     if(direction == kInput)
       return mInputBusInfo.GetSize();
@@ -293,7 +284,7 @@ struct IOConfig
   }
   
   /** Get the total number of channels across all direction buses for this IOConfig */
-  int GetTotalNChannels(ERoutingDir direction) const
+  int GetTotalNChannels(ERoute direction) const
   {
     int total = 0;
     
@@ -310,7 +301,7 @@ struct IOConfig
     return total;
   }
   
-  bool ContainsWildcard(ERoutingDir direction)
+  bool ContainsWildcard(ERoute direction)
   {
     if(direction == kInput)
     {

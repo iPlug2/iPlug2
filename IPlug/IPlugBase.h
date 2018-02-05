@@ -205,7 +205,7 @@ public:
    @param direction Return input or output bus count
    @return The maximum bus count across all channel i/o configs
    */
-  int MaxNBuses(ERoutingDir direction)
+  int MaxNBuses(ERoute direction)
   {
     if(direction == kInput)
       return mMaxNInBuses;
@@ -220,24 +220,15 @@ public:
    @param busIdx The index of the bus to look up
    @return return The maximum number of channels on that bus
    */
-  int MaxNChannelsForBus(ERoutingDir direction, int busIdx);
-  
-  
-  /**
-   API class needs to know different bus channel count possibilities (e.g. audiounit needs to generate channel layout tags)
+  int MaxNChannelsForBus(ERoute direction, int busIdx);
 
-   @param direction Populate chanCounts with input or output channel count possibilities
-   @param chanCounts Variable array to store the results
-   */
-  void GetBusVariations(ERoutingDir direction, WDL_TypedBuf<int>& chanCounts);
-  
   /**
    Check if we have any wildcard characters in the channel io configs
 
    @param direction Return input or output bus count
-   @return /true if the bus has a wildcard, meaning channel count is flexible
+   @return /true if the bus has a wildcard, meaning it should work on any number of channels
    */
-  bool HasWildcardBus(ERoutingDir direction) { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // only supports a single IO Config
+  bool HasWildcardBus(ERoute direction) { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // only supports a single IO Config
   
   /**
    @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config
@@ -261,16 +252,6 @@ protected:
 
   const WDL_String& GetInputLabel(int idx) { return mInChannels.Get(idx)->mLabel; }
   const WDL_String& GetOutputLabel(int idx) { return mOutChannels.Get(idx)->mLabel; }
-
-  /** Sets labels for the inputs (AU/VST3)
-   * @param idx Input index. Range: 0-1 (it's only possible to have two input buses)
-   * @param pLabel Label text */
-  void SetInputBusLabel(int idx, const char* label);
-
-  /** Sets labels for the outputs (AU/VST3)
-   * @param idx Output index
-   * @param pLabel Label text */
-  void SetOutputBusLabel(int idx, const char* label);
 
   void LimitToStereoIO();
 
@@ -325,13 +306,17 @@ protected:
   // Set connection state for n channels.
   // If a channel is connected, we expect a call to attach the buffers before each process call.
   // If a channel is not connected, we attach scratch buffers now and don't need to do anything else.
+  
+  
+//  TODO:use RoutingDir to reduce the number of methods
   void SetInputChannelConnections(int idx, int n, bool connected);
   void SetOutputChannelConnections(int idx, int n, bool connected);
-
   void AttachInputBuffers(int idx, int n, double** ppData, int nFrames);
   void AttachInputBuffers(int idx, int n, float** ppData, int nFrames);
   void AttachOutputBuffers(int idx, int n, double** ppData);
   void AttachOutputBuffers(int idx, int n, float** ppData);
+  
+  
   void PassThroughBuffers(float sampleType, int nFrames);
   void PassThroughBuffers(double sampleType, int nFrames);
   void ProcessBuffers(float sampleType, int nFrames);
@@ -414,6 +399,7 @@ protected:
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<IPreset> mPresets;
   
+  //TODO: almost everything below this line is going in the processor
   
   /** \c True if the plug-in is an instrument */
   bool mIsInstrument;
@@ -433,11 +419,10 @@ protected:
   int mMaxNInBuses, mMaxNOutBuses; // could be private
   NChanDelayLine<double>* mLatencyDelay = nullptr;
   WDL_TypedBuf<double*> mInData, mOutData;
-  WDL_PtrList<ChannelData<>> mInChannels;
-  WDL_PtrList<ChannelData<>> mOutChannels;
+  WDL_PtrList<IChannelData<>> mInChannels;
+  WDL_PtrList<IChannelData<>> mOutChannels;
   WDL_PtrList<IOConfig> mIOConfigs;
-  WDL_PtrList<WDL_String> mInputBusLabels;
-  WDL_PtrList<WDL_String> mOutputBusLabels;
+
   
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
