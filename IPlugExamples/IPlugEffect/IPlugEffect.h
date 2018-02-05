@@ -21,6 +21,7 @@ enum ELayout
   kGainY = 100
 };
 
+
 class IPlugEffect : public IPlug
 {
 public:
@@ -28,7 +29,7 @@ public:
 //  ~IPlugEffect();
 //   void OnReset() override;
 //  void OnParamChange(int paramIdx) override;
-  void ProcessBlock(double** inputs, double** outputs, int nFrames) override;
+  void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
 //  void OnActivate(bool activate) override
 //  {

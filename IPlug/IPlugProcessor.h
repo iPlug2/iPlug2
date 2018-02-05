@@ -19,6 +19,8 @@
 struct IPlugConfig;
 
 /** The base class for IPlug Audio Processing. It knows nothing about presets or parameters or user interface.  */
+
+template<typename sampleType>
 class IPlugProcessor
 {
 public:
@@ -34,7 +36,7 @@ public:
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
-  virtual void ProcessBlock(double** inputs, double** outputs, int nFrames);
+  virtual void ProcessBlock(sampleType** inputs, sampleType** outputs, int nFrames);
 
   /** Override this method which is called prior to ProcessBlock(), to handle incoming MIDI messages.
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
@@ -210,15 +212,15 @@ protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
   void SetInputChannelConnections(int idx, int n, bool connected);
   void SetOutputChannelConnections(int idx, int n, bool connected);
-  void AttachInputBuffers(int idx, int n, double** ppData, int nFrames);
-  void AttachInputBuffers(int idx, int n, float** ppData, int nFrames);
-  void AttachOutputBuffers(int idx, int n, double** ppData);
-  void AttachOutputBuffers(int idx, int n, float** ppData);
-  void PassThroughBuffers(float sampleType, int nFrames);
-  void PassThroughBuffers(double sampleType, int nFrames);
-  void ProcessBuffers(float sampleType, int nFrames);
-  void ProcessBuffers(double sampleType, int nFrames);
-  void ProcessBuffersAccumulating(float sampleType, int nFrames);
+  void AttachInputBuffers(int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
+  void AttachInputBuffers(int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
+  void AttachOutputBuffers(int idx, int n, PLUG_SAMPLE_DST** ppData);
+  void AttachOutputBuffers(int idx, int n, PLUG_SAMPLE_SRC** ppData);
+  void PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void ProcessBuffersAccumulating(PLUG_SAMPLE_SRC type, int nFrames);
   void ZeroScratchBuffers();
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
   void SetBypassed(bool bypassed) { mBypassed = bypassed; }
@@ -251,9 +253,9 @@ private:
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
   /* The data to use as a scratch buffer for audio input */
-  WDL_TypedBuf<double*> mInData;
+  WDL_TypedBuf<sampleType*> mInData;
   /* The data to use as a scratch buffer for audio output */
-  WDL_TypedBuf<double*> mOutData;
+  WDL_TypedBuf<sampleType*> mOutData;
   /* A list of IChannelData structures corresponding to every input channel */
   WDL_PtrList<IChannelData<>> mInChannels;
   /* A list of IChannelData structures corresponding to every output channel */
@@ -262,5 +264,7 @@ private:
   ITimeInfo mTimeInfo;
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
   /** Pointer to a multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
-  NChanDelayLine<double>* mLatencyDelay = nullptr;
+  NChanDelayLine<sampleType>* mLatencyDelay = nullptr;
 };
+
+#include "IPlugProcessor.cpp"

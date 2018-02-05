@@ -1698,7 +1698,7 @@ void IPlugAU::ClearConnections()
 
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAU)
-, IPlugProcessor(c, kAPIAU)
+, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
 {
   Trace(TRACELOC, "%s", c.effectName);
 
@@ -1908,7 +1908,7 @@ void IPlugAU::SetLatency(int samples)
     }
   }
   
-  IPlugProcessor::SetLatency(samples);
+  IPlugProcessor<PLUG_SAMPLE_DST>::SetLatency(samples);
 }
 
 // TODO: AUMIDIOUT SendMidiMsg
@@ -1916,8 +1916,7 @@ bool IPlugAU::SendMidiMsg(IMidiMsg& msg)
 {
   return false;
 }
-
-#pragma mark - IPlugAU Constructor
+#pragma mark - IPlugAU Dispatch
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
 #define GETINSTANCE(x)  (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage

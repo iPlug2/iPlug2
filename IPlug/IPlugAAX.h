@@ -45,7 +45,7 @@ private:
 *   @ingroup APIClasses
 */
 class IPlugAAX : public IPLUG_BASE_CLASS
-               , public IPlugProcessor
+               , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public AAX_CIPlugParameters
 {
 public:

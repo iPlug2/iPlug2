@@ -115,7 +115,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   int totalNInChans = 0, totalNOutChans = 0;
   int totalNInBuses = 0, totalNOutBuses = 0;
   
-  const int NIOConfigs = IPlugProcessor::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  const int NIOConfigs = IPlugProcessor<PLUG_SAMPLE_DST>::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
   
   for (int configIdx = 0; configIdx < NIOConfigs; configIdx++)
   {

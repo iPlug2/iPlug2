@@ -21,7 +21,7 @@ struct IPlugInstanceInfo
 *   @ingroup APIClasses
 */
 class IPlugVST : public IPLUG_BASE_CLASS
-               , public IPlugProcessor
+               , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig config);

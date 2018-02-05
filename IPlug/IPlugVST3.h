@@ -27,7 +27,7 @@ class IPlugVST3View;
 *   @ingroup APIClasses
 */
 class IPlugVST3 : public IPLUG_BASE_CLASS
-                , public IPlugProcessor
+                , public IPlugProcessor<PLUG_SAMPLE_DST>
                 , public Steinberg::Vst::SingleComponentEffect
 {
 public:

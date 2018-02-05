@@ -31,7 +31,7 @@ double VSTString2Parameter(IParam* pParam, char* ptr)
 
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIVST2)
-  , IPlugProcessor(c, kAPIVST2)
+  , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", c.effectName);

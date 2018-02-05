@@ -103,16 +103,18 @@ protected:
   IParam* mIPlugParam;
 };
 
+#pragma - IPlugVST3 Constructor
+
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIVST3)
-, IPlugProcessor(c, kAPIVST3)
+, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
 {
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
   
   if (NInChannels()) 
   {
-    mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
+    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(NInChannels(), NOutChannels());
     mLatencyDelay->SetDelayTime(GetLatency());
   }
 
@@ -123,7 +125,6 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
 IPlugVST3::~IPlugVST3() {}
 
-#pragma mark -
 #pragma mark AudioEffect overrides
 
 tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
@@ -551,7 +552,6 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32_t symbolicSampleSize)
   return retval;
 }
 
-#pragma mark -
 #pragma mark IEditController overrides
 
 IPlugView* PLUGIN_API IPlugVST3::createView (const char* name)
@@ -734,7 +734,6 @@ AudioBus* IPlugVST3::getAudioOutput (int32_t index)
   return bus;
 }
 
-#pragma mark -
 #pragma mark IUnitInfo overrides
 
 int32_t PLUGIN_API IPlugVST3::getUnitCount()
@@ -808,7 +807,6 @@ tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32_t progr
   return kResultFalse;
 }
 
-#pragma mark -
 #pragma mark IPlugBase overrides
 
 void IPlugVST3::BeginInformHostOfParamChange(int idx)
@@ -845,7 +843,7 @@ void IPlugVST3::SetLatency(int latency)
   handler->restartComponent(kLatencyChanged);  
 }
 
-#pragma mark - IPlugVST3
+#pragma mark IPlugVST3
 void IPlugVST3::PreProcess()
 {
   ITimeInfo timeInfo;
@@ -866,8 +864,7 @@ void IPlugVST3::PreProcess()
   SetRenderingOffline(offline);
 }
 
-#pragma mark -
-#pragma mark IPlugVST3View
+#pragma mark - IPlugVST3View
 IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
   : mPlug(pPlug)
   , mExpectingNewSize(false)

@@ -32,7 +32,7 @@
 *   @ingroup APIClasses
 */
 class IPlugAPP : public IPLUG_BASE_CLASS
-               , public IPlugProcessor
+               , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);

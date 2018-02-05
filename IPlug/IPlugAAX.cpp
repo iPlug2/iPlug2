@@ -82,7 +82,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAAX)
-, IPlugProcessor(c, kAPIAAX)
+, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
 {
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
@@ -91,7 +91,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   
   if (NInChannels()) 
   {
-    mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
+    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(NInChannels(), NOutChannels());
     mLatencyDelay->SetDelayTime(c.latency);
   }
   

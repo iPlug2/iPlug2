@@ -38,7 +38,7 @@ struct IPlugInstanceInfo
 *   @ingroup APIClasses
 */
 class IPlugAU : public IPLUG_BASE_CLASS
-              , public IPlugProcessor
+              , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);

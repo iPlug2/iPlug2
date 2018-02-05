@@ -1,5 +1,19 @@
 #pragma once
 
+#if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
+#define SAMPLE_TYPE_DOUBLE
+#endif
+
+#ifdef SAMPLE_TYPE_DOUBLE
+typedef double PLUG_SAMPLE_DST;
+typedef float PLUG_SAMPLE_SRC;
+#else
+typedef float PLUG_SAMPLE_DST;
+typedef double PLUG_SAMPLE_SRC;
+#endif
+
+typedef PLUG_SAMPLE_DST sample;
+
 /**
  * @file
  * @brief Constant definitions, magic numbers

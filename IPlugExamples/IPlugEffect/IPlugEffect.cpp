@@ -85,16 +85,16 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   MakeDefaultPreset("-", kNumPrograms);
 }
 
-void IPlugEffect::ProcessBlock(double** inputs, double** outputs, int nFrames)
+void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   mParams_mutex.Enter();
   const double gain = GetParam(kGain)->Value() / 100.;
   mParams_mutex.Leave();
   
-  double* in1 = inputs[0];
-  double* in2 = inputs[1];
-  double* out1 = outputs[0];
-  double* out2 = outputs[1];
+  sample* in1 = inputs[0];
+  sample* in2 = inputs[1];
+  sample* out1 = outputs[0];
+  sample* out2 = outputs[1];
 
   for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
   {
