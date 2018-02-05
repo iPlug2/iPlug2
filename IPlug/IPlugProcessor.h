@@ -77,6 +77,8 @@ public:
   // In ProcessBlock you are always guaranteed to get valid pointers
   // to all the channels the plugin requested.  If the host hasn't connected all the pins,
   // the unconnected channels will be full of zeros.
+  /** @return \c True if the plugin is currently rendering off-line */
+  bool GetRenderingOffline() { return mRenderingOffline; };
   
   int NChannelIO() const { return mIOConfigs.GetSize(); }
   void GetChannelIO(int optionIdx, int& numInputs, int& numOutputs);
@@ -87,7 +89,6 @@ public:
   int NInChansConnected() const;
   int NOutChansConnected() const;
 
-  virtual bool IsRenderingOffline() { return false; };
   
   
   /**
