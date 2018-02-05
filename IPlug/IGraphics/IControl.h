@@ -66,7 +66,7 @@ public:
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
-  virtual void TextFromTextEntry( const char* txt ) {}
+  virtual void OnTextEntryCompletion( const char* txt ) {}
   
   /** Called in response to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
