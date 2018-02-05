@@ -28,6 +28,8 @@ public:
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
   void CreateMetalLayer();
+  
+  bool IsSandboxed();
     
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;

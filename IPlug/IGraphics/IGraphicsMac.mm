@@ -76,6 +76,18 @@ IGraphicsMac::~IGraphicsMac()
   CloseWindow();
 }
 
+bool IGraphicsMac::IsSandboxed()
+{
+  NSString* pHomeDir = NSHomeDirectory();
+  //  NSString* pBundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+  
+  if ([pHomeDir containsString:@"Library/Containers/"])
+  {
+    return true;
+  }
+  return false;
+}
+
 void IGraphicsMac::CreateMetalLayer()
 {
 #ifdef IGRAPHICS_NANOVG
@@ -92,7 +104,7 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
   while (ext >= fileName && *ext != '.') --ext;
   ++ext;
 
-  bool isCorrectType = !stricmp(ext, searchExt);
+  bool isCorrectType = !strcasecmp(ext, searchExt);
 
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(bundleID)];
   NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
@@ -116,6 +128,11 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
 {
   if(CSTR_NOT_EMPTY(name))
   {
+    if(IsSandboxed())
+    {
+      printf("SAND");
+    }
+    
     bool foundInBundle = GetResourcePathFromBundle(GetBundleID(), name, type, result);
     
     if(foundInBundle)
