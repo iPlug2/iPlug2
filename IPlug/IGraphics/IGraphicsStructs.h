@@ -512,7 +512,7 @@ public:
       
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
         
-      if (key->hashID == hashID && scale == key->scale && !strcmp(cacheName.Get(), key->name.Get())) {
+      if (key->hashID == hashID && scale == key->scale && !strcmp(str.Get(), key->name.Get())) {
         return key->data;
       }
     }
@@ -529,7 +529,7 @@ public:
     key->hashID = hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
-    key->name.Set(cacheName);
+    key->name.Set(str);
     
     DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
