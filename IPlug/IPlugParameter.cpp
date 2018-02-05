@@ -213,6 +213,30 @@ bool IParam::MapDisplayText(const char* str, double* pValue) const
   return false;
 }
 
+double IParam::StringToValue(const char* ptr)
+{
+  double v = 0;
+  bool mapped = (bool) NDisplayTexts();
+  
+  if (mapped)
+    mapped = MapDisplayText(ptr, &v);
+  
+  if (!mapped && Type() != kTypeEnum && Type() != kTypeBool)
+  {
+    v = atof(ptr);
+    
+    if (GetDisplayIsNegated())
+      v = -v;
+    
+    v = Clamp(v);
+  }
+  
+  if (!mapped)
+    v = Value();
+  
+  return v;
+}
+
 void IParam::GetBounds(double& lo, double& hi) const
 {
   lo = mMin;

@@ -31,8 +31,6 @@ public:
   virtual void OnParamChange(int paramIdx, EParamSource source) { OnParamChange(paramIdx); }
   virtual void OnParamChange(int paramIdx) {}
 
-  static double StringToParameter(IParam* pParam, const char* ptr);
-
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
   virtual void OnGUIOpen() { TRACE; }
@@ -127,8 +125,6 @@ public:
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() {};
 
-
-  
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
   // MakePreset(name, param1, param2, ..., paramN)

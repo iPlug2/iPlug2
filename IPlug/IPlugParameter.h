@@ -65,6 +65,8 @@ public:
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) { GetDisplayForHost(mValue, false, display, withDisplayText); }
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true);
   
+  double StringToValue(const char* ptr);
+  
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
   const char* GetParamGroupForHost() const;

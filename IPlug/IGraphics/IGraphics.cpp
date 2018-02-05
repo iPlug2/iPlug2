@@ -98,7 +98,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 {
   if (pParam)
   {
-    const double v = IPlugBase::StringToParameter(pParam, txt);
+    const double v = pParam->StringToValue(txt);
     pControl->SetValueFromUserInput(pParam->GetNormalized(v));
   }
 }
