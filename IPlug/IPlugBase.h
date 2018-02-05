@@ -31,6 +31,8 @@ public:
   virtual void OnParamChange(int paramIdx, EParamSource source) { OnParamChange(paramIdx); }
   virtual void OnParamChange(int paramIdx) {}
 
+  static double StringToParameter(IParam* pParam, const char* ptr);
+
   // In case the audio processing thread needs to do anything when the GUI opens
   // (like for example, set some state dependent initial values for controls).
   virtual void OnGUIOpen() { TRACE; }

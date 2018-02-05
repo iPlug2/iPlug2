@@ -63,7 +63,7 @@ void IParam::SetShape(double shape)
     mShape = shape;
 }
 
-void IParam::SetDisplayText(int value, const char* text)
+void IParam::SetDisplayText(double value, const char* text)
 {
   int n = mDisplayTexts.GetSize();
   mDisplayTexts.Resize(n + 1);
@@ -183,7 +183,7 @@ const char* IParam::GetDisplayText(int value) const
   return "";
 }
 
-const char* IParam::GetDisplayTextAtIdx(int idx, int* pValue) const
+const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
 {
   DisplayText* pDT = mDisplayTexts.Get()+idx;
   
@@ -194,7 +194,7 @@ const char* IParam::GetDisplayTextAtIdx(int idx, int* pValue) const
   return pDT->mText;
 }
 
-bool IParam::MapDisplayText(const char* str, int* pValue) const
+bool IParam::MapDisplayText(const char* str, double* pValue) const
 {
   int n = mDisplayTexts.GetSize();
   

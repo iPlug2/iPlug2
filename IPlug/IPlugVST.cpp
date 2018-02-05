@@ -11,24 +11,6 @@ int VSTSpkrArrType(int nchan)
   return kSpeakerArrUserDefined;
 }
 
-double VSTString2Parameter(IParam* pParam, char* ptr)
-{
-  double v;
-  bool mapped = pParam->NDisplayTexts();
-  if (mapped)
-  {
-    int vi;
-    mapped = pParam->MapDisplayText(ptr, &vi);
-    if (mapped) v = (double)vi;
-  }
-  if (!mapped)
-  {
-    v = atof(ptr);
-    if (pParam->GetDisplayIsNegated()) v = -v;
-  }
-  return v;
-}
-
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIVST2)
   , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
@@ -326,7 +308,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         if (ptr)
         {
           IParam* pParam = _this->GetParam(idx);
-          const double v = VSTString2Parameter(pParam, (char*)ptr);
+          const double v = IPlugBase::StringToParameter(pParam, (const char *)ptr);
           pParam->Set(v);
           _this->SetParameterInUIFromAPI(idx, v, false);
           _this->OnParamChange(idx, kAutomation);
@@ -684,7 +666,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             if (*(char*) ptr != '\0')
             {
               IParam* pParam = _this->GetParam((int) value);
-              sprintf((char*) ptr, "%.17f", pParam->GetNormalized(VSTString2Parameter(pParam, (char*) ptr)));
+              sprintf((char*) ptr, "%.17f", pParam->GetNormalized(IPlugBase::StringToParameter(pParam, (const char*) ptr)));
             }
             return 0xbeef;
           }

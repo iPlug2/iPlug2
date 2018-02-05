@@ -98,22 +98,7 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 {
   if (pParam)
   {
-    double v;
-
-    IParam::EParamType type = pParam->Type();
-
-    if ( type == IParam::kTypeEnum || type == IParam::kTypeBool)
-    {
-      int vi = 0;
-      pParam->MapDisplayText(txt, &vi);
-      v = (double)vi;
-    }
-    else
-    {
-      v = atof(txt);
-      if (pParam->GetDisplayIsNegated()) v = -v;
-    }
-
+    const double v = IPlugBase::StringToParameter(pParam, txt);
     pControl->SetValueFromUserInput(pParam->GetNormalized(v));
   }
 }
