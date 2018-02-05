@@ -36,20 +36,6 @@ public:
    * @param nFrames The block size for this block: number of samples per channel.*/
   virtual void ProcessBlock(double** inputs, double** outputs, int nFrames);
 
-  /** Override this method to get an "idle"" call from the audio processing thread in VST2 plug-ins.
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
-   * Only active if USE_IDLE_CALLS preprocessor macro is defined */
-  virtual void OnIdle() {}
-
-  /** Override this method in your plug-in class to do something prior to playback etc. (e.g.clear buffers, update internal DSP with the latest sample rate) */
-  virtual void OnReset() { TRACE; }
-
-  /** Override OnActivate() which should be called by the API class when a plug-in is "switched on" by the host on a track when the channel count is known.
-   * This may not work reliably because different hosts have different interpretations of "activate".
-   * Unlike OnReset() which called when the transport is reset or the sample rate changes OnActivate() is a good place to handle change of I/O connections.
-   * @param active \c True if the host has activated the plug-in */
-  virtual void OnActivate(bool active) { TRACE; }
-
   /** Override this method which is called prior to ProcessBlock(), to handle incoming MIDI messages.
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
@@ -59,6 +45,20 @@ public:
   /** Override this method which is calledThis method is called prior to ProcessBlock(), to handle incoming MIDI System Exclusive (SysEx) messages.
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
   virtual void ProcessSysEx(ISysEx& msg) {}
+
+  /** Override this method in your plug-in class to do something prior to playback etc. (e.g.clear buffers, update internal DSP with the latest sample rate) */
+  virtual void OnReset() { TRACE; }
+  
+  /** Override OnActivate() which should be called by the API class when a plug-in is "switched on" by the host on a track when the channel count is known.
+   * This may not work reliably because different hosts have different interpretations of "activate".
+   * Unlike OnReset() which called when the transport is reset or the sample rate changes OnActivate() is a good place to handle change of I/O connections.
+   * @param active \c True if the host has activated the plug-in */
+  virtual void OnActivate(bool active) { TRACE; }
+  
+  /** Override this method to get an "idle"" call from the audio processing thread in VST2 plug-ins.
+   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
+   * Only active if USE_IDLE_CALLS preprocessor macro is defined */
+  virtual void OnIdle() {}
   
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugProcessor.cpp
   
@@ -67,15 +67,15 @@ public:
    * @return /c true if successful */
   virtual bool SendMidiMsg(IMidiMsg& msg) = 0;
   
-  /** Send a single MIDI System Exclusive (SysEx) message
-   * @param msg The ISysEx to send
-   * @return /c true if successful */
-  virtual bool SendSysEx(ISysEx& msg) { return false; }
-  
   /** Send a collection of MIDI messages
    * @param msg The IMidiMsg to send
    * @return /c true if successful */
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
+  
+  /** Send a single MIDI System Exclusive (SysEx) message
+   * @param msg The ISysEx to send
+   * @return /c true if successful */
+  virtual bool SendSysEx(ISysEx& msg) { return false; }
   
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }
@@ -152,17 +152,17 @@ public:
   /** @return The number of output channels connected. WARNING: this assumes consecutive channel connections*/
   int NOutChansConnected() const;
   
-  /** @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config */
-  bool HasSidechainInput() const { return mMaxNInBuses > 1; }
-  
-  /** @return The number of channels and the side-chain input /todo this will change */
-  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
-  
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
    * @param NOutputChans Number of outputs to test, if set to -1 = check NInputChans only
    * @return /c true if the configurations is valid */
   bool LegalIO(int NInputChans, int NOutputChans) const; //TODO: this should be updated
+  
+  /** @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config */
+  bool HasSidechainInput() const { return mMaxNInBuses > 1; }
+  
+  /** @return The number of channels and the side-chain input /todo this will change */
+  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
   
   /** This is called by IPlugVST in order to limit a plug-in to stereo I/O for certain picky hosts /todo may no longer be relevant*/
   void LimitToStereoIO();//TODO: this should be updated
