@@ -324,7 +324,7 @@ struct IRECT
   
   inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const
   {
-    assert(cellIndex < nRows * nColumns);
+    assert(cellIndex <= nRows * nColumns);
     
     int cell = 0;
     for(int column = 0; column<nColumns; column++)
