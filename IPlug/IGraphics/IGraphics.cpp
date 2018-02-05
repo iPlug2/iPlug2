@@ -125,7 +125,7 @@ void IGraphics::AttachBackground(const char* name, double scale)
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mPlug, IRECT(0.f, 0.f, (float) Width(), (float) Height()), color);
+  IControl* pBG = new IPanelControl(mPlug, GetBounds(), color);
   mControls.Insert(0, pBG);
 }
 
@@ -588,7 +588,7 @@ void IGraphics::Draw(const IRECT& rect)
 #endif
 //  WDL_String str;
 //  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
-  IText txt(20, CONTROL_BOUNDS_COLOR);
+  IText txt(CONTROL_BOUNDS_COLOR, 20);
   txt.mAlign = IText::kAlignNear;
   IRECT r;
 //  DrawText(txt, str.Get(), r);

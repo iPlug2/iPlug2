@@ -866,7 +866,7 @@ public:
 
    @param color The colour to draw/fill the shape with>
   */
-  void AttachPanelBackground(const IColor& color);
+  void AttachPanelBackground(const IColor& color = DEFAULT_GRAPHICS_BGCOLOR);
   
   /**
    /todo <#Description#>

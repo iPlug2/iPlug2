@@ -237,19 +237,69 @@ protected:
 #endif
 };
 
+class IVectorBase
+{
+public:
+  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
+              const IColor* pFGColor = &DEFAULT_FGCOLOR,
+              const IColor* pFRColor = 0,
+              const IColor* pHLColor = 0,
+              const IColor* pX1Color = 0,
+              const IColor* pX2Color = 0,
+              const IColor* pX3Color = 0)
+  {
+    SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
+  }
+  
+  void AddColor(const IColor& color)
+  {
+    mColors.Add(color);
+  }
+  
+  void SetColor(int colorIdx, const IColor& color)
+  {
+    if(colorIdx < mColors.GetSize())
+      mColors.Get()[colorIdx] = color;
+  }
+  
+  void SetColors(const IColor* pBGColor = 0,
+                 const IColor* pFGColor = 0,
+                 const IColor* pFRColor = 0,
+                 const IColor* pHLColor = 0,
+                 const IColor* pX1Color = 0,
+                 const IColor* pX2Color = 0,
+                 const IColor* pX3Color = 0)
+  {
+    if(pBGColor) AddColor(*pBGColor);
+    if(pFGColor) AddColor(*pFGColor);
+    if(pFRColor) AddColor(*pFRColor);
+    if(pHLColor) AddColor(*pHLColor);
+    if(pX1Color) AddColor(*pX1Color);
+    if(pX2Color) AddColor(*pX2Color);
+    if(pX3Color) AddColor(*pX3Color);
+  }
+  
+  IColor& GetColor(int colorIdx)
+  {
+    if(colorIdx < mColors.GetSize())
+      return mColors.Get()[colorIdx];
+    else
+      return mColors.Get()[0];
+  }
+protected:
+  WDL_TypedBuf<IColor> mColors;
+};
+
 /** A basic control to fill a rectangle with a color */
-class IPanelControl : public IControl
+class IPanelControl : public IControl, public IVectorBase
 {
 public:
   IPanelControl(IPlugBaseGraphics& plug, IRECT rect, const IColor& color)
   : IControl(plug, rect)
-  , mColor(color)
+  , IVectorBase(&color)
   {}
 
   void Draw(IGraphics& graphics) override;
-
-protected:
-  IColor mColor;
 };
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */

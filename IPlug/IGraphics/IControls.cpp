@@ -2,10 +2,9 @@
 
 
 IVSwitchControl::IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
-  , const IColor& fgColor, const IColor &bgColor, uint32_t numStates, EDirection dir)
+  , const IColor* pFGColor, const IColor* pBGColor, const IColor* pFRColor, const IColor* pHLColor, uint32_t numStates, EDirection dir)
   :IButtonControlBase(plug, rect, paramIdx, actionFunc, numStates)
-  , mFGColor(fgColor)
-  , mBGColor(bgColor)
+  , IVectorBase(pFGColor, pBGColor, pFRColor, pHLColor)
   , mDirection(dir)
 {
   mStep = 1.f / float(mNumStates) - 1.f;
@@ -15,21 +14,43 @@ void IVSwitchControl::Draw(IGraphics& graphics)
 {
   const int state = (int)std::round(mValue / mStep);
 
-  graphics.FillRect(mBGColor, mRECT, &mBlend);
+  graphics.FillRect(GetColor(0), mRECT, &mBlend);
 
+//
   IRECT handle;
-
-  if (mNumStates > 2)
-  {
-    if (mDirection == kHorizontal)
-      handle = mRECT.SubRectHorizontal(mNumStates, state);
-    if (mDirection == kVertical)
-      handle = mRECT.SubRectVertical(mNumStates, state);
-  }
-  else
+//
+//  if (mNumStates > 2)
+//  {
+//    if (mDirection == kHorizontal)
+//      handle = mRECT.SubRectHorizontal(mNumStates, state);
+//    if (mDirection == kVertical)
+//      handle = mRECT.SubRectVertical(mNumStates, state);
+//  }
+//  else
     handle = mRECT;
+//
+ // graphics.FillRect(GetColor(1), handle.GetPadded(-10), &mBlend);
+  graphics.FillCircle(GetColor(1), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
 
-  graphics.FillRect(mFGColor, handle.GetPadded(-10), &mBlend);
+  //graphics.DrawRect(GetColor(2), mRECT.GetPadded(-5), &mBlend);
+  graphics.DrawCircle(GetColor(2), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
+}
+
+void IVSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  if(!mMouseOver)
+  {
+    SetColor(2, COLOR_GREEN);
+    mMouseOver=true;
+  }
+  SetDirty();
+}
+
+void IVSwitchControl::OnMouseOut()
+{
+  mMouseOver=false;
+  SetColor(2, COLOR_BLACK);
+  SetDirty();
 }
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -183,7 +204,7 @@ void IBSliderControl::OnRescale()
 IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int minNote, int maxNote)
   : IControl(plug, rect)
 {
-  mText.mColor = mFRColor;
+  mText.mFGColor = mFRColor;
   mDblAsSingleClick = true;
   bool keepWidth = !(rect.W() <= 0.0);
   if (rect.W() <= 0.0)
@@ -397,7 +418,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
   ti.SetFormatted(32, "key: %d, vel: %3.2f", mKey, GetVelocity());
   //ti.SetFormatted(32, "key: %d, vel: %d", mKey, GetVelocityInt());
   //ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
-  IText txt(20, COLOR_RED);
+  IText txt(COLOR_RED, 20);
   auto& mr = mRECT;
   IRECT tr(mr.L + 20, mr.B - 20, mr.L + 160, mr.B);
   graphics.DrawText(txt, ti.Get(), tr);

@@ -228,7 +228,7 @@ void IControl::GetJSON(WDL_String& json, int idx) const
 
 void IPanelControl::Draw(IGraphics& graphics)
 {
-  graphics.FillRect(mColor, mRECT, &mBlend);
+  graphics.FillRect(GetColor(0), mRECT, &mBlend);
 }
 
 void IBitmapControl::Draw(IGraphics& graphics)

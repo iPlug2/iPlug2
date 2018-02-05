@@ -16,20 +16,23 @@
 
 /** A vector switch control. Click to cycle through states. */
 class IVSwitchControl : public IButtonControlBase
+                      , public IVectorBase
 {
 public:
   IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
-                  const IColor& fgColor = COLOR_BLACK, const IColor& bgColor = COLOR_WHITE,
+                  const IColor* pBGColor = &DEFAULT_BGCOLOR, const IColor* pFGColor = &DEFAULT_FGCOLOR, const IColor* pFRColor = &DEFAULT_FRCOLOR, const IColor* pHLColor = &DEFAULT_HLCOLOR,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
   ~IVSwitchControl() {}
 
   void Draw(IGraphics& graphics)  override;
 
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override;
+  
 private:
+  bool mMouseOver = false;
   float mStep;
-  IColor mFGColor;
-  IColor mBGColor;
   EDirection mDirection;
 };
 
