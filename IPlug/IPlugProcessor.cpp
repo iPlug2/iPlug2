@@ -79,7 +79,7 @@ void IPlugProcessor<sampleType>::ProcessBlock(sampleType** inputs, sampleType** 
 }
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::ProcessMidiMsg(IMidiMsg& msg)
+void IPlugProcessor<sampleType>::ProcessMidiMsg(const IMidiMsg& msg)
 {
   SendMidiMsg(msg);
 }

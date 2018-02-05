@@ -45,7 +45,7 @@ public:
   void ResizeGraphics(int w, int h, double scale) override;
 
   //IPlugProcessor
-  bool SendMidiMsg(IMidiMsg& msg) override;
+  bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;
 
 private:

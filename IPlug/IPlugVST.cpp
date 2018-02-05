@@ -148,7 +148,7 @@ bool IPlugVST::SendVSTEvent(VstEvent& event)
   return (mHostCallback(&mAEffect, audioMasterProcessEvents, 0, 0, &events, 0.0f) == 1);
 }
 
-bool IPlugVST::SendMidiMsg(IMidiMsg& msg)
+bool IPlugVST::SendMidiMsg(const IMidiMsg& msg)
 {
   VstMidiEvent midiEvent;
   memset(&midiEvent, 0, sizeof(VstMidiEvent));

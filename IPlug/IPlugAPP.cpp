@@ -34,17 +34,18 @@ void IPlugAPP::ResizeGraphics(int w, int h, double scale)
   }
 }
 
-bool IPlugAPP::SendMidiMsg(IMidiMsg& msg)
+bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
 {
+  uint8_t status;
   if (DoesMIDI())
   {
     // if the midi channel out filter is set, reassign the status byte appropriately
     if (mMidiOutChan)
     {
-      msg.mStatus = mMidiOutChan-1 | ((unsigned int) msg.StatusMsg() << 4) ;
+      status = mMidiOutChan-1 | ((unsigned int) msg.StatusMsg() << 4) ;
     }
 
-    std::vector<unsigned char> message;
+    std::vector<uint8_t> message;
     message.push_back( msg.mStatus );
     message.push_back( msg.mData1 );
     message.push_back( msg.mData2 );

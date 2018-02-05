@@ -1912,7 +1912,7 @@ void IPlugAU::SetLatency(int samples)
 }
 
 // TODO: AUMIDIOUT SendMidiMsg
-bool IPlugAU::SendMidiMsg(IMidiMsg& msg)
+bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
 {
   return false;
 }

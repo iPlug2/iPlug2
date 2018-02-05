@@ -60,7 +60,7 @@ public:
   
   //IPlug Processor Overrides
   void SetLatency(int samples) override;
-  bool SendMidiMsg(IMidiMsg& msg) override;
+  bool SendMidiMsg(const IMidiMsg& msg) override;
   
   AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource ) override;
   

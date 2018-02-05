@@ -42,7 +42,7 @@ public:
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * @param msg The incoming midi message (includes a timestamp to indicate the offset in the forthcoming block of audio to be processed in ProcessBlock()) */
-  virtual void ProcessMidiMsg(IMidiMsg& msg);
+  virtual void ProcessMidiMsg(const IMidiMsg& msg);
   
   /** Override this method which is calledThis method is called prior to ProcessBlock(), to handle incoming MIDI System Exclusive (SysEx) messages.
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
@@ -67,7 +67,7 @@ public:
   /** Send a single MIDI message
    * @param msg The IMidiMsg to send
    * @return /c true if successful */
-  virtual bool SendMidiMsg(IMidiMsg& msg) = 0;
+  virtual bool SendMidiMsg(const IMidiMsg& msg) = 0;
   
   /** Send a collection of MIDI messages
    * @param msg The IMidiMsg to send

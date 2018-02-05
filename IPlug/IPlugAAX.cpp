@@ -464,7 +464,7 @@ void IPlugAAX::SetLatency(int latency)
 }
 
 // TODO: SendMidiMsg()
-bool IPlugAAX::SendMidiMsg(IMidiMsg& msg)
+bool IPlugAAX::SendMidiMsg(const IMidiMsg& msg)
 {
   return false;
 }
