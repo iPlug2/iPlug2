@@ -63,3 +63,15 @@ enum EDirection
   kVertical,
   kHorizontal
 };
+
+enum EVColor
+{
+  kBG = 0, // background
+  kFG,     // foreground
+  kFR,     // frame
+  kHL,     // highlight
+  kX1,     // extra1
+  kX2,     // extra2
+  kX3,     // extra3
+  kNumDefaultVColors
+};

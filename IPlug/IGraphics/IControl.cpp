@@ -272,7 +272,7 @@ void ITextControl::Draw(IGraphics& graphics)
   }
 }
 
-IButtonControlBase::IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+ISwitchControlBase::ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
   uint32_t numStates)
   : IControl(plug, rect, paramIdx, actionFunc)
 {
@@ -284,7 +284,7 @@ IButtonControlBase::IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int 
   assert(mNumStates > 1);
 }
 
-void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mNumStates == 2)
     mValue = !mValue;

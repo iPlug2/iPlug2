@@ -151,6 +151,43 @@ const IColor COLOR_BLUE(255, 0, 0, 255);
 const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
+const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
+const IColor DEFAULT_BGCOLOR = COLOR_BLACK;
+const IColor DEFAULT_FGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_FRCOLOR = COLOR_BLACK;
+const IColor DEFAULT_HLCOLOR = COLOR_YELLOW;
+const IColor DEFAULT_X1COLOR = COLOR_RED;
+const IColor DEFAULT_X2COLOR = COLOR_GREEN;
+const IColor DEFAULT_X3COLOR = COLOR_BLUE;
+
+const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
+
+struct IVColorSpec
+{
+  IColor mBGColor = DEFAULT_BGCOLOR;
+  IColor mFGColor = DEFAULT_FGCOLOR;
+  IColor mFRColor = DEFAULT_FRCOLOR;
+  IColor mHLColor = DEFAULT_HLCOLOR;
+  IColor mX1Color = DEFAULT_X1COLOR;
+  IColor mX2Color = DEFAULT_X2COLOR;
+  IColor mX3Color = DEFAULT_X3COLOR;
+  
+  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
+                 const IColor FGColor = DEFAULT_FGCOLOR,
+                 const IColor FRColor = DEFAULT_FRCOLOR,
+                 const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor X1Color = DEFAULT_X1COLOR,
+                 const IColor X2Color = DEFAULT_X2COLOR,
+                 const IColor X3Color = DEFAULT_X3COLOR)
+  {
+  }
+  
+  void ResetColors() { SetColors(); }
+};
+
+const IVColorSpec DEFAULT_SPEC = IVColorSpec();
+
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
@@ -174,14 +211,6 @@ const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
 const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
 const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
-
-const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
-const IColor DEFAULT_BGCOLOR = COLOR_BLACK;
-const IColor DEFAULT_FGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_FRCOLOR = COLOR_BLACK;
-const IColor DEFAULT_HLCOLOR = COLOR_GREEN;
-const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText

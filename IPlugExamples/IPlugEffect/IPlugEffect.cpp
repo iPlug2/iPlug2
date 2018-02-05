@@ -24,24 +24,24 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
-  const int NRows = 2;
-  const int NColumns = 2;
+  const int NRows = 10;
+  const int NColumns = 10;
 
   IRECT bounds = pGraphics->GetBounds();
 //  IColor color;
 //
-  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-5.), kGain));
-  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, NRows, NColumns).GetPadded(-5.), -1));
+//  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-5.), kGain));
+//  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, NRows, NColumns).GetPadded(-5.), -1));
 
-//  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
-//  {
-//    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
-//    pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics](IControl* pCaller)
-//                                                   {
-//                                                     pCaller->SetMEWhenGrayed(true);
-//                                                     pCaller->GrayOut(pGraphics->ShowMessageBox("Disable that box control?", "", MB_YESNO) == IDYES);
-//                                                   }));
-//  }
+  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
+  {
+    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
+    pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics](IControl* pCaller)
+                                                   {
+                                                     pCaller->SetMEWhenGrayed(true);
+                                                     pCaller->GrayOut(pGraphics->ShowMessageBox("Disable that box control?", "", MB_YESNO) == IDYES);
+                                                   }));
+  }
   
 //  pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-20), kNoParameter, [pGraphics](IControl* pCaller)
 //  { 
@@ -69,8 +69,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //  fileMenuControl->SetPath(SVG_FOLDER);
 //
 //
-  IRECT kbrect = bounds.SubRectVertical(2, 1).GetPadded(-5.); // same as joining two cells
-  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
+//  IRECT kbrect = bounds.SubRectVertical(2, 1).GetPadded(-5.); // same as joining two cells
+//  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
 //  pGraphics->AttachControl(fileMenuControl);
 
   AttachGraphics(pGraphics);

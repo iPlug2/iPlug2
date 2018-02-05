@@ -15,12 +15,12 @@
 #pragma mark - Vector Controls
 
 /** A vector switch control. Click to cycle through states. */
-class IVSwitchControl : public IButtonControlBase
+class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
   IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
-                  const IColor* pBGColor = &DEFAULT_BGCOLOR, const IColor* pFGColor = &DEFAULT_FGCOLOR, const IColor* pFRColor = &DEFAULT_FRCOLOR, const IColor* pHLColor = &DEFAULT_HLCOLOR,
+                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
   ~IVSwitchControl() {}

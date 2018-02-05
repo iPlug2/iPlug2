@@ -2,9 +2,9 @@
 
 
 IVSwitchControl::IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
-  , const IColor* pFGColor, const IColor* pBGColor, const IColor* pFRColor, const IColor* pHLColor, uint32_t numStates, EDirection dir)
-  :IButtonControlBase(plug, rect, paramIdx, actionFunc, numStates)
-  , IVectorBase(pFGColor, pBGColor, pFRColor, pHLColor)
+  , const IVColorSpec& colorSpec, uint32_t numStates, EDirection dir)
+  : ISwitchControlBase(plug, rect, paramIdx, actionFunc, numStates)
+  , IVectorBase(colorSpec)
   , mDirection(dir)
 {
   mStep = 1.f / float(mNumStates) - 1.f;
@@ -14,7 +14,7 @@ void IVSwitchControl::Draw(IGraphics& graphics)
 {
   const int state = (int)std::round(mValue / mStep);
 
-  graphics.FillRect(GetColor(0), mRECT, &mBlend);
+  graphics.FillRect(GetColor(EVColor::kBG), mRECT, &mBlend);
 
 //
   IRECT handle;
@@ -29,11 +29,11 @@ void IVSwitchControl::Draw(IGraphics& graphics)
 //  else
     handle = mRECT;
 //
- // graphics.FillRect(GetColor(1), handle.GetPadded(-10), &mBlend);
-  graphics.FillCircle(GetColor(1), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
+ // graphics.FillRect(GetColor(EVColor::kFG), handle.GetPadded(-10), &mBlend);
+  graphics.FillCircle(GetColor(EVColor::kFG), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
 
-  //graphics.DrawRect(GetColor(2), mRECT.GetPadded(-5), &mBlend);
-  graphics.DrawCircle(GetColor(2), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
+  //graphics.DrawRect(GetColor(EVColor::kFR), mRECT.GetPadded(-5), &mBlend);
+  graphics.DrawCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
 }
 
 void IVSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)

@@ -714,6 +714,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   return mHandleMouseOver;
 }
 
+//TODO: if control Rect is the same as IGraphicsBounds, this doesn't fire
 void IGraphics::OnMouseOut()
 {
   int i, n = mControls.GetSize();

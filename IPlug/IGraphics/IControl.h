@@ -251,6 +251,17 @@ public:
     SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
   }
   
+  IVectorBase(const IVColorSpec& spec)
+  {
+    SetColors(&spec.mBGColor,
+              &spec.mFGColor,
+              &spec.mFRColor,
+              &spec.mHLColor,
+              &spec.mX1Color,
+              &spec.mX2Color,
+              &spec.mX3Color);
+  }
+  
   void AddColor(const IColor& color)
   {
     mColors.Add(color);
@@ -260,6 +271,17 @@ public:
   {
     if(colorIdx < mColors.GetSize())
       mColors.Get()[colorIdx] = color;
+  }
+  
+  void SetColors(IVColorSpec& spec)
+  {
+    SetColors(&spec.mBGColor,
+              &spec.mFGColor,
+              &spec.mFRColor,
+              &spec.mHLColor,
+              &spec.mX1Color,
+              &spec.mX2Color,
+              &spec.mX3Color);
   }
   
   void SetColors(const IColor* pBGColor = 0,
@@ -403,14 +425,14 @@ protected:
   double mGearing;
 };
 
-/** Parent for buttons/switch controls */
-class IButtonControlBase : public IControl
+/** Parent for switch controls (including buttons a.k.a. momentary switches)*/
+class ISwitchControlBase : public IControl
 {
 public:
-  IButtonControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
+  ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
     uint32_t numStates = 2);
 
-  virtual ~IButtonControlBase() {}
+  virtual ~ISwitchControlBase() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
