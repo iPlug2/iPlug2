@@ -63,7 +63,6 @@ public:
   void SetLatency(int samples) override;
   void DirtyPTCompareState() override { mNumPlugInChanges++; }
   bool SendMidiMsg(IMidiMsg& msg) override;
-  void GetTimeInfo() override;
   
   AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource ) override;
   

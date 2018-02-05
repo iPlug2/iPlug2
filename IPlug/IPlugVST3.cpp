@@ -145,11 +145,11 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
 
   if (result == kResultOk)
   {
-//    for(auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
+//    for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
 //    {
-      int configIdx = mIOConfigs.GetSize()-1;
+      int configIdx = NIOConfigs()-1;
     
-      IOConfig* pConfig = mIOConfigs.Get(configIdx);
+      IOConfig* pConfig = GetIOConfig(configIdx);
     
       assert(pConfig);
       for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
@@ -303,8 +303,8 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
 
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
-  mSampleRate = newSetup.sampleRate;
-  mBypassed = false;
+  SetSampleRate(newSetup.sampleRate);
+  SetBypassed(false);
   IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock);
   OnReset();
 
@@ -320,7 +320,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   if(data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
 
-  GetTimeInfo();
+  PreProcess();
   
   //process parameters
   IParameterChanges* paramChanges = data.inputParameterChanges;
@@ -348,10 +348,10 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           {
             case kBypassParam:
             {
-               const bool bypassed = (value > 0.5);
-              
-              if (bypassed != mBypassed)
-                mBypassed = bypassed;
+             const bool bypassed = (value > 0.5);
+            
+              if (bypassed != GetBypassed())
+                SetBypassed(bypassed);
 
               break;
             }
@@ -507,7 +507,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       chanOffset += busChannels;
     }
 
-    if (mBypassed)
+    if (GetBypassed())
       PassThroughBuffers(0.0, data.numSamples);
     else
       ProcessBuffers(0.0, data.numSamples); // process buffers double precision
@@ -551,11 +551,6 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32_t symbolicSampleSize)
   return retval;
 }
 
-uint32_t PLUGIN_API IPlugVST3::getLatencySamples ()
-{ 
-  return mLatency;
-} 
-
 #pragma mark -
 #pragma mark IEditController overrides
 
@@ -592,7 +587,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
       return kResultFalse;
     }
     
-    mBypassed = (bool) savedBypass;
+    SetBypassed((bool) savedBypass);
     
     RedrawParamControls();
     return kResultOk;
@@ -620,7 +615,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
     return kResultFalse;
   }  
   
-  int32_t toSaveBypass = mBypassed ? 1 : 0;
+  int32_t toSaveBypass = GetBypassed() ? 1 : 0;
   state->write(&toSaveBypass, sizeof (int32_t));
 
   return kResultOk;
@@ -643,7 +638,7 @@ ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
   if (tag == kBypassParam) 
   {
-    return (ParamValue) mBypassed;
+    return (ParamValue) GetBypassed();
   }
 //   else if (tag == kPresetParam) 
 //   {
@@ -834,20 +829,6 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
-void IPlugVST3::GetTimeInfo()
-{
-  mTimeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
-  mTimeInfo.mPPQPos = mProcessContext.projectTimeMusic;
-  mTimeInfo.mTempo = mProcessContext.tempo;
-  mTimeInfo.mLastBar = mProcessContext.barPositionMusic;
-  mTimeInfo.mCycleStart = mProcessContext.cycleStartMusic;
-  mTimeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
-  mTimeInfo.mNumerator = mProcessContext.timeSigNumerator;
-  mTimeInfo.mDenominator = mProcessContext.timeSigDenominator;
-  mTimeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
-  mTimeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
-}
-
 void IPlugVST3::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
@@ -862,6 +843,27 @@ void IPlugVST3::SetLatency(int latency)
 
   FUnknownPtr<IComponentHandler>handler(componentHandler);
   handler->restartComponent(kLatencyChanged);  
+}
+
+#pragma mark - IPlugVST3
+void IPlugVST3::PreProcess()
+{
+  ITimeInfo timeInfo;
+  
+  if(mProcessContext.state & ProcessContext::kProjectTimeMusicValid)
+    timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
+  timeInfo.mPPQPos = mProcessContext.projectTimeMusic;
+  timeInfo.mTempo = mProcessContext.tempo;
+  timeInfo.mLastBar = mProcessContext.barPositionMusic;
+  timeInfo.mCycleStart = mProcessContext.cycleStartMusic;
+  timeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
+  timeInfo.mNumerator = mProcessContext.timeSigNumerator;
+  timeInfo.mDenominator = mProcessContext.timeSigDenominator;
+  timeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
+  timeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
+  const bool offline = processSetup.processMode == Steinberg::Vst::kOffline;
+  SetTimeInfo(timeInfo);
+  SetRenderingOffline(offline);
 }
 
 #pragma mark -

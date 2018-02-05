@@ -26,6 +26,7 @@ class IPlugVST : public IPLUG_BASE_CLASS
 public:
   IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
+  //IPlugBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
@@ -33,26 +34,39 @@ public:
   EHost GetHost() override;
   void ResizeGraphics(int w, int h, double scale) override;
   void OnGUICreated() override;
-
-  bool IsRenderingOffline() override;
   void HostSpecificInit() override;
+
+  //IPlugProcessor
   void SetLatency(int samples) override;
   bool SendMidiMsg(IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;
-  void GetTimeInfo() override;
 
-  audioMasterCallback mHostCallback;
+  //IPlugVST
+  audioMasterCallback GetHostCallback() { return mHostCallback; }
+  AEffect GetAEffect() { return mAEffect; }
 
-  audioMasterCallback GetHostCallback();
+private:
+  /**
+   Called prior to every ProcessBlock call in order to update certain properties and connect buffers if necessary
 
+   @param inputs Pointer to a 2D array of SAMPLETYPE precision audio input data for each channel
+   @param outputs Pointer to a 2D array of SAMPLETYPE precision audio input data for each channel
+   @param nFrames the number of samples to be processed this block
+   */
   template <class SAMPLETYPE>
-  void VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames);
+  void VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames);
   
-  ERect mEditRect;
-
+  static VstIntPtr VSTCALLBACK VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt);
+  static void VSTCALLBACK VSTProcess(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);  // Deprecated.
+  static void VSTCALLBACK VSTProcessReplacing(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);
+  static void VSTCALLBACK VSTProcessDoubleReplacing(AEffect *pEffect, double **inputs, double **outputs, VstInt32 nFrames);
+  static float VSTCALLBACK VSTGetParameter(AEffect *pEffect, VstInt32 idx);
+  static void VSTCALLBACK VSTSetParameter(AEffect *pEffect, VstInt32 idx, float value);
+  
   bool SendVSTEvent(VstEvent& event);
   bool SendVSTEvents(WDL_TypedBuf<VstEvent>* pEvents);
-
+  
+  ERect mEditRect;
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;
 
   bool mHostSpecificInitDone = false;
@@ -62,13 +76,8 @@ public:
 
   IByteChunk mState;     // Persistent storage if the host asks for plugin state.
   IByteChunk mBankState; // Persistent storage if the host asks for bank state.
-
-  static VstIntPtr VSTCALLBACK VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt);
-  static void VSTCALLBACK VSTProcess(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);  // Deprecated.
-  static void VSTCALLBACK VSTProcessReplacing(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);
-  static void VSTCALLBACK VSTProcessDoubleReplacing(AEffect *pEffect, double **inputs, double **outputs, VstInt32 nFrames);
-  static float VSTCALLBACK VSTGetParameter(AEffect *pEffect, VstInt32 idx);
-  static void VSTCALLBACK VSTSetParameter(AEffect *pEffect, VstInt32 idx, float value);
+  audioMasterCallback mHostCallback;
+public:
   AEffect mAEffect;
 };
 

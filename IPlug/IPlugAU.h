@@ -53,14 +53,13 @@ public:
   void ResizeGraphics(int w, int h, double scale) override;
   
 //IPlugProcessor
-  bool IsRenderingOffline() override;
-  void SetBlockSize(int blockSize) override;
-  void SetLatency(int samples) override;
   bool SendMidiMsg(IMidiMsg& msg) override;
   void HostSpecificInit() override;
-  void GetTimeInfo() override;
+  void SetLatency(int samples) override;
 
 //IPlugAU
+  void PreProcess();
+  void ResizeScratchBuffers();
   static const char* AUInputTypeStr(int type);
 #ifndef AU_NO_COMPONENT_ENTRY
   static OSStatus IPlugAUEntry(ComponentParameters* pParams, void* pPlug);
@@ -171,8 +170,7 @@ private:
   
 #pragma mark -
 private:
-  bool mActive = false;
-  bool mIsOffline = false;
+  bool mActive = false; // TODO: is this necessary? is it correct?
   double mRenderTimestamp = -1.0;
   WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;

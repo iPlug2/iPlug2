@@ -407,9 +407,9 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
       
       WDL_TypedBuf<uint64_t> foundTags;
       
-      for(auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
+      for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
       {
-        IOConfig* pConfig = mIOConfigs.Get(configIdx);
+        IOConfig* pConfig = GetIOConfig(configIdx);
         
         for(auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
         {
@@ -648,14 +648,14 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_SupportedNumChannels:        // 13,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      int n = mIOConfigs.GetSize();
+      int n = NIOConfigs(); //TODO: THIS IS INCORRECT!
       *pDataSize = n * sizeof(AUChannelInfo);
       if (pData)
       {
         AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
         for (int i = 0; i < n; ++i, ++pChInfo)
         {
-          IOConfig* pIO = mIOConfigs.Get(i);
+          IOConfig* pIO = GetIOConfig(i);
           
           if(pIO->ContainsWildcard(ERoute::kInput))
              pChInfo->inChannels = -1;
@@ -738,7 +738,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pDataSize = sizeof(UInt32);
       if (pData)
       {
-        *((UInt32*) pData) = (mBypassed ? 1 : 0);
+        *((UInt32*) pData) = (GetBypassed() ? 1 : 0);
       }
       return noErr;
     }
@@ -1112,6 +1112,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_MaximumFramesPerSlice:       // 14,
     {
       SetBlockSize(*((UInt32*) pData));
+      ResizeScratchBuffers();
       OnReset();
       return noErr;
     }
@@ -1122,8 +1123,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
-      mBypassed = (*((UInt32*) pData) != 0);
-      OnActivate(!mBypassed);
+      const bool bypassed = *((UInt32*) pData) != 0;
+      SetBypassed(bypassed);
+      
+      // TODO: should the following be called here?
+      OnActivate(!bypassed);
       OnReset();
       return noErr;
     }
@@ -1169,7 +1173,8 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_OfflineRender:                // 37,
     {
-      mIsOffline = (*((UInt32*) pData) != 0);
+      const bool renderingOffline = (*((UInt32*) pData) != 0);
+      SetRenderingOffline(renderingOffline);
       return noErr;
     }
     NO_OP(kAudioUnitProperty_ParameterStringFromValue);  // 33,
@@ -1633,7 +1638,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
     else
     {
-      _this->GetTimeInfo();
+      _this->PreProcess();
       _this->ProcessBuffers((AudioSampleType) 0, nFrames);
     }
   }
@@ -1731,6 +1736,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   AssessInputConnections();
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
+  ResizeScratchBuffers();
 }
 
 IPlugAU::~IPlugAU()
@@ -1778,20 +1784,17 @@ void IPlugAU::InformHostOfProgramChange()
   InformListeners(kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global);
 }
 
-bool IPlugAU::IsRenderingOffline()
+void IPlugAU::PreProcess()
 {
-  return mIsOffline;
-}
-
-void IPlugAU::GetTimeInfo()
-{
+  ITimeInfo timeInfo;
+  
   if (mHostCallbacks.beatAndTempoProc)
   {
     double currentBeat = 0.0, tempo = 0.0;
     mHostCallbacks.beatAndTempoProc(mHostCallbacks.hostUserData, &currentBeat, &tempo);
 
-    if (tempo > 0.0) mTimeInfo.mTempo = tempo;
-    if (currentBeat> 0.0) mTimeInfo.mPPQPos = currentBeat;
+    if (tempo > 0.0) timeInfo.mTempo = tempo;
+    if (currentBeat> 0.0) timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
@@ -1800,11 +1803,11 @@ void IPlugAU::GetTimeInfo()
     Boolean playing, changed, looping;
     mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos, &looping, &loopStartBeat, &loopEndBeat);
 
-    if (samplePos>0.0)mTimeInfo.mSamplePos = samplePos;
-    if (loopStartBeat>0.0) mTimeInfo.mCycleStart = loopStartBeat;
-    if (loopEndBeat>0.0) mTimeInfo.mCycleEnd = loopEndBeat;
-    mTimeInfo.mTransportIsRunning = playing;
-    mTimeInfo.mTransportLoopEnabled = looping;
+    if (samplePos>0.0)timeInfo.mSamplePos = samplePos;
+    if (loopStartBeat>0.0) timeInfo.mCycleStart = loopStartBeat;
+    if (loopEndBeat>0.0) timeInfo.mCycleEnd = loopEndBeat;
+    timeInfo.mTransportIsRunning = playing;
+    timeInfo.mTransportLoopEnabled = looping;
   }
 
   UInt32 sampleOffsetToNextBeat = 0, tsDenom = 0;
@@ -1815,10 +1818,10 @@ void IPlugAU::GetTimeInfo()
   {
     mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat, &tsNum, &tsDenom, &currentMeasureDownBeat);
 
-    mTimeInfo.mNumerator = (int) tsNum;
-    mTimeInfo.mDenominator = (int) tsDenom;
+    timeInfo.mNumerator = (int) tsNum;
+    timeInfo.mDenominator = (int) tsDenom;
     if (currentMeasureDownBeat>0.0)
-      mTimeInfo.mLastBar=currentMeasureDownBeat;
+      timeInfo.mLastBar=currentMeasureDownBeat;
   }
 }
 
@@ -1864,16 +1867,15 @@ void IPlugAU::ResizeGraphics(int w, int h, double scale)
   }
 }
 
-void IPlugAU::SetBlockSize(int blockSize)
+void IPlugAU::ResizeScratchBuffers()
 {
   TRACE;
-  int nIn = NInChannels() * blockSize;
-  int nOut = NOutChannels() * blockSize;
-  mInScratchBuf.Resize(nIn);
-  mOutScratchBuf.Resize(nOut);
-  memset(mInScratchBuf.Get(), 0, nIn * sizeof(AudioSampleType));
-  memset(mOutScratchBuf.Get(), 0, nOut * sizeof(AudioSampleType));
-  IPlugProcessor::SetBlockSize(blockSize);
+  int NInputs = NInChannels() * GetBlockSize();
+  int NOutputs = NOutChannels() * GetBlockSize();
+  mInScratchBuf.Resize(NInputs);
+  mOutScratchBuf.Resize(NOutputs);
+  memset(mInScratchBuf.Get(), 0, NInputs * sizeof(AudioSampleType));
+  memset(mOutScratchBuf.Get(), 0, NOutputs * sizeof(AudioSampleType));
 }
 
 void IPlugAU::InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope)

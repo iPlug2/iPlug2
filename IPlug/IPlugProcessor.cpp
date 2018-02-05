@@ -56,12 +56,11 @@ IPlugProcessor::~IPlugProcessor()
     DELETE_NULL(mLatencyDelay);
 }
 
-bool IPlugProcessor::LegalIO(int NInputChans, int NOutputChans)
+bool IPlugProcessor::LegalIO(int NInputChans, int NOutputChans) const
 {
   bool legal = false;
-  int NIOConfigs = mIOConfigs.GetSize();
   
-  for (auto i = 0; i < NIOConfigs && !legal; ++i)
+  for (auto i = 0; i < NIOConfigs() && !legal; ++i)
   {
     IOConfig* pIO = mIOConfigs.Get(i);
     legal = ((NInputChans < 0 || NInputChans == pIO->GetTotalNChannels(ERoute::kInput)) && (NOutputChans < 0 || NOutputChans == pIO->GetTotalNChannels(ERoute::kOutput)));
@@ -82,19 +81,14 @@ void IPlugProcessor::LimitToStereoIO()
     SetOutputChannelConnections(2, NOutputChans - 2, true);
 }
 
-double IPlugProcessor::GetSamplesPerBeat()
+double IPlugProcessor::GetSamplesPerBeat() const
 {
-  double tempo = GetTempo();
+  const double tempo = GetTempo();
   
   if (tempo > 0.0)
     return GetSampleRate() * 60.0 / tempo;
   
   return 0.0;
-}
-
-void IPlugProcessor::SetSampleRate(double sampleRate)
-{
-  mSampleRate = sampleRate;
 }
 
 void IPlugProcessor::SetBlockSize(int blockSize)
@@ -153,14 +147,6 @@ void IPlugProcessor::SetOutputChannelConnections(int idx, int n, bool connected)
   }
 }
 
-void IPlugProcessor::GetChannelIO(int optionIdx, int& numInputs, int& numOutputs)
-{
-  IOConfig* pChannelIO = mIOConfigs.Get(optionIdx);
-  
-  numInputs = pChannelIO->GetTotalNChannels(kInput);
-  numOutputs = pChannelIO->GetTotalNChannels(kOutput);
-}
-
 bool IPlugProcessor::IsInChannelConnected(int chIdx) const
 {
   return (chIdx < mInChannels.GetSize() && mInChannels.Get(chIdx)->mConnected);
@@ -193,7 +179,7 @@ int IPlugProcessor::NOutChansConnected() const
   return count;
 }
 
-int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx)
+int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
 {
   if(HasWildcardBus(direction))
     return -1;
@@ -203,7 +189,7 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx)
   memset(maxChansOnBuses, 0, maxNBuses * sizeof(int));
   
   //find the maximum channel count for each input bus
-  for (auto configIdx = 0; configIdx < mIOConfigs.GetSize(); configIdx++)
+  for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
     IOConfig* pIOConfig = mIOConfigs.Get(configIdx);
     

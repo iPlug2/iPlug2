@@ -287,7 +287,30 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   }
   else 
   {
-    GetTimeInfo();
+    int32_t num, denom;
+    int64_t ppqPos, samplePos, cStart, cEnd;
+    ITimeInfo timeInfo;
+    
+    mTransport->GetCurrentTempo(&timeInfo.mTempo);
+    mTransport->IsTransportPlaying(&timeInfo.mTransportIsRunning);
+    
+    mTransport->GetCurrentMeter(&num, &denom);
+    timeInfo.mNumerator = (int) num;
+    timeInfo.mDenominator = (int) denom;
+    
+    mTransport->GetCurrentTickPosition(&ppqPos);
+    timeInfo.mPPQPos = (double) ppqPos / 960000.0;
+    
+    mTransport->GetCurrentNativeSampleLocation(&samplePos);
+    timeInfo.mSamplePos = (double) samplePos;
+    
+    mTransport->GetCurrentLoopPosition(&timeInfo.mTransportLoopEnabled, &cStart, &cEnd);
+    timeInfo.mCycleStart = (double) cStart / 960000.0;
+    timeInfo.mCycleEnd = (double) cEnd / 960000.0;
+    
+    SetTimeInfo(timeInfo);
+    //timeInfo.mLastBar ??
+    
     ProcessBuffers(0.0f, numSamples);
   }
 }
@@ -415,31 +438,6 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
 {
   TRACE;
   ReleaseParameter(mParamIDs.Get(idx)->Get());
-}
-
-void IPlugAAX::GetTimeInfo()
-{
-  int32_t num, denom;
-  int64_t ppqPos, samplePos, cStart, cEnd;
-
-  mTransport->GetCurrentTempo(&mTimeInfo.mTempo);
-  mTransport->IsTransportPlaying(&mTimeInfo.mTransportIsRunning);
-  
-  mTransport->GetCurrentMeter(&num, &denom);
-  mTimeInfo.mNumerator = (int) num;
-  mTimeInfo.mDenominator = (int) denom;
-  
-  mTransport->GetCurrentTickPosition(&ppqPos);
-  mTimeInfo.mPPQPos = (double) ppqPos / 960000.0;
-  
-  mTransport->GetCurrentNativeSampleLocation(&samplePos);
-  mTimeInfo.mSamplePos = (double) samplePos;
-  
-  mTransport->GetCurrentLoopPosition(&mTimeInfo.mTransportLoopEnabled, &cStart, &cEnd);
-  mTimeInfo.mCycleStart = (double) cStart / 960000.0;
-  mTimeInfo.mCycleEnd = (double) cEnd / 960000.0;
-  
-  //mTimeInfo.mLastBar ??
 }
 
 void IPlugAAX::ResizeGraphics(int w, int h, double scale)

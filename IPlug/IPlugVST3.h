@@ -41,11 +41,9 @@ public:
   void InformHostOfProgramChange() override {};
   
   //IPlugProcessor
-  bool IsRenderingOffline() override { return (processSetup.processMode == Steinberg::Vst::kOffline); }
   void ResizeGraphics(int w, int h, double scale) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
-  void GetTimeInfo() override;
   
   // AudioEffect
   Steinberg::tresult PLUGIN_API initialize (FUnknown* context) override;
@@ -58,7 +56,7 @@ public:
 //  Steinberg::tresult PLUGIN_API getState(IBStream* state) override;
 //  Steinberg::tresult PLUGIN_API setComponentState(IBStream *state) override;
   Steinberg::tresult PLUGIN_API canProcessSampleSize(int32_t symbolicSampleSize) override;
-  uint32_t PLUGIN_API getLatencySamples () override;
+  uint32_t PLUGIN_API getLatencySamples () override { return GetLatency(); }
   uint32_t PLUGIN_API getTailSamples() override { return GetTailSize(); }
   
   // IEditController
@@ -90,6 +88,11 @@ public:
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   IPlugVST3View* GetView() { return mViews.at(0); }
   
+  
+private:
+  /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
+  void PreProcess();
+
   enum
   {
 //    TODO: add missing parameters

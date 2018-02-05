@@ -20,7 +20,7 @@
 
 struct IPlugConfig;
 
-/** The lowest level base class of an IPlug plug-in. No UI framework code included. */
+/** The lowest level base class of an IPlug plug-in. No UI framework code included.  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugBase
 {
 public:
@@ -123,6 +123,8 @@ public:
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() {};
 
+
+  
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
   // MakePreset(name, param1, param2, ..., paramN)
