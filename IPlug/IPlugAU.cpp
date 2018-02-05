@@ -477,7 +477,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pInfo->flags = kAudioUnitParameterFlag_CFNameRelease |
                        kAudioUnitParameterFlag_HasCFNameString |
                        kAudioUnitParameterFlag_IsWritable |
-                       kAudioUnitParameterFlag_IsReadable;
+                       kAudioUnitParameterFlag_IsReadable  |
+                       kAudioUnitParameterFlag_IsHighResolution;
         
         WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(element);
