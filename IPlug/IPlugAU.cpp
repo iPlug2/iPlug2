@@ -492,6 +492,11 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
         }
         
+        if (pParam->GetNDisplayTexts())
+        {
+          pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
+        }
+          
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
         strcpy(pInfo->name, paramName);   // Max 52.
@@ -524,7 +529,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pParam->GetBounds(lo, hi);
         pInfo->minValue = lo;
         pInfo->maxValue = hi;
-        pInfo->defaultValue = pParam->Value();
+        pInfo->defaultValue = pParam->GetDefault();
         
         const char* paramGroupName = pParam->GetParamGroupForHost();
 
@@ -908,8 +913,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           IParam* pParam = GetParam(pVFS->inParamID);
           if (pParam->GetNDisplayTexts())
           {
-            int v;
-            if (pParam->MapDisplayText(cStr.mCStr, &v))
+            int v = 0;
+            if (pParam->GetNDisplayTexts() && (pParam->MapDisplayText(cStr.mCStr, &v) || pParam->Type() == IParam::kTypeEnum))
               pVFS->outValue = (AudioUnitParameterValue) v;
           }
           else
