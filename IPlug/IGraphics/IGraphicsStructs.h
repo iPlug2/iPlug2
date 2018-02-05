@@ -536,9 +536,9 @@ public:
   
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
     
-  unsigned long hash(const char* str)
+  uint32_t hash(const char* str)
   {
-    unsigned long hash = 5381;
+    uint32_t hash = 5381;
     int c;
     
     while ((c = *str++))
@@ -553,7 +553,7 @@ public:
   {
     // N.B. - hashID is not guaranteed to be unique
       
-    unsigned long hashID;
+    uint32_t hashID;
     WDL_String name;
     double scale;
     T* data;
@@ -564,7 +564,7 @@ public:
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    unsigned long hashID = hash(cacheName.Get());
+    uint32_t hashID = hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -572,10 +572,8 @@ public:
       DataKey* key = mDatas.Get(i);
       
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
-        
-      if (key->hashID == hashID && scale == key->scale && !strcmp(cacheName.Get(), key->name.Get())) {
+      if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get()))
         return key->data;
-      }
     }
     return nullptr;
   }
