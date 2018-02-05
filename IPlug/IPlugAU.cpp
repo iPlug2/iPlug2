@@ -476,14 +476,15 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         memset(pInfo, 0, sizeof(AudioUnitParameterInfo));
         pInfo->flags = kAudioUnitParameterFlag_CFNameRelease |
                        kAudioUnitParameterFlag_HasCFNameString |
+                       kAudioUnitParameterFlag_IsWritable |
                        kAudioUnitParameterFlag_IsReadable;
         
         WDL_MutexLock lock(&mParams_mutex);
         IParam* pParam = GetParam(element);
         
-        if (pParam->GetCanAutomate()) 
+        if (!pParam->GetCanAutomate())
         {
-          pInfo->flags = pInfo->flags | kAudioUnitParameterFlag_IsWritable;
+          pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
         }
         
         if (pParam->GetIsMeta()) 
