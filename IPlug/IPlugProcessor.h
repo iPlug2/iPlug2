@@ -66,6 +66,7 @@ public:
 
   /** @brief Get sample rate (in Hz)
    * @return Sample rate (in Hz). Defaults to 44100.0 */
+  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
   double GetSampleRate() const { return mSampleRate; }
   int GetBlockSize() const { return mBlockSize; }
   /** @return Plugin latency (in samples)
@@ -161,7 +162,6 @@ public:
   void SetTailSize(unsigned int tailSizeSamples) { mTailSize = tailSizeSamples; }
 
   virtual bool SendMidiMsg(IMidiMsg& msg) = 0;
-  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs);
   virtual bool SendSysEx(ISysEx& msg) { return false; }
 
 

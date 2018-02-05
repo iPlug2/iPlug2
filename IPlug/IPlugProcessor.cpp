@@ -414,14 +414,13 @@ void IPlugProcessor::SetOutputLabel(int idx, const char* pLabel)
   }
 }
 
-bool IPlugProcessor::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>* pMsgs)
+bool IPlugProcessor::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 {
   bool rc = true;
-  int n = pMsgs->GetSize();
-  IMidiMsg* pMsg = pMsgs->Get();
+  int n = msgs.GetSize();
   
-  for (int i = 0; i < n; ++i, ++pMsg)
-    rc &= SendMidiMsg(*pMsg);
+  for (int i = 0; i < n; ++i)
+    rc &= SendMidiMsg(msgs.Get()[i]);
   
   return rc;
 }
