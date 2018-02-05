@@ -529,7 +529,7 @@ public:
     key->hashID = hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
-    key->name.Set(str);
+    key->name.Set(cacheName);
     
     DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
