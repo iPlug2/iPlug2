@@ -21,6 +21,7 @@ struct IPlugInstanceInfo
 *   @ingroup APIClasses
 */
 class IPlugVST : public IPLUG_BASE_CLASS
+               , public IPlugProcessor
 {
 public:
   IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig config);
@@ -28,31 +29,25 @@ public:
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-
   void InformHostOfProgramChange() override;
-
   EHost GetHost() override;
-
   void ResizeGraphics(int w, int h, double scale) override;
-  bool IsRenderingOffline() override;
-
   void OnGUICreated() override;
 
-  audioMasterCallback mHostCallback;
-
-protected:
+  bool IsRenderingOffline() override;
   void HostSpecificInit() override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;
+  void GetTimeInfo() override;
+
+  audioMasterCallback mHostCallback;
+
   audioMasterCallback GetHostCallback();
 
-private:
   template <class SAMPLETYPE>
   void VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames);
   
-  void GetTimeInfo() override;
-
   ERect mEditRect;
 
   bool SendVSTEvent(VstEvent& event);
@@ -68,7 +63,6 @@ private:
   IByteChunk mState;     // Persistent storage if the host asks for plugin state.
   IByteChunk mBankState; // Persistent storage if the host asks for bank state.
 
-public:
   static VstIntPtr VSTCALLBACK VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt);
   static void VSTCALLBACK VSTProcess(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);  // Deprecated.
   static void VSTCALLBACK VSTProcessReplacing(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);

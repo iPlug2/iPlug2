@@ -27,12 +27,26 @@ class IPlugVST3View;
 *   @ingroup APIClasses
 */
 class IPlugVST3 : public IPLUG_BASE_CLASS
+                , public IPlugProcessor
                 , public Steinberg::Vst::SingleComponentEffect
 {
 public:
   IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugVST3();
 
+  //IPlugBase
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfProgramChange() override {};
+  
+  //IPlugProcessor
+  bool IsRenderingOffline() override { return (processSetup.processMode == Steinberg::Vst::kOffline); }
+  void ResizeGraphics(int w, int h, double scale) override;
+  void SetLatency(int samples) override;
+  bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  void GetTimeInfo() override;
+  
   // AudioEffect
   Steinberg::tresult PLUGIN_API initialize (FUnknown* context) override;
   Steinberg::tresult PLUGIN_API terminate() override;
@@ -46,6 +60,7 @@ public:
   Steinberg::tresult PLUGIN_API canProcessSampleSize(int32_t symbolicSampleSize) override;
   uint32_t PLUGIN_API getLatencySamples () override;
   uint32_t PLUGIN_API getTailSamples() override { return GetTailSize(); }
+  
   // IEditController
   Steinberg::IPlugView* PLUGIN_API createView (const char* name) override;
   Steinberg::tresult PLUGIN_API setEditorState (Steinberg::IBStream* state) override;
@@ -71,17 +86,7 @@ public:
   Steinberg::tresult PLUGIN_API getUnitByBus(Steinberg::Vst::MediaType type, Steinberg::Vst::BusDirection dir, int32_t busIndex, int32_t channel, int32_t& unitId) override {return Steinberg::kNotImplemented;}
   Steinberg::tresult PLUGIN_API setUnitProgramData(int32_t listOrUnitId, int32_t programIndex, Steinberg::IBStream* data) override {return Steinberg::kNotImplemented;}
   
-  //IPlugBase
-  void BeginInformHostOfParamChange(int idx) override;
-  void InformHostOfParamChange(int idx, double normalizedValue) override;
-  void EndInformHostOfParamChange(int idx) override;
-  void InformHostOfProgramChange() override {};
   
-  bool IsRenderingOffline() override { return (processSetup.processMode == Steinberg::Vst::kOffline); }
-  
-  void ResizeGraphics(int w, int h, double scale) override;
-  void SetLatency(int samples) override;
-
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   IPlugVST3View* GetView() { return mViews.at(0); }
   
@@ -104,10 +109,6 @@ public:
   END_DEFINE_INTERFACES (SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
 
-protected:
-  bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
-
-private:
   void addDependentView (IPlugVST3View* view);
   void removeDependentView (IPlugVST3View* view);
   Steinberg::tresult beginEdit(uint32_t tag) override;
@@ -116,8 +117,6 @@ private:
   Steinberg::Vst::AudioBus* getAudioInput(int32_t index);
   Steinberg::Vst::AudioBus* getAudioOutput(int32_t index);
   uint64_t getSpeakerArrForChans(int32_t chans);
-
-  void GetTimeInfo() override;
 
   bool mSidechainActive = false;
 //  IMidiQueue mMidiOutputQueue;
@@ -147,7 +146,6 @@ public:
 
   void resize(int w, int h);
 
-protected:
   IPlugVST3* mPlug;
   bool mExpectingNewSize;
 };

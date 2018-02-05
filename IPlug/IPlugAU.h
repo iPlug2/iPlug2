@@ -38,25 +38,29 @@ struct IPlugInstanceInfo
 *   @ingroup APIClasses
 */
 class IPlugAU : public IPLUG_BASE_CLASS
+              , public IPlugProcessor
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);
-  virtual ~IPlugAU();
+  ~IPlugAU();
 
-#pragma mark - IPlugBase Methods
+//IPlugBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
   void ResizeGraphics(int w, int h, double scale) override;
+  
+//IPlugProcessor
   bool IsRenderingOffline() override;
   void SetBlockSize(int blockSize) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(IMidiMsg& msg) override;
   void HostSpecificInit() override;
-  
-#pragma mark - Helpers
+  void GetTimeInfo() override;
+
+//IPlugAU
   static const char* AUInputTypeStr(int type);
 #ifndef AU_NO_COMPONENT_ENTRY
   static OSStatus IPlugAUEntry(ComponentParameters* pParams, void* pPlug);
@@ -102,7 +106,6 @@ private:
     void* mProcArgs;
   };
   
-  void GetTimeInfo() override;
   int NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int excludeIdx = -1);
   void ClearConnections();
   BusChannels* GetBus(AudioUnitScope scope, AudioUnitElement busIdx);

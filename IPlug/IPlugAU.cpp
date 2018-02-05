@@ -1693,6 +1693,7 @@ void IPlugAU::ClearConnections()
 
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAU)
+, IPlugProcessor(c, kAPIAU)
 {
   Trace(TRACELOC, "%s", c.effectName);
 
@@ -1872,7 +1873,7 @@ void IPlugAU::SetBlockSize(int blockSize)
   mOutScratchBuf.Resize(nOut);
   memset(mInScratchBuf.Get(), 0, nIn * sizeof(AudioSampleType));
   memset(mOutScratchBuf.Get(), 0, nOut * sizeof(AudioSampleType));
-  IPLUG_BASE_CLASS::SetBlockSize(blockSize);
+  IPlugProcessor::SetBlockSize(blockSize);
 }
 
 void IPlugAU::InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope)
@@ -1905,7 +1906,7 @@ void IPlugAU::SetLatency(int samples)
     }
   }
   
-  IPLUG_BASE_CLASS::SetLatency(samples);
+  IPlugProcessor::SetLatency(samples);
 }
 
 // TODO: AUMIDIOUT SendMidiMsg

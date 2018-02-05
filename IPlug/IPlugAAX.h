@@ -44,13 +44,26 @@ private:
 /**  AAX API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics 
 *   @ingroup APIClasses
 */
-class IPlugAAX : public IPLUG_BASE_CLASS,
-                 public AAX_CIPlugParameters
+class IPlugAAX : public IPLUG_BASE_CLASS
+               , public IPlugProcessor
+               , public AAX_CIPlugParameters
 {
 public:
-
   IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugAAX();
+  
+  // IPlugBase Overrides
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfProgramChange() override { }; //NA
+  void ResizeGraphics(int w, int h, double scale) override;
+  
+  // IPlug Processor
+  void SetLatency(int samples) override;
+  void DirtyPTCompareState() override { mNumPlugInChanges++; }
+  bool SendMidiMsg(IMidiMsg& msg) override;
+  void GetTimeInfo() override;
   
   AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource ) override;
   
@@ -65,23 +78,6 @@ public:
   AAX_Result GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) const override;
   AAX_Result SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChunk) override;
   AAX_Result CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoolean* pIsEqual) const override;
-  
-  // IPlugBase Overrides
-  void BeginInformHostOfParamChange(int idx) override;
-  void InformHostOfParamChange(int idx, double normalizedValue) override;
-  void EndInformHostOfParamChange(int idx) override;
-  void InformHostOfProgramChange() override { }; //NA
-  
-  void ResizeGraphics(int w, int h, double scale) override;
-
-  void SetLatency(int samples) override;
-  void DirtyPTCompareState() override { mNumPlugInChanges++; }
-  
-protected:
-  bool SendMidiMsg(IMidiMsg& msg) override;
-
-private:
-  void GetTimeInfo() override;
 
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;

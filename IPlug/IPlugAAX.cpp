@@ -82,7 +82,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAAX)
-, AAX_CIPlugParameters()
+, IPlugProcessor(c, kAPIAAX)
 {
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
@@ -462,7 +462,7 @@ void IPlugAAX::SetLatency(int latency)
 {
   Controller()->SetSignalLatency(latency);
   
-  IPlugBase::SetLatency(latency); // will update delay time
+  IPlugProcessor::SetLatency(latency); // will update delay time
 }
 
 // TODO: SendMidiMsg()

@@ -105,6 +105,7 @@ protected:
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIVST3)
+, IPlugProcessor(c, kAPIVST3)
 {
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
@@ -149,12 +150,13 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       int configIdx = mIOConfigs.GetSize()-1;
     
       IOConfig* pConfig = mIOConfigs.Get(configIdx);
-      
+    
+      assert(pConfig);
       for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
       {
         uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
         
-        int flags = 0; busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+        int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
         Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
         addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
       }
@@ -163,7 +165,7 @@ tresult PLUGIN_API IPlugVST3::initialize (FUnknown* context)
       {
         uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
         
-        int flags = 0; busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+        int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
         Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
         addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
       }
@@ -303,7 +305,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing (ProcessSetup& newSetup)
 
   mSampleRate = newSetup.sampleRate;
   mBypassed = false;
-  IPlugBase::SetBlockSize(newSetup.maxSamplesPerBlock);
+  IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock);
   OnReset();
 
   processSetup = newSetup;
@@ -856,7 +858,7 @@ void IPlugVST3::ResizeGraphics(int w, int h, double scale)
 
 void IPlugVST3::SetLatency(int latency)
 {
-  IPlugBase::SetLatency(latency);
+  IPlugProcessor::SetLatency(latency);
 
   FUnknownPtr<IComponentHandler>handler(componentHandler);
   handler->restartComponent(kLatencyChanged);  

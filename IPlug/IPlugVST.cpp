@@ -31,6 +31,7 @@ double VSTString2Parameter(IParam* pParam, char* ptr)
 
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIVST2)
+  , IPlugProcessor(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", c.effectName);
@@ -181,7 +182,7 @@ bool IPlugVST::IsRenderingOffline()
 void IPlugVST::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
-  IPLUG_BASE_CLASS::SetLatency(samples);
+  IPlugProcessor::SetLatency(samples);
 }
 
 bool IPlugVST::SendVSTEvent(VstEvent& event)
