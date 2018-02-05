@@ -570,7 +570,10 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effCanBeAutomated:
     {
-      return 1;
+      if (idx >= 0 && idx < _this->NParams())
+      {
+        return _this->GetParam(idx)->GetCanAutomate();
+      }
     }
     case effGetInputProperties:
     {
