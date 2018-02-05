@@ -26,7 +26,7 @@ public:
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax
    */
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
-  void SetDisplayText(int value, const char* text);
+  void SetDisplayText(double value, const char* text);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
   void SetShape(double shape);
@@ -55,7 +55,8 @@ public:
    */
   int Int() const { return int(mValue); }
   double DBToAmp() const;
-
+  double Clamp(double value) const { return BOUNDED(value, mMin, mMax); }
+    
   void SetNormalized(double normalizedValue);
   double GetNormalized() const;
   double GetNormalized(double nonNormalizedValue) const;
@@ -70,8 +71,8 @@ public:
   
   int GetNDisplayTexts() const;
   const char* GetDisplayText(int value) const;
-  const char* GetDisplayTextAtIdx(int idx, int* value = 0) const;
-  bool MapDisplayText(const char* pStr, int* pValue) const;  // Reverse map back to value.
+  const char* GetDisplayTextAtIdx(int idx, double* value = nullptr) const;
+  bool MapDisplayText(const char* pStr, double* pValue) const;  // Reverse map back to value.
   
   double GetShape() const { return mShape; }
   double GetStep() const { return mStep; }
@@ -106,7 +107,7 @@ private:
   
   struct DisplayText
   {
-    int mValue;
+    double mValue;
     char mText[MAX_PARAM_DISPLAY_LEN];
   };
   

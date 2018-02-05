@@ -8,6 +8,25 @@
 
 #include "IPlugBase.h"
 
+double IPlugBase::StringToParameter(IParam* pParam, const char* ptr)
+{
+  double v = 0;
+  bool mapped = pParam->GetNDisplayTexts();
+  if (mapped)
+  {
+    mapped = pParam->MapDisplayText(ptr, &v);
+  }
+  if (!mapped && pParam->Type() != IParam::kTypeEnum && pParam->Type() != IParam::kTypeBool)
+  {
+    v = atof(ptr);
+    if (pParam->GetDisplayIsNegated()) v = -v;
+    v = pParam->Clamp(v);
+  }
+  if (!mapped)
+    v = pParam->Value();
+  return v;
+}
+
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   : mUniqueID(c.uniqueID)
   , mMfrID(c.mfrID)

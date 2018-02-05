@@ -35,6 +35,8 @@ public:
   virtual void OnReset() { TRACE; }
   virtual void OnParamChange(int paramIdx, ParamSource source) {}
 
+  static double StringToParameter(IParam* pParam, const char* ptr);
+    
   /** Default passthrough.
    * Inputs and outputs are two-dimensional arrays [nChannel][nSample]
    * @param inputs 2D array containing the input buffer for all channels. To access a specific channel:

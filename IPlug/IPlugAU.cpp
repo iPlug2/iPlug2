@@ -912,18 +912,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           CStrLocal cStr(pVFS->inString);
           WDL_MutexLock lock(&mParams_mutex);
           IParam* pParam = GetParam(pVFS->inParamID);
-          if (pParam->GetNDisplayTexts())
-          {
-            int v = 0;
-            if (pParam->GetNDisplayTexts() && (pParam->MapDisplayText(cStr.mCStr, &v) || pParam->Type() == IParam::kTypeEnum))
-              pVFS->outValue = (AudioUnitParameterValue) v;
-          }
-          else
-          {
-            double v = atof(cStr.mCStr);
-            if (pParam->GetDisplayIsNegated()) v = -v;
-            pVFS->outValue = (AudioUnitParameterValue) v;
-          }
+          const double v = IPlugBase::StringToParameter(pParam, cStr.mCStr);
+          pVFS->outValue = (AudioUnitParameterValue) v;
         }
       }
       return noErr;
