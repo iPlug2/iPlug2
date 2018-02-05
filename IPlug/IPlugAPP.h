@@ -32,18 +32,19 @@
 *   @ingroup APIClasses
 */
 class IPlugAPP : public IPLUG_BASE_CLASS
+               , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
-  // these methods aren't needed in standalones but they are pure virtual in IPlugBase so must have a NO-OP here
+  //IPlugBase
   void BeginInformHostOfParamChange(int idx) override {};
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
   void ResizeGraphics(int w, int h, double scale) override;
 
-protected:
+  //IPlugProcessor
   bool SendMidiMsg(IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;
 

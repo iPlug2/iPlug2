@@ -38,25 +38,28 @@ struct IPlugInstanceInfo
 *   @ingroup APIClasses
 */
 class IPlugAU : public IPLUG_BASE_CLASS
+              , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);
-  virtual ~IPlugAU();
+  ~IPlugAU();
 
-#pragma mark - IPlugBase Methods
+//IPlugBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
   void ResizeGraphics(int w, int h, double scale) override;
-  bool IsRenderingOffline() override;
-  void SetBlockSize(int blockSize) override;
-  void SetLatency(int samples) override;
+  
+//IPlugProcessor
   bool SendMidiMsg(IMidiMsg& msg) override;
   void HostSpecificInit() override;
-  
-#pragma mark - Helpers
+  void SetLatency(int samples) override;
+
+//IPlugAU
+  void PreProcess();
+  void ResizeScratchBuffers();
   static const char* AUInputTypeStr(int type);
 #ifndef AU_NO_COMPONENT_ENTRY
   static OSStatus IPlugAUEntry(ComponentParameters* pParams, void* pPlug);
@@ -102,7 +105,6 @@ private:
     void* mProcArgs;
   };
   
-  void GetTimeInfo() override;
   int NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int excludeIdx = -1);
   void ClearConnections();
   BusChannels* GetBus(AudioUnitScope scope, AudioUnitElement busIdx);
@@ -168,8 +170,7 @@ private:
   
 #pragma mark -
 private:
-  bool mActive = false;
-  bool mIsOffline = false;
+  bool mActive = false; // TODO: is this necessary? is it correct?
   double mRenderTimestamp = -1.0;
   WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;

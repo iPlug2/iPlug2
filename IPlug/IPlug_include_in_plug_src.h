@@ -60,9 +60,11 @@
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
       IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
-      if (pPlug) {
+      
+      if (pPlug)
+      {
         pPlug->EnsureDefaultPreset();
-        pPlug->mAEffect.numPrograms = std::max(pPlug->mAEffect.numPrograms, 1);
+        pPlug->mAEffect.numPrograms = std::max(pPlug->mAEffect.numPrograms, 1); // some hosts don't like 0 presets
         return &(pPlug->mAEffect);
       }
       return 0;

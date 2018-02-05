@@ -31,6 +31,7 @@ double VSTString2Parameter(IParam* pParam, char* ptr)
 
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIVST2)
+  , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", c.effectName);
@@ -97,32 +98,6 @@ void IPlugVST::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-void IPlugVST::GetTimeInfo()
-{
-  VstTimeInfo* pTI = (VstTimeInfo*) mHostCallback(&mAEffect, audioMasterGetTime, 0, kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
-
-  if (pTI)
-  {
-    mTimeInfo.mSamplePos = pTI->samplePos;
-
-    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) mTimeInfo.mPPQPos = pTI->ppqPos;
-    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) mTimeInfo.mTempo = pTI->tempo;
-    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) mTimeInfo.mLastBar = pTI->barStartPos;
-    if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0)
-    {
-      mTimeInfo.mCycleStart = pTI->cycleStartPos;
-      mTimeInfo.mCycleEnd = pTI->cycleEndPos;
-    }
-    if ((pTI->flags & kVstTimeSigValid) && pTI->timeSigNumerator > 0.0 && pTI->timeSigDenominator > 0.0)
-    {
-      mTimeInfo.mNumerator = pTI->timeSigNumerator;
-      mTimeInfo.mDenominator = pTI->timeSigDenominator;
-    }
-    mTimeInfo.mTransportIsRunning = pTI->flags & kVstTransportPlaying;
-    mTimeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
-  }
-}
-
 EHost IPlugVST::GetHost()
 {
   EHost host = IPLUG_BASE_CLASS::GetHost();
@@ -173,15 +148,10 @@ void IPlugVST::ResizeGraphics(int w, int h, double scale)
   }
 }
 
-bool IPlugVST::IsRenderingOffline()
-{
-  return mHostCallback(&mAEffect, audioMasterGetCurrentProcessLevel, 0, 0, 0, 0.0f) == kVstProcessLevelOffline;
-}
-
 void IPlugVST::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
-  IPLUG_BASE_CLASS::SetLatency(samples);
+  IPlugProcessor::SetLatency(samples);
 }
 
 bool IPlugVST::SendVSTEvent(VstEvent& event)
@@ -225,11 +195,6 @@ bool IPlugVST::SendSysEx(ISysEx& msg)
   return SendVSTEvent((VstEvent&) sysexEvent);
 }
 
-audioMasterCallback IPlugVST::GetHostCallback()
-{
-  return mHostCallback;
-}
-
 void IPlugVST::HostSpecificInit()
 {
   if (!mHostSpecificInitDone)
@@ -242,7 +207,7 @@ void IPlugVST::HostSpecificInit()
       case kHostOrion:
       case kHostForte:
       case kHostSAWStudio:
-        LimitToStereoIO();
+        LimitToStereoIO(); //TODO:  is this still necessary?
         break;
       default:
         break;
@@ -818,15 +783,43 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
 }
 
 template <class SAMPLETYPE>
-void IPlugVST::VSTPrepProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
+void IPlugVST::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
 {
   if (DoesMIDI())
-  {
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
-  }
+
   AttachInputBuffers(0, NInChannels(), inputs, nFrames);
   AttachOutputBuffers(0, NOutChannels(), outputs);
-  GetTimeInfo();
+  
+  VstTimeInfo* pTI = (VstTimeInfo*) mHostCallback(&mAEffect, audioMasterGetTime, 0, kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
+  
+  ITimeInfo timeInfo;
+  
+  if (pTI)
+  {
+    timeInfo.mSamplePos = pTI->samplePos;
+    
+    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) timeInfo.mPPQPos = pTI->ppqPos;
+    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) timeInfo.mTempo = pTI->tempo;
+    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) timeInfo.mLastBar = pTI->barStartPos;
+    if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0)
+    {
+      timeInfo.mCycleStart = pTI->cycleStartPos;
+      timeInfo.mCycleEnd = pTI->cycleEndPos;
+    }
+    if ((pTI->flags & kVstTimeSigValid) && pTI->timeSigNumerator > 0.0 && pTI->timeSigDenominator > 0.0)
+    {
+      timeInfo.mNumerator = pTI->timeSigNumerator;
+      timeInfo.mDenominator = pTI->timeSigDenominator;
+    }
+    timeInfo.mTransportIsRunning = pTI->flags & kVstTransportPlaying;
+    timeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
+  }
+  
+  const bool renderingOffline = mHostCallback(&mAEffect, audioMasterGetCurrentProcessLevel, 0, 0, 0, 0.0f) == kVstProcessLevelOffline;
+  
+  SetTimeInfo(timeInfo);
+  SetRenderingOffline(renderingOffline);
 }
 
 // Deprecated.
@@ -834,7 +827,7 @@ void VSTCALLBACK IPlugVST::VSTProcess(AEffect* pEffect, float** inputs, float** 
 {
   TRACE_PROCESS;
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  _this->VSTPrepProcess(inputs, outputs, nFrames);
+  _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->ProcessBuffersAccumulating((float) 0.0f, nFrames);
 }
 
@@ -842,7 +835,7 @@ void VSTCALLBACK IPlugVST::VSTProcessReplacing(AEffect* pEffect, float** inputs,
 {
   TRACE_PROCESS;
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  _this->VSTPrepProcess(inputs, outputs, nFrames);
+  _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->ProcessBuffers((float) 0.0f, nFrames);
 }
 
@@ -850,7 +843,7 @@ void VSTCALLBACK IPlugVST::VSTProcessDoubleReplacing(AEffect* pEffect, double** 
 {
   TRACE_PROCESS;
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  _this->VSTPrepProcess(inputs, outputs, nFrames);
+  _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->ProcessBuffers((double) 0.0, nFrames);
 }
 

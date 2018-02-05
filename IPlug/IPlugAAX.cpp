@@ -82,7 +82,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAAX)
-, AAX_CIPlugParameters()
+, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
 {
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
@@ -91,7 +91,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   
   if (NInChannels()) 
   {
-    mLatencyDelay = new NChanDelayLine<double>(NInChannels(), NOutChannels());
+    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(NInChannels(), NOutChannels());
     mLatencyDelay->SetDelayTime(c.latency);
   }
   
@@ -287,7 +287,30 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   }
   else 
   {
-    GetTimeInfo();
+    int32_t num, denom;
+    int64_t ppqPos, samplePos, cStart, cEnd;
+    ITimeInfo timeInfo;
+    
+    mTransport->GetCurrentTempo(&timeInfo.mTempo);
+    mTransport->IsTransportPlaying(&timeInfo.mTransportIsRunning);
+    
+    mTransport->GetCurrentMeter(&num, &denom);
+    timeInfo.mNumerator = (int) num;
+    timeInfo.mDenominator = (int) denom;
+    
+    mTransport->GetCurrentTickPosition(&ppqPos);
+    timeInfo.mPPQPos = (double) ppqPos / 960000.0;
+    
+    mTransport->GetCurrentNativeSampleLocation(&samplePos);
+    timeInfo.mSamplePos = (double) samplePos;
+    
+    mTransport->GetCurrentLoopPosition(&timeInfo.mTransportLoopEnabled, &cStart, &cEnd);
+    timeInfo.mCycleStart = (double) cStart / 960000.0;
+    timeInfo.mCycleEnd = (double) cEnd / 960000.0;
+    
+    SetTimeInfo(timeInfo);
+    //timeInfo.mLastBar ??
+    
     ProcessBuffers(0.0f, numSamples);
   }
 }
@@ -417,31 +440,6 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::GetTimeInfo()
-{
-  int32_t num, denom;
-  int64_t ppqPos, samplePos, cStart, cEnd;
-
-  mTransport->GetCurrentTempo(&mTimeInfo.mTempo);
-  mTransport->IsTransportPlaying(&mTimeInfo.mTransportIsRunning);
-  
-  mTransport->GetCurrentMeter(&num, &denom);
-  mTimeInfo.mNumerator = (int) num;
-  mTimeInfo.mDenominator = (int) denom;
-  
-  mTransport->GetCurrentTickPosition(&ppqPos);
-  mTimeInfo.mPPQPos = (double) ppqPos / 960000.0;
-  
-  mTransport->GetCurrentNativeSampleLocation(&samplePos);
-  mTimeInfo.mSamplePos = (double) samplePos;
-  
-  mTransport->GetCurrentLoopPosition(&mTimeInfo.mTransportLoopEnabled, &cStart, &cEnd);
-  mTimeInfo.mCycleStart = (double) cStart / 960000.0;
-  mTimeInfo.mCycleEnd = (double) cEnd / 960000.0;
-  
-  //mTimeInfo.mLastBar ??
-}
-
 void IPlugAAX::ResizeGraphics(int w, int h, double scale)
 {
   if (GetHasUI())
@@ -462,7 +460,7 @@ void IPlugAAX::SetLatency(int latency)
 {
   Controller()->SetSignalLatency(latency);
   
-  IPlugBase::SetLatency(latency); // will update delay time
+  IPlugProcessor::SetLatency(latency); // will update delay time
 }
 
 // TODO: SendMidiMsg()
