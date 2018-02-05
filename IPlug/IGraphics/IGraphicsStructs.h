@@ -175,51 +175,49 @@ const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
 const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 
-const IColor DEFAULT_BGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_FGCOLOR = COLOR_BLACK;
+const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
+const IColor DEFAULT_BGCOLOR = COLOR_BLACK;
+const IColor DEFAULT_FGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_FRCOLOR = COLOR_BLACK;
+const IColor DEFAULT_HLCOLOR = COLOR_GREEN;
+const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
 {
   char mFont[FONT_LEN];
-  int mSize = DEFAULT_TEXT_SIZE;
-  IColor mColor;
-  IColor mTextEntryBGColor = DEFAULT_BGCOLOR;
-  IColor mTextEntryFGColor = DEFAULT_FGCOLOR;
-  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle = kStyleNormal;
-  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign = kAlignCenter;
+  int mSize;
+  IColor mFGColor;
+  IColor mTextEntryBGColor;
+  IColor mTextEntryFGColor;
+  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
+  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
   int mOrientation = 0; // Degrees ccwise from normal.
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
   mutable LICE_IFont* mCached = nullptr;
   mutable double mCachedScale = 1.0;
 
-  IText(int size = DEFAULT_TEXT_SIZE,
-        const IColor& color = DEFAULT_FGCOLOR,
+  IText(const IColor& color = DEFAULT_FGCOLOR,
+        int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         int orientation = 0,
         EQuality quality = kQualityDefault,
-        const IColor& teBGColor = DEFAULT_BGCOLOR,
-        const IColor& teFGColor = DEFAULT_FGCOLOR)
+        const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
+        const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
-    , mColor(color)
+    , mFGColor(color)
     , mStyle(style)
     , mAlign(align)
     , mOrientation(orientation)
     , mQuality(quality)
-    , mTextEntryBGColor(teBGColor)
-    , mTextEntryFGColor(teFGColor)
+    , mTextEntryBGColor(TEBGColor)
+    , mTextEntryFGColor(TEFGColor)
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
-
-  IText(const IColor& color)
-  : mColor(color)
-  {
-    strcpy(mFont, DEFAULT_FONT);
-  }
-
 };
 
 const IText DEFAULT_TEXT = IText();

@@ -394,7 +394,7 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& rect, bo
     if (!font) return false;
   }
   
-  LICE_pixel color = LiceColor(text.mColor);
+  LICE_pixel color = LiceColor(text.mFGColor);
   font->SetTextColor(color);
   
   UINT fmt = DT_NOCLIP;
