@@ -168,7 +168,7 @@ AAX_Result IPlugAAX::EffectInit()
         
         for (int j=0; j<p->NDisplayTexts(); j++) 
         {
-          int value;
+          double value;
           const char* text = p->GetDisplayTextAtIdx(j, &value);
           
           displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)) );

@@ -666,7 +666,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             if (*(char*) ptr != '\0')
             {
               IParam* pParam = _this->GetParam((int) value);
-              sprintf((char*) ptr, "%.17f", pParam->GetNormalized(pParam->StringToValue(const char*) ptr)));
+              sprintf((char*) ptr, "%.17f", pParam->GetNormalized(pParam->StringToValue((const char*) ptr)));
             }
             return 0xbeef;
           }
