@@ -512,7 +512,7 @@ public:
       
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
         
-      if (key->hashID == hashID && scale == key->scale && !strcmp(str.Get(), key->name.Get())) {
+      if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get())) {
         return key->data;
       }
     }
