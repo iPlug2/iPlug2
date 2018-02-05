@@ -53,7 +53,7 @@ public:
   /** Override this method which is called prior to ProcessBlock(), to handle incoming MIDI messages.
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file i/o which could cause audio dropouts
-   @param msg The incoming midi message (includes a timestamp to indicate the offset in the forthcoming block of audio to be processed in ProcessBlock()) */
+   * @param msg The incoming midi message (includes a timestamp to indicate the offset in the forthcoming block of audio to be processed in ProcessBlock()) */
   virtual void ProcessMidiMsg(IMidiMsg& msg);
   
   /** Override this method which is calledThis method is called prior to ProcessBlock(), to handle incoming MIDI System Exclusive (SysEx) messages.
@@ -115,14 +115,14 @@ public:
   int MaxNBuses(ERoute direction) const { if(direction == kInput) { return mMaxNInBuses; } else { return mMaxNOutBuses; } }
   
   /** For a given input or output bus what is the maximum possible number of channels
-   @param direction Return input or output bus count
-   @param busIdx The index of the bus to look up
-   @return return The maximum number of channels on that bus */
+   * @param direction Return input or output bus count
+   * @param busIdx The index of the bus to look up
+   * @return return The maximum number of channels on that bus */
   int MaxNChannelsForBus(ERoute direction, int busIdx) const;
   
   /** Check if we have any wildcard characters in the channel io configs
-   @param direction Return input or output bus count
-   @return /true if the bus has a wildcard, meaning it should work on any number of channels */
+   * @param direction Return input or output bus count
+   * @return /true if the bus has a wildcard, meaning it should work on any number of channels */
   bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // /todo only supports a single IO Config
   
   /** @return The number of channel i/o configs derived from the channel io string*/
@@ -156,10 +156,11 @@ public:
   
   /** @return The number of channels and the side-chain input /todo this will change */
   int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel i/o
+  
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel i/o configs
-   @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
-   @param NOutputChans Number of outputs to test, if set to -1 = check NInputChans only
-   @return /c true if the configurations is valid */
+   * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
+   * @param NOutputChans Number of outputs to test, if set to -1 = check NInputChans only
+   * @return /c true if the configurations is valid */
   bool LegalIO(int NInputChans, int NOutputChans) const; //TODO: this should be updated
   
   /** This is called by IPlugVST in order to limit a plug-in to stereo I/O for certain picky hosts /todo may no longer be relevant*/
