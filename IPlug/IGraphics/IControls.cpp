@@ -74,16 +74,17 @@ void IVKnobControl::Draw(IGraphics& graphics)
   const float v = mAngleMin + ((float) mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
   const float radius = (mRECT.W()/2.f) - 2.f;
-  graphics.DrawCircle(mFGColor, cx, cy, radius, &BLEND_50);
-  graphics.FillArc(mBGColor, cx, cy, radius, mAngleMin, v, &BLEND_50);
-  graphics.DrawRadialLine(mFGColor, cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
+  graphics.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50);
+  graphics.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v, &BLEND_50);
+  graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
-
-IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int minNote, int maxNote)
+IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
+                                     int minNote, int maxNote)
 : IControl(plug, rect)
+, IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
 {
-  mText.mFGColor = mFRColor;
+  mText.mFGColor = GetColor(kFR);
   mDblAsSingleClick = true;
   bool keepWidth = !(rect.W() <= 0.0);
   if (rect.W() <= 0.0)
@@ -94,6 +95,11 @@ IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics & plug, IRECT rect, int m
   
   SetMinMaxNote(minNote, maxNote, keepWidth);
 }
+
+const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
+const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
+const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
+const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
 void IVKeyboardControl::OnMouseDown(float x, float y, const IMouseMod & mod)
 {
@@ -185,7 +191,7 @@ void IVKeyboardControl::OnResize()
 void IVKeyboardControl::Draw(IGraphics & graphics)
 {
   auto shadowColor = IColor(60, 0, 0, 0);
-  graphics.FillRect(mWKColor, mRECT);
+  graphics.FillRect(GetColor(kWK), mRECT);
   
   auto& top = mRECT.T;
   auto& wBot = mRECT.B;
@@ -202,7 +208,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
       if (i == mKey || NoteIsPlayed(i))
       {
         // draw played white key
-        graphics.FillRect(mPKColor, kRect);
+        graphics.FillRect(GetColor(kPK), kRect);
         if (mDrawShadows)
         {
           auto sr = kRect;
@@ -212,9 +218,9 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
       }
       if (mDrawBorders && i != 0)
       { // only draw the left border if it doesn't overlay mRECT l border
-        graphics.DrawLine(mFRColor, kL, top, kL, wBot);
+        graphics.DrawLine(GetColor(kFR), kL, top, kL, wBot);
         if (i == NumKeys() - 2 && IsBlackKey(NumKeys() - 1))
-          graphics.DrawLine(mFRColor, kL + mWKWidth, top, kL + mWKWidth, wBot);
+          graphics.DrawLine(GetColor(kFR), kL + mWKWidth, top, kL + mWKWidth, wBot);
       }
     }
   }
@@ -241,28 +247,28 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
         sr.R = sr.L + w;
         graphics.FillRect(shadowColor, sr);
       }
-      graphics.FillRect(mBKColor, kRect);
+      graphics.FillRect(GetColor(kBK), kRect);
       if (i == mKey || NoteIsPlayed(i))
       {
         // draw played black key
-        auto cBP = mPKColor;
+        auto cBP = GetColor(kPK);
         cBP.A = (int)mBKAlpha;
         graphics.FillRect(cBP, kRect);
       }
       if (mDrawBorders)
       { // draw l, r and bottom if they don't overlay the mRECT borders
         if (mBKHeightRatio != 1.0)
-          graphics.DrawLine(mFRColor, kL, bBot, kL + bKWidth, bBot);
+          graphics.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
         if (i != 0)
-          graphics.DrawLine(mFRColor, kL, top, kL, bBot);
+          graphics.DrawLine(GetColor(kFR), kL, top, kL, bBot);
         if (i != NumKeys() - 1)
-          graphics.DrawLine(mFRColor, kL + bKWidth, top, kL + bKWidth, bBot);
+          graphics.DrawLine(GetColor(kFR), kL + bKWidth, top, kL + bKWidth, bBot);
       }
     }
   }
   
   if (mDrawBorders)
-    graphics.DrawRect(mFRColor, mRECT);
+    graphics.DrawRect(GetColor(kFR), mRECT);
   
   if (mShowNoteAndVel)
   {
@@ -284,8 +290,8 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
         r.L -= e;
         r.R -= e;
       }
-      graphics.FillRect(mWKColor, r);
-      graphics.DrawRect(mFRColor, r);
+      graphics.FillRect(GetColor(kWK), r);
+      graphics.DrawRect(GetColor(kFR), r);
       graphics.DrawText(mText, t.Get(), r);
     }
   }
@@ -398,11 +404,11 @@ void IVKeyboardControl::SetShowNotesAndVelocity(bool show)
 
 void IVKeyboardControl::SetColors(const IColor BKColor, const IColor& WKColor, const IColor& PKColor, const IColor& FRColor)
 {
-  mBKColor = BKColor;
-  mWKColor = WKColor;
-  mPKColor = PKColor;
-  mFRColor = FRColor;
-  
+  SetColor(kBK, BKColor);
+  SetColor(kWK, WKColor);
+  SetColor(kPK, PKColor);
+  SetColor(kFR, FRColor);
+
   mBKAlpha = (float) PKColor.A;
   
   if (mBKAlpha < 240.f)

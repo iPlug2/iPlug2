@@ -236,17 +236,20 @@ protected:
 #endif
 };
 
+#pragma mark - BASIC CONTROLS AND BASE CLASSES
+
 /** A An interface for IVControls, in order for them to share a common set of colors. If you need more flexibility for theming, you're on your own! */
 class IVectorBase
 {
 public:
-  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
-              const IColor* pFGColor = &DEFAULT_FGCOLOR,
-              const IColor* pFRColor = 0,
-              const IColor* pHLColor = 0,
-              const IColor* pX1Color = 0,
-              const IColor* pX2Color = 0,
-              const IColor* pX3Color = 0)
+  
+  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,  // background
+              const IColor* pFGColor = &DEFAULT_FGCOLOR,  // foreground,
+              const IColor* pFRColor = 0,                 // frame
+              const IColor* pHLColor = 0,                 // highlight
+              const IColor* pX1Color = 0,                 // extra1
+              const IColor* pX2Color = 0,                 // extra2
+              const IColor* pX3Color = 0)                 // extra3
   {
     SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
   }

@@ -85,22 +85,33 @@ protected:
  See the interface for details.
  */
 
-const IColor DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
-const IColor DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
-const IColor DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
-const IColor DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
-
 class IVKeyboardControl : public IControl
+                        , public IVectorBase
 {
 public:
-  IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect, int minNote, int maxNote);
+  static const IColor DEFAULT_BK_COLOR;
+  static const IColor DEFAULT_WK_COLOR;
+  static const IColor DEFAULT_PK_COLOR;
+  static const IColor DEFAULT_FR_COLOR;
+  
+  // map to IVectorBase colors
+  enum EVKColor
+  {
+    kBK = kFG,
+    kWK = kBG,
+    kPK = kHL,
+    kFR = kFR
+  };
+  
+  IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
+                    int minNote = 36, int maxNote = 60);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-  void OnMouseOver(float x, float y, const IMouseMod& pMod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnResize() override;
   
   void Draw(IGraphics& graphics) override;
@@ -164,11 +175,7 @@ protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
   bool mDrawBorders = true;
-  IColor mBKColor = DEFAULT_BK_COLOR;
-  IColor mWKColor = DEFAULT_WK_COLOR;
-  IColor mPKColor = DEFAULT_PK_COLOR; // pressed key color
-  IColor mFRColor = DEFAULT_FR_COLOR; // keys borders color
-  
+
   float mWKWidth = 0.f;
   float mBKWidthR = 0.6f;
   float mBKHeightRatio = 0.6f;
