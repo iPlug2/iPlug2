@@ -33,12 +33,18 @@ enum EIPlugKeyCodes
   KEY_NONE
 };
 
-//enum EVST3ParamIDs
-//{
-//  kBypassParam = 65536,
-//  kPresetParam, // not used unless baked in presets declared
-//  kMIDICCParamStartIdx
-//};
+enum EVST3ParamIDs
+{
+#ifndef IPLUG1_COMPATIBILITY
+  kBypassParam = 'bpas',
+  kPresetParam = 'prst',
+  kMIDICCParamStartIdx
+#else
+  kBypassParam = 65536,
+  kPresetParam, // not used unless baked in presets declared
+  kMIDICCParamStartIdx
+#endif
+};
 
 //TODO: these should be in a namespace, to avoid conflicts with third-party libraries
 static const double PI = 3.141592653589793238;

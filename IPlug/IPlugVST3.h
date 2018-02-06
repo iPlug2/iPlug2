@@ -93,20 +93,6 @@ private:
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
   void PreProcess();
 
-  enum
-  {
-//    TODO: add missing parameters
-    kBypassParam = 'bpas',
-    kPresetParam = 'prst',
-//    kModWheelParam = 'modw',
-//    kBreathParam = 'brth',
-//    kCtrler3Param = 'ct03',
-//    kExpressionParam = 'expr',
-//    kPitchBendParam = 'pitb',
-//    kSustainParam = 'sust',
-//    kAftertouchParam = 'aftt',
-  };
-
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
   END_DEFINE_INTERFACES(SingleComponentEffect)
