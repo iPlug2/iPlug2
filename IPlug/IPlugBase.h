@@ -90,6 +90,7 @@ public:
   virtual void InformHostOfParamChange(int idx, double normalizedValue) = 0;
   virtual void EndInformHostOfParamChange(int idx) = 0;
   virtual void InformHostOfProgramChange() = 0;
+  void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
 
   virtual EHost GetHost() { return mHost; }
   virtual EAPI GetAPI() { return mAPI; }
@@ -106,6 +107,7 @@ public:
   virtual bool GetHasUI() { return mHasUI; }
   virtual int GetUIWidth() { return 0; }
   virtual int GetUIHeight() { return 0; }
+  virtual void* GetAAXViewInterface() { return nullptr; }
 
   // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics::AttachGraphics)
   virtual void OnGUICreated() {};
@@ -113,8 +115,6 @@ public:
   // Tell the host that the graphics resized.
   virtual void ResizeGraphics(int w, int h, double scale) = 0;
 
-  void EnsureDefaultPreset();
-  
   int NParamGroups() { return mParamGroups.GetSize(); }
   const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
   int AddParamGroup(const char* name) { mParamGroups.Add(name); return NParamGroups(); }
@@ -124,18 +124,6 @@ public:
 
   void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
   virtual void HostSpecificInit() {};
-
-  // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
-  void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
-  // MakePreset(name, param1, param2, ..., paramN)
-  void MakePreset(const char* name, ...);
-  // MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
-  // nParamsNamed may be less than the total number of params.
-  void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
-
-  // Use these methods with chunks-based plugins
-  void MakePresetFromChunk(const char* name, IByteChunk& chunk);
-  void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
 
   bool DoesStateChunks() { return mStateChunks; }
 
@@ -149,51 +137,6 @@ public:
   // Internal IPlug stuff (but API classes need to get at it).
 
   void OnParamReset(EParamSource source);  // Calls OnParamChange(each param) + OnReset().
-
-  void PruneUninitializedPresets();
-
-  // Unserialize / SerializePresets - Only used by VST2
-  bool SerializePresets(IByteChunk& chunk);
-  int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
-
-  void ModifyCurrentPreset(const char* name = 0); // Sets the currently active preset to whatever current params are.
-  int NPresets() { return mPresets.GetSize(); }
-  int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
-  bool RestorePreset(int idx);
-  bool RestorePreset(const char* name);
-  const char* GetPresetName(int idx);
-
-  virtual void* GetAAXViewInterface() { return nullptr; }
-
-  // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
-  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
-  void DumpPresetBlob(const char* file);
-  void DumpBankBlob(const char* file);
-
-  virtual void PresetsChangedByHost() {} // does nothing by default
-  void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
-
-  //VST2 Presets
-  bool SaveProgramAsFXP(const char* file);
-  bool SaveBankAsFXB(const char* file);
-  bool LoadProgramFromFXP(const char* file);
-  bool LoadBankFromFXB(const char* file);
-//  bool SaveBankAsFXPs(const char* path);
-
-//   VST3 format
-//   bool SaveProgramAsVSTPreset(const char* file);
-//   bool LoadProgramFromVSTPreset(const char* file);
-//   bool SaveBankAsVSTPresets(const char* path);
-//
-//   AU format
-//   bool SaveProgramAsAUPreset(const char* name, const char* file);
-//   bool LoadProgramFromAUPreset(const char* file);
-//   bool SaveBankAsAUPresets(const char* path);
-//
-//   ProTools format
-//   bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID);
-//   bool LoadProgramFromProToolsPreset(const char* file);
-//   bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID);
 
   virtual void PrintDebugInfo();
   
@@ -223,8 +166,6 @@ public:
   int mCurrentPresetIdx = 0;
 
   WDL_PtrList<IParam> mParams;
-  WDL_PtrList<IPreset> mPresets;
-
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
   WDL_String mParamDisplayStr = WDL_String("", MAX_PARAM_DISPLAY_LEN);

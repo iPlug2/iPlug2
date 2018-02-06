@@ -14,6 +14,7 @@ int VSTSpkrArrType(int nchan)
 IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIVST2)
   , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
+  , IPlugPresetHandler(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", c.effectName);

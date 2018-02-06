@@ -22,6 +22,7 @@ struct IPlugInstanceInfo
 */
 class IPlugVST : public IPLUG_BASE_CLASS
                , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugPresetHandler
 {
 public:
   IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig config);
