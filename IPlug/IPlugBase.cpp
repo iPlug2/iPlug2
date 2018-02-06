@@ -420,7 +420,7 @@ bool IPlugBase::SerializeParams(IByteChunk& chunk)
 int IPlugBase::UnserializeParams(IByteChunk& chunk, int startPos)
 {
   TRACE;
-  WDL_MutexLock lock(&mParams_mutex); 
+  LOCK_PARAMS_MUTEX;
   int i, n = mParams.GetSize(), pos = startPos;
   for (i = 0; i < n && pos >= 0; ++i)
   {
@@ -793,7 +793,7 @@ bool IPlugBase::LoadProgramFromFXP(const char* file)
       }
       else if (fxpMagic == 'FxCk')
       {
-        mParams_mutex.Enter();
+        ENTER_PARAMS_MUTEX;
         for (int i = 0; i< NParams(); i++)
         {
           WDL_EndianFloat v32;
@@ -801,7 +801,7 @@ bool IPlugBase::LoadProgramFromFXP(const char* file)
           v32.int32 = WDL_bswap_if_le(v32.int32);
           mParams.Get(i)->SetNormalized((double) v32.f);
         }
-        mParams_mutex.Leave();
+        LEAVE_PARAMS_MUTEX;
 
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
@@ -927,7 +927,7 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
 
           RestorePreset(i);
 
-          mParams_mutex.Enter();
+          ENTER_PARAMS_MUTEX;
           for (int j = 0; j< NParams(); j++)
           {
             WDL_EndianFloat v32;
@@ -935,7 +935,7 @@ bool IPlugBase::LoadBankFromFXB(const char* file)
             v32.int32 = WDL_bswap_if_le(v32.int32);
             mParams.Get(j)->SetNormalized((double) v32.f);
           }
-          mParams_mutex.Leave();
+          LEAVE_PARAMS_MUTEX;
 
           ModifyCurrentPreset(prgName);
         }
