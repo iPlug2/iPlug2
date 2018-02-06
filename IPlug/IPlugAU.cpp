@@ -1720,7 +1720,6 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     pInBus->mNHostChannels = -1;
     pInBus->mPlugChannelStartIdx = 0;
     pInBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kInput, bus));
-    
   }
   
   PtrListInitialize(&mOutBuses, maxNOBuses);
