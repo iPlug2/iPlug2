@@ -80,5 +80,5 @@ void IPlugBaseGraphics::PrintDebugInfo()
     
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
-  DBGMSG("%s\n%s Graphics %i FPS\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
+  DBGMSG("\n%s\n%s Graphics %i FPS\n--------------------------------------------------\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
 }
