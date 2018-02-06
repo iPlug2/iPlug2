@@ -43,7 +43,7 @@ public:
   //IPlugProcessor
   void ResizeGraphics(int w, int h, double scale) override;
   void SetLatency(int samples) override;
-  bool SendMidiMsg(IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
   
   // AudioEffect
   Steinberg::tresult PLUGIN_API initialize(FUnknown* context) override;
