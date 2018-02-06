@@ -1,3 +1,5 @@
+#ifndef NO_IGRAPHICS
+
 #import <Cocoa/Cocoa.h>
 #include "IGraphicsMac.h"
 
@@ -93,3 +95,5 @@ NSString* ToNSString(const char* cStr);
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 @end
+
+#endif //NO_IGRAPHICS

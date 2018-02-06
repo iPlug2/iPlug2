@@ -975,5 +975,5 @@ void IPlugBase::PrintDebugInfo()
 {
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
-  DBGMSG("%s\n NO_IGRAPHICS\n", buildInfo.Get());
+  DBGMSG("\n--------------------------------------------------\n%s\nNO_IGRAPHICS\n", buildInfo.Get());
 }

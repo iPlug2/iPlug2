@@ -11,10 +11,18 @@ IPlug uses preprocessor macros to select certain APIs and functionality at compi
 * SA_API
 * WAM_API
 * USE_IDLE_CALLS: if this is enabled as a preprocessor macro IPlug::OnIdle() will be called in VST2 plug-ins
+* IPLUG1_COMPATIBILITY: if you're upgrading an existing product, you should define this so that compatibility is maintained with your existing state
  
 ##IGraphics
 * GRAPHICS_SCALING: enables hi DPI graphics
-* NO_IGRAPHICS: define this to builder plug-in without IGraphics UI functionality
+* NO_IGRAPHICS: define this to build your plug-in without IGraphics UI functionality. you can also use it to quickly test the plug-in without interface:
+
+  `#ifdef NO_IGRAPHICS
+  IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
+  pGraphics->AttachPanelBackground(COLOR_GRAY);
+  ...#endif`
+
+
 * IGRAPHICS_LICE: (default) define this in order to build your plug-in using LICE as the drawing API
 * IGRAPHICS_CAIRO: define this in order to build your plug-in using CAIRO as the drawing API
 * IGRAPHICS_NANOVG: define this in order to build your plug-in using 9 avg as the drawing API

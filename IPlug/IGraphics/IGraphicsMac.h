@@ -1,20 +1,19 @@
 #pragma once
 
-//TODO: would be nice not to put this here
 #ifndef NO_IGRAPHICS
-  #ifdef IGRAPHICS_AGG
-    #include "IGraphicsAGG.h"
-    typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
-  #elif defined IGRAPHICS_CAIRO
-    #include "IGraphicsCairo.h"
-    typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
-  #elif defined IGRAPHICS_NANOVG
-    #include "IGraphicsNanoVG.h"
-    typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-  #else
-    #include "IGraphicsLice.h"
-    typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
-  #endif
+
+#ifdef IGRAPHICS_AGG
+  #include "IGraphicsAGG.h"
+  typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
+#elif defined IGRAPHICS_CAIRO
+  #include "IGraphicsCairo.h"
+  typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
+#elif defined IGRAPHICS_NANOVG
+  #include "IGraphicsNanoVG.h"
+  typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
+#else
+  #include "IGraphicsLice.h"
+  typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
 #endif
 
 /** IGraphics platform class for macOS  
@@ -92,3 +91,5 @@ inline int AdjustFontSize(int size) //TODO: sort this out
 {
   return int(0.9 * (double)size);
 }
+
+#endif // NO_IGRAPHICS

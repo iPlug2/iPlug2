@@ -21,6 +21,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
+#ifndef NO_IGRAPHICS
+  
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
@@ -80,6 +82,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //  pGraphics->ShowControlBounds(true);
 //  pGraphics->ShowAreaDrawn(true);
 
+#endif
   PrintDebugInfo();
 
   MakeDefaultPreset("-", kNumPrograms);

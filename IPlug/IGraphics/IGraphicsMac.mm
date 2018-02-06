@@ -1,3 +1,4 @@
+#ifndef NO_IGRAPHICS
 #include <Foundation/NSArchiver.h>
 #ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
@@ -586,7 +587,6 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
-#ifndef NO_IGRAPHICS
 #ifdef IGRAPHICS_AGG
 #include "IGraphicsAGG.cpp"
 #include "agg_mac_pmap.mm"
@@ -600,4 +600,5 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 #else
 #include "IGraphicsLice.cpp"
 #endif
-#endif
+
+#endif// NO_IGRAPHICS

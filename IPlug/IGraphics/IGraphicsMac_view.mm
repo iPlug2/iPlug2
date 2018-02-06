@@ -1,3 +1,5 @@
+#ifndef NO_IGRAPHICS
+
 #import "IGraphicsMac_view.h"
 
 @implementation IGRAPHICS_MENU_RCVR
@@ -662,5 +664,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return YES;
 }
 
-
 @end
+
+#endif //NO_IGRAPHICS
