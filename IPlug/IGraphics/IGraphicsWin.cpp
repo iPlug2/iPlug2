@@ -17,6 +17,46 @@ static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
+#define IPLUG_WIN_MAX_WIDE_PATH 4096
+
+// Unicode helpers
+
+
+void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+{
+	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+
+	if (requiredSize > 0 && requiredSize <= maxLen)
+	{
+		MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
+		return;
+	}
+
+	utf16Str[0] = 0;
+}
+
+void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+{
+	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
+
+	if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+	{
+		WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+		return;
+	}
+
+	utf8Str.Set("");
+}
+
+// Helper for getting a known folder in UTF8
+
+void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+{
+	wchar_t wideBuffer[1024];
+
+	SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
+	UTF16ToUTF8(path, wideBuffer);
+}
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -778,7 +818,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 
     if (menuItem->GetIsSeparator())
     {
-      AppendMenu (hMenu, MF_SEPARATOR, 0, 0);
+      AppendMenu(hMenu, MF_SEPARATOR, 0, 0);
     }
     else
     {
@@ -974,37 +1014,23 @@ void IGraphicsWin::PluginPath(WDL_String& path)
 
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
-  TCHAR strPath[MAX_WIN32_PATH_LEN];
-  SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
-  path.Set(strPath, MAX_WIN32_PATH_LEN);
+  GetKnownFolder(path, CSIDL_DESKTOP);
 }
 
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_WIN32_PATH_LEN];
-
-  if (isSystem)
-    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-  else
-    SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
-
-  path.Set(strPath, MAX_WIN32_PATH_LEN);
+  GetKnownFolder(path, isSystem ? CSIDL_COMMON_APPDATA : CSIDL_LOCAL_APPDATA);
 }
 
 void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_WIN32_PATH_LEN];
-
   if (!isSystem)
   {
-    TCHAR strPath[MAX_WIN32_PATH_LEN];
-    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
-    path.Set(strPath, MAX_WIN32_PATH_LEN);
+    GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
   }
   else
   {
-    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-    path.Set(strPath, MAX_WIN32_PATH_LEN);
+    AppSupportPath(path, true);
   }
 
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrName(), mPlug.GetProductName());
@@ -1016,8 +1042,9 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   
   if (path.GetLength())
   {
-    TCHAR winDir[MAX_PATH];
-    UINT len = GetSystemDirectory(winDir, MAX_PATH);
+    WCHAR winDir[IPLUG_WIN_MAX_WIDE_PATH];
+	WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
+    UINT len = GetSystemDirectoryW(winDir, IPLUG_WIN_MAX_WIDE_PATH);
     
     if (len || !(len > MAX_PATH - 2))
     {
@@ -1033,9 +1060,10 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       explorerParams.Append(path.Get());
       explorerParams.Append("\\\"");
       
+	  UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
       HINSTANCE result;
       
-      if ((result=::ShellExecute(NULL, "open", "explorer.exe", (const TCHAR*)explorerParams.Get(), winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
+      if ((result=::ShellExecuteW(NULL, L"open", L"explorer.exe", explorerWide, winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
         success = true;
     }
   }
@@ -1051,101 +1079,100 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     filename.Set("");
     return;
   }
-
-  char fnCStr[MAX_WIN32_PATH_LEN];
-  char dirCStr[MAX_WIN32_PATH_LEN];
-
+    
+  wchar_t fnCStr[_MAX_PATH];
+  wchar_t dirCStr[_MAX_PATH];
+    
   if (filename.GetLength())
-    strcpy(fnCStr, filename.Get());
+    UTF8ToUTF16(fnCStr, filename.Get(), _MAX_PATH);
   else
     fnCStr[0] = '\0';
-
+    
   dirCStr[0] = '\0';
-
+    
   if (!path.GetLength())
-  {
     DesktopPath(path);
-  }
-
-  strcpy(dirCStr, path.Get());
-
-  OPENFILENAME ofn;
-  memset(&ofn, 0, sizeof(OPENFILENAME));
-
-  ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.hwndOwner = mPlugWnd;
+    
+  UTF8ToUTF16(dirCStr, path.Get(), _MAX_PATH);
+    
+  OPENFILENAMEW ofn;
+  memset(&ofn, 0, sizeof(OPENFILENAMEW));
+    
+  ofn.lStructSize = sizeof(OPENFILENAMEW);
+  ofn.hwndOwner = GetWindow();
   ofn.lpstrFile = fnCStr;
-  ofn.nMaxFile = MAX_WIN32_PATH_LEN - 1;
+  ofn.nMaxFile = _MAX_PATH - 1;
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
-
+    
   if (CSTR_NOT_EMPTY(extensions))
   {
-    char extStr[256];
-    char defExtStr[16];
+    wchar_t extStr[256];
+    wchar_t defExtStr[16];
     int i, p, n = strlen(extensions);
     bool seperator = true;
-
+        
     for (i = 0, p = 0; i < n; ++i)
     {
       if (seperator)
       {
         if (p)
-        {
           extStr[p++] = ';';
-        }
+                
         seperator = false;
         extStr[p++] = '*';
         extStr[p++] = '.';
       }
 
       if (extensions[i] == ' ')
-      {
         seperator = true;
-      }
       else
-      {
         extStr[p++] = extensions[i];
-      }
     }
     extStr[p++] = '\0';
-
-    strcpy(&extStr[p], extStr);
+        
+    wcscpy(&extStr[p], extStr);
     extStr[p + p] = '\0';
     ofn.lpstrFilter = extStr;
-
+        
     for (i = 0, p = 0; i < n && extensions[i] != ' '; ++i)
-    {
       defExtStr[p++] = extensions[i];
-    }
-
+    
     defExtStr[p++] = '\0';
     ofn.lpstrDefExt = defExtStr;
   }
-
+    
   bool rc = false;
+    
   switch (action)
   {
     case kFileSave:
       ofn.Flags |= OFN_OVERWRITEPROMPT;
-      rc = GetSaveFileName(&ofn);
+      rc = GetSaveFileNameW(&ofn);
       break;
-
+            
     case kFileOpen:
-    default:
+      default:
       ofn.Flags |= OFN_FILEMUSTEXIST;
-      rc = GetOpenFileName(&ofn);
+      rc = GetOpenFileNameW(&ofn);
       break;
   }
-
+    
   if (rc)
   {
     char drive[_MAX_DRIVE];
-    if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
+    char directoryOutCStr[_MAX_PATH];
+    
+    WDL_String tempUTF8;
+    UTF16ToUTF8(tempUTF8, ofn.lpstrFile);
+    
+    if (_splitpath_s(tempUTF8.Get(), drive, sizeof(drive), directoryOutCStr, sizeof(directoryOutCStr), NULL, 0, NULL, 0) == 0)
     {
-      path.SetFormatted(MAX_WIN32_PATH_LEN, "%s%s", drive, dirCStr);
+      path.Set(drive);
+      path.Append(directoryOutCStr);
     }
-    filename.Set(ofn.lpstrFile);
+      
+    filename.Set(tempUTF8);
   }
   else
   {
@@ -1206,7 +1233,9 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   DWORD inetStatus = 0;
   if (InternetGetConnectedState(&inetStatus, 0))
   {
-    if ((int) ShellExecute(mPlugWnd, "open", url, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+	WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
+	UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
+    if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
     {
       return true;
     }
