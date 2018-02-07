@@ -81,4 +81,11 @@ void IPlugBaseGraphics::PrintDebugInfo()
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
   DBGMSG("\n%s\n%s Graphics %i FPS\n--------------------------------------------------\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
+
+#if defined TRACER_BUILD && !defined TRACE_TO_STDOUT
+  WDL_String pHomePath;
+  mGraphics->UserHomePath(pHomePath);
+  DBGMSG("Location of the Tracer Build Log: \n%s/%s\n\n", pHomePath.Get(), LOGFILE);
+#endif
+  
 }
