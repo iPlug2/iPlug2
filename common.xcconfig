@@ -42,7 +42,7 @@ PKG_MAN_PATH = /usr/local/
 WDL_PATH = $(SRCROOT)/../../../WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(SRCROOT)/../../../IPlug
-
+RTAUDIOMIDI_PATH = $(IPLUG_PATH)/APP/RTAudioMidi
 //this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
 
