@@ -10,7 +10,8 @@ CERTIFICATE_ID = Oliver Larkin
 COMPILER = com.apple.compilers.llvm.clang.1_0
 
 // which osx sdk to compile against - BASE_SDK rather than SDKROOT so we can override other xcconfigs (avid's)
-BASE_SDK = macosx10.13
+BASE_SDK = macosx // this will make it compile against the latest if decay you have available (recommended)
+//BASE_SDK = macosx10.13
 
 CLANG_CXX_LANGUAGE_STANDARD = c++11
 CLANG_CXX_LIBRARY = libc++
