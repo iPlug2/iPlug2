@@ -150,7 +150,7 @@ enum EAPI
   kAPIAU = 2,
   kAPIAUv3 = 3,
   kAPIAAX = 4,
-  kAPISA = 5
+  kAPIAPP = 5
 };
 
 /** @enum EHost
