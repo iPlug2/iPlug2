@@ -103,12 +103,15 @@ protected:
   IParam* mIPlugParam;
 };
 
-#pragma - IPlugVST3 Constructor
+#pragma mark - IPlugVST3 Constructor
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+, IPlugPresetHandler(c, kAPIVST3)
 {
+  AttachPresetHandler(this);
+
   SetInputChannelConnections(0, NInChannels(), true);
   SetOutputChannelConnections(0, NOutChannels(), true);
   

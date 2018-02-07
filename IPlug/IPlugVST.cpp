@@ -19,6 +19,8 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   Trace(TRACELOC, "%s", c.effectName);
 
+  AttachPresetHandler(this);
+
   mHasVSTExtensions = VSTEXT_NONE;
 
   int nInputs = NInChannels(), nOutputs = NOutChannels();

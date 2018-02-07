@@ -24,38 +24,38 @@ static double sFPS = 0.0;
 
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
 {
-	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
 
-	if (requiredSize > 0 && requiredSize <= maxLen)
-	{
-		MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-		return;
-	}
+  if (requiredSize > 0 && requiredSize <= maxLen)
+  {
+    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
+    return;
+  }
 
-	utf16Str[0] = 0;
+  utf16Str[0] = 0;
 }
 
 void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
 {
-	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
+  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
 
-	if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
-	{
-		WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
-		return;
-	}
+  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+  {
+    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    return;
+  }
 
-	utf8Str.Set("");
+  utf8Str.Set("");
 }
 
 // Helper for getting a known folder in UTF8
 
 void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 {
-	wchar_t wideBuffer[1024];
+  wchar_t wideBuffer[1024];
 
-	SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
-	UTF16ToUTF8(path, wideBuffer);
+  SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
+  UTF16ToUTF8(path, wideBuffer);
 }
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
@@ -64,14 +64,14 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
   info.x = mMouseX = GET_X_LPARAM(lParam) / GetScale();
   info.y = mMouseY = GET_Y_LPARAM(lParam) / GetScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON),
-	  (wParam & MK_RBUTTON),
-	  (wParam & MK_SHIFT),
-	  (wParam & MK_CONTROL),
+    (wParam & MK_RBUTTON),
+    (wParam & MK_SHIFT),
+    (wParam & MK_CONTROL),
 
 #ifdef AAX_API
-	  GetAsyncKeyState(VK_MENU) < 0
+    GetAsyncKeyState(VK_MENU) < 0
 #else
-	  GetKeyState(VK_MENU) < 0
+    GetKeyState(VK_MENU) < 0
 #endif
       );
   return info;
@@ -207,7 +207,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-	{
+  {
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
@@ -226,7 +226,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
-		if (pGraphics->OnMouseOver(info.x, info.y, info.ms))
+    if (pGraphics->OnMouseOver(info.x, info.y, info.ms))
         {
           TRACKMOUSEEVENT eventTrack = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hWnd, HOVER_DEFAULT };
           if (pGraphics->TooltipsEnabled()) 
@@ -1043,7 +1043,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   if (path.GetLength())
   {
     WCHAR winDir[IPLUG_WIN_MAX_WIDE_PATH];
-	WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
+  WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
     UINT len = GetSystemDirectoryW(winDir, IPLUG_WIN_MAX_WIDE_PATH);
     
     if (len || !(len > MAX_PATH - 2))
@@ -1060,7 +1060,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       explorerParams.Append(path.Get());
       explorerParams.Append("\\\"");
       
-	  UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
+    UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
       HINSTANCE result;
       
       if ((result=::ShellExecuteW(NULL, L"open", L"explorer.exe", explorerWide, winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
@@ -1233,8 +1233,8 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   DWORD inetStatus = 0;
   if (InternetGetConnectedState(&inetStatus, 0))
   {
-	WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
-	UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
+  WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
+  UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
     if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
     {
       return true;

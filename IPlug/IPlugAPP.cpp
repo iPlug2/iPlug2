@@ -5,9 +5,12 @@
 extern HWND gHWND;
 
 IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPLUG_BASE_CLASS(c, kAPISA)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPISA)
+: IPLUG_BASE_CLASS(c, kAPIAPP)
+, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
+, IPlugPresetHandler(c, kAPIAPP)
 {
+  AttachPresetHandler(this);
+
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
   SetInputChannelConnections(0, NInChannels(), true);

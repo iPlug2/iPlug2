@@ -18,7 +18,6 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
-  AttachPresetHandler(this);
   
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 

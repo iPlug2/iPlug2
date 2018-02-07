@@ -14,8 +14,6 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   , mIsInstrument(c.plugIsInstrument)
   , mDoesMIDI(c.plugDoesMidi)
 {
-  Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
-
   int totalNInChans, totalNOutChans;
 
   ParseChannelIOStr(c.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, mMaxNInBuses, mMaxNOutBuses);

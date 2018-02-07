@@ -28,7 +28,12 @@ public:
   IPlugPresetHandler(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugPresetHandler();
 
-  void AttachPresetHandler(void* pPlug) { mPlug = pPlug; }
+  /**
+   Called by API class in order to attach this.
+   
+   @param pPlug pointer to the API class
+   */
+  void AttachPresetHandler(void* pPlug) { mPlugBase = pPlug; }
   
   virtual void PresetsChangedByHost() {} // does nothing by default
 
@@ -90,6 +95,6 @@ public:
 
   int mCurrentPresetIdx = 0;
 
-  void* mPlug = nullptr;
+  void* mPlugBase = nullptr;
   WDL_PtrList<IPreset> mPresets;
 };

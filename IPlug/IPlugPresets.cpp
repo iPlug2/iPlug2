@@ -8,7 +8,7 @@
 
 #include "IPlugBase_select.h"
 
-#define GETPLUG static_cast<IPLUG_BASE_CLASS*>(mPlug)
+#define GETPLUG static_cast<IPLUG_BASE_CLASS*>(mPlugBase)
 
 IPlugPresetHandler::IPlugPresetHandler(IPlugConfig c, EAPI plugAPI)
 {
