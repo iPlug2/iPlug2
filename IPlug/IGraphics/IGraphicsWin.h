@@ -45,11 +45,12 @@ public:
   void CloseWindow() override;
   bool WindowIsOpen() override { return (mPlugWnd); }
   
-  void UpdateTooltips() {}
+  void UpdateTooltips() override {}
 
   void HostPath(WDL_String& path) override;
   void PluginPath(WDL_String& path) override;
   void DesktopPath(WDL_String& path) override;
+  void UserHomePath(WDL_String& path) override;
   void AppSupportPath(WDL_String& path, bool isSystem) override;
   void SandboxSafeAppSupportPath(WDL_String& path) override { AppSupportPath(path, false); }
   void VST3PresetsPath(WDL_String& path, bool isSystem) override;
@@ -66,8 +67,8 @@ public:
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
 
-  void* GetWindow() { return mPlugWnd; }
-  HWND GetParentWindow() { return mParentWnd; }
+  void* GetWindow() override { return mPlugWnd; }
+  HWND GetParentWindow() const { return mParentWnd; }
   HWND GetMainWnd();
   void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
 //  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
@@ -76,7 +77,7 @@ public:
 
   const char* GetGUIAPI() override { return "win32"; };
   
-  bool GetTextFromClipboard(WDL_String& str);
+  bool GetTextFromClipboard(WDL_String& str) override;
   
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 protected:

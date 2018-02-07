@@ -143,7 +143,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
                 if ( type == IParam::kTypeEnum || type == IParam::kTypeBool)
                 {
-                  int vi = 0;
+                  double vi = 0.;
                   pGraphics->mEdParam->MapDisplayText(txt, &vi);
                   v = (double) vi;
                 }
@@ -159,7 +159,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
               }
               else
               {
-                pGraphics->mEdControl->TextFromTextEntry(txt);
+                pGraphics->mEdControl->OnTextEntryCompletion(txt);
               }
               // Fall through.
             }
@@ -1017,6 +1017,11 @@ void IGraphicsWin::DesktopPath(WDL_String& path)
   GetKnownFolder(path, CSIDL_DESKTOP);
 }
 
+void IGraphicsWin::UserHomePath(WDL_String & path)
+{
+  GetKnownFolder(path, CSIDL_PROFILE);
+}
+
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
   GetKnownFolder(path, isSystem ? CSIDL_COMMON_APPDATA : CSIDL_LOCAL_APPDATA);
@@ -1099,7 +1104,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   memset(&ofn, 0, sizeof(OPENFILENAMEW));
     
   ofn.lStructSize = sizeof(OPENFILENAMEW);
-  ofn.hwndOwner = GetWindow();
+  ofn.hwndOwner = (HWND) GetWindow();
   ofn.lpstrFile = fnCStr;
   ofn.nMaxFile = _MAX_PATH - 1;
   ofn.lpstrInitialDir = dirCStr;
@@ -1172,7 +1177,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
       path.Append(directoryOutCStr);
     }
       
-    filename.Set(tempUTF8);
+    filename.Set(tempUTF8.Get());
   }
   else
   {

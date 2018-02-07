@@ -277,6 +277,8 @@
     <ClInclude Include="..\..\..\ASIO_SDK\iasiodrv.h" />
     <ClInclude Include="..\..\..\ASIO_SDK\iasiothiscallresolver.h" />
     <ClInclude Include="..\..\..\ASIO_SDK\soundcard.h" />
+    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.h" />
+    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IAutoGUI.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h" />
@@ -351,13 +353,13 @@
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPresets.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
-    <ClInclude Include="..\..\..\IPlug\rtaudiomidi\RtAudio.h" />
-    <ClInclude Include="..\..\..\IPlug\rtaudiomidi\RtMidi.h" />
     <ClInclude Include="..\app_wrapper\app_main.h" />
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\IPlugEffect.h" />
@@ -368,6 +370,8 @@
     <ClCompile Include="..\..\..\ASIO_SDK\asiodrivers.cpp" />
     <ClCompile Include="..\..\..\ASIO_SDK\asiolist.cpp" />
     <ClCompile Include="..\..\..\ASIO_SDK\iasiothiscallresolver.cpp" />
+    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.cpp" />
+    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp" />
@@ -424,8 +428,10 @@
     <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
-    <ClCompile Include="..\..\..\IPlug\rtaudiomidi\RtAudio.cpp" />
-    <ClCompile Include="..\..\..\IPlug\rtaudiomidi\RtMidi.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\app_wrapper\app_dialog.cpp" />
     <ClCompile Include="..\app_wrapper\app_main.cpp" />
     <ClCompile Include="..\IPlugEffect.cpp" />

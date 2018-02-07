@@ -29,12 +29,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\rtaudiomidi\RtAudio.cpp">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\rtaudiomidi\RtMidi.cpp">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
@@ -66,6 +60,18 @@
       <Filter>IPlug\APP</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.cpp">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.cpp">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
   </ItemGroup>
@@ -144,12 +150,6 @@
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\rtaudiomidi\RtAudio.h">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\rtaudiomidi\RtMidi.h">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
@@ -202,6 +202,18 @@
       <Filter>IPlug\APP</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.h">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.h">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
       <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>

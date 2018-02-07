@@ -8,6 +8,10 @@
 
 #include "IPlugProcessor.h"
 
+#ifdef OS_WIN
+#define strtok_r strtok_s
+#endif
+
 template<typename sampleType>
 IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   : mLatency(c.latency)
