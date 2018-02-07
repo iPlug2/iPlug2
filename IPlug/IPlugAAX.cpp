@@ -241,7 +241,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
 
 void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
 {
-  TRACE_PROCESS;
+  TRACE;
 
   // Get bypass parameter value
   bool bypass;

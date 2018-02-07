@@ -1,5 +1,11 @@
 #pragma once
 
+/**
+ * @file
+ * @brief Constant definitions, magic numbers
+ */
+
+
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
 #define SAMPLE_TYPE_DOUBLE
 #endif
@@ -14,10 +20,9 @@ typedef double PLUG_SAMPLE_SRC;
 
 typedef PLUG_SAMPLE_DST sample;
 
-/**
- * @file
- * @brief Constant definitions, magic numbers
- */
+#define LOGFILE "IPlugLog.txt"
+#define MAX_PROCESS_TRACE_COUNT 100
+#define MAX_IDLE_TRACE_COUNT 15
 
 enum EIPlugKeyCodes
 {

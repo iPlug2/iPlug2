@@ -319,7 +319,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
-  TRACE_PROCESS;
+  TRACE;
 
   if(data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));

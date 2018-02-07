@@ -618,6 +618,13 @@ public:
   
   /**
    /todo <#Description#>
+   
+   @param path <#path description#>
+   */
+  virtual void UserHomePath(WDL_String& path) = 0;
+
+  /**
+   /todo <#Description#>
 
    @param path <#path description#>
    @param isSystem <#isSystem description#>

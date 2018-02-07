@@ -19,62 +19,38 @@
 #include "wdlstring.h"
 #include "mutex.h"
 
+#include "IPlugConstants.h"
 #include "IPlugUtilities.h"
 
 #ifdef NDEBUG
   #define DBGMSG(...)
 #else
-  #if defined OS_WIN
-    void DBGMSG(const char *format, ...);
-  #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+  #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
     #define DBGMSG(...) printf(__VA_ARGS__)
+  #elif defined OS_WIN
+    void DBGMSG(const char *format, ...);
   #endif
 #endif
 
 #if defined TRACER_BUILD
-    #define TRACE Trace(TRACELOC, "");
-    //#define TRACE_PROCESS Trace(TRACELOC, ""); // uncomment this to trace render callback methods
-    #define TRACE_PROCESS // (and comment out this)
+  #define TRACE Trace(TRACELOC, "");
 
-    #if defined OS_WIN
-      #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-    #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
-      #define SYS_THREAD_ID (intptr_t) pthread_self()
-    #endif
+  #if defined OS_WIN
+    #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
+  #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+    #define SYS_THREAD_ID (intptr_t) pthread_self()
+  #endif
 
   #else
     #define TRACE
-    #define TRACE_PROCESS
   #endif
 
   #define TRACELOC __FUNCTION__,__LINE__
   static void Trace(const char* funcName, int line, const char* fmtStr, ...);
-  #define TraceProcess Trace
-
-  struct Timer
-  {
-    unsigned long mT;
-    
-    Timer()
-    {
-      mT = clock();
-    }
-    
-    bool Every(double sec)
-    {
-      if (clock() - mT > sec * CLOCKS_PER_SEC)
-      {
-        mT = clock();
-        return true;
-      }
-      return false;
-    };
-  };
 
   #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
 
-  #ifdef OS_WIN
-  #define LOGFILE "C:\\IPlugLog.txt" // TODO: FIX: what if no write permissions?
+#ifdef OS_WIN
   static void DBGMSG(const char *format, ...)
   {
     char buf[4096], *p = buf;
@@ -96,10 +72,7 @@
     
     OutputDebugString(buf);
   }
-
-  #else // macOS
-  #define LOGFILE "IPlugLog.txt"
-  #endif
+#endif
 
   struct LogFile
   {
@@ -107,13 +80,13 @@
     
     LogFile()
     {
-  #ifdef OS_WIN
-      mFP = fopen(LOGFILE, "w");
-  #else
       char logFilePath[100];
+  #ifdef OS_WIN
+      sprintf(logFilePath, "%s/%s", "C:\\", LOGFILE); // TODO: check windows logFilePath
+  #else
       sprintf(logFilePath, "%s/%s", getenv("HOME"), LOGFILE);
-      mFP = fopen(logFilePath, "w");
   #endif
+      mFP = fopen(logFilePath, "w");
       assert(mFP);
     }
     
@@ -131,6 +104,7 @@
 
   static const char* CurrentTime()
   {
+    //    TODO: replace with std::chrono based version
     time_t t = time(0);
     tm* pT = localtime(&t);
     
@@ -158,25 +132,20 @@
     return sTimeStr;
   }
 
-  static void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr)
-  {
-    pStr->Set("[");
-    pStr->Append(Mmm_dd_yyyy);
-    pStr->SetLen(7);
-    pStr->DeleteSub(4, 1);
-    pStr->Append(" ");
-    pStr->Append(hh_mm_ss);
-    pStr->SetLen(12);
-    pStr->Append("]");
-  }
-
   static const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr)
   {
     static WDL_String str;
     str.Set(cStr);
-    WDL_String tStr;
-    CompileTimestamp(Mmm_dd_yyyy, hh_mm_ss, &tStr);
     str.Append(" ");
+    WDL_String tStr;
+    tStr.Set("[");
+    tStr.Append(Mmm_dd_yyyy);
+    tStr.SetLen(7);
+    tStr.DeleteSub(4, 1);
+    tStr.Append(" ");
+    tStr.Append(hh_mm_ss);
+    tStr.SetLen(12);
+    tStr.Append("]");
     str.Append(tStr.Get());
     return str.Get();
   }
@@ -224,6 +193,9 @@
   void Trace(const char* funcName, int line, const char* format, ...)
   {
     static int sTrace = 0;
+    static int32_t sProcessCount = 0;
+    static int32_t sIdleCount = 0;
+
     if (sTrace++ < MAX_LOG_LINES)
     {
   #ifndef TRACETOSTDOUT
@@ -235,14 +207,49 @@
       VARARGS_TO_STR(str);
       
   #ifdef TRACETOSTDOUT
-  #ifdef OS_WIN
       DBGMSG("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
   #else
-      printf("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
-  #endif
-  #else
       WDL_MutexLock lock(&sLogMutex);
-      fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+      intptr_t threadID = GetOrdinalThreadID(SYS_THREAD_ID);
+      
+      if(strstr(funcName, "rocess") || strstr(funcName, "ender")) // These are not typos! by excluding the first character, we can use TRACE; in methods called ProcessXXX or process etc.
+      {
+        if(++sProcessCount > MAX_PROCESS_TRACE_COUNT)
+        {
+          fflush(sLogFile.mFP);
+          return;
+        }
+        else if (sProcessCount == MAX_PROCESS_TRACE_COUNT)
+        {
+          fprintf(sLogFile.mFP, "**************** DISABLING PROCESS TRACING AFTER %d HITS ****************\n\n", sProcessCount);
+          fflush(sLogFile.mFP);
+          return;
+        }
+      }
+      
+#ifdef VST_API
+      if(strstr(str, "effEditGetRect") || strstr(funcName, "MouseOver"))
+#else
+      if(strstr(funcName, "MouseOver") || strstr(funcName, "idle"))
+#endif
+      {
+        if(++sIdleCount > MAX_IDLE_TRACE_COUNT)
+        {
+          fflush(sLogFile.mFP);
+          return;
+        }
+        else if (sIdleCount == MAX_IDLE_TRACE_COUNT)
+        {
+          fprintf(sLogFile.mFP, "**************** DISABLING IDLE/MOUSEOVER TRACING AFTER %d HITS ****************\n", sIdleCount);
+          fflush(sLogFile.mFP);
+          return;
+        }
+      }
+      
+      if (threadID > 0)
+        fprintf(sLogFile.mFP, "*** -");
+      
+      fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", threadID, funcName, line, str);
       fflush(sLogFile.mFP);
   #endif
     }
@@ -614,27 +621,10 @@
   #endif // AU_API
 
 #else // TRACER_BUILD
-
   static void Trace(const char* funcName, int line, const char* format, ...) {}
-
-  static const char* VSTOpcodeStr(int opCode)
-  {
-    return "";
-  }
-
-  static const char* AUSelectStr(int select)
-  {
-    return "";
-  }
-
-  static const char* AUPropertyStr(int propID)
-  {
-    return "";
-  }
-
-  static const char* AUScopeStr(int scope)
-  {
-    return "";
-  }
+static const char* VSTOpcodeStr(int opCode) { return ""; }
+  static const char* AUSelectStr(int select) { return ""; }
+  static const char* AUPropertyStr(int propID) { return ""; }
+  static const char* AUScopeStr(int scope) { return ""; }
 #endif // !TRACER_BUILD
 

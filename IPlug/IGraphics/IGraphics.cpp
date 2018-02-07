@@ -595,6 +595,9 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
+        x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
+  
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -652,6 +655,9 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
+  Trace("IGraphics::OnMouseUp", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
+        x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
+
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -676,6 +682,9 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
+  Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
+        x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
+  
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -703,6 +712,8 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 //TODO: if control Rect is the same as IGraphicsBounds, this doesn't fire
 void IGraphics::OnMouseOut()
 {
+  Trace("IGraphics::OnMouseDblClick", __LINE__, "");
+  
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
@@ -715,6 +726,9 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
+  Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
+        x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
+
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -730,6 +744,9 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
 bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
+  Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
+        x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
+  
   ReleaseMouseCapture();
   bool newCapture = false;
   int c = GetMouseControlIdx(x, y);
@@ -766,6 +783,9 @@ void IGraphics::ReleaseMouseCapture()
 
 bool IGraphics::OnKeyDown(float x, float y, int key)
 {
+  Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
+        x, y, key);
+  
   int c = GetMouseControlIdx(x, y);
   if (c > 0)
     return mControls.Get(c)->OnKeyDown(x, y, key);
@@ -912,6 +932,8 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 
 void IGraphics::OnGUIIdle()
 {
+  TRACE;
+  
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
