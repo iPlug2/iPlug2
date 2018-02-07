@@ -365,6 +365,12 @@ void IGraphicsMac::DesktopPath(WDL_String& path)
   path.Set([pDesktopDirectory UTF8String]);
 }
 
+void IGraphicsMac::UserHomePath(WDL_String& path)
+{
+  NSString* pHomeDir = NSHomeDirectory();
+  path.Set([pHomeDir UTF8String]);
+}
+
 void IGraphicsMac::VST3PresetsPath(WDL_String& path, bool isSystem)
 {
   NSArray* pPaths;

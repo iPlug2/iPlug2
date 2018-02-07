@@ -50,6 +50,7 @@ public:
   void HostPath(WDL_String& path) override;
   void PluginPath(WDL_String& path) override;
   void DesktopPath(WDL_String& path) override;
+  void UserHomePath(WDL_String& path) override;
   void AppSupportPath(WDL_String& path, bool isSystem) override;
   void SandboxSafeAppSupportPath(WDL_String& path) override;
   void VST3PresetsPath(WDL_String& path, bool isSystem) override;
