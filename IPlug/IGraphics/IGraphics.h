@@ -174,6 +174,31 @@ public:
   void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
   
+  // Path Support
+    
+  virtual bool HasPathSupport() const { return false; }
+    
+  virtual void PathStart() {}
+
+  void PathLine(float x1, float y1, float x2, float y2)
+  {
+    PathMoveTo(x1, y1);
+    PathLineTo(x2, y2);
+  }
+    
+  virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
+  virtual void PathRect(const IRECT& rect) {}
+  virtual void PathRoundRect(const IRECT& rect, float cr = 5.f) {}
+  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
+  virtual void PathCircle(float cx, float cy, float r) {}
+  virtual void PathConvexPolygon(float* x, float* y, int npoints) {}
+    
+  virtual void PathMoveTo(float x, float y) {}
+  virtual void PathLineTo(float x, float y) {}
+    
+  virtual void PathStroke(const IColor& color, float thickness, const IBlend* pBlend = 0) {}
+  virtual void PathFill(const IColor& color, const IBlend* pBlend = 0) {}
+    
   /**
    Helper function to draw a radial line, useful for pointers on dials
 

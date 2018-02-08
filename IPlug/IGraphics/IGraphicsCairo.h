@@ -59,6 +59,29 @@ public:
   void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
 
+  bool HasPathSupport() const override { return true; }
+    
+  void PathStart() override { cairo_new_path(mContext); }
+    
+  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { CairoDrawTriangle(x1, y1, x2, y2, x3, y3); }
+  void PathRect(const IRECT& rect) override { CairoDrawRect(rect);}
+  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { CairoDrawRoundRect(rect, cr); }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
+  void PathCircle(float cx, float cy, float r) override { CairoDrawCircle(cx, cy, r); }
+  void PathConvexPolygon(float* x, float* y, int npoints) override { CairoDrawConvexPolygon(x, y, npoints); }
+    
+  void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
+  void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
+    
+  void PathStroke(const IColor& color, float thickness, const IBlend* pBlend = 0) override
+  {
+    cairo_set_line_width(mContext, thickness);
+    Stroke(color, pBlend);
+    cairo_set_line_width(mContext, 1.0);
+  }
+    
+  void PathFill(const IColor& color, const IBlend* pBlend = 0) override { Fill(color, pBlend); }
+    
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mContext; }
 
