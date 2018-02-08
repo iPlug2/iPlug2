@@ -73,7 +73,7 @@ public:
   
   int NDisplayTexts() const;
   const char* GetDisplayText(int value) const;
-  const char* GetDisplayTextAtIdx(int idx, double* value = nullptr) const;
+  const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* pStr, double* pValue) const;  // Reverse map back to value.
   
   double GetShape() const { return mShape; }

@@ -63,13 +63,13 @@ void IParam::SetShape(double shape)
     mShape = shape;
 }
 
-void IParam::SetDisplayText(double value, const char* text)
+void IParam::SetDisplayText(double value, const char* str)
 {
   int n = mDisplayTexts.GetSize();
   mDisplayTexts.Resize(n + 1);
   DisplayText* pDT = mDisplayTexts.Get() + n;
   pDT->mValue = value;
-  strcpy(pDT->mText, text);
+  strcpy(pDT->mText, str);
 }
 
 double IParam::DBToAmp() const
@@ -213,17 +213,17 @@ bool IParam::MapDisplayText(const char* str, double* pValue) const
   return false;
 }
 
-double IParam::StringToValue(const char* ptr)
+double IParam::StringToValue(const char* str)
 {
-  double v = 0;
+  double v = 0.;
   bool mapped = (bool) NDisplayTexts();
   
   if (mapped)
-    mapped = MapDisplayText(ptr, &v);
+    mapped = MapDisplayText(str, &v);
   
   if (!mapped && Type() != kTypeEnum && Type() != kTypeBool)
   {
-    v = atof(ptr);
+    v = atof(str);
     
     if (GetDisplayIsNegated())
       v = -v;
