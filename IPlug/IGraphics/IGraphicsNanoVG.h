@@ -100,7 +100,8 @@ public:
   bool HasPathSupport() const override { return true; }
     
   void PathStart() override { nvgBeginPath(mVG); }
-    
+  void PathClose() override { nvgClosePath(mVG); }
+
   void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { NVGDrawTriangle(x1, y1, x2, y2, x3, y3); }
   void PathRect(const IRECT& rect) override { nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H()); }
   void PathRoundRect(const IRECT& rect, float cr = 5.f) override { nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr); }

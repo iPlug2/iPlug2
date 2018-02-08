@@ -179,6 +179,7 @@ public:
   virtual bool HasPathSupport() const { return false; }
     
   virtual void PathStart() {}
+  virtual void PathClose() {}
 
   void PathLine(float x1, float y1, float x2, float y2)
   {

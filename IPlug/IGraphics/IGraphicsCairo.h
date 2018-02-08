@@ -62,7 +62,8 @@ public:
   bool HasPathSupport() const override { return true; }
     
   void PathStart() override { cairo_new_path(mContext); }
-    
+  void PathClose() override { cairo_close_path(mContext); }
+
   void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { CairoDrawTriangle(x1, y1, x2, y2, x3, y3); }
   void PathRect(const IRECT& rect) override { CairoDrawRect(rect);}
   void PathRoundRect(const IRECT& rect, float cr = 5.f) override { CairoDrawRoundRect(rect, cr); }
