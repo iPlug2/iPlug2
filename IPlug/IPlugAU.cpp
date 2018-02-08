@@ -20,6 +20,7 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
       APIBusTypes->Add(kAudioChannelLayoutTag_Mono);
       break;
     case 2:
+      APIBusTypes->Add(kAudioChannelLayoutTag_Binaural);
       APIBusTypes->Add(kAudioChannelLayoutTag_Stereo);
       break;
     case 3:
