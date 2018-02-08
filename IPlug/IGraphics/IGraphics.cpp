@@ -18,8 +18,8 @@ struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
   
-  SVGHolder(NSVGimage* image)
-  : mImage(image)
+  SVGHolder(NSVGimage* pImage)
+  : mImage(pImage)
   {
   }
   
@@ -798,9 +798,7 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
 int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
 {
   if (mMouseCapture >= 0)
-  {
     return mMouseCapture;
-  }
 
   bool allow; // this is so that mouseovers can still be called when a control is grayed out
 
@@ -844,16 +842,13 @@ int IGraphics::GetParamIdxForPTAutomation(float x, float y)
     idx = mControls.Get(ctrl)->ParamIdx();
 
   mLastClickedParam = idx;
-
   return idx;
 }
 
 int IGraphics::GetLastClickedParamForPTAutomation()
 {
   const int idx = mLastClickedParam;
-
   mLastClickedParam = kNoParameter;
-
   return idx;
 }
 
@@ -885,7 +880,6 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
       return;
     
 #ifdef VST3_API
-    
     IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mPlug);
     
     if (!pVST3->GetComponentHandler() || !pVST3->GetView())
@@ -920,7 +914,6 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
       menu->popup((Steinberg::UCoord) x,(Steinberg::UCoord) y);
       menu->release();
     }
-    
     
 #else
     CreateIPopupMenu(contextMenu, x, y);
@@ -968,7 +961,8 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #if !defined(NDEBUG) && defined(APP_API)
   if(enable)
     mLiveEdit = new IGraphicsLiveEdit(GetPlug(), file, gridsize);
-  else {
+  else 
+  {
     if(mLiveEdit)
       DELETE_NULL(mLiveEdit);
   }
@@ -986,10 +980,8 @@ ISVG IGraphics::LoadSVG(const char* name)
   if(!pHolder)
   {
     NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
-
     assert(pImage != nullptr);
     //TODO: get win32 resource as string - nsvgParseFromFile won't work
-
     pHolder = new SVGHolder(pImage);
     s_SVGCache.Add(pHolder, path.Get());
   }
@@ -1018,7 +1010,6 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
     
   // If the bitmap is not already cached at the targetScale
-    
   if (!pAPIBitmap)
   {
     WDL_String fullPath;
@@ -1028,15 +1019,14 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     if (!SearchImageResource(name, "png", fullPath, targetScale, sourceScale))
     {
       // If no resource exists then search the cache for a suitable match
-
       pAPIBitmap = SearchBitmapInCache(name, targetScale, sourceScale);
     }
     else
     {
-      // Try again in cache for mismatched bitmaps, but load from disk if needed,
-
+      // Try again in cache for mismatched bitmaps, but load from disk if needed
       if (sourceScale != targetScale)
         pAPIBitmap = s_bitmapCache.Find(name, sourceScale);
+
       if (!pAPIBitmap)
       {
         pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
@@ -1045,17 +1035,14 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     }
 
     // Protection from searching for non-existant bitmaps (e.g. typos in config.h or .rc)
-      
     assert(pAPIBitmap);
       
     const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
       
     // Scale if needed
-      
     if (pAPIBitmap->GetScale() != targetScale)
     {
       // Scaling adds to the cache but if we've loaded from disk then we need to dispose of the temporary APIBitmap
-        
       IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale);
       if (fromDisk)
         delete pAPIBitmap;
@@ -1063,7 +1050,6 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     }
     
     // Retain if we've newly loaded from disk
-      
     if (fromDisk)
       RetainBitmap(bitmap, name);
   }
@@ -1092,10 +1078,9 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   return bitmap;
 }
 
-inline void SearchNextScale(int& sourceScale, const int targetScale)
+inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
 {
   // Search downwards from 8, skipping targetScale before trying again
-
   if (sourceScale == targetScale && (targetScale != 8))
     sourceScale = 8;
   else if (sourceScale == targetScale + 1)
@@ -1107,7 +1092,6 @@ inline void SearchNextScale(int& sourceScale, const int targetScale)
 bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
 {
   // Search target scale, then descending
-    
   for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
     char fullName[4096];
@@ -1115,20 +1099,18 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
     if (sourceScale != 1)
     {
       // Form altered name
-        
       char tempName[4096];
       tempName[4095] = 0;
     
       strncpy(tempName, name, 4095);
-      char *filename = strtok(tempName, ".");
-      char *ext = strtok(nullptr, ".");
+      char* filename = strtok(tempName, ".");
+      char* ext = strtok(nullptr, ".");
       snprintf(fullName, 4095, "%s@%dx.%s", filename, sourceScale, ext);
     }
     else
       strncpy(fullName, name, 4095);
     
-    if (OSFindResource(fullName, type, result))
-      return true;
+    return OSFindResource(fullName, type, result);
   }
 
   return false;
@@ -1138,12 +1120,12 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
 {
   // Search target scale, then descending
 
-  for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
+  for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
-    APIBitmap* bitmap = s_bitmapCache.Find(name, sourceScale);
+    APIBitmap* pBitmap = s_bitmapCache.Find(name, sourceScale);
       
-    if (bitmap)
-      return bitmap;
+    if (pBitmap)
+      return pBitmap;
   }
     
   return nullptr;

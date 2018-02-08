@@ -661,7 +661,7 @@ public:
 
    @param instance <#instance description#>
   */
-  virtual void SetPlatformInstance(void* instance) {}
+  virtual void SetPlatformInstance(void* pInstance) {}
   
   
   /**
@@ -822,7 +822,7 @@ public:
    @param control <#control description#>
    @return <#return value description#>
   */
-  int AttachControl(IControl* control);
+  int AttachControl(IControl* pControl);
   
   /**
    /todo <#Description#>
@@ -1125,6 +1125,7 @@ protected:
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
 
+  inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
     
