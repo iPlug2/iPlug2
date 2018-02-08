@@ -276,7 +276,7 @@ ISwitchControlBase::ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int 
   uint32_t numStates)
   : IControl(plug, rect, paramIdx, actionFunc)
 {
-  if (paramIdx > -1)
+  if (paramIdx > kNoParameter)
     mNumStates = (uint32_t)mPlug.GetParam(paramIdx)->GetRange() + 1;
   else
     mNumStates = numStates;

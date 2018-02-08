@@ -1,55 +1,5 @@
 #include "IControl.h"
 
-class SVGKnob : public IKnobControlBase
-{
-public:
-  SVGKnob(IPlugBaseGraphics& plug, float x, float y, ISVG& svg, int param = kNoParameter)
-  : IKnobControlBase(plug, IRECT(x, y, x + svg.W(), y + svg.H()), param)
-  , mSVG(svg)
-  {
-  }
-  
-  SVGKnob(IPlugBaseGraphics& plug, IRECT rect, ISVG& svg, int param = kNoParameter)
-  : IKnobControlBase(plug, rect, param)
-  , mSVG(svg)
-  {
-  }
-  
-  void Draw(IGraphics& g) override
-  {
-    //g.FillRect(COLOR_GREEN, mSVGRect);
-
-#ifdef IGRAPHICS_LICE
-    g.DrawText(mText, "NO LICE SVG", mSVGRect);
-#else
-//    g.DrawSVG(mSVG, mSVGRect);
-  g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mSVGRect.W(), mSVGRect.H(), mStartAngle + mValue * (mEndAngle-mStartAngle));
-#endif
-  }
-  
-  void SetSVG(ISVG& svg)
-  {
-    mSVG = svg;
-    OnResize();
-    GetGUI()->SetAllControlsDirty();
-  }
-  
-  void OnResize() override
-  {
-    const float svgL = mRECT.MW() - (mSVG.W() / 2.f);
-    const float svgT = mRECT.MH() - (mSVG.H() / 2.f);
-
-    mSVGRect = IRECT(svgL, svgT, svgL + mSVG.W(), svgT + mSVG.H());
-  }
-  
-private:
-  double mPhase = 0.;
-  ISVG mSVG;
-  float mStartAngle = -135.f;
-  float mEndAngle = 135.f;
-  IRECT mSVGRect;
-};
-
 class FileMenu : public IDirBrowseControlBase
 {
 public:
@@ -101,9 +51,10 @@ class IArcControl : public IKnobControlBase
 {
 public:
   IArcControl(IPlugBaseGraphics& plug, IRECT rect, int param, float angle1 = -135.f, float angle2 = 135.f)
-  : IKnobControlBase(plug, rect, param), mAngle1(angle1), mAngle2(angle2)
+  : IKnobControlBase(plug, rect, param)
+  , mAngle1(angle1)
+  , mAngle2(angle2)
   {
-    
   }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -188,6 +139,5 @@ private:
     
     graphics.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
     graphics.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
-    
   }
 };

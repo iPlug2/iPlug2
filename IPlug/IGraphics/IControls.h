@@ -36,7 +36,7 @@ private:
   EDirection mDirection;
 };
 
-/** A vector knob control */
+/** A vector knob control drawn using graphics primitves */
 class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
@@ -51,6 +51,37 @@ public:
 
 protected:
   float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
+};
+
+/** A vector knob control which rotates an SVG image */
+class IVSVGKnob : public IKnobControlBase
+{
+public:
+  IVSVGKnob(IPlugBaseGraphics& plug, IRECT rect, ISVG& svg, int param = kNoParameter)
+    : IKnobControlBase(plug, rect, param)
+    , mSVG(svg)
+  {
+  }
+
+  void Draw(IGraphics& g) override
+  {
+#ifdef IGRAPHICS_LICE
+    g.DrawText(mText, "NO LICE SVG", mRECT);
+#else
+    g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + mValue * (mEndAngle - mStartAngle));
+#endif
+  }
+
+  void SetSVG(ISVG& svg)
+  {
+    mSVG = svg;
+    GetGUI()->SetAllControlsDirty();
+  }
+
+private:
+  ISVG mSVG;
+  float mStartAngle = -135.f;
+  float mEndAngle = 135.f;
 };
 
 /*

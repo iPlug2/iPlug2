@@ -354,7 +354,8 @@ public:
 
   virtual void Draw(IGraphics& graphics) override;
   
-  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen), if you override this make sure you call the parent method in order to rescale mBitmap */
+  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen), 
+   *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
   
 protected:
@@ -368,17 +369,14 @@ public:
   ISVGControl(IPlugBaseGraphics& plug, ISVG& svg, IRECT rect, int paramIdx)
     : IControl(plug, rect, paramIdx)
     , mSVG(svg)
-  {
-  };
+  {}
 
-  ~ISVGControl()
-  {
-  };
+  virtual ~ISVGControl() {}
 
-  void Draw(IGraphics& graphics);
+  virtual void Draw(IGraphics& graphics) override;
 
 private:
-  //TODO: should draw the SVG to intermediate bitmap
+  //TODO: cache the SVG to intermediate bitmap?
   ISVG mSVG;
 };
 
@@ -390,7 +388,7 @@ public:
   : IControl(plug, rect)
   , mStr(str)
   {
-    mText = text;
+    IControl::mText = text;
   }
   
   ~ITextControl() {}
@@ -432,7 +430,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
+  ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction aF = nullptr,
     uint32_t numStates = 2);
 
   virtual ~ISwitchControlBase() {}
