@@ -8,16 +8,12 @@ void CenterWindow(HWND hwnd)
 {
   if (!hwnd) return;
   
-  id turd=(id)hwnd;
+  id view =(id) hwnd;
   
-  if ([turd isKindOfClass:[NSView class]])
+  if ([view isKindOfClass:[NSView class]])
   {
-    NSWindow *w = [turd window];
-    [w center];
-  }
-  if ([turd isKindOfClass:[NSWindow class]])
-  {
-    [turd center];
+    NSWindow* pWindow = [view window];
+    [pWindow center];
   }
 }
 
