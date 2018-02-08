@@ -145,7 +145,7 @@ END_FACTORY
   {
     IPlugInstanceInfo instanceInfo;
     instanceInfo.mBundleID.Set(BUNDLE_ID);
-    instanceInfo.mCocoaViewFactoryClassName.Set(VIEW_CLASS_STR);
+    instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
     
     if(pMemory)
       return new(pMemory) PLUG_CLASS_NAME(instanceInfo);

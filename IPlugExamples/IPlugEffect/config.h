@@ -10,6 +10,8 @@
 #define PLUG_EMAIL_STR "spam@me.com"
 #define PLUG_COPYRIGHT_STR  "Copyright 2017 Acme Inc"
 
+#define PLUG_CLASS_NAME IPlugEffect
+
 #define BUNDLE_NAME "IPlugEffect"
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
@@ -35,19 +37,17 @@
 //#define PLUG_CHANNEL_IO "1-1 1.1-1 1.1-2" // does not validate
 
 
-
 #define PLUG_LATENCY 0
 #define PLUG_IS_INSTRUMENT 0
 #define PLUG_DOES_MIDI 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 
-#define PLUG_CLASS_NAME IPlugEffect
 #define AUV2_ENTRY IPlugEffect_Entry
 #define AUV2_ENTRY_STR "IPlugEffect_Entry"
 #define AUV2_FACTORY IPlugEffect_Factory
-#define VIEW_CLASS IPlugEffect_View
-#define VIEW_CLASS_STR "IPlugEffect_View"
+#define AUV2_VIEW_CLASS IPlugEffect_View
+#define AUV2_VIEW_CLASS_STR "IPlugEffect_View"
 
 #define AAX_TYPE_IDS 'EFN1', 'EFN2'
 #define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
