@@ -222,9 +222,10 @@ protected:
   void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
   void ProcessBuffersAccumulating(PLUG_SAMPLE_SRC type, int nFrames);
   void ZeroScratchBuffers();
+public:
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
-  void SetBypassed(bool bypassed) { mBypassed = bypassed; }
   void SetBlockSize(int blockSize);
+  void SetBypassed(bool bypassed) { mBypassed = bypassed; }
   void SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
   void SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
   const WDL_String& GetInputLabel(int idx) { return mInChannels.Get(idx)->mLabel; }
