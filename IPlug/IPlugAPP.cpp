@@ -44,9 +44,7 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
   {
     // if the midi channel out filter is set, reassign the status byte appropriately
     if (mMidiOutChan)
-    {
       status = mMidiOutChan-1 | ((unsigned int) msg.StatusMsg() << 4) ;
-    }
 
     std::vector<uint8_t> message;
     message.push_back( msg.mStatus );
@@ -66,7 +64,8 @@ bool IPlugAPP::SendSysEx(ISysEx& msg)
   {  
     std::vector<unsigned char> message;
     
-    for (int i = 0; i < msg.mSize; i++) {
+    for (int i = 0; i < msg.mSize; i++)
+    {
       message.push_back(msg.mData[i]);
     }
     

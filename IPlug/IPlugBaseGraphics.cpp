@@ -57,9 +57,9 @@ void IPlugBaseGraphics::RedrawParamControls()
   }
 }
 
-void* IPlugBaseGraphics::OpenWindow(void* handle)
+void* IPlugBaseGraphics::OpenWindow(void* pHandle)
 {
-  return mGraphics->OpenWindow(handle);
+  return mGraphics->OpenWindow(pHandle);
 }
 
 void IPlugBaseGraphics::CloseWindow()
