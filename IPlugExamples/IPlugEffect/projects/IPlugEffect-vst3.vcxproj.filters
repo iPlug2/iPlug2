@@ -26,9 +26,6 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG_src.cpp">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
@@ -474,6 +471,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\IPlugEffect_controls.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">
