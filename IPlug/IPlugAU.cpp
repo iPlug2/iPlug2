@@ -435,7 +435,7 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
     case kAudioUnitScope_Input:
     case kAudioUnitScope_Output:
     {
-      ERoute dir = (ERoute) scope;
+      ERoute dir = (ERoute) (scope - 1);
       
       WDL_TypedBuf<uint64_t> foundTags;
       
@@ -447,14 +447,13 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
         {
           WDL_TypedBuf<uint64_t> busTypes;
           GetAPIBusTypeForChannelIOConfig(configIdx, dir, busIdx, pConfig, &busTypes);
-          DBGMSG("Found %i different tags for an %s bus with x number of channels\n", busTypes.GetSize(), RoutingDirStrs[dir]);
+//          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->mNChans);
 
-          for (int tag = 0; tag < busTypes.GetSize(); tag++)
+          for (auto tag = 0; tag < busTypes.GetSize(); tag++)
           {
             if(foundTags.Find(busTypes.Get()[tag] == -1))
                foundTags.Add(busTypes.Get()[tag]);
           }
-
         }
       }
       
@@ -464,6 +463,8 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
         {
           tags[v] = (AudioChannelLayoutTag) foundTags.Get()[v];
         }
+        
+        DBGMSG("Adding %i tags\n", foundTags.GetSize());
         
         return 1; // success
       }
@@ -901,7 +902,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       if (!pData) // GetPropertyInfo
       {
-        UInt32 numLayouts = GetChannelLayoutTags(scope, element, NULL);
+        UInt32 numLayouts = GetChannelLayoutTags(scope, element, NULL); // 0 = invalid scope, 1 = input
 
         if (numLayouts)
         {

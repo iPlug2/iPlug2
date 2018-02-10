@@ -102,7 +102,7 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
-static const char* RoutingDirStrs[3]  = { "invalid", "input", "output" };
+static const char* RoutingDirStrs[2]  = { "input", "output" };
 
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
@@ -138,9 +138,8 @@ enum EParamSource
  */
 enum ERoute
 {
-  kInvalid = 0,
-  kInput = 1,
-  kOutput = 2
+  kInput = 0,
+  kOutput = 1
 };
 
 enum EAPI
