@@ -20,12 +20,14 @@
 #include "IPopupMenu.h"
 #include "IControl.h"
 
+#ifdef OS_MAC
 #ifdef FillRect
 #undef FillRect
 #endif
 
 #ifdef DrawText
 #undef DrawText
+#endif
 #endif
 
 class IPlugBaseGraphics;

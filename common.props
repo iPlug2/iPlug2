@@ -41,7 +41,7 @@
     <VST3_INC_PATHS>$(VST3_SDK);</VST3_INC_PATHS>
     <AAX_INC_PATHS>$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;$(IPLUG_PATH)\AAX;.</AAX_INC_PATHS>
     <AAX_DEFS>AAX_API;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</AAX_DEFS>
-    <AAX_LIBS>lice.lib;wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
+    <AAX_LIBS>wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
     <VST_INC_PATHS>$(VST_SDK)</VST_INC_PATHS>
   </PropertyGroup>
   <PropertyGroup>
