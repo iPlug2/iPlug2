@@ -91,12 +91,12 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
 
-  SetInputChannelConnections(0, NInChannels(), true);
-  SetOutputChannelConnections(0, NOutChannels(), true);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   
-  if (NInChannels()) 
+  if (MaxNChannels(ERoute::kInput)) 
   {
-    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(NInChannels(), NOutChannels());
+    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
     mLatencyDelay->SetDelayTime(c.latency);
   }
   
@@ -277,19 +277,16 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
   int32_t numOutChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(outFormat);
 
-  SetInputChannelConnections(0, numInChannels, true);
-  SetInputChannelConnections(numInChannels, NInChannels() - numInChannels, false);
-  AttachInputBuffers(0, NInChannels(), pRenderInfo->mAudioInputs, numSamples);
+  SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
+  SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
+  AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
   
-  SetOutputChannelConnections(0, numOutChannels, true);
-  SetOutputChannelConnections(numOutChannels, NOutChannels() - numOutChannels, false);
-  
-  AttachOutputBuffers(0, NOutChannels(), pRenderInfo->mAudioOutputs);
+  SetChannelConnections(ERoute::kOutput, 0, numOutChannels, true);
+  SetChannelConnections(ERoute::kOutput, numOutChannels, MaxNChannels(ERoute::kOutput) - numOutChannels, false);
+  AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), pRenderInfo->mAudioOutputs, numSamples);
   
   if (bypass) 
-  {
     PassThroughBuffers(0.0f, numSamples);
-  }
   else 
   {
     int32_t num, denom;

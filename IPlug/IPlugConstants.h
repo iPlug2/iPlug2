@@ -107,20 +107,20 @@ static const char* RoutingDirStrs[3]  = { "invalid", "input", "output" };
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
 
-#ifdef VST3_API
-#undef stricmp
-#undef strnicmp
-#include "vsttypes.h"
-static const uint64_t kInvalidBusType = Steinberg::Vst::SpeakerArr::kEmpty;
-#elif defined AU_API || AUv3_API
-#include <CoreAudio/CoreAudio.h>
-static const uint64_t kInvalidBusType = kAudioChannelLayoutTag_Unknown;
-#elif defined AAX_API
-#include "AAX_Enums.h"
-static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
-#else
-static const uint64_t kInvalidBusType = 0;
-#endif
+//#ifdef VST3_API
+//#undef stricmp
+//#undef strnicmp
+//#include "pluginterfaces/vst/vsttypes.h"
+//static const uint64_t kInvalidBusType = Steinberg::Vst::SpeakerArr::kEmpty;
+//#elif defined AU_API || AUv3_API
+//#include <CoreAudio/CoreAudio.h>
+//static const uint64_t kInvalidBusType = kAudioChannelLayoutTag_Unknown;
+//#elif defined AAX_API
+//#include "AAX_Enums.h"
+//static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
+//#else
+//static const uint64_t kInvalidBusType = 0;
+//#endif
 
 /** @enum EParamSource
  * Used to identify the source of a parameter change

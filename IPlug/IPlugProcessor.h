@@ -134,25 +134,18 @@ public:
   /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
   IOConfig* GetIOConfig(int idx) { return mIOConfigs.Get(idx); }
   
-  /** @return Total number of input channel buffers */
-  int NInChannels() const { return mInChannels.GetSize(); }
+  /** @param direction Whether you want to test inputs or outputs 
+   * @return Total number of input or output channel buffers (not nessecarily connected) */
+  int MaxNChannels(ERoute direction) const;
   
-  /** @return Total number of output channel buffers */
-  int NOutChannels() const { return mOutChannels.GetSize(); }
-  
-  /** @param chIdx channel index
-    * @return /c true if the host has connected this input channel*/
-  bool IsInChannelConnected(int chIdx) const;
-  
-  /** @param chIdx channel index
-   * @return /c true if the host has connected this output channel*/
-  bool IsOutChannelConnected(int chIdx) const;
-  
-  /** @return The number of input channels connected. WARNING: this assumes consecutive channel connections*/
-  int NInChansConnected() const;
-  
-  /** @return The number of output channels connected. WARNING: this assumes consecutive channel connections*/
-  int NOutChansConnected() const;
+  /** @param direction Whether you want to test inputs or outputs 
+    * @param chIdx channel index
+    * @return /c true if the host has connected this channel*/
+  bool IsChannelConnected(ERoute direction, int chIdx) const;
+
+  /** @param direction Whether you want to test inputs or outputs 
+   * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections*/
+  int NChannelsConnected(ERoute direction) const;
   
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
@@ -175,17 +168,11 @@ public:
   /* @return /c true if the plug-in was configured to receive midi at compile time*/
   bool DoesMIDI() const { return mDoesMIDI; }
   
-  /**  This allows you to label input channels in supporting VST2 hosts.
+  /**  This allows you to label input/output channels in supporting VST2 hosts.
    * For example a 4 channel plug-in that deals with FuMa bformat first order ambisonic material might label these channels "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
    * @param label The label for the channel*/
-  void SetInputLabel(int idx, const char* label);
-  
-  /**  This allows you to label  output channels in supporting VST2 hosts.
-   * For example a 4 channel plug-in that deals with FuMa bformat first order ambisonic material might label these channels "W", "X", "Y", "Z", rather than the default " output 1", " output 2", " output 3", " output 4"
-   * @param idx The index of the channel that you wish to label
-   * @param label The label for the channel*/
-  void SetOutputLabel(int idx, const char* label);
+  void SetChannelLabel(ERoute direction, int idx, const char* label);
   
   /** Call this if the latency of your plug-in changes after initialization (perhaps from OnReset() )
    * This may not be supported by the host. The method is virtual because it's overridden in API classes.
@@ -210,17 +197,18 @@ public:
   
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
-  void SetInputChannelConnections(int idx, int n, bool connected);
-  void SetOutputChannelConnections(int idx, int n, bool connected);
-  void AttachInputBuffers(int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
-  void AttachInputBuffers(int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
-  void AttachOutputBuffers(int idx, int n, PLUG_SAMPLE_DST** ppData);
-  void AttachOutputBuffers(int idx, int n, PLUG_SAMPLE_SRC** ppData);
+  void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
+
+  //The following methods are duplicated, in order to deal with either single or double precision processing, 
+  //depending on the value of arguments passed in
+  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
+  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
   void PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
   void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
   void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
   void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void ProcessBuffersAccumulating(PLUG_SAMPLE_SRC type, int nFrames);
+  void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
+
   void ZeroScratchBuffers();
 public:
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
@@ -228,8 +216,8 @@ public:
   void SetBypassed(bool bypassed) { mBypassed = bypassed; }
   void SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
   void SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
-  const WDL_String& GetInputLabel(int idx) { return mInChannels.Get(idx)->mLabel; }
-  const WDL_String& GetOutputLabel(int idx) { return mOutChannels.Get(idx)->mLabel; }
+  const WDL_String& GetChannelLabel(ERoute direction, int idx);
+
 private:
   /** \c True if the plug-in is an instrument */
   bool mIsInstrument;

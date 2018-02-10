@@ -23,7 +23,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   mHasVSTExtensions = VSTEXT_NONE;
 
-  int nInputs = NInChannels(), nOutputs = NOutChannels();
+  int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
 
   memset(&mAEffect, 0, sizeof(AEffect));
   mAEffect.object = this;
@@ -57,8 +57,8 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mOutputSpkrArr.type = VSTSpkrArrType(nOutputs);
 
   // Default everything to connected, then disconnect pins if the host says to.
-  SetInputChannelConnections(0, nInputs, true);
-  SetOutputChannelConnections(0, nOutputs, true);
+  SetChannelConnections(ERoute::kInput, 0, nInputs, true);
+  SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 }
@@ -200,8 +200,8 @@ void IPlugVST::HostSpecificInit()
 
     // This won't always solve a picky host problem -- for example Forte
     // looks at mAEffect IO count before identifying itself.
-    mAEffect.numInputs = mInputSpkrArr.numChannels = NInChannels();
-    mAEffect.numOutputs = mOutputSpkrArr.numChannels = NOutChannels();
+    mAEffect.numInputs = mInputSpkrArr.numChannels = MaxNChannels(ERoute::kInput);
+    mAEffect.numOutputs = mOutputSpkrArr.numChannels = MaxNChannels(ERoute::kOutput);
 
     OnHostIdentified();
   }
@@ -476,23 +476,18 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetInputProperties:
     {
-      if (ptr && idx >= 0 && idx < _this->NInChannels())
+      if (ptr && idx >= 0 && idx < _this->MaxNChannels(ERoute::kInput))
       {
         VstPinProperties* pp = (VstPinProperties*) ptr;
         pp->flags = kVstPinIsActive;
-        if (!(idx%2) && idx < _this->NInChannels()-1)
-        {
-          pp->flags |= kVstPinIsStereo;
-        }
 
-        if (_this->GetInputLabel(idx).GetLength())
-        {
-          sprintf(pp->label, "%s", _this->GetInputLabel(idx).Get());
-        }
+        if (!(idx%2) && idx < _this->MaxNChannels(ERoute::kInput)-1)
+          pp->flags |= kVstPinIsStereo;
+
+        if (_this->GetChannelLabel(ERoute::kInput, idx).GetLength())
+          sprintf(pp->label, "%s", _this->GetChannelLabel(ERoute::kInput, idx).Get());
         else
-        {
           sprintf(pp->label, "Input %d", idx + 1);
-        }
 
         return 1;
       }
@@ -500,23 +495,18 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetOutputProperties:
     {
-      if (ptr && idx >= 0 && idx < _this->NOutChannels())
+      if (ptr && idx >= 0 && idx < _this->MaxNChannels(ERoute::kOutput))
       {
         VstPinProperties* pp = (VstPinProperties*) ptr;
         pp->flags = kVstPinIsActive;
-        if (!(idx%2) && idx < _this->NOutChannels()-1)
-        {
-          pp->flags |= kVstPinIsStereo;
-        }
 
-        if (_this->GetOutputLabel(idx).GetLength())
-        {
-          sprintf(pp->label, "%s", _this->GetOutputLabel(idx).Get());
-        }
+        if (!(idx%2) && idx < _this->MaxNChannels(ERoute::kOutput)-1)
+          pp->flags |= kVstPinIsStereo;
+
+        if (_this->GetChannelLabel(ERoute::kOutput, idx).GetLength())
+          sprintf(pp->label, "%s", _this->GetChannelLabel(ERoute::kOutput, idx).Get());
         else
-        {
           sprintf(pp->label, "Output %d", idx + 1);
-        }
 
         return 1;
       }
@@ -539,14 +529,14 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       if (pInputArr)
       {
         int n = pInputArr->numChannels;
-        _this->SetInputChannelConnections(0, n, true);
-        _this->SetInputChannelConnections(n, _this->NInChannels() - n, false);
+        _this->SetChannelConnections(ERoute::kInput, 0, n, true);
+        _this->SetChannelConnections(ERoute::kInput, n, _this->MaxNChannels(ERoute::kInput) - n, false);
       }
       if (pOutputArr)
       {
         int n = pOutputArr->numChannels;
-        _this->SetOutputChannelConnections(0, n, true);
-        _this->SetOutputChannelConnections(n, _this->NOutChannels() - n, false);
+        _this->SetChannelConnections(ERoute::kOutput, 0, n, true);
+        _this->SetChannelConnections(ERoute::kOutput, n, _this->MaxNChannels(ERoute::kOutput) - n, false);
       }
       return 1;
     }
@@ -776,8 +766,8 @@ void IPlugVST::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32
   if (DoesMIDI())
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
 
-  AttachInputBuffers(0, NInChannels(), inputs, nFrames);
-  AttachOutputBuffers(0, NOutChannels(), outputs);
+  AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);
+  AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), outputs, nFrames);
   
   VstTimeInfo* pTI = (VstTimeInfo*) mHostCallback(&mAEffect, audioMasterGetTime, 0, kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
   
@@ -816,7 +806,7 @@ void VSTCALLBACK IPlugVST::VSTProcess(AEffect* pEffect, float** inputs, float** 
   TRACE;
   IPlugVST* _this = (IPlugVST*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  _this->ProcessBuffersAccumulating((float) 0.0f, nFrames);
+  _this->ProcessBuffersAccumulating(nFrames);
 }
 
 void VSTCALLBACK IPlugVST::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)

@@ -27,7 +27,7 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   
   sampleType** ppInData = mInData.Get();
 
-  for (int i = 0; i < totalNInChans; ++i, ++ppInData)
+  for (auto i = 0; i < totalNInChans; ++i, ++ppInData)
   {
     IChannelData<>* pInChannel = new IChannelData<>;
     pInChannel->mConnected = false;
@@ -37,7 +37,7 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
 
   sampleType** ppOutData = mOutData.Get();
 
-  for (int i = 0; i < totalNOutChans; ++i, ++ppOutData)
+  for (auto i = 0; i < totalNOutChans; ++i, ++ppOutData)
   {
     IChannelData<>* pOutChannel = new IChannelData<>;
     pOutChannel->mConnected = false;
@@ -92,7 +92,7 @@ bool IPlugProcessor<sampleType>::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   bool rc = true;
   int n = msgs.GetSize();
   
-  for (int i = 0; i < n; ++i)
+  for (auto i = 0; i < n; ++i)
     rc &= SendMidiMsg(msgs.Get()[i]);
   
   return rc;
@@ -119,7 +119,7 @@ int IPlugProcessor<sampleType>::MaxNChannelsForBus(ERoute direction, int busIdx)
   int maxChansOnBuses[maxNBuses];
   memset(maxChansOnBuses, 0, maxNBuses * sizeof(int));
   
-  //find the maximum channel count for each input bus
+  //find the maximum channel count for each input or output bus
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
     IOConfig* pIOConfig = mIOConfigs.Get(configIdx);
@@ -132,36 +132,46 @@ int IPlugProcessor<sampleType>::MaxNChannelsForBus(ERoute direction, int busIdx)
 }
 
 template<typename sampleType>
-bool IPlugProcessor<sampleType>::IsInChannelConnected(int chIdx) const
+int IPlugProcessor<sampleType>::MaxNChannels(ERoute direction) const
 {
-  return (chIdx < mInChannels.GetSize() && mInChannels.Get(chIdx)->mConnected);
+  const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+
+  if (direction == ERoute::kInput)
+    pChannelData = &mInChannels;
+  else
+    pChannelData = &mOutChannels;
+
+  return pChannelData->GetSize();
 }
 
 template<typename sampleType>
-bool IPlugProcessor<sampleType>::IsOutChannelConnected(int chIdx) const
+bool IPlugProcessor<sampleType>::IsChannelConnected(ERoute direction, int chIdx) const
 {
-  return (chIdx < mOutChannels.GetSize() && mOutChannels.Get(chIdx)->mConnected);
+  const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+
+  if (direction == ERoute::kInput)
+    pChannelData = &mInChannels;
+  else
+    pChannelData = &mOutChannels;
+
+  return (chIdx < pChannelData->GetSize() && pChannelData->Get(chIdx)->mConnected);
 }
 
 template<typename sampleType>
-int IPlugProcessor<sampleType>::NInChansConnected() const
+int IPlugProcessor<sampleType>::NChannelsConnected(ERoute direction) const
 {
+  const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+
+  if (direction == ERoute::kInput)
+    pChannelData = &mInChannels;
+  else
+    pChannelData = &mOutChannels;
+
   int count = 0;
   
-  for (int i = 0; i<mInChannels.GetSize(); i++) {
-    count += (int) IsInChannelConnected(i);
-  }
-  
-  return count;
-}
-
-template<typename sampleType>
-int IPlugProcessor<sampleType>::NOutChansConnected() const
-{
-  int count = 0;
-  
-  for (int i = 0; i<mOutChannels.GetSize(); i++) {
-    count += (int) IsOutChannelConnected(i);
+  for (auto i = 0; i<pChannelData->GetSize(); i++) 
+  {
+    count += (int) IsChannelConnected(direction, i);
   }
   
   return count;
@@ -185,30 +195,25 @@ bool IPlugProcessor<sampleType>::LegalIO(int NInputChans, int NOutputChans) cons
 template<typename sampleType>
 void IPlugProcessor<sampleType>::LimitToStereoIO()
 {
-  int NInputChans = NInChannels(), NOutputChans = NOutChannels();
+  if (MaxNChannels(ERoute::kInput) > 2)
+    SetChannelConnections(ERoute::kInput, 2, MaxNChannels(ERoute::kInput) - 2, false);
   
-  if (NInputChans > 2)
-    SetInputChannelConnections(2, NInputChans - 2, false);
-  
-  if (NOutputChans > 2)
-    SetOutputChannelConnections(2, NOutputChans - 2, true);
+  if (MaxNChannels(ERoute::kOutput) > 2)
+    SetChannelConnections(ERoute::kOutput, 2, MaxNChannels(ERoute::kOutput) - 2, true);
 }
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::SetInputLabel(int idx, const char* pLabel)
+void IPlugProcessor<sampleType>::SetChannelLabel(ERoute direction, int idx, const char* str)
 {
-  if (idx >= 0 && idx < NInChannels())
+  if (direction == ERoute::kInput)
   {
-    mInChannels.Get(idx)->mLabel.Set(pLabel);
+    if (idx >= 0 && idx < MaxNChannels(ERoute::kInput))
+      mInChannels.Get(idx)->mLabel.Set(str);
   }
-}
-
-template<typename sampleType>
-void IPlugProcessor<sampleType>::SetOutputLabel(int idx, const char* pLabel)
-{
-  if (idx >= 0 && idx < NOutChannels())
+  else
   {
-    mOutChannels.Get(idx)->mLabel.Set(pLabel);
+    if (idx >= 0 && idx < MaxNChannels(ERoute::kOutput))
+      mOutChannels.Get(idx)->mLabel.Set(str);
   }
 }
 
@@ -218,9 +223,7 @@ void IPlugProcessor<sampleType>::SetLatency(int samples)
   mLatency = samples;
   
   if (mLatencyDelay)
-  {
     mLatencyDelay->SetDelayTime(mLatency);
-  }
 }
 
 //static
@@ -305,12 +308,12 @@ int IPlugProcessor<sampleType>::ParseChannelIOStr(const char* IOStr, WDL_PtrList
     char* pIBusStrEnd;
     char* pIBusStr = strtok_r(pIStr, ".", &pIBusStrEnd); // a single input bus
     
-    ParseBusToken(kInput, pIBusStr, pIBusStrEnd, NInBuses, NInChans, pConfig);
+    ParseBusToken(ERoute::kInput, pIBusStr, pIBusStrEnd, NInBuses, NInChans, pConfig);
     
     char* pOBusStrEnd;
     char* pOBusStr = strtok_r(pOStr, ".", &pOBusStrEnd);
     
-    ParseBusToken(kOutput, pOBusStr, pOBusStrEnd, NOutBuses, NOutChans, pConfig);
+    ParseBusToken(ERoute::kOutput, pOBusStr, pOBusStrEnd, NOutBuses, NOutChans, pConfig);
     
     if(foundAWildcard == true && IOConfigIndex > 0)
     {
@@ -321,9 +324,9 @@ int IPlugProcessor<sampleType>::ParseChannelIOStr(const char* IOStr, WDL_PtrList
     DBGMSG("Channel I/O #%i - %s\n", IOConfigIndex + 1, thisIOStr->Get());
     DBGMSG("               - input bus count: %i, output bus count %i\n", NInBuses, NOutBuses);
     for (auto i = 0; i < NInBuses; i++)
-      DBGMSG("               - channel count on input bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(kInput, i));
+      DBGMSG("               - channel count on input bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(ERoute::kInput, i));
     for (auto i = 0; i < NOutBuses; i++)
-      DBGMSG("               - channel count on output bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(kOutput, i));
+      DBGMSG("               - channel count on output bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(ERoute::kOutput, i));
     DBGMSG("               - input channel count across all buses: %i, output channel count across all buses %i\n\n", NInChans, NOutChans);
     
     totalNInChans = std::max(totalNInChans, NInChans);
@@ -350,95 +353,75 @@ int IPlugProcessor<sampleType>::ParseChannelIOStr(const char* IOStr, WDL_PtrList
 #pragma mark -
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::SetInputChannelConnections(int idx, int n, bool connected)
+void IPlugProcessor<sampleType>::SetChannelConnections(ERoute direction, int idx, int n, bool connected)
 {
-  int iEnd = std::min(idx + n, mInChannels.GetSize());
+  WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+
+  if (direction == ERoute::kInput)
+    pChannelData = &mInChannels;
+  else
+    pChannelData = &mOutChannels;
+
+  const auto endIdx = std::min(idx + n, pChannelData->GetSize());
   
-  for (int i = idx; i < iEnd; ++i)
+  for (auto i = idx; i < endIdx; ++i)
   {
-    IChannelData<>* pInChannel = mInChannels.Get(i);
-    pInChannel->mConnected = connected;
+    IChannelData<>* pChannel = pChannelData->Get(i);
+    pChannel->mConnected = connected;
     
     if (!connected)
-    {
-      *(pInChannel->mData) = pInChannel->mScratchBuf.Get();
-    }
+      *(pChannel->mData) = pChannel->mScratchBuf.Get();
   }
 }
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::SetOutputChannelConnections(int idx, int n, bool connected)
+void IPlugProcessor<sampleType>::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int)
 {
-  int iEnd = std::min(idx + n, mOutChannels.GetSize());
+  WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+
+  if (direction == ERoute::kInput)
+    pChannelData = &mInChannels;
+  else
+    pChannelData = &mOutChannels;
+
+  const auto endIdx = std::min(idx + n, pChannelData->GetSize());
   
-  for (int i = idx; i < iEnd; ++i)
+  for (auto i = idx; i < endIdx; ++i)
   {
-    IChannelData<>* pOutChannel = mOutChannels.Get(i);
-    pOutChannel->mConnected = connected;
+    IChannelData<>* pChannel = pChannelData->Get(i);
     
-    if (!connected)
-    {
-      *(pOutChannel->mData) = pOutChannel->mScratchBuf.Get();
-    }
+    if (pChannel->mConnected)
+      *(pChannel->mData) = *(ppData++);
   }
 }
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::AttachInputBuffers(int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames)
+void IPlugProcessor<sampleType>::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames)
 {
-  int iEnd = std::min(idx + n, mInChannels.GetSize());
-  
-  for (int i = idx; i < iEnd; ++i)
-  {
-    IChannelData<>* pInChannel = mInChannels.Get(i);
-    if (pInChannel->mConnected)
-    {
-      *(pInChannel->mData) = *(ppData++);
-    }
-  }
-}
+  WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::AttachInputBuffers(int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames)
-{
-  int iEnd = std::min(idx + n, mInChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i)
-  {
-    IChannelData<>* pInChannel = mInChannels.Get(i);
-    if (pInChannel->mConnected)
-    {
-      PLUG_SAMPLE_DST* pScratch = pInChannel->mScratchBuf.Get();
-      CastCopy(pScratch, *(ppData++), nFrames);
-      *(pInChannel->mData) = pScratch;
-    }
-  }
-}
+  if (direction == ERoute::kInput)
+    pChannelData = &mInChannels;
+  else
+    pChannelData = &mOutChannels;
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::AttachOutputBuffers(int idx, int n, PLUG_SAMPLE_DST** ppData)
-{
-  int iEnd = std::min(idx + n, mOutChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i)
+  const auto endIdx = std::min(idx + n, pChannelData->GetSize());
+  for (auto i = idx; i < endIdx; ++i)
   {
-    IChannelData<>* pOutChannel = mOutChannels.Get(i);
-    if (pOutChannel->mConnected)
+    IChannelData<>* pChannel = pChannelData->Get(i);
+    if (pChannel->mConnected)
     {
-      *(pOutChannel->mData) = *(ppData++);
-    }
-  }
-}
-
-template<typename sampleType>
-void IPlugProcessor<sampleType>::AttachOutputBuffers(int idx, int n, PLUG_SAMPLE_SRC** ppData)
-{
-  int iEnd = std::min(idx + n, mOutChannels.GetSize());
-  for (int i = idx; i < iEnd; ++i)
-  {
-    IChannelData<>* pOutChannel = mOutChannels.Get(i);
-    if (pOutChannel->mConnected)
-    {
-      *(pOutChannel->mData) = pOutChannel->mScratchBuf.Get();
-      pOutChannel->mIncomingData = *(ppData++);
+      if (direction == ERoute::kInput)
+      {
+        PLUG_SAMPLE_DST* pScratch = pChannel->mScratchBuf.Get();
+        CastCopy(pScratch, *(ppData++), nFrames);
+        *(pChannel->mData) = pScratch;
+      }
+      else // output
+      {
+        *(pChannel->mData) = pChannel->mScratchBuf.Get();
+        pChannel->mIncomingData = *(ppData++);
+      }
     }
   }
 }
@@ -447,13 +430,9 @@ template<typename sampleType>
 void IPlugProcessor<sampleType>::PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
   if (mLatency && mLatencyDelay)
-  {
     mLatencyDelay->ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
-  }
   else 
-  {
     IPlugProcessor<sampleType>::ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
-  }
 }
 
 template<typename sampleType>
@@ -462,7 +441,7 @@ void IPlugProcessor<sampleType>::PassThroughBuffers(PLUG_SAMPLE_SRC type, int nF
   // for PLUG_SAMPLE_SRC bit buffers, first run the delay (if mLatency) on the PLUG_SAMPLE_DST IPlug buffers
   PassThroughBuffers(PLUG_SAMPLE_DST(0.), nFrames);
   
-  int i, n = NOutChannels();
+  int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mOutChannels.GetList();
   
   for (i = 0; i < n; ++i, ++ppOutChannel)
@@ -485,7 +464,7 @@ template<typename sampleType>
 void IPlugProcessor<sampleType>::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 {
   ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
-  int i, n = NOutChannels();
+  int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mOutChannels.GetList();
   
   for (i = 0; i < n; ++i, ++ppOutChannel)
@@ -500,10 +479,10 @@ void IPlugProcessor<sampleType>::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrame
 }
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::ProcessBuffersAccumulating(PLUG_SAMPLE_SRC type, int nFrames)
+void IPlugProcessor<sampleType>::ProcessBuffersAccumulating(int nFrames)
 {
   ProcessBlock(mInData.Get(), mOutData.Get(), nFrames);
-  int i, n = NOutChannels();
+  int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mOutChannels.GetList();
   
   for (i = 0; i < n; ++i, ++ppOutChannel)
@@ -512,8 +491,7 @@ void IPlugProcessor<sampleType>::ProcessBuffersAccumulating(PLUG_SAMPLE_SRC type
     if (pOutChannel->mConnected)
     {
       PLUG_SAMPLE_SRC* pDest = pOutChannel->mIncomingData;
-      PLUG_SAMPLE_DST* pSrc = *(pOutChannel->mData);
-      
+      PLUG_SAMPLE_DST* pSrc = *(pOutChannel->mData); // TODO : check this: PLUG_SAMPLE_DST will allways be float, because this is only for VST2 accumulating
       for (int j = 0; j < nFrames; ++j, ++pDest, ++pSrc)
       {
         *pDest += (PLUG_SAMPLE_SRC) *pSrc;
@@ -525,7 +503,7 @@ void IPlugProcessor<sampleType>::ProcessBuffersAccumulating(PLUG_SAMPLE_SRC type
 template<typename sampleType>
 void IPlugProcessor<sampleType>::ZeroScratchBuffers()
 {
-  int i, nIn = NInChannels(), nOut = NOutChannels();
+  int i, nIn = MaxNChannels(ERoute::kInput), nOut = MaxNChannels(ERoute::kOutput);
 
   for (i = 0; i < nIn; ++i)
   {
@@ -545,22 +523,31 @@ void IPlugProcessor<sampleType>::SetBlockSize(int blockSize)
 {
   if (blockSize != mBlockSize)
   {
-    int i, nIn = NInChannels(), nOut = NOutChannels();
-    
+    int i, nIn = MaxNChannels(ERoute::kInput), nOut = MaxNChannels(ERoute::kOutput);
+
     for (i = 0; i < nIn; ++i)
     {
       IChannelData<>* pInChannel = mInChannels.Get(i);
       pInChannel->mScratchBuf.Resize(blockSize);
       memset(pInChannel->mScratchBuf.Get(), 0, blockSize * sizeof(PLUG_SAMPLE_DST));
     }
-    
+
     for (i = 0; i < nOut; ++i)
     {
       IChannelData<>* pOutChannel = mOutChannels.Get(i);
       pOutChannel->mScratchBuf.Resize(blockSize);
       memset(pOutChannel->mScratchBuf.Get(), 0, blockSize * sizeof(PLUG_SAMPLE_DST));
     }
-    
+
     mBlockSize = blockSize;
   }
+}
+
+template<typename sampleType>
+const WDL_String & IPlugProcessor<sampleType>::GetChannelLabel(ERoute direction, int idx)
+{
+  if (direction == ERoute::kInput)
+    return mInChannels.Get(idx)->mLabel;
+  else
+    return mOutChannels.Get(idx)->mLabel;
 }
