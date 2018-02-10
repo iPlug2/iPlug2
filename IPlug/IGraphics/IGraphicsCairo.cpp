@@ -413,7 +413,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, b
   y = rect.T + fontExtents.ascent;
 
   cairo_move_to(mContext, x, y);
-  SetCairoSourceRGBA(text.mColor);
+  SetCairoSourceRGBA(text.mFGColor);
   cairo_show_text(mContext, str);
   cairo_font_face_destroy(pFace);
 #endif
