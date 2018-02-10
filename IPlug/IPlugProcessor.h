@@ -197,26 +197,26 @@ public:
   
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
-  void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
+  void _SetChannelConnections(ERoute direction, int idx, int n, bool connected);
 
   //The following methods are duplicated, in order to deal with either single or double precision processing, 
   //depending on the value of arguments passed in
-  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
-  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
-  void PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
-  void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
-  void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
+  void _AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
+  void _AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
+  void _PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void _PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void _ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void _ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void _ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
+  void _ZeroScratchBuffers();
 
-  void ZeroScratchBuffers();
-public:
-  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
-  void SetBlockSize(int blockSize);
-  void SetBypassed(bool bypassed) { mBypassed = bypassed; }
-  void SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
-  void SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
-  const WDL_String& GetChannelLabel(ERoute direction, int idx);
+public: //TODO: these will become protected once stand-alone app is rewritten
+  void _SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
+  void _SetBlockSize(int blockSize);
+  void _SetBypassed(bool bypassed) { mBypassed = bypassed; }
+  void _SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
+  void _SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
+  const WDL_String& _GetChannelLabel(ERoute direction, int idx);
 
 private:
   /** \c True if the plug-in is an instrument */

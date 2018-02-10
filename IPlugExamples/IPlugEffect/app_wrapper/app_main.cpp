@@ -429,8 +429,8 @@ bool InitialiseAudio(uint32_t inId,
   gVecElapsed = 0;
   gFadeMult = 0.;
 
-  gPluginInstance->SetBlockSize(gSigVS);
-  gPluginInstance->SetSampleRate(sr);
+  gPluginInstance->_SetBlockSize(gSigVS);
+  gPluginInstance->_SetSampleRate(sr);
   gPluginInstance->OnReset();
 
   try
