@@ -19,7 +19,7 @@
 #include "dirscan.h"
 #include "ptrlist.h"
 
-#include "IPlugBaseGraphics.h"
+#include "IGraphicsDelegate.h"
 #include "IGraphics.h"
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
@@ -36,11 +36,11 @@ public:
   /**
    Constructor
 
-   @param plug The IPlugBaseGraphics that the control belongs to
+   @param dlg The IGraphicsDelegate that the control belongs to
    @param rect The rectangular area that the control occupies
-   @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
+   @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
    */
-  IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(IGraphicsDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -94,7 +94,7 @@ public:
 
   /** @return Parameter index */
   int ParamIdx() { return mParamIdx; }
-  IParam* GetParam() { return (mParamIdx >= 0) ? mPlug.GetParam(mParamIdx) : nullptr; }
+  IParam* GetParam() { return (mParamIdx >= 0) ? mDelegate.GetParamFromUI(mParamIdx) : nullptr; }
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
@@ -182,8 +182,8 @@ public:
   int NAuxParams() { return mAuxParams.GetSize(); }
   /**@}*/
   
-  IPlugBaseGraphics& GetPlug() { return mPlug; }
-  IGraphics* GetGUI() { return mPlug.GetGUI(); }
+  IGraphicsDelegate& GetDelegate() { return mDelegate; }
+  IGraphics* GetGUI() { return mDelegate.GetGUI(); }
   
   void GetJSON(WDL_String& json, int idx) const;
 
@@ -193,7 +193,7 @@ public:
 
 #pragma mark - IControl Member variables
 protected:
-  IPlugBaseGraphics& mPlug;
+  IGraphicsDelegate& mDelegate;
   IRECT mRECT;
   IRECT mTargetRECT;
   
@@ -319,8 +319,8 @@ protected:
 class IPanelControl : public IControl, public IVectorBase
 {
 public:
-  IPanelControl(IPlugBaseGraphics& plug, IRECT rect, const IColor& color)
-  : IControl(plug, rect)
+  IPanelControl(IGraphicsDelegate& dlg, IRECT rect, const IColor& color)
+  : IControl(dlg, rect)
   , IVectorBase(&color)
   {}
 
@@ -335,16 +335,16 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), paramIdx)
+  IBitmapControl(IGraphicsDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
   , mBitmap(bitmap)
   {
     mBlend = blend;
   }
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
-  : IControl(plug, IRECT(x, y, bitmap), kNoParameter)
+  IBitmapControl(IGraphicsDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
   , mBitmap(bitmap)
   {
     mBlend = blend;
@@ -366,8 +366,8 @@ protected:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IPlugBaseGraphics& plug, ISVG& svg, IRECT rect, int paramIdx)
-    : IControl(plug, rect, paramIdx)
+  ISVGControl(IGraphicsDelegate& dlg, ISVG& svg, IRECT rect, int paramIdx)
+    : IControl(dlg, rect, paramIdx)
     , mSVG(svg)
   {}
 
@@ -384,8 +384,8 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IPlugBaseGraphics& plug, IRECT rect, const IText& text, const char* str = "")
-  : IControl(plug, rect)
+  ITextControl(IGraphicsDelegate& dlg, IRECT rect, const IText& text, const char* str = "")
+  : IControl(dlg, rect)
   , mStr(str)
   {
     IControl::mText = text;
@@ -393,8 +393,8 @@ public:
   
   ~ITextControl() {}
   
-  virtual void SetTextFromPlug(const char* str);
-  virtual void ClearTextFromPlug() { SetTextFromPlug(""); }
+  virtual void SetTextFromDelegate(const char* str);
+  virtual void ClearTextFromDelegate() { SetTextFromDelegate(""); }
   
   void Draw(IGraphics& graphics) override;
   
@@ -408,9 +408,9 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter,
+  IKnobControlBase(IGraphicsDelegate& dlg, IRECT rect, int param = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IControl(plug, rect, param)
+    : IControl(dlg, rect, param)
     , mDirection(direction)
     , mGearing(gearing)
   {}
@@ -430,7 +430,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction aF = nullptr,
+  ISwitchControlBase(IGraphicsDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction aF = nullptr,
     uint32_t numStates = 2);
 
   virtual ~ISwitchControlBase() {}
@@ -445,8 +445,8 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IPlugBaseGraphics& plug, IRECT rect, const char* extension /* e.g. ".txt"*/)
-  : IControl(plug, rect)
+  IDirBrowseControlBase(IGraphicsDelegate& dlg, IRECT rect, const char* extension /* e.g. ".txt"*/)
+  : IControl(dlg, rect)
   {
     mExtension.Set(extension);
   }

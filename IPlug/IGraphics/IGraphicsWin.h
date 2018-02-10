@@ -27,7 +27,7 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps);
+  IGraphicsWin(IGraphicsDelegate& dlg, int w, int h, int fps);
   ~IGraphicsWin();
 
   void SetPlatformInstance(void* instance) override { mHInstance = (HINSTANCE) instance; }
@@ -43,7 +43,7 @@ public:
 
   void* OpenWindow(void* pParentWnd) override;
   void CloseWindow() override;
-  bool WindowIsOpen() override { return (mPlugWnd); }
+  bool WindowIsOpen() override { return (mDelegateWnd); }
   
   void UpdateTooltips() override {}
 
@@ -53,7 +53,7 @@ public:
   void UserHomePath(WDL_String& path) override;
   void AppSupportPath(WDL_String& path, bool isSystem) override;
   void SandboxSafeAppSupportPath(WDL_String& path) override { AppSupportPath(path, false); }
-  void VST3PresetsPath(WDL_String& path, bool isSystem) override;
+  void VST3PresetsPath(WDL_String& path, bool isSystem, const char* mfrName, const char* pluginName) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
@@ -67,7 +67,7 @@ public:
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
 
-  void* GetWindow() override { return mPlugWnd; }
+  void* GetWindow() override { return mDelegateWnd; }
   HWND GetParentWindow() const { return mParentWnd; }
   HWND GetMainWnd();
   void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
@@ -99,7 +99,7 @@ private:
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
 
   HINSTANCE mHInstance = nullptr;
-  HWND mPlugWnd = nullptr;
+  HWND mDelegateWnd = nullptr;
   HWND mParamEditWnd = nullptr;
   HWND mTooltipWnd = nullptr;
   HWND mParentWnd = nullptr;

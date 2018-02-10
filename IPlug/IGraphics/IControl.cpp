@@ -1,9 +1,10 @@
 #include <cmath>
 
 #include "IControl.h"
+#include "IPlugParameter.h"
 
-IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int param, IActionFunction actionFunc)
-: mPlug(plug)
+IControl::IControl(IGraphicsDelegate& dlg, IRECT rect, int param, IActionFunction actionFunc)
+: mDelegate(dlg)
 , mRECT(rect)
 , mTargetRECT(rect)
 , mParamIdx(param)
@@ -42,19 +43,19 @@ void IControl::SetDirty(bool pushParamToPlug)
   mDirty = true;
   if (pushParamToPlug && mParamIdx >= 0)
   {
-    mPlug.SetParameterFromUI(mParamIdx, mValue);
-    IParam* pParam = mPlug.GetParam(mParamIdx);
-    
-    if (mValDisplayControl) 
+    mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
+    IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
+
+    if (mValDisplayControl)
     {
       WDL_String display;
       pParam->GetDisplayForHost(display);
-      ((ITextControl*)mValDisplayControl)->SetTextFromPlug(display.Get());
+      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
     }
-    
-    if (mNameDisplayControl) 
+
+    if (mNameDisplayControl)
     {
-      ((ITextControl*)mNameDisplayControl)->SetTextFromPlug((char*) pParam->GetNameForHost());
+      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
     }
   }
 }
@@ -88,7 +89,7 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     SetDirty();
   }
   #endif
-  
+
   if (mod.R) {
 		PromptUserInput();
 	}
@@ -111,9 +112,9 @@ void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    if (mPlug.GetParam(mParamIdx)->NDisplayTexts()) // popup menu
+    if (mDelegate.GetParamFromUI(mParamIdx)->NDisplayTexts()) // popup menu
     {
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT);
+      mDelegate.GetGUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), mRECT);
     }
     else // text entry
     {
@@ -123,7 +124,7 @@ void IControl::PromptUserInput()
       float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT);
+      mDelegate.GetGUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), txtRECT);
     }
 
     Redraw();
@@ -134,7 +135,7 @@ void IControl::PromptUserInput(IRECT& textRect)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), textRect);
+    mDelegate.GetGUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), textRect);
     Redraw();
   }
 }
@@ -152,7 +153,7 @@ int IControl::AuxParamIdx(int param)
     if(GetAuxParam(i)->mParamIdx == param)
       return i;
   }
-  
+
   return -1;
 }
 
@@ -164,7 +165,7 @@ void IControl::AddAuxParam(int param)
 void IControl::SetAuxParamValueFromPlug(int auxParam, double value)
 {
   AuxParam* pAuxParam = GetAuxParam(auxParam);
-  
+
   if (pAuxParam->mValue != value)
   {
     pAuxParam->mValue = value;
@@ -178,7 +179,7 @@ void IControl::SetAllAuxParamsFromGUI()
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
     AuxParam* pAuxParam = GetAuxParam(i);
-    mPlug.SetParameterFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
+    mDelegate.SetParameterValueFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
   }
 }
 
@@ -201,7 +202,7 @@ void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
     default:
       break;
   }
-  
+
   mPTisHighlighted = isHighlighted;
   SetDirty(false);
 }
@@ -239,7 +240,7 @@ void IBitmapControl::Draw(IGraphics& graphics)
     i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
     i = BOUNDED(i, 1, mBitmap.N());
   }
-  
+
   graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
@@ -254,7 +255,7 @@ void ISVGControl::Draw(IGraphics& graphics)
     //graphics.DrawSVG(mSVG, mRECT);
 };
 
-void ITextControl::SetTextFromPlug(const char* str)
+void ITextControl::SetTextFromDelegate(const char* str)
 {
   if (strcmp(mStr.Get(), str))
   {
@@ -272,12 +273,12 @@ void ITextControl::Draw(IGraphics& graphics)
   }
 }
 
-ISwitchControlBase::ISwitchControlBase(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+ISwitchControlBase::ISwitchControlBase(IGraphicsDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
   uint32_t numStates)
-  : IControl(plug, rect, paramIdx, actionFunc)
+  : IControl(dlg, rect, paramIdx, actionFunc)
 {
   if (paramIdx > kNoParameter)
-    mNumStates = (uint32_t)mPlug.GetParam(paramIdx)->GetRange() + 1;
+    mNumStates = (uint32_t)mDelegate.GetParamFromUI(paramIdx)->GetRange() + 1;
   else
     mNumStates = numStates;
 

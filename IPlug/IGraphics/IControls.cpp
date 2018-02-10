@@ -2,9 +2,9 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
+IVSwitchControl::IVSwitchControl(IGraphicsDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
   , const IVColorSpec& colorSpec, uint32_t numStates, EDirection dir)
-  : ISwitchControlBase(plug, rect, paramIdx, actionFunc, numStates)
+  : ISwitchControlBase(dlg, rect, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
   , mDirection(dir)
 {
@@ -54,11 +54,11 @@ void IVSwitchControl::OnMouseOut()
   SetDirty();
 }
 
-IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+IVKnobControl::IVKnobControl(IGraphicsDelegate& dlg, IRECT rect, int param,
                              const IVColorSpec& colorSpec,
                              float rMin, float rMax, float aMin, float aMax,
                              EDirection direction, double gearing)
-: IKnobControlBase(plug, rect, param, direction, gearing)
+: IKnobControlBase(dlg, rect, param, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
@@ -79,9 +79,9 @@ void IVKnobControl::Draw(IGraphics& graphics)
   graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
-IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
+IVKeyboardControl::IVKeyboardControl(IGraphicsDelegate& dlg, IRECT rect,
                                      int minNote, int maxNote)
-: IControl(plug, rect)
+: IControl(dlg, rect)
 , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
 {
   mText.mFGColor = GetColor(kFR);
@@ -327,7 +327,7 @@ void IVKeyboardControl::SetMinMaxNote(int min, int max, bool keepWidth)
   mNoteIsPlayed.Resize(NumKeys());
   memset(mNoteIsPlayed.Get(), 0, mNoteIsPlayed.GetSize() * sizeof(bool));
   
-  //TODO: call to plug to retain pressed keys
+  //TODO: call to dlg to retain pressed keys
   
   RecreateKeyBounds(keepWidth);
 }
@@ -599,8 +599,8 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
-: IControl(plug, IRECT(), paramIdx)
+IBSliderControl::IBSliderControl(IGraphicsDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+: IControl(dlg, IRECT(), paramIdx)
 , mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
   if (direction == kVertical)

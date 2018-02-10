@@ -1516,7 +1516,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   LOCK_PARAMS_MUTEX_STATIC;
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
-  _this->SetParameterInUIFromAPI(paramID, value, false);
+  _this->SendParameterValueToUIFromAPI(paramID, value, false);
   _this->OnParamChange(paramID, kAutomation);
   return noErr;
 }

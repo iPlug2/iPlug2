@@ -114,7 +114,7 @@ void IPlugBase::GetBuildInfoStr(WDL_String& str)
 }
 
 // this is over-ridden for AAX
-void IPlugBase::SetParameterFromUI(int idx, double normalizedValue)
+void IPlugBase::SetParameterValue(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
   GetParam(idx)->SetNormalized(normalizedValue);

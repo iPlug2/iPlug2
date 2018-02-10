@@ -6,8 +6,8 @@
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathToSourceFile, int gridSize)
-  : IControl(plug, IRECT(0, 0, 1, 1))
+  IGraphicsLiveEdit(IGraphicsDelegate& dlg, const char* pathToSourceFile, int gridSize)
+  : IControl(dlg, IRECT(0, 0, 1, 1))
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)
   {
@@ -42,7 +42,7 @@ public:
           WDL_String json;
           pControl->GetJSON(json, c);
           //printf("%s\n", json.Get());
-          mClickedOnControl = GetGUI()->AttachControl(new IPanelControl(mPlug, mMouseDownRECT, COLOR_BLACK));
+          mClickedOnControl = GetGUI()->AttachControl(new IPanelControl(mDelegate, mMouseDownRECT, COLOR_BLACK));
         }
       }
     }

@@ -226,7 +226,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   if ((paramIdx >= 0) && (paramIdx < NParams())) 
   {
     GetParam(paramIdx)->SetNormalized(iValue);
-    SetParameterInUIFromAPI(paramIdx, iValue, true);
+    SendParameterValueToUIFromAPI(paramIdx, iValue, true);
     
     OnParamChange(paramIdx, kAutomation);      
   }

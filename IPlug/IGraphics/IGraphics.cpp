@@ -14,6 +14,8 @@
 #include "IGraphicsLiveEdit.h"
 #endif
 
+#include "IPlugParameter.h"
+
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
@@ -35,8 +37,8 @@ struct SVGHolder
 static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 
-IGraphics::IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps)
-: mPlug(plug)
+IGraphics::IGraphics(IGraphicsDelegate& dlg, int w, int h, int fps)
+: mDelegate(dlg)
 , mWidth(w)
 , mHeight(h)
 {
@@ -66,18 +68,18 @@ IGraphics::~IGraphics()
 
 void IGraphics::Resize(int w, int h, float scale)
 {
-  ReleaseMouseCapture();
-
-  float oldScale = mScale;
-  mScale = scale;
-    
-  if (oldScale != scale)
-      OnDisplayScale();
-    
-  for (int i = 0; i < mPlug.NParams(); ++i)
-    SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
-    
-  mPlug.ResizeGraphics(w, h, scale);
+//  ReleaseMouseCapture();
+//
+//  float oldScale = mScale;
+//  mScale = scale;
+//
+//  if (oldScale != scale)
+//      OnDisplayScale();
+//
+//  for (int i = 0; i < mDelegate.NParams(); ++i)
+//    SetParameterFromPlug(i, mDelegate.GetParamFromUI(i)->GetNormalized(), true);
+//
+//  mDelegate.ResizeGraphics(w, h, scale);
 }
 
 void IGraphics::OnDisplayScale()
@@ -106,12 +108,12 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  mControls.Insert(0, new IBitmapControl(mPlug, 0, 0, -1, bg, kBlendClobber));
+  mControls.Insert(0, new IBitmapControl(mDelegate, 0, 0, -1, bg, kBlendClobber));
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mPlug, GetBounds(), color);
+  IControl* pBG = new IPanelControl(mDelegate, GetBounds(), color);
   mControls.Insert(0, pBG);
 }
 
@@ -160,7 +162,7 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 {
   if (!normalized)
   {
-    IParam* pParam = mPlug.GetParam(paramIdx);
+    IParam* pParam = mDelegate.GetParamFromUI(paramIdx);
     lo = pParam->GetNormalized(lo);
     hi = pParam->GetNormalized(hi);
   }
@@ -181,7 +183,7 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
 {
   if (!normalized)
   {
-    IParam* pParam = mPlug.GetParam(paramIdx);
+    IParam* pParam = mDelegate.GetParamFromUI(paramIdx);
     value = pParam->GetNormalized(value);
   }
   int i, n = mControls.GetSize();
@@ -645,10 +647,8 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     #endif
     
     if (paramIdx >= 0)
-    {
-      mPlug.BeginInformHostOfParamChange(paramIdx);
-    }
-        
+      mDelegate.BeginInformHostOfParamChangeFromUI(paramIdx);
+    
     pControl->OnMouseDown(x, y, mod);
   }
 }
@@ -675,7 +675,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
     int paramIdx = pControl->ParamIdx();
     if (paramIdx >= 0)
     {
-      mPlug.EndInformHostOfParamChange(paramIdx);
+      mDelegate.EndInformHostOfParamChangeFromUI(paramIdx);
     }
   }
 }
@@ -880,7 +880,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
       return;
     
 #ifdef VST3_API
-    IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mPlug);
+    IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mDelegate);
     
     if (!pVST3->GetComponentHandler() || !pVST3->GetView())
       return;
@@ -960,7 +960,7 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
 #if !defined(NDEBUG) && defined(APP_API)
   if(enable)
-    mLiveEdit = new IGraphicsLiveEdit(GetPlug(), file, gridsize);
+    mLiveEdit = new IGraphicsLiveEdit(GetDelegate(), file, gridsize);
   else 
   {
     if(mLiveEdit)

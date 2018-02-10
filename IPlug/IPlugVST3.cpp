@@ -371,7 +371,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
                 if (idx >= 0 && idx < NParams())
                 {
                   GetParam(idx)->SetNormalized((double)value);
-                  SetParameterInUIFromAPI(idx, (double) value, true);
+                  SendParameterValueToUIFromAPI(idx, (double) value, true);
                   OnParamChange(idx, kAutomation);
                 }
               }

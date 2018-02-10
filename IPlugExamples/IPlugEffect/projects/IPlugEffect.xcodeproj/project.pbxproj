@@ -468,6 +468,7 @@
 		4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BefacoBigKnob.svg; path = ../resources/img/BefacoBigKnob.svg; sourceTree = "<group>"; };
 		4FA6B9531FF9C22700049441 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControls.h; path = ../../../IPlug/IGraphics/IControls.h; sourceTree = "<group>"; };
 		4FA6B9541FF9C22700049441 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IControls.cpp; path = ../../../IPlug/IGraphics/IControls.cpp; sourceTree = "<group>"; };
+		4FB55685202F95E100680315 /* IGraphicsDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsDelegate.h; path = ../../../IPlug/IGraphics/IGraphicsDelegate.h; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FCDBC8320211956000362CC /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../../../VST3_SDK/base/source/fstring.h; sourceTree = "<group>"; };
 		4FCDBC8420211956000362CC /* baseiids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = baseiids.cpp; path = ../../../VST3_SDK/base/source/baseiids.cpp; sourceTree = "<group>"; };
@@ -922,8 +923,8 @@
 				4F7C946E2029473D00B20111 /* IPlugPresets.cpp */,
 				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
 				4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */,
-				4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */,
 				4F6D9DEA2016B7F7009E1E3E /* IPlugBaseGraphics.h */,
+				4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */,
 				4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */,
 				4F4237201FC852FE0067D58C /* IPlugConstants.h */,
 				4F4237231FC863060067D58C /* IPlugUtilities.h */,
@@ -1199,6 +1200,7 @@
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
 				4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */,
 				4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */,
+				4FB55685202F95E100680315 /* IGraphicsDelegate.h */,
 				4FF1426F1FD4A61D00A65575 /* IControl.h */,
 				4FF1426D1FD4A61D00A65575 /* IControl.cpp */,
 				4FA6B9531FF9C22700049441 /* IControls.h */,

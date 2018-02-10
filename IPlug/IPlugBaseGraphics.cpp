@@ -59,15 +59,19 @@ void IPlugBaseGraphics::RedrawParamControls()
 
 void* IPlugBaseGraphics::OpenWindow(void* pHandle)
 {
-  return mGraphics->OpenWindow(pHandle);
+  if(mGraphics)
+    return mGraphics->OpenWindow(pHandle);
+  else
+    return nullptr;
 }
 
 void IPlugBaseGraphics::CloseWindow()
 {
-  mGraphics->CloseWindow();
+  if(mGraphics)
+    mGraphics->CloseWindow();
 }
 
-void IPlugBaseGraphics::SetParameterInUIFromAPI(int paramIdx, double value, bool normalized)
+void IPlugBaseGraphics::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
 {
   if(mGraphics)
     mGraphics->SetParameterFromPlug(paramIdx, value, normalized);
@@ -87,5 +91,4 @@ void IPlugBaseGraphics::PrintDebugInfo()
   mGraphics->UserHomePath(pHomePath);
   DBGMSG("Location of the Tracer Build Log: \n%s/%s\n\n", pHomePath.Get(), LOGFILE);
 #endif
-  
 }

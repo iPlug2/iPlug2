@@ -313,7 +313,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           IParam* pParam = _this->GetParam(idx);
           const double v = pParam->StringToValue((const char *)ptr);
           pParam->Set(v);
-          _this->SetParameterInUIFromAPI(idx, v, false);
+          _this->SendParameterValueToUIFromAPI(idx, v, false);
           _this->OnParamChange(idx, kAutomation);
         }
         return 1;
@@ -845,7 +845,7 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
   if (idx >= 0 && idx < _this->NParams())
   {
     _this->GetParam(idx)->SetNormalized(value);
-    _this->SetParameterInUIFromAPI(idx, value, true);
+    _this->SendParameterValueToUIFromAPI(idx, value, true);
     _this->OnParamChange(idx, kAutomation);
   }
 }
