@@ -36,12 +36,13 @@ IPlugExamples/duplicate.pyc
 
 .vscode/
 
-Projects/*
-WorkProjects/*
-ObsoleteProjects/*
+*Projects/*
 Ports/*
 
 /ReaperExtensions
 *.db-shm
 *.db-wal
 *.opendb
+IPlug/IGraphics/AGG/agg*
+/IPlug/IGraphics/NanoVG
+/IPlug/IGraphics/MetalNanoVG
