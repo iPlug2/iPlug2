@@ -79,8 +79,6 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
 #endif
   PrintDebugInfo();
-
-  MakeDefaultPreset("-", kNumPrograms);
 }
 
 void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -89,14 +87,11 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const double gain = GetParam(kGain)->Value() / 100.;
   LEAVE_PARAMS_MUTEX;
   
-  sample* in1 = inputs[0];
-  sample* in2 = inputs[1];
-  sample* out1 = outputs[0];
-  sample* out2 = outputs[1];
-
-  for (int s = 0; s < nFrames; ++s, ++in1, ++in2, ++out1, ++out2)
-  {
-    *out1 = *in1 * gain;
-    *out2 = *in2 * gain;
+  const int nChans = NOutChansConnected();
+  
+  for (auto s = 0; s < nFrames; s++) {
+    for (auto c = 0; c < nChans; c++) {
+      outputs[c][s] = inputs[c][s] * gain;
+    }
   }
 }
