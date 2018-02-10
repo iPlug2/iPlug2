@@ -228,7 +228,7 @@
       }
       
 #ifdef VST_API
-      if(strstr(str, "effEditGetRect") || strstr(funcName, "MouseOver"))
+      if(strstr(str, "effGetProgram") || strstr(str, "effEditGetRect") || strstr(funcName, "MouseOver"))
 #else
       if(strstr(funcName, "MouseOver") || strstr(funcName, "idle"))
 #endif

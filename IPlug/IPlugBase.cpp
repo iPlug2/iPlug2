@@ -32,6 +32,12 @@ IPlugBase::~IPlugBase()
   mParams.Empty(true);
 }
 
+void IPlugBase::OnParamChange(int paramIdx, EParamSource source)
+{
+  Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
+  OnParamChange(paramIdx);
+}
+
 int IPlugBase::GetHostVersion(bool decimal)
 {
   GetHost();

@@ -28,7 +28,7 @@ public:
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
-  virtual void OnParamChange(int paramIdx, EParamSource source) { OnParamChange(paramIdx); }
+  virtual void OnParamChange(int paramIdx, EParamSource source);
   virtual void OnParamChange(int paramIdx) {}
 
   // In case the audio processing thread needs to do anything when the GUI opens
