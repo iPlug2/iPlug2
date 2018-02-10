@@ -112,10 +112,16 @@ public:
   void GetTimeSig(int& numerator, int& denominator) { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
   
 #pragma mark -
+  /** @return The number of channel I/O configs derived from the channel io string*/
+  int NIOConfigs() const { return mIOConfigs.GetSize(); }
+  
+  /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
+  IOConfig* GetIOConfig(int idx) { return mIOConfigs.Get(idx); }
+  
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
    * @return The maximum bus count across all channel I/O configs */
-  int MaxNBuses(ERoute direction) const { if(direction == kInput) { return mMaxNInBuses; } else { return mMaxNOutBuses; } }
+  int MaxNBuses(ERoute direction) const;
   
   /** For a given input or output bus what is the maximum possible number of channels
    * @param direction Return input or output bus count
@@ -127,12 +133,6 @@ public:
    * @param direction Return input or output bus count
    * @return /true if the bus has a wildcard, meaning it should work on any number of channels */
   bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // /todo only supports a single I/O config
-  
-  /** @return The number of channel I/O configs derived from the channel io string*/
-  int NIOConfigs() const { return mIOConfigs.GetSize(); }
-  
-  /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
-  IOConfig* GetIOConfig(int idx) { return mIOConfigs.Get(idx); }
   
   /** @param direction Whether you want to test inputs or outputs 
    * @return Total number of input or output channel buffers (not nessecarily connected) */
@@ -154,7 +154,7 @@ public:
   bool LegalIO(int NInputChans, int NOutputChans) const; //TODO: this should be updated
   
   /** @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config */
-  bool HasSidechainInput() const { return mMaxNInBuses > 1; }
+  bool HasSidechainInput() const { return MaxNBuses(ERoute::kInput) > 1; }
   
   /** @return The number of channels and the side-chain input /todo this will change */
   int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
@@ -235,10 +235,6 @@ private:
   bool mBypassed = false;
   /** \c True if the plug-in is rendering off-line*/
   bool mRenderingOffline = false;
-  /** The maximum number of input buses detected across all channels I/O configs */
-  int mMaxNInBuses;
-  /** The maximum number of output buses detected across all channels I/O configs */
-  int mMaxNOutBuses;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
   /* The data to use as a scratch buffer for audio input */

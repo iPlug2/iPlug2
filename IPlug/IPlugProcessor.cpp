@@ -18,9 +18,10 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   , mIsInstrument(c.plugIsInstrument)
   , mDoesMIDI(c.plugDoesMidi)
 {
+  int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;
 
-  ParseChannelIOStr(c.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, mMaxNInBuses, mMaxNOutBuses);
+  ParseChannelIOStr(c.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
 
   mInData.Resize(totalNInChans);
   mOutData.Resize(totalNOutChans);
@@ -107,6 +108,21 @@ double IPlugProcessor<sampleType>::GetSamplesPerBeat() const
     return GetSampleRate() * 60.0 / tempo;
   
   return 0.0;
+}
+
+#pragma mark -
+
+template<typename sampleType>
+int IPlugProcessor<sampleType>::MaxNBuses(ERoute direction) const
+{
+  int maxNBuses = 0;
+  //find the maximum channel count for each input or output bus
+  for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
+  {
+    maxNBuses = std::max(mIOConfigs.Get(configIdx)->NBuses(direction), maxNBuses);
+  }
+  
+  return maxNBuses;
 }
 
 template<typename sampleType>
