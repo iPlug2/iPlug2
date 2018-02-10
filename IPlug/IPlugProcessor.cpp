@@ -148,32 +148,6 @@ int IPlugProcessor<sampleType>::MaxNChannelsForBus(ERoute direction, int busIdx)
 }
 
 template<typename sampleType>
-int IPlugProcessor<sampleType>::MaxNChannels(ERoute direction) const
-{
-  const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
-
-  if (direction == ERoute::kInput)
-    pChannelData = &mChannelData[kInput];
-  else
-    pChannelData = &mChannelData[kOutput];
-
-  return pChannelData->GetSize();
-}
-
-template<typename sampleType>
-bool IPlugProcessor<sampleType>::IsChannelConnected(ERoute direction, int chIdx) const
-{
-  const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
-
-  if (direction == ERoute::kInput)
-    pChannelData = &mChannelData[kInput];
-  else
-    pChannelData = &mChannelData[kOutput];
-
-  return (chIdx < pChannelData->GetSize() && pChannelData->Get(chIdx)->mConnected);
-}
-
-template<typename sampleType>
 int IPlugProcessor<sampleType>::NChannelsConnected(ERoute direction) const
 {
   const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
@@ -371,18 +345,13 @@ int IPlugProcessor<sampleType>::ParseChannelIOStr(const char* IOStr, WDL_PtrList
 template<typename sampleType>
 void IPlugProcessor<sampleType>::SetChannelConnections(ERoute direction, int idx, int n, bool connected)
 {
-  WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+  WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
-  if (direction == ERoute::kInput)
-    pChannelData = &mChannelData[kInput];
-  else
-    pChannelData = &mChannelData[kOutput];
-
-  const auto endIdx = std::min(idx + n, pChannelData->GetSize());
+  const auto endIdx = std::min(idx + n, channelData.GetSize());
   
   for (auto i = idx; i < endIdx; ++i)
   {
-    IChannelData<>* pChannel = pChannelData->Get(i);
+    IChannelData<>* pChannel = channelData.Get(i);
     pChannel->mConnected = connected;
     
     if (!connected)
@@ -393,18 +362,13 @@ void IPlugProcessor<sampleType>::SetChannelConnections(ERoute direction, int idx
 template<typename sampleType>
 void IPlugProcessor<sampleType>::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int)
 {
-  WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+  WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
-  if (direction == ERoute::kInput)
-    pChannelData = &mChannelData[kInput];
-  else
-    pChannelData = &mChannelData[kOutput];
-
-  const auto endIdx = std::min(idx + n, pChannelData->GetSize());
+  const auto endIdx = std::min(idx + n, channelData.GetSize());
   
   for (auto i = idx; i < endIdx; ++i)
   {
-    IChannelData<>* pChannel = pChannelData->Get(i);
+    IChannelData<>* pChannel = channelData.Get(i);
     
     if (pChannel->mConnected)
       *(pChannel->mData) = *(ppData++);
@@ -414,17 +378,14 @@ void IPlugProcessor<sampleType>::AttachBuffers(ERoute direction, int idx, int n,
 template<typename sampleType>
 void IPlugProcessor<sampleType>::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames)
 {
-  WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
+  WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
-  if (direction == ERoute::kInput)
-    pChannelData = &mChannelData[kInput];
-  else
-    pChannelData = &mChannelData[kOutput];
-
-  const auto endIdx = std::min(idx + n, pChannelData->GetSize());
+  const auto endIdx = std::min(idx + n, channelData.GetSize());
+  
   for (auto i = idx; i < endIdx; ++i)
   {
-    IChannelData<>* pChannel = pChannelData->Get(i);
+    IChannelData<>* pChannel = channelData.Get(i);
+    
     if (pChannel->mConnected)
     {
       if (direction == ERoute::kInput)

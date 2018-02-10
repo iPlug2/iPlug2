@@ -136,12 +136,12 @@ public:
   
   /** @param direction Whether you want to test inputs or outputs 
    * @return Total number of input or output channel buffers (not nessecarily connected) */
-  int MaxNChannels(ERoute direction) const;
+  int MaxNChannels(ERoute direction) const { return mChannelData[direction].GetSize(); }
   
   /** @param direction Whether you want to test inputs or outputs 
     * @param chIdx channel index
     * @return /c true if the host has connected this channel*/
-  bool IsChannelConnected(ERoute direction, int chIdx) const;
+  bool IsChannelConnected(ERoute direction, int chIdx) const { return (chIdx < mChannelData[direction].GetSize() && mChannelData[direction].Get(chIdx)->mConnected); }
 
   /** @param direction Whether you want to test inputs or outputs 
    * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections*/
