@@ -570,6 +570,7 @@ void IGraphicsLice::RenderDrawBitmap()
 #define LineTo SWELL_LineTo
 #define SetPixel SWELL_SetPixel
 #define Polygon(a,b,c) SWELL_Polygon(a,b,c)
+#endif
 
 #include "IGraphicsLice_src.cpp"
-#endif
+
