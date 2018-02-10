@@ -237,14 +237,10 @@ private:
   bool mRenderingOffline = false;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
-  /* The data to use as a scratch buffer for audio input */
-  WDL_TypedBuf<sampleType*> mInData;
-  /* The data to use as a scratch buffer for audio output */
-  WDL_TypedBuf<sampleType*> mOutData;
-  /* A list of IChannelData structures corresponding to every input channel */
-  WDL_PtrList<IChannelData<>> mInChannels;
-  /* A list of IChannelData structures corresponding to every output channel */
-  WDL_PtrList<IChannelData<>> mOutChannels;
+  /* The data to use as a scratch buffers for audio input/output */
+  WDL_TypedBuf<sampleType*> mScratchData[2];
+  /* A list of IChannelData structures corresponding to every input/output channel */
+  WDL_PtrList<IChannelData<>> mChannelData[2];
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
