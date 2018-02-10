@@ -56,6 +56,12 @@
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG_src.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsLice_src.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugEffect.h" />
@@ -166,6 +172,12 @@
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\IPlugEffect_controls.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG_src.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLice_src.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">

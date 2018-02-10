@@ -1,3 +1,4 @@
+#ifdef IGRAPHICS_AGG
 #include "agg_arc.cpp"
 #include "agg_arrowhead.cpp"
 #include "agg_bezier_arc.cpp"
@@ -29,3 +30,4 @@
 // #include "agg_win312_pmap.cpp"
 // #include "agg_win32_font.cpp"
 // #include "agg_win32_pmap.cpp"
+#endif //IGRAPHICS_AGG

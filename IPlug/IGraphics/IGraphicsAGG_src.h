@@ -1,3 +1,4 @@
+#ifdef IGRAPHICS_AGG
 #ifdef OS_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
@@ -51,4 +52,6 @@
 #include "agg_mac_pmap.h"
 #include "agg_mac_font.h"
 #pragma clang diagnostic pop
+#endif
+
 #endif
