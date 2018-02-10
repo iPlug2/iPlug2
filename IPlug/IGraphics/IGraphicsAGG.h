@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IGraphics.h"
-#include "IGraphicsAGG_headers.h"
+#include "IGraphicsAGG_src.h"
 
 class AGGBitmap : public APIBitmap
 {

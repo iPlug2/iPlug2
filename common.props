@@ -36,7 +36,7 @@
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
     <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
-    <APP_INC_PATHS>$(ASIO_SDK);$(RTAUDIOMIDI_PATH);</APP_INC_PATHS>    
+    <APP_INC_PATHS>$(ASIO_SDK);$(RTAUDIOMIDI_PATH);</APP_INC_PATHS>
     <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
     <VST3_INC_PATHS>$(VST3_SDK);</VST3_INC_PATHS>
     <AAX_INC_PATHS>$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;$(IPLUG_PATH)\AAX;.</AAX_INC_PATHS>
@@ -55,7 +55,6 @@
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(LICE_PATH)\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>

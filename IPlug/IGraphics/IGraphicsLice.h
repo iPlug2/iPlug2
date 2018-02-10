@@ -6,9 +6,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include "swell.h"
 #endif
-#include "lice.h"
-#include "lice_text.h"
-
+#include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
 inline LICE_pixel LiceColor(const IColor& color)
