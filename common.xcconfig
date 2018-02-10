@@ -97,13 +97,12 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 // BUILD SETTINGS FOR BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 
 // Where to build the plug-ins / app bundles ...
-// By default WDL-OL/IPlug builds to system plug-in folder
-// You need to explicitly add write permissions to put stuff here
-// You can also build to the user plug-in folder, but the installer scripts assume that the binaries are in the system folder
+// By default WDL-OL/IPlug builds to user plug-in folder
+// You can also build to the system plug-in folder, but you will need to explicitly add write permissions to build stuff there
 // The AAX folder should be the location of the PT Dev build plug-ins folder, installer scripts will copy to the non-developer build
 
-VST2_PATH = /Library/Audio/Plug-Ins/VST
-VST3_PATH = /Library/Audio/Plug-Ins/VST3
-AU_PATH = /Library/Audio/Plug-Ins/Components
+VST2_PATH = ~/Library/Audio/Plug-Ins/VST
+VST3_PATH = ~/Library/Audio/Plug-Ins/VST3
+AU_PATH = ~/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
-APP_PATH = /Applications
+APP_PATH = ~/Applications
