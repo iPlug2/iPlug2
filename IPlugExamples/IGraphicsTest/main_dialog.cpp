@@ -1,8 +1,14 @@
 #include "IGraphicsTest.h"
+#ifdef OS_MAC
 #include "IGraphicsMac.h"
+#else
+#include "IGraphicsWin.h"
+#endif
 #include "IControls.h"
 
-MyDelegate dlg;
+extern void CenterWindow(HWND hwnd, int w, int h);
+
+MyDelegate dummyDelegate;
 
 enum EParams
 {
@@ -12,15 +18,22 @@ enum EParams
 
 void CreateGraphics()
 {
+#ifdef OS_MAC
   IGraphicsMac* pGraphics = new IGraphicsMac(dlg, 300, 300, 60);
   pGraphics->SetBundleID("com.OliLarkin.app.IGraphicsTest");
   pGraphics->CreateMetalLayer();
+#else
+  IGraphicsWin* pGraphics = new IGraphicsWin(dummyDelegate, 300, 300, 60);
+  pGraphics->SetPlatformInstance(gHINSTANCE);
+#endif
+
   pGraphics->OpenWindow((void*) gHWND);
-  
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  ISVG svg = pGraphics->LoadSVG("resources/img/BefacoBigKnob.svg");
-  pGraphics->AttachControl(new IVSVGKnob(dlg, pGraphics->GetBounds().GetPadded(-20), svg, kGain));
+  /*ISVG svg = pGraphics->LoadSVG("resources/img/BefacoBigKnob.svg");*/
+  //pGraphics->AttachControl(new IVSVGKnob(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), svg, kGain));
+
+  pGraphics->AttachControl(new IVKnobControl(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), kGain));
 }
 
 //static
@@ -33,7 +46,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       gHWND = hwndDlg;
       
       CreateGraphics();
-      CenterWindow(gHWND);
+      CenterWindow(gHWND, 300, 300);
       ShowWindow(gHWND, SW_SHOW);
      
       return 1;

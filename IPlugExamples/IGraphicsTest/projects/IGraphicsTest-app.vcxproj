@@ -30,7 +30,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{41785AE4-5B70-4A75-880B-4B418B4E13C6}</ProjectGuid>
     <RootNamespace>IGraphicsTest</RootNamespace>
-    <ProjectName>IGraphicsTest-app</ProjectName>
+    <ProjectName>IGraphicsTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -157,6 +157,12 @@
     <ResourceCompile>
       <Culture />
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -176,6 +182,12 @@
     <ResourceCompile>
       <Culture />
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -198,6 +210,12 @@
     <ResourceCompile>
       <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -221,6 +239,12 @@
     <ResourceCompile>
       <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
     <ClCompile>
@@ -243,6 +267,12 @@
     <ResourceCompile>
       <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
     <ClCompile>
@@ -265,20 +295,14 @@
     <ResourceCompile>
       <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
     </ResourceCompile>
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\ASIO_SDK\asio.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiodrivers.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiodrvr.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiolist.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiosys.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\dsound.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\ginclude.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\iasiodrv.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\iasiothiscallresolver.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\soundcard.h" />
-    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.h" />
-    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h" />
@@ -344,34 +368,11 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugAPP.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugPresets.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
-    <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
-    <ClInclude Include="..\app_wrapper\app_main.h" />
-    <ClInclude Include="../config.h" />
     <ClInclude Include="..\IGraphicsTest.h" />
-    <ClInclude Include="..\IGraphicsTest_controls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\ASIO_SDK\asio.cpp" />
-    <ClCompile Include="..\..\..\ASIO_SDK\asiodrivers.cpp" />
-    <ClCompile Include="..\..\..\ASIO_SDK\asiolist.cpp" />
-    <ClCompile Include="..\..\..\ASIO_SDK\iasiothiscallresolver.cpp" />
-    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.cpp" />
-    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp" />
@@ -416,17 +417,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugAPP.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\app_wrapper\app_dialog.cpp" />
-    <ClCompile Include="..\app_wrapper\app_main.cpp" />
-    <ClCompile Include="..\IGraphicsTest.cpp" />
+    <ClCompile Include="..\main_dialog.cpp" />
+    <ClCompile Include="..\main_win.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
@@ -456,6 +449,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\IGraphicsTest.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\IGraphicsTest.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

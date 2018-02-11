@@ -53,7 +53,7 @@ public:
   void UserHomePath(WDL_String& path) override;
   void AppSupportPath(WDL_String& path, bool isSystem) override;
   void SandboxSafeAppSupportPath(WDL_String& path) override { AppSupportPath(path, false); }
-  void VST3PresetsPath(WDL_String& path, bool isSystem, const char* mfrName, const char* pluginName) override;
+  void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;

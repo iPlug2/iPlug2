@@ -51,6 +51,9 @@
   #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
 
 #ifdef OS_WIN
+#ifdef NDEBUG
+#define DBGMSG(...)
+#else
   static void DBGMSG(const char *format, ...)
   {
     char buf[4096], *p = buf;
@@ -72,6 +75,7 @@
     
     OutputDebugString(buf);
   }
+#endif
 #endif
 
   struct LogFile

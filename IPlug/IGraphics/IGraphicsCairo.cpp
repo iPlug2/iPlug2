@@ -377,7 +377,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 
 bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
-#ifdef OS_WIN
+#if defined(OS_WIN) && defined(IGRAPHICS_FREETYPE)
   // TODO: lots!
   LoadFont("C:/Windows/Fonts/Verdana.ttf");
 

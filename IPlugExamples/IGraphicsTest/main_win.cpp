@@ -1,3 +1,13 @@
+#include <windows.h>
+#include <commctrl.h>
+#include "IGraphicsTest.h"
+
+HWND gHWND;
+HINSTANCE gHINSTANCE;
+UINT gScrollMessage;
+
+extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
   // first check to make sure this is the only instance running
@@ -5,27 +15,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
   try
   {
     // Try to open the mutex.
-    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, BUNDLE_NAME);
+    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "IGraphicsTest");
 
     // If hMutex is 0 then the mutex doesn't exist.
     if (!hMutex)
-      hMutex = CreateMutex(0, 0, BUNDLE_NAME);
+      hMutex = CreateMutex(0, 0, "IGraphicsTest");
     else
     {
       // This is a second instance. Bring the
       // original instance to the top.
-      HWND hWnd = FindWindow(0, BUNDLE_NAME);
+      HWND hWnd = FindWindow(0, "IGraphicsTest");
       SetForegroundWindow(hWnd);
 
       return 0;
     }
 
-    gHInstance = hInstance;
+    gHINSTANCE = hInstance;
 
     InitCommonControls();
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 
-    CreateDialog(gHInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN),GetDesktopWindow(),MainDlgProc);
+    CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
 
     for(;;)
     {
@@ -44,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         continue;
       }
 
-      if (gHWND && IsDialogMessage(gHWND,&msg)) continue;
+      if (gHWND && IsDialogMessage(gHWND, &msg)) continue;
 
       // default processing for other dialogs
       HWND hWndParent=NULL;
@@ -54,7 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
         {
           hWndParent=temphwnd;
-          if (!(GetWindowLong(temphwnd,GWL_STYLE)&WS_CHILD)) break; // not a child, exit
+          if (!(GetWindowLong(temphwnd,GWL_STYLE)&WS_CHILD))
+            break; // not a child, exit
         }
       }
       while (temphwnd = GetParent(temphwnd));
@@ -63,13 +74,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-
     }
 
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
     if (gHWND) DestroyWindow(gHWND);
-
-    Cleanup();
 
     ReleaseMutex(hMutex);
   }
@@ -79,4 +87,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     DBGMSG("another instance running");
   }
   return 0;
+}
+
+void CenterWindow(HWND hWnd, int w, int h)
+{
+  RECT rcClient, rcWindow;
+  POINT ptDiff;
+  int screenwidth, screenheight;
+  int x, y;
+
+  screenwidth = GetSystemMetrics(SM_CXSCREEN);
+  screenheight = GetSystemMetrics(SM_CYSCREEN);
+  x = (screenwidth / 2) - (w / 2);
+  y = (screenheight / 2) - (h / 2);
+
+  GetClientRect(hWnd, &rcClient);
+  GetWindowRect(hWnd, &rcWindow);
+  ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+  ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+  MoveWindow(hWnd, x, y, w + ptDiff.x, h + ptDiff.y, FALSE);
 }
