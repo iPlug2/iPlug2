@@ -12,8 +12,8 @@
 
 #include "resources/resource.h"
 
-extern void CenterWindow(HWND hwnd);
 extern HWND gHWND;
+extern HINSTANCE gHINSTANCE;
 extern UINT gScrollMessage;
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
