@@ -586,7 +586,7 @@ public:
 
    @return <#return value description#>
   */
-  virtual const char* GetGUIAPI() { return ""; }
+  virtual const char* GetUIAPI() { return ""; }
 
 
   /**

@@ -321,7 +321,7 @@ void IGraphicsMac::UpdateTooltips()
   }
 }
 
-const char* IGraphicsMac::GetGUIAPI()
+const char* IGraphicsMac::GetUIAPI()
 {
   return "Cocoa";
 }

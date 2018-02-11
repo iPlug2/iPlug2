@@ -706,6 +706,6 @@ bool IBSliderControl::IsHit(float x, float y) const
 
 void IBSliderControl::OnRescale()
 {
-  mHandleBitmap = GetGUI()->GetScaledBitmap(mHandleBitmap);
+  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
 }
 

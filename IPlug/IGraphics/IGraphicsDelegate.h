@@ -7,7 +7,7 @@ class IGraphicsDelegate
 public:
   IGraphicsDelegate() {}
   virtual ~IGraphicsDelegate() {}
-  virtual IGraphics* GetGUI() = 0;
+  virtual IGraphics* GetUI() = 0;
 
   virtual IParam* GetParamFromUI(int paramIdx) = 0;
   virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) = 0;

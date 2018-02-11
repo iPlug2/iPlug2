@@ -114,7 +114,7 @@ void IControl::PromptUserInput()
   {
     if (mDelegate.GetParamFromUI(mParamIdx)->NDisplayTexts()) // popup menu
     {
-      mDelegate.GetGUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), mRECT);
+      mDelegate.GetUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), mRECT);
     }
     else // text entry
     {
@@ -124,7 +124,7 @@ void IControl::PromptUserInput()
       float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      mDelegate.GetGUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), txtRECT);
+      mDelegate.GetUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), txtRECT);
     }
 
     Redraw();
@@ -135,7 +135,7 @@ void IControl::PromptUserInput(IRECT& textRect)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    mDelegate.GetGUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), textRect);
+    mDelegate.GetUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), textRect);
     Redraw();
   }
 }
@@ -246,7 +246,7 @@ void IBitmapControl::Draw(IGraphics& graphics)
 
 void IBitmapControl::OnRescale()
 {
-  mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
+  mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
 void ISVGControl::Draw(IGraphics& graphics)

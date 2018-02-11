@@ -631,7 +631,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
 //        {
 //          if (value == 0x57686565)
 //          {
-//            IGraphics* pGraphics = _this->GetGUI();
+//            IGraphics* pGraphics = _this->GetUI();
 //            if (pGraphics) {
 //              return pGraphics->ProcessMouseWheel(opt);
 //            }

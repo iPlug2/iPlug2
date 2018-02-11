@@ -19,7 +19,7 @@ public:
   ~IPlugBaseGraphics();
   
   //IPlugBase
-  void* GetAAXViewInterface() override { return (void*) GetGUI(); }
+  void* GetAAXViewInterface() override { return (void*) GetUI(); }
   
   int GetUIWidth() override;
   int GetUIHeight() override;
@@ -31,7 +31,7 @@ public:
   void PrintDebugInfo() override;
 
   //IGraphicsDelegate
-  IGraphics* GetGUI() override { assert(mGraphics); return mGraphics; }
+  IGraphics* GetUI() override { assert(mGraphics); return mGraphics; }
   IParam* GetParamFromUI(int paramIdx) override { return GetParam(paramIdx); }
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }

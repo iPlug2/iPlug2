@@ -183,7 +183,7 @@ public:
   /**@}*/
   
   IGraphicsDelegate& GetDelegate() { return mDelegate; }
-  IGraphics* GetGUI() { return mDelegate.GetGUI(); }
+  IGraphics* GetUI() { return mDelegate.GetUI(); }
   
   void GetJSON(WDL_String& json, int idx) const;
 
