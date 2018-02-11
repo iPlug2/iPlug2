@@ -242,7 +242,6 @@ protected:
 class IVectorBase
 {
 public:
-  
   IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,  // background
               const IColor* pFGColor = &DEFAULT_FGCOLOR,  // foreground,
               const IColor* pFRColor = 0,                 // frame
