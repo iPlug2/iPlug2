@@ -30,8 +30,10 @@ void CreateGraphics()
   pGraphics->OpenWindow((void*) gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
-  /*ISVG svg = pGraphics->LoadSVG("resources/img/BefacoBigKnob.svg");
-  pGraphics->AttachControl(new IVSVGKnob(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), svg, kGain));*/
+  /*ISVG svg = pGraphics->LoadSVG("resources/img/BefacoBigKnob.svg");*/
+  //pGraphics->AttachControl(new IVSVGKnob(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), svg, kGain));
+
+  pGraphics->AttachControl(new IVKnobControl(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), kGain));
 }
 
 //static
