@@ -52,10 +52,10 @@ public:
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
   void ResizeGraphics(int w, int h, double scale) override;
-  
+  void HostSpecificInit() override;
+
 //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  void HostSpecificInit() override;
   void SetLatency(int samples) override;
 
 //IPlugAU
