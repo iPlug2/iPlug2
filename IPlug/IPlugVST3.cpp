@@ -594,7 +594,7 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
     
     _SetBypassed((bool) savedBypass);
     
-    RedrawParamControls();
+    OnRestoreState();
     return kResultOk;
   }
 

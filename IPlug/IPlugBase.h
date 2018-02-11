@@ -58,6 +58,8 @@ public:
 
   // ----------------------------------------
   // Your plugin class, or a control class, can call these functions.
+  /** This is called by API classes after restoring stateand by IPlugPresetHandler::RestorePreset(). Typically used to update user interface, where parameter values have changed. */
+  virtual void OnRestoreState() {};
   int NParams() const { return mParams.GetSize(); }
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
@@ -131,7 +133,6 @@ public:
   bool SerializeParams(IByteChunk& chunk);
   int UnserializeParams(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos)
 
-  virtual void RedrawParamControls() {};  // Called after restoring state.
 
   // ----------------------------------------
   // Internal IPlug stuff (but API classes need to get at it).

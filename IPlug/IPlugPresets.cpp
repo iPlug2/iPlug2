@@ -198,7 +198,7 @@ bool IPlugPresetHandler::RestorePreset(int idx)
     {
       mCurrentPresetIdx = idx;
       PresetsChangedByHost();
-      GETPLUG->RedrawParamControls();
+      GETPLUG->OnRestoreState();
     }
   }
   return restoredOK;
@@ -626,7 +626,7 @@ bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
 
         return true;
       }
-      else if (fxpMagic == 'FxCk')
+      else if (fxpMagic == 'FxCk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
       {
         GETPLUG->ENTER_PARAMS_MUTEX;
         for (int i = 0; i< GETPLUG->NParams(); i++)
@@ -719,7 +719,7 @@ bool IPlugPresetHandler::LoadBankFromFXB(const char* file)
         GETPLUG->InformHostOfProgramChange();
         return true;
       }
-      else if (fxbMagic == 'FxBk')
+      else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
       {
         int32_t chunkMagic;
         int32_t byteSize;

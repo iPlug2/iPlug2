@@ -1448,7 +1448,7 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
     return kAudioUnitErr_InvalidPropertyValue;
   }
 
-  RedrawParamControls();
+  OnRestoreState();
   return noErr;
 }
 

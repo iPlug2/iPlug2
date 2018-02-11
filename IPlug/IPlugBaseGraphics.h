@@ -26,7 +26,9 @@ public:
   void* OpenWindow(void* pHandle) override;
   void CloseWindow() override;
   void AttachGraphics(IGraphics* pGraphics);
-  void RedrawParamControls() override;
+
+  /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update. */
+  virtual void OnRestoreState() override;
   void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
   void PrintDebugInfo() override;
 

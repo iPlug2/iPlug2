@@ -430,7 +430,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         
         if (pos >= 0)
         {
-          _this->RedrawParamControls();
+          _this->OnRestoreState();
           return 1;
         }
       }
