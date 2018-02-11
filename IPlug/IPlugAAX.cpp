@@ -27,7 +27,7 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   void* pWindow = GetViewContainerPtr();
   
-  if (pWindow && mPlug->GetHasUI())
+  if (pWindow && mPlug->HasUI())
   {
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
@@ -45,10 +45,10 @@ void AAX_CEffectGUI_IPLUG::DeleteViewContainer()
 
 AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
 {
-  if (mPlug->GetHasUI())
+  if (mPlug->HasUI())
   {
-    oEffectViewSize->horz = (float) mPlug->GetUIWidth();
-    oEffectViewSize->vert = (float) mPlug->GetUIHeight();
+    oEffectViewSize->horz = (float) mPlug->Width();
+    oEffectViewSize->vert = (float) mPlug->Height();
   }
   
   return AAX_SUCCESS; 
@@ -444,7 +444,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
 
 void IPlugAAX::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     AAX_Point oEffectViewSize;
     oEffectViewSize.horz = (float) w;

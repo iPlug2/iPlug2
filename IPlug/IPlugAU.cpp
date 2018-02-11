@@ -881,7 +881,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_CocoaUI:                      // 31,
     {
-      if (GetHasUI()) // this won't work < 10.5 SDK but barely anyone will use that these days
+      if (HasUI()) // this won't work < 10.5 SDK but barely anyone will use that these days
       {
         *pDataSize = sizeof(AudioUnitCocoaViewInfo);  // Just one view.
         if (pData)
@@ -1900,7 +1900,7 @@ void IPlugAU::HostSpecificInit()
 
 void IPlugAU::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     OnWindowResize();
   }

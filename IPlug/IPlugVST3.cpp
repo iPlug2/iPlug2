@@ -834,7 +834,7 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
 
 void IPlugVST3::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     mViews.at(0)->resize(w, h); // only resize view 0?
   }
@@ -889,7 +889,7 @@ IPlugVST3View::~IPlugVST3View()
 
 tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 {
-  if(mPlug->GetHasUI()) // for no editor plugins
+  if(mPlug->HasUI()) // for no editor plugins
   {
 #ifdef OS_WIN
     if (strcmp(type, kPlatformTypeHWND) == 0)
@@ -928,9 +928,9 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 {
   TRACE;
 
-  if (mPlug->GetHasUI())
+  if (mPlug->HasUI())
   {
-    *size = ViewRect(0, 0, mPlug->GetUIWidth(), mPlug->GetUIHeight());
+    *size = ViewRect(0, 0, mPlug->Width(), mPlug->Height());
 
     return kResultTrue;
   }
@@ -942,7 +942,7 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 
 tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 {
-  if (mPlug->GetHasUI())
+  if (mPlug->HasUI())
   {
     #ifdef OS_WIN
     if (strcmp(type, kPlatformTypeHWND) == 0)
@@ -963,7 +963,7 @@ tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 
 tresult PLUGIN_API IPlugVST3View::removed()
 {
-  if (mPlug->GetHasUI())
+  if (mPlug->HasUI())
   {
     mPlug->OnGUIClose();
     mPlug->CloseWindow();

@@ -104,9 +104,9 @@ public:
   int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
   void GetHostVersionStr(WDL_String& str);
   
-  virtual bool GetHasUI() { return mHasUI; }
-  virtual int GetUIWidth() { return 0; }
-  virtual int GetUIHeight() { return 0; }
+  virtual bool HasUI() { return mHasUI; }
+  virtual int Width() { return 0; }
+  virtual int Height() { return 0; }
   virtual void* GetAAXViewInterface() { return nullptr; }
 
   // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics::AttachGraphics)

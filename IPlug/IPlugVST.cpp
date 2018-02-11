@@ -112,22 +112,22 @@ EHost IPlugVST::GetHost()
 
 void IPlugVST::OnGUICreated()
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     mAEffect.flags |= effFlagsHasEditor;
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = GetUIWidth();
-    mEditRect.bottom = GetUIHeight();
+    mEditRect.right = Width();
+    mEditRect.bottom = Height();
   }
 }
 
 void IPlugVST::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = GetUIWidth();
-    mEditRect.bottom = GetUIHeight();
+    mEditRect.right = Width();
+    mEditRect.bottom = Height();
 
     OnWindowResize();
   }
@@ -347,7 +347,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditGetRect:
     {
-      if (ptr && _this->GetHasUI())
+      if (ptr && _this->HasUI())
       {
         *(ERect**) ptr = &(_this->mEditRect);
         return 1;
@@ -367,7 +367,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditClose:
     {
-      if (_this->GetHasUI())
+      if (_this->HasUI())
       {
         _this->CloseWindow();
         return 1;
