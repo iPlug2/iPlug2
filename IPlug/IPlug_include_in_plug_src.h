@@ -60,7 +60,7 @@
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
       IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
-      
+
       if (pPlug)
       {
         pPlug->EnsureDefaultPreset();
@@ -146,7 +146,7 @@ END_FACTORY
     IPlugInstanceInfo instanceInfo;
     instanceInfo.mBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
-    
+
     if(pMemory)
       return new(pMemory) PLUG_CLASS_NAME(instanceInfo);
     else
@@ -160,12 +160,12 @@ class IPlugAUFactory
     {
       return MakePlug(pMemory);
     }
-    
+
     static void Destruct(void* pMemory)
     {
       ((PLUG_CLASS_NAME*) pMemory)->~PLUG_CLASS_NAME();
     }
-    
+
     static AudioComponentMethod Lookup (SInt16 selector)
     {
       switch (selector) {
@@ -193,7 +193,7 @@ class IPlugAUFactory
       }
       return NULL;
     }
-     
+
     static OSStatus Open(void* pSelf, AudioUnit compInstance)
     {
       AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
@@ -205,10 +205,10 @@ class IPlugAUFactory
       plug->mCI = compInstance;
       plug->HostSpecificInit();
       plug->PruneUninitializedPresets();
-      
+
       return noErr;
     }
-    
+
     static OSStatus Close(void* pSelf)
     {
       AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
@@ -262,7 +262,7 @@ extern "C"
   IPlug* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
-    
+
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #elif defined APP_API
@@ -272,7 +272,7 @@ extern "C"
 
     instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
     instanceInfo.mMidiOutChan = midiOutChan;
-    
+
     #if defined OS_MAC
       instanceInfo.mBundleID.Set(BUNDLE_ID);
     #endif
@@ -302,4 +302,5 @@ extern "C"
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT))
+    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
+    PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT))

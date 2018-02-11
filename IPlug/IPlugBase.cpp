@@ -8,7 +8,6 @@
 
 #include "IPlugBase.h"
 
-
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   : mUniqueID(c.uniqueID)
   , mMfrID(c.mfrID)
@@ -17,6 +16,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mEffectName(c.effectName, MAX_EFFECT_NAME_LEN)
   , mProductName(c.productName, MAX_EFFECT_NAME_LEN)
   , mMfrName(c.mfrName, MAX_EFFECT_NAME_LEN)
+  , mHasUI(c.plugHasUI)
   , mAPI(plugAPI)
 {
   Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());

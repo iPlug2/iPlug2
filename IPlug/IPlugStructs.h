@@ -163,6 +163,9 @@ struct IPlugConfig
   bool plugDoesMidi;
   bool plugDoesChunks;
   bool plugIsInstrument;
+  bool plugHasUI;
+  int plugWidth;
+  int plugHeight;
   
   IPlugConfig(int nParams,
               int nPresets,
@@ -176,7 +179,10 @@ struct IPlugConfig
               int latency,
               bool plugDoesMidi,
               bool plugDoesChunks,
-              bool plugIsInstrument)
+              bool plugIsInstrument,
+              bool plugHasUI,
+              int plugWidth,
+              int plugHeight)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -191,6 +197,9 @@ struct IPlugConfig
   , plugDoesMidi(plugDoesMidi)
   , plugDoesChunks(plugDoesChunks)
   , plugIsInstrument(plugIsInstrument)
+  , plugHasUI(plugHasUI)
+  , plugWidth(plugWidth)
+  , plugHeight(plugHeight)
   {};
 };
 

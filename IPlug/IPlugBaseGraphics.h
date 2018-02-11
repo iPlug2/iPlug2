@@ -17,12 +17,9 @@ class IPlugBaseGraphics : public IPlugBase
 public:
   IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI);
   ~IPlugBaseGraphics();
-  
+
   //IPlugBase
   void* GetAAXViewInterface() override { return (void*) GetUI(); }
-  
-  int GetUIWidth() override;
-  int GetUIHeight() override;
   void* OpenWindow(void* pHandle) override;
   void CloseWindow() override;
   void AttachGraphics(IGraphics* pGraphics);

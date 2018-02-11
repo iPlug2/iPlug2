@@ -11,18 +11,6 @@ IPlugBaseGraphics::~IPlugBaseGraphics()
   DELETE_NULL(mGraphics);
 }
 
-int IPlugBaseGraphics::GetUIWidth()
-{
-  assert(mGraphics);
-  return mGraphics->WindowWidth();
-}
-
-int IPlugBaseGraphics::GetUIHeight()
-{
-  assert(mGraphics);
-  return mGraphics->WindowHeight();
-}
-
 void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
@@ -40,8 +28,6 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
     // TODO: is it safe/sensible to do this here
     pGraphics->OnDisplayScale();
   }
-  
-  OnGUICreated();
 }
 
 void IPlugBaseGraphics::RedrawParamControls()
