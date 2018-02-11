@@ -70,14 +70,14 @@ void IPlugProcessor<sampleType>::ProcessBlock(sampleType** inputs, sampleType** 
   {
     if (i < nIn)
     {
-      memcpy(outputs[i], inputs[i], nFrames * sizeof(double));
+      memcpy(outputs[i], inputs[i], nFrames * sizeof(sampleType));
       j++;
     }
   }
   // zero remaining outs
   for (/* same j */; j < nOut; ++j)
   {
-    memset(outputs[j], 0, nFrames * sizeof(double));
+    memset(outputs[j], 0, nFrames * sizeof(sampleType));
   }
 }
 
