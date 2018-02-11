@@ -4,6 +4,7 @@
 #include <commctrl.h>
 
 #include "IGraphicsWin.h"
+#include "IPlugParameter.h"
 
 #include <wininet.h>
 
@@ -566,8 +567,7 @@ void IGraphicsWin::Resize(int w, int h, float scale)
     SetWindowPos(mDelegateWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
     // don't want to touch the host window in VST3
-    if(mDelegate.GetAPI() != kAPIVST3)
-    {
+#ifndef VST3_API
       if(pParent)
       {
         SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
@@ -577,7 +577,7 @@ void IGraphicsWin::Resize(int w, int h, float scale)
       {
         SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
       }
-    }
+#endif
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
     InvalidateRect(mDelegateWnd, &r, FALSE);
@@ -1027,7 +1027,7 @@ void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
   GetKnownFolder(path, isSystem ? CSIDL_COMMON_APPDATA : CSIDL_LOCAL_APPDATA);
 }
 
-void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem, const char* mfrName, const char* pluginName)
+void IGraphicsWin::VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
   if (!isSystem)
   {
@@ -1038,7 +1038,7 @@ void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem, const char* 
     AppSupportPath(path, true);
   }
 
-  path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mDelegate.GetMfrName(), mDelegate.GetProductName());
+  path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
