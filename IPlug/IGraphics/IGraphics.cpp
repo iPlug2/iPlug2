@@ -19,17 +19,17 @@
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
-  
+
   SVGHolder(NSVGimage* pImage)
   : mImage(pImage)
   {
   }
-  
+
   ~SVGHolder()
   {
     if(mImage)
       nsvgDelete(mImage);
-    
+
     mImage = nullptr;
   }
 };
@@ -49,20 +49,20 @@ IGraphics::~IGraphics()
 {
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
-  
+
 #if !defined(NDEBUG) && defined(APP_API)
   if (mLiveEdit)
     DELETE_NULL(mLiveEdit);
 #endif
 
-#if !defined(NO_FREETYPE)
+#ifdef IGRAPHICS_FREETYPE
   if (mFTFace != nullptr)
   {
     FT_Done_Face(mFTFace);
     FT_Done_FreeType(mFTLibrary);
   }
 #endif
-  
+
   mControls.Empty(true);
 }
 
@@ -92,7 +92,7 @@ void IGraphics::OnDisplayScale()
     pControl->OnRescale();
     pControl->OnResize();
   }
-  
+
   SetAllControlsDirty();
 }
 
@@ -196,10 +196,10 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
       pControl->SetValueFromPlug(value);
       // Could be more than one, don't break until we check them all.
     }
-    
+
     // now look for any auxilliary parameters
     int auxParamIdx = pControl->AuxParamIdx(paramIdx);
-    
+
     if (auxParamIdx > -1) // there are aux params
     {
       pControl->SetAuxParamValueFromPlug(auxParamIdx, value);
@@ -315,29 +315,29 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   if (CSTR_NOT_EMPTY(str))
   {
     int stringLength = (int) strlen(str);
-    
+
     float basicYOffset = 0.;
     float basicXOffset = 0.;
-    
+
     if (vCenter)
       basicYOffset = rect.T + ((rect.H() - charHeight) / 2.f);
     else
       basicYOffset = rect.T;
-    
+
     if (text.mAlign == IText::kAlignCenter)
       basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2.f);
     else if (text.mAlign == IText::kAlignNear)
       basicXOffset = rect.L;
     else if (text.mAlign == IText::kAlignFar)
       basicXOffset = rect.R - (stringLength * charWidth);
-    
+
     int widthAsOneLine = charWidth * stringLength;
-    
+
     int nLines;
     int stridx = 0;
-    
+
     int nCharsThatFitIntoLine;
-    
+
     if(multiline)
     {
       if (widthAsOneLine > rect.W())
@@ -356,17 +356,17 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
       nCharsThatFitIntoLine = int(rect.W() / (float) charWidth);
       nLines = 1;
     }
-    
+
     for(int line=0; line<nLines; line++)
     {
       float yOffset = basicYOffset + line * charHeight;
-      
+
       for(int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
       {
         if (str[stridx] == '\0') return;
-        
+
         int frameOffset = (int) str[stridx++] - 31; // calculate which frame to look up
-        
+
         float xOffset = ((float) linepos * ((float) charWidth + (float) charOffset)) + basicXOffset;    // calculate xOffset for character we're drawing
         IRECT charRect = IRECT(xOffset, yOffset, xOffset + charWidth, yOffset + charHeight);
         DrawBitmap(bitmap, charRect, frameOffset, pBlend);
@@ -440,7 +440,7 @@ bool IGraphics::IsDirty(IRECT& rect)
     return true;
   }
 #endif
-  
+
   bool dirty = false;
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -474,7 +474,7 @@ bool IGraphics::IsDirty(IRECT& rect)
 void IGraphics::Draw(const IRECT& rect)
 {
   int n = mControls.GetSize();
-  
+
   if (!n)
     return;
 
@@ -489,11 +489,11 @@ void IGraphics::Draw(const IRECT& rect)
       {
         ClipRegion(mDrawRECT);
         pControl->Draw(*this);
-        
+
 #ifdef AAX_API
         pControl->DrawPTHighlight(*this);
 #endif
-        
+
         ResetClipRegion();
       }
       pControl->SetClean();
@@ -512,11 +512,11 @@ void IGraphics::Draw(const IRECT& rect)
         {
           ClipRegion(pControl2->GetRECT());
           pControl2->Draw(*this);
-          
+
 #ifdef AAX_API
           pControl2->DrawPTHighlight(*this);
 #endif
-          
+
           pControl2->SetClean();
           ResetClipRegion();
         }
@@ -539,7 +539,7 @@ void IGraphics::Draw(const IRECT& rect)
             {
               ClipRegion(mDrawRECT);
               pControl2->Draw(*this);
-              
+
 #ifdef AAX_API
               pControl2->DrawPTHighlight(*this);
 #endif
@@ -560,7 +560,7 @@ void IGraphics::Draw(const IRECT& rect)
     c.Randomise(50);
     FillRect(c, rect);
   }
-  
+
   if(mShowControlBounds)
   {
     for (int j = 1; j < mControls.GetSize(); j++)
@@ -569,7 +569,7 @@ void IGraphics::Draw(const IRECT& rect)
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
   }
-  
+
 #if defined(APP_API)
   if(mLiveEdit)
     mLiveEdit->Draw(*this);
@@ -599,7 +599,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
-  
+
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -607,7 +607,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     return;
   }
 #endif
-  
+
   ReleaseMouseCapture();
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
@@ -616,7 +616,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
     IControl* pControl = mControls.Get(c);
     int paramIdx = pControl->ParamIdx();
-    
+
     #ifdef AAX_API
     if (mAAXViewContainer && paramIdx >= 0)
     {
@@ -636,7 +636,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
       }
     }
     #endif
-    
+
     #ifndef IGRAPHICS_NO_CONTEXT_MENU
     if (mod.R && paramIdx >= 0)
     {
@@ -645,10 +645,10 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
       return;
     }
     #endif
-    
+
     if (paramIdx >= 0)
       mDelegate.BeginInformHostOfParamChangeFromUI(paramIdx);
-    
+
     pControl->OnMouseDown(x, y, mod);
   }
 }
@@ -684,7 +684,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
-  
+
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -692,7 +692,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
     return true;
   }
 #endif
-  
+
   if (mHandleMouseOver)
   {
     int c = GetMouseControlIdx(x, y, true);
@@ -713,7 +713,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseDblClick", __LINE__, "");
-  
+
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
@@ -736,7 +736,7 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
     return;
   }
 #endif
-  
+
   int c = mMouseCapture;
   if (c >= 0 && (dX != 0 || dY != 0))
     mControls.Get(c)->OnMouseDrag(x, y, dX, dY, mod);
@@ -746,7 +746,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
-  
+
   ReleaseMouseCapture();
   bool newCapture = false;
   int c = GetMouseControlIdx(x, y);
@@ -785,7 +785,7 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
 {
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
-  
+
   int c = GetMouseControlIdx(x, y);
   if (c > 0)
     return mControls.Get(c)->OnKeyDown(x, y, key);
@@ -859,7 +859,7 @@ void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color
   for (i = 0; i < n; ++i, ++ppControl)
   {
     IControl* pControl = *ppControl;
-    
+
     if (pControl->ParamIdx() == param)
     {
       pControl->SetPTParameterHighlight(isHighlighted, color);
@@ -871,50 +871,50 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 {
   IPopupMenu contextMenu;
   IControl* pControl = GetControl(controlIdx);
-  
+
   if(pControl)
   {
     pControl->CreateContextMenu(contextMenu);
-    
+
     if(!contextMenu.NItems())
       return;
-    
+
 #ifdef VST3_API
     IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mDelegate);
-    
+
     if (!pVST3->GetComponentHandler() || !pVST3->GetView())
       return;
-    
+
     Steinberg::FUnknownPtr<Steinberg::Vst::IComponentHandler3>handler(pVST3->GetComponentHandler() );
-    
+
     if (handler == 0)
       return;
-    
+
     Steinberg::Vst::ParamID p = paramIdx;
-    
+
     Steinberg::Vst::IContextMenu* menu = handler->createContextMenu(pVST3->GetView(), &p);
-    
+
     if (menu)
     {
       Steinberg::Vst::IContextMenu::Item item = {0};
-      
+
       for (int i = 0; i < contextMenu.NItems(); i++)
       {
         Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
         item.tag = i;
-        
+
         if (!contextMenu.GetItem(i)->GetEnabled())
           item.flags = Steinberg::Vst::IContextMenu::Item::kIsDisabled;
         else
           item.flags = 0;
-        
+
         menu->addItem(item, GetControl(controlIdx));
       }
-      
+
       menu->popup((Steinberg::UCoord) x,(Steinberg::UCoord) y);
       menu->release();
     }
-    
+
 #else
     CreateIPopupMenu(contextMenu, x, y);
     pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
@@ -926,7 +926,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 void IGraphics::OnGUIIdle()
 {
   TRACE;
-  
+
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
@@ -961,7 +961,7 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #if !defined(NDEBUG) && defined(APP_API)
   if(enable)
     mLiveEdit = new IGraphicsLiveEdit(GetDelegate(), file, gridsize);
-  else 
+  else
   {
     if(mLiveEdit)
       DELETE_NULL(mLiveEdit);
@@ -974,9 +974,9 @@ ISVG IGraphics::LoadSVG(const char* name)
   WDL_String path;
   bool found = OSFindResource(name, "svg", path);
   assert(found == true);
-  
+
   SVGHolder* pHolder = s_SVGCache.Find(path.Get());
-  
+
   if(!pHolder)
   {
     NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
@@ -985,13 +985,13 @@ ISVG IGraphics::LoadSVG(const char* name)
     pHolder = new SVGHolder(pImage);
     s_SVGCache.Add(pHolder, path.Get());
   }
-  
+
   return ISVG(pHolder->mImage);
 }
 
 void IGraphics::LoadFont(const char* name)
 {
-#ifndef NO_FREETYPE
+#ifdef IGRAPHICS_FREETYPE
   if (mFTFace)
   {
     FT_Done_Face(mFTFace);
@@ -1006,16 +1006,16 @@ void IGraphics::LoadFont(const char* name)
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
 {
   const int targetScale = round(GetDisplayScale());
-    
+
   APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
-    
+
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
   {
     WDL_String fullPath;
     int sourceScale = 0;
     bool fromDisk = false;
-      
+
     if (!SearchImageResource(name, "png", fullPath, targetScale, sourceScale))
     {
       // If no resource exists then search the cache for a suitable match
@@ -1036,9 +1036,9 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
     // Protection from searching for non-existant bitmaps (e.g. typos in config.h or .rc)
     assert(pAPIBitmap);
-      
+
     const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
-      
+
     // Scale if needed
     if (pAPIBitmap->GetScale() != targetScale)
     {
@@ -1048,12 +1048,12 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
         delete pAPIBitmap;
       return scaledBitmap;
     }
-    
+
     // Retain if we've newly loaded from disk
     if (fromDisk)
       RetainBitmap(bitmap, name);
   }
-    
+
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
@@ -1070,11 +1070,11 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
   // Cache and return as an IBitmap
-    
+
   APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
   IBitmap bitmap = IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
   RetainBitmap(bitmap, name);
-    
+
   return bitmap;
 }
 
@@ -1101,7 +1101,7 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
       // Form altered name
       char tempName[4096];
       tempName[4095] = 0;
-    
+
       strncpy(tempName, name, 4095);
       char* filename = strtok(tempName, ".");
       char* ext = strtok(nullptr, ".");
@@ -1109,7 +1109,7 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
     }
     else
       strncpy(fullName, name, 4095);
-    
+
     return OSFindResource(fullName, type, result);
   }
 
@@ -1123,11 +1123,11 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
     APIBitmap* pBitmap = s_bitmapCache.Find(name, sourceScale);
-      
+
     if (pBitmap)
       return pBitmap;
   }
-    
+
   return nullptr;
 }
 

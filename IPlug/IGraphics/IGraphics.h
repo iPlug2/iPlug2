@@ -5,7 +5,7 @@
  * @copydoc IGraphics
  */
 
-#ifndef NO_FREETYPE
+#ifdef IGRAPHICS_FREETYPE
 #include "ft2build.h"
 #include FT_FREETYPE_H
 #endif
@@ -1158,7 +1158,7 @@ private:
   IControl* mLiveEdit = nullptr;
 #endif
 
-#if !defined(NO_FREETYPE)
+#ifdef IGRAPHICS_FREETYPE
 protected:
   FT_Library mFTLibrary = nullptr;
   FT_Face mFTFace = nullptr;
