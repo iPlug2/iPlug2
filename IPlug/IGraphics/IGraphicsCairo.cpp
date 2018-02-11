@@ -228,7 +228,7 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
   Stroke(color);
 }
 
-inline void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   cairo_move_to(mContext, x1, y1);
   cairo_line_to(mContext, x2, y2);
@@ -236,7 +236,7 @@ inline void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, floa
   cairo_close_path(mContext);
 }
 
-inline void IGraphicsCairo::CairoDrawConvexPolygon(float* x, float* y, int npoints)
+void IGraphicsCairo::CairoDrawConvexPolygon(float* x, float* y, int npoints)
 {
   cairo_move_to(mContext, x[0], y[0]);
   for(int i = 1; i < npoints; i++)
@@ -244,7 +244,7 @@ inline void IGraphicsCairo::CairoDrawConvexPolygon(float* x, float* y, int npoin
   cairo_close_path(mContext);
 }
 
-inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
+void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
 {
   const double y = rect.B - rect.H();
   cairo_new_path(mContext);
@@ -255,11 +255,30 @@ inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
   cairo_close_path(mContext);
 }
 
-inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
+void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
 {
   cairo_new_path(mContext);
   cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
   cairo_close_path(mContext);
+}
+
+void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
+{
+  switch (options.mCapOption)
+  {
+    case kCapButt:   cairo_set_line_cap(mContext, CAIRO_LINE_CAP_BUTT);     break;
+    case kCapRound:  cairo_set_line_cap(mContext, CAIRO_LINE_CAP_ROUND);    break;
+    case kCapSquare: cairo_set_line_cap(mContext, CAIRO_LINE_CAP_SQUARE);   break;
+  }
+  
+  switch (options.mJoinOption)
+  {
+    case kJoinMiter:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_MITER);   break;
+    case kJoinRound:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_ROUND);   break;
+    case kJoinBevel:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_BEVEL);   break;
+  }
+  
+  cairo_set_miter_limit(mContext, options.mMiterLimit);
 }
 
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)

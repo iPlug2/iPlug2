@@ -143,7 +143,7 @@ void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top
 {
 }
 
-inline void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   nvgBeginPath(mVG);
   nvgMoveTo(mVG, x1, y1);
@@ -152,13 +152,32 @@ inline void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float
   nvgClosePath(mVG);
 }
 
-inline void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoints)
+void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoints)
 {
   nvgBeginPath(mVG);
   nvgMoveTo(mVG, x[0], y[0]);
   for(int i = 1; i < npoints; i++)
     nvgLineTo(mVG, x[i], y[i]);
   nvgClosePath(mVG);
+}
+
+void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
+{
+  switch (options.mCapOption)
+  {
+    case kCapButt:   nvgLineCap(mVG, NSVG_CAP_BUTT);     break;
+    case kCapRound:  nvgLineCap(mVG, NSVG_CAP_ROUND);    break;
+    case kCapSquare: nvgLineCap(mVG, NSVG_CAP_SQUARE);   break;
+  }
+  
+  switch (options.mJoinOption)
+  {
+    case kJoinMiter:   nvgLineJoin(mVG, NVG_MITER);   break;
+    case kJoinRound:   nvgLineJoin(mVG, NVG_ROUND);   break;
+    case kJoinBevel:   nvgLineJoin(mVG, NVG_BEVEL);   break;
+  }
+  
+  nvgMiterLimit(mVG, options.mMiterLimit);
 }
 
 void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)

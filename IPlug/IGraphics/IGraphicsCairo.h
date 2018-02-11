@@ -73,12 +73,15 @@ public:
     
   void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
   void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
-    
-  void PathStroke(const IColor& color, float thickness, const IBlend* pBlend = 0) override
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3); }
+
+  void PathStroke(const IColor& color, float thickness, const IStrokeOptions& options, const IBlend* pBlend = 0) override
   {
+    CairoSetStrokeOptions(options);
     cairo_set_line_width(mContext, thickness);
     Stroke(color, pBlend);
     cairo_set_line_width(mContext, 1.0);
+    CairoSetStrokeOptions();
   }
     
   void PathFill(const IColor& color, const IBlend* pBlend = 0) override { Fill(color, pBlend); }
@@ -169,11 +172,13 @@ protected:
     cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
   }
 
-  inline void CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
-  inline void CairoDrawRoundRect(const IRECT& rect, float corner);
-  inline void CairoDrawConvexPolygon(float* x, float* y, int npoints);
-  inline void CairoDrawCircle(float cx, float cy, float r);
+  void CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+  void CairoDrawRoundRect(const IRECT& rect, float corner);
+  void CairoDrawConvexPolygon(float* x, float* y, int npoints);
+  void CairoDrawCircle(float cx, float cy, float r);
 
+  void CairoSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
+    
 private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;

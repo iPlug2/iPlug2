@@ -111,12 +111,15 @@ public:
   
   void PathMoveTo(float x, float y) override { nvgMoveTo(mVG, x, y); }
   void PathLineTo(float x, float y) override { nvgLineTo(mVG, x, y); }
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3); }
     
-  void PathStroke(const IColor& color, float thickness, const IBlend* pBlend = 0) override
+  void PathStroke(const IColor& color, float thickness, const IStrokeOptions& options, const IBlend* pBlend = 0) override
   {
+    NVGSetStrokeOptions(options);
     nvgStrokeWidth(mVG, thickness);
     Stroke(color, pBlend);
     nvgStrokeWidth(mVG, 1.0);
+    NVGSetStrokeOptions();
   }
     
   void PathFill(const IColor& color, const IBlend* pBlend = 0) override { Fill(color, pBlend); }
@@ -151,9 +154,11 @@ protected:
     nvgFill(mVG);
   }
 
-  inline void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
-  inline void NVGDrawConvexPolygon(float* x, float* y, int npoints);
+  void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+  void NVGDrawConvexPolygon(float* x, float* y, int npoints);
 
+  void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
+  
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
 };

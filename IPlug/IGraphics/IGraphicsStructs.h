@@ -236,6 +236,18 @@ const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
 
+enum ELineCap { kCapButt, kCapRound, kCapSquare };
+enum ELineJoin { kJoinMiter, kJoinRound, kJoinBevel };
+
+struct IStrokeOptions
+{
+    IStrokeOptions() : mCapOption(kCapButt), mJoinOption(kJoinMiter), mMiterLimit(1.0) {}
+    
+    ELineCap mCapOption;
+    ELineJoin mJoinOption;
+    float mMiterLimit;
+};
+
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
 {
