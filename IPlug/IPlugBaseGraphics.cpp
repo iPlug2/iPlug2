@@ -30,7 +30,7 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
   }
 }
 
-void IPlugBaseGraphics::RedrawParamControls()
+void IPlugBaseGraphics::OnRestoreState()
 {
   if (mGraphics)
   {
