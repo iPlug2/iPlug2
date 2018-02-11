@@ -584,6 +584,79 @@ void IVKeyboardControl::GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_Stri
     str.AppendFormatted(2, "%d", --oct);
 }
 
+IVButtonControl::IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+                const char *txtOn, const char *txtOff)
+  : IControl(plug, rect, param),
+  IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
+  {
+  mText.mFGColor = GetColor(bTXT);
+  SetOnOffTexts(txtOn, txtOff);
+  mDblAsSingleClick = true;
+  };
+
+const IColor IVButtonControl::DEFAULT_BG_COLOR = IColor(255, 200, 200, 200);
+const IColor IVButtonControl::DEFAULT_FR_COLOR = IColor(255, 70, 70, 70);
+const IColor IVButtonControl::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
+const IColor IVButtonControl::DEFAULT_PR_COLOR = IColor(255, 240, 240, 240);
+
+void IVButtonControl::Draw(IGraphics& graphics)
+{
+  auto btnRect = mRECT;
+  if (mDrawShadows && !mEmboss) {
+    btnRect.R -= mShadowOffset;
+    btnRect.B -= mShadowOffset;
+    }
+
+  auto shadowColor = IColor(60, 0, 0, 0);
+  auto textR = btnRect;
+  float numLines = 1.0; // todo count number of lines, max line width and store as members
+  textR.T += 0.5 * (textR.H() - mText.mSize * numLines);
+  textR.B = textR.T + 0.1;
+
+  if (mValue > 0.5)
+  {
+    graphics.FillRect(GetColor(bPR), btnRect);
+
+    if (mDrawShadows && mEmboss) {
+      auto& o = mShadowOffset;
+      auto slr = btnRect;
+      slr.R = slr.L + o;
+      auto str = btnRect;
+      str.L += o;
+      str.B = str.T + o;
+      graphics.FillRect(shadowColor, slr);
+      graphics.FillRect(shadowColor, str);
+      }
+
+    if (mTxtOn.GetLength())
+      graphics.DrawTextA(mText, mTxtOn.Get(), textR);
+    }
+  else
+  {
+    if (mDrawShadows && !mEmboss) {
+      auto& o = mShadowOffset;
+      auto& br = btnRect;
+      auto sr = IRECT(br.L + o, br.T + o, br.R + o, br.B + o);
+      graphics.FillRect(shadowColor, sr);
+      }
+
+    graphics.FillRect(GetColor(bBG), btnRect);
+
+    if (mTxtOff.GetLength())
+      graphics.DrawTextA(mText, mTxtOff.Get(), textR);
+  }
+
+  if(mDrawBorders)
+    graphics.DrawRect(GetColor(bFR), btnRect);
+}
+
+void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mValue > 0.5) mValue = 0.0;
+  else mValue = 1.0;
+  SetDirty();
+}
+
 #pragma mark - BITMAP CONTROLS
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)

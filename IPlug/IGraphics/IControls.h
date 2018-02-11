@@ -221,6 +221,124 @@ protected:
   WDL_TypedBuf<float> mKeyLCoords;
 };
 
+class IVButtonControl : public IControl,
+                        public IVectorBase
+  {
+  public:
+
+  static const IColor DEFAULT_BG_COLOR;
+  static const IColor DEFAULT_PR_COLOR;
+  static const IColor DEFAULT_TXT_COLOR;
+  static const IColor DEFAULT_FR_COLOR;
+
+  // map to IVectorBase colors
+  enum EVBColor
+    {
+    bTXT = kFG,
+    bBG = kBG,
+    bPR = kHL,
+    bFR = kFR
+    };
+
+  IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+                  const char *txtOn = "on", const char *txtOff = "off");
+  ~IVButtonControl() {};
+
+  void Draw(IGraphics& graphics) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+
+  void SetOnOffTexts(const char *txtOn, const char *txtOff, bool fitToText = false, float pad = 10.0) {
+    mTxtOn.Set(txtOn);
+    mTxtOff.Set(txtOff);
+    if (fitToText) {
+      // todo fit rects
+      }
+    SetDirty(false);
+    }
+
+  void SetDrawBorders(bool draw)
+    {
+    mDrawBorders = draw;
+    SetDirty(false);
+    }
+  void SetDrawShadows(bool draw, bool keepButtonRect = true)
+    {
+    if (draw == mDrawShadows) return;
+
+    if (keepButtonRect && !mEmboss) {
+      auto d = mShadowOffset;
+      if (!draw) d *= -1.0;
+      mRECT.R += d;
+      mRECT.B += d;
+      mTargetRECT = mRECT;
+      }
+
+    mDrawShadows = draw;
+    SetDirty(false);
+    }
+  void SetEmboss(bool emboss, bool keepButtonRect = true)
+    {
+    if (emboss == mEmboss) return;
+
+    if (keepButtonRect && mDrawShadows) {
+      auto d = mShadowOffset;
+      if (emboss) d *= -1.0;
+      mRECT.R += d;
+      mRECT.B += d;
+      mTargetRECT = mRECT;
+      }
+
+    mEmboss = emboss;
+    SetDirty(false);
+    }
+  void SetShadowOffset(float offset, bool keepButtonRect = true) {
+    if (offset == mShadowOffset) return;
+
+    auto oldOff = mShadowOffset;
+
+    if (offset < 0.0)
+      mShadowOffset = 0.0;
+    else
+      mShadowOffset = offset;
+
+    if (keepButtonRect && mDrawShadows && !mEmboss) {
+      auto d = offset - oldOff;
+      mRECT.R += d;
+      mRECT.B += d;
+      mTargetRECT = mRECT;
+      }
+
+    SetDirty(false);
+    }
+  void SetRect(IRECT r) {
+    mRECT = mTargetRECT = r;
+    SetDirty(false);
+    }
+
+  protected:
+    WDL_String mTxtOn, mTxtOff;
+    // perhaps should be IVectorBase members too:
+    bool mDrawBorders = true;
+    bool mDrawShadows = true;
+    bool mEmboss = false;
+    float mShadowOffset = 5.0;
+  };
+
+  class IVContactControl : public IVButtonControl
+    {
+    public:
+    IVContactControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+                     const char *txtOn = "on", const char *txtOff = "off") :
+      IVButtonControl(plug, rect, param, txtOn, txtOff) {};
+
+    ~IVContactControl() {};
+
+    void OnMouseUp(float x, float y, const IMouseMod& mod) override {
+      mValue = 0.0;
+      SetDirty();
+      }
+  };
+
 #pragma mark - Bitmap Controls
 
 /** A vector switch control. Click to cycle through states. */
