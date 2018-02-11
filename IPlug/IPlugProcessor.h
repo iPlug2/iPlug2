@@ -30,21 +30,22 @@ public:
 #pragma mark - Methods you implement in your plug-in class - you do not call these methods
 
   /** Override in your plug-in class to process audio
-   * In ProcessBlock you are always guaranteed to get valid pointers to all the channels the plugin requested (the maximum possible input channel count and the maximum possible output channel count including multiple buses). If the host hasn't connected all the pins,
-   * the unconnected channels will be full of zeros.
+   * In ProcessBlock you are always guaranteed to get valid pointers to all the channels the plugin requested
+   * (the maximum possible input channel count and the maximum possible output channel count including multiple buses).
+   * If the host hasn't connected all the pins, the unconnected channels will be full of zeros.
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
   virtual void ProcessBlock(sampleType** inputs, sampleType** outputs, int nFrames);
 
-  /** Override this method which is called prior to ProcessBlock(), to handle incoming MIDI messages.
+  /** Override this method to handle incoming MIDI messages. The method is called prior to ProcessBlock().
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * @param msg The incoming midi message (includes a timestamp to indicate the offset in the forthcoming block of audio to be processed in ProcessBlock()) */
   virtual void ProcessMidiMsg(const IMidiMsg& msg);
   
-  /** Override this method which is calledThis method is called prior to ProcessBlock(), to handle incoming MIDI System Exclusive (SysEx) messages.
+  /** Override this method to handle incoming MIDI System Exclusive (SysEx) messages. The method is called prior to ProcessBlock().
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
   virtual void ProcessSysEx(ISysEx& msg) {}
 
@@ -169,7 +170,8 @@ public:
   bool DoesMIDI() const { return mDoesMIDI; }
   
   /**  This allows you to label input/output channels in supporting VST2 hosts.
-   * For example a 4 channel plug-in that deals with FuMa bformat first order ambisonic material might label these channels "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
+   * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
+   "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
    * @param label The label for the channel*/
   void SetChannelLabel(ERoute direction, int idx, const char* label);
@@ -186,7 +188,10 @@ public:
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
   
   /** A static method to parse the config.h channel I/O string.
-   * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans. A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character. For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string of "1.1-1". A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
+   * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans.
+   * A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character.
+   * For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string of "1.1-1".
+   * A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
    * @param channelIOList A list of pointers to ChannelIO structs, where we will store here
    * @param totalNInChans The total number of input channels across all buses will be stored here
    * @param totalNOutChans The total number of output channels across all buses will be stored here
