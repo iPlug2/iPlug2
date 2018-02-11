@@ -21,18 +21,18 @@
   #endif
 
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
   {
-    IGraphicsWin* pGraphics = new IGraphicsWin(plug, w, h, fps);
+    IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps);
     pGraphics->SetPlatformInstance(gHInstance);
     return pGraphics;
   }
   #endif
 #elif defined OS_MAC
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
   {
-    IGraphicsMac* pGraphics = new IGraphicsMac(plug, w, h, fps);
+    IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);
     #ifdef IGRAPHICS_NANOVG
     pGraphics->CreateMetalLayer();
@@ -42,9 +42,9 @@
   #endif
 #elif defined OS_WEB
 //   #ifndef NO_IGRAPHICS
-//   IGraphics* MakeGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0)
+//   IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
 //   {
-//     IGraphicsWeb* pGraphics = new IGraphicsWeb(plug, w, h, fps);
+//     IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
 //     return pGraphics;
 //   }
 //   #endif
