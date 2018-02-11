@@ -30,9 +30,11 @@ public:
 #pragma mark - Methods you implement in your plug-in class - you do not call these methods
 
   /** Override in your plug-in class to process audio
-   * In ProcessBlock you are always guaranteed to get valid pointers to all the channels the plugin requested (the maximum possible input channel count and the maximum possible output channel count including multiple buses). If the host hasn't connected all the pins,
-   * the unconnected channels will be full of zeros.
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
+   * In ProcessBlock you are always guaranteed to get valid pointers to all the channels the plugin requested 
+   * (the maximum possible input channel count and the maximum possible output channel count including multiple buses). 
+   * If the host hasn't connected all the pins, the unconnected channels will be full of zeros.
+   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations 
+   * such as file I/O which could cause audio dropouts
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
@@ -136,12 +138,12 @@ public:
   
   /** @param direction Whether you want to test inputs or outputs 
    * @return Total number of input or output channel buffers (not nessecarily connected) */
-  int MaxNChannels(ERoute direction) const;
+  int MaxNChannels(ERoute direction) const { return mChannelData[direction].GetSize(); }
   
   /** @param direction Whether you want to test inputs or outputs 
     * @param chIdx channel index
     * @return /c true if the host has connected this channel*/
-  bool IsChannelConnected(ERoute direction, int chIdx) const;
+  bool IsChannelConnected(ERoute direction, int chIdx) const { return (chIdx < mChannelData[direction].GetSize() && mChannelData[direction].Get(chIdx)->mConnected); }
 
   /** @param direction Whether you want to test inputs or outputs 
    * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections*/
@@ -169,7 +171,8 @@ public:
   bool DoesMIDI() const { return mDoesMIDI; }
   
   /**  This allows you to label input/output channels in supporting VST2 hosts.
-   * For example a 4 channel plug-in that deals with FuMa bformat first order ambisonic material might label these channels "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
+   * For example a 4 channel plug-in that deals with FuMa bformat first order ambisonic material might label these channels 
+   * "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
    * @param label The label for the channel*/
   void SetChannelLabel(ERoute direction, int idx, const char* label);
@@ -186,7 +189,10 @@ public:
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
   
   /** A static method to parse the config.h channel I/O string.
-   * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans. A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character. For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string of "1.1-1". A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
+   * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans. 
+   * A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character. 
+   * For instance plug-in that supports mono input and mono output with a mono side-chain input could have a channel io string 
+   * of "1.1-1". A drum synthesiser with four stereo output busses could be configured with a io string of "0-2.2.2.2";
    * @param channelIOList A list of pointers to ChannelIO structs, where we will store here
    * @param totalNInChans The total number of input channels across all buses will be stored here
    * @param totalNOutChans The total number of output channels across all buses will be stored here
@@ -197,26 +203,26 @@ public:
   
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
-  void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
+  void _SetChannelConnections(ERoute direction, int idx, int n, bool connected);
 
   //The following methods are duplicated, in order to deal with either single or double precision processing, 
   //depending on the value of arguments passed in
-  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
-  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
-  void PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
-  void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
-  void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
+  void _AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
+  void _AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
+  void _PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void _PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void _ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void _ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void _ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
+  void _ZeroScratchBuffers();
 
-  void ZeroScratchBuffers();
-public:
-  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
-  void SetBlockSize(int blockSize);
-  void SetBypassed(bool bypassed) { mBypassed = bypassed; }
-  void SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
-  void SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
-  const WDL_String& GetChannelLabel(ERoute direction, int idx);
+public: //TODO: these will become protected once stand-alone app is rewritten
+  void _SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
+  void _SetBlockSize(int blockSize);
+  void _SetBypassed(bool bypassed) { mBypassed = bypassed; }
+  void _SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
+  void _SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
+  const WDL_String& _GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; };
 
 private:
   /** \c True if the plug-in is an instrument */
@@ -237,14 +243,10 @@ private:
   bool mRenderingOffline = false;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
-  /* The data to use as a scratch buffer for audio input */
-  WDL_TypedBuf<sampleType*> mInData;
-  /* The data to use as a scratch buffer for audio output */
-  WDL_TypedBuf<sampleType*> mOutData;
-  /* A list of IChannelData structures corresponding to every input channel */
-  WDL_PtrList<IChannelData<>> mInChannels;
-  /* A list of IChannelData structures corresponding to every output channel */
-  WDL_PtrList<IChannelData<>> mOutChannels;
+  /* The data to use as a scratch buffers for audio input/output */
+  WDL_TypedBuf<sampleType*> mScratchData[2];
+  /* A list of IChannelData structures corresponding to every input/output channel */
+  WDL_PtrList<IChannelData<>> mChannelData[2];
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter

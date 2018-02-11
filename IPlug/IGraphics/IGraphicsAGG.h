@@ -1,5 +1,15 @@
 #pragma once
 
+/*
+ 
+ AGG 2.4 should be modified to avoid bringing carbon headers on mac, which can cause conflicts
+ 
+ in "agg_mac_pmap.h" ...
+ //#include <ApplicationServices/ApplicationServices.h>
+ #include <CoreGraphics/CoreGraphics.h>
+ 
+ */
+
 #include "IGraphics.h"
 #include "IGraphicsAGG_src.h"
 

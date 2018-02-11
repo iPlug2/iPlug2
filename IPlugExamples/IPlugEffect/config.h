@@ -16,7 +16,7 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
-#define PLUG_CHANNEL_IO "6-6"
+#define PLUG_CHANNEL_IO "2-2"
 //#define PLUG_CHANNEL_IO "0-2"
 //#define PLUG_CHANNEL_IO "*-16" // wildcard not validating
 
