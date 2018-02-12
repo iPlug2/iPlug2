@@ -585,12 +585,12 @@ void IVKeyboardControl::GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_Stri
 }
 
 IVButtonControl::IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
-                const char *txtOn, const char *txtOff)
+                const char *txtOff, const char *txtOn)
   : IControl(plug, rect, param),
   IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
   {
   mText.mFGColor = GetColor(bTXT);
-  SetOnOffTexts(txtOn, txtOff);
+  SetTexts(txtOff, txtOn);
   mDblAsSingleClick = true;
   };
 
@@ -601,17 +601,8 @@ const IColor IVButtonControl::DEFAULT_PR_COLOR = IColor(255, 240, 240, 240);
 
 void IVButtonControl::Draw(IGraphics& graphics)
 {
-  auto btnRect = mRECT;
-  if (mDrawShadows && !mEmboss) {
-    btnRect.R -= mShadowOffset;
-    btnRect.B -= mShadowOffset;
-    }
-
+  auto btnRect = GetButtonRect();
   auto shadowColor = IColor(60, 0, 0, 0);
-  auto textR = btnRect;
-  float numLines = 1.0; // todo count number of lines, max line width and store as members
-  textR.T += 0.5 * (textR.H() - mText.mSize * numLines);
-  textR.B = textR.T + 0.1;
 
   if (mValue > 0.5)
   {
@@ -628,8 +619,12 @@ void IVButtonControl::Draw(IGraphics& graphics)
       graphics.FillRect(shadowColor, str);
       }
 
-    if (mTxtOn.GetLength())
+    if (mTxtOn.GetLength()) {
+      auto textR = btnRect;
+      textR.T += 0.5 * (textR.H() - mText.mSize * mTxtH[1]);
+      textR.B = textR.T + 0.1;
       graphics.DrawTextA(mText, mTxtOn.Get(), textR);
+      }
     }
   else
   {
@@ -642,9 +637,13 @@ void IVButtonControl::Draw(IGraphics& graphics)
 
     graphics.FillRect(GetColor(bBG), btnRect);
 
-    if (mTxtOff.GetLength())
+    if (mTxtOff.GetLength()) {
+      auto textR = btnRect;
+      textR.T += 0.5 * (textR.H() - mText.mSize * mTxtH[0]);
+      textR.B = textR.T + 0.1;
       graphics.DrawTextA(mText, mTxtOff.Get(), textR);
-  }
+      }
+    }
 
   if(mDrawBorders)
     graphics.DrawRect(GetColor(bFR), btnRect);
@@ -656,6 +655,90 @@ void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   else mValue = 1.0;
   SetDirty();
 }
+
+void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitToText, float pad)
+  {
+  mTxtOff.Set(txtOff);
+  mTxtOn.Set(txtOn);
+  BasicTextMeasure(mTxtOff.Get(), mTxtH[0], mTxtW[0]);
+  BasicTextMeasure(mTxtOn.Get(), mTxtH[1], mTxtW[1]);
+  if (fitToText) {
+    auto h = mTxtH[0];
+    if (mTxtH[1] > h) h = mTxtH[1];
+    auto w = mTxtW[0];
+    if (mTxtW[1] > w) w = mTxtW[1];
+    auto& mr = mRECT;
+    IRECT br = mr;
+    br.L = br.R = mr.L + 0.5 * mr.W();
+    br.T = br.B = mr.T + 0.5 * mr.H();
+    w *= 0.5 * 0.44 * mText.mSize; // 0.44 is approx average character w/h ratio
+    h *= 0.5 * mText.mSize;
+    br.L -= w;
+    br.R += w;
+    br.T -= h;
+    br.B += h;
+    if (!mEmboss && mDrawShadows) {
+      br.R += mShadowOffset;
+      br.B += mShadowOffset;
+      }
+    if (pad < 0.0) pad *= -1.0;
+    br = br.GetPadded(pad);
+    mRECT = mTargetRECT = br;
+    }
+  SetDirty(false);
+  }
+
+void IVButtonControl::SetDrawShadows(bool draw, bool keepButtonRect){
+  if (draw == mDrawShadows) return;
+
+  if (keepButtonRect && !mEmboss) {
+    auto d = mShadowOffset;
+    if (!draw) d *= -1.0;
+    mRECT.R += d;
+    mRECT.B += d;
+    mTargetRECT = mRECT;
+    }
+
+  mDrawShadows = draw;
+  SetDirty(false);
+  }
+
+void IVButtonControl::SetEmboss(bool emboss, bool keepButtonRect)
+  {
+  if (emboss == mEmboss) return;
+
+  if (keepButtonRect && mDrawShadows) {
+    auto d = mShadowOffset;
+    if (emboss) d *= -1.0;
+    mRECT.R += d;
+    mRECT.B += d;
+    mTargetRECT = mRECT;
+    }
+
+  mEmboss = emboss;
+  SetDirty(false);
+  }
+
+void IVButtonControl::SetShadowOffset(float offset, bool keepButtonRect)
+  {
+  if (offset == mShadowOffset) return;
+
+  auto oldOff = mShadowOffset;
+
+  if (offset < 0.0)
+    mShadowOffset = 0.0;
+  else
+    mShadowOffset = offset;
+
+  if (keepButtonRect && mDrawShadows && !mEmboss) {
+    auto d = offset - oldOff;
+    mRECT.R += d;
+    mRECT.B += d;
+    mTargetRECT = mRECT;
+    }
+
+  SetDirty(false);
+  }
 
 #pragma mark - BITMAP CONTROLS
 

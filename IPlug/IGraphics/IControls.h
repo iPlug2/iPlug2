@@ -29,7 +29,7 @@ public:
 
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
-  
+
 private:
   bool mMouseOver = false;
   float mStep;
@@ -85,23 +85,23 @@ private:
 };
 
 /*
- 
+
  IVKeyboardControl by Eugene Yakshin, 2018
- 
+
  based on
- 
+
  IKeyboardControl
  (c) Theo Niessink 2009, 2010
  <http://www.taletn.com/>
- 
+
  This software is provided 'as-is', without any express or implied
  warranty. In no event will the authors be held liable for any damages
  arising from the use of this software.
- 
+
  Permission is granted to anyone to use this software for any purpose,
  including commercial applications, and to alter it and redistribute it
  freely, subject to the following restrictions:
- 
+
  1. The origin of this software must not be misrepresented; you must not
  claim that you wrote the original software. If you use this software in a
  product, an acknowledgment in the product documentation would be
@@ -109,8 +109,8 @@ private:
  2. Altered source versions must be plainly marked as such, and must not be
  misrepresented as being the original software.
  3. This notice may not be removed or altered from any source distribution.
- 
- 
+
+
  This keyboard is runtime customizable. Any key range is supported.
  Key proportions, colors and some other design elements can be changed at any time too.
  See the interface for details.
@@ -124,7 +124,7 @@ public:
   static const IColor DEFAULT_WK_COLOR;
   static const IColor DEFAULT_PK_COLOR;
   static const IColor DEFAULT_FR_COLOR;
-  
+
   // map to IVectorBase colors
   enum EVKColor
   {
@@ -133,10 +133,10 @@ public:
     kPK = kHL,
     kFR = kFR
   };
-  
+
   IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
                     int minNote = 36, int maxNote = 60);
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
@@ -144,9 +144,9 @@ public:
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnResize() override;
-  
+
   void Draw(IGraphics& graphics) override;
-  
+
   void SetMinMaxNote(int min, int max, bool keepWidth = true);
   void SetNoteIsPlayed(int noteNum, bool played);
   void SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR = 0.6);
@@ -154,19 +154,19 @@ public:
   void SetWidth(float w, bool keepProportions = false);
   void SetShowNotesAndVelocity(bool show);
   void SetColors(const IColor bkColor, const IColor& wkColor, const IColor& pkColor = DEFAULT_PK_COLOR, const IColor& frColor = DEFAULT_FR_COLOR);
-  
-  void SetDrawShadows(bool draw)
+
+  void SetDrawShadows(bool draw) // todo make shadow offset a settable member
   {
     mDrawShadows = draw;
     SetDirty();
   }
-  
+
   void SetDrawBorders(bool draw)
   {
     mDrawBorders = draw;
     SetDirty();
   }
-  
+
   // returns pressed key number inside the keyboard
   int GetKey() const
   {
@@ -178,11 +178,11 @@ public:
     if (mKey > -1) return mMinNote + mKey;
     else return -1;
   }
-  
+
   double GetVelocity() const { return mVelocity * 127.f; }
   double GetVelocityNormalized() const { return mVelocity; }
   int GetVelocityInt() const { return (int)(mVelocity * 127. + 0.5); }
-  
+
 private:
   void RecreateKeyBounds(bool keepWidth);
   int GetKeyUnderMouse(float x, float y);
@@ -193,7 +193,7 @@ private:
   float* KeyLCoordPtr(int i) { return mKeyLCoords.Get() + i; }
   bool NoteIsPlayed(int i) const { return *(mNoteIsPlayed.Get() + i); }
   int NumKeys() const { return mMaxNote - mMinNote + 1; }
-  
+
   float CalcBKWidth() const
   {
     auto w = mWKWidth;
@@ -201,7 +201,7 @@ private:
       w *= mBKWidthR;
     return w;
   }
-  
+
 protected:
   bool mShowNoteAndVel = false;
   bool mDrawShadows = true;
@@ -247,81 +247,39 @@ class IVButtonControl : public IControl,
   void Draw(IGraphics& graphics) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
-  void SetOnOffTexts(const char *txtOn, const char *txtOff, bool fitToText = false, float pad = 10.0) {
-    mTxtOn.Set(txtOn);
-    mTxtOff.Set(txtOff);
-    if (fitToText) {
-      // todo fit rects
-      }
-    SetDirty(false);
-    }
+  void SetTexts(const char *txtOff, const char *txtOn, bool fitToText = false, float pad = 10.0);
 
   void SetDrawBorders(bool draw)
     {
     mDrawBorders = draw;
     SetDirty(false);
     }
-  void SetDrawShadows(bool draw, bool keepButtonRect = true)
-    {
-    if (draw == mDrawShadows) return;
-
-    if (keepButtonRect && !mEmboss) {
-      auto d = mShadowOffset;
-      if (!draw) d *= -1.0;
-      mRECT.R += d;
-      mRECT.B += d;
-      mTargetRECT = mRECT;
-      }
-
-    mDrawShadows = draw;
-    SetDirty(false);
-    }
-  void SetEmboss(bool emboss, bool keepButtonRect = true)
-    {
-    if (emboss == mEmboss) return;
-
-    if (keepButtonRect && mDrawShadows) {
-      auto d = mShadowOffset;
-      if (emboss) d *= -1.0;
-      mRECT.R += d;
-      mRECT.B += d;
-      mTargetRECT = mRECT;
-      }
-
-    mEmboss = emboss;
-    SetDirty(false);
-    }
-  void SetShadowOffset(float offset, bool keepButtonRect = true) {
-    if (offset == mShadowOffset) return;
-
-    auto oldOff = mShadowOffset;
-
-    if (offset < 0.0)
-      mShadowOffset = 0.0;
-    else
-      mShadowOffset = offset;
-
-    if (keepButtonRect && mDrawShadows && !mEmboss) {
-      auto d = offset - oldOff;
-      mRECT.R += d;
-      mRECT.B += d;
-      mTargetRECT = mRECT;
-      }
-
-    SetDirty(false);
-    }
+  void SetDrawShadows(bool draw, bool keepButtonRect = true);
+  void SetEmboss(bool emboss, bool keepButtonRect = true);
+  void SetShadowOffset(float offset, bool keepButtonRect = true);
   void SetRect(IRECT r) {
     mRECT = mTargetRECT = r;
     SetDirty(false);
     }
 
   protected:
-    WDL_String mTxtOn, mTxtOff;
-    // perhaps should be IVectorBase members too:
+    WDL_String mTxtOff, mTxtOn;
+    float mTxtH[2]; // [off, on], needed for nice multiline text drawing
+    float mTxtW[2];
+    // perhaps next two should be IVectorBase members too:
     bool mDrawBorders = true;
     bool mDrawShadows = true;
     bool mEmboss = false;
     float mShadowOffset = 5.0;
+
+    IRECT GetButtonRect() {
+      auto br = mRECT;
+      if (mDrawShadows && !mEmboss) {
+        br.R -= mShadowOffset;
+        br.B -= mShadowOffset;
+        }
+      return br;
+      }
   };
 
   class IVContactControl : public IVButtonControl
