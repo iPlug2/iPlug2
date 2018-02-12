@@ -75,11 +75,12 @@ void IGraphics::Resize(int w, int h, float scale)
     
   if (oldScale != scale)
     OnDisplayScale();
-    
-  for (int i = 0; i < mPlug.NParams(); ++i)
-    SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
-    
+  
   mPlug.ResizeGraphics();
+
+  // TODO - check why this was here!
+  //for (int i = 0; i < mPlug.NParams(); ++i)
+  //  SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);    
 }
 
 void IGraphics::OnDisplayScale()
