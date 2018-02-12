@@ -65,7 +65,7 @@ public:
   virtual void OnUIClose() { TRACE; }
 
   /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
-  virtual void* OpenWindow(void* handle) { return nullptr; }
+  virtual void* OpenWindow(void* pHandle) { return nullptr; }
   
   /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
   virtual void CloseWindow() {}
@@ -85,7 +85,7 @@ public:
    * @param noteNumber MIDI note to get the textual description for
    * @param str char array to set the text for the note. Should be less thatn kVstMaxNameLen (64) characters
    * @return return /c true if you specified a custom textual description for this note */
-  virtual bool GetMidiNoteText(int noteNumber, char* str) { *str = '\0'; return false; }
+  virtual bool GetMidiNoteText(int noteNumber, char* str) const { *str = '\0'; return false; }
   
   /** You need to implement this method if you are not using IGraphics and you want to support AAX's view interface functionality
    * (special shortcuts to add automation for a parameter etc.)
@@ -97,7 +97,7 @@ public:
   
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugBase.cpp;
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
-  virtual void PrintDebugInfo();
+  virtual void PrintDebugInfo() const;
 
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
@@ -136,7 +136,7 @@ public:
   int GetMfrID() const { return mMfrID; }
   
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
-  virtual EHost GetHost() { return mHost; }
+  virtual EHost GetHost() const { return mHost; }
   
   /** Get the host version number as an integer
    * @param decimal /c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
@@ -148,30 +148,30 @@ public:
   void GetHostVersionStr(WDL_String& str);
   
   /** @return The The plug-in API, see EAPI enum for a list of possible APIs */
-  EAPI GetAPI() { return mAPI; }
+  EAPI GetAPI() const { return mAPI; }
   
   /** @return  Returns a CString describing the plug-in API, e.g. "VST2" */
-  const char* GetAPIStr();
+  const char* GetAPIStr() const;
   
   /** @return  Returns a CString either "x86" or "x64" describing the binary architecture */
-  const char* GetArchStr();
+  const char* GetArchStr() const;
   
   /** @brief Used to get the build date of the plug-in and architecture/api details in one string
    * @note since the implementation is in IPlugBase.cpp, you may want to touch that file as part of your build script to force recompilation
    * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
-  void GetBuildInfoStr(WDL_String& str);
+  void GetBuildInfoStr(WDL_String& str) const;
   
   /** @return /c true if the plug-in has been set up to do state chunks, via config.h */
-  bool DoesStateChunks() { return mStateChunks; }
+  bool DoesStateChunks() const { return mStateChunks; }
 
   /** @return /c true if the plug-in is meant to have a UI, as defined in config.h */
-  bool HasUI() { return mHasUI; }
+  bool HasUI() const { return mHasUI; }
   
   /** @return The default width of the plug-in UI in pixels, if defined in config.h */
-  int Width() { return mWidth; }
+  int Width() const { return mWidth; }
 
   /** @return The default height of the plug-in UI in pixels, if defined in config.h */
-  int Height() { return mHeight; }
+  int Height() const { return mHeight; }
   
   /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
   void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
@@ -197,7 +197,7 @@ public:
   void SetParameterValue(int paramIdx, double normalizedValue);
   
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
-  virtual void InformHostOfProgramChange() = 0;
+  virtual void InformHostOfProgramChange() {};
   
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
