@@ -89,21 +89,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
   return 0;
 }
 
-void CenterWindow(HWND hWnd, int w, int h)
-{
-  RECT rcClient, rcWindow;
-  POINT ptDiff;
-  int screenwidth, screenheight;
-  int x, y;
-
-  screenwidth = GetSystemMetrics(SM_CXSCREEN);
-  screenheight = GetSystemMetrics(SM_CYSCREEN);
-  x = (screenwidth / 2) - (w / 2);
-  y = (screenheight / 2) - (h / 2);
-
-  GetClientRect(hWnd, &rcClient);
-  GetWindowRect(hWnd, &rcWindow);
-  ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-  ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-  MoveWindow(hWnd, x, y, w + ptDiff.x, h + ptDiff.y, FALSE);
-}

@@ -10,19 +10,6 @@ int main(int argc, char *argv[])
   return NSApplicationMain(argc,  (const char **) argv);
 }
 
-void CenterWindow(HWND hwnd)
-{
-  if (!hwnd) return;
-  
-  id view =(id) hwnd;
-  
-  if ([view isKindOfClass:[NSView class]])
-  {
-    NSWindow* pWindow = [view window];
-    [pWindow center];
-  }
-}
-
 INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 {
   switch (msg)

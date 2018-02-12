@@ -84,6 +84,7 @@
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
 		4F3FB118202273A500622761 /* IGraphicsTest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IGraphicsTest.entitlements; sourceTree = "<group>"; };
+		4F476E852032221F00C3BFEB /* main_win.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_win.cpp; path = ../main_win.cpp; sourceTree = "<group>"; };
 		4F69BB5D2013C520002C8948 /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac.h; path = ../../../IPlug/IGraphics/IGraphicsMac.h; sourceTree = "<group>"; };
 		4F69BB5E2013C520002C8948 /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWeb.h; path = ../../../IPlug/IGraphics/IGraphicsWeb.h; sourceTree = "<group>"; };
 		4F69BB5F2013C520002C8948 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../../IPlug/IGraphics/IGraphicsWin.h; sourceTree = "<group>"; };
@@ -179,6 +180,7 @@
 				4F6F5365202FDB9900FEE3A7 /* IGraphicsTest.h */,
 				4F6F5358202FD49200FEE3A7 /* main_dialog.cpp */,
 				4F6F5359202FD49200FEE3A7 /* main_mac.mm */,
+				4F476E852032221F00C3BFEB /* main_win.cpp */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
