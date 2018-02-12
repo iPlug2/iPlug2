@@ -17,7 +17,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   , IPlugPresetHandler(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
-  Trace(TRACELOC, "%s", c.effectName);
+  Trace(TRACELOC, "%s", c.pluginName);
 
   AttachPresetHandler(this);
 
@@ -36,7 +36,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mAEffect.numInputs = nInputs;
   mAEffect.numOutputs = nOutputs;
   mAEffect.uniqueID = c.uniqueID;
-  mAEffect.version = GetEffectVersion(true);
+  mAEffect.version = GetPluginVersion(true);
   mAEffect.__ioRatioDeprecated = 1.0f;
   mAEffect.__processDeprecated = VSTProcess;
   mAEffect.processReplacing = VSTProcessReplacing;
@@ -123,8 +123,8 @@ void IPlugVST::ResizeGraphics(int w, int h, double scale)
   if (HasUI())
   {
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = Width();
-    mEditRect.bottom = Height();
+    mEditRect.right = w;
+    mEditRect.bottom = h;
 
     OnWindowResize();
   }
@@ -555,7 +555,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     {
       if (ptr)
       {
-        strcpy((char*) ptr, _this->GetEffectName());
+        strcpy((char*) ptr, _this->GetPluginName());
         return 1;
       }
       return 0;
@@ -580,7 +580,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetVendorVersion:
     {
-      return _this->GetEffectVersion(true);
+      return _this->GetPluginVersion(true);
     }
     case effCanDo:
     {

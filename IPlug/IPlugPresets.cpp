@@ -394,7 +394,7 @@ bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
     int32_t fxpMagic;
     int32_t fxpVersion = WDL_bswap32(kFXPVersionNum);
     int32_t pluginID = WDL_bswap32(GETPLUG->GetUniqueID());
-    int32_t pluginVersion = WDL_bswap32(GETPLUG->GetEffectVersion(true));
+    int32_t pluginVersion = WDL_bswap32(GETPLUG->GetPluginVersion(true));
     int32_t numParams = WDL_bswap32(GETPLUG->NParams());
     char prgName[28];
     memset(prgName, 0, 28);
@@ -467,7 +467,7 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
     int32_t fxbMagic;
     int32_t fxbVersion = WDL_bswap32(kFXBVersionNum);
     int32_t pluginID = WDL_bswap32(GETPLUG->GetUniqueID());
-    int32_t pluginVersion = WDL_bswap32(GETPLUG->GetEffectVersion(true));
+    int32_t pluginVersion = WDL_bswap32(GETPLUG->GetPluginVersion(true));
     int32_t numPgms =  WDL_bswap32(NPresets());
     int32_t currentPgm = WDL_bswap32(GetCurrentPresetIdx());
     char future[124];
@@ -609,7 +609,7 @@ bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
       if (chunkMagic != 'CcnK') return false;
       if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
       if (pluginID != GETPLUG->GetUniqueID()) return false;
-      //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+      //if (pluginVersion != GetPluginVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
       //if (numParams != GETPLUG->NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
       if (GETPLUG->DoesStateChunks() && fxpMagic == 'FPCh')
@@ -704,7 +704,7 @@ bool IPlugPresetHandler::LoadBankFromFXB(const char* file)
       if (chunkMagic != 'CcnK') return false;
       //if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
       if (pluginID != GETPLUG->GetUniqueID()) return false;
-      //if (pluginVersion != GetEffectVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
+      //if (pluginVersion != GetPluginVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
       //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
       if (GETPLUG->DoesStateChunks() && fxbMagic == 'FBCh')

@@ -74,7 +74,6 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
     pViewInterface->SetPTParameterHighlight(paramIdx, (bool) iIsHighlighted, (int) iColor);
     return AAX_SUCCESS;
-    
   }
   
   return AAX_ERROR_INVALID_PARAMETER_ID;
@@ -89,7 +88,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   AttachPresetHandler(this);
 
-  Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);

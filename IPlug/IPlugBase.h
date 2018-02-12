@@ -109,18 +109,18 @@ public:
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
   /** @return the name of the plug-in as a CString */
-  const char* GetEffectName() const { return mEffectName.Get(); }\
+  const char* GetPluginName() const { return mPluginName.Get(); }
   /** Get the plug-in version number
    * @param decimal Sets the output format
    * @return Effect version in VVVVRRMM (if \p decimal is \c true) or Hexadecimal 0xVVVVRRMM (if \p decimal is \c false) format */
-  int GetEffectVersion(bool decimal) const;
+  int GetPluginVersion(bool decimal) const;
 
   /** Gets the plug-in version as a string
    * @param str WDL_String to write to
    * The output format is vX.M.m, where X - version, M - major, m - minor
    * @note If \c _DEBUG is defined, \c D is appended to the version string
    * @note If \c TRACER_BUILD is defined, \c T is appended to the version string*/
-  void GetEffectVersionStr(WDL_String& str) const;
+  void GetPluginVersionStr(WDL_String& str) const;
   
   /** Get the manufacturer name as a CString */
   const char* GetMfrName() const { return mMfrName.Get(); }
@@ -257,15 +257,15 @@ private:
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) = 0;
 protected:
-  /** Effect name @todo WAT? */
-  WDL_String mEffectName;
-  /** Product name @todo WAT? */
+  /** The name of this plug-in */
+  WDL_String mPluginName;
+  /** Product name: if the plug-in is part of collection of plug-ins it might be one product */
   WDL_String mProductName;
   /** Plug-in Manufacturer name */
   WDL_String mMfrName;
-  /* Plug-in unique id */
+  /* Plug-in unique four char ID as an int */
   int mUniqueID;
-  /* Manufacturer unique id */
+  /* Manufacturer unique four char ID as an int */
   int mMfrID;
   /** Plug-in version number stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision */
   int mVersion;

@@ -153,7 +153,7 @@ struct IPlugConfig
   int nParams;
   int nPresets;
   const char* channelIOStr;
-  const char* effectName;
+  const char* pluginName;
   const char* productName;
   const char* mfrName;
   int vendorVersion;
@@ -170,7 +170,7 @@ struct IPlugConfig
   IPlugConfig(int nParams,
               int nPresets,
               const char* channelIOStr,
-              const char* effectName,
+              const char* pluginName,
               const char* productName,
               const char* mfrName,
               int vendorVersion,
@@ -187,7 +187,7 @@ struct IPlugConfig
   : nParams(nParams)
   , nPresets(nPresets)
   , channelIOStr(channelIOStr)
-  , effectName(effectName)
+  , pluginName(pluginName)
   , productName(productName)
   , mfrName(mfrName)
   , vendorVersion(vendorVersion)

@@ -13,7 +13,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mMfrID(c.mfrID)
   , mVersion(c.vendorVersion)
   , mStateChunks(c.plugDoesChunks)
-  , mEffectName(c.effectName, MAX_EFFECT_NAME_LEN)
+  , mPluginName(c.pluginName, MAX_EFFECT_NAME_LEN)
   , mProductName(c.productName, MAX_EFFECT_NAME_LEN)
   , mMfrName(c.mfrName, MAX_EFFECT_NAME_LEN)
   , mHasUI(c.plugHasUI)
@@ -21,7 +21,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mHeight(c.plugHeight)
   , mAPI(plugAPI)
 {
-  Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
+  Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
 
   for (int i = 0; i < c.nParams; ++i)
     mParams.Add(new IParam());
@@ -67,7 +67,7 @@ void IPlugBase::SetHost(const char* host, int version)
 }
 
 // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
-int IPlugBase::GetEffectVersion(bool decimal) const
+int IPlugBase::GetPluginVersion(bool decimal) const
 {
   if (decimal)
     return GetDecimalVersion(mVersion);
@@ -75,7 +75,7 @@ int IPlugBase::GetEffectVersion(bool decimal) const
     return mVersion;
 }
 
-void IPlugBase::GetEffectVersionStr(WDL_String& str) const
+void IPlugBase::GetPluginVersionStr(WDL_String& str) const
 {
   GetVersionStr(mVersion, str);
 #if defined TRACER_BUILD
@@ -111,8 +111,8 @@ const char* IPlugBase::GetArchStr()
 void IPlugBase::GetBuildInfoStr(WDL_String& str)
 {
   WDL_String version;
-  GetEffectVersionStr(version);
-  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetEffectName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
+  GetPluginVersionStr(version);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetPluginName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
 }
 
 void IPlugBase::SetParameterValue(int idx, double normalizedValue)
