@@ -27,7 +27,7 @@ public:
     return mBytes.GetSize();
   }
   
-  inline int GetBytes(void* pBuf, int size, int startPos)
+  inline int GetBytes(void* pBuf, int size, int startPos) const
   {
     int endPos = startPos + size;
     if (startPos >= 0 && endPos <= mBytes.GetSize())
@@ -43,7 +43,7 @@ public:
     return PutBytes(pVal, sizeof(T));
   }
   
-  template <class T> inline int Get(T* pVal, int startPos)
+  template <class T> inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }

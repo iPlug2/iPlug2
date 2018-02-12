@@ -17,6 +17,8 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mProductName(c.productName, MAX_EFFECT_NAME_LEN)
   , mMfrName(c.mfrName, MAX_EFFECT_NAME_LEN)
   , mHasUI(c.plugHasUI)
+  , mWidth(c.plugWidth)
+  , mHeight(c.plugHeight)
   , mAPI(plugAPI)
 {
   Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
@@ -113,7 +115,6 @@ void IPlugBase::GetBuildInfoStr(WDL_String& str)
   str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetEffectName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
 }
 
-// this is over-ridden for AAX
 void IPlugBase::SetParameterValue(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
@@ -145,7 +146,7 @@ bool IPlugBase::SerializeParams(IByteChunk& chunk)
   return savedOK;
 }
 
-int IPlugBase::UnserializeParams(IByteChunk& chunk, int startPos)
+int IPlugBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 {
   TRACE;
   LOCK_PARAMS_MUTEX;
@@ -199,7 +200,7 @@ void IPlugBase::InitChunkWithIPlugVer(IByteChunk& chunk)
   chunk.Put(&ver);
 }
 
-int IPlugBase::GetIPlugVerFromChunk(IByteChunk& chunk, int& position)
+int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
 {
   int magic = 0, ver = 0;
   int magicpos = chunk.Get(&magic, position);

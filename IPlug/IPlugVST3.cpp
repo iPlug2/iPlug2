@@ -953,7 +953,7 @@ tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
     else // Carbon
       return kResultFalse;
     #endif
-    mPlug->OnGUIOpen();
+    mPlug->OnUIOpen();
 
     return kResultTrue;
   }
@@ -965,7 +965,7 @@ tresult PLUGIN_API IPlugVST3View::removed()
 {
   if (mPlug->HasUI())
   {
-    mPlug->OnGUIClose();
+    mPlug->OnUIClose();
     mPlug->CloseWindow();
   }
 

@@ -732,7 +732,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       {
         MidiKeyName* pMKN = (MidiKeyName*) ptr;
         pMKN->keyName[0] = '\0';
-        if (_this->MidiNoteName(pMKN->thisKeyNumber, pMKN->keyName))
+        if (_this->GetMidiNoteText(pMKN->thisKeyNumber, pMKN->keyName))
         {
           return 1;
         }
