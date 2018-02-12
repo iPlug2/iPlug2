@@ -75,7 +75,7 @@ public:
   void SetSVG(ISVG& svg)
   {
     mSVG = svg;
-    GetUI()->SetAllControlsDirty();
+    SetDirty();
   }
 
 private:
