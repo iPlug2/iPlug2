@@ -449,7 +449,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     HDC dc = (HDC) pContext;
     mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
     mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetScale(),GetScale());
+    cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
 #endif
   }
   
