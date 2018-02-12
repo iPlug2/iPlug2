@@ -28,7 +28,7 @@ public:
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
   
-#pragma mark - Methods you can implement in your plug-in class - you do not call these methods
+#pragma mark - Methods you can implement/override in your plug-in class - you do not call these methods
   
   /** Override this method to do something when a parameter changes.
    * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD
@@ -110,6 +110,7 @@ public:
 
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }
+  
   /** Get the plug-in version number
    * @param decimal Sets the output format
    * @return Effect version in VVVVRRMM (if \p decimal is \c true) or Hexadecimal 0xVVVVRRMM (if \p decimal is \c false) format */
@@ -289,5 +290,5 @@ protected:
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
-  WDL_String mParamDisplayStr = WDL_String("", MAX_PARAM_DISPLAY_LEN);
+  WDL_String mParamDisplayStr;
 };

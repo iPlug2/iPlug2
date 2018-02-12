@@ -25,12 +25,13 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
 
   for (int i = 0; i < c.nParams; ++i)
     mParams.Add(new IParam());
+  
+  mParamDisplayStr.Set("", MAX_PARAM_DISPLAY_LEN);
 }
 
 IPlugBase::~IPlugBase()
 {
   TRACE;
-
   mParams.Empty(true);
 }
 
@@ -40,33 +41,34 @@ void IPlugBase::OnParamChange(int paramIdx, EParamSource source)
   OnParamChange(paramIdx);
 }
 
-int IPlugBase::GetHostVersion(bool decimal)
+bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
 {
-  GetHost();
-  if (decimal)
+  bool isEqual = true;
+  
+  const double* data = (const double*) incomingState + startPos;
+  
+  // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
+  // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
+  for (int i = 0; i < NParams(); i++)
   {
-    return GetDecimalVersion(mHostVersion);
+    float v = (float) GetParam(i)->Value();
+    float vi = (float) *(data++);
+    
+    isEqual &= (fabsf(v - vi) < 0.00001);
   }
-  return mHostVersion;
+  
+  return isEqual;
 }
 
-void IPlugBase::GetHostVersionStr(WDL_String& str)
+#pragma mark -
+
+void IPlugBase::PrintDebugInfo()
 {
-  GetHost();
-  GetVersionStr(mHostVersion, str);
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  DBGMSG("\n--------------------------------------------------\n%s\nNO_IGRAPHICS\n", buildInfo.Get());
 }
 
-void IPlugBase::SetHost(const char* host, int version)
-{
-  mHost = LookUpHost(host);
-  mHostVersion = version;
-
-  WDL_String vStr;
-  GetVersionStr(version, vStr);
-  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
-}
-
-// Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
 int IPlugBase::GetPluginVersion(bool decimal) const
 {
   if (decimal)
@@ -84,6 +86,22 @@ void IPlugBase::GetPluginVersionStr(WDL_String& str) const
 #if defined _DEBUG
   str.Append("D");
 #endif
+}
+
+int IPlugBase::GetHostVersion(bool decimal)
+{
+  GetHost();
+  if (decimal)
+  {
+    return GetDecimalVersion(mHostVersion);
+  }
+  return mHostVersion;
+}
+
+void IPlugBase::GetHostVersionStr(WDL_String& str)
+{
+  GetHost();
+  GetVersionStr(mHostVersion, str);
 }
 
 const char* IPlugBase::GetAPIStr()
@@ -113,6 +131,18 @@ void IPlugBase::GetBuildInfoStr(WDL_String& str)
   WDL_String version;
   GetPluginVersionStr(version);
   str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetPluginName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
+}
+
+#pragma mark -
+
+void IPlugBase::SetHost(const char* host, int version)
+{
+  mHost = LookUpHost(host);
+  mHostVersion = version;
+  
+  WDL_String vStr;
+  GetVersionStr(version, vStr);
+  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
 }
 
 void IPlugBase::SetParameterValue(int idx, double normalizedValue)
@@ -163,25 +193,6 @@ int IPlugBase::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
-bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
-{
-  bool isEqual = true;
-  
-  const double* data = (const double*) incomingState + startPos;
-  
-  // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
-  // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
-  for (int i = 0; i < NParams(); i++)
-  {
-    float v = (float) GetParam(i)->Value();
-    float vi = (float) *(data++);
-    
-    isEqual &= (fabsf(v - vi) < 0.00001);
-  }
-  
-  return isEqual;
-}
-
 void IPlugBase::DirtyParameters()
 {
   for (int p = 0; p < NParams(); p++)
@@ -209,11 +220,4 @@ int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
     position = chunk.Get(&ver, magicpos);
   
   return ver;
-}
-
-void IPlugBase::PrintDebugInfo()
-{
-  WDL_String buildInfo;
-  GetBuildInfoStr(buildInfo);
-  DBGMSG("\n--------------------------------------------------\n%s\nNO_IGRAPHICS\n", buildInfo.Get());
 }
