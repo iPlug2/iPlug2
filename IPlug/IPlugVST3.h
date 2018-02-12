@@ -86,7 +86,7 @@ public:
   virtual void GetTimeSig(int& numerator, int& denominator) override;
   virtual void GetTime(ITimeInfo& timeInfo) override;
 
-  virtual void ResizeGraphics(int w, int h, double scale) override;
+  virtual void ResizeGraphics() override;
   void SetLatency(int samples) override;
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }

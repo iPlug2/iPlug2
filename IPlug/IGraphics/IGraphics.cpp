@@ -70,14 +70,16 @@ void IGraphics::Resize(int w, int h, float scale)
 
   float oldScale = mScale;
   mScale = scale;
+  mWidth = w;
+  mHeight = h;
     
   if (oldScale != scale)
-      OnDisplayScale();
+    OnDisplayScale();
     
   for (int i = 0; i < mPlug.NParams(); ++i)
     SetParameterFromPlug(i, mPlug.GetParam(i)->GetNormalized(), true);
     
-  mPlug.ResizeGraphics(w, h, scale);
+  mPlug.ResizeGraphics();
 }
 
 void IGraphics::OnDisplayScale()

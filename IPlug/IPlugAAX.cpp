@@ -463,13 +463,13 @@ void IPlugAAX::GetTimeSig(int& numerator, int& denominator)
   denominator = (int) denom;
 }
 
-void IPlugAAX::ResizeGraphics(int w, int h, double scale)
+void IPlugAAX::ResizeGraphics()
 {
   if (GetHasUI())
   {
     AAX_Point oEffectViewSize;
-    oEffectViewSize.horz = (float) w;
-    oEffectViewSize.vert = (float) h;
+    oEffectViewSize.horz = (float) GetUIWidth();
+    oEffectViewSize.vert = (float) GetUIHeight();
     
     IPlugAAXView_Interface* viewInterface = dynamic_cast<IPlugAAXView_Interface*>(this);
     if(viewInterface)

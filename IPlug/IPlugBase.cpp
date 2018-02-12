@@ -21,6 +21,7 @@ double IPlugBase::StringToParameter(IParam* pParam, const char* ptr)
     v = atof(ptr);
     if (pParam->GetDisplayIsNegated()) v = -v;
     v = pParam->Clamp(v);
+    mapped = true;
   }
   if (!mapped)
     v = pParam->Value();

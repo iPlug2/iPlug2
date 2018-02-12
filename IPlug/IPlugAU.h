@@ -59,7 +59,7 @@ public:
   void GetTime(ITimeInfo& timeinfo) override;
   EHost GetHost() override;
 
-  void ResizeGraphics(int w, int h, double scale) override;
+  void ResizeGraphics() override;
 
   bool IsRenderingOffline() override;
 
