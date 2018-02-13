@@ -62,8 +62,8 @@ public:
   double GetNormalized(double nonNormalizedValue) const;
   double GetNonNormalized(double normalizedValue) const;
 
-  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) { GetDisplayForHost(mValue, false, display, withDisplayText); }
-  void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true);
+  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
+  void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
   
   double StringToValue(const char* str);
   

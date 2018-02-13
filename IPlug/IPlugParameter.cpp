@@ -105,7 +105,7 @@ double IParam::GetNonNormalized(double normalizedValue) const
   return FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
 }
 
-void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText)
+void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
   if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape);
 
