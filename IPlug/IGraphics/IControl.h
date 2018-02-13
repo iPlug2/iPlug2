@@ -52,8 +52,8 @@ public:
   virtual bool OnKeyDown(float x, float y, int key) { return false; }
 
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
-  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) {}
-  virtual void OnMouseOut() {}
+  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) { mMouseIsOver = true; SetDirty(); }
+  virtual void OnMouseOut() { mMouseIsOver = false; SetDirty();  }
 
   /** Implement to do something when something was drag n dropped onto this control */
   virtual void OnDrop(const char* str) {};
@@ -195,6 +195,8 @@ public:
 
   void GetJSON(WDL_String& json, int idx) const;
 
+  bool GetMouseIsOver() { return mMouseIsOver; }
+  
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
@@ -228,7 +230,9 @@ protected:
   bool mClamped = false;
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
-  bool mMEWhenGrayed = false;
+  bool mMEWhenGrayed = false; 
+  /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
+  bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;
   IControl* mNameDisplayControl = nullptr;
   WDL_String mTooltip;
@@ -251,13 +255,13 @@ protected:
 class IVectorBase
 {
 public:
-  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,  // background
-              const IColor* pFGColor = &DEFAULT_FGCOLOR,  // foreground,
-              const IColor* pFRColor = 0,                 // frame
-              const IColor* pHLColor = 0,                 // highlight
-              const IColor* pX1Color = 0,                 // extra1
-              const IColor* pX2Color = 0,                 // extra2
-              const IColor* pX3Color = 0)                 // extra3
+  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
+              const IColor* pFGColor = &DEFAULT_FGCOLOR,
+              const IColor* pFRColor = 0,
+              const IColor* pHLColor = 0,
+              const IColor* pX1Color = 0,
+              const IColor* pX2Color = 0,
+              const IColor* pX3Color = 0)
   {
     SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
   }

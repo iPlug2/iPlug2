@@ -26,12 +26,8 @@ public:
   ~IVSwitchControl() {}
 
   void Draw(IGraphics& graphics)  override;
-
-  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override;
   
 private:
-  bool mMouseOver = false;
   float mStep;
   EDirection mDirection;
 };
@@ -48,7 +44,7 @@ public:
   ~IVKnobControl() {}
 
   void Draw(IGraphics& graphics) override;
-
+  
 protected:
   float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
 };
