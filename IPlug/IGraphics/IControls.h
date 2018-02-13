@@ -241,7 +241,7 @@ class IVButtonControl : public IControl,
     };
 
   IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
-                  const char *txtOn = "on", const char *txtOff = "off");
+                  const char *txtOff = "off", const char *txtOn = "on");
   ~IVButtonControl() {};
 
   void Draw(IGraphics& graphics) override;
@@ -288,8 +288,8 @@ class IVContactControl : public IVButtonControl
     {
     public:
     IVContactControl(IPlugBaseGraphics& plug, IRECT rect, int param,
-                     const char *txtOn = "on", const char *txtOff = "off") :
-      IVButtonControl(plug, rect, param, txtOn, txtOff) {};
+                     const char *txtOff = "off", const char *txtOn = "on") :
+      IVButtonControl(plug, rect, param, txtOff, txtOn) {};
 
     ~IVContactControl() {};
 
