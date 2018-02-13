@@ -737,12 +737,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     Init();
 
-    CreateDialog(gHInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN),GetDesktopWindow(),MainDlgProc);
+    CreateDialog(gHInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
+
+    if (!AttachGUI())
+      DBGMSG("couldn't attach gui\n"); //todo error
 
     for(;;)
     {
       MSG msg= {0,};
-      int vvv = GetMessage(&msg,NULL,0,0);
+      int vvv = GetMessage(&msg, NULL, 0, 0);
       if (!vvv)  break;
 
       if (vvv<0)
@@ -756,7 +759,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         continue;
       }
 
-      if (gHWND && IsDialogMessage(gHWND,&msg)) continue;
+      if (gHWND && IsDialogMessage(gHWND, &msg))
+        continue;
 
       // default processing for other dialogs
       HWND hWndParent=NULL;
@@ -765,21 +769,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       {
         if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
         {
-          hWndParent=temphwnd;
-          if (!(GetWindowLong(temphwnd,GWL_STYLE)&WS_CHILD)) break; // not a child, exit
+          hWndParent = temphwnd;
+          if (!(GetWindowLong(temphwnd, GWL_STYLE) &WS_CHILD))
+            break; // not a child, exit
         }
       }
       while (temphwnd = GetParent(temphwnd));
 
-      if (hWndParent && IsDialogMessage(hWndParent,&msg)) continue;
+      if (hWndParent && IsDialogMessage(hWndParent,&msg))
+        continue;
 
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-
     }
 
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
-    if (gHWND) DestroyWindow(gHWND);
+    if (gHWND)
+      DestroyWindow(gHWND);
 
     Cleanup();
 

@@ -10,8 +10,8 @@ extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
-//  try
-//  {
+  try
+  {
     HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, "IGraphicsTest");
 
     if (!hMutex)
@@ -77,10 +77,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     ReleaseMutex(hMutex);
   }
-//  catch(...)
-//  {
-//    DBGMSG("another instance running\n");
-//  }
+  catch(...)
+  {
+    DBGMSG("another instance running\n");
+  }
   return 0;
 }
 

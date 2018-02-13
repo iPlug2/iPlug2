@@ -21,7 +21,7 @@
   #endif
 
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps);
     pGraphics->SetPlatformInstance(gHInstance);
