@@ -286,6 +286,7 @@ protected:
   int mHeight = 0;
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;
+  /** A list of IParam objects. This list is resized in the IPlugBase constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;
 public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
