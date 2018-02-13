@@ -52,8 +52,8 @@ public:
   virtual bool OnKeyDown(float x, float y, int key) { return false; }
 
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
-  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) { mMouseIsOver = true; SetDirty(); }
-  virtual void OnMouseOut() { mMouseIsOver = false; SetDirty();  }
+  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) { mMouseIsOver = true; SetDirty(false); }
+  virtual void OnMouseOut() { mMouseIsOver = false; SetDirty(false);  }
 
   /** Implement to do something when something was drag n dropped onto this control */
   virtual void OnDrop(const char* str) {};
