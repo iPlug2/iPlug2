@@ -132,7 +132,7 @@ public:
 
   /** Check if we have any wildcard characters in the channel io configs
    * @param direction Return input or output bus count
-   * @return /true if the bus has a wildcard, meaning it should work on any number of channels */
+   * @return \c true if the bus has a wildcard, meaning it should work on any number of channels */
   bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // /todo only supports a single I/O config
 
   /** @param direction Whether you want to test inputs or outputs
