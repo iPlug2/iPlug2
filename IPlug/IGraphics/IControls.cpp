@@ -92,7 +92,7 @@ IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
     mRECT.R = mRECT.L + mRECT.H();
     mTargetRECT = mRECT;
   }
-  
+
   SetMinMaxNote(minNote, maxNote, keepWidth);
 }
 
@@ -105,15 +105,15 @@ void IVKeyboardControl::OnMouseDown(float x, float y, const IMouseMod & mod)
 {
   int oldK = mKey;
   mKey = GetKeyUnderMouse(x, y);
-  
+
   if (oldK != mKey)
     mVelByWheel = false;
-  
+
   mMouseOverKey = mKey;
-  
+
   if (!mVelByWheel)
     UpdateVelocity(y);
-  
+
   SetDirty();
 }
 
@@ -183,7 +183,7 @@ void IVKeyboardControl::OnResize()
     auto d = *kl - mRECT.L;
     *kl = mRECT.L + d * r + dx;
   }
-  
+
   mTargetRECT = mRECT;
   SetDirty();
 }
@@ -192,12 +192,12 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
 {
   auto shadowColor = IColor(60, 0, 0, 0);
   graphics.FillRect(GetColor(kWK), mRECT);
-  
+
   auto& top = mRECT.T;
   auto& wBot = mRECT.B;
   auto bBot = top + mRECT.H() * mBKHeightRatio;
   auto bKWidth = CalcBKWidth();
-  
+
   // first draw whites
   for (int i = 0; i < NumKeys(); ++i)
   {
@@ -224,7 +224,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
       }
     }
   }
-  
+
   // then blacks
   for (int i = 0; i < NumKeys(); ++i)
   {
@@ -266,10 +266,10 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
       }
     }
   }
-  
+
   if (mDrawBorders)
     graphics.DrawRect(GetColor(kFR), mRECT);
-  
+
   if (mShowNoteAndVel)
   {
     if (mMouseOverKey > -1)
@@ -295,7 +295,7 @@ void IVKeyboardControl::Draw(IGraphics & graphics)
       graphics.DrawText(mText, t.Get(), r);
     }
   }
-  
+
 #ifdef _DEBUG
   //graphics.DrawRect(COLOR_GREEN, mTargetRECT);
   //graphics.DrawRect(COLOR_BLUE, mRECT);
@@ -323,12 +323,12 @@ void IVKeyboardControl::SetMinMaxNote(int min, int max, bool keepWidth)
     mMinNote = max;
     mMaxNote = min;
   }
-  
+
   mNoteIsPlayed.Resize(NumKeys());
   memset(mNoteIsPlayed.Get(), 0, mNoteIsPlayed.GetSize() * sizeof(bool));
-  
+
   //TODO: call to plug to retain pressed keys
-  
+
   RecreateKeyBounds(keepWidth);
 }
 
@@ -367,9 +367,9 @@ void IVKeyboardControl::SetHeight(float h, bool keepProportions)
   auto& mR = mRECT;
   auto r = h / mR.H();
   mR.B = mR.T + mR.H() * r;
-  
+
   mTargetRECT = mRECT;
-  
+
   if (keepProportions)
     SetWidth(mR.W() * r);
   SetDirty();
@@ -388,12 +388,12 @@ void IVKeyboardControl::SetWidth(float w, bool keepProportions)
     auto d = *kl - mR.L;
     *kl = mR.L + d * r;
   }
-  
+
   mTargetRECT = mRECT;
-  
+
   if (keepProportions)
     SetHeight(mR.H() * r);
-  
+
   SetDirty();
 }
 
@@ -410,7 +410,7 @@ void IVKeyboardControl::SetColors(const IColor BKColor, const IColor& WKColor, c
   SetColor(kFR, FRColor);
 
   mBKAlpha = (float) PKColor.A;
-  
+
   if (mBKAlpha < 240.f)
   {
     const float lumWK = WKColor.GetLuminocity() * WKColor.A / 255.f;
@@ -419,7 +419,7 @@ void IVKeyboardControl::SetColors(const IColor BKColor, const IColor& WKColor, c
     const float lumRes = (1.f - adjustment) * lumWK + lumPK;
     const float lumDW = lumRes - lumWK;
     const float lumBK = BKColor.GetLuminocity() * BKColor.A / 255.f;
-    
+
     if ((lumDW < 0 && lumBK < lumWK) || (lumDW > 0 && lumBK > lumWK))
     {
       float dbWB = lumWK - lumBK; // not used in the conditions ^^ for readability
@@ -427,10 +427,10 @@ void IVKeyboardControl::SetColors(const IColor BKColor, const IColor& WKColor, c
     }
     else
       mBKAlpha += lumDW + 0.5f;
-    
+
     mBKAlpha = BOUNDED(mBKAlpha, 15.f, 255.f);
   }
-  
+
   SetDirty();
 }
 
@@ -438,11 +438,11 @@ void IVKeyboardControl::RecreateKeyBounds(bool keepWidth)
 {
   if (keepWidth)
     mWKWidth = 0.f;
-  
+
   // create size-independent data.
   mIsBlackKeyList.Resize(NumKeys());
   mKeyLCoords.Resize(NumKeys());
-  
+
   float numWhites = 0.f;
   for (int n = mMinNote, i = 0; n <= mMaxNote; ++n, i++)
   {
@@ -456,11 +456,11 @@ void IVKeyboardControl::RecreateKeyBounds(bool keepWidth)
       numWhites += 1.f;
     }
   }
-  
+
   // black key middle isn't aligned exactly between whites
   float WKPadStart = 0.f; // 1st note may be black
   float WKPadEnd = 0.f;   // last note may be black
-  
+
   auto ShiftForKey = [this](int note)
   {
     // usually black key width + distance to the closest black key = white key width,
@@ -473,16 +473,16 @@ void IVKeyboardControl::RecreateKeyBounds(bool keepWidth)
     else if (note % 12 == 10) return 1.f / 3.f;
     else return 0.f;
   };
-  
+
   WKPadStart = ShiftForKey(mMinNote);
-  
+
   if (mMinNote != mMaxNote && IsBlackKey(mIsBlackKeyList.GetSize() - 1))
     WKPadEnd = 1.f - ShiftForKey(mMaxNote);
-  
+
   // build rects
   if (mWKWidth == 0.f)
     mWKWidth = 0.2f * mRECT.H(); // first call from the constructor
-  
+
   if (keepWidth)
   {
     mWKWidth = mRECT.W();
@@ -490,9 +490,9 @@ void IVKeyboardControl::RecreateKeyBounds(bool keepWidth)
   }
   float blackW = mWKWidth;
   if (numWhites) blackW *= mBKWidthR;
-  
+
   float prevWKLeft = mRECT.L;
-  
+
   for (int k = 0; k < mIsBlackKeyList.GetSize(); ++k)
   {
     if (IsBlackKey(k))
@@ -512,7 +512,7 @@ void IVKeyboardControl::RecreateKeyBounds(bool keepWidth)
       prevWKLeft += mWKWidth;
     }
   }
-  
+
   mTargetRECT = mRECT;
   SetDirty();
 }
@@ -523,7 +523,7 @@ int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
   auto& WKBottom = mRECT.B;
   auto BKBottom = top + mRECT.H() * mBKHeightRatio;
   auto BKWidth = CalcBKWidth();
-  
+
   // black keys are on top
   int k = -1;
   for (int i = 0; i < NumKeys(); ++i)
@@ -539,7 +539,7 @@ int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
       }
     }
   }
-  
+
   if (k < 0) for (int i = 0; i < NumKeys(); ++i)
   {
     if (!IsBlackKey(i))
@@ -553,7 +553,7 @@ int IVKeyboardControl::GetKeyUnderMouse(float x, float y)
       }
     }
   }
-  
+
   return k;
 }
 
@@ -562,10 +562,10 @@ void IVKeyboardControl::UpdateVelocity(float y)
   if (mKey > -1)
   {
     auto h = mRECT.H();
-    
+
     if (IsBlackKey(mKey))
       h *= mBKHeightRatio;
-    
+
     mVelocity = (float)(y - mRECT.T) / (0.95f * h);
     // 0.95 is to get max velocity around the bottom
     mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
@@ -609,39 +609,23 @@ void IVButtonControl::Draw(IGraphics& graphics)
   {
     graphics.FillRect(GetColor(bPR), btnRect);
 
-    if (mDrawShadows && mEmboss) {
-      auto& o = mShadowOffset;
-      auto slr = btnRect;
-      slr.R = slr.L + o;
-      auto str = btnRect;
-      str.L += o;
-      str.B = str.T + o;
-      graphics.FillRect(shadowColor, slr);
-      graphics.FillRect(shadowColor, str);
-      }
+    if (mDrawShadows && mEmboss)
+      DrawInnerShadowForRect(btnRect, shadowColor, graphics);
 
     if (mTxtOn.GetLength()) {
-      auto textR = btnRect;
-      textR.T += 0.5f * (textR.H() - mText.mSize * mTxtH[1]) - 1.0f; // -1 looks better with small text
-      textR.B = textR.T + 0.1f;
+      auto textR = GetRectForAlignedTextIn(btnRect, 1);
       graphics.DrawTextA(mText, mTxtOn.Get(), textR);
       }
     }
   else
   {
-    if (mDrawShadows && !mEmboss) {
-      auto& o = mShadowOffset;
-      auto& br = btnRect;
-      auto sr = IRECT(br.L + o, br.T + o, br.R + o, br.B + o);
-      graphics.FillRect(shadowColor, sr);
-      }
+    if (mDrawShadows && !mEmboss)
+      DrawOuterShadowForRect(btnRect, shadowColor, graphics);
 
     graphics.FillRect(GetColor(bBG), btnRect);
 
     if (mTxtOff.GetLength()) {
-      auto textR = btnRect;
-      textR.T += 0.5f * (textR.H() - mText.mSize * mTxtH[0]) -1.0f; // -1 looks better with small text
-      textR.B = textR.T + 0.1f;
+      auto textR = GetRectForAlignedTextIn(btnRect, 0);
       graphics.DrawTextA(mText, mTxtOff.Get(), textR);
       }
     }
@@ -649,6 +633,33 @@ void IVButtonControl::Draw(IGraphics& graphics)
   if(mDrawBorders)
     graphics.DrawRect(GetColor(bFR), btnRect);
 }
+
+IRECT IVButtonControl::GetRectForAlignedTextIn(IRECT r, int state) {
+  auto tr = r;
+  tr.T += 0.5f * (tr.H() - mText.mSize * mTxtH[state]) - 1.0f; // -1 looks better with small text
+  tr.B = tr.T + 0.1f;
+  return tr;
+  }
+
+IRECT IVButtonControl::GetButtonRect() {
+  auto br = mRECT;
+  if (mDrawShadows && !mEmboss) {
+    br.R -= mShadowOffset;
+    br.B -= mShadowOffset;
+    }
+  return br;
+  }
+
+void IVButtonControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
+  auto& o = mShadowOffset;
+  auto slr = r;
+  slr.R = slr.L + o;
+  auto str = r;
+  str.L += o;
+  str.B = str.T + o;
+  graphics.FillRect(shadowColor, slr);
+  graphics.FillRect(shadowColor, str);
+  }
 
 void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
@@ -746,7 +757,7 @@ IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param)
   : IControl(plug, rect, param),
   IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
-  initRect = rect;
+  mInitRect = rect;
   mText.mFGColor = DEFAULT_TXT_COLOR;
   FillNamesFromParamDisplayTexts();
   }
@@ -756,7 +767,7 @@ IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
   : IControl(plug, rect, param),
   IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
-  initRect = rect;
+  mInitRect = rect;
   mText.mFGColor = DEFAULT_TXT_COLOR;
   if (numStates) {
     va_list args;
@@ -774,73 +785,179 @@ const IColor IVDropDownList::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
 const IColor IVDropDownList::DEFAULT_HL_COLOR = IColor(255, 240, 240, 240);
 
 void IVDropDownList::Draw(IGraphics& graphics) {
-  auto iR = initRect;
-  if (expanded)
-    iR = ShiftRectBy(iR, mRECT.L - iR.L, mRECT.T - iR.T); // if mRECT didn't fit and was shifted.
-                                                          // will be different for other new expand directions
-  auto textR = iR;
-  // assume all items are 1 line high
-  textR.T += 0.5f * (textR.H() - mText.mSize) - 1.0f; // -1 looks better with small text
-  textR.B = textR.T + 0.1f;
+  auto initR = GetInitRect();
+  auto shadowColor = IColor(60, 0, 0, 0);
+
+  auto textR = GetRectForAlignedTextIn(initR);
 
   if (!expanded) {
+    if (mDrawShadows && !mEmboss)
+      DrawOuterShadowForRect(initR, shadowColor, graphics);
+
     if (blink) {
-      auto r = iR;
-      graphics.FillRect(GetColor(lHL), r);
+      blink = false;
+      graphics.FillRect(GetColor(lHL), initR);
       SetDirty(false);
       }
     else
-      graphics.FillRect(GetColor(lBG), iR);
+      graphics.FillRect(GetColor(lBG), initR);
     if (mDrawBorders)
-      graphics.DrawRect(GetColor(lFR), iR);
+      graphics.DrawRect(GetColor(lFR), initR);
     graphics.DrawTextA(mText, NameForVal(StateFromNormalized()), textR);
-    blink = false;
-    ShrinkRects();
+    ShrinkRects(); // shrink here to clean the expanded area
     }
 
   else {
-    graphics.FillRect(GetColor(lBG), mRECT);
-    int sx = -1;
+    auto panelR = GetExpandedRect();
+    if (mDrawShadows && !mEmboss)
+      DrawOuterShadowForRect(panelR, shadowColor, graphics);
+    graphics.FillRect(GetColor(lBG), panelR);
+    if (mDrawShadows && mEmboss)
+      DrawInnerShadowForRect(panelR, shadowColor, graphics);int sx = -1;
     int sy = 0;
-    auto rw = iR.W();
-    auto rh = iR.H();
+    auto rw = initR.W();
+    auto rh = initR.H();
+    // now just shift the rects and draw them
     for (int v = 0; v < NumStates(); ++v) {
       if (v % colHeight == 0.0) {
         ++sx;
         sy = 0;
         }
-      IRECT vR = ShiftRectBy(iR, sx * rw, sy * rh);
+      IRECT vR = ShiftRectBy(initR, sx * rw, sy * rh);
       IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
-      if (v == state)
+      if (v == state) {
+        if (mDrawShadows) // draw when emboss too, looks good
+          DrawOuterShadowForRect(vR, shadowColor, graphics);
         graphics.FillRect(GetColor(lHL), vR);
+        }
 
       if (mDrawBorders)
         graphics.DrawRect(GetColor(lFR), vR);
       graphics.DrawTextA(mText, NameForVal(v), tR);
       ++sy;
       }
+
     if (mDrawBorders) {
-      auto fr = mRECT;
-      --fr.R; // fix for strange graphics behavior
-      --fr.B; // mRECT right and bottom are not drawn in expanded state
-      graphics.DrawRect(GetColor(lFR), fr);
+      if (!mDrawShadows) { // panelRect == mRECT
+        --panelR.R; // fix for strange graphics behavior
+        --panelR.B; // mRECT right and bottom are not drawn in expanded state (on Win)
+        }
+      graphics.DrawRect(GetColor(lFR), panelR);
       }
     }
 
 #ifdef _DEBUG
-  //graphics.DrawRect(COLOR_ORANGE, initRect);
+  //graphics.DrawRect(COLOR_ORANGE, mInitRect);
   //graphics.DrawRect(COLOR_BLUE, mRECT);
-  //graphics.DrawRect(COLOR_GREEN, mTargetRECT);
+  //graphics.DrawRect(COLOR_GREEN, mTargetRECT); // if padded will not be drawn correctly
 #endif
 
   }
 
+IRECT IVDropDownList::GetInitRect() {
+  auto ir = mInitRect;
+  if (mDrawShadows && !mEmboss) {
+    ir.R -= mShadowOffset;
+    ir.B -= mShadowOffset;
+    }
+  if (expanded)
+    ir = ShiftRectBy(ir, mRECT.L - ir.L, mRECT.T - ir.T); // if mRECT didn't fit and was shifted.
+                                                          // will be different for some other expand directions
+  return ir;
+  }
+
+IRECT IVDropDownList::GetExpandedRect() {
+  auto er = mRECT;
+  if (mDrawShadows && !mEmboss) {
+    er.R -= mShadowOffset;
+    er.B -= mShadowOffset;
+    }
+  return er;
+  }
+
+IRECT IVDropDownList::GetRectForAlignedTextIn(IRECT r) {
+  auto tr = r;
+  // assume all items are 1 line high
+  tr.T += 0.5f * (tr.H() - mText.mSize) - 1.0f; // -1 looks better with small text
+  tr.B = tr.T + 0.1f;
+  return tr;
+  }
+
+void IVDropDownList::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
+  auto& o = mShadowOffset;
+  auto slr = r;
+  slr.R = slr.L + o;
+  auto str = r;
+  str.L += o;
+  str.B = str.T + o;
+  graphics.FillRect(shadowColor, slr);
+  graphics.FillRect(shadowColor, str);
+  }
+
+void IVDropDownList::SetDrawShadows(bool draw, bool keepButtonRect){
+  if (draw == mDrawShadows) return;
+
+  if (keepButtonRect && !mEmboss) {
+    auto d = mShadowOffset;
+    if (!draw) d *= -1.0;
+    mInitRect.R += d;
+    mInitRect.B += d;
+    UpdateRectsOnInitChange();
+    }
+
+  mDrawShadows = draw;
+  SetDirty(false);
+  }
+
+void IVDropDownList::SetEmboss(bool emboss, bool keepButtonRect)
+  {
+  if (emboss == mEmboss) return;
+
+  if (keepButtonRect && mDrawShadows) {
+    auto d = mShadowOffset;
+    if (emboss) d *= -1.0;
+    mInitRect.R += d;
+    mInitRect.B += d;
+    UpdateRectsOnInitChange();
+    }
+
+  mEmboss = emboss;
+  SetDirty(false);
+  }
+
+void IVDropDownList::SetShadowOffset(float offset, bool keepButtonRect)
+  {
+  if (offset == mShadowOffset) return;
+
+  auto oldOff = mShadowOffset;
+
+  if (offset < 0.0)
+    mShadowOffset = 0.0;
+  else
+    mShadowOffset = offset;
+
+  if (keepButtonRect && mDrawShadows && !mEmboss) {
+    auto d = offset - oldOff;
+    mInitRect.R += d;
+    mInitRect.B += d;
+    UpdateRectsOnInitChange();
+    }
+
+  SetDirty(false);
+  }
+
+void IVDropDownList::UpdateRectsOnInitChange() {
+  if (!expanded)
+    ShrinkRects();
+  else
+    ExpandRects();
+  }
+
 void IVDropDownList::OnResize() {
+  mInitRect = mRECT;
   expanded = false;
+  lastX = lastY = -1.0;
   blink = false;
-  lastX = -1.0;
-  lastY = -1.0;
-  initRect = mRECT;
   SetDirty(false);
   }
 
@@ -848,12 +965,14 @@ void IVDropDownList::OnMouseOver(float x, float y, const IMouseMod& mod) {
   if (lastX != x || lastY != y) {
     lastX = x;
     lastY = y;
-    if (expanded && mRECT.Contains(x, y)) {
-      auto rx = x - mRECT.L;
-      auto ry = y - mRECT.T;
+    auto panelR = GetExpandedRect();
+    if (expanded && panelR.Contains(x, y)) {
+      auto rx = x - panelR.L;
+      auto ry = y - panelR.T;
 
-      int ix = (int)(rx / initRect.W());
-      int iy = (int)(ry / initRect.H());
+      auto initR = GetInitRect();
+      int ix = (int)(rx / initR.W());
+      int iy = (int)(ry / initR.H());
 
       int i = ix * colHeight + iy;
 
@@ -889,11 +1008,10 @@ int ns = state;
     mValue = NormalizedFromState();
     //DbgMsg("state ", state);
     //DbgMsg("mValue ", mValue);
+    if (!expanded)
+      blink = true;
     SetDirty();
     }
-
-  if (!expanded)
-    blink = true;
   }
 
 void IVDropDownList::OnMouseDblClick(float x, float y, const IMouseMod& mod) {
@@ -904,41 +1022,49 @@ void IVDropDownList::OnMouseDblClick(float x, float y, const IMouseMod& mod) {
     mValue = NormalizedFromState();
     //DbgMsg("state ", state);
     //DbgMsg("mValue ", mValue);
+    if (!expanded)
+      blink = true;
     SetDirty();
     }
-  if (!expanded)
-    blink = true;
   expanded = false;
   }
 
 void IVDropDownList::OnMouseOut() {
   state = StateFromNormalized();
   expanded = false;
-  lastX = -1.0;
-  lastY = -1.0;
+  lastX = lastY = -1.0;
   SetDirty(false);
   //DbgMsg("state ", state);
   //DbgMsg("mValue ", mValue);
   }
 
 void IVDropDownList::ExpandRects() {
-  auto& l = initRect.L;
-  auto& t = initRect.T;
+  // expand from top left of init Rect
+  auto ir = GetInitRect();
+  auto& l = ir.L;
+  auto& t = ir.T;
+  // if num states > max list height, we need more columns
   float w = (float) NumStates() / colHeight;
   if (w < 1.0) w = 1.0;
   else w += 0.5;
   w = std::round(w);
-  w *= initRect.W();
+  w *= ir.W();
   float h = (float) NumStates();
   if (colHeight < h)
     h = (float) colHeight;
-  h *= initRect.H();
+  h *= ir.H();
 
   // todo add expand directions. for now only down right
   auto& mR = mRECT;
   auto& mT = mTargetRECT;
   mR = IRECT(l, t, l + w, t + h);
+  if (mDrawShadows && !mEmboss) {
+    mR.R += mShadowOffset;
+    mR.B += mShadowOffset;
+    }
+  // we don't want expansion to collapse right around the borders, that'd be very UI unfriendly
   mT = mR.GetPadded(20.0); // todo perhaps padding should depend on display dpi
+  // expansion may get over the bounds. if so, shift it
   auto br = mPlug.GetGUI()->GetBounds();
   auto ex = mR.R - br.R;
   if (ex > 0.0) {
@@ -1001,7 +1127,7 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
   if (mValue > 1.001)
     mValue = 0.0;
-  
+
   SetDirty();
 }
 

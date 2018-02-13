@@ -270,15 +270,17 @@ class IVButtonControl : public IControl,
     bool mDrawBorders = true;
     bool mDrawShadows = true;
     bool mEmboss = false;
-    float mShadowOffset = 5.0;
+    float mShadowOffset = 4.0;
 
-    IRECT GetButtonRect() {
-      auto br = mRECT;
-      if (mDrawShadows && !mEmboss) {
-        br.R -= mShadowOffset;
-        br.B -= mShadowOffset;
-        }
-      return br;
+    void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
+    void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
+      auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
+      graphics.FillRect(shadowColor, sr);
+      }
+    IRECT GetRectForAlignedTextIn(IRECT r, int state);
+    IRECT GetButtonRect();
+    IRECT ShiftRectBy(IRECT r, float x, float y = 0.0) {
+      return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
       }
   };
 
@@ -302,8 +304,7 @@ Put this control on top of a draw stack
 so that the expanded list is fully visible
 and dosn't close when mouse is over another control */
 class IVDropDownList : public IControl,
-                       public IVectorBase
-{
+  public IVectorBase {
   typedef WDL_PtrList<WDL_String> strBuf;
 
   static const IColor IVDropDownList::DEFAULT_BG_COLOR;
@@ -312,8 +313,7 @@ class IVDropDownList : public IControl,
   static const IColor IVDropDownList::DEFAULT_HL_COLOR;
 
   // map to IVectorBase colors
-  enum EVBColor
-    {
+  enum EVBColor {
     lTxt = kFG,
     lBG = kBG,
     lHL = kHL,
@@ -326,20 +326,18 @@ class IVDropDownList : public IControl,
   IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
                  int numStates, const char* names...);
 
-  ~IVDropDownList()
-    {
+  ~IVDropDownList() {
     valNames.Empty(true);
     };
-  
-  void Draw(IGraphics& graphics)override ;
-  void OnMouseOver(float x, float y, const IMouseMod& mod)override ;
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
-    {
+
+  void Draw(IGraphics& graphics) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override {
     OnMouseOver(x, y, mod);
     }
-  void OnMouseDown(float x, float y, const IMouseMod& mod)override ;
-  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d)override ;
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod)override ;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override {
     blink = false;
@@ -347,9 +345,15 @@ class IVDropDownList : public IControl,
     }
   void OnResize() override;
 
-  void SetDrawShadow(bool draw) { drawShadow = draw; }
-  void SetDrawBorders(bool draw) { mDrawBorders = draw; }
-  void SetRect(IRECT r) { initRect = r; }
+  void SetDrawShadows(bool draw, bool keepButtonRect = true);
+  void SetEmboss(bool emboss, bool keepButtonRect = true);
+  void SetShadowOffset(float offset, bool keepButtonRect = true);
+  void SetRect(IRECT r) {
+    mInitRect = r;
+    UpdateRectsOnInitChange();
+    lastX = lastY = -1.0;
+    SetDirty(false);
+    }
 
   void SetMaxListHeight(int numItems) {
     colHeight = numItems;
@@ -358,29 +362,25 @@ class IVDropDownList : public IControl,
   void FillNamesFromParamDisplayTexts();
 
   protected:
-  IRECT initRect;
+  IRECT mInitRect;
   strBuf valNames;
 
   bool expanded = false;
   bool blink = false;
   bool mDrawBorders = true;
-  bool drawShadow = true;
-  bool emboss = true; // todo add drawing shadows
+  bool mDrawShadows = true;
+  bool mEmboss = false;
+  float mShadowOffset = 4.0;
 
-  float lastX = -1.0;
+  float lastX = -1.0; // to avoid lots of useless extra computations
   float lastY = -1.0;
   int state = -1;
 
-  int colHeight = 5;
-
-  void ExpandRects();
-  void ShrinkRects() {
-    mTargetRECT = mRECT = initRect;
-    }
+  int colHeight = 5; // how high the list can get before adding a next column
 
   void SetNames(int numStates, const char* names, va_list args);
   auto NameForVal(int val) { return (valNames.Get(val))->Get(); }
-  
+
   int NumStates() {
     return valNames.GetSize();
     }
@@ -391,11 +391,27 @@ class IVDropDownList : public IControl,
       return (double) state / (NumStates() - 1);
     }
   int StateFromNormalized() {
-    return (int)(mValue * (NumStates() - 1));
+    return (int) (mValue * (NumStates() - 1));
     }
+
+  IRECT GetInitRect();
+  IRECT GetExpandedRect();
+  void ExpandRects();
+  void ShrinkRects() {
+    mTargetRECT = mRECT = mInitRect;
+    }
+  void UpdateRectsOnInitChange();
+
+  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
+  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
+    auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
+    graphics.FillRect(shadowColor, sr);
+    }
+  IRECT GetRectForAlignedTextIn(IRECT r);
   IRECT ShiftRectBy(IRECT r, float x, float y = 0.0) {
     return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
     }
+
 
   void DbgMsg(const char* msg, float val) {
 #ifdef _DEBUG
@@ -406,7 +422,7 @@ class IVDropDownList : public IControl,
       ++msg;
       ++p;
       }
-    sprintf (str + p, "%f", val);
+    sprintf(str + p, "%f", val);
     DBGMSG(str);
 #endif
     }
