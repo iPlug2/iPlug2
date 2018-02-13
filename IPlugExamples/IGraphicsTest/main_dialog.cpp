@@ -53,13 +53,13 @@ void CreateGraphics()
 #ifdef OS_MAC
   IGraphicsMac* pGraphics = new IGraphicsMac(dummyDelegate, UI_WIDTH, UI_HEIGHT, 60);
   pGraphics->SetBundleID("com.OliLarkin.app.IGraphicsTest");
-  pGraphics->HandleMouseOver(true);
   pGraphics->CreateMetalLayer();
 #else
   IGraphicsWin* pGraphics = new IGraphicsWin(dummyDelegate, UI_WIDTH, UI_HEIGHT, 60);
   pGraphics->SetPlatformInstance(gHINSTANCE);
 #endif
 
+  pGraphics->HandleMouseOver(true);
   pGraphics->OpenWindow((void*) gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   
@@ -93,7 +93,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_DESTROY:
       gHWND = NULL;
-      PostQuitMessage(gHWND);
+      PostQuitMessage(0);
       return 0;
     case WM_CLOSE:
       DestroyWindow(hwndDlg);

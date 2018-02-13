@@ -3,8 +3,9 @@
 #include <Shlwapi.h>
 #include <commctrl.h>
 
-#include "IGraphicsWin.h"
 #include "IPlugParameter.h"
+#include "IGraphicsWin.h"
+#include "IControl.h"
 
 #include <wininet.h>
 
@@ -354,7 +355,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if(!pGraphics->mEdControl)
         return 0;
 
-      IText& text = pGraphics->mEdControl->GetText();
+      const IText& text = pGraphics->mEdControl->GetText();
       HDC dc = (HDC) wParam;
       SetBkColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
       SetTextColor(dc, RGB(text.mTextEntryFGColor.R, text.mTextEntryFGColor.G, text.mTextEntryFGColor.B));
@@ -494,7 +495,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-IGraphicsWin::IGraphicsWin(IGraphicsDelegate& dlg, int w, int h, int fps)
+IGraphicsWin::IGraphicsWin(IDelegate& dlg, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps)
 {}
 

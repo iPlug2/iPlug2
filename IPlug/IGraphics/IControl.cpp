@@ -146,9 +146,9 @@ IControl::AuxParam* IControl::GetAuxParam(int idx)
   return mAuxParams.Get() + idx;
 }
 
-int IControl::AuxParamIdx(int param)
+int IControl::GetAuxParamIdx(int param)
 {
-  for (int i=0;i<mAuxParams.GetSize();i++)
+  for (int i=0;i<NAuxParams();i++)
   {
     if(GetAuxParam(i)->mParamIdx == param)
       return i;
@@ -281,7 +281,7 @@ void ITextControl::Draw(IGraphics& graphics)
   }
 }
 
-ISwitchControlBase::ISwitchControlBase(IGraphicsDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
   uint32_t numStates)
   : IControl(dlg, rect, paramIdx, actionFunc)
 {

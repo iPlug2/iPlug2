@@ -201,7 +201,7 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
     }
 
     // now look for any auxilliary parameters
-    int auxParamIdx = pControl->AuxParamIdx(paramIdx);
+    int auxParamIdx = pControl->GetAuxParamIdx(paramIdx);
 
     if (auxParamIdx > -1) // there are aux params
     {

@@ -139,7 +139,7 @@ public:
 
   virtual void SetDirty(bool pushParamToPlug = true);
   virtual void SetClean();
-  virtual bool IsDirty() { return mDirty; } // This is not const, because it may be used to update something at the fps
+  virtual bool IsDirty() { return mDirty; } // This is not const, because it may be overridden and used to update something at the fps
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }  // Disables the right-click manual value entry.
 
@@ -148,7 +148,7 @@ public:
   void Redraw() { mRedraw = true; }
 
   // This is an idle call from the GUI thread, as opposed to
-  // IPlugBase::OnIdle which is called from the audio processing thread.
+  // IPlugProcessor::OnIdle which is called from the audio processing thread.
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
 

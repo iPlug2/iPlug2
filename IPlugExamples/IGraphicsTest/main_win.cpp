@@ -40,8 +40,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     for(;;)
     {
       MSG msg= {0,};
-      int vvv = GetMessage(&msg,NULL,0,0);
-      if (!vvv)  break;
+      int vvv = GetMessage(&msg, NULL, 0, 0);
+
+      if (!vvv)
+        break;
 
       if (vvv<0)
       {
@@ -57,14 +59,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       if (gHWND && IsDialogMessage(gHWND, &msg)) continue;
 
       // default processing for other dialogs
-      HWND hWndParent=NULL;
+      HWND hWndParent = NULL;
       HWND temphwnd = msg.hwnd;
       do
       {
         if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
         {
           hWndParent=temphwnd;
-          if (!(GetWindowLong(temphwnd,GWL_STYLE)&WS_CHILD))
+          if (!(GetWindowLong(temphwnd, GWL_STYLE) &WS_CHILD))
             break; // not a child, exit
         }
       }
