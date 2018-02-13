@@ -22,7 +22,7 @@
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps);
+  IGraphicsMac(IDelegate& dlg, int w, int h, int fps);
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
@@ -43,7 +43,7 @@ public:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
-  const char* GetGUIAPI() override;
+  const char* GetUIAPI() override;
   
   void UpdateTooltips() override;
 
@@ -53,7 +53,7 @@ public:
   void UserHomePath(WDL_String& path) override;
   void AppSupportPath(WDL_String& path, bool isSystem) override;
   void SandboxSafeAppSupportPath(WDL_String& path) override;
-  void VST3PresetsPath(WDL_String& path, bool isSystem) override;
+  void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;

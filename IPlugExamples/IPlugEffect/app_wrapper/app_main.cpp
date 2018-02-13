@@ -591,11 +591,11 @@ bool ChooseMidiOutput(const char* pPortName)
 
 extern bool AttachGUI()
 {
-  if (gPluginInstance->GetHasUI())
+  if (gPluginInstance->HasUI())
   {
     if (gPluginInstance->OpenWindow((void*) gHWND))
     {
-      gPluginInstance->OnGUIOpen();
+      gPluginInstance->OnUIOpen();
       return true;
     }
   }
@@ -612,7 +612,7 @@ void Init()
 
   // Initialise the plugin
   gPluginInstance = MakePlug(gMidiOut, gState->mMidiOutChan);
-  gPluginInstance->RestorePreset(0);
+//  gPluginInstance->RestorePreset(0);
 
   ChooseMidiInput(gState->mMidiInDev);
   ChooseMidiOutput(gState->mMidiOutDev);

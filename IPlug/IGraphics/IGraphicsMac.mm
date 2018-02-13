@@ -5,8 +5,8 @@
 #endif
 
 #include "IGraphicsMac.h"
-#import "IGraphicsMac_view.h"
 #include "IControl.h"
+#import "IGraphicsMac_view.h"
 
 #include "swell.h"
 
@@ -64,8 +64,8 @@ static double gettm()
 
 #pragma mark -
 
-IGraphicsMac::IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps)
-  : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
+IGraphicsMac::IGraphicsMac(IDelegate& dlg, int w, int h, int fps)
+  : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps)
   , mView(nullptr)
 {
   SetDisplayScale(1);
@@ -321,7 +321,7 @@ void IGraphicsMac::UpdateTooltips()
   }
 }
 
-const char* IGraphicsMac::GetGUIAPI()
+const char* IGraphicsMac::GetUIAPI()
 {
   return "Cocoa";
 }
@@ -371,7 +371,7 @@ void IGraphicsMac::UserHomePath(WDL_String& path)
   path.Set([pHomeDir UTF8String]);
 }
 
-void IGraphicsMac::VST3PresetsPath(WDL_String& path, bool isSystem)
+void IGraphicsMac::VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
   NSArray* pPaths;
   if (isSystem)
@@ -380,7 +380,7 @@ void IGraphicsMac::VST3PresetsPath(WDL_String& path, bool isSystem)
     pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
   
   NSString* pApplicationSupportDirectory = [pPaths objectAtIndex:0];
-  path.SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/", [pApplicationSupportDirectory UTF8String], mPlug.GetMfrName(), mPlug.GetEffectName());
+  path.SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/", [pApplicationSupportDirectory UTF8String], mfrName, pluginName);
 }
 
 void IGraphicsMac::AppSupportPath(WDL_String& path, bool isSystem)

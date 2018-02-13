@@ -133,7 +133,7 @@ enum EParamSource
 static const char* ParamSourceStrs[4] = { "Reset", "Automation", "Preset", "GUI" };
 
 /** @enum ERoute
- * Used to identify whether a bus/channel connection is an input or an output, maps to core audio scope
+ * Used to identify whether a bus/channel connection is an input or an output
  */
 enum ERoute
 {

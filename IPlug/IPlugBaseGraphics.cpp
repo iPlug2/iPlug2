@@ -11,18 +11,6 @@ IPlugBaseGraphics::~IPlugBaseGraphics()
   DELETE_NULL(mGraphics);
 }
 
-int IPlugBaseGraphics::GetUIWidth()
-{
-  assert(mGraphics);
-  return mGraphics->WindowWidth();
-}
-
-int IPlugBaseGraphics::GetUIHeight()
-{
-  assert(mGraphics);
-  return mGraphics->WindowHeight();
-}
-
 void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
@@ -40,11 +28,9 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
     // TODO: is it safe/sensible to do this here
     pGraphics->OnDisplayScale();
   }
-  
-  OnGUICreated();
 }
 
-void IPlugBaseGraphics::RedrawParamControls()
+void IPlugBaseGraphics::OnRestoreState()
 {
   if (mGraphics)
   {
@@ -59,21 +45,25 @@ void IPlugBaseGraphics::RedrawParamControls()
 
 void* IPlugBaseGraphics::OpenWindow(void* pHandle)
 {
-  return mGraphics->OpenWindow(pHandle);
+  if(mGraphics)
+    return mGraphics->OpenWindow(pHandle);
+  else
+    return nullptr;
 }
 
 void IPlugBaseGraphics::CloseWindow()
 {
-  mGraphics->CloseWindow();
+  if(mGraphics)
+    mGraphics->CloseWindow();
 }
 
-void IPlugBaseGraphics::SetParameterInUIFromAPI(int paramIdx, double value, bool normalized)
+void IPlugBaseGraphics::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
 {
   if(mGraphics)
     mGraphics->SetParameterFromPlug(paramIdx, value, normalized);
 }
 
-void IPlugBaseGraphics::PrintDebugInfo()
+void IPlugBaseGraphics::PrintDebugInfo() const
 {
   if(!mGraphics)
     return IPlugBase::PrintDebugInfo();
@@ -87,5 +77,4 @@ void IPlugBaseGraphics::PrintDebugInfo()
   mGraphics->UserHomePath(pHomePath);
   DBGMSG("Location of the Tracer Build Log: \n%s/%s\n\n", pHomePath.Get(), LOGFILE);
 #endif
-  
 }

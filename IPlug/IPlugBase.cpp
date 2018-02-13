@@ -8,27 +8,30 @@
 
 #include "IPlugBase.h"
 
-
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   : mUniqueID(c.uniqueID)
   , mMfrID(c.mfrID)
   , mVersion(c.vendorVersion)
   , mStateChunks(c.plugDoesChunks)
-  , mEffectName(c.effectName, MAX_EFFECT_NAME_LEN)
+  , mPluginName(c.pluginName, MAX_EFFECT_NAME_LEN)
   , mProductName(c.productName, MAX_EFFECT_NAME_LEN)
   , mMfrName(c.mfrName, MAX_EFFECT_NAME_LEN)
+  , mHasUI(c.plugHasUI)
+  , mWidth(c.plugWidth)
+  , mHeight(c.plugHeight)
   , mAPI(plugAPI)
 {
-  Trace(TRACELOC, "%s:%s", c.effectName, CurrentTime());
+  Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
 
   for (int i = 0; i < c.nParams; ++i)
     mParams.Add(new IParam());
+  
+  mParamDisplayStr.Set("", MAX_PARAM_DISPLAY_LEN);
 }
 
 IPlugBase::~IPlugBase()
 {
   TRACE;
-
   mParams.Empty(true);
 }
 
@@ -36,6 +39,53 @@ void IPlugBase::OnParamChange(int paramIdx, EParamSource source)
 {
   Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
   OnParamChange(paramIdx);
+}
+
+bool IPlugBase::CompareState(const uint8_t* pIncomingState, int startPos)
+{
+  bool isEqual = true;
+  
+  const double* data = (const double*) pIncomingState + startPos;
+  
+  // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
+  // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
+  for (int i = 0; i < NParams(); i++)
+  {
+    float v = (float) GetParam(i)->Value();
+    float vi = (float) *(data++);
+    
+    isEqual &= (fabsf(v - vi) < 0.00001);
+  }
+  
+  return isEqual;
+}
+
+#pragma mark -
+
+void IPlugBase::PrintDebugInfo() const
+{
+  WDL_String buildInfo;
+  GetBuildInfoStr(buildInfo);
+  DBGMSG("\n--------------------------------------------------\n%s\nNO_IGRAPHICS\n", buildInfo.Get());
+}
+
+int IPlugBase::GetPluginVersion(bool decimal) const
+{
+  if (decimal)
+    return GetDecimalVersion(mVersion);
+  else
+    return mVersion;
+}
+
+void IPlugBase::GetPluginVersionStr(WDL_String& str) const
+{
+  GetVersionStr(mVersion, str);
+#if defined TRACER_BUILD
+  str.Append("T");
+#endif
+#if defined _DEBUG
+  str.Append("D");
+#endif
 }
 
 int IPlugBase::GetHostVersion(bool decimal)
@@ -54,37 +104,7 @@ void IPlugBase::GetHostVersionStr(WDL_String& str)
   GetVersionStr(mHostVersion, str);
 }
 
-void IPlugBase::SetHost(const char* host, int version)
-{
-  mHost = LookUpHost(host);
-  mHostVersion = version;
-
-  WDL_String vStr;
-  GetVersionStr(version, vStr);
-  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
-}
-
-// Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
-int IPlugBase::GetEffectVersion(bool decimal) const
-{
-  if (decimal)
-    return GetDecimalVersion(mVersion);
-  else
-    return mVersion;
-}
-
-void IPlugBase::GetEffectVersionStr(WDL_String& str) const
-{
-  GetVersionStr(mVersion, str);
-#if defined TRACER_BUILD
-  str.Append("T");
-#endif
-#if defined _DEBUG
-  str.Append("D");
-#endif
-}
-
-const char* IPlugBase::GetAPIStr()
+const char* IPlugBase::GetAPIStr() const
 {
   switch (GetAPI()) 
   {
@@ -97,7 +117,7 @@ const char* IPlugBase::GetAPIStr()
   }
 }
 
-const char* IPlugBase::GetArchStr()
+const char* IPlugBase::GetArchStr() const
 {
 #ifdef ARCH_64BIT
   return "x64";
@@ -106,15 +126,26 @@ const char* IPlugBase::GetArchStr()
 #endif
 }
 
-void IPlugBase::GetBuildInfoStr(WDL_String& str)
+void IPlugBase::GetBuildInfoStr(WDL_String& str) const
 {
   WDL_String version;
-  GetEffectVersionStr(version);
-  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetEffectName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
+  GetPluginVersionStr(version);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetPluginName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
 }
 
-// this is over-ridden for AAX
-void IPlugBase::SetParameterFromUI(int idx, double normalizedValue)
+#pragma mark -
+
+void IPlugBase::SetHost(const char* host, int version)
+{
+  mHost = LookUpHost(host);
+  mHostVersion = version;
+  
+  WDL_String vStr;
+  GetVersionStr(version, vStr);
+  Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
+}
+
+void IPlugBase::SetParameterValue(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
   GetParam(idx)->SetNormalized(normalizedValue);
@@ -145,7 +176,7 @@ bool IPlugBase::SerializeParams(IByteChunk& chunk)
   return savedOK;
 }
 
-int IPlugBase::UnserializeParams(IByteChunk& chunk, int startPos)
+int IPlugBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 {
   TRACE;
   LOCK_PARAMS_MUTEX;
@@ -160,25 +191,6 @@ int IPlugBase::UnserializeParams(IByteChunk& chunk, int startPos)
   }
   OnParamReset(kPresetRecall);
   return pos;
-}
-
-bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
-{
-  bool isEqual = true;
-  
-  const double* data = (const double*) incomingState + startPos;
-  
-  // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
-  // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
-  for (int i = 0; i < NParams(); i++)
-  {
-    float v = (float) GetParam(i)->Value();
-    float vi = (float) *(data++);
-    
-    isEqual &= (fabsf(v - vi) < 0.00001);
-  }
-  
-  return isEqual;
 }
 
 void IPlugBase::DirtyParameters()
@@ -199,7 +211,7 @@ void IPlugBase::InitChunkWithIPlugVer(IByteChunk& chunk)
   chunk.Put(&ver);
 }
 
-int IPlugBase::GetIPlugVerFromChunk(IByteChunk& chunk, int& position)
+int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
 {
   int magic = 0, ver = 0;
   int magicpos = chunk.Get(&magic, position);
@@ -208,11 +220,4 @@ int IPlugBase::GetIPlugVerFromChunk(IByteChunk& chunk, int& position)
     position = chunk.Get(&ver, magicpos);
   
   return ver;
-}
-
-void IPlugBase::PrintDebugInfo()
-{
-  WDL_String buildInfo;
-  GetBuildInfoStr(buildInfo);
-  DBGMSG("\n--------------------------------------------------\n%s\nNO_IGRAPHICS\n", buildInfo.Get());
 }

@@ -5,7 +5,7 @@
  * @copydoc IGraphics
  */
 
-#ifndef NO_FREETYPE
+#ifdef IGRAPHICS_FREETYPE
 #include "ft2build.h"
 #include FT_FREETYPE_H
 #endif
@@ -18,7 +18,6 @@
 #include "IGraphicsStructs.h"
 #include "IGraphicsUtilites.h"
 #include "IPopupMenu.h"
-#include "IControl.h"
 
 #ifdef OS_MAC
 #ifdef FillRect
@@ -30,7 +29,7 @@
 #endif
 #endif
 
-class IPlugBaseGraphics;
+class IDelegate;
 class IControl;
 class IParam;
 
@@ -60,7 +59,7 @@ public:
    @param scale An integer specifying the scale of the display, where 2 = mac retina /todo better explanation of scale
   */
   virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
-  
+
   /**
    Draw an SVG image to the graphics context
 
@@ -82,7 +81,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawRotatedSVG(ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -93,7 +92,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& rect, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -115,7 +114,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -125,7 +124,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -134,7 +133,7 @@ public:
    @param y <#y description#>
   */
   virtual void ForcePixel(const IColor& color, int x, int y) = 0;
- 
+
   /**
    /todo <#Description#>
 
@@ -146,7 +145,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    <#Description#>
 
@@ -160,7 +159,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
    */
   virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -169,7 +168,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -179,7 +178,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo
 
@@ -192,9 +191,9 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
-  
- 
-  
+
+
+
   /**
    /todo <#Description#>
 
@@ -205,7 +204,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -216,7 +215,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -225,7 +224,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -239,7 +238,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -248,7 +247,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -258,7 +257,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void FillRoundRect(const IColor& color, const IRECT& rect, float cr = 5.f, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -269,7 +268,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -282,7 +281,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -293,7 +292,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   virtual void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -304,7 +303,7 @@ public:
    @return <#return value description#>
   */
   virtual bool DrawText(const IText& text, const char* str, IRECT& destRect, bool measure = false) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -314,7 +313,7 @@ public:
    @return <#return value description#>
   */
   virtual bool MeasureText(const IText& text, const char* str, IRECT& destRect) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -323,19 +322,19 @@ public:
    @return <#return value description#>
   */
   virtual IColor GetPoint(int x, int y)  = 0;
-  
+
   /**
    /todo <#Description#>
   */
   virtual void* GetData() = 0;
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   virtual const char* GetDrawingAPIStr() = 0;
-  
+
 
   /**
    /todo <#Description#>
@@ -344,7 +343,7 @@ public:
    @return <#return value description#>
   */
   inline virtual void ClipRegion(const IRECT& r) {}; // overridden in some IGraphics drawing classes to clip drawing
-  
+
   /**
    <#Description#>
 
@@ -359,31 +358,31 @@ public:
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
-  
+
   /**
    <#Description#>
    */
   virtual void OnDisplayScale();
-  
+
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
-  
-  
+
+
   /**
    <#Description#>
    */
   virtual void RenderDrawBitmap() {}
 
 #pragma mark - IGraphics base implementation - drawing helpers
-  
+
   /** Draws a bitmap into the graphics context
-   
+
  @param bitmap - the bitmap to draw
    @param rect - where to draw the bitmap
    @param bmpState - the frame of the bitmap to draw
    @param pBlend - blend operation
   */
   void DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState = 1, const IBlend* pBlend = 0);
-  
+
   /** Draws monospace bitmapped text. Useful for identical looking text on multiple platforms.
    @param bitmap the bitmap containing glyphs to draw
    @param rect where to draw the bitmap
@@ -397,7 +396,7 @@ public:
    @param charOffset what is the offset between characters drawn
   */
   void DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
-  
+
   /**
    /todo <#Description#>
 
@@ -407,7 +406,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   void DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend = 0);
-  
+
   /**
    /todo <#Description#>
 
@@ -417,7 +416,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   void DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend = 0);
-  
+
   /**
    /todo <#Description#>
 
@@ -428,7 +427,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
-  
+
   /**
    /todo <#Description#>
 
@@ -439,7 +438,7 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
-  
+
   /**
    Helper function to draw a radial line, useful for pointers on dials
 
@@ -452,7 +451,7 @@ public:
    @param pBlend blend operation
   */
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
-  
+
   /**
    /todo <#Description#>
 
@@ -463,25 +462,25 @@ public:
    @param pBlend Optional blend method, see IBlend documentation
   */
   void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
-  
+
 #pragma mark - IGraphics platform implementation
-  
- 
+
+
   /**
    /todo <#Description#>
   */
   virtual void HideMouseCursor() {};
-  
+
   /**
    /todo <#Description#>
   */
   virtual void ShowMouseCursor() {};
-  
+
   /**
    /todo <#Description#>
   */
   virtual void ForceEndUserEdit() = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -490,24 +489,24 @@ public:
    @param scale <#scale description#>
   */
   virtual void Resize(int w, int h, float scale);
-  
+
   /**
    /todo <#Description#>
 
    @param pParentWnd <#pParentWnd description#>
   */
   virtual void* OpenWindow(void* pParentWnd) = 0;
-  
+
   /**
    /todo <#Description#>
   */
   virtual void CloseWindow() = 0;
-  
+
   /**
    /todo <#Description#>
   */
   virtual void* GetWindow() = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -515,12 +514,12 @@ public:
    @return <#return value description#>
   */
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;
-  
+
   /**
    /todo <#Description#>
   */
   virtual void UpdateTooltips() = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -530,7 +529,7 @@ public:
    @return <#return value description#>
   */
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -539,7 +538,7 @@ public:
    @return <#return value description#>
   */
   virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -550,7 +549,7 @@ public:
    @param pParam <#pParam description#>
   */
   virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str = "", IParam* pParam = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -560,7 +559,7 @@ public:
    @param extensions <#extensions description#>
   */
   virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -569,7 +568,7 @@ public:
    @return <#return value description#>
   */
   virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
-  
+
   /**
    /todo <#Description#>
 
@@ -580,47 +579,47 @@ public:
    @return <#return value description#>
   */
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
-  virtual const char* GetGUIAPI() { return ""; }
-  
-  
+  virtual const char* GetUIAPI() { return ""; }
+
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   virtual bool WindowIsOpen() { return GetWindow(); }
-  
-  
+
+
   /**
    /todo <#Description#>
 
    @param path <#path description#>
   */
   virtual void HostPath(WDL_String& path) = 0;
-  
+
   /**
    /todo <#Description#>
 
    @param path <#path description#>
   */
   virtual void PluginPath(WDL_String& path) = 0;
-  
+
   /**
    /todo <#Description#>
 
    @param path <#path description#>
   */
   virtual void DesktopPath(WDL_String& path) = 0;
-  
+
   /**
    /todo <#Description#>
-   
+
    @param path <#path description#>
    */
   virtual void UserHomePath(WDL_String& path) = 0;
@@ -632,23 +631,23 @@ public:
    @param isSystem <#isSystem description#>
   */
   virtual void AppSupportPath(WDL_String& path, bool isSystem = false) = 0;
-  
+
   /**
    /todo <#Description#>
 
    @param path <#path description#>
   */
   virtual void SandboxSafeAppSupportPath(WDL_String& path) = 0;
-  
+
   /**
    /todo <#Description#>
 
    @param path <#path description#>
    @param isSystem <#isSystem description#>
   */
-  virtual void VST3PresetsPath(WDL_String& path, bool isSystem = true) { path.Set(""); }
-  
-  
+  virtual void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem = true) { path.Set(""); }
+
+
   /**
    /todo <#Description#>
 
@@ -664,8 +663,8 @@ public:
    @param instance <#instance description#>
   */
   virtual void SetPlatformInstance(void* pInstance) {}
-  
-  
+
+
   /**
    /todo <#Description#>
   */
@@ -678,14 +677,14 @@ public:
    @param pContext <#pContext description#>
   */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   void* GetPlatformContext() { return mPlatformContext; }
-  
+
   /**
    Try to ascertain the full path of a resource.
 
@@ -695,9 +694,9 @@ public:
    @return <#return value description#>
   */
   virtual bool OSFindResource(const char* name, const char* type, WDL_String& result) = 0;
-  
+
 #pragma mark - IGraphics base implementation
-  IGraphics(IPlugBaseGraphics& plug, int w, int h, int fps = 0);
+  IGraphics(IDelegate& dlg, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
   /**
@@ -707,14 +706,14 @@ public:
    @return <#return value description#>
   */
   bool IsDirty(IRECT& rect);
-  
+
   /**
    /todo <#Description#>
 
    @param rect The rectangular area to draw/fill the shape in
   */
   virtual void Draw(const IRECT& rect);
-  
+
   /**
    /todo <#Description#>
 
@@ -731,7 +730,7 @@ public:
    @param textRect <#textRect description#>
   */
   void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
-  
+
   /**
    /todo <#Description#>
 
@@ -740,7 +739,7 @@ public:
    @param txt <#txt description#>
   */
   void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
-  
+
   /**
    /todo <#Description#>
 
@@ -750,74 +749,74 @@ public:
    @return <#return value description#>
   */
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, float x, float y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
-  
+
   /**
    /todo <#Description#>
 
    @param strict <#strict description#>
   */
   void SetStrictDrawing(bool strict);
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   int Width() const { return mWidth; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   int Height() const { return mHeight; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   int WindowWidth() const { return int((float) mWidth * mScale); }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   int WindowHeight() const { return int((float) mHeight * mScale); }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   int FPS() const { return mFPS; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   float GetScale() const { return mScale; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   float GetDisplayScale() const { return mDisplayScale; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
-  IPlugBaseGraphics& GetPlug() { return mPlug; }
+  IDelegate& GetDelegate() { return mDelegate; }
 
   void AttachBackground(const char* name);
   void AttachPanelBackground(const IColor& color);
   void AttachKeyCatcher(IControl& control);
-  
+
   /**
    /todo <#Description#>
 
@@ -825,7 +824,7 @@ public:
    @return <#return value description#>
   */
   int AttachControl(IControl* pControl);
-  
+
   /**
    /todo <#Description#>
 
@@ -833,15 +832,15 @@ public:
    @return <#return value description#>
   */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   int NControls() const { return mControls.GetSize(); }
-  
-  
+
+
   /**
    /todo <#Description#>
 
@@ -849,7 +848,7 @@ public:
    @param hide <#hide description#>
   */
   void HideControl(int paramIdx, bool hide);
-  
+
   /**
    /todo <#Description#>
 
@@ -857,7 +856,7 @@ public:
    @param gray <#gray description#>
   */
   void GrayOutControl(int paramIdx, bool gray);
-  
+
   /**
    /todo <#Description#>
 
@@ -867,12 +866,12 @@ public:
    @param normalized <#normalized description#>
   */
   void ClampControl(int paramIdx, double lo, double hi, bool normalized);
-  
+
   /**
    /todo <#Description#>
   */
   void SetAllControlsDirty();
-  
+
   /**
    /todo <#Description#>
 
@@ -880,7 +879,7 @@ public:
    @param normalizedValue <#normalizedValue description#>
   */
   void SetControlFromPlug(int controlIdx, double normalizedValue);
-  
+
   /**
    /todo <#Description#>
 
@@ -889,7 +888,7 @@ public:
    @param normalized <#normalized description#>
   */
   void SetParameterFromPlug(int paramIdx, double value, bool normalized);
-  
+
   /**
    /todo <#Description#>
 
@@ -897,7 +896,7 @@ public:
    @param normalizedValue <#normalizedValue description#>
   */
   void SetParameterFromGUI(int paramIdx, double normalizedValue);
-  
+
   /**
    /todo <#Description#>
 
@@ -906,7 +905,7 @@ public:
    @param mod <#mod description#>
   */
   void OnMouseDown(float x, float y, const IMouseMod& mod);
-  
+
   /**
    /todo <#Description#>
 
@@ -915,7 +914,7 @@ public:
    @param mod <#mod description#>
   */
   void OnMouseUp(float x, float y, const IMouseMod& mod);
-  
+
   /**
    /todo <#Description#>
 
@@ -926,7 +925,7 @@ public:
    @param mod <#mod description#>
   */
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
-  
+
   /**
    /todo <#Description#>
 
@@ -936,7 +935,7 @@ public:
    @return <#return value description#>
   */
   bool OnMouseDblClick(float x, float y, const IMouseMod& mod);
-  
+
   /**
    /todo <#Description#>
 
@@ -946,7 +945,7 @@ public:
    @param d <#d description#>
   */
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d);
-  
+
   /**
    /todo <#Description#>
 
@@ -956,7 +955,7 @@ public:
    @return <#return value description#>
   */
   bool OnKeyDown(float x, float y, int key);
-  
+
   /**
    /todo <#Description#>
 
@@ -966,12 +965,12 @@ public:
    @return <#return value description#>
   */
   bool OnMouseOver(float x, float y, const IMouseMod& mod);
-  
+
   /**
    /todo <#Description#>
   */
   void OnMouseOut();
-  
+
   /**
    /todo <#Description#>
 
@@ -979,7 +978,7 @@ public:
    @param x <#x description#>
    @param y <#y description#>
   */
-  
+
   /**
    /todo <#Description#>
 
@@ -988,7 +987,7 @@ public:
    @param y <#y description#>
   */
   void OnDrop(const char* str, float x, float y);
-  
+
   /**
    /todo <#Description#>
   */
@@ -1002,14 +1001,14 @@ public:
    @return <#return value description#>
   */
   int GetParamIdxForPTAutomation(float x, float y);
-  
+
   /**
    [AAX only]
 
    @return <#return value description#>
   */
   int GetLastClickedParamForPTAutomation();
-  
+
   /**
    [AAX only]
 
@@ -1018,7 +1017,7 @@ public:
    @param color The colour to draw/fill the shape with>
   */
   void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
-  
+
   /**
    [VST3 primarily]
 
@@ -1035,19 +1034,19 @@ public:
   @param canHandle <#canHandle description#>
   */
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
-  
+
   /**
    /todo <#Description#>
   */
   void ReleaseMouseCapture();
-  
+
   /**
    /todo <#Description#>
 
    @param enable <#enable description#>
   */
   void EnableTooltips(bool enable);
-  
+
   /**
    /todo <#Description#>
   */
@@ -1059,15 +1058,15 @@ public:
    @param enable <#enable description#>
   */
   inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
-  
-  
+
+
   /**
    /todo <#Description#>
 
    @param enable <#enable description#>
   */
   inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
-  
+
   /**
    /todo <#Description#>
 
@@ -1076,15 +1075,15 @@ public:
    @param gridsize <#gridsize description#>
   */
   void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
-  
+
   /**
    /todo Get the area marked for drawing
 
    @return An IRECT that corresponds to the area currently marked for drawing
   */
   IRECT GetDrawRect() const { return mDrawRECT; }
- 
-  
+
+
   /**
    Get an IRECT that represents the entire UI bounds
 
@@ -1098,14 +1097,14 @@ public:
    @return <#return value description#>
   */
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
-  
+
   /**
    /todo <#Description#>
 
    @return <#return value description#>
   */
   inline int GetMouseOver() const { return mMouseOver; }
-  
+
   /**
    /todo <#Description#>
 
@@ -1119,9 +1118,9 @@ public:
    @param name <#name description#>
   */
   virtual void LoadFont(const char* name);
-  
+
 protected:
-  IPlugBaseGraphics& mPlug;
+  IDelegate& mDelegate;
 
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
@@ -1130,7 +1129,7 @@ protected:
   inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
-    
+
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
@@ -1142,7 +1141,7 @@ private:
   int mHeight;
   int mFPS;
   float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
-  float mScale = 1.f; // scale deviation from plug-in width and height i.e .stretching the gui by dragging
+  float mScale = 1.f; // scale deviation from dlg-in width and height i.e .stretching the gui by dragging
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
@@ -1153,17 +1152,17 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   IControl* mKeyCatcher = nullptr;
-  
+
 #if !defined(NDEBUG) && defined(APP_API)
   IControl* mLiveEdit = nullptr;
 #endif
 
-#if !defined(NO_FREETYPE) 
+#ifdef IGRAPHICS_FREETYPE
 protected:
   FT_Library mFTLibrary = nullptr;
   FT_Face mFTFace = nullptr;
 #endif
-  
+
   friend class IGraphicsLiveEdit;
 };
 

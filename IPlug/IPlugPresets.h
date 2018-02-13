@@ -69,8 +69,6 @@ public:
   void DumpPresetBlob(const char* file);
   void DumpBankBlob(const char* file);
 
-  void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
-
   //VST2 Presets
   bool SaveProgramAsFXP(const char* file);
   bool SaveBankAsFXB(const char* file);

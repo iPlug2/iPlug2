@@ -27,7 +27,7 @@ public:
     return mBytes.GetSize();
   }
   
-  inline int GetBytes(void* pBuf, int size, int startPos)
+  inline int GetBytes(void* pBuf, int size, int startPos) const
   {
     int endPos = startPos + size;
     if (startPos >= 0 && endPos <= mBytes.GetSize())
@@ -43,7 +43,7 @@ public:
     return PutBytes(pVal, sizeof(T));
   }
   
-  template <class T> inline int Get(T* pVal, int startPos)
+  template <class T> inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
@@ -153,7 +153,7 @@ struct IPlugConfig
   int nParams;
   int nPresets;
   const char* channelIOStr;
-  const char* effectName;
+  const char* pluginName;
   const char* productName;
   const char* mfrName;
   int vendorVersion;
@@ -163,11 +163,14 @@ struct IPlugConfig
   bool plugDoesMidi;
   bool plugDoesChunks;
   bool plugIsInstrument;
+  bool plugHasUI;
+  int plugWidth;
+  int plugHeight;
   
   IPlugConfig(int nParams,
               int nPresets,
               const char* channelIOStr,
-              const char* effectName,
+              const char* pluginName,
               const char* productName,
               const char* mfrName,
               int vendorVersion,
@@ -176,12 +179,15 @@ struct IPlugConfig
               int latency,
               bool plugDoesMidi,
               bool plugDoesChunks,
-              bool plugIsInstrument)
+              bool plugIsInstrument,
+              bool plugHasUI,
+              int plugWidth,
+              int plugHeight)
               
   : nParams(nParams)
   , nPresets(nPresets)
   , channelIOStr(channelIOStr)
-  , effectName(effectName)
+  , pluginName(pluginName)
   , productName(productName)
   , mfrName(mfrName)
   , vendorVersion(vendorVersion)
@@ -191,6 +197,9 @@ struct IPlugConfig
   , plugDoesMidi(plugDoesMidi)
   , plugDoesChunks(plugDoesChunks)
   , plugIsInstrument(plugIsInstrument)
+  , plugHasUI(plugHasUI)
+  , plugWidth(plugWidth)
+  , plugHeight(plugHeight)
   {};
 };
 
