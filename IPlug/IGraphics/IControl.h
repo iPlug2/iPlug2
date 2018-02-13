@@ -93,15 +93,15 @@ public:
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
   /** @return Parameter index */
-  int ParamIdx() { return mParamIdx; }
+  int ParamIdx() const { return mParamIdx; }
   IParam* GetParam();
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
-  double GetValue() { return mValue; }
+  double GetValue() const { return mValue; }
 
-  IText& GetText() { return mText; }
-  int GetTextEntryLength() { return mTextEntryLength; }
+  const IText& GetText() const { return mText; }
+  int GetTextEntryLength() const { return mTextEntryLength; }
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
@@ -126,8 +126,8 @@ public:
 
   void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
-  bool GetMOWhenGrayed() { return mMOWhenGrayed; }
-  bool GetMEWhenGrayed() { return mMEWhenGrayed; }
+  bool GetMOWhenGrayed() const { return mMOWhenGrayed; }
+  bool GetMEWhenGrayed() const { return mMEWhenGrayed; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
@@ -152,8 +152,8 @@ public:
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
 
-  /** A struct that contains a parameter index and normalized value */
-   struct AuxParam
+  /** A struct that contains a parameter index and normalized value, used when an IControl must reference multiple parameters */
+  struct AuxParam
   {
     /** Normalized value */
     double mValue  = 0.;
@@ -166,20 +166,23 @@ public:
     }
   };
 
+  //TODO: this should change
   /** @name Auxiliary parameter
-   *  Normally an IControl is linked to a single parameter, with the index mParamIdx.
-   */
+   *  Normally an IControl is linked to a single parameter, with the index mParamIdx. In some cases it makes sense for a single IControl
+   *  to be linked to more than one parameter (for example a break point envelope control). In this case you may add Auxilliary parameter*/
   /**@{*/
-  /** @return A pointer to the AuxParam instance at idx in the mAuxParams array */
-  AuxParam* GetAuxParam(int idx);
-  /** @return Index of the auxillary parameter that holds the paramIdx */
-  int AuxParamIdx(int paramIdx);
+  /** @return A pointer to the AuxParam instance at auxParamIdx in the mAuxParams list */
+  AuxParam* GetAuxParam(int auxParamIdx);
+  /** @return Index of the auxillary parameter in the mAuxParams list that holds the paramIdx */
+  int GetAuxParamIdx(int paramIdx);
   /** Adds an auxilliary parameter linked to paramIdx */
   void AddAuxParam(int paramIdx);
-  /** Can override if necessary */
+  /** Used to update the AuxParam object at auxParamIdx in the mAuxParams list to value */
   virtual void SetAuxParamValueFromPlug(int auxParamIdx, double value);
+  /** If the control modifies values linked to the AuxParams, it can call this method to update all the relevant parameters in the delegate */
   void SetAllAuxParamsFromGUI();
-  int NAuxParams() { return mAuxParams.GetSize(); }
+  /** Get the number of Aux Params for this control */
+  int NAuxParams() const { return mAuxParams.GetSize(); }
   /**@}*/
 
   /** Gets a reference to the class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.
