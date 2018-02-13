@@ -584,6 +584,7 @@ void IVKeyboardControl::GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_Stri
     str.AppendFormatted(2, "%d", --oct);
 }
 
+
 IVButtonControl::IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
                 const char *txtOff, const char *txtOn)
   : IControl(plug, rect, param),
@@ -621,8 +622,8 @@ void IVButtonControl::Draw(IGraphics& graphics)
 
     if (mTxtOn.GetLength()) {
       auto textR = btnRect;
-      textR.T += 0.5 * (textR.H() - mText.mSize * mTxtH[1]);
-      textR.B = textR.T + 0.1;
+      textR.T += 0.5f * (textR.H() - mText.mSize * mTxtH[1]) - 1.0f; // -1 looks better with small text
+      textR.B = textR.T + 0.1f;
       graphics.DrawTextA(mText, mTxtOn.Get(), textR);
       }
     }
@@ -639,8 +640,8 @@ void IVButtonControl::Draw(IGraphics& graphics)
 
     if (mTxtOff.GetLength()) {
       auto textR = btnRect;
-      textR.T += 0.5 * (textR.H() - mText.mSize * mTxtH[0]);
-      textR.B = textR.T + 0.1;
+      textR.T += 0.5f * (textR.H() - mText.mSize * mTxtH[0]) -1.0f; // -1 looks better with small text
+      textR.B = textR.T + 0.1f;
       graphics.DrawTextA(mText, mTxtOff.Get(), textR);
       }
     }
@@ -669,10 +670,10 @@ void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitTo
     if (mTxtW[1] > w) w = mTxtW[1];
     auto& mr = mRECT;
     IRECT br = mr;
-    br.L = br.R = mr.L + 0.5 * mr.W();
-    br.T = br.B = mr.T + 0.5 * mr.H();
-    w *= 0.5 * 0.44 * mText.mSize; // 0.44 is approx average character w/h ratio
-    h *= 0.5 * mText.mSize;
+    br.L = br.R = mr.L + 0.5f * mr.W();
+    br.T = br.B = mr.T + 0.5f * mr.H();
+    w *= 0.5f * 0.44f * mText.mSize; // 0.44 is approx average character w/h ratio
+    h *= 0.5f * mText.mSize;
     br.L -= w;
     br.R += w;
     br.T -= h;
@@ -773,22 +774,25 @@ const IColor IVDropDownList::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
 const IColor IVDropDownList::DEFAULT_HL_COLOR = IColor(255, 240, 240, 240);
 
 void IVDropDownList::Draw(IGraphics& graphics) {
-  // todo draw expanded based on mRECT L&T
-  auto textR = initRect;
+  auto iR = initRect;
+  if (expanded)
+    iR = ShiftRectBy(iR, mRECT.L - iR.L, mRECT.T - iR.T); // if mRECT didn't fit and was shifted.
+                                                          // will be different for other new expand directions
+  auto textR = iR;
   // assume all items are 1 line high
   textR.T += 0.5f * (textR.H() - mText.mSize) - 1.0f; // -1 looks better with small text
   textR.B = textR.T + 0.1f;
 
   if (!expanded) {
     if (blink) {
-      auto r = initRect;
+      auto r = iR;
       graphics.FillRect(GetColor(lHL), r);
       SetDirty(false);
       }
     else
-      graphics.FillRect(GetColor(lBG), initRect);
+      graphics.FillRect(GetColor(lBG), iR);
     if (mDrawBorders)
-      graphics.DrawRect(GetColor(lFR), initRect);
+      graphics.DrawRect(GetColor(lFR), iR);
     graphics.DrawTextA(mText, NameForVal(StateFromNormalized()), textR);
     blink = false;
     ShrinkRects();
@@ -798,14 +802,14 @@ void IVDropDownList::Draw(IGraphics& graphics) {
     graphics.FillRect(GetColor(lBG), mRECT);
     int sx = -1;
     int sy = 0;
-    auto rw = initRect.W();
-    auto rh = initRect.H();
+    auto rw = iR.W();
+    auto rh = iR.H();
     for (int v = 0; v < NumStates(); ++v) {
       if (v % colHeight == 0.0) {
         ++sx;
         sy = 0;
         }
-      IRECT vR = ShiftRectBy(initRect, sx * rw, sy * rh);
+      IRECT vR = ShiftRectBy(iR, sx * rw, sy * rh);
       IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
       if (v == state)
         graphics.FillRect(GetColor(lHL), vR);
@@ -870,7 +874,6 @@ void IVDropDownList::OnMouseDown(float x, float y, const IMouseMod& mod) {
   else
     {
     expanded = false;
-    mDisablePrompt = false;
     mValue = NormalizedFromState();
     SetDirty();
     }
@@ -995,7 +998,7 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue += 1.0 / (double)(mBitmap.N() - 1);
   else
     mValue += 1.0;
-  
+
   if (mValue > 1.001)
     mValue = 0.0;
   
