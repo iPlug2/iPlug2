@@ -17,7 +17,7 @@ SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
 LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
             lice_textnew.o lice_png.o
 
-OBJS = app_main.o main_dialog.o $(SWELL_OBJS) $(LICE_OBJS)
+OBJS = main_linux.o main_dialog.o $(SWELL_OBJS) $(LICE_OBJS)
 RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
 
 ### Compiler/Linker Flags
