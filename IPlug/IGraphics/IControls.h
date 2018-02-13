@@ -125,7 +125,7 @@ public:
     kBK = kFG,
     kWK = kBG,
     kPK = kHL,
-    kFR = kFR
+    //kFR = kFR
   };
   
   IVKeyboardControl(IDelegate& dlg, IRECT rect,

@@ -1,9 +1,13 @@
+#include <cstdlib>
 #include "IPlugPlatform.h"
 #ifdef OS_MAC
   #include "IGraphicsMac.h"
   #define PostQuitMessage SWELL_PostQuitMessage
-#else
+#elif defined (OS_WIN)
   #include "IGraphicsWin.h"
+#elif defined (OS_LINUX)
+  #include "IGraphicsLinux.h"
+  #define PostQuitMessage SWELL_PostQuitMessage
 #endif
 
 #include "IGraphicsTest.h"
@@ -54,11 +58,14 @@ void CreateGraphics()
   IGraphicsMac* pGraphics = new IGraphicsMac(dummyDelegate, UI_WIDTH, UI_HEIGHT, 60);
   pGraphics->SetBundleID("com.OliLarkin.app.IGraphicsTest");
   pGraphics->CreateMetalLayer();
-#else
+#elif defined OS_WIN
   IGraphicsWin* pGraphics = new IGraphicsWin(dummyDelegate, UI_WIDTH, UI_HEIGHT, 60);
   pGraphics->SetPlatformInstance(gHINSTANCE);
+#elif defined OS_LINUX
+
 #endif
 
+#ifndef OS_LINUX
   pGraphics->OpenWindow((void*) gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);
@@ -75,6 +82,7 @@ void CreateGraphics()
     IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
     pGraphics->AttachControl(new IVKnobControl(dummyDelegate, cellBounds, kGain));
   }
+#endif
 }
 
 //static
