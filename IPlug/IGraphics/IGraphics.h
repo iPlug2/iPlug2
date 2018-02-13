@@ -18,7 +18,6 @@
 #include "IGraphicsStructs.h"
 #include "IGraphicsUtilites.h"
 #include "IPopupMenu.h"
-#include "IControl.h"
 
 #ifdef OS_MAC
 #ifdef FillRect
@@ -30,7 +29,7 @@
 #endif
 #endif
 
-class IGraphicsDelegate;
+class IDelegate;
 class IControl;
 class IParam;
 
@@ -697,7 +696,7 @@ public:
   virtual bool OSFindResource(const char* name, const char* type, WDL_String& result) = 0;
 
 #pragma mark - IGraphics base implementation
-  IGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0);
+  IGraphics(IDelegate& dlg, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
   /**
@@ -812,7 +811,7 @@ public:
 
    @return <#return value description#>
   */
-  IGraphicsDelegate& GetDelegate() { return mDelegate; }
+  IDelegate& GetDelegate() { return mDelegate; }
 
   void AttachBackground(const char* name);
   void AttachPanelBackground(const IColor& color);
@@ -1121,7 +1120,7 @@ public:
   virtual void LoadFont(const char* name);
 
 protected:
-  IGraphicsDelegate& mDelegate;
+  IDelegate& mDelegate;
 
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;

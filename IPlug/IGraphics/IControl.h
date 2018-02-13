@@ -19,7 +19,6 @@
 #include "dirscan.h"
 #include "ptrlist.h"
 
-#include "IGraphicsDelegate.h"
 #include "IGraphics.h"
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
@@ -33,14 +32,15 @@ class IControl
 #endif
 {
 public:
-  /**
-   Constructor
-
-   @param dlg The IGraphicsDelegate that the control belongs to
-   @param rect The rectangular area that the control occupies
-   @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
-   */
-  IControl(IGraphicsDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  /** Constructor
+   * @param dlg The class implementing the IDelegate interface that will handle parameter changes.
+   * In a plug-in, this would typically be your main plug-in class, which inherits from IPlugBaseGraphics, which implements the interface.
+   * If you're doing something using IGraphics without IPlugBaseGraphics (e.g. drawing into an extra window), you need to implement the delegate interface somewhere
+   * to handle parameter changes.
+   * @param rect The rectangular area that the control occupies
+   * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
+   * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
+  IControl(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -49,44 +49,44 @@ public:
   virtual void OnMouseDblClick(float x, float y, const IMouseMod& mod);
   virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {};
   virtual bool OnKeyDown(float x, float y, int key) { return false; }
-  
+
   // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
   virtual void OnMouseOver(float x, float y, const IMouseMod& mod) {}
   virtual void OnMouseOut() {}
-  
+
   /** Implement to do something when something was drag n dropped onto this control */
   virtual void OnDrop(const char* str) {};
-  
+
   /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen) */
   virtual void OnRescale() {}
-  
+
   /** Called when IControl is constructed or resized using SetRect() */
   virtual void OnResize() {}
-  
+
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
-  
+
   virtual void OnTextEntryCompletion( const char* txt ) {}
-  
+
   /** Called in response to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
-  
+
   // By default, mouse double click has its own handler.  A control can set mDblAsSingleClick to true to change,
   // which maps double click to single click for this control (and also causes the mouse to be
   // captured by the control on double click).
   bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
 
   virtual void Draw(IGraphics& graphics) = 0;
-  
+
   virtual void DrawPTHighlight(IGraphics& graphics);
   virtual void SetPTParameterHighlight(bool isHighlighted, int color);
-  
+
   // Create an edit box so the user can enter a value for this control.
   void PromptUserInput();
   void PromptUserInput(IRECT& rect);
-  
+
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
-  
+
   /** @param tooltip Text to be displayed */
   inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
   /** @return Currently set tooltip text */
@@ -94,7 +94,7 @@ public:
 
   /** @return Parameter index */
   int ParamIdx() { return mParamIdx; }
-  IParam* GetParam() { return (mParamIdx >= 0) ? mDelegate.GetParamFromUI(mParamIdx) : nullptr; }
+  IParam* GetParam();
   virtual void SetValueFromPlug(double value);
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
@@ -111,7 +111,7 @@ public:
 
 
   /** Shows or hides the IControl.
-   * @param hide Set to true to hide the control 
+   * @param hide Set to true to hide the control
    */
   virtual void Hide(bool hide);
   /** @return \c True if the control is hidden. */
@@ -133,7 +133,7 @@ public:
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
   void SetBlend(IBlend blend) { mBlend = blend; }
-    
+
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
@@ -151,15 +151,15 @@ public:
   // IPlugBase::OnIdle which is called from the audio processing thread.
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
-  
+
   /** A struct that contains a parameter index and normalized value */
-   struct AuxParam 
+   struct AuxParam
   {
     /** Normalized value */
     double mValue  = 0.;
     /** Parameter index */
     int mParamIdx;
-    
+
     AuxParam(int idx) : mParamIdx(idx)
     {
       assert(idx > kNoParameter); // no negative params please
@@ -167,7 +167,7 @@ public:
   };
 
   /** @name Auxiliary parameter
-   *  TODO: Insert a meaningful description here
+   *  Normally an IControl is linked to a single parameter, with the index mParamIdx.
    */
   /**@{*/
   /** @return A pointer to the AuxParam instance at idx in the mAuxParams array */
@@ -181,10 +181,14 @@ public:
   void SetAllAuxParamsFromGUI();
   int NAuxParams() { return mAuxParams.GetSize(); }
   /**@}*/
-  
-  IGraphicsDelegate& GetDelegate() { return mDelegate; }
-  IGraphics* GetUI() { return mDelegate.GetUI(); }
-  
+
+  /** Gets a reference to the class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.
+   * If you need to call other methods on that class, you can use dynamic_cast<ImplementorClass>(GetDelegate();
+   * @return The class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.*/
+  IDelegate& GetDelegate() { return mDelegate; }
+  void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
+  IGraphics* GetUI() { return mGraphics; }
+
   void GetJSON(WDL_String& json, int idx) const;
 
 #ifdef VST3_API
@@ -193,18 +197,19 @@ public:
 
 #pragma mark - IControl Member variables
 protected:
-  IGraphicsDelegate& mDelegate;
+  IDelegate& mDelegate;
+  IGraphics* mGraphics = nullptr;
   IRECT mRECT;
   IRECT mTargetRECT;
-  
+
   IActionFunction mActionFunc = nullptr;
-  
+
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx;
-  
+
   IBlend mBlend;
   IText mText;
-  
+
   WDL_TypedBuf<AuxParam> mAuxParams;
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   double mValue = 0.;
@@ -223,10 +228,10 @@ protected:
   IControl* mValDisplayControl = nullptr;
   IControl* mNameDisplayControl = nullptr;
   WDL_String mTooltip;
-  
+
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
-  
+
 #ifdef VST3_API
   OBJ_METHODS(IControl, FObject)
   DEFINE_INTERFACES
@@ -252,7 +257,7 @@ public:
   {
     SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
   }
-  
+
   IVectorBase(const IVColorSpec& spec)
   {
     SetColors(&spec.mBGColor,
@@ -263,18 +268,18 @@ public:
               &spec.mX2Color,
               &spec.mX3Color);
   }
-  
+
   void AddColor(const IColor& color)
   {
     mColors.Add(color);
   }
-  
+
   void SetColor(int colorIdx, const IColor& color)
   {
     if(colorIdx < mColors.GetSize())
       mColors.Get()[colorIdx] = color;
   }
-  
+
   void SetColors(IVColorSpec& spec)
   {
     SetColors(&spec.mBGColor,
@@ -285,7 +290,7 @@ public:
               &spec.mX2Color,
               &spec.mX3Color);
   }
-  
+
   void SetColors(const IColor* pBGColor = 0,
                  const IColor* pFGColor = 0,
                  const IColor* pFRColor = 0,
@@ -302,7 +307,7 @@ public:
     if(pX2Color) AddColor(*pX2Color);
     if(pX3Color) AddColor(*pX3Color);
   }
-  
+
   IColor& GetColor(int colorIdx)
   {
     if(colorIdx < mColors.GetSize())
@@ -318,7 +323,7 @@ protected:
 class IPanelControl : public IControl, public IVectorBase
 {
 public:
-  IPanelControl(IGraphicsDelegate& dlg, IRECT rect, const IColor& color)
+  IPanelControl(IDelegate& dlg, IRECT rect, const IColor& color)
   : IControl(dlg, rect)
   , IVectorBase(&color)
   {}
@@ -334,7 +339,7 @@ public:
    * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn
   */
-  IBitmapControl(IGraphicsDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
   , mBitmap(bitmap)
   {
@@ -342,7 +347,7 @@ public:
   }
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IGraphicsDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapControl(IDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
   , mBitmap(bitmap)
   {
@@ -352,11 +357,11 @@ public:
   virtual ~IBitmapControl() {}
 
   virtual void Draw(IGraphics& graphics) override;
-  
-  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen), 
+
+  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
-  
+
 protected:
   IBitmap mBitmap;
 };
@@ -365,7 +370,7 @@ protected:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IGraphicsDelegate& dlg, ISVG& svg, IRECT rect, int paramIdx)
+  ISVGControl(IDelegate& dlg, ISVG& svg, IRECT rect, int paramIdx)
     : IControl(dlg, rect, paramIdx)
     , mSVG(svg)
   {}
@@ -383,20 +388,20 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IGraphicsDelegate& dlg, IRECT rect, const IText& text, const char* str = "")
+  ITextControl(IDelegate& dlg, IRECT rect, const IText& text, const char* str = "")
   : IControl(dlg, rect)
   , mStr(str)
   {
     IControl::mText = text;
   }
-  
+
   ~ITextControl() {}
-  
+
   virtual void SetTextFromDelegate(const char* str);
   virtual void ClearTextFromDelegate() { SetTextFromDelegate(""); }
-  
+
   void Draw(IGraphics& graphics) override;
-  
+
 protected:
   WDL_String mStr;
 };
@@ -407,7 +412,7 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IGraphicsDelegate& dlg, IRECT rect, int param = kNoParameter,
+  IKnobControlBase(IDelegate& dlg, IRECT rect, int param = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
     : IControl(dlg, rect, param)
     , mDirection(direction)
@@ -429,7 +434,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IGraphicsDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction aF = nullptr,
+  ISwitchControlBase(IDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction aF = nullptr,
     uint32_t numStates = 2);
 
   virtual ~ISwitchControlBase() {}
@@ -444,25 +449,25 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IGraphicsDelegate& dlg, IRECT rect, const char* extension /* e.g. ".txt"*/)
+  IDirBrowseControlBase(IDelegate& dlg, IRECT rect, const char* extension /* e.g. ".txt"*/)
   : IControl(dlg, rect)
   {
     mExtension.Set(extension);
   }
-  
+
   ~IDirBrowseControlBase();
-  
+
   int NItems();
-  
+
   void AddPath(const char* path, const char* label);
-  
+
   void SetUpMenu();
-  
+
   void GetSelecteItemPath(WDL_String& path);
-  
+
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
-  
+
 protected:
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;

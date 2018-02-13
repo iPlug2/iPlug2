@@ -75,7 +75,7 @@ CairoBitmap::~CairoBitmap()
 
 #pragma mark -
 
-IGraphicsCairo::IGraphicsCairo(IGraphicsDelegate& dlg, int w, int h, int fps)
+IGraphicsCairo::IGraphicsCairo(IDelegate& dlg, int w, int h, int fps)
 : IGraphics(dlg, w, h, fps)
 , mSurface(nullptr)
 , mContext(nullptr)

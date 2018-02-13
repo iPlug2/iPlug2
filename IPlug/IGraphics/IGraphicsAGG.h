@@ -82,7 +82,7 @@ public:
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
 
-  IGraphicsAGG(IGraphicsDelegate& dlg, int w, int h, int fps);
+  IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
 
   void SetDisplayScale(int scale) override;

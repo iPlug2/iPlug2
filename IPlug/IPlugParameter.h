@@ -115,3 +115,14 @@ private:
   
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
+
+class IDelegate
+{
+public:
+  IDelegate() {}
+  virtual ~IDelegate() {}
+  virtual IParam* GetParamFromUI(int paramIdx) = 0;
+  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) = 0;
+  virtual void SetParameterValueFromUI(int paramIdx, double value) = 0;
+  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
+};

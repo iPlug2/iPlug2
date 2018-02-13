@@ -5,8 +5,8 @@
 #endif
 
 #include "IGraphicsMac.h"
-#import "IGraphicsMac_view.h"
 #include "IControl.h"
+#import "IGraphicsMac_view.h"
 
 #include "swell.h"
 
@@ -64,7 +64,7 @@ static double gettm()
 
 #pragma mark -
 
-IGraphicsMac::IGraphicsMac(IGraphicsDelegate& dlg, int w, int h, int fps)
+IGraphicsMac::IGraphicsMac(IDelegate& dlg, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps)
   , mView(nullptr)
 {

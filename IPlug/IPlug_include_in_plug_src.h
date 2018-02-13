@@ -30,7 +30,7 @@
   #endif
 #elif defined OS_MAC
   #ifndef NO_IGRAPHICS
-  IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);

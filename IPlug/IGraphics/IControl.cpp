@@ -3,7 +3,7 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
-IControl::IControl(IGraphicsDelegate& dlg, IRECT rect, int param, IActionFunction actionFunc)
+IControl::IControl(IDelegate& dlg, IRECT rect, int param, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(rect)
 , mTargetRECT(rect)

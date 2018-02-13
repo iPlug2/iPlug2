@@ -6,7 +6,7 @@ static StaticStorage<agg::font> s_fontCache;
 
 #pragma mark -
 
-IGraphicsAGG::IGraphicsAGG(IGraphicsDelegate& dlg, int w, int h, int fps)
+IGraphicsAGG::IGraphicsAGG(IDelegate& dlg, int w, int h, int fps)
 : IGraphics(dlg, w, h, fps)
 , mFontEngine()
 , mFontManager(mFontEngine)

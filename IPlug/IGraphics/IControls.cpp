@@ -2,7 +2,7 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IGraphicsDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
+IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
   , const IVColorSpec& colorSpec, uint32_t numStates, EDirection dir)
   : ISwitchControlBase(dlg, rect, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
@@ -54,7 +54,7 @@ void IVSwitchControl::OnMouseOut()
   SetDirty();
 }
 
-IVKnobControl::IVKnobControl(IGraphicsDelegate& dlg, IRECT rect, int param,
+IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT rect, int param,
                              const IVColorSpec& colorSpec,
                              float rMin, float rMax, float aMin, float aMax,
                              EDirection direction, double gearing)
@@ -79,7 +79,7 @@ void IVKnobControl::Draw(IGraphics& graphics)
   graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
-IVKeyboardControl::IVKeyboardControl(IGraphicsDelegate& dlg, IRECT rect,
+IVKeyboardControl::IVKeyboardControl(IDelegate& dlg, IRECT rect,
                                      int minNote, int maxNote)
 : IControl(dlg, rect)
 , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
@@ -599,7 +599,7 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IGraphicsDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : IControl(dlg, IRECT(), paramIdx)
 , mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {

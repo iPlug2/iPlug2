@@ -30,7 +30,7 @@ class IGraphicsCairo : public IGraphics
 public:
   const char* GetDrawingAPIStr() override { return "CAIRO"; }
 
-  IGraphicsCairo(IGraphicsDelegate& dlg, int w, int h, int fps);
+  IGraphicsCairo(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsCairo();
 
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;

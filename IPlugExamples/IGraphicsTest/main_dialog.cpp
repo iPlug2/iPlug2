@@ -7,7 +7,7 @@
 #endif
 
 #include "IGraphicsTest.h"
-#include "IGraphicsDelegate.h"
+#include "IPlugParameter.h"
 #include "IControls.h"
 
 #define UI_WIDTH 700
@@ -30,10 +30,10 @@ void CenterWindow(HWND hWnd, int w, int h)
   SetWindowPos(gHWND, 0, x, y, w + ptDiff.x, h + ptDiff.y, 0);
 }
 
-class MyDelegate: public IGraphicsDelegate
+class MyDelegate: public IDelegate
 {
 public:
-  //IGraphicsDelegate
+  //IDelegate
   IParam* GetParamFromUI(int paramIdx) override { return nullptr; }
   void SetParameterValueFromUI(int paramIdx, double value) override { DBGMSG("p %i %f!\n", paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { ; }
@@ -53,6 +53,7 @@ void CreateGraphics()
 #ifdef OS_MAC
   IGraphicsMac* pGraphics = new IGraphicsMac(dummyDelegate, UI_WIDTH, UI_HEIGHT, 60);
   pGraphics->SetBundleID("com.OliLarkin.app.IGraphicsTest");
+  pGraphics->HandleMouseOver(true);
   pGraphics->CreateMetalLayer();
 #else
   IGraphicsWin* pGraphics = new IGraphicsWin(dummyDelegate, UI_WIDTH, UI_HEIGHT, 60);

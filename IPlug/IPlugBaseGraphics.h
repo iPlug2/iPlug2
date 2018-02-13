@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IPlugBase.h"
-#include "IGraphicsDelegate.h"
 
 /**
  * @file
@@ -12,7 +11,7 @@ class IGraphics;
 
 /** An IPlugBase class for an IPlug plug-in that uses IGraphics for it's UI */
 class IPlugBaseGraphics : public IPlugBase
-                        , public IGraphicsDelegate
+                        , public IDelegate
 {
 public:
   IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI);
@@ -29,12 +28,14 @@ public:
   void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
   void PrintDebugInfo() override;
 
-  //IGraphicsDelegate
-  IGraphics* GetUI() override { assert(mGraphics); return mGraphics; }
+  //Delegate
   IParam* GetParamFromUI(int paramIdx) override { return GetParam(paramIdx); }
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
+  
+  //IPlugBaseGraphics
+  IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
 private:
   IGraphics* mGraphics = nullptr;
 };

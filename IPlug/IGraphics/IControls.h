@@ -19,7 +19,7 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGraphicsDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
+  IVSwitchControl(IDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
@@ -41,7 +41,7 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IGraphicsDelegate& dlg, IRECT rect, int param,
+  IVKnobControl(IDelegate& dlg, IRECT rect, int param,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
                 float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
@@ -57,7 +57,7 @@ protected:
 class IVSVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IGraphicsDelegate& dlg, IRECT rect, ISVG& svg, int param = kNoParameter)
+  IVSVGKnob(IDelegate& dlg, IRECT rect, ISVG& svg, int param = kNoParameter)
     : IKnobControlBase(dlg, rect, param)
     , mSVG(svg)
   {
@@ -134,7 +134,7 @@ public:
     kFR = kFR
   };
   
-  IVKeyboardControl(IGraphicsDelegate& dlg, IRECT rect,
+  IVKeyboardControl(IDelegate& dlg, IRECT rect,
                     int minNote = 36, int maxNote = 60);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -227,7 +227,7 @@ protected:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IGraphicsDelegate& dlg, float x, float y, int param, IBitmap& bitmap)
+  IBSwitchControl(IDelegate& dlg, float x, float y, int param, IBitmap& bitmap)
   : IBitmapControl(dlg, x, y, param, bitmap) {}
   ~IBSwitchControl() {}
 
@@ -239,7 +239,7 @@ public:
 class IBSliderControl : public IControl
 {
 public:
-  IBSliderControl(IGraphicsDelegate& dlg, float x, float y, int len, int param,
+  IBSliderControl(IDelegate& dlg, float x, float y, int len, int param,
                   IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   ~IBSliderControl() {}
 
@@ -267,7 +267,7 @@ protected:
 class IBTextControl : public ITextControl
 {
 public:
-  IBTextControl(IGraphicsDelegate& dlg, IRECT rect, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
+  IBTextControl(IDelegate& dlg, IRECT rect, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
   : ITextControl(dlg, rect, text, str)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)

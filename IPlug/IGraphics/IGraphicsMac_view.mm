@@ -1,6 +1,7 @@
 #ifndef NO_IGRAPHICS
 
 #import "IGraphicsMac_view.h"
+#include "IControl.h"
 #include "IPlugParameter.h"
 
 @implementation IGRAPHICS_MENU_RCVR

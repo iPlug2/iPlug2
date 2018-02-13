@@ -10,11 +10,13 @@
 #include "pluginterfaces/base/ustring.h"
 #endif
 
+#include "IPlugParameter.h"
+
 #ifndef NDEBUG
 #include "IGraphicsLiveEdit.h"
 #endif
 
-#include "IPlugParameter.h"
+#include "IControl.h"
 
 struct SVGHolder
 {
@@ -37,7 +39,7 @@ struct SVGHolder
 static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 
-IGraphics::IGraphics(IGraphicsDelegate& dlg, int w, int h, int fps)
+IGraphics::IGraphics(IDelegate& dlg, int w, int h, int fps)
 : mDelegate(dlg)
 , mWidth(w)
 , mHeight(h)
@@ -119,6 +121,7 @@ void IGraphics::AttachPanelBackground(const IColor& color)
 
 int IGraphics::AttachControl(IControl* pControl)
 {
+  pControl->SetGraphics(this);
   mControls.Add(pControl);
   return mControls.GetSize() - 1;
 }
