@@ -135,8 +135,8 @@ public:
   /** @return The plug-in manufacturer's unique four character ID as an integer */
   int GetMfrID() const { return mMfrID; }
   
-  /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
-  virtual EHost GetHost() const { return mHost; }
+  /** @return The host if it has been identified, see EHost enum for a list of possible hosts, implemented in the API class for VST2 and AUv2 */
+  virtual EHost GetHost() { return mHost; }
   
   /** Get the host version number as an integer
    * @param decimal /c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.

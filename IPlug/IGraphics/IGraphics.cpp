@@ -129,6 +129,7 @@ int IGraphics::AttachControl(IControl* pControl)
 void IGraphics::AttachKeyCatcher(IControl& control)
 {
   mKeyCatcher = &control;
+  mKeyCatcher->SetGraphics(this);
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)
@@ -201,6 +202,7 @@ void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized
     }
 
     // now look for any auxilliary parameters
+    // BULL SHIP this only works with 1
     int auxParamIdx = pControl->GetAuxParamIdx(paramIdx);
 
     if (auxParamIdx > -1) // there are aux params
@@ -963,7 +965,10 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
 #if !defined(NDEBUG) && defined(APP_API)
   if(enable)
+  {
     mLiveEdit = new IGraphicsLiveEdit(GetDelegate(), file, gridsize);
+    mLiveEdit->SetGraphics(this);
+  }
   else
   {
     if(mLiveEdit)

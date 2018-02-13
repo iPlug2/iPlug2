@@ -612,7 +612,7 @@ void Init()
 
   // Initialise the plugin
   gPluginInstance = MakePlug(gMidiOut, gState->mMidiOutChan);
-  gPluginInstance->RestorePreset(0);
+//  gPluginInstance->RestorePreset(0);
 
   ChooseMidiInput(gState->mMidiInDev);
   ChooseMidiOutput(gState->mMidiOutDev);

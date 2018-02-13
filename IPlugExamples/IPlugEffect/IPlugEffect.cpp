@@ -26,14 +26,14 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
-  const int NRows = 2;
-  const int NColumns = 2;
+  const int nRows = 2;
+  const int nColumns = 2;
 
   IRECT bounds = pGraphics->GetBounds();
-//  IColor color;
-//
-  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, NRows, NColumns).GetPadded(-5.), kGain));
-  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, NRows, NColumns).GetPadded(-5.), -1));
+  IColor color;
+
+  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
+  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
 //  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
 //  {
@@ -67,8 +67,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //  pGraphics->AttachControl(fileMenuControl);
 
 
-  IRECT kbrect = bounds.SubRectVertical(2, 1).GetPadded(-5.); // same as joining two cells
-  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 60));
+//  IRECT kbrect = bounds.SubRectVertical(2, 1).GetPadded(-5.); // same as joining two cells
+//  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 60));
 
   AttachGraphics(pGraphics);
   

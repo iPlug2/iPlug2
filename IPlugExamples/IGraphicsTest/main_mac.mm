@@ -1,4 +1,3 @@
-#import <Cocoa/Cocoa.h>
 #include "IGraphicsTest.h"
 
 HWND gHWND;

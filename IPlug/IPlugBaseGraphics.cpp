@@ -63,7 +63,7 @@ void IPlugBaseGraphics::SendParameterValueToUIFromAPI(int paramIdx, double value
     mGraphics->SetParameterFromPlug(paramIdx, value, normalized);
 }
 
-void IPlugBaseGraphics::PrintDebugInfo()
+void IPlugBaseGraphics::PrintDebugInfo() const
 {
   if(!mGraphics)
     return IPlugBase::PrintDebugInfo();

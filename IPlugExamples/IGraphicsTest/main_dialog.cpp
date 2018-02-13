@@ -59,14 +59,15 @@ void CreateGraphics()
   pGraphics->SetPlatformInstance(gHINSTANCE);
 #endif
 
-  pGraphics->HandleMouseOver(true);
   pGraphics->OpenWindow((void*) gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
-  
+  pGraphics->HandleMouseOver(true);
+  pGraphics->EnableLiveEdit(true);
+
   /*ISVG svg = pGraphics->LoadSVG("resources/img/BefacoBigKnob.svg");*/
   //pGraphics->AttachControl(new IVSVGKnob(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), svg, kGain));
-  const int nRows = 15;
-  const int nColumns = 15;
+  const int nRows = 5;
+  const int nColumns = 5;
   IRECT bounds = pGraphics->GetBounds();
 
   for (int i = 0; i < nRows * nColumns; i++)

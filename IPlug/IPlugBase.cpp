@@ -41,11 +41,11 @@ void IPlugBase::OnParamChange(int paramIdx, EParamSource source)
   OnParamChange(paramIdx);
 }
 
-bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
+bool IPlugBase::CompareState(const uint8_t* pIncomingState, int startPos)
 {
   bool isEqual = true;
   
-  const double* data = (const double*) incomingState + startPos;
+  const double* data = (const double*) pIncomingState + startPos;
   
   // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
   // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
@@ -62,7 +62,7 @@ bool IPlugBase::CompareState(const unsigned char* incomingState, int startPos)
 
 #pragma mark -
 
-void IPlugBase::PrintDebugInfo()
+void IPlugBase::PrintDebugInfo() const
 {
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
@@ -104,7 +104,7 @@ void IPlugBase::GetHostVersionStr(WDL_String& str)
   GetVersionStr(mHostVersion, str);
 }
 
-const char* IPlugBase::GetAPIStr()
+const char* IPlugBase::GetAPIStr() const
 {
   switch (GetAPI()) 
   {
@@ -117,7 +117,7 @@ const char* IPlugBase::GetAPIStr()
   }
 }
 
-const char* IPlugBase::GetArchStr()
+const char* IPlugBase::GetArchStr() const
 {
 #ifdef ARCH_64BIT
   return "x64";
@@ -126,7 +126,7 @@ const char* IPlugBase::GetArchStr()
 #endif
 }
 
-void IPlugBase::GetBuildInfoStr(WDL_String& str)
+void IPlugBase::GetBuildInfoStr(WDL_String& str) const
 {
   WDL_String version;
   GetPluginVersionStr(version);

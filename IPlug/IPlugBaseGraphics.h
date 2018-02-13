@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlugBase.h"
+#include "IPlugDelegate.h"
 
 /**
  * @file
@@ -26,9 +27,9 @@ public:
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update. */
   virtual void OnRestoreState() override;
   void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
-  void PrintDebugInfo() override;
+  void PrintDebugInfo() const override;
 
-  //Delegate
+  //IDelegate
   IParam* GetParamFromUI(int paramIdx) override { return GetParam(paramIdx); }
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
