@@ -95,8 +95,8 @@ public:
 
   /** @return Parameter index */
   int ParamIdx() const { return mParamIdx; }
-  IParam* GetParam();
-  virtual void SetValueFromPlug(double value);
+  const IParam* GetParam();
+  virtual void SetValueFromDelegate(double value);
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
   double GetValue() const { return mValue; }
@@ -138,7 +138,7 @@ public:
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
-  virtual void SetDirty(bool pushParamToPlug = true);
+  virtual void SetDirty(bool pushParamToDelegate = true);
   virtual void SetClean();
   virtual bool IsDirty() { return mDirty; } // This is not const, because it may be overridden and used to update something at the fps
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
@@ -179,7 +179,7 @@ public:
   /** Adds an auxilliary parameter linked to paramIdx */
   void AddAuxParam(int paramIdx);
   /** Used to update the AuxParam object at auxParamIdx in the mAuxParams list to value */
-  virtual void SetAuxParamValueFromPlug(int auxParamIdx, double value);
+  virtual void SetAuxParamValueFromDelegate(int auxParamIdx, double value);
   /** If the control modifies values linked to the AuxParams, it can call this method to update all the relevant parameters in the delegate */
   void SetAllAuxParamsFromGUI();
   /** Get the number of Aux Params for this control */
@@ -190,6 +190,7 @@ public:
    * If you need to call other methods on that class, you can use dynamic_cast<ImplementorClass>(GetDelegate();
    * @return The class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.*/
   IDelegate& GetDelegate() { return mDelegate; }
+  
   void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
   IGraphics* GetUI() { return mGraphics; }
 

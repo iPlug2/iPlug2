@@ -12,7 +12,7 @@ IControl::IControl(IDelegate& dlg, IRECT rect, int param, IActionFunction action
 {
 }
 
-void IControl::SetValueFromPlug(double value)
+void IControl::SetValueFromDelegate(double value)
 {
   if (mDefaultValue < 0.0)
   {
@@ -162,7 +162,7 @@ void IControl::AddAuxParam(int param)
   mAuxParams.Add(AuxParam(param));
 }
 
-void IControl::SetAuxParamValueFromPlug(int auxParam, double value)
+void IControl::SetAuxParamValueFromDelegate(int auxParam, double value)
 {
   AuxParam* pAuxParam = GetAuxParam(auxParam);
 
@@ -215,7 +215,7 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
   }
 }
 
-IParam* IControl::GetParam()
+const IParam* IControl::GetParam()
 {
   if(mParamIdx >= 0)
     return mDelegate.GetParamFromUI(mParamIdx);

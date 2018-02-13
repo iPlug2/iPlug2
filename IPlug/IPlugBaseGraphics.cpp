@@ -1,5 +1,6 @@
 #include "IPlugBaseGraphics.h"
 #include "IGraphics.h"
+#include "IControl.h"
 
 IPlugBaseGraphics::IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI)
 : IPlugBase(config, plugAPI)
@@ -15,14 +16,13 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
   {
-    int i, n = mParams.GetSize();
-    
-    for (i = 0; i < n; ++i)
+    mGraphics = pGraphics;
+
+    for (auto i = 0; i < NParams(); ++i)
     {
-      pGraphics->SetParameterFromPlug(i, GetParam(i)->GetNormalized(), true);
+      SendParameterValueToUIFromDelegate(i, GetParam(i)->GetNormalized(), true);
     }
     
-    mGraphics = pGraphics;
     mHasUI = true;
     
     // TODO: is it safe/sensible to do this here
@@ -38,7 +38,7 @@ void IPlugBaseGraphics::OnRestoreState()
     for (i = 0; i < n; ++i)
     {
       double v = mParams.Get(i)->Value();
-      mGraphics->SetParameterFromPlug(i, v, false);
+      SendParameterValueToUIFromDelegate(i, v, false);
     }
   }
 }
@@ -59,8 +59,7 @@ void IPlugBaseGraphics::CloseWindow()
 
 void IPlugBaseGraphics::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
 {
-  if(mGraphics)
-    mGraphics->SetParameterFromPlug(paramIdx, value, normalized);
+  SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
 }
 
 void IPlugBaseGraphics::PrintDebugInfo() const
@@ -77,4 +76,49 @@ void IPlugBaseGraphics::PrintDebugInfo() const
   mGraphics->UserHomePath(pHomePath);
   DBGMSG("Location of the Tracer Build Log: \n%s/%s\n\n", pHomePath.Get(), LOGFILE);
 #endif
+}
+
+void IPlugBaseGraphics::SetControlValueFromDelegate(int controlIdx, double normalizedValue)
+{
+  if (controlIdx >= 0 && controlIdx < mGraphics->NControls())
+  {
+    mGraphics->GetControl(controlIdx)->SetValueFromDelegate(normalizedValue);
+  }
+}
+
+void IPlugBaseGraphics::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
+{
+  if (!normalized)
+    value = GetParam(paramIdx)->GetNormalized(value);
+
+  for (auto c = 0; c < mGraphics->NControls(); c++)
+  {
+    IControl* pControl = mGraphics->GetControl(c);
+    
+    if (pControl->ParamIdx() == paramIdx)
+    {
+      pControl->SetValueFromDelegate(value);
+      // Could be more than one, don't break until we check them all.
+    }
+  }
+//  int i, n = mControls.GetSize();
+//  IControl** ppControl = mControls.GetList();
+//  for (i = 0; i < n; ++i, ++ppControl)
+//  {
+//    IControl* pControl = *ppControl;
+//    if (pControl->ParamIdx() == paramIdx)
+//    {
+//      pControl->SetValueFromDelegate(value);
+//      // Could be more than one, don't break until we check them all.
+//    }
+//
+//    // now look for any auxilliary parameters
+//    // BULL SHIP this only works with 1
+//    int auxParamIdx = pControl->GetAuxParamIdx(paramIdx);
+//    
+//    if (auxParamIdx > -1) // there are aux params
+//    {
+//      pControl->SetAuxParamValueFromPlug(auxParamIdx, value);
+//    }
+//  }
 }

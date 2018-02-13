@@ -729,7 +729,7 @@ public:
    @param pParam <#pParam description#>
    @param textRect <#textRect description#>
   */
-  void PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect);
+  void PromptUserInput(IControl* pControl, const IParam* pParam, IRECT& textRect);
 
   /**
    /todo <#Description#>
@@ -738,7 +738,7 @@ public:
    @param pParam <#pParam description#>
    @param txt <#txt description#>
   */
-  void SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt);
+  void SetControlValueFromStringAfterPrompt(IControl* pControl, const IParam* pParam, const char* txt);
 
   /**
    /todo <#Description#>
@@ -871,31 +871,6 @@ public:
    /todo <#Description#>
   */
   void SetAllControlsDirty();
-
-  /**
-   /todo <#Description#>
-
-   @param controlIdx <#controlIdx description#>
-   @param normalizedValue <#normalizedValue description#>
-  */
-  void SetControlFromPlug(int controlIdx, double normalizedValue);
-
-  /**
-   /todo <#Description#>
-
-   @param paramIdx <#paramIdx description#>
-   @param value <#value description#>
-   @param normalized <#normalized description#>
-  */
-  void SetParameterFromPlug(int paramIdx, double value, bool normalized);
-
-  /**
-   /todo <#Description#>
-
-   @param paramIdx <#paramIdx description#>
-   @param normalizedValue <#normalizedValue description#>
-  */
-  void SetParameterFromGUI(int paramIdx, double normalizedValue);
 
   /**
    /todo <#Description#>

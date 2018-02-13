@@ -472,7 +472,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
   if (mEdParam)
-    mGraphics->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
+    mGraphics->SetControlValueFromStringAfterPrompt(mEdControl, mEdParam, txt);
   
   mEdControl->OnTextEntryCompletion(txt);
   mGraphics->SetAllControlsDirty();

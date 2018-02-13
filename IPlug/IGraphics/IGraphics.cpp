@@ -79,7 +79,7 @@ void IGraphics::Resize(int w, int h, float scale)
 //      OnDisplayScale();
 //
 //  for (int i = 0; i < mDelegate.NParams(); ++i)
-//    SetParameterFromPlug(i, mDelegate.GetParamFromUI(i)->GetNormalized(), true);
+//    SendParameterValueToUIFromDelegate(i, mDelegate.GetParamFromUI(i)->GetNormalized(), true);
 //
 //  mDelegate.ResizeGraphics(w, h, scale);
 }
@@ -98,7 +98,7 @@ void IGraphics::OnDisplayScale()
   SetAllControlsDirty();
 }
 
-void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
+void IGraphics::SetControlValueFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
 {
   if (pParam)
   {
@@ -110,12 +110,15 @@ void IGraphics::SetFromStringAfterPrompt(IControl* pControl, IParam* pParam, con
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  mControls.Insert(0, new IBitmapControl(mDelegate, 0, 0, -1, bg, kBlendClobber));
+  IControl* pBG = new IBitmapControl(mDelegate, 0, 0, -1, bg, kBlendClobber);
+  pBG->SetGraphics(this);
+  mControls.Insert(0, pBG);
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
   IControl* pBG = new IPanelControl(mDelegate, GetBounds(), color);
+  pBG->SetGraphics(this);
   mControls.Insert(0, pBG);
 }
 
@@ -166,7 +169,7 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 {
   if (!normalized)
   {
-    IParam* pParam = mDelegate.GetParamFromUI(paramIdx);
+    const IParam* pParam = mDelegate.GetParamFromUI(paramIdx);
     lo = pParam->GetNormalized(lo);
     hi = pParam->GetNormalized(hi);
   }
@@ -180,43 +183,6 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
       pControl->Clamp(lo, hi);
     }
     // Could be more than one, don't break until we check them all.
-  }
-}
-
-void IGraphics::SetParameterFromPlug(int paramIdx, double value, bool normalized)
-{
-  if (!normalized)
-  {
-    IParam* pParam = mDelegate.GetParamFromUI(paramIdx);
-    value = pParam->GetNormalized(value);
-  }
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    if (pControl->ParamIdx() == paramIdx)
-    {
-      pControl->SetValueFromPlug(value);
-      // Could be more than one, don't break until we check them all.
-    }
-
-    // now look for any auxilliary parameters
-    // BULL SHIP this only works with 1
-    int auxParamIdx = pControl->GetAuxParamIdx(paramIdx);
-
-    if (auxParamIdx > -1) // there are aux params
-    {
-      pControl->SetAuxParamValueFromPlug(auxParamIdx, value);
-    }
-  }
-}
-
-void IGraphics::SetControlFromPlug(int controlIdx, double normalizedValue)
-{
-  if (controlIdx >= 0 && controlIdx < mControls.GetSize())
-  {
-    mControls.Get(controlIdx)->SetValueFromPlug(normalizedValue);
   }
 }
 

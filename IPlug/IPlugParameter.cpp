@@ -213,7 +213,7 @@ bool IParam::MapDisplayText(const char* str, double* pValue) const
   return false;
 }
 
-double IParam::StringToValue(const char* str)
+double IParam::StringToValue(const char* str) const
 {
   double v = 0.;
   bool mapped = (bool) NDisplayTexts();
