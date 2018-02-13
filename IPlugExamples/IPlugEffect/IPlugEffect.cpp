@@ -23,7 +23,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
 #ifndef NO_IGRAPHICS
   
-  IGraphics* pGraphics = MakeGraphics(*this, kWidth, kHeight, 60);
+  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
   const int nRows = 2;

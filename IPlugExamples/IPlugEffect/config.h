@@ -42,8 +42,8 @@
 #define PLUG_DOES_MIDI 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
-#define PLUG_WIDTH 500
-#define PLUG_HEIGHT 500
+#define PLUG_WIDTH 300
+#define PLUG_HEIGHT 300
 
 #define AUV2_ENTRY IPlugEffect_Entry
 #define AUV2_ENTRY_STR "IPlugEffect_Entry"

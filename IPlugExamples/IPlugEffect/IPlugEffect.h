@@ -12,9 +12,6 @@ enum EParams
 
 enum ELayout
 {
-  kWidth = 300,
-  kHeight = 300,
-  
   kTextX = 10,
   kTextY = 10,
   kGainX = 100,
