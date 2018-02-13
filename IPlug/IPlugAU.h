@@ -148,7 +148,7 @@ private:
   static OSStatus AUMethodRender(void* pSelf, AudioUnitRenderActionFlags* pIOActionFlags, const AudioTimeStamp* pInTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* pIOData);
   static OSStatus AUMethodReset(void* pSelf, AudioUnitScope scope, AudioUnitElement elem);
   static OSStatus AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
-  static OSStatus AUMethodSysEx(void* pSelf, const UInt8 *inData, UInt32 inLength);
+  static OSStatus AUMethodSysEx(void* pSelf, const UInt8* pInData, UInt32 inLength);
   
 #pragma mark - Implementation Methods
   static OSStatus DoInitialize(IPlugAU* pPlug);
