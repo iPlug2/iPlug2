@@ -154,7 +154,7 @@ public:
    * @return /c true if the configurations is valid */
   bool LegalIO(int NInputChans, int NOutputChans) const; //TODO: this should be updated
   
-  /** @return c/ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config */
+  /** @return c\ true if this plug-in has a side-chain input, which may not necessarily be active in the current io config */
   bool HasSidechainInput() const { return MaxNBuses(ERoute::kInput) > 1; }
   
   /** @return The number of channels and the side-chain input /todo this will change */
