@@ -28,7 +28,7 @@
 //
 // public:
 //
-//   AGPanelTabs(IGraphicsDelegate& dlg, IRECT tabsRect, IText& text, const IColor& bgcolor, const IColor& fgcolor, const IColor& onColor)
+//   AGPanelTabs(IDelegate& dlg, IRECT tabsRect, IText& text, const IColor& bgcolor, const IColor& fgcolor, const IColor& onColor)
 //   : IControl(dlg, tabsRect, kNoParameter)
 //   , mbgcolor(bgcolor)
 //   , mfgcolor(fgcolor)
@@ -114,7 +114,7 @@
 //   const char** mParamNameStrings;
 //
 // public:
-//   AGPresetSaveButtonControl(IGraphicsDelegate& dlg, IRECT rect, IText& text, const char** ppParamNameStrings)
+//   AGPresetSaveButtonControl(IDelegate& dlg, IRECT rect, IText& text, const char** ppParamNameStrings)
 //   : IPanelControl(dlg, rect, COLOR_RED)
 //   , mParamNameStrings(ppParamNameStrings)
 //   {
@@ -146,7 +146,7 @@
 // #define GAP 2
 //
 // void GenerateKnobGUI(IGraphics& graphics,
-//                      IGraphicsDelegate& dlg,
+//                      IDelegate& dlg,
 //                      IText& text,
 //                      const IColor& bgcolor,
 //                      const IColor& fgcolor,
