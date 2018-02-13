@@ -790,12 +790,12 @@ void IVDropDownList::Draw(IGraphics& graphics) {
 
   auto textR = GetRectForAlignedTextIn(initR);
 
-  if (!expanded) {
+  if (!mExpanded) {
     if (mDrawShadows && !mEmboss)
       DrawOuterShadowForRect(initR, shadowColor, graphics);
 
-    if (blink) {
-      blink = false;
+    if (mBlink) {
+      mBlink = false;
       graphics.FillRect(GetColor(lHL), initR);
       SetDirty(false);
       }
@@ -819,13 +819,13 @@ void IVDropDownList::Draw(IGraphics& graphics) {
     auto rh = initR.H();
     // now just shift the rects and draw them
     for (int v = 0; v < NumStates(); ++v) {
-      if (v % colHeight == 0.0) {
+      if (v % mColHeight == 0.0) {
         ++sx;
         sy = 0;
         }
       IRECT vR = ShiftRectBy(initR, sx * rw, sy * rh);
       IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
-      if (v == state) {
+      if (v == mState) {
         if (mDrawShadows) // draw when emboss too, looks good
           DrawOuterShadowForRect(vR, shadowColor, graphics);
         graphics.FillRect(GetColor(lHL), vR);
@@ -860,7 +860,7 @@ IRECT IVDropDownList::GetInitRect() {
     ir.R -= mShadowOffset;
     ir.B -= mShadowOffset;
     }
-  if (expanded)
+  if (mExpanded)
     ir = ShiftRectBy(ir, mRECT.L - ir.L, mRECT.T - ir.T); // if mRECT didn't fit and was shifted.
                                                           // will be different for some other expand directions
   return ir;
@@ -947,7 +947,7 @@ void IVDropDownList::SetShadowOffset(float offset, bool keepButtonRect)
   }
 
 void IVDropDownList::UpdateRectsOnInitChange() {
-  if (!expanded)
+  if (!mExpanded)
     ShrinkRects();
   else
     ExpandRects();
@@ -955,18 +955,18 @@ void IVDropDownList::UpdateRectsOnInitChange() {
 
 void IVDropDownList::OnResize() {
   mInitRect = mRECT;
-  expanded = false;
-  lastX = lastY = -1.0;
-  blink = false;
+  mExpanded = false;
+  mLastX = mLastY = -1.0;
+  mBlink = false;
   SetDirty(false);
   }
 
 void IVDropDownList::OnMouseOver(float x, float y, const IMouseMod& mod) {
-  if (lastX != x || lastY != y) {
-    lastX = x;
-    lastY = y;
+  if (mLastX != x || mLastY != y) {
+    mLastX = x;
+    mLastY = y;
     auto panelR = GetExpandedRect();
-    if (expanded && panelR.Contains(x, y)) {
+    if (mExpanded && panelR.Contains(x, y)) {
       auto rx = x - panelR.L;
       auto ry = y - panelR.T;
 
@@ -974,13 +974,13 @@ void IVDropDownList::OnMouseOver(float x, float y, const IMouseMod& mod) {
       int ix = (int)(rx / initR.W());
       int iy = (int)(ry / initR.H());
 
-      int i = ix * colHeight + iy;
+      int i = ix * mColHeight + iy;
 
       if (i >= NumStates())
         i = NumStates() - 1;
-      if (i != state) {
-        state = i;
-        //DbgMsg("state ", state);
+      if (i != mState) {
+        mState = i;
+        //DbgMsg("mState ", mState);
         SetDirty(false);
         }
       }
@@ -988,11 +988,11 @@ void IVDropDownList::OnMouseOver(float x, float y, const IMouseMod& mod) {
   }
 
 void IVDropDownList::OnMouseDown(float x, float y, const IMouseMod& mod) {
-  if (!expanded)
+  if (!mExpanded)
       ExpandRects();
   else
     {
-    expanded = false;
+    mExpanded = false;
     mValue = NormalizedFromState();
     SetDirty();
     }
@@ -1000,16 +1000,16 @@ void IVDropDownList::OnMouseDown(float x, float y, const IMouseMod& mod) {
   }
 
 void IVDropDownList::OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {
-int ns = state;
+int ns = mState;
   ns += (int)d;
   ns = BOUNDED(ns, 0, NumStates() - 1);
-  if (ns != state) {
-    state = ns;
+  if (ns != mState) {
+    mState = ns;
     mValue = NormalizedFromState();
-    //DbgMsg("state ", state);
+    //DbgMsg("mState ", mState);
     //DbgMsg("mValue ", mValue);
-    if (!expanded)
-      blink = true;
+    if (!mExpanded)
+      mBlink = true;
     SetDirty();
     }
   }
@@ -1017,24 +1017,24 @@ int ns = state;
 void IVDropDownList::OnMouseDblClick(float x, float y, const IMouseMod& mod) {
   mValue = mDefaultValue;
   int ns = StateFromNormalized();
-  if (state != ns) {
-    state = ns;
+  if (mState != ns) {
+    mState = ns;
     mValue = NormalizedFromState();
-    //DbgMsg("state ", state);
+    //DbgMsg("mState ", mState);
     //DbgMsg("mValue ", mValue);
-    if (!expanded)
-      blink = true;
+    if (!mExpanded)
+      mBlink = true;
     SetDirty();
     }
-  expanded = false;
+  mExpanded = false;
   }
 
 void IVDropDownList::OnMouseOut() {
-  state = StateFromNormalized();
-  expanded = false;
-  lastX = lastY = -1.0;
+  mState = StateFromNormalized();
+  mExpanded = false;
+  mLastX = mLastY = -1.0;
   SetDirty(false);
-  //DbgMsg("state ", state);
+  //DbgMsg("mState ", mState);
   //DbgMsg("mValue ", mValue);
   }
 
@@ -1044,14 +1044,14 @@ void IVDropDownList::ExpandRects() {
   auto& l = ir.L;
   auto& t = ir.T;
   // if num states > max list height, we need more columns
-  float w = (float) NumStates() / colHeight;
+  float w = (float) NumStates() / mColHeight;
   if (w < 1.0) w = 1.0;
   else w += 0.5;
   w = std::round(w);
   w *= ir.W();
   float h = (float) NumStates();
-  if (colHeight < h)
-    h = (float) colHeight;
+  if (mColHeight < h)
+    h = (float) mColHeight;
   h *= ir.H();
 
   // todo add expand directions. for now only down right
@@ -1077,19 +1077,19 @@ void IVDropDownList::ExpandRects() {
     mT = ShiftRectBy(mT, 0.0, -ey);
     }
 
-  expanded = true;
+  mExpanded = true;
   SetDirty(false);
   }
 
 void IVDropDownList::SetNames(int numStates, const char* names, va_list args) {
   if (numStates < 1) return;
-  valNames.Add(new WDL_String(names));
+  mValNames.Add(new WDL_String(names));
   for (int i = 1; i < numStates; ++i)
-    valNames.Add(new WDL_String(va_arg(args, const char*)));
+    mValNames.Add(new WDL_String(va_arg(args, const char*)));
   }
 
 void IVDropDownList::SetNames(int numStates, const char* names...) {
-  valNames.Empty(true);
+  mValNames.Empty(true);
 
   va_list args;
   va_start(args, names);
@@ -1100,18 +1100,18 @@ void IVDropDownList::SetNames(int numStates, const char* names...) {
   }
 
 void IVDropDownList::FillNamesFromParamDisplayTexts() {
-  valNames.Empty(true);
+  mValNames.Empty(true);
   auto param = GetParam();
   if (param) {
     int n = param->NDisplayTexts();
     if (n > 0)
       for (int i = 0; i < n; ++i)
-        valNames.Add(new WDL_String(param->GetDisplayTextAtIdx(i)));
+        mValNames.Add(new WDL_String(param->GetDisplayTextAtIdx(i)));
     else
-      valNames.Add(new WDL_String("no display texts"));
+      mValNames.Add(new WDL_String("no display texts"));
     }
   else
-    valNames.Add(new WDL_String("no param"));
+    mValNames.Add(new WDL_String("no param"));
 
   SetDirty(false);
   }

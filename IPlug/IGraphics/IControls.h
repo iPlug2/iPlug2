@@ -327,7 +327,7 @@ class IVDropDownList : public IControl,
                  int numStates, const char* names...);
 
   ~IVDropDownList() {
-    valNames.Empty(true);
+    mValNames.Empty(true);
     };
 
   void Draw(IGraphics& graphics) override;
@@ -340,55 +340,60 @@ class IVDropDownList : public IControl,
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override {
-    blink = false;
+    mBlink = false;
     SetDirty(false);
     }
   void OnResize() override;
 
+  void SetDrawBorders(bool draw)
+    {
+    mDrawBorders = draw;
+    SetDirty(false);
+    }
   void SetDrawShadows(bool draw, bool keepButtonRect = true);
   void SetEmboss(bool emboss, bool keepButtonRect = true);
   void SetShadowOffset(float offset, bool keepButtonRect = true);
   void SetRect(IRECT r) {
     mInitRect = r;
     UpdateRectsOnInitChange();
-    lastX = lastY = -1.0;
+    mLastX = mLastY = -1.0;
     SetDirty(false);
     }
 
   void SetMaxListHeight(int numItems) {
-    colHeight = numItems;
+    mColHeight = numItems;
     }
   void SetNames(int numStates, const char* names...);
   void FillNamesFromParamDisplayTexts();
 
   protected:
   IRECT mInitRect;
-  strBuf valNames;
+  strBuf mValNames;
 
-  bool expanded = false;
-  bool blink = false;
+  bool mExpanded = false;
+  bool mBlink = false;
   bool mDrawBorders = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
   float mShadowOffset = 4.0;
 
-  float lastX = -1.0; // to avoid lots of useless extra computations
-  float lastY = -1.0;
-  int state = -1;
+  float mLastX = -1.0; // to avoid lots of useless extra computations
+  float mLastY = -1.0;
+  int mState = -1;
 
-  int colHeight = 5; // how high the list can get before adding a next column
+  int mColHeight = 5; // how long the list can get before adding a new column
 
   void SetNames(int numStates, const char* names, va_list args);
-  auto NameForVal(int val) { return (valNames.Get(val))->Get(); }
+  auto NameForVal(int val) { return (mValNames.Get(val))->Get(); }
 
   int NumStates() {
-    return valNames.GetSize();
+    return mValNames.GetSize();
     }
   double NormalizedFromState() {
     if (NumStates() < 2)
       return 0.0;
     else
-      return (double) state / (NumStates() - 1);
+      return (double) mState / (NumStates() - 1);
     }
   int StateFromNormalized() {
     return (int) (mValue * (NumStates() - 1));
