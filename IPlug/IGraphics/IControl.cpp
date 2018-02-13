@@ -215,6 +215,14 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
   }
 }
 
+IParam* IControl::GetParam()
+{
+  if(mParamIdx >= 0)
+    return mDelegate.GetParamFromUI(mParamIdx);
+  else
+    return nullptr;
+}
+
 void IControl::GetJSON(WDL_String& json, int idx) const
 {
   json.AppendFormatted(8192, "{");
