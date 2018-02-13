@@ -160,6 +160,9 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          AuxParam \ 
                          PNGStreamReader \
                          SVGHolder \
+                         APIBitmap \
+                         AGGBitmap \
+                         LICEBitmap \
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO

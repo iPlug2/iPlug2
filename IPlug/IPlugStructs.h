@@ -203,9 +203,7 @@ struct IPlugConfig
   {};
 };
 
-/**
- Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision
- */
+/** Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision */
 template<class TIN = PLUG_SAMPLE_SRC, class TOUT = PLUG_SAMPLE_DST>
 struct IChannelData
 {

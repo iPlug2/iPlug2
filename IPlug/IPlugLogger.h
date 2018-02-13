@@ -2,7 +2,8 @@
 
 /**
  * @file
- * @brief IPlug Logging functionailty
+ * @brief IPlug logging a.k.a tracing functionailty
+ *
  * To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
  * To simply create a trace entry in the log:    TRACE;
  * No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
