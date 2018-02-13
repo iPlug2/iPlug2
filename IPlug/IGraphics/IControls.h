@@ -282,7 +282,7 @@ class IVButtonControl : public IControl,
       }
   };
 
-  class IVContactControl : public IVButtonControl
+class IVContactControl : public IVButtonControl
     {
     public:
     IVContactControl(IPlugBaseGraphics& plug, IRECT rect, int param,
@@ -295,6 +295,121 @@ class IVButtonControl : public IControl,
       mValue = 0.0;
       SetDirty();
       }
+  };
+
+/** A vector drop down list.
+Put this control on top of a draw stack
+so that the expanded list is fully visible
+and dosn't close when mouse is over another control */
+class IVDropDownList : public IControl,
+                       public IVectorBase
+{
+  typedef WDL_PtrList<WDL_String> strBuf;
+
+  static const IColor IVDropDownList::DEFAULT_BG_COLOR;
+  static const IColor IVDropDownList::DEFAULT_FR_COLOR;
+  static const IColor IVDropDownList::DEFAULT_TXT_COLOR;
+  static const IColor IVDropDownList::DEFAULT_HL_COLOR;
+
+  // map to IVectorBase colors
+  enum EVBColor
+    {
+    lTxt = kFG,
+    lBG = kBG,
+    lHL = kHL,
+    lFR = kFR
+    };
+
+  public:
+
+  IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param);
+  IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
+                 int numStates, const char* names...);
+
+  ~IVDropDownList()
+    {
+    valNames.Empty(true);
+    };
+  
+  void Draw(IGraphics& graphics)override ;
+  void OnMouseOver(float x, float y, const IMouseMod& mod)override ;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+    {
+    OnMouseOver(x, y, mod);
+    }
+  void OnMouseDown(float x, float y, const IMouseMod& mod)override ;
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d)override ;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod)override ;
+  void OnMouseOut() override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override {
+    blink = false;
+    SetDirty(false);
+    }
+  void OnResize() override;
+
+  void SetDrawShadow(bool draw) { drawShadow = draw; }
+  void SetDrawBorders(bool draw) { mDrawBorders = draw; }
+  void SetRect(IRECT r) { initRect = r; }
+
+  void SetMaxListHeight(int numItems) {
+    colHeight = numItems;
+    }
+  void SetNames(int numStates, const char* names...);
+  void FillNamesFromParamDisplayTexts();
+
+  protected:
+  IRECT initRect;
+  strBuf valNames;
+
+  bool expanded = false;
+  bool blink = false;
+  bool mDrawBorders = true;
+  bool drawShadow = true;
+  bool emboss = true; // todo add drawing shadows
+
+  float lastX = -1.0;
+  float lastY = -1.0;
+  int state = -1;
+
+  int colHeight = 5;
+
+  void ExpandRects();
+  void ShrinkRects() {
+    mTargetRECT = mRECT = initRect;
+    }
+
+  void SetNames(int numStates, const char* names, va_list args);
+  auto NameForVal(int val) { return (valNames.Get(val))->Get(); }
+  
+  int NumStates() {
+    return valNames.GetSize();
+    }
+  double NormalizedFromState() {
+    if (NumStates() < 2)
+      return 0.0;
+    else
+      return (double) state / (NumStates() - 1);
+    }
+  int StateFromNormalized() {
+    return (int)(mValue * (NumStates() - 1));
+    }
+  IRECT ShiftRectBy(IRECT r, float x, float y = 0.0) {
+    return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
+    }
+
+  void DbgMsg(const char* msg, float val) {
+#ifdef _DEBUG
+    char str[32];
+    int p = 0;
+    while (*msg != '\0') {
+      str[p] = *msg;
+      ++msg;
+      ++p;
+      }
+    sprintf (str + p, "%f", val);
+    DBGMSG(str);
+#endif
+    }
   };
 
 #pragma mark - Bitmap Controls

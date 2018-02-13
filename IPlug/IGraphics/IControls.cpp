@@ -740,6 +740,253 @@ void IVButtonControl::SetShadowOffset(float offset, bool keepButtonRect)
   SetDirty(false);
   }
 
+
+IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param)
+  : IControl(plug, rect, param),
+  IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
+  {
+  initRect = rect;
+  mText.mFGColor = DEFAULT_TXT_COLOR;
+  FillNamesFromParamDisplayTexts();
+  }
+
+IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
+               int numStates, const char* names...)
+  : IControl(plug, rect, param),
+  IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
+  {
+  initRect = rect;
+  mText.mFGColor = DEFAULT_TXT_COLOR;
+  if (numStates) {
+    va_list args;
+    va_start(args, names);
+    SetNames(numStates, names, args);
+    va_end (args);
+    }
+  else
+    FillNamesFromParamDisplayTexts();
+  };
+
+const IColor IVDropDownList::DEFAULT_BG_COLOR = IColor(255, 200, 200, 200);
+const IColor IVDropDownList::DEFAULT_FR_COLOR = IColor(255, 70, 70, 70);
+const IColor IVDropDownList::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
+const IColor IVDropDownList::DEFAULT_HL_COLOR = IColor(255, 240, 240, 240);
+
+void IVDropDownList::Draw(IGraphics& graphics) {
+  // todo draw expanded based on mRECT L&T
+  auto textR = initRect;
+  // assume all items are 1 line high
+  textR.T += 0.5f * (textR.H() - mText.mSize) - 1.0f; // -1 looks better with small text
+  textR.B = textR.T + 0.1f;
+
+  if (!expanded) {
+    if (blink) {
+      auto r = initRect;
+      graphics.FillRect(GetColor(lHL), r);
+      SetDirty(false);
+      }
+    else
+      graphics.FillRect(GetColor(lBG), initRect);
+    if (mDrawBorders)
+      graphics.DrawRect(GetColor(lFR), initRect);
+    graphics.DrawTextA(mText, NameForVal(StateFromNormalized()), textR);
+    blink = false;
+    ShrinkRects();
+    }
+
+  else {
+    graphics.FillRect(GetColor(lBG), mRECT);
+    int sx = -1;
+    int sy = 0;
+    auto rw = initRect.W();
+    auto rh = initRect.H();
+    for (int v = 0; v < NumStates(); ++v) {
+      if (v % colHeight == 0.0) {
+        ++sx;
+        sy = 0;
+        }
+      IRECT vR = ShiftRectBy(initRect, sx * rw, sy * rh);
+      IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
+      if (v == state)
+        graphics.FillRect(GetColor(lHL), vR);
+
+      if (mDrawBorders)
+        graphics.DrawRect(GetColor(lFR), vR);
+      graphics.DrawTextA(mText, NameForVal(v), tR);
+      ++sy;
+      }
+    if (mDrawBorders) {
+      auto fr = mRECT;
+      --fr.R; // fix for strange graphics behavior
+      --fr.B; // mRECT right and bottom are not drawn in expanded state
+      graphics.DrawRect(GetColor(lFR), fr);
+      }
+    }
+
+#ifdef _DEBUG
+  //graphics.DrawRect(COLOR_ORANGE, initRect);
+  //graphics.DrawRect(COLOR_BLUE, mRECT);
+  //graphics.DrawRect(COLOR_GREEN, mTargetRECT);
+#endif
+
+  }
+
+void IVDropDownList::OnResize() {
+  expanded = false;
+  blink = false;
+  lastX = -1.0;
+  lastY = -1.0;
+  initRect = mRECT;
+  SetDirty(false);
+  }
+
+void IVDropDownList::OnMouseOver(float x, float y, const IMouseMod& mod) {
+  if (lastX != x || lastY != y) {
+    lastX = x;
+    lastY = y;
+    if (expanded && mRECT.Contains(x, y)) {
+      auto rx = x - mRECT.L;
+      auto ry = y - mRECT.T;
+
+      int ix = (int)(rx / initRect.W());
+      int iy = (int)(ry / initRect.H());
+
+      int i = ix * colHeight + iy;
+
+      if (i >= NumStates())
+        i = NumStates() - 1;
+      if (i != state) {
+        state = i;
+        //DbgMsg("state ", state);
+        SetDirty(false);
+        }
+      }
+    }
+  }
+
+void IVDropDownList::OnMouseDown(float x, float y, const IMouseMod& mod) {
+  if (!expanded)
+      ExpandRects();
+  else
+    {
+    expanded = false;
+    mDisablePrompt = false;
+    mValue = NormalizedFromState();
+    SetDirty();
+    }
+  //DbgMsg("mValue ", mValue);
+  }
+
+void IVDropDownList::OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {
+int ns = state;
+  ns += (int)d;
+  ns = BOUNDED(ns, 0, NumStates() - 1);
+  if (ns != state) {
+    state = ns;
+    mValue = NormalizedFromState();
+    //DbgMsg("state ", state);
+    //DbgMsg("mValue ", mValue);
+    SetDirty();
+    }
+
+  if (!expanded)
+    blink = true;
+  }
+
+void IVDropDownList::OnMouseDblClick(float x, float y, const IMouseMod& mod) {
+  mValue = mDefaultValue;
+  int ns = StateFromNormalized();
+  if (state != ns) {
+    state = ns;
+    mValue = NormalizedFromState();
+    //DbgMsg("state ", state);
+    //DbgMsg("mValue ", mValue);
+    SetDirty();
+    }
+  if (!expanded)
+    blink = true;
+  expanded = false;
+  }
+
+void IVDropDownList::OnMouseOut() {
+  state = StateFromNormalized();
+  expanded = false;
+  lastX = -1.0;
+  lastY = -1.0;
+  SetDirty(false);
+  //DbgMsg("state ", state);
+  //DbgMsg("mValue ", mValue);
+  }
+
+void IVDropDownList::ExpandRects() {
+  auto& l = initRect.L;
+  auto& t = initRect.T;
+  float w = (float) NumStates() / colHeight;
+  if (w < 1.0) w = 1.0;
+  else w += 0.5;
+  w = std::round(w);
+  w *= initRect.W();
+  float h = (float) NumStates();
+  if (colHeight < h)
+    h = (float) colHeight;
+  h *= initRect.H();
+
+  // todo add expand directions. for now only down right
+  auto& mR = mRECT;
+  auto& mT = mTargetRECT;
+  mR = IRECT(l, t, l + w, t + h);
+  mT = mR.GetPadded(20.0); // todo perhaps padding should depend on display dpi
+  auto br = mPlug.GetGUI()->GetBounds();
+  auto ex = mR.R - br.R;
+  if (ex > 0.0) {
+    mR = ShiftRectBy(mR, -ex);
+    mT = ShiftRectBy(mT, -ex);
+    }
+  auto ey = mR.B - br.B;
+  if (ey > 0.0) {
+    mR = ShiftRectBy(mR, 0.0, -ey);
+    mT = ShiftRectBy(mT, 0.0, -ey);
+    }
+
+  expanded = true;
+  SetDirty(false);
+  }
+
+void IVDropDownList::SetNames(int numStates, const char* names, va_list args) {
+  if (numStates < 1) return;
+  valNames.Add(new WDL_String(names));
+  for (int i = 1; i < numStates; ++i)
+    valNames.Add(new WDL_String(va_arg(args, const char*)));
+  }
+
+void IVDropDownList::SetNames(int numStates, const char* names...) {
+  valNames.Empty(true);
+
+  va_list args;
+  va_start(args, names);
+  SetNames(numStates, names, args);
+  va_end(args);
+
+  SetDirty(false);
+  }
+
+void IVDropDownList::FillNamesFromParamDisplayTexts() {
+  valNames.Empty(true);
+  auto param = GetParam();
+  if (param) {
+    int n = param->NDisplayTexts();
+    if (n > 0)
+      for (int i = 0; i < n; ++i)
+        valNames.Add(new WDL_String(param->GetDisplayTextAtIdx(i)));
+    else
+      valNames.Add(new WDL_String("no display texts"));
+    }
+  else
+    valNames.Add(new WDL_String("no param"));
+
+  SetDirty(false);
+  }
+
 #pragma mark - BITMAP CONTROLS
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
