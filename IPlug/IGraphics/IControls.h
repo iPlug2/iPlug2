@@ -23,8 +23,6 @@ public:
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
-  ~IVSwitchControl() {}
-
   void Draw(IGraphics& graphics)  override;
   
 private:
@@ -71,7 +69,7 @@ public:
   void SetSVG(ISVG& svg)
   {
     mSVG = svg;
-    SetDirty();
+    SetDirty(false);
   }
 
 private:
