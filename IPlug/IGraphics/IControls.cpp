@@ -356,7 +356,7 @@ void IVKeyboardControl::SetMinMaxNote(int min, int max, bool keepWidth)
   mNoteIsPlayed.Resize(NumKeys());
   memset(mNoteIsPlayed.Get(), 0, mNoteIsPlayed.GetSize() * sizeof(bool));
 
-  //TODO: call to plug to retain pressed keys
+  //TODO: call to plugin to retain pressed keys
 
   RecreateKeyBounds(keepWidth);
 }
