@@ -34,8 +34,11 @@ class MyDelegate: public IDelegate
 {
 public:
   //IDelegate
-  IParam* GetParamFromUI(int paramIdx) override { return nullptr; }
-  void SetParameterValueFromUI(int paramIdx, double value) override { DBGMSG("p %i %f!\n", paramIdx, value); }
+  void SetControlValueFromDelegate(int controlIdx, double normalizedValue) override {};
+  void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {};
+  
+  const IParam* GetParamFromUI(int paramIdx) override { return nullptr; }
+  void SetParameterValueFromUI(int paramIdx, double value) override { DBGMSG("SetParameterValueFromUI p %i %f\n", paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { ; }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { ; }
 };
@@ -62,7 +65,7 @@ void CreateGraphics()
   pGraphics->OpenWindow((void*) gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);
-  pGraphics->EnableLiveEdit(true);
+//  pGraphics->EnableLiveEdit(true);
 
   /*ISVG svg = pGraphics->LoadSVG("resources/img/BefacoBigKnob.svg");*/
   //pGraphics->AttachControl(new IVSVGKnob(dummyDelegate, pGraphics->GetBounds().GetPadded(-20), svg, kGain));
