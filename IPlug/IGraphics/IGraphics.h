@@ -728,6 +728,11 @@ public:
   */
   virtual ISVG LoadSVG(const char* name); // TODO: correct place?
 
+  
+  /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
+   * @param caller The control that triggered the parameter change. */
+  void UpdatePeers(IControl* pCaller);
+  
   /**
    /todo <#Description#>
 

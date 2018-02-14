@@ -213,18 +213,20 @@ void IGraphics::AssignParamNameToolTips()
   }
 }
 
-//void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
-//{
-//  int i, n = mControls.GetSize();
-//  IControl** ppControl = mControls.GetList();
-//  for (i = 0; i < n; ++i, ++ppControl) {
-//    IControl* pControl = *ppControl;
-//    if (pControl->ParamIdx() == paramIdx) {
-//      pControl->SetValueFromUserInput(normalizedValue);
-//      // Could be more than one, don't break until we check them all.
-//    }
-//  }
-//}
+void IGraphics::UpdatePeers(IControl* pCaller)
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl) {
+    IControl* pControl = *ppControl;
+    if (pControl->ParamIdx() == pCaller->ParamIdx() && pControl != pCaller)
+    {
+      //this is not actually called from the delegate. But we don't want to push the updates to the peers back to the delegate, so we use this method rather than
+      pControl->SetValueFromDelegate(pCaller->GetValue());
+      // Could be more than one, don't break until we check them all.
+    }
+  }
+}
 
 void IGraphics::PromptUserInput(IControl& control, IRECT& textRect)
 {

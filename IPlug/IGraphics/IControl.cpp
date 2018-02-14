@@ -41,9 +41,11 @@ void IControl::SetDirty(bool pushParamToDelegate)
 {
   mValue = BOUNDED(mValue, mClampLo, mClampHi);
   mDirty = true;
+  
   if (pushParamToDelegate && mParamIdx >= 0)
   {
     mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
+    GetUI()->UpdatePeers(this);
 //    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
 
 //    if (mValDisplayControl)
@@ -278,6 +280,43 @@ void ITextControl::Draw(IGraphics& graphics)
   {
     graphics.DrawText(mText, cStr, mRECT);
   }
+}
+
+ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT rect, int paramIdx, const IText& text, bool showParamLabel)
+: ITextControl(dlg, rect, text)
+, mShowParamLabel(showParamLabel)
+{
+  assert(paramIdx > kNoParameter);
+  
+  mParamIdx = paramIdx;
+  mDblAsSingleClick = true;
+  mDisablePrompt = false;
+}
+
+void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mod.L || mod.R)
+  {
+    PromptUserInput();
+  }
+}
+
+void ICaptionControl::Draw(IGraphics& graphics)
+{
+  const IParam* pParam = GetDelegate().GetParamFromUI(mParamIdx);
+  
+  if(pParam)
+  {
+    pParam->GetDisplayForHost(mStr);
+    
+    if (mShowParamLabel)
+    {
+      mStr.Append(" ");
+      mStr.Append(pParam->GetLabelForHost());
+    }
+  }
+  
+  return ITextControl::Draw(graphics);
 }
 
 ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,

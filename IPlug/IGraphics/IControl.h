@@ -88,7 +88,7 @@ public:
   /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu,
    * if we are linked to a parameter, specifying bounds for the text entry/pop-up menu corner */
   void PromptUserInput(IRECT& rect);
-
+  
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
   /** @param tooltip Text to be displayed */
@@ -100,18 +100,16 @@ public:
   int ParamIdx() const { return mParamIdx; }
   const IParam* GetParam();
   
-  
-  /**
-   This method is called from the class implementing the IDelegate interface in order to update a controls mValue and set it to be marked
+  /** This method is called from the class implementing the IDelegate interface in order to update a controls mValue and set it to be marked
    dirty for redraw. This either happens on a parameter changing value or if this control is not linked to a parameter (mParamIdx = kNoParameter);
-
-   @param value <#value description#>
-   */
+   @param value Normalised incoming value */
   virtual void SetValueFromDelegate(double value);
   
   /** This method is called after a text entry or popup menu prompt triggered by PromptUserInput();
-   * @param value the normalised value after user input via text entry or pop-up menu */
+   * @param value the normalised value after user input via text entry or pop-up menu
+   * it calls SetDirty(true), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueFromUserInput(double value);
+  
   /** @return Value of the control */
   double GetValue() const { return mValue; }
 
@@ -126,16 +124,16 @@ public:
 
 
   /** Shows or hides the IControl.
-   * @param hide Set to true to hide the control
-   */
+   * @param hide Set to true to hide the control */
   virtual void Hide(bool hide);
+  
   /** @return \c True if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
   /** Sets grayout for the control to be true or false
-   * @param gray \c True for grayed out
-   */
+   * @param gray \c True for grayed out*/
   virtual void GrayOut(bool gray);
+  
   /** @return \c True if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
@@ -234,7 +232,7 @@ protected:
   WDL_TypedBuf<AuxParam> mAuxParams;
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   double mValue = 0.;
-  double mDefaultValue = -1.;
+  double mDefaultValue = -1.; // it's important this is -1 to start with
   double mClampLo = 0.;
   double mClampHi = 1.;
   bool mDirty = true;
@@ -427,6 +425,19 @@ public:
 
 protected:
   WDL_String mStr;
+};
+
+class ICaptionControl : public ITextControl
+{
+public:
+  ICaptionControl(IDelegate& dlg, IRECT rect, int paramIdx, const IText& text, bool showParamLabel = true);
+  ~ICaptionControl() {}
+  
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void Draw(IGraphics& graphics) override;
+
+protected:
+  bool mShowParamLabel;
 };
 
 #pragma mark - Base Controls
