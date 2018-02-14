@@ -614,7 +614,7 @@ void IVButtonControl::Draw(IGraphics& graphics)
 
     if (mTxtOn.GetLength())
     {
-      auto textR = GetRectForAlignedTextIn(btnRect, 1);
+      auto textR = GetRectToAlignTextIn(btnRect, 1);
       graphics.DrawTextA(mText, mTxtOn.Get(), textR);
     }
   }
@@ -627,7 +627,7 @@ void IVButtonControl::Draw(IGraphics& graphics)
 
     if (mTxtOff.GetLength())
     {
-      auto textR = GetRectForAlignedTextIn(btnRect, 0);
+      auto textR = GetRectToAlignTextIn(btnRect, 0);
       graphics.DrawTextA(mText, mTxtOff.Get(), textR);
     }
   }
@@ -636,8 +636,9 @@ void IVButtonControl::Draw(IGraphics& graphics)
     graphics.DrawRect(GetColor(bFR), btnRect);
 }
 
-IRECT IVButtonControl::GetRectForAlignedTextIn(IRECT r, int state)
+IRECT IVButtonControl::GetRectToAlignTextIn(IRECT r, int state)
 {
+  // this rect is not precise, it serves as a horizontal level
   auto tr = r;
   tr.T += 0.5f * (tr.H() - mText.mSize * mTxtH[state]) - 1.0f; // -1 looks better with small text
   tr.B = tr.T + 0.1f;
@@ -689,32 +690,36 @@ void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitTo
     if (mTxtW[1] > w)
       w = mTxtW[1];
 
-    auto& mr = mRECT;
-    IRECT br = mr;
-    // first center empty rect in the middle of mRECT
-    br.L = br.R = mr.L + 0.5f * mr.W();
-    br.T = br.B = mr.T + 0.5f * mr.H();
-
-    // then expand
-    w *= 0.5f * 0.44f * mText.mSize; // 0.44 is approx average character w/h ratio
-    h *= 0.5f * mText.mSize;
-    br.L -= w;
-    br.R += w;
-    br.T -= h;
-    br.B += h;
-
-    if (!mEmboss && mDrawShadows)
-    {
-      br.R += mShadowOffset;
-      br.B += mShadowOffset;
-    }
-
-    if (pad < 0.0) pad *= -1.0;
-    br = br.GetPadded(pad);
-
-    mRECT = mTargetRECT = br;
+    mRECT = mTargetRECT = GetRectToFitTextIn(mRECT, (float) mText.mSize, w, h, pad);
   }
   SetDirty(false);
+}
+
+IRECT IVButtonControl::GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding)
+{
+  IRECT textR = r;
+  // first center empty rect in the middle of mRECT
+  textR.L = textR.R = r.L + 0.5f * r.W();
+  textR.T = textR.B = r.T + 0.5f * r.H();
+
+  // then expand to fit text
+  widthInSymbols *= 0.5f * 0.44f * fontSize; // 0.44 is approx average character w/h ratio
+  numLines *= 0.5f * fontSize;
+  textR.L -= widthInSymbols;
+  textR.R += widthInSymbols;
+  textR.T -= numLines;
+  textR.B += numLines;
+
+  if (!mEmboss && mDrawShadows)
+  {
+    textR.R += mShadowOffset;
+    textR.B += mShadowOffset;
+  }
+
+  if (padding < 0.0) padding *= -1.0;
+  textR = textR.GetPadded(padding);
+
+  return textR;
 }
 
 void IVButtonControl::SetDrawShadows(bool draw, bool keepButtonRect)
@@ -811,7 +816,7 @@ void IVDropDownList::Draw(IGraphics& graphics)
   auto initR = GetInitRect();
   auto shadowColor = IColor(60, 0, 0, 0);
 
-  auto textR = GetRectForAlignedTextIn(initR);
+  auto textR = GetRectToAlignTextIn(initR);
 
   if (!mExpanded)
   {
@@ -826,6 +831,7 @@ void IVDropDownList::Draw(IGraphics& graphics)
     }
     else
       graphics.FillRect(GetColor(lBG), initR);
+
     if (mDrawBorders)
       graphics.DrawRect(GetColor(lFR), initR);
     graphics.DrawTextA(mText, NameForVal(StateFromNormalized()), textR);
@@ -911,8 +917,9 @@ IRECT IVDropDownList::GetExpandedRect()
   return er;
 }
 
-IRECT IVDropDownList::GetRectForAlignedTextIn(IRECT r)
+IRECT IVDropDownList::GetRectToAlignTextIn(IRECT r)
 {
+  // this rect is not precise, it serves as a horizontal level
   auto tr = r;
   // assume all items are 1 line high
   tr.T += 0.5f * (tr.H() - mText.mSize) - 1.0f; // -1 looks better with small text

@@ -267,7 +267,7 @@ protected:
   WDL_String mTxtOff, mTxtOn;
   float mTxtH[2]; // [off, on], needed for nice multiline text drawing
   float mTxtW[2];
-  // perhaps next two should be IVectorBase members too:
+
   bool mDrawBorders = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
@@ -279,7 +279,8 @@ protected:
     auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
     graphics.FillRect(shadowColor, sr);
   }
-  IRECT GetRectForAlignedTextIn(IRECT r, int state);
+  IRECT GetRectToAlignTextIn(IRECT r, int state);
+  IRECT GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding = 0.0);
   IRECT GetButtonRect();
   IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
   {
@@ -431,7 +432,7 @@ protected:
     auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
     graphics.FillRect(shadowColor, sr);
   }
-  IRECT GetRectForAlignedTextIn(IRECT r);
+  IRECT GetRectToAlignTextIn(IRECT r);
   IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
   {
     return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
