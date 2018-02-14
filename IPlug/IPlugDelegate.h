@@ -2,7 +2,11 @@
 
 class IParam;
 
-/** This pure virtual interface delegates/controls communication in both directions between the UI and the plug-in's main class/API class */
+/** This pure virtual interface delegates communication in both directions between the UI and the plug-in's main class/API class.
+ *  In fact it needn't be a "plug-in" that implements this interface, it can also be used for other things
+ *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
+ *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
+ *  to/from your new UI. */
 class IDelegate
 {
 public:
@@ -10,7 +14,7 @@ public:
   virtual ~IDelegate() {}
   
 #pragma mark -
-  // The following methods are called from the plug-in class in order to update the user interface.
+  // The following methods are called from the plug-in/delegate class in order to update the user interface.
   
   /** In IGraphics plug-ins, this method is used to update IControls in the user interface from the plug-in class, when the control is not linked
    * to a parameter, for example a typical use case would be a meter control. It is called by the IPlug "user" a.k.a you - not by an API class.
@@ -28,7 +32,7 @@ public:
   virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) = 0;
 
 #pragma mark -
-  // The following methods are called from the user interface in order to set values of "parameters" in the plug-in class
+  // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
   
   /** Called by the user interface in order to get a const pointer to an IParam object
    * @param paramIdx The index of the parameter to be retrieved
