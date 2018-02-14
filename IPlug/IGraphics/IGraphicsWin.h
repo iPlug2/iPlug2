@@ -21,7 +21,7 @@
   #endif
 #endif
 
-/** IGraphics platform class for Windows  
+/** IGraphics platform class for Windows
 *   @ingroup PlatformClasses
 */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
@@ -32,7 +32,7 @@ public:
 
   void SetPlatformInstance(void* instance) override { mHInstance = (HINSTANCE) instance; }
   void* GetPlatformInstance() override { return mHInstance; }
-  
+
   void ForceEndUserEdit() override;
 
   void Resize(int w, int h, float scale) override;
@@ -44,7 +44,7 @@ public:
   void* OpenWindow(void* pParentWnd) override;
   void CloseWindow() override;
   bool WindowIsOpen() override { return (mDelegateWnd); }
-  
+
   void UpdateTooltips() override {}
 
   void HostPath(WDL_String& path) override;
@@ -63,7 +63,7 @@ public:
   HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect) override;
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
 
@@ -76,9 +76,9 @@ public:
   void SetWindowTitle(const char* str);
 
   const char* GetUIAPI() override { return "win32"; };
-  
+
   bool GetTextFromClipboard(WDL_String& str) override;
-  
+
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 protected:
   void SetTooltip(const char* tooltip);
@@ -109,18 +109,17 @@ private:
   DWORD mPID = 0;
 
   IControl* mEdControl = nullptr;
-  IParam* mEdParam = nullptr;
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-  
+
   float mMouseX;
   float mMouseY;
   float mHiddenMousePointX = -1;
   float mHiddenMousePointY = -1;
-    
+
 public:
   static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

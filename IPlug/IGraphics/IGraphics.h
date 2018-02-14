@@ -548,7 +548,7 @@ public:
    @param "" <#"" description#>
    @param pParam <#pParam description#>
   */
-  virtual void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str = "", IParam* pParam = 0) = 0;
+  virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str = "") = 0;
 
   /**
    /todo <#Description#>
@@ -729,7 +729,7 @@ public:
    @param pParam <#pParam description#>
    @param textRect <#textRect description#>
   */
-  void PromptUserInput(IControl* pControl, const IParam* pParam, IRECT& textRect);
+  void PromptUserInput(IControl& control, IRECT& textRect);
 
   /**
    /todo <#Description#>
@@ -738,7 +738,7 @@ public:
    @param pParam <#pParam description#>
    @param txt <#txt description#>
   */
-  void SetControlValueFromStringAfterPrompt(IControl* pControl, const IParam* pParam, const char* txt);
+  void SetControlValueFromStringAfterPrompt(IControl& control, const char* txt);
 
   /**
    /todo <#Description#>

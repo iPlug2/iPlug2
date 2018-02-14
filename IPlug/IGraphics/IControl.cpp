@@ -37,26 +37,26 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
-void IControl::SetDirty(bool pushParamToPlug)
+void IControl::SetDirty(bool pushParamToDelegate)
 {
   mValue = BOUNDED(mValue, mClampLo, mClampHi);
   mDirty = true;
-  if (pushParamToPlug && mParamIdx >= 0)
+  if (pushParamToDelegate && mParamIdx >= 0)
   {
     mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
-    IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
+//    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
 
-    if (mValDisplayControl)
-    {
-      WDL_String display;
-      pParam->GetDisplayForHost(display);
-      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
-    }
-
-    if (mNameDisplayControl)
-    {
-      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
-    }
+//    if (mValDisplayControl)
+//    {
+//      WDL_String display;
+//      pParam->GetDisplayForHost(display);
+//      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
+//    }
+//
+//    if (mNameDisplayControl)
+//    {
+//      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
+//    }
   }
 }
 
@@ -90,9 +90,8 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   }
   #endif
 
-  if (mod.R) {
+  if (mod.R)
 		PromptUserInput();
-	}
 }
 
 void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
@@ -114,7 +113,7 @@ void IControl::PromptUserInput()
   {
     if (mDelegate.GetParamFromUI(mParamIdx)->NDisplayTexts()) // popup menu
     {
-      GetUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), mRECT);
+      GetUI()->PromptUserInput(*this, mRECT);
     }
     else // text entry
     {
@@ -124,7 +123,7 @@ void IControl::PromptUserInput()
       float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      GetUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), txtRECT);
+      GetUI()->PromptUserInput(*this, txtRECT);
     }
 
     Redraw();
@@ -135,7 +134,7 @@ void IControl::PromptUserInput(IRECT& textRect)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    GetUI()->PromptUserInput(this, mDelegate.GetParamFromUI(mParamIdx), textRect);
+    GetUI()->PromptUserInput(*this, textRect);
     Redraw();
   }
 }

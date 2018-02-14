@@ -60,7 +60,7 @@ public:
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 

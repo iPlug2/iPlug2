@@ -471,8 +471,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
-  if (mEdParam)
-    mGraphics->SetControlValueFromStringAfterPrompt(mEdControl, mEdParam, txt);
+  if (mEdControl->GetParam())
+    mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
   
   mEdControl->OnTextEntryCompletion(txt);
   mGraphics->SetAllControlsDirty();
@@ -525,9 +525,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 {
-  if (mTextFieldView) return;
+  if (mTextFieldView)
+    return;
 
   mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
   NSString* font = [NSString stringWithUTF8String: text.mFont];
@@ -548,6 +549,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       break;
   }
 
+  const IParam* pParam = control.GetParam();
+  
   // set up formatter
   if (pParam)
   {
@@ -569,7 +572,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
-    [[mTextFieldView formatter] setMaximumLength:pControl->GetTextEntryLength()];
+    [[mTextFieldView formatter] setMaximumLength:control.GetTextEntryLength()];
     [characterSet release];
   }
 
@@ -592,8 +595,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [pWindow makeKeyAndOrderFront:nil];
   [pWindow makeFirstResponder: mTextFieldView];
 
-  mEdParam = pParam; // might be 0
-  mEdControl = pControl;
+  mEdControl = &control;
 }
 
 - (void) endUserInput
@@ -606,7 +608,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   mTextFieldView = 0;
   mEdControl = 0;
-  mEdParam = 0;
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData

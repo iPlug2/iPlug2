@@ -139,25 +139,25 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             {
               SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
 
-              if(pGraphics->mEdParam)
+              const IParam* pParam = pGraphics->mEdControl->GetParam();
+              
+              if(pParam)
               {
-                IParam::EParamType type = pGraphics->mEdParam->Type();
-
-                if ( type == IParam::kTypeEnum || type == IParam::kTypeBool)
+                if (pParam->Type() == IParam::kTypeEnum || pParam->Type() == IParam::kTypeBool)
                 {
                   double vi = 0.;
-                  pGraphics->mEdParam->MapDisplayText(txt, &vi);
+                  pParam->MapDisplayText(txt, &vi);
                   v = (double) vi;
                 }
                 else
                 {
                   v = atof(txt);
-                  if (pGraphics->mEdParam->GetDisplayIsNegated())
+                  if (pParam->GetDisplayIsNegated())
                   {
                     v = -v;
                   }
                 }
-                pGraphics->mEdControl->SetValueFromUserInput(pGraphics->mEdParam->GetNormalized(v));
+                pGraphics->mEdControl->SetValueFromUserInput(pParam->GetNormalized(v));
               }
               else
               {
@@ -169,10 +169,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             {
               SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
               DestroyWindow(pGraphics->mParamEditWnd);
-              pGraphics->mParamEditWnd = 0;
-              pGraphics->mEdParam = 0;
-              pGraphics->mEdControl = 0;
-              pGraphics->mDefEditProc = 0;
+              pGraphics->mParamEditWnd = nullptr;
+              pGraphics->mEdControl = nullptr;
+              pGraphics->mDefEditProc = nullptr;
             }
             break;
           }
@@ -406,14 +405,15 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
     {
       case WM_CHAR:
       {
+        const IParam* pParam = pGraphics->mEdControl->GetParam();
         // limit to numbers for text entry on appropriate parameters
-        if(pGraphics->mEdParam)
+        if(pParam)
         {
           char c = wParam;
 
           if(c == 0x08) break; // backspace
 
-          switch ( pGraphics->mEdParam->Type() )
+          switch ( pParam->Type() )
           {
             case IParam::kTypeEnum:
             case IParam::kTypeInt:
@@ -462,7 +462,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       //  (normally single line edit boxes don't get sent return key messages)
       case WM_GETDLGCODE:
       {
-        if (pGraphics->mEdParam) break;
+        if (pGraphics->mEdControl->GetParam()) break;
         LPARAM lres;
         // find out if the original control wants it
         lres = CallWindowProc(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
@@ -946,9 +946,10 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
   return result;
 }
 
-void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam)
+void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str)
 {
-  if (!pControl || mParamEditWnd) return;
+  if (mParamEditWnd)
+    return;
 
   DWORD editStyle;
 
@@ -978,7 +979,6 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const 
   //DeleteObject(font);
 
   mEdControl = pControl;
-  mEdParam = pParam; // could be 0
 }
 
 void GetModulePath(HMODULE hModule, WDL_String& path)

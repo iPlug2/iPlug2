@@ -98,12 +98,14 @@ void IGraphics::OnDisplayScale()
   SetAllControlsDirty();
 }
 
-void IGraphics::SetControlValueFromStringAfterPrompt(IControl* pControl, IParam* pParam, const char* txt)
+void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
 {
+  const IParam* pParam = control.GetParam();
+  
   if (pParam)
   {
-    const double v = pParam->StringToValue(txt);
-    pControl->SetValueFromUserInput(pParam->GetNormalized(v));
+    const double v = pParam->StringToValue(str);
+    control.SetValueFromUserInput(pParam->GetNormalized(v));
   }
 }
 
@@ -211,55 +213,55 @@ void IGraphics::AssignParamNameToolTips()
   }
 }
 
-void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
+//void IGraphics::SetParameterFromGUI(int paramIdx, double normalizedValue)
+//{
+//  int i, n = mControls.GetSize();
+//  IControl** ppControl = mControls.GetList();
+//  for (i = 0; i < n; ++i, ++ppControl) {
+//    IControl* pControl = *ppControl;
+//    if (pControl->ParamIdx() == paramIdx) {
+//      pControl->SetValueFromUserInput(normalizedValue);
+//      // Could be more than one, don't break until we check them all.
+//    }
+//  }
+//}
+
+void IGraphics::PromptUserInput(IControl& control, IRECT& textRect)
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl) {
-    IControl* pControl = *ppControl;
-    if (pControl->ParamIdx() == paramIdx) {
-      pControl->SetValueFromUserInput(normalizedValue);
-      // Could be more than one, don't break until we check them all.
-    }
-  }
-}
-
-void IGraphics::PromptUserInput(IControl* pControl, IParam* pParam, IRECT& textRect)
-{
-  if (!pControl || !pParam) return;
-
-  IParam::EParamType type = pParam->Type();
-  int n = pParam->NDisplayTexts();
-  WDL_String currentText;
-
-  if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && n))
+  const IParam* pParam = control.GetParam();
+  
+  if(pParam)
   {
-    pParam->GetDisplayForHost(currentText);
-    IPopupMenu menu;
+    IParam::EParamType type = pParam->Type();
+    const int nDisplayTexts = pParam->NDisplayTexts();
+    WDL_String currentText;
 
-    // Fill the menu
-    for (int i = 0; i < n; ++i)
+    if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && nDisplayTexts))
     {
-      const char* str = pParam->GetDisplayText(i);
-      // TODO: what if two parameters have the same text?
-      if (!strcmp(str, currentText.Get())) // strings are equal
-        menu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
-      else // not equal
-        menu.AddItem( new IPopupMenu::Item(str), -1 );
+      pParam->GetDisplayForHost(currentText);
+      IPopupMenu menu;
+
+      // Fill the menu
+      for (int i = 0; i < nDisplayTexts; ++i)
+      {
+        const char* str = pParam->GetDisplayText(i);
+        // TODO: what if two parameters have the same text?
+        if (!strcmp(str, currentText.Get())) // strings are equal
+          menu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
+        else // not equal
+          menu.AddItem( new IPopupMenu::Item(str), -1 );
+      }
+
+      if(CreateIPopupMenu(menu, textRect))
+        control.SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
     }
-
-    if(CreateIPopupMenu(menu, textRect))
+    // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
+    else // type == IParam::kTypeInt || type == IParam::kTypeDouble
     {
-      pControl->SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
+      pParam->GetDisplayForHost(currentText, false);
+      CreateTextEntry(control, control.GetText(), textRect, currentText.Get());
     }
   }
-  // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
-  else // type == IParam::kTypeInt || type == IParam::kTypeDouble
-  {
-    pParam->GetDisplayForHost(currentText, false);
-    CreateTextEntry(pControl, pControl->GetText(), textRect, currentText.Get(), pParam);
-  }
-
 }
 
 void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IBlend* pBlend)

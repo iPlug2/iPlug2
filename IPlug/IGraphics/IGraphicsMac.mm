@@ -534,12 +534,12 @@ IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect)
   else return 0;
 }
 
-void IGraphicsMac::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam)
+void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str)
 {
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, textRect);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: pControl: pParam: text: str: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: control: text: str: areaRect];
   }
 }
 

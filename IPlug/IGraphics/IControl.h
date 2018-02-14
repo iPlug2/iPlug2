@@ -67,7 +67,7 @@ public:
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
 
-  virtual void OnTextEntryCompletion( const char* txt ) {}
+  virtual void OnTextEntryCompletion(const char* txt) {}
 
   /** Called in response to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
@@ -82,8 +82,11 @@ public:
   virtual void DrawPTHighlight(IGraphics& graphics);
   virtual void SetPTParameterHighlight(bool isHighlighted, int color);
 
-  // Create an edit box so the user can enter a value for this control.
+  /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu, if we are linked to a parameter. */
   void PromptUserInput();
+  
+  /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu,
+   * if we are linked to a parameter, specifying bounds for the text entry/pop-up menu corner */
   void PromptUserInput(IRECT& rect);
 
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
@@ -96,7 +99,18 @@ public:
   /** @return Parameter index */
   int ParamIdx() const { return mParamIdx; }
   const IParam* GetParam();
+  
+  
+  /**
+   This method is called from the class implementing the IDelegate interface in order to update a controls mValue and set it to be marked
+   dirty for redraw. This either happens on a parameter changing value or if this control is not linked to a parameter (mParamIdx = kNoParameter);
+
+   @param value <#value description#>
+   */
   virtual void SetValueFromDelegate(double value);
+  
+  /** This method is called after a text entry or popup menu prompt triggered by PromptUserInput();
+   * @param value the normalised value after user input via text entry or pop-up menu */
   virtual void SetValueFromUserInput(double value);
   /** @return Value of the control */
   double GetValue() const { return mValue; }
@@ -212,7 +226,7 @@ protected:
   IActionFunction mActionFunc = nullptr;
 
   /** Parameter index or -1 (kNoParameter) */
-  int mParamIdx;
+  int mParamIdx = kNoParameter;
 
   IBlend mBlend;
   IText mText;
