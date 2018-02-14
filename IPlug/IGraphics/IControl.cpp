@@ -3,11 +3,11 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
-IControl::IControl(IDelegate& dlg, IRECT rect, int param, IActionFunction actionFunc)
+IControl::IControl(IDelegate& dlg, IRECT rect, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(rect)
 , mTargetRECT(rect)
-, mParamIdx(param)
+, mParamIdx(paramIdx)
 , mActionFunc(actionFunc)
 {
 }
@@ -147,20 +147,20 @@ IControl::AuxParam* IControl::GetAuxParam(int idx)
   return mAuxParams.Get() + idx;
 }
 
-int IControl::GetAuxParamIdx(int param)
+int IControl::GetAuxParamIdx(int paramIdx)
 {
   for (int i=0;i<NAuxParams();i++)
   {
-    if(GetAuxParam(i)->mParamIdx == param)
+    if(GetAuxParam(i)->mParamIdx == paramIdx)
       return i;
   }
 
   return -1;
 }
 
-void IControl::AddAuxParam(int param)
+void IControl::AddAuxParam(int paramIdx)
 {
-  mAuxParams.Add(AuxParam(param));
+  mAuxParams.Add(AuxParam(paramIdx));
 }
 
 void IControl::SetAuxParamValueFromDelegate(int auxParam, double value)

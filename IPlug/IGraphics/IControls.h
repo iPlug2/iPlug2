@@ -19,7 +19,7 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
+  IVSwitchControl(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
@@ -35,7 +35,7 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IDelegate& dlg, IRECT rect, int param,
+  IVKnobControl(IDelegate& dlg, IRECT rect, int paramIdx,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
                 float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
@@ -51,8 +51,8 @@ protected:
 class IVSVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IDelegate& dlg, IRECT rect, ISVG& svg, int param = kNoParameter)
-    : IKnobControlBase(dlg, rect, param)
+  IVSVGKnob(IDelegate& dlg, IRECT rect, ISVG& svg, int paramIdx = kNoParameter)
+    : IKnobControlBase(dlg, rect, paramIdx)
     , mSVG(svg)
   {
   }
@@ -221,8 +221,8 @@ protected:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IDelegate& dlg, float x, float y, int param, IBitmap& bitmap)
-  : IBitmapControl(dlg, x, y, param, bitmap) {}
+  IBSwitchControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap)
+  : IBitmapControl(dlg, x, y, paramIdx, bitmap) {}
   ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -233,7 +233,7 @@ public:
 class IBSliderControl : public IControl
 {
 public:
-  IBSliderControl(IDelegate& dlg, float x, float y, int len, int param,
+  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
                   IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   ~IBSliderControl() {}
 

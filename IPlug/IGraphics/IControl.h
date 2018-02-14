@@ -446,9 +446,9 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IDelegate& dlg, IRECT rect, int param = kNoParameter,
+  IKnobControlBase(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IControl(dlg, rect, param)
+    : IControl(dlg, rect, paramIdx)
     , mDirection(direction)
     , mGearing(gearing)
   {}
@@ -468,7 +468,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction aF = nullptr,
+  ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
     uint32_t numStates = 2);
 
   virtual ~ISwitchControlBase() {}
