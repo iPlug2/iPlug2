@@ -1,3 +1,4 @@
+#include "swell.h"
 #include "IGraphicsTest.h"
 
 HWND gHWND;
@@ -7,18 +8,18 @@ extern HMENU SWELL_app_stocksysmenu;
 int main(int argc, char **argv)
 {
   SWELL_initargs(&argc, &argv);
-  SWELL_Internal_PostMessage_Init(
+  SWELL_Internal_PostMessage_Init();
   SWELL_ExtendedAPI("APPNAME", (void*) "IGraphics Test");
 
   HMENU menu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
-  CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG1), NULL, MainDlgProc);
+  CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDlgProc);
   SetMenu(gHWND, menu);
 
-  while (!gHWND->m_hashaddestroy)
-  {
-    SWELL_RunMessageLoop();
-    Sleep(10);
-  });
+ // while (!gHWND->m_hashaddestroy)
+ // {
+ //   SWELL_RunMessageLoop();
+ //   Sleep(10);
+ // };
 
   if (gHWND)
     DestroyWindow(gHWND);

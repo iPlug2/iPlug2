@@ -5,6 +5,12 @@
  * @copydoc IGraphics
  */
 
+#ifndef NO_IGRAPHICS
+#if defined(IGRAPHICS_AGG) + defined(IGRAPHICS_CAIRO) + defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_LICE) != 1
+#error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
+#endif
+#endif
+
 #ifdef IGRAPHICS_FREETYPE
 #include "ft2build.h"
 #include FT_FREETYPE_H

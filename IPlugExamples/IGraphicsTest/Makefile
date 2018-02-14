@@ -2,10 +2,14 @@
 
 APP=IGraphicsTest
 
+IPLUG_PATH = ../../IPlug
 WDL_PATH = ../../WDL
-vpath %.cpp .. $(WDL_PATH)/swell
-vpath %.cpp .. $(WDL_PATH)/lice
-vpath %.cpp .. app_wrapper
+IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
+SWELL_PATH = $(WDL_PATH)/swell
+LICE_PATH = $(WDL_PATH)/lice
+NANOSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
+vpath %.cpp .. $(LICE_PATH)
+vpath %.cpp .. $(SWELL_PATH)
 
 ### Objects and resources
 SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
@@ -21,8 +25,10 @@ OBJS = main_linux.o main_dialog.o $(SWELL_OBJS) $(LICE_OBJS)
 RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
 
 ### Compiler/Linker Flags
-CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Werror -Wno-deprecated-declarations
+CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Wno-deprecated-declarations -Wno-unknown-pragmas
+CFLAGS += -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(LICE_PATH) -I$(SWELL_PATH) -I$(IGRAPHICS_PATH) -I$(NANOSVG_PATH)
 CFLAGS += -O0 -g -D_DEBUG
+CFLAGS += -DNOMINMAX
 LFLAGS = -lpthread -ldl -lX11 -lXi
 ### GDK
 CFLAGS += -DSWELL_TARGET_GDK=2 $(shell pkg-config gdk-2.0 --cflags)

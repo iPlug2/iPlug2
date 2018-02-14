@@ -5,7 +5,7 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef OS_MAC
+#ifndef OS_WIN
 #include "swell.h"
 #endif
 
