@@ -967,7 +967,7 @@ void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const I
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
 
-  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) pControl->GetTextEntryLength(), 0);
+  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
@@ -978,7 +978,7 @@ void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const I
 
   //DeleteObject(font);
 
-  mEdControl = pControl;
+  mEdControl = &control;
 }
 
 void GetModulePath(HMODULE hModule, WDL_String& path)
@@ -1239,8 +1239,8 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   DWORD inetStatus = 0;
   if (InternetGetConnectedState(&inetStatus, 0))
   {
-  WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
-  UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
+    WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
+    UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
     if ((int) ShellExecuteW(mDelegateWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
     {
       return true;
