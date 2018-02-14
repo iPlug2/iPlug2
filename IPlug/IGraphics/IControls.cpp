@@ -1,4 +1,5 @@
 #include "IControls.h"
+#include "IPlugParameter.h"
 
 #pragma mark - VECTOR CONTROLS
 
@@ -74,7 +75,7 @@ IVSliderControl::IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx,
 void IVSliderControl::Draw(IGraphics& graphics)
 {
   graphics.FillRect(GetColor(kBG), mRECT);
-  
+
   const float top = mTrack.B - (mValue * mTrack.H());
   IRECT innerRect = IRECT(mTrack.L, top, mTrack.R, mRECT.B);
   graphics.FillRect(GetColor(kFG), innerRect);
@@ -93,11 +94,11 @@ void IVSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IM
 void IVSliderControl::SnapToMouse(float x, float y)
 {
   mTrack.Constrain(x, y);
-  
+
   float yValue = 1.f - (y-mTrack.T) / mTrack.H();
-  
+
   mValue = round( yValue / 0.001 ) * 0.001;
-  
+
   SetDirty(); // will send parameter value to delegate
 }
 
@@ -841,6 +842,7 @@ const IColor IVDropDownList::DEFAULT_HL_COLOR = IColor(255, 240, 240, 240);
 
 void IVDropDownList::Draw(IGraphics& graphics)
 {
+  mGraphics = &graphics;
   auto initR = GetInitRect();
   auto shadowColor = IColor(60, 0, 0, 0);
 
@@ -1156,18 +1158,21 @@ void IVDropDownList::ExpandRects()
   // we don't want expansion to collapse right around the borders, that'd be very UI unfriendly
   mT = mR.GetPadded(20.0); // todo perhaps padding should depend on display dpi
   // expansion may get over the bounds. if so, shift it
-  auto br = mDelegate.GetGUI()->GetBounds();
-  auto ex = mR.R - br.R;
-  if (ex > 0.0)
+  if (mGraphics)
   {
-    mR = ShiftRectBy(mR, -ex);
-    mT = ShiftRectBy(mT, -ex);
-  }
-  auto ey = mR.B - br.B;
-  if (ey > 0.0)
-  {
-    mR = ShiftRectBy(mR, 0.0, -ey);
-    mT = ShiftRectBy(mT, 0.0, -ey);
+    auto br = mGraphics->GetBounds();
+    auto ex = mR.R - br.R;
+    if (ex > 0.0)
+    {
+      mR = ShiftRectBy(mR, -ex);
+      mT = ShiftRectBy(mT, -ex);
+    }
+    auto ey = mR.B - br.B;
+    if (ey > 0.0)
+    {
+      mR = ShiftRectBy(mR, 0.0, -ey);
+      mT = ShiftRectBy(mT, 0.0, -ey);
+    }
   }
 
   mExpanded = true;
