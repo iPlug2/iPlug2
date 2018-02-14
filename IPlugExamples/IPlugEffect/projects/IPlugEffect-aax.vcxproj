@@ -588,6 +588,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
