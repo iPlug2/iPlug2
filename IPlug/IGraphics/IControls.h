@@ -222,9 +222,9 @@ protected:
 };
 
 class IVButtonControl : public IControl,
-                        public IVectorBase
-  {
-  public:
+  public IVectorBase
+{
+public:
 
   static const IColor DEFAULT_BG_COLOR;
   static const IColor DEFAULT_PR_COLOR;
@@ -233,12 +233,12 @@ class IVButtonControl : public IControl,
 
   // map to IVectorBase colors
   enum EVBColor
-    {
+  {
     bTXT = kFG,
     bBG = kBG,
     bPR = kHL,
     bFR = kFR
-    };
+  };
 
   IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
                   const char *txtOff = "off", const char *txtOn = "on");
@@ -250,61 +250,66 @@ class IVButtonControl : public IControl,
   void SetTexts(const char *txtOff, const char *txtOn, bool fitToText = false, float pad = 10.0);
 
   void SetDrawBorders(bool draw)
-    {
+  {
     mDrawBorders = draw;
     SetDirty(false);
-    }
+  }
   void SetDrawShadows(bool draw, bool keepButtonRect = true);
   void SetEmboss(bool emboss, bool keepButtonRect = true);
   void SetShadowOffset(float offset, bool keepButtonRect = true);
-  void SetRect(IRECT r) {
+  void SetRect(IRECT r)
+  {
     mRECT = mTargetRECT = r;
     SetDirty(false);
-    }
+  }
 
-  protected:
-    WDL_String mTxtOff, mTxtOn;
-    float mTxtH[2]; // [off, on], needed for nice multiline text drawing
-    float mTxtW[2];
-    // perhaps next two should be IVectorBase members too:
-    bool mDrawBorders = true;
-    bool mDrawShadows = true;
-    bool mEmboss = false;
-    float mShadowOffset = 4.0;
+protected:
+  WDL_String mTxtOff, mTxtOn;
+  float mTxtH[2]; // [off, on], needed for nice multiline text drawing
+  float mTxtW[2];
+  // perhaps next two should be IVectorBase members too:
+  bool mDrawBorders = true;
+  bool mDrawShadows = true;
+  bool mEmboss = false;
+  float mShadowOffset = 3.0;
 
-    void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
-    void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
-      auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
-      graphics.FillRect(shadowColor, sr);
-      }
-    IRECT GetRectForAlignedTextIn(IRECT r, int state);
-    IRECT GetButtonRect();
-    IRECT ShiftRectBy(IRECT r, float x, float y = 0.0) {
-      return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
-      }
-  };
+  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
+  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+  {
+    auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
+    graphics.FillRect(shadowColor, sr);
+  }
+  IRECT GetRectForAlignedTextIn(IRECT r, int state);
+  IRECT GetButtonRect();
+  IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
+  {
+    return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
+  }
+};
 
 class IVContactControl : public IVButtonControl
-    {
-    public:
-    IVContactControl(IPlugBaseGraphics& plug, IRECT rect, int param,
-                     const char *txtOff = "off", const char *txtOn = "on") :
-      IVButtonControl(plug, rect, param, txtOff, txtOn) {};
+{
+public:
+  IVContactControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+                   const char *txtOff = "off", const char *txtOn = "on") :
+    IVButtonControl(plug, rect, param, txtOff, txtOn) {};
 
-    ~IVContactControl() {};
+  ~IVContactControl() {};
 
-    void OnMouseUp(float x, float y, const IMouseMod& mod) override {
-      mValue = 0.0;
-      SetDirty();
-      }
-  };
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mValue = 0.0;
+    SetDirty();
+  }
+};
 
 /** A vector drop down list.
 Put this control on top of a draw stack
 so that the expanded list is fully visible
 and dosn't close when mouse is over another control */
 class IVDropDownList : public IControl,
-  public IVectorBase {
+  public IVectorBase
+{
   typedef WDL_PtrList<WDL_String> strBuf;
 
   static const IColor IVDropDownList::DEFAULT_BG_COLOR;
@@ -313,60 +318,66 @@ class IVDropDownList : public IControl,
   static const IColor IVDropDownList::DEFAULT_HL_COLOR;
 
   // map to IVectorBase colors
-  enum EVBColor {
+  enum EVBColor
+  {
     lTxt = kFG,
     lBG = kBG,
     lHL = kHL,
     lFR = kFR
-    };
+  };
 
-  public:
+public:
 
   IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param);
   IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
                  int numStates, const char* names...);
 
-  ~IVDropDownList() {
+  ~IVDropDownList()
+  {
     mValNames.Empty(true);
-    };
+  };
 
   void Draw(IGraphics& graphics) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override {
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  {
     OnMouseOver(x, y, mod);
-    }
+  }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override {
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
     mBlink = false;
     SetDirty(false);
-    }
+  }
   void OnResize() override;
 
   void SetDrawBorders(bool draw)
-    {
+  {
     mDrawBorders = draw;
     SetDirty(false);
-    }
+  }
   void SetDrawShadows(bool draw, bool keepButtonRect = true);
   void SetEmboss(bool emboss, bool keepButtonRect = true);
   void SetShadowOffset(float offset, bool keepButtonRect = true);
-  void SetRect(IRECT r) {
+  void SetRect(IRECT r)
+  {
     mInitRect = r;
     UpdateRectsOnInitChange();
     mLastX = mLastY = -1.0;
     SetDirty(false);
-    }
+  }
 
-  void SetMaxListHeight(int numItems) {
+  void SetMaxListHeight(int numItems)
+  {
     mColHeight = numItems;
-    }
+  }
   void SetNames(int numStates, const char* names...);
   void FillNamesFromParamDisplayTexts();
 
-  protected:
+protected:
   IRECT mInitRect;
   strBuf mValNames;
 
@@ -375,7 +386,7 @@ class IVDropDownList : public IControl,
   bool mDrawBorders = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
-  float mShadowOffset = 4.0;
+  float mShadowOffset = 3.0;
 
   float mLastX = -1.0; // to avoid lots of useless extra computations
   float mLastY = -1.0;
@@ -384,54 +395,65 @@ class IVDropDownList : public IControl,
   int mColHeight = 5; // how long the list can get before adding a new column
 
   void SetNames(int numStates, const char* names, va_list args);
-  auto NameForVal(int val) { return (mValNames.Get(val))->Get(); }
+  auto NameForVal(int val)
+  {
+    return (mValNames.Get(val))->Get();
+  }
 
-  int NumStates() {
+  int NumStates()
+  {
     return mValNames.GetSize();
-    }
-  double NormalizedFromState() {
+  }
+  double NormalizedFromState()
+  {
     if (NumStates() < 2)
       return 0.0;
     else
       return (double) mState / (NumStates() - 1);
-    }
-  int StateFromNormalized() {
+  }
+  int StateFromNormalized()
+  {
     return (int) (mValue * (NumStates() - 1));
-    }
+  }
 
   IRECT GetInitRect();
   IRECT GetExpandedRect();
   void ExpandRects();
-  void ShrinkRects() {
+  void ShrinkRects()
+  {
     mTargetRECT = mRECT = mInitRect;
-    }
+  }
   void UpdateRectsOnInitChange();
 
   void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
-  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
+  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+  {
     auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
     graphics.FillRect(shadowColor, sr);
-    }
+  }
   IRECT GetRectForAlignedTextIn(IRECT r);
-  IRECT ShiftRectBy(IRECT r, float x, float y = 0.0) {
+  IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
+  {
     return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
-    }
+  }
 
 
-  void DbgMsg(const char* msg, float val) {
+  void DbgMsg(const char* msg, float val)
+  {
 #ifdef _DEBUG
     char str[32];
     int p = 0;
-    while (*msg != '\0') {
+    while (*msg != '\0')
+    {
       str[p] = *msg;
       ++msg;
       ++p;
-      }
+    }
     sprintf(str + p, "%f", val);
     DBGMSG(str);
 #endif
-    }
-  };
+  }
+};
 
 #pragma mark - Bitmap Controls
 
