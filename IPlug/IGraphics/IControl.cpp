@@ -297,7 +297,7 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mod.L || mod.R)
   {
-    PromptUserInput();
+    PromptUserInput(mRECT);
   }
 }
 
