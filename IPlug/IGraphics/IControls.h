@@ -78,6 +78,23 @@ private:
   float mEndAngle = 135.f;
 };
 
+class IVSliderControl : public IControl
+                      , public IVectorBase
+{
+public:
+  IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection = kVertical);
+  
+  void Draw(IGraphics& graphics) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnResize() override;
+  
+  void SnapToMouse(float x, float y);
+private:
+  EDirection mDirection;
+  IRECT mTrack;
+};
+
 /*
  
  IVKeyboardControl by Eugene Yakshin, 2018

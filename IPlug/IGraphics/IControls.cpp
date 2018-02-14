@@ -63,6 +63,50 @@ void IVKnobControl::Draw(IGraphics& graphics)
   graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
+IVSliderControl::IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx,
+                const IVColorSpec& colorSpec, EDirection direction)
+: IControl(dlg, rect, paramIdx)
+, IVectorBase(colorSpec)
+, mDirection(direction)
+{
+}
+
+void IVSliderControl::Draw(IGraphics& graphics)
+{
+  graphics.FillRect(GetColor(kBG), mRECT);
+  
+  const float top = mTrack.B - (mValue * mTrack.H());
+  IRECT innerRect = IRECT(mTrack.L, top, mTrack.R, mRECT.B);
+  graphics.FillRect(GetColor(kFG), innerRect);
+}
+
+void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  SnapToMouse(x, y);
+}
+
+void IVSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  SnapToMouse(x, y);
+}
+
+void IVSliderControl::SnapToMouse(float x, float y)
+{
+  mTrack.Constrain(x, y);
+  
+  float yValue = 1.f - (y-mTrack.T) / mTrack.H();
+  
+  mValue = round( yValue / 0.001 ) * 0.001;
+  
+  SetDirty(); // will send parameter value to delegate
+}
+
+void IVSliderControl::OnResize()
+{
+  mTrack = mRECT.GetPadded(-10);
+  SetDirty();
+}
+
 IVKeyboardControl::IVKeyboardControl(IDelegate& dlg, IRECT rect,
                                      int minNote, int maxNote)
 : IControl(dlg, rect)
