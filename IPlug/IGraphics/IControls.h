@@ -430,7 +430,6 @@ protected:
 
   IRECT GetInitRect();
   IRECT GetExpandedRect();
-  IGraphics* mGraphics = nullptr;
   void ExpandRects();
   void ShrinkRects()
   {
