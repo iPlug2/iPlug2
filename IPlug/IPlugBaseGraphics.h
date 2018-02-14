@@ -32,7 +32,7 @@ public:
   void SetControlValueFromDelegate(int controlIdx, double normalizedValue) override;
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override;
 
-  const IParam* GetParamFromUI(int paramIdx) override { return GetParam(paramIdx); }
+  const IParam* GetParamObjectFromUI(int paramIdx) override { return GetParam(paramIdx); }
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }

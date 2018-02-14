@@ -368,6 +368,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
     <ClInclude Include="..\IGraphicsTest.h" />
     <ClInclude Include="..\resources\resource.h" />

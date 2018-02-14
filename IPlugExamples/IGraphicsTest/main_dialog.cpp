@@ -41,7 +41,7 @@ public:
   void SetControlValueFromDelegate(int controlIdx, double normalizedValue) override {};
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {};
   
-  const IParam* GetParamFromUI(int paramIdx) override { return nullptr; }
+  const IParam* GetParamObjectFromUI(int paramIdx) override { return nullptr; }
   void SetParameterValueFromUI(int paramIdx, double value) override { DBGMSG("SetParameterValueFromUI p %i %f\n", paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { ; }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { ; }

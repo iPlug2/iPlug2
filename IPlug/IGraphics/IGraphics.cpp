@@ -171,10 +171,15 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 {
   if (!normalized)
   {
-    const IParam* pParam = mDelegate.GetParamFromUI(paramIdx);
-    lo = pParam->GetNormalized(lo);
-    hi = pParam->GetNormalized(hi);
+    const IParam* pParam = mDelegate.GetParamObjectFromUI(paramIdx);
+
+    if (pParam)
+    {
+      lo = pParam->GetNormalized(lo);
+      hi = pParam->GetNormalized(hi);
+    }
   }
+
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)

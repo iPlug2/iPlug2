@@ -86,6 +86,7 @@
       <Filter>resources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IGraphics">

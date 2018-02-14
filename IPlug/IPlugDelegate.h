@@ -37,7 +37,7 @@ public:
   /** Called by the user interface in order to get a const pointer to an IParam object
    * @param paramIdx The index of the parameter to be retrieved
    * @return Pointer to an IParam object */
-  virtual const IParam* GetParamFromUI(int paramIdx) = 0;
+  virtual const IParam* GetParamObjectFromUI(int paramIdx) = 0;
   
   /** Called by the user interface at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified

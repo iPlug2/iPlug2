@@ -113,7 +113,7 @@ void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    if (mDelegate.GetParamFromUI(mParamIdx)->NDisplayTexts()) // popup menu
+    if (GetParam()->NDisplayTexts()) // popup menu
     {
       GetUI()->PromptUserInput(*this, mRECT);
     }
@@ -219,7 +219,7 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
 const IParam* IControl::GetParam()
 {
   if(mParamIdx >= 0)
-    return mDelegate.GetParamFromUI(mParamIdx);
+    return mDelegate.GetParamObjectFromUI(mParamIdx);
   else
     return nullptr;
 }
@@ -303,7 +303,7 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void ICaptionControl::Draw(IGraphics& graphics)
 {
-  const IParam* pParam = GetDelegate().GetParamFromUI(mParamIdx);
+  const IParam* pParam = GetParam();
   
   if(pParam)
   {
@@ -324,7 +324,7 @@ ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx,
   : IControl(dlg, rect, paramIdx, actionFunc)
 {
   if (paramIdx > kNoParameter)
-    mNumStates = (uint32_t)mDelegate.GetParamFromUI(paramIdx)->GetRange() + 1;
+    mNumStates = (uint32_t) GetParam()->GetRange() + 1;
   else
     mNumStates = numStates;
 
