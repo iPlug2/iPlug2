@@ -23,8 +23,8 @@ NanoVGBitmap::~NanoVGBitmap()
   nvgDeleteImage(mVG, idx);
 }
   
-IGraphicsNanoVG::IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps)
-: IGraphics(plug, w, h, fps)
+IGraphicsNanoVG::IGraphicsNanoVG(IDelegate& dlg, int w, int h, int fps)
+: IGraphics(dlg, w, h, fps)
 {
 }
 

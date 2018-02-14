@@ -59,7 +59,7 @@ class IGraphicsNanoVG : public IGraphics
 public:
   const char* GetDrawingAPIStr() override { return "NANOVG"; }
 
-  IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps);
+  IGraphicsNanoVG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsNanoVG();
 
   void BeginFrame() override;

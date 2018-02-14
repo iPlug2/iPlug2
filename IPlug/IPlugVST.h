@@ -34,7 +34,6 @@ public:
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
   void ResizeGraphics(int w, int h, double scale) override;
-  void OnGUICreated() override;
   void HostSpecificInit() override;
 
   //IPlugProcessor

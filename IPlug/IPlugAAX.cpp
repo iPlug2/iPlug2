@@ -27,7 +27,7 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   void* pWindow = GetViewContainerPtr();
   
-  if (pWindow && mPlug->GetHasUI())
+  if (pWindow && mPlug->HasUI())
   {
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
@@ -45,10 +45,10 @@ void AAX_CEffectGUI_IPLUG::DeleteViewContainer()
 
 AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
 {
-  if (mPlug->GetHasUI())
+  if (mPlug->HasUI())
   {
-    oEffectViewSize->horz = (float) mPlug->GetUIWidth();
-    oEffectViewSize->vert = (float) mPlug->GetUIHeight();
+    oEffectViewSize->horz = (float) mPlug->Width();
+    oEffectViewSize->vert = (float) mPlug->Height();
   }
   
   return AAX_SUCCESS; 
@@ -74,7 +74,6 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
     pViewInterface->SetPTParameterHighlight(paramIdx, (bool) iIsHighlighted, (int) iColor);
     return AAX_SUCCESS;
-    
   }
   
   return AAX_ERROR_INVALID_PARAMETER_ID;
@@ -89,7 +88,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   AttachPresetHandler(this);
 
-  Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -226,7 +225,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   if ((paramIdx >= 0) && (paramIdx < NParams())) 
   {
     GetParam(paramIdx)->SetNormalized(iValue);
-    SetParameterInUIFromAPI(paramIdx, iValue, true);
+    SendParameterValueToUIFromAPI(paramIdx, iValue, true);
     
     OnParamChange(paramIdx, kAutomation);      
   }
@@ -398,7 +397,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChun
       SetParameterNormalizedValue(mParamIDs.Get(i)->Get(), GetParam(i)->GetNormalized() );
     }
     
-    RedrawParamControls(); //TODO: what about icontrols not linked to params how do they get redrawn - setdirty via UnserializeState()?
+    OnRestoreState();
     mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the compare light 
     
     return AAX_SUCCESS;
@@ -444,7 +443,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
 
 void IPlugAAX::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     AAX_Point oEffectViewSize;
     oEffectViewSize.horz = (float) w;

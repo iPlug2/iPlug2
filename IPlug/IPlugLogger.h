@@ -2,7 +2,8 @@
 
 /**
  * @file
- * @brief IPlug Logging functionailty
+ * @brief IPlug logging a.k.a tracing functionailty
+ *
  * To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
  * To simply create a trace entry in the log:    TRACE;
  * No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
@@ -51,6 +52,9 @@
   #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
 
 #ifdef OS_WIN
+#ifdef NDEBUG
+#define DBGMSG(...)
+#else
   static void DBGMSG(const char *format, ...)
   {
     char buf[4096], *p = buf;
@@ -72,6 +76,7 @@
     
     OutputDebugString(buf);
   }
+#endif
 #endif
 
   struct LogFile

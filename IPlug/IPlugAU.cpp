@@ -248,7 +248,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   {
     case kComponentVersionSelect:
     {
-      return _this->GetEffectVersion(false);
+      return _this->GetPluginVersion(false);
     }
     case kAudioUnitInitializeSelect:
     {
@@ -881,7 +881,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_CocoaUI:                      // 31,
     {
-      if (GetHasUI()) // this won't work < 10.5 SDK but barely anyone will use that these days
+      if (HasUI()) // this won't work < 10.5 SDK but barely anyone will use that these days
       {
         *pDataSize = sizeof(AudioUnitCocoaViewInfo);  // Just one view.
         if (pData)
@@ -1378,7 +1378,7 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
   }
 
   CFMutableDictionaryRef pDict = CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  int version = GetEffectVersion(false);
+  int version = GetPluginVersion(false);
   PutNumberInDict(pDict, kAUPresetVersionKey, &version, kCFNumberSInt32Type);
   PutNumberInDict(pDict, kAUPresetTypeKey, &(cd.componentType), kCFNumberSInt32Type);
   PutNumberInDict(pDict, kAUPresetSubtypeKey, &(cd.componentSubType), kCFNumberSInt32Type);
@@ -1422,7 +1422,7 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
       !GetNumberFromDict(pDict, kAUPresetSubtypeKey, &subtype, kCFNumberSInt32Type) ||
       !GetNumberFromDict(pDict, kAUPresetManufacturerKey, &mfr, kCFNumberSInt32Type) ||
       !GetStrFromDict(pDict, kAUPresetNameKey, presetName) ||
-      //version != GetEffectVersion(false) ||
+      //version != GetPluginVersion(false) ||
       type != cd.componentType ||
       subtype != cd.componentSubType ||
       mfr != cd.componentManufacturer)
@@ -1448,7 +1448,7 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
     return kAudioUnitErr_InvalidPropertyValue;
   }
 
-  RedrawParamControls();
+  OnRestoreState();
   return noErr;
 }
 
@@ -1516,7 +1516,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   LOCK_PARAMS_MUTEX_STATIC;
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
-  _this->SetParameterInUIFromAPI(paramID, value, false);
+  _this->SendParameterValueToUIFromAPI(paramID, value, false);
   _this->OnParamChange(paramID, kAutomation);
   return noErr;
 }
@@ -1740,7 +1740,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   AttachPresetHandler(this);
 
-  Trace(TRACELOC, "%s", c.effectName);
+  Trace(TRACELOC, "%s", c.pluginName);
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
@@ -1900,7 +1900,7 @@ void IPlugAU::HostSpecificInit()
 
 void IPlugAU::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     OnWindowResize();
   }

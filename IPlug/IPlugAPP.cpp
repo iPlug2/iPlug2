@@ -11,7 +11,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   AttachPresetHandler(this);
 
-  Trace(TRACELOC, "%s%s", c.effectName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -25,13 +25,13 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
 void IPlugAPP::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     #ifdef OS_MAC
     #define TITLEBAR_BODGE 22 //TODO: sort this out
     RECT r;
     GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - GetUIHeight() - TITLEBAR_BODGE, GetUIWidth(), GetUIHeight() + TITLEBAR_BODGE, 0);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - Height() - TITLEBAR_BODGE, Width(), Height() + TITLEBAR_BODGE, 0);
     #endif
     OnWindowResize();
   }

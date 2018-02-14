@@ -19,19 +19,13 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
+  IVSwitchControl(IDelegate& dlg, IRECT rect, int param = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
-  ~IVSwitchControl() {}
-
   void Draw(IGraphics& graphics)  override;
-
-  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override;
-
+  
 private:
-  bool mMouseOver = false;
   float mStep;
   EDirection mDirection;
 };
@@ -41,14 +35,14 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+  IVKnobControl(IDelegate& dlg, IRECT rect, int param,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
                 float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IVKnobControl() {}
 
   void Draw(IGraphics& graphics) override;
-
+  
 protected:
   float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
 };
@@ -57,8 +51,8 @@ protected:
 class IVSVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IPlugBaseGraphics& plug, IRECT rect, ISVG& svg, int param = kNoParameter)
-    : IKnobControlBase(plug, rect, param)
+  IVSVGKnob(IDelegate& dlg, IRECT rect, ISVG& svg, int param = kNoParameter)
+    : IKnobControlBase(dlg, rect, param)
     , mSVG(svg)
   {
   }
@@ -75,7 +69,7 @@ public:
   void SetSVG(ISVG& svg)
   {
     mSVG = svg;
-    GetGUI()->SetAllControlsDirty();
+    SetDirty(false);
   }
 
 private:
@@ -131,10 +125,10 @@ public:
     kBK = kFG,
     kWK = kBG,
     kPK = kHL,
-    kFR = kFR
+    //kFR = kFR
   };
-
-  IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
+  
+  IVKeyboardControl(IDelegate& dlg, IRECT rect,
                     int minNote = 36, int maxNote = 60);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -462,8 +456,8 @@ protected:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IPlugBaseGraphics& plug, float x, float y, int param, IBitmap& bitmap)
-  : IBitmapControl(plug, x, y, param, bitmap) {}
+  IBSwitchControl(IDelegate& dlg, float x, float y, int param, IBitmap& bitmap)
+  : IBitmapControl(dlg, x, y, param, bitmap) {}
   ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -474,7 +468,7 @@ public:
 class IBSliderControl : public IControl
 {
 public:
-  IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int param,
+  IBSliderControl(IDelegate& dlg, float x, float y, int len, int param,
                   IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   ~IBSliderControl() {}
 
@@ -502,8 +496,8 @@ protected:
 class IBTextControl : public ITextControl
 {
 public:
-  IBTextControl(IPlugBaseGraphics& plug, IRECT rect, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
-  : ITextControl(plug, rect, text, str)
+  IBTextControl(IDelegate& dlg, IRECT rect, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
+  : ITextControl(dlg, rect, text, str)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
   , mCharOffset(charOffset)

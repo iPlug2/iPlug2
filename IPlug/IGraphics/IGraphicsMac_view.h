@@ -58,7 +58,6 @@ NSString* ToNSString(const char* cStr);
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
   IControl* mEdControl; // the control linked to the open text edit
-  IParam* mEdParam; // the param linked to the open text edit (optional)
   float mPrevX, mPrevY;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
@@ -87,7 +86,7 @@ NSString* ToNSString(const char* cStr);
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
 - (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) rect;

@@ -2,9 +2,26 @@
 
 #ifdef OS_WIN
 #include "asio.h"
+#else
+#define PostQuitMessage SWELL_PostQuitMessage
 #endif
 
-extern void CenterWindow(HWND hwnd);
+void CenterWindow(HWND hWnd, int w, int h)
+{
+  const int screenwidth = GetSystemMetrics(SM_CXSCREEN);
+  const int screenheight = GetSystemMetrics(SM_CYSCREEN);
+  const int x = (screenwidth / 2) - (w / 2);
+  const int y = (screenheight / 2) - (h / 2);
+
+  RECT rcClient, rcWindow;
+  GetClientRect(hWnd, &rcClient);
+  GetWindowRect(hWnd, &rcWindow);
+
+  POINT ptDiff;
+  ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+  ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+  SetWindowPos(gHWND, 0, x, y, w + ptDiff.x, h + ptDiff.y, 0);
+}
 
 const int kNumIOVSOptions = 9;
 const int kNumSIGVSOptions = 7;
@@ -497,62 +514,24 @@ WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
   return TRUE;
 }
 
-#ifdef OS_WIN
-void ClientResize(HWND hWnd, int nWidth, int nHeight)
-{
-  RECT rcClient, rcWindow;
-  POINT ptDiff;
-  int screenwidth, screenheight;
-  int x, y;
-
-  screenwidth  = GetSystemMetrics(SM_CXSCREEN);
-  screenheight = GetSystemMetrics(SM_CYSCREEN);
-  x = (screenwidth / 2) - (nWidth/2);
-  y = (screenheight / 2) - (nHeight/2);
-
-  GetClientRect(hWnd, &rcClient);
-  GetWindowRect(hWnd, &rcWindow);
-  ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-  ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
-}
-#endif
-
 WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
   {
     case WM_INITDIALOG:
-
-      gHWND=hwndDlg;
-
-#ifdef OS_WIN
-      if(!AttachGUI()) printf("couldn't attach gui\n");
-      ClientResize(hwndDlg, gPluginInstance->GetUIWidth(), gPluginInstance->GetUIHeight());
-      //SendMessage(hwndDlg, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
-      //SendMessage(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1)));
-
-#else // OSX
-//      ClientResize(hwndDlg, gPluginInstance->GetUIWidth(), gPluginInstance->GetUIHeight());
-      CenterWindow(hwndDlg);
-#endif
-
+      gHWND = hwndDlg;
+      CenterWindow(hwndDlg, 300, 300);
       ShowWindow(hwndDlg,SW_SHOW);
       return 1;
     case WM_DESTROY:
-      gHWND=NULL;
-
-#ifdef OS_WIN
+      gHWND = NULL;
       PostQuitMessage(0);
-#else
-      SWELL_PostQuitMessage(hwndDlg);
-#endif
-
       return 0;
     case WM_CLOSE:
       DestroyWindow(hwndDlg);
       return 0;
-//    case WM_GETDLGCODE: {
+//    case WM_GETDLGCODE:
+//      {
 //        LPARAM lres;
 //        lres = CallWindowProc(/*TODO GET PROC */, hWnd, WM_GETDLGCODE, wParam, lParam);
 //        if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_LEFT) {
