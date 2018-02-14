@@ -234,7 +234,7 @@ public:
     bFR = kFR
   };
 
-  IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+  IVButtonControl(IDelegate& dlg, IRECT rect, int param,
                   const char *txtOff = "off", const char *txtOn = "on");
   ~IVButtonControl() {};
 
@@ -285,9 +285,9 @@ protected:
 class IVContactControl : public IVButtonControl
 {
 public:
-  IVContactControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+  IVContactControl(IDelegate& dlg, IRECT rect, int param,
                    const char *txtOff = "off", const char *txtOn = "on") :
-    IVButtonControl(plug, rect, param, txtOff, txtOn) {};
+    IVButtonControl(dlg, rect, param, txtOff, txtOn) {};
 
   ~IVContactControl() {};
 
@@ -323,8 +323,8 @@ class IVDropDownList : public IControl,
 
 public:
 
-  IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param);
-  IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
+  IVDropDownList(IDelegate& dlg, IRECT rect, int param);
+  IVDropDownList(IDelegate& dlg, IRECT rect, int param,
                  int numStates, const char* names...);
 
   ~IVDropDownList()

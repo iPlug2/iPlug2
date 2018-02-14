@@ -310,9 +310,9 @@ void IVKeyboardControl::SetMinMaxNote(int min, int max, bool keepWidth)
 
   mNoteIsPlayed.Resize(NumKeys());
   memset(mNoteIsPlayed.Get(), 0, mNoteIsPlayed.GetSize() * sizeof(bool));
-  
+
   //TODO: call to plugin to retain pressed keys
-  
+
   RecreateKeyBounds(keepWidth);
 }
 
@@ -569,9 +569,9 @@ void IVKeyboardControl::GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_Stri
 }
 
 
-IVButtonControl::IVButtonControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+IVButtonControl::IVButtonControl(IDelegate& dlg, IRECT rect, int param,
                                  const char *txtOff, const char *txtOn)
-  : IControl(plug, rect, param),
+  : IControl(dlg, rect, param),
     IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
 {
   mText.mFGColor = GetColor(bTXT);
@@ -763,8 +763,8 @@ void IVButtonControl::SetShadowOffset(float offset, bool keepButtonRect)
 }
 
 
-IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param)
-  : IControl(plug, rect, param),
+IVDropDownList::IVDropDownList(IDelegate& dlg, IRECT rect, int param)
+  : IControl(dlg, rect, param),
     IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
 {
   mInitRect = rect;
@@ -772,9 +772,9 @@ IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param)
   FillNamesFromParamDisplayTexts();
 }
 
-IVDropDownList::IVDropDownList(IPlugBaseGraphics& plug, IRECT rect, int param,
+IVDropDownList::IVDropDownList(IDelegate& dlg, IRECT rect, int param,
                                int numStates, const char* names...)
-  : IControl(plug, rect, param),
+  : IControl(dlg, rect, param),
     IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
 {
   mInitRect = rect;
@@ -1112,7 +1112,7 @@ void IVDropDownList::ExpandRects()
   // we don't want expansion to collapse right around the borders, that'd be very UI unfriendly
   mT = mR.GetPadded(20.0); // todo perhaps padding should depend on display dpi
   // expansion may get over the bounds. if so, shift it
-  auto br = mPlug.GetGUI()->GetBounds();
+  auto br = mDelegate.GetGUI()->GetBounds();
   auto ex = mR.R - br.R;
   if (ex > 0.0)
   {
