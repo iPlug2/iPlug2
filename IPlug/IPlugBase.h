@@ -28,145 +28,268 @@ public:
   IPlugBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugBase();
 
+#pragma mark - Methods you can implement/override in your plug-in class - you do not call these methods
+
+  /** Override this method to do something when a parameter changes.
+   * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD
+   * @param paramIdx The index of the parameter that changed
+   * @param source One of the EParamSource options to indicate where the parameter change came from. */
   virtual void OnParamChange(int paramIdx, EParamSource source);
+
+  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
 
-  // In case the audio processing thread needs to do anything when the GUI opens
-  // (like for example, set some state dependent initial values for controls).
-  virtual void OnGUIOpen() { TRACE; }
-  virtual void OnGUIClose() { TRACE; }
-
-  virtual void* OpenWindow(void* handle) { return nullptr; }
-  virtual void CloseWindow() {} // plugin api asking to close window
-
-  virtual bool MidiNoteName(int noteNumber, char* pNameStr) { *pNameStr = '\0'; return false; }
-
+  /** Override this method to serialize custom state data, if your plugin does state chunks.
+   * @param chunk The output bytechunk where data can be serialized
+   * @return \c true if serialization was successful*/
   virtual bool SerializeState(IByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
-  // Return the new chunk position (endPos). Implementations should call UnserializeParams() after custom data is unserialized
-  virtual int UnserializeState(IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
 
-  // Only used by AAX, override in plugins that do chunks
-  virtual bool CompareState(const unsigned char* incomingState, int startPos);
+  /** Override this method to unserialize custom state data, if your plugin does state chunks.
+   * Implementations should call UnserializeParams() after custom data is unserialized
+   * @param chunk The incoming chunk containing the state data.
+   * @param startPos The position in the chunk where the data starts
+   * @return The new chunk position (endPos)*/
+  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
 
+  /** Override this method to implement a custom comparison of incoming state data with your plug-ins state data, in order
+   * to support the ProTools compare light when using custom state chunks. The default implementation will compare the serialized parameters.
+   * @param incomingState The incoming state data
+   * @param startPos The position to start in the incoming data in bytes
+   * @return \c true in order to indicate that the states are equal. */
+  virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
+
+  /** Override this method to be notified when the UI is opened. */
+  virtual void OnUIOpen() { TRACE; }
+
+  /** Override this method to be notified when the UI is closed. */
+  virtual void OnUIClose() { TRACE; }
+
+  /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
+  virtual void* OpenWindow(void* pHandle) { return nullptr; }
+
+  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
+  virtual void CloseWindow() {}
+
+  /** Implement this to do something after the user interface is resized */
   virtual void OnWindowResize() {}
-  // implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone
-  virtual bool OnHostRequestingAboutBox() { return false; }
 
-  // implement this to do something specific when IPlug is aware of the host
-  // may get called multiple times
+  /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
+  virtual bool OnHostRequestingAboutBox() { return false; } // TODO: implement this for VST 3
+
+  /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
+   * The method may get called multiple times. */
   virtual void OnHostIdentified() {}
 
-  // ----------------------------------------
-  // Your plugin class, or a control class, can call these functions.
+  /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
+   * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
+   * @param noteNumber MIDI note to get the textual description for
+   * @param str char array to set the text for the note. Should be less thatn kVstMaxNameLen (64) characters
+   * @return return \c true if you specified a custom textual description for this note */
+  virtual bool GetMidiNoteText(int noteNumber, char* str) const { *str = '\0'; return false; }
+
+  /** You need to implement this method if you are not using IGraphics and you want to support AAX's view interface functionality
+   * (special shortcuts to add automation for a parameter etc.)
+   * @return pointer to the class that implements the IAAXViewInterface */
+  virtual void* GetAAXViewInterface() { return nullptr; }
+
+  /** This is called by API classes after restoring stateand by IPlugPresetHandler::RestorePreset(). Typically used to update user interface, where parameter values have changed. */
+  virtual void OnRestoreState() {};
+
+#pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugBase.cpp;
+  /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
+  virtual void PrintDebugInfo() const;
+
+  /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
+
+  /** Get a pointer to one of the plug-ins IParam objects
+   ** WARNING: The IPlugBase::mParams is accessed by multiple threads, and this method has no thread safety mechanism.
+   * @param paramIdx The index of the parameter object to be got
+   * @return A pointer to the IParam object at paramIdx */
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
-  const char* GetEffectName() const { return mEffectName.Get(); }\
-  /** Get version code
-   * @param decimal Sets the output format
-   * @return Effect version in VVVVRRMM (if \p decimal is \c true) or 0xVVVVRRMM (if \p decimal is \c false) format
-   */
-  int GetEffectVersion(bool decimal) const;
+  /** @return the name of the plug-in as a CString */
+  const char* GetPluginName() const { return mPluginName.Get(); }
 
-  /** Get a printable version string
+  /** Get the plug-in version number
+   * @param decimal Sets the output format
+   * @return Effect version in VVVVRRMM (if \p decimal is \c true) or Hexadecimal 0xVVVVRRMM (if \p decimal is \c false) format */
+  int GetPluginVersion(bool decimal) const;
+
+  /** Gets the plug-in version as a string
    * @param str WDL_String to write to
    * The output format is vX.M.m, where X - version, M - major, m - minor
    * @note If \c _DEBUG is defined, \c D is appended to the version string
-   * @note If \c TRACER_BUILD is defined, \c T is appended to the version string
-   */
-  void GetEffectVersionStr(WDL_String& str) const;
-  /** Get manufacturer name string */
+   * @note If \c TRACER_BUILD is defined, \c T is appended to the version string*/
+  void GetPluginVersionStr(WDL_String& str) const;
+
+  /** Get the manufacturer name as a CString */
   const char* GetMfrName() const { return mMfrName.Get(); }
-  /** Get product name string */
+
+  /** Get the product name as a CString. A shipping product may contain multiple plug-ins, hence this. Not used in all APIs */
   const char* GetProductName() const { return mProductName.Get(); }
+
+  /** @return The plug-in's unique four character ID as an integer */
   int GetUniqueID() const { return mUniqueID; }
+
+  /** @return The plug-in manufacturer's unique four character ID as an integer */
   int GetMfrID() const { return mMfrID; }
 
-  virtual void SetParameterInUIFromAPI(int paramIdx, double value, bool normalized) {}; // call from plugin API class to update GUI prior to calling OnParamChange();
-  virtual void SetParameterFromUI(int idx, double normalizedValue); // called from GUI to update
-  // If a parameter change comes from the GUI, midi, or external input,
-  // the host needs to be informed in case the changes are being automated.
-  virtual void BeginInformHostOfParamChange(int idx) = 0;
-  virtual void InformHostOfParamChange(int idx, double normalizedValue) = 0;
-  virtual void EndInformHostOfParamChange(int idx) = 0;
-  virtual void InformHostOfProgramChange() = 0;
-  void DirtyParameters(); // hack to tell the host to dirty file state, when a preset is recalled
-
+  /** @return The host if it has been identified, see EHost enum for a list of possible hosts, implemented in the API class for VST2 and AUv2 */
   virtual EHost GetHost() { return mHost; }
-  virtual EAPI GetAPI() { return mAPI; }
-  const char* GetAPIStr();
-  const char* GetArchStr();
-  
-  /** @brief Used to get the build date of the plug-in and architecture/api details in one string
-  * @note since the implementation is in IPlugBase.cpp, you may want to touch that file as part of your build script to force recompilation
-  * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
-  void GetBuildInfoStr(WDL_String& str);
-  int GetHostVersion(bool decimal); // Decimal = VVVVRRMM, otherwise 0xVVVVRRMM.
+
+  /** Get the host version number as an integer
+   * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
+   * @return The host version number as an integer. */
+  int GetHostVersion(bool decimal); //
+
+  /** Get the host version number as a string
+   * @param str string into which to write the host version */
   void GetHostVersionStr(WDL_String& str);
-  
-  virtual bool GetHasUI() { return mHasUI; }
-  virtual int GetUIWidth() { return 0; }
-  virtual int GetUIHeight() { return 0; }
-  virtual void* GetAAXViewInterface() { return nullptr; }
 
-  // implement in API class to do something once editor is created/attached (called from IPlugBaseGraphics::AttachGraphics)
-  virtual void OnGUICreated() {};
+  /** @return The The plug-in API, see EAPI enum for a list of possible APIs */
+  EAPI GetAPI() const { return mAPI; }
 
-  // Tell the host that the graphics resized.
+  /** @return  Returns a CString describing the plug-in API, e.g. "VST2" */
+  const char* GetAPIStr() const;
+
+  /** @return  Returns a CString either "x86" or "x64" describing the binary architecture */
+  const char* GetArchStr() const;
+
+  /** @brief Used to get the build date of the plug-in and architecture/api details in one string
+   * @note since the implementation is in IPlugBase.cpp, you may want to touch that file as part of your build script to force recompilation
+   * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
+  void GetBuildInfoStr(WDL_String& str) const;
+
+  /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
+  bool DoesStateChunks() const { return mStateChunks; }
+
+  /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
+  bool HasUI() const { return mHasUI; }
+
+  /** @return The default width of the plug-in UI in pixels, if defined in config.h */
+  int Width() const { return mWidth; }
+
+  /** @return The default height of the plug-in UI in pixels, if defined in config.h */
+  int Height() const { return mHeight; }
+
+  /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
+  void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
+
+  /** Call this method in order to notify the API of a graphics resize.
+   * @param w The new width
+   * @param h The new height
+   * @param scale The new scaling factor. */
   virtual void ResizeGraphics(int w, int h, double scale) = 0;
 
+  /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
+   * @param paramIdx The parameter that is being changed */
+  virtual void BeginInformHostOfParamChange(int paramIdx) = 0;
+
+  /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
+   * @param paramIdx The parameter that is being changed */
+  virtual void EndInformHostOfParamChange(int paramIdx) = 0;
+
+  /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
+   * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugBase::OnParamChange();
+   * @param idx The index of the parameter that changed
+   * @param normalizedValue The new (normalised) value*/
+  void SetParameterValue(int paramIdx, double normalizedValue);
+
+  /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
+  virtual void InformHostOfProgramChange() {};
+
+#pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
+
+  /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
+   * @param paramIdx The index of the parameter that changed
+   * @param value The new value
+   * @param normalized /true if @param value is normalised */
+  virtual void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) {};
+
+  /** @return The number of unique parameter groups identified */
   int NParamGroups() { return mParamGroups.GetSize(); }
-  const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
+
+  /** Called to add a parameter group name, when a unique group name is discovered
+   * @param name CString for the unique group name
+   * @return Number of parameter groups */
   int AddParamGroup(const char* name) { mParamGroups.Add(name); return NParamGroups(); }
 
+  /** Get the parameter group name as a particular index
+   * @param idx The index to return
+   * @return CString for the unique group name */
+  const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
+
   void InitChunkWithIPlugVer(IByteChunk& chunk);
-  int GetIPlugVerFromChunk(IByteChunk& chunk, int& pos);
 
-  void SetHost(const char* host, int version);   // Version = 0xVVVVRRMM.
-  virtual void HostSpecificInit() {};
+  /** Helper method to retrieve the IPlug version number from the beginning of the byte chunk
+   * @param chunk The incoming byte chunk that contains the version number
+   * @param pos The position (in bytes) to start looking
+   * @return The IPlug version number, retrieved from the chunk, or 0 if it failed */
+  int GetIPlugVerFromChunk(const IByteChunk& chunk, int& pos);
 
-  bool DoesStateChunks() { return mStateChunks; }
+  /** Called to set the name of the current host, if known.
+  * @param host The name of the plug-in host
+  * @param version The version of the plug-in host where version in hex = 0xVVVVRRMM */
+  void SetHost(const char* host, int version);
 
-  // Will append if the chunk is already started
+  /** This method is called by some API classes, in order to do specific initialisation for particular problematic hosts.
+   * This is not the same as OnHostIdentified(), which you may implement in your plug-in class to do your own specific initialisation after a host has been identified */
+  virtual void HostSpecificInit() {}; //TODO: sort this method out, it's called differently from different APIs
+
+  /** Serializes the current double precision floating point, non-normalised values (IParam::mValue) of all parameters, into a binary byte chunk.
+   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
+   * @return return \c true if the serialization was successful */
   bool SerializeParams(IByteChunk& chunk);
-  int UnserializeParams(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos)
 
-  virtual void RedrawParamControls() {};  // Called after restoring state.
+  /** Unserializes double precision floating point, non-normalised values from a byte chunk into mParams.
+   * @param chunk The incoming chunk where parameter values are stored to unserialize
+   * @param startPos The start position in the chunk where parameter values are stored
+   * @return The new chunk position (endPos) */
+  int UnserializeParams(const IByteChunk& chunk, int startPos);
 
-  // ----------------------------------------
-  // Internal IPlug stuff (but API classes need to get at it).
+  /** Calls OnParamChange() for each parameter and finally OnReset().
+   * @param source Specifies the source of this parameter change */
+  void OnParamReset(EParamSource source);  //
 
-  void OnParamReset(EParamSource source);  // Calls OnParamChange(each param) + OnReset().
-
-  virtual void PrintDebugInfo();
-  
-  /** Effect name @todo WAT? */
-  WDL_String mEffectName;
-  /** Product name @todo WAT? */
+private:
+  /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
+   * @param paramIdx The parameter that is being changed
+   * @param normalizedValue The new normalised value of the parameter being changed */
+  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) = 0;
+protected:
+  /** The name of this plug-in */
+  WDL_String mPluginName;
+  /** Product name: if the plug-in is part of collection of plug-ins it might be one product */
   WDL_String mProductName;
-  /** Manufacturer name */
+  /** Plug-in Manufacturer name */
   WDL_String mMfrName;
-
-  //  Version stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
+  /* Plug-in unique four char ID as an int */
   int mUniqueID;
+  /* Manufacturer unique four char ID as an int */
   int mMfrID;
+  /** Plug-in version number stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision */
   int mVersion;
+  /** Host version number stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision */
   int mHostVersion = 0;
-  /**
-   * @brief Plugin API */
-  EAPI mAPI;
+  /** Host that has been identified, see EHost enum */
   EHost mHost = kHostUninit;
-
-  WDL_PtrList<const char> mParamGroups;
-
-  bool mStateChunks;
-
-  /** \c True if the plug-in has a user interface. If false the host will provide a default interface */
+  /** API of this instance */
+  EAPI mAPI;
+  /** \c true if the plug-in does opaque state chunks. If false the host will provide a default interface */
+  bool mStateChunks = false;
+  /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
-  int mCurrentPresetIdx = 0;
-
+  /** The default width of the plug-in UI if it has an interface. */
+  int mWidth = 0;
+  /** The default height of the plug-in UI if it has an interface. */
+  int mHeight = 0;
+  /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
+  WDL_PtrList<const char> mParamGroups;
+  /** A list of IParam objects. This list is resized in the IPlugBase constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;
+public:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
-  WDL_String mParamDisplayStr = WDL_String("", MAX_PARAM_DISPLAY_LEN);
+  WDL_String mParamDisplayStr;
 };

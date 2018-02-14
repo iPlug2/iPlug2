@@ -36,6 +36,9 @@ const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_MAC
 const char* const DEFAULT_FONT = "Monaco";
 const int DEFAULT_TEXT_SIZE = 10;
+#elif defined OS_LINUX
+const char* const DEFAULT_FONT = "DejaVu Sans";
+const int DEFAULT_TEXT_SIZE = 10;
 #endif
 
 const int FONT_LEN = 32;

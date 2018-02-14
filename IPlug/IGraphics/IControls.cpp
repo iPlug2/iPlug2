@@ -2,9 +2,9 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
+IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
   , const IVColorSpec& colorSpec, uint32_t numStates, EDirection dir)
-  : ISwitchControlBase(plug, rect, paramIdx, actionFunc, numStates)
+  : ISwitchControlBase(dlg, rect, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
   , mDirection(dir)
 {
@@ -37,28 +37,11 @@ void IVSwitchControl::Draw(IGraphics& graphics)
   graphics.FillCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), (handle.W()/2.)-2, &mBlend);
 }
 
-void IVSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
-{
-  if(!mMouseOver)
-  {
-    SetColor(EVColor::kFR, DEFAULT_HLCOLOR);
-    mMouseOver=true;
-  }
-  SetDirty();
-}
-
-void IVSwitchControl::OnMouseOut()
-{
-  mMouseOver=false;
-  SetColor(EVColor::kFR, DEFAULT_FRCOLOR);
-  SetDirty();
-}
-
-IVKnobControl::IVKnobControl(IPlugBaseGraphics& plug, IRECT rect, int param,
+IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT rect, int param,
                              const IVColorSpec& colorSpec,
                              float rMin, float rMax, float aMin, float aMax,
                              EDirection direction, double gearing)
-: IKnobControlBase(plug, rect, param, direction, gearing)
+: IKnobControlBase(dlg, rect, param, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
@@ -74,14 +57,59 @@ void IVKnobControl::Draw(IGraphics& graphics)
   const float v = mAngleMin + ((float) mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
   const float radius = (mRECT.W()/2.f) - 2.f;
+  graphics.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2, GetMouseIsOver() ? &BLEND_25 : &BLEND_10);
   graphics.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50);
   graphics.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v, &BLEND_50);
   graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
 }
 
-IVKeyboardControl::IVKeyboardControl(IPlugBaseGraphics& plug, IRECT rect,
+IVSliderControl::IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx,
+                const IVColorSpec& colorSpec, EDirection direction)
+: IControl(dlg, rect, paramIdx)
+, IVectorBase(colorSpec)
+, mDirection(direction)
+{
+}
+
+void IVSliderControl::Draw(IGraphics& graphics)
+{
+  graphics.FillRect(GetColor(kBG), mRECT);
+  
+  const float top = mTrack.B - (mValue * mTrack.H());
+  IRECT innerRect = IRECT(mTrack.L, top, mTrack.R, mRECT.B);
+  graphics.FillRect(GetColor(kFG), innerRect);
+}
+
+void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  SnapToMouse(x, y);
+}
+
+void IVSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  SnapToMouse(x, y);
+}
+
+void IVSliderControl::SnapToMouse(float x, float y)
+{
+  mTrack.Constrain(x, y);
+  
+  float yValue = 1.f - (y-mTrack.T) / mTrack.H();
+  
+  mValue = round( yValue / 0.001 ) * 0.001;
+  
+  SetDirty(); // will send parameter value to delegate
+}
+
+void IVSliderControl::OnResize()
+{
+  mTrack = mRECT.GetPadded(-10);
+  SetDirty();
+}
+
+IVKeyboardControl::IVKeyboardControl(IDelegate& dlg, IRECT rect,
                                      int minNote, int maxNote)
-: IControl(plug, rect)
+: IControl(dlg, rect)
 , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
 {
   mText.mFGColor = GetColor(kFR);
@@ -1200,8 +1228,8 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IPlugBaseGraphics& plug, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
-: IControl(plug, IRECT(), paramIdx)
+IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+: IControl(dlg, IRECT(), paramIdx)
 , mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
 {
   if (direction == kVertical)
@@ -1307,6 +1335,6 @@ bool IBSliderControl::IsHit(float x, float y) const
 
 void IBSliderControl::OnRescale()
 {
-  mHandleBitmap = GetGUI()->GetScaledBitmap(mHandleBitmap);
+  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
 }
 

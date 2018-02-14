@@ -105,7 +105,7 @@ double IParam::GetNonNormalized(double normalizedValue) const
   return FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
 }
 
-void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText)
+void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
   if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape);
 
@@ -213,7 +213,7 @@ bool IParam::MapDisplayText(const char* str, double* pValue) const
   return false;
 }
 
-double IParam::StringToValue(const char* str)
+double IParam::StringToValue(const char* str) const
 {
   double v = 0.;
   bool mapped = (bool) NDisplayTexts();

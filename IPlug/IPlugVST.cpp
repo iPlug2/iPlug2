@@ -17,7 +17,7 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   , IPlugPresetHandler(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
-  Trace(TRACELOC, "%s", c.effectName);
+  Trace(TRACELOC, "%s", c.pluginName);
 
   AttachPresetHandler(this);
 
@@ -36,14 +36,14 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mAEffect.numInputs = nInputs;
   mAEffect.numOutputs = nOutputs;
   mAEffect.uniqueID = c.uniqueID;
-  mAEffect.version = GetEffectVersion(true);
+  mAEffect.version = GetPluginVersion(true);
   mAEffect.__ioRatioDeprecated = 1.0f;
   mAEffect.__processDeprecated = VSTProcess;
   mAEffect.processReplacing = VSTProcessReplacing;
   mAEffect.processDoubleReplacing = VSTProcessDoubleReplacing;
   mAEffect.initialDelay = c.latency;
   mAEffect.flags = effFlagsCanReplacing | effFlagsCanDoubleReplacing;
-  
+
   if (c.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
   if (c.plugIsInstrument) { mAEffect.flags |= effFlagsIsSynth; }
@@ -61,6 +61,14 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   _SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
 
   _SetBlockSize(DEFAULT_BLOCK_SIZE);
+
+  if(c.plugHasUI)
+  {
+    mAEffect.flags |= effFlagsHasEditor;
+    mEditRect.left = mEditRect.top = 0;
+    mEditRect.right = c.plugWidth;
+    mEditRect.bottom = c.plugHeight;
+  }
 }
 
 void IPlugVST::BeginInformHostOfParamChange(int idx)
@@ -110,24 +118,13 @@ EHost IPlugVST::GetHost()
   return host;
 }
 
-void IPlugVST::OnGUICreated()
-{
-  if (GetHasUI())
-  {
-    mAEffect.flags |= effFlagsHasEditor;
-    mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = GetUIWidth();
-    mEditRect.bottom = GetUIHeight();
-  }
-}
-
 void IPlugVST::ResizeGraphics(int w, int h, double scale)
 {
-  if (GetHasUI())
+  if (HasUI())
   {
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = GetUIWidth();
-    mEditRect.bottom = GetUIHeight();
+    mEditRect.right = w;
+    mEditRect.bottom = h;
 
     OnWindowResize();
   }
@@ -167,7 +164,7 @@ bool IPlugVST::SendMidiMsg(const IMidiMsg& msg)
 }
 
 bool IPlugVST::SendSysEx(ISysEx& msg)
-{ 
+{
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
 
@@ -296,7 +293,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
             props->largeStepFloat = props->smallStepFloat = props->stepFloat = pParam->GetStep();
             break;
         }
-        
+
         strcpy(props->label, pParam->GetLabelForHost());
 
         return 1;
@@ -313,7 +310,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           IParam* pParam = _this->GetParam(idx);
           const double v = pParam->StringToValue((const char *)ptr);
           pParam->Set(v);
-          _this->SetParameterInUIFromAPI(idx, v, false);
+          _this->SendParameterValueToUIFromAPI(idx, v, false);
           _this->OnParamChange(idx, kAutomation);
         }
         return 1;
@@ -347,7 +344,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditGetRect:
     {
-      if (ptr && _this->GetHasUI())
+      if (ptr && _this->HasUI())
       {
         *(ERect**) ptr = &(_this->mEditRect);
         return 1;
@@ -367,7 +364,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effEditClose:
     {
-      if (_this->GetHasUI())
+      if (_this->HasUI())
       {
         _this->CloseWindow();
         return 1;
@@ -387,7 +384,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
         _this->InitChunkWithIPlugVer(chunk);
         bool savedOK = true;
-        
+
         if (isBank)
         {
           _this->ModifyCurrentPreset();
@@ -397,7 +394,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         {
           savedOK = _this->SerializeState(chunk);
         }
-        
+
         if (savedOK && chunk.Size())
         {
           *ppData = chunk.GetBytes();
@@ -417,7 +414,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         int pos = 0;
         int iplugVer = _this->GetIPlugVerFromChunk(chunk, pos);
         isBank &= (iplugVer >= 0x010000);
-        
+
         if (isBank)
         {
           pos = _this->UnserializePresets(chunk, pos);
@@ -427,10 +424,10 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
           pos = _this->UnserializeState(chunk, pos);
           _this->ModifyCurrentPreset();
         }
-        
+
         if (pos >= 0)
         {
-          _this->RedrawParamControls();
+          _this->OnRestoreState();
           return 1;
         }
       }
@@ -455,7 +452,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
               //  msg.LogMsg();
               //#endif
             }
-            else if (pEvent->type == kVstSysExType) 
+            else if (pEvent->type == kVstSysExType)
             {
               VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
               ISysEx sysex(pSE->deltaFrames, (const uint8_t*)pSE->sysexDump, pSE->dumpBytes);
@@ -558,7 +555,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     {
       if (ptr)
       {
-        strcpy((char*) ptr, _this->GetEffectName());
+        strcpy((char*) ptr, _this->GetPluginName());
         return 1;
       }
       return 0;
@@ -583,7 +580,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetVendorVersion:
     {
-      return _this->GetEffectVersion(true);
+      return _this->GetPluginVersion(true);
     }
     case effCanDo:
     {
@@ -631,7 +628,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
 //        {
 //          if (value == 0x57686565)
 //          {
-//            IGraphics* pGraphics = _this->GetGUI();
+//            IGraphics* pGraphics = _this->GetUI();
 //            if (pGraphics) {
 //              return pGraphics->ProcessMouseWheel(opt);
 //            }
@@ -681,7 +678,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
                 pParam->GetBounds(min, max);
                 if (std::fabs(max - min) < 1.5)
                   return 0xbeef;
-                
+
                 break;
               }
               default:
@@ -735,7 +732,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
       {
         MidiKeyName* pMKN = (MidiKeyName*) ptr;
         pMKN->keyName[0] = '\0';
-        if (_this->MidiNoteName(pMKN->thisKeyNumber, pMKN->keyName))
+        if (_this->GetMidiNoteText(pMKN->thisKeyNumber, pMKN->keyName))
         {
           return 1;
         }
@@ -768,15 +765,15 @@ void IPlugVST::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32
 
   _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);
   _AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), outputs, nFrames);
-  
+
   VstTimeInfo* pTI = (VstTimeInfo*) mHostCallback(&mAEffect, audioMasterGetTime, 0, kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
-  
+
   ITimeInfo timeInfo;
-  
+
   if (pTI)
   {
     timeInfo.mSamplePos = pTI->samplePos;
-    
+
     if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) timeInfo.mPPQPos = pTI->ppqPos;
     if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) timeInfo.mTempo = pTI->tempo;
     if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) timeInfo.mLastBar = pTI->barStartPos;
@@ -793,9 +790,9 @@ void IPlugVST::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32
     timeInfo.mTransportIsRunning = pTI->flags & kVstTransportPlaying;
     timeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
   }
-  
+
   const bool renderingOffline = mHostCallback(&mAEffect, audioMasterGetCurrentProcessLevel, 0, 0, 0, 0.0f) == kVstProcessLevelOffline;
-  
+
   _SetTimeInfo(timeInfo);
   _SetRenderingOffline(renderingOffline);
 }
@@ -845,7 +842,7 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
   if (idx >= 0 && idx < _this->NParams())
   {
     _this->GetParam(idx)->SetNormalized(value);
-    _this->SetParameterInUIFromAPI(idx, value, true);
+    _this->SendParameterValueToUIFromAPI(idx, value, true);
     _this->OnParamChange(idx, kAutomation);
   }
 }

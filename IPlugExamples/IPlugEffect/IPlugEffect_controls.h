@@ -27,7 +27,7 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    IPopupMenu* menu = GetGUI()->CreateIPopupMenu(mMainMenu, mRECT);
+    IPopupMenu* menu = GetUI()->CreateIPopupMenu(mMainMenu, mRECT);
     
     if(menu)
     {
@@ -59,13 +59,13 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    GetGUI()->HideMouseCursor();
+    GetUI()->HideMouseCursor();
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
   
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetGUI()->ShowMouseCursor();
+    GetUI()->ShowMouseCursor();
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
   
@@ -108,13 +108,13 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    GetGUI()->HideMouseCursor();
+    GetUI()->HideMouseCursor();
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
   
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetGUI()->ShowMouseCursor();
+    GetUI()->ShowMouseCursor();
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
   
