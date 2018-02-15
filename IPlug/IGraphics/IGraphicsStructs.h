@@ -333,7 +333,7 @@ struct IPattern
   void AddStop(IColor color, float offset)
   {
     assert(mType != kSolidPattern);
-    assert(GetStop(NStops() - 1).mOffset < offset);
+    assert(!NStops() || GetStop(NStops() - 1).mOffset < offset);
     mStops.Add(IColorStop(color, offset));
   }
 
