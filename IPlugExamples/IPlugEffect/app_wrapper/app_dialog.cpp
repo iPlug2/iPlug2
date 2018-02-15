@@ -520,7 +520,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
     case WM_INITDIALOG:
       gHWND = hwndDlg;
-      CenterWindow(hwndDlg, 300, 300);
+      CenterWindow(hwndDlg, PLUG_WIDTH, PLUG_HEIGHT);
       ShowWindow(hwndDlg,SW_SHOW);
       return 1;
     case WM_DESTROY:
