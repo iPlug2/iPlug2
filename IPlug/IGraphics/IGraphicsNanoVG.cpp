@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "NanoVGNanoSVG.h"
+#include "NanoSVGRenderer.h"
 
 #pragma mark -
 
@@ -105,7 +105,7 @@ void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend
     
   nvgScale(mVG, scale, scale);
     
-  NanoVGNanoSVGRender::RenderNanoSVG(mVG, svg.mImage);
+  NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
 
   nvgRestore(mVG);
 }
@@ -159,25 +159,6 @@ void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoints)
   for(int i = 1; i < npoints; i++)
     nvgLineTo(mVG, x[i], y[i]);
   nvgClosePath(mVG);
-}
-
-void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
-{
-  switch (options.mCapOption)
-  {
-    case kCapButt:   nvgLineCap(mVG, NSVG_CAP_BUTT);     break;
-    case kCapRound:  nvgLineCap(mVG, NSVG_CAP_ROUND);    break;
-    case kCapSquare: nvgLineCap(mVG, NSVG_CAP_SQUARE);   break;
-  }
-  
-  switch (options.mJoinOption)
-  {
-    case kJoinMiter:   nvgLineJoin(mVG, NVG_MITER);   break;
-    case kJoinRound:   nvgLineJoin(mVG, NVG_ROUND);   break;
-    case kJoinBevel:   nvgLineJoin(mVG, NVG_BEVEL);   break;
-  }
-  
-  nvgMiterLimit(mVG, options.mMiterLimit);
 }
 
 void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
@@ -299,4 +280,87 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& rect, 
 bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& destRect)
 {
   return DrawText(text, str, destRect, true);
+}
+
+
+void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
+{
+  switch (options.mCapOption)
+  {
+    case kCapButt:   nvgLineCap(mVG, NSVG_CAP_BUTT);     break;
+    case kCapRound:  nvgLineCap(mVG, NSVG_CAP_ROUND);    break;
+    case kCapSquare: nvgLineCap(mVG, NSVG_CAP_SQUARE);   break;
+  }
+  
+  switch (options.mJoinOption)
+  {
+    case kJoinMiter:   nvgLineJoin(mVG, NVG_MITER);   break;
+    case kJoinRound:   nvgLineJoin(mVG, NVG_ROUND);   break;
+    case kJoinBevel:   nvgLineJoin(mVG, NVG_BEVEL);   break;
+  }
+  
+  nvgMiterLimit(mVG, options.mMiterLimit);
+  
+  // TODO Dash
+  // TODO Preserve
+}
+
+void IGraphicsNanoVG::NVGSetFillOptions(const IFillOptions& options)
+{
+  // TODO Fill Rule
+  // TODO Preserve
+}
+
+void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
+{
+  NVGSetStrokeOptions(options);
+  nvgStrokeWidth(mVG, thickness);
+  Stroke(pattern, pBlend);
+  nvgStrokeWidth(mVG, 1.0);
+  NVGSetStrokeOptions();
+}
+
+void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
+{
+  NVGSetFillOptions(options);
+  Fill(pattern, pBlend);
+}
+
+NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, float opacity)
+{
+  NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor);
+  NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor);
+  
+  float inverse[6];
+  float s[2];
+  float e[2];
+  
+  nvgTransformInverse(inverse, pattern.mTransform);
+  nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
+  nvgTransformPoint(&e[0], &e[1], inverse, 0, 1);
+  
+  if (pattern.mType == kRadialPattern)
+    return nvgRadialGradient(mVG, s[0], s[1], 0.0, 160, icol, ocol);
+  else
+    return nvgLinearGradient(mVG, s[0], s[1], e[0], e[1], icol, ocol);
+}
+
+void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend)
+{
+  if (pattern.mType == kSolidPattern)
+    nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
+  else
+    nvgStrokePaint(mVG, GetNVGPaint(pattern, NanoVGWeight(pBlend)));
+  
+  nvgStroke(mVG);
+}
+
+void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
+{
+  if (pattern.mType == kSolidPattern)
+    nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
+  else
+    nvgFillPaint(mVG, GetNVGPaint(pattern, NanoVGWeight(pBlend)));
+  
+  nvgFill(mVG);
 }

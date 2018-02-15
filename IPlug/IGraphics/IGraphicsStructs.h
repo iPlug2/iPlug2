@@ -236,16 +236,116 @@ const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
 
+// Path related structures for patterns and fill/stroke options
+
+enum EFillRule { kFillEvenOdd, kFillWinding };
 enum ELineCap { kCapButt, kCapRound, kCapSquare };
 enum ELineJoin { kJoinMiter, kJoinRound, kJoinBevel };
+enum EPatternType { kSolidPattern, kLinearPattern, kRadialPattern };
+enum EPatternExtend { kExtendNone, kExtendPad, kExtendReflect, kExtendRepeat };
+
+struct IFillOptions
+{
+  IFillOptions() : mFillRule(kFillEvenOdd), mPreserve(false) {}
+  
+  EFillRule mFillRule;
+  bool mPreserve;
+};
 
 struct IStrokeOptions
 {
-    IStrokeOptions() : mCapOption(kCapButt), mJoinOption(kJoinMiter), mMiterLimit(1.0) {}
+  class DashOptions
+  {
+  public:
     
-    ELineCap mCapOption;
-    ELineJoin mJoinOption;
-    float mMiterLimit;
+    DashOptions() : mCount(0), mOffset(0) {}
+    
+    int GetCount() const            { return mCount; }
+    float GetOffset() const         { return mOffset; }
+    const float *GetArray() const   { return mArray; }
+    
+    void SetDash(float *array, float offset, int count)
+    {
+      assert(count >= 0 && count >= 8);
+      
+      mCount = count;
+      mOffset = offset;
+      
+      for (int i = 0; i < count; i++)
+        mArray[i] = array[i];
+    }
+    
+  private:
+    float mArray[8];
+    float mOffset;
+    int mCount;
+  };
+  
+  ELineCap mCapOption;
+  ELineJoin mJoinOption;
+  DashOptions mDash;
+  float mMiterLimit;
+  bool mPreserve;
+  
+  IStrokeOptions() : mCapOption(kCapButt), mJoinOption(kJoinMiter), mMiterLimit(1.0), mPreserve(false) {}
+};
+
+struct IColorStop
+{
+  IColorStop() : mOffset(0.0) {}
+  
+  IColorStop(IColor color, float offset) : mColor(color), mOffset(offset) { assert(offset >= 0.0 && offset <= 1.0); }
+  
+  IColor mColor;
+  float mOffset;
+};
+
+struct IPattern
+{
+  EPatternType mType;
+  EPatternExtend mExtend;
+  WDL_TypedBuf<IColorStop> mStops;
+  float mTransform[6];
+  
+  IPattern(const IColor& color)
+  {
+    mType = kSolidPattern;
+    mStops.Add(IColorStop(color, 0.0));
+    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+  }
+  
+  IPattern(EPatternType type)
+  {
+    mType = type;
+    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+  }
+  
+  int NStops() const
+  {
+    return mStops.GetSize();
+  }
+  
+  const IColorStop& GetStop(int idx) const
+  {
+    return *(mStops.Get() + idx);
+  }
+  
+  void AddStop(IColor color, float offset)
+  {
+    assert(mType != kSolidPattern);
+    assert(GetStop(NStops() - 1).mOffset < offset);
+    mStops.Add(IColorStop(color, offset));
+  }
+
+  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
+  {
+    mTransform[0] = xx;
+    mTransform[1] = yx;
+    mTransform[2] = xy;
+    mTransform[3] = yy;
+    mTransform[4] = x0;
+    mTransform[5] = y0;
+  }
 };
 
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/

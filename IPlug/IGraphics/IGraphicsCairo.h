@@ -46,7 +46,7 @@ public:
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
@@ -75,17 +75,9 @@ public:
   void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3); }
 
-  void PathStroke(const IColor& color, float thickness, const IStrokeOptions& options, const IBlend* pBlend = 0) override
-  {
-    CairoSetStrokeOptions(options);
-    cairo_set_line_width(mContext, thickness);
-    Stroke(color, pBlend);
-    cairo_set_line_width(mContext, 1.0);
-    CairoSetStrokeOptions();
-  }
-    
-  void PathFill(const IColor& color, const IBlend* pBlend = 0) override { Fill(color, pBlend); }
-    
+  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
+  void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
+  
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mContext; }
 
@@ -148,22 +140,18 @@ protected:
     }
   }
   
-  inline void SetCairoSourceRGBA(const IColor& color, const IBlend* pBlend = nullptr)
-  {
-    cairo_set_operator(mContext, CairoBlendMode(pBlend));
-    cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
-  }
+  void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
     
-  void Stroke(const IColor& color, const IBlend* pBlend = nullptr)
+  void Stroke(const IPattern& pattern, const IBlend* pBlend)
   {
-    SetCairoSourceRGBA(color, pBlend);
+    SetCairoSourcePattern(pattern, pBlend);
     cairo_set_line_width(mContext, 1);
     cairo_stroke(mContext);
   }
   
-  void Fill(const IColor& color, const IBlend* pBlend = nullptr)
+  void Fill(const IPattern& pattern, const IBlend* pBlend)
   {
-    SetCairoSourceRGBA(color, pBlend);
+    SetCairoSourcePattern(pattern, pBlend);
     cairo_fill(mContext);
   }
     
@@ -178,7 +166,8 @@ protected:
   void CairoDrawCircle(float cx, float cy, float r);
 
   void CairoSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-    
+  void CairoSetFillOptions(const IFillOptions& options = IFillOptions());
+  
 private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;

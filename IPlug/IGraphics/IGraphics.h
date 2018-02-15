@@ -198,8 +198,8 @@ public:
   virtual void PathLineTo(float x, float y) {}
   virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
     
-  virtual void PathStroke(const IColor& color, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
-  virtual void PathFill(const IColor& color, const IBlend* pBlend = 0) {}
+  virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
+  virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
     
   /**
    Helper function to draw a radial line, useful for pointers on dials
@@ -213,7 +213,7 @@ public:
    @param pBlend blend operation
    */
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
-  void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend);
+  void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0);
   
 #pragma mark - IGraphics platform implementation
   virtual void HideMouseCursor() {};

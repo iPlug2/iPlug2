@@ -84,7 +84,7 @@ public:
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
@@ -113,17 +113,9 @@ public:
   void PathLineTo(float x, float y) override { nvgLineTo(mVG, x, y); }
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3); }
     
-  void PathStroke(const IColor& color, float thickness, const IStrokeOptions& options, const IBlend* pBlend = 0) override
-  {
-    NVGSetStrokeOptions(options);
-    nvgStrokeWidth(mVG, thickness);
-    Stroke(color, pBlend);
-    nvgStrokeWidth(mVG, 1.0);
-    NVGSetStrokeOptions();
-  }
-    
-  void PathFill(const IColor& color, const IBlend* pBlend = 0) override { Fill(color, pBlend); }
-    
+  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
+  void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
+  
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mVG; }
 
@@ -141,24 +133,18 @@ protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-    
-  void Stroke(const IColor& color, const IBlend* pBlend = 0)
-  {
-    nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
-    nvgStroke(mVG);
-  }
-    
-  void Fill(const IColor& color, const IBlend* pBlend = 0)
-  {
-    nvgFillColor(mVG, NanoVGColor(color, pBlend));
-    nvgFill(mVG);
-  }
+  
+  NVGpaint GetNVGPaint(const IPattern& pattern, float opacity);
+  
+  void Stroke(const IPattern& pattern, const IBlend* pBlend);
+  void Fill(const IPattern& pattern, const IBlend* pBlend);
 
   void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
   void NVGDrawConvexPolygon(float* x, float* y, int npoints);
 
   void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-  
+  void NVGSetFillOptions(const IFillOptions& options = IFillOptions());
+
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
 };
