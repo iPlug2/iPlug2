@@ -1,6 +1,7 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include "IVMeterControl.h"
 #include "config.h"
 
 #include "IPlugEffect_controls.h"
@@ -32,9 +33,11 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IRECT bounds = pGraphics->GetBounds();
   IColor color;
 
-  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
-  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
+  //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
+ // pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
+ pMeter = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
+  pGraphics->AttachControl(pMeter);
 //  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
 //  {
 //    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
@@ -86,7 +89,9 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   ENTER_PARAMS_MUTEX;
   const double gain = GetParam(kGain)->Value() / 100.;
   LEAVE_PARAMS_MUTEX;
-  
+
+  ((IVMeterControl*)pMeter)->ProcessBlock(inputs[0], nFrames);
+
   const int nChans = NChannelsConnected(ERoute::kOutput);
   
   for (auto s = 0; s < nFrames; s++) {
