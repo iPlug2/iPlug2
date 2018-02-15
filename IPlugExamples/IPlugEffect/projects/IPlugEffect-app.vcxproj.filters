@@ -71,6 +71,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IVMeterControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -211,6 +214,9 @@
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\IPlugEffect_controls.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IVMeterControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">
