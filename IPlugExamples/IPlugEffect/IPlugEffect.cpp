@@ -19,14 +19,14 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
-  
+
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
 #ifndef NO_IGRAPHICS
-  
+
   IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
-  
+
   const int nRows = 2;
   const int nColumns = 2;
 
@@ -36,8 +36,28 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
  // pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
- pMeter = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
-  pGraphics->AttachControl(pMeter);
+ pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 70, 280));
+ pMeter2 = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
+ pMeter3 = new IVMeterControl(*this, IRECT(150, 20, 170, 280));
+ pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
+ pMeter5 = new IVMeterControl(*this, IRECT(250, 20, 270, 280));
+ ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(0.0);
+ ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(0.1);
+ ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(0.5);
+ ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(0.9);
+ ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(0.98);
+
+  ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(0.0);
+ ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(500);
+ ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(-1000);
+ ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(1500);
+ ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(5000);
+
+  pGraphics->AttachControl(pMeter1);
+  pGraphics->AttachControl(pMeter2);
+  pGraphics->AttachControl(pMeter3);
+  pGraphics->AttachControl(pMeter4);
+  pGraphics->AttachControl(pMeter5);
 //  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
 //  {
 //    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
@@ -74,7 +94,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //  pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 60));
 
   AttachGraphics(pGraphics);
-  
+
   pGraphics->HandleMouseOver(true);
 //  pGraphics->EnableLiveEdit(true);
 //  pGraphics->ShowControlBounds(true);
@@ -90,10 +110,14 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const double gain = GetParam(kGain)->Value() / 100.;
   LEAVE_PARAMS_MUTEX;
 
-  ((IVMeterControl*)pMeter)->ProcessBlock(inputs[0], nFrames);
+  ((IVMeterControl*)pMeter1)->ProcessBlock(inputs[0], nFrames);
+  ((IVMeterControl*)pMeter2)->ProcessBlock(inputs[0], nFrames);
+  ((IVMeterControl*)pMeter3)->ProcessBlock(inputs[0], nFrames);
+  ((IVMeterControl*)pMeter4)->ProcessBlock(inputs[0], nFrames);
+  ((IVMeterControl*)pMeter5)->ProcessBlock(inputs[0], nFrames);
 
   const int nChans = NChannelsConnected(ERoute::kOutput);
-  
+
   for (auto s = 0; s < nFrames; s++) {
     for (auto c = 0; c < nChans; c++) {
       outputs[c][s] = inputs[c][s] * gain;

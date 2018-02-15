@@ -40,22 +40,7 @@ class IVMeterControl : public IControl
     // todo del labels
     }
 
-  void Draw(IGraphics& graphics)  override {
-    float fps = (float) graphics.FPS();
-    float v = (float) mValue;
-    // todo watch out for 0 in db conversions
-    graphics.FillRect(GetColor(mBg), mRECT);
-
-    auto mr = mRECT;
-    mr.T = mr.B - v * mr.H();
-    graphics.FillRect(GetColor(mM), mr);
-
-    auto p = mRECT.B - mPeak * mRECT.H();
-    graphics.DrawLine(GetColor(mPk), mr.L, p, mr.R, p);
-    mPeak *= 0.99;
-    SetDirty();
-
-    };
+  void Draw(IGraphics& graphics)  override;
 
   void SetDirty(bool pushParamToDelegate = false) override {
     mDirty = true;
@@ -76,12 +61,18 @@ class IVMeterControl : public IControl
     mValue = value;
     if (value > mPeak)
       mPeak = (float) value;
+    if (mPeak >= 1.0f)
+      mPeakRectBlink = 1.0;
     SetDirty();
     }
   void SetValueFromUserInput(double value) override {
     SetValueFromUserInput(value);
     }
-  void SetPeakDropSpeed(double s) { mPeakDropSpeed = (float) s; }
+  void SetPeakDropTimeMs(double s) {
+    if (s < 0.0) s *= -1.0;
+    mPeakDropMs = (float)s;
+    }
+  void SetPeakRectHeight(double h) { mPeakRectHeight = (float) h; }
   void SetMinMaxDisplayValues(double min, double max) {
     // assume a user provides display vals that are consistent with the display mode
     switch (mDisplayMode) {
@@ -107,14 +98,51 @@ class IVMeterControl : public IControl
   DisplayMode mDisplayMode = PMDM_NORM;
 
   float mPeak = 0.0;
-  float mPeakDropSpeed = 0.5; // 0.0 = holds forever, 1.0 = falls immidiately
+  float mPeakRectBlink = 0.0;
+  float mPeakDropMs = 0.5; // 0.0 = holds forever, 1.0 = falls immidiately
 
   float mMinDisplayVal = 0.0; // display vals are stored as normalized vals,
   float mMaxDisplayVal = 1.0; //  but in Set..() and Draw() are interpreted depending on display mode
 
   bool mShowPeakLine = true; // todo
   bool mShowPeakRect = true; // todo
+  float mPeakRectHeight = 10.0;
 
   bool mShowLabels = true; // todo
+
+  IRECT GetMeterRect() {
+    auto mr = mRECT;
+    if (mShowPeakRect)
+      mr.T += mPeakRectHeight;
+    // todo shadows, labels
+    return mr;
+    }
+  IColor LinearBlendColors(IColor cA, IColor cB, double mix) {
+    IColor cM;
+    cM.A = (int)((1.0 - mix) * cA.A + mix * cB.A);
+    cM.R = (int)((1.0 - mix) * cA.R + mix * cB.R);
+    cM.G = (int)((1.0 - mix) * cA.G + mix * cB.G);
+    cM.B = (int)((1.0 - mix) * cA.B + mix * cB.B);
+    return cM;
+    }
+  void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
+    // todo del from here if upstream has it on the moment of pull request
+   float w = 0.0;
+   maxLineWidth = 0.0;
+   numLines = 0.0;
+   while (true) {
+     if (*txt == '\0' || *txt == '\n') {
+       ++numLines;
+       if (w > maxLineWidth)
+         maxLineWidth = w;
+       if (*txt == '\0')
+         break;
+       w = 0.0;
+       }
+     else
+       ++w;
+     ++txt;
+     }
+   }
 
   };

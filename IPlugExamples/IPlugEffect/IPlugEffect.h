@@ -22,7 +22,11 @@ enum ELayout
 class IPlugEffect : public IPlug
 {
 public:
-  IControl* pMeter = nullptr;
+  IControl* pMeter1 = nullptr;
+  IControl* pMeter2 = nullptr;
+  IControl* pMeter3 = nullptr;
+  IControl* pMeter4 = nullptr;
+  IControl* pMeter5 = nullptr;
   IPlugEffect(IPlugInstanceInfo instanceInfo);
 //  ~IPlugEffect();
 //   void OnReset() override;
