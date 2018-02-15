@@ -3,7 +3,7 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
-#include "CairoNanoSVG.h"
+#include "NanoSVGRenderer.h"
 
 #ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
@@ -160,7 +160,7 @@ void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 
   cairo_scale(mContext, scale, scale);
 
-  CairoNanoSVGRender::RenderNanoSVG(mContext, svg.mImage);
+  NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
 
   cairo_restore(mContext);
 }
@@ -225,7 +225,7 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
 {
   cairo_move_to(mContext, x + 0.5, y + 0.5);
   cairo_line_to(mContext, x + 1.5, y + 1.5);
-  Stroke(color);
+  Stroke(color, nullptr);
 }
 
 inline void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
@@ -260,6 +260,37 @@ inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
   cairo_new_path(mContext);
   cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
   cairo_close_path(mContext);
+}
+
+void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
+{
+  double dashArray[8];
+
+  switch (options.mCapOption)
+  {
+    case kCapButt:   cairo_set_line_cap(mContext, CAIRO_LINE_CAP_BUTT);     break;
+    case kCapRound:  cairo_set_line_cap(mContext, CAIRO_LINE_CAP_ROUND);    break;
+    case kCapSquare: cairo_set_line_cap(mContext, CAIRO_LINE_CAP_SQUARE);   break;
+  }
+  
+  switch (options.mJoinOption)
+  {
+    case kJoinMiter:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_MITER);   break;
+    case kJoinRound:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_ROUND);   break;
+    case kJoinBevel:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_BEVEL);   break;
+  }
+  
+  cairo_set_miter_limit(mContext, options.mMiterLimit);
+  
+  for (int i = 0; i < options.mDash.GetCount(); i++)
+    dashArray[i] = *(options.mDash.GetArray() + i);
+  
+  cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
+}
+
+void IGraphicsCairo::CairoSetFillOptions(const IFillOptions& options)
+{
+  cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
 }
 
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
@@ -349,6 +380,74 @@ void IGraphicsCairo::FillCircle(const IColor& color, float cx, float cy, float r
 {
   CairoDrawCircle(cx, cy, r);
   Fill(color, pBlend);
+}
+
+void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
+{
+  CairoSetStrokeOptions(options);
+  cairo_set_line_width(mContext, thickness);
+  SetCairoSourcePattern(pattern, pBlend);
+  if (options.mPreserve)
+    cairo_stroke_preserve(mContext);
+  else
+    cairo_stroke(mContext);
+  CairoSetStrokeOptions();
+}
+
+void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 
+{
+  CairoSetFillOptions(options);
+  SetCairoSourcePattern(pattern, pBlend);
+  if (options.mPreserve)
+    cairo_fill_preserve(mContext);
+  else
+    cairo_fill(mContext);
+}
+
+void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+{
+  cairo_set_operator(mContext, CairoBlendMode(pBlend));
+  
+  switch (pattern.mType)
+  {
+    case kSolidPattern:
+    {
+      const IColor &color = pattern.GetStop(0).mColor;
+      cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
+    }
+      
+    case kLinearPattern:
+    case kRadialPattern:
+    {
+      cairo_pattern_t *cairoPattern;
+      cairo_matrix_t matrix;
+      const float *xform = pattern.mTransform;
+      
+      if (pattern.mType == kLinearPattern)
+        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
+      else
+        cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 1.0, 0.0, 1.0, 1.0);
+      
+      switch (pattern.mExtend)
+      {
+        case kExtendNone:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
+        case kExtendPad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
+        case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
+        case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
+      }
+      
+      for (int i = 0; i < pattern.NStops(); i++)
+      {
+        const IColorStop& stop = pattern.GetStop(i);
+        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, stop.mColor.A / 255.0);
+      }
+      
+      cairo_matrix_init(&matrix, xform[0], xform[1], xform[2], xform[3], xform[4], xform[4]);
+      cairo_pattern_set_matrix(cairoPattern, &matrix);
+      cairo_set_source(mContext, cairoPattern);
+      cairo_pattern_destroy(cairoPattern);
+    }
+  }
 }
 
 IColor IGraphicsCairo::GetPoint(int x, int y)
