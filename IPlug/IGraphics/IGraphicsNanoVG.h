@@ -129,7 +129,7 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   
-  NVGpaint GetNVGPaint(const IPattern& pattern, float opacity);
+  NVGpaint GetNVGPaint(const IPattern& pattern, const IBlend* pBlend);
   
   void Stroke(const IPattern& pattern, const IBlend* pBlend);
   void Fill(const IPattern& pattern, const IBlend* pBlend);

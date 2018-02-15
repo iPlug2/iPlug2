@@ -415,6 +415,7 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
       const IColor &color = pattern.GetStop(0).mColor;
       cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
     }
+    break;
       
     case kLinearPattern:
     case kRadialPattern:
@@ -439,14 +440,15 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, stop.mColor.A / 255.0);
+        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (CairoWeight(pBlend) * stop.mColor.A) / 255.0);
       }
       
-      cairo_matrix_init(&matrix, xform[0], xform[1], xform[2], xform[3], xform[4], xform[4]);
+      cairo_matrix_init(&matrix, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
       cairo_pattern_set_matrix(cairoPattern, &matrix);
       cairo_set_source(mContext, cairoPattern);
       cairo_pattern_destroy(cairoPattern);
     }
+    break;
   }
 }
 

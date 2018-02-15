@@ -329,10 +329,10 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   Fill(pattern, pBlend);
 }
 
-NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, float opacity)
+NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, const IBlend* pBlend)
 {
-  NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor);
-  NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor);
+  NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
+  NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
   
   float inverse[6];
   float s[2];
@@ -353,7 +353,7 @@ void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend)
   if (pattern.mType == kSolidPattern)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
-    nvgStrokePaint(mVG, GetNVGPaint(pattern, NanoVGWeight(pBlend)));
+    nvgStrokePaint(mVG, GetNVGPaint(pattern, pBlend));
   
   nvgStroke(mVG);
 }
@@ -363,7 +363,7 @@ void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
   if (pattern.mType == kSolidPattern)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
-    nvgFillPaint(mVG, GetNVGPaint(pattern, NanoVGWeight(pBlend)));
+    nvgFillPaint(mVG, GetNVGPaint(pattern, pBlend));
   
   nvgFill(mVG);
 }
