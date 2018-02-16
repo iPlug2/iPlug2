@@ -82,14 +82,17 @@ class IVSliderControl : public IControl
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection = kVertical);
+  IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection dir = kVertical)
+  : IControl(dlg, rect, paramIdx)
+  , IVectorBase(colorSpec)
+  , mDirection(dir)
+  {
+  }
   
   void Draw(IGraphics& graphics) override;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   void OnResize() override;
-  
-  void SnapToMouse(float x, float y);
 private:
   EDirection mDirection;
   IRECT mTrack;
@@ -260,6 +263,7 @@ public:
   virtual void Draw(IGraphics& graphics) override;
   virtual bool IsHit(float x, float y) const override;
   virtual void OnRescale() override;
+  virtual void OnResize() override;
 
   int GetLength() const { return mLen; }
   int GetHandleHeadroom() const { return mHandleHeadroom; }

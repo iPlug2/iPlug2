@@ -210,6 +210,8 @@ public:
 
   bool GetMouseIsOver() { return mMouseIsOver; }
   
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& rect);
+  
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
