@@ -29,34 +29,40 @@ class LICE_IFont;
 
 class APIBitmap
 {
-    
 public:
-    
-    APIBitmap(void* pBitmap, int w, int h, int s) : bitmap(pBitmap), width(w), height(h), scale(s) {}
-    APIBitmap() : bitmap(nullptr), width(0), height(0), scale(0) {}
-    virtual ~APIBitmap() {}
-    
-    void SetBitmap(void* pBitmap, int w, int h, int s)
-    {
-      assert(((w % s) == 0) && ((h % s) == 0));
-      
-      bitmap = pBitmap;
-      width = w;
-      height = h;
-      scale = s;
-    }
-    
-    void* GetBitmap() const { return bitmap; }
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
-    int GetScale() const { return scale; }
-    
-private:
-    
-    void* bitmap;
-    int width;
-    int height;
-    int scale;
+  APIBitmap(void* pBitmap, int w, int h, int s)
+  : mBitmap(pBitmap)
+  , mWidth(w)
+  , mHeight(h)
+  , mScale(s) {}
+  
+  APIBitmap()
+  : mBitmap(nullptr)
+  , mWidth(0)
+  , mHeight(0)
+  , mScale(0)
+  {}
+  
+  void SetBitmap(void* pBitmap, int w, int h, int s)
+  {
+    assert(((w % s) == 0) && ((h % s) == 0));
+
+    mBitmap = pBitmap;
+    mWidth = w;
+    mHeight = h;
+    mScale = s;
+  }
+
+  void* GetBitmap() const { return mBitmap; }
+  int GetWidth() const { return mWidth; }
+  int GetHeight() const { return mHeight; }
+  int GetScale() const { return mScale; }
+
+  private:
+  void* mBitmap;
+  int mWidth;
+  int mHeight;
+  int mScale;
 };
 
 /** Used to manage bitmap data, independant of draw class/platform.
@@ -112,7 +118,7 @@ public:
   */
   inline int N() const { return mN; }
   /**
-  * @return a pointer to the referencied APIBitmap
+  * @return a pointer to the referenced APIBitmap
   */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
   /**
@@ -150,9 +156,9 @@ struct ISVG
 {
   NSVGimage* mImage = nullptr;
 
-  ISVG(NSVGimage* image)
+  ISVG(NSVGimage* pImage)
   {
-    mImage = image;
+    mImage = pImage;
     assert(mImage != nullptr);
   }
 
@@ -735,7 +741,6 @@ public:
   }
     
 private:
-    
   WDL_PtrList<DataKey> mDatas;
 };
 

@@ -1044,7 +1044,7 @@ void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
   s_bitmapCache.Remove(bitmap.GetAPIBitmap());
 }
 
-void IGraphics::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
+void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
   s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
 }
