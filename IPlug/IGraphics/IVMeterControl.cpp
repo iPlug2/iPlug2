@@ -13,12 +13,9 @@ IVMeterControl::IVMeterControl(IDelegate & dlg, IRECT rect, int paramIdx, double
 */
 
 void IVMeterControl::Draw(IGraphics& graphics){
-    float v = (float) mValue;
+    float v = (float) mValue; // always >= 0.0
     double fps = graphics.FPS();
-    // todo watch out for 0 in db conversions
     auto meterRect = GetMeterRect();
-
-    //auto dynRange = mMaxDisplayVal - mMinDisplayVal;
 
     // background and shadows
     auto bgRect = meterRect;
@@ -27,21 +24,9 @@ void IVMeterControl::Draw(IGraphics& graphics){
 
     // actual value rect
     auto valR = meterRect;
-    valR.T = valR.B - v * valR.H();
-    graphics.FillRect(GetColor(mM), valR);
-
-    auto pc = GetColor(mPk);
-
-    // overdrive rect
-    // graphics stuff
-    auto odRect = meterRect;
-    odRect.T = meterRect.T - mODRectHeight;
-    odRect.B = meterRect.T;
-    pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPk), mODBlink);
-    graphics.FillRect(pc, odRect);
-    // math
-    if (!mHoldingAPeak)
-      mODBlink *= GetExpForDrop(1000.0 + 2.5 * mDropMs, fps);
+    valR.T = GetRTopFromValInMeterRect(v, meterRect);
+    if (v >= mMinDisplayVal)
+      graphics.FillRect(GetColor(mM), valR);
 
     // memory rect
     // math
@@ -58,23 +43,40 @@ void IVMeterControl::Draw(IGraphics& graphics){
       mMemExp *= GetInvExpForDrop(t, fps);
       }
     // graphics
-    auto memR = meterRect;
-    memR.T = memR.B - p * meterRect.H();
-    memR.B = valR.T;
-    auto c = GetColor(mM);
-    c.A /= 2;
-    graphics.FillRect(c, memR);
-    pc = LinearBlendColors(GetColor(mM), GetColor(mPk), mODBlink);
-    graphics.DrawLine(pc, valR.L, memR.T, valR.R, memR.T);
+    if (p >= mMinDisplayVal && mShowMemRect && mDropMs) {
+      auto memR = meterRect;
+      memR.T = GetRTopFromValInMeterRect(p, meterRect);
+      memR.B = valR.T;
+      auto c = GetColor(mM);
+      c.A /= 2;
+      graphics.FillRect(c, memR);
+      auto pc = LinearBlendColors(GetColor(mM), GetColor(mPk), mODBlink);
+      if (p <= mMaxDisplayVal)
+        graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
+      }
 
+    // overdrive rect
+    if (mShowODRect) {
+      // graphics stuff
+      auto odRect = meterRect;
+      odRect.T = meterRect.T - mODRectHeight;
+      odRect.B = meterRect.T;
+      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPk), mODBlink);
+      graphics.FillRect(pc, odRect);
+      }
+    // math
+    if (!mHoldingAPeak)
+      mODBlink *= GetExpForDrop(1000.0 + 2.5 * mDropMs, fps);
 
     SetDirty();
 
 #ifdef _DEBUG
     auto txt = mText;
-    txt.mFGColor = COLOR_GREEN;
+    txt.mFGColor = COLOR_ORANGE;
     WDL_String fpss;
-    fpss.SetFormatted(16, "fps %d \np_e %1.3f", (int)fps, p);
+    auto vt = p;
+    if (mDisplayDB) vt = AmpToDB(vt);
+    fpss.SetFormatted(16, "fps %d\nl %1.2f", (int)fps, vt);
     float th, tw;
     BasicTextMeasure(fpss.Get(), th, tw);
     auto dtr = valR;

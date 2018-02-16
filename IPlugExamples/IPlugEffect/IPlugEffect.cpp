@@ -32,7 +32,6 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   IRECT bounds = pGraphics->GetBounds();
   IColor color;
-
   //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
  // pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
@@ -41,23 +40,31 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
  pMeter3 = new IVMeterControl(*this, IRECT(150, 20, 170, 280));
  pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
  pMeter5 = new IVMeterControl(*this, IRECT(250, 20, 270, 280));
- ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(0.0);
- ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(0.1);
- ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(0.5);
- ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(0.9);
- ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(0.98);
 
-  ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(0.0);
- ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(500);
+ ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(1000);
+ ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(1000);
  ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(1000);
- ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(2000);
- ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(10000);
+ ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(1000);
+ ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(1000);
 
  ((IVMeterControl*) pMeter1)->SetHoldPeaks(false);
  ((IVMeterControl*) pMeter2)->SetHoldPeaks(false);
  ((IVMeterControl*) pMeter3)->SetHoldPeaks(false);
  ((IVMeterControl*) pMeter4)->SetHoldPeaks(false);
  ((IVMeterControl*) pMeter5)->SetHoldPeaks(false);
+ /*
+ ((IVMeterControl*) pMeter2)->SetMinMaxDisplayValues(0.0, 0.14);
+ ((IVMeterControl*) pMeter3)->SetMinMaxDisplayValues(0.0, 2.0);
+ ((IVMeterControl*) pMeter4)->SetMinMaxDisplayValues(0.9, 1.5);
+ ((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(2.0, 3.0);
+ */
+
+((IVMeterControl*) pMeter3)->SetMinMaxDisplayValues(DBToAmp(-60.0), DBToAmp(3.0));
+
+((IVMeterControl*) pMeter5)->SetDisplayInDB(true);
+((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
+((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(-60.0, 3.0);
+
 
   pGraphics->AttachControl(pMeter1);
   pGraphics->AttachControl(pMeter2);

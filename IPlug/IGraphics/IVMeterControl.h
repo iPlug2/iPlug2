@@ -25,23 +25,19 @@ class IVMeterControl : public IControl
     mTxt = kX1
   };
 
-  enum DisplayMode {
-    PMDM_NORM,
-    PMDM_DB
-    };
-
   IVMeterControl(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter,
-                 DisplayMode dm = PMDM_NORM, double minVal = 0.0, double maxVal = 1.0)
+                 bool displayIndB = false, double minVal = 0.0, double maxVal = 1.0)
     : IControl(dlg, rect)
     , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_M_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_PK_COLOR)
     {
-    if (rect.Empty()) {
-      mRECT = GetUI()->GetBounds();
-      mRECT.L = mRECT.R - 20.0f;
-      mTargetRECT = mRECT;
-      }
+    // todo:
+    //if (rect.Empty()) {
+    //  mRECT = GetUI()->GetBounds();
+    //  mRECT.L = mRECT.R - 20.0f;
+    //  mTargetRECT = mRECT;
+    //  }
 
-    mDisplayMode = dm;
+    mDisplayDB = displayIndB;
     SetMinMaxDisplayValues(minVal, maxVal);
     };
 
@@ -63,7 +59,18 @@ class IVMeterControl : public IControl
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
     mHoldingAPeak = false;
     }
-  void SetOverdriveThreshold(double thresh) { mOverdriveThresh = thresh; }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override {
+    mHoldingAPeak = false;
+    }
+
+  void SetOverdriveThreshold(double thresh) {
+    if (mDisplayDB)
+      mOverdriveThresh = DBToAmp(thresh);
+    else {
+      if (thresh < 0.0) thresh *= -1.0;
+      mOverdriveThresh = thresh;
+      }
+    }
 
   void ProcessBlock(sample* in, int blockSize) {
     for (int s = 0; s < blockSize; ++s, ++in)
@@ -98,7 +105,6 @@ class IVMeterControl : public IControl
   void SetHoldPeaks(bool hold) { mHoldPeaks = hold; }
   void SetPeakRectHeight(double h) { mODRectHeight = (float) h; }
   void SetMinMaxDisplayValues(double min, double max) {
-    // assume user vals units are consistent with the display mode
     if (min > max) {
       auto b = max;
       max = min;
@@ -107,27 +113,33 @@ class IVMeterControl : public IControl
     else if (min == max)
       max += 0.1;
 
-    switch (mDisplayMode) {
-        default:
-        case IVMeterControl::PMDM_NORM:
-          if (min < 0.0) min *= -1.0;
-          if (max < 0.0) max *= -1.0;
-          mMinDisplayVal = (float) min;
-          mMaxDisplayVal = (float) max;
-          break;
-        case IVMeterControl::PMDM_DB:
-          // todo
-          break;
+    if (mDisplayDB) {
+      mMaxDisplayVal = DBToAmp(max);
+      mMinDisplayVal = DBToAmp(min);
+      }
+    else {
+      if (min < 0.0) min *= -1.0;
+      if (max < 0.0) max *= -1.0;
+      mMinDisplayVal = min;
+      mMaxDisplayVal = max;
       }
     SetDirty();
     }
-  void SetDisplayMode(DisplayMode m) {
-    mDisplayMode = m;
+  void SetDisplayInDB(bool db) {
+    mDisplayDB = db;
     SetDirty();
   }
 
+  void SetShowOverdriveRect(bool show) {
+    mShowODRect = show;
+    mHoldingAPeak = false;
+    }
+  void SetShowMemRect(bool show) {
+    mShowMemRect = show;
+    }
+
   private:
-  DisplayMode mDisplayMode = PMDM_NORM;
+  bool mDisplayDB = false;
 
   bool mHoldPeaks = true; // useful in audio debugging
   bool mHoldingAPeak = false;
@@ -137,20 +149,21 @@ class IVMeterControl : public IControl
   double mMemExp = 1.0;
   double mDropMs = 2000.0;
 
-  float mMinDisplayVal = 0.0f; // display vals are stored as normalized vals,
-  float mMaxDisplayVal = 1.0f; //  but in Set..() and Draw() are interpreted depending on display mode
+  double mMinDisplayVal = 0.0; // all signal vals are stored as normalized vals,
+  double mMaxDisplayVal = 1.0; // but in Setters are interpreted depending on display mode
 
-  bool mShowMemRect = true; // todo
-  bool mShowODRect = true; // todo
+  bool mShowMemRect = true;
+  bool mShowODRect = true;
   float mODRectHeight = 10.0;
 
   bool mShowLabels = true; // todo
+  bool mDrawShadows = true; // todo
 
   double GetExpForDrop(double ms, double fps) {
     return pow(0.01, 1000.0 / (ms * fps)); // musicdsp.org "envelope follower" discussion
     }
   double GetInvExpForDrop(double ms, double fps) {
-    return pow(0.01, 1000.0 / (-ms * 2.0 * fps)); // 2. is empirical adjustment, nicer visually
+    return pow(0.01, 1000.0 / (-ms * 2.0 * fps)); // 2.0 is empirical adjustment, nicer visually
     }
   double GetPeakFromMemExp() {
     return mMemPeak - (mMemExp - 1.0);
@@ -159,8 +172,28 @@ class IVMeterControl : public IControl
     auto mr = mRECT;
     if (mShowODRect)
       mr.T += mODRectHeight;
-    // todo shadows, labels
+    // todo labels
     return mr;
+    }
+  float GetRTopFromValInMeterRect(double v, IRECT meterR) {
+    auto dynRange = mMaxDisplayVal - mMinDisplayVal;
+    auto t = meterR.B;
+    if (v > mMaxDisplayVal)
+      t = meterR.T;
+    else if (v > mMinDisplayVal) {
+      auto r = 0.0;
+      if (mDisplayDB) {
+        auto mindB = AmpToDB(mMinDisplayVal);
+        auto maxdB = AmpToDB(mMaxDisplayVal);
+        auto vdB = AmpToDB(v);
+        r = (vdB - mindB) / (maxdB - mindB);
+        }
+      else {
+        r = (v - mMinDisplayVal) / (mMaxDisplayVal - mMinDisplayVal);
+        }
+      t -= (float) r * meterR.H();
+      }
+    return t;
     }
   IColor LinearBlendColors(IColor cA, IColor cB, double mix) {
     IColor cM;
