@@ -1,7 +1,6 @@
 #include "IGraphicsTest.h"
 
 HWND gHWND;
-UINT gScrollMessage;
 extern HMENU SWELL_app_stocksysmenu;
 
 int main(int argc, char *argv[])

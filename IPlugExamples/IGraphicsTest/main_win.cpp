@@ -3,10 +3,6 @@
 #include "IGraphicsTest.h"
 
 HWND gHWND;
-HINSTANCE gHINSTANCE;
-UINT gScrollMessage;
-
-extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
@@ -54,6 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       // default processing for other dialogs
       HWND hWndParent = NULL;
       HWND temphwnd = msg.hwnd;
+      
       do
       {
         if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
