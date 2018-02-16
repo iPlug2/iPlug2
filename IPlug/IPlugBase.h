@@ -176,10 +176,7 @@ public:
   /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
   void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
 
-  /** Call this method in order to notify the API of a graphics resize.
-   * @param w The new width
-   * @param h The new height
-   * @param scale The new scaling factor. */
+  /** Call this method in order to notify the API of a graphics resize. */
   virtual void ResizeGraphics() = 0;
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture

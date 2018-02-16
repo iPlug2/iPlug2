@@ -69,7 +69,6 @@ public:
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
 {
-    
 public:
     
   /** Creates a new IBitmap object
@@ -298,7 +297,10 @@ enum EPatternExtend { kExtendNone, kExtendPad, kExtendReflect, kExtendRepeat };
 
 struct IFillOptions
 {
-  IFillOptions() : mFillRule(kFillEvenOdd), mPreserve(false) {}
+  IFillOptions()
+  : mFillRule(kFillEvenOdd)
+  , mPreserve(false)
+  {}
   
   EFillRule mFillRule;
   bool mPreserve;
@@ -309,12 +311,9 @@ struct IStrokeOptions
   class DashOptions
   {
   public:
-    
-    DashOptions() : mCount(0), mOffset(0) {}
-    
-    int GetCount() const            { return mCount; }
-    float GetOffset() const         { return mOffset; }
-    const float *GetArray() const   { return mArray; }
+    int GetCount() const { return mCount; }
+    float GetOffset() const { return mOffset; }
+    const float *GetArray() const { return mArray; }
     
     void SetDash(float *array, float offset, int count)
     {
@@ -329,24 +328,29 @@ struct IStrokeOptions
     
   private:
     float mArray[8];
-    float mOffset;
-    int mCount;
+    float mOffset = 0;
+    int mCount = 0;
   };
   
-  ELineCap mCapOption;
-  ELineJoin mJoinOption;
+  float mMiterLimit = 1.;
+  bool mPreserve = false;
+  ELineCap mCapOption = kCapButt;
+  ELineJoin mJoinOption = kJoinMiter;
   DashOptions mDash;
-  float mMiterLimit;
-  bool mPreserve;
-  
-  IStrokeOptions() : mCapOption(kCapButt), mJoinOption(kJoinMiter), mMiterLimit(1.0), mPreserve(false) {}
 };
 
 struct IColorStop
 {
-  IColorStop() : mOffset(0.0) {}
+  IColorStop()
+  : mOffset(0.0)
+  {}
   
-  IColorStop(IColor color, float offset) : mColor(color), mOffset(offset) { assert(offset >= 0.0 && offset <= 1.0); }
+  IColorStop(IColor color, float offset)
+  : mColor(color)
+  , mOffset(offset)
+  {
+    assert(offset >= 0.0 && offset <= 1.0);
+  }
   
   IColor mColor;
   float mOffset;
@@ -403,18 +407,10 @@ struct IPattern
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
 {
-  char mFont[FONT_LEN];
-  int mSize;
-  IColor mFGColor;
-  IColor mTextEntryBGColor;
-  IColor mTextEntryFGColor;
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
-  int mOrientation = 0; // Degrees ccwise from normal.
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-  mutable LICE_IFont* mCached = nullptr;
-  mutable double mCachedScale = 1.0;
-
+  
   IText(const IColor& color = DEFAULT_FGCOLOR,
         int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
@@ -435,6 +431,15 @@ struct IText
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
+  
+  char mFont[FONT_LEN];
+  int mSize;
+  IColor mFGColor;
+  IColor mTextEntryBGColor;
+  IColor mTextEntryFGColor;
+  int mOrientation = 0; // Degrees ccwise from normal.
+  mutable LICE_IFont* mCached = nullptr;
+  mutable double mCachedScale = 1.0;
 };
 
 const IText DEFAULT_TEXT = IText();
