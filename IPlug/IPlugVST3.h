@@ -46,7 +46,7 @@ public:
   void InformHostOfProgramChange() override {}
   
   //IPlugProcessor
-  void ResizeGraphics(int w, int h, double scale) override;
+  void ResizeGraphics() override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
   

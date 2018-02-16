@@ -79,7 +79,7 @@ public:
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
   void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend = 0) override;
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
@@ -91,6 +91,25 @@ public:
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
+  
+  bool HasPathSupport() const override { return true; }
+    
+  void PathStart() override { nvgBeginPath(mVG); }
+  void PathClose() override { nvgClosePath(mVG); }
+
+  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { NVGDrawTriangle(x1, y1, x2, y2, x3, y3); }
+  void PathRect(const IRECT& rect) override { nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H()); }
+  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr); }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);}
+  void PathCircle(float cx, float cy, float r) override { nvgCircle(mVG, cx, cy, r); }
+  void PathConvexPolygon(float* x, float* y, int npoints) override { NVGDrawConvexPolygon(x, y, npoints); }
+  
+  void PathMoveTo(float x, float y) override { nvgMoveTo(mVG, x, y); }
+  void PathLineTo(float x, float y) override { nvgLineTo(mVG, x, y); }
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3); }
+    
+  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
+  void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mVG; }
@@ -109,21 +128,17 @@ protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-    
-  inline void Stroke(const IColor& color, const IBlend* pBlend = 0)
-  {
-    nvgStrokeColor(mVG, NanoVGColor(color, pBlend));
-    nvgStroke(mVG);
-  }
-    
-  inline void Fill(const IColor& color, const IBlend* pBlend = 0)
-  {
-    nvgFillColor(mVG, NanoVGColor(color, pBlend));
-    nvgFill(mVG);
-  }
+  
+  NVGpaint GetNVGPaint(const IPattern& pattern, const IBlend* pBlend);
+  
+  void Stroke(const IPattern& pattern, const IBlend* pBlend);
+  void Fill(const IPattern& pattern, const IBlend* pBlend);
 
   inline void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
   inline void NVGDrawConvexPolygon(float* x, float* y, int npoints);
+
+  void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
+  void NVGSetFillOptions(const IFillOptions& options = IFillOptions());
 
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;

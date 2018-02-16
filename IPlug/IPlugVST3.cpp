@@ -832,11 +832,11 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
-void IPlugVST3::ResizeGraphics(int w, int h, double scale)
+void IPlugVST3::ResizeGraphics()
 {
   if (HasUI())
   {
-    mViews.at(0)->resize(w, h); // only resize view 0?
+    mViews.at(0)->resize(Width(), Height()); // only resize view 0?
   }
 }
 

@@ -441,13 +441,13 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::ResizeGraphics(int w, int h, double scale)
+void IPlugAAX::ResizeGraphics()
 {
   if (HasUI())
   {
     AAX_Point oEffectViewSize;
-    oEffectViewSize.horz = (float) w;
-    oEffectViewSize.vert = (float) h;
+    oEffectViewSize.horz = (float) Width();
+    oEffectViewSize.vert = (float) Height();
     
     IPlugAAXView_Interface* pViewInterface = dynamic_cast<IPlugAAXView_Interface*>(this);
     if(pViewInterface)

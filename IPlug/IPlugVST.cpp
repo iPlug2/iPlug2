@@ -118,13 +118,13 @@ EHost IPlugVST::GetHost()
   return host;
 }
 
-void IPlugVST::ResizeGraphics(int w, int h, double scale)
+void IPlugVST::ResizeGraphics()
 {
   if (HasUI())
   {
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = w;
-    mEditRect.bottom = h;
+    mEditRect.right = Width();
+    mEditRect.bottom = Height();
 
     OnWindowResize();
   }
