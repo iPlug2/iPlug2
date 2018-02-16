@@ -32,9 +32,10 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IRECT bounds = pGraphics->GetBounds();
   IColor color;
 
-  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
-  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
+//  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
+//  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
+  pGraphics->AttachControl(new IGradientControl(*this, bounds.SubRectVertical(2, 0), kGain));
 //  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
 //  {
 //    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);

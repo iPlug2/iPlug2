@@ -207,6 +207,16 @@ struct IColor
     return n;
   }
   
+  static IColor GetRandomColor(bool randomAlpha = false)
+  {
+    int A = randomAlpha ? rand() & 0xFF : 255;
+    int R = std::rand() & 0xFF;
+    int G = std::rand() & 0xFF;
+    int B = std::rand() & 0xFF;
+    
+    return IColor(A, R, G, B);
+  }
+  
   int GetLuminocity() const
   {
     auto min = R < G ? (R < B ? R : B) : (G < B ? G : B);

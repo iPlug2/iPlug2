@@ -141,3 +141,48 @@ private:
     graphics.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
   }
 };
+
+class IGradientControl : public IKnobControlBase
+{
+public:
+  IGradientControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  : IKnobControlBase(plug, rect, paramIdx)
+  {
+    RandomiseGradient();
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    RandomiseGradient();
+    SetDirty(false);
+  }
+  
+  void Draw(IGraphics& graphics) override
+  {
+    double cr = mValue * (mRECT.H() / 2.0);
+    graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
+    IFillOptions fillOptions;
+    IStrokeOptions strokeOptions;
+    fillOptions.mPreserve = true;
+    graphics.PathFill(mPattern, fillOptions);
+    graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
+  }
+  
+  void RandomiseGradient()
+  {
+    IPattern tmp(kLinearPattern);
+    
+    tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    
+    tmp.AddStop(IColor::GetRandomColor(), 0.0);
+    tmp.AddStop(IColor::GetRandomColor(), 0.1);
+    tmp.AddStop(IColor::GetRandomColor(), 0.4);
+    tmp.AddStop(IColor::GetRandomColor(), 0.6);
+    tmp.AddStop(IColor::GetRandomColor(), 1.0);
+    
+    mPattern = tmp;
+  }
+  
+private:
+  IPattern mPattern = IPattern(kLinearPattern);
+};
