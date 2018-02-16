@@ -1898,7 +1898,7 @@ void IPlugAU::HostSpecificInit()
   OnHostIdentified(); // might get called again
 }
 
-void IPlugAU::ResizeGraphics(int w, int h, double scale)
+void IPlugAU::ResizeGraphics()
 {
   if (HasUI())
   {

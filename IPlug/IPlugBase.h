@@ -180,7 +180,7 @@ public:
    * @param w The new width
    * @param h The new height
    * @param scale The new scaling factor. */
-  virtual void ResizeGraphics(int w, int h, double scale) = 0;
+  virtual void ResizeGraphics() = 0;
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */

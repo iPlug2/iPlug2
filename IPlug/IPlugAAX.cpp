@@ -441,7 +441,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::ResizeGraphics(int w, int h, double scale)
+void IPlugAAX::ResizeGraphics()
 {
   if (HasUI())
   {
