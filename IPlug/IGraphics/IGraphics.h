@@ -445,28 +445,10 @@ public:
   */
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
 
-  void PathLine(float x1, float y1, float x2, float y2)
-  {
-    PathMoveTo(x1, y1);
-    PathLineTo(x2, y2);
-  }
-
-  virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
-  virtual void PathRect(const IRECT& rect) {}
-  virtual void PathRoundRect(const IRECT& rect, float cr = 5.f) {}
-  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
-  virtual void PathCircle(float cx, float cy, float r) {}
-  virtual void PathConvexPolygon(float* x, float* y, int npoints) {}
-  virtual void PathMoveTo(float x, float y) {}
-  virtual void PathLineTo(float x, float y) {}
-  virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
-
-  virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
-  virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
-
+  
   /**
    Helper function to draw a radial line, useful for pointers on dials
-
+   
    @param color the colour of the line
    @param cx centre point x coordinate
    @param cy centre point y coordinate
@@ -474,23 +456,48 @@ public:
    @param rMin minima of the radial line (distance from cx,cy)
    @param rMax maxima of the radial line (distance from cx,cy)
    @param pBlend blend operation
-  */
+   */
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
-
+  
   /**
    /todo <#Description#>
-
+   
    @param color The colour to draw/fill the shape with>
    @param rect The rectangular area to draw/fill the shape in
    @param gridSizeH <#gridSizeH description#>
    @param gridSizeV <#gridSizeV description#>
    @param pBlend Optional blend method, see IBlend documentation
-  */
+   */
   void DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0);
+  
+#pragma mark - IGraphics drawing API Path support
+  
+  virtual bool HasPathSupport() const { return false; }
+  
+  virtual void PathStart() {}
+  virtual void PathClose() {}
+  
+  void PathLine(float x1, float y1, float x2, float y2)
+  {
+    PathMoveTo(x1, y1);
+    PathLineTo(x2, y2);
+  }
+  
+  virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
+  virtual void PathRect(const IRECT& rect) {}
+  virtual void PathRoundRect(const IRECT& rect, float cr = 5.f) {}
+  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
+  virtual void PathCircle(float cx, float cy, float r) {}
+  virtual void PathConvexPolygon(float* x, float* y, int npoints) {}
+  
+  virtual void PathMoveTo(float x, float y) {}
+  virtual void PathLineTo(float x, float y) {}
+  virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
+  
+  virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
+  virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
 #pragma mark - IGraphics platform implementation
-
-
   /**
    /todo <#Description#>
   */
