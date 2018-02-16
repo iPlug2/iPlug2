@@ -53,22 +53,22 @@ public:
     pGraphics->HandleMouseOver(true);
     //  pGraphics->EnableLiveEdit(true);
     
-    const int nRows = 2;
-    const int nColumns = 2;
+    const int nRows = 10;
+    const int nColumns = 10;
     IRECT bounds = pGraphics->GetBounds();
     
     IRECT cellRect = bounds.GetGridCell(0, nRows, nColumns);
-    pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics, this](IControl* pCaller)
-                                                 {
-                                                   pGraphics->Resize(gSizes[mSizeIdx], gSizes[mSizeIdx], 1.);
-                                                   mSizeIdx = mSizeIdx + 1;
-                                                   mSizeIdx %= 4;
-                                                 }));
-    //  for (int i = 0; i < nRows * nColumns; i++)
-    //  {
-    //    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
-    //    pGraphics->AttachControl(new IVKnobControl(dummyDelegate, cellBounds, kGain));
-    //  }
+    //pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics, this](IControl* pCaller)
+    //                                             {
+    //                                               pGraphics->Resize(gSizes[mSizeIdx], gSizes[mSizeIdx], 1.);
+    //                                               mSizeIdx = mSizeIdx + 1;
+    //                                               mSizeIdx %= 4;
+    //                                             }));
+  for (int i = 0; i < nRows * nColumns; i++)
+  {
+    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
+    pGraphics->AttachControl(new IVButtonControl(*this, cellBounds, -1));
+  }
     
     mGraphics = pGraphics;
 #endif

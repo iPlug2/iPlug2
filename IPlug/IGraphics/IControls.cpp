@@ -54,21 +54,13 @@ IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT rect, int param,
 
 void IVKnobControl::Draw(IGraphics& graphics)
 {
-  const float v = mAngleMin + ((float) mValue * (mAngleMax - mAngleMin));
+  const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
-  const float radius = (mRECT.W()/2.f) - 2.f;
-  graphics.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2, GetMouseIsOver() ? &BLEND_25 : &BLEND_10);
+  const float radius = (mRECT.W() / 2.f) - 2.f;
+  graphics.FillCircle(GetColor(EVColor::kFR), cx, cy, radius + 2, GetMouseIsOver() ? &BLEND_25 : &BLEND_10);
   graphics.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50);
   graphics.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v, &BLEND_50);
   graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
-}
-
-IVSliderControl::IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx,
-                const IVColorSpec& colorSpec, EDirection direction)
-: IControl(dlg, rect, paramIdx)
-, IVectorBase(colorSpec)0
-, mDirection(direction)
-{
 }
 
 void IVSliderControl::Draw(IGraphics& graphics)
@@ -84,6 +76,200 @@ void IVSliderControl::OnResize()
 {
   mTrack = mRECT.GetPadded(-10);
   SetDirty();
+}
+
+
+IVButtonControl::IVButtonControl(IDelegate& dlg, IRECT rect, int param,
+                                 const char *txtOff, const char *txtOn)
+  : IControl(dlg, rect, param),
+    IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
+{
+  mText.mFGColor = GetColor(bTXT);
+  SetTexts(txtOff, txtOn);
+  mDblAsSingleClick = true;
+};
+
+const IColor IVButtonControl::DEFAULT_BG_COLOR = IColor(255, 200, 200, 200);
+const IColor IVButtonControl::DEFAULT_FR_COLOR = IColor(255, 70, 70, 70);
+const IColor IVButtonControl::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
+const IColor IVButtonControl::DEFAULT_PR_COLOR = IColor(255, 240, 240, 240);
+
+void IVButtonControl::Draw(IGraphics& graphics)
+{
+  auto btnRect = GetButtonRect();
+  auto shadowColor = IColor(60, 0, 0, 0);
+
+  if (mValue > 0.5)
+  {
+    graphics.FillRect(GetColor(bPR), btnRect);
+
+    if (mDrawShadows && mEmboss)
+      DrawInnerShadowForRect(btnRect, shadowColor, graphics);
+
+    if (mTxtOn.GetLength())
+    {
+      auto textR = GetRectToAlignTextIn(btnRect, 1);
+      graphics.DrawTextA(mText, mTxtOn.Get(), textR);
+    }
+  }
+  else
+  {
+    if (mDrawShadows && !mEmboss)
+      DrawOuterShadowForRect(btnRect, shadowColor, graphics);
+
+    graphics.FillRect(GetColor(bBG), btnRect);
+
+    if (mTxtOff.GetLength())
+    {
+      auto textR = GetRectToAlignTextIn(btnRect, 0);
+      graphics.DrawTextA(mText, mTxtOff.Get(), textR);
+    }
+  }
+
+  if(mDrawBorders)
+    graphics.DrawRect(GetColor(bFR), btnRect);
+}
+
+IRECT IVButtonControl::GetRectToAlignTextIn(IRECT r, int state)
+{
+  // this rect is not precise, it serves as a horizontal level
+  auto tr = r;
+  tr.T += 0.5f * (tr.H() - mText.mSize * mTxtH[state]) - 1.0f; // -1 looks better with small text
+  tr.B = tr.T + 0.1f;
+  return tr;
+}
+
+IRECT IVButtonControl::GetButtonRect()
+{
+  auto br = mRECT;
+  if (mDrawShadows && !mEmboss)
+  {
+    br.R -= mShadowOffset;
+    br.B -= mShadowOffset;
+  }
+  return br;
+}
+
+void IVButtonControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+{
+  auto& o = mShadowOffset;
+  auto slr = r;
+  slr.R = slr.L + o;
+  auto str = r;
+  str.L += o;
+  str.B = str.T + o;
+  graphics.FillRect(shadowColor, slr);
+  graphics.FillRect(shadowColor, str);
+}
+
+void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mValue > 0.5) mValue = 0.0;
+  else mValue = 1.0;
+  SetDirty();
+}
+
+void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitToText, float pad)
+{
+  mTxtOff.Set(txtOff);
+  mTxtOn.Set(txtOn);
+  BasicTextMeasure(mTxtOff.Get(), mTxtH[0], mTxtW[0]);
+  BasicTextMeasure(mTxtOn.Get(), mTxtH[1], mTxtW[1]);
+  if (fitToText)
+  {
+    auto h = mTxtH[0];
+    if (mTxtH[1] > h)
+      h = mTxtH[1];
+    auto w = mTxtW[0];
+    if (mTxtW[1] > w)
+      w = mTxtW[1];
+
+    mRECT = mTargetRECT = GetRectToFitTextIn(mRECT, (float) mText.mSize, w, h, pad);
+  }
+  SetDirty(false);
+}
+
+IRECT IVButtonControl::GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding)
+{
+  IRECT textR = r;
+  // first center empty rect in the middle of mRECT
+  textR.L = textR.R = r.L + 0.5f * r.W();
+  textR.T = textR.B = r.T + 0.5f * r.H();
+
+  // then expand to fit text
+  widthInSymbols *= 0.5f * 0.44f * fontSize; // 0.44 is approx average character w/h ratio
+  numLines *= 0.5f * fontSize;
+  textR.L -= widthInSymbols;
+  textR.R += widthInSymbols;
+  textR.T -= numLines;
+  textR.B += numLines;
+
+  if (!mEmboss && mDrawShadows)
+  {
+    textR.R += mShadowOffset;
+    textR.B += mShadowOffset;
+  }
+
+  if (padding < 0.0) padding *= -1.0;
+  textR = textR.GetPadded(padding);
+
+  return textR;
+}
+
+void IVButtonControl::SetDrawShadows(bool draw, bool keepButtonRect)
+{
+  if (draw == mDrawShadows) return;
+
+  if (keepButtonRect && !mEmboss)
+  {
+    auto d = mShadowOffset;
+    if (!draw) d *= -1.0;
+    mRECT.R += d;
+    mRECT.B += d;
+    mTargetRECT = mRECT;
+  }
+
+  mDrawShadows = draw;
+  SetDirty(false);
+}
+
+void IVButtonControl::SetEmboss(bool emboss, bool keepButtonRect)
+{
+  if (emboss == mEmboss) return;
+
+  if (keepButtonRect && mDrawShadows)
+  {
+    auto d = mShadowOffset;
+    if (emboss) d *= -1.0;
+    mRECT.R += d;
+    mRECT.B += d;
+    mTargetRECT = mRECT;
+  }
+
+  mEmboss = emboss;
+  SetDirty(false);
+}
+
+void IVButtonControl::SetShadowOffset(float offset, bool keepButtonRect)
+{
+  if (offset == mShadowOffset) return;
+
+  auto oldOff = mShadowOffset;
+
+  if (offset < 0.0)
+    mShadowOffset = 0.0;
+  else
+    mShadowOffset = offset;
+
+  if (keepButtonRect && mDrawShadows && !mEmboss)
+  {
+    auto d = offset - oldOff;
+    mRECT.R += d;
+    mRECT.B += d;
+    mTargetRECT = mRECT;
+  }
+
+  SetDirty(false);
 }
 
 IVKeyboardControl::IVKeyboardControl(IDelegate& dlg, IRECT rect,
@@ -606,113 +792,113 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
-: IControl(dlg, IRECT(), paramIdx)
-, mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
-{
-  if (direction == kVertical)
-  {
-    mHandleHeadroom = mHandleBitmap.H();
-    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W(), y + len);
-  }
-  else
-  {
-    mHandleHeadroom = mHandleBitmap.W();
-    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H());
-  }
-}
-
-IRECT IBSliderControl::GetHandleRECT(double value) const
-{
-  if (value < 0.0)
-  {
-    value = mValue;
-  }
-  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W(), mRECT.T + mHandleBitmap.H());
-  if (mDirection == kVertical)
-  {
-    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
-    r.T += offs;
-    r.B += offs;
-  }
-  else
-  {
-    int offs = int(value * (double) (mLen - mHandleHeadroom));
-    r.L += offs;
-    r.R += offs;
-  }
-  return r;
-}
-
-void IBSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-#ifdef PROTOOLS
-  if (mod.A)
-  {
-    if (mDefaultValue >= 0.0)
-    {
-      mValue = mDefaultValue;
-      SetDirty();
-      return;
-    }
-  }
-  else
-#endif
-    if (mod.R)
-    {
-      PromptUserInput();
-      return;
-    }
-
-  return SnapToMouse(x, y);
-}
-
-void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
-{
-#ifdef PROTOOLS
-  if (mod.C)
-    mValue += 0.001 * d;
-#else
-  if (mod.C || mod.S)
-    mValue += 0.001 * d;
-#endif
-  else
-    mValue += 0.01 * d;
-
-  SetDirty();
-}
-
-void IBSliderControl::SnapToMouse(float x, float y)
-{
-  if (mDirection == kVertical)
-    mValue = 1.0 - (double) (y - mRECT.T - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-  else
-    mValue = (double) (x - mRECT.L - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-
-  SetDirty();
-}
-
-void IBSliderControl::Draw(IGraphics& graphics)
-{
-  IRECT r = GetHandleRECT();
-  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
-}
-
-bool IBSliderControl::IsHit(float x, float y) const
-{
-  if(mOnlyHandle)
-  {
-    IRECT r = GetHandleRECT();
-    return r.Contains(x, y);
-  }
-  else
-  {
-    return mTargetRECT.Contains(x, y);
-  }
-}
-
-void IBSliderControl::OnRescale()
-{
-  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
-}
+//IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+//: IControl(dlg, IRECT(), paramIdx)
+//, mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
+//{
+//  if (direction == kVertical)
+//  {
+//    mHandleHeadroom = mHandleBitmap.H();
+//    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W(), y + len);
+//  }
+//  else
+//  {
+//    mHandleHeadroom = mHandleBitmap.W();
+//    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H());
+//  }
+//}
+//
+//IRECT IBSliderControl::GetHandleRECT(double value) const
+//{
+//  if (value < 0.0)
+//  {
+//    value = mValue;
+//  }
+//  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W(), mRECT.T + mHandleBitmap.H());
+//  if (mDirection == kVertical)
+//  {
+//    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
+//    r.T += offs;
+//    r.B += offs;
+//  }
+//  else
+//  {
+//    int offs = int(value * (double) (mLen - mHandleHeadroom));
+//    r.L += offs;
+//    r.R += offs;
+//  }
+//  return r;
+//}
+//
+//void IBSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+//{
+//#ifdef PROTOOLS
+//  if (mod.A)
+//  {
+//    if (mDefaultValue >= 0.0)
+//    {
+//      mValue = mDefaultValue;
+//      SetDirty();
+//      return;
+//    }
+//  }
+//  else
+//#endif
+//    if (mod.R)
+//    {
+//      PromptUserInput();
+//      return;
+//    }
+//
+//  return SnapToMouse(x, y);
+//}
+//
+//void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+//{
+//#ifdef PROTOOLS
+//  if (mod.C)
+//    mValue += 0.001 * d;
+//#else
+//  if (mod.C || mod.S)
+//    mValue += 0.001 * d;
+//#endif
+//  else
+//    mValue += 0.01 * d;
+//
+//  SetDirty();
+//}
+//
+//void IBSliderControl::SnapToMouse(float x, float y)
+//{
+//  if (mDirection == kVertical)
+//    mValue = 1.0 - (double) (y - mRECT.T - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
+//  else
+//    mValue = (double) (x - mRECT.L - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
+//
+//  SetDirty();
+//}
+//
+//void IBSliderControl::Draw(IGraphics& graphics)
+//{
+//  IRECT r = GetHandleRECT();
+//  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
+//}
+//
+//bool IBSliderControl::IsHit(float x, float y) const
+//{
+//  if(mOnlyHandle)
+//  {
+//    IRECT r = GetHandleRECT();
+//    return r.Contains(x, y);
+//  }
+//  else
+//  {
+//    return mTargetRECT.Contains(x, y);
+//  }
+//}
+//
+//void IBSliderControl::OnRescale()
+//{
+//  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
+//}
 

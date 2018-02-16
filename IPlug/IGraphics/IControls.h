@@ -236,7 +236,7 @@ protected:
 };
 
 class IVButtonControl : public IControl,
-  public IVectorBase
+                        public IVectorBase
 {
 public:
 
@@ -485,32 +485,32 @@ public:
 };
 
 /** A slider with a bitmap for the handle. The bitmap snaps to a mouse click or drag. */
-class IBSliderControl : public IControl
-{
-public:
-  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
-                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
-  ~IBSliderControl() {}
-
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y); }
-  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-  virtual void Draw(IGraphics& graphics) override;
-  virtual bool IsHit(float x, float y) const override;
-  virtual void OnRescale() override;
-  virtual void OnResize() override;
-
-  int GetLength() const { return mLen; }
-  int GetHandleHeadroom() const { return mHandleHeadroom; }
-  double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
-  IRECT GetHandleRECT(double value = -1.0) const;
-protected:
-  virtual void SnapToMouse(float x, float y);
-  int mLen, mHandleHeadroom;
-  IBitmap mHandleBitmap;
-  EDirection mDirection;
-  bool mOnlyHandle;
-};
+//class IBSliderControl : public IControl
+//{
+//public:
+//  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
+//                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+//  ~IBSliderControl() {}
+//
+//  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+//  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y); }
+//  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
+//  virtual void Draw(IGraphics& graphics) override;
+//  virtual bool IsHit(float x, float y) const override;
+//  virtual void OnRescale() override;
+//  virtual void OnResize() override;
+//
+//  int GetLength() const { return mLen; }
+//  int GetHandleHeadroom() const { return mHandleHeadroom; }
+//  double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
+//  IRECT GetHandleRECT(double value = -1.0) const;
+//protected:
+//  virtual void SnapToMouse(float x, float y);
+//  int mLen, mHandleHeadroom;
+//  IBitmap mHandleBitmap;
+//  EDirection mDirection;
+//  bool mOnlyHandle;
+//};
 
 /** Display monospace bitmap font text */
 // TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
