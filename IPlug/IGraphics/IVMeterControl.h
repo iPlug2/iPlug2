@@ -2,6 +2,9 @@
 
 #include "IControl.h"
 
+/*
+Vector meter control by Eugene Yakshin
+*/
 class IVMeterControl : public IControl
   , public IVectorBase
   {
@@ -32,6 +35,12 @@ class IVMeterControl : public IControl
     : IControl(dlg, rect)
     , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_M_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_PK_COLOR)
     {
+    if (rect.Empty()) {
+      mRECT = GetUI()->GetBounds();
+      mRECT.L = mRECT.R - 20.0f;
+      mTargetRECT = mRECT;
+      }
+
     mDisplayMode = dm;
     SetMinMaxDisplayValues(minVal, maxVal);
     };
@@ -51,6 +60,11 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
+    mHoldingAPeak = false;
+    }
+  void SetOverdriveThreshold(double thresh) { mOverdriveThresh = thresh; }
+
   void ProcessBlock(sample* in, int blockSize) {
     for (int s = 0; s < blockSize; ++s, ++in)
       SetValueFromDelegate((double)*in);
@@ -58,23 +72,41 @@ class IVMeterControl : public IControl
   void SetValueFromDelegate(double value) override {
     if (value < 0.0) value *= -1.0;
     if (value == mValue) return;
+
     mValue = value;
-    if (value > mPeak)
-      mPeak = (float) value;
-    if (mPeak >= 1.0f)
-      mPeakRectBlink = 1.0;
+
+    if (value >= GetPeakFromMemExp()) {
+      mMemPeak = value;
+      mMemExp = 1.0;
+      }
+
+    if (mMemPeak >= mOverdriveThresh) {
+      mODBlink = 1.0;
+      if (mHoldPeaks)
+        mHoldingAPeak = true;
+      }
+
     SetDirty();
     }
   void SetValueFromUserInput(double value) override {
     SetValueFromUserInput(value);
     }
-  void SetPeakDropTimeMs(double s) {
-    if (s < 0.0) s *= -1.0;
-    mPeakDropMs = (float)s;
+  void SetPeakDropTimeMs(double ms) {
+    if (ms < 0.0) ms *= -1.0;
+    mDropMs = ms;
     }
-  void SetPeakRectHeight(double h) { mPeakRectHeight = (float) h; }
+  void SetHoldPeaks(bool hold) { mHoldPeaks = hold; }
+  void SetPeakRectHeight(double h) { mODRectHeight = (float) h; }
   void SetMinMaxDisplayValues(double min, double max) {
-    // assume a user provides display vals that are consistent with the display mode
+    // assume user vals units are consistent with the display mode
+    if (min > max) {
+      auto b = max;
+      max = min;
+      min = b;
+      }
+    else if (min == max)
+      max += 0.1;
+
     switch (mDisplayMode) {
         default:
         case IVMeterControl::PMDM_NORM:
@@ -97,23 +129,36 @@ class IVMeterControl : public IControl
   private:
   DisplayMode mDisplayMode = PMDM_NORM;
 
-  float mPeak = 0.0;
-  float mPeakRectBlink = 0.0;
-  float mPeakDropMs = 0.5; // 0.0 = holds forever, 1.0 = falls immidiately
+  bool mHoldPeaks = true; // useful in audio debugging
+  bool mHoldingAPeak = false;
+  double mOverdriveThresh = 1.0;
+  double mODBlink = 0.0;
+  double mMemPeak = 0.0;
+  double mMemExp = 1.0;
+  double mDropMs = 2000.0;
 
-  float mMinDisplayVal = 0.0; // display vals are stored as normalized vals,
-  float mMaxDisplayVal = 1.0; //  but in Set..() and Draw() are interpreted depending on display mode
+  float mMinDisplayVal = 0.0f; // display vals are stored as normalized vals,
+  float mMaxDisplayVal = 1.0f; //  but in Set..() and Draw() are interpreted depending on display mode
 
-  bool mShowPeakLine = true; // todo
-  bool mShowPeakRect = true; // todo
-  float mPeakRectHeight = 10.0;
+  bool mShowMemRect = true; // todo
+  bool mShowODRect = true; // todo
+  float mODRectHeight = 10.0;
 
   bool mShowLabels = true; // todo
 
+  double GetExpForDrop(double ms, double fps) {
+    return pow(0.01, 1000.0 / (ms * fps)); // musicdsp.org "envelope follower" discussion
+    }
+  double GetInvExpForDrop(double ms, double fps) {
+    return pow(0.01, 1000.0 / (-ms * 2.0 * fps)); // 2. is empirical adjustment, nicer visually
+    }
+  double GetPeakFromMemExp() {
+    return mMemPeak - (mMemExp - 1.0);
+    }
   IRECT GetMeterRect() {
     auto mr = mRECT;
-    if (mShowPeakRect)
-      mr.T += mPeakRectHeight;
+    if (mShowODRect)
+      mr.T += mODRectHeight;
     // todo shadows, labels
     return mr;
     }

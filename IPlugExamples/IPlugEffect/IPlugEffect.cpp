@@ -24,7 +24,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
 #ifndef NO_IGRAPHICS
 
-  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
+  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, 600, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
 
   const int nRows = 2;
@@ -49,9 +49,15 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(0.0);
  ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(500);
- ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(-1000);
- ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(1500);
- ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(5000);
+ ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(1000);
+ ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(2000);
+ ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(10000);
+
+ ((IVMeterControl*) pMeter1)->SetHoldPeaks(false);
+ ((IVMeterControl*) pMeter2)->SetHoldPeaks(false);
+ ((IVMeterControl*) pMeter3)->SetHoldPeaks(false);
+ ((IVMeterControl*) pMeter4)->SetHoldPeaks(false);
+ ((IVMeterControl*) pMeter5)->SetHoldPeaks(false);
 
   pGraphics->AttachControl(pMeter1);
   pGraphics->AttachControl(pMeter2);
