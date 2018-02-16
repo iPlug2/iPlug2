@@ -1,6 +1,6 @@
 #include "IGraphicsTest.h"
 
-MyGraphicsTest gMyGraphics;
+IGraphicsTest gMyGraphics;
 
 WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

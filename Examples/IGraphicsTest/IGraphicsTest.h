@@ -23,7 +23,6 @@
 
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
-extern UINT gScrollMessage;
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 #define UI_WIDTH 700
@@ -32,7 +31,7 @@ extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 const int gSizes[4] = { 100, 300, 600, 1000 };
 
-class MyGraphicsTest : public IDelegate
+class IGraphicsTest : public IDelegate
 {
 public:
   void init()

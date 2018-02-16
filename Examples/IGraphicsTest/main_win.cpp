@@ -3,6 +3,8 @@
 #include "IGraphicsTest.h"
 
 HWND gHWND;
+HINSTANCE gHINSTANCE;
+UINT gScrollMessage;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
