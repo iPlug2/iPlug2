@@ -163,6 +163,9 @@
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\IPlugEffect_controls.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
