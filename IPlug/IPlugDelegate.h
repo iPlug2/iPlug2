@@ -65,4 +65,6 @@ public:
    * modifying something in the user interface.
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
+  
+  virtual void ResizeGraphicsFromUI() {};
 };
