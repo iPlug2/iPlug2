@@ -29,8 +29,7 @@
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
-    <ClCompile Include="..\main_dialog.cpp" />
-    <ClCompile Include="..\main_win.cpp" />
+    <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IGraphicsTest.h" />
