@@ -16,6 +16,8 @@
 #define PostQuitMessage
 #endif
 
+#include "IPlugDelegate.h"
+
 #include "resources/resource.h"
 
 extern HWND gHWND;
