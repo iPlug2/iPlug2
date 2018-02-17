@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstring>
-#include <cstdlib>
-
 #include "wdltypes.h"
 #include "wdlstring.h"
 

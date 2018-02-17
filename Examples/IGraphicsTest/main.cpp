@@ -1,3 +1,5 @@
+#include <cstring>
+#include <cstdlib>
 #include "IPlugPlatform.h"
 #include "IGraphicsTest.h"
 
