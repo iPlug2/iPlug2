@@ -24,6 +24,9 @@
   #define ARCH_64BIT
 #endif
 
+#include <cstring>
+#include <cstdlib>
+
 #include "IPlugLogger.h"
 
 #ifdef NO_PARAMS_MUTEX

@@ -1,9 +1,8 @@
 #pragma once
+#include "IPlugPlatform.h"
 
 #include "wdltypes.h"
 #include "wdlstring.h"
-
-#include "IPlugPlatform.h"
 
 #if defined (OS_WIN)
 #include "IGraphicsWin.h"
