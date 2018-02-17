@@ -25,7 +25,6 @@
 		4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
 		4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
-		4F6F535B202FD49300FEE3A7 /* main_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F5358202FD49200FEE3A7 /* main_dialog.cpp */; };
 		4F6F535C202FD49300FEE3A7 /* main_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F5359202FD49200FEE3A7 /* main_mac.mm */; };
 		4F6F5362202FD82800FEE3A7 /* IPlugParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F5360202FD82800FEE3A7 /* IPlugParameter.h */; };
 		4F6F5363202FD82800FEE3A7 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F5361202FD82800FEE3A7 /* IPlugParameter.cpp */; };
@@ -79,6 +78,7 @@
 
 /* Begin PBXFileReference section */
 		4F00E34E201BAC6400204D44 /* LiceNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LiceNanoSVG.h; path = ../../../IPlug/IGraphics/NanoSVG/LiceNanoSVG.h; sourceTree = "<group>"; };
+		4F19C6EF2037CFF100478B58 /* main_linux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_linux.cpp; path = ../main_linux.cpp; sourceTree = "<group>"; };
 		4F1B4AE32014D33600BC64D4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../resources/MainMenu.xib; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
@@ -94,7 +94,6 @@
 		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IPlug/IGraphics/IGraphicsMac_view.mm; sourceTree = "<group>"; };
 		4F69BB652013C521002C8948 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IPlug/IGraphics/IGraphicsMac.mm; sourceTree = "<group>"; };
-		4F6F5358202FD49200FEE3A7 /* main_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_dialog.cpp; path = ../main_dialog.cpp; sourceTree = "<group>"; };
 		4F6F5359202FD49200FEE3A7 /* main_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main_mac.mm; path = ../main_mac.mm; sourceTree = "<group>"; };
 		4F6F5360202FD82800FEE3A7 /* IPlugParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugParameter.h; path = ../../../IPlug/IPlugParameter.h; sourceTree = "<group>"; };
 		4F6F5361202FD82800FEE3A7 /* IPlugParameter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugParameter.cpp; path = ../../../IPlug/IPlugParameter.cpp; sourceTree = "<group>"; };
@@ -177,9 +176,9 @@
 			isa = PBXGroup;
 			children = (
 				4F6F5365202FDB9900FEE3A7 /* IGraphicsTest.h */,
-				4F6F5358202FD49200FEE3A7 /* main_dialog.cpp */,
 				4F6F5359202FD49200FEE3A7 /* main_mac.mm */,
 				4F476E852032221F00C3BFEB /* main_win.cpp */,
+				4F19C6EF2037CFF100478B58 /* main_linux.cpp */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
@@ -539,7 +538,6 @@
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
 				4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */,
-				4F6F535B202FD49300FEE3A7 /* main_dialog.cpp in Sources */,
 				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
 				4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */,

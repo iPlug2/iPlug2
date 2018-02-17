@@ -1,7 +1,7 @@
 
 #include "swell.h"
 #include "IGraphicsTest.h"
-#include "swell-internal.h"
+#include "swell-internal.h" // fixes problem with HWND forward decl
 
 HWND gHWND;
 UINT gScrollMessage;

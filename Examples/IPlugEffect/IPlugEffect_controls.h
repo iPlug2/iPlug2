@@ -159,6 +159,7 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
+#ifndef IGRAPHICS_LICE
     double cr = mValue * (mRECT.H() / 2.0);
     graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
     IFillOptions fillOptions;
@@ -166,6 +167,9 @@ public:
     fillOptions.mPreserve = true;
     graphics.PathFill(mPattern, fillOptions);
     graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
+#else
+    graphics.DrawText(mText, "UNSUPPORTED", mRECT);
+#endif
   }
   
   void RandomiseGradient()
