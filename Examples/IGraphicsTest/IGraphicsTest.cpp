@@ -1,5 +1,10 @@
 #include "IGraphicsTest.h"
 
+#include "IPlugParameter.h"
+#include "IControls.h"
+
+#define MAC_TITLEBAR_BODGE 22
+
 void IGraphicsTest::init()
 {
 #ifdef OS_MAC
@@ -63,13 +68,22 @@ void IGraphicsTest::ResizeWindow(HWND hWnd, int w, int h, bool centerOnScreen)
     cx = w;
     cy = h;
 #ifdef OS_MAC
-#define TITLEBAR_BODGE 22
-    y -= TITLEBAR_BODGE;
-    cy += TITLEBAR_BODGE;
+    y -= MAC_TITLEBAR_BODGE;
+    cy += MAC_TITLEBAR_BODGE;
 #endif
   }
 
   SetWindowPos(hWnd, 0, x, y, cx, cy, 0);
+}
+
+void IGraphicsTest::SetParameterValueFromUI(int paramIdx, double value)
+{
+  DBGMSG("SetParameterValueFromUI p %i %f\n", paramIdx, value);
+}
+
+void IGraphicsTest::ResizeGraphicsFromUI()
+{
+  ResizeWindow(gHWND, mGraphics->Width(), mGraphics->Height(), false );
 }
 
 extern IGraphicsTest gIGraphicsTest;
@@ -78,37 +92,37 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
   {
-  case WM_INITDIALOG:
-  {
-    gHWND = hwndDlg;
-    gIGraphicsTest.init();
-    gIGraphicsTest.ResizeWindow(gHWND, UI_WIDTH, UI_HEIGHT, true);
-    ShowWindow(gHWND, SW_SHOW);
-
-    return 1;
-  }
-  case WM_DESTROY:
-    gHWND = NULL;
-    PostQuitMessage(0);
-    return 0;
-  case WM_CLOSE:
-    DestroyWindow(hwndDlg);
-    return 0;
-  case WM_COMMAND:
-    switch (LOWORD(wParam))
+    case WM_INITDIALOG:
     {
-    case ID_QUIT:
+      gHWND = hwndDlg;
+      gIGraphicsTest.init();
+      gIGraphicsTest.ResizeWindow(gHWND, UI_WIDTH, UI_HEIGHT, true);
+      ShowWindow(gHWND, SW_SHOW);
+      
+      return 1;
+    }
+    case WM_DESTROY:
+      gHWND = NULL;
+      PostQuitMessage(0);
+      return 0;
+    case WM_CLOSE:
       DestroyWindow(hwndDlg);
       return 0;
-    case ID_ABOUT:
+    case WM_COMMAND:
+      switch (LOWORD(wParam))
     {
-      WDL_String version;
-      version.SetFormatted(100, "Built on %s", __DATE__);
-      MessageBox(hwndDlg, version.Get(), "IGraphicsTest", MB_OK);
+      case ID_QUIT:
+        DestroyWindow(hwndDlg);
+        return 0;
+      case ID_ABOUT:
+      {
+        WDL_String version;
+        version.SetFormatted(100, "Built on %s", __DATE__);
+        MessageBox(hwndDlg, version.Get(), "IGraphicsTest", MB_OK);
+        return 0;
+      }
+    }
       return 0;
-    }
-    }
-    return 0;
   }
   return 0;
 }

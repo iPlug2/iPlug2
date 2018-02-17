@@ -16,9 +16,7 @@
 #define PostQuitMessage
 #endif
 
-#include "IPlugParameter.h"
-#include "IControls.h"
-
+#include "IPlugDelegate.h"
 #include "resources/resource.h"
 
 extern HWND gHWND;
@@ -42,14 +40,12 @@ public:
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {};
   
   const IParam* GetParamObjectFromUI(int paramIdx) override { return nullptr; }
-  void SetParameterValueFromUI(int paramIdx, double value) override { DBGMSG("SetParameterValueFromUI p %i %f\n", paramIdx, value); }
+  void SetParameterValueFromUI(int paramIdx, double value) override;
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { ; }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { ; }
-  void ResizeGraphicsFromUI() override { ResizeWindow(gHWND, mGraphics->Width(), mGraphics->Height(), false ); }
+  void ResizeGraphicsFromUI() override;
   
 private:
   IGraphics* mGraphics = nullptr;
   int mSizeIdx = 0;
 };
-
-extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
