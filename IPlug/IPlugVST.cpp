@@ -241,39 +241,42 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effGetParamLabel:
     {
-      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
+        ENTER_PARAMS_MUTEX_STATIC;
         strcpy((char*) ptr, _this->GetParam(idx)->GetLabelForHost());
+        LEAVE_PARAMS_MUTEX_STATIC;
       }
       return 0;
     }
     case effGetParamDisplay:
     {
-      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
+        ENTER_PARAMS_MUTEX_STATIC;
         _this->GetParam(idx)->GetDisplayForHost(_this->mParamDisplayStr);
+        LEAVE_PARAMS_MUTEX_STATIC;
         strcpy((char*) ptr, _this->mParamDisplayStr.Get());
       }
       return 0;
     }
     case effGetParamName:
     {
-      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
+        ENTER_PARAMS_MUTEX_STATIC;
         strcpy((char*) ptr, _this->GetParam(idx)->GetNameForHost());
+        LEAVE_PARAMS_MUTEX_STATIC;
       }
       return 0;
     }
     case effGetParameterProperties:
     {
-      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         VstParameterProperties* props = (VstParameterProperties*) ptr;
 
+        ENTER_PARAMS_MUTEX_STATIC;
         IParam* pParam = _this->GetParam(idx);
         switch (pParam->Type())
         {
@@ -295,6 +298,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
         }
 
         strcpy(props->label, pParam->GetLabelForHost());
+        LEAVE_PARAMS_MUTEX_STATIC;
 
         return 1;
       }
@@ -302,16 +306,17 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
     }
     case effString2Parameter:
     {
-      LOCK_PARAMS_MUTEX_STATIC;
       if (idx >= 0 && idx < _this->NParams())
       {
         if (ptr)
         {
+          ENTER_PARAMS_MUTEX_STATIC;
           IParam* pParam = _this->GetParam(idx);
           const double v = pParam->StringToValue((const char *)ptr);
           pParam->Set(v);
           _this->SendParameterValueToUIFromAPI(idx, v, false);
           _this->OnParamChange(idx, kAutomation);
+          LEAVE_PARAMS_MUTEX_STATIC;
         }
         return 1;
       }
@@ -826,10 +831,13 @@ float VSTCALLBACK IPlugVST::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
 {
   Trace(TRACELOC, "%d", idx);
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  LOCK_PARAMS_MUTEX_STATIC;
   if (idx >= 0 && idx < _this->NParams())
   {
-    return (float) _this->GetParam(idx)->GetNormalized();
+    ENTER_PARAMS_MUTEX_STATIC;
+    const float val = (float) _this->GetParam(idx)->GetNormalized();
+    LEAVE_PARAMS_MUTEX_STATIC;
+
+    return val;
   }
   return 0.0f;
 }
@@ -838,11 +846,12 @@ void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float
 {
   Trace(TRACELOC, "%d:%f", idx, value);
   IPlugVST* _this = (IPlugVST*) pEffect->object;
-  LOCK_PARAMS_MUTEX_STATIC;
   if (idx >= 0 && idx < _this->NParams())
   {
+    ENTER_PARAMS_MUTEX_STATIC;
     _this->GetParam(idx)->SetNormalized(value);
     _this->SendParameterValueToUIFromAPI(idx, value, true);
     _this->OnParamChange(idx, kAutomation);
+    LEAVE_PARAMS_MUTEX_STATIC;
   }
 }

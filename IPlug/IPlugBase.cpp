@@ -179,8 +179,8 @@ bool IPlugBase::SerializeParams(IByteChunk& chunk)
 int IPlugBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 {
   TRACE;
-  LOCK_PARAMS_MUTEX;
   int i, n = mParams.GetSize(), pos = startPos;
+  ENTER_PARAMS_MUTEX;
   for (i = 0; i < n && pos >= 0; ++i)
   {
     IParam* pParam = mParams.Get(i);
@@ -190,6 +190,7 @@ int IPlugBase::UnserializeParams(const IByteChunk& chunk, int startPos)
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
   }
   OnParamReset(kPresetRecall);
+  LEAVE_PARAMS_MUTEX;
   return pos;
 }
 
