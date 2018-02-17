@@ -109,7 +109,7 @@ void IVButtonControl::Draw(IGraphics& graphics)
     if (mTxtOn.GetLength())
     {
       auto textR = GetRectToAlignTextIn(btnRect, 1);
-      graphics.DrawTextA(mText, mTxtOn.Get(), textR);
+      graphics.DrawText(mText, mTxtOn.Get(), textR);
     }
   }
   else
@@ -122,7 +122,7 @@ void IVButtonControl::Draw(IGraphics& graphics)
     if (mTxtOff.GetLength())
     {
       auto textR = GetRectToAlignTextIn(btnRect, 0);
-      graphics.DrawTextA(mText, mTxtOff.Get(), textR);
+      graphics.DrawText(mText, mTxtOff.Get(), textR);
     }
   }
 
