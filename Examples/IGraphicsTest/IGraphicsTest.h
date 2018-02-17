@@ -7,7 +7,7 @@
 #if defined (OS_WIN)
 #include "IGraphicsWin.h"
 #elif defined (OS_MAC)
-#include "IGraphicsMac.h"
+#include "IGraphicsMac.h" 
 #include "swell.h"
 #define PostQuitMessage SWELL_PostQuitMessage
 #elif defined (OS_LINUX)
@@ -16,7 +16,6 @@
 #define PostQuitMessage
 #endif
 
-#include "IPlugDelegate.h"
 #include "resources/resource.h"
 
 extern HWND gHWND;
@@ -27,6 +26,8 @@ extern HINSTANCE gHINSTANCE;
 #define FPS 60
 
 const int gSizes[4] = { 100, 300, 600, 1000 };
+
+class IGraphics;
 
 class IGraphicsTest : public IDelegate
 {
@@ -49,3 +50,5 @@ private:
   IGraphics* mGraphics = nullptr;
   int mSizeIdx = 0;
 };
+
+extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
