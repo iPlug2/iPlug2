@@ -9,7 +9,6 @@ IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 SWELL_PATH = $(WDL_PATH)/swell
 LICE_PATH = $(WDL_PATH)/lice
 NANOSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
-LIBPNG_PATH = /usr/include/libpng16
 
 IPLUG_INC_PATHS = -I$(IPLUG_PATH) -I$(WDL_PATH) -I$(SWELL_PATH)
 IGRAPHICS_INC_PATHS = -I$(IGRAPHICS_PATH) -I$(NANOSVG_PATH)
@@ -71,7 +70,7 @@ LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
             lice_textnew.o lice_png.o
 endif
 
-OBJS = main_linux.o $(SWELL_OBJS)
+OBJS = main.o $(SWELL_OBJS)
 RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
 
 ### Compiler/Linker Flags
