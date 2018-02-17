@@ -24,9 +24,12 @@
   #define ARCH_64BIT
 #endif
 
+//these two components of the c standard library are used thoughtout IPlug/WDL 
 #include <cstring>
 #include <cstdlib>
 
+//when TRACER_BUILD is defined enabling logging functionality.
+//Also includes DBGMSG macro for printing to console in debug builds
 #include "IPlugLogger.h"
 
 #ifdef NO_PARAMS_MUTEX

@@ -93,6 +93,9 @@
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IGraphics">
