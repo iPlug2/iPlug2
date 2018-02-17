@@ -24,7 +24,6 @@ struct IPlugInstanceInfo {};
 class IPlugVST3View;
 
 using namespace Steinberg;
-using namespace Vst;
 
 #pragma mark - IPlugVST3 constructor
 /**  VST3 base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
@@ -53,7 +52,7 @@ public:
   // AudioEffect
   tresult PLUGIN_API initialize(FUnknown* context) override;
   tresult PLUGIN_API terminate() override;
-  tresult PLUGIN_API setBusArrangements(SpeakerArrangement* pInputs, int32 numIns, SpeakerArrangement* pOutputs, int32 numOuts) override;
+  tresult PLUGIN_API setBusArrangements(Vst::SpeakerArrangement* pInputs, int32 numIns, Vst::SpeakerArrangement* pOutputs, int32 numOuts) override;
   tresult PLUGIN_API setActive(TBool state) override;
   tresult PLUGIN_API setupProcessing(Vst::ProcessSetup& newSetup) override;
   tresult PLUGIN_API process(Vst::ProcessData& data) override;
