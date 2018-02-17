@@ -1,5 +1,8 @@
 #pragma once
+
 #include <cstring>
+#include <cstdlib>
+
 #include "wdltypes.h"
 #include "wdlstring.h"
 
@@ -14,12 +17,13 @@
 #elif defined (OS_LINUX)
 #include "IGraphicsLinux.h"
 #include "swell.h"
-#define PostQuitMessage SWELL_PostQuitMessage
+#define PostQuitMessage
 #endif
 
-#include "resources/resource.h"
 #include "IPlugParameter.h"
 #include "IControls.h"
+
+#include "resources/resource.h"
 
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;

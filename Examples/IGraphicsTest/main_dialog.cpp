@@ -1,6 +1,6 @@
 #include "IGraphicsTest.h"
 
-IGraphicsTest gMyGraphics;
+IGraphicsTest gIGraphicsTest;
 
 WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -10,8 +10,8 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
       gHWND = hwndDlg;
       
-      gMyGraphics.init();
-      gMyGraphics.ResizeWindow(gHWND, UI_WIDTH, UI_HEIGHT, true);
+      gIGraphicsTest.init();
+      gIGraphicsTest.ResizeWindow(gHWND, UI_WIDTH, UI_HEIGHT, true);
       ShowWindow(gHWND, SW_SHOW);
      
       return 1;

@@ -1,5 +1,7 @@
+
 #include "swell.h"
 #include "IGraphicsTest.h"
+#include "swell-internal.h"
 
 HWND gHWND;
 UINT gScrollMessage;
@@ -15,11 +17,11 @@ int main(int argc, char **argv)
   CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDlgProc);
   SetMenu(gHWND, menu);
 
- // while (!gHWND->m_hashaddestroy)
- // {
- //   SWELL_RunMessageLoop();
- //   Sleep(10);
- // };
+  while (!gHWND->m_hashaddestroy)
+  {
+    SWELL_RunMessageLoop();
+    Sleep(10);
+  };
 
   if (gHWND)
     DestroyWindow(gHWND);
