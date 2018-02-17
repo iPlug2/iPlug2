@@ -54,7 +54,6 @@ vpath %.cpp .. $(LICE_PATH)
 vpath %.cpp .. $(SWELL_PATH)
 
 
-
 ### Objects and resources
 SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
              swell-menu-generic.o swell-kb-generic.o swell-dlg-generic.o \
@@ -70,7 +69,7 @@ LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
             lice_textnew.o lice_png.o
 endif
 
-OBJS = main.o $(SWELL_OBJS)
+OBJS = main.o IGraphicsTest.o $(SWELL_OBJS)
 RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
 
 ### Compiler/Linker Flags

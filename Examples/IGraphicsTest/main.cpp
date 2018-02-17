@@ -3,6 +3,8 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsTest.h"
 
+IGraphicsTest gIGraphicsTest;
+
 #pragma mark - WINDOWS
 #if defined(OS_WIN)
 #include <windows.h>

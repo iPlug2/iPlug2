@@ -28,8 +28,11 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\IGraphicsTest.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IGraphicsTest.h" />
@@ -84,8 +87,12 @@
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IGraphics">
@@ -99,6 +106,9 @@
     </Filter>
     <Filter Include="resources">
       <UniqueIdentifier>{c6ab0357-34f0-4ae8-8b4f-225dc387b2db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{a4138341-239e-4d28-8628-c77fa794ad8a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
