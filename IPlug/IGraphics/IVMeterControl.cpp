@@ -14,7 +14,9 @@ IVMeterControl::IVMeterControl(IDelegate & dlg, IRECT rect, int paramIdx, double
 
 void IVMeterControl::Draw(IGraphics& graphics){
     float v = (float) mValue; // always >= 0.0
+    mValue = 0.0;
     double fps = graphics.FPS();
+    auto sampPerDraw = mSampleRate / fps;
     auto meterRect = GetMeterRect();
 
     // background and shadows
@@ -36,11 +38,16 @@ void IVMeterControl::Draw(IGraphics& graphics){
       p = v;
       mMemPeak = v;
       mMemExp = 1.0;
+      mPeakSampHeld = 0;
       }
     else {
-      auto t = mDropMs;
-      if (p > 0.0 && p < 1.0) t /= p; // low values should decay ~at the same rate
-      mMemExp *= GetInvExpForDrop(t, fps);
+      if (mPeakSampHeld >= 0.001 * mDropMs * mSampleRate) {
+        auto t = mDropMs;
+        if (p > 0.0 && p < 1.0) t /= p; // low values should decay ~at the same rate
+        mMemExp *= GetInvExpForDrop(t, fps); // todo perhaps use simple exponential, not inverted
+        }
+      else
+        mPeakSampHeld += (size_t)sampPerDraw;
       }
     // graphics
     if (p >= mMinDisplayVal && mShowMemRect && mDropMs) {

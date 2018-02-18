@@ -45,6 +45,8 @@ class IVMeterControl : public IControl
     // todo del labels
     }
 
+  void SetSampleRate(double sr) { mSampleRate = sr; }
+
   void Draw(IGraphics& graphics)  override;
 
   void SetDirty(bool pushParamToDelegate = false) override {
@@ -80,11 +82,15 @@ class IVMeterControl : public IControl
     if (value < 0.0) value *= -1.0;
     if (value == mValue) return;
 
-    mValue = value;
+    if (value > mValue)
+      mValue = value; // it makes sense to show max value that was gained between the Draw() calls.
+    // in Draw then the value is zeroed right after reading.
+    // it's not 100% correct in terms of threading, but in this case it doesn't matter.
 
     if (value >= GetPeakFromMemExp()) {
       mMemPeak = value;
       mMemExp = 1.0;
+      mPeakSampHeld = 0;
       }
 
     if (mMemPeak >= mOverdriveThresh) {
@@ -139,6 +145,9 @@ class IVMeterControl : public IControl
     }
 
   private:
+
+  double mSampleRate = DEFAULT_SAMPLE_RATE;
+
   bool mDisplayDB = false;
 
   bool mHoldPeaks = true; // useful in audio debugging
@@ -148,6 +157,7 @@ class IVMeterControl : public IControl
   double mMemPeak = 0.0;
   double mMemExp = 1.0;
   double mDropMs = 2000.0;
+  size_t mPeakSampHeld = 0.0;
 
   double mMinDisplayVal = 0.0; // all signal vals are stored as normalized vals,
   double mMaxDisplayVal = 1.0; // but in Setters are interpreted depending on display mode

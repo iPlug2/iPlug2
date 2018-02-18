@@ -41,7 +41,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
  pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
  pMeter5 = new IVMeterControl(*this, IRECT(250, 20, 270, 280));
 
- ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(1000);
+ ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(000);
  ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(1000);
  ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(1000);
  ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(1000);
