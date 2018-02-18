@@ -49,7 +49,7 @@ ROOT = $(SRCROOT)/../../..
 PKGMAN_PATH = /usr/local
 
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the STATICLIBS_PATH build setting to point to PKGMAN_PATH
-STATICLIBS_PATH = $(ROOT)/Libraries/install/
+STATICLIBS_PATH = $(ROOT)/Dependencies/install/
 STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
 
 // IPlug dependencies

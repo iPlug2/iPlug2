@@ -47,4 +47,4 @@ Ports/*
 IPlug/IGraphics/AGG/agg*
 /IPlug/IGraphics/NanoVG
 /IPlug/IGraphics/MetalNanoVG
-Libraries/*
+Dependencies/*
