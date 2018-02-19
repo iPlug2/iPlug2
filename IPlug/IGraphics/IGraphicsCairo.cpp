@@ -3,7 +3,7 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
-#include "NanoSVGRenderer.h"
+#include "IGraphicsNanoSVG.h"
 
 #ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)

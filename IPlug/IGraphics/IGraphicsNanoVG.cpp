@@ -1,20 +1,20 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "NanoSVGRenderer.h"
+#include "IGraphicsNanoSVG.h"
 
 #pragma mark -
 
 inline int GetBitmapIdx(APIBitmap* pBitmap) { return (int) ((long long) pBitmap->GetBitmap()); }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale)
 {
-  mVG = context;
+  mVG = pContext;
   int w = 0, h = 0;
   long long idx = nvgCreateImage(mVG, path, 0);
   nvgImageSize(mVG, idx, &w, &h);
       
-  SetBitmap((void *) idx, w, h, sourceScale);
+  SetBitmap((void*) idx, w, h, sourceScale);
 }
 
 NanoVGBitmap::~NanoVGBitmap()

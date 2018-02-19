@@ -311,7 +311,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4F00E34E201BAC6400204D44 /* LiceNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LiceNanoSVG.h; path = ../../../IPlug/IGraphics/NanoSVG/LiceNanoSVG.h; sourceTree = "<group>"; };
 		4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Parameters.cpp; path = ../../../IPlug/AAX/IPlugAAX_Parameters.cpp; sourceTree = "<group>"; };
 		4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_Parameters.h; path = ../../../IPlug/AAX/IPlugAAX_Parameters.h; sourceTree = "<group>"; };
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; };
@@ -432,6 +431,7 @@
 		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IPlug/IGraphics/IGraphicsMac_view.mm; sourceTree = "<group>"; };
 		4F69BB652013C521002C8948 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IPlug/IGraphics/IGraphicsMac.mm; sourceTree = "<group>"; };
+		4F6B8141203A614200D4E0B4 /* IGraphicsNanoSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsNanoSVG.h; path = ../../../IPlug/IGraphics/IGraphicsNanoSVG.h; sourceTree = "<group>"; };
 		4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugBaseGraphics.cpp; path = ../../../IPlug/IPlugBaseGraphics.cpp; sourceTree = "<group>"; };
 		4F6D9DEA2016B7F7009E1E3E /* IPlugBaseGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugBaseGraphics.h; path = ../../../IPlug/IPlugBaseGraphics.h; sourceTree = "<group>"; };
 		4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatform.h; path = ../../../IPlug/IPlugPlatform.h; sourceTree = "<group>"; };
@@ -524,17 +524,6 @@
 		4FDA1DD220123CCF0027C868 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsAGG.h; path = ../../../IPlug/IGraphics/IGraphicsAGG.h; sourceTree = "<group>"; };
 		4FDA1DD420123CEC0027C868 /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsNanoVG.h; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.h; sourceTree = "<group>"; };
 		4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsNanoVG.cpp; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
-		4FDA1DD82012439E0027C868 /* nanosvg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanosvg.h; path = ../../../IPlug/IGraphics/NanoSVG/nanosvg.h; sourceTree = "<group>"; };
-		4FDA1DD92012439E0027C868 /* NanoVGNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NanoVGNanoSVG.h; path = ../../../IPlug/IGraphics/NanoSVG/NanoVGNanoSVG.h; sourceTree = "<group>"; };
-		4FDA1DDA2012439E0027C868 /* CairoNanoSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CairoNanoSVG.h; path = ../../../IPlug/IGraphics/NanoSVG/CairoNanoSVG.h; sourceTree = "<group>"; };
-		4FDA1DF62012C2F90027C868 /* fontstash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fontstash.h; path = ../../../IPlug/IGraphics/nanovg/src/fontstash.h; sourceTree = "<group>"; };
-		4FDA1DF72012C2F90027C868 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../../IPlug/IGraphics/nanovg/src/stb_image.h; sourceTree = "<group>"; };
-		4FDA1DF82012C2F90027C868 /* nanovg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nanovg.c; path = ../../../IPlug/IGraphics/nanovg/src/nanovg.c; sourceTree = "<group>"; };
-		4FDA1DF92012C2F90027C868 /* nanovg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg.h; path = ../../../IPlug/IGraphics/nanovg/src/nanovg.h; sourceTree = "<group>"; };
-		4FDA1DFA2012C2F90027C868 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../../IPlug/IGraphics/nanovg/src/stb_truetype.h; sourceTree = "<group>"; };
-		4FDA1DFC2012C33C0027C868 /* nanovg_mtl_shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; name = nanovg_mtl_shaders.metal; path = ../../../IPlug/IGraphics/MetalNanoVG/src/nanovg_mtl_shaders.metal; sourceTree = "<group>"; };
-		4FDA1DFD2012C33C0027C868 /* nanovg_mtl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg_mtl.h; path = ../../../IPlug/IGraphics/MetalNanoVG/src/nanovg_mtl.h; sourceTree = "<group>"; };
-		4FDA1DFE2012C33C0027C868 /* nanovg_mtl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nanovg_mtl.m; path = ../../../IPlug/IGraphics/MetalNanoVG/src/nanovg_mtl.m; sourceTree = "<group>"; };
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
@@ -991,8 +980,7 @@
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
-				4FDA1DD320123CDA0027C868 /* NVG */,
-				4FDA1DD7201243860027C868 /* NSVG */,
+				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
 				4FDA1DD020123CB30027C868 /* AGG */,
@@ -1125,48 +1113,13 @@
 			name = AGG;
 			sourceTree = "<group>";
 		};
-		4FDA1DD320123CDA0027C868 /* NVG */ = {
+		4FDA1DD320123CDA0027C868 /* NanoVG */ = {
 			isa = PBXGroup;
 			children = (
-				4FDA1DFB2012C2FE0027C868 /* MetalNanoVg */,
-				4FDA1DF52012C2CD0027C868 /* nanovg */,
 				4FDA1DD420123CEC0027C868 /* IGraphicsNanoVG.h */,
 				4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */,
 			);
-			name = NVG;
-			sourceTree = "<group>";
-		};
-		4FDA1DD7201243860027C868 /* NSVG */ = {
-			isa = PBXGroup;
-			children = (
-				4FDA1DD82012439E0027C868 /* nanosvg.h */,
-				4FDA1DDA2012439E0027C868 /* CairoNanoSVG.h */,
-				4F00E34E201BAC6400204D44 /* LiceNanoSVG.h */,
-				4FDA1DD92012439E0027C868 /* NanoVGNanoSVG.h */,
-			);
-			name = NSVG;
-			sourceTree = "<group>";
-		};
-		4FDA1DF52012C2CD0027C868 /* nanovg */ = {
-			isa = PBXGroup;
-			children = (
-				4FDA1DF62012C2F90027C868 /* fontstash.h */,
-				4FDA1DF82012C2F90027C868 /* nanovg.c */,
-				4FDA1DF92012C2F90027C868 /* nanovg.h */,
-				4FDA1DF72012C2F90027C868 /* stb_image.h */,
-				4FDA1DFA2012C2F90027C868 /* stb_truetype.h */,
-			);
-			name = nanovg;
-			sourceTree = "<group>";
-		};
-		4FDA1DFB2012C2FE0027C868 /* MetalNanoVg */ = {
-			isa = PBXGroup;
-			children = (
-				4FDA1DFC2012C33C0027C868 /* nanovg_mtl_shaders.metal */,
-				4FDA1DFD2012C33C0027C868 /* nanovg_mtl.h */,
-				4FDA1DFE2012C33C0027C868 /* nanovg_mtl.m */,
-			);
-			name = MetalNanoVg;
+			name = NanoVG;
 			sourceTree = "<group>";
 		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
@@ -1195,6 +1148,7 @@
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
 				4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */,
+				4F6B8141203A614200D4E0B4 /* IGraphicsNanoSVG.h */,
 				4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */,
 				4FF1426F1FD4A61D00A65575 /* IControl.h */,
 				4FF1426D1FD4A61D00A65575 /* IControl.cpp */,
