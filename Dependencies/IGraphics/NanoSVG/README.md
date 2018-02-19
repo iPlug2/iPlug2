@@ -24,7 +24,7 @@ If you don't know or care about the units stuff, "px" and 96 should get you goin
 
 ## Rasterizer
 
-![screenshot of tiger.svg rendered with NanoSVG rasterizer](/example/screenshot-2.png?raw=true)
+![screenshot of tiger.svg rendered with NanoSVG rasterizer](/Dependencies/IGraphics/NanoSVG/example/screenshot-2.png?raw=true)
 
 The parser library is accompanied with really simpler SVG rasterizer. Currently it only renders flat filled shapes.
 
