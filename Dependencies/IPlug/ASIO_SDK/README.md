@@ -5,19 +5,18 @@ The files from the ASIO SDK are included with rtaudio and are also available fro
 [http://www.music.mcgill.ca/~gary/rtaudio/](http://www.music.mcgill.ca/~gary/rtaudio/)
 
 copy the files from the rtaudio *include* folder here
-
-`WDL-OL/`  
-`WDL-OL/ASIO_SDK/asio.cpp`  
-`WDL-OL/ASIO_SDK/asio.h`    
-`WDL-OL/ASIO_SDK/asiodrivers.cpp`    
-`WDL-OL/ASIO_SDK/asiodrivers.h`    
-`WDL-OL/ASIO_SDK/asiodrvr.h`    
-`WDL-OL/ASIO_SDK/asiolist.cpp`    
-`WDL-OL/ASIO_SDK/asiolist.h`    
-`WDL-OL/ASIO_SDK/asiosys.h`    
-`WDL-OL/ASIO_SDK/dsound.h`    
-`WDL-OL/ASIO_SDK/ginclude.h`    
-`WDL-OL/ASIO_SDK/iasiodrv.h`    
-`WDL-OL/ASIO_SDK/iasiothiscallresolver.cpp`    
-`WDL-OL/ASIO_SDK/iasiothiscallresolver.h`    
-`WDL-OL/ASIO_SDK/soundcard.h`    
+  
+`Dependencies/IPlug/ASIO_SDK/asio.cpp`  
+`Dependencies/IPlug/ASIO_SDK/asio.h`    
+`Dependencies/IPlug/ASIO_SDK/asiodrivers.cpp`    
+`Dependencies/IPlug/ASIO_SDK/asiodrivers.h`    
+`Dependencies/IPlug/ASIO_SDK/asiodrvr.h`    
+`Dependencies/IPlug/ASIO_SDK/asiolist.cpp`    
+`Dependencies/IPlug/ASIO_SDK/asiolist.h`    
+`Dependencies/IPlug/ASIO_SDK/asiosys.h`    
+`Dependencies/IPlug/ASIO_SDK/dsound.h`    
+`Dependencies/IPlug/ASIO_SDK/ginclude.h`    
+`Dependencies/IPlug/ASIO_SDK/iasiodrv.h`    
+`Dependencies/IPlug/ASIO_SDK/iasiothiscallresolver.cpp`    
+`Dependencies/IPlug/ASIO_SDK/iasiothiscallresolver.h`    
+`Dependencies/IPlug/ASIO_SDK/soundcard.h`    
