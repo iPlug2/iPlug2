@@ -48,15 +48,17 @@ ROOT = $(SRCROOT)/../../..
 
 PKGMAN_PATH = /usr/local
 
+DEPS_PATH = $(ROOT)/Dependencies
+
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the STATICLIBS_PATH build setting to point to PKGMAN_PATH
-STATICLIBS_PATH = $(ROOT)/Dependencies/install/
+STATICLIBS_PATH = $(DEPS_PATH)/IGraphics/install
 STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
 
 // IPlug dependencies
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
-RTAUDIOMIDI_PATH = $(IPLUG_PATH)/APP/RTAudioMidi
+RTAUDIOMIDI_PATH = $(DEPS_PATH)/IPlug/RTAudioMidi
 
 // Plug-in SDK paths
 VST3_SDK = $(ROOT)/VST3_SDK
