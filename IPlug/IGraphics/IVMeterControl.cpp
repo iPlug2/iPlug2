@@ -1,7 +1,7 @@
 #include "IVMeterControl.h"
 
 const IColor IVMeterControl::DEFAULT_BG_COLOR = IColor(255, 70, 70, 70);
-const IColor IVMeterControl::DEFAULT_M_COLOR = IColor(255, 240, 240, 240);
+const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 240, 240, 240);
 const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
 const IColor IVMeterControl::DEFAULT_TXT_COLOR = DEFAULT_BG_COLOR;
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_TXT_COLOR;
@@ -12,83 +12,110 @@ IVMeterControl::IVMeterControl(IDelegate & dlg, IRECT rect, int paramIdx, double
   }
 */
 
-void IVMeterControl::Draw(IGraphics& graphics){
-    float v = (float) mValue; // always >= 0.0
-    mValue = 0.0;
-    double fps = graphics.FPS();
-    auto sampPerDraw = mSampleRate / fps;
-    auto meterRect = GetMeterRect();
+void IVMeterControl::Draw(IGraphics& graphics) {
+  double fps = graphics.FPS();
+  auto spf = 1.0 / fps;
+  auto sampPerDraw = mSampleRate / fps;
+  auto shadowColor = IColor(60, 0, 0, 0);
+
+  for (auto ch = 0; ch != NumChannels(); ++ch) {
+    auto v = RawValue(ch); // always >= 0.0
+    *RawValuePtr(ch) = 0.0;
+
+    auto meterRect = GetMeterRect(ch);
 
     // background and shadows
     auto bgRect = meterRect;
-    if (mShowODRect) bgRect.T -= mODRectHeight;
+    if (ShowODRect(ch)) bgRect.T -= mODRectHeight;
     graphics.FillRect(GetColor(mBg), bgRect);
+    if (mDrawShadows)
+      DrawInnerShadowForRect(bgRect, shadowColor, graphics);
 
     // actual value rect
     auto valR = meterRect;
-    valR.T = GetRTopFromValInMeterRect(v, meterRect);
-    if (v >= mMinDisplayVal)
+    valR.T = GetRTopFromValInMeterRect(ch, v, meterRect);
+    if (v >= MinDisplayVal(ch))
       graphics.FillRect(GetColor(mM), valR);
 
     // memory rect
     // math
-    auto p = GetPeakFromMemExp();
+    auto p = GetPeakFromMemExp(ch);
     if (p < 0.0) p = 0.0;
     if (p < v || p == 0.0) {
       p = v;
-      mMemPeak = v;
-      mMemExp = 1.0;
-      mPeakSampHeld = 0;
+      *MemPeakPtr(ch) = v;
+      *MemExpPtr(ch) = 1.0;
+      *PeakSampHeldPtr(ch) = 0;
       }
     else {
-      if (mPeakSampHeld >= 0.001 * mDropMs * mSampleRate) {
-        auto t = mDropMs;
+      if (PeakSampHeld(ch) >= 0.001 * DropMs(ch) * mSampleRate) {
+        auto t = DropMs(ch);
         if (p > 0.0 && p < 1.0) t /= p; // low values should decay ~at the same rate
-        mMemExp *= GetInvExpForDrop(t, fps); // todo perhaps use simple exponential, not inverted
+        *MemExpPtr(ch) *= GetInvExpForDrop(t, fps); // todo perhaps use simple exponential, not inverted
         }
       else
-        mPeakSampHeld += (size_t)sampPerDraw;
+        *PeakSampHeldPtr(ch) += (size_t) sampPerDraw;
       }
     // graphics
-    if (p >= mMinDisplayVal && mShowMemRect && mDropMs) {
+    if (p >= MinDisplayVal(ch) && ShowMemRect(ch) && DropMs(ch) > spf * 1000.0) {
       auto memR = meterRect;
-      memR.T = GetRTopFromValInMeterRect(p, meterRect);
+      memR.T = GetRTopFromValInMeterRect(ch, p, meterRect);
       memR.B = valR.T;
       auto c = GetColor(mM);
       c.A /= 2;
       graphics.FillRect(c, memR);
-      auto pc = LinearBlendColors(GetColor(mM), GetColor(mPk), mODBlink);
-      if (p <= mMaxDisplayVal)
+      auto pc = LinearBlendColors(GetColor(mM), GetColor(mPk), ODBlink(ch));
+      if (p <= MaxDisplayVal(ch))
         graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
       }
 
     // overdrive rect
-    if (mShowODRect) {
+    if (ShowODRect(ch)) {
       // graphics stuff
       auto odRect = meterRect;
       odRect.T = meterRect.T - mODRectHeight;
       odRect.B = meterRect.T;
-      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPk), mODBlink);
+      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPk), ODBlink(ch));
       graphics.FillRect(pc, odRect);
       }
     // math
-    if (!mHoldingAPeak)
-      mODBlink *= GetExpForDrop(1000.0 + 2.5 * mDropMs, fps);
+    if (!HoldingAPeak(ch))
+      *ODBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
 
-    SetDirty();
+    if (mDrawBorders)
+      graphics.DrawRect(GetColor(mFr), bgRect);
 
 #ifdef _DEBUG
-    auto txt = mText;
-    txt.mFGColor = COLOR_ORANGE;
-    WDL_String fpss;
+    auto txtp = mText;
+    txtp.mFGColor = COLOR_RED;
+    WDL_String ps;
     auto vt = p;
-    if (mDisplayDB) vt = AmpToDB(vt);
-    fpss.SetFormatted(16, "fps %d\nl %1.2f", (int)fps, vt);
+    if (DisplayDB(ch)) vt = AmpToDB(vt);
+    ps.SetFormatted(8, "pk\n%1.2f", vt);
+    float th, tw;
+    BasicTextMeasure(ps.Get(), th, tw);
+    auto dtr = valR;
+    dtr.T = dtr.B - th * txtp.mSize - 30.0f;
+    graphics.DrawTextA(txtp, ps.Get(), dtr);
+    auto tl = GetRTopFromValInMeterRect(ch, OverdriveThresh(ch), meterRect);
+    graphics.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
+#endif
+    }
+
+#ifdef _DEBUG
+   auto txtfps = mText;
+    txtfps.mFGColor = COLOR_GREEN;
+    WDL_String fpss;
+    fpss.SetFormatted(8, "fps\n%d", (int) fps);
     float th, tw;
     BasicTextMeasure(fpss.Get(), th, tw);
-    auto dtr = valR;
-    dtr.T = dtr.B - th * txt.mSize - 30.0f;
-    graphics.DrawTextA(txt, fpss.Get(),dtr);
+    auto dtr = mRECT;
+    dtr.T = dtr.B - th * txtfps.mSize - 10.0f;
+    graphics.DrawTextA(txtfps, fpss.Get(), dtr);
+
+    graphics.DrawRect(COLOR_BLUE, mRECT);
+
 #endif
 
-    }
+  SetDirty();
+  }

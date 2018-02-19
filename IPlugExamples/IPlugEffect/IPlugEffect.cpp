@@ -35,23 +35,32 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
  // pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
- pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 70, 280));
- pMeter2 = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
- pMeter3 = new IVMeterControl(*this, IRECT(150, 20, 170, 280));
- pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
- pMeter5 = new IVMeterControl(*this, IRECT(250, 20, 270, 280));
+ pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 150, 280), 4, "in L", "in R", "out L", "out R");
+ //pMeter2 = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
+ //pMeter3 = new IVMeterControl(*this, IRECT(150, 20, 170, 280));
+ //pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
+ //pMeter5 = new IVMeterControl(*this, IRECT(250, 20, 270, 280));
 
- ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(000);
- ((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(1000);
- ((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(1000);
- ((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(1000);
- ((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(1000);
+ ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(500.0);
+ ((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0, 0);
+ ((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0, 2, false);
 
  ((IVMeterControl*) pMeter1)->SetHoldPeaks(false);
- ((IVMeterControl*) pMeter2)->SetHoldPeaks(false);
- ((IVMeterControl*) pMeter3)->SetHoldPeaks(false);
- ((IVMeterControl*) pMeter4)->SetHoldPeaks(false);
- ((IVMeterControl*) pMeter5)->SetHoldPeaks(false);
+ //((IVMeterControl*) pMeter1)->SetShowOverdriveRect(false);
+
+ //((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0);
+//((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
+
+ //((IVMeterControl*) pMeter2)->SetPeakDropTimeMs(1000);
+ //((IVMeterControl*) pMeter3)->SetPeakDropTimeMs(1000);
+ //((IVMeterControl*) pMeter4)->SetPeakDropTimeMs(1000);
+ //((IVMeterControl*) pMeter5)->SetPeakDropTimeMs(1000);
+ //
+ //((IVMeterControl*) pMeter1)->SetHoldPeaks(false);
+ //((IVMeterControl*) pMeter2)->SetHoldPeaks(false);
+ //((IVMeterControl*) pMeter3)->SetHoldPeaks(false);
+ //((IVMeterControl*) pMeter4)->SetHoldPeaks(false);
+ //((IVMeterControl*) pMeter5)->SetHoldPeaks(false);
  /*
  ((IVMeterControl*) pMeter2)->SetMinMaxDisplayValues(0.0, 0.14);
  ((IVMeterControl*) pMeter3)->SetMinMaxDisplayValues(0.0, 2.0);
@@ -59,18 +68,20 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
  ((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(2.0, 3.0);
  */
 
-((IVMeterControl*) pMeter3)->SetMinMaxDisplayValues(DBToAmp(-60.0), DBToAmp(3.0));
-
-((IVMeterControl*) pMeter5)->SetDisplayInDB(true);
-((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
-((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(-60.0, 3.0);
+//((IVMeterControl*) pMeter3)->SetMinMaxDisplayValues(DBToAmp(-60.0), DBToAmp(3.0));
+//
+//((IVMeterControl*) pMeter5)->SetDisplayInDB(true);
+//((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
+//((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(-60.0, 3.0);
 
 
   pGraphics->AttachControl(pMeter1);
-  pGraphics->AttachControl(pMeter2);
-  pGraphics->AttachControl(pMeter3);
-  pGraphics->AttachControl(pMeter4);
-  pGraphics->AttachControl(pMeter5);
+  //pGraphics->AttachControl(pMeter2);
+  //pGraphics->AttachControl(pMeter3);
+  //pGraphics->AttachControl(pMeter4);
+  //pGraphics->AttachControl(pMeter5);
+
+
 //  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
 //  {
 //    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
@@ -123,17 +134,19 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const double gain = GetParam(kGain)->Value() / 100.;
   LEAVE_PARAMS_MUTEX;
 
-  ((IVMeterControl*)pMeter1)->ProcessBlock(inputs[0], nFrames);
-  ((IVMeterControl*)pMeter2)->ProcessBlock(inputs[0], nFrames);
-  ((IVMeterControl*)pMeter3)->ProcessBlock(inputs[0], nFrames);
-  ((IVMeterControl*)pMeter4)->ProcessBlock(inputs[0], nFrames);
-  ((IVMeterControl*)pMeter5)->ProcessBlock(inputs[0], nFrames);
+  //((IVMeterControl*)pMeter1)->ProcessBus(inputs, nFrames);
+  //((IVMeterControl*)pMeter2)->ProcessBlock(inputs[0], nFrames);
+  //((IVMeterControl*)pMeter3)->ProcessBlock(inputs[0], nFrames);
+  //((IVMeterControl*)pMeter4)->ProcessBlock(inputs[0], nFrames);
+  //((IVMeterControl*)pMeter5)->ProcessBlock(inputs[0], nFrames);
 
   const int nChans = NChannelsConnected(ERoute::kOutput);
 
   for (auto s = 0; s < nFrames; s++) {
     for (auto c = 0; c < nChans; c++) {
-      outputs[c][s] = inputs[c][s] * gain;
+      outputs[c][s] = inputs[c][s];// *0.25;
     }
   }
+
+  ((IVMeterControl*)pMeter1)->ProcessInsOuts(inputs, outputs, nFrames);
 }
