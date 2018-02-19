@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by IPlugEffect.rc
+// Used by main.rc
 
 #define IDD_DIALOG_MAIN                 40001
 #define IDD_DIALOG_PREF                 40002
