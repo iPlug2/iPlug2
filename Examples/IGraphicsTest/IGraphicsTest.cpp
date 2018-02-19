@@ -8,11 +8,11 @@
 void IGraphicsTest::init()
 {
 #ifdef OS_MAC
-  IGraphicsMac* pGraphics = new IGraphicsMac(*this, UI_WIDTH, UI_HEIGHT, FPS);
+  IGraphicsMac* pGraphics = new IGraphicsMac(*this, UI_WIDTH, UI_HEIGHT, UI_FPS);
   pGraphics->SetBundleID("com.OliLarkin.app.IGraphicsTest");
   pGraphics->CreateMetalLayer();
 #elif defined OS_WIN
-  IGraphicsWin* pGraphics = new IGraphicsWin(*this, UI_WIDTH, UI_HEIGHT, FPS);
+  IGraphicsWin* pGraphics = new IGraphicsWin(*this, UI_WIDTH, UI_HEIGHT, UI_FPS);
   pGraphics->SetPlatformInstance(gHINSTANCE);
 #elif defined OS_LINUX
 

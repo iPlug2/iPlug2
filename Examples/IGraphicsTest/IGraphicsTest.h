@@ -25,7 +25,7 @@ extern HINSTANCE gHINSTANCE;
 
 #define UI_WIDTH 700
 #define UI_HEIGHT 700
-#define FPS 60
+#define UI_FPS 60
 
 const int gSizes[4] = { 100, 300, 600, 1000 };
 

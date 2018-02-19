@@ -78,6 +78,7 @@ CFLAGS += $(IPLUG_INC_PATHS)
 CFLAGS += $(IGRAPHICS_INC_PATHS)
 CFLAGS += -DNOMINMAX
 CFLAGS += -DNO_IGRAPHICS 
+CFLAGS += -std=c++11
 
 ifneq ($(filter arm%,$(ARCH)),)
   CFLAGS += -fsigned-char -marm
