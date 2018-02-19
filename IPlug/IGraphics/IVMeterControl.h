@@ -12,7 +12,6 @@ class IVMeterControl : public IControl
   static const IColor DEFAULT_RAW_COLOR;
   static const IColor DEFAULT_PK_COLOR;
   static const IColor DEFAULT_FR_COLOR;
-  static const IColor DEFAULT_TXT_COLOR;
 
   // map to IVectorBase colors
   enum EVKColor {
@@ -20,12 +19,11 @@ class IVMeterControl : public IControl
     mM = kFG,
     mPk = kHL,
     mFr = kFR,
-    mTxt = kX1
     };
 
   IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
     : IControl(dlg, rect, kNoParameter)
-    , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_PK_COLOR) {
+    , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR) {
 
     ChannelSpecificData d;
     for (auto c = 0; c != numChannels; ++c)
@@ -46,9 +44,11 @@ class IVMeterControl : public IControl
         // should be ~the same as in OnResize()
 
         *MeterWidthPtr(m) *= wr;
+        *MeterWidthPtr(m) = trunc(MeterWidth(m)); // identical narrow meters with noninteger sizes often look ugly
         *DistToTheNextMPtr(m) *= wr;
+        *DistToTheNextMPtr(m) = trunc(DistToTheNextM(m));
         }
-      mMeterHeight = rect.H();
+      mMeterHeight = rect.H() - mChNameMaxH * mText.mSize;
       mRECT = mTargetRECT = rect;
       }
 
@@ -72,6 +72,8 @@ class IVMeterControl : public IControl
 
   void OnResize() {
     // todo
+    // dont forget to trunc the horisontal distances
+    // scale channel name offsets accordingly
     SetDirty();
     }
 
@@ -88,9 +90,35 @@ class IVMeterControl : public IControl
         }
     }
 
+  void SetText(IText& txt) {
+    SetTexts(txt, txt);
+    }
+  void SetTexts(IText chNameTxt, IText lvlLabelTxt) {
+    mText = chNameTxt;
+    mLevelText = lvlLabelTxt;
+    }
+
   void SetChanName(int chId, const char* name) {
     if (chId < NumChannels())
       ChanNamePtr(chId)->Set(name);
+    }
+  void SetChNameHOffset(int chId, double offset) {
+    *ChanNameHOffsetPtr(chId) = (float) offset;
+    // todo recalc if 1st or last
+    }
+  // todo: call from all labels and names setters
+  void RecalcLabelsMargins() {
+    float w, h;
+    // todo widths. don't forget level labels
+    for (int ch = 0; ch != NumChannels(); ++ch) {
+      BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
+      if (h > mChNameMaxH) mChNameMaxH = h;
+      }
+    UpdateLabelsMargins();
+    }
+  void UpdateLabelsMargins() {
+    mRECT.B = mRECT.T + mMeterHeight + mChNameMaxH * mText.mSize;
+    mTargetRECT = mRECT;
     }
 
   void SetChanNames(const char* names, ...) {
@@ -234,44 +262,49 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
-  void SetShowOverdriveRect(bool show, int chId = -1) {
+  void SetDrawOverdriveRect(bool show, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
-        *ShowODRectPtr(ch) = show;
+        *DrawODRectPtr(ch) = show;
         *HoldingAPeakPtr(ch) = false;
         if (!show) *ODBlinkPtr(ch) = 0.0;
         }
     else {
-      *ShowODRectPtr(chId) = show;
+      *DrawODRectPtr(chId) = show;
       *HoldingAPeakPtr(chId) = false;
       if (!show) *ODBlinkPtr(chId) = 0.0;
       }
     SetDirty();
     }
-  void SetShowMemRect(bool show, int chId = -1) {
+  void SetDrawMemRect(bool show, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
-        *ShowMemRectPtr(ch) = show;
+        *DrawMemRectPtr(ch) = show;
     else
-      *ShowMemRectPtr(chId) = show;
+      *DrawMemRectPtr(chId) = show;
     SetDirty();
     }
 
   void SetMeterWidth(double w, int chId = -1) {
     if (w < 0.0) w = 20.0;
+    w = trunc(w); // identical narrow meters with noninteger sizes often look different
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
-        *MeterWidthPtr(ch) = (float)w;
+        *MeterWidthPtr(ch) = (float) w;
     else
-      *MeterWidthPtr(chId) = (float)w;
+      *MeterWidthPtr(chId) = (float) w;
 
     mRECT = mTargetRECT = GetControlRectFromChannelsData();
 
     SetDirty();
     }
   void SetDistToTheNextMeter(double d, int chId = -1, bool glueRects = true) {
+    // todo calc sum of truncated tales and distribute it
+    // in a nice way to keep the mRECT.W when needed
     if (d < 0.0) d = 30.0;
     glueRects = glueRects && (d == 0.0);
+    // identical narrow meters with noninteger sizes often look different
+    d = trunc(d);
 
     if (chId < 0) {
       if (glueRects) {
@@ -279,22 +312,34 @@ class IVMeterControl : public IControl
         for (int ch = 0; ch != NumChannels() - 1; ++ch)
           w += DistToTheNextM(ch);
         w /= NumChannels();
-        for (int ch = 0; ch != NumChannels(); ++ch)
+        for (int ch = 0; ch != NumChannels(); ++ch) {
           *MeterWidthPtr(ch) += w;
+          *MeterWidthPtr(ch) = trunc(MeterWidth(ch));
+          }
         }
       for (int ch = 0; ch != NumChannels(); ++ch)
-        *DistToTheNextMPtr(ch) = (float)d;
+        *DistToTheNextMPtr(ch) = (float) d;
       }
     else {
-      if (glueRects && d == 0.0 && chId != NumChannels() - 1) {
+      if (glueRects && chId != NumChannels() - 1) {
         auto stretch = 0.5f * DistToTheNextM(chId);
         *MeterWidthPtr(chId) += stretch;
+        *MeterWidthPtr(chId) = trunc(MeterWidth(chId));
         *MeterWidthPtr(chId + 1) += stretch;
+        *MeterWidthPtr(chId + 1) = trunc(MeterWidth(chId + 1));
         }
       *DistToTheNextMPtr(chId) = (float)d;
       }
 
     mRECT = mTargetRECT = GetControlRectFromChannelsData();
+
+#ifdef _DEBUG
+    WDL_String s("meters widths: ");
+    for (int m = 0; m != NumChannels(); ++m)
+      s.AppendFormatted(64, "%2.2f, ", MeterWidth(m));
+    DBGMSG(s.Get());
+#endif
+
 
     SetDirty();
     }
@@ -322,11 +367,12 @@ class IVMeterControl : public IControl
     float meterWidth = 20.0;
     float distToNextM = 30.0; // use for gluing chans into groups like ins and outs
 
-    bool showMemRect = true;
-    bool showODRect = true;
-    bool showLabels = true; // todo
-    bool showChanName = true; // todo
+    bool drawMemRect = true;
+    bool drawODRect = true;
+    bool drawLevelLabels = true; // todo
 
+    bool drawChanName = true; // todo
+    float chanNameHOffset = 0.0; // e.g. one "IN L/R" label for glued meters
     WDL_String* chanName = nullptr;
     };
 
@@ -334,9 +380,15 @@ class IVMeterControl : public IControl
 
   int NumChannels() { return mChanData.GetSize(); }
 
-  float mMeterHeight = 150.0;
+  float mMeterHeight = 150.0; // including the overdrive rect
   float mODRectHeight = 10.0;
   bool mHoldPeaks = true; // useful in audio debugging
+
+  float mChNameMaxH = 1.0; // these three used for stretching mRECT to fit labels
+  float mChNameLeftMargin = 0.0;
+  float mChNameRightMargin = 0.0;
+
+  IText mLevelText = mText;
 
   bool mDrawShadows = true;
   float mShadowOffset = 3.0;
@@ -361,19 +413,25 @@ class IVMeterControl : public IControl
     auto mr = mRECT;
     mr.L += dx;
     mr.R = mr.L + MeterWidth(i);
-    if (ShowODRect(i) && !withODRect)
+    mr.B = mr.T + mMeterHeight;
+    if (DrawODRect(i) && !withODRect)
       mr.T += mODRectHeight;
     return mr;
     }
   IRECT GetControlRectFromChannelsData(bool keepPosition = true) {
     // todo account for labels
     float w = 0.0;
+    bool showChName = false;
     for (int m = 0; m != NumChannels(); ++m) {
       w += MeterWidth(m);
       if (m < NumChannels() - 1)
         w += DistToTheNextM(m);
+      if (DrawChanName(m))
+        showChName = true;
       }
     auto r = IRECT(0.0, 0.0, w, mMeterHeight);
+    if (showChName)
+      r.B += mChNameMaxH * mText.mSize;
     if (keepPosition) {
       r.L += mRECT.L;
       r.R += mRECT.L;
@@ -401,6 +459,7 @@ class IVMeterControl : public IControl
       }
     return t;
     }
+
   IColor LinearBlendColors(IColor cA, IColor cB, double mix) {
     IColor cM;
     cM.A = (int) ((1.0 - mix) * cA.A + mix * cB.A);
@@ -484,14 +543,18 @@ class IVMeterControl : public IControl
   float* DistToTheNextMPtr  (int i) { return &(Ch(i)->distToNextM); }
   float DistToTheNextM      (int i) { return *DistToTheNextMPtr(i); }
 
-  bool* ShowMemRectPtr      (int i) { return &(Ch(i)->showMemRect); }
-  bool ShowMemRect          (int i) { return *ShowMemRectPtr(i); }
-  bool* ShowODRectPtr       (int i) { return &(Ch(i)->showODRect); }
-  bool ShowODRect           (int i) { return *ShowODRectPtr(i); }
-  bool* ShowLabelsPtr       (int i) { return &(Ch(i)->showLabels); }
-  bool ShowLabels           (int i) { return *ShowLabelsPtr(i); }
-  bool* ShowChanNamePtr     (int i) { return &(Ch(i)->showChanName); }
-  bool ShowChanName         (int i) { return *ShowChanNamePtr(i); }
+  bool* DrawMemRectPtr      (int i) { return &(Ch(i)->drawMemRect); }
+  bool DrawMemRect          (int i) { return *DrawMemRectPtr(i); }
+  bool* DrawODRectPtr       (int i) { return &(Ch(i)->drawODRect); }
+  bool DrawODRect           (int i) { return *DrawODRectPtr(i); }
+
+  bool* DrawLabelsPtr       (int i) { return &(Ch(i)->drawLevelLabels); }
+  bool DrawLabels           (int i) { return *DrawLabelsPtr(i); }
+
+  bool* DrawChanNamePtr     (int i) { return &(Ch(i)->drawChanName); }
+  bool DrawChanName         (int i) { return *DrawChanNamePtr(i); }
+  float* ChanNameHOffsetPtr     (int i) { return &(Ch(i)->chanNameHOffset); }
+  float ChanNameHOffset         (int i) { return *ChanNameHOffsetPtr(i); }
 
   WDL_String* ChanNamePtr   (int i) { return *ChanNamePP(i); }
   WDL_String** ChanNamePP   (int i) { return &(Ch(i)->chanName); }

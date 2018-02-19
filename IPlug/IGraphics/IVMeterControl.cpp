@@ -3,8 +3,7 @@
 const IColor IVMeterControl::DEFAULT_BG_COLOR = IColor(255, 70, 70, 70);
 const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 240, 240, 240);
 const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
-const IColor IVMeterControl::DEFAULT_TXT_COLOR = DEFAULT_BG_COLOR;
-const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_TXT_COLOR;
+const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
 /*
 IVMeterControl::IVMeterControl(IDelegate & dlg, IRECT rect, int paramIdx, double * inputBuf)
@@ -26,7 +25,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
 
     // background and shadows
     auto bgRect = meterRect;
-    if (ShowODRect(ch)) bgRect.T -= mODRectHeight;
+    if (DrawODRect(ch)) bgRect.T -= mODRectHeight;
     graphics.FillRect(GetColor(mBg), bgRect);
     if (mDrawShadows)
       DrawInnerShadowForRect(bgRect, shadowColor, graphics);
@@ -57,7 +56,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         *PeakSampHeldPtr(ch) += (size_t) sampPerDraw;
       }
     // graphics
-    if (p >= MinDisplayVal(ch) && ShowMemRect(ch) && DropMs(ch) > spf * 1000.0) {
+    if (p >= MinDisplayVal(ch) && DrawMemRect(ch) && DropMs(ch) > spf * 1000.0) {
       auto memR = meterRect;
       memR.T = GetRTopFromValInMeterRect(ch, p, meterRect);
       memR.B = valR.T;
@@ -70,7 +69,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       }
 
     // overdrive rect
-    if (ShowODRect(ch)) {
+    if (DrawODRect(ch)) {
       // graphics stuff
       auto odRect = meterRect;
       odRect.T = meterRect.T - mODRectHeight;
@@ -84,6 +83,16 @@ void IVMeterControl::Draw(IGraphics& graphics) {
 
     if (mDrawBorders)
       graphics.DrawRect(GetColor(mFr), bgRect);
+
+    if (DrawChanName(ch)) {
+      auto cnr = meterRect;
+      auto h = mText.mSize;
+      cnr.B += h;
+      cnr.T = cnr.B - h;
+      cnr.L += ChanNameHOffset(ch);
+      cnr.R += ChanNameHOffset(ch);
+      graphics.DrawTextA(mText, ChanNamePtr(ch)->Get(), cnr);
+      }
 
 #ifdef _DEBUG
     auto txtp = mText;
@@ -114,7 +123,6 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     graphics.DrawTextA(txtfps, fpss.Get(), dtr);
 
     graphics.DrawRect(COLOR_BLUE, mRECT);
-
 #endif
 
   SetDirty();

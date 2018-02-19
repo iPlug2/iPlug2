@@ -35,18 +35,20 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
  // pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
- pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 150, 280), 4, "in L", "in R", "out L", "out R");
+ pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 150, 280), 4, "in L/R", " ", "out L/R", " ");
  //pMeter2 = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
  //pMeter3 = new IVMeterControl(*this, IRECT(150, 20, 170, 280));
  //pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
  //pMeter5 = new IVMeterControl(*this, IRECT(250, 20, 270, 280));
+ ((IVMeterControl*) pMeter1)->SetChNameHOffset(0, 10);
+ ((IVMeterControl*) pMeter1)->SetChNameHOffset(2, 6);
 
  ((IVMeterControl*) pMeter1)->SetPeakDropTimeMs(500.0);
  ((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0, 0);
  ((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0, 2, false);
 
  ((IVMeterControl*) pMeter1)->SetHoldPeaks(false);
- //((IVMeterControl*) pMeter1)->SetShowOverdriveRect(false);
+ //((IVMeterControl*) pMeter1)->SetDrawOverdriveRect(false);
 
  //((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0);
 //((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
