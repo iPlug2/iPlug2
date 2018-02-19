@@ -2,12 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
-    <ClCompile Include="..\app_wrapper\app_dialog.cpp">
-      <Filter>IPlug\APP</Filter>
-    </ClCompile>
-    <ClCompile Include="..\app_wrapper\app_main.cpp">
-      <Filter>IPlug\APP</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
@@ -41,29 +35,11 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\ASIO_SDK\asio.cpp">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ASIO_SDK\asiodrivers.cpp">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ASIO_SDK\asiolist.cpp">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ASIO_SDK\iasiothiscallresolver.cpp">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugAPP.cpp">
       <Filter>IPlug\APP</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
       <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.cpp">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.cpp">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp">
       <Filter>IPlug</Filter>
@@ -71,13 +47,37 @@
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.cpp">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.cpp">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\asio.cpp">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiodrivers.cpp">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiolist.cpp">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiothiscallresolver.cpp">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_dialog.cpp">
+      <Filter>IPlug\APP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp">
+      <Filter>IPlug\APP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp">
+      <Filter>IPlug\APP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\IPlugEffect.h" />
-    <ClInclude Include="..\app_wrapper\app_main.h">
-      <Filter>IPlug\APP</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
@@ -159,36 +159,6 @@
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\asio.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\asiodrivers.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\asiodrvr.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\asiolist.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\asiosys.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\dsound.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\ginclude.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\iasiodrv.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\iasiothiscallresolver.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\ASIO_SDK\soundcard.h">
-      <Filter>IPlug\APP\ASIO_SDK</Filter>
-    </ClInclude>
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
@@ -197,12 +167,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
       <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.h">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.h">
-      <Filter>IPlug\APP\RTAudioMidi</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
       <Filter>IPlug</Filter>
@@ -213,6 +177,48 @@
     <ClInclude Include="..\IPlugEffect_controls.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
       <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.h">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.h">
+      <Filter>IPlug\APP\RTAudioMidi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asio.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiodrivers.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiodrvr.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiolist.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiosys.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\dsound.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\functiondiscoverykeys_devpkey.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\ginclude.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiodrv.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiothiscallresolver.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\soundcard.h">
+      <Filter>IPlug\APP\ASIO_SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP_host.h">
+      <Filter>IPlug\APP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -253,7 +259,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\resources\IPlugEffect.rc">
+    <ResourceCompile Include="..\resources\main.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
   </ItemGroup>
