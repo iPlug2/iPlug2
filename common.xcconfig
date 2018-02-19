@@ -68,13 +68,15 @@ CA_SDK = $(ROOT)/CA_SDK
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
 
-// IGraphics dependencies
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
+
+// IGraphics dependencies
+IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
 LICE_PATH = $(WDL_PATH)/lice
-NSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
-NVG_PATH = $(IGRAPHICS_PATH)/nanovg/src
-NVGMTL_PATH = $(IGRAPHICS_PATH)/MetalNanoVG/src
-AGG_PATH = $(IGRAPHICS_PATH)/agg
+NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
+NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
+NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
+AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG
 FT_PATH = $(STATICLIBS_INC_PATH)/freetype2
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
