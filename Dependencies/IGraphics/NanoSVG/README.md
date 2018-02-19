@@ -3,7 +3,7 @@ Nano SVG
 
 ## Parser
 
-![screenshot of some splines rendered with the sample program](Dependencies/IGraphics/NanoSVG/example/screenshot-1.png?raw=true)
+![screenshot of some splines rendered with the sample program](/Dependencies/IGraphics/NanoSVG/example/screenshot-1.png?raw=true)
 
 NanoSVG is a simple stupid single-header-file SVG parse. The output of the parser is a list of cubic bezier shapes.
 
