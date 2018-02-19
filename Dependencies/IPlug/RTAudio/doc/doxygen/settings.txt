@@ -1,0 +1,48 @@
+/*! \page settings Device Settings
+
+The next step in using RtAudio is to open a stream with particular device and parameter settings.
+
+\code
+
+#include "RtAudio.h"
+
+int main()
+{
+  RtAudio dac;
+  if ( dac.getDeviceCount() == 0 ) exit( 0 );
+
+  RtAudio::StreamParameters parameters;
+  parameters.deviceId = dac.getDefaultOutputDevice();
+  parameters.nChannels = 2;
+  unsigned int sampleRate = 44100;
+  unsigned int bufferFrames = 256; // 256 sample frames
+
+  RtAudio::StreamOptions options;
+  options.flags = RTAUDIO_NONINTERLEAVED;
+
+  try {
+    dac.openStream( &parameters, NULL, RTAUDIO_FLOAT32,
+                    sampleRate, &bufferFrames, &myCallback, NULL, &options );
+  }
+  catch ( RtAudioError& e ) {
+    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
+    exit( 0 );
+  }
+  
+  return 0;
+}
+\endcode
+
+The RtAudio::openStream() function attempts to open a stream with a specified set of parameter values.  In the above example, we attempt to open a two channel playback stream using the default output device, 32-bit floating point data, a sample rate of 44100 Hz, and a frame rate of 256 sample frames per output buffer.  If the user specifies an invalid parameter value (such as a device id greater than or equal to the number of enumerated devices), an RtAudioError is thrown of type = INVALID_USE.   If a system error occurs or the device does not support the specified parameter values, an RtAudioError of type = SYSTEM_ERROR is thrown.  In either case, a descriptive error message is bundled with the exception and can be queried with the RtAudioError::getMessage() or RtAudioError::what() functions.
+
+RtAudio provides four signed integer and two floating point data formats which can be specified using the RtAudioFormat parameter values mentioned earlier.  If the opened device does not natively support the given format, RtAudio will automatically perform the necessary data format conversion.
+
+The \c bufferFrames parameter specifies the desired number of sample frames that will be written to and/or read from a device per write/read operation.  This parameter can be used to control stream latency though there is no guarantee that the passed value will be that used by a device.  In general, a lower \c bufferFrames value will produce less latency but perhaps less robust performance.  A value of zero can be specified, in which case the smallest allowable value will be used.  The \c bufferFrames parameter is passed as a pointer and the actual value used by the stream is set during the device setup procedure.  \c bufferFrames values should be a power of two.  Optimal and allowable buffer values tend to vary between systems and devices.  Stream latency can also be controlled via the optional RtAudio::StreamOptions member \c numberOfBuffers (not used in the example above), though this tends to be more system dependent.  In particular, the \c numberOfBuffers parameter is ignored when using the OS-X Core Audio, Jack, and the Windows ASIO APIs.
+
+As noted earlier, the device capabilities reported by a driver or underlying audio API are not always accurate and/or may be dependent on a combination of device settings.  Because of this, RtAudio does not attempt to query a device's capabilities or use previously reported values when opening a device.  Instead, RtAudio simply attempts to set the given parameters on a specified device and then checks whether the setup is successful or not.
+
+The RtAudioCallback parameter above is a pointer to a user-defined function that will be called whenever the audio system is ready for new output data or has new input data to be read.  Further details on the use of a callback function are provided in the next section.
+
+Several stream options are available to fine-tune the behavior of an audio stream.  In the example above, we specify that data will be written by the user in a \e non-interleaved format via the RtAudio::StreamOptions member \c flags.  That is, all \c bufferFrames of the first channel should be written consecutively, followed by all \c bufferFrames of the second channel.  By default (when no option is specified), RtAudio expects data to be written in an \e interleaved format.
+
+*/

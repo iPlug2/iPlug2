@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/rtaudio        
+
+Name: librtaudio
+Description: RtAudio - a set of C++ classes that provide a common API for realtime audio input/output
+Version: @PACKAGE_VERSION@
+Requires: @req@ 
+Libs: -L${libdir} -lrtaudio
+Libs.private: -lpthread
+Cflags: -pthread -I${includedir} @api@
