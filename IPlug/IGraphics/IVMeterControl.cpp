@@ -30,11 +30,11 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     if (mDrawShadows)
       DrawInnerShadowForRect(bgRect, shadowColor, graphics);
 
-    // actual value rect
-    auto valR = meterRect;
-    valR.T = GetVCoordFromValInMeterRect(ch, v, meterRect);
+    // raw value rect
+    auto rawR = meterRect;
+    rawR.T = GetVCoordFromValInMeterRect(ch, v, meterRect);
     if (v >= MinDisplayVal(ch))
-      graphics.FillRect(GetColor(mRaw), valR);
+      graphics.FillRect(GetColor(mRaw), rawR);
 
     // memory rect
     // math
@@ -56,10 +56,10 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         *PeakSampHeldPtr(ch) += (size_t) sampPerDraw;
       }
     // graphics
-    if (p >= MinDisplayVal(ch) && DrawMemRect(ch) && DropMs(ch) > spf * 1000.0) {
+    if (DrawMemRect(ch) && p >= MinDisplayVal(ch) && DropMs(ch) > spf * 1000.0) {
       auto memR = meterRect;
       memR.T = GetVCoordFromValInMeterRect(ch, p, meterRect);
-      memR.B = valR.T;
+      memR.B = rawR.T;
       auto c = GetColor(mRaw);
       c.A /= 2;
       graphics.FillRect(c, memR);
@@ -68,14 +68,32 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
       }
 
-    // overdrive rect
+    // peak rect
+    if(v > TruePeak(ch))
+      *TruePickPtr(ch) = v;
+    // graphics stuff
     if (DrawPeakRect(ch)) {
-      // graphics stuff
-      auto odRect = meterRect;
-      odRect.T = meterRect.T - mPeakRectHeight;
-      odRect.B = meterRect.T;
+      // first the rect
+      auto pR = meterRect;
+      pR.T = meterRect.T - mPeakRectHeight;
+      pR.B = meterRect.T;
       auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), OverBlink(ch));
-      graphics.FillRect(pc, odRect);
+      graphics.FillRect(pc, pR);
+      // then the true pick
+      if (DrawTruePeak(ch)) {
+        WDL_String tps;
+        // todo add precision as a member
+        tps.SetFormatted(8, "%2.2f", TruePeak(ch));
+        auto tpr = pR;// ShiftRectBy(pR, 0.0, mMarkText.mSize / 2);
+        tpr = ShiftRectBy(tpr, 0.f, 1.0);
+        if (mDrawShadows) {
+          auto tt = mMarkText;
+          tt.mFGColor = shadowColor;
+          auto sr = ShiftRectBy(tpr, 1.0, 1.0);
+          graphics.DrawTextA(tt, tps.Get(), sr);
+          }
+        graphics.DrawTextA(mMarkText, tps.Get(), tpr);
+        }
       }
     // math
     if (!HoldingAPeak(ch))
@@ -106,7 +124,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     ps.SetFormatted(8, "pk\n%1.2f", vt);
     float th, tw;
     BasicTextMeasure(ps.Get(), th, tw);
-    auto dtr = valR;
+    auto dtr = rawR;
     dtr.T = dtr.B - th * txtp.mSize - 30.0f;
     graphics.DrawTextA(txtp, ps.Get(), dtr);
     */
