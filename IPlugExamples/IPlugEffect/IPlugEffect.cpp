@@ -48,7 +48,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
  ((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0, 2, false);
 
  ((IVMeterControl*) pMeter1)->SetHoldPeaks(false);
- //((IVMeterControl*) pMeter1)->SetDrawOverdriveRect(false);
+ //((IVMeterControl*) pMeter1)->SetDrawPeakRect(false);
 
  //((IVMeterControl*) pMeter1)->SetDistToTheNextMeter(0.0);
 //((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);

@@ -34,7 +34,6 @@ class IVMeterControl : public IControl
       }
 
     SetLevelMarks("3 0s -3 -6s -9 -12s -18 -24s -30 -36 -42 -48s -54s -60");
-    //mMarkText.mSize = 0.9 * mText.mSize;
 
     va_list args;
     va_start(args, chanNames);
@@ -51,7 +50,7 @@ class IVMeterControl : public IControl
         // should be ~the same as in OnResize()
 
         *MeterWidthPtr(m) *= wr;
-        *MeterWidthPtr(m) = trunc(MeterWidth(m)); // identical narrow meters with noninteger sizes often look ugly
+        *MeterWidthPtr(m) = trunc(MeterWidth(m)); // identical narrow meters with noninteger sizes often look different
         *DistToTheNextMPtr(m) *= wr;
         *DistToTheNextMPtr(m) = trunc(DistToTheNextM(m));
         }
@@ -74,38 +73,109 @@ class IVMeterControl : public IControl
 
   void SetSampleRate(double sr) { mSampleRate = sr; }
 
-  void Draw(IGraphics& graphics)  override;
+  // you can use it for raw data, but don't forget to adjust the sample rate for your use case
+  void ProcessChannelValue(double value, int chId = -1) {
+    value = abs(value);
 
-  void SetDirty(bool pushParamToDelegate = false) override {
-    mDirty = true;
-    }
+    auto Set = [this] (int i, double v) {
+      if (v > RawValue(i))
+        *RawValuePtr(i) = v; // it makes sense to show max value that was gained between the Draw() calls.
+                             // in Draw then the value is zeroed right after reading.
+                             // it's not 100% thread safe, but in this case it doesn't matter.
 
-  void OnResize() {
-    // todo
-    // dont forget to trunc the horisontal distances
-    // scale channel name offsets accordingly
+      if (v >= GetPeakFromMemExp(i)) {
+        *MemPeakPtr(i) = v;
+        *MemExpPtr(i) = 1.0;
+        *PeakSampHeldPtr(i) = 0;
+        }
+
+      if (MemPeak(i) >= OverThresh(i)) {
+        *OverBlinkPtr(i) = 1.0;
+        if (mHoldPeaks)
+          *HoldingAPeakPtr(i) = true;
+        }
+      };
+
+    if (chId > -1) // this case first by use case frequency
+      Set(chId, value);
+    else
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        Set(ch, value);
+
     SetDirty();
     }
-
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
-    for (int ch = 0; ch != NumChannels(); ++ch)
-      *HoldingAPeakPtr(ch) = false;
+  void ProcessChan(sample* in, int blockSize, int chId = -1) {
+    if (chId > -1) // this case first by use case frequency
+      for (int s = 0; s != blockSize; ++s, ++in)
+        ProcessChannelValue((double) *in, chId);
+    else
+      // useful when your meter shows several different representations of the same signal,
+      // or simply when you have only one channel.
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        for (int s = 0; s != blockSize; ++s, ++in)
+          ProcessChannelValue((double) *in, ch);
     }
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override {
-    // todo : doesnt react during peakhold time
-    for (int ch = 0; ch != NumChannels(); ++ch)
-      if (GetMeterRect(ch, true).Contains(x, y)) {
-        *HoldingAPeakPtr(ch) = false;
-        break;
+  // handy for processing a block of either all ins or all outs
+  void ProcessBus(sample** ins, int blockSize, int numChans = -1, int sourceStartId = 0, int destStartId = 0)
+    {
+    if (numChans < 0) numChans = NumChannels();
+
+    for (int ch = 0; ch != numChans; ++ch) {
+      auto in = ins[sourceStartId + ch];
+      ProcessChan(in, blockSize, destStartId + ch);
+      }
+    }
+  // handy if meter measures both inputs and outputs:
+  void ProcessInsOuts(sample** ins, sample** outs, int blockSize, int numIns = -1, int numOuts = -1) {
+    if (numIns < 0) numIns = NumChannels() / 2;
+    if (numOuts < 0) numOuts = numIns;
+
+    for (int ch = 0; ch != numIns; ++ch) {
+      auto in = ins[ch];
+      ProcessChan(in, blockSize, ch);
+      }
+    for (int ch = 0; ch != numOuts; ++ch) {
+      auto out = outs[ch];
+      ProcessChan(out, blockSize, ch + numIns);
+      }
+    }
+
+  void SetDisplayInDB(bool db, int chId = -1) {
+     if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *DisplayDBPtr(ch) = db;
+    else
+     *DisplayDBPtr(chId) = db;
+
+    SetDirty();
+    }
+  void SetMinMaxDisplayValues(double min, double max, int chId = -1) {
+    if (min > max) {
+      auto b = max;
+      max = min;
+      min = b;
+      }
+    else if (min == max)
+      max += 0.1;
+
+    auto Set = [this] (int i, double min, double max) {
+      if (DisplayDB(i)) {
+        *MaxDisplayValPtr(i) = DBToAmp(max);
+        *MinDisplayValPtr(i) = DBToAmp(min);
         }
-    }
+      else {
+        *MinDisplayValPtr(i) = abs(min);
+        *MaxDisplayValPtr(i) = abs(max);
+        }
+      };
 
-  void SetText(IText& txt) {
-    SetTexts(txt, txt);
-    }
-  void SetTexts(IText chNameTxt, IText marksTxt) {
-    mText = chNameTxt;
-    mMarkText = marksTxt;
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        Set(ch, min, max);
+    else
+      Set(chId, min, max);
+
+    SetDirty();
     }
 
   void SetDrawChName(bool draw, int chId = -1) {
@@ -230,13 +300,21 @@ class IVMeterControl : public IControl
 
     }
 
+  void SetText(IText& txt) {
+    SetTexts(txt, txt);
+    }
+  void SetTexts(IText chNameTxt, IText marksTxt) {
+    mText = chNameTxt;
+    mMarkText = marksTxt;
+    }
+
   void SetOverdriveThreshold(double thresh, int chId = -1) {
     auto Set = [this] (int i, double t) {
       if (DisplayDB(i))
         t = DBToAmp(i);
       else if (t < 0.0)
         t *= -1.0;
-      *OverdriveThreshPtr(i) = t;
+      *OverThreshPtr(i) = t;
       };
 
     if (chId < 0)
@@ -246,74 +324,7 @@ class IVMeterControl : public IControl
       Set(chId, thresh);
 
     }
-
-  // you can use it for raw data, but don't forget to adjust the sample rate for your use case
-  void UpdateChannelValue(double value, int chId = -1) {
-    value = abs(value);
-
-    auto Set = [this] (int i, double v) {
-      if (v > RawValue(i))
-        *RawValuePtr(i) = v; // it makes sense to show max value that was gained between the Draw() calls.
-                             // in Draw then the value is zeroed right after reading.
-                             // it's not 100% thread safe, but in this case it doesn't matter.
-
-      if (v >= GetPeakFromMemExp(i)) {
-        *MemPeakPtr(i) = v;
-        *MemExpPtr(i) = 1.0;
-        *PeakSampHeldPtr(i) = 0;
-        }
-
-      if (MemPeak(i) >= OverdriveThresh(i)) {
-        *ODBlinkPtr(i) = 1.0;
-        if (mHoldPeaks)
-          *HoldingAPeakPtr(i) = true;
-        }
-      };
-
-    if (chId > -1) // this case first by use case frequency
-      Set(chId, value);
-    else
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        Set(ch, value);
-
-    SetDirty();
-    }
-  void ProcessChan(sample* in, int blockSize, int chId = -1) {
-    if (chId > -1) // this case first by use case frequency
-      for (int s = 0; s != blockSize; ++s, ++in)
-        UpdateChannelValue((double) *in, chId);
-    else
-      // useful when your meter shows several different representations of the same signal,
-      // or simply when you have only one channel.
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        for (int s = 0; s != blockSize; ++s, ++in)
-          UpdateChannelValue((double) *in, ch);
-    }
-  // handy for processing a block of either all ins or all outs
-  void ProcessBus(sample** ins, int blockSize, int numChans = -1, int sourceStartId = 0, int destStartId = 0)
-    {
-    if (numChans < 0) numChans = NumChannels();
-
-    for (int ch = 0; ch != numChans; ++ch) {
-      auto in = ins[sourceStartId + ch];
-      ProcessChan(in, blockSize, destStartId + ch);
-      }
-    }
-  // handy if meter measures both inputs and outputs:
-  void ProcessInsOuts(sample** ins, sample** outs, int blockSize, int numIns = -1, int numOuts = -1) {
-    if (numIns < 0) numIns = NumChannels() / 2;
-    if (numOuts < 0) numOuts = numIns;
-
-    for (int ch = 0; ch != numIns; ++ch) {
-      auto in = ins[ch];
-      ProcessChan(in, blockSize, ch);
-      }
-    for (int ch = 0; ch != numOuts; ++ch) {
-      auto out = outs[ch];
-      ProcessChan(out, blockSize, ch + numIns);
-      }
-    }
-
+  void SetHoldPeaks(bool hold) { mHoldPeaks = hold; }
   void SetPeakDropTimeMs(double ms, int chId = -1) {
     ms = abs(ms);
 
@@ -323,60 +334,22 @@ class IVMeterControl : public IControl
     else
         *DropMsPtr(chId) = ms;
     }
-  void SetHoldPeaks(bool hold) { mHoldPeaks = hold; }
-  void SetPeakRectHeight(double h) { mODRectHeight = (float) h; }
-  void SetMinMaxDisplayValues(double min, double max, int chId = -1) {
-    if (min > max) {
-      auto b = max;
-      max = min;
-      min = b;
-      }
-    else if (min == max)
-      max += 0.1;
-
-    auto Set = [this] (int i, double min, double max) {
-      if (DisplayDB(i)) {
-        *MaxDisplayValPtr(i) = DBToAmp(max);
-        *MinDisplayValPtr(i) = DBToAmp(min);
-        }
-      else {
-        *MinDisplayValPtr(i) = abs(min);
-        *MaxDisplayValPtr(i) = abs(max);
-        }
-      };
-
-    if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        Set(ch, min, max);
-    else
-      Set(chId, min, max);
-
-    SetDirty();
-    }
-  void SetDisplayInDB(bool db, int chId = -1) {
-     if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        *DisplayDBPtr(ch) = db;
-    else
-     *DisplayDBPtr(chId) = db;
-
-    SetDirty();
-    }
-
-  void SetDrawOverdriveRect(bool show, int chId = -1) {
+  void SetDrawPeakRect(bool show, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
-        *DrawODRectPtr(ch) = show;
+        *DrawPeakRectPtr(ch) = show;
         *HoldingAPeakPtr(ch) = false;
-        if (!show) *ODBlinkPtr(ch) = 0.0;
+        if (!show) *OverBlinkPtr(ch) = 0.0;
         }
     else {
-      *DrawODRectPtr(chId) = show;
+      *DrawPeakRectPtr(chId) = show;
       *HoldingAPeakPtr(chId) = false;
-      if (!show) *ODBlinkPtr(chId) = 0.0;
+      if (!show) *OverBlinkPtr(chId) = 0.0;
       }
     SetDirty();
     }
+  void SetPeakRectHeight(double h) { mPeakRectHeight = (float) h; }
+
   void SetDrawMemRect(bool show, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
@@ -445,6 +418,30 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
+  void Draw(IGraphics& graphics)  override;
+  void SetDirty(bool pushParamToDelegate = false) override {
+    mDirty = true;
+    }
+  void OnResize() {
+    // todo
+    // dont forget to trunc the horisontal distances
+    // scale channel name offsets accordingly
+    SetDirty();
+    }
+
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
+    for (int ch = 0; ch != NumChannels(); ++ch)
+      *HoldingAPeakPtr(ch) = false;
+    }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override {
+    // todo : doesnt react during peakhold time
+    for (int ch = 0; ch != NumChannels(); ++ch)
+      if (GetMeterRect(ch, true).Contains(x, y)) {
+        *HoldingAPeakPtr(ch) = false;
+        break;
+        }
+    }
+
   protected:
 
   double mSampleRate = DEFAULT_SAMPLE_RATE;
@@ -461,15 +458,15 @@ class IVMeterControl : public IControl
     double memExp = 1.0; // decay exponent for memPeak
     size_t peakSampHeld = 0;
     double dropMs = 2000.0;
-    double overdriveThresh = 1.0;
-    double oDBlink = 0.0; // overdrive rect intensity
+    double overThresh = 1.0;
+    double overBlink = 0.0; // overdrive rect intensity
     bool holdingAPeak = false;
 
-    float meterWidth = 20.0;
-    float distToNextM = 30.0; // use for gluing chans into groups like ins and outs
+    float meterWidth = 20.f;
+    float distToNextM = 30.f; // use for gluing chans into groups like ins and outs
 
     bool drawMemRect = true;
-    bool drawODRect = true;
+    bool drawPeakRect = true;
 
     bool drawMarks = true;
     float markWidthR = 0.6f;
@@ -477,7 +474,7 @@ class IVMeterControl : public IControl
     WDL_TypedBuf<bool>* markLabels = nullptr;
 
     bool drawChanName = true; // todo
-    float chanNameHOffset = 0.0; // e.g. one "IN L/R" label for glued meters
+    float chanNameHOffset = 0.f; // e.g. one "IN L/R" label for glued meters
     WDL_String* chanName = nullptr;
     };
 
@@ -485,18 +482,19 @@ class IVMeterControl : public IControl
 
   int NumChannels() { return mChanData.GetSize(); }
 
-  float mMeterHeight = 150.0; // including the overdrive rect
-  float mODRectHeight = 10.0;
+  float mMeterHeight = 150.f; // including the overdrive rect
+  float mPeakRectHeight = 15.f;
   bool mHoldPeaks = true; // useful in audio debugging
 
-  float mChNameMaxH = 1.0; // these three used for stretching mRECT to fit labels
-  float mChNameLeftMargin = 0.0;
-  float mChNameRightMargin = 0.0;
+  // todo:
+  float mChNameMaxH = 1.f; // these three used for stretching mRECT to fit labels
+  float mChNameLeftMargin = 0.f;
+  float mChNameRightMargin = 0.f;
 
   IText mMarkText = mText;
 
   bool mDrawShadows = true;
-  float mShadowOffset = 3.0;
+  float mShadowOffset = 3.f;
   bool mDrawBorders = true;
 
   double GetExpForDrop(double ms, double fps) {
@@ -508,6 +506,27 @@ class IVMeterControl : public IControl
   double GetPeakFromMemExp(int chId) {
     return MemPeak(chId) - (MemExp(chId) - 1.0);
     }
+
+  float GetVCoordFromValInMeterRect(int chId, double v, IRECT meterR) {
+    auto t = meterR.B;
+    if (v > MaxDisplayVal(chId))
+      t = meterR.T;
+    else if (v > MinDisplayVal(chId)) {
+      auto r = 0.0;
+      if (DisplayDB(chId)) {
+        auto mindB = AmpToDB(MinDisplayVal(chId));
+        auto maxdB = AmpToDB(MaxDisplayVal(chId));
+        auto vdB = AmpToDB(v);
+        r = (vdB - mindB) / (maxdB - mindB);
+        }
+      else {
+        r = (v - MinDisplayVal(chId)) / (MaxDisplayVal(chId) - MinDisplayVal(chId));
+        }
+      t -= (float) r * meterR.H();
+      }
+    return t;
+    }
+
   IRECT GetMeterRect(int i, bool withODRect = false) {
     // todo account for labels
     float dx = 0.0;
@@ -519,8 +538,8 @@ class IVMeterControl : public IControl
     mr.L += dx;
     mr.R = mr.L + MeterWidth(i);
     mr.B = mr.T + mMeterHeight;
-    if (DrawODRect(i) && !withODRect)
-      mr.T += mODRectHeight;
+    if (DrawPeakRect(i) && !withODRect)
+      mr.T += mPeakRectHeight;
     return mr;
     }
   IRECT GetControlRectFromChannelsData(bool keepPosition = true) {
@@ -545,32 +564,12 @@ class IVMeterControl : public IControl
       }
     return r;
     }
-  IRECT ShiftRectBy(IRECT r, float dx, float dy = 0.0) {
-    auto sr = r;
-    sr.L += dx;
-    sr.R += dx;
-    sr.T += dy;
-    sr.B += dy;
-    return sr;
-    }
-  float GetVCoordFromValInMeterRect(int chId, double v, IRECT meterR) {
-    auto t = meterR.B;
-    if (v > MaxDisplayVal(chId))
-      t = meterR.T;
-    else if (v > MinDisplayVal(chId)) {
-      auto r = 0.0;
-      if (DisplayDB(chId)) {
-        auto mindB = AmpToDB(MinDisplayVal(chId));
-        auto maxdB = AmpToDB(MaxDisplayVal(chId));
-        auto vdB = AmpToDB(v);
-        r = (vdB - mindB) / (maxdB - mindB);
-        }
-      else {
-        r = (v - MinDisplayVal(chId)) / (MaxDisplayVal(chId) - MinDisplayVal(chId));
-        }
-      t -= (float) r * meterR.H();
-      }
-    return t;
+
+  void SetChanNames(const char* names, va_list args) {
+    if (NumChannels() < 1) return;
+    ChanNamePtr(0)->Set(names);
+    for (int c = 1; c < NumChannels(); ++c)
+      ChanNamePtr(c)->Set(va_arg(args, const char*));
     }
 
   IColor LinearBlendColors(IColor cA, IColor cB, double mix) {
@@ -580,6 +579,14 @@ class IVMeterControl : public IControl
     cM.G = (int) ((1.0 - mix) * cA.G + mix * cB.G);
     cM.B = (int) ((1.0 - mix) * cA.B + mix * cB.B);
     return cM;
+    }
+  IRECT ShiftRectBy(IRECT r, float dx, float dy = 0.0) {
+    auto sr = r;
+    sr.L += dx;
+    sr.R += dx;
+    sr.T += dy;
+    sr.B += dy;
+    return sr;
     }
   void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
     // todo del from here if upstream has it on the moment of pull request
@@ -600,7 +607,6 @@ class IVMeterControl : public IControl
       ++txt;
       }
     }
-
   void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics) {
     auto& o = mShadowOffset;
     auto slr = r;
@@ -610,13 +616,6 @@ class IVMeterControl : public IControl
     str.B = str.T + o;
     graphics.FillRect(shadowColor, slr);
     graphics.FillRect(shadowColor, str);
-    }
-
-  void SetChanNames(const char* names, va_list args) {
-    if (NumChannels() < 1) return;
-    ChanNamePtr(0)->Set(names);
-    for (int c = 1; c < NumChannels(); ++c)
-      ChanNamePtr(c)->Set(va_arg(args, const char*));
     }
 
   // getters
@@ -629,8 +628,8 @@ class IVMeterControl : public IControl
   double* MaxDisplayValPtr  (int i) { return &(Ch(i)->maxDisplayVal); }
   double MaxDisplayVal      (int i) { return *MaxDisplayValPtr(i); }
 
-  double* OverdriveThreshPtr(int i) { return &(Ch(i)->overdriveThresh); }
-  double OverdriveThresh    (int i) { return *OverdriveThreshPtr(i); }
+  double* OverThreshPtr     (int i) { return &(Ch(i)->overThresh); }
+  double OverThresh         (int i) { return *OverThreshPtr(i); }
 
   bool* DisplayDBPtr        (int i) { return &(Ch(i)->displayDB); }
   bool DisplayDB            (int i) { return *DisplayDBPtr(i); }
@@ -643,8 +642,14 @@ class IVMeterControl : public IControl
   size_t* PeakSampHeldPtr   (int i) { return &(Ch(i)->peakSampHeld); }
   size_t PeakSampHeld       (int i) { return *PeakSampHeldPtr(i); }
 
-  double* ODBlinkPtr        (int i) { return &(Ch(i)->oDBlink); }
-  double ODBlink            (int i) { return *ODBlinkPtr(i); }
+  double* OverBlinkPtr      (int i) { return &(Ch(i)->overBlink); }
+  double OverBlink          (int i) { return *OverBlinkPtr(i); }
+
+  bool* DrawPeakRectPtr     (int i) { return &(Ch(i)->drawPeakRect); }
+  bool DrawPeakRect         (int i) { return *DrawPeakRectPtr(i); }
+
+  bool* DrawMemRectPtr      (int i) { return &(Ch(i)->drawMemRect); }
+  bool DrawMemRect          (int i) { return *DrawMemRectPtr(i); }
 
   double* MemPeakPtr        (int i) { return &(Ch(i)->memPeak); }
   double MemPeak            (int i) { return *MemPeakPtr(i); }
@@ -656,15 +661,10 @@ class IVMeterControl : public IControl
   float* DistToTheNextMPtr  (int i) { return &(Ch(i)->distToNextM); }
   float DistToTheNextM      (int i) { return *DistToTheNextMPtr(i); }
 
-  bool* DrawMemRectPtr      (int i) { return &(Ch(i)->drawMemRect); }
-  bool DrawMemRect          (int i) { return *DrawMemRectPtr(i); }
-  bool* DrawODRectPtr       (int i) { return &(Ch(i)->drawODRect); }
-  bool DrawODRect           (int i) { return *DrawODRectPtr(i); }
-
-  bool* DrawMarksPtr       (int i) { return &(Ch(i)->drawMarks); }
-  bool DrawMarks           (int i) { return *DrawMarksPtr(i); }
-  float* MarkWidthRPtr     (int i) { return &(Ch(i)->markWidthR); }
-  float MarkWidthR         (int i) { return *MarkWidthRPtr(i); }
+  bool* DrawMarksPtr        (int i) { return &(Ch(i)->drawMarks); }
+  bool DrawMarks            (int i) { return *DrawMarksPtr(i); }
+  float* MarkWidthRPtr      (int i) { return &(Ch(i)->markWidthR); }
+  float MarkWidthR          (int i) { return *MarkWidthRPtr(i); }
 
   double Mark         (int ch, int i) { return *(MarksPtr(ch)->Get() + i); }
   WDL_TypedBuf<double>*  MarksPtr     (int i) { return *MarksPP(i); }

@@ -25,7 +25,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
 
     // background and shadows
     auto bgRect = meterRect;
-    if (DrawODRect(ch)) bgRect.T -= mODRectHeight;
+    if (DrawPeakRect(ch)) bgRect.T -= mPeakRectHeight;
     graphics.FillRect(GetColor(mBg), bgRect);
     if (mDrawShadows)
       DrawInnerShadowForRect(bgRect, shadowColor, graphics);
@@ -63,23 +63,23 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       auto c = GetColor(mRaw);
       c.A /= 2;
       graphics.FillRect(c, memR);
-      auto pc = LinearBlendColors(GetColor(mRaw), GetColor(mPeak), ODBlink(ch));
+      auto pc = LinearBlendColors(GetColor(mRaw), GetColor(mPeak), OverBlink(ch));
       if (p <= MaxDisplayVal(ch))
         graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
       }
 
     // overdrive rect
-    if (DrawODRect(ch)) {
+    if (DrawPeakRect(ch)) {
       // graphics stuff
       auto odRect = meterRect;
-      odRect.T = meterRect.T - mODRectHeight;
+      odRect.T = meterRect.T - mPeakRectHeight;
       odRect.B = meterRect.T;
-      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), ODBlink(ch));
+      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), OverBlink(ch));
       graphics.FillRect(pc, odRect);
       }
     // math
     if (!HoldingAPeak(ch))
-      *ODBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
+      *OverBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
 
 
     if (mDrawBorders)
@@ -146,7 +146,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     dtr.T = dtr.B - th * txtp.mSize - 30.0f;
     graphics.DrawTextA(txtp, ps.Get(), dtr);
     */
-    auto tl = GetVCoordFromValInMeterRect(ch, OverdriveThresh(ch), meterRect);
+    auto tl = GetVCoordFromValInMeterRect(ch, OverThresh(ch), meterRect);
     graphics.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
 #endif
     }
