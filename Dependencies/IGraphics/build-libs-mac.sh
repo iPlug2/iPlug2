@@ -298,6 +298,43 @@ fi
 
 #######################################################################
 
+#pkg-config
+
+if [ -e "usr/local/bin/pkg-config" ]
+then
+echo "Found pkg-config"
+else
+
+echo "Installing pkg-config"
+if [ -e pkg-config-0.28.tar.gz ]
+then
+echo "Tarball Present..."
+else
+echo "Downloading..."
+curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/pkg-config-0.28.tar.gz
+fi
+echo "Unpacking..."
+tar xfz pkg-config-0.28.tar.gz
+cd pkg-config-0.28
+echo -n "Configuring..."
+echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
+./configure --prefix=/usr/local CC=$CC --with-internal-glib >> $LOG_PATH/build.log 2>&1 &
+spin
+echo "done."
+echo -n "Building..."
+echo "---------------------------- Build pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
+make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
+spin
+make >> $LOG_PATH/build.log 2>&1 2>&1 &
+make -s install >> $LOG_PATH/build.log 2>&1 &
+echo "done."
+echo "pkg-config Installed!"
+echo
+cd "$BUILD_LOCATION"
+fi
+
+#######################################################################
+
 #fontconfig
 
 if [ -e "$LIB_PATH/libfontconfig.a" ]
