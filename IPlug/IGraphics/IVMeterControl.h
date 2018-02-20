@@ -572,6 +572,49 @@ class IVMeterControl : public IControl
       ChanNamePtr(c)->Set(va_arg(args, const char*));
     }
 
+  void DrawMarks(IGraphics& graphics) {
+    auto shadowColor = IColor(60, 0, 0, 0);
+      // todo add alignment and offset
+    for (auto ch = 0; ch != NumChannels(); ++ch) {
+      if (DrawMarks(ch)) {
+        auto mR = GetMeterRect(ch);
+        for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
+          auto v = Mark(ch, m);
+          if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
+            auto h = GetVCoordFromValInMeterRect(ch, v, mR);
+            h = trunc(h); // NB at least on LICE nonintegers look bad
+            if (DisplayDB(ch)) v = AmpToDB(v);
+            if (MarkLabel(ch, m)) {
+              auto tr = mR;
+              tr.T = tr.B = h - mMarkText.mSize / 2;
+              WDL_String l;
+              l.SetFormatted(8, "%2.1f", v);
+              if (mDrawShadows) {
+                auto tt = mMarkText;
+                tt.mFGColor = shadowColor;
+                auto sr = ShiftRectBy(tr, 1.0, 1.0);
+                graphics.DrawTextA(tt, l.Get(), sr);
+                }
+              graphics.DrawTextA(mMarkText, l.Get(), tr);
+              }
+            else {
+              float x2 = mR.L + 1.f + MarkWidthR(ch) * mR.W();
+              if (mDrawShadows) {
+                auto sr = mR;
+                sr.T = h;
+                sr.B = h + 1.f;
+                sr.R = x2;
+                sr = ShiftRectBy(sr, 1.0, 1.0);
+                graphics.FillRect(shadowColor, sr);
+                }
+              graphics.DrawLine(mMarkText.mFGColor, mR.L + 1.f, h, x2, h);
+              }
+            }
+          }
+        }
+      }
+    }
+
   IColor LinearBlendColors(IColor cA, IColor cB, double mix) {
     IColor cM;
     cM.A = (int) ((1.0 - mix) * cA.A + mix * cB.A);

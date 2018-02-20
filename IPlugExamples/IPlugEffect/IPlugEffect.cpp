@@ -70,8 +70,9 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
  ((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(2.0, 3.0);
  */
 
-((IVMeterControl*) pMeter1)->SetMinMaxDisplayValues(-60.0, 4.0);
-//
+((IVMeterControl*) pMeter1)->SetMinMaxDisplayValues(-60.0, 4.0);//
+((IVMeterControl*) pMeter1)->SetDrawLevelMarks(false, 1);
+((IVMeterControl*) pMeter1)->SetDrawLevelMarks(false, 3);
 //((IVMeterControl*) pMeter5)->SetDisplayInDB(true);
 //((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
 //((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(-60.0, 3.0);
