@@ -35,7 +35,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
  // pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
- pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 150, 280), 4, "in L/R", " ", "out L/R", " ");
+ pMeter1 = new IVMeterControl(*this, IRECT(50, 20, 200, 280), 4, "in L/R", " ", "out L/R", " ");
  //pMeter2 = new IVMeterControl(*this, IRECT(100, 20, 120, 280));
  //pMeter3 = new IVMeterControl(*this, IRECT(150, 20, 170, 280));
  //pMeter4 = new IVMeterControl(*this, IRECT(200, 20, 220, 280));
@@ -70,7 +70,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
  ((IVMeterControl*) pMeter5)->SetMinMaxDisplayValues(2.0, 3.0);
  */
 
-//((IVMeterControl*) pMeter3)->SetMinMaxDisplayValues(DBToAmp(-60.0), DBToAmp(3.0));
+((IVMeterControl*) pMeter1)->SetMinMaxDisplayValues(-60.0, 4.0);
 //
 //((IVMeterControl*) pMeter5)->SetDisplayInDB(true);
 //((IVMeterControl*) pMeter5)->SetOverdriveThreshold(-6.0);
@@ -122,7 +122,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   AttachGraphics(pGraphics);
 
   pGraphics->HandleMouseOver(true);
-//  pGraphics->EnableLiveEdit(true);
+  //pGraphics->EnableLiveEdit(true);
 //  pGraphics->ShowControlBounds(true);
 //  pGraphics->ShowAreaDrawn(true);
 

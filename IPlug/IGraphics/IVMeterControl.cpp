@@ -1,7 +1,7 @@
 #include "IVMeterControl.h"
 
 const IColor IVMeterControl::DEFAULT_BG_COLOR = IColor(255, 70, 70, 70);
-const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 240, 240, 240);
+const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 200, 200, 200);
 const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
@@ -32,9 +32,9 @@ void IVMeterControl::Draw(IGraphics& graphics) {
 
     // actual value rect
     auto valR = meterRect;
-    valR.T = GetRTopFromValInMeterRect(ch, v, meterRect);
+    valR.T = GetVCoordFromValInMeterRect(ch, v, meterRect);
     if (v >= MinDisplayVal(ch))
-      graphics.FillRect(GetColor(mM), valR);
+      graphics.FillRect(GetColor(mRaw), valR);
 
     // memory rect
     // math
@@ -58,12 +58,12 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     // graphics
     if (p >= MinDisplayVal(ch) && DrawMemRect(ch) && DropMs(ch) > spf * 1000.0) {
       auto memR = meterRect;
-      memR.T = GetRTopFromValInMeterRect(ch, p, meterRect);
+      memR.T = GetVCoordFromValInMeterRect(ch, p, meterRect);
       memR.B = valR.T;
-      auto c = GetColor(mM);
+      auto c = GetColor(mRaw);
       c.A /= 2;
       graphics.FillRect(c, memR);
-      auto pc = LinearBlendColors(GetColor(mM), GetColor(mPk), ODBlink(ch));
+      auto pc = LinearBlendColors(GetColor(mRaw), GetColor(mPeak), ODBlink(ch));
       if (p <= MaxDisplayVal(ch))
         graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
       }
@@ -74,12 +74,13 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       auto odRect = meterRect;
       odRect.T = meterRect.T - mODRectHeight;
       odRect.B = meterRect.T;
-      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPk), ODBlink(ch));
+      auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), ODBlink(ch));
       graphics.FillRect(pc, odRect);
       }
     // math
     if (!HoldingAPeak(ch))
       *ODBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
+
 
     if (mDrawBorders)
       graphics.DrawRect(GetColor(mFr), bgRect);
@@ -89,12 +90,50 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       auto h = mText.mSize;
       cnr.B += h;
       cnr.T = cnr.B - h;
-      cnr.L += ChanNameHOffset(ch);
-      cnr.R += ChanNameHOffset(ch);
+      cnr = ShiftRectBy(cnr, ChanNameHOffset(ch));
       graphics.DrawTextA(mText, ChanNamePtr(ch)->Get(), cnr);
       }
 
+    if (DrawMarks(ch)) {
+      // todo add alignment and offset
+      for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
+        auto v = Mark(ch, m);
+        if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
+          auto& mR = meterRect;
+          auto h = GetVCoordFromValInMeterRect(ch, v, mR);
+          h = trunc(h); // NB at least on LICE nonintegers look bad
+          if (DisplayDB(ch)) v = AmpToDB(v);
+          if (MarkLabel(ch, m)) {
+            auto tr = mR;
+            tr.T = tr.B = h - mMarkText.mSize / 2;
+            WDL_String l;
+            l.SetFormatted(8, "%2.1f", v);
+            if (mDrawShadows) {
+              auto tt = mMarkText;
+              tt.mFGColor = shadowColor;
+              auto sr = ShiftRectBy(tr, 1.0, 1.0);
+              graphics.DrawTextA(tt, l.Get(), sr);
+              }
+            graphics.DrawTextA(mMarkText, l.Get(), tr);
+            }
+          else {
+            float x2 = mR.L + 1.f + MarkWidthR(ch) * mR.W();
+            if (mDrawShadows) {
+              auto sr = mR;
+              sr.T = h;
+              sr.B = h + 1.f;
+              sr.R = x2;
+              sr = ShiftRectBy(sr, 1.0, 1.0);
+              graphics.FillRect(shadowColor, sr);
+              }
+            graphics.DrawLine(mMarkText.mFGColor, mR.L + 1.f, h, x2, h);
+            }
+          }
+        }
+      }
+
 #ifdef _DEBUG
+    /*
     auto txtp = mText;
     txtp.mFGColor = COLOR_RED;
     WDL_String ps;
@@ -106,7 +145,8 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     auto dtr = valR;
     dtr.T = dtr.B - th * txtp.mSize - 30.0f;
     graphics.DrawTextA(txtp, ps.Get(), dtr);
-    auto tl = GetRTopFromValInMeterRect(ch, OverdriveThresh(ch), meterRect);
+    */
+    auto tl = GetVCoordFromValInMeterRect(ch, OverdriveThresh(ch), meterRect);
     graphics.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
 #endif
     }
