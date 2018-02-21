@@ -10,6 +10,7 @@ class IVMeterControl : public IControl
   public:
   static const IColor DEFAULT_BG_COLOR;
   static const IColor DEFAULT_RAW_COLOR;
+  static const IColor DEFAULT_RMS_COLOR;
   static const IColor DEFAULT_PK_COLOR;
   static const IColor DEFAULT_FR_COLOR;
 
@@ -19,21 +20,24 @@ class IVMeterControl : public IControl
     mRaw = kFG,
     mPeak = kHL,
     mFr = kFR,
+    mRms = kX1
     };
 
   //todo enable horisontal drawing
   IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
     : IControl(dlg, rect, kNoParameter)
-    , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR) {
+    , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR) {
 
     ChannelSpecificData d;
     for (auto ch = 0; ch != numChannels; ++ch) {
       mChanData.Add(d);
+      *(RMSBufPP(ch)) = new WDL_TypedBuf<double>;
       *(ChanNamePP(ch)) = new WDL_String;
       *(MarksPP(ch)) = new WDL_TypedBuf<double>;
       *(MarkLabelsPP(ch)) = new WDL_TypedBuf<bool>;
       }
 
+    SetRMSWindowMs(300.0);
     SetLevelMarks("3 0s -3 -6s -9 -12s -18 -24s -30 -36 -42 -48s -54s -60");
 
     va_list args;
@@ -63,6 +67,7 @@ class IVMeterControl : public IControl
 
   ~IVMeterControl() {
     for (auto c = 0; c != NumChannels(); ++c) {
+      delete(RMSBufPtr(c));
       delete(ChanNamePtr(c));
       delete(MarksPtr(c));
       delete(MarkLabelsPtr(c));
@@ -72,9 +77,21 @@ class IVMeterControl : public IControl
 // todo add thread safe channel add/del.
 // idea: add channelSpecific bool member "deleted" and process at the end of Draw()
 
-  void SetSampleRate(double sr) { mSampleRate = sr; }
+  void SetSampleRate(double sr) {
+    if (mSampleRate == sr || sr <= 0.0) return;
+    mSampleRate = sr;
+    for (int ch = 0; ch != NumChannels(); ++ch) {
+      RMSBufPtr(ch)->Resize(0.001 * RMSWindowMs(ch) * mSampleRate);
+      ZeroRMSBuf(ch);
+      }
+    }
+  void SetPlaybackState(bool transportRunning) {
+    if (!transportRunning)
+      for (auto ch = 0; ch != NumChannels(); ++ch)
+        ZeroRMSBuf(ch);
+    }
 
-  // you can use it for raw data, but don't forget to adjust the sample rate for your use case
+  // use for raw data
   void ProcessChanValue(double value, int chId = -1) {
     value = abs(value);
 
@@ -83,6 +100,17 @@ class IVMeterControl : public IControl
         *RawValuePtr(i) = v; // it makes sense to show max value that was gained between the Draw() calls.
                              // in Draw then the value is zeroed right after reading.
                              // it's not 100% thread safe, but in this case it doesn't matter.
+
+      if (DrawRMS(i)) {
+        auto s = v * v;
+        auto pos = RMSBufPos(i);
+        auto oldS = RMSBufVal(i, pos);
+        *RMSBufValPtr(i, pos) = s;
+        *RMSSumPtr(i) += s - oldS;
+        ++pos;
+        if (pos >= RMSBufLen(i)) pos = 0;
+        *RMSBufPosPtr(i) = pos;
+        }
 
       if (v >= GetPeakFromMemExp(i)) {
         *MemPeakPtr(i) = v;
@@ -204,141 +232,6 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
-  void SetDrawChName(bool draw, int chId = -1) {
-    // todo
-    SetDirty();
-    }
-  void SetChanName(int chId, const char* name) {
-    if (chId < NumChannels())
-      ChanNamePtr(chId)->Set(name);
-    SetDirty();
-    }
-  void SetChanNames(const char* names, ...) {
-    va_list args;
-    va_start(args, names);
-    SetChanNames(names, args);
-    va_end(args);
-    SetDirty();
-    }
-  void SetChNameHOffset(int chId, double offset) {
-    *ChanNameHOffsetPtr(chId) = (float) offset;
-    // todo recalc if 1st or last
-    SetDirty();
-    }
-  // todo: call from all labels and names setters
-  // todo these two protected
-  void RecalcLabelsMargins() {
-    float w, h;
-    // todo widths. don't forget level labels
-    for (int ch = 0; ch != NumChannels(); ++ch) {
-      BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
-      if (h > mChNameMaxH) mChNameMaxH = h;
-      }
-    UpdateLabelsMargins();
-    }
-  void UpdateLabelsMargins() {
-    mRECT.B = mRECT.T + mMeterHeight + mChNameMaxH * mText.mSize;
-    mTargetRECT = mRECT;
-    }
-
-  void SetDrawLevelMarks(bool draw, int chId = -1) {
-    // todo dont forget aboul mrect recalcs
-    if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        *DrawMarksPtr(ch) = draw;
-    else
-        *DrawMarksPtr(chId) = draw;
-    }
-  void SetLevelMarks(const char* marks, int chId = -1) {
-    // provide values separated by spaces.
-    // integers is ok,
-    // omitting zeroes is ok,
-    // scientific notation is ok.
-    // if you set a meter to dB scale, values should be in dB too.
-    // if you want the numerical value of the mark to be drawn,
-    // put 's' right after the value.
-    // example for dB scale: "3.0 2 1. .s -1e0 -2 -3 -6s"
-    // yields marks on 3, 2, 1, 0, -1, -2, -3 and -6 dB levels.
-    // only 0 and -6 marks will show a number next to a mark.
-
-    WDL_TypedBuf<double> markVals;
-    WDL_TypedBuf<bool> markLabels;
-
-    while (*marks != '\0') {
-      double v = strtod(marks, NULL);
-      if ((chId < 0 && UnitsDB(0)) || (chId > -1 && UnitsDB(chId)))
-        v = DBToAmp(v);
-
-      while (*marks != ' ' && *marks != '\0')
-        ++marks;
-
-      bool l = false;
-      if (*(marks - 1) == 's')
-        l = true;
-
-      markVals.Add(v);
-      markLabels.Add(l);
-
-      while (!(*marks == '-' || *marks == '+' || *marks == '.' || isdigit(*marks))
-             && *marks != '\0')
-      // ^^^ the !(...) part is a simple typo filter.
-      // condition if(*marks != '\0') could be used instead
-        ++marks;
-      }
-
-#ifdef _DEBUG
-    WDL_String parsed("parsed marks: ");
-    for (int v = 0; v != markVals.GetSize(); ++v)
-      parsed.AppendFormatted(8, "%3.2f, ", *(markVals.Get() + v));
-    DBGMSG(parsed.Get());
-#endif
-
-    auto Set = [&] (int ch) {
-      auto n = markVals.GetSize();
-      MarkLabelsPtr(ch)->Resize(0);
-      MarksPtr(ch)->Resize(0);
-
-      for (int i = 0; i != n; ++i) {
-        MarksPtr(ch)->Add(*(markVals.Get() + i));
-        MarkLabelsPtr(ch)->Add(*(markLabels.Get() + i));
-        }
-      };
-
-    if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        Set(ch);
-    else
-        Set(chId);
-
-#ifdef _DEBUG
-    WDL_String wr("written marks: ");
-    for (int v = 0; v != MarksPtr(0)->GetSize(); ++v)
-      wr.AppendFormatted(8, "%3.2f, ", *(MarksPtr(0)->Get() + v));
-    DBGMSG(wr.Get());
-#endif
-
-    }
-  void SetMarkWidthRatio(float r, int chId) {
-    // relative to meter width
-    // todo dont forget aboul mrect recalcs
-     if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
-        *MarkWidthRPtr(ch) = r;
-    else
-        *MarkWidthRPtr(chId) = r;
-
-    }
-
-  //todo dont forget about mRect recalc
-  void SetText(IText& txt) {
-    SetTexts(txt, txt);
-    }
-  void SetTexts(IText chNameTxt, IText marksTxt) {
-    mText = chNameTxt;
-    mMarkText = marksTxt;
-    SetDirty();
-    }
-
   void SetOverdriveThreshold(double thresh, int chId = -1) {
     auto Set = [this] (int i, double t) {
       if (UnitsDB(i))
@@ -393,12 +286,184 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
-  void SetDrawMemRect(bool show, int chId = -1) {
+  void SetDrawMemRect(bool draw, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
-        *DrawMemRectPtr(ch) = show;
+        *DrawMemRectPtr(ch) = draw;
     else
-      *DrawMemRectPtr(chId) = show;
+      *DrawMemRectPtr(chId) = draw;
+    SetDirty();
+    }
+
+  void SetDrawRMS(bool draw, int chId = -1) {
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch) {
+        if (draw != DrawRMS(ch))
+          ZeroRMSBuf(ch);
+        *DrawRMSPtr(ch) = draw;
+        }
+    else {
+      if (draw != DrawRMS(chId))
+        ZeroRMSBuf(chId);
+      *DrawRMSPtr(chId) = draw;
+      }
+    SetDirty();
+    }
+  void SetRMSWindowMs(double ms, int chId = -1) {
+    if (ms <= 0.0) return;
+    if (0.001 * ms * mSampleRate < 10.0) // window at least 10 samples long
+      ms = 10000.0 / mSampleRate;
+
+    auto s = 0.001 * ms * mSampleRate;
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch) {
+        RMSBufPtr(ch)->Resize(s);
+        // todo check Resize(), maybe zero only the new locations if resize up
+        ZeroRMSBuf(ch);
+        if (RMSBufPos(ch) >= s)
+          *RMSBufPosPtr(ch) = 0;
+        }
+    else {
+      auto s = 0.001 * ms * mSampleRate;
+      RMSBufPtr(chId)->Resize(s);
+      ZeroRMSBuf(chId);
+      if (RMSBufPos(chId) >= s)
+       *RMSBufPosPtr(chId) = 0;
+      }
+    }
+
+  void SetDrawChName(bool draw, int chId = -1) {
+    // todo
+    SetDirty();
+    }
+  void SetChanName(int chId, const char* name) {
+    if (chId < NumChannels())
+      ChanNamePtr(chId)->Set(name);
+    SetDirty();
+    }
+  void SetChanNames(const char* names, ...) {
+    va_list args;
+    va_start(args, names);
+    SetChanNames(names, args);
+    va_end(args);
+    SetDirty();
+    }
+  void SetChNameHOffset(int chId, double offset) {
+    *ChanNameHOffsetPtr(chId) = (float) offset;
+    // todo recalc if 1st or last
+    SetDirty();
+    }
+  // todo: call from all labels and names setters
+  // todo these two protected
+  void RecalcLabelsMargins() {
+    float w, h;
+    // todo widths. don't forget level labels
+    for (int ch = 0; ch != NumChannels(); ++ch) {
+      BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
+      if (h > mChNameMaxH) mChNameMaxH = h;
+      }
+    UpdateLabelsMargins();
+    }
+  void UpdateLabelsMargins() {
+    mRECT.B = mRECT.T + mMeterHeight + mChNameMaxH * mText.mSize;
+    mTargetRECT = mRECT;
+    }
+
+  void SetDrawLevelMarks(bool draw, int chId = -1) {
+    // todo dont forget aboul mrect recalcs
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *DrawMarksPtr(ch) = draw;
+    else
+        *DrawMarksPtr(chId) = draw;
+    }
+  void SetLevelMarks(const char* marks, int chId = -1) {
+    // provide values separated by spaces.
+    // integers are ok,
+    // omitting zeroes is ok,
+    // scientific notation is ok.
+    // if a meter's units are dB, values should be in dB too.
+    // if you want the numerical value of the mark to be drawn
+    // put 's' right after the value.
+    // example for dB scale: "3.0 2 1. .s -1e0 -2 -3 -6s"
+    // yields marks on 3, 2, 1, 0, -1, -2, -3 and -6 dB levels.
+    // only 0 and -6 marks will show a number next to a mark.
+
+    WDL_TypedBuf<double> markVals;
+    WDL_TypedBuf<bool> markLabels;
+
+    while (*marks != '\0') {
+      double v = strtod(marks, NULL);
+      if ((chId < 0 && UnitsDB(0)) || (chId > -1 && UnitsDB(chId)))
+        v = DBToAmp(v);
+
+      while (*marks != ' ' && *marks != '\0')
+        ++marks;
+
+      bool l = false;
+      if (*(marks - 1) == 's')
+        l = true;
+
+      markVals.Add(v);
+      markLabels.Add(l);
+
+      while (!(*marks == '-' || *marks == '+' || *marks == '.' || isdigit(*marks))
+             && *marks != '\0')
+      // ^^^ the !(...) part is a simple typo filter. also allows for more spaces for readability
+      // condition if(*marks != '\0') could be used instead
+        ++marks;
+      }
+
+#ifdef _DEBUG
+    WDL_String parsed("parsed marks: ");
+    for (int v = 0; v != markVals.GetSize(); ++v)
+      parsed.AppendFormatted(8, "%3.2f, ", *(markVals.Get() + v));
+    DBGMSG(parsed.Get());
+#endif
+
+    auto Set = [&] (int ch) {
+      auto n = markVals.GetSize();
+      MarkLabelsPtr(ch)->Resize(0);
+      MarksPtr(ch)->Resize(0);
+
+      for (int i = 0; i != n; ++i) {
+        MarksPtr(ch)->Add(*(markVals.Get() + i));
+        MarkLabelsPtr(ch)->Add(*(markLabels.Get() + i));
+        }
+      };
+
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        Set(ch);
+    else
+        Set(chId);
+
+#ifdef _DEBUG
+    WDL_String wr("written marks: ");
+    for (int v = 0; v != MarksPtr(0)->GetSize(); ++v)
+      wr.AppendFormatted(8, "%3.2f, ", *(MarksPtr(0)->Get() + v));
+    DBGMSG(wr.Get());
+#endif
+
+    }
+  void SetMarkWidthRatio(float r, int chId) {
+    // relative to meter width
+    // todo dont forget aboul mrect recalcs
+     if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *MarkWidthRPtr(ch) = r;
+    else
+        *MarkWidthRPtr(chId) = r;
+
+    }
+
+  //todo dont forget about mRect recalc
+  void SetText(IText& txt) {
+    SetTexts(txt, txt);
+    }
+  void SetTexts(IText chNameTxt, IText marksTxt) {
+    mText = chNameTxt;
+    mMarkText = marksTxt;
     SetDirty();
     }
 
@@ -471,7 +536,7 @@ class IVMeterControl : public IControl
 #ifdef _DEBUG
     WDL_String s("meters widths: ");
     for (int m = 0; m != NumChannels(); ++m)
-      s.AppendFormatted(64, "%2.2f, ", MeterWidth(m));
+      s.AppendFormatted(64, "%d, ", (int)MeterWidth(m));
     DBGMSG(s.Get());
 #endif
 
@@ -492,7 +557,7 @@ class IVMeterControl : public IControl
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
     for (int ch = 0; ch != NumChannels(); ++ch) {
       *HoldingAPeakPtr(ch) = false;
-      *MaxPickPtr(ch) = RawValue(ch);
+      *MaxPeakPtr(ch) = RawValue(ch);
       }
     SetDirty();
     }
@@ -501,7 +566,7 @@ class IVMeterControl : public IControl
     for (int ch = 0; ch != NumChannels(); ++ch)
       if (GetMeterRect(ch, true).Contains(x, y)) {
         *HoldingAPeakPtr(ch) = false;
-        *MaxPickPtr(ch) = RawValue(ch);
+        *MaxPeakPtr(ch) = RawValue(ch);
         break;
         }
     SetDirty();
@@ -520,7 +585,7 @@ class IVMeterControl : public IControl
     bool unitsDB = true;
     bool scaleLog = true;
 
-    double maxPick = 0.0;
+    double maxPeak = 0.0;
     double memPeak = 0.0; // max remembered value for memRect
     double memExp = 1.0; // decay exponent for memPeak
     size_t peakSampHeld = 0;
@@ -528,6 +593,12 @@ class IVMeterControl : public IControl
     double overThresh = 1.0;
     double overBlink = 0.0; // overdrive rect intensity
     bool holdingAPeak = false;
+
+    bool drawRMS = true;
+    double RMSWindowMs = 300.0;
+    WDL_TypedBuf<double>* RMSBuf = nullptr;
+    size_t RMSBufPos = 0; // position in the buffer
+    double RMSSum = 0.0;
 
     float meterWidth = 20.f;
     float distToNextM = 30.f; // use for gluing chans into groups like ins and outs
@@ -577,6 +648,11 @@ class IVMeterControl : public IControl
     }
   double GetPeakFromMemExp(int chId) {
     return MemPeak(chId) - (MemExp(chId) - 1.0);
+    }
+
+  void ZeroRMSBuf(int ch) {
+    for (int i = 0; i != RMSBufLen(ch); ++i)
+      *RMSBufValPtr(ch, i) = 0.0;
     }
 
   float GetVCoordFromValInMeterRect(int chId, double v, IRECT meterR) {
@@ -655,6 +731,7 @@ class IVMeterControl : public IControl
             auto mR = GetMeterRect(ch);
             auto h = GetVCoordFromValInMeterRect(ch, v, mR);
             if (h < mR.B && h > mR.T) {
+              // todo use scientific notation for vals that don't fit in precision
               h = trunc(h); // NB at least on LICE nonintegers look bad
               if (UnitsDB(ch)) v = AmpToDB(v);
               if (MarkLabel(ch, m)) {
@@ -679,7 +756,7 @@ class IVMeterControl : public IControl
                   sr.T = h;
                   sr.B = h + 1.f;
                   sr.R = x2;
-                  sr = ShiftRectBy(sr, 1.0, 1.0);
+                  sr = ShiftRectBy(sr, 2.0, 1.0);
                   graphics.FillRect(shadowColor, sr);
                   }
                 graphics.DrawLine(mMarkText.mFGColor, mR.L + 1.f, h, x2, h);
@@ -802,8 +879,8 @@ class IVMeterControl : public IControl
   bool DrawPeakRect         (int i) { return *DrawPeakRectPtr(i); }
   bool* DrawMaxPeakPtr      (int i) { return &(Ch(i)->drawMaxPeak); }
   bool DrawMaxPeak          (int i) { return *DrawMaxPeakPtr(i); }
-  double* MaxPickPtr        (int i) { return &(Ch(i)->maxPick); }
-  double MaxPeak            (int i) { return *MaxPickPtr(i); }
+  double* MaxPeakPtr        (int i) { return &(Ch(i)->maxPeak); }
+  double MaxPeak            (int i) { return *MaxPeakPtr(i); }
 
   bool* DrawMemRectPtr      (int i) { return &(Ch(i)->drawMemRect); }
   bool DrawMemRect          (int i) { return *DrawMemRectPtr(i); }
@@ -811,6 +888,20 @@ class IVMeterControl : public IControl
   double MemPeak            (int i) { return *MemPeakPtr(i); }
   double* MemExpPtr         (int i) { return &(Ch(i)->memExp); }
   double MemExp             (int i) { return *MemExpPtr(i); }
+
+  WDL_TypedBuf<double>*  RMSBufPtr  (int i) { return *RMSBufPP(i); }
+  WDL_TypedBuf<double>** RMSBufPP   (int i) { return &(Ch(i)->RMSBuf); }
+  double* RMSBufValPtr (int ch, int i) { return RMSBufPtr(ch)->Get() + i; }
+  double RMSBufVal     (int ch, int i) { return *RMSBufValPtr(ch, i); }
+  size_t RMSBufLen          (int i) { return RMSBufPtr(i)->GetSize(); }
+  size_t* RMSBufPosPtr      (int i) { return &(Ch(i)->RMSBufPos); }
+  size_t RMSBufPos          (int i) { return *RMSBufPosPtr(i); }
+  double* RMSWindowMsPtr    (int i) { return &(Ch(i)->RMSWindowMs); }
+  double RMSWindowMs        (int i) { return *RMSWindowMsPtr(i); }
+  double* RMSSumPtr         (int i) { return &(Ch(i)->RMSSum); }
+  double RMSSum             (int i) { return *RMSSumPtr(i); }
+  bool* DrawRMSPtr          (int i) { return &(Ch(i)->drawRMS); }
+  bool DrawRMS              (int i) { return *DrawRMSPtr(i); }
 
   float* MeterWidthPtr      (int i) { return &(Ch(i)->meterWidth); }
   float MeterWidth          (int i) { return *MeterWidthPtr(i); }
@@ -826,13 +917,13 @@ class IVMeterControl : public IControl
   float* MarksOffsetPtr     (int i) { return &(Ch(i)->marksOffset); }
   float MarksOffset         (int i) { return *MarksOffsetPtr(i); }
 
-  double Mark         (int ch, int i) { return *(MarksPtr(ch)->Get() + i); }
-  WDL_TypedBuf<double>*  MarksPtr     (int i) { return *MarksPP(i); }
-  WDL_TypedBuf<double>** MarksPP      (int i) { return &(Ch(i)->marks); }
+  WDL_TypedBuf<double>*  MarksPtr    (int i) { return *MarksPP(i); }
+  WDL_TypedBuf<double>** MarksPP     (int i) { return &(Ch(i)->marks); }
+  double Mark        (int ch, int i) { return *(MarksPtr(ch)->Get() + i); }
 
-  bool MarkLabel      (int ch, int i) { return *(MarkLabelsPtr(ch)->Get() + i); }
-  WDL_TypedBuf<bool>*  MarkLabelsPtr  (int i) { return *MarkLabelsPP(i); }
-  WDL_TypedBuf<bool>** MarkLabelsPP   (int i) { return &(Ch(i)->markLabels); }
+  WDL_TypedBuf<bool>*  MarkLabelsPtr (int i) { return *MarkLabelsPP(i); }
+  WDL_TypedBuf<bool>** MarkLabelsPP  (int i) { return &(Ch(i)->markLabels); }
+  bool MarkLabel     (int ch, int i) { return *(MarkLabelsPtr(ch)->Get() + i); }
 
   int* NumDisplPrecisionPtr (int i) { return &(Ch(i)->numDisplPrecision); }
   int NumDisplPrecision     (int i) { return *NumDisplPrecisionPtr(i); }

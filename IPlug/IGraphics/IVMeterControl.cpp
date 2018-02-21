@@ -2,6 +2,7 @@
 
 const IColor IVMeterControl::DEFAULT_BG_COLOR = IColor(255, 70, 70, 70);
 const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 200, 200, 200);
+const IColor IVMeterControl::DEFAULT_RMS_COLOR = IColor(200, 10, 150, 100);
 const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
@@ -56,7 +57,9 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         *PeakSampHeldPtr(ch) += (size_t) sampPerDraw;
       }
     // graphics
-    if (DrawMemRect(ch) && p >= MinDisplayVal(ch) && DropMs(ch) > spf * 1000.0) {
+    if (DrawMemRect(ch) && p >= MinDisplayVal(ch) && DropMs(ch) > spf * 1000.0)
+      // if drop time is shorter than the time between Draw() calls it's redundant
+      {
       auto memR = meterRect;
       memR.T = GetVCoordFromValInMeterRect(ch, p, meterRect);
       memR.B = rawR.T;
@@ -68,9 +71,21 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
       }
 
+    // rms rect
+    auto rms = 0.0;
+    if (DrawRMS(ch)) {
+      rms = sqrt(RMSSum(ch) / RMSBufLen(ch));
+      if (rms > MinDisplayVal(ch)) {
+        auto rmsR = meterRect;
+        rmsR.T = GetVCoordFromValInMeterRect(ch, rms, meterRect);
+        graphics.FillRect(GetColor(mRms), rmsR);
+
+        }
+      }
+
     // peak rect
     if(v > MaxPeak(ch))
-      *MaxPickPtr(ch) = v;
+      *MaxPeakPtr(ch) = v;
     // graphics stuff
     if (DrawPeakRect(ch)) {
       // first the rect
@@ -85,6 +100,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         auto v = MaxPeak(ch);
         if (UnitsDB(ch)) v = AmpToDB(v);
         tps.SetFormatted(8, PrecisionString(ch).Get(), v);
+
         auto tpr = pR;
         tpr = ShiftRectBy(tpr, 0.f, 1.0);
         if (mDrawShadows) {
@@ -99,7 +115,6 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     // math
     if (!HoldingAPeak(ch))
       *OverBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
-
 
     if (mDrawBorders)
       graphics.DrawRect(GetColor(mFr), bgRect);
@@ -116,17 +131,17 @@ void IVMeterControl::Draw(IGraphics& graphics) {
 
 
 #ifdef _DEBUG
-    /*
-    auto txtp = mText;
-    txtp.mFGColor = COLOR_RED;
+
+    auto trms = mText;
+    trms.mFGColor = COLOR_ORANGE;
     WDL_String ps;
-    auto vt = p;
-    if (DisplayDB(ch)) vt = AmpToDB(vt);
-    ps.SetFormatted(8, "pk\n%1.2f", vt);
+    auto vt = rms;
+    if (UnitsDB(ch)) vt = AmpToDB(vt);
+    ps.SetFormatted(8, "rms\n%4.2f", vt);
     auto dtr = rawR;
-    dtr.T = dtr.B - 2.0f * txtp.mSize - 30.0f;
-    graphics.DrawTextA(txtp, ps.Get(), dtr);
-    */
+    dtr.T = dtr.B - 2.0f * trms.mSize - 10.0f;
+    graphics.DrawTextA(trms, ps.Get(), dtr);
+
     auto tl = GetVCoordFromValInMeterRect(ch, OverThresh(ch), meterRect);
     graphics.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
 #endif
