@@ -69,8 +69,8 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       }
 
     // peak rect
-    if(v > TruePeak(ch))
-      *TruePickPtr(ch) = v;
+    if(v > MaxPeak(ch))
+      *MaxPickPtr(ch) = v;
     // graphics stuff
     if (DrawPeakRect(ch)) {
       // first the rect
@@ -79,12 +79,13 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       pR.B = meterRect.T;
       auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), OverBlink(ch));
       graphics.FillRect(pc, pR);
-      // then the true pick
-      if (DrawTruePeak(ch)) {
+      // then the max pick
+      if (DrawMaxPeak(ch)) {
         WDL_String tps;
-        // todo add precision as a member
-        tps.SetFormatted(8, "%2.2f", TruePeak(ch));
-        auto tpr = pR;// ShiftRectBy(pR, 0.0, mMarkText.mSize / 2);
+        auto v = MaxPeak(ch);
+        if (UnitsDB(ch)) v = AmpToDB(v);
+        tps.SetFormatted(8, PrecisionString(ch).Get(), v);
+        auto tpr = pR;
         tpr = ShiftRectBy(tpr, 0.f, 1.0);
         if (mDrawShadows) {
           auto tt = mMarkText;
@@ -122,10 +123,8 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     auto vt = p;
     if (DisplayDB(ch)) vt = AmpToDB(vt);
     ps.SetFormatted(8, "pk\n%1.2f", vt);
-    float th, tw;
-    BasicTextMeasure(ps.Get(), th, tw);
     auto dtr = rawR;
-    dtr.T = dtr.B - th * txtp.mSize - 30.0f;
+    dtr.T = dtr.B - 2.0f * txtp.mSize - 30.0f;
     graphics.DrawTextA(txtp, ps.Get(), dtr);
     */
     auto tl = GetVCoordFromValInMeterRect(ch, OverThresh(ch), meterRect);
@@ -140,10 +139,8 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     txtfps.mFGColor = COLOR_GREEN;
     WDL_String fpss;
     fpss.SetFormatted(8, "fps\n%d", (int) fps);
-    float th, tw;
-    BasicTextMeasure(fpss.Get(), th, tw);
     auto dtr = mRECT;
-    dtr.T = dtr.B - th * txtfps.mSize - 10.0f;
+    dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
     graphics.DrawTextA(txtfps, fpss.Get(), dtr);
 
     graphics.DrawRect(COLOR_BLUE, mRECT);

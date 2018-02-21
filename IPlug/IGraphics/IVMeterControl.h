@@ -21,6 +21,7 @@ class IVMeterControl : public IControl
     mFr = kFR,
     };
 
+  //todo enable horisontal drawing
   IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
     : IControl(dlg, rect, kNoParameter)
     , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR) {
@@ -140,12 +141,28 @@ class IVMeterControl : public IControl
       }
     }
 
-  void SetDisplayInDB(bool db, int chId = -1) {
-     if (chId < 0)
+  void SetUnitsDB(bool db, int chId = -1, bool scaleFollowsUnits = true) {
+    if (chId < 0) {
       for (int ch = 0; ch != NumChannels(); ++ch)
-        *DisplayDBPtr(ch) = db;
+        *UnitsDBPtr(ch) = db;
+      if (scaleFollowsUnits)
+        for (int ch = 0; ch != NumChannels(); ++ch)
+          *ScaleLogPtr(ch) = db;
+      }
+    else {
+      *UnitsDBPtr(chId) = db;
+      if (scaleFollowsUnits)
+        *ScaleLogPtr(chId) = db;
+      }
+
+    SetDirty();
+    }
+  void SetScaleLog(bool logScale, int chId = -1) {
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *ScaleLogPtr(ch) = logScale;
     else
-     *DisplayDBPtr(chId) = db;
+      *ScaleLogPtr(chId) = logScale;
 
     SetDirty();
     }
@@ -159,7 +176,7 @@ class IVMeterControl : public IControl
       max += 0.1;
 
     auto Set = [this] (int i, double min, double max) {
-      if (DisplayDB(i)) {
+      if (UnitsDB(i)) {
         *MaxDisplayValPtr(i) = DBToAmp(max);
         *MinDisplayValPtr(i) = DBToAmp(min);
         }
@@ -174,6 +191,15 @@ class IVMeterControl : public IControl
         Set(ch, min, max);
     else
       Set(chId, min, max);
+
+    SetDirty();
+    }
+  void SetNumDisplayPrecision(int precision, int chId = -1) {
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *NumDisplPrecisionPtr(ch) = precision;
+    else
+      *NumDisplPrecisionPtr(chId) = precision;
 
     SetDirty();
     }
@@ -240,7 +266,7 @@ class IVMeterControl : public IControl
 
     while (*marks != '\0') {
       double v = strtod(marks, NULL);
-      if ((chId < 0 && DisplayDB(0)) || (chId > -1 && DisplayDB(chId)))
+      if ((chId < 0 && UnitsDB(0)) || (chId > -1 && UnitsDB(chId)))
         v = DBToAmp(v);
 
       while (*marks != ' ' && *marks != '\0')
@@ -315,7 +341,7 @@ class IVMeterControl : public IControl
 
   void SetOverdriveThreshold(double thresh, int chId = -1) {
     auto Set = [this] (int i, double t) {
-      if (DisplayDB(i))
+      if (UnitsDB(i))
         t = DBToAmp(i);
       else if (t < 0.0)
         t *= -1.0;
@@ -353,13 +379,13 @@ class IVMeterControl : public IControl
       }
     SetDirty();
     }
-  // true peak is drawn in peak rect, so !DrawPeakRect == !DrawTruePeak
-  void SetDrawTruePeak(bool draw, int chId = -1) {
+  // true peak is drawn in peak rect, so !DrawPeakRect is !DrawMaxPeak
+  void SetDrawMaxPeak(bool draw, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
-        *DrawTruePeakPtr(ch) = draw;
+        *DrawMaxPeakPtr(ch) = draw;
     else
-      *DrawTruePeakPtr(chId) = draw;
+      *DrawMaxPeakPtr(chId) = draw;
     SetDirty();
     }
   void SetPeakRectHeight(double h) {
@@ -389,7 +415,7 @@ class IVMeterControl : public IControl
 
     SetDirty();
     }
-  void SetDistToTheNextMeter(double d, int chId = -1, bool glueRects = true) {
+  void SetDistToTheNextMeter(double d, int chId = -1, bool compactLabels = true, bool glueRects = true) {
     // todo calc sum of truncated tales and distribute it
     // in a nice way to keep the mRECT.W when needed
     if (d < 0.0) d = 30.0;
@@ -410,6 +436,14 @@ class IVMeterControl : public IControl
         }
       for (int ch = 0; ch != NumChannels(); ++ch)
         *DistToTheNextMPtr(ch) = (float) d;
+      if (compactLabels) {
+        // only put marks in the middle
+        for (int ch = 0; ch != NumChannels() - 1; ++ch){
+          *MarksAlignPtr(ch) = 'c';
+          *MarksOffsetPtr(ch) = 0.5f * (MeterWidth(ch) + DistToTheNextM(ch));
+          }
+        *DrawMarksPtr(NumChannels()) = false;
+        }
       }
     else {
       if (glueRects && chId != NumChannels() - 1) {
@@ -420,8 +454,18 @@ class IVMeterControl : public IControl
         *MeterWidthPtr(chId + 1) = trunc(MeterWidth(chId + 1));
         }
       *DistToTheNextMPtr(chId) = (float)d;
+      if (compactLabels && chId != NumChannels() - 1) {
+        // put 1st marks and chanName in the center, hide 2nd ones
+        *DrawMarksPtr(chId + 1) = false;
+        *DrawChanNamePtr(chId + 1) = false;
+        *MarksAlignPtr(chId) = 'c';
+        auto o = 0.5f * (MeterWidth(chId) + DistToTheNextM(chId));
+        *MarksOffsetPtr(chId) = o;
+        *ChanNameHOffsetPtr(chId) = o;
+        }
       }
 
+    // todo update mRECT the right way
     mRECT = mTargetRECT = GetControlRectFromChannelsData();
 
 #ifdef _DEBUG
@@ -430,7 +474,6 @@ class IVMeterControl : public IControl
       s.AppendFormatted(64, "%2.2f, ", MeterWidth(m));
     DBGMSG(s.Get());
 #endif
-
 
     SetDirty();
     }
@@ -449,7 +492,7 @@ class IVMeterControl : public IControl
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
     for (int ch = 0; ch != NumChannels(); ++ch) {
       *HoldingAPeakPtr(ch) = false;
-      *TruePickPtr(ch) = RawValue(ch);
+      *MaxPickPtr(ch) = RawValue(ch);
       }
     SetDirty();
     }
@@ -458,7 +501,7 @@ class IVMeterControl : public IControl
     for (int ch = 0; ch != NumChannels(); ++ch)
       if (GetMeterRect(ch, true).Contains(x, y)) {
         *HoldingAPeakPtr(ch) = false;
-        *TruePickPtr(ch) = RawValue(ch);
+        *MaxPickPtr(ch) = RawValue(ch);
         break;
         }
     SetDirty();
@@ -474,9 +517,10 @@ class IVMeterControl : public IControl
     double rawValue;
     double minDisplayVal = 0.001; // -60dB
     double maxDisplayVal = DBToAmp(3.0);
-    bool displayDB = true;
+    bool unitsDB = true;
+    bool scaleLog = true;
 
-    double truePick = 0.0;
+    double maxPick = 0.0;
     double memPeak = 0.0; // max remembered value for memRect
     double memExp = 1.0; // decay exponent for memPeak
     size_t peakSampHeld = 0;
@@ -490,13 +534,17 @@ class IVMeterControl : public IControl
 
     bool drawMemRect = true;
     bool drawPeakRect = true;
-    bool drawTruePeak = true;
+    bool drawMaxPeak = true;
 
     bool drawMarks = true;
     float markWidthR = 0.6f;
     WDL_TypedBuf<double>* marks = nullptr;
     WDL_TypedBuf<bool>* markLabels = nullptr;
+    // todo setter:
+    char marksAlign = 'c'; // 'l'eft, 'c'enter, 'r'ight
+    float marksOffset = 0.0;
 
+    int numDisplPrecision = 2;
     bool drawChanName = true; // todo
     float chanNameHOffset = 0.f; // e.g. one "IN L/R" label for glued meters
     WDL_String* chanName = nullptr;
@@ -537,7 +585,7 @@ class IVMeterControl : public IControl
       t = meterR.T;
     else if (v > MinDisplayVal(chId)) {
       auto r = 0.0;
-      if (DisplayDB(chId)) {
+      if (ScaleLog(chId)) {
         auto mindB = AmpToDB(MinDisplayVal(chId));
         auto maxdB = AmpToDB(MaxDisplayVal(chId));
         auto vdB = AmpToDB(v);
@@ -599,47 +647,82 @@ class IVMeterControl : public IControl
   void DrawMarks(IGraphics& graphics) {
     auto shadowColor = IColor(60, 0, 0, 0);
       // todo add alignment and offset
-    for (auto ch = 0; ch != NumChannels(); ++ch) {
-      if (DrawMarks(ch)) {
-        auto mR = GetMeterRect(ch);
+    for (auto ch = 0; ch != NumChannels(); ++ch)
+      if (DrawMarks(ch))
         for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
           auto v = Mark(ch, m);
           if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
+            auto mR = GetMeterRect(ch);
             auto h = GetVCoordFromValInMeterRect(ch, v, mR);
-            h = trunc(h); // NB at least on LICE nonintegers look bad
-            if (DisplayDB(ch)) v = AmpToDB(v);
-            if (MarkLabel(ch, m)) {
-              auto tr = mR;
-              tr.T = tr.B = h - mMarkText.mSize / 2;
-              WDL_String l;
-              // todo: make precision a member
-              l.SetFormatted(8, "%2.1f", v);
-              if (mDrawShadows) {
-                auto tt = mMarkText;
-                tt.mFGColor = shadowColor;
-                auto sr = ShiftRectBy(tr, 1.0, 1.0);
-                graphics.DrawTextA(tt, l.Get(), sr);
+            if (h < mR.B && h > mR.T) {
+              h = trunc(h); // NB at least on LICE nonintegers look bad
+              if (UnitsDB(ch)) v = AmpToDB(v);
+              if (MarkLabel(ch, m)) {
+                auto tr = mR;
+                tr.T = tr.B = h - mMarkText.mSize / 2;
+                WDL_String l;
+                l.SetFormatted(8, PrecisionString(ch).Get(), v);
+                RemoveTrailingZeroes(&l);
+                if (mDrawShadows) {
+                  auto tt = mMarkText;
+                  tt.mFGColor = shadowColor;
+                  auto sr = ShiftRectBy(tr, 1.0, 1.0);
+                  graphics.DrawTextA(tt, l.Get(), sr);
+                  }
+
+                graphics.DrawTextA(mMarkText, l.Get(), tr);
                 }
-              graphics.DrawTextA(mMarkText, l.Get(), tr);
-              }
-            else {
-              float x2 = mR.L + 1.f + MarkWidthR(ch) * mR.W();
-              if (mDrawShadows) {
-                auto sr = mR;
-                sr.T = h;
-                sr.B = h + 1.f;
-                sr.R = x2;
-                sr = ShiftRectBy(sr, 1.0, 1.0);
-                graphics.FillRect(shadowColor, sr);
+              else {
+                float x2 = mR.L + 1.f + MarkWidthR(ch) * mR.W();
+                if (mDrawShadows) {
+                  auto sr = mR;
+                  sr.T = h;
+                  sr.B = h + 1.f;
+                  sr.R = x2;
+                  sr = ShiftRectBy(sr, 1.0, 1.0);
+                  graphics.FillRect(shadowColor, sr);
+                  }
+                graphics.DrawLine(mMarkText.mFGColor, mR.L + 1.f, h, x2, h);
                 }
-              graphics.DrawLine(mMarkText.mFGColor, mR.L + 1.f, h, x2, h);
               }
             }
           }
-        }
-      }
     }
 
+  WDL_String PrecisionString(int ch) {
+    WDL_String s;
+    s.Set("%4."); // 4 for cases like -160 dB
+    s.AppendFormatted(2, "%d", NumDisplPrecision(ch));
+    s.Append("f");
+    return s;
+    }
+  void RemoveTrailingZeroes(WDL_String* s) {
+    char* start = s->Get();
+    char* p = start;
+
+    while (*p != '.' && *p != '\0') // find a dot
+      ++p;
+
+    if (*p != '\0') // reverse search the 1st nonzero digit
+      {
+      auto dotPos = p - start;
+      int delPos = s->GetLength() - 1;
+      while (delPos != dotPos) {
+        char* c = start + delPos;
+        if (isdigit(c[0]) && c[0] != '0')
+          break;
+        else
+          --delPos;
+        }
+      ++delPos;
+
+      if (delPos == dotPos + 1) // if all decimals are 0, we don't need the dot
+        --delPos;
+
+      if (delPos < s->GetLength())
+        s->SetLen(delPos);
+      }
+    }
   IColor LinearBlendColors(IColor cA, IColor cB, double mix) {
     IColor cM;
     cM.A = (int) ((1.0 - mix) * cA.A + mix * cB.A);
@@ -699,8 +782,10 @@ class IVMeterControl : public IControl
   double* OverThreshPtr     (int i) { return &(Ch(i)->overThresh); }
   double OverThresh         (int i) { return *OverThreshPtr(i); }
 
-  bool* DisplayDBPtr        (int i) { return &(Ch(i)->displayDB); }
-  bool DisplayDB            (int i) { return *DisplayDBPtr(i); }
+  bool* UnitsDBPtr          (int i) { return &(Ch(i)->unitsDB); }
+  bool UnitsDB              (int i) { return *UnitsDBPtr(i); }
+  bool* ScaleLogPtr         (int i) { return &(Ch(i)->scaleLog); }
+  bool ScaleLog             (int i) { return *ScaleLogPtr(i); }
 
   double* DropMsPtr         (int i) { return &(Ch(i)->dropMs); }
   double DropMs             (int i) { return *DropMsPtr(i); }
@@ -715,10 +800,10 @@ class IVMeterControl : public IControl
 
   bool* DrawPeakRectPtr     (int i) { return &(Ch(i)->drawPeakRect); }
   bool DrawPeakRect         (int i) { return *DrawPeakRectPtr(i); }
-  bool* DrawTruePeakPtr     (int i) { return &(Ch(i)->drawTruePeak); }
-  bool DrawTruePeak         (int i) { return *DrawTruePeakPtr(i); }
-  double* TruePickPtr       (int i) { return &(Ch(i)->truePick); }
-  double TruePeak           (int i) { return *TruePickPtr(i); }
+  bool* DrawMaxPeakPtr      (int i) { return &(Ch(i)->drawMaxPeak); }
+  bool DrawMaxPeak          (int i) { return *DrawMaxPeakPtr(i); }
+  double* MaxPickPtr        (int i) { return &(Ch(i)->maxPick); }
+  double MaxPeak            (int i) { return *MaxPickPtr(i); }
 
   bool* DrawMemRectPtr      (int i) { return &(Ch(i)->drawMemRect); }
   bool DrawMemRect          (int i) { return *DrawMemRectPtr(i); }
@@ -736,6 +821,10 @@ class IVMeterControl : public IControl
   bool DrawMarks            (int i) { return *DrawMarksPtr(i); }
   float* MarkWidthRPtr      (int i) { return &(Ch(i)->markWidthR); }
   float MarkWidthR          (int i) { return *MarkWidthRPtr(i); }
+  char* MarksAlignPtr       (int i) { return &(Ch(i)->marksAlign); }
+  char MarksAlign           (int i) { return *MarksAlignPtr(i); }
+  float* MarksOffsetPtr     (int i) { return &(Ch(i)->marksOffset); }
+  float MarksOffset         (int i) { return *MarksOffsetPtr(i); }
 
   double Mark         (int ch, int i) { return *(MarksPtr(ch)->Get() + i); }
   WDL_TypedBuf<double>*  MarksPtr     (int i) { return *MarksPP(i); }
@@ -745,6 +834,9 @@ class IVMeterControl : public IControl
   WDL_TypedBuf<bool>*  MarkLabelsPtr  (int i) { return *MarkLabelsPP(i); }
   WDL_TypedBuf<bool>** MarkLabelsPP   (int i) { return &(Ch(i)->markLabels); }
 
+  int* NumDisplPrecisionPtr (int i) { return &(Ch(i)->numDisplPrecision); }
+  int NumDisplPrecision     (int i) { return *NumDisplPrecisionPtr(i); }
+
   bool* DrawChanNamePtr     (int i) { return &(Ch(i)->drawChanName); }
   bool DrawChanName         (int i) { return *DrawChanNamePtr(i); }
   float* ChanNameHOffsetPtr (int i) { return &(Ch(i)->chanNameHOffset); }
@@ -752,5 +844,4 @@ class IVMeterControl : public IControl
 
   WDL_String* ChanNamePtr   (int i) { return *ChanNamePP(i); }
   WDL_String** ChanNamePP   (int i) { return &(Ch(i)->chanName); }
-
   };
