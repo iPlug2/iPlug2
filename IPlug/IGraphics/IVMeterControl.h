@@ -81,14 +81,41 @@ class IVMeterControl : public IControl
     if (mSampleRate == sr || sr <= 0.0) return;
     mSampleRate = sr;
     for (int ch = 0; ch != NumChannels(); ++ch) {
-      RMSBufPtr(ch)->Resize(0.001 * RMSWindowMs(ch) * mSampleRate);
+      RMSBufPtr(ch)->Resize(int(0.001 * RMSWindowMs(ch) * mSampleRate));
       ZeroRMSBuf(ch);
       }
     }
-  void SetPlaybackState(bool transportRunning) {
-    if (!transportRunning)
+  void ResetRMS(int chId = -1) {
+    if (chId < 0)
       for (auto ch = 0; ch != NumChannels(); ++ch)
         ZeroRMSBuf(ch);
+    else
+      ZeroRMSBuf(chId);
+    SetDirty();
+    }
+  void Reset(int chId = -1) {
+    // if you hack up too much
+    auto R = [&] (int ch) {
+      *RawValuePtr(ch) = 0.0;
+
+      *MaxPeakPtr(ch) = 0.0;
+      *HoldingAPeakPtr(ch) = false;
+      *PeakSampHeldPtr(ch) = 0;
+      *OverBlinkPtr(ch) = 0.0;
+
+      *MemPeakPtr(ch) = 0.0;
+      *MemExpPtr(ch) = 1.0;
+
+      ZeroRMSBuf(ch);
+      *RMSSumPtr(ch) = 0.0;
+      };
+
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        R(ch);
+    else
+      R(chId);
+    SetDirty();
     }
 
   // use for raw data
@@ -314,7 +341,7 @@ class IVMeterControl : public IControl
     if (0.001 * ms * mSampleRate < 10.0) // window at least 10 samples long
       ms = 10000.0 / mSampleRate;
 
-    auto s = 0.001 * ms * mSampleRate;
+    auto s = int(0.001 * ms * mSampleRate);
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
         RMSBufPtr(ch)->Resize(s);
@@ -324,7 +351,6 @@ class IVMeterControl : public IControl
           *RMSBufPosPtr(ch) = 0;
         }
     else {
-      auto s = 0.001 * ms * mSampleRate;
       RMSBufPtr(chId)->Resize(s);
       ZeroRMSBuf(chId);
       if (RMSBufPos(chId) >= s)
@@ -555,10 +581,13 @@ class IVMeterControl : public IControl
     }
 
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
-    for (int ch = 0; ch != NumChannels(); ++ch) {
-      *HoldingAPeakPtr(ch) = false;
-      *MaxPeakPtr(ch) = RawValue(ch);
-      }
+    if (mod.C)
+      Reset();
+    else
+      for (int ch = 0; ch != NumChannels(); ++ch) {
+        *HoldingAPeakPtr(ch) = false;
+        *MaxPeakPtr(ch) = RawValue(ch);
+        }
     SetDirty();
     }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override {

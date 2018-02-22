@@ -2,7 +2,7 @@
 
 const IColor IVMeterControl::DEFAULT_BG_COLOR = IColor(255, 70, 70, 70);
 const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 200, 200, 200);
-const IColor IVMeterControl::DEFAULT_RMS_COLOR = IColor(200, 10, 150, 100);
+const IColor IVMeterControl::DEFAULT_RMS_COLOR = IColor(200, 70, 150, 80);
 const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
@@ -51,7 +51,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       if (PeakSampHeld(ch) >= 0.001 * DropMs(ch) * mSampleRate) {
         auto t = DropMs(ch);
         if (p > 0.0 && p < 1.0) t /= p; // low values should decay ~at the same rate
-        *MemExpPtr(ch) *= GetInvExpForDrop(t, fps); // todo perhaps use simple exponential, not inverted
+        *MemExpPtr(ch) *= GetInvExpForDrop(t, fps); // different decay character than a simple exp
         }
       else
         *PeakSampHeldPtr(ch) += (size_t) sampPerDraw;
@@ -98,8 +98,14 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       if (DrawMaxPeak(ch)) {
         WDL_String tps;
         auto v = MaxPeak(ch);
-        if (UnitsDB(ch)) v = AmpToDB(v);
-        tps.SetFormatted(8, PrecisionString(ch).Get(), v);
+        if (UnitsDB(ch)) {
+          v = AmpToDB(v);
+          if (v >= -300.0)
+            tps.SetFormatted(8, PrecisionString(ch).Get(), v);
+          else tps.Set("<-300");
+          }
+        else
+          tps.SetFormatted(8, PrecisionString(ch).Get(), v);
 
         auto tpr = pR;
         tpr = ShiftRectBy(tpr, 0.f, 1.0);
@@ -137,7 +143,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     WDL_String ps;
     auto vt = rms;
     if (UnitsDB(ch)) vt = AmpToDB(vt);
-    ps.SetFormatted(8, "rms\n%4.2f", vt);
+    ps.SetFormatted(16, "rms\n%4.2f", vt);
     auto dtr = rawR;
     dtr.T = dtr.B - 2.0f * trms.mSize - 10.0f;
     graphics.DrawTextA(trms, ps.Get(), dtr);
