@@ -3,10 +3,8 @@
 const IColor IVMeterControl::DEFAULT_BG_COLOR = IColor(255, 70, 70, 70);
 const IColor IVMeterControl::DEFAULT_RAW_COLOR = IColor(255, 200, 200, 200);
 const IColor IVMeterControl::DEFAULT_RMS_COLOR = IColor(200, 70, 150, 80);
-const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
+const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 240, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
-
- const double IVMeterControl::AES17Fix = sqrt(2.0);
 
 
 /*
@@ -77,9 +75,10 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     // rms rect
     auto rms = 0.0;
     if (DrawRMS(ch)) {
-      rms = sqrt(RMSSum(ch) / RMSBufLen(ch));
+      auto avg = RMSSum(ch) / RMSBufLen(ch);
       if (AESFix(ch))
-        rms *= AES17Fix;
+        avg *= 2.0;
+      rms = sqrt(avg);
 
       if (rms > MinDisplayVal(ch)) {
         auto rmsR = meterRect;
@@ -90,19 +89,28 @@ void IVMeterControl::Draw(IGraphics& graphics) {
       }
 
     // peak rect
-    if(v > MaxPeak(ch))
+    if (v > MaxPeak(ch))
       *MaxPeakPtr(ch) = v;
     // graphics stuff
+    IRECT pvtr;
     if (DrawPeakRect(ch)) {
-      // first the rect
       auto pR = meterRect;
       pR.T = meterRect.T - mPeakRectHeight;
       pR.B = meterRect.T;
       auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), OverBlink(ch));
+      pvtr = pR;
       graphics.FillRect(pc, pR);
-      // then the max pick
-      if (DrawMaxPeak(ch)) {
-        WDL_String tps;
+      }
+    // math
+    if (!HoldingAPeak(ch))
+      *OverBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
+
+    if (mDrawBorders)
+      graphics.DrawRect(GetColor(mFr), bgRect);
+
+    if (DrawPeakRect(ch) && DrawMaxPeak(ch)) // not to draw borders over the peak value
+      {
+       WDL_String tps;
         auto v = MaxPeak(ch);
         if (UnitsDB(ch)) {
           v = AmpToDB(v);
@@ -113,23 +121,15 @@ void IVMeterControl::Draw(IGraphics& graphics) {
         else
           tps.SetFormatted(8, PrecisionString(ch).Get(), v);
 
-        auto tpr = pR;
-        tpr = ShiftRectBy(tpr, 0.f, 1.0);
+        pvtr = ShiftRectBy(pvtr, 0.f, 1.0);
         if (mDrawShadows) {
           auto tt = mMarkText;
           tt.mFGColor = shadowColor;
-          auto sr = ShiftRectBy(tpr, 1.0, 1.0);
+          auto sr = ShiftRectBy(pvtr, 1.0, 1.0);
           graphics.DrawTextA(tt, tps.Get(), sr);
           }
-        graphics.DrawTextA(mMarkText, tps.Get(), tpr);
-        }
+        graphics.DrawTextA(mMarkText, tps.Get(), pvtr);
       }
-    // math
-    if (!HoldingAPeak(ch))
-      *OverBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
-
-    if (mDrawBorders)
-      graphics.DrawRect(GetColor(mFr), bgRect);
 
     if (DrawChanName(ch)) // can be inside the loop because names are below the meters
       {
@@ -170,7 +170,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
     graphics.DrawTextA(txtfps, fpss.Get(), dtr);
 
-    graphics.DrawRect(COLOR_BLUE, mRECT);
+    //graphics.DrawRect(COLOR_BLUE, mRECT);
 #endif
 
   SetDirty();

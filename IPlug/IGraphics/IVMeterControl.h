@@ -205,13 +205,15 @@ class IVMeterControl : public IControl
       if (scaleFollowsUnits)
         for (int ch = 0; ch != NumChannels(); ++ch)
           *ScaleLogPtr(ch) = db;
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        RecalcMaxLabelLen(ch);
       }
     else {
       *UnitsDBPtr(chId) = db;
       if (scaleFollowsUnits)
         *ScaleLogPtr(chId) = db;
+      RecalcMaxLabelLen(chId);
       }
-
     SetDirty();
     }
   void SetScaleLog(bool logScale, int chId = -1) {
@@ -244,19 +246,27 @@ class IVMeterControl : public IControl
       };
 
     if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
+      for (int ch = 0; ch != NumChannels(); ++ch) {
         Set(ch, min, max);
-    else
+        RecalcMaxLabelLen(ch);
+        }
+    else {
       Set(chId, min, max);
+      RecalcMaxLabelLen(chId);
+      }
 
     SetDirty();
     }
   void SetNumDisplayPrecision(int precision, int chId = -1) {
     if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
+      for (int ch = 0; ch != NumChannels(); ++ch) {
         *NumDisplPrecisionPtr(ch) = precision;
-    else
+        RecalcMaxLabelLen(ch);
+        }
+    else {
       *NumDisplPrecisionPtr(chId) = precision;
+      RecalcMaxLabelLen(chId);
+      }
 
     SetDirty();
     }
@@ -468,10 +478,14 @@ class IVMeterControl : public IControl
       };
 
     if (chId < 0)
-      for (int ch = 0; ch != NumChannels(); ++ch)
+      for (int ch = 0; ch != NumChannels(); ++ch) {
         Set(ch);
-    else
-        Set(chId);
+        RecalcMaxLabelLen(ch);
+        }
+    else {
+      Set(chId);
+      RecalcMaxLabelLen(chId);
+      }
 
 #ifdef _DEBUG
     WDL_String wr("written marks: ");
@@ -483,13 +497,39 @@ class IVMeterControl : public IControl
     }
   void SetMarkWidthRatio(float r, int chId) {
     // relative to meter width
-    // todo dont forget aboul mrect recalcs
+    // todo dont forget about mrect recalcs
      if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MarkWidthRPtr(ch) = r;
     else
         *MarkWidthRPtr(chId) = r;
+    }
+  void SetMarksAlignment(char alignment, int chId = -1, bool shortenMarksForSides = true) {
+    if (alignment != 'l' && alignment != 'r')
+      alignment = 'c';
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *MarksAlignPtr(ch) = alignment;
+    else
+      *MarksAlignPtr(chId) = alignment;
 
+    if (shortenMarksForSides && alignment != 'c')
+      if (chId < 0)
+        for (int ch = 0; ch != NumChannels(); ++ch)
+          *MarkWidthRPtr(ch) *= 0.5f;
+      else
+        *MarkWidthRPtr(chId) *= 0.5f;
+
+  // todo dont forget about mrect recalcs
+
+    }
+  void SetMarksHOffset(float offset, int chId = -1){
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *MarksOffsetPtr(ch) = offset;
+    else
+        *MarksOffsetPtr(chId) = offset;
+    // todo dont forget about mrect recalcs
     }
 
   //todo dont forget about mRect recalc
@@ -497,6 +537,9 @@ class IVMeterControl : public IControl
     SetTexts(txt, txt);
     }
   void SetTexts(IText chNameTxt, IText marksTxt) {
+    // note that the color of marks' lines is mMarkText.mTextEntryBGColor,
+    // whereas the color of marks' values is mMarkText.mFGColor,
+    // so you can make them different.
     mText = chNameTxt;
     mMarkText = marksTxt;
     SetDirty();
@@ -613,7 +656,6 @@ class IVMeterControl : public IControl
   protected:
 
   double mSampleRate = DEFAULT_SAMPLE_RATE;
-  static const double AES17Fix; // pure sine peaking at X dB should show X dB RMS
 
   struct ChannelSpecificData
     {
@@ -634,7 +676,10 @@ class IVMeterControl : public IControl
     bool holdingAPeak = false;
 
     bool drawRMS = true;
-    bool AESFix = true; // if false, shows the real RMS
+    bool AESFix = true;
+    // AES17 requires X dB RMS for a pure sine peaking at X dB.
+    // AES RMS is just a reference;
+    // But scientific RMS of sine is X/sqrt(2) dB.
     double RMSWindowMs = 300.0;
     WDL_TypedBuf<double>* RMSBuf = nullptr;
     size_t RMSBufPos = 0; // position in the buffer
@@ -653,7 +698,8 @@ class IVMeterControl : public IControl
     WDL_TypedBuf<bool>* markLabels = nullptr;
     // todo setter:
     char marksAlign = 'c'; // 'l'eft, 'c'enter, 'r'ight
-    float marksOffset = 0.0;
+    float marksOffset = 0.f;
+    float maxLabelLen = 0.f;
 
     int numDisplPrecision = 2;
     bool drawChanName = true; // todo
@@ -761,49 +807,200 @@ class IVMeterControl : public IControl
     }
 
   void DrawMarks(IGraphics& graphics) {
+    //todo optimize use x1 x2 coords
     auto shadowColor = IColor(60, 0, 0, 0);
       // todo add alignment and offset
     for (auto ch = 0; ch != NumChannels(); ++ch)
       if (DrawMarks(ch))
-        for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
-          auto v = Mark(ch, m);
-          if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
-            auto mR = GetMeterRect(ch);
-            auto h = GetVCoordFromValInMeterRect(ch, v, mR);
-            if (h < mR.B && h > mR.T) {
-              // todo use scientific notation for vals that don't fit in precision
-              h = trunc(h); // NB at least on LICE nonintegers look bad
-              if (UnitsDB(ch)) v = AmpToDB(v);
-              if (MarkLabel(ch, m)) {
-                auto tr = mR;
-                tr.T = tr.B = h - mMarkText.mSize / 2;
-                WDL_String l;
-                l.SetFormatted(8, PrecisionString(ch).Get(), v);
-                RemoveTrailingZeroes(&l);
-                if (mDrawShadows) {
-                  auto tt = mMarkText;
-                  tt.mFGColor = shadowColor;
-                  auto sr = ShiftRectBy(tr, 1.0, 1.0);
-                  graphics.DrawTextA(tt, l.Get(), sr);
-                  }
+        {
+        // compute common for all marks vals
+        auto o = MarksOffset(ch);
+        auto mR = GetMeterRect(ch);
+        auto labelDx = o;
+        auto longLen = MarkWidthR(ch) * mR.W(); // long mark
+        auto lx1 = 0.f;
+        auto lx2 = longLen;
+        auto mx1 = 0.f; // short mark coords
+        auto mx2 = 0.7f * longLen;
+        auto mTxt = mMarkText;
+        auto maxLabelW = MaxLabelLen(ch) * mMarkText.mSize * 0.44; // 0.44 - approx symbol width
+        auto pad = 2.f;
 
-                graphics.DrawTextA(mMarkText, l.Get(), tr);
+
+        auto align = MarksAlign(ch);
+        if (align == 'l') {
+          o += mR.L - pad;
+          labelDx = o - longLen - pad;
+          mTxt.mAlign = IText::kAlignFar;
+          mx1 = o - mx2;
+          mx2 = mx1 + mx2;
+          lx2 = mx2;
+          lx1 = lx2 - longLen;
+          }
+        else if (align == 'r') {
+          o += mR.R + pad + 1.0;
+          mTxt.mAlign = IText::kAlignNear;
+          labelDx = o + longLen + pad;
+          mx1 = o;
+          mx2 = mx1 + mx2;
+          lx1 = mx1;
+          lx2 = lx1 + longLen;
+          }
+        else // center
+          {
+          auto hr = 0.5f * mR.W();
+          o += mR.L + hr;
+          mTxt.mAlign = IText::kAlignCenter;
+          mx1 = o - 0.5 * mx2;
+          mx2 = mx1 + mx2;
+          lx1 = o - hr;
+          lx2 = o + hr;
+          labelDx = 0.5 * (lx1 + lx2);
+          }
+
+        auto RectForHorLine = [&] (float y, bool shortM = true) {
+          auto r = mR;
+          r.T = y;
+          r.B = y + 1.f;
+          if (shortM) {
+            r.L = mx1;
+            r.R = mx2;
+            }
+          else {
+            r.L = lx1;
+            r.R = lx2;
+            }
+          return r;
+          };
+
+        auto DrawLine = [&] (IRECT lr) {
+          if (mDrawShadows) {
+            auto sr = ShiftRectBy(lr, 2.f, 1.f);
+            graphics.FillRect(shadowColor, sr);
+            }
+          graphics.FillRect(mMarkText.mTextEntryBGColor, lr);
+          };
+
+        auto DrawMark = [&] (float h) {
+          auto r = RectForHorLine(h);
+          DrawLine(r);
+          };
+
+        auto DrawMarkWithLabel = [&] (float h, double v) {
+          auto tr = mR;
+          tr.T = tr.B = h - mMarkText.mSize / 2;
+          auto r = RectForHorLine(h, false);
+          tr.L = labelDx;
+          tr.R = labelDx + 1.f;
+          //graphics.DrawRect(COLOR_RED, tr);
+          // first form a string
+          WDL_String l;
+          l.SetFormatted(8, PrecisionString(ch).Get(), v);
+          RemoveTrailingZeroes(&l);
+
+          // then draw level lines
+          if (align != 'c')
+            DrawLine(r);
+          else
+            { // draw shorter level lines around the label
+            auto sl = 0.3f * longLen;
+
+            float lw, lh;
+            BasicTextMeasure(l.Get(), lh, lw);
+            auto addLen = 0.25f * (maxLabelW - lw) - pad;
+
+            auto d = mR.W() - maxLabelW - 4.f * pad; // how much horizontal space left for lines
+            // NB maxLen is used ^^^ for consistency across all marks of the current meter
+            if (d > 0.f) {
+              // have space to draw lines
+              auto ld = 0.5f * maxLabelW + 2.f * pad; // distance from center to the line start
+              // line on the left
+              auto rl = r;
+              rl.R = labelDx - ld;
+              rl.L = rl.R - sl;
+              rl.R += addLen;
+              // line on the right
+              auto rr = r;
+              rr.L = labelDx + ld;
+              rr.R = rr.L + sl;
+              rr.L -= addLen;
+              // if they stick out of the mR.W(), shorten
+              auto ex = 0.5 * mR.W() - (ld + sl);
+              if (ex > 0.f) {
+                rl.L += ex;
+                rr.R -= ex;
+                if (mDrawBorders) rl.L += 1.f;
                 }
-              else {
-                float x2 = mR.L + 1.f + MarkWidthR(ch) * mR.W();
-                if (mDrawShadows) {
-                  auto sr = mR;
-                  sr.T = h;
-                  sr.B = h + 1.f;
-                  sr.R = x2;
-                  sr = ShiftRectBy(sr, 2.0, 1.0);
-                  graphics.FillRect(shadowColor, sr);
-                  }
-                graphics.DrawLine(mMarkText.mFGColor, mR.L + 1.f, h, x2, h);
+              DrawLine(rl);
+              DrawLine(rr);
+              }
+            else {
+              // no space, at least draw short marks
+              r.L = r.R - pad;
+              DrawLine(r);
+              if (!UnitsDB(ch)) { //dB often have minus signs
+                r.L = mR.L + labelDx + 1.f;
+                r.R = r.L + pad;
+                DrawLine(r);
                 }
               }
             }
+
+          // finally draw the string
+          if (mDrawShadows) {
+            auto tt = mTxt;
+            tt.mFGColor = shadowColor;
+            auto sr = ShiftRectBy(tr, 1.f, 1.f);
+            graphics.DrawTextA(tt, l.Get(), sr);
+            }
+          graphics.DrawTextA(mTxt, l.Get(), tr);
+          };
+
+        for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
+          auto v = Mark(ch, m);
+          if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch))
+            {
+            // don't draw marks that are outside of the display range
+            auto h = GetVCoordFromValInMeterRect(ch, v, mR);
+            h = trunc(h); // at least on LICE nonintegers look bad
+            if (h < mR.B && h > mR.T) {
+              // don't draw right on T or B
+              if (UnitsDB(ch)) v = AmpToDB(v);
+              if (MarkLabel(ch, m))
+                DrawMarkWithLabel(h, v);
+              else
+                DrawMark(h);
+              }
+            }
           }
+        }
+    }
+
+  void RecalcMaxLabelLen(int ch) {
+    // this alg is almost the same as the one used in marks drawing
+    auto maxL = 0.f;
+    auto mR = GetMeterRect(ch);
+    for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
+      auto len = 0.f;
+      auto th = 0.f;
+      if (MarkLabel(ch, m)) {
+        auto v = Mark(ch, m);
+        if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
+            auto h = GetVCoordFromValInMeterRect(ch, v, mR);
+            h = trunc(h);
+            if (h < mR.B && h > mR.T) {
+              if (UnitsDB(ch)) v = AmpToDB(v);
+               WDL_String l;
+               l.SetFormatted(8, PrecisionString(ch).Get(), v);
+               RemoveTrailingZeroes(&l);
+               BasicTextMeasure(l.Get(), th, len);
+              }
+          }
+        }
+      if (len > maxL)
+        maxL = len;
+      }
+    *MaxLabelLenPtr(ch) = maxL;
     }
 
   WDL_String PrecisionString(int ch) {
@@ -958,6 +1155,8 @@ class IVMeterControl : public IControl
   char MarksAlign           (int i) { return *MarksAlignPtr(i); }
   float* MarksOffsetPtr     (int i) { return &(Ch(i)->marksOffset); }
   float MarksOffset         (int i) { return *MarksOffsetPtr(i); }
+  float* MaxLabelLenPtr     (int i) { return &(Ch(i)->maxLabelLen); }
+  float MaxLabelLen         (int i) { return *MaxLabelLenPtr(i); }
 
   WDL_TypedBuf<double>*  MarksPtr    (int i) { return *MarksPP(i); }
   WDL_TypedBuf<double>** MarksPP     (int i) { return &(Ch(i)->marks); }
