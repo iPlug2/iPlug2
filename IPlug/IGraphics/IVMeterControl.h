@@ -3,8 +3,10 @@
 #include "IControl.h"
 
 /*
-Vector meter control by Eugene Yakshin
+Vector meter control by Eugene Yakshin, 2018
+Eugene.Yakshin [at] ya [dot] ru
 */
+
 class IVMeterControl : public IControl
   , public IVectorBase {
   public:
@@ -357,6 +359,13 @@ class IVMeterControl : public IControl
        *RMSBufPosPtr(chId) = 0;
       }
     }
+  void SetAesRmsFix(bool plusThreeDB, int chId = -1) {
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *AESFixPtr(ch) = plusThreeDB;
+    else
+        *AESFixPtr(chId) = plusThreeDB;
+    }
 
   void SetDrawChName(bool draw, int chId = -1) {
     // todo
@@ -604,6 +613,7 @@ class IVMeterControl : public IControl
   protected:
 
   double mSampleRate = DEFAULT_SAMPLE_RATE;
+  static const double AES17Fix; // pure sine peaking at X dB should show X dB RMS
 
   struct ChannelSpecificData
     {
@@ -624,6 +634,7 @@ class IVMeterControl : public IControl
     bool holdingAPeak = false;
 
     bool drawRMS = true;
+    bool AESFix = true; // if false, shows the real RMS
     double RMSWindowMs = 300.0;
     WDL_TypedBuf<double>* RMSBuf = nullptr;
     size_t RMSBufPos = 0; // position in the buffer
@@ -931,6 +942,8 @@ class IVMeterControl : public IControl
   double RMSSum             (int i) { return *RMSSumPtr(i); }
   bool* DrawRMSPtr          (int i) { return &(Ch(i)->drawRMS); }
   bool DrawRMS              (int i) { return *DrawRMSPtr(i); }
+  bool* AESFixPtr           (int i) { return &(Ch(i)->AESFix); }
+  bool AESFix               (int i) { return *AESFixPtr(i); }
 
   float* MeterWidthPtr      (int i) { return &(Ch(i)->meterWidth); }
   float MeterWidth          (int i) { return *MeterWidthPtr(i); }

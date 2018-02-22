@@ -6,6 +6,9 @@ const IColor IVMeterControl::DEFAULT_RMS_COLOR = IColor(200, 70, 150, 80);
 const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 255, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
+ const double IVMeterControl::AES17Fix = sqrt(2.0);
+
+
 /*
 IVMeterControl::IVMeterControl(IDelegate & dlg, IRECT rect, int paramIdx, double * inputBuf)
   {
@@ -75,6 +78,9 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     auto rms = 0.0;
     if (DrawRMS(ch)) {
       rms = sqrt(RMSSum(ch) / RMSBufLen(ch));
+      if (AESFix(ch))
+        rms *= AES17Fix;
+
       if (rms > MinDisplayVal(ch)) {
         auto rmsR = meterRect;
         rmsR.T = GetVCoordFromValInMeterRect(ch, rms, meterRect);
@@ -139,7 +145,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
 #ifdef _DEBUG
 
     auto trms = mText;
-    trms.mFGColor = COLOR_ORANGE;
+    trms.mFGColor = COLOR_BLACK;
     WDL_String ps;
     auto vt = rms;
     if (UnitsDB(ch)) vt = AmpToDB(vt);
