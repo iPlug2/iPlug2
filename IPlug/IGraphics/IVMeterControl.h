@@ -25,7 +25,6 @@ class IVMeterControl : public IControl
     mRms = kX1
     };
 
-  //todo enable horisontal drawing
   IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
     : IControl(dlg, rect, kNoParameter)
     , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR) {
@@ -77,7 +76,6 @@ class IVMeterControl : public IControl
     }
 
 // todo add thread safe channel add/del.
-// idea: add channelSpecific bool member "deleted" and process at the end of Draw()
 
   void SetSampleRate(double sr) {
     if (mSampleRate == sr || sr <= 0.0) return;
@@ -198,6 +196,17 @@ class IVMeterControl : public IControl
       }
     }
 
+  auto GetRMS(int chId) {
+    auto rms = RMSSum(chId) / RMSBufLen(chId);
+      if (AESFix(chId))
+        rms *= 2.0;
+      rms = sqrt(rms);
+      return rms;
+    }
+  auto GetMaxPeak(int chId) {
+    return MaxPeak(chId);
+    }
+
   void SetUnitsDB(bool db, int chId = -1, bool scaleFollowsUnits = true) {
     if (chId < 0) {
       for (int ch = 0; ch != NumChannels(); ++ch)
@@ -311,7 +320,6 @@ class IVMeterControl : public IControl
       }
     SetDirty();
     }
-  // true peak is drawn in peak rect, so !DrawPeakRect is !DrawMaxPeak
   void SetDrawMaxPeak(bool draw, int chId = -1) {
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
@@ -516,9 +524,9 @@ class IVMeterControl : public IControl
     if (shortenMarksForSides && alignment != 'c')
       if (chId < 0)
         for (int ch = 0; ch != NumChannels(); ++ch)
-          *MarkWidthRPtr(ch) *= 0.5f;
+          *MarkWidthRPtr(ch) *= 0.3f;
       else
-        *MarkWidthRPtr(chId) *= 0.5f;
+        *MarkWidthRPtr(chId) *= 0.3f;
 
   // todo dont forget about mrect recalcs
 
@@ -643,7 +651,6 @@ class IVMeterControl : public IControl
     SetDirty();
     }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override {
-    // todo : doesnt react during peakhold time
     for (int ch = 0; ch != NumChannels(); ++ch)
       if (GetMeterRect(ch, true).Contains(x, y)) {
         *HoldingAPeakPtr(ch) = false;
@@ -696,7 +703,6 @@ class IVMeterControl : public IControl
     float markWidthR = 0.6f;
     WDL_TypedBuf<double>* marks = nullptr;
     WDL_TypedBuf<bool>* markLabels = nullptr;
-    // todo setter:
     char marksAlign = 'c'; // 'l'eft, 'c'enter, 'r'ight
     float marksOffset = 0.f;
     float maxLabelLen = 0.f;
@@ -807,9 +813,7 @@ class IVMeterControl : public IControl
     }
 
   void DrawMarks(IGraphics& graphics) {
-    //todo optimize use x1 x2 coords
     auto shadowColor = IColor(60, 0, 0, 0);
-      // todo add alignment and offset
     for (auto ch = 0; ch != NumChannels(); ++ch)
       if (DrawMarks(ch))
         {
@@ -822,10 +826,12 @@ class IVMeterControl : public IControl
         auto lx2 = longLen;
         auto mx1 = 0.f; // short mark coords
         auto mx2 = 0.7f * longLen;
-        auto mTxt = mMarkText;
-        auto maxLabelW = MaxLabelLen(ch) * mMarkText.mSize * 0.44; // 0.44 - approx symbol width
         auto pad = 2.f;
 
+        auto mTxt = mMarkText;
+        auto maxLabelW = MaxLabelLen(ch) * mMarkText.mSize * 0.44f; // 0.44 - approx symbol width
+        auto lastLabBot = 0.f; // hide overlapping labels
+        auto maxLabOverlap = 0.4f * mMarkText.mSize;
 
         auto align = MarksAlign(ch);
         if (align == 'l') {
@@ -838,7 +844,7 @@ class IVMeterControl : public IControl
           lx1 = lx2 - longLen;
           }
         else if (align == 'r') {
-          o += mR.R + pad + 1.0;
+          o += mR.R + pad + 1.f;
           mTxt.mAlign = IText::kAlignNear;
           labelDx = o + longLen + pad;
           mx1 = o;
@@ -851,11 +857,11 @@ class IVMeterControl : public IControl
           auto hr = 0.5f * mR.W();
           o += mR.L + hr;
           mTxt.mAlign = IText::kAlignCenter;
-          mx1 = o - 0.5 * mx2;
+          mx1 = o - 0.5f * mx2;
           mx2 = mx1 + mx2;
           lx1 = o - hr;
           lx2 = o + hr;
-          labelDx = 0.5 * (lx1 + lx2);
+          labelDx = 0.5f * (lx1 + lx2);
           }
 
         auto RectForHorLine = [&] (float y, bool shortM = true) {
@@ -888,7 +894,8 @@ class IVMeterControl : public IControl
 
         auto DrawMarkWithLabel = [&] (float h, double v) {
           auto tr = mR;
-          tr.T = tr.B = h - mMarkText.mSize / 2;
+          tr.T = h - mMarkText.mSize / 2;
+          tr.B = tr.T +  mMarkText.mSize;
           auto r = RectForHorLine(h, false);
           tr.L = labelDx;
           tr.R = labelDx + 1.f;
@@ -898,62 +905,77 @@ class IVMeterControl : public IControl
           l.SetFormatted(8, PrecisionString(ch).Get(), v);
           RemoveTrailingZeroes(&l);
 
+          bool drawLabel = false;
+          if (lastLabBot - maxLabOverlap < tr.T) {
+            lastLabBot = tr.B;
+            drawLabel = true;
+            }
+
           // then draw level lines
           if (align != 'c')
             DrawLine(r);
           else
-            { // draw shorter level lines around the label
-            auto sl = 0.3f * longLen;
-
-            float lw, lh;
-            BasicTextMeasure(l.Get(), lh, lw);
-            auto addLen = 0.25f * (maxLabelW - lw) - pad;
-
-            auto d = mR.W() - maxLabelW - 4.f * pad; // how much horizontal space left for lines
-            // NB maxLen is used ^^^ for consistency across all marks of the current meter
-            if (d > 0.f) {
-              // have space to draw lines
+            { // draw shorter level lines around the label or one long line
+            if (drawLabel) {
+              auto sl = 0.2f * longLen; // short lines length
               auto ld = 0.5f * maxLabelW + 2.f * pad; // distance from center to the line start
-              // line on the left
-              auto rl = r;
-              rl.R = labelDx - ld;
-              rl.L = rl.R - sl;
-              rl.R += addLen;
-              // line on the right
-              auto rr = r;
-              rr.L = labelDx + ld;
-              rr.R = rr.L + sl;
-              rr.L -= addLen;
-              // if they stick out of the mR.W(), shorten
-              auto ex = 0.5 * mR.W() - (ld + sl);
-              if (ex > 0.f) {
-                rl.L += ex;
-                rr.R -= ex;
-                if (mDrawBorders) rl.L += 1.f;
+              float lw, lh;
+              BasicTextMeasure(l.Get(), lh, lw);
+              auto addLen = 0.25f * (maxLabelW - lw) - pad;
+
+              auto d = mR.W() - maxLabelW - 4.f * pad; // how much horizontal space left for lines
+              // NB maxLen is used ^^^ for consistency across all marks of the current meter
+              if (d > 0.f) {
+                // have space to draw lines
+                // line on the left
+                auto rl = r;
+                rl.R = labelDx - ld;
+                rl.L = rl.R - sl;
+                rl.R += addLen;
+                // line on the right
+                auto rr = r;
+                rr.L = labelDx + ld;
+                rr.R = rr.L + sl;
+                rr.L -= addLen;
+                // if they stick out of the mR.W(), shorten
+                auto ex = rr.R - (labelDx + 0.5f * mR.W());
+                if (ex > 0.f) {
+                  rl.L += ex;
+                  rr.R -= ex;
+                  //if (mDrawBorders) rl.L += 1.f;
+                  }
+                DrawLine(rl);
+                DrawLine(rr);
                 }
-              DrawLine(rl);
-              DrawLine(rr);
-              }
-            else {
-              // no space, at least draw short marks
-              r.L = r.R - pad;
-              DrawLine(r);
-              if (!UnitsDB(ch)) { //dB often have minus signs
-                r.L = mR.L + labelDx + 1.f;
-                r.R = r.L + pad;
+              else {
+                // no space, at least draw short marks
+                r.L = r.R - pad;
                 DrawLine(r);
+                if (!UnitsDB(ch)) { //dB often have minus signs
+                  r.L = mR.L + labelDx + 1.f;
+                  r.R = r.L + pad;
+                  DrawLine(r);
+                  }
                 }
+              }
+            else // skipped label, drawing only line
+              {
+              r.L = labelDx - 0.5f * longLen;
+              r.R = labelDx + 0.5f * longLen;
+              DrawLine(r);
               }
             }
 
+          if (drawLabel) {
           // finally draw the string
-          if (mDrawShadows) {
-            auto tt = mTxt;
-            tt.mFGColor = shadowColor;
-            auto sr = ShiftRectBy(tr, 1.f, 1.f);
-            graphics.DrawTextA(tt, l.Get(), sr);
+            if (mDrawShadows) {
+              auto tt = mTxt;
+              tt.mFGColor = shadowColor;
+              auto sr = ShiftRectBy(tr, 1.f, 1.f);
+              graphics.DrawTextA(tt, l.Get(), sr);
+              }
+            graphics.DrawTextA(mTxt, l.Get(), tr);
             }
-          graphics.DrawTextA(mTxt, l.Get(), tr);
           };
 
         for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
@@ -1010,7 +1032,7 @@ class IVMeterControl : public IControl
     s.Append("f");
     return s;
     }
-  void RemoveTrailingZeroes(WDL_String* s) {
+  void RemoveTrailingZeroes(WDL_String* s, int minDecimalsToKeep = 0) {
     char* start = s->Get();
     char* p = start;
 
@@ -1030,8 +1052,12 @@ class IVMeterControl : public IControl
         }
       ++delPos;
 
-      if (delPos == dotPos + 1) // if all decimals are 0, we don't need the dot
-        --delPos;
+      if (minDecimalsToKeep == 0) {
+        if (delPos == dotPos + 1) // if all decimals are 0, we don't need the dot
+          --delPos;
+        }
+      else if(delPos < dotPos + minDecimalsToKeep + 1)
+        delPos = dotPos + minDecimalsToKeep + 1;
 
       if (delPos < s->GetLength())
         s->SetLen(delPos);
@@ -1054,7 +1080,6 @@ class IVMeterControl : public IControl
     return sr;
     }
   void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
-    // todo del from here if upstream has it on the moment of pull request
     float w = 0.0;
     maxLineWidth = 0.0;
     numLines = 0.0;

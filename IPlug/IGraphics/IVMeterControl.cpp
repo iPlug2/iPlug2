@@ -75,11 +75,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     // rms rect
     auto rms = 0.0;
     if (DrawRMS(ch)) {
-      auto avg = RMSSum(ch) / RMSBufLen(ch);
-      if (AESFix(ch))
-        avg *= 2.0;
-      rms = sqrt(avg);
-
+      rms = GetRMS(ch);
       if (rms > MinDisplayVal(ch)) {
         auto rmsR = meterRect;
         rmsR.T = GetVCoordFromValInMeterRect(ch, rms, meterRect);
@@ -108,27 +104,36 @@ void IVMeterControl::Draw(IGraphics& graphics) {
     if (mDrawBorders)
       graphics.DrawRect(GetColor(mFr), bgRect);
 
-    if (DrawPeakRect(ch) && DrawMaxPeak(ch)) // not to draw borders over the peak value
+    if (DrawMaxPeak(ch)) // not to draw borders over the peak value
       {
-       WDL_String tps;
+      if (!DrawPeakRect(ch)) {
+        pvtr = meterRect;
+        pvtr.B = pvtr.T + mMarkText.mSize;
+        }
+
+       WDL_String mps;
         auto v = MaxPeak(ch);
         if (UnitsDB(ch)) {
           v = AmpToDB(v);
-          if (v >= -300.0)
-            tps.SetFormatted(8, PrecisionString(ch).Get(), v);
-          else tps.Set("<-300");
+          if (v >= -300.0) {
+            mps.SetFormatted(8, PrecisionString(ch).Get(), v);
+            RemoveTrailingZeroes(&mps, 1);
+            }
+          else mps.Set("<-300");
           }
-        else
-          tps.SetFormatted(8, PrecisionString(ch).Get(), v);
+        else {
+          mps.SetFormatted(8, PrecisionString(ch).Get(), v);
+          RemoveTrailingZeroes(&mps, 1);
+          }
 
         pvtr = ShiftRectBy(pvtr, 0.f, 1.0);
         if (mDrawShadows) {
           auto tt = mMarkText;
           tt.mFGColor = shadowColor;
           auto sr = ShiftRectBy(pvtr, 1.0, 1.0);
-          graphics.DrawTextA(tt, tps.Get(), sr);
+          graphics.DrawTextA(tt, mps.Get(), sr);
           }
-        graphics.DrawTextA(mMarkText, tps.Get(), pvtr);
+        graphics.DrawTextA(mMarkText, mps.Get(), pvtr);
       }
 
     if (DrawChanName(ch)) // can be inside the loop because names are below the meters
@@ -162,13 +167,13 @@ void IVMeterControl::Draw(IGraphics& graphics) {
   DrawMarks(graphics); // draw outside because meters can be drawn over the marks
 
 #ifdef _DEBUG
-   auto txtfps = mText;
-    txtfps.mFGColor = COLOR_GREEN;
-    WDL_String fpss;
-    fpss.SetFormatted(8, "fps\n%d", (int) fps);
-    auto dtr = mRECT;
-    dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
-    graphics.DrawTextA(txtfps, fpss.Get(), dtr);
+   //auto txtfps = mText;
+   // txtfps.mFGColor = COLOR_GREEN;
+   // WDL_String fpss;
+   // fpss.SetFormatted(8, "fps\n%d", (int) fps);
+   // auto dtr = mRECT;
+   // dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
+   // graphics.DrawTextA(txtfps, fpss.Get(), dtr);
 
     //graphics.DrawRect(COLOR_BLUE, mRECT);
 #endif
