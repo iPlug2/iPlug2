@@ -3,6 +3,31 @@
     display: none !important;
 }
 
+/* Layout tweaks */
+div.contents {
+    max-width: 980px;
+    text-align: justify;
+    margin: 15px auto 0 auto;
+}
+div.header, div#titlearea table {
+    margin: auto;
+    text-align: center;
+}
+
+div#titlearea table {
+    margin-bottom: 10px;
+}
+
+body, table, div, p, dl {
+    font: 400 15px/22px sans-serif;
+    line-height: 1.5;
+}
+
+/* Code snippet readability */
+div.line {
+    line-height: 1.5;
+}
+
 /* Slack button */
 .slack {
     display: inline-block;
