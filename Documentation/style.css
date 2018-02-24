@@ -21,7 +21,8 @@
 }
 
 .slack:hover {
-    opacity: .8
+    opacity: .8;
+    text-decoration: none;
 }
 
 .icon-slack {
