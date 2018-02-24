@@ -25,46 +25,7 @@ class IVMeterControl : public IControl
     mRms = kX1
     };
 
-  IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
-    : IControl(dlg, rect, kNoParameter)
-    , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR) {
-
-    ChannelSpecificData d;
-    for (auto ch = 0; ch != numChannels; ++ch) {
-      mChanData.Add(d);
-      *(RMSBufPP(ch)) = new WDL_TypedBuf<double>;
-      *(ChanNamePP(ch)) = new WDL_String;
-      *(MarksPP(ch)) = new WDL_TypedBuf<double>;
-      *(MarkLabelsPP(ch)) = new WDL_TypedBuf<bool>;
-      }
-
-    SetRMSWindowMs(300.0);
-    SetLevelMarks("3 0s -3 -6s -9 -12s -18 -24s -30 -36 -42 -48s -54s -60");
-
-    va_list args;
-    va_start(args, chanNames);
-    SetChanNames(chanNames, args);
-    va_end(args);
-
-    mTargetRECT = GetControlRectFromChannelsData(false);
-    if (rect.Empty())
-      mRECT = mTargetRECT;
-    else {
-      auto wr = rect.W() / mTargetRECT.W();
-      for (auto m = 0; m != NumChannels(); ++m) {
-        // todo account for labels and stuff
-        // should be ~the same as in OnResize()
-
-        *MeterWidthPtr(m) *= wr;
-        *MeterWidthPtr(m) = trunc(MeterWidth(m)); // identical narrow meters with noninteger sizes often look different
-        *DistToTheNextMPtr(m) *= wr;
-        *DistToTheNextMPtr(m) = trunc(DistToTheNextM(m));
-        }
-      mMeterHeight = rect.H() - mChNameMaxH * mText.mSize;
-      mRECT = mTargetRECT = rect;
-      }
-
-    };
+  IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...);
 
   ~IVMeterControl() {
     for (auto c = 0; c != NumChannels(); ++c) {
@@ -172,8 +133,7 @@ class IVMeterControl : public IControl
           ProcessChanValue((double) *in, ch);
     }
   // handy for processing a block of either all ins or all outs
-  void ProcessBus(sample** ins, int blockSize, int numChans = -1, int sourceStartId = 0, int destStartId = 0)
-    {
+  void ProcessBus(sample** ins, int blockSize, int numChans = -1, int sourceStartId = 0, int destStartId = 0) {
     if (numChans < 0) numChans = NumChannels();
 
     for (int ch = 0; ch != numChans; ++ch) {
@@ -198,16 +158,21 @@ class IVMeterControl : public IControl
 
   auto GetRMS(int chId) {
     auto rms = RMSSum(chId) / RMSBufLen(chId);
-      if (AESFix(chId))
-        rms *= 2.0;
-      rms = sqrt(rms);
-      return rms;
+    if (AESFix(chId))
+      rms *= 2.0;
+    rms = sqrt(rms);
+    return rms;
     }
   auto GetMaxPeak(int chId) {
     return MaxPeak(chId);
     }
 
   void SetUnitsDB(bool db, int chId = -1, bool scaleFollowsUnits = true) {
+    auto initLM = GetLeftMarginAbs();  // here and further: such margins recalculations and compensation
+    auto initRM = GetRightMarginAbs(); // are necessary for correctd drawing.
+                                       // hence it must appear in any setter that may affect the margins:
+                                       // font sizes, units, ranges, preision, etc.
+
     if (chId < 0) {
       for (int ch = 0; ch != NumChannels(); ++ch)
         *UnitsDBPtr(ch) = db;
@@ -223,6 +188,9 @@ class IVMeterControl : public IControl
         *ScaleLogPtr(chId) = db;
       RecalcMaxLabelLen(chId);
       }
+
+    UpdateMargins(initLM, initRM);
+
     SetDirty();
     }
   void SetScaleLog(bool logScale, int chId = -1) {
@@ -254,6 +222,9 @@ class IVMeterControl : public IControl
         }
       };
 
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
         Set(ch, min, max);
@@ -264,9 +235,14 @@ class IVMeterControl : public IControl
       RecalcMaxLabelLen(chId);
       }
 
+    UpdateMargins(initLM, initRM);
+
     SetDirty();
     }
   void SetNumDisplayPrecision(int precision, int chId = -1) {
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
         *NumDisplPrecisionPtr(ch) = precision;
@@ -276,6 +252,8 @@ class IVMeterControl : public IControl
       *NumDisplPrecisionPtr(chId) = precision;
       RecalcMaxLabelLen(chId);
       }
+
+    UpdateMargins(initLM, initRM);
 
     SetDirty();
     }
@@ -304,7 +282,7 @@ class IVMeterControl : public IControl
       for (int ch = 0; ch != NumChannels(); ++ch)
         *DropMsPtr(ch) = ms;
     else
-        *DropMsPtr(chId) = ms;
+      *DropMsPtr(chId) = ms;
     }
   void SetDrawPeakRect(bool draw, int chId = -1) {
     if (chId < 0)
@@ -365,7 +343,7 @@ class IVMeterControl : public IControl
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
         RMSBufPtr(ch)->Resize(s);
-        // todo check Resize(), maybe zero only the new locations if resize up
+        // todo check Resize() implementation, maybe zero only the new allocations
         ZeroRMSBuf(ch);
         if (RMSBufPos(ch) >= s)
           *RMSBufPosPtr(ch) = 0;
@@ -374,7 +352,7 @@ class IVMeterControl : public IControl
       RMSBufPtr(chId)->Resize(s);
       ZeroRMSBuf(chId);
       if (RMSBufPos(chId) >= s)
-       *RMSBufPosPtr(chId) = 0;
+        *RMSBufPosPtr(chId) = 0;
       }
     }
   void SetAesRmsFix(bool plusThreeDB, int chId = -1) {
@@ -382,53 +360,57 @@ class IVMeterControl : public IControl
       for (int ch = 0; ch != NumChannels(); ++ch)
         *AESFixPtr(ch) = plusThreeDB;
     else
-        *AESFixPtr(chId) = plusThreeDB;
+      *AESFixPtr(chId) = plusThreeDB;
     }
 
   void SetDrawChName(bool draw, int chId = -1) {
-    // todo
+    auto initH = mChNameMaxH * mText.mSize;
+
+    if (chId < 0)
+      for (int ch = 0; ch != NumChannels(); ++ch)
+        *DrawChanNamePtr(ch) = draw;
+    else
+      *DrawChanNamePtr(chId) = draw;
+
+    RecalcMaxChNameH(initH);
+
     SetDirty();
     }
   void SetChanName(int chId, const char* name) {
+    auto initH = mChNameMaxH * mText.mSize;
     if (chId < NumChannels())
       ChanNamePtr(chId)->Set(name);
+    RecalcMaxChNameH(initH);
     SetDirty();
     }
   void SetChanNames(const char* names, ...) {
+    auto initH = mChNameMaxH * mText.mSize;
     va_list args;
     va_start(args, names);
     SetChanNames(names, args);
     va_end(args);
+
+    RecalcMaxChNameH(initH);
     SetDirty();
     }
   void SetChNameHOffset(int chId, double offset) {
     *ChanNameHOffsetPtr(chId) = (float) offset;
-    // todo recalc if 1st or last
     SetDirty();
-    }
-  // todo: call from all labels and names setters
-  // todo these two protected
-  void RecalcLabelsMargins() {
-    float w, h;
-    // todo widths. don't forget level labels
-    for (int ch = 0; ch != NumChannels(); ++ch) {
-      BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
-      if (h > mChNameMaxH) mChNameMaxH = h;
-      }
-    UpdateLabelsMargins();
-    }
-  void UpdateLabelsMargins() {
-    mRECT.B = mRECT.T + mMeterHeight + mChNameMaxH * mText.mSize;
-    mTargetRECT = mRECT;
     }
 
   void SetDrawLevelMarks(bool draw, int chId = -1) {
-    // todo dont forget aboul mrect recalcs
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *DrawMarksPtr(ch) = draw;
     else
-        *DrawMarksPtr(chId) = draw;
+      *DrawMarksPtr(chId) = draw;
+
+    UpdateMargins(initLM, initRM);
+
+    SetDirty();
     }
   void SetLevelMarks(const char* marks, int chId = -1) {
     // provide values separated by spaces.
@@ -485,6 +467,9 @@ class IVMeterControl : public IControl
         }
       };
 
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch) {
         Set(ch);
@@ -502,19 +487,34 @@ class IVMeterControl : public IControl
     DBGMSG(wr.Get());
 #endif
 
+    UpdateMargins(initLM, initRM);
+
+    SetDirty();
     }
   void SetMarkWidthRatio(float r, int chId) {
-    // relative to meter width
-    // todo dont forget about mrect recalcs
-     if (chId < 0)
+    // relative to meter width.
+    // marks with no numeric values will be 0.5 * r * meterWidth
+
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
+    if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MarkWidthRPtr(ch) = r;
     else
-        *MarkWidthRPtr(chId) = r;
+      *MarkWidthRPtr(chId) = r;
+
+    UpdateMargins(initLM, initRM);
+
+    SetDirty();
     }
   void SetMarksAlignment(char alignment, int chId = -1, bool shortenMarksForSides = true) {
     if (alignment != 'l' && alignment != 'r')
       alignment = 'c';
+
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MarksAlignPtr(ch) = alignment;
@@ -528,19 +528,24 @@ class IVMeterControl : public IControl
       else
         *MarkWidthRPtr(chId) *= 0.3f;
 
-  // todo dont forget about mrect recalcs
+    UpdateMargins(initLM, initRM);
 
+    SetDirty();
     }
-  void SetMarksHOffset(float offset, int chId = -1){
+  void SetMarksHOffset(float offset, int chId = -1) {
+    // offset is mainly used for drawing one set of marks between the adjacent meters.
+    // setting high offset values outside the meter area doesn't guarantee correct drawing.
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MarksOffsetPtr(ch) = offset;
     else
-        *MarksOffsetPtr(chId) = offset;
-    // todo dont forget about mrect recalcs
+      *MarksOffsetPtr(chId) = offset;
+
+  //todo try to calc mARGINS TOO
+
+    SetDirty();
     }
 
-  //todo dont forget about mRect recalc
   void SetText(IText& txt) {
     SetTexts(txt, txt);
     }
@@ -548,8 +553,15 @@ class IVMeterControl : public IControl
     // note that the color of marks' lines is mMarkText.mTextEntryBGColor,
     // whereas the color of marks' values is mMarkText.mFGColor,
     // so you can make them different.
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+    auto initH = mChNameMaxH * mText.mSize;
+
     mText = chNameTxt;
     mMarkText = marksTxt;
+
+    UpdateMargins(initLM, initRM);
+    RecalcMaxChNameH(initH);
     SetDirty();
     }
 
@@ -567,12 +579,9 @@ class IVMeterControl : public IControl
     SetDirty();
     }
   void SetDistToTheNextMeter(double d, int chId = -1, bool compactLabels = true, bool glueRects = true) {
-    // todo calc sum of truncated tales and distribute it
-    // in a nice way to keep the mRECT.W when needed
     if (d < 0.0) d = 30.0;
     glueRects = glueRects && (d == 0.0);
-    // identical narrow meters with noninteger sizes often look different
-    d = trunc(d);
+    d = round(d);
 
     if (chId < 0) {
       if (glueRects) {
@@ -588,8 +597,8 @@ class IVMeterControl : public IControl
       for (int ch = 0; ch != NumChannels(); ++ch)
         *DistToTheNextMPtr(ch) = (float) d;
       if (compactLabels) {
-        // only put marks in the middle
-        for (int ch = 0; ch != NumChannels() - 1; ++ch){
+        // only put marks in the middle, don't touch chan names
+        for (int ch = 0; ch != NumChannels() - 1; ++ch) {
           *MarksAlignPtr(ch) = 'c';
           *MarksOffsetPtr(ch) = 0.5f * (MeterWidth(ch) + DistToTheNextM(ch));
           }
@@ -604,25 +613,36 @@ class IVMeterControl : public IControl
         *MeterWidthPtr(chId + 1) += stretch;
         *MeterWidthPtr(chId + 1) = trunc(MeterWidth(chId + 1));
         }
-      *DistToTheNextMPtr(chId) = (float)d;
-      if (compactLabels && chId != NumChannels() - 1) {
+
+      *DistToTheNextMPtr(chId) = (float) d;
+
+      if (compactLabels && chId < NumChannels() - 1) {
         // put 1st marks and chanName in the center, hide 2nd ones
+        *DrawMarksPtr(chId) = true;
         *DrawMarksPtr(chId + 1) = false;
-        *DrawChanNamePtr(chId + 1) = false;
         *MarksAlignPtr(chId) = 'c';
         auto o = 0.5f * (MeterWidth(chId) + DistToTheNextM(chId));
         *MarksOffsetPtr(chId) = o;
-        *ChanNameHOffsetPtr(chId) = o;
+        if (ChanNamePtr(chId)->GetLength()) {
+          *DrawChanNamePtr(chId) = true;
+          *DrawChanNamePtr(chId + 1) = false;
+          *ChanNameHOffsetPtr(chId) = o;
+          }
+        else if (ChanNamePtr(chId + 1)->GetLength()) {
+          *DrawChanNamePtr(chId) = false;
+          *DrawChanNamePtr(chId + 1) = true;
+          auto o = -0.5f * (MeterWidth(chId + 1) + DistToTheNextM(chId));
+          *ChanNameHOffsetPtr(chId + 1) = o;
+          }
         }
       }
 
-    // todo update mRECT the right way
     mRECT = mTargetRECT = GetControlRectFromChannelsData();
 
 #ifdef _DEBUG
     WDL_String s("meters widths: ");
     for (int m = 0; m != NumChannels(); ++m)
-      s.AppendFormatted(64, "%d, ", (int)MeterWidth(m));
+    s.AppendFormatted(64, "%d, ", (int) MeterWidth(m));
     DBGMSG(s.Get());
 #endif
 
@@ -634,11 +654,67 @@ class IVMeterControl : public IControl
     mDirty = true;
     }
   void OnResize() {
-    // todo
-    // dont forget to trunc the horisontal distances
-    // scale channel name offsets accordingly
+    auto initR = GetControlRectFromChannelsData();
+
+    auto chNH = mChNameMaxH * mText.mSize;
+    auto labW = 0.f;
+    // labW represents nonscalable left and right margins
+    // left margin is especially important because it affects the meter rects offset
+    if (DrawMarks(0) && MarksAlign(0) == 'l')
+      labW += MaxLabelLen(0);
+    if (NumChannels() > 1) {
+      int last = NumChannels() - 1;
+      if (DrawMarks(last) && MarksAlign(last) == 'r')
+        labW += MaxLabelLen(last);
+      }
+
+    labW *= mMarkText.mSize * 0.44f;
+
+    auto minH = 30.f + chNH;
+    auto minW = 4.f * NumChannels() + labW;
+
+    if (mRECT.H() < minH) mRECT.B = mRECT.T + minH;
+    if (mRECT.W() < minW) mRECT.R = mRECT.L + minW;
+    mTargetRECT = mRECT;
+
+    auto userFlexArea = mRECT.W() - labW;
+    auto initFlexArea = initR.W() - labW;
+
+    auto wr = userFlexArea / initFlexArea;
+
+      // jerky resizing makes problems sometimes
+    if (wr < 0.125f) {
+      mTargetRECT = mRECT = initR;
+      SetDirty();
+      return;
+      }
+    else if (wr > 8.f) wr = 8.f;
+
+#ifdef _DEBUG
+    if (wr != 1.f) {
+      WDL_String rs("\n OnResize r: ");
+      rs.AppendFormatted(32, "%4.6f, ", wr);
+      DBGMSG(rs.Get());
+      }
+#endif
+
+    Scale(wr);
+    mMeterHeight = mRECT.H() - chNH;
+
+#ifdef _DEBUG
+    // check the leftovers, shouldn't be big
+    auto nR = GetControlRectFromChannelsData();
+    auto ex = mRECT.W() - nR.W();
+
+    WDL_String ls("\n OnResize left: ");
+    ls.AppendFormatted(32, "%4.6f, ", ex);
+    DBGMSG(ls.Get());
+#endif
+
     SetDirty();
     }
+
+
 
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
     if (mod.C)
@@ -664,8 +740,7 @@ class IVMeterControl : public IControl
 
   double mSampleRate = DEFAULT_SAMPLE_RATE;
 
-  struct ChannelSpecificData
-    {
+  struct ChannelSpecificData {
   // all signal related vals are stored as abs vals and interpreted when needed
     double rawValue;
     double minDisplayVal = 0.001; // -60dB
@@ -704,11 +779,11 @@ class IVMeterControl : public IControl
     WDL_TypedBuf<double>* marks = nullptr;
     WDL_TypedBuf<bool>* markLabels = nullptr;
     char marksAlign = 'c'; // 'l'eft, 'c'enter, 'r'ight
-    float marksOffset = 0.f;
+    float marksOffset = 0.f; // used for common marks for adjacent meters. using ouside the meters area is not perfect with OnResize()
     float maxLabelLen = 0.f;
 
     int numDisplPrecision = 2;
-    bool drawChanName = true; // todo
+    bool drawChanName = true;
     float chanNameHOffset = 0.f; // e.g. one "IN L/R" label for glued meters
     WDL_String* chanName = nullptr;
     };
@@ -717,14 +792,11 @@ class IVMeterControl : public IControl
 
   int NumChannels() { return mChanData.GetSize(); }
 
-  float mMeterHeight = 150.f; // including the overdrive rect
+  float mMeterHeight = 150.f; // including the peak rect
   float mPeakRectHeight = 15.f;
   bool mHoldPeaks = true; // useful in audio debugging
 
-  // todo:
-  float mChNameMaxH = 1.f; // these three used for stretching mRECT to fit labels
-  float mChNameLeftMargin = 0.f;
-  float mChNameRightMargin = 0.f;
+  float mChNameMaxH = 0.f;
 
   IText mMarkText = mText;
 
@@ -768,23 +840,26 @@ class IVMeterControl : public IControl
     }
 
   IRECT GetMeterRect(int i, bool withODRect = false) {
-    // todo account for labels
-    float dx = 0.0;
+    auto dx = 0.f;
+    dx += GetLeftMarginAbs();
+    // identical narrow meters with noninteger sizes often look different and sometimes ugly, so use round().
     for (int m = 0; m != i; ++m) {
-      dx += MeterWidth(m);
-      dx += DistToTheNextM(m);
+      dx += round(MeterWidth(m));
+      dx += round(DistToTheNextM(m));
       }
     auto mr = mRECT;
     mr.L += dx;
-    mr.R = mr.L + MeterWidth(i);
+    mr.R = mr.L + round(MeterWidth(i));
     mr.B = mr.T + mMeterHeight;
     if (DrawPeakRect(i) && !withODRect)
       mr.T += mPeakRectHeight;
     return mr;
     }
   IRECT GetControlRectFromChannelsData(bool keepPosition = true) {
-    // todo account for labels
     float w = 0.0;
+
+    w += GetLeftMarginAbs() + GetRightMarginAbs();
+
     bool showChName = false;
     for (int m = 0; m != NumChannels(); ++m) {
       w += MeterWidth(m);
@@ -793,16 +868,49 @@ class IVMeterControl : public IControl
       if (DrawChanName(m))
         showChName = true;
       }
+
     auto r = IRECT(0.0, 0.0, w, mMeterHeight);
-    if (showChName)
+    if (showChName) // simple scheme, don't care about the chName width
       r.B += mChNameMaxH * mText.mSize;
-    if (keepPosition) {
-      r.L += mRECT.L;
-      r.R += mRECT.L;
-      r.T += mRECT.T;
-      r.B += mRECT.T;
-      }
+    if (keepPosition)
+      r = ShiftRectBy(r, mRECT.L, mRECT.T);
     return r;
+    }
+
+  float GetLeftMarginAbs() {
+    auto m = 0.f;
+    if (DrawMarks(0) && MarksAlign(0) == 'l') {
+      m += MaxLabelLen(0) * mMarkText.mSize * 0.44f + 2.f;
+      m += MeterWidth(0) * MarkWidthR(0) + 2.f; // 2 is the same pad as used in DrawMarks()
+      }
+    return m;
+    }
+  float GetRightMarginAbs() {
+    auto m = 0.f;
+    auto n = NumChannels() - 1;
+    if (DrawMarks(n) && MarksAlign(n) == 'r') {
+      m += MaxLabelLen(n) * mMarkText.mSize * 0.44f + 2.f;
+      m += MeterWidth(n) * MarkWidthR(n) + 2.f; // 2 is the same pad as used in DrawMarks()
+      }
+    return m;
+    }
+  void UpdateMargins(float oldL, float oldR) {
+    auto newLM = GetLeftMarginAbs();
+    auto newRM = GetRightMarginAbs();
+    mRECT.L -= (newLM - oldL);
+    mRECT.R += (newRM - oldR);
+    mTargetRECT = mRECT;
+    }
+
+  void Scale(float r) {
+    for (auto ch = 0; ch != NumChannels(); ++ch) {
+      *MeterWidthPtr(ch) *= r;
+      *DistToTheNextMPtr(ch) *= r;
+      if (MeterWidth(ch) < 1.f)*MeterWidthPtr(ch) = 1.f;
+      if (DistToTheNextM(ch) < 0.f) *DistToTheNextMPtr(ch) = 0.f;
+      *ChanNameHOffsetPtr(ch) *= r;
+      *MarksOffsetPtr(ch) *= r;
+      }
     }
 
   void SetChanNames(const char* names, va_list args) {
@@ -811,12 +919,26 @@ class IVMeterControl : public IControl
     for (int c = 1; c < NumChannels(); ++c)
       ChanNamePtr(c)->Set(va_arg(args, const char*));
     }
+  void RecalcMaxChNameH(float oldAbsH) {
+    mChNameMaxH = 0.f;
+    float w, h;
+    for (int ch = 0; ch != NumChannels(); ++ch)
+      if (DrawChanName(ch)) {
+        BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
+        if (w != 0.0 && h > mChNameMaxH) mChNameMaxH = h;
+        }
+
+    auto finalAbsH = mChNameMaxH * mText.mSize;
+    mRECT.B += (finalAbsH - oldAbsH);
+    mTargetRECT = mRECT;
+
+    }
 
   void DrawMarks(IGraphics& graphics) {
+    // todo some dots from labels appear on the right
     auto shadowColor = IColor(60, 0, 0, 0);
     for (auto ch = 0; ch != NumChannels(); ++ch)
-      if (DrawMarks(ch))
-        {
+      if (DrawMarks(ch)) {
         // compute common for all marks vals
         auto o = MarksOffset(ch);
         auto mR = GetMeterRect(ch);
@@ -895,7 +1017,7 @@ class IVMeterControl : public IControl
         auto DrawMarkWithLabel = [&] (float h, double v) {
           auto tr = mR;
           tr.T = h - mMarkText.mSize / 2;
-          tr.B = tr.T +  mMarkText.mSize;
+          tr.B = tr.T + mMarkText.mSize;
           auto r = RectForHorLine(h, false);
           tr.L = labelDx;
           tr.R = labelDx + 1.f;
@@ -914,8 +1036,7 @@ class IVMeterControl : public IControl
           // then draw level lines
           if (align != 'c')
             DrawLine(r);
-          else
-            { // draw shorter level lines around the label or one long line
+          else { // draw shorter level lines around the label or one long line
             if (drawLabel) {
               auto sl = 0.2f * longLen; // short lines length
               auto ld = 0.5f * maxLabelW + 2.f * pad; // distance from center to the line start
@@ -937,12 +1058,12 @@ class IVMeterControl : public IControl
                 rr.L = labelDx + ld;
                 rr.R = rr.L + sl;
                 rr.L -= addLen;
+                if (mDrawBorders) rl.L += 1.f;
                 // if they stick out of the mR.W(), shorten
                 auto ex = rr.R - (labelDx + 0.5f * mR.W());
                 if (ex > 0.f) {
                   rl.L += ex;
                   rr.R -= ex;
-                  //if (mDrawBorders) rl.L += 1.f;
                   }
                 DrawLine(rl);
                 DrawLine(rr);
@@ -980,8 +1101,7 @@ class IVMeterControl : public IControl
 
         for (int m = 0; m != MarksPtr(ch)->GetSize(); ++m) {
           auto v = Mark(ch, m);
-          if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch))
-            {
+          if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
             // don't draw marks that are outside of the display range
             auto h = GetVCoordFromValInMeterRect(ch, v, mR);
             h = trunc(h); // at least on LICE nonintegers look bad
@@ -997,7 +1117,6 @@ class IVMeterControl : public IControl
           }
         }
     }
-
   void RecalcMaxLabelLen(int ch) {
     // this alg is almost the same as the one used in marks drawing
     auto maxL = 0.f;
@@ -1008,15 +1127,15 @@ class IVMeterControl : public IControl
       if (MarkLabel(ch, m)) {
         auto v = Mark(ch, m);
         if (v > MinDisplayVal(ch) && v < MaxDisplayVal(ch)) {
-            auto h = GetVCoordFromValInMeterRect(ch, v, mR);
-            h = trunc(h);
-            if (h < mR.B && h > mR.T) {
-              if (UnitsDB(ch)) v = AmpToDB(v);
-               WDL_String l;
-               l.SetFormatted(8, PrecisionString(ch).Get(), v);
-               RemoveTrailingZeroes(&l);
-               BasicTextMeasure(l.Get(), th, len);
-              }
+          auto h = GetVCoordFromValInMeterRect(ch, v, mR);
+          h = trunc(h);
+          if (h < mR.B && h > mR.T) {
+            if (UnitsDB(ch)) v = AmpToDB(v);
+            WDL_String l;
+            l.SetFormatted(8, PrecisionString(ch).Get(), v);
+            RemoveTrailingZeroes(&l);
+            BasicTextMeasure(l.Get(), th, len);
+            }
           }
         }
       if (len > maxL)
@@ -1041,7 +1160,7 @@ class IVMeterControl : public IControl
 
     if (*p != '\0') // reverse search the 1st nonzero digit
       {
-      auto dotPos = p - start;
+      auto dotPos = (int)(p - start);
       int delPos = s->GetLength() - 1;
       while (delPos != dotPos) {
         char* c = start + delPos;
@@ -1056,7 +1175,7 @@ class IVMeterControl : public IControl
         if (delPos == dotPos + 1) // if all decimals are 0, we don't need the dot
           --delPos;
         }
-      else if(delPos < dotPos + minDecimalsToKeep + 1)
+      else if (delPos < dotPos + minDecimalsToKeep + 1)
         delPos = dotPos + minDecimalsToKeep + 1;
 
       if (delPos < s->GetLength())
@@ -1198,7 +1317,6 @@ class IVMeterControl : public IControl
   bool DrawChanName         (int i) { return *DrawChanNamePtr(i); }
   float* ChanNameHOffsetPtr (int i) { return &(Ch(i)->chanNameHOffset); }
   float ChanNameHOffset     (int i) { return *ChanNameHOffsetPtr(i); }
-
   WDL_String* ChanNamePtr   (int i) { return *ChanNamePP(i); }
   WDL_String** ChanNamePP   (int i) { return &(Ch(i)->chanName); }
   };

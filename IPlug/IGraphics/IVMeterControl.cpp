@@ -7,11 +7,34 @@ const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 240, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
 
-/*
-IVMeterControl::IVMeterControl(IDelegate & dlg, IRECT rect, int paramIdx, double * inputBuf)
-  {
-  }
-*/
+  IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
+    : IControl(dlg, rect, kNoParameter)
+    , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR) {
+
+    ChannelSpecificData d;
+    for (auto ch = 0; ch != numChannels; ++ch) {
+      mChanData.Add(d);
+      *(RMSBufPP(ch)) = new WDL_TypedBuf<double>;
+      *(ChanNamePP(ch)) = new WDL_String;
+      *(MarksPP(ch)) = new WDL_TypedBuf<double>;
+      *(MarkLabelsPP(ch)) = new WDL_TypedBuf<bool>;
+      }
+
+    SetRMSWindowMs(300.0);
+    SetLevelMarks("3 0s -3 -6s -9 -12s -18 -24s -30 -36 -42 -48s -54s -60");
+
+    va_list args;
+    va_start(args, chanNames);
+    SetChanNames(chanNames, args);
+    va_end(args);
+    RecalcMaxChNameH(0.f);
+
+    if (rect.Empty())
+      mRECT = mTargetRECT = GetControlRectFromChannelsData(false);
+    else
+      OnResize();
+
+    };
 
 void IVMeterControl::Draw(IGraphics& graphics) {
   double fps = graphics.FPS();
@@ -175,7 +198,7 @@ void IVMeterControl::Draw(IGraphics& graphics) {
    // dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
    // graphics.DrawTextA(txtfps, fpss.Get(), dtr);
 
-    //graphics.DrawRect(COLOR_BLUE, mRECT);
+    graphics.DrawRect(COLOR_BLUE, mRECT);
 #endif
 
   SetDirty();
