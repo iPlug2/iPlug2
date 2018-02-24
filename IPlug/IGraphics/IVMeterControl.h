@@ -534,14 +534,16 @@ class IVMeterControl : public IControl
     }
   void SetMarksHOffset(float offset, int chId = -1) {
     // offset is mainly used for drawing one set of marks between the adjacent meters.
-    // setting high offset values outside the meter area doesn't guarantee correct drawing.
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MarksOffsetPtr(ch) = offset;
     else
       *MarksOffsetPtr(chId) = offset;
 
-  //todo try to calc mARGINS TOO
+    UpdateMargins(initLM, initRM);
 
     SetDirty();
     }
@@ -567,7 +569,7 @@ class IVMeterControl : public IControl
 
   void SetMeterWidth(double w, int chId = -1) {
     if (w < 0.0) w = 20.0;
-    w = trunc(w); // identical narrow meters with noninteger sizes often look different
+
     if (chId < 0)
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MeterWidthPtr(ch) = (float) w;
@@ -581,7 +583,6 @@ class IVMeterControl : public IControl
   void SetDistToTheNextMeter(double d, int chId = -1, bool compactLabels = true, bool glueRects = true) {
     if (d < 0.0) d = 30.0;
     glueRects = glueRects && (d == 0.0);
-    d = round(d);
 
     if (chId < 0) {
       if (glueRects) {
@@ -589,10 +590,8 @@ class IVMeterControl : public IControl
         for (int ch = 0; ch != NumChannels() - 1; ++ch)
           w += DistToTheNextM(ch);
         w /= NumChannels();
-        for (int ch = 0; ch != NumChannels(); ++ch) {
+        for (int ch = 0; ch != NumChannels(); ++ch)
           *MeterWidthPtr(ch) += w;
-          *MeterWidthPtr(ch) = trunc(MeterWidth(ch));
-          }
         }
       for (int ch = 0; ch != NumChannels(); ++ch)
         *DistToTheNextMPtr(ch) = (float) d;
@@ -609,9 +608,7 @@ class IVMeterControl : public IControl
       if (glueRects && chId != NumChannels() - 1) {
         auto stretch = 0.5f * DistToTheNextM(chId);
         *MeterWidthPtr(chId) += stretch;
-        *MeterWidthPtr(chId) = trunc(MeterWidth(chId));
         *MeterWidthPtr(chId + 1) += stretch;
-        *MeterWidthPtr(chId + 1) = trunc(MeterWidth(chId + 1));
         }
 
       *DistToTheNextMPtr(chId) = (float) d;
@@ -702,7 +699,7 @@ class IVMeterControl : public IControl
     mMeterHeight = mRECT.H() - chNH;
 
 #ifdef _DEBUG
-    // check the leftovers, shouldn't be big
+    // check the leftovers, shouldn't be big, no need to distribute
     auto nR = GetControlRectFromChannelsData();
     auto ex = mRECT.W() - nR.W();
 
@@ -779,7 +776,7 @@ class IVMeterControl : public IControl
     WDL_TypedBuf<double>* marks = nullptr;
     WDL_TypedBuf<bool>* markLabels = nullptr;
     char marksAlign = 'c'; // 'l'eft, 'c'enter, 'r'ight
-    float marksOffset = 0.f; // used for common marks for adjacent meters. using ouside the meters area is not perfect with OnResize()
+    float marksOffset = 0.f; // mainly used for common marks for adjacent meters
     float maxLabelLen = 0.f;
 
     int numDisplPrecision = 2;
@@ -842,7 +839,8 @@ class IVMeterControl : public IControl
   IRECT GetMeterRect(int i, bool withODRect = false) {
     auto dx = 0.f;
     dx += GetLeftMarginAbs();
-    // identical narrow meters with noninteger sizes often look different and sometimes ugly, so use round().
+    // identical narrow meters with noninteger sizes often look different,
+    // so use round() to "snap to grid".
     for (int m = 0; m != i; ++m) {
       dx += round(MeterWidth(m));
       dx += round(DistToTheNextM(m));
@@ -882,6 +880,8 @@ class IVMeterControl : public IControl
     if (DrawMarks(0) && MarksAlign(0) == 'l') {
       m += MaxLabelLen(0) * mMarkText.mSize * 0.44f + 2.f;
       m += MeterWidth(0) * MarkWidthR(0) + 2.f; // 2 is the same pad as used in DrawMarks()
+      m -= MarksOffset(0); // offset to the left is <0
+      if (m < 0.f) m = 0.f;
       }
     return m;
     }
@@ -891,6 +891,8 @@ class IVMeterControl : public IControl
     if (DrawMarks(n) && MarksAlign(n) == 'r') {
       m += MaxLabelLen(n) * mMarkText.mSize * 0.44f + 2.f;
       m += MeterWidth(n) * MarkWidthR(n) + 2.f; // 2 is the same pad as used in DrawMarks()
+      m += MarksOffset(n);
+      if (m < 0.f) m = 0.f;
       }
     return m;
     }
