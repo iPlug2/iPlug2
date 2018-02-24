@@ -59,33 +59,24 @@ public:
   virtual void ViewInitialized(void* layer) {};
   //
 
-  /**
-   Called by platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
-
-   @param scale An integer specifying the scale of the display, where 2 = mac retina /todo better explanation of scale
-  */
+  /** Called by platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
+   * @param scale An integer specifying the scale of the display, where 2 = mac retina /todo better explanation of scale */
   virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
 
-  /**
-   Draw an SVG image to the graphics context
-
-   @param svg The image to draw
-   @param rect The rectangular area to draw the image in
-   @param pBlend Optional blend method, see IBlend documentation
-  */
+  /** Draw an SVG image to the graphics context
+   * @param svg The image to draw
+   * @param rect The rectangular area to draw the image in
+   * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawSVG(ISVG& svg, const IRECT& rect, const IBlend* pBlend = 0) = 0;
 
-  /**
-   /todo <#Description#>
-
-   @param svg The svg image to draw to the graphics context
-   @param destCentreX The X coordinate of the centre point at which to rotate the image around. /todo check this
-   @param destCentreY The Y coordinate of the centre point at which to rotate the image around. /todo check this
-   @param width /todo
-   @param height /todo
-   @param angle angle the angle to rotate the bitmap mask at in degrees clockwise /see IGraphicsDrawing documentation
-   @param pBlend Optional blend method, see IBlend documentation
-  */
+  /** Draw an SVG with rotation 
+   * @param svg The svg image to draw to the graphics context
+   * @param destCentreX The X coordinate of the centre point at which to rotate the image around. /todo check this
+   * @param destCentreY The Y coordinate of the centre point at which to rotate the image around. /todo check this
+   * @param width /todo
+   * @param height /todo
+   * @param angle angle the angle to rotate the bitmap mask at in degrees clockwise /see IGraphicsDrawing documentation
+   * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedSVG(ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
 
   /**
