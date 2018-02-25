@@ -398,7 +398,7 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
-  void SetDrawLevelMarks(bool draw, int chId = -1) {
+  void SetDrawMarks(bool draw, int chId = -1) {
     auto initLM = GetLeftMarginAbs();
     auto initRM = GetRightMarginAbs();
 
@@ -548,25 +548,6 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
-  void SetText(IText& txt) {
-    SetTexts(txt, txt);
-    }
-  void SetTexts(IText chNameTxt, IText marksTxt) {
-    // note that the color of marks' lines is mMarkText.mTextEntryBGColor,
-    // whereas the color of marks' values is mMarkText.mFGColor,
-    // so you can make them different.
-    auto initLM = GetLeftMarginAbs();
-    auto initRM = GetRightMarginAbs();
-    auto initH = mChNameMaxH * mText.mSize;
-
-    mText = chNameTxt;
-    mMarkText = marksTxt;
-
-    UpdateMargins(initLM, initRM);
-    RecalcMaxChNameH(initH);
-    SetDirty();
-    }
-
   void SetMeterWidth(double w, int chId = -1) {
     if (w < 0.0) w = 20.0;
 
@@ -646,6 +627,34 @@ class IVMeterControl : public IControl
     SetDirty();
     }
 
+  void SetText(IText& txt) {
+    SetTexts(txt, txt);
+    }
+  void SetTexts(IText chNameTxt, IText marksTxt) {
+    // note that the color of marks' lines is mMarkText.mTextEntryBGColor,
+    // whereas the color of marks' values is mMarkText.mFGColor,
+    // so you can make them different.
+    auto initLM = GetLeftMarginAbs();
+    auto initRM = GetRightMarginAbs();
+    auto initH = mChNameMaxH * mText.mSize;
+
+    mText = chNameTxt;
+    mMarkText = marksTxt;
+
+    UpdateMargins(initLM, initRM);
+    RecalcMaxChNameH(initH);
+    SetDirty();
+    }
+
+  void SetDrawBorders(bool draw) {
+    mDrawBorders = draw;
+    SetDirty();
+    }
+  void SetDrawShadows(bool draw) {
+    mDrawShadows = draw;
+    SetDirty();
+    }
+
   void Draw(IGraphics& graphics)  override;
   void SetDirty(bool pushParamToDelegate = false) override {
     mDirty = true;
@@ -665,7 +674,10 @@ class IVMeterControl : public IControl
         labW += MaxLabelLen(last);
       }
 
-    labW *= mMarkText.mSize * 0.44f;
+    labW *= mMarkText.mSize * 0.5f; // NB: 0.5 is used instead of 0.44 to fit all labels
+                                    // in mRECT and avoid artefacts.
+                                    // it is critical to use the same width coeff
+                                    // in GetLeftMarginAbs() and GetRightMarginAbs().
 
     auto minH = 30.f + chNH;
     auto minW = 4.f * NumChannels() + labW;
@@ -710,8 +722,6 @@ class IVMeterControl : public IControl
 
     SetDirty();
     }
-
-
 
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {
     if (mod.C)
@@ -878,7 +888,7 @@ class IVMeterControl : public IControl
   float GetLeftMarginAbs() {
     auto m = 0.f;
     if (DrawMarks(0) && MarksAlign(0) == 'l') {
-      m += MaxLabelLen(0) * mMarkText.mSize * 0.44f + 2.f;
+      m += MaxLabelLen(0) * mMarkText.mSize * 0.5f + 2.f; // 0.5, not 0.44. same as in OnResize()
       m += MeterWidth(0) * MarkWidthR(0) + 2.f; // 2 is the same pad as used in DrawMarks()
       m -= MarksOffset(0); // offset to the left is <0
       if (m < 0.f) m = 0.f;
@@ -889,7 +899,7 @@ class IVMeterControl : public IControl
     auto m = 0.f;
     auto n = NumChannels() - 1;
     if (DrawMarks(n) && MarksAlign(n) == 'r') {
-      m += MaxLabelLen(n) * mMarkText.mSize * 0.44f + 2.f;
+      m += MaxLabelLen(n) * mMarkText.mSize * 0.5f + 2.f; // 0.5, not 0.44. same as in OnResize()
       m += MeterWidth(n) * MarkWidthR(n) + 2.f; // 2 is the same pad as used in DrawMarks()
       m += MarksOffset(n);
       if (m < 0.f) m = 0.f;
@@ -937,25 +947,34 @@ class IVMeterControl : public IControl
     }
 
   void DrawMarks(IGraphics& graphics) {
-    // todo some dots from labels appear on the right
     auto shadowColor = IColor(60, 0, 0, 0);
     for (auto ch = 0; ch != NumChannels(); ++ch)
       if (DrawMarks(ch)) {
-        // compute common for all marks vals
+        // first compute all the common stuff for all marks of the meter
         auto o = MarksOffset(ch);
         auto mR = GetMeterRect(ch);
-        auto labelDx = o;
+
+        auto labelDx = o; // mid line of labels
         auto longLen = MarkWidthR(ch) * mR.W(); // long mark
+        auto minLL = 0.2f * longLen; // min length of lines to the sides of label
         auto lx1 = 0.f;
         auto lx2 = longLen;
+        bool clampLabelLines = MarksOffset(ch) > 0.4f * mR.W(); // if true, marks are probably used as common for adjacent meters,
+                                                                // so it's fine if they are wider than meter's rect.W
+
         auto mx1 = 0.f; // short mark coords
         auto mx2 = 0.7f * longLen;
         auto pad = 2.f;
 
         auto mTxt = mMarkText;
         auto maxLabelW = MaxLabelLen(ch) * mMarkText.mSize * 0.44f; // 0.44 - approx symbol width
-        auto lastLabBot = 0.f; // hide overlapping labels
+        auto lastLabBot = 0.f; // hide vertical label overlap
         auto maxLabOverlap = 0.4f * mMarkText.mSize;
+
+        IRECT wideLabMark;
+        IRECT lLabMark(-1.f, -1.f, -2.f, -2.f);
+        IRECT rLabMark = lLabMark;
+        IRECT LabTxtRect;
 
         auto align = MarksAlign(ch);
         if (align == 'l') {
@@ -978,15 +997,24 @@ class IVMeterControl : public IControl
           }
         else // center
           {
-          auto hr = 0.5f * mR.W();
-          o += mR.L + hr;
+          if (DrawMaxPeak(ch)) {
+            if (!DrawPeakRect(ch) || mPeakRectHeight < mMarkText.mSize)
+              lastLabBot = mR.T + mMarkText.mSize;
+            }
+          o += mR.L + 0.5f * mR.W();
           mTxt.mAlign = IText::kAlignCenter;
           mx1 = o - 0.5f * mx2;
           mx2 = mx1 + mx2;
-          lx1 = o - hr;
-          lx2 = o + hr;
+          auto hl = 0.5f * longLen;
+          lx1 = o - hl;
+          lx2 = o + hl;
           labelDx = 0.5f * (lx1 + lx2);
           }
+
+        auto& ltr = LabTxtRect;
+        ltr.B = mMarkText.mSize;
+        ltr.L = labelDx;
+        ltr.R = labelDx + 1.f;
 
         auto RectForHorLine = [&] (float y, bool shortM = true) {
           auto r = mR;
@@ -1003,6 +1031,59 @@ class IVMeterControl : public IControl
           return r;
           };
 
+        wideLabMark = RectForHorLine(0, false); // init mark for all labels in this meter
+
+        // more common preparations for central alignment
+        if (align == 'c') {
+          // calculate the lines on the sides of labels and later only shift them vrtically
+          auto labpad = 2.f * pad;
+          auto d = mR.W() - maxLabelW - 2.f * labpad - 4.f; // how much horizontal space left for lines. -4 is empirical adjustment
+          // NB maxLen is used ^^^ for consistency across all marks of the current meter
+          auto& rl = lLabMark;
+          auto& rr = rLabMark;
+          if (d > 0.f) {
+            // have space to draw lines
+            if (longLen - maxLabelW > 10.f + 2.f * labpad) {
+              // draw "line - label - line" with total longLen width
+              auto l = 0.5f * (longLen - maxLabelW - 5.f * pad); // 5 is empirical nice val
+              rl = wideLabMark;
+              rl.R = rl.L + l;
+              rr = wideLabMark;
+              rr.L = rr.R - l;
+              }
+            else {
+              // draw "line - label - line" that is possibly wider than longLen
+              auto l = 0.5f * maxLabelW + labpad;
+              rl = wideLabMark;
+              rl.R = labelDx - l + 1.f;
+              rl.L = rl.R - minLL;
+              rr = wideLabMark;
+              rr.L = labelDx + l;
+              rr.R = rr.L + minLL - 1.f;
+              if (clampLabelLines) {
+                auto ex = rr.R - (labelDx + 0.5f * mR.W());
+                if (ex > 0.f) {
+                  rl.L += ex;
+                  rr.R -= ex;
+                  }
+                }
+              if (mDrawBorders) rl.L += 1.f;
+              }
+            }
+          else {
+            // no space, draw very short marks
+            rr = wideLabMark;
+            rr.R = labelDx + 0.5f * mR.W();
+            rr.L = rr.R - 2.f;
+            if (!UnitsDB(ch)) // dB often have minus signs
+              {
+              rl = wideLabMark;
+              rl.L = labelDx - + 0.5f * mR.W() + 1.f;
+              rl.R = rl.L + 2.f;
+              }
+            }
+          }
+
         auto DrawLine = [&] (IRECT lr) {
           if (mDrawShadows) {
             auto sr = ShiftRectBy(lr, 2.f, 1.f);
@@ -1011,23 +1092,24 @@ class IVMeterControl : public IControl
           graphics.FillRect(mMarkText.mTextEntryBGColor, lr);
           };
 
-        auto DrawMark = [&] (float h) {
+        auto DrawMark = [&] (float h, bool ignoreLabels = false) {
           auto r = RectForHorLine(h);
-          DrawLine(r);
+          if (ignoreLabels || (lastLabBot < r.B))
+            DrawLine(r);
           };
 
         auto DrawMarkWithLabel = [&] (float h, double v) {
-          auto tr = mR;
-          tr.T = h - mMarkText.mSize / 2;
-          tr.B = tr.T + mMarkText.mSize;
-          auto r = RectForHorLine(h, false);
-          tr.L = labelDx;
-          tr.R = labelDx + 1.f;
+          wideLabMark = ShiftRectVerticallyAt(wideLabMark, h);
+          lLabMark = ShiftRectVerticallyAt(lLabMark, h);
+          rLabMark = ShiftRectVerticallyAt(rLabMark, h);
+
+          auto tr = ShiftRectVerticallyAt(LabTxtRect, h - mMarkText.mSize / 2);
           //graphics.DrawRect(COLOR_RED, tr);
+
           // first form a string
-          WDL_String l;
-          l.SetFormatted(8, PrecisionString(ch).Get(), v);
-          RemoveTrailingZeroes(&l);
+          WDL_String ltxt;
+          ltxt.SetFormatted(8, PrecisionString(ch).Get(), v);
+          RemoveTrailingZeroes(&ltxt);
 
           bool drawLabel = false;
           if (lastLabBot - maxLabOverlap < tr.T) {
@@ -1037,56 +1119,15 @@ class IVMeterControl : public IControl
 
           // then draw level lines
           if (align != 'c')
-            DrawLine(r);
-          else { // draw shorter level lines around the label or one long line
-            if (drawLabel) {
-              auto sl = 0.2f * longLen; // short lines length
-              auto ld = 0.5f * maxLabelW + 2.f * pad; // distance from center to the line start
-              float lw, lh;
-              BasicTextMeasure(l.Get(), lh, lw);
-              auto addLen = 0.25f * (maxLabelW - lw) - pad;
+            DrawLine(wideLabMark);
 
-              auto d = mR.W() - maxLabelW - 4.f * pad; // how much horizontal space left for lines
-              // NB maxLen is used ^^^ for consistency across all marks of the current meter
-              if (d > 0.f) {
-                // have space to draw lines
-                // line on the left
-                auto rl = r;
-                rl.R = labelDx - ld;
-                rl.L = rl.R - sl;
-                rl.R += addLen;
-                // line on the right
-                auto rr = r;
-                rr.L = labelDx + ld;
-                rr.R = rr.L + sl;
-                rr.L -= addLen;
-                if (mDrawBorders) rl.L += 1.f;
-                // if they stick out of the mR.W(), shorten
-                auto ex = rr.R - (labelDx + 0.5f * mR.W());
-                if (ex > 0.f) {
-                  rl.L += ex;
-                  rr.R -= ex;
-                  }
-                DrawLine(rl);
-                DrawLine(rr);
-                }
-              else {
-                // no space, at least draw short marks
-                r.L = r.R - pad;
-                DrawLine(r);
-                if (!UnitsDB(ch)) { //dB often have minus signs
-                  r.L = mR.L + labelDx + 1.f;
-                  r.R = r.L + pad;
-                  DrawLine(r);
-                  }
-                }
+          else { // draw shorter level lines around the label or one long line if labels overlap vertically
+            if (drawLabel) {
+              DrawLine(lLabMark);
+              DrawLine(rLabMark);
               }
-            else // skipped label, drawing only line
-              {
-              r.L = labelDx - 0.5f * longLen;
-              r.R = labelDx + 0.5f * longLen;
-              DrawLine(r);
-              }
+            else if (lastLabBot < wideLabMark.B)  // skipped label, drawing only line
+              DrawLine(wideLabMark);              // if it doesnt intersect prev. drawn label
             }
 
           if (drawLabel) {
@@ -1095,9 +1136,9 @@ class IVMeterControl : public IControl
               auto tt = mTxt;
               tt.mFGColor = shadowColor;
               auto sr = ShiftRectBy(tr, 1.f, 1.f);
-              graphics.DrawTextA(tt, l.Get(), sr);
+              graphics.DrawTextA(tt, ltxt.Get(), sr);
               }
-            graphics.DrawTextA(mTxt, l.Get(), tr);
+            graphics.DrawTextA(mTxt, ltxt.Get(), tr);
             }
           };
 
@@ -1113,7 +1154,7 @@ class IVMeterControl : public IControl
               if (MarkLabel(ch, m))
                 DrawMarkWithLabel(h, v);
               else
-                DrawMark(h);
+                DrawMark(h, align != 'c');
               }
             }
           }
@@ -1199,6 +1240,12 @@ class IVMeterControl : public IControl
     sr.T += dy;
     sr.B += dy;
     return sr;
+    }
+  IRECT ShiftRectVerticallyAt(IRECT r, float y) {
+    auto dy = y - r.T;
+    r.T += dy;
+    r.B += dy;
+    return r;
     }
   void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
     float w = 0.0;
