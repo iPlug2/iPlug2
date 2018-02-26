@@ -229,6 +229,7 @@ double IParam::StringToValue(const char* str) const
       v = -v;
     
     v = Clamp(v);
+    mapped = true;
   }
   
   return v;

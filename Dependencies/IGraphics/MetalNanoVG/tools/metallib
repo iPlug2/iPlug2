@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+# Copyright (c) 2017 Ollix
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# ---
+# Author: olliwang@ollix.com (Olli Wang)
+#
+# This script compiles the metal source file "nanovg_mtl_shaders.metal"
+# into metallib binary data as defined in "nanovg_mtl_metallib_*.h" headers.
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR/../src
+
+result=true
+
+METAL_VERSIONS=( "1.0" "1.1" "1.2" "2.0" )
+PREFIX="mnvg_bitcode"
+
+mkdir $PREFIX
+
+execute_cmd() {
+  SDK=$1
+  TARGET=$2
+  VERSION=$3
+
+  SUFFIX=""
+  CMD="xcrun -sdk $SDK metal nanovg_mtl_shaders.metal"
+  if [ "$VERSION" != "" ]; then
+    echo " - Ver: $VERSION"
+    CMD="$CMD -std=$TARGET-metal$VERSION"
+    SUFFIX="_${VERSION//./_}"
+  fi
+
+  #xcrun -sdk iphoneos metal nanovg_mtl_shaders.metal -std=ios-metal2.0 -o nanovg_mtl_iphoneos_2_0.air
+  AIR_FILE_NAME="$PREFIX/$TARGET$SUFFIX.air"
+  HEADER_NAME="$PREFIX/$TARGET$SUFFIX.h"
+  VARIABLE_NAME="$PREFIX/$TARGET$SUFFIX"
+
+  if [ $SDK = "iphoneos" ]; then
+    CMD="$CMD -mios-version-min=8.0"
+  elif [ $SDK = "macosx" ]; then
+    CMD="$CMD -mmacosx-version-min=10.11"
+  fi
+
+  CMD="$CMD -o $AIR_FILE_NAME"
+  eval $CMD
+
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+  xcrun -sdk $SDK metallib $AIR_FILE_NAME -o $VARIABLE_NAME \
+      > /dev/null 2>&1
+  xxd -i $VARIABLE_NAME > $HEADER_NAME
+  rm $AIR_FILE_NAME $VARIABLE_NAME
+  return 0
+}
+
+for SDK in "iphoneos" "macosx" "appletvos"; do
+  if [ $SDK = "appletvos" ]; then
+    echo "* Compiling for tvOS..."
+    TARGET="tvos"
+    execute_cmd $SDK $TARGET
+    if [ $? -ne 0 ]; then
+      result=false
+      break
+    fi
+  else
+    if [ $SDK = "iphoneos" ]; then
+      echo "* Compiling for iOS..."
+      TARGET="ios"
+      VERSIONS=( "${METAL_VERSIONS[@]}" )
+    elif [ $SDK = "macosx" ]; then
+      echo "* Compiling for macOS..."
+      TARGET="osx"
+      VERSIONS=( "${METAL_VERSIONS[@]:1}" )
+    fi
+
+    for VERSION in "${VERSIONS[@]}"; do
+      execute_cmd $SDK $TARGET $VERSION
+      if [ $? -ne 0 ]; then
+        result=false
+        break
+      fi
+    done
+  fi
+done
+
+if $result; then
+  echo "Done"
+fi

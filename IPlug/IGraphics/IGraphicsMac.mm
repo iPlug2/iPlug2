@@ -205,9 +205,18 @@ void IGraphicsMac::Resize(int w, int h, float scale)
 
   if (mView)
   {
-    NSSize size = { static_cast<CGFloat>(w * scale), static_cast<CGFloat>(h * scale) };
+    NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
+      
+    // Prevent animation during resize
+    // N.B. - The bounds perform scaling on the window, and so use the nominal size
+      
+    [NSAnimationContext beginGrouping]; // Prevent animated resizing
+    [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
-    [(IGRAPHICS_VIEW*) mView setBoundsSize:NSMakeSize(w, h)];
+    [(IGRAPHICS_VIEW*) mView setBoundsSize:NSMakeSize(Width(), Height())];
+    [NSAnimationContext endGrouping];
+      
+    SetAllControlsDirty();
   }
 }
 

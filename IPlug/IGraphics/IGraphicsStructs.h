@@ -29,41 +29,46 @@ class LICE_IFont;
 
 class APIBitmap
 {
-    
 public:
-    
-    APIBitmap(void* pBitmap, int w, int h, int s) : bitmap(pBitmap), width(w), height(h), scale(s) {}
-    APIBitmap() : bitmap(nullptr), width(0), height(0), scale(0) {}
-    virtual ~APIBitmap() {}
-    
-    void SetBitmap(void* pBitmap, int w, int h, int s)
-    {
-      assert(((w % s) == 0) && ((h % s) == 0));
-      
-      bitmap = pBitmap;
-      width = w;
-      height = h;
-      scale = s;
-    }
-    
-    void* GetBitmap() const { return bitmap; }
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
-    int GetScale() const { return scale; }
-    
-private:
-    
-    void* bitmap;
-    int width;
-    int height;
-    int scale;
+  APIBitmap(void* pBitmap, int w, int h, int s)
+  : mBitmap(pBitmap)
+  , mWidth(w)
+  , mHeight(h)
+  , mScale(s) {}
+  
+  APIBitmap()
+  : mBitmap(nullptr)
+  , mWidth(0)
+  , mHeight(0)
+  , mScale(0)
+  {}
+  
+  void SetBitmap(void* pBitmap, int w, int h, int s)
+  {
+    assert(((w % s) == 0) && ((h % s) == 0));
+
+    mBitmap = pBitmap;
+    mWidth = w;
+    mHeight = h;
+    mScale = s;
+  }
+
+  void* GetBitmap() const { return mBitmap; }
+  int GetWidth() const { return mWidth; }
+  int GetHeight() const { return mHeight; }
+  int GetScale() const { return mScale; }
+
+  private:
+  void* mBitmap;
+  int mWidth;
+  int mHeight;
+  int mScale;
 };
 
 /** Used to manage bitmap data, independant of draw class/platform.
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
 {
-    
 public:
     
   /** Creates a new IBitmap object
@@ -112,7 +117,7 @@ public:
   */
   inline int N() const { return mN; }
   /**
-  * @return a pointer to the referencied APIBitmap
+  * @return a pointer to the referenced APIBitmap
   */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
   /**
@@ -150,9 +155,9 @@ struct ISVG
 {
   NSVGimage* mImage = nullptr;
 
-  ISVG(NSVGimage* image)
+  ISVG(NSVGimage* pImage)
   {
-    mImage = image;
+    mImage = pImage;
     assert(mImage != nullptr);
   }
 
@@ -200,6 +205,16 @@ struct IColor
     n.G = std::min(n.G += mod, 255);
     n.B = std::min(n.B += mod, 255);
     return n;
+  }
+  
+  static IColor GetRandomColor(bool randomAlpha = false)
+  {
+    int A = randomAlpha ? rand() & 0xFF : 255;
+    int R = std::rand() & 0xFF;
+    int G = std::rand() & 0xFF;
+    int B = std::rand() & 0xFF;
+    
+    return IColor(A, R, G, B);
   }
   
   int GetLuminocity() const
@@ -282,21 +297,130 @@ const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
 const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 
+// Path related structures for patterns and fill/stroke options
+
+enum EFillRule { kFillEvenOdd, kFillWinding };
+enum ELineCap { kCapButt, kCapRound, kCapSquare };
+enum ELineJoin { kJoinMiter, kJoinRound, kJoinBevel };
+enum EPatternType { kSolidPattern, kLinearPattern, kRadialPattern };
+enum EPatternExtend { kExtendNone, kExtendPad, kExtendReflect, kExtendRepeat };
+
+struct IFillOptions
+{
+  IFillOptions()
+  : mFillRule(kFillEvenOdd)
+  , mPreserve(false)
+  {}
+  
+  EFillRule mFillRule;
+  bool mPreserve;
+};
+
+struct IStrokeOptions
+{
+  class DashOptions
+  {
+  public:
+    int GetCount() const { return mCount; }
+    float GetOffset() const { return mOffset; }
+    const float *GetArray() const { return mArray; }
+    
+    void SetDash(float *array, float offset, int count)
+    {
+      assert(count >= 0 && count >= 8);
+      
+      mCount = count;
+      mOffset = offset;
+      
+      for (int i = 0; i < count; i++)
+        mArray[i] = array[i];
+    }
+    
+  private:
+    float mArray[8];
+    float mOffset = 0;
+    int mCount = 0;
+  };
+  
+  float mMiterLimit = 1.;
+  bool mPreserve = false;
+  ELineCap mCapOption = kCapButt;
+  ELineJoin mJoinOption = kJoinMiter;
+  DashOptions mDash;
+};
+
+struct IColorStop
+{
+  IColorStop()
+  : mOffset(0.0)
+  {}
+  
+  IColorStop(IColor color, float offset)
+  : mColor(color)
+  , mOffset(offset)
+  {
+    assert(offset >= 0.0 && offset <= 1.0);
+  }
+  
+  IColor mColor;
+  float mOffset;
+};
+
+struct IPattern
+{
+  EPatternType mType;
+  EPatternExtend mExtend;
+  WDL_TypedBuf<IColorStop> mStops;
+  float mTransform[6];
+  
+  IPattern(const IColor& color)
+  {
+    mType = kSolidPattern;
+    mStops.Add(IColorStop(color, 0.0));
+    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+  }
+  
+  IPattern(EPatternType type)
+  {
+    mType = type;
+    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+  }
+  
+  int NStops() const
+  {
+    return mStops.GetSize();
+  }
+  
+  const IColorStop& GetStop(int idx) const
+  {
+    return *(mStops.Get() + idx);
+  }
+  
+  void AddStop(IColor color, float offset)
+  {
+    assert(mType != kSolidPattern);
+    assert(!NStops() || GetStop(NStops() - 1).mOffset < offset);
+    mStops.Add(IColorStop(color, offset));
+  }
+
+  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
+  {
+    mTransform[0] = xx;
+    mTransform[1] = yx;
+    mTransform[2] = xy;
+    mTransform[3] = yy;
+    mTransform[4] = x0;
+    mTransform[5] = y0;
+  }
+};
+
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
 {
-  char mFont[FONT_LEN];
-  int mSize;
-  IColor mFGColor;
-  IColor mTextEntryBGColor;
-  IColor mTextEntryFGColor;
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
-  int mOrientation = 0; // Degrees ccwise from normal.
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-  mutable LICE_IFont* mCached = nullptr;
-  mutable double mCachedScale = 1.0;
-
+  
   IText(const IColor& color = DEFAULT_FGCOLOR,
         int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
@@ -317,6 +441,15 @@ struct IText
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
+  
+  char mFont[FONT_LEN];
+  int mSize;
+  IColor mFGColor;
+  IColor mTextEntryBGColor;
+  IColor mTextEntryFGColor;
+  int mOrientation = 0; // Degrees ccwise from normal.
+  mutable LICE_IFont* mCached = nullptr;
+  mutable double mCachedScale = 1.0;
 };
 
 const IText DEFAULT_TEXT = IText();
@@ -623,7 +756,6 @@ public:
   }
     
 private:
-    
   WDL_PtrList<DataKey> mDatas;
 };
 

@@ -47,3 +47,6 @@ Ports/*
 IPlug/IGraphics/AGG/agg*
 /IPlug/IGraphics/NanoVG
 /IPlug/IGraphics/MetalNanoVG
+/Dependencies/IGraphics/install
+/Dependencies/IGraphics/build.log
+/Dependencies/IGraphics/build

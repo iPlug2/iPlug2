@@ -234,60 +234,38 @@ struct IBusInfo
 /** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
 struct IOConfig
 {
-  WDL_PtrList<IBusInfo> mInputBusInfo;  // A particular valid io config may have multiple input buses
-  WDL_PtrList<IBusInfo> mOutputBusInfo; // or multiple output busses
+  WDL_PtrList<IBusInfo> mBusInfo[2];  // A particular valid io config may have multiple input buses or output busses
   
   ~IOConfig()
   {
-    mInputBusInfo.Empty(true);
-    mOutputBusInfo.Empty(true);
+    mBusInfo[0].Empty(true);
+    mBusInfo[1].Empty(true);
   }
   
   void AddBusInfo(ERoute direction, int NChans, const char* label = "")
   {
-    if(direction == kInput)
-      mInputBusInfo.Add(new IBusInfo(direction, NChans, label));
-    if(direction == kOutput)
-      mOutputBusInfo.Add(new IBusInfo(direction, NChans, label));
+    mBusInfo[direction].Add(new IBusInfo(direction, NChans, label));
   }
   
   IBusInfo* GetBusInfo(ERoute direction, int index)
   {
-    if(direction == kInput)
-    {
-      assert(index >= 0 && index < mInputBusInfo.GetSize());
-      return mInputBusInfo.Get(index);
-    }
-    else //(direction == kOutput)
-    {
-      assert(index >= 0 && index < mOutputBusInfo.GetSize());
-      return mOutputBusInfo.Get(index);
-    }
+    assert(index >= 0 && index < mBusInfo[direction].GetSize());
+    return mBusInfo[direction].Get(index);
   }
   
   int NChansOnBusSAFE(ERoute direction, int index)
   {
     int NChans = 0;
-    if(direction == kInput)
-    {
-      if(index >= 0 && index < mInputBusInfo.GetSize())
-        NChans = mInputBusInfo.Get(index)->mNChans;
-    }
-    else //(direction == kOutput)
-    {
-      if(index >= 0 && index < mOutputBusInfo.GetSize())
-        NChans = mOutputBusInfo.Get(index)->mNChans;
-    }
     
+    if(index >= 0 && index < mBusInfo[direction].GetSize())
+      NChans = mBusInfo[direction].Get(index)->mNChans;
+
     return NChans;
   }
   
   int NBuses(ERoute direction)
   {
-    if(direction == kInput)
-      return mInputBusInfo.GetSize();
-    else //(direction == kOutput)
-      return mOutputBusInfo.GetSize();
+    return mBusInfo[direction].GetSize();
   }
   
   /** Get the total number of channels across all direction buses for this IOConfig */
@@ -295,37 +273,20 @@ struct IOConfig
   {
     int total = 0;
     
-    if(direction == kInput)
-    {
-      for(int i = 0; i < mInputBusInfo.GetSize(); i++)
-        total += mInputBusInfo.Get(i)->mNChans;
-    }
-    else //(direction == kOutput)
-    {
-      for(int i = 0; i < mOutputBusInfo.GetSize(); i++)
-        total += mOutputBusInfo.Get(i)->mNChans;
-    }
+    for(int i = 0; i < mBusInfo[direction].GetSize(); i++)
+      total += mBusInfo[direction].Get(i)->mNChans;
+    
     return total;
   }
   
   bool ContainsWildcard(ERoute direction)
   {
-    if(direction == kInput)
+    for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
     {
-      for(auto i = 0; i < mInputBusInfo.GetSize(); i++)
-      {
-        if(mInputBusInfo.Get(i)->mNChans < 0)
-          return true;
-      }
+      if(mBusInfo[direction].Get(i)->mNChans < 0)
+        return true;
     }
-    else //(direction == kOutput)
-    {
-      for(auto i = 0; i < mOutputBusInfo.GetSize(); i++)
-      {
-        if(mOutputBusInfo.Get(i)->mNChans < 0)
-          return true;
-      }
-    }
+
     return false;
   }
 };

@@ -1,0 +1,39 @@
+/*! \page apinotes API Notes
+
+RtAudio is designed to provide a common API across the various supported operating systems and audio libraries.  Despite that, some issues should be mentioned with regard to each.
+
+\section linux Linux:
+
+RtAudio for Linux was developed under Redhat distributions 7.0 - Fedora.  Four different audio APIs are supported on Linux platforms: <A href="http://www.opensound.com/oss.html">OSS</A> (versions >= 4.0), <A href="http://www.alsa-project.org/">ALSA</A>, <A href="http://jackit.sourceforge.net/">Jack</A>, and <A href="http://www.freedesktop.org/wiki/Software/PulseAudio">PulseAudio</A>.  Note that RtAudio now only supports the newer version 4.0 OSS API.  The ALSA API is now part of the Linux kernel and offers significantly better functionality than the OSS API.  RtAudio provides support for the 1.0 and higher versions of ALSA.  Jack is a low-latency audio server written primarily for the GNU/Linux operating system. It can connect a number of different applications to an audio device, as well as allow them to share audio between themselves.  Input/output latency on the order of 15 milliseconds can typically be achieved using any of the Linux APIs by fine-tuning the RtAudio buffer parameters (without kernel modifications).  Latencies on the order of 5 milliseconds or less can be achieved using a low-latency kernel patch and increasing FIFO scheduling priority.  The pthread library, which is used for callback functionality, is a standard component of all Linux distributions.
+
+The ALSA library includes OSS emulation support.  That means that you can run programs compiled for the OSS API even when using the ALSA drivers and library.  It should be noted however that OSS emulation under ALSA is not perfect.  Specifically, channel number queries seem to consistently produce invalid results.  While OSS emulation is successful for the majority of RtAudio tests, it is recommended that the native ALSA implementation of RtAudio be used on systems which have ALSA drivers installed.
+
+The ALSA implementation of RtAudio makes no use of the ALSA "plug" interface.  All necessary data format conversions, channel compensation, de-interleaving, and byte-swapping is handled by internal RtAudio routines.
+
+\section macosx Macintosh OS-X (CoreAudio and Jack):
+
+The Apple CoreAudio API is designed to use a separate callback procedure for each of its audio devices.  A single RtAudio duplex stream using two different devices is supported, though it cannot be guaranteed to always behave correctly because we cannot synchronize these two callbacks.  The <I>numberOfBuffers</I> parameter to the RtAudio::openStream() function has no affect in this implementation.
+
+It is not possible to have multiple instances of RtAudio accessing the same CoreAudio device.
+
+The RtAudio Jack support can be compiled on Macintosh OS-X systems, as well as in Linux.
+
+\section windowsds Windows (DirectSound):
+
+The \c configure script provides support for the MinGW compiler.  DirectSound support is specified with the "--with-ds" flag.
+
+In order to compile RtAudio under Windows for the DirectSound API, you must have the header and source files for DirectSound version 5.0 or higher.  As far as I know, there is no DirectSoundCapture support for Windows NT.  Audio output latency with DirectSound can be reasonably good, especially since RtAudio version 3.0.2.  Input audio latency still tends to be bad but better since version 3.0.2.  RtAudio was originally developed with Visual C++ version 6.0 but has been tested with .NET.
+
+The DirectSound version of RtAudio can be compiled with or without the UNICODE preprocessor definition.
+
+\section windowsasio Windows (ASIO):
+
+ASIO support using MinGW and the \c configure script is specified with the "--with-asio" flag.
+
+The Steinberg ASIO audio API allows only a single device driver to be loaded and accessed at a time.  ASIO device drivers must be supplied by audio hardware manufacturers, though ASIO emulation is possible on top of systems with DirectSound drivers.  The <I>numberOfBuffers</I> parameter to the RtAudio::openStream() function has no affect in this implementation.
+
+A number of ASIO source and header files are required for use with RtAudio.  Specifically, an RtAudio project must include the following files: <TT>asio.h,cpp; asiodrivers.h,cpp; asiolist.h,cpp; asiodrvr.h; asiosys.h; ginclude.h; iasiodrv.h; iasiothiscallresolver.h,cpp</TT>.  The Visual C++ projects found in <TT>/tests/Windows/</TT> compile both ASIO and DirectSound support.
+
+The Steinberg provided <TT>asiolist</TT> class does not compile when the preprocessor definition UNICODE is defined.  Note that this could be an issue when using RtAudio with Qt, though Qt programs appear to compile without the UNICODE definition (try <tt>DEFINES -= UNICODE</tt> in your .pro file).  RtAudio with ASIO support has been tested using the MinGW compiler under Windows XP, as well as in the Visual Studio environment.
+
+*/

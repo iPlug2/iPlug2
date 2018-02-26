@@ -21,19 +21,25 @@
 #endif
 
 #if defined(_WIN64) || defined(__LP64__)
-  #define ARCH_64BIT 
+  #define ARCH_64BIT
 #endif
 
+//these two components of the c standard library are used thoughtout IPlug/WDL 
+#include <cstring>
+#include <cstdlib>
+
+//when TRACER_BUILD is defined enabling logging functionality.
+//Also includes DBGMSG macro for printing to console in debug builds
 #include "IPlugLogger.h"
 
 #ifdef NO_PARAMS_MUTEX
-#define LOCK_PARAMS_MUTEX
-#define LOCK_PARAMS_MUTEX_STATIC
 #define ENTER_PARAMS_MUTEX
 #define LEAVE_PARAMS_MUTEX
+#define ENTER_PARAMS_MUTEX_STATIC
+#define LEAVE_PARAMS_MUTEX_STATIC
 #else
-#define LOCK_PARAMS_MUTEX WDL_MutexLock lock(&mParams_mutex); Trace(TRACELOC, "%s","SCOPED_LOCK_PARAMS_MUTEX")
-#define LOCK_PARAMS_MUTEX_STATIC WDL_MutexLock lock(&_this->mParams_mutex); Trace(TRACELOC, "%s", "SCOPED_LOCK_PARAMS_MUTEX")
 #define ENTER_PARAMS_MUTEX mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX")
 #define LEAVE_PARAMS_MUTEX mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX")
+#define ENTER_PARAMS_MUTEX_STATIC _this->mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX")
+#define LEAVE_PARAMS_MUTEX_STATIC _this->mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX")
 #endif

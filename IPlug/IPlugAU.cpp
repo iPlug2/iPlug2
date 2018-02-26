@@ -567,24 +567,13 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pInfo->flags |= kAudioUnitParameterFlag_IsHighResolution;
         #endif
         
-        LOCK_PARAMS_MUTEX;
+        ENTER_PARAMS_MUTEX;
         IParam* pParam = GetParam(element);
         
-        if (!pParam->GetCanAutomate())
-        {
-          pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
-        }
-        
-        if (pParam->GetIsMeta()) 
-        {
-          pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
-        }
-        
-        if (pParam->NDisplayTexts())
-        {
-          pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
-        }
-          
+        if (!pParam->GetCanAutomate())  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
+        if (pParam->GetIsMeta())        pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
+        if (pParam->NDisplayTexts())    pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
+      
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
         strcpy(pInfo->name, paramName);   // Max 52.
@@ -637,6 +626,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           pInfo->flags = pInfo->flags | kAudioUnitParameterFlag_HasClump;
           pInfo->clumpID = clumpID;
         }
+        LEAVE_PARAMS_MUTEX;
       }
       return noErr;
     }
@@ -738,7 +728,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
-      LOCK_PARAMS_MUTEX;
+      ENTER_PARAMS_MUTEX;;
       IParam* pParam = GetParam(element);
       int n = pParam->NDisplayTexts();
       if (!n)
@@ -758,6 +748,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         }
         *((CFArrayRef*) pData) = nameArray;
       }
+      LEAVE_PARAMS_MUTEX;;
       return noErr;
     }
     case kAudioUnitProperty_GetUIComponentList:          // 18,
@@ -935,10 +926,11 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData && scope == kAudioUnitScope_Global)
       {
         AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
-        LOCK_PARAMS_MUTEX;
-        IParam* pParam = GetParam(pIDName->inID);
         char cStr[MAX_PARAM_NAME_LEN];
+        ENTER_PARAMS_MUTEX;
+        IParam* pParam = GetParam(pIDName->inID);
         strcpy(cStr, pParam->GetNameForHost());
+        LEAVE_PARAMS_MUTEX;
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full)
         {
           int n = std::min<int>(MAX_PARAM_NAME_LEN - 1, pIDName->inDesiredLength);
@@ -984,10 +976,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData && scope == kAudioUnitScope_Global)
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
-        LOCK_PARAMS_MUTEX;
+        ENTER_PARAMS_MUTEX;
         IParam* pParam = GetParam(pSFV->inParamID);
-        
         pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
+        LEAVE_PARAMS_MUTEX;
         pSFV->outString = MakeCFString((const char*) mParamDisplayStr.Get());
       }
       return noErr;
@@ -1001,9 +993,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         if (scope == kAudioUnitScope_Global)
         {
           CStrLocal cStr(pVFS->inString);
-          LOCK_PARAMS_MUTEX;
+          ENTER_PARAMS_MUTEX;
           IParam* pParam = GetParam(pVFS->inParamID);
           const double v = pParam->StringToValue(cStr.mCStr);
+          LEAVE_PARAMS_MUTEX;
           pVFS->outValue = (AudioUnitParameterValue) v;
         }
       }
@@ -1500,8 +1493,9 @@ OSStatus IPlugAU::GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
   assert(_this != NULL);
-  LOCK_PARAMS_MUTEX_STATIC;
+  ENTER_PARAMS_MUTEX_STATIC;
   *pValue = _this->GetParam(paramID)->Value();
+  LEAVE_PARAMS_MUTEX_STATIC;
   return noErr;
 }
 
@@ -1513,11 +1507,12 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   // In the SDK, offset frames is only looked at in group scope.
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
-  LOCK_PARAMS_MUTEX_STATIC;
+  ENTER_PARAMS_MUTEX_STATIC;
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
   _this->SendParameterValueToUIFromAPI(paramID, value, false);
   _this->OnParamChange(paramID, kAutomation);
+  LEAVE_PARAMS_MUTEX_STATIC;
   return noErr;
 }
 
@@ -1898,7 +1893,7 @@ void IPlugAU::HostSpecificInit()
   OnHostIdentified(); // might get called again
 }
 
-void IPlugAU::ResizeGraphics(int w, int h, double scale)
+void IPlugAU::ResizeGraphics()
 {
   if (HasUI())
   {

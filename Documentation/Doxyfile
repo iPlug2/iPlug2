@@ -205,6 +205,7 @@ HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = 
 HTML_FOOTER            = 
+HTML_EXTRA_STYLESHEET  = style.css
 HTML_STYLESHEET        = 
 CHM_FILE               = 
 HHC_LOCATION           = 

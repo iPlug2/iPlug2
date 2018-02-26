@@ -173,9 +173,10 @@ public:
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
    "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
-   * @param label The label for the channel*/
-  void SetChannelLabel(ERoute direction, int idx, const char* label);
-
+   * @param limited printf style format string to compose label for the channel - where %i will be the channel index
+   * @param zeroBased If \c true the index in the format string will be zero based */
+  void SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased = false);
+  
   /** Call this if the latency of your plug-in changes after initialization (perhaps from OnReset() )
    * This may not be supported by the host. The method is virtual because it's overridden in API classes.
    @param samples Latency in samples */

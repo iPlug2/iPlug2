@@ -227,8 +227,8 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
         }
       }
       
-      Parameter* param = new IPlugVST3Parameter(p, i, unitID);
-      parameters.addParameter(param);
+      Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
+      parameters.addParameter(pVST3Parameter);
     }
   }
 
@@ -254,6 +254,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusAr
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
 
+  //TODO: setBusArrangements !!!
   //const int maxNInputChans = MaxNBuses(ERoute::kInput);
   //const int NInputChannelCountOnBuses[maxNInputChans];
   //memset(NInputChannelCountOnBuses, 0, MaxNBuses(ERoute::kInput) * sizeof(int));
@@ -367,12 +368,13 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               //TODO: pitch bend, modwheel etc
             default:
               {
-                LOCK_PARAMS_MUTEX;
                 if (idx >= 0 && idx < NParams())
                 {
+                  ENTER_PARAMS_MUTEX;
                   GetParam(idx)->SetNormalized((double)value);
                   SendParameterValueToUIFromAPI(idx, (double) value, true);
                   OnParamChange(idx, kAutomation);
+                  LEAVE_PARAMS_MUTEX;
                 }
               }
               break;
@@ -628,67 +630,66 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
 {
-  LOCK_PARAMS_MUTEX;
-  IParam* param = GetParam(tag);
-
-  if (param)
-  {
-    return param->GetNormalized(plainValue);
-  }
+  ENTER_PARAMS_MUTEX;
+  IParam* pParam = GetParam(tag);
+  if (pParam)
+    plainValue = pParam->GetNormalized(plainValue);
+  LEAVE_PARAMS_MUTEX;
 
   return plainValue;
 }
 
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
+  ParamValue returnVal = 0.;
   if (tag == kBypassParam) 
-  {
-    return (ParamValue) GetBypassed();
-  }
-//   else if (tag == kPresetParam) 
+    returnVal = (ParamValue) GetBypassed();
+//   else if (tag == kPresetParam)
 //   {
 //     return (ParamValue) ToNormalizedParam(mCurrentPresetIdx, 0, NPresets(), 1.);
 //   }
-
-  LOCK_PARAMS_MUTEX;
-  IParam* param = GetParam(tag);
-
-  if (param)
+  else
   {
-    return param->GetNormalized();
+    ENTER_PARAMS_MUTEX;
+    IParam* pParam = GetParam(tag);
+    if (pParam)
+      returnVal = pParam->GetNormalized();
+    LEAVE_PARAMS_MUTEX;
   }
-
-  return 0.0;
+  
+  return returnVal;
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  LOCK_PARAMS_MUTEX;
-  IParam* param = GetParam(tag);
-
-  if (param)
+  tresult result = kResultFalse;
+  
+  ENTER_PARAMS_MUTEX;
+  IParam* pParam = GetParam(tag);
+  if (pParam)
   {
-    param->SetNormalized(value);
-    return kResultOk;
+    pParam->SetNormalized(value);
+    result = kResultOk;
   }
+  LEAVE_PARAMS_MUTEX;
 
-  return kResultFalse;
+  return result;
 }
 
 tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valueNormalized, String128 string)
 {
-  LOCK_PARAMS_MUTEX;
-  IParam* param = GetParam(tag);
-
-  if (param)
+  tresult result = kResultFalse;
+  ENTER_PARAMS_MUTEX;
+  IParam* pParam = GetParam(tag);
+  if (pParam)
   {
-    WDL_String display;
-    param->GetDisplayForHost(valueNormalized, true, display);
-    Steinberg::UString(string, 128).fromAscii(display.Get());
-    return kResultTrue;
+    pParam->GetDisplayForHost(valueNormalized, true, mParamDisplayStr);
+    Steinberg::UString(string, 128).fromAscii(mParamDisplayStr.Get());
+    result = kResultTrue;
   }
+  LEAVE_PARAMS_MUTEX;
 
-  return kResultFalse;
+  return result;
 }
 
 tresult PLUGIN_API IPlugVST3::getParamValueByString(ParamID tag, TChar* string, ParamValue& valueNormalized)
@@ -832,11 +833,11 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
-void IPlugVST3::ResizeGraphics(int w, int h, double scale)
+void IPlugVST3::ResizeGraphics()
 {
   if (HasUI())
   {
-    mViews.at(0)->resize(w, h); // only resize view 0?
+    mViews.at(0)->resize(Width(), Height()); // only resize view 0?
   }
 }
 

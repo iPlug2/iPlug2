@@ -23,7 +23,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mMidiOut = instanceInfo.mRTMidiOut;
 }
 
-void IPlugAPP::ResizeGraphics(int w, int h, double scale)
+void IPlugAPP::ResizeGraphics()
 {
   if (HasUI())
   {

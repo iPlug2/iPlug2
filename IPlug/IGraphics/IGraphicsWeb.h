@@ -10,8 +10,8 @@
 class IGraphicsWeb
 {
 public:
-  IGraphicsMac(IGraphicsDelegate& dlg, int w, int h, int fps)  final;
-  virtual ~IGraphicsMac();
+  IGraphicsWeb(IGraphicsDelegate& dlg, int w, int h, int fps)  final;
+  virtual ~IGraphicsWeb();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;

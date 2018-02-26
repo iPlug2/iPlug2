@@ -224,6 +224,22 @@ const IParam* IControl::GetParam()
     return nullptr;
 }
 
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& rect)
+{
+  rect.Constrain(x, y);
+  
+  float val;
+  
+  if(direction == kVertical)
+    val = 1.f - (y-rect.T) / rect.H();
+  else
+    val = 1.f - (x-rect.B) / rect.W();
+  
+  mValue = round( val / 0.001 ) * 0.001;
+  
+  SetDirty(); // will send parameter value to delegate
+}
+
 void IControl::GetJSON(WDL_String& json, int idx) const
 {
   json.AppendFormatted(8192, "{");

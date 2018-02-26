@@ -70,18 +70,17 @@ IGraphics::~IGraphics()
 
 void IGraphics::Resize(int w, int h, float scale)
 {
-//  ReleaseMouseCapture();
-//
-//  float oldScale = mScale;
-//  mScale = scale;
-//
-//  if (oldScale != scale)
-//      OnDisplayScale();
-//
-//  for (int i = 0; i < mDelegate.NParams(); ++i)
-//    SendParameterValueToUIFromDelegate(i, mDelegate.GetParamFromUI(i)->GetNormalized(), true);
-//
-//  mDelegate.ResizeGraphics(w, h, scale);
+  ReleaseMouseCapture();
+  
+  float oldScale = mScale;
+  mScale = scale;
+  mWidth = w;
+  mHeight = h;
+  
+  if (oldScale != scale)
+    OnDisplayScale();
+  
+  GetDelegate().ResizeGraphicsFromUI();
 }
 
 void IGraphics::OnDisplayScale()
@@ -1045,7 +1044,7 @@ void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
   s_bitmapCache.Remove(bitmap.GetAPIBitmap());
 }
 
-void IGraphics::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
+void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
   s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
 }
