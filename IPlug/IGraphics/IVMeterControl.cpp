@@ -23,7 +23,7 @@ IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, cons
   }
 
   SetRMSWindowMs(300.0);
-  SetLevelMarks("3 0s -3 -6s -9 -12s -18 -24s -30 -36 -42 -48s -54s -60");
+  SetLevelMarks("3 0s -3 -6s -9 -12s -18s -24s -30s -36s -42s -48s -54s -60s");
 
   va_list args;
   va_start(args, chanNames);
