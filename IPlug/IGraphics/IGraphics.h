@@ -187,6 +187,8 @@ public:
     PathLineTo(x2, y2);
   }
     
+  void PathRadialLine(float cx, float cy, float angle, float rMin, float rMax);
+    
   virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
   virtual void PathRect(const IRECT& rect) {}
   virtual void PathRoundRect(const IRECT& rect, float cr = 5.f) {}

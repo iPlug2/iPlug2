@@ -409,7 +409,19 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
   const float xHi = (cx + rMax * cosV);
   const float yLo = (cy + rMin * sinV);
   const float yHi = (cy + rMax * sinV);
-  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+  DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+}
+
+void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, float rMax)
+{
+    const float angleRadians = DegToRad(angle);
+    const float sinV = sinf(angleRadians);
+    const float cosV = cosf(angleRadians);
+    const float xLo = (cx + rMin * cosV);
+    const float xHi = (cx + rMax * cosV);
+    const float yLo = (cy + rMin * sinV);
+    const float yHi = (cy + rMax * sinV);
+    PathLine(xLo, yLo, xHi, yHi);
 }
 
 void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)

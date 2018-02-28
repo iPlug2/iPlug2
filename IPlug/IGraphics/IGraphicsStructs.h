@@ -319,6 +319,29 @@ struct IPattern
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
+    
+  IPattern(EPatternType type, float x1, float y1, float x2, float y2)
+  {
+    // Figure out the affine transform from one line segment to another!
+    
+    mType = type;
+    
+    const float xd = x2 - x1;
+    const float yd = y2 - y1;
+    const float size = sqrtf(xd * xd + yd * yd);
+    const float angle = -(atan2(yd, xd));
+    const float sinV = sinf(angle) / size;
+    const float cosV = cosf(angle) / size;
+    
+    const float xx = cosV;
+    const float xy = sinV;
+    const float yx = -sinV;
+    const float yy = cosV;
+    const float x0 = -(x1 * xx + y1 * xy);
+    const float y0 = -(x1 * yx + y1 * yy);
+    
+    SetTransform(xx, yx, xy, yy, x0, y0);
+  }
   
   int NStops() const
   {
