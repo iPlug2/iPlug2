@@ -411,10 +411,18 @@ void MyPlug::ProcessBlock(double** inputs, double** outputs, int nFrames)
 class IMidiQueue
 {
 public:
-  IMidiQueue(int size = DEFAULT_BLOCK_SIZE): mBuf(NULL), mSize(0), mGrow(Granulize(size)), mFront(0), mBack(0) { Expand(); }
-  ~IMidiQueue() { free(mBuf); }
+  IMidiQueue(int size = DEFAULT_BLOCK_SIZE)
+  : mBuf(NULL), mSize(0), mGrow(Granulize(size)), mFront(0), mBack(0)
+  {
+    Expand();
+  }
+  
+  ~IMidiQueue()
+  {
+    free(mBuf);
+  }
 
-  // Adds a MIDI message add the back of the queue. If the queue is full,
+  // Adds a MIDI message at the back of the queue. If the queue is full,
   // it will automatically expand itself.
   void Add(IMidiMsg* pMsg)
   {

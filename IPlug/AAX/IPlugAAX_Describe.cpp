@@ -13,39 +13,57 @@
   #define BUNDLE_ID "com." BUNDLE_MFR ".aax." BUNDLE_NAME
 #endif
 
-static AAX_EStemFormat getStemFormatForChans(const int numChans)
+#define args(...) __VA_ARGS__
+#define AAX_TYPE_ID_ARRAY(VARNAME, ARR_DATA) AAX_CTypeID VARNAME[] = {args ARR_DATA}
+
+#ifndef CUSTOM_BUSTYPE_FUNC
+
+/**
+ A method to get a sensible API tag for a particular number of channels allocated to a bus in the channel i/o string
+
+ @param configIdx The index of the configuration in the channel i/o string (not used here)
+ @param dir Whether this is being called for an input or output bus
+ @param element The index of that bus in the list of dir buses
+ @param pConfig The config struct derived from the channel i/o string token, this already contains data but
+ @return an integer corresponding to one of the AAX_eStemFormat
+ */
+uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
+  assert(pConfig != nullptr);
+  assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
+  
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
+
   switch (numChans)
   {
-    case 0:
-      return AAX_eStemFormat_None;
-    case 1:
-      return AAX_eStemFormat_Mono;
-    case 2:
-      return AAX_eStemFormat_Stereo;
-    case 3:
-      return AAX_eStemFormat_LCR;
-    case 4:
-      return AAX_eStemFormat_Quad;
-    case 5:
-      return AAX_eStemFormat_5_0;
-    case 6:
-      return AAX_eStemFormat_5_1;
-    case 7:
-      return AAX_eStemFormat_6_1;
-    case 8:
-      return AAX_eStemFormat_7_1_DTS;
+    case 0: return AAX_eStemFormat_None;
+    case 1: return AAX_eStemFormat_Mono;
+    case 2: return AAX_eStemFormat_Stereo;
+    case 3: return AAX_eStemFormat_LCR;
+    case 4: return AAX_eStemFormat_Ambi_1_ACN;
+    case 5: return AAX_eStemFormat_5_0;
+    case 6: return AAX_eStemFormat_5_1;
+    case 7: return AAX_eStemFormat_7_0_DTS;
+    case 8: return AAX_eStemFormat_7_1_DTS;
+    case 9: return AAX_eStemFormat_Ambi_2_ACN;
+    case 10:return AAX_eStemFormat_7_1_2;
+    case 16:return AAX_eStemFormat_Ambi_3_ACN;
     default:
+      DBGMSG("No stem format found for this channel count, you need to implement GetAPIBusTypeForChannelIOConfig() and #define CUSTOM_BUSTYPE_FUNC\n");
+      assert(0);
       return AAX_eStemFormat_None;
-      break;
   }
 }
+#else
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
+#endif //CUSTOM_BUSTYPE_FUNC
 
-AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
+AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 {
-  AAX_Result        err = AAX_SUCCESS;
-  AAX_IEffectDescriptor * effectDescriptor = outCollection->NewDescriptor();
-  if ( effectDescriptor == NULL )
+  AAX_Result err = AAX_SUCCESS;
+  AAX_IEffectDescriptor* pDesc = pC->NewDescriptor();
+ 
+  if (pDesc == NULL)
     return AAX_ERROR_NULL_OBJECT;
 
   WDL_String subStr;
@@ -58,9 +76,9 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     
     if (span)
     {
-      subStr.Set(plugNameStr, span);
-      err |= effectDescriptor->AddName(subStr.Get());
-      outCollection->AddPackageName(subStr.Get());
+      subStr.Set(plugNameStr, (int) span);
+      err |= pDesc->AddName(subStr.Get());
+      pC->AddPackageName(subStr.Get());
       plugNameStr = strstr(plugNameStr, "\n");
       
       if (plugNameStr)
@@ -86,67 +104,63 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Dither") == (0)) category = AAX_ePlugInCategory_Dither;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "SoundField") == (0)) category = AAX_ePlugInCategory_SoundField;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Effect") == (0)) category = AAX_ePlugInCategory_None;
-  err |= effectDescriptor->AddCategory(category);
+  err |= pDesc->AddCategory(category);
   
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
   
-  char *channelIOStr = PLUG_CHANNEL_IO;
-  
-  int ioConfigIdx = 0;
-  int nSIn = 0;//(PLUG_SC_CHANS > 0); // force it to 1
-  
-  while (channelIOStr) 
-  {
-    int nIn = 0, nOut = 0;
-    
-    if (sscanf(channelIOStr, "%d-%d", &nIn, &nOut) == 2)    
-    {
-      // if we have a 1-N config + sidechain we don't want to include the sidechain
-      if (nIn > 1)
-        nIn -= nSIn;
-      
-      AAX_CTypeID typeId = PLUG_TYPE_IDS[ioConfigIdx];
+  AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
+  AAX_TYPE_ID_ARRAY(aaxTypeIDsAudioSuite,(AAX_TYPE_IDS_AUDIOSUITE));
 
-      // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
-      AAX_SIPlugSetupInfo setupInfo;
-      setupInfo.mInputStemFormat = getStemFormatForChans(nIn);
-      setupInfo.mOutputStemFormat = getStemFormatForChans(nOut);
-      setupInfo.mManufacturerID = PLUG_MFR_ID;
-      setupInfo.mProductID = PLUG_UNIQUE_ID;
-      setupInfo.mPluginID = typeId;
-      #if AAX_DOES_AUDIOSUITE
-      setupInfo.mAudioSuiteID = PLUG_TYPE_IDS_AS[ioConfigIdx];
-      #endif
-      setupInfo.mCanBypass = true;
-      setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
-      setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
-      setupInfo.mInputMIDIChannelMask = 0x0001;
-//      setupInfo.mNeedsGlobalMIDI = PLUG_DOES_MIDI;
-//      setupInfo.mGlobalMIDIEventMask = 0x3;
-      setupInfo.mNeedsTransport = true;
-      setupInfo.mLatency = PLUG_LATENCY;
-            
-      err |= AAX_CIPlugParameters::StaticDescribe(effectDescriptor, setupInfo);
-      
-      AAX_ASSERT (err == AAX_SUCCESS);
-          
-      ioConfigIdx++;
-    }
-    
-    channelIOStr = strstr(channelIOStr, " ");
-    
-    if (channelIOStr)
-      ++channelIOStr;
-  }
+  WDL_PtrList<IOConfig> channelIO;
+  int totalNInChans = 0, totalNOutChans = 0;
+  int totalNInBuses = 0, totalNOutBuses = 0;
   
+  const int NIOConfigs = IPlugProcessor<PLUG_SAMPLE_DST>::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  
+  for (int configIdx = 0; configIdx < NIOConfigs; configIdx++)
+  {
+    IOConfig* pConfig = channelIO.Get(configIdx);
+    
+    AAX_CTypeID typeId = aaxTypeIDs[configIdx]; // TODO: aaxTypeIDs must be the same size as NIOConfigs, can we assert somehow if not?
+    
+    // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
+    AAX_SIPlugSetupInfo setupInfo;
+    if(PLUG_IS_INSTRUMENT) // For some reason in protools instruments need to have input buses. 
+      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
+    else
+      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
+
+    setupInfo.mOutputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, 0 /* first bus */, pConfig);
+    setupInfo.mManufacturerID = PLUG_MFR_ID;
+    setupInfo.mProductID = PLUG_UNIQUE_ID;
+    setupInfo.mPluginID = typeId;
+    #if AAX_DOES_AUDIOSUITE
+    setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[configIdx];
+    #endif
+    setupInfo.mCanBypass = true;
+    setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
+    setupInfo.mInputMIDIChannelMask = 0x0001;
+//    setupInfo.mNeedsGlobalMIDI = PLUG_DOES_MIDI;
+//    setupInfo.mGlobalMIDIEventMask = 0x3;
+    setupInfo.mNeedsTransport = true;
+    setupInfo.mLatency = PLUG_LATENCY;
+
+    err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
+
+    AAX_ASSERT (err == AAX_SUCCESS);
+  }
+
   // Data model
-  err |= effectDescriptor->AddProcPtr( (void *) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
+  err |= pDesc->AddProcPtr( (void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
   
   // GUI
-  err |= effectDescriptor->AddProcPtr( (void *) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
+#if PLUG_HAS_UI
+  err |= pDesc->AddProcPtr( (void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
+#endif
   
   if ( err == AAX_SUCCESS )
-    err = outCollection->AddEffect(BUNDLE_ID, effectDescriptor );
+    err = pC->AddEffect(BUNDLE_ID, pDesc );
   
   AAX_ASSERT (err == AAX_SUCCESS);
   
@@ -158,8 +172,8 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     
     if (span)
     {
-      subStr.Set(mfrNameStr, span);
-      outCollection->SetManufacturerName(subStr.Get());
+      subStr.Set(mfrNameStr, (int) span);
+      pC->SetManufacturerName(subStr.Get());
       mfrNameStr = strstr(mfrNameStr, "\n");
       
       if (mfrNameStr)
@@ -171,7 +185,7 @@ AAX_Result GetEffectDescriptions( AAX_ICollection * outCollection )
     }
   }
   
-  outCollection->SetPackageVersion(PLUG_VERSION_HEX);
+  pC->SetPackageVersion(PLUG_VERSION_HEX);
   
   return err;
 }

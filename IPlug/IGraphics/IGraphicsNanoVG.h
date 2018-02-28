@@ -3,7 +3,7 @@
 #include "IPlugPlatform.h"
 
 #include "nanovg.h"
-#ifdef OS_OSX
+#ifdef OS_MAC
 #include "nanovg_mtl.h"
 #endif
 
@@ -18,18 +18,13 @@ private:
   NVGcontext* mVG;
 };
 
-inline float NanoVGWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
 inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
   c.g = (float) color.G / 255.0f;
   c.b = (float) color.B / 255.0f;
-  c.a = (NanoVGWeight(pBlend) * color.A) / 255.0f;
+  c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
   return c;
 }
 
@@ -42,13 +37,13 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case IBlend::kBlendClobber:
+    case kBlendClobber:
     {
       return NVG_SOURCE_OVER;
     }
-    case IBlend::kBlendAdd:
-    case IBlend::kBlendColorDodge:
-    case IBlend::kBlendNone:
+    case kBlendAdd:
+    case kBlendColorDodge:
+    case kBlendNone:
     default:
     {
       return NVG_COPY;
@@ -64,7 +59,7 @@ class IGraphicsNanoVG : public IGraphics
 public:
   const char* GetDrawingAPIStr() override { return "NANOVG"; }
 
-  IGraphicsNanoVG(IPlugBaseGraphics& plug, int w, int h, int fps);
+  IGraphicsNanoVG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsNanoVG();
 
   void BeginFrame() override;
@@ -125,7 +120,7 @@ public:
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override;
   //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
-  void ReleaseBitmap(const IBitmap& bitmap) override;
+//  void ReleaseBitmap(const IBitmap& bitmap) override;
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
 
@@ -141,6 +136,9 @@ protected:
 
   void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
   void NVGDrawConvexPolygon(float* x, float* y, int npoints);
+
+  void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
+  void NVGSetFillOptions(const IFillOptions& options = IFillOptions());
 
   void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
   void NVGSetFillOptions(const IFillOptions& options = IFillOptions());

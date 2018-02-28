@@ -16,6 +16,7 @@ These guidelines exist in order to try and tidy up the IPlug code base. Every de
 * Pointer arguments and local variables should be prefixed with the letter p e.g. ``pCamelCase``
 * Member variables prefixed with the letter m e.g. ``mControl``
 * Member variables that are pointers do not need a "p"
+* Member methods that should not be called by the "IPlug User", but are still accessible, for whatever reason prefixed with an underscore
 
 @todo Expand this
 
@@ -36,6 +37,11 @@ public:
   void MyFunction(const char* str, IControl* pControl, WDL_String& fileName) const
   {
     const double myVarible = 0.5; // const where relevant
+    
+    //single line if statements should look like this
+    if (0.5 > 0.4)
+      printf("hello world\n");
+      
   }
 
 private:

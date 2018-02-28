@@ -33,9 +33,48 @@ static const float GRAYED_ALPHA = 0.25f;
 #ifdef OS_WIN
 const char* const DEFAULT_FONT = "Verdana";
 const int DEFAULT_TEXT_SIZE = 12;
-#elif defined OS_OSX
+#elif defined OS_MAC
 const char* const DEFAULT_FONT = "Monaco";
+const int DEFAULT_TEXT_SIZE = 10;
+#elif defined OS_LINUX
+const char* const DEFAULT_FONT = "DejaVu Sans";
 const int DEFAULT_TEXT_SIZE = 10;
 #endif
 
 const int FONT_LEN = 32;
+
+/** @enum EType Blend type
+ * @todo This could use some documentation
+ */
+enum EBlendType
+{
+  kBlendNone,     // Copy over whatever is already there, but look at src alpha.
+  kBlendClobber,  // Copy completely over whatever is already there.
+  kBlendAdd,
+  kBlendColorDodge,
+  // etc
+};
+
+enum EFileAction
+{
+  kFileOpen,
+  kFileSave  
+};
+
+enum EDirection
+{
+  kVertical,
+  kHorizontal
+};
+
+enum EVColor
+{
+  kBG = 0, // background
+  kFG,     // foreground
+  kFR,     // frame
+  kHL,     // highlight
+  kX1,     // extra1
+  kX2,     // extra2
+  kX3,     // extra3
+  kNumDefaultVColors
+};

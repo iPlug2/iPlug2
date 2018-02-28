@@ -1,25 +1,27 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
 #include <cassert>
+#include <functional>
+#include <algorithm>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#ifdef OS_OSX
+#ifndef OS_WIN
 #include "swell.h"
 #endif
 
 #include "nanosvg.h"
 
 #include "IPlugPlatform.h"
+#include "IGraphicsConstants.h"
+
+
+class IControl;
+
+typedef std::function<void(IControl*)> IActionFunction;
 
 class LICE_IFont;
-
-enum EFileAction { kFileOpen, kFileSave };
-
-enum EDirection { kVertical, kHorizontal };
-
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -27,41 +29,46 @@ enum EDirection { kVertical, kHorizontal };
 
 class APIBitmap
 {
-    
 public:
-    
-    APIBitmap(void* pBitmap, int w, int h, int s) : bitmap(pBitmap), width(w), height(h), scale(s) {}
-    APIBitmap() : bitmap(nullptr), width(0), height(0), scale(0) {}
-    virtual ~APIBitmap() {}
-    
-    void SetBitmap(void* pBitmap, int w, int h, int s)
-    {
-      assert(((w % s) == 0) && ((h % s) == 0));
-      
-      bitmap = pBitmap;
-      width = w;
-      height = h;
-      scale = s;
-    }
-    
-    void* GetBitmap() const { return bitmap; }
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
-    int GetScale() const { return scale; }
-    
-private:
-    
-    void* bitmap;
-    int width;
-    int height;
-    int scale;
+  APIBitmap(void* pBitmap, int w, int h, int s)
+  : mBitmap(pBitmap)
+  , mWidth(w)
+  , mHeight(h)
+  , mScale(s) {}
+  
+  APIBitmap()
+  : mBitmap(nullptr)
+  , mWidth(0)
+  , mHeight(0)
+  , mScale(0)
+  {}
+  
+  void SetBitmap(void* pBitmap, int w, int h, int s)
+  {
+    assert(((w % s) == 0) && ((h % s) == 0));
+
+    mBitmap = pBitmap;
+    mWidth = w;
+    mHeight = h;
+    mScale = s;
+  }
+
+  void* GetBitmap() const { return mBitmap; }
+  int GetWidth() const { return mWidth; }
+  int GetHeight() const { return mHeight; }
+  int GetScale() const { return mScale; }
+
+  private:
+  void* mBitmap;
+  int mWidth;
+  int mHeight;
+  int mScale;
 };
 
 /** Used to manage bitmap data, independant of draw class/platform.
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
 {
-    
 public:
     
   /** Creates a new IBitmap object
@@ -110,7 +117,7 @@ public:
   */
   inline int N() const { return mN; }
   /**
-  * @return a pointer to the referencied APIBitmap
+  * @return a pointer to the referenced APIBitmap
   */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
   /**
@@ -148,9 +155,9 @@ struct ISVG
 {
   NSVGimage* mImage = nullptr;
 
-  ISVG(NSVGimage* image)
+  ISVG(NSVGimage* pImage)
   {
-    mImage = image;
+    mImage = pImage;
     assert(mImage != nullptr);
   }
 
@@ -181,7 +188,16 @@ struct IColor
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
-  IColor AddContrast(double c)
+  
+  void AddContrast(double c)
+  {
+    const int mod = int(c * 255.);
+    R = std::min(R += mod, 255);
+    G = std::min(G += mod, 255);
+    B = std::min(B += mod, 255);
+  }
+  
+  IColor GetContrasted(double c) const
   {
     const int mod = int(c * 255.);
     IColor n = *this;
@@ -190,6 +206,24 @@ struct IColor
     n.B = std::min(n.B += mod, 255);
     return n;
   }
+  
+  static IColor GetRandomColor(bool randomAlpha = false)
+  {
+    int A = randomAlpha ? rand() & 0xFF : 255;
+    int R = std::rand() & 0xFF;
+    int G = std::rand() & 0xFF;
+    int B = std::rand() & 0xFF;
+    
+    return IColor(A, R, G, B);
+  }
+  
+  int GetLuminocity() const
+  {
+    auto min = R < G ? (R < B ? R : B) : (G < B ? G : B);
+    auto max = R > G ? (R > B ? R : B) : (G > B ? G : B);
+    return (min + max) / 2;
+  };
+
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -202,21 +236,47 @@ const IColor COLOR_BLUE(255, 0, 0, 255);
 const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
+const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
+const IColor DEFAULT_BGCOLOR = COLOR_BLACK;
+const IColor DEFAULT_FGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_FRCOLOR = COLOR_BLACK;
+const IColor DEFAULT_HLCOLOR = COLOR_YELLOW;
+const IColor DEFAULT_X1COLOR = COLOR_RED;
+const IColor DEFAULT_X2COLOR = COLOR_GREEN;
+const IColor DEFAULT_X3COLOR = COLOR_BLUE;
+
+const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
+
+struct IVColorSpec
+{
+  IColor mBGColor = DEFAULT_BGCOLOR;
+  IColor mFGColor = DEFAULT_FGCOLOR;
+  IColor mFRColor = DEFAULT_FRCOLOR;
+  IColor mHLColor = DEFAULT_HLCOLOR;
+  IColor mX1Color = DEFAULT_X1COLOR;
+  IColor mX2Color = DEFAULT_X2COLOR;
+  IColor mX3Color = DEFAULT_X3COLOR;
+  
+  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
+                 const IColor FGColor = DEFAULT_FGCOLOR,
+                 const IColor FRColor = DEFAULT_FRCOLOR,
+                 const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor X1Color = DEFAULT_X1COLOR,
+                 const IColor X2Color = DEFAULT_X2COLOR,
+                 const IColor X3Color = DEFAULT_X3COLOR)
+  {
+  }
+  
+  void ResetColors() { SetColors(); }
+};
+
+const IVColorSpec DEFAULT_SPEC = IVColorSpec();
+
 /** Used to manage composite/blend operations, independant of draw class/platform */
 struct IBlend
 {
-  /** @enum EType Blend type
-   * @todo This could use some documentation
-  */
-  enum EType
-  {
-    kBlendNone,     // Copy over whatever is already there, but look at src alpha.
-    kBlendClobber,  // Copy completely over whatever is already there.
-    kBlendAdd,
-    kBlendColorDodge,
-    // etc
-  };
-  EType mMethod;
+  EBlendType mMethod;
   float mWeight;
 
   /** Creates a new IBlend
@@ -224,17 +284,18 @@ struct IBlend
    * @todo IBlend::weight needs documentation
    * @param weight
   */
-  IBlend(EType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
 };
 
-const IBlend BLEND_75 = IBlend(IBlend::kBlendNone, 0.75f);
-const IBlend BLEND_50 = IBlend(IBlend::kBlendNone, 0.5f);
-const IBlend BLEND_25 = IBlend(IBlend::kBlendNone, 0.25f);
-const IBlend BLEND_10 = IBlend(IBlend::kBlendNone, 0.1f);
+inline float BlendWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
 
-const IColor DEFAULT_TEXT_COLOR = COLOR_BLACK;
-const IColor DEFAULT_TEXT_ENTRY_BGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_TEXT_ENTRY_FGCOLOR = COLOR_BLACK;
+const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
+const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
+const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
+const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 
 // Path related structures for patterns and fill/stroke options
 
@@ -246,7 +307,10 @@ enum EPatternExtend { kExtendNone, kExtendPad, kExtendReflect, kExtendRepeat };
 
 struct IFillOptions
 {
-  IFillOptions() : mFillRule(kFillEvenOdd), mPreserve(false) {}
+  IFillOptions()
+  : mFillRule(kFillEvenOdd)
+  , mPreserve(false)
+  {}
   
   EFillRule mFillRule;
   bool mPreserve;
@@ -257,12 +321,9 @@ struct IStrokeOptions
   class DashOptions
   {
   public:
-    
-    DashOptions() : mCount(0), mOffset(0) {}
-    
-    int GetCount() const            { return mCount; }
-    float GetOffset() const         { return mOffset; }
-    const float *GetArray() const   { return mArray; }
+    int GetCount() const { return mCount; }
+    float GetOffset() const { return mOffset; }
+    const float *GetArray() const { return mArray; }
     
     void SetDash(float *array, float offset, int count)
     {
@@ -277,24 +338,29 @@ struct IStrokeOptions
     
   private:
     float mArray[8];
-    float mOffset;
-    int mCount;
+    float mOffset = 0;
+    int mCount = 0;
   };
   
-  ELineCap mCapOption;
-  ELineJoin mJoinOption;
+  float mMiterLimit = 1.;
+  bool mPreserve = false;
+  ELineCap mCapOption = kCapButt;
+  ELineJoin mJoinOption = kJoinMiter;
   DashOptions mDash;
-  float mMiterLimit;
-  bool mPreserve;
-  
-  IStrokeOptions() : mCapOption(kCapButt), mJoinOption(kJoinMiter), mMiterLimit(1.0), mPreserve(false) {}
 };
 
 struct IColorStop
 {
-  IColorStop() : mOffset(0.0) {}
+  IColorStop()
+  : mOffset(0.0)
+  {}
   
-  IColorStop(IColor color, float offset) : mColor(color), mOffset(offset) { assert(offset >= 0.0 && offset <= 1.0); }
+  IColorStop(IColor color, float offset)
+  : mColor(color)
+  , mOffset(offset)
+  {
+    assert(offset >= 0.0 && offset <= 1.0);
+  }
   
   IColor mColor;
   float mOffset;
@@ -319,12 +385,12 @@ struct IPattern
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
-    
-  IPattern(EPatternType type, float x1, float y1, float x2, float y2)
+  
+  IPattern(float x1, float y1, float x2, float y2)
   {
     // Figure out the affine transform from one line segment to another!
     
-    mType = type;
+    mType = kLinearPattern;
     
     const float xd = x2 - x1;
     const float yd = y2 - y1;
@@ -342,7 +408,7 @@ struct IPattern
     
     SetTransform(xx, yx, xy, yy, x0, y0);
   }
-  
+
   int NStops() const
   {
     return mStops.GetSize();
@@ -374,45 +440,39 @@ struct IPattern
 /** Used to manage font and text/text entry style, independant of draw class/platform.*/
 struct IText
 {
-  char mFont[FONT_LEN];
-  int mSize = DEFAULT_TEXT_SIZE;
-  IColor mColor;
-  IColor mTextEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR;
-  IColor mTextEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR;
-  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle = kStyleNormal;
-  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign = kAlignCenter;
-  int mOrientation = 0; // Degrees ccwise from normal.
+  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
+  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-  mutable LICE_IFont* mCached = nullptr;
-  mutable double mCachedScale = 1.0;
-
-  IText(int size = DEFAULT_TEXT_SIZE,
-        const IColor& color = DEFAULT_TEXT_COLOR,
+  
+  IText(const IColor& color = DEFAULT_FGCOLOR,
+        int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         int orientation = 0,
         EQuality quality = kQualityDefault,
-        const IColor& textEntryBGColor = DEFAULT_TEXT_ENTRY_BGCOLOR,
-        const IColor& textEntryFGColor = DEFAULT_TEXT_ENTRY_FGCOLOR)
+        const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
+        const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
-    , mColor(color)
+    , mFGColor(color)
     , mStyle(style)
     , mAlign(align)
     , mOrientation(orientation)
     , mQuality(quality)
-    , mTextEntryBGColor(textEntryBGColor)
-    , mTextEntryFGColor(textEntryFGColor)
+    , mTextEntryBGColor(TEBGColor)
+    , mTextEntryFGColor(TEFGColor)
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
-
-  IText(const IColor& color)
-  : mColor(color)
-  {
-    strcpy(mFont, DEFAULT_FONT);
-  }
-
+  
+  char mFont[FONT_LEN];
+  int mSize;
+  IColor mFGColor;
+  IColor mTextEntryBGColor;
+  IColor mTextEntryFGColor;
+  int mOrientation = 0; // Degrees ccwise from normal.
+  mutable LICE_IFont* mCached = nullptr;
+  mutable double mCachedScale = 1.0;
 };
 
 const IText DEFAULT_TEXT = IText();
@@ -460,7 +520,7 @@ struct IRECT
   inline float MW() const { return 0.5f * (L + R); }
   inline float MH() const { return 0.5f * (T + B); }
 
-  inline IRECT Union(const IRECT& rhs)
+  inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
     if (rhs.Empty()) { return *this; }
@@ -499,7 +559,7 @@ struct IRECT
     else if (y > B) y = B;
   }
 
-  inline IRECT SubRectVertical(int numSlices, int sliceIdx)
+  inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
   {
     float heightOfSubRect = H() / (float) numSlices;
     float t = heightOfSubRect * (float) sliceIdx;
@@ -507,7 +567,7 @@ struct IRECT
     return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
-  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx)
+  inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
   {
     float widthOfSubRect = W() / (float) numSlices;
     float l = widthOfSubRect * (float) sliceIdx;
@@ -515,22 +575,44 @@ struct IRECT
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
   
-  inline IRECT GetPadded(float padding)
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const
+  {
+    assert(cellIndex <= nRows * nColumns);
+    
+    int cell = 0;
+    for(int column = 0; column<nColumns; column++)
+    {
+      for(int row = 0; row<nRows; row++)
+      {
+        if(cell == cellIndex)
+        {
+          const IRECT hrect = SubRectHorizontal(nRows, row);
+          return hrect.SubRectVertical(nColumns, column);
+        }
+        
+        cell++;
+      }
+    }
+    
+    return *this;
+  }
+  
+  inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
   
-  inline IRECT GetPadded(float padL, float padT, float padR, float padB)
+  inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
     return IRECT(L+padL, T+padT, R+padR, B+padB);
   }
   
-  inline IRECT GetHPadded(float padding)
+  inline IRECT GetHPadded(float padding) const
   {
     return IRECT(L-padding, T, R+padding, B);
   }
 
-  inline IRECT GetVPadded(float padding)
+  inline IRECT GetVPadded(float padding) const
   {
     return IRECT(L, T-padding, R, B+padding);
   }
@@ -610,9 +692,9 @@ public:
   
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
     
-  unsigned long hash(const char* str)
+  uint32_t hash(const char* str)
   {
-    unsigned long hash = 5381;
+    uint32_t hash = 5381;
     int c;
     
     while ((c = *str++))
@@ -627,7 +709,7 @@ public:
   {
     // N.B. - hashID is not guaranteed to be unique
       
-    unsigned long hashID;
+    uint32_t hashID;
     WDL_String name;
     double scale;
     T* data;
@@ -638,7 +720,7 @@ public:
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    unsigned long hashID = hash(cacheName.Get());
+    uint32_t hashID = hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -646,10 +728,8 @@ public:
       DataKey* key = mDatas.Get(i);
       
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
-        
-      if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get())) {
+      if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get()))
         return key->data;
-      }
     }
     return nullptr;
   }
@@ -699,7 +779,6 @@ public:
   }
     
 private:
-    
   WDL_PtrList<DataKey> mDatas;
 };
 

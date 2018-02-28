@@ -2,17 +2,21 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <NANOVG_PATH>$(IGRAPHICS_PATH)\NanoVG</NANOVG_PATH>
     <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;</ALL_DEFS>
+    <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
     <WDL_PATH>$(SolutionDir)..\..\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(SolutionDir)..\..\IPlug</IPLUG_PATH>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
-    <NANOSVG_PATH>$(IGRAPHICS_PATH)\NanoSVG</NANOSVG_PATH>
-    <AGG_PATH>$(IGRAPHICS_PATH)\AGG</AGG_PATH>
+    <DEPS_PATH>$(SolutionDir)..\..\Dependencies</DEPS_PATH>
+    <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
+    <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
+    <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
+    <NANOSVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoSVG\src</NANOSVG_PATH>
+    <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG</AGG_PATH>
     <VST_SDK>$(SolutionDir)..\..\VST_SDK</VST_SDK>
     <VST3_SDK>$(SolutionDir)..\..\VST3_SDK</VST3_SDK>
-    <ASIO_SDK>$(SolutionDir)..\..\ASIO_SDK</ASIO_SDK>
+    <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
     <AAX_SDK>$(SolutionDir)..\..\AAX_SDK</AAX_SDK>
     <VST2_32_HOST_PATH>$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
     <VST2_64_HOST_PATH>$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
@@ -20,28 +24,28 @@
     <VST3_64_HOST_PATH>$(ProgramW6432)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe</VST3_64_HOST_PATH>
     <VST3_32_PATH>$(CommonProgramFiles)\VST3</VST3_32_PATH>
     <VST3_64_PATH>$(CommonProgramW6432)\VST3</VST3_64_PATH>
-    <VST2_32_PATH>$(CommonProgramFiles)\VSTPlugins</VST2_32_PATH>
-    <VST2_64_PATH>$(CommonProgramW6432)\VSTPlugins</VST2_64_PATH>
+    <VST2_32_PATH>$(CommonProgramFiles)\VST2</VST2_32_PATH>
+    <VST2_64_PATH>$(CommonProgramW6432)\VST2</VST2_64_PATH>
     <AAX_32_PATH>$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
     <AAX_64_PATH>$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
-    <COPY_VST2>1</COPY_VST2>
-    <VST2_32_COMMAND_ARGS />
-    <VST2_64_COMMAND_ARGS />
-    <VST3_32_COMMAND_ARGS />
-    <VST3_64_COMMAND_ARGS />
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
     <VST_DEFS>VST_API;VST_FORCE_DEPRECATED;</VST_DEFS>
-    <VST3_DEFS>VST3_API</VST3_DEFS>
+    <VST3_DEFS>VST3_API;UNICODE_OFF</VST3_DEFS>
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
     <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
-    <APP_INC_PATHS>$(ASIO_SDK);$(IPLUG_PATH)\rtaudiomidi;</APP_INC_PATHS>
-    <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
-    <VST3_INC_PATHS>$(VST3_SDK);</VST3_INC_PATHS>
+    <APP_INC_PATHS>$(IPLUG_DEPS_PATH)\RTAudio\include;$(IPLUG_DEPS_PATH)\RTAudio;$(IPLUG_DEPS_PATH)\RTMidi</APP_INC_PATHS>
+    <VST_INC_PATHS>$(VST_SDK)</VST_INC_PATHS>
+    <VST3_INC_PATHS>$(VST3_SDK)</VST3_INC_PATHS>
     <AAX_INC_PATHS>$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;$(IPLUG_PATH)\AAX;.</AAX_INC_PATHS>
     <AAX_DEFS>AAX_API;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</AAX_DEFS>
-    <AAX_LIBS>lice.lib;wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
-    <VST_INC_PATHS>$(VST_SDK)</VST_INC_PATHS>
+    <AAX_LIBS>wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
+    <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
+    <VST2_32_COMMAND_ARGS />
+    <VST2_64_COMMAND_ARGS />
+    <VST3_64_COMMAND_ARGS />
+    <VST3_32_COMMAND_ARGS />
+    <COPY_VST2>1</COPY_VST2>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -54,12 +58,14 @@
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(LICE_PATH)\build-win\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies />
     </Lib>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="WDL_PATH">
@@ -73,6 +79,15 @@
     </BuildMacro>
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DEPS_PATH">
+      <Value>$(DEPS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IPLUG_DEPS_PATH">
+      <Value>$(IPLUG_DEPS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IGRAPHICS_DEPS_PATH">
+      <Value>$(IGRAPHICS_DEPS_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="NANOVG_PATH">
       <Value>$(NANOVG_PATH)</Value>
@@ -125,21 +140,6 @@
     <BuildMacro Include="AAX_64_PATH">
       <Value>$(AAX_64_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="COPY_VST2">
-      <Value>$(COPY_VST2)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST2_32_COMMAND_ARGS">
-      <Value>$(VST2_32_COMMAND_ARGS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST2_64_COMMAND_ARGS">
-      <Value>$(VST2_64_COMMAND_ARGS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST3_32_COMMAND_ARGS">
-      <Value>$(VST3_32_COMMAND_ARGS)</Value>
-    </BuildMacro>
-    <BuildMacro Include="VST3_64_COMMAND_ARGS">
-      <Value>$(VST3_64_COMMAND_ARGS)</Value>
-    </BuildMacro>
     <BuildMacro Include="APP_DEFS">
       <Value>$(APP_DEFS)</Value>
     </BuildMacro>
@@ -161,8 +161,8 @@
     <BuildMacro Include="APP_INC_PATHS">
       <Value>$(APP_INC_PATHS)</Value>
     </BuildMacro>
-    <BuildMacro Include="APP_LIBS">
-      <Value>$(APP_LIBS)</Value>
+    <BuildMacro Include="VST_INC_PATHS">
+      <Value>$(VST_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="VST3_INC_PATHS">
       <Value>$(VST3_INC_PATHS)</Value>
@@ -176,8 +176,23 @@
     <BuildMacro Include="AAX_LIBS">
       <Value>$(AAX_LIBS)</Value>
     </BuildMacro>
-    <BuildMacro Include="VST_INC_PATHS">
-      <Value>$(VST_INC_PATHS)</Value>
+    <BuildMacro Include="APP_LIBS">
+      <Value>$(APP_LIBS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST2_32_COMMAND_ARGS">
+      <Value>$(VST2_32_COMMAND_ARGS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST2_64_COMMAND_ARGS">
+      <Value>$(VST2_64_COMMAND_ARGS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST3_64_COMMAND_ARGS">
+      <Value>$(VST3_64_COMMAND_ARGS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST3_32_COMMAND_ARGS">
+      <Value>$(VST3_32_COMMAND_ARGS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="COPY_VST2">
+      <Value>$(COPY_VST2)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

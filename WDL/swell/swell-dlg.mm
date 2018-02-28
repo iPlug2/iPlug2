@@ -205,7 +205,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
   int had_flags=0;
 
   NSColor *staticFg=NULL; // had_flags&1, WM_CTLCOLORSTATIC
-//  NSColor *editFg=NULL, *editBg=NULL; // had_flags&2, WM_CTLCOLOREDIT
+  NSColor *editFg=NULL, *editBg=NULL; // had_flags&2, WM_CTLCOLOREDIT
   NSColor *buttonFg=NULL; // had_flags&4, WM_CTLCOLORBTN
       
   int x;
@@ -300,8 +300,8 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
   }     // children
   if (buttonFg) [buttonFg release];
   if (staticFg) [staticFg release];
-//  if (editFg) [editFg release];
-//  if (editBg) [editBg release];
+  if (editFg) [editFg release];
+  if (editBg) [editBg release];
 }  
 
 static LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -2499,12 +2499,9 @@ void SWELL_CarbonWndHost_SetWantAllKeys(void* carbonhost, bool want)
     // initWithWindowRef does not retain // MAKE SURE THIS IS NOT BAD TO DO
     //CFRetain(wndref);
 
-    m_cwnd = [[NSWindow alloc] initWithWindowRef:wndref];
-#if __MAC_OS_X_VERSION_MAX_ALLOWED > 1050
-    [m_cwnd setDelegate:(id<NSWindowDelegate>)self];
-#else
-    [m_cwnd setDelegate: self];
-#endif
+    m_cwnd = [[NSWindow alloc] initWithWindowRef:wndref];  
+    [m_cwnd setDelegate:(id)self];
+    
     ShowWindow(wndref);
     
     //[[parent window] addChildWindow:m_cwnd ordered:NSWindowAbove];

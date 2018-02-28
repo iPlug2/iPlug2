@@ -122,13 +122,12 @@ EXCLUDE                = ../IPlug/IGraphics/NanoVG \
                          ../IPlug/IGraphics/NanoSVG \
                          ../IPlug/IGraphics/freetype \
                          ../IPlug/IGraphics/MetalNanoVG \
-                         ../IPlug/IGraphics/agg \
+                         ../IPlug/IGraphics/AGG \
                          ../IPlug/IGraphics/stb \
                          ../IPlug/AAX \
                          ../IPlug/AUv3 \
-                         ../IPlug/dfx \
-                         ../IPlug/RTAudioMidi \
-                         ../IPlug/app_wrapper \
+                         ../IPlug/AUv2 \
+                         ../IPlug/APP \
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = IAutoGUI \
@@ -161,6 +160,9 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          AuxParam \ 
                          PNGStreamReader \
                          SVGHolder \
+                         APIBitmap \
+                         AGGBitmap \
+                         LICEBitmap \
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
@@ -203,6 +205,7 @@ HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = 
 HTML_FOOTER            = 
+HTML_EXTRA_STYLESHEET  = style.css
 HTML_STYLESHEET        = 
 CHM_FILE               = 
 HHC_LOCATION           = 

@@ -1,4 +1,14 @@
 #pragma once
+
+/**
+ * @file
+ * @brief IPlug logging a.k.a tracing functionailty
+ *
+ * To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
+ * To simply create a trace entry in the log:    TRACE;
+ * No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
+ */
+
 #include <cstdio>
 #include <cctype>
 #include <cstdarg>
@@ -8,75 +18,46 @@
 #include <cassert>
 
 #include "wdlstring.h"
+#include "mutex.h"
+
+#include "IPlugConstants.h"
 #include "IPlugUtilities.h"
 
-#if defined OS_WIN
-  void DBGMSG(const char *format, ...);
-  #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-#elif defined OS_OSX
-  #define SYS_THREAD_ID (intptr_t) pthread_self()
-  #define DBGMSG(...) printf(__VA_ARGS__)
-#elif defined OS_WEB
-  #define SYS_THREAD_ID (intptr_t) pthread_self()
-  #define DBGMSG(...) printf(__VA_ARGS__)
+#ifdef NDEBUG
+  #define DBGMSG(...)
 #else
-  #error "No OS defined!"
+  #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+    #define DBGMSG(...) printf(__VA_ARGS__)
+  #elif defined OS_WIN
+    void DBGMSG(const char *format, ...);
+  #endif
 #endif
 
 #if defined TRACER_BUILD
-    #define TRACE Trace(TRACELOC, "");
-    //#define TRACE_PROCESS Trace(TRACELOC, ""); // uncomment this to trace render callback
-    #define TRACE_PROCESS
+  #define TRACE Trace(TRACELOC, "");
+
+  #if defined OS_WIN
+    #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
+  #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+    #define SYS_THREAD_ID (intptr_t) pthread_self()
+  #endif
+
   #else
     #define TRACE
-    #define TRACE_PROCESS
   #endif
 
   #define TRACELOC __FUNCTION__,__LINE__
   static void Trace(const char* funcName, int line, const char* fmtStr, ...);
-  #define TraceProcess Trace
 
-  // To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
-  // To simply create a trace entry in the log:    TRACE;
-  // No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
-
-  //const char* VSTOpcodeStr(int opCode);
-  //const char* AUSelectStr(int select);
-  //const char* AUPropertyStr(int propID);
-  //const char* AUScopeStr(int scope);
-
-  struct Timer
-  {
-    unsigned long mT;
-    
-    Timer()
-    {
-      mT = clock();
-    }
-    
-    bool Every(double sec)
-    {
-      if (clock() - mT > sec * CLOCKS_PER_SEC)
-      {
-        mT = clock();
-        return true;
-      }
-      return false;
-    };
-  };
-
-  //const char* CurrentTime();
-  //void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr);
-  //const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr);
   #define APPEND_TIMESTAMP(str) AppendTimestamp(__DATE__, __TIME__, str)
 
-  #define TRACETOSTDOUT
-
-  #ifdef OS_WIN
-  #define LOGFILE "C:\\IPlugLog.txt" // TODO: what if no write permissions?
+#ifdef OS_WIN
+#ifdef NDEBUG
+#define DBGMSG(...)
+#else
   static void DBGMSG(const char *format, ...)
   {
-    char    buf[4096], *p = buf;
+    char buf[4096], *p = buf;
     va_list args;
     int     n;
     
@@ -93,14 +74,10 @@
     *p++ = '\n';
     *p   = '\0';
     
-    #ifndef VST3_API //todo: unicode conflict
     OutputDebugString(buf);
-    #endif
   }
-
-  #else // OSX
-  #define LOGFILE "IPlugLog.txt" // will get put on Desktop
-  #endif
+#endif
+#endif
 
   struct LogFile
   {
@@ -108,14 +85,13 @@
     
     LogFile()
     {
-  #ifdef OS_WIN
-      mFP = fopen(LOGFILE, "w");
-  #else
       char logFilePath[100];
-      char* home = getenv("HOME");
-      sprintf(logFilePath, "%s/Desktop/%s", home, LOGFILE);
-      mFP = fopen(logFilePath, "w");
+  #ifdef OS_WIN
+      sprintf(logFilePath, "%s/%s", "C:\\", LOGFILE); // TODO: check windows logFilePath
+  #else
+      sprintf(logFilePath, "%s/%s", getenv("HOME"), LOGFILE);
   #endif
+      mFP = fopen(logFilePath, "w");
       assert(mFP);
     }
     
@@ -133,6 +109,7 @@
 
   static const char* CurrentTime()
   {
+    //    TODO: replace with std::chrono based version
     time_t t = time(0);
     tm* pT = localtime(&t);
     
@@ -160,25 +137,20 @@
     return sTimeStr;
   }
 
-  static void CompileTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, WDL_String* pStr)
-  {
-    pStr->Set("[");
-    pStr->Append(Mmm_dd_yyyy);
-    pStr->SetLen(7);
-    pStr->DeleteSub(4, 1);
-    pStr->Append(" ");
-    pStr->Append(hh_mm_ss);
-    pStr->SetLen(12);
-    pStr->Append("]");
-  }
-
   static const char* AppendTimestamp(const char* Mmm_dd_yyyy, const char* hh_mm_ss, const char* cStr)
   {
     static WDL_String str;
     str.Set(cStr);
-    WDL_String tStr;
-    CompileTimestamp(Mmm_dd_yyyy, hh_mm_ss, &tStr);
     str.Append(" ");
+    WDL_String tStr;
+    tStr.Set("[");
+    tStr.Append(Mmm_dd_yyyy);
+    tStr.SetLen(7);
+    tStr.DeleteSub(4, 1);
+    tStr.Append(" ");
+    tStr.Append(hh_mm_ss);
+    tStr.SetLen(12);
+    tStr.Append("]");
     str.Append(tStr.Get());
     return str.Get();
   }
@@ -205,7 +177,7 @@
   strcat(str, "\r\n"); \
   }
 
-  intptr_t GetOrdinalThreadID(intptr_t sysThreadID)
+  static intptr_t GetOrdinalThreadID(intptr_t sysThreadID)
   {
     static WDL_TypedBuf<intptr_t> sThreadIDs;
     int i, n = sThreadIDs.GetSize();
@@ -226,31 +198,70 @@
   void Trace(const char* funcName, int line, const char* format, ...)
   {
     static int sTrace = 0;
+    static int32_t sProcessCount = 0;
+    static int32_t sIdleCount = 0;
+
     if (sTrace++ < MAX_LOG_LINES)
     {
   #ifndef TRACETOSTDOUT
       static LogFile sLogFile;
+      assert(sLogFile.mFP);
   #endif
       static WDL_Mutex sLogMutex;
       char str[TXTLEN];
       VARARGS_TO_STR(str);
       
   #ifdef TRACETOSTDOUT
-  #ifdef OS_WIN
       DBGMSG("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
   #else
-      printf("[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
-  #endif
-  #else
       WDL_MutexLock lock(&sLogMutex);
-      fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", GetOrdinalThreadID(SYS_THREAD_ID), funcName, line, str);
+      intptr_t threadID = GetOrdinalThreadID(SYS_THREAD_ID);
+      
+      if(strstr(funcName, "rocess") || strstr(funcName, "ender")) // These are not typos! by excluding the first character, we can use TRACE; in methods called ProcessXXX or process etc.
+      {
+        if(++sProcessCount > MAX_PROCESS_TRACE_COUNT)
+        {
+          fflush(sLogFile.mFP);
+          return;
+        }
+        else if (sProcessCount == MAX_PROCESS_TRACE_COUNT)
+        {
+          fprintf(sLogFile.mFP, "**************** DISABLING PROCESS TRACING AFTER %d HITS ****************\n\n", sProcessCount);
+          fflush(sLogFile.mFP);
+          return;
+        }
+      }
+      
+#ifdef VST_API
+      if(strstr(str, "effGetProgram") || strstr(str, "effEditGetRect") || strstr(funcName, "MouseOver"))
+#else
+      if(strstr(funcName, "MouseOver") || strstr(funcName, "idle"))
+#endif
+      {
+        if(++sIdleCount > MAX_IDLE_TRACE_COUNT)
+        {
+          fflush(sLogFile.mFP);
+          return;
+        }
+        else if (sIdleCount == MAX_IDLE_TRACE_COUNT)
+        {
+          fprintf(sLogFile.mFP, "**************** DISABLING IDLE/MOUSEOVER TRACING AFTER %d HITS ****************\n", sIdleCount);
+          fflush(sLogFile.mFP);
+          return;
+        }
+      }
+      
+      if (threadID > 0)
+        fprintf(sLogFile.mFP, "*** -");
+      
+      fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", threadID, funcName, line, str);
       fflush(sLogFile.mFP);
   #endif
     }
   }
 
   #ifdef VST_API
-  #include "../../VST_SDK/aeffectx.h"
+  #include "aeffectx.h"
   static const char* VSTOpcodeStr(int opCode)
   {
     switch (opCode)
@@ -423,6 +434,7 @@
 
   #if defined AU_API
   #include <AudioUnit/AudioUnitProperties.h>
+  #include <CoreServices/CoreServices.h>
   static const char* AUSelectStr(int select)
   {
     switch (select)
@@ -463,12 +475,6 @@
         return "kAudioUnitResetSelect";
       case kComponentCanDoSelect:
         return "kComponentCanDoSelect";
-      case kAudioUnitCarbonViewRange:
-        return "kAudioUnitCarbonViewRange";
-      case kAudioUnitCarbonViewCreateSelect:
-        return "kAudioUnitCarbonViewCreateSelect";
-      case kAudioUnitCarbonViewSetEventListenerSelect:
-        return "kAudioUnitCarbonViewSetEventListenerSelect";
       case kAudioUnitComplexRenderSelect:
         return "kAudioUnitComplexRenderSelect";
       case kAudioUnitProcessSelect:
@@ -620,27 +626,10 @@
   #endif // AU_API
 
 #else // TRACER_BUILD
-
   static void Trace(const char* funcName, int line, const char* format, ...) {}
-
-  static const char* VSTOpcodeStr(int opCode)
-  {
-    return "";
-  }
-
-  static const char* AUSelectStr(int select)
-  {
-    return "";
-  }
-
-  static const char* AUPropertyStr(int propID)
-  {
-    return "";
-  }
-
-  static const char* AUScopeStr(int scope)
-  {
-    return "";
-  }
+static const char* VSTOpcodeStr(int opCode) { return ""; }
+  static const char* AUSelectStr(int select) { return ""; }
+  static const char* AUPropertyStr(int propID) { return ""; }
+  static const char* AUScopeStr(int scope) { return ""; }
 #endif // !TRACER_BUILD
 

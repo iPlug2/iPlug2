@@ -1,8 +1,11 @@
 
 #include <Shlobj.h>
+#include <Shlwapi.h>
 #include <commctrl.h>
 
+#include "IPlugParameter.h"
 #include "IGraphicsWin.h"
+#include "IControl.h"
 
 #include <wininet.h>
 
@@ -16,6 +19,46 @@ static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
+#define IPLUG_WIN_MAX_WIDE_PATH 4096
+
+// Unicode helpers
+
+
+void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+{
+  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+
+  if (requiredSize > 0 && requiredSize <= maxLen)
+  {
+    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
+    return;
+  }
+
+  utf16Str[0] = 0;
+}
+
+void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+{
+  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
+
+  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+  {
+    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    return;
+  }
+
+  utf8Str.Set("");
+}
+
+// Helper for getting a known folder in UTF8
+
+void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+{
+  wchar_t wideBuffer[1024];
+
+  SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
+  UTF16ToUTF8(path, wideBuffer);
+}
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -23,14 +66,14 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
   info.x = mMouseX = GET_X_LPARAM(lParam) / GetScale();
   info.y = mMouseY = GET_Y_LPARAM(lParam) / GetScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON),
-	  (wParam & MK_RBUTTON),
-	  (wParam & MK_SHIFT),
-	  (wParam & MK_CONTROL),
+    (wParam & MK_RBUTTON),
+    (wParam & MK_SHIFT),
+    (wParam & MK_CONTROL),
 
 #ifdef AAX_API
-	  GetAsyncKeyState(VK_MENU) < 0
+    GetAsyncKeyState(VK_MENU) < 0
 #else
-	  GetKeyState(VK_MENU) < 0
+    GetKeyState(VK_MENU) < 0
 #endif
       );
   return info;
@@ -64,10 +107,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   }
 
   IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-  char txt[MAX_PARAM_LEN];
+  char txt[MAX_WIN32_PARAM_LEN];
   double v;
 
-  if (!pGraphics || hWnd != pGraphics->mPlugWnd)
+  if (!pGraphics || hWnd != pGraphics->mDelegateWnd)
   {
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
@@ -94,31 +137,31 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           {
             case kCommit:
             {
-              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_PARAM_LEN, (LPARAM) txt);
+              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
 
-              if(pGraphics->mEdParam)
+              const IParam* pParam = pGraphics->mEdControl->GetParam();
+              
+              if(pParam)
               {
-                IParam::EParamType type = pGraphics->mEdParam->Type();
-
-                if ( type == IParam::kTypeEnum || type == IParam::kTypeBool)
+                if (pParam->Type() == IParam::kTypeEnum || pParam->Type() == IParam::kTypeBool)
                 {
-                  int vi = 0;
-                  pGraphics->mEdParam->MapDisplayText(txt, &vi);
+                  double vi = 0.;
+                  pParam->MapDisplayText(txt, &vi);
                   v = (double) vi;
                 }
                 else
                 {
                   v = atof(txt);
-                  if (pGraphics->mEdParam->GetDisplayIsNegated())
+                  if (pParam->GetDisplayIsNegated())
                   {
                     v = -v;
                   }
                 }
-                pGraphics->mEdControl->SetValueFromUserInput(pGraphics->mEdParam->GetNormalized(v));
+                pGraphics->mEdControl->SetValueFromUserInput(pParam->GetNormalized(v));
               }
               else
               {
-                pGraphics->mEdControl->TextFromTextEntry(txt);
+                pGraphics->mEdControl->OnTextEntryCompletion(txt);
               }
               // Fall through.
             }
@@ -126,10 +169,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             {
               SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
               DestroyWindow(pGraphics->mParamEditWnd);
-              pGraphics->mParamEditWnd = 0;
-              pGraphics->mEdParam = 0;
-              pGraphics->mEdControl = 0;
-              pGraphics->mDefEditProc = 0;
+              pGraphics->mParamEditWnd = nullptr;
+              pGraphics->mEdControl = nullptr;
+              pGraphics->mDefEditProc = nullptr;
             }
             break;
           }
@@ -166,7 +208,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-	{
+  {
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
@@ -185,7 +227,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
-		if (pGraphics->OnMouseOver(info.x, info.y, info.ms))
+    if (pGraphics->OnMouseOver(info.x, info.y, info.ms))
         {
           TRACKMOUSEEVENT eventTrack = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, hWnd, HOVER_DEFAULT };
           if (pGraphics->TooltipsEnabled()) 
@@ -312,7 +354,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if(!pGraphics->mEdControl)
         return 0;
 
-      IText& text = pGraphics->mEdControl->GetText();
+      const IText& text = pGraphics->mEdControl->GetText();
       HDC dc = (HDC) wParam;
       SetBkColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
       SetTextColor(dc, RGB(text.mTextEntryFGColor.R, text.mTextEntryFGColor.G, text.mTextEntryFGColor.B));
@@ -363,14 +405,15 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
     {
       case WM_CHAR:
       {
+        const IParam* pParam = pGraphics->mEdControl->GetParam();
         // limit to numbers for text entry on appropriate parameters
-        if(pGraphics->mEdParam)
+        if(pParam)
         {
           char c = wParam;
 
           if(c == 0x08) break; // backspace
 
-          switch ( pGraphics->mEdParam->Type() )
+          switch ( pParam->Type() )
           {
             case IParam::kTypeEnum:
             case IParam::kTypeInt:
@@ -419,7 +462,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       //  (normally single line edit boxes don't get sent return key messages)
       case WM_GETDLGCODE:
       {
-        if (pGraphics->mEdParam) break;
+        if (pGraphics->mEdControl->GetParam()) break;
         LPARAM lres;
         // find out if the original control wants it
         lres = CallWindowProc(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
@@ -452,8 +495,8 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-IGraphicsWin::IGraphicsWin(IPlugBaseGraphics& plug, int w, int h, int fps)
-  : IGRAPHICS_DRAW_CLASS(plug, w, h, fps)
+IGraphicsWin::IGraphicsWin(IDelegate& dlg, int w, int h, int fps)
+  : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps)
 {}
 
 IGraphicsWin::~IGraphicsWin()
@@ -507,12 +550,12 @@ void IGraphicsWin::Resize(int w, int h, float scale)
   if (WindowIsOpen())
   {
     HWND pParent = 0, pGrandparent = 0;
-    int plugW = 0, plugH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
-    GetWindowSize(mPlugWnd, &plugW, &plugH);
+    int dlgW = 0, dlgH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
+    GetWindowSize(mDelegateWnd, &dlgW, &dlgH);
 
-    if (IsChildWindow(mPlugWnd))
+    if (IsChildWindow(mDelegateWnd))
     {
-      pParent = GetParent(mPlugWnd);
+      pParent = GetParent(mDelegateWnd);
       GetWindowSize(pParent, &parentW, &parentH);
 
       if (IsChildWindow(pParent))
@@ -522,11 +565,10 @@ void IGraphicsWin::Resize(int w, int h, float scale)
       }
     }
 
-    SetWindowPos(mPlugWnd, 0, 0, 0, plugW + dw, plugH + dh, SETPOS_FLAGS);
+    SetWindowPos(mDelegateWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
     // don't want to touch the host window in VST3
-    if(mPlug.GetAPI() != kAPIVST3)
-    {
+#ifndef VST3_API
       if(pParent)
       {
         SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
@@ -536,10 +578,10 @@ void IGraphicsWin::Resize(int w, int h, float scale)
       {
         SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
       }
-    }
+#endif
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
+    InvalidateRect(mDelegateWnd, &r, FALSE);
   }
 }
 
@@ -578,11 +620,11 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
   int x = 0, y = 0, w = WindowWidth(), h = WindowHeight();
   mParentWnd = (HWND) pParentWnd;
 
-  if (mPlugWnd)
+  if (mDelegateWnd)
   {
     RECT pR, cR;
     GetWindowRect((HWND) pParentWnd, &pR);
-    GetWindowRect(mPlugWnd, &cR);
+    GetWindowRect(mDelegateWnd, &cR);
     CloseWindow();
     x = cR.left - pR.left;
     y = cR.top - pR.top;
@@ -597,16 +639,16 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
   }
 
   sFPS = FPS();
-  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+  mDelegateWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                           x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
 
-  HDC dc = GetDC(mPlugWnd);
+  HDC dc = GetDC(mDelegateWnd);
   SetPlatformContext(dc);
-  ReleaseDC(mPlugWnd, dc);
+  ReleaseDC(mDelegateWnd, dc);
 
   SetDisplayScale(1);
 
-  if (!mPlugWnd && --nWndClassReg == 0)
+  if (!mDelegateWnd && --nWndClassReg == 0)
   {
     UnregisterClass(wndClassName, mHInstance);
   }
@@ -615,7 +657,7 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
     SetAllControlsDirty();
   }
 
-  if (mPlugWnd && TooltipsEnabled())
+  if (mDelegateWnd && TooltipsEnabled())
   {
     bool ok = false;
     static const INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
@@ -623,11 +665,11 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
     if (InitCommonControlsEx(&iccex))
     {
       mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
-                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
+                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mDelegateWnd, NULL, mHInstance, NULL);
       if (mTooltipWnd)
       {
         SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
+        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mDelegateWnd, (UINT_PTR)mDelegateWnd };
         ti.lpszText = (LPTSTR)NULL;
         SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
         ok = true;
@@ -637,7 +679,7 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
     if (!ok) EnableTooltips(ok);
   }
 
-  return mPlugWnd;
+  return mDelegateWnd;
 }
 
 void GetWndClassName(HWND hWnd, WDL_String* pStr)
@@ -691,10 +733,10 @@ HWND IGraphicsWin::GetMainWnd()
 
 IRECT IGraphicsWin::GetWindowRECT()
 {
-  if (mPlugWnd)
+  if (mDelegateWnd)
   {
     RECT r;
-    GetWindowRect(mPlugWnd, &r);
+    GetWindowRect(mDelegateWnd, &r);
     r.right -= TOOLWIN_BORDER_W;
     r.bottom -= TOOLWIN_BORDER_H;
     return IRECT(r.left, r.top, r.right, r.bottom);
@@ -704,12 +746,12 @@ IRECT IGraphicsWin::GetWindowRECT()
 
 void IGraphicsWin::SetWindowTitle(const char* str)
 {
-  SetWindowText(mPlugWnd, str);
+  SetWindowText(mDelegateWnd, str);
 }
 
 void IGraphicsWin::CloseWindow()
 {
-  if (mPlugWnd)
+  if (mDelegateWnd)
   {
     SetPlatformContext(nullptr);
 
@@ -721,8 +763,8 @@ void IGraphicsWin::CloseWindow()
       mTooltipIdx = -1;
     }
 
-    DestroyWindow(mPlugWnd);
-    mPlugWnd = 0;
+    DestroyWindow(mDelegateWnd);
+    mDelegateWnd = 0;
 
     if (--nWndClassReg == 0)
     {
@@ -734,7 +776,7 @@ void IGraphicsWin::CloseWindow()
 IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu)
 {
   long oldIDx = offsetIdx;
-  offsetIdx += baseMenu.GetNItems();
+  offsetIdx += baseMenu.NItems();
 
   if (idx < offsetIdx)
   {
@@ -744,9 +786,9 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
 
   IPopupMenu* menu = 0;
 
-  for(int i = 0; i< baseMenu.GetNItems(); i++)
+  for(int i = 0; i< baseMenu.NItems(); i++)
   {
-    IPopupMenuItem* menuItem = baseMenu.GetItem(i);
+    IPopupMenu::Item* menuItem = baseMenu.GetItem(i);
     if(menuItem->GetSubmenu())
     {
       menu = GetItemMenu(idx, idxInMenu, offsetIdx, *menuItem->GetSubmenu());
@@ -766,19 +808,18 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
   WDL_String escapedText;
 
   int flags = 0;
-  long idxSubmenu = 0;
   long offset = *offsetIdx;
-  long nItems = menu.GetNItems();
+  long nItems = menu.NItems();
   *offsetIdx += nItems;
   long inc = 0;
 
   for(int i = 0; i< nItems; i++)
   {
-    IPopupMenuItem* menuItem = menu.GetItem(i);
+    IPopupMenu::Item* menuItem = menu.GetItem(i);
 
     if (menuItem->GetIsSeparator())
     {
-      AppendMenu (hMenu, MF_SEPARATOR, 0, 0);
+      AppendMenu(hMenu, MF_SEPARATOR, 0, 0);
     }
     else
     {
@@ -873,18 +914,12 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
     cPos.x = areaRect.L;
     cPos.y = areaRect.B;
 
-    ClientToScreen(mPlugWnd, &cPos);
+    ClientToScreen(mDelegateWnd, &cPos);
 
-    if (TrackPopupMenu(hMenu,
-                       TPM_LEFTALIGN,
-                       cPos.x,
-                       cPos.y,
-                       0,
-                       mPlugWnd,
-                       0))
+    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mDelegateWnd, 0))
     {
       MSG msg;
-      if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
+      if (PeekMessage(&msg, mDelegateWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
       {
         if (HIWORD(msg.wParam) == 0)
         {
@@ -906,14 +941,15 @@ IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
     DestroyMenu(hMenu);
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
+    InvalidateRect(mDelegateWnd, &r, FALSE);
   }
   return result;
 }
 
-void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam)
+void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str)
 {
-  if (!pControl || mParamEditWnd) return;
+  if (mParamEditWnd)
+    return;
 
   DWORD editStyle;
 
@@ -927,11 +963,11 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const 
 
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
     textRect.L, textRect.T, textRect.W()+1, textRect.H()+1,
-    mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
+    mDelegateWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
 
-  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) pControl->GetTextEntryLength(), 0);
+  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
@@ -942,16 +978,15 @@ void IGraphicsWin::CreateTextEntry(IControl* pControl, const IText& text, const 
 
   //DeleteObject(font);
 
-  mEdControl = pControl;
-  mEdParam = pParam; // could be 0
+  mEdControl = &control;
 }
 
 void GetModulePath(HMODULE hModule, WDL_String& path)
 {
   path.Set("");
-  char pathCStr[MAX_PATH_LEN];
+  char pathCStr[MAX_WIN32_PATH_LEN];
   pathCStr[0] = '\0';
-  if (GetModuleFileName(hModule, pathCStr, MAX_PATH_LEN))
+  if (GetModuleFileName(hModule, pathCStr, MAX_WIN32_PATH_LEN))
   {
     int s = -1;
     for (int i = 0; i < strlen(pathCStr); ++i)
@@ -980,40 +1015,31 @@ void IGraphicsWin::PluginPath(WDL_String& path)
 
 void IGraphicsWin::DesktopPath(WDL_String& path)
 {
-  TCHAR strPath[MAX_PATH_LEN];
-  SHGetSpecialFolderPath( 0, strPath, CSIDL_DESKTOP, FALSE );
-  path.Set(strPath, MAX_PATH_LEN);
+  GetKnownFolder(path, CSIDL_DESKTOP);
+}
+
+void IGraphicsWin::UserHomePath(WDL_String & path)
+{
+  GetKnownFolder(path, CSIDL_PROFILE);
 }
 
 void IGraphicsWin::AppSupportPath(WDL_String& path, bool isSystem)
 {
-  TCHAR strPath[MAX_PATH_LEN];
-
-  if (isSystem)
-    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-  else
-    SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
-
-  path.Set(strPath, MAX_PATH_LEN);
+  GetKnownFolder(path, isSystem ? CSIDL_COMMON_APPDATA : CSIDL_LOCAL_APPDATA);
 }
 
-void IGraphicsWin::VST3PresetsPath(WDL_String& path, bool isSystem)
+void IGraphicsWin::VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
-  TCHAR strPath[MAX_PATH_LEN];
-
   if (!isSystem)
   {
-    TCHAR strPath[MAX_PATH_LEN];
-    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, strPath);
-    path.Set(strPath, MAX_PATH_LEN);
+    GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
   }
   else
   {
-    SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, strPath);
-    path.Set(strPath, MAX_PATH_LEN);
+    AppSupportPath(path, true);
   }
 
-  path.AppendFormatted(MAX_PATH_LEN, "\\VST3 Presets\\%s\\%s", mPlug.GetMfrName(), mPlug.GetProductName());
+  path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
@@ -1022,8 +1048,9 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   
   if (path.GetLength())
   {
-    TCHAR winDir[MAX_PATH];
-    UINT len = GetSystemDirectory(winDir, MAX_PATH);
+    WCHAR winDir[IPLUG_WIN_MAX_WIDE_PATH];
+  WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
+    UINT len = GetSystemDirectoryW(winDir, IPLUG_WIN_MAX_WIDE_PATH);
     
     if (len || !(len > MAX_PATH - 2))
     {
@@ -1039,9 +1066,10 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       explorerParams.Append(path.Get());
       explorerParams.Append("\\\"");
       
+    UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
       HINSTANCE result;
       
-      if ((result=::ShellExecute(NULL, "open", "explorer.exe", (const TCHAR*)explorerParams.Get(), winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
+      if ((result=::ShellExecuteW(NULL, L"open", L"explorer.exe", explorerWide, winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)
         success = true;
     }
   }
@@ -1057,101 +1085,100 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     filename.Set("");
     return;
   }
-
-  char fnCStr[MAX_PATH_LEN];
-  char dirCStr[MAX_PATH_LEN];
-
+    
+  wchar_t fnCStr[_MAX_PATH];
+  wchar_t dirCStr[_MAX_PATH];
+    
   if (filename.GetLength())
-    strcpy(fnCStr, filename.Get());
+    UTF8ToUTF16(fnCStr, filename.Get(), _MAX_PATH);
   else
     fnCStr[0] = '\0';
-
+    
   dirCStr[0] = '\0';
-
+    
   if (!path.GetLength())
-  {
     DesktopPath(path);
-  }
-
-  strcpy(dirCStr, path.Get());
-
-  OPENFILENAME ofn;
-  memset(&ofn, 0, sizeof(OPENFILENAME));
-
-  ofn.lStructSize = sizeof(OPENFILENAME);
-  ofn.hwndOwner = mPlugWnd;
+    
+  UTF8ToUTF16(dirCStr, path.Get(), _MAX_PATH);
+    
+  OPENFILENAMEW ofn;
+  memset(&ofn, 0, sizeof(OPENFILENAMEW));
+    
+  ofn.lStructSize = sizeof(OPENFILENAMEW);
+  ofn.hwndOwner = (HWND) GetWindow();
   ofn.lpstrFile = fnCStr;
-  ofn.nMaxFile = MAX_PATH_LEN - 1;
+  ofn.nMaxFile = _MAX_PATH - 1;
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
-
+    
   if (CSTR_NOT_EMPTY(extensions))
   {
-    char extStr[256];
-    char defExtStr[16];
+    wchar_t extStr[256];
+    wchar_t defExtStr[16];
     int i, p, n = strlen(extensions);
     bool seperator = true;
-
+        
     for (i = 0, p = 0; i < n; ++i)
     {
       if (seperator)
       {
         if (p)
-        {
           extStr[p++] = ';';
-        }
+                
         seperator = false;
         extStr[p++] = '*';
         extStr[p++] = '.';
       }
 
       if (extensions[i] == ' ')
-      {
         seperator = true;
-      }
       else
-      {
         extStr[p++] = extensions[i];
-      }
     }
     extStr[p++] = '\0';
-
-    strcpy(&extStr[p], extStr);
+        
+    wcscpy(&extStr[p], extStr);
     extStr[p + p] = '\0';
     ofn.lpstrFilter = extStr;
-
+        
     for (i = 0, p = 0; i < n && extensions[i] != ' '; ++i)
-    {
       defExtStr[p++] = extensions[i];
-    }
-
+    
     defExtStr[p++] = '\0';
     ofn.lpstrDefExt = defExtStr;
   }
-
+    
   bool rc = false;
+    
   switch (action)
   {
     case kFileSave:
       ofn.Flags |= OFN_OVERWRITEPROMPT;
-      rc = GetSaveFileName(&ofn);
+      rc = GetSaveFileNameW(&ofn);
       break;
-
+            
     case kFileOpen:
-    default:
+      default:
       ofn.Flags |= OFN_FILEMUSTEXIST;
-      rc = GetOpenFileName(&ofn);
+      rc = GetOpenFileNameW(&ofn);
       break;
   }
-
+    
   if (rc)
   {
     char drive[_MAX_DRIVE];
-    if(_splitpath_s(ofn.lpstrFile, drive, sizeof(drive), dirCStr, sizeof(dirCStr), NULL, 0, NULL, 0) == 0)
+    char directoryOutCStr[_MAX_PATH];
+    
+    WDL_String tempUTF8;
+    UTF16ToUTF8(tempUTF8, ofn.lpstrFile);
+    
+    if (_splitpath_s(tempUTF8.Get(), drive, sizeof(drive), directoryOutCStr, sizeof(directoryOutCStr), NULL, 0, NULL, 0) == 0)
     {
-      path.SetFormatted(MAX_PATH_LEN, "%s%s", drive, dirCStr);
+      path.Set(drive);
+      path.Append(directoryOutCStr);
     }
-    filename.Set(ofn.lpstrFile);
+      
+    filename.Set(tempUTF8.Get());
   }
   else
   {
@@ -1175,7 +1202,7 @@ UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam
 
 bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
 {
-  if (!mPlugWnd)
+  if (!mDelegateWnd)
   {
     return false;
   }
@@ -1186,7 +1213,7 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
   CHOOSECOLOR cc;
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
-  cc.hwndOwner = mPlugWnd;
+  cc.hwndOwner = mDelegateWnd;
   cc.rgbResult = RGB(color.R, color.G, color.B);
   cc.lpCustColors = mCustomColorStorage;
   cc.lCustData = (LPARAM) prompt;
@@ -1205,28 +1232,30 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
 
 bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
-  if (confirmMsg && MessageBox(mPlugWnd, confirmMsg, msgWindowTitle, MB_YESNO) != IDYES)
+  if (confirmMsg && MessageBox(mDelegateWnd, confirmMsg, msgWindowTitle, MB_YESNO) != IDYES)
   {
     return false;
   }
   DWORD inetStatus = 0;
   if (InternetGetConnectedState(&inetStatus, 0))
   {
-    if ((int) ShellExecute(mPlugWnd, "open", url, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+    WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
+    UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
+    if ((int) ShellExecuteW(mDelegateWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
     {
       return true;
     }
   }
   if (errMsgOnFailure)
   {
-    MessageBox(mPlugWnd, errMsgOnFailure, msgWindowTitle, MB_OK);
+    MessageBox(mDelegateWnd, errMsgOnFailure, msgWindowTitle, MB_OK);
   }
   return false;
 }
 
 void IGraphicsWin::SetTooltip(const char* tooltip)
 {
-  TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR)mPlugWnd };
+  TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, 0, mDelegateWnd, (UINT_PTR)mDelegateWnd };
   ti.lpszText = (LPTSTR)tooltip;
   SendMessage(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
 }
@@ -1329,7 +1358,7 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
       WDL_String strippedName(strlwr(name+1)); 
       strippedName.SetLen(strippedName.GetLength() - 1);
 
-      if (strcmp(search->Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
+      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
         search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
         return false;
@@ -1342,22 +1371,27 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  WDL_String search(name);
-  WDL_String typeUpper(type);
-  
-  EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR) &search);
-    
-  if (strstr(search.Get(), "found: ") != 0)
+  if (CSTR_NOT_EMPTY(name))
   {
-    result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
-    return true;
-  }
-  else
-  {
-    //TODO: search some other path - for instance if the plug-in developer wishes to store graphics resources in Program Files, to reduce the size of plug-in binaries
-    return false;
-  }
+    WDL_String search(name);
+    WDL_String typeUpper(type);
 
+    EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
+
+    if (strstr(search.Get(), "found: ") != 0)
+    {
+      result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
+      return true;
+    }
+    else
+    {
+      if (PathFileExists(name))
+      {
+        result.Set(name);
+        return true;
+      }
+    }
+  }
   return false;
 }
 

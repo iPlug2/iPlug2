@@ -1,3 +1,4 @@
+*.o
 *.ipch
 *.lnk
 *.exe
@@ -36,12 +37,16 @@ IPlugExamples/duplicate.pyc
 
 .vscode/
 
-Projects/*
-WorkProjects/*
-ObsoleteProjects/*
+*Projects/*
 Ports/*
 
 /ReaperExtensions
 *.db-shm
 *.db-wal
 *.opendb
+IPlug/IGraphics/AGG/agg*
+/IPlug/IGraphics/NanoVG
+/IPlug/IGraphics/MetalNanoVG
+/Dependencies/IGraphics/install
+/Dependencies/IGraphics/build.log
+/Dependencies/IGraphics/build

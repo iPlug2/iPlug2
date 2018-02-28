@@ -1,4 +1,8 @@
+#ifndef NO_IGRAPHICS
+
 #import "IGraphicsMac_view.h"
+#include "IControl.h"
+#include "IPlugParameter.h"
 
 @implementation IGRAPHICS_MENU_RCVR
 
@@ -25,11 +29,11 @@
 
   [self setAutoenablesItems:NO];
 
-  int numItems = pMenu->GetNItems();
+  int numItems = pMenu->NItems();
 
   for (int i = 0; i < numItems; ++i)
   {
-    IPopupMenuItem* menuItem = pMenu->GetItem(i);
+    IPopupMenu::Item* menuItem = pMenu->GetItem(i);
 
     nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:menuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
 
@@ -469,15 +473,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
-  if (mEdParam)
-  {
-    mGraphics->SetFromStringAfterPrompt(mEdControl, mEdParam, txt);
-  }
-  else
-  {
-    mEdControl->TextFromTextEntry(txt);
-  }
+  if (mEdControl->GetParam())
+    mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
   
+  mEdControl->OnTextEntryCompletion(txt);
   mGraphics->SetAllControlsDirty();
   
   [self endUserInput ];
@@ -525,12 +524,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     associatedIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return associatedIPopupMenu;
   }
-  else return 0;
+  else return nullptr;
 }
 
-- (void) createTextEntry: (IControl*) pControl : (IParam*) pParam : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 {
-  if (mTextFieldView) return;
+  if (mTextFieldView)
+    return;
 
   mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
   NSString* font = [NSString stringWithUTF8String: text.mFont];
@@ -551,6 +551,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       break;
   }
 
+  const IParam* pParam = control.GetParam();
+  
   // set up formatter
   if (pParam)
   {
@@ -572,7 +574,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
-    [[mTextFieldView formatter] setMaximumLength:pControl->GetTextEntryLength()];
+    [[mTextFieldView formatter] setMaximumLength:control.GetTextEntryLength()];
     [characterSet release];
   }
 
@@ -595,8 +597,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [pWindow makeKeyAndOrderFront:nil];
   [pWindow makeFirstResponder: mTextFieldView];
 
-  mEdParam = pParam; // might be 0
-  mEdControl = pControl;
+  mEdControl = &control;
 }
 
 - (void) endUserInput
@@ -609,7 +610,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   mTextFieldView = 0;
   mEdControl = 0;
-  mEdParam = 0;
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
@@ -669,5 +669,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return YES;
 }
 
-
 @end
+
+#endif //NO_IGRAPHICS

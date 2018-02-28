@@ -3,9 +3,9 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
-#include "NanoSVGRenderer.h"
+#include "IGraphicsNanoSVG.h"
 
-#ifdef OS_OSX
+#ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 {
   return cairo_image_surface_create_from_png(path.Get());
@@ -75,8 +75,8 @@ CairoBitmap::~CairoBitmap()
 
 #pragma mark -
 
-IGraphicsCairo::IGraphicsCairo(IPlugBaseGraphics& plug, int w, int h, int fps)
-: IGraphics(plug, w, h, fps)
+IGraphicsCairo::IGraphicsCairo(IDelegate& dlg, int w, int h, int fps)
+: IGraphics(dlg, w, h, fps)
 , mSurface(nullptr)
 , mContext(nullptr)
 {
@@ -169,7 +169,7 @@ void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, f
 {
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle);
+  cairo_rotate(mContext, DegToRad(angle));
   DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
   cairo_restore(mContext);
 }
@@ -181,7 +181,7 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetRawBitmap();
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
-  cairo_paint_with_alpha(mContext, CairoWeight(pBlend));
+  cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
 }
 
@@ -194,7 +194,7 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
 
   cairo_save(mContext);
   cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, angle);
+  cairo_rotate(mContext, DegToRad(angle));
   DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
   cairo_restore(mContext);
 }
@@ -204,7 +204,7 @@ void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top,
   float width = base.W();
   float height = base.H();
 
-  IBlend addBlend(IBlend::kBlendAdd);
+  IBlend addBlend(kBlendAdd);
   cairo_save(mContext);
   DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
   cairo_translate(mContext, x + 0.5 * width, y + 0.5 * height);
@@ -326,7 +326,7 @@ void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, 
 
 void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax));
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   Stroke(color, pBlend);
 }
 
@@ -371,7 +371,7 @@ void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, 
 void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   cairo_move_to(mContext, cx, cy);
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax));
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   cairo_close_path(mContext);
   Fill(color, pBlend);
 }
@@ -478,7 +478,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 
 bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
 {
-#ifdef OS_WIN
+#if defined(OS_WIN) && defined(IGRAPHICS_FREETYPE)
   // TODO: lots!
   LoadFont("C:/Windows/Fonts/Verdana.ttf");
 
@@ -514,7 +514,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, b
   y = rect.T + fontExtents.ascent;
 
   cairo_move_to(mContext, x, y);
-  SetCairoSourceRGBA(text.mColor);
+  SetCairoSourceRGBA(text.mFGColor);
   cairo_show_text(mContext, str);
   cairo_font_face_destroy(pFace);
 #endif
@@ -541,7 +541,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   }
   else if(!mSurface)
   {
-#ifdef OS_OSX
+#ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, 1, -1);

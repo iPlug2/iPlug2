@@ -8,10 +8,14 @@
 #define MakeIRectVOffset(a, yoffs) IRECT(a##_X, a##_Y + yoffs, a##_X + a##_W, a##_Y + a##_H + yoffs)
 #define MakeIRectHVOffset(a, xoffs, yoffs) IRECT(a##_X + xoffs, a##_Y + yoffs, a##_X + a##_W + xoffs, a##_Y + a##_H + yoffs)
 
-
 static inline double DegToRad(double degrees)
 {
-  return PI * ((degrees - 90.0) / 180.0);
+  return PI * (degrees / 180.0);
+}
+
+static inline float DegToRad(float degrees)
+{
+ return (float) PI * (degrees / 180.f);
 }
 
 #ifdef AAX_API

@@ -1,62 +1,17 @@
 #pragma once
 
+/*
+
+ AGG 2.4 should be modified to avoid bringing carbon headers on mac, which can cause conflicts
+
+ in "agg_mac_pmap.h" ...
+ //#include <ApplicationServices/ApplicationServices.h>
+ #include <CoreGraphics/CoreGraphics.h>
+
+ */
+
 #include "IGraphics.h"
-
-#ifdef OS_OSX
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-register"
-#endif
-
-//agg
-#include "agg_basics.h"
-#include "agg_renderer_base.h"
-#include "agg_renderer_primitives.h"
-#include "agg_rendering_buffer.h"
-#include "agg_pixfmt_rgb.h"
-#include "agg_pixfmt_rgba.h"
-#include "agg_pixfmt_amask_adaptor.h"
-#include "agg_renderer_scanline.h"
-#include "agg_rasterizer_scanline_aa.h"
-#include "agg_renderer_outline_aa.h"
-#include "agg_rasterizer_outline_aa.h"
-#include "agg_conv_stroke.h"
-#include "agg_conv_dash.h"
-#include "agg_conv_curve.h"
-#include "agg_conv_contour.h"
-#include "agg_conv_smooth_poly1.h"
-#include "agg_conv_marker.h"
-#include "agg_arrowhead.h"
-#include "agg_vcgen_markers_term.h"
-#include "agg_scanline_p.h"
-#include "agg_renderer_scanline.h"
-#include "agg_pixfmt_rgb.h"
-#include "agg_pixfmt_gray.h"
-#include "agg_alpha_mask_u8.h"
-#include "agg_path_storage.h"
-#include "agg_bounding_rect.h"
-#include "agg_ellipse.h"
-#include "agg_font_freetype.h"
-#include "agg_pmap.h"
-#include "agg_font.h"
-#include "agg_image_accessors.h"
-#include "agg_span_allocator.h"
-#include "agg_span_interpolator_linear.h"
-#include "agg_renderer_outline_image.h"
-#include "agg_pattern_filters_rgba.h"
-#include "agg_span_image_filter_rgba.h"
-#include "agg_span_image_filter_rgb.h"
-#include "agg_span_image_filter_gray.h"
-#include "agg_span_interpolator_linear.h"
-#include "agg_rounded_rect.h"
-#include "agg_span_converter.h"
-#include "agg_conv_segmentator.h"
-#include "agg_trans_single_path.h"
-
-#ifdef OS_OSX
-#include "agg_mac_pmap.h"
-#include "agg_mac_font.h"
-#pragma clang diagnostic pop
-#endif
+#include "IGraphicsAGG_src.h"
 
 class AGGBitmap : public APIBitmap
 {
@@ -65,17 +20,37 @@ public:
   virtual ~AGGBitmap() { delete ((agg::pixel_map*) GetBitmap()); }
 };
 
+inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+{
+  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+}
+
+inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+    return agg::comp_op_src;
+
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber: return agg::comp_op_src_over;
+    case kBlendAdd: return agg::comp_op_plus;
+    case kBlendColorDodge: return agg::comp_op_color_dodge;
+    case kBlendNone:
+    default:
+      return agg::comp_op_src_over;
+  }
+}
+
 inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 {
   if (!pBlend)
     return 255;
-  
+
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(pBlend->mWeight * 255.f)), agg::cover_type(255)));
 }
 
-/** IGraphics draw class using Antigrain Geometry  
-*   @ingroup DrawClasses
-*/
+/** IGraphics draw class using Antigrain Geometry
+*   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphics
 {
 public:
@@ -86,7 +61,7 @@ public:
     double mWidth;
     LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
-  
+
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
 #else
@@ -96,34 +71,33 @@ public:
   typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::pixfmt_custom_blend_rgba<BlenderTypePre, agg::rendering_buffer> PixfmtTypePre;
-  
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> interpolatorType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolatorType> spanGenType;
-  //typedef agg::renderer_scanline_aa_solid<RenbaseType> rendererSolid;
-  //typedef agg::renderer_scanline_bin_solid<RenbaseType> rendererBin;
+  typedef agg::renderer_scanline_aa_solid<RenbaseType> rendererSolid;
+  typedef agg::renderer_scanline_bin_solid<RenbaseType> rendererBin;
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
-  
-  IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps);
+
+  IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
-  
+
   void SetDisplayScale(int scale) override;
 
   void Draw(const IRECT& rect) override;
-  
+
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override {}
-    void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
+  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   void ForcePixel(const IColor& color, int x, int y) override;
-    
+
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
@@ -131,7 +105,7 @@ public:
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
-    
+
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
@@ -140,33 +114,10 @@ public:
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
-  /*
-  bool HasPathSupport() const override { return true; }
-  
-  void PathStart() override { cairo_new_path(mContext); }
-  
-  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { CairoDrawTriangle(x1, y1, x2, y2, x3, y3); }
-  void PathRect(const IRECT& rect) override { CairoDrawRect(rect);}
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { CairoDrawRoundRect(rect, cr); }
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override {}
-  void PathCircle(float cx, float cy, float r) override { CairoDrawCircle(cx, cy, r); }
-  void PathConvexPolygon(float* x, float* y, int npoints) override { CairoDrawConvexPolygon(x, y, npoints); }
-  
-  void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
-  void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
-  
-  void PathStroke(IPattern& pattern, float thickness, const IBlend* pBlend) override
-  {
-    cairo_set_line_width(mContext, thickness);
-    Stroke(color, pBlend);
-    cairo_set_line_width(mContext, 1.0);
-  }
-  
-  void PathFill(const IPattern& pattern, const IBlend* pBlend) override { Fill(color, pBlend); }
-  */
+
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
-  
+
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return 0; } //todo
   const char* GetDrawingAPIStr() override { return "AGG"; }
@@ -175,42 +126,38 @@ public:
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
-  
-  inline const agg::rgba8 IColorToAggColor(const IColor& color)
-  {
-    return agg::rgba8(color.R, color.G, color.B, color.A);
-  }
+
 private:
-    
+
   template <typename pathType>
-  void Rasterize(const IColor& color, pathType& path)
+  void Rasterize(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
-    
+
     agg::scanline_p8 scanline;
-    
+
     agg::renderer_scanline_aa_solid<RenbaseType> renderer(mRenBase);
-    
-    renderer.color(IColorToAggColor(color));
+
+    renderer.color(AGGColor(color, pBlend));
     rasterizer.filling_rule(agg::fill_non_zero);
-    
+
     rasterizer.add_path(path);
     agg::render_scanlines(rasterizer, scanline, renderer);
   }
-    
+
   template <typename pathType>
-  void Fill(const IColor& color, pathType& path)
+  void Fill(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
-    Rasterize(color, path);
+    Rasterize(color, path, pBlend);
   }
-    
+
   template <typename pathType>
-  void Stroke(const IColor& color, pathType& path)
+  void Stroke(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
   {
     agg::conv_stroke<pathType> strokes(path);
     strokes.width(1.0 * GetDisplayScale());
-    Rasterize(color, strokes);
+    Rasterize(color, strokes, pBlend);
   }
 
   RenbaseType mRenBase;
@@ -218,11 +165,12 @@ private:
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
-#ifdef OS_OSX
+#ifdef OS_MAC
   agg::pixel_map_mac mPixelMap;
 #else
+  //TODO:
 #endif
-  
+
 private:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
@@ -231,7 +179,7 @@ private:
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
-  
-  void CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char * str, FontManagerType& manager);
+
+  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
   void ToPixel(float & pixel);
 };

@@ -1,33 +1,34 @@
 #pragma once
 
-//TODO: would be nice not to put this here
 #ifndef NO_IGRAPHICS
-  #ifdef IGRAPHICS_AGG
-    #include "IGraphicsAGG.h"
-    typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
-  #elif defined IGRAPHICS_CAIRO
-    #include "IGraphicsCairo.h"
-    typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
-  #elif defined IGRAPHICS_NANOVG
-    #include "IGraphicsNanoVG.h"
-    typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-  #else
-    #include "IGraphicsLice.h"
-    typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
-  #endif
+
+#ifdef IGRAPHICS_AGG
+  #include "IGraphicsAGG.h"
+  typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
+#elif defined IGRAPHICS_CAIRO
+  #include "IGraphicsCairo.h"
+  typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
+#elif defined IGRAPHICS_NANOVG
+  #include "IGraphicsNanoVG.h"
+  typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
+#else
+  #include "IGraphicsLice.h"
+  typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
 #endif
 
 /** IGraphics platform class for macOS  
 *   @ingroup PlatformClasses
 */
-class IGraphicsMac : public IGRAPHICS_DRAW_CLASS
+class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsMac(IPlugBaseGraphics& plug, int w, int h, int fps);
+  IGraphicsMac(IDelegate& dlg, int w, int h, int fps);
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
   void CreateMetalLayer();
+  
+  bool IsSandboxed();
     
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -41,23 +42,24 @@ public:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
-  const char* GetGUIAPI() override;
+  const char* GetUIAPI() override;
   
   void UpdateTooltips() override;
 
   void HostPath(WDL_String& path) override;
   void PluginPath(WDL_String& path) override;
   void DesktopPath(WDL_String& path) override;
+  void UserHomePath(WDL_String& path) override;
   void AppSupportPath(WDL_String& path, bool isSystem) override;
   void SandboxSafeAppSupportPath(WDL_String& path) override;
-  void VST3PresetsPath(WDL_String& path, bool isSystem) override;
+  void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
@@ -92,3 +94,5 @@ inline int AdjustFontSize(int size) //TODO: sort this out
 {
   return int(0.9 * (double)size);
 }
+
+#endif // NO_IGRAPHICS

@@ -123,7 +123,7 @@ class WDL_Mutex {
     }
 
 #ifdef _DEBUG
-  int _debug_cnt;
+  volatile int _debug_cnt;
 #endif
 
   private:
@@ -170,16 +170,7 @@ class WDL_SharedMutex
     { 
       m_mutex.Enter(); 
 #ifdef _WIN32
-  // OL - This is nessecary to avoid a collision in the PTSDK
-  #ifdef Sleep
-    #define tempSleep Sleep
-    #undef Sleep
-  #endif
       while (m_sharedcnt>0) Sleep(1);
-  #ifdef tempSleep
-    #define Sleep tempSleep
-    #undef tempSleep
-  #endif
 #else
       while (m_sharedcnt>0) usleep(100);		
 #endif
@@ -201,18 +192,9 @@ class WDL_SharedMutex
     { 
       m_mutex.Enter(); 
 #ifdef _WIN32
-	  // OL - This is nessecary to avoid a collision in the PTSDK
-#ifdef Sleep
-#define tempSleep Sleep
-#undef Sleep
-#endif
-	  while (m_sharedcnt>1) Sleep(1);
-#ifdef tempSleep
-#define Sleep tempSleep
-#undef tempSleep
-#endif
+      while (m_sharedcnt>1) Sleep(1);
 #else
-	  while (m_sharedcnt>0) usleep(100);
+      while (m_sharedcnt>1) usleep(100);		
 #endif
       UnlockShared();
     }
@@ -226,7 +208,7 @@ class WDL_SharedMutex
 
   private:
     WDL_Mutex m_mutex;
-    int m_sharedcnt;
+    volatile int m_sharedcnt;
 
     // prevent callers from copying accidentally
     WDL_SharedMutex(const WDL_SharedMutex &cp)

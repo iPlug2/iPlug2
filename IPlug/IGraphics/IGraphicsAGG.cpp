@@ -6,8 +6,8 @@ static StaticStorage<agg::font> s_fontCache;
 
 #pragma mark -
 
-IGraphicsAGG::IGraphicsAGG(IPlugBaseGraphics& plug, int w, int h, int fps)
-: IGraphics(plug, w, h, fps)
+IGraphicsAGG::IGraphicsAGG(IDelegate& dlg, int w, int h, int fps)
+: IGraphics(dlg, w, h, fps)
 , mFontEngine()
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
@@ -62,7 +62,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   agg::pixel_map* pPixelMap = (agg::pixel_map*) bitmap.GetRawBitmap();
   agg::rendering_buffer buf(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
   
-//  mPixf.comp_op(agg::comp_op_src_over);//TODO
+  mPixf.comp_op(AGGBlendMode(pBlend));
   
   agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
   mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T, AGGCover(pBlend));
@@ -70,6 +70,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
 
 void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
+  //TODO: blend?
+  
   destCtrX *= GetDisplayScale();
   destCtrY *= GetDisplayScale();
 
@@ -83,7 +85,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
 
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  srcMatrix *= agg::trans_affine_rotation(angle);
+  srcMatrix *= agg::trans_affine_rotation(DegToRad(angle));
   srcMatrix *= agg::trans_affine_translation(destCtrX, destCtrY);
   
   agg::trans_affine imgMtx = srcMatrix;
@@ -165,13 +167,13 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
 void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
-  mRenBase.blend_pixel(x * s, y * s, IColorToAggColor(color), 255);
+  mRenBase.blend_pixel(x * s, y * s, AGGColor(color), 255);
 }
 
 void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
 {
   const float s = GetDisplayScale();
-  mRenBase.copy_pixel(x * s, y * s, IColorToAggColor(color));
+  mRenBase.copy_pixel(x * s, y * s, AGGColor(color));
 }
  
 void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
@@ -229,7 +231,7 @@ void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, in
 void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   Stroke(color, arc);
 }
 
@@ -263,24 +265,24 @@ void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect,  fl
 {
   const float s = GetDisplayScale();
   agg::rounded_rect agg_rect(destRect.L * s, destRect.T * s, (destRect.L + destRect.W()) * s, (destRect.T + destRect.H()) * s, cr * s);
-  Fill(color, agg_rect);
+  Fill(color, agg_rect, pBlend);
 }
 
 void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
 {
   agg::path_storage path;
   const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
+  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
   path.concat_path(arc);
   path.line_to(cx * s, cy * s);
   if (path.total_vertices() > 2)
   {
     path.close_polygon();
-    Fill(color, path);
+    Fill(color, path, pBlend);
   }
   else
   {
-    Stroke(color, path);
+    Stroke(color, path, pBlend);
   }
 }
 
@@ -288,7 +290,7 @@ void IGraphicsAGG::FillCircle(const IColor& color, float cx, float cy, float r, 
 {
   const float s = GetDisplayScale();
   agg::ellipse ellipse(cx * s, cy * s, r * s, r * s);
-  Fill(color, ellipse);
+  Fill(color, ellipse, pBlend);
 }
 
 void IGraphicsAGG::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
@@ -303,7 +305,7 @@ void IGraphicsAGG::FillConvexPolygon(const IColor& color, float* x, float* y, in
   }
   path.close_polygon();
   
-  Fill(color, path);
+  Fill(color, path, pBlend);
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)
@@ -353,7 +355,7 @@ IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, co
 
 agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
 #else
   //TODO: win
@@ -367,7 +369,7 @@ agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   const char *path = resourcePath.Get();
-#ifdef OS_OSX
+#ifdef OS_MAC
   if (CSTR_NOT_EMPTY(path))
   {
     const char* ext = path+strlen(path)-1;
@@ -449,21 +451,21 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 void IGraphicsAGG::RenderDrawBitmap()
 {
-#ifdef OS_OSX
+#ifdef OS_MAC
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
 #else // OS_WIN
   //TODO: win
 #endif
 }
 
-void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IRECT& rect, const char* str, FontManagerType& manager)
+void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager)
 {
   LineInfo info;
   info.mStartChar = 0;
   info.mEndChar = (int) strlen(str);
-  lines->Add(info);
+  pLines->Add(info);
   
-  LineInfo* pLines = lines->Get();
+  LineInfo* pLine = pLines->Get();
   
   size_t lineStart = 0;
   size_t lineWidth = 0;
@@ -478,7 +480,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
     
     if (pGlyph)
     {
-      xCount +pGlyph->advance_x;
+      xCount += pGlyph->advance_x;
     }
 
     cstr++;
@@ -486,22 +488,22 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo> * lines, const IREC
     
     if (*cstr == ' ' || *cstr == 0)
     {
-      pLines->mStartChar = (int) lineStart;
-      pLines->mEndChar = (int)  linePos;
-      pLines->mWidth = xCount;
+      pLine->mStartChar = (int) lineStart;
+      pLine->mEndChar = (int)  linePos;
+      pLine->mWidth = xCount;
     }
     
     if (rect.W() > 0 && xCount >= rect.W())
     {
-      assert(pLines);
+      assert(pLine);
       
-      cstr = &str[pLines->mEndChar];
-      lineStart = pLines->mEndChar + 1;
-      linePos = pLines->mEndChar;
+      cstr = &str[pLine->mEndChar];
+      lineStart = pLine->mEndChar + 1;
+      linePos = pLine->mEndChar;
       
       LineInfo info;
-      lines->Add(info);
-      pLines++;
+      pLines->Add(info);
+      pLine++;
       
       assert(pLines);
       
@@ -521,9 +523,9 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //  IRECT rect = destRect;
 //  rect.Scale(GetDisplayScale());
-
-//  renderer_solid ren_solid(mRenBase);
-//  renderer_bin ren_bin(mRenBase);
+//
+//  rendererSolid renSolid(mRenBase);
+//  rendererBin renBin(mRenBase);
 //
 //  agg::scanline_u8 sl;
 //  agg::rasterizer_scanline_aa<> ras;
@@ -556,9 +558,9 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
 //
 //  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font * font_data = (agg::font *)font.mData;
+//  agg::font* pFontData = (agg::font *)font.mData;
 //
-//  if (font_data != 0 && mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
+//  if (pFontData != 0 && mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
 //  {
 //    mFontEngine.hinting(hinting);
 //    mFontEngine.height(text.mSize * GetDisplayScale());
@@ -582,14 +584,14 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //          x = rect.L;
 //          break;
 //        case IText::kAlignCenter:
-//          x = rect.L + ((rect.W() - pLines->width) / 2);
+//          x = rect.L + ((rect.W() - pLines->mWidth) / 2);
 //          break;
 //        case IText::kAlignFar:
-//          x = rect.L + (rect.W() - pLines->width);
+//          x = rect.L + (rect.W() - pLines->mWidth);
 //          break;
 //      }
 //
-//      for (size_t c=pLines->start_char; c<pLines->end_char; c++)
+//      for (size_t c=pLines->mStartChar; c<pLines->mEndChar; c++)
 //      {
 //        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
 //
@@ -602,22 +604,22 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //
 //          mFontManager.init_embedded_adaptors(pGlyph, x, y);
 //
-//          switch (pGlyph->dataType)
+//          switch (pGlyph->data_type)
 //          {
 //            case agg::glyph_data_mono:
 //
-//              ren_bin.color(IColorToAggColor(text.mColor));
+//              renBin.color(IColorToAggColor(text.mColor));
 //              agg::render_scanlines(mFontManager.mono_adaptor(),
 //                                    mFontManager.mono_scanline(),
-//                                    ren_bin);
+//                                    renBin);
 //              break;
 //
 //            case agg::glyph_data_gray8:
 //
-//              ren_solid.color(IColorToAggColor(text.mColor));
+//              renSolid.color(IColorToAggColor(text.mColor));
 //              agg::render_scanlines(mFontManager.gray8_adaptor(),
 //                                    mFontManager.gray8_scanline(),
-//                                    ren_solid);
+//                                    renSolid);
 //              break;
 //
 //            case agg::glyph_data_outline:
@@ -635,8 +637,8 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //                ras.add_path(mFontContour);
 //              }
 //
-//              ren_solid.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(ras, sl, ren_solid);
+//              renSolid.color(IColorToAggColor(text.mColor));
+//              agg::render_scanlines(ras, sl, renSolid);
 //
 //              break;
 //
@@ -695,9 +697,9 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
 //  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
 //
 //  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font * font_data = (agg::font *)font.mData;
+//  agg::font * pFontData = (agg::font *)font.mData;
 //
-//  if (mFontEngine.load_font("", 0, gren, font_data->buf(), font_data->size()))
+//  if (mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
 //  {
 //    mFontEngine.hinting(hinting);
 //    mFontEngine.height(text.mSize * GetDisplayScale());

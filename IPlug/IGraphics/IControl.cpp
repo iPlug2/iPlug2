@@ -1,17 +1,18 @@
 #include <cmath>
 
 #include "IControl.h"
+#include "IPlugParameter.h"
 
-IControl::IControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, IBlend blendType)
-: mPlug(plug)
+IControl::IControl(IDelegate& dlg, IRECT rect, int paramIdx, IActionFunction actionFunc)
+: mDelegate(dlg)
 , mRECT(rect)
 , mTargetRECT(rect)
 , mParamIdx(paramIdx)
-, mBlend(blendType)
+, mActionFunc(actionFunc)
 {
 }
 
-void IControl::SetValueFromPlug(double value)
+void IControl::SetValueFromDelegate(double value)
 {
   if (mDefaultValue < 0.0)
   {
@@ -36,31 +37,28 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
-void IControl::SetDirty(bool pushParamToPlug)
+void IControl::SetDirty(bool pushParamToDelegate)
 {
   mValue = BOUNDED(mValue, mClampLo, mClampHi);
   mDirty = true;
-  if (pushParamToPlug && mParamIdx >= 0)
+  
+  if (pushParamToDelegate && mParamIdx >= 0)
   {
-    mPlug.SetParameterFromUI(mParamIdx, mValue);
-    IParam* pParam = mPlug.GetParam(mParamIdx);
-    
-    if (mValDisplayControl) 
-    {
-      WDL_String plusLabel;
-      char str[32];
-      pParam->GetDisplayForHost(str);
-      plusLabel.Set(str, 32);
-      plusLabel.Append(" ", 32);
-      plusLabel.Append(pParam->GetLabelForHost(), 32);
-      
-      ((ITextControl*)mValDisplayControl)->SetTextFromPlug(plusLabel.Get());
-    }
-    
-    if (mNameDisplayControl) 
-    {
-      ((ITextControl*)mNameDisplayControl)->SetTextFromPlug((char*) pParam->GetNameForHost());
-    }
+    mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
+    GetUI()->UpdatePeers(this);
+//    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
+
+//    if (mValDisplayControl)
+//    {
+//      WDL_String display;
+//      pParam->GetDisplayForHost(display);
+//      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
+//    }
+//
+//    if (mNameDisplayControl)
+//    {
+//      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
+//    }
   }
 }
 
@@ -93,10 +91,9 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     SetDirty();
   }
   #endif
-  
-  if (mod.R) {
+
+  if (mod.R)
 		PromptUserInput();
-	}
 }
 
 void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
@@ -116,9 +113,9 @@ void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    if (mPlug.GetParam(mParamIdx)->GetNDisplayTexts()) // popup menu
+    if (GetParam()->NDisplayTexts()) // popup menu
     {
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), mRECT);
+      GetUI()->PromptUserInput(*this, mRECT);
     }
     else // text entry
     {
@@ -128,7 +125,7 @@ void IControl::PromptUserInput()
       float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), txtRECT);
+      GetUI()->PromptUserInput(*this, txtRECT);
     }
 
     Redraw();
@@ -139,7 +136,7 @@ void IControl::PromptUserInput(IRECT& textRect)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    mPlug.GetGUI()->PromptUserInput(this, mPlug.GetParam(mParamIdx), textRect);
+    GetUI()->PromptUserInput(*this, textRect);
     Redraw();
   }
 }
@@ -150,14 +147,14 @@ IControl::AuxParam* IControl::GetAuxParam(int idx)
   return mAuxParams.Get() + idx;
 }
 
-int IControl::AuxParamIdx(int paramIdx)
+int IControl::GetAuxParamIdx(int paramIdx)
 {
-  for (int i=0;i<mAuxParams.GetSize();i++)
+  for (int i=0;i<NAuxParams();i++)
   {
     if(GetAuxParam(i)->mParamIdx == paramIdx)
       return i;
   }
-  
+
   return -1;
 }
 
@@ -166,13 +163,13 @@ void IControl::AddAuxParam(int paramIdx)
   mAuxParams.Add(AuxParam(paramIdx));
 }
 
-void IControl::SetAuxParamValueFromPlug(int auxParamIdx, double value)
+void IControl::SetAuxParamValueFromDelegate(int auxParam, double value)
 {
-  AuxParam* auxParam = GetAuxParam(auxParamIdx);
-  
-  if (auxParam->mValue != value)
+  AuxParam* pAuxParam = GetAuxParam(auxParam);
+
+  if (pAuxParam->mValue != value)
   {
-    auxParam->mValue = value;
+    pAuxParam->mValue = value;
     SetDirty(false);
     Redraw();
   }
@@ -182,8 +179,8 @@ void IControl::SetAllAuxParamsFromGUI()
 {
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
-    AuxParam* auxParam = GetAuxParam(i);
-    mPlug.SetParameterFromUI(auxParam->mParamIdx, auxParam->mValue);
+    AuxParam* pAuxParam = GetAuxParam(i);
+    mDelegate.SetParameterValueFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
   }
 }
 
@@ -206,7 +203,7 @@ void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
     default:
       break;
   }
-  
+
   mPTisHighlighted = isHighlighted;
   SetDirty(false);
 }
@@ -217,6 +214,30 @@ void IControl::DrawPTHighlight(IGraphics& graphics)
   {
     graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
   }
+}
+
+const IParam* IControl::GetParam()
+{
+  if(mParamIdx >= 0)
+    return mDelegate.GetParamObjectFromUI(mParamIdx);
+  else
+    return nullptr;
+}
+
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& rect)
+{
+  rect.Constrain(x, y);
+  
+  float val;
+  
+  if(direction == kVertical)
+    val = 1.f - (y-rect.T) / rect.H();
+  else
+    val = 1.f - (x-rect.B) / rect.W();
+  
+  mValue = round( val / 0.001 ) * 0.001;
+  
+  SetDirty(); // will send parameter value to delegate
 }
 
 void IControl::GetJSON(WDL_String& json, int idx) const
@@ -233,7 +254,7 @@ void IControl::GetJSON(WDL_String& json, int idx) const
 
 void IPanelControl::Draw(IGraphics& graphics)
 {
-  graphics.FillRect(mColor, mRECT, &mBlend);
+  graphics.FillRect(GetColor(0), mRECT, &mBlend);
 }
 
 void IBitmapControl::Draw(IGraphics& graphics)
@@ -244,13 +265,13 @@ void IBitmapControl::Draw(IGraphics& graphics)
     i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
     i = BOUNDED(i, 1, mBitmap.N());
   }
-  
+
   graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
 void IBitmapControl::OnRescale()
 {
-  mBitmap = GetGUI()->GetScaledBitmap(mBitmap);
+  mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
 void ISVGControl::Draw(IGraphics& graphics)
@@ -259,7 +280,7 @@ void ISVGControl::Draw(IGraphics& graphics)
     //graphics.DrawSVG(mSVG, mRECT);
 };
 
-void ITextControl::SetTextFromPlug(const char* str)
+void ITextControl::SetTextFromDelegate(const char* str)
 {
   if (strcmp(mStr.Get(), str))
   {
@@ -274,5 +295,209 @@ void ITextControl::Draw(IGraphics& graphics)
   if (CSTR_NOT_EMPTY(cStr))
   {
     graphics.DrawText(mText, cStr, mRECT);
+  }
+}
+
+ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT rect, int paramIdx, const IText& text, bool showParamLabel)
+: ITextControl(dlg, rect, text)
+, mShowParamLabel(showParamLabel)
+{
+  assert(paramIdx > kNoParameter);
+  
+  mParamIdx = paramIdx;
+  mDblAsSingleClick = true;
+  mDisablePrompt = false;
+}
+
+void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mod.L || mod.R)
+  {
+    PromptUserInput(mRECT);
+  }
+}
+
+void ICaptionControl::Draw(IGraphics& graphics)
+{
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+  {
+    pParam->GetDisplayForHost(mStr);
+    
+    if (mShowParamLabel)
+    {
+      mStr.Append(" ");
+      mStr.Append(pParam->GetLabelForHost());
+    }
+  }
+  
+  return ITextControl::Draw(graphics);
+}
+
+ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+  uint32_t numStates)
+  : IControl(dlg, rect, paramIdx, actionFunc)
+{
+  if (paramIdx > kNoParameter)
+    mNumStates = (uint32_t) GetParam()->GetRange() + 1;
+  else
+    mNumStates = numStates;
+
+  assert(mNumStates > 1);
+}
+
+void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if (mNumStates == 2)
+    mValue = !mValue;
+  else
+  {
+    const float step = 1.f / float(mNumStates) - 1.f;
+    mValue += step;
+    mValue = fmod(1., mValue);
+  }
+
+  if (mActionFunc != nullptr)
+    mActionFunc(this);
+
+  SetDirty();
+}
+
+void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  double gearing = mGearing;
+
+#ifdef PROTOOLS
+#ifdef OS_WIN
+  if (mod.C) gearing *= 10.0;
+#else
+  if (mod.R) gearing *= 10.0;
+#endif
+#else
+  if (mod.C || mod.S) gearing *= 10.0;
+#endif
+
+  if (mDirection == kVertical)
+  {
+    mValue += (double)dY / (double)(mRECT.T - mRECT.B) / gearing;
+  }
+  else
+  {
+    mValue += (double)dX / (double)(mRECT.R - mRECT.L) / gearing;
+  }
+
+  SetDirty();
+}
+
+void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+#ifdef PROTOOLS
+  if (mod.C)
+  {
+    mValue += 0.001 * d;
+  }
+#else
+  if (mod.C || mod.S)
+  {
+    mValue += 0.001 * d;
+  }
+#endif
+  else
+  {
+    mValue += 0.01 * d;
+  }
+
+  SetDirty();
+}
+
+IDirBrowseControlBase::~IDirBrowseControlBase()
+{
+  mFiles.Empty(true);
+  mPaths.Empty(true);
+  mPathLabels.Empty(true);
+}
+
+int IDirBrowseControlBase::NItems()
+{
+  return mFiles.GetSize();
+}
+
+void IDirBrowseControlBase::AddPath(const char * path, const char * label)
+{
+  mPaths.Add(new WDL_String(path));
+  mPathLabels.Add(new WDL_String(label));
+}
+
+void IDirBrowseControlBase::SetUpMenu()
+{
+  mFiles.Empty(true);
+  mMainMenu.Clear();
+  mSelectedIndex = -1;
+
+  int idx = 0;
+
+  if (mPaths.GetSize() == 1)
+  {
+    ScanDirectory(mPaths.Get(0)->Get(), mMainMenu);
+  }
+  else
+  {
+    for (int p = 0; p<mPaths.GetSize(); p++)
+    {
+      IPopupMenu* pNewMenu = new IPopupMenu();
+      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
+      ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
+    }
+  }
+}
+
+void IDirBrowseControlBase::GetSelecteItemPath(WDL_String& path)
+{
+  if (mSelectedMenu != nullptr) {
+    path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+    path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+    path.Append(mExtension.Get());
+  }
+  else
+    path.Set("");
+}
+
+void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
+{
+  WDL_DirScan d;
+  IPopupMenu& parentDirMenu = menuToAddTo;
+
+  if (!d.First(path))
+  {
+    do
+    {
+      const char* f = d.GetCurrentFN();
+      if (f && f[0] != '.')
+      {
+        if (d.GetCurrentIsDirectory())
+        {
+          WDL_String subdir;
+          d.GetCurrentFullFN(&subdir);
+          IPopupMenu* pNewMenu = new IPopupMenu();
+          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu);
+          ScanDirectory(subdir.Get(), *pNewMenu);
+        }
+        else
+        {
+          const char* a = strstr(f, mExtension.Get());
+          if (a && a > f && strlen(a) == strlen(mExtension.Get()))
+          {
+            WDL_String menuEntry = WDL_String(f, (int) (a - f));
+            parentDirMenu.AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
+            WDL_String* pFullPath = new WDL_String("");
+            d.GetCurrentFullFN(pFullPath);
+            mFiles.Add(pFullPath);
+          }
+        }
+      }
+    } while (!d.Next());
+
+    menuToAddTo = parentDirMenu;
   }
 }

@@ -62,16 +62,18 @@ public:
   double GetNormalized(double nonNormalizedValue) const;
   double GetNonNormalized(double normalizedValue) const;
 
-  void GetDisplayForHost(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay); }
-  void GetDisplayForHostNoDisplayText(char* rDisplay) { GetDisplayForHost(mValue, false, rDisplay, false); }
-  void GetDisplayForHost(double value, bool normalized, char* rDisplay, bool withDisplayText = true);
+  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
+  void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
+  
+  double StringToValue(const char* str) const;
+  
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
   const char* GetParamGroupForHost() const;
   
-  int GetNDisplayTexts() const;
+  int NDisplayTexts() const;
   const char* GetDisplayText(int value) const;
-  const char* GetDisplayTextAtIdx(int idx, double* value = nullptr) const;
+  const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* pStr, double* pValue) const;  // Reverse map back to value.
   
   double GetShape() const { return mShape; }
@@ -103,7 +105,7 @@ private:
   bool mIsMeta = false;
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
-  char mParamGroup[MAX_PARAM_LABEL_LEN];
+  char mParamGroup[MAX_PARAM_GROUP_LEN];
   
   struct DisplayText
   {

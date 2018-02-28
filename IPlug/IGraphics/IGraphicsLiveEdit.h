@@ -6,8 +6,8 @@
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IPlugBaseGraphics& plug, const char* pathToSourceFile, int gridSize)
-  : IControl(plug, IRECT(0, 0, 1, 1))
+  IGraphicsLiveEdit(IDelegate& dlg, const char* pathToSourceFile, int gridSize)
+  : IControl(dlg, IRECT(0, 0, 1, 1))
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)
   {
@@ -19,14 +19,14 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    int c = GetGUI()->GetMouseControlIdx(x, y, true);
+    int c = GetUI()->GetMouseControlIdx(x, y, true);
     
     if (c > 0)
     {
       mMouseDownX = x;
       mMouseDownY = y;
       
-      IControl* pControl = GetGUI()->GetControl(c);
+      IControl* pControl = GetUI()->GetControl(c);
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
       mClickedOnControl = c;
@@ -42,7 +42,7 @@ public:
           WDL_String json;
           pControl->GetJSON(json, c);
           //printf("%s\n", json.Get());
-          mClickedOnControl = GetGUI()->AttachControl(new IPanelControl(mPlug, mMouseDownRECT, COLOR_BLACK));
+          mClickedOnControl = GetUI()->AttachControl(new IPanelControl(mDelegate, mMouseDownRECT, COLOR_BLACK));
         }
       }
     }
@@ -50,9 +50,9 @@ public:
     {
       IPopupMenu menu;
       menu.AddItem("IBitmapControl");
-      menu.AddItem("IKnobLineControl");
+      menu.AddItem("IVKnobControl");
       
-      GetGUI()->CreateIPopupMenu(menu, x, y);
+      GetUI()->CreateIPopupMenu(menu, x, y);
     }
   }
   
@@ -60,7 +60,7 @@ public:
   {
     if(mMouseClickedOnResizeHandle)
     {
-      IControl* pControl = GetGUI()->GetControl(mClickedOnControl);
+      IControl* pControl = GetUI()->GetControl(mClickedOnControl);
       IRECT r = pControl->GetRECT();
       float w = r.R - r.L;
       float h = r.B - r.T;
@@ -73,7 +73,7 @@ public:
     }
     mClickedOnControl = -1;
     mMouseClickedOnResizeHandle = false;
-    GetGUI()->SetAllControlsDirty();
+    GetUI()->SetAllControlsDirty();
   }
   
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
@@ -82,10 +82,10 @@ public:
   
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
-    int c = GetGUI()->GetMouseControlIdx(x, y, true);
+    int c = GetUI()->GetMouseControlIdx(x, y, true);
     if (c > 0)
     {
-      IRECT cr = GetGUI()->GetControl(c)->GetRECT();
+      IRECT cr = GetUI()->GetControl(c)->GetRECT();
       IRECT h = GetHandleRect(cr);
       
       if(h.Contains(x, y))
@@ -104,7 +104,7 @@ public:
   {
     if(mClickedOnControl > 0)
     {
-      IControl* pControl = GetGUI()->GetControl(mClickedOnControl);
+      IControl* pControl = GetUI()->GetControl(mClickedOnControl);
       IRECT r = pControl->GetRECT();
       
       if(mMouseClickedOnResizeHandle)
@@ -125,13 +125,13 @@ public:
       
       pControl->SetRECT(r);
       pControl->SetTargetRECT(r);
-      GetGUI()->SetAllControlsDirty();
+      GetUI()->SetAllControlsDirty();
     }
   }
   
   void Draw(IGraphics& graphics) override
   {
-    graphics.DrawGrid(mGridColor, graphics.GetDrawRect(), mGridSize, mGridSize, &mBlend);
+    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &mBlend);
     
     for(int i = 1; i < graphics.NControls(); i++)
     {

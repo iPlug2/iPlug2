@@ -18,7 +18,7 @@
   #elif defined(VST3_API)
     #define API _vst3
   #elif defined(APP_API)
-    #define API _sa
+    #define API _app
   #endif
 
   #define CONCAT3(a,b,c) a##b##c

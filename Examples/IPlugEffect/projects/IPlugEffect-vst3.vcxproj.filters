@@ -1,0 +1,542 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\IPlugEffect.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsLice.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\baseiids.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\fbuffer.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\fdebug.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\fdynlib.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\fobject.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\fstreamer.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\fstring.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\timer.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\source\updatehandler.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\thread\source\fcondition.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\base\thread\source\flock.cpp">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\pluginterfaces\base\conststringtable.cpp">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\pluginterfaces\base\coreiids.cpp">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\pluginterfaces\base\funknown.cpp">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\pluginterfaces\base\ustring.cpp">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\main\dllmain.cpp">
+      <Filter>IPlug\VST3\public.sdk\main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\common\memorystream.cpp">
+      <Filter>IPlug\VST3\public.sdk\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\common\pluginview.cpp">
+      <Filter>IPlug\VST3\public.sdk\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstaudioeffect.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstbus.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstbypassprocessor.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstnoteexpressiontypes.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstparameters.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstpresetfile.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugVST3.cpp">
+      <Filter>IPlug\VST3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp">
+      <Filter>IPlug\VST3\public.sdk\main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="../config.h" />
+    <ClInclude Include="..\IPlugEffect.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\NChanDelay.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsConstants.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsStructs.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLice.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\classfactoryhelpers.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fbuffer.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fcleanup.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fcommandline.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fdebug.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fdynlib.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fobject.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fstdmethods.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fstreamer.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\fstring.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\hexbinary.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\timer.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\base\source\updatehandler.h">
+      <Filter>IPlug\VST3\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\conststringtable.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\doc.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\falignpop.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\falignpush.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\fplatform.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\fstrdefs.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ftypes.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\funknown.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\futils.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\fvariant.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\geoconstants.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ibstream.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\icloneable.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ierrorcontext.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ipersistent.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ipluginbase.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\istringresult.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\iupdatehandler.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\keycodes.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\pluginbasefwd.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\smartpointer.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ucolorspec.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\base\ustring.h">
+      <Filter>IPlug\VST3\pluginterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstattributes.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstaudioprocessor.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstautomationstate.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstchannelcontextinfo.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstcomponent.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstcontextmenu.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivsteditcontroller.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstevents.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivsthostapplication.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstinterappaudio.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstmessage.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstmidicontrollers.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstnoteexpression.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstparameterchanges.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstplugview.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstprefetchablesupport.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstprocesscontext.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstrepresentation.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\ivstunits.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\vstpresetkeys.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\vstpshpack4.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\vst\vsttypes.h">
+      <Filter>IPlug\VST3\pluginterfaces\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\gui\iplugview.h">
+      <Filter>IPlug\VST3\pluginterfaces\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\pluginterfaces\gui\iplugviewcontentscalesupport.h">
+      <Filter>IPlug\VST3\pluginterfaces\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\common\memorystream.h">
+      <Filter>IPlug\VST3\public.sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\common\pluginview.h">
+      <Filter>IPlug\VST3\public.sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstaudioeffect.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstaudioprocessoralgo.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstbus.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstbypassprocessor.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstcomponent.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstcomponentbase.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vsteditcontroller.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstnoteexpressiontypes.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstparameters.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstpresetfile.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstrepresentation.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstspeakerarray.h">
+      <Filter>IPlug\VST3\public.sdk\vst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugVST.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.h">
+      <Filter>IPlug\VST3\public.sdk\main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IPlugEffect_controls.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{5631d6d9-5a9d-4e49-8591-77238501b7d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics">
+      <UniqueIdentifier>{4fbc3581-33cd-470a-9464-9e6d89f11dd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\PlatformClasses">
+      <UniqueIdentifier>{f25fdada-a3e3-444e-93ea-ee96a7ad71eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\DrawClasses">
+      <UniqueIdentifier>{5a9fa6e6-7994-4f74-b73e-a66579ac06dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3">
+      <UniqueIdentifier>{ba156696-1eb3-438e-ab40-913f23b9ba2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\base">
+      <UniqueIdentifier>{92b386b6-21b0-43aa-81f6-388ecd8b9858}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\pluginterfaces">
+      <UniqueIdentifier>{37976bb8-677e-45b0-8076-0518dbde6819}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\pluginterfaces\base">
+      <UniqueIdentifier>{74fb0f5a-711d-48b9-bf4d-c52fefa5e010}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\pluginterfaces\vst">
+      <UniqueIdentifier>{0dc6e519-55b6-4cad-8d67-4ecf0c33c4fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\pluginterfaces\gui">
+      <UniqueIdentifier>{60d5e96f-05c7-42da-bfa8-8f9d05192c5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\public.sdk">
+      <UniqueIdentifier>{daff8803-505b-4da2-b57f-181e081c0d4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\public.sdk\vst">
+      <UniqueIdentifier>{e5e8b624-4aa6-496d-93ed-f03f193a7b53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\public.sdk\main">
+      <UniqueIdentifier>{45395e7e-57dc-4a53-ba17-c09d6e8aa3cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3\public.sdk\common">
+      <UniqueIdentifier>{709a1671-746d-49f7-be2e-4924c28172a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{74cd52f2-b3b1-45bf-b24a-5e60e66b70de}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.mm">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.mm">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+    <None Include="..\..\..\VST3_SDK\public.sdk\source\main\winexport.def">
+      <Filter>IPlug\VST3\public.sdk\main</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\main.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -5,6 +5,25 @@
  * @brief Constant definitions, magic numbers
  */
 
+
+#if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
+#define SAMPLE_TYPE_DOUBLE
+#endif
+
+#ifdef SAMPLE_TYPE_DOUBLE
+typedef double PLUG_SAMPLE_DST;
+typedef float PLUG_SAMPLE_SRC;
+#else
+typedef float PLUG_SAMPLE_DST;
+typedef double PLUG_SAMPLE_SRC;
+#endif
+
+typedef PLUG_SAMPLE_DST sample;
+
+#define LOGFILE "IPlugLog.txt"
+#define MAX_PROCESS_TRACE_COUNT 100
+#define MAX_IDLE_TRACE_COUNT 15
+
 enum EIPlugKeyCodes
 {
   KEY_SPACE,
@@ -19,12 +38,18 @@ enum EIPlugKeyCodes
   KEY_NONE
 };
 
-//enum EVST3ParamIDs
-//{
-//  kBypassParam = 65536,
-//  kPresetParam, // not used unless baked in presets declared
-//  kMIDICCParamStartIdx
-//};
+enum EVST3ParamIDs
+{
+#ifndef IPLUG1_COMPATIBILITY
+  kBypassParam = 'bpas',
+  kPresetParam = 'prst',
+  kMIDICCParamStartIdx
+#else
+  kBypassParam = 65536,
+  kPresetParam, // not used unless baked in presets declared
+  kMIDICCParamStartIdx
+#endif
+};
 
 //TODO: these should be in a namespace, to avoid conflicts with third-party libraries
 static const double PI = 3.141592653589793238;
@@ -44,15 +69,25 @@ static const int MAX_PRESET_NAME_LEN = 256;
 #define UNUSED_PRESET_NAME "empty"
 #define DEFAULT_USER_PRESET_NAME "user preset"
 
-#define MAX_PATH_LEN 256
-#define MAX_PARAM_LEN 256
-#define MAX_EFFECT_NAME_LEN 128
+#define AU_MAX_IO_CHANNELS 128
+
+#define MAX_WIN32_PATH_LEN 256
+#define MAX_WIN32_PARAM_LEN 256
+
+#define MAX_PLUGIN_NAME_LEN 128
+
 #define MAX_PARAM_NAME_LEN 32 // e.g. "Gain"
 #define MAX_PARAM_LABEL_LEN 32 // e.g. "Percent"
 #define MAX_PARAM_DISPLAY_LEN 32 // e.g. "100" / "Mute"
+#define MAX_PARAM_GROUP_LEN 32 // e.g. "oscillator section"
+#define MAX_BUS_NAME_LEN 32 // e.g. "sidechain input"
+#define MAX_CHAN_NAME_LEN 32 // e.g. "input 1"
+
 #define MAX_VERSION_STR_LEN 32
 #define MAX_BUILD_INFO_STR_LEN 256
 static const int MAX_PARAM_DISPLAY_PRECISION = 6;
+
+#define MAX_AAX_PARAMID_LEN 32
 
 #define PARAM_UNINIT 99.99e-9
 
@@ -68,6 +103,47 @@ static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
 
+#define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
+
+//#ifdef VST3_API
+//#undef stricmp
+//#undef strnicmp
+//#include "pluginterfaces/vst/vsttypes.h"
+//static const uint64_t kInvalidBusType = Steinberg::Vst::SpeakerArr::kEmpty;
+//#elif defined AU_API || AUv3_API
+//#include <CoreAudio/CoreAudio.h>
+//static const uint64_t kInvalidBusType = kAudioChannelLayoutTag_Unknown;
+//#elif defined AAX_API
+//#include "AAX_Enums.h"
+//static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
+//#else
+//static const uint64_t kInvalidBusType = 0;
+//#endif
+
+/** @enum EParamSource
+ * Used to identify the source of a parameter change
+ */
+enum EParamSource
+{
+  kReset,
+  kAutomation,
+  kPresetRecall,
+  kGUI
+};
+
+static const char* ParamSourceStrs[4] = { "Reset", "Automation", "Preset", "GUI" };
+
+/** @enum ERoute
+ * Used to identify whether a bus/channel connection is an input or an output
+ */
+enum ERoute
+{
+  kInput = 0,
+  kOutput = 1
+};
+
+static const char* RoutingDirStrs[2]  = { "input", "output" };
+
 enum EAPI
 {
   kAPIVST2 = 0,
@@ -75,7 +151,7 @@ enum EAPI
   kAPIAU = 2,
   kAPIAUv3 = 3,
   kAPIAAX = 4,
-  kAPISA = 5
+  kAPIAPP = 5
 };
 
 /** @enum EHost
@@ -124,3 +200,5 @@ enum EHost
   // EnergyXT2
   // MiniHost
 };
+
+

@@ -27,7 +27,7 @@ public:
     return mBytes.GetSize();
   }
   
-  inline int GetBytes(void* pBuf, int size, int startPos)
+  inline int GetBytes(void* pBuf, int size, int startPos) const
   {
     int endPos = startPos + size;
     if (startPos >= 0 && endPos <= mBytes.GetSize())
@@ -43,7 +43,7 @@ public:
     return PutBytes(pVal, sizeof(T));
   }
   
-  template <class T> inline int Get(T* pVal, int startPos)
+  template <class T> inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
@@ -153,7 +153,7 @@ struct IPlugConfig
   int nParams;
   int nPresets;
   const char* channelIOStr;
-  const char* effectName;
+  const char* pluginName;
   const char* productName;
   const char* mfrName;
   int vendorVersion;
@@ -163,12 +163,14 @@ struct IPlugConfig
   bool plugDoesMidi;
   bool plugDoesChunks;
   bool plugIsInstrument;
-  int plugScChans;
+  bool plugHasUI;
+  int plugWidth;
+  int plugHeight;
   
   IPlugConfig(int nParams,
               int nPresets,
               const char* channelIOStr,
-              const char* effectName,
+              const char* pluginName,
               const char* productName,
               const char* mfrName,
               int vendorVersion,
@@ -178,12 +180,14 @@ struct IPlugConfig
               bool plugDoesMidi,
               bool plugDoesChunks,
               bool plugIsInstrument,
-              int plugScChans)
+              bool plugHasUI,
+              int plugWidth,
+              int plugHeight)
               
   : nParams(nParams)
   , nPresets(nPresets)
   , channelIOStr(channelIOStr)
-  , effectName(effectName)
+  , pluginName(pluginName)
   , productName(productName)
   , mfrName(mfrName)
   , vendorVersion(vendorVersion)
@@ -193,15 +197,98 @@ struct IPlugConfig
   , plugDoesMidi(plugDoesMidi)
   , plugDoesChunks(plugDoesChunks)
   , plugIsInstrument(plugIsInstrument)
-  , plugScChans(plugScChans)
+  , plugHasUI(plugHasUI)
+  , plugWidth(plugWidth)
+  , plugHeight(plugHeight)
   {};
 };
 
-/** Used to store channel i/o count together */
-struct ChannelIO
+/** Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision */
+template<class TIN = PLUG_SAMPLE_SRC, class TOUT = PLUG_SAMPLE_DST>
+struct IChannelData
 {
-  int mIn, mOut;
-  ChannelIO(int nIn, int nOut) : mIn(nIn), mOut(nOut) {}
+  bool mConnected = false;
+  TOUT** mData = nullptr; // If this is for an input channel, points into IPlugBase::mInData, if it's for an output channel points into IPlugBase::mOutData
+  TIN* mIncomingData = nullptr;
+  WDL_TypedBuf<TOUT> mScratchBuf;
+  WDL_String mLabel = WDL_String("");
+};
+
+struct IBusInfo
+{
+  ERoute mDirection;
+  int mNChans;
+  WDL_String mLabel;
+  
+  IBusInfo(ERoute direction, int nchans = 0, const char* label = "")
+  : mDirection(direction)
+  , mNChans(nchans)
+  {
+    if(CSTR_NOT_EMPTY(label))
+      mLabel.Set(label);
+    else
+      mLabel.Set(RoutingDirStrs[direction]);
+  }
+};
+
+/** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
+struct IOConfig
+{
+  WDL_PtrList<IBusInfo> mBusInfo[2];  // A particular valid io config may have multiple input buses or output busses
+  
+  ~IOConfig()
+  {
+    mBusInfo[0].Empty(true);
+    mBusInfo[1].Empty(true);
+  }
+  
+  void AddBusInfo(ERoute direction, int NChans, const char* label = "")
+  {
+    mBusInfo[direction].Add(new IBusInfo(direction, NChans, label));
+  }
+  
+  IBusInfo* GetBusInfo(ERoute direction, int index)
+  {
+    assert(index >= 0 && index < mBusInfo[direction].GetSize());
+    return mBusInfo[direction].Get(index);
+  }
+  
+  int NChansOnBusSAFE(ERoute direction, int index)
+  {
+    int NChans = 0;
+    
+    if(index >= 0 && index < mBusInfo[direction].GetSize())
+      NChans = mBusInfo[direction].Get(index)->mNChans;
+
+    return NChans;
+  }
+  
+  int NBuses(ERoute direction)
+  {
+    return mBusInfo[direction].GetSize();
+  }
+  
+  /** Get the total number of channels across all direction buses for this IOConfig */
+  int GetTotalNChannels(ERoute direction) const
+  {
+    int total = 0;
+    
+    for(int i = 0; i < mBusInfo[direction].GetSize(); i++)
+      total += mBusInfo[direction].Get(i)->mNChans;
+    
+    return total;
+  }
+  
+  bool ContainsWildcard(ERoute direction)
+  {
+    for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
+    {
+      if(mBusInfo[direction].Get(i)->mNChans < 0)
+        return true;
+    }
+
+    return false;
+  }
 };
 
 /** Encapsulates information about the host transport state */
