@@ -322,6 +322,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     // Detect tablet input correctly
       
     mGraphics->SetTabletInput(pEvent.subtype == NSTabletPointEventSubtype);
+    mGraphics->SetMousePosition(*pX, *pY);
   }
 }
 
@@ -331,6 +332,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self getMouseXY:pEvent x:&info.x y:&info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+  
   return info;
 }
 
@@ -340,7 +342,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self getMouseXY:pEvent x:&info.x y:&info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
-
+    
   return info;
 }
 

@@ -220,6 +220,10 @@ public:
 #pragma mark - IGraphics platform implementation
   virtual void HideMouseCursor() {};
   virtual void ShowMouseCursor() {};
+  virtual void MoveMouseCursor(float x, float y);
+    
+  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
+
   virtual void ForceEndUserEdit() = 0;
   virtual void Resize(int w, int h, float scale);
   virtual void* OpenWindow(void* pParentWnd) = 0;
@@ -349,6 +353,8 @@ protected:
   IPlugBaseGraphics& mPlug;
   
   bool mCursorHidden = false;
+  bool mTabletInput = false;
+    
 private:
   friend class IGraphicsLiveEdit;
   
