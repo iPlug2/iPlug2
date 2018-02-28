@@ -74,6 +74,48 @@ public:
   }
 };
 
+class IGradientControl : public IKnobControl
+{
+public:
+  IGradientControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx) : IKnobControl(plug, rect, paramIdx)
+  {
+    
+  }
+  
+  IColor RandColor()
+  {
+    int A = 255;//rand() & 0xFF;
+    int R = rand() & 0xFF;
+    int G = rand() & 0xFF;
+    int B = rand() & 0xFF;
+    
+    return IColor(A, R, G, B);
+  }
+  
+  void Draw(IGraphics& graphics)
+  {
+    double cr = mValue * (mRECT.H() / 2.0);
+    
+    IPattern randGradient(kLinearPattern);
+    
+    randGradient.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    
+    randGradient.AddStop(RandColor(), 0.0);
+    randGradient.AddStop(RandColor(), 0.1);
+    randGradient.AddStop(RandColor(), 0.4);
+    randGradient.AddStop(RandColor(), 0.6);
+    randGradient.AddStop(RandColor(), 1.0);
+
+    graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
+
+    IFillOptions fillOptions;
+    IStrokeOptions strokeOptions;
+    fillOptions.mPreserve = true;
+    graphics.PathFill(randGradient, fillOptions);
+    graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
+  }
+};
+
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
@@ -90,6 +132,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   
   pGraphics->AttachControl(new IArcControl(*this, IRECT(30, 100, 130, 200), kGain));
   pGraphics->AttachControl(new IPolyControl(*this, IRECT(150, 100, 250, 200), -1));
+  pGraphics->AttachControl(new IGradientControl(*this, IRECT(30, 210, 250, 280), -1));
 //  pGraphics->AttachControl(new ITextControl(*this, IRECT(kTextX, kTextY, 290, kTextY+10), DEFAULT_TEXT, GetBuildInfoStr()));
 
   WDL_String buildInfo;
