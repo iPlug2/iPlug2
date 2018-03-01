@@ -140,9 +140,6 @@ protected:
   void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
   void NVGSetFillOptions(const IFillOptions& options = IFillOptions());
 
-  void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-  void NVGSetFillOptions(const IFillOptions& options = IFillOptions());
-
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
 };
