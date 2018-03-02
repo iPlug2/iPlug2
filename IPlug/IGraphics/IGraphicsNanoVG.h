@@ -98,10 +98,10 @@ public:
   void PathClose() override { nvgClosePath(mVG); }
 
   void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { NVGDrawTriangle(x1, y1, x2, y2, x3, y3); }
-  void PathRect(const IRECT& rect) override { nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H()); }
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr); }
+  void PathRect(const IRECT& rect) override { NVGDrawRect(rect.L, rect.T, rect.W(), rect.H()); }
+  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { NVGDrawRoundRect(rect.L, rect.T, rect.W(), rect.H(), cr); }
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);}
-  void PathCircle(float cx, float cy, float r) override { nvgCircle(mVG, cx, cy, r); }
+  void PathCircle(float cx, float cy, float r) override { NVGDrawCircle(cx, cy, r); }
   void PathConvexPolygon(float* x, float* y, int npoints) override { NVGDrawConvexPolygon(x, y, npoints); }
   
   void PathMoveTo(float x, float y) override { nvgMoveTo(mVG, x, y); }
@@ -135,6 +135,9 @@ protected:
   void Fill(const IPattern& pattern, const IBlend* pBlend);
 
   void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+  void NVGDrawRect(float x, float y, float w, float h);
+  void NVGDrawRoundRect(float x, float y, float w, float h, float cr);
+  void NVGDrawCircle(float cx, float cy, float r);
   void NVGDrawConvexPolygon(float* x, float* y, int npoints);
 
   void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());

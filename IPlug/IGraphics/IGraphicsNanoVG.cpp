@@ -153,6 +153,26 @@ void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, fl
   nvgClosePath(mVG);
 }
 
+void IGraphicsNanoVG::NVGDrawRect(float x, float y, float w, float h)
+{
+  nvgBeginPath(mVG);
+  nvgRect(mVG, x, y, w, h);
+  nvgClosePath(mVG);
+}
+void IGraphicsNanoVG::NVGDrawRoundRect(float x, float y, float w, float h, float cr)
+{
+  nvgBeginPath(mVG);
+  nvgRoundedRect(mVG, x, y, w, h, cr);
+  nvgClosePath(mVG);
+}
+
+void IGraphicsNanoVG::NVGDrawCircle(float cx, float cy, float r)
+{
+  nvgBeginPath(mVG);
+  nvgCircle(mVG, cx, cy, r);
+  nvgClosePath(mVG);
+}
+
 void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoints)
 {
   nvgBeginPath(mVG);
@@ -196,15 +216,13 @@ void IGraphicsNanoVG::DrawTriangle(const IColor& color, float x1, float y1, floa
 
 void IGraphicsNanoVG::DrawRect(const IColor &color, const IRECT &rect, const IBlend *pBlend)
 {
-  nvgBeginPath(mVG);
-  nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H());
+  NVGDrawRect(rect.L, rect.T, rect.W(), rect.H());
   Stroke(color, pBlend);
 }
 
 void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
-  nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
+  NVGDrawRoundRect(rect.L, rect.T, rect.W(), rect.H(), cr);
   Stroke(color, pBlend);
 }
 
@@ -223,8 +241,7 @@ void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, 
 
 void IGraphicsNanoVG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
-  nvgCircle(mVG, cx, cy, r);
+  NVGDrawCircle(cx, cy, r);
   Stroke(color, pBlend);
 }
 
@@ -236,15 +253,13 @@ void IGraphicsNanoVG::FillTriangle(const IColor& color, float x1, float y1, floa
 
 void IGraphicsNanoVG::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
-  nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H());
+  NVGDrawRect(rect.L, rect.T, rect.W(), rect.H());
   Fill(color, pBlend);
 }
 
 void IGraphicsNanoVG::FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
-  nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
+  NVGDrawRoundRect(rect.L, rect.T, rect.W(), rect.H(), cr);
   Fill(color, pBlend);
 }
 
@@ -265,8 +280,7 @@ void IGraphicsNanoVG::FillArc(const IColor& color, float cx, float cy, float r, 
 
 void IGraphicsNanoVG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
-  nvgCircle(mVG, cx, cy, r);
+  NVGDrawCircle(cx, cy, r);
   Fill(color, pBlend);
 }
 
@@ -340,7 +354,7 @@ NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, const IBlend* pBl
   
   nvgTransformInverse(inverse, pattern.mTransform);
   nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
-  nvgTransformPoint(&e[0], &e[1], inverse, 0, 1);
+  nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
   
   if (pattern.mType == kRadialPattern)
     return nvgRadialGradient(mVG, s[0], s[1], 0.0, 160, icol, ocol);
