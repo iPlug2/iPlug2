@@ -78,6 +78,7 @@ public:
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> InterpolatorType;
   typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
+  typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, InterpolatorType> spanGenType;
   
@@ -150,16 +151,38 @@ public:
 
 private:
 
+  template <typename GradientFuncType>
+  void GradientRasterize(agg::rasterizer_scanline_aa<>& rasterizer, GradientFuncType& gradientFunc, InterpolatorType& spanInterpolator, ColorArrayType& colorArray)
+  {
+    agg::scanline_p8 scanline;
+    SpanAllocatorType spanAllocator;
+
+    // Gradient types
+    
+    typedef agg::span_gradient<agg::rgba8, InterpolatorType, GradientFuncType, ColorArrayType> SpanGradientType;
+    typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGradientType> RendererGradientType;
+    
+    // Gradient objects
+    
+    SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 1);
+    RendererGradientType renderer(mRenBase, spanAllocator, spanGradient);
+    
+    agg::render_scanlines(rasterizer, scanline, renderer);
+  }
+  
   template <typename pathType>
   void Rasterize(const IPattern& pattern, pathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
-    agg::scanline_p8 scanline;
+    rasterizer.reset();
+    rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+    rasterizer.add_path(path);
     
     switch (pattern.mType)
     {
       case kSolidPattern:
       {
+        agg::scanline_p8 scanline;
         RendererSolid renderer(mRenBase);
         
         const IColor &color = pattern.GetStop(0).mColor;
@@ -167,9 +190,6 @@ private:
         
         // Rasterize
 
-        rasterizer.reset();
-        rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
-        rasterizer.add_path(path);
         agg::render_scanlines(rasterizer, scanline, renderer);
       }
         break;
@@ -177,48 +197,44 @@ private:
       case kLinearPattern:
       case kRadialPattern:
       {
-        // Gradient Types
-        typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> color_array_type;
-        typedef agg::gradient_x gradient_func_type;
-        typedef agg::span_gradient<agg::rgba8, InterpolatorType, gradient_func_type, color_array_type> span_gradient_type;
-        typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, span_gradient_type> renderer_gradient_type;
-        
-        // Gradient Objects
+        // Common gradient objects
         
         const float* xform = pattern.mTransform;
         
-        gradient_func_type      gradient_func;
-        agg::trans_affine       gradient_mtx(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
-        color_array_type        color_array;
-        InterpolatorType        span_interpolator(gradient_mtx);
-        SpanAllocatorType       span_allocator;
-        span_gradient_type      span_gradient(span_interpolator, gradient_func, color_array, 0, 1);
-        renderer_gradient_type  renderer(mRenBase, span_allocator, span_gradient);
-        
+        agg::trans_affine       gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
+        ColorArrayType          colorArray;
+        InterpolatorType        spanInterpolator(gradientMTX);
+       
         // Scaling
         
-        gradient_mtx = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * gradient_mtx;
+        gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * gradientMTX;
 
         // Make gradient lut
         
-        color_array.remove_all();
+        colorArray.remove_all();
         
         for (int i = 0; i < pattern.NStops(); i++)
         {
           const IColorStop& stop = pattern.GetStop(i);
-          color_array.add_color(stop.mOffset, AGGColor(stop.mColor, pBlend));
+          colorArray.add_color(stop.mOffset, AGGColor(stop.mColor, pBlend));
         }
         
-        color_array.build_lut();
+        colorArray.build_lut();
         
         // Rasterize
         
-        rasterizer.reset();
-        rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
-        rasterizer.add_path(path);
-        agg::render_scanlines(rasterizer, scanline, renderer);
+        if (pattern.mType == kLinearPattern)
+        {
+          agg::gradient_x gradientFunc;
+          GradientRasterize(rasterizer, gradientFunc, spanInterpolator, colorArray);
+        }
+        else
+        {
+          agg::gradient_radial_d gradientFunc;
+          GradientRasterize(rasterizer, gradientFunc, spanInterpolator, colorArray);
+        }
         
-        // FIX radial and extensions...
+        // FIX extensions...
         
         /*
         switch (pattern.mExtend)

@@ -388,10 +388,10 @@ struct IPattern
   
   IPattern(float x1, float y1, float x2, float y2)
   {
-    // Figure out the affine transform from one line segment to another!
-    
     mType = kLinearPattern;
-    
+   
+    // Calculate the affine transform from one line segment to another!
+
     const float xd = x2 - x1;
     const float yd = y2 - y1;
     const float size = sqrtf(xd * xd + yd * yd);
@@ -409,6 +409,18 @@ struct IPattern
     SetTransform(xx, yx, xy, yy, x0, y0);
   }
 
+  IPattern(float x1, float y1, float r)
+  {
+    mType = kRadialPattern;
+    
+    const float xx = 1.0 / r;
+    const float yy = 1.0 / r;
+    const float x0 = -(x1 * xx);
+    const float y0 = -(y1 * yy);
+    
+    SetTransform(xx, 0, 0, yy, x0, y0);
+  }
+  
   int NStops() const
   {
     return mStops.GetSize();
