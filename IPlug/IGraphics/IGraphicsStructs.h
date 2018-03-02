@@ -400,8 +400,8 @@ struct IPattern
     const float cosV = cosf(angle) / size;
     
     const float xx = cosV;
-    const float xy = sinV;
-    const float yx = -sinV;
+    const float xy = -sinV;
+    const float yx = sinV;
     const float yy = cosV;
     const float x0 = -(x1 * xx + y1 * xy);
     const float y0 = -(x1 * yx + y1 * yy);
@@ -768,7 +768,7 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      delete(mDatas.Get(i)->data);
+      delete mDatas.Get(i)->data;
     }
     mDatas.Empty(true);
   };

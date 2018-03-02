@@ -76,9 +76,10 @@ public:
   typedef agg::renderer_scanline_bin_solid<RenbaseType> RendererBin;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
-  typedef agg::span_interpolator_linear<> interpolatorType;
+  typedef agg::span_interpolator_linear<> InterpolatorType;
+  typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
-  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolatorType> spanGenType;
+  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, InterpolatorType> spanGenType;
   
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
@@ -152,15 +153,86 @@ private:
   template <typename pathType>
   void Rasterize(const IPattern& pattern, pathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
   {
-    RendererSolid renderer(mRenBase);
     agg::rasterizer_scanline_aa<> rasterizer;
     agg::scanline_p8 scanline;
     
-    SetAGGSourcePattern(renderer, pattern, pBlend);
-    rasterizer.reset();
-    rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
-    rasterizer.add_path(path);
-    agg::render_scanlines(rasterizer, scanline, renderer);
+    switch (pattern.mType)
+    {
+      case kSolidPattern:
+      {
+        RendererSolid renderer(mRenBase);
+        
+        const IColor &color = pattern.GetStop(0).mColor;
+        renderer.color(AGGColor(color, pBlend));
+        
+        // Rasterize
+
+        rasterizer.reset();
+        rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+        rasterizer.add_path(path);
+        agg::render_scanlines(rasterizer, scanline, renderer);
+      }
+        break;
+        
+      case kLinearPattern:
+      case kRadialPattern:
+      {
+        // Gradient Types
+        typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> color_array_type;
+        typedef agg::gradient_x gradient_func_type;
+        typedef agg::span_gradient<agg::rgba8, InterpolatorType, gradient_func_type, color_array_type> span_gradient_type;
+        typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, span_gradient_type> renderer_gradient_type;
+        
+        // Gradient Objects
+        
+        const float* xform = pattern.mTransform;
+        
+        gradient_func_type      gradient_func;
+        agg::trans_affine       gradient_mtx(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
+        color_array_type        color_array;
+        InterpolatorType        span_interpolator(gradient_mtx);
+        SpanAllocatorType       span_allocator;
+        span_gradient_type      span_gradient(span_interpolator, gradient_func, color_array, 0, 1);
+        renderer_gradient_type  renderer(mRenBase, span_allocator, span_gradient);
+        
+        // Scaling
+        
+        gradient_mtx = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * gradient_mtx;
+
+        // Make gradient lut
+        
+        color_array.remove_all();
+        
+        for (int i = 0; i < pattern.NStops(); i++)
+        {
+          const IColorStop& stop = pattern.GetStop(i);
+          color_array.add_color(stop.mOffset, AGGColor(stop.mColor, pBlend));
+        }
+        
+        color_array.build_lut();
+        
+        // Rasterize
+        
+        rasterizer.reset();
+        rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+        rasterizer.add_path(path);
+        agg::render_scanlines(rasterizer, scanline, renderer);
+        
+        // FIX radial and extensions...
+        
+        /*
+        switch (pattern.mExtend)
+        {
+        case kExtendNone:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
+        case kExtendPad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
+        case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
+        case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
+        }
+        */
+     
+      }
+      break;
+    }
   }
 
   template <typename pathType>

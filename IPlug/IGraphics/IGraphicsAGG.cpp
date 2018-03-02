@@ -93,7 +93,7 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   
   agg::span_allocator<agg::rgba8> sa;
   
-  interpolatorType interpolator(imgMtx);
+  InterpolatorType interpolator(imgMtx);
 
   imgSourceType imgSrc(imgPixf, agg::rgba_pre(0, 0, 0, 0));
 
@@ -147,7 +147,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   
   agg::span_allocator<agg::rgba8> sa;
 
-  interpolatorType interpolator(imgMtx);
+  InterpolatorType interpolator(imgMtx);
   
   imgSourceType imgSrc(img_base, agg::rgba_pre(0, 0, 0, 0));
   
@@ -190,11 +190,6 @@ void IGraphicsAGG::AGGDrawConvexPolygon(agg::path_storage& path, float* x, float
 
 void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
-  //ToPixel(x1);
-  //ToPixel(y1);
-  //ToPixel(x2);
-  //ToPixel(y2);
-
   agg::path_storage path;
   
   const float s = GetDisplayScale();
@@ -327,7 +322,7 @@ void IGraphicsAGG::PathRoundRect(const IRECT& rect, float cr)
   const double y = rect.B - rect.H();
   PathStart();
   PathArc(rect.L + rect.W() - cr, y + cr, cr, 180.0, 270.0);
-  PathArc(rect.L + rect.W() - cr, y + rect.H() - cr, cr,270.0, 360.0);
+  PathArc(rect.L + rect.W() - cr, y + rect.H() - cr, cr, 270.0, 360.0);
   PathArc(rect.L + cr, y + rect.H() - cr, cr, 0.0, 90.0);
   PathArc(rect.L + cr, y + cr, cr, 90.0, 180.0);
   PathClose();
@@ -339,7 +334,6 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
   agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
   
   mPath.concat_path(arc);
-
 }
 
 void IGraphicsAGG::PathCircle(float cx, float cy, float r)
@@ -410,64 +404,6 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   agg::rgba8 point = mRenBase.pixel(x, y);
   IColor color(point.a, point.r, point.g, point.b);
   return color;
-}
-
-void IGraphicsAGG::SetAGGSourcePattern(RendererSolid &renderer, const IPattern& pattern, const IBlend* pBlend)
-{
-  switch (pattern.mType)
-  {
-    case kSolidPattern:
-    {
-      const IColor &color = pattern.GetStop(0).mColor;
-      renderer.color(AGGColor(color, pBlend));
-    }
-    break;
-    
-    case kLinearPattern:
-    case kRadialPattern:
-    {/*
-      agg::rgba8 icol = AGGColor(pattern.GetStop(0).mColor, pBlend);
-      agg::rgba8 ocol = AGGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
-      
-      //float inverse[6];
-      double s[2] = {0, 0};
-      double e[2] = {0, 1};
-      
-      agg::trans_affine inverse;
-      nvgTransformInverse(inverse, pattern.mTransform);
-      inverse.transform(s + 0, s + 1);
-      inverse.transform(e + 0, e + 1);
-      nvgLinearGradient(mVG, s[0], s[1], e[0], e[1], icol, ocol);
-
-      //if (pattern.mType == kRadialPattern)
-      
-      agg::gradient_lut<agg::color_interpolator<agg::rgba8> > gradient;
-      
-      
-      // FIX radial and extensions...
-      
-      
-      switch (pattern.mExtend)
-      {
-        case kExtendNone:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
-        case kExtendPad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
-        case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
-        case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
-      }
-      
-      
-      gradient.remove_all();
-      
-      for (int i = 0; i < pattern.NStops(); i++)
-      {
-        const IColorStop& stop = pattern.GetStop(i);
-        gradient.add_color(stop.mOffset, AGGColor(stop.mColor, pBlend));
-      }
-      
-      gradient.build_lut();*/
-    }
-    break;
-  }
 }
 
 /*
@@ -586,7 +522,7 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   
   agg::span_allocator<agg::rgba8> sa;
   
-  interpolatorType interpolator(imgMtx);
+  InterpolatorType interpolator(imgMtx);
   
   imgSourceType imgSrc(imgPixfSrc, agg::rgba(0, 0, 0, 0));
   

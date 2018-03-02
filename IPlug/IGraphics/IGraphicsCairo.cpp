@@ -425,7 +425,7 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
       const float *xform = pattern.mTransform;
       
       if (pattern.mType == kLinearPattern)
-        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
+        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 1.0, 0.0);
       else
         cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 1.0, 0.0, 1.0, 1.0);
       
