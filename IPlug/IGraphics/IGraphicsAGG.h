@@ -72,13 +72,14 @@ public:
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::pixfmt_custom_blend_rgba<BlenderTypePre, agg::rendering_buffer> PixfmtTypePre;
   typedef agg::renderer_base <PixfmtType> RenbaseType;
+  typedef agg::renderer_scanline_aa_solid<RenbaseType> RendererSolid;
+  typedef agg::renderer_scanline_bin_solid<RenbaseType> RendererBin;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> interpolatorType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, interpolatorType> spanGenType;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> rendererSolid;
-  typedef agg::renderer_scanline_bin_solid<RenbaseType> rendererBin;
+  
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
 
@@ -115,6 +116,25 @@ public:
   void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
 
+  bool HasPathSupport() const override { return true; }
+  
+  void PathStart() override { mPath.start_new_path(); }
+  void PathClose() override { mPath.close_polygon(); }
+  
+  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathRect(const IRECT& rect) override;
+  void PathRoundRect(const IRECT& rect, float cr = 5.f) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathCircle(float cx, float cy, float r) override;
+  void PathConvexPolygon(float* x, float* y, int npoints) override { AGGDrawConvexPolygon(mPath, x, y, npoints); }
+  
+  void PathMoveTo(float x, float y) override { mPath.move_to(x * GetDisplayScale(), y * GetDisplayScale()); }
+  void PathLineTo(float x, float y) override { mPath.line_to(x * GetDisplayScale(), y * GetDisplayScale());}
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  
+  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
+  void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
+  
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
 
@@ -130,18 +150,15 @@ public:
 private:
 
   template <typename pathType>
-  void Rasterize(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
+  void Rasterize(const IPattern& pattern, pathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
   {
+    RendererSolid renderer(mRenBase);
     agg::rasterizer_scanline_aa<> rasterizer;
-    rasterizer.reset();
-
     agg::scanline_p8 scanline;
-
-    agg::renderer_scanline_aa_solid<RenbaseType> renderer(mRenBase);
-
-    renderer.color(AGGColor(color, pBlend));
-    rasterizer.filling_rule(agg::fill_non_zero);
-
+    
+    SetAGGSourcePattern(renderer, pattern, pBlend);
+    rasterizer.reset();
+    rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
     rasterizer.add_path(path);
     agg::render_scanlines(rasterizer, scanline, renderer);
   }
@@ -165,13 +182,15 @@ private:
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
+  agg::path_storage mPath;
 #ifdef OS_MAC
   agg::pixel_map_mac mPixelMap;
 #else
   //TODO:
 #endif
+  
+  void SetAGGSourcePattern(RendererSolid &renderer, const IPattern& pattern, const IBlend* pBlend);
 
-private:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
@@ -180,6 +199,8 @@ private:
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
 
+  void AGGDrawConvexPolygon(agg::path_storage& path, float* x, float* y, int npoints);
+  
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
   void ToPixel(float & pixel);
 };
