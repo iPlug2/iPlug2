@@ -164,7 +164,7 @@ private:
     
     // Gradient objects
     
-    SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 1);
+    SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
     RendererGradientType renderer(mRenBase, spanAllocator, spanGradient);
     
     agg::render_scanlines(rasterizer, scanline, renderer);
@@ -207,7 +207,7 @@ private:
        
         // Scaling
         
-        gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * gradientMTX;
+        gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * gradientMTX * agg::trans_affine_scaling(512.0);
 
         // Make gradient lut
         
