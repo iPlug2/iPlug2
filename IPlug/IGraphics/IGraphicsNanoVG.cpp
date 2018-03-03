@@ -124,6 +124,7 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
   nvgFill(mVG);
+  nvgBeginPath(mVG);
 }
 
 void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -134,6 +135,7 @@ void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destC
   nvgRect(mVG, destCtrX, destCtrY, destCtrX + bitmap.W(), destCtrX + bitmap.H());
   nvgFillPaint(mVG, imgPaint);
   nvgFill(mVG);
+  nvgBeginPath(mVG);
 }
 
 void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
@@ -143,7 +145,6 @@ void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top
 
 void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-  nvgBeginPath(mVG);
   nvgMoveTo(mVG, x1, y1);
   nvgLineTo(mVG, x2, y2);
   nvgLineTo(mVG, x3, y3);
@@ -152,27 +153,24 @@ void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, fl
 
 void IGraphicsNanoVG::NVGDrawRect(float x, float y, float w, float h)
 {
-  nvgBeginPath(mVG);
   nvgRect(mVG, x, y, w, h);
   nvgClosePath(mVG);
 }
+
 void IGraphicsNanoVG::NVGDrawRoundRect(float x, float y, float w, float h, float cr)
 {
-  nvgBeginPath(mVG);
   nvgRoundedRect(mVG, x, y, w, h, cr);
   nvgClosePath(mVG);
 }
 
 void IGraphicsNanoVG::NVGDrawCircle(float cx, float cy, float r)
 {
-  nvgBeginPath(mVG);
   nvgCircle(mVG, cx, cy, r);
   nvgClosePath(mVG);
 }
 
 void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoints)
 {
-  nvgBeginPath(mVG);
   nvgMoveTo(mVG, x[0], y[0]);
   for(int i = 1; i < npoints; i++)
     nvgLineTo(mVG, x[i], y[i]);
@@ -187,7 +185,6 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, con
 
 void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
   nvgCircle(mVG, x, y, 0.01); // TODO:  0.01 - is there a better way to draw a point?
   Stroke(color, pBlend);
 }
@@ -199,7 +196,6 @@ void IGraphicsNanoVG::ForcePixel(const IColor& color, int x, int y)
 
 void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
   nvgMoveTo(mVG, x1, y1);
   nvgLineTo(mVG, x2, y2);
   Stroke(color, pBlend);
@@ -231,7 +227,6 @@ void IGraphicsNanoVG::DrawConvexPolygon(const IColor& color, float* x, float* y,
 
 void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
   nvgArc(mVG, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f), NVG_CW);
   Stroke(color, pBlend);
 }
@@ -268,7 +263,6 @@ void IGraphicsNanoVG::FillConvexPolygon(const IColor& color, float* x, float* y,
 
 void IGraphicsNanoVG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
 {
-  nvgBeginPath(mVG);
   nvgMoveTo(mVG, cx, cy);
   nvgArc(mVG, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f), NVG_CW);
   nvgClosePath(mVG);
@@ -316,13 +310,11 @@ void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
   nvgMiterLimit(mVG, options.mMiterLimit);
   
   // TODO Dash
-  // TODO Preserve
 }
 
 void IGraphicsNanoVG::NVGSetFillOptions(const IFillOptions& options)
 {
-  // TODO Fill Rule
-  // TODO Preserve
+  nvgPathWinding(mVG, options.mFillRule == kFillWinding ? NVG_CCW : NVG_CW);
 }
 
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -332,12 +324,16 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   Stroke(pattern, pBlend);
   nvgStrokeWidth(mVG, 1.0);
   NVGSetStrokeOptions();
+  if (!options.mPreserve)
+    nvgBeginPath(mVG);
 }
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   NVGSetFillOptions(options);
   Fill(pattern, pBlend);
+  if (!options.mPreserve)
+    nvgBeginPath(mVG);
 }
 
 NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, const IBlend* pBlend)
@@ -374,6 +370,7 @@ void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend)
     nvgStrokePaint(mVG, GetNVGPaint(pattern, pBlend));
   
   nvgStroke(mVG);
+  nvgBeginPath(mVG);
 }
 
 void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
@@ -384,4 +381,5 @@ void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
     nvgFillPaint(mVG, GetNVGPaint(pattern, pBlend));
   
   nvgFill(mVG);
+  nvgBeginPath(mVG);
 }
