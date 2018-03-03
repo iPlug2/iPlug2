@@ -1,13 +1,14 @@
 #include <cmath>
 
 #include "IGraphicsAGG.h"
+#include "IGraphicsNanoSVG.h"
 
 static StaticStorage<agg::font> s_fontCache;
 
 #pragma mark -
 
 IGraphicsAGG::IGraphicsAGG(IDelegate& dlg, int w, int h, int fps)
-: IGraphics(dlg, w, h, fps)
+: IGraphicsPathBase(dlg, w, h, fps)
 , mFontEngine()
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
@@ -176,156 +177,9 @@ void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
   mRenBase.copy_pixel(x * s, y * s, AGGColor(color));
 }
 
-void IGraphicsAGG::AGGDrawConvexPolygon(agg::path_storage& path, float* x, float* y, int npoints)
-{
-  const float s = GetDisplayScale();
-    
-  path.move_to(x[0] * s, y[0] * s);
-  for (int i=1; i<npoints; ++i)
-  {
-    path.line_to(x[i] * s, y[i] * s);
-  }
-  path.close_polygon();
-}
-
-void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
-{
-  agg::path_storage path;
-  
-  const float s = GetDisplayScale();
-  path.move_to(x1 * s, y1 * s);
-  path.line_to(x2 * s, y2 * s);
-
-  Stroke(color, path);
-}
-
-void IGraphicsAGG::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  float x[3] = { x1, x2, x3 };
-  float y[3] = { y1, y2, y3 };
-  DrawConvexPolygon(color, x, y, 3, pBlend);
-}
-
-void IGraphicsAGG::DrawRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
-{
-  float x[4] = { destRect.L, destRect.R, destRect.R, destRect.L };
-  float y[4] = { destRect.T, destRect.T, destRect.B, destRect.B };
-  DrawConvexPolygon(color, x, y, 4, pBlend);
-}
-
-void IGraphicsAGG::DrawRoundRect(const IColor& color, const IRECT& destRect, float cr, const IBlend* pBlend)
-{
-  const float s = GetDisplayScale();
-  agg::rounded_rect agg_rect(destRect.L * s, destRect.T * s, (destRect.L + destRect.W()) * s, (destRect.T + destRect.H()) * s, cr * s);
-  Stroke(color, agg_rect);
-}
-
-void IGraphicsAGG::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
-{
-  agg::path_storage path;
-  
-  AGGDrawConvexPolygon(path, x, y, npoints);
-  
-  Stroke(color, path);
-}
-
-void IGraphicsAGG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
-{
-  const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
-  Stroke(color, arc);
-}
-
-void IGraphicsAGG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-{
-  const float s = GetDisplayScale();
-  agg::ellipse ellipse(cx * s, cy * s, r * s, r * s);
-  Stroke(color, ellipse);
-}
-
 void IGraphicsAGG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   // TODO:
-}
-
-void IGraphicsAGG::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  float x[3] = { x1, x2, x3 };
-  float y[3] = { y1, y2, y3 };
-  FillConvexPolygon(color, x, y, 3, pBlend);
-}
-
-void IGraphicsAGG::FillRect(const IColor& color, const IRECT& destRect, const IBlend* pBlend)
-{
-  float x[4] = { destRect.L, destRect.R, destRect.R, destRect.L };
-  float y[4] = { destRect.T, destRect.T, destRect.B, destRect.B };
-  FillConvexPolygon(color, x, y, 4, pBlend);
-}
-
-void IGraphicsAGG::FillRoundRect(const IColor& color, const IRECT& destRect,  float cr, const IBlend* pBlend)
-{
-  const float s = GetDisplayScale();
-  agg::rounded_rect agg_rect(destRect.L * s, destRect.T * s, (destRect.L + destRect.W()) * s, (destRect.T + destRect.H()) * s, cr * s);
-  Fill(color, agg_rect, pBlend);
-}
-
-void IGraphicsAGG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
-{
-  agg::path_storage path;
-  const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
-  path.concat_path(arc);
-  path.line_to(cx * s, cy * s);
-  if (path.total_vertices() > 2)
-  {
-    path.close_polygon();
-    Fill(color, path, pBlend);
-  }
-  else
-  {
-    Stroke(color, path, pBlend);
-  }
-}
-
-void IGraphicsAGG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-{
-  const float s = GetDisplayScale();
-  agg::ellipse ellipse(cx * s, cy * s, r * s, r * s);
-  Fill(color, ellipse, pBlend);
-}
-
-void IGraphicsAGG::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
-{
-  agg::path_storage path;
-  
-  AGGDrawConvexPolygon(path, x, y, npoints);
-  
-  Fill(color, path, pBlend);
-}
-
-void IGraphicsAGG::PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
-{
-  float x[3] = { x1, x2, x3 };
-  float y[3] = { y1, y2, y3 };
-  AGGDrawConvexPolygon(mPath, x, y, 3);
-}
-
-void IGraphicsAGG::PathRect(const IRECT& rect)
-{
-  float x[4] = { rect.L, rect.R, rect.R, rect.L };
-  float y[4] = { rect.T, rect.T, rect.B, rect.B };
-  AGGDrawConvexPolygon(mPath, x, y, 4);
-}
-
-void IGraphicsAGG::PathRoundRect(const IRECT& rect, float cr)
-{
-  const double y = rect.B - rect.H();
-  PathStart();
-  PathArc(rect.L + cr, y + cr, cr, 180.0, 270.0);
-  PathArc(rect.L + rect.W() - cr, y + cr, cr, 270.0, 360.0);
-  PathArc(rect.L + rect.W() - cr, y + rect.H() - cr, cr, 0.0, 90.0);
-  PathArc(rect.L + cr, y + rect.H() - cr, cr, 90.0, 180.0);
-  PathClose();
 }
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
@@ -334,14 +188,6 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
   agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
   
   mPath.join_path(arc);
-}
-
-void IGraphicsAGG::PathCircle(float cx, float cy, float r)
-{
-  const float s = GetDisplayScale();
-  agg::ellipse ellipse(cx * s, cy * s, r * s, r * s);
-
-  mPath.concat_path(ellipse);
 }
 
 void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
@@ -361,7 +207,6 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   // FIX - dsahing!
   
   //cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
-  
   
   agg::conv_stroke<agg::path_storage> strokes(mPath);
  

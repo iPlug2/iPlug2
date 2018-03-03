@@ -7,7 +7,7 @@
 #include "nanovg_mtl.h"
 #endif
 
-#include "IGraphics.h"
+#include "IGraphicsPathBase.h"
 
 class NanoVGBitmap : public APIBitmap
 {
@@ -54,7 +54,7 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses
 */
-class IGraphicsNanoVG : public IGraphics
+class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
   const char* GetDrawingAPIStr() override { return "NANOVG"; }
@@ -74,37 +74,15 @@ public:
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   void ForcePixel(const IColor& color, int x, int y) override;
-  
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
-  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
     
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-
-  void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
-  
-  bool HasPathSupport() const override { return true; }
     
   void PathClear() override { nvgBeginPath(mVG); }
-  //void PathStart() override { //? }
+  void PathStart() override { }
   void PathClose() override { nvgClosePath(mVG); }
 
-  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override ;
-  void PathRect(const IRECT& rect) override;
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override;
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);}
-  void PathCircle(float cx, float cy, float r) override;
-  void PathConvexPolygon(float* x, float* y, int npoints) override;
-  
+
   void PathMoveTo(float x, float y) override { nvgMoveTo(mVG, x, y); }
   void PathLineTo(float x, float y) override { nvgLineTo(mVG, x, y); }
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3); }
@@ -133,7 +111,6 @@ protected:
   NVGpaint GetNVGPaint(const IPattern& pattern, const IBlend* pBlend);
   
   void Stroke(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
-  void Fill(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
 
   void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
 

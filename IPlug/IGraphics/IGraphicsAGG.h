@@ -10,7 +10,7 @@
 
  */
 
-#include "IGraphics.h"
+#include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
 class AGGBitmap : public APIBitmap
@@ -51,7 +51,7 @@ inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 
 /** IGraphics draw class using Antigrain Geometry
 *   @ingroup DrawClasses*/
-class IGraphicsAGG : public IGraphics
+class IGraphicsAGG : public IGraphicsPathBase
 {
 public:
   struct LineInfo
@@ -101,36 +101,14 @@ public:
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   void ForcePixel(const IColor& color, int x, int y) override;
 
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
-  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
-
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
-  void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
-
-  bool HasPathSupport() const override { return true; }
-  
   void PathClear() override { mPath.remove_all(); }
   void PathStart() override { mPath.start_new_path(); }
   void PathClose() override { mPath.close_polygon(); }
   
-  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override;
-  void PathRect(const IRECT& rect) override;
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override;
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
-  void PathCircle(float cx, float cy, float r) override;
-  void PathConvexPolygon(float* x, float* y, int npoints) override { AGGDrawConvexPolygon(mPath, x, y, npoints); }
-  
+
   void PathMoveTo(float x, float y) override { mPath.move_to(x * GetDisplayScale(), y * GetDisplayScale()); }
   void PathLineTo(float x, float y) override { mPath.line_to(x * GetDisplayScale(), y * GetDisplayScale());}
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
@@ -288,7 +266,6 @@ private:
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
 
-  void AGGDrawConvexPolygon(agg::path_storage& path, float* x, float* y, int npoints);
   
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
   void ToPixel(float & pixel);
