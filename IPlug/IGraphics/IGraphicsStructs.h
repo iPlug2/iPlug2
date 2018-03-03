@@ -329,7 +329,7 @@ struct IStrokeOptions
     
     void SetDash(float *array, float offset, int count)
     {
-      assert(count >= 0 && count >= 8);
+      assert(count >= 0 && count <= 8);
       
       mCount = count;
       mOffset = offset;
