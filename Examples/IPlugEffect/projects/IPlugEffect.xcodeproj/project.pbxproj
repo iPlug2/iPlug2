@@ -236,6 +236,12 @@
 		4FF142D31FD4A61E00A65575 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */; };
 		4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
 		4FF142D71FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
+		B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -461,7 +467,7 @@
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
 		4F8F61B120280CB4003F2573 /* IPlugBase_select.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugBase_select.h; path = ../../../IPlug/IPlugBase_select.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEffect_controls.h; path = ../IPlugEffect_controls.h; sourceTree = "<group>"; };
+		4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugEffect_controls.h; path = ../IPlugEffect_controls.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLiveEdit.h; path = ../../../IPlug/IGraphics/IGraphicsLiveEdit.h; sourceTree = "<group>"; };
 		4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BefacoBigKnob.svg; path = ../resources/img/BefacoBigKnob.svg; sourceTree = "<group>"; };
 		4FA6B9531FF9C22700049441 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControls.h; path = ../../../IPlug/IGraphics/IControls.h; sourceTree = "<group>"; };
@@ -518,12 +524,12 @@
 		4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/AUv2/dfx-au-utilities.c"; sourceTree = "<group>"; };
 		4FD52135202A5BD000A4D22A /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../../IPlug/AUv2/dfx-au-utilities.h"; sourceTree = "<group>"; };
 		4FD7C3A1203372AD009DBA2C /* IPlugDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate.h; path = ../../../IPlug/IPlugDelegate.h; sourceTree = "<group>"; };
-		4FDA1DCE20123CAD0027C868 /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsCairo.cpp; path = ../../../IPlug/IGraphics/IGraphicsCairo.cpp; sourceTree = "<group>"; };
-		4FDA1DCF20123CAD0027C868 /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsCairo.h; path = ../../../IPlug/IGraphics/IGraphicsCairo.h; sourceTree = "<group>"; };
-		4FDA1DD120123CCF0027C868 /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsAGG.cpp; path = ../../../IPlug/IGraphics/IGraphicsAGG.cpp; sourceTree = "<group>"; };
-		4FDA1DD220123CCF0027C868 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsAGG.h; path = ../../../IPlug/IGraphics/IGraphicsAGG.h; sourceTree = "<group>"; };
+		4FDA1DCE20123CAD0027C868 /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsCairo.cpp; path = ../../../IPlug/IGraphics/IGraphicsCairo.cpp; sourceTree = "<group>"; tabWidth = 2; };
+		4FDA1DCF20123CAD0027C868 /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsCairo.h; path = ../../../IPlug/IGraphics/IGraphicsCairo.h; sourceTree = "<group>"; tabWidth = 2; };
+		4FDA1DD120123CCF0027C868 /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsAGG.cpp; path = ../../../IPlug/IGraphics/IGraphicsAGG.cpp; sourceTree = "<group>"; tabWidth = 2; };
+		4FDA1DD220123CCF0027C868 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsAGG.h; path = ../../../IPlug/IGraphics/IGraphicsAGG.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FDA1DD420123CEC0027C868 /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsNanoVG.h; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.h; sourceTree = "<group>"; };
-		4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsNanoVG.cpp; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
+		4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsNanoVG.cpp; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
@@ -544,6 +550,8 @@
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../../common.xcconfig; sourceTree = SOURCE_ROOT; };
 		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../../AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IPlug/IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; tabWidth = 2; };
+		B8C5FB3B204AF4C400D5C34E /* 23.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = 23.svg; path = ../resources/img/23.svg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -979,6 +987,7 @@
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
+				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
@@ -1039,6 +1048,7 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				B8C5FB3B204AF4C400D5C34E /* 23.svg */,
 				4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */,
 			);
 			name = img;
@@ -1449,6 +1459,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1457,6 +1468,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1466,6 +1478,7 @@
 			files = (
 				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1474,6 +1487,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1482,6 +1496,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1490,6 +1505,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
+				B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);

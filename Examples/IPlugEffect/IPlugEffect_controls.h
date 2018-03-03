@@ -159,24 +159,30 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-#ifndef IGRAPHICS_LICE
-    double cr = mValue * (mRECT.H() / 2.0);
-    graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
-    IFillOptions fillOptions;
-    IStrokeOptions strokeOptions;
-    fillOptions.mPreserve = true;
-    graphics.PathFill(mPattern, fillOptions);
-    graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
-#else
-    graphics.DrawText(mText, "UNSUPPORTED", mRECT);
-#endif
+    if (graphics.HasPathSupport())
+    {
+      double cr = mValue * (mRECT.H() / 2.0);
+      graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
+      IFillOptions fillOptions;
+      IStrokeOptions strokeOptions;
+      fillOptions.mPreserve = true;
+      graphics.PathFill(mPattern, fillOptions);
+      graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
+    }
+    else
+      graphics.DrawText(mText, "UNSUPPORTED", mRECT);
   }
   
   void RandomiseGradient()
   {
-    IPattern tmp(kLinearPattern);
+    //IPattern tmp(kLinearPattern);
+    //tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    IPattern tmp(kSolidPattern);
     
-    tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    if (rand() & 0x100)
+      tmp = IPattern(mRECT.MW(), mRECT.MH(), mRECT.MH());
+    else
+      tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.R, mRECT.MH());
     
     tmp.AddStop(IColor::GetRandomColor(), 0.0);
     tmp.AddStop(IColor::GetRandomColor(), 0.1);
@@ -189,4 +195,28 @@ public:
   
 private:
   IPattern mPattern = IPattern(kLinearPattern);
+};
+
+class IMultiPathControl : public IKnobControlBase
+{
+public:
+  IMultiPathControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  : IKnobControlBase(plug, rect, paramIdx)
+  {
+  }
+  
+  void Draw(IGraphics& graphics) override
+  {
+    if (graphics.HasPathSupport())
+    {
+      double r = mValue * (mRECT.H() / 2.0);
+      graphics.PathCircle(mRECT.MW(), mRECT.MH(), r);
+      graphics.PathCircle(mRECT.MW(), mRECT.MH(), r * 0.5);
+      IFillOptions fillOptions;
+      fillOptions.mFillRule = mValue > 0.2 ? kFillEvenOdd : kFillWinding;
+      graphics.PathFill(COLOR_BLACK, fillOptions);
+    }
+    else
+      graphics.DrawText(mText, "UNSUPPORTED", mRECT);
+  }
 };
