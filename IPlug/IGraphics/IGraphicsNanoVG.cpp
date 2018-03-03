@@ -63,7 +63,7 @@ APIBitmap* IGraphicsNanoVG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return nullptr;
 }
 
-void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
+void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
 }
 
@@ -96,17 +96,14 @@ void IGraphicsNanoVG::EndFrame()
 
 void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
-  nvgSave(mVG);
-  nvgTranslate(mVG, dest.L, dest.T);
-
   float xScale = dest.W() / svg.W();
   float yScale = dest.H() / svg.H();
   float scale = xScale < yScale ? xScale : yScale;
-    
+  
+  nvgSave(mVG);
+  nvgTranslate(mVG, dest.L, dest.T);
   nvgScale(mVG, scale, scale);
-    
   NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
-
   nvgRestore(mVG);
 }
 

@@ -149,19 +149,16 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
 */
 void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
 {
-  cairo_save(mContext);
-  cairo_translate(mContext, dest.L, dest.T);
-  cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
-  cairo_clip(mContext);
-
   double xScale = dest.W() / svg.W();
   double yScale = dest.H() / svg.H();
   double scale = xScale < yScale ? xScale : yScale;
 
+  cairo_save(mContext);
+  cairo_translate(mContext, dest.L, dest.T);
+  cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
+  cairo_clip(mContext);
   cairo_scale(mContext, scale, scale);
-
   NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
-
   cairo_restore(mContext);
 }
 
