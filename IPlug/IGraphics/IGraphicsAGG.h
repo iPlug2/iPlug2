@@ -104,9 +104,9 @@ public:
   
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
 
-  void PathMoveTo(float x, float y) override { mPath.move_to(x * GetDisplayScale(), y * GetDisplayScale()); }
-  void PathLineTo(float x, float y) override { mPath.line_to(x * GetDisplayScale(), y * GetDisplayScale());}
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathMoveTo(float x, float y) override { mPath.move_to(x, y); }
+  void PathLineTo(float x, float y) override { mPath.line_to(x, y);}
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { mPath.curve4(x1, y1, x2, y2, x3, y3); }
   
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
@@ -119,9 +119,9 @@ public:
     mState.pop();
   }
   
-  void PathTransformTranslate(float x, float y) override { mTransform *= agg::trans_affine_translation(x, y); }
-  void PathTransformScale(float scale) override { mTransform *= agg::trans_affine_scaling(scale); }
-  void PathTransformRotate(float angle) override { mTransform *= agg::trans_affine_rotation(DegToRad(angle)); }
+  void PathTransformTranslate(float x, float y) override { mTransform /= agg::trans_affine_translation(x, y); }
+  void PathTransformScale(float scale) override { mTransform /= agg::trans_affine_scaling(scale); }
+  void PathTransformRotate(float angle) override { mTransform /= agg::trans_affine_rotation(DegToRad(angle)); }
 
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
@@ -156,8 +156,8 @@ private:
     agg::render_scanlines(rasterizer, scanline, renderer);
   }
   
-  template <typename pathType>
-  void Rasterize(const IPattern& pattern, pathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
+  template <typename PathType>
+  void Rasterize(const IPattern& pattern, PathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
@@ -192,8 +192,8 @@ private:
         InterpolatorType        spanInterpolator(gradientMTX);
        
         // Scaling
-        
-        gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * gradientMTX * agg::trans_affine_scaling(512.0);
+  
+        gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform * gradientMTX * agg::trans_affine_scaling(512.0);
 
         // Make gradient lut
         
@@ -235,20 +235,6 @@ private:
       }
       break;
     }
-  }
-
-  template <typename pathType>
-  void Fill(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
-  {
-    Rasterize(color, path, pBlend);
-  }
-
-  template <typename pathType>
-  void Stroke(const IColor& color, pathType& path, const IBlend* pBlend = nullptr)
-  {
-    agg::conv_stroke<pathType> strokes(path);
-    strokes.width(1.0 * GetDisplayScale());
-    Rasterize(color, strokes, pBlend);
   }
 
   RenbaseType mRenBase;

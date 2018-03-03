@@ -167,31 +167,29 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
-  const float s = GetDisplayScale();
-  agg::arc arc(cx * s, cy * s, r * s, r * s, DegToRad(aMin), DegToRad(aMax));
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin), DegToRad(aMax));
   
   mPath.join_path(arc);
 }
 
-void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
-{
-  const float s = GetDisplayScale();
-  
-  mPath.curve4(x1 * s, y1 * s, x2 * s, y2 * s, x3 * s, y3 * s);
-}
-
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
+  agg::path_storage path(mPath);
+  agg::trans_affine xform = mTransform;
+  xform.invert();
+  xform *= agg::trans_affine_scaling(GetDisplayScale());
+  path.transform_all_paths(xform);
+
   double dashArray[8];
   
   for (int i = 0; i < options.mDash.GetCount(); i++)
     dashArray[i] = *(options.mDash.GetArray() + i);
   
-  // FIX - dsahing!
+  // FIX - dashing!
   
   //cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
   
-  agg::conv_stroke<agg::path_storage> strokes(mPath);
+  agg::conv_stroke<agg::path_storage> strokes(path);
  
   // Set stroke options
   
@@ -222,7 +220,13 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  Rasterize(pattern, mPath, pBlend, options.mFillRule);
+  agg::path_storage path(mPath);
+  agg::trans_affine xform = mTransform;
+  xform.invert();
+  xform *= agg::trans_affine_scaling(GetDisplayScale());
+  path.transform_all_paths(xform);
+  
+  Rasterize(pattern, path, pBlend, options.mFillRule);
   if (!options.mPreserve)
     PathClear();
 }
