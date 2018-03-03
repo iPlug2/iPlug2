@@ -131,8 +131,8 @@ protected:
   
   NVGpaint GetNVGPaint(const IPattern& pattern, const IBlend* pBlend);
   
-  void Stroke(const IPattern& pattern, const IBlend* pBlend);
-  void Fill(const IPattern& pattern, const IBlend* pBlend);
+  void Stroke(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
+  void Fill(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
 
   void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
   void NVGDrawRect(float x, float y, float w, float h);

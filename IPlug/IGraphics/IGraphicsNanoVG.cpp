@@ -321,19 +321,15 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
 {
   NVGSetStrokeOptions(options);
   nvgStrokeWidth(mVG, thickness);
-  Stroke(pattern, pBlend);
+  Stroke(pattern, pBlend, options.mPreserve);
   nvgStrokeWidth(mVG, 1.0);
   NVGSetStrokeOptions();
-  if (!options.mPreserve)
-    nvgBeginPath(mVG);
 }
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   NVGSetFillOptions(options);
-  Fill(pattern, pBlend);
-  if (!options.mPreserve)
-    nvgBeginPath(mVG);
+  Fill(pattern, pBlend, options.mPreserve);
 }
 
 NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, const IBlend* pBlend)
@@ -362,7 +358,7 @@ NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, const IBlend* pBl
   }
 }
 
-void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend, bool preserve)
 {
   if (pattern.mType == kSolidPattern)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
@@ -370,10 +366,11 @@ void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend)
     nvgStrokePaint(mVG, GetNVGPaint(pattern, pBlend));
   
   nvgStroke(mVG);
-  nvgBeginPath(mVG);
+  if (!preserve)
+    nvgBeginPath(mVG);
 }
 
-void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend, bool preserve)
 {
   if (pattern.mType == kSolidPattern)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
@@ -381,5 +378,6 @@ void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
     nvgFillPaint(mVG, GetNVGPaint(pattern, pBlend));
   
   nvgFill(mVG);
-  nvgBeginPath(mVG);
+  if (!preserve)
+    nvgBeginPath(mVG);
 }
