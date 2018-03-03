@@ -382,13 +382,13 @@ struct IPattern
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
   
-  IPattern(EPatternType type)
+  IPattern(EPatternType type) : mExtend(kExtendNone)
   {
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
   
-  IPattern(float x1, float y1, float x2, float y2)
+  IPattern(float x1, float y1, float x2, float y2) : mExtend(kExtendNone)
   {
     mType = kLinearPattern;
    
@@ -411,7 +411,7 @@ struct IPattern
     SetTransform(xx, yx, xy, yy, x0, y0);
   }
 
-  IPattern(float x1, float y1, float r)
+  IPattern(float x1, float y1, float r) : mExtend(kExtendNone)
   {
     mType = kRadialPattern;
     
@@ -782,7 +782,11 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      delete mDatas.Get(i)->data;
+      // FIX - this doesn't work - why not?
+      /*
+      DataKey* key = mDatas.Get(i);
+      T* data = key->data;
+      delete data;*/
     }
     mDatas.Empty(true);
   };
