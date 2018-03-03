@@ -165,18 +165,6 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
 }
 
-void IGraphicsAGG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
-{
-  const float s = GetDisplayScale();
-  mRenBase.blend_pixel(x * s, y * s, AGGColor(color), 255);
-}
-
-void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
-{
-  const float s = GetDisplayScale();
-  mRenBase.copy_pixel(x * s, y * s, AGGColor(color));
-}
-
 void IGraphicsAGG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
   // TODO:
@@ -669,34 +657,7 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
 //
   return false;
 }
-
-/*void IGraphicsAGG::DrawSVG(agg::svg::path_renderer& pathRenderer, const IRECT& rect)
-{
-  agg::trans_affine mtx;
-  mtx.scale(GetDisplayScale());
-  mtx.translate(rect.L, rect.T);
-  
-  agg::rasterizer_scanline_aa<> pf;
-  agg::scanline_p8 sl;
-  
-  agg::rect_i cb(0, 0, Width() * GetDisplayScale(), Height() * GetDisplayScale());
-  
-  agg::pixfmt_gray8 pixf(mAlphaMaskRenBuf);
-  mask_ren_base maskRenBase(pixf);
-  
-  agg::alpha_mask_gray8 mask(mAlphaMaskRenBuf);
-  scanlineType msl(mask);
-    
-#ifdef WIN32
-  agg::alpha_mask_rgba32gray img_mask_pixf;
-#else
-  agg::alpha_mask_argb32gray img_mask_pixf;
-#endif
-  
-  pathRenderer.render(pf, sl, msl, mRenBase, maskRenBase, mPixf, img_mask_pixf, mtx, cb, *this);
-  }
-
-
+/*
 agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 {
   IBitmap bitmap = LoadBitmap(filename, 1, 1.0);

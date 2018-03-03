@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stack>
+
 /*
 
  AGG 2.4 should be modified to avoid bringing carbon headers on mac, which can cause conflicts
@@ -92,15 +94,10 @@ public:
 
   void Draw(const IRECT& rect) override;
 
-  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override {}
-  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override {}
-
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
-  void ForcePixel(const IColor& color, int x, int y) override;
-
+  
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
 
   void PathClear() override { mPath.remove_all(); }
@@ -116,6 +113,18 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
+  void PathStateSave() override { mState.push(mTransform); }
+  
+  void PathStateRestore() override
+  {
+    mTransform = mState.top();
+    mState.pop();
+  }
+  
+  void PathTransformTranslate(float x, float y) override { mTransform *= agg::trans_affine_translation(x, y); }
+  void PathTransformScale(float scale) override { mTransform *= agg::trans_affine_scaling(scale); }
+  void PathTransformRotate(float angle) override { mTransform *= agg::trans_affine_rotation(DegToRad(angle)); }
+
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
 
@@ -250,6 +259,12 @@ private:
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
   agg::path_storage mPath;
+  agg::trans_affine mTransform;
+  
+  // TODO Oli probably wants this to not be STL but there's nothing in WDL for this...
+  
+  std::stack<agg::trans_affine> mState;
+  
 #ifdef OS_MAC
   agg::pixel_map_mac mPixelMap;
 #else

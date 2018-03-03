@@ -3,7 +3,6 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
-#include "IGraphicsNanoSVG.h"
 
 #ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
@@ -147,38 +146,16 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
   return IBitmap(new CairoBitmap(pOutSurface, targetScale)); //TODO: surface will not be destroyed, unless this is retained
 }
 */
-void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
-{
-  double xScale = dest.W() / svg.W();
-  double yScale = dest.H() / svg.H();
-  double scale = xScale < yScale ? xScale : yScale;
-
-  cairo_save(mContext);
-  cairo_translate(mContext, dest.L, dest.T);
-  ClipRegion(IRECT(0, 0, dest.W(), dest.H()));
-  cairo_scale(mContext, scale, scale);
-  NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
-  cairo_restore(mContext);
-}
-
-void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
-{
-  cairo_save(mContext);
-  cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, DegToRad(angle));
-  DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
-  cairo_restore(mContext);
-}
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  cairo_save(mContext);
+  PathStateSave();
   ClipRegion(dest);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetRawBitmap();
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
-  cairo_restore(mContext);
+  PathStateRestore();
 }
 
 void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -188,11 +165,11 @@ void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCt
   float width = bitmap.W();
   float height = bitmap.H();
 
-  cairo_save(mContext);
-  cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, DegToRad(angle));
+  PathStateSave();
+  PathTransformTranslate(destCtrX, destCtrY);
+  PathTransformRotate(angle);
   DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
-  cairo_restore(mContext);
+  PathStateRestore();
 }
 
 void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
@@ -201,27 +178,13 @@ void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top,
   float height = base.H();
 
   IBlend addBlend(kBlendAdd);
-  cairo_save(mContext);
+  PathStateSave();
   DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-  cairo_translate(mContext, x + 0.5 * width, y + 0.5 * height);
-  cairo_rotate(mContext, angle);
+  PathTransformTranslate(x + 0.5 * width, y + 0.5 * height);
+  PathTransformRotate(angle);
   DrawBitmap(mask, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, &addBlend);
   DrawBitmap(top, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
-  cairo_restore(mContext);
-}
-
-void IGraphicsCairo::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
-{
-  cairo_move_to(mContext, x + 0.5, y + 0.5);
-  cairo_line_to(mContext, x + 1.5, y + 1.5);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
-{
-  cairo_move_to(mContext, x + 0.5, y + 0.5);
-  cairo_line_to(mContext, x + 1.5, y + 1.5);
-  Stroke(color, nullptr);
+  PathStateRestore();
 }
 
 void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)

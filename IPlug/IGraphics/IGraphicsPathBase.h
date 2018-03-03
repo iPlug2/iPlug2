@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IGraphics.h"
+#include "IGraphicsNanoSVG.h"
 
 class IGraphicsPathBase : public IGraphics
 {
@@ -94,6 +95,19 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
+  // Pixel Manipulation
+  
+  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
+  {
+    FillRect(color, IRECT(x, y, 1, 1), pBlend);
+  }
+  
+  void ForcePixel(const IColor& color, int x, int y) override
+  {
+    IColor preMulColor(255, (color.R * color.A) / 255, (color.G * color.A) / 255, (color.B * color.A) / 255);
+    DrawPoint(preMulColor, x, y, 0);
+  }
+  
   // Path Methods
 
   bool HasPathSupport() const override { return true; }
@@ -140,4 +154,37 @@ public:
       PathLineTo(x[i], y[i]);
     PathClose();
   }
+  
+  virtual void PathStateSave() = 0;
+  virtual void PathStateRestore() = 0;
+  
+  virtual void PathTransformTranslate(float x, float y) = 0;
+  virtual void PathTransformScale(float scale) = 0;
+  virtual void PathTransformRotate(float angle) = 0;
+  
+  // SVG Support
+  
+  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
+  {
+    double xScale = dest.W() / svg.W();
+    double yScale = dest.H() / svg.H();
+    double scale = xScale < yScale ? xScale : yScale;
+    
+    PathStateSave();
+    PathTransformTranslate(dest.L, dest.T);
+    ClipRegion(IRECT(0, 0, dest.W(), dest.H()));
+    PathTransformScale(scale);
+    NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
+    PathStateRestore();
+  }
+  
+  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override
+  {
+    PathStateSave();
+    PathTransformTranslate(destCtrX, destCtrY);
+    PathTransformRotate(angle);
+    DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
+    PathStateRestore();
+  }
+
 };

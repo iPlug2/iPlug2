@@ -94,28 +94,6 @@ void IGraphicsNanoVG::EndFrame()
   nvgEndFrame(mVG);
 }
 
-void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
-{
-  float xScale = dest.W() / svg.W();
-  float yScale = dest.H() / svg.H();
-  float scale = xScale < yScale ? xScale : yScale;
-  
-  nvgSave(mVG);
-  nvgTranslate(mVG, dest.L, dest.T);
-  nvgScale(mVG, scale, scale);
-  NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
-  nvgRestore(mVG);
-}
-
-void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
-{
-  nvgSave(mVG);
-  nvgTranslate(mVG, destCtrX, destCtrY);
-  nvgRotate(mVG, DegToRad(angle));
-  DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
-  nvgRestore(mVG);
-}
-
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   int idx = GetBitmapIdx(bitmap.GetAPIBitmap());
@@ -149,17 +127,6 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, con
   DrawRect(color, rect, pBlend);
 }
 
-void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
-{
-  nvgCircle(mVG, x, y, 0.01); // TODO:  0.01 - is there a better way to draw a point?
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::ForcePixel(const IColor& color, int x, int y)
-{
-  //TODO:
-}
-
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
@@ -174,7 +141,6 @@ bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& des
 {
   return DrawText(text, str, destRect, true);
 }
-
 
 void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
 {

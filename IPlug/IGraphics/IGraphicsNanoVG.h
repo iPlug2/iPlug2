@@ -66,14 +66,9 @@ public:
   void EndFrame() override;
   void ViewInitialized(void* layer) override;
   
-  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
-  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override;
-  
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
-  void ForcePixel(const IColor& color, int x, int y) override;
     
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
     
@@ -90,6 +85,13 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
+  void PathStateSave() override { nvgSave(mVG); }
+  void PathStateRestore() override { nvgRestore(mVG); }
+    
+  void PathTransformTranslate(float x, float y) override { nvgTranslate(mVG, x, y); }
+  void PathTransformScale(float scale) override { nvgScale(mVG, scale, scale); }
+  void PathTransformRotate(float angle) override { nvgRotate(mVG, DegToRad(angle)); }
+    
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mVG; }
 
