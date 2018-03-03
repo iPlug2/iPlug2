@@ -2,15 +2,18 @@
 
 #include "nanosvg.h"
 #include "IGraphics.h"
+#include <algorithm>
 
 namespace NanoSVGRenderer
 {
   static IPattern GetPattern(const NSVGpaint& paint, float opacity)
   {
+    int alpha = std::min(255, std::max(int(roundf(opacity * 255.f)), 0));
+      
     switch (paint.type)
     {
       case NSVG_PAINT_COLOR:
-        return IColor(opacity, (paint.color >> 0) & 0xFF, (paint.color >> 8) & 0xFF, (paint.color >> 16) & 0xFF);
+        return IColor(alpha, (paint.color >> 0) & 0xFF, (paint.color >> 8) & 0xFF, (paint.color >> 16) & 0xFF);
     
       case NSVG_PAINT_LINEAR_GRADIENT:
       case NSVG_PAINT_RADIAL_GRADIENT:
@@ -43,7 +46,7 @@ namespace NanoSVGRenderer
         return pattern;
       }
       default:
-        return IColor(opacity, 0, 0, 0);
+        return IColor(alpha, 0, 0, 0);
     }
   }
   
