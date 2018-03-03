@@ -465,6 +465,7 @@ public:
   
   virtual bool HasPathSupport() const { return false; }
   
+  virtual void PathClear() {}
   virtual void PathStart() {}
   virtual void PathClose() {}
   

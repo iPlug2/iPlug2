@@ -94,15 +94,16 @@ public:
   
   bool HasPathSupport() const override { return true; }
     
-  void PathStart() override { nvgBeginPath(mVG); }
+  void PathClear() override { nvgBeginPath(mVG); }
+  //void PathStart() override { //? }
   void PathClose() override { nvgClosePath(mVG); }
 
-  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { NVGDrawTriangle(x1, y1, x2, y2, x3, y3); }
-  void PathRect(const IRECT& rect) override { NVGDrawRect(rect.L, rect.T, rect.W(), rect.H()); }
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { NVGDrawRoundRect(rect.L, rect.T, rect.W(), rect.H(), cr); }
+  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override ;
+  void PathRect(const IRECT& rect) override;
+  void PathRoundRect(const IRECT& rect, float cr = 5.f) override;
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);}
-  void PathCircle(float cx, float cy, float r) override { NVGDrawCircle(cx, cy, r); }
-  void PathConvexPolygon(float* x, float* y, int npoints) override { NVGDrawConvexPolygon(x, y, npoints); }
+  void PathCircle(float cx, float cy, float r) override;
+  void PathConvexPolygon(float* x, float* y, int npoints) override;
   
   void PathMoveTo(float x, float y) override { nvgMoveTo(mVG, x, y); }
   void PathLineTo(float x, float y) override { nvgLineTo(mVG, x, y); }
@@ -134,14 +135,7 @@ protected:
   void Stroke(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
   void Fill(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
 
-  void NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
-  void NVGDrawRect(float x, float y, float w, float h);
-  void NVGDrawRoundRect(float x, float y, float w, float h, float cr);
-  void NVGDrawCircle(float cx, float cy, float r);
-  void NVGDrawConvexPolygon(float* x, float* y, int npoints);
-
   void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-  void NVGSetFillOptions(const IFillOptions& options = IFillOptions());
 
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;

@@ -178,14 +178,14 @@ void IGraphicsAGG::ForcePixel(const IColor& color, int x, int y)
 
 void IGraphicsAGG::AGGDrawConvexPolygon(agg::path_storage& path, float* x, float* y, int npoints)
 {
-    const float s = GetDisplayScale();
+  const float s = GetDisplayScale();
     
-    path.move_to(x[0] * s, y[0] * s);
-    for (int i=1; i<npoints; ++i)
-    {
-        path.line_to(x[i] * s, y[i] * s);
-    }
-    path.close_polygon();
+  path.move_to(x[0] * s, y[0] * s);
+  for (int i=1; i<npoints; ++i)
+  {
+    path.line_to(x[i] * s, y[i] * s);
+  }
+  path.close_polygon();
 }
 
 void IGraphicsAGG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
@@ -389,14 +389,14 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   
   Rasterize(pattern, strokes, pBlend);
   if (!options.mPreserve)
-    mPath.remove_all();
+    PathClear();
 }
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   Rasterize(pattern, mPath, pBlend, options.mFillRule);
   if (!options.mPreserve)
-    mPath.remove_all();
+    PathClear();
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)

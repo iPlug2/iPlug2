@@ -225,38 +225,38 @@ void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
   Stroke(color, nullptr);
 }
 
-void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsCairo::PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-  cairo_move_to(mContext, x1, y1);
-  cairo_line_to(mContext, x2, y2);
-  cairo_line_to(mContext, x3, y3);
-  cairo_close_path(mContext);
+  PathMoveTo(x1, y1);
+  PathLineTo(x2, y2);
+  PathLineTo(x3, y3);
+  PathClose();
 }
 
-void IGraphicsCairo::CairoDrawConvexPolygon(float* x, float* y, int npoints)
+void IGraphicsCairo::PathConvexPolygon(float* x, float* y, int npoints)
 {
-  cairo_move_to(mContext, x[0], y[0]);
+  PathMoveTo(x[0], y[0]);
   for(int i = 1; i < npoints; i++)
-    cairo_line_to(mContext, x[i], y[i]);
-  cairo_close_path(mContext);
+    PathMoveTo(x[i], y[i]);
+  PathClose();
 }
 
-void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
+void IGraphicsCairo::PathRoundRect(const IRECT& rect, float corner)
 {
   const double y = rect.B - rect.H();
-  cairo_new_path(mContext);
+  PathStart();
   cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
   cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
   cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
   cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.5);
-  cairo_close_path(mContext);
+  PathClose();
 }
 
-void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
+void IGraphicsCairo::PathCircle(float cx, float cy, float r)
 {
-  cairo_new_path(mContext);
+  PathStart();
   cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
-  cairo_close_path(mContext);
+  PathClose();
 }
 
 void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
@@ -285,11 +285,6 @@ void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
 }
 
-void IGraphicsCairo::CairoSetFillOptions(const IFillOptions& options)
-{
-  cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
-}
-
 void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
   cairo_move_to(mContext, x1, y1);
@@ -299,25 +294,25 @@ void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2,
 
 void IGraphicsCairo::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
-  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
+  PathTriangle(x1, y1, x2, y2, x3, y3);
   Stroke(color, pBlend);
 }
 
 void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
-  CairoDrawRect(rect);
+  PathRect(rect);
   Stroke(color, pBlend);
 }
 
 void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
 {
-  CairoDrawRoundRect(rect, corner);
+  PathRoundRect(rect, corner);
   Stroke(color, pBlend);
 }
 
 void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
 {
-  CairoDrawConvexPolygon(x, y, npoints);
+  PathConvexPolygon(x, y, npoints);
   Stroke(color, pBlend);
 }
 
@@ -329,7 +324,7 @@ void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, f
 
 void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
-  CairoDrawCircle(cx, cy, r);
+  PathCircle(cx, cy, r);
   Stroke(color, pBlend);
 }
 
@@ -343,25 +338,25 @@ void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, cons
 
 void IGraphicsCairo::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
-  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
+  PathTriangle(x1, y1, x2, y2, x3, y3);
   Fill(color, pBlend);
 }
 
 void IGraphicsCairo::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
 {
-  CairoDrawRect(rect);
+  PathRect(rect);
   Fill(color, pBlend);
 }
 
 void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
 {
-  CairoDrawRoundRect(rect, corner);
+  PathRoundRect(rect, corner);
   Fill(color, pBlend);
 }
 
 void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
 {
-  CairoDrawConvexPolygon(x, y, npoints);
+  PathConvexPolygon(x, y, npoints);
   Fill(color, pBlend);
 }
 
@@ -375,7 +370,7 @@ void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, f
 
 void IGraphicsCairo::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
-  CairoDrawCircle(cx, cy, r);
+  PathCircle(cx, cy, r);
   Fill(color, pBlend);
 }
 
@@ -393,7 +388,7 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
 
 void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 
 {
-  CairoSetFillOptions(options);
+  cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
   SetCairoSourcePattern(pattern, pBlend);
   if (options.mPreserve)
     cairo_fill_preserve(mContext);

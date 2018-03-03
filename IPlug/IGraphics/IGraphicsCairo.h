@@ -61,15 +61,16 @@ public:
 
   bool HasPathSupport() const override { return true; }
     
-  void PathStart() override { cairo_new_path(mContext); }
+  void PathClear() override { cairo_new_path(mContext); }
+  void PathStart() override { cairo_new_sub_path(mContext); }
   void PathClose() override { cairo_close_path(mContext); }
 
-  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { CairoDrawTriangle(x1, y1, x2, y2, x3, y3); }
-  void PathRect(const IRECT& rect) override { CairoDrawRect(rect);}
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { CairoDrawRoundRect(rect, cr); }
+  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathRect(const IRECT& rect) override { cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H()); }
+  void PathRoundRect(const IRECT& rect, float cr = 5.f) override;
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
-  void PathCircle(float cx, float cy, float r) override { CairoDrawCircle(cx, cy, r); }
-  void PathConvexPolygon(float* x, float* y, int npoints) override { CairoDrawConvexPolygon(x, y, npoints); }
+    void PathCircle(float cx, float cy, float r) override;
+    void PathConvexPolygon(float* x, float* y, int npoints) override;
     
   void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
   void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
@@ -92,8 +93,8 @@ public:
 
   inline void ClipRegion(const IRECT& r) override
   {
-    cairo_new_path(mContext);
-    CairoDrawRect(r);
+    PathClear();
+    PathRect(r);
     cairo_clip(mContext);
   }
 
@@ -144,18 +145,7 @@ protected:
     cairo_fill(mContext);
   }
 
-  inline void CairoDrawRect(const IRECT& rect)
-  {
-    cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
-  }
-
-  void CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
-  void CairoDrawRoundRect(const IRECT& rect, float corner);
-  void CairoDrawConvexPolygon(float* x, float* y, int npoints);
-  void CairoDrawCircle(float cx, float cy, float r);
-
   void CairoSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-  void CairoSetFillOptions(const IFillOptions& options = IFillOptions());
   
 private:
   cairo_t* mContext;

@@ -120,6 +120,7 @@ public:
 
   bool HasPathSupport() const override { return true; }
   
+  void PathClear() override { mPath.remove_all(); }
   void PathStart() override { mPath.start_new_path(); }
   void PathClose() override { mPath.close_polygon(); }
   
