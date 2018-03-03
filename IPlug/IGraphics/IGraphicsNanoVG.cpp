@@ -121,12 +121,6 @@ void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top
   //TODO:
 }
 
-void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  //TODO: NanoVG doesn't do dots
-  DrawRect(color, rect, pBlend);
-}
-
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:

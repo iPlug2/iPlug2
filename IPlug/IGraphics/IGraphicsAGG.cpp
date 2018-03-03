@@ -165,11 +165,6 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
 }
 
-void IGraphicsAGG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  // TODO:
-}
-
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
   const float s = GetDisplayScale();

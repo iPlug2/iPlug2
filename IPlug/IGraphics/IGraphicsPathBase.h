@@ -55,6 +55,17 @@ public:
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
+  // Dotted Rect
+  
+  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override
+  {
+    float dashLength = 2;
+    IStrokeOptions options;
+    options.mDash.SetDash(&dashLength, 0.0, 1);
+    PathRect(rect);
+    PathStroke(color, 1.0, options, pBlend);
+  }
+
   // Fill methods
   
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override

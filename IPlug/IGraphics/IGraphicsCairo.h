@@ -36,9 +36,7 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-  
-  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-    
+      
   void PathClear() override { cairo_new_path(mContext); }
   void PathStart() override { cairo_new_sub_path(mContext); }
   void PathClose() override { cairo_close_path(mContext); }

@@ -98,8 +98,6 @@ public:
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
   
-  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-
   void PathClear() override { mPath.remove_all(); }
   void PathStart() override { mPath.start_new_path(); }
   void PathClose() override { mPath.close_polygon(); }

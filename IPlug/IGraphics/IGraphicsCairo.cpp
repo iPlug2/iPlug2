@@ -213,14 +213,6 @@ void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
 }
 
-void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  double dashLength = 2;
-  cairo_set_dash(mContext, &dashLength, 1, 0.0);
-  DrawRect(color, rect, pBlend);
-  cairo_set_dash(mContext, nullptr, 0, 0.0);
-}
-
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   CairoSetStrokeOptions(options);
