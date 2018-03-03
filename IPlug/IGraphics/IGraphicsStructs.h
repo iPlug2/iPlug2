@@ -87,12 +87,11 @@ public:
     , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
     , mN(n)
     , mFramesAreHorizontal(framesAreHorizontal)
-    , mScale(pAPIBitmap->GetScale())
     , mResourceName(name, (int) strlen(name))
   {
   }
     
-  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false), mScale(0)
+  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false)
   {
   }
     
@@ -116,6 +115,11 @@ public:
   * @return number of frames
   */
   inline int N() const { return mN; }
+  /**
+   * @return the scale of the bitmap
+   */
+  inline int GetScale() const { return mAPIBitmap->GetScale(); }
+
   /**
   * @return a pointer to the referenced APIBitmap
   */
@@ -145,8 +149,6 @@ private:
   int mN;
   /** \c True if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
-  /** Scale of this bitmap */
-  int mScale;
   /** Resource path/name for the bitmap */
   WDL_String mResourceName;
 };
@@ -769,7 +771,7 @@ public:
       if (mDatas.Get(i)->data == data)
       {
         mDatas.Delete(i, true);
-        delete(data);
+        delete data;
         break;
       }
     }
