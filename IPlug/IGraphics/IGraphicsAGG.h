@@ -83,15 +83,18 @@ public:
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, InterpolatorType> spanGenType;
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
+  
+  // Path Types
+  
   typedef agg::path_storage PathType;
-  typedef agg::conv_transform<PathType> TransformedPathType;
-  typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
   typedef agg::conv_curve<PathType> CurvedPathType;
-  typedef agg::conv_stroke<CurvedTransformedPathType> StrokeType;
+  typedef agg::conv_stroke<CurvedPathType> StrokeType;
   typedef agg::conv_dash<CurvedPathType> DashType;
-  typedef agg::conv_transform<DashType> TransformedDashedPathType;
-  //typedef agg::conv_curve<TransformedDashedPathType> CurvedDashPathType;
-  typedef agg::conv_stroke<TransformedDashedPathType> DashStrokeType;
+  typedef agg::conv_stroke<DashType> DashStrokeType;
+  typedef agg::conv_transform<PathType> TransformedPathType;
+  typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
+  typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
+  typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
 
   class PathRasterizer
   {
@@ -244,11 +247,11 @@ public:
 private:
 
   template<typename StrokeType>
-  void RasterizeStrokes(StrokeType& strokes, const IPattern& pattern, double thickness, const IStrokeOptions& options, const IBlend* pBlend)
+  void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
   {
     // Set stroke options
     
-    strokes.width(thickness * GetDisplayScale());
+    strokes.width(thickness);
     
     switch (options.mCapOption)
     {
@@ -263,12 +266,8 @@ private:
       case kJoinRound:   strokes.line_join(agg::round_join);   break;
       case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
     }
-    
-    // FIX - scale miter limit?
-    
+        
     strokes.miter_limit(options.mMiterLimit);
-    
-    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
   }
   
   agg::trans_affine GetRasterTransform() { return agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform; }

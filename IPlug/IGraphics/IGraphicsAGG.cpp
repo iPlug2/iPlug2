@@ -227,9 +227,9 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   {
     CurvedPathType curvedPath(mPath);
     DashType dashed(curvedPath);
-    TransformedDashedPathType path(dashed, xform);
-    DashStrokeType strokes(path);
-    
+    DashStrokeType strokes(dashed);
+    TransformedDashStrokePathType path(strokes, xform);
+
     // Set the dashes (N.B. - for odd counts the array is read twice)
 
     int dashCount = options.mDash.GetCount();
@@ -242,15 +242,17 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     for (int i = 0; i < dashMax; i += 2)
         dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
-    RasterizeStrokes(strokes, pattern, thickness, options, pBlend);
+    StrokeOptions(strokes, thickness, options);
+    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
   }
   else
   {
-    TransformedPathType path(mPath, xform);
-    CurvedTransformedPathType curvedPath(path);
-    
+    CurvedPathType curvedPath(mPath);
     StrokeType strokes(curvedPath);
-    RasterizeStrokes(strokes, pattern, thickness, options, pBlend);
+    TransformedStrokePathType path(strokes, xform);
+    
+    StrokeOptions(strokes, thickness, options);
+    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
   }
   
   if (!options.mPreserve)
