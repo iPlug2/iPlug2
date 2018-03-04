@@ -83,10 +83,10 @@ public:
   typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, InterpolatorType> spanGenType;
-  
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
-
+  typedef agg::rasterizer_scanline_aa<> RasterizerType;
+  
   IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
 
@@ -138,10 +138,11 @@ public:
 private:
 
   template <typename GradientFuncType>
-  void GradientRasterize(agg::rasterizer_scanline_aa<>& rasterizer, GradientFuncType& gradientFunc, InterpolatorType& spanInterpolator, ColorArrayType& colorArray)
+  void GradientRasterize(RasterizerType& rasterizer, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
   {
     agg::scanline_p8 scanline;
     SpanAllocatorType spanAllocator;
+    InterpolatorType spanInterpolator(xform);
 
     // Gradient types
     
@@ -156,13 +157,34 @@ private:
     agg::render_scanlines(rasterizer, scanline, renderer);
   }
   
+  template <typename GradientFuncType>
+  void GradientRasterizeAdapt(EPatternExtend extend, RasterizerType& rasterizer, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+  {
+    // FIX extend none
+
+    switch (extend)
+    {
+      case kExtendNone:
+      case kExtendPad:
+        GradientRasterize(rasterizer, gradientFunc, xform, colorArray);
+        break;
+      case kExtendReflect:
+        GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
+        break;
+      case kExtendRepeat:
+        GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
+          break;
+    }
+  }
+    
   template <typename PathType>
   void Rasterize(const IPattern& pattern, PathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
   {
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
     rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
-    rasterizer.add_path(path);
+    agg::conv_curve<PathType> convertedPath(path);
+    rasterizer.add_path(convertedPath);
     
     switch (pattern.mType)
     {
@@ -189,49 +211,34 @@ private:
         
         agg::trans_affine       gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
         ColorArrayType          colorArray;
-        InterpolatorType        spanInterpolator(gradientMTX);
        
         // Scaling
   
         gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform * gradientMTX * agg::trans_affine_scaling(512.0);
 
         // Make gradient lut
-        
+      
         colorArray.remove_all();
-        
+
         for (int i = 0; i < pattern.NStops(); i++)
         {
           const IColorStop& stop = pattern.GetStop(i);
-          colorArray.add_color(stop.mOffset, AGGColor(stop.mColor, pBlend));
+          float offset = stop.mOffset;
+          colorArray.add_color(offset, AGGColor(stop.mColor, pBlend));
         }
         
         colorArray.build_lut();
-        
+
         // Rasterize
         
         if (pattern.mType == kLinearPattern)
         {
-          agg::gradient_x gradientFunc;
-          GradientRasterize(rasterizer, gradientFunc, spanInterpolator, colorArray);
+          GradientRasterizeAdapt(pattern.mExtend, rasterizer, agg::gradient_x(), gradientMTX, colorArray);
         }
         else
         {
-          agg::gradient_radial_d gradientFunc;
-          GradientRasterize(rasterizer, gradientFunc, spanInterpolator, colorArray);
+          GradientRasterizeAdapt(pattern.mExtend, rasterizer, agg::gradient_radial_d(), gradientMTX, colorArray);
         }
-        
-        // FIX extensions...
-        
-        /*
-        switch (pattern.mExtend)
-        {
-        case kExtendNone:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
-        case kExtendPad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
-        case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
-        case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
-        }
-        */
-     
       }
       break;
     }
