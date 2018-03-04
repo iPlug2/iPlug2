@@ -27,8 +27,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
-  const int nRows = 2;
-  const int nColumns = 4;
+  const int nRows = 4;
+  const int nColumns = 2;
 
   IRECT bounds = pGraphics->GetBounds();
   IColor color;

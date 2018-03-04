@@ -594,14 +594,14 @@ struct IRECT
     assert(cellIndex <= nRows * nColumns);
     
     int cell = 0;
-    for(int column = 0; column<nColumns; column++)
+    for(int row = 0; row<nRows; row++)
     {
-      for(int row = 0; row<nRows; row++)
+      for(int column = 0; column<nColumns; column++)
       {
         if(cell == cellIndex)
         {
-          const IRECT hrect = SubRectHorizontal(nRows, row);
-          return hrect.SubRectVertical(nColumns, column);
+          const IRECT vrect = SubRectVertical(nRows, row);
+          return vrect.SubRectHorizontal(nColumns, column);
         }
         
         cell++;
