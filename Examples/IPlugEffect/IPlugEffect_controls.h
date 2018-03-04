@@ -182,7 +182,9 @@ public:
     if (rand() & 0x100)
       tmp = IPattern(mRECT.MW(), mRECT.MH(), mRECT.MH());
     else
-      tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.R, mRECT.MH());
+      tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
+    
+    tmp.mExtend = (rand() & 0x10) ? ((rand() & 0x1000) ? kExtendNone : kExtendPad) : ((rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
     
     tmp.AddStop(IColor::GetRandomColor(), 0.0);
     tmp.AddStop(IColor::GetRandomColor(), 0.1);
@@ -247,7 +249,9 @@ public:
       
       IFillOptions fillOptions;
       fillOptions.mFillRule = mValue > 0.2 ? kFillEvenOdd : kFillWinding;
+      fillOptions.mPreserve = true;
       graphics.PathFill(COLOR_BLACK, fillOptions);
+      graphics.PathStroke(COLOR_WHITE, 1);
     }
     else
       graphics.DrawText(mText, "UNSUPPORTED", mRECT);
