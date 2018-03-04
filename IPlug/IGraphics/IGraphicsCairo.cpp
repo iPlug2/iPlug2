@@ -74,6 +74,30 @@ CairoBitmap::~CairoBitmap()
 
 #pragma mark -
 
+inline float CairoWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
+inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return CAIRO_OPERATOR_OVER;
+  }
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber: return CAIRO_OPERATOR_OVER;
+    case kBlendAdd: return CAIRO_OPERATOR_ADD;
+    case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendNone:
+    default:
+      return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
+  }
+}
+
+#pragma mark -
+
 IGraphicsCairo::IGraphicsCairo(IDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 , mSurface(nullptr)
@@ -158,39 +182,12 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   PathStateRestore();
 }
 
-void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  //TODO: offset support
-    
-  float width = bitmap.W();
-  float height = bitmap.H();
-
-  PathStateSave();
-  PathTransformTranslate(destCtrX, destCtrY);
-  PathTransformRotate(angle);
-  DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
-  PathStateRestore();
-}
-
-void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
-{
-  float width = base.W();
-  float height = base.H();
-
-  IBlend addBlend(kBlendAdd);
-  PathStateSave();
-  DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-  PathTransformTranslate(x + 0.5 * width, y + 0.5 * height);
-  PathTransformRotate(angle);
-  DrawBitmap(mask, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, &addBlend);
-  DrawBitmap(top, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
-  PathStateRestore();
-}
-
-void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
+void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   double dashArray[8];
-
+  
+  // First set options
+  
   switch (options.mCapOption)
   {
     case kCapButt:   cairo_set_line_cap(mContext, CAIRO_LINE_CAP_BUTT);     break;
@@ -211,18 +208,13 @@ void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
     dashArray[i] = *(options.mDash.GetArray() + i);
   
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
-}
-
-void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
-{
-  CairoSetStrokeOptions(options);
   cairo_set_line_width(mContext, thickness);
+
   SetCairoSourcePattern(pattern, pBlend);
   if (options.mPreserve)
     cairo_stroke_preserve(mContext);
   else
     cairo_stroke(mContext);
-  CairoSetStrokeOptions();
 }
 
 void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 

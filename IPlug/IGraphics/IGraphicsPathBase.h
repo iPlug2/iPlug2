@@ -11,6 +11,37 @@ public:
   
   IGraphicsPathBase(IDelegate& dlg, int w, int h, int fps) : IGraphics(dlg, w, h, fps) {}
   
+  // Bitmap common methods
+  
+  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
+  {
+    //TODO: offset support
+    
+    float width = bitmap.W();
+    float height = bitmap.H();
+    
+    PathStateSave();
+    PathTransformTranslate(destCtrX, destCtrY);
+    PathTransformRotate(angle);
+    DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
+    PathStateRestore();
+  }
+  
+  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override
+  {
+    float width = base.W();
+    float height = base.H();
+    
+    IBlend addBlend(kBlendAdd);
+    PathStateSave();
+    DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
+    PathTransformTranslate(x + 0.5 * width, y + 0.5 * height);
+    PathTransformRotate(angle);
+    DrawBitmap(mask, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, &addBlend);
+    DrawBitmap(top, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
+    PathStateRestore();
+  }
+  
   // Draw methods
 
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override

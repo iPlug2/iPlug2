@@ -18,39 +18,6 @@ private:
   NVGcontext* mVG;
 };
 
-inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
-{
-  NVGcolor c;
-  c.r = (float) color.R / 255.0f;
-  c.g = (float) color.G / 255.0f;
-  c.b = (float) color.B / 255.0f;
-  c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
-  return c;
-}
-
-inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return NVG_COPY;
-  }
-  
-  switch (pBlend->mMethod)
-  {
-    case kBlendClobber:
-    {
-      return NVG_SOURCE_OVER;
-    }
-    case kBlendAdd:
-    case kBlendColorDodge:
-    case kBlendNone:
-    default:
-    {
-      return NVG_COPY;
-    }
-  }
-}
-
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses
 */
@@ -67,9 +34,7 @@ public:
   void ViewInitialized(void* layer) override;
   
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-        
+
   void PathClear() override { nvgBeginPath(mVG); }
   void PathStart() override { }
   void PathClose() override { nvgClosePath(mVG); }
@@ -107,13 +72,7 @@ protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-  
-  NVGpaint GetNVGPaint(const IPattern& pattern, const IBlend* pBlend);
-  
-  void Stroke(const IPattern& pattern, const IBlend* pBlend, bool preserve = false);
-
-  void NVGSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-
+    
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
 };

@@ -176,6 +176,12 @@ public:
 
 private:
   
+  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  agg::pixel_map* CreateAPIBitmap(int w, int h);
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
+
+  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
+  
   agg::trans_affine GetRasterTransform() { return agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform; }
 
   PixfmtType mPixf;
@@ -188,17 +194,9 @@ private:
   PixelMapType mPixelMap;
   
   // TODO Oli probably wants this to not be STL but there's nothing in WDL for this...
-  
   std::stack<agg::trans_affine> mState;
   
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
-  agg::pixel_map* CreateAPIBitmap(int w, int h);
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
-
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
-  
-  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
-  void ToPixel(float & pixel);
 };

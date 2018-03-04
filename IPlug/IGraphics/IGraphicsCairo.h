@@ -34,8 +34,6 @@ public:
   ~IGraphicsCairo();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
       
   void PathClear() override { cairo_new_path(mContext); }
   void PathStart() override { cairo_new_sub_path(mContext); }
@@ -86,30 +84,7 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
 
-  inline float CairoWeight(const IBlend* pBlend)
-  {
-    return (pBlend ? pBlend->mWeight : 1.0f);
-  }
-
-  inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
-  {
-    if (!pBlend)
-    {
-      return CAIRO_OPERATOR_OVER;
-    }
-    switch (pBlend->mMethod)
-    {
-      case kBlendClobber: return CAIRO_OPERATOR_OVER;
-      case kBlendAdd: return CAIRO_OPERATOR_ADD;
-      case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
-      case kBlendNone:
-      default:
-        return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
-    }
-  }
-  
   void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
-  void CairoSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
   
 private:
   cairo_t* mContext;

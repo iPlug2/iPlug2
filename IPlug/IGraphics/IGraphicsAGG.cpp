@@ -809,9 +809,4 @@ void IGraphicsAGG::Draw(const IRECT& rect)
   IGraphics::Draw(rect);
 }
 
-void IGraphicsAGG::ToPixel(float& pixel)
-{
-  pixel = std::floor(pixel + 0.5f) + 0.5f;
-}
-
 #include "IGraphicsAGG_src.cpp"
