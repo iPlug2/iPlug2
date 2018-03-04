@@ -43,6 +43,8 @@ public:
   , mScale(0)
   {}
   
+  virtual ~APIBitmap() {}
+    
   void SetBitmap(void* pBitmap, int w, int h, int s)
   {
     assert(((w % s) == 0) && ((h % s) == 0));
