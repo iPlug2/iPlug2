@@ -375,7 +375,7 @@ struct IPattern
   WDL_TypedBuf<IColorStop> mStops;
   float mTransform[6];
   
-  IPattern(const IColor& color)
+  IPattern(const IColor& color) : mExtend(kExtendRepeat)
   {
     mType = kSolidPattern;
     mStops.Add(IColorStop(color, 0.0));
