@@ -248,7 +248,7 @@ public:
       }
       
       IFillOptions fillOptions;
-      fillOptions.mFillRule = mValue > 0.2 ? kFillEvenOdd : kFillWinding;
+      fillOptions.mFillRule = mValue > 0.5 ? kFillEvenOdd : kFillWinding;
       fillOptions.mPreserve = true;
       graphics.PathFill(COLOR_BLACK, fillOptions);
       graphics.PathStroke(COLOR_WHITE, 1);
