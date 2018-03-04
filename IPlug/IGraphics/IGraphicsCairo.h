@@ -109,14 +109,6 @@ protected:
   }
   
   void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
-    
-  void Stroke(const IPattern& pattern, const IBlend* pBlend)
-  {
-    SetCairoSourcePattern(pattern, pBlend);
-    cairo_set_line_width(mContext, 1);
-    cairo_stroke(mContext);
-  }
-
   void CairoSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
   
 private:
