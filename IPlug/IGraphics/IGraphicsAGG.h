@@ -183,8 +183,7 @@ private:
     agg::rasterizer_scanline_aa<> rasterizer;
     rasterizer.reset();
     rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
-    agg::conv_curve<PathType> convertedPath(path);
-    rasterizer.add_path(convertedPath);
+    rasterizer.add_path(path);
     
     switch (pattern.mType)
     {

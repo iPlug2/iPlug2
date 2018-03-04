@@ -179,7 +179,8 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   xform.invert();
   xform *= agg::trans_affine_scaling(GetDisplayScale());
   path.transform_all_paths(xform);
-
+  agg::conv_curve<agg::path_storage> curvedPath(path);
+  
   double dashArray[8];
   
   for (int i = 0; i < options.mDash.GetCount(); i++)
@@ -189,7 +190,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   
   //cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
   
-  agg::conv_stroke<agg::path_storage> strokes(path);
+  agg::conv_stroke<agg::conv_curve<agg::path_storage> > strokes(curvedPath);
  
   // Set stroke options
   
@@ -225,8 +226,9 @@ void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options
   xform.invert();
   xform *= agg::trans_affine_scaling(GetDisplayScale());
   path.transform_all_paths(xform);
-  
-  Rasterize(pattern, path, pBlend, options.mFillRule);
+  agg::conv_curve<agg::path_storage> curvedPath(path);
+
+  Rasterize(pattern, curvedPath, pBlend, options.mFillRule);
   if (!options.mPreserve)
     PathClear();
 }
