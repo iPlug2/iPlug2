@@ -143,7 +143,7 @@ public:
   void PathRoundRect(const IRECT& rect, float cr) override
   {
     const double y = rect.B - rect.H();
-    PathStart();
+    PathMoveTo(rect.L, y + cr);
     PathArc(rect.L + cr, y + cr, cr, 180.0, 270.0);
     PathArc(rect.L + rect.W() - cr, y + cr, cr, 270.0, 360.0);
     PathArc(rect.L + rect.W() - cr, y + rect.H() - cr, cr, 0.0, 90.0);
