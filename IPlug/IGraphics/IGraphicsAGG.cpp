@@ -4,7 +4,79 @@
 
 static StaticStorage<agg::font> s_fontCache;
 
-void IGraphicsAGG::PathRasterizer::RasterizePattern(agg::trans_affine transform, const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
+// Utility
+
+inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+{
+  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+}
+
+inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+    return agg::comp_op_src;
+  
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber: return agg::comp_op_src_over;
+    case kBlendAdd: return agg::comp_op_plus;
+    case kBlendColorDodge: return agg::comp_op_color_dodge;
+    case kBlendNone:
+    default:
+      return agg::comp_op_src_over;
+  }
+}
+
+inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+{
+  if (!pBlend)
+    return 255;
+  
+  return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(pBlend->mWeight * 255.f)), agg::cover_type(255)));
+}
+
+// Rasterizing
+
+template <typename FuncType, typename ColorArrayType>
+void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+{
+  IGraphicsAGG::Rasterizer::SpanAllocatorType spanAllocator;
+  IGraphicsAGG::InterpolatorType spanInterpolator(xform);
+  
+  // Gradient types
+  
+  typedef agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType> SpanGradientType;
+  typedef agg::renderer_scanline_aa<IGraphicsAGG::RenbaseType, IGraphicsAGG::Rasterizer::SpanAllocatorType, SpanGradientType> RendererGradientType;
+  
+  // Gradient objects
+  
+  SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
+  RendererGradientType renderer(rasterizer.GetBase(), spanAllocator, spanGradient);
+  
+  rasterizer.Rasterize(renderer);
+}
+
+template <typename FuncType, typename ColorArrayType>
+void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+{
+  // FIX extend none
+  
+  switch (extend)
+  {
+    case kExtendNone:
+    case kExtendPad:
+      GradientRasterize(rasterizer, gradientFunc, xform, colorArray);
+      break;
+    case kExtendReflect:
+      GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray);
+      break;
+    case kExtendRepeat:
+      GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray);
+      break;
+  }
+}
+
+void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
 {
   mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
   
@@ -31,8 +103,8 @@ void IGraphicsAGG::PathRasterizer::RasterizePattern(agg::trans_affine transform,
       
       const float* xform = pattern.mTransform;
       
-      agg::trans_affine       gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
-      ColorArrayType          colorArray;
+      agg::trans_affine gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
+      ColorArrayType colorArray;
       
       // Scaling
       
@@ -55,11 +127,11 @@ void IGraphicsAGG::PathRasterizer::RasterizePattern(agg::trans_affine transform,
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray);
       }
       else
       {
-        GradientRasterizeAdapt(pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray);
       }
     }
     break;
@@ -215,6 +287,30 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
   agg::arc arc(cx, cy, r, r, DegToRad(aMin), DegToRad(aMax));
   mPath.join_path(arc);
+}
+
+template<typename StrokeType>
+void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
+{
+  // Set stroke options
+  
+  strokes.width(thickness);
+  
+  switch (options.mCapOption)
+  {
+    case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
+    case kCapRound:  strokes.line_cap(agg::round_cap);    break;
+    case kCapSquare: strokes.line_cap(agg::square_cap);   break;
+  }
+  
+  switch (options.mJoinOption)
+  {
+    case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
+    case kJoinRound:   strokes.line_join(agg::round_join);   break;
+    case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
+  }
+  
+  strokes.miter_limit(options.mMiterLimit);
 }
 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

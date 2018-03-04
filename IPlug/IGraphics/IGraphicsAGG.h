@@ -22,35 +22,6 @@ public:
   virtual ~AGGBitmap() { delete ((agg::pixel_map*) GetBitmap()); }
 };
 
-inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
-{
-  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
-}
-
-inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-    return agg::comp_op_src;
-
-  switch (pBlend->mMethod)
-  {
-    case kBlendClobber: return agg::comp_op_src_over;
-    case kBlendAdd: return agg::comp_op_plus;
-    case kBlendColorDodge: return agg::comp_op_color_dodge;
-    case kBlendNone:
-    default:
-      return agg::comp_op_src_over;
-  }
-}
-
-inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
-{
-  if (!pBlend)
-    return 255;
-
-  return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(pBlend->mWeight * 255.f)), agg::cover_type(255)));
-}
-
 /** IGraphics draw class using Antigrain Geometry
 *   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphicsPathBase
@@ -66,8 +37,10 @@ public:
 
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
+  //TODO: Map type
 #else
   typedef agg::order_argb PixelOrder;
+  typedef agg::pixel_map_mac PixelMapType;
 #endif
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
   typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
@@ -96,33 +69,32 @@ public:
   typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
   typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
 
-  class PathRasterizer
+  class Rasterizer
   {
+  public:
+
     typedef agg::rasterizer_scanline_aa<> RasterizerType;
     typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
     typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
     
-  public:
-    
     RenbaseType& GetBase() { return mRenBase; }
     
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
-    
+
+    void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
+
     void SetOutput(PixfmtType& pixF)
     {
       mRenBase = RenbaseType(pixF);
       mRenBase.clear(agg::rgba(0, 0, 0, 0));
     }
     
-    void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
-                   
     template <typename VertexSourceType>
     void RasterizeAntiAlias(VertexSourceType& path, spanGenType& spanGen)
     {
       SetPath(path);
       SpanAllocatorType spanAllocator;
       agg::scanline_u8 scanline;
-      //agg::scanline_p8 scanline;
 
       agg::render_scanlines_aa(mRasterizer, scanline, mRenBase, spanAllocator, spanGen);
     }
@@ -134,15 +106,6 @@ public:
       RasterizePattern(transform, pattern, pBlend, rule);
     }
 
-  private:
-    
-    template <typename VertexSourceType>
-    void SetPath(VertexSourceType& path)
-    {
-      mRasterizer.reset();
-      mRasterizer.add_path(path);
-    }
-    
     template <typename RendererType>
     void Rasterize(RendererType& renderer)
     {
@@ -150,44 +113,11 @@ public:
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
     
-    template <typename GradientFuncType>
-    void GradientRasterize(const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+    template <typename VertexSourceType>
+    void SetPath(VertexSourceType& path)
     {
-      agg::scanline_p8 scanline;
-      SpanAllocatorType spanAllocator;
-      InterpolatorType spanInterpolator(xform);
-      
-      // Gradient types
-      
-      typedef agg::span_gradient<agg::rgba8, InterpolatorType, GradientFuncType, ColorArrayType> SpanGradientType;
-      typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGradientType> RendererGradientType;
-      
-      // Gradient objects
-      
-      SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
-      RendererGradientType renderer(mRenBase, spanAllocator, spanGradient);
-      
-      agg::render_scanlines(mRasterizer, scanline, renderer);
-    }
-    
-    template <typename GradientFuncType>
-    void GradientRasterizeAdapt(EPatternExtend extend, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
-    {
-      // FIX extend none
-      
-      switch (extend)
-      {
-        case kExtendNone:
-        case kExtendPad:
-          GradientRasterize(gradientFunc, xform, colorArray);
-          break;
-        case kExtendReflect:
-          GradientRasterize(agg::gradient_reflect_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
-          break;
-        case kExtendRepeat:
-          GradientRasterize(agg::gradient_repeat_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
-          break;
-      }
+      mRasterizer.reset();
+      mRasterizer.add_path(path);
     }
     
     void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
@@ -245,30 +175,6 @@ public:
   void RenderDrawBitmap() override;
 
 private:
-
-  template<typename StrokeType>
-  void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
-  {
-    // Set stroke options
-    
-    strokes.width(thickness);
-    
-    switch (options.mCapOption)
-    {
-      case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
-      case kCapRound:  strokes.line_cap(agg::round_cap);    break;
-      case kCapSquare: strokes.line_cap(agg::square_cap);   break;
-    }
-    
-    switch (options.mJoinOption)
-    {
-      case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
-      case kJoinRound:   strokes.line_join(agg::round_join);   break;
-      case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
-    }
-        
-    strokes.miter_limit(options.mMiterLimit);
-  }
   
   agg::trans_affine GetRasterTransform() { return agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform; }
 
@@ -277,18 +183,13 @@ private:
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
   PathType mPath;
-  PathRasterizer mRasterizer;
+  Rasterizer mRasterizer;
   agg::trans_affine mTransform;
+  PixelMapType mPixelMap;
   
   // TODO Oli probably wants this to not be STL but there's nothing in WDL for this...
   
   std::stack<agg::trans_affine> mState;
-  
-#ifdef OS_MAC
-  agg::pixel_map_mac mPixelMap;
-#else
-  //TODO:
-#endif
   
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
@@ -297,7 +198,6 @@ private:
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
-
   
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
   void ToPixel(float & pixel);
