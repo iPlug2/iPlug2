@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsAGG.h"
-#include "IGraphicsNanoSVG.h"
 
 static StaticStorage<agg::font> s_fontCache;
 

@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "IGraphicsNanoSVG.h"
 
 #pragma mark -
 
