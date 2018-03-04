@@ -86,6 +86,13 @@ public:
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
   typedef agg::rasterizer_scanline_aa<> RasterizerType;
+  typedef agg::conv_transform<agg::path_storage> TransformedPathType;
+  typedef agg::conv_curve<TransformedPathType> CurvedPathType;
+  typedef agg::conv_stroke<CurvedPathType> StrokeType;
+  typedef agg::conv_dash<agg::path_storage> DashType;
+  typedef agg::conv_transform<DashType> TransformedDashedPathType;
+  typedef agg::conv_curve<TransformedDashedPathType> CurvedDashPathType;
+  typedef agg::conv_stroke<CurvedDashPathType> DashStrokeType;
   
   IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
@@ -137,6 +144,34 @@ public:
 
 private:
 
+  template<typename StrokeType>
+  void RasterizeStrokes(StrokeType& strokes, const IPattern& pattern, double thickness, const IStrokeOptions& options, const IBlend* pBlend)
+  {
+    // Set stroke options
+    
+    strokes.width(thickness * GetDisplayScale());
+    
+    switch (options.mCapOption)
+    {
+      case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
+      case kCapRound:  strokes.line_cap(agg::round_cap);    break;
+      case kCapSquare: strokes.line_cap(agg::square_cap);   break;
+    }
+    
+    switch (options.mJoinOption)
+    {
+      case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
+      case kJoinRound:   strokes.line_join(agg::round_join);   break;
+      case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
+    }
+    
+    // FIX - scale miter limit?
+    
+    strokes.miter_limit(options.mMiterLimit);
+    
+    Rasterize(pattern, strokes, pBlend);
+  }
+  
   template <typename GradientFuncType>
   void GradientRasterize(RasterizerType& rasterizer, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
   {
@@ -261,8 +296,6 @@ private:
   //TODO:
 #endif
   
-  void SetAGGSourcePattern(RendererSolid &renderer, const IPattern& pattern, const IBlend* pBlend);
-
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;

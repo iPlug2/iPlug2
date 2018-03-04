@@ -168,66 +168,58 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
   agg::arc arc(cx, cy, r, r, DegToRad(aMin), DegToRad(aMax));
-  
   mPath.join_path(arc);
 }
 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  agg::path_storage path(mPath);
   agg::trans_affine xform = mTransform;
   xform.invert();
   xform *= agg::trans_affine_scaling(GetDisplayScale());
-  path.transform_all_paths(xform);
-  agg::conv_curve<agg::path_storage> curvedPath(path);
   
-  double dashArray[8];
-  
-  for (int i = 0; i < options.mDash.GetCount(); i++)
-    dashArray[i] = *(options.mDash.GetArray() + i);
-  
-  // FIX - dashing!
-  
-  //cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
-  
-  agg::conv_stroke<agg::conv_curve<agg::path_storage> > strokes(curvedPath);
- 
-  // Set stroke options
-  
-  strokes.width(thickness * GetDisplayScale());
-  
-  switch (options.mCapOption)
+  if (options.mDash.GetCount())
   {
-    case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
-    case kCapRound:  strokes.line_cap(agg::round_cap);    break;
-    case kCapSquare: strokes.line_cap(agg::square_cap);   break;
+    DashType dashed(mPath);
+    TransformedDashedPathType path(dashed, xform);
+    CurvedDashPathType curvedPath(path);
+    DashStrokeType strokes(curvedPath);
+    
+    // Set the dashes (N.B. - for odd counts the array is read twice)
+
+    int dashCount = options.mDash.GetCount();
+    int dashMax = dashCount & 1 ? dashCount *2 : dashCount;
+    const float* dashArray = options.mDash.GetArray();
+    
+    dashed.remove_all_dashes();
+    dashed.dash_start(options.mDash.GetOffset());
+    
+    for (int i = 0; i < dashMax; i += 2)
+        dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
+    
+    RasterizeStrokes(strokes, pattern, thickness, options, pBlend);
+  }
+  else
+  {
+    TransformedPathType path(mPath, xform);
+    CurvedPathType curvedPath(path);
+    
+    StrokeType strokes(curvedPath);
+    RasterizeStrokes(strokes, pattern, thickness, options, pBlend);
   }
   
-  switch (options.mJoinOption)
-  {
-    case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
-    case kJoinRound:   strokes.line_join(agg::round_join);   break;
-    case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
-  }
-  
-  // FIX - scale miter limit?
-  
-  strokes.miter_limit(options.mMiterLimit);
-  
-  Rasterize(pattern, strokes, pBlend);
   if (!options.mPreserve)
     PathClear();
 }
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  agg::path_storage path(mPath);
   agg::trans_affine xform = mTransform;
   xform.invert();
   xform *= agg::trans_affine_scaling(GetDisplayScale());
-  path.transform_all_paths(xform);
-  agg::conv_curve<agg::path_storage> curvedPath(path);
 
+  TransformedPathType path(mPath, xform);
+  CurvedPathType curvedPath(path);
+  
   Rasterize(pattern, curvedPath, pBlend, options.mFillRule);
   if (!options.mPreserve)
     PathClear();
