@@ -79,20 +79,119 @@ public:
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> InterpolatorType;
-  typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
-  typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
   typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
   typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, InterpolatorType> spanGenType;
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
   typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
-  typedef agg::rasterizer_scanline_aa<> RasterizerType;
-  typedef agg::conv_transform<agg::path_storage> TransformedPathType;
-  typedef agg::conv_curve<TransformedPathType> CurvedPathType;
-  typedef agg::conv_stroke<CurvedPathType> StrokeType;
-  typedef agg::conv_dash<agg::path_storage> DashType;
+  typedef agg::path_storage PathType;
+  typedef agg::conv_transform<PathType> TransformedPathType;
+  typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
+  typedef agg::conv_curve<PathType> CurvedPathType;
+  typedef agg::conv_stroke<CurvedTransformedPathType> StrokeType;
+  typedef agg::conv_dash<CurvedPathType> DashType;
   typedef agg::conv_transform<DashType> TransformedDashedPathType;
-  typedef agg::conv_curve<TransformedDashedPathType> CurvedDashPathType;
-  typedef agg::conv_stroke<CurvedDashPathType> DashStrokeType;
+  //typedef agg::conv_curve<TransformedDashedPathType> CurvedDashPathType;
+  typedef agg::conv_stroke<TransformedDashedPathType> DashStrokeType;
+
+  class PathRasterizer
+  {
+    typedef agg::rasterizer_scanline_aa<> RasterizerType;
+    typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
+    typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
+    
+  public:
+    
+    RenbaseType& GetBase() { return mRenBase; }
+    
+    agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
+    
+    void SetOutput(PixfmtType& pixF)
+    {
+      mRenBase = RenbaseType(pixF);
+      mRenBase.clear(agg::rgba(0, 0, 0, 0));
+    }
+    
+    void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
+                   
+    template <typename VertexSourceType>
+    void RasterizeAntiAlias(VertexSourceType& path, spanGenType& spanGen)
+    {
+      SetPath(path);
+      SpanAllocatorType spanAllocator;
+      agg::scanline_u8 scanline;
+      //agg::scanline_p8 scanline;
+
+      agg::render_scanlines_aa(mRasterizer, scanline, mRenBase, spanAllocator, spanGen);
+    }
+    
+    template <typename VertexSourceType>
+    void Rasterize(VertexSourceType& path, agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
+    {
+      SetPath(path);
+      RasterizePattern(transform, pattern, pBlend, rule);
+    }
+
+  private:
+    
+    template <typename VertexSourceType>
+    void SetPath(VertexSourceType& path)
+    {
+      mRasterizer.reset();
+      mRasterizer.add_path(path);
+    }
+    
+    template <typename RendererType>
+    void Rasterize(RendererType& renderer)
+    {
+      agg::scanline_p8 scanline;
+      agg::render_scanlines(mRasterizer, scanline, renderer);
+    }
+    
+    template <typename GradientFuncType>
+    void GradientRasterize(const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+    {
+      agg::scanline_p8 scanline;
+      SpanAllocatorType spanAllocator;
+      InterpolatorType spanInterpolator(xform);
+      
+      // Gradient types
+      
+      typedef agg::span_gradient<agg::rgba8, InterpolatorType, GradientFuncType, ColorArrayType> SpanGradientType;
+      typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGradientType> RendererGradientType;
+      
+      // Gradient objects
+      
+      SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
+      RendererGradientType renderer(mRenBase, spanAllocator, spanGradient);
+      
+      agg::render_scanlines(mRasterizer, scanline, renderer);
+    }
+    
+    template <typename GradientFuncType>
+    void GradientRasterizeAdapt(EPatternExtend extend, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+    {
+      // FIX extend none
+      
+      switch (extend)
+      {
+        case kExtendNone:
+        case kExtendPad:
+          GradientRasterize(gradientFunc, xform, colorArray);
+          break;
+        case kExtendReflect:
+          GradientRasterize(agg::gradient_reflect_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
+          break;
+        case kExtendRepeat:
+          GradientRasterize(agg::gradient_repeat_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
+          break;
+      }
+    }
+    
+    void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
+
+    RenbaseType mRenBase;
+    RasterizerType mRasterizer;
+  };
   
   IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
@@ -169,121 +268,17 @@ private:
     
     strokes.miter_limit(options.mMiterLimit);
     
-    Rasterize(pattern, strokes, pBlend);
+    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
   }
   
-  template <typename GradientFuncType>
-  void GradientRasterize(RasterizerType& rasterizer, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
-  {
-    agg::scanline_p8 scanline;
-    SpanAllocatorType spanAllocator;
-    InterpolatorType spanInterpolator(xform);
+  agg::trans_affine GetRasterTransform() { return agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform; }
 
-    // Gradient types
-    
-    typedef agg::span_gradient<agg::rgba8, InterpolatorType, GradientFuncType, ColorArrayType> SpanGradientType;
-    typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGradientType> RendererGradientType;
-    
-    // Gradient objects
-    
-    SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
-    RendererGradientType renderer(mRenBase, spanAllocator, spanGradient);
-    
-    agg::render_scanlines(rasterizer, scanline, renderer);
-  }
-  
-  template <typename GradientFuncType>
-  void GradientRasterizeAdapt(EPatternExtend extend, RasterizerType& rasterizer, const GradientFuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
-  {
-    // FIX extend none
-
-    switch (extend)
-    {
-      case kExtendNone:
-      case kExtendPad:
-        GradientRasterize(rasterizer, gradientFunc, xform, colorArray);
-        break;
-      case kExtendReflect:
-        GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
-        break;
-      case kExtendRepeat:
-        GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<GradientFuncType>(gradientFunc), xform, colorArray);
-          break;
-    }
-  }
-    
-  template <typename PathType>
-  void Rasterize(const IPattern& pattern, PathType& path, const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
-  {
-    agg::rasterizer_scanline_aa<> rasterizer;
-    rasterizer.reset();
-    rasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
-    rasterizer.add_path(path);
-    
-    switch (pattern.mType)
-    {
-      case kSolidPattern:
-      {
-        agg::scanline_p8 scanline;
-        RendererSolid renderer(mRenBase);
-        
-        const IColor &color = pattern.GetStop(0).mColor;
-        renderer.color(AGGColor(color, pBlend));
-        
-        // Rasterize
-
-        agg::render_scanlines(rasterizer, scanline, renderer);
-      }
-        break;
-        
-      case kLinearPattern:
-      case kRadialPattern:
-      {
-        // Common gradient objects
-        
-        const float* xform = pattern.mTransform;
-        
-        agg::trans_affine       gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
-        ColorArrayType          colorArray;
-       
-        // Scaling
-  
-        gradientMTX = agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform * gradientMTX * agg::trans_affine_scaling(512.0);
-
-        // Make gradient lut
-      
-        colorArray.remove_all();
-
-        for (int i = 0; i < pattern.NStops(); i++)
-        {
-          const IColorStop& stop = pattern.GetStop(i);
-          float offset = stop.mOffset;
-          colorArray.add_color(offset, AGGColor(stop.mColor, pBlend));
-        }
-        
-        colorArray.build_lut();
-
-        // Rasterize
-        
-        if (pattern.mType == kLinearPattern)
-        {
-          GradientRasterizeAdapt(pattern.mExtend, rasterizer, agg::gradient_x(), gradientMTX, colorArray);
-        }
-        else
-        {
-          GradientRasterizeAdapt(pattern.mExtend, rasterizer, agg::gradient_radial_d(), gradientMTX, colorArray);
-        }
-      }
-      break;
-    }
-  }
-
-  RenbaseType mRenBase;
   PixfmtType mPixf;
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
-  agg::path_storage mPath;
+  PathType mPath;
+  PathRasterizer mRasterizer;
   agg::trans_affine mTransform;
   
   // TODO Oli probably wants this to not be STL but there's nothing in WDL for this...

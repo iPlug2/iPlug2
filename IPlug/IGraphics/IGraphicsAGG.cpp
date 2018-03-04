@@ -4,6 +4,68 @@
 
 static StaticStorage<agg::font> s_fontCache;
 
+void IGraphicsAGG::PathRasterizer::RasterizePattern(agg::trans_affine transform, const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
+{
+  mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+  
+  switch (pattern.mType)
+  {
+    case kSolidPattern:
+    {
+      agg::scanline_p8 scanline;
+      RendererSolid renderer(mRenBase);
+      
+      const IColor &color = pattern.GetStop(0).mColor;
+      renderer.color(AGGColor(color, pBlend));
+      
+      // Rasterize
+      
+      Rasterize(renderer);
+    }
+      break;
+      
+    case kLinearPattern:
+    case kRadialPattern:
+    {
+      // Common gradient objects
+      
+      const float* xform = pattern.mTransform;
+      
+      agg::trans_affine       gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
+      ColorArrayType          colorArray;
+      
+      // Scaling
+      
+      gradientMTX = transform * gradientMTX * agg::trans_affine_scaling(512.0);
+      
+      // Make gradient lut
+      
+      colorArray.remove_all();
+      
+      for (int i = 0; i < pattern.NStops(); i++)
+      {
+        const IColorStop& stop = pattern.GetStop(i);
+        float offset = stop.mOffset;
+        colorArray.add_color(offset, AGGColor(stop.mColor, pBlend));
+      }
+      
+      colorArray.build_lut();
+      
+      // Rasterize
+      
+      if (pattern.mType == kLinearPattern)
+      {
+        GradientRasterizeAdapt(pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray);
+      }
+      else
+      {
+        GradientRasterizeAdapt(pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray);
+      }
+    }
+    break;
+  }
+}
+
 #pragma mark -
 
 IGraphicsAGG::IGraphicsAGG(IDelegate& dlg, int w, int h, int fps)
@@ -24,8 +86,7 @@ void IGraphicsAGG::SetDisplayScale(int scale)
   mPixelMap.create(Width() * scale, Height() * scale);
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
   mPixf = PixfmtType(mRenBuf);
-  mRenBase = RenbaseType(mPixf);
-  mRenBase.clear(agg::rgba(0, 0, 0, 0));
+  mRasterizer.SetOutput(mPixf);
 
   IGraphics::SetDisplayScale(scale);
 }
@@ -65,7 +126,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   mPixf.comp_op(AGGBlendMode(pBlend));
   
   agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
-  mRenBase.blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T, AGGCover(pBlend));
+  mRasterizer.GetBase().blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T, AGGCover(pBlend));
 }
 
 void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -91,23 +152,16 @@ void IGraphicsAGG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY
   agg::trans_affine imgMtx = srcMatrix;
   imgMtx.invert();
   
-  agg::span_allocator<agg::rgba8> sa;
-  
   InterpolatorType interpolator(imgMtx);
 
   imgSourceType imgSrc(imgPixf, agg::rgba_pre(0, 0, 0, 0));
 
   spanGenType sg(imgPixf, agg::rgba_pre(0, 0, 0, 0), interpolator);
   
-  agg::rasterizer_scanline_aa<> ras;
-  agg::scanline_u8 sl;
-  
   agg::rounded_rect rect(0, 0, width, height, 0);
-  
   agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
-  
-  ras.add_path(tr);
-  agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
+
+  mRasterizer.RasterizeAntiAlias(tr, sg);
 }
 
 void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
@@ -145,23 +199,16 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   agg::trans_affine imgMtx = srcMatrix;
   imgMtx.invert();
   
-  agg::span_allocator<agg::rgba8> sa;
-
   InterpolatorType interpolator(imgMtx);
   
   imgSourceType imgSrc(img_base, agg::rgba_pre(0, 0, 0, 0));
   
   spanGenType sg(img_base, agg::rgba_pre(0, 0, 0, 0), interpolator);
   
-  agg::rasterizer_scanline_aa<> ras;
-  agg::scanline_u8 sl;
-  
   agg::rounded_rect rect(0, 0, width, height, 0);
-  
   agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
   
-  ras.add_path(tr);
-  agg::render_scanlines_aa(ras, sl, mRenBase, sa, sg);
+  mRasterizer.RasterizeAntiAlias(tr, sg);
 }
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
@@ -178,10 +225,10 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   
   if (options.mDash.GetCount())
   {
-    DashType dashed(mPath);
+    CurvedPathType curvedPath(mPath);
+    DashType dashed(curvedPath);
     TransformedDashedPathType path(dashed, xform);
-    CurvedDashPathType curvedPath(path);
-    DashStrokeType strokes(curvedPath);
+    DashStrokeType strokes(path);
     
     // Set the dashes (N.B. - for odd counts the array is read twice)
 
@@ -200,7 +247,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   else
   {
     TransformedPathType path(mPath, xform);
-    CurvedPathType curvedPath(path);
+    CurvedTransformedPathType curvedPath(path);
     
     StrokeType strokes(curvedPath);
     RasterizeStrokes(strokes, pattern, thickness, options, pBlend);
@@ -217,16 +264,16 @@ void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options
   xform *= agg::trans_affine_scaling(GetDisplayScale());
 
   TransformedPathType path(mPath, xform);
-  CurvedPathType curvedPath(path);
-  
-  Rasterize(pattern, curvedPath, pBlend, options.mFillRule);
+  CurvedTransformedPathType curvedPath(path);
+
+  mRasterizer.Rasterize(curvedPath, GetRasterTransform(), pattern, pBlend, options.mFillRule);
   if (!options.mPreserve)
     PathClear();
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)
 {
-  agg::rgba8 point = mRenBase.pixel(x, y);
+  agg::rgba8 point = mRasterizer.GetPixel(x, y);
   IColor color(point.a, point.r, point.g, point.b);
   return color;
 }
@@ -660,7 +707,7 @@ agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 
 void IGraphicsAGG::Draw(const IRECT& rect)
 {
-  mRenBase.clear(agg::rgba(1, 1, 1));
+  mRasterizer.ClearWhite();
   IGraphics::Draw(rect);
 }
 
