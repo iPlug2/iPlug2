@@ -387,7 +387,19 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
   const float xHi = (cx + rMax * cosV);
   const float yLo = (cy + rMin * sinV);
   const float yHi = (cy + rMax * sinV);
-  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+  DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+}
+
+void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, float rMax)
+{
+    const float angleRadians = DegToRad(angle);
+    const float sinV = sinf(angleRadians);
+    const float cosV = cosf(angleRadians);
+    const float xLo = (cx + rMin * cosV);
+    const float xHi = (cx + rMax * cosV);
+    const float yLo = (cy + rMin * sinV);
+    const float yHi = (cy + rMax * sinV);
+    PathLine(xLo, yLo, xHi, yHi);
 }
 
 void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)
@@ -572,6 +584,17 @@ void IGraphics::SetStrictDrawing(bool strict)
 {
   mStrict = strict;
   SetAllControlsDirty();
+}
+
+void IGraphics::MoveMouseCursor(float x, float y)
+{
+  // Call this with the window-relative coords after doing platform specifc cursor move
+    
+  if (mMouseCapture >= 0)
+  {
+    //mMouseX = x;
+    //mMouseY = y;
+  }
 }
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -1046,7 +1069,7 @@ void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 
 void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
-  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
+  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
 }
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)

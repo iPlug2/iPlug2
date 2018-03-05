@@ -13,7 +13,7 @@
 #include "cairo/cairo-ft.h"
 #endif
 
-#include "IGraphics.h"
+#include "IGraphicsPathBase.h"
 
 class CairoBitmap : public APIBitmap
 {
@@ -25,7 +25,7 @@ public:
 /** IGraphics draw class using Cairo
 *   @ingroup DrawClasses
 */
-class IGraphicsCairo : public IGraphics
+class IGraphicsCairo : public IGraphicsPathBase
 {
 public:
   const char* GetDrawingAPIStr() override { return "CAIRO"; }
@@ -33,43 +33,13 @@ public:
   IGraphicsCairo(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsCairo();
 
-  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
-  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override;
-
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
-  void ForcePixel(const IColor& color, int x, int y) override;
-
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
-  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
-
-  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-
-  void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
-
-  bool HasPathSupport() const override { return true; }
-    
-  void PathStart() override { cairo_new_path(mContext); }
+      
+  void PathClear() override { cairo_new_path(mContext); }
+  void PathStart() override { cairo_new_sub_path(mContext); }
   void PathClose() override { cairo_close_path(mContext); }
 
-  void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override { CairoDrawTriangle(x1, y1, x2, y2, x3, y3); }
-  void PathRect(const IRECT& rect) override { CairoDrawRect(rect);}
-  void PathRoundRect(const IRECT& rect, float cr = 5.f) override { CairoDrawRoundRect(rect, cr); }
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
-  void PathCircle(float cx, float cy, float r) override { CairoDrawCircle(cx, cy, r); }
-  void PathConvexPolygon(float* x, float* y, int npoints) override { CairoDrawConvexPolygon(x, y, npoints); }
     
   void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
   void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
@@ -78,6 +48,13 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
+  void PathStateSave() override { cairo_save(mContext); }
+  void PathStateRestore() override { cairo_restore(mContext); }
+  
+  void PathTransformTranslate(float x, float y) override { cairo_translate(mContext, x, y); }
+  void PathTransformScale(float scale) override { cairo_scale(mContext, scale, scale); }
+  void PathTransformRotate(float angle) override { cairo_rotate(mContext, DegToRad(angle)); }
+    
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return (void*) mContext; }
 
@@ -92,8 +69,8 @@ public:
 
   inline void ClipRegion(const IRECT& r) override
   {
-    cairo_new_path(mContext);
-    CairoDrawRect(r);
+    PathClear();
+    PathRect(r);
     cairo_clip(mContext);
   }
 
@@ -107,55 +84,7 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
 
-  inline float CairoWeight(const IBlend* pBlend)
-  {
-    return (pBlend ? pBlend->mWeight : 1.0f);
-  }
-
-  inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
-  {
-    if (!pBlend)
-    {
-      return CAIRO_OPERATOR_OVER;
-    }
-    switch (pBlend->mMethod)
-    {
-      case kBlendClobber: return CAIRO_OPERATOR_OVER;
-      case kBlendAdd: return CAIRO_OPERATOR_ADD;
-      case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
-      case kBlendNone:
-      default:
-        return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
-    }
-  }
-  
   void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
-    
-  void Stroke(const IPattern& pattern, const IBlend* pBlend)
-  {
-    SetCairoSourcePattern(pattern, pBlend);
-    cairo_set_line_width(mContext, 1);
-    cairo_stroke(mContext);
-  }
-  
-  void Fill(const IPattern& pattern, const IBlend* pBlend)
-  {
-    SetCairoSourcePattern(pattern, pBlend);
-    cairo_fill(mContext);
-  }
-
-  inline void CairoDrawRect(const IRECT& rect)
-  {
-    cairo_rectangle(mContext, rect.L, rect.T, rect.W(), rect.H());
-  }
-
-  inline void CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
-  inline void CairoDrawRoundRect(const IRECT& rect, float corner);
-  inline void CairoDrawConvexPolygon(float* x, float* y, int npoints);
-  inline void CairoDrawCircle(float cx, float cy, float r);
-
-  void CairoSetStrokeOptions(const IStrokeOptions& options = IStrokeOptions());
-  void CairoSetFillOptions(const IFillOptions& options = IFillOptions());
   
 private:
   cairo_t* mContext;

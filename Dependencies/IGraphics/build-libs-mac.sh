@@ -9,7 +9,7 @@ err_report() {
     echo
 }
 
-trap  err_report ERR
+trap err_report ERR
 
 spin() {
     pid=$! # Process Id of the previous running command
@@ -31,6 +31,7 @@ BUILD_LOCATION="$PWD/build"
 INSTALL_LOCATION="$PWD/install"
 INCLUDE_PATH="$INSTALL_LOCATION/include"
 LIB_PATH="$INSTALL_LOCATION/lib"
+BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$PWD"
 
 ##echo "CFLAGS $CFLAGS"
@@ -99,6 +100,45 @@ else
   spin
   echo "done."
   echo "bzip2 Installed!"
+  echo
+  cd "$BUILD_LOCATION"
+fi
+
+#######################################################################
+
+#pkg-config
+
+if [ -e "$BIN_PATH/pkg-config" ]
+then
+  echo "Found pkg-config"
+else
+  echo "Installing pkg-config"
+  if [ -e pkg-config-0.28.tar.gz ]
+  then
+    echo "Tarball Present..."
+  else
+    echo "Downloading..."
+    curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/pkg-config-0.28.tar.gz
+  fi
+  echo "Unpacking..."
+  tar xfz pkg-config-0.28.tar.gz
+  cd pkg-config-0.28
+  echo -n "Configuring..."
+  echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
+  ./configure CFLAGS="-Os -arch x86_64" LDFLAGS="-arch x86_64" --prefix "$INSTALL_LOCATION" --with-internal-glib >> $LOG_PATH/build.log 2>&1 &
+  spin
+  echo "done."
+  echo -n "Building..."
+  echo "---------------------------- Build pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
+  #make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
+  #spin
+  make -s install >> $LOG_PATH/build.log 2>&1 &
+  #>> $LOG_PATH/build.log 2>&1 &
+  spin
+  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  spin
+  echo "done."
+  echo "pkg-config Installed!"
   echo
   cd "$BUILD_LOCATION"
 fi
@@ -191,7 +231,7 @@ else
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
+    curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/libpng-1.6.34.tar.xz
   fi
   echo "Unpacking..."
   tar -xf libpng-1.6.34.tar.xz
@@ -236,7 +276,7 @@ else
   cd pixman-0.34.0
   echo -n "Configuring..."
   echo "---------------------------- Configure pixman ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_LOCATION" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
@@ -269,7 +309,7 @@ else
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://downloads.sourceforge.net/project/freetype/freetype2/2.9/freetype-2.9.tar.bz2
+    curl  --progress-bar -O --disable-epsv https://ftp.osuosl.org/pub/blfs/conglomeration/freetype/freetype-2.9.tar.bz2
   fi
   echo "Unpacking..."
   if [ ! -e freetype-2.9.tar ]
@@ -280,7 +320,7 @@ else
   cd freetype-2.9
   echo -n "Configuring..."
   echo "---------------------------- Configure freetype ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config BZIP2_CFLAGS="-I$INCLUDE_PATH" BZIP2_LIBS="-L$LIB_PATH" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config BZIP2_CFLAGS="-I$INCLUDE_PATH" BZIP2_LIBS="-L$LIB_PATH" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
@@ -294,43 +334,6 @@ else
   echo "freetype Installed!"
   echo
   cd "$BUILD_LOCATION"
-fi
-
-#######################################################################
-
-#pkg-config
-
-if [ -e "usr/local/bin/pkg-config" ]
-then
-echo "Found pkg-config"
-else
-
-echo "Installing pkg-config"
-if [ -e pkg-config-0.28.tar.gz ]
-then
-echo "Tarball Present..."
-else
-echo "Downloading..."
-curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/pkg-config-0.28.tar.gz
-fi
-echo "Unpacking..."
-tar xfz pkg-config-0.28.tar.gz
-cd pkg-config-0.28
-echo -n "Configuring..."
-echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
-./configure --prefix=/usr/local CC=$CC --with-internal-glib >> $LOG_PATH/build.log 2>&1 &
-spin
-echo "done."
-echo -n "Building..."
-echo "---------------------------- Build pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
-make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
-spin
-make >> $LOG_PATH/build.log 2>&1 2>&1 &
-make -s install >> $LOG_PATH/build.log 2>&1 &
-echo "done."
-echo "pkg-config Installed!"
-echo
-cd "$BUILD_LOCATION"
 fi
 
 #######################################################################
@@ -360,7 +363,7 @@ else
   cd fontconfig-2.12.6
   echo -n "Configuring..."
   echo "---------------------------- Configure fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_LOCATION" LDFLAGS="$LDFLAGS -L$LIB_PATH" LIBS="-lbz2" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_LOCATION" LDFLAGS="$LDFLAGS -L$LIB_PATH" LIBS="-lbz2" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
@@ -397,7 +400,7 @@ else
   cd cairo-1.14.12
   echo -n "Configuring..."
   echo "---------------------------- Configure cairo ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-dependency-tracking --enable-svg=yes --enable-quartz-image=yes --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --disable-dependency-tracking --enable-svg=yes --enable-quartz-image=yes --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."

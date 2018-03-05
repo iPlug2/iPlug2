@@ -9,6 +9,7 @@
 #pragma mark - WATCH OUT IF APP IS SANDBOXED, YOU WON'T FIND ANY FILES HERE
 #define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
 #define KNOB_FN "resources/img/BefacoBigKnob.svg"
+#define TIGER_FN "resources/img/23.svg"
 #else
 #define SVG_FOLDER "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
 #define KNOB_FN "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\BefacoBigKnob.svg"
@@ -26,7 +27,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
-  const int nRows = 2;
+  const int nRows = 4;
   const int nColumns = 2;
 
   IRECT bounds = pGraphics->GetBounds();
@@ -35,7 +36,18 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
 //  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
 
-  pGraphics->AttachControl(new IGradientControl(*this, bounds.SubRectVertical(2, 0), kGain));
+  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(4, nRows, nColumns).GetPadded(-5.), kGain));
+  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(5, nRows, nColumns).GetPadded(-5.), -1));
+    
+  pGraphics->AttachControl(new IGradientControl(*this, bounds.SubRectVertical(4, 0), kGain));
+  pGraphics->AttachControl(new IMultiPathControl(*this, bounds.SubRectVertical(4, 1), -1));
+    
+  auto svg1 = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
+  auto svg2 = pGraphics->LoadSVG(TIGER_FN); // load initial svg, can be a resource or absolute path
+  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(6, nRows, nColumns).GetPadded(-5.), svg1, -1));
+  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(7, nRows, nColumns).GetPadded(-5.), svg2, -1));
+
+    
 //  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
 //  {
 //    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);

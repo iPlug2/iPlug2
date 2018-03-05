@@ -159,24 +159,32 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-#ifndef IGRAPHICS_LICE
-    double cr = mValue * (mRECT.H() / 2.0);
-    graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
-    IFillOptions fillOptions;
-    IStrokeOptions strokeOptions;
-    fillOptions.mPreserve = true;
-    graphics.PathFill(mPattern, fillOptions);
-    graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
-#else
-    graphics.DrawText(mText, "UNSUPPORTED", mRECT);
-#endif
+    if (graphics.HasPathSupport())
+    {
+      double cr = mValue * (mRECT.H() / 2.0);
+      graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
+      IFillOptions fillOptions;
+      IStrokeOptions strokeOptions;
+      fillOptions.mPreserve = true;
+      graphics.PathFill(mPattern, fillOptions);
+      graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
+    }
+    else
+      graphics.DrawText(mText, "UNSUPPORTED", mRECT);
   }
   
   void RandomiseGradient()
   {
-    IPattern tmp(kLinearPattern);
+    //IPattern tmp(kLinearPattern);
+    //tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    IPattern tmp(kSolidPattern);
     
-    tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    if (rand() & 0x100)
+      tmp = IPattern(mRECT.MW(), mRECT.MH(), mRECT.MH());
+    else
+      tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
+    
+    tmp.mExtend = (rand() & 0x10) ? ((rand() & 0x1000) ? kExtendNone : kExtendPad) : ((rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
     
     tmp.AddStop(IColor::GetRandomColor(), 0.0);
     tmp.AddStop(IColor::GetRandomColor(), 0.1);
@@ -189,4 +197,67 @@ public:
   
 private:
   IPattern mPattern = IPattern(kLinearPattern);
+};
+
+class IMultiPathControl : public IKnobControlBase
+{
+public:
+  IMultiPathControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  : IKnobControlBase(plug, rect, paramIdx), mShape(0)
+  {
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if (++mShape > 2)
+      mShape = 0;
+    SetDirty(false);
+  }
+  
+  void Draw(IGraphics& graphics) override
+  {
+    if (graphics.HasPathSupport())
+    {
+      double r = mValue * (mRECT.H() / 2.0);
+      if (mShape == 0)
+      {
+        graphics.PathCircle(mRECT.MW(), mRECT.MH(), r);
+        graphics.PathCircle(mRECT.MW(), mRECT.MH(), r * 0.5);
+      }
+      else if (mShape == 1)
+      {
+        float pad1 = (mRECT.W() / 2.0) * (1.0 - mValue);
+        float pad2 = (mRECT.H() / 2.0) * (1.0 - mValue);
+        IRECT size1 = mRECT.GetPadded(pad1, pad2, -pad1, -pad2);
+        pad1 = (size1.W() / 2.0) * (1.0 - mValue);
+        pad2 = (size1.H() / 2.0) * (1.0 - mValue);
+        IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
+        graphics.PathRect(size1);
+        graphics.PathRect(size2);
+      }
+      else if (mShape == 2)
+      {
+        float pad1 = (mRECT.W() / 2.0) * (1.0 - mValue);
+        float pad2 = (mRECT.H() / 2.0) * (1.0 - mValue);
+        IRECT size1 = mRECT.GetPadded(pad1, pad2, -pad1, -pad2);
+        pad1 = (size1.W() / 2.0) * (1.0 - mValue);
+        pad2 = (size1.H() / 2.0) * (1.0 - mValue);
+        IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
+        graphics.PathRoundRect(size1, size1.H() * 0.125);
+        graphics.PathRoundRect(size2, size2.H() * 0.125);
+      }
+      
+      IFillOptions fillOptions;
+      fillOptions.mFillRule = mValue > 0.5 ? kFillEvenOdd : kFillWinding;
+      fillOptions.mPreserve = true;
+      graphics.PathFill(COLOR_BLACK, fillOptions);
+      graphics.PathStroke(COLOR_WHITE, 1);
+    }
+    else
+      graphics.DrawText(mText, "UNSUPPORTED", mRECT);
+  }
+  
+private:
+  
+  int mShape;
 };

@@ -238,6 +238,30 @@ void IGraphicsMac::ShowMouseCursor()
   }
 }
 
+void IGraphicsMac::MoveMouseCursor(float x, float y)
+{
+  CGPoint point;
+  NSPoint mouse = [NSEvent mouseLocation];
+  double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
+  point.x = x / GetDisplayScale() + (mouse.x - mMouseX / GetDisplayScale());
+  point.y = y / GetDisplayScale() + (mouseY - mMouseY / GetDisplayScale());
+    
+  if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
+  {
+    //IGraphics::MoveMouseCursor(x, y);
+    mMouseX = x;
+    mMouseY = y;
+  }
+    
+  CGAssociateMouseAndMouseCursorPosition(true);
+}
+
+void IGraphicsMac::SetMousePosition(float x, float y)
+{
+  mMouseX = x;
+  mMouseY = y;
+}
+
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 {
   int result = 0;

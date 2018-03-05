@@ -3,7 +3,6 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
-#include "IGraphicsNanoSVG.h"
 
 #ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
@@ -75,8 +74,32 @@ CairoBitmap::~CairoBitmap()
 
 #pragma mark -
 
+inline float CairoWeight(const IBlend* pBlend)
+{
+  return (pBlend ? pBlend->mWeight : 1.0f);
+}
+
+inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return CAIRO_OPERATOR_OVER;
+  }
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber: return CAIRO_OPERATOR_OVER;
+    case kBlendAdd: return CAIRO_OPERATOR_ADD;
+    case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendNone:
+    default:
+      return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
+  }
+}
+
+#pragma mark -
+
 IGraphicsCairo::IGraphicsCairo(IDelegate& dlg, int w, int h, int fps)
-: IGraphics(dlg, w, h, fps)
+: IGraphicsPathBase(dlg, w, h, fps)
 , mSurface(nullptr)
 , mContext(nullptr)
 {
@@ -147,125 +170,24 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
   return IBitmap(new CairoBitmap(pOutSurface, targetScale)); //TODO: surface will not be destroyed, unless this is retained
 }
 */
-void IGraphicsCairo::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
-{
-  cairo_save(mContext);
-  cairo_translate(mContext, dest.L, dest.T);
-  cairo_rectangle(mContext, 0, 0, dest.W(), dest.H());
-  cairo_clip(mContext);
-
-  double xScale = dest.W() / svg.W();
-  double yScale = dest.H() / svg.H();
-  double scale = xScale < yScale ? xScale : yScale;
-
-  cairo_scale(mContext, scale, scale);
-
-  NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
-
-  cairo_restore(mContext);
-}
-
-void IGraphicsCairo::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
-{
-  cairo_save(mContext);
-  cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, DegToRad(angle));
-  DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
-  cairo_restore(mContext);
-}
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  cairo_save(mContext);
+  PathStateSave();
   ClipRegion(dest);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetRawBitmap();
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
-  cairo_restore(mContext);
+  PathStateRestore();
 }
 
-void IGraphicsCairo::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  //TODO: offset support
-    
-  float width = bitmap.W();
-  float height = bitmap.H();
-
-  cairo_save(mContext);
-  cairo_translate(mContext, destCtrX, destCtrY);
-  cairo_rotate(mContext, DegToRad(angle));
-  DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
-  cairo_restore(mContext);
-}
-
-void IGraphicsCairo::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
-{
-  float width = base.W();
-  float height = base.H();
-
-  IBlend addBlend(kBlendAdd);
-  cairo_save(mContext);
-  DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-  cairo_translate(mContext, x + 0.5 * width, y + 0.5 * height);
-  cairo_rotate(mContext, angle);
-  DrawBitmap(mask, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, &addBlend);
-  DrawBitmap(top, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
-  cairo_restore(mContext);
-}
-
-void IGraphicsCairo::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
-{
-  cairo_move_to(mContext, x + 0.5, y + 0.5);
-  cairo_line_to(mContext, x + 1.5, y + 1.5);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::ForcePixel(const IColor& color, int x, int y)
-{
-  cairo_move_to(mContext, x + 0.5, y + 0.5);
-  cairo_line_to(mContext, x + 1.5, y + 1.5);
-  Stroke(color, nullptr);
-}
-
-inline void IGraphicsCairo::CairoDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
-{
-  cairo_move_to(mContext, x1, y1);
-  cairo_line_to(mContext, x2, y2);
-  cairo_line_to(mContext, x3, y3);
-  cairo_close_path(mContext);
-}
-
-inline void IGraphicsCairo::CairoDrawConvexPolygon(float* x, float* y, int npoints)
-{
-  cairo_move_to(mContext, x[0], y[0]);
-  for(int i = 1; i < npoints; i++)
-    cairo_line_to(mContext, x[i], y[i]);
-  cairo_close_path(mContext);
-}
-
-inline void IGraphicsCairo::CairoDrawRoundRect(const IRECT& rect, float corner)
-{
-  const double y = rect.B - rect.H();
-  cairo_new_path(mContext);
-  cairo_arc(mContext, rect.L + rect.W() - corner, y + corner, corner, PI * -0.5, 0);
-  cairo_arc(mContext, rect.L + rect.W() - corner, y + rect.H() - corner, corner, 0, PI * 0.5);
-  cairo_arc(mContext, rect.L + corner, y + rect.H() - corner, corner, PI * 0.5, PI);
-  cairo_arc(mContext, rect.L + corner, y + corner, corner, PI, PI * 1.5);
-  cairo_close_path(mContext);
-}
-
-inline void IGraphicsCairo::CairoDrawCircle(float cx, float cy, float r)
-{
-  cairo_new_path(mContext);
-  cairo_arc(mContext, cx, cy, r, 0.f, 2.f * PI);
-  cairo_close_path(mContext);
-}
-
-void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
+void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   double dashArray[8];
-
+  
+  // First set options
+  
   switch (options.mCapOption)
   {
     case kCapButt:   cairo_set_line_cap(mContext, CAIRO_LINE_CAP_BUTT);     break;
@@ -286,117 +208,18 @@ void IGraphicsCairo::CairoSetStrokeOptions(const IStrokeOptions& options)
     dashArray[i] = *(options.mDash.GetArray() + i);
   
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
-}
-
-void IGraphicsCairo::CairoSetFillOptions(const IFillOptions& options)
-{
-  cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
-}
-
-void IGraphicsCairo::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
-{
-  cairo_move_to(mContext, x1, y1);
-  cairo_line_to(mContext, x2, y2);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  CairoDrawRect(rect);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
-{
-  CairoDrawRoundRect(rect, corner);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
-{
-  CairoDrawConvexPolygon(x, y, npoints);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
-{
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-{
-  CairoDrawCircle(cx, cy, r);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsCairo::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  double dashLength = 2;
-  cairo_set_dash(mContext, &dashLength, 1, 0.0);
-  DrawRect(color, rect, pBlend);
-  cairo_set_dash(mContext, nullptr, 0, 0.0);
-}
-
-void IGraphicsCairo::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  CairoDrawTriangle(x1, y1, x2, y2, x3, y3);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  CairoDrawRect(rect);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend)
-{
-  CairoDrawRoundRect(rect, corner);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
-{
-  CairoDrawConvexPolygon(x, y, npoints);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
-{
-  cairo_move_to(mContext, cx, cy);
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f));
-  cairo_close_path(mContext);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-{
-  CairoDrawCircle(cx, cy, r);
-  Fill(color, pBlend);
-}
-
-void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
-{
-  CairoSetStrokeOptions(options);
   cairo_set_line_width(mContext, thickness);
+
   SetCairoSourcePattern(pattern, pBlend);
   if (options.mPreserve)
     cairo_stroke_preserve(mContext);
   else
     cairo_stroke(mContext);
-  CairoSetStrokeOptions();
 }
 
 void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 
 {
-  CairoSetFillOptions(options);
+  cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
   SetCairoSourcePattern(pattern, pBlend);
   if (options.mPreserve)
     cairo_fill_preserve(mContext);
@@ -425,9 +248,9 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
       const float *xform = pattern.mTransform;
       
       if (pattern.mType == kLinearPattern)
-        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
+        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 1.0, 0.0);
       else
-        cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 1.0, 0.0, 1.0, 1.0);
+        cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
       
       switch (pattern.mExtend)
       {

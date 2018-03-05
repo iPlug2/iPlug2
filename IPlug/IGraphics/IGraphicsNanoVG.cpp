@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#include "IGraphicsNanoSVG.h"
 
 #pragma mark -
 
@@ -22,9 +21,74 @@ NanoVGBitmap::~NanoVGBitmap()
   int idx = GetBitmapIdx(this);
   nvgDeleteImage(mVG, idx);
 }
+
+#pragma mark -
+
+// Utility conversions
+
+inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
+{
+  NVGcolor c;
+  c.r = (float) color.R / 255.0f;
+  c.g = (float) color.G / 255.0f;
+  c.b = (float) color.B / 255.0f;
+  c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
+  return c;
+}
+
+inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
+{
+  if (!pBlend)
+  {
+    return NVG_COPY;
+  }
   
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber:
+    {
+      return NVG_SOURCE_OVER;
+    }
+    case kBlendAdd:
+    case kBlendColorDodge:
+    case kBlendNone:
+    default:
+    {
+      return NVG_COPY;
+    }
+  }
+}
+
+NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend* pBlend)
+{
+  NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
+  NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
+  
+  // Invert transform
+  
+  float inverse[6];
+  nvgTransformInverse(inverse, pattern.mTransform);
+  float s[2];
+  
+  nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
+  
+  if (pattern.mType == kRadialPattern)
+  {
+    return nvgRadialGradient(context, s[0], s[1], 0.0, inverse[0], icol, ocol);
+  }
+  else
+  {
+    float e[2];
+    nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
+    
+    return nvgLinearGradient(context, s[0], s[1], e[0], e[1], icol, ocol);
+  }
+}
+
+#pragma mark -
+
 IGraphicsNanoVG::IGraphicsNanoVG(IDelegate& dlg, int w, int h, int fps)
-: IGraphics(dlg, w, h, fps)
+: IGraphicsPathBase(dlg, w, h, fps)
 {
 }
 
@@ -63,7 +127,7 @@ APIBitmap* IGraphicsNanoVG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return nullptr;
 }
 
-void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char * cacheName)
+void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
 }
 
@@ -94,180 +158,15 @@ void IGraphicsNanoVG::EndFrame()
   nvgEndFrame(mVG);
 }
 
-void IGraphicsNanoVG::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
-{
-  nvgSave(mVG);
-  nvgTranslate(mVG, dest.L, dest.T);
-
-  float xScale = dest.W() / svg.W();
-  float yScale = dest.H() / svg.H();
-  float scale = xScale < yScale ? xScale : yScale;
-    
-  nvgScale(mVG, scale, scale);
-    
-  NanoSVGRenderer::RenderNanoSVG(*this, svg.mImage);
-
-  nvgRestore(mVG);
-}
-
-void IGraphicsNanoVG::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
-{
-  nvgSave(mVG);
-  nvgTranslate(mVG, destCtrX, destCtrY);
-  nvgRotate(mVG, DegToRad(angle));
-  DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
-  nvgRestore(mVG);
-}
-
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   int idx = GetBitmapIdx(bitmap.GetAPIBitmap());
   NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, idx, BlendWeight(pBlend));
-  nvgBeginPath(mVG);
+  PathClear();
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
   nvgFill(mVG);
-}
-
-void IGraphicsNanoVG::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  int idx = GetBitmapIdx(bitmap.GetAPIBitmap());
-  NVGpaint imgPaint = nvgImagePattern(mVG, destCtrX, destCtrY, bitmap.W(), bitmap.H(), angle, idx, BlendWeight(pBlend));
-  nvgBeginPath(mVG);
-  nvgRect(mVG, destCtrX, destCtrY, destCtrX + bitmap.W(), destCtrX + bitmap.H());
-  nvgFillPaint(mVG, imgPaint);
-  nvgFill(mVG);
-}
-
-void IGraphicsNanoVG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
-{
-  //TODO:
-}
-
-inline void IGraphicsNanoVG::NVGDrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
-{
-  nvgBeginPath(mVG);
-  nvgMoveTo(mVG, x1, y1);
-  nvgLineTo(mVG, x2, y2);
-  nvgLineTo(mVG, x3, y3);
-  nvgClosePath(mVG);
-}
-
-inline void IGraphicsNanoVG::NVGDrawConvexPolygon(float* x, float* y, int npoints)
-{
-  nvgBeginPath(mVG);
-  nvgMoveTo(mVG, x[0], y[0]);
-  for(int i = 1; i < npoints; i++)
-    nvgLineTo(mVG, x[i], y[i]);
-  nvgClosePath(mVG);
-}
-
-void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  //TODO: NanoVG doesn't do dots
-  DrawRect(color, rect, pBlend);
-}
-
-void IGraphicsNanoVG::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgCircle(mVG, x, y, 0.01); // TODO:  0.01 - is there a better way to draw a point?
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::ForcePixel(const IColor& color, int x, int y)
-{
-  //TODO:
-}
-
-void IGraphicsNanoVG::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgMoveTo(mVG, x1, y1);
-  nvgLineTo(mVG, x2, y2);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  NVGDrawTriangle(x1, y1, x2, y2, x3, y3);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::DrawRect(const IColor &color, const IRECT &rect, const IBlend *pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H());
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
-{
-  NVGDrawConvexPolygon(x, y, npoints);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f), NVG_CW);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgCircle(mVG, cx, cy, r);
-  Stroke(color, pBlend);
-}
-
-void IGraphicsNanoVG::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
-{
-  NVGDrawTriangle(x1, y1, x2, y2, x3, y3);
-  Fill(color, pBlend);
-}
-
-void IGraphicsNanoVG::FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgRect(mVG, rect.L, rect.T, rect.W(), rect.H());
-  Fill(color, pBlend);
-}
-
-void IGraphicsNanoVG::FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgRoundedRect(mVG, rect.L, rect.T, rect.W(), rect.H(), cr);
-  Fill(color, pBlend);
-}
-
-void IGraphicsNanoVG::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
-{
-  NVGDrawConvexPolygon(x, y, npoints);
-  Fill(color, pBlend);
-}
-
-void IGraphicsNanoVG::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgMoveTo(mVG, cx, cy);
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin-90.f), DegToRad(aMax-90.f), NVG_CW);
-  nvgClosePath(mVG);
-  Fill(color, pBlend);
-}
-
-void IGraphicsNanoVG::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-{
-  nvgBeginPath(mVG);
-  nvgCircle(mVG, cx, cy, r);
-  Fill(color, pBlend);
+  PathClear();
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
@@ -285,9 +184,10 @@ bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& des
   return DrawText(text, str, destRect, true);
 }
 
-
-void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
+void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
+  // First set options
+  
   switch (options.mCapOption)
   {
     case kCapButt:   nvgLineCap(mVG, NSVG_CAP_BUTT);     break;
@@ -303,67 +203,33 @@ void IGraphicsNanoVG::NVGSetStrokeOptions(const IStrokeOptions& options)
   }
   
   nvgMiterLimit(mVG, options.mMiterLimit);
-  
-  // TODO Dash
-  // TODO Preserve
-}
-
-void IGraphicsNanoVG::NVGSetFillOptions(const IFillOptions& options)
-{
-  // TODO Fill Rule
-  // TODO Preserve
-}
-
-void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
-{
-  NVGSetStrokeOptions(options);
   nvgStrokeWidth(mVG, thickness);
-  Stroke(pattern, pBlend);
-  nvgStrokeWidth(mVG, 1.0);
-  NVGSetStrokeOptions();
+ 
+  // TODO Dash
+
+  if (pattern.mType == kSolidPattern)
+    nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
+  else
+    nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
+  
+  nvgStroke(mVG);
+  
+  if (!options.mPreserve)
+    PathClear();
 }
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  NVGSetFillOptions(options);
-  Fill(pattern, pBlend);
-}
-
-NVGpaint IGraphicsNanoVG::GetNVGPaint(const IPattern& pattern, const IBlend* pBlend)
-{
-  NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
-  NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
+  nvgPathWinding(mVG, options.mFillRule == kFillWinding ? NVG_CCW : NVG_CW);
   
-  float inverse[6];
-  float s[2];
-  float e[2];
-  
-  nvgTransformInverse(inverse, pattern.mTransform);
-  nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
-  nvgTransformPoint(&e[0], &e[1], inverse, 0, 1);
-  
-  if (pattern.mType == kRadialPattern)
-    return nvgRadialGradient(mVG, s[0], s[1], 0.0, 160, icol, ocol);
-  else
-    return nvgLinearGradient(mVG, s[0], s[1], e[0], e[1], icol, ocol);
-}
-
-void IGraphicsNanoVG::Stroke(const IPattern& pattern, const IBlend* pBlend)
-{
-  if (pattern.mType == kSolidPattern)
-    nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
-  else
-    nvgStrokePaint(mVG, GetNVGPaint(pattern, pBlend));
-  
-  nvgStroke(mVG);
-}
-
-void IGraphicsNanoVG::Fill(const IPattern& pattern, const IBlend* pBlend)
-{
   if (pattern.mType == kSolidPattern)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
-    nvgFillPaint(mVG, GetNVGPaint(pattern, pBlend));
+    nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
   nvgFill(mVG);
+  
+  if (!options.mPreserve)
+    PathClear();
 }
+

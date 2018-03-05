@@ -465,6 +465,7 @@ public:
   
   virtual bool HasPathSupport() const { return false; }
   
+  virtual void PathClear() {}
   virtual void PathStart() {}
   virtual void PathClose() {}
   
@@ -473,6 +474,8 @@ public:
     PathMoveTo(x1, y1);
     PathLineTo(x2, y2);
   }
+    
+  void PathRadialLine(float cx, float cy, float angle, float rMin, float rMax);
   
   virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
   virtual void PathRect(const IRECT& rect) {}
@@ -501,6 +504,16 @@ public:
 
   /**
    /todo <#Description#>
+  */
+  virtual void MoveMouseCursor(float x, float y) = 0;
+
+  /**
+  /todo <#Description#>
+  */
+  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
+    
+  /**
+  /todo <#Description#>
   */
   virtual void ForceEndUserEdit() = 0;
 
@@ -1137,6 +1150,8 @@ protected:
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
+  bool mTabletInput = false;
+    
 private:
   int GetMouseControlIdx(float x, float y, bool mo = false);
 

@@ -122,3 +122,10 @@ void IPlugBaseGraphics::SendParameterValueToUIFromDelegate(int paramIdx, double 
 //    }
 //  }
 }
+
+void IPlugBaseGraphics::ResizeGraphicsFromUI()
+{
+    mWidth = mGraphics->WindowWidth();
+    mHeight = mGraphics->WindowHeight();
+    ResizeGraphics();
+}

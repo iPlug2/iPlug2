@@ -36,7 +36,8 @@ public:
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
-  
+  void ResizeGraphicsFromUI() override;
+
   //IPlugBaseGraphics
   void AttachGraphics(IGraphics* pGraphics);
   IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
