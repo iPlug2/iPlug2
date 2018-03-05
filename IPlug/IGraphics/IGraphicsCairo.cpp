@@ -74,11 +74,6 @@ CairoBitmap::~CairoBitmap()
 
 #pragma mark -
 
-inline float CairoWeight(const IBlend* pBlend)
-{
-  return (pBlend ? pBlend->mWeight : 1.0f);
-}
-
 inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
@@ -236,7 +231,7 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
     case kSolidPattern:
     {
       const IColor &color = pattern.GetStop(0).mColor;
-      cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (CairoWeight(pBlend) * color.A) / 255.0);
+      cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
     }
     break;
       
@@ -263,7 +258,7 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (CairoWeight(pBlend) * stop.mColor.A) / 255.0);
+        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (BlendWeight(pBlend) * stop.mColor.A) / 255.0);
       }
       
       cairo_matrix_init(&matrix, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
