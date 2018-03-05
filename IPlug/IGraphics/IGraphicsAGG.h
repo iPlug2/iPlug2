@@ -52,10 +52,13 @@ public:
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> InterpolatorType;
-  typedef agg::image_accessor_clip<PixfmtType> imgSourceType;
-  typedef agg::span_image_filter_rgba_bilinear_clip <PixfmtType, InterpolatorType> spanGenType;
+  typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
+  typedef agg::span_image_filter_rgba_bilinear_clip<PixfmtType, InterpolatorType> spanGenType;
+  typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
+  typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
+  typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
+
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
-  typedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanlineType;
   
   // Path Types
   
@@ -68,15 +71,13 @@ public:
   typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
   typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
   typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
-
+  typedef agg::rasterizer_scanline_aa<> RasterizerType;
+  typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
+  
   class Rasterizer
   {
   public:
 
-    typedef agg::rasterizer_scanline_aa<> RasterizerType;
-    typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
-    typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
-    
     RenbaseType& GetBase() { return mRenBase; }
     
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
@@ -134,7 +135,6 @@ public:
   void Draw(const IRECT& rect) override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
   
   void PathClear() override { mPath.remove_all(); }
@@ -158,9 +158,9 @@ public:
     mState.pop();
   }
   
-  void PathTransformTranslate(float x, float y) override { mTransform /= agg::trans_affine_translation(x, y); }
-  void PathTransformScale(float scale) override { mTransform /= agg::trans_affine_scaling(scale); }
-  void PathTransformRotate(float angle) override { mTransform /= agg::trans_affine_rotation(DegToRad(angle)); }
+  void PathTransformTranslate(float x, float y) override { mTransform = agg::trans_affine_translation(x, y) * mTransform; }
+  void PathTransformScale(float scale) override { mTransform = agg::trans_affine_scaling(scale) * mTransform; }
+  void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
 
   bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
@@ -182,7 +182,7 @@ private:
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
   
-  agg::trans_affine GetRasterTransform() { return agg::trans_affine_scaling(1.0 / GetDisplayScale()) * mTransform; }
+  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
 
   PixfmtType mPixf;
   FontEngineType mFontEngine;
