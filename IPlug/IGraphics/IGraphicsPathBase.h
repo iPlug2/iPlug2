@@ -1,18 +1,16 @@
 #pragma once
+#include <algorithm>
 
 #include "IGraphics.h"
 #include "nanosvg.h"
-#include <algorithm>
 
 class IGraphicsPathBase : public IGraphics
 {
-  
 public:
-  
-  IGraphicsPathBase(IDelegate& dlg, int w, int h, int fps) : IGraphics(dlg, w, h, fps) {}
-  
-  // Bitmap common methods
-  
+  IGraphicsPathBase(IDelegate& dlg, int w, int h, int fps) 
+  : IGraphics(dlg, w, h, fps) 
+  {}
+
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
   {
     //TODO: offset support
@@ -42,8 +40,6 @@ public:
     PathStateRestore();
   }
   
-  // Draw methods
-
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override
   {
     PathMoveTo(x1, y1);
@@ -69,9 +65,9 @@ public:
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend) override
   {
-    PathConvexPolygon(x, y, npoints);
+    PathConvexPolygon(x, y, nPoints);
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
@@ -87,8 +83,6 @@ public:
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
-  // Dotted Rect
-  
   void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override
   {
     float dashLength = 2;
@@ -98,8 +92,6 @@ public:
     PathStroke(color, 1.0, options, pBlend);
   }
 
-  // Fill methods
-  
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override
   {
     PathTriangle(x1, y1, x2, y2, x3, y3);
@@ -138,8 +130,6 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  // Pixel Manipulation
-  
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
   {
     FillRect(color, IRECT(x, y, 1, 1), pBlend);
@@ -151,8 +141,6 @@ public:
     DrawPoint(preMulColor, x, y, 0);
   }
   
-  // Path Methods
-
   bool HasPathSupport() const override { return true; }
   
   void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override
@@ -205,8 +193,6 @@ public:
   virtual void PathTransformScale(float scale) = 0;
   virtual void PathTransformRotate(float angle) = 0;
   
-  // SVG Support
-  
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
     double xScale = dest.W() / svg.W();
@@ -230,10 +216,7 @@ public:
     PathStateRestore();
   }
 
-  // NanoSVG Rendering
-  
 private:
-  
   IPattern GetSVGPattern(const NSVGpaint& paint, float opacity)
   {
     int alpha = std::min(255, std::max(int(roundf(opacity * 255.f)), 0));
@@ -251,7 +234,6 @@ private:
         IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? kLinearPattern : kRadialPattern);
         
         // Set Extend Rule
-        
         switch (pGrad->spread)
         {
           case NSVG_SPREAD_PAD:       pattern.mExtend = kExtendPad;       break;
@@ -259,16 +241,14 @@ private:
           case NSVG_SPREAD_REPEAT:    pattern.mExtend = kExtendRepeat;    break;
         }
         
-        // Copy Stops
-        
+        // Copy Stops        
         for (int i = 0; i < pGrad->nstops; i++)
         {
           int color = pGrad->stops[i].color;
           pattern.AddStop(IColor(255, (color >> 0) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF), pGrad->stops[i].offset);
         }
         
-        // Copy transform
-        
+        // Copy transform        
         pattern.SetTransform(pGrad->xform[0], pGrad->xform[1], pGrad->xform[2], pGrad->xform[3], pGrad->xform[4], pGrad->xform[5]);
         
         return pattern;
@@ -278,9 +258,9 @@ private:
     }
   }
   
-  void RenderNanoSVG(NSVGimage *image)
+  void RenderNanoSVG(NSVGimage* pImage)
   {
-    for (NSVGshape* pShape = image->shapes; pShape; pShape = pShape->next)
+    for (NSVGshape* pShape = pImage->shapes; pShape; pShape = pShape->next)
     {
       if (!(pShape->flags & NSVG_FLAGS_VISIBLE))
         continue;
@@ -300,7 +280,6 @@ private:
       }
       
       // Fill
-      
       if (pShape->fill.type != NSVG_PAINT_NONE)
       {
         IFillOptions options;
@@ -315,7 +294,6 @@ private:
       }
       
       // Stroke
-      
       if (pShape->stroke.type != NSVG_PAINT_NONE)
       {
         IStrokeOptions options;
