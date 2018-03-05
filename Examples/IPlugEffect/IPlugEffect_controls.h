@@ -209,7 +209,7 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if (++mShape > 2)
+    if (++mShape > 3)
       mShape = 0;
     SetDirty(false);
   }
@@ -246,12 +246,22 @@ public:
         graphics.PathRoundRect(size1, size1.H() * 0.125);
         graphics.PathRoundRect(size2, size2.H() * 0.125);
       }
+      else if (mShape == 3)
+      {
+        graphics.PathMoveTo(mRECT.L, mRECT.B);
+        graphics.PathCurveTo(mRECT.L + mRECT.W() * 0.125, mRECT.T + mRECT.H() * 0.725, mRECT.L + mRECT.W() * 0.25, mRECT.T + mRECT.H() * 0.35, mRECT.MW(), mRECT.MH());
+        graphics.PathLineTo(mRECT.MW(), mRECT.B);
+        graphics.PathClose();
+      }
       
       IFillOptions fillOptions;
       fillOptions.mFillRule = mValue > 0.5 ? kFillEvenOdd : kFillWinding;
       fillOptions.mPreserve = true;
+      IStrokeOptions strokeOptions;
+      float dashes[] = { 11, 4, 7 };
+      strokeOptions.mDash.SetDash(dashes, 0.0, 2);
       graphics.PathFill(COLOR_BLACK, fillOptions);
-      graphics.PathStroke(COLOR_WHITE, 1);
+      graphics.PathStroke(COLOR_WHITE, 1, strokeOptions);
     }
     else
       graphics.DrawText(mText, "UNSUPPORTED", mRECT);

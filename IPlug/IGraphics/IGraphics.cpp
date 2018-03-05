@@ -275,6 +275,8 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   int srcX = 0;
   int srcY = 0;
 
+  bmpState = BOUNDED(bmpState, 1, bitmap.N());
+    
   if (bitmap.N() > 1 && bmpState > 1)
   {
     if (bitmap.GetFramesAreHorizontal())
@@ -1115,7 +1117,8 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
     else
       strncpy(fullName, name, 4095);
 
-    return OSFindResource(fullName, type, result);
+    if (OSFindResource(fullName, type, result))
+        return true;
   }
 
   return false;

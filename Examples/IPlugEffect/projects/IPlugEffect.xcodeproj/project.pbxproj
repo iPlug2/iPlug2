@@ -437,7 +437,6 @@
 		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IPlug/IGraphics/IGraphicsMac_view.mm; sourceTree = "<group>"; };
 		4F69BB652013C521002C8948 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IPlug/IGraphics/IGraphicsMac.mm; sourceTree = "<group>"; };
-		4F6B8141203A614200D4E0B4 /* IGraphicsNanoSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsNanoSVG.h; path = ../../../IPlug/IGraphics/IGraphicsNanoSVG.h; sourceTree = "<group>"; };
 		4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugBaseGraphics.cpp; path = ../../../IPlug/IPlugBaseGraphics.cpp; sourceTree = "<group>"; };
 		4F6D9DEA2016B7F7009E1E3E /* IPlugBaseGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugBaseGraphics.h; path = ../../../IPlug/IPlugBaseGraphics.h; sourceTree = "<group>"; };
 		4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatform.h; path = ../../../IPlug/IPlugPlatform.h; sourceTree = "<group>"; };
@@ -1157,7 +1156,6 @@
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
 				4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */,
-				4F6B8141203A614200D4E0B4 /* IGraphicsNanoSVG.h */,
 				4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */,
 				4FF1426F1FD4A61D00A65575 /* IControl.h */,
 				4FF1426D1FD4A61D00A65575 /* IControl.cpp */,
