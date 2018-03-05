@@ -275,6 +275,8 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   int srcX = 0;
   int srcY = 0;
 
+  bmpState = BOUNDED(bmpState, 1, bitmap.N());
+    
   if (bitmap.N() > 1 && bmpState > 1)
   {
     if (bitmap.GetFramesAreHorizontal())
