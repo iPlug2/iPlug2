@@ -1115,7 +1115,8 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
     else
       strncpy(fullName, name, 4095);
 
-    return OSFindResource(fullName, type, result);
+    if (OSFindResource(fullName, type, result))
+        return true;
   }
 
   return false;
