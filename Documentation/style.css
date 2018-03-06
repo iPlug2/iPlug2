@@ -4,6 +4,7 @@
 }
 
 /* Layout tweaks */
+/*
 div.contents {
     max-width: 980px;
     text-align: justify;
@@ -22,6 +23,7 @@ body, table, div, p, dl {
     font: 400 15px/22px sans-serif;
     line-height: 1.5;
 }
+ */
 
 /* Code snippet readability */
 div.line {

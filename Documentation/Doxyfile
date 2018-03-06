@@ -163,6 +163,8 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          APIBitmap \
                          AGGBitmap \
                          LICEBitmap \
+                         Rasterizer \
+                         DashOptions 
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
