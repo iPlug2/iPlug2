@@ -75,7 +75,7 @@ public:
   IRECT GetWindowRECT();
   void SetWindowTitle(const char* str);
 
-  const char* GetUIAPI() override { return "win32"; };
+  const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
 

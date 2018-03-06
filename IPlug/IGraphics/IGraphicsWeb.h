@@ -56,7 +56,7 @@ public:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
-  const char* GetUIAPI() override;
+  const char* GetPlatformAPIStr() override;
   
   void UpdateTooltips() override;
 

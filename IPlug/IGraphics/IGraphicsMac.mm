@@ -354,7 +354,7 @@ void IGraphicsMac::UpdateTooltips()
   }
 }
 
-const char* IGraphicsMac::GetUIAPI()
+const char* IGraphicsMac::GetPlatformAPIStr()
 {
   return "Cocoa";
 }
