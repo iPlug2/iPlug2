@@ -78,7 +78,7 @@ public:
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
   * @param n Number of frames (for multibitmaps)
-  * @param framesAreHorizontal \c True if the frames are positioned horizontally
+  * @param framesAreHorizontal \c true if the frames are positioned horizontally
   * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
   * @param name Resource name for the bitmap
   */
@@ -149,7 +149,7 @@ private:
   int mH;
   /** Number of frames (for stacked bitmaps) */
   int mN;
-  /** \c True if the frames are positioned horizontally */
+  /** \c true if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
   /** Resource path/name for the bitmap */
   WDL_String mResourceName;

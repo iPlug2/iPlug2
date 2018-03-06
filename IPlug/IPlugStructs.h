@@ -117,11 +117,9 @@ public:
     return mBytes.GetSize();
   }
   
-  /** Resizes the chunk
+  /** Resizes the chunk /todo check
    * @param newSize Desired size (in bytes)
-   * @todo Check this
-   * @return Old size (in bytes)
-   */
+   * @return Old size (in bytes) */
   inline int Resize(int newSize)
   {
     int n = mBytes.GetSize();

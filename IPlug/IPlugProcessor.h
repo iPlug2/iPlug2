@@ -105,7 +105,7 @@ public:
   /** @return The Tempo in beats per minute */
   double GetTempo() const { return mTimeInfo.mTempo; }
 
-  /** @return The Tempo in beats per minute */
+  /** @return The number of samples in a beat */
   double GetSamplesPerBeat() const;
 
   /** @param numerator The upper part of the current time signature e.g "6" in the time signature 6/8
