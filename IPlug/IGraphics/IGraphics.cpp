@@ -896,9 +896,9 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 
     Steinberg::Vst::ParamID p = paramIdx;
 
-    Steinberg::Vst::IContextMenu* menu = handler->createContextMenu(pVST3->GetView(), &p);
+    Steinberg::Vst::IContextMenu* pVST3ContextMenu = handler->createContextMenu(pVST3->GetView(), &p);
 
-    if (menu)
+    if (pVST3ContextMenu)
     {
       Steinberg::Vst::IContextMenu::Item item = {0};
 
@@ -912,11 +912,11 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
         else
           item.flags = 0;
 
-        menu->addItem(item, GetControl(controlIdx));
+        pVST3ContextMenu->addItem(item, GetControl(controlIdx));
       }
 
-      menu->popup((Steinberg::UCoord) x,(Steinberg::UCoord) y);
-      menu->release();
+      pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
+      pVST3ContextMenu->release();
     }
 
 #else
