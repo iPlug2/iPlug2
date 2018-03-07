@@ -555,7 +555,7 @@
     <None Include="..\..\..\VST3_SDK\public.sdk\source\main\winexport.def" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\resources\IPlugEffect.rc" />
+    <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

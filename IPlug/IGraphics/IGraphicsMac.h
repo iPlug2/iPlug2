@@ -34,16 +34,15 @@ public:
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h, float scale) override;
-
-  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
- 
+  void MoveMouseCursor(float x, float y) override;
+
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
-  const char* GetUIAPI() override;
+  const char* GetPlatformAPIStr() override;
   
   void UpdateTooltips() override;
 
@@ -59,7 +58,7 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& rect) override;
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
@@ -75,6 +74,8 @@ public:
   
   void* mLayer;
 
+  void SetMousePosition(float x, float y);
+    
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
@@ -82,9 +83,10 @@ private:
   void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
   
   WDL_String mBundleID;
-  
-  bool mTabletInput = false;
-    
+      
+  float mMouseX = -1;
+  float mMouseY = -1;
+
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 

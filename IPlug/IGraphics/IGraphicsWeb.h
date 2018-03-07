@@ -10,8 +10,8 @@
 class IGraphicsWeb
 {
 public:
-  IGraphicsMac(IGraphicsDelegate& dlg, int w, int h, int fps)  final;
-  virtual ~IGraphicsMac();
+  IGraphicsWeb(IGraphicsDelegate& dlg, int w, int h, int fps)  final;
+  virtual ~IGraphicsWeb();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
@@ -56,7 +56,7 @@ public:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
-  const char* GetUIAPI() override;
+  const char* GetPlatformAPIStr() override;
   
   void UpdateTooltips() override;
 
@@ -71,7 +71,7 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& rect) override;
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;

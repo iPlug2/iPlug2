@@ -258,7 +258,7 @@ void IGraphics::PromptUserInput(IControl& control, IRECT& textRect)
           menu.AddItem( new IPopupMenu::Item(str), -1 );
       }
 
-      if(CreateIPopupMenu(menu, textRect))
+      if(CreatePopupMenu(menu, textRect))
         control.SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
     }
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
@@ -275,6 +275,8 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
   int srcX = 0;
   int srcY = 0;
 
+  bmpState = BOUNDED(bmpState, 1, bitmap.N());
+    
   if (bitmap.N() > 1 && bmpState > 1)
   {
     if (bitmap.GetFramesAreHorizontal())
@@ -387,7 +389,19 @@ void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float an
   const float xHi = (cx + rMax * cosV);
   const float yLo = (cy + rMin * sinV);
   const float yHi = (cy + rMax * sinV);
-  return DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+  DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+}
+
+void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, float rMax)
+{
+    const float angleRadians = DegToRad(angle);
+    const float sinV = sinf(angleRadians);
+    const float cosV = cosf(angleRadians);
+    const float xLo = (cx + rMin * cosV);
+    const float xHi = (cx + rMax * cosV);
+    const float yLo = (cy + rMin * sinV);
+    const float yHi = (cy + rMax * sinV);
+    PathLine(xLo, yLo, xHi, yHi);
 }
 
 void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)
@@ -572,6 +586,17 @@ void IGraphics::SetStrictDrawing(bool strict)
 {
   mStrict = strict;
   SetAllControlsDirty();
+}
+
+void IGraphics::MoveMouseCursor(float x, float y)
+{
+  // Call this with the window-relative coords after doing platform specifc cursor move
+    
+  if (mMouseCapture >= 0)
+  {
+    //mMouseX = x;
+    //mMouseY = y;
+  }
 }
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -871,9 +896,9 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 
     Steinberg::Vst::ParamID p = paramIdx;
 
-    Steinberg::Vst::IContextMenu* menu = handler->createContextMenu(pVST3->GetView(), &p);
+    Steinberg::Vst::IContextMenu* pVST3ContextMenu = handler->createContextMenu(pVST3->GetView(), &p);
 
-    if (menu)
+    if (pVST3ContextMenu)
     {
       Steinberg::Vst::IContextMenu::Item item = {0};
 
@@ -887,15 +912,15 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
         else
           item.flags = 0;
 
-        menu->addItem(item, GetControl(controlIdx));
+        pVST3ContextMenu->addItem(item, GetControl(controlIdx));
       }
 
-      menu->popup((Steinberg::UCoord) x,(Steinberg::UCoord) y);
-      menu->release();
+      pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
+      pVST3ContextMenu->release();
     }
 
 #else
-    CreateIPopupMenu(contextMenu, x, y);
+    CreatePopupMenu(contextMenu, x, y);
     pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
 #endif
   }
@@ -1046,7 +1071,7 @@ void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 
 void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
-  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName);
+  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
 }
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
@@ -1092,7 +1117,8 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
     else
       strncpy(fullName, name, 4095);
 
-    return OSFindResource(fullName, type, result);
+    if (OSFindResource(fullName, type, result))
+        return true;
   }
 
   return false;

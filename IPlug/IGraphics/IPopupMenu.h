@@ -120,10 +120,10 @@ public:
   }
 
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
-  int GetChosenItemIdx() { return mChosenItemIdx; }
-  int NItems() { return mMenuItems.GetSize(); }
-  int GetPrefix() { return mPrefix; }
-  bool GetCanMultiCheck() { return mCanMultiCheck; }
+  int GetChosenItemIdx() const { return mChosenItemIdx; }
+  int NItems() const { return mMenuItems.GetSize(); }
+  int GetPrefix() const { return mPrefix; }
+  bool GetCanMultiCheck() const { return mCanMultiCheck; }
 
   Item* GetItem(int index)
   {

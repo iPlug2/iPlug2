@@ -52,7 +52,7 @@ public:
       menu.AddItem("IBitmapControl");
       menu.AddItem("IVKnobControl");
       
-      GetUI()->CreateIPopupMenu(menu, x, y);
+      GetUI()->CreatePopupMenu(menu, x, y);
     }
   }
   

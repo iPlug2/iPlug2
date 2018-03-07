@@ -2,13 +2,16 @@
 
 APP=IGraphicsTest
 
-IPLUG_PATH = ../../IPlug
-WDL_PATH = ../../WDL
+ROOT = ../..
+IPLUG_PATH = $(ROOT)/IPlug
+WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 SWELL_PATH = $(WDL_PATH)/swell
 LICE_PATH = $(WDL_PATH)/lice
-NANOSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
+DEPS_PATH = $(ROOT)/Dependencies
+IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
+NANOSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
 
 IPLUG_INC_PATHS = -I$(IPLUG_PATH) -I$(WDL_PATH) -I$(SWELL_PATH)
 IGRAPHICS_INC_PATHS = -I$(IGRAPHICS_PATH) -I$(NANOSVG_PATH)
@@ -54,7 +57,6 @@ vpath %.cpp .. $(LICE_PATH)
 vpath %.cpp .. $(SWELL_PATH)
 
 
-
 ### Objects and resources
 SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
              swell-menu-generic.o swell-kb-generic.o swell-dlg-generic.o \
@@ -70,7 +72,7 @@ LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
             lice_textnew.o lice_png.o
 endif
 
-OBJS = main.o $(SWELL_OBJS)
+OBJS = main.o IGraphicsTest.o $(SWELL_OBJS)
 RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
 
 ### Compiler/Linker Flags
@@ -79,6 +81,7 @@ CFLAGS += $(IPLUG_INC_PATHS)
 CFLAGS += $(IGRAPHICS_INC_PATHS)
 CFLAGS += -DNOMINMAX
 CFLAGS += -DNO_IGRAPHICS 
+CFLAGS += -std=c++11
 
 ifneq ($(filter arm%,$(ARCH)),)
   CFLAGS += -fsigned-char -marm

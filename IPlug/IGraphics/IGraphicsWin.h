@@ -39,6 +39,8 @@ public:
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
+  void MoveMouseCursor(float x, float y) override { /* TODO */ };
+
   int ShowMessageBox(const char* str, const char* caption, int type) override;
 
   void* OpenWindow(void* pParentWnd) override;
@@ -59,10 +61,10 @@ public:
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
-  HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
+  IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, const IPopupMenu& baseMenu);
+  HMENU CreateMenu(const IPopupMenu& menu, long* pOffsetIdx);
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& areaRect) override;
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
@@ -75,7 +77,7 @@ public:
   IRECT GetWindowRECT();
   void SetWindowTitle(const char* str);
 
-  const char* GetUIAPI() override { return "win32"; };
+  const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
 

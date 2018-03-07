@@ -190,7 +190,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\resources\IPlugEffect.rc">
+    <ResourceCompile Include="..\resources\main.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
   </ItemGroup>

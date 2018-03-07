@@ -18,7 +18,7 @@ These guidelines exist in order to try and tidy up the IPlug code base. Every de
 * Member variables that are pointers do not need a "p"
 * Member methods that should not be called by the "IPlug User", but are still accessible, for whatever reason prefixed with an underscore
 
-@todo Expand this
+\todo Expand this
 
 ###An example class:
 

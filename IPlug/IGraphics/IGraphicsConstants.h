@@ -44,7 +44,7 @@ const int DEFAULT_TEXT_SIZE = 10;
 const int FONT_LEN = 32;
 
 /** @enum EType Blend type
- * @todo This could use some documentation
+ * \todo This could use some documentation
  */
 enum EBlendType
 {

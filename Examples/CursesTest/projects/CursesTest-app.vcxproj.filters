@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsLice.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\CursesTest.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\CursesTest.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsConstants.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsStructs.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.h">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLice.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
+      <Filter>IGraphics\DrawClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IGraphics">
+      <UniqueIdentifier>{c4ce2c77-eba9-4f56-954f-b5077eeb07ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\PlatformClasses">
+      <UniqueIdentifier>{00ff4d95-ab41-4b6a-a490-8d7c2848f82f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\DrawClasses">
+      <UniqueIdentifier>{75e3299f-54fc-4815-84f2-fb80b65c2360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{c6ab0357-34f0-4ae8-8b4f-225dc387b2db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{a4138341-239e-4d28-8628-c77fa794ad8a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.mm">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.mm">
+      <Filter>IGraphics\PlatformClasses</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\CursesTest.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\CursesTest.ico">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

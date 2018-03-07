@@ -191,11 +191,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\resources\IPlugEffect.rc">
-      <Filter>resources</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
       <Filter>IGraphics\PlatformClasses</Filter>
     </None>
@@ -213,5 +208,10 @@
     <Library Include="..\..\..\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
       <Filter>IPlug\AAX\Libs</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\main.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

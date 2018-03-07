@@ -45,18 +45,22 @@ APP_DEFS = APP_API __MACOSX_CORE__
 
 // the top level WDL-OL folder e.g. where this common.xcconfig is
 ROOT = $(SRCROOT)/../../..
+PROJECT_ROOT = $(SRCROOT)/..
 
 PKGMAN_PATH = /usr/local
 
+DEPS_PATH = $(ROOT)/Dependencies
+
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the STATICLIBS_PATH build setting to point to PKGMAN_PATH
-STATICLIBS_PATH = $(ROOT)/Libraries/install/
+STATICLIBS_PATH = $(DEPS_PATH)/IGraphics/install
 STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
 
 // IPlug dependencies
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
-RTAUDIOMIDI_PATH = $(IPLUG_PATH)/APP/RTAudioMidi
+RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
+RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
 // Plug-in SDK paths
 VST3_SDK = $(ROOT)/VST3_SDK
@@ -64,15 +68,17 @@ AAX_SDK = $(ROOT)/AAX_SDK
 CA_SDK = $(ROOT)/CA_SDK
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
+
+IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 
 // IGraphics dependencies
-IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
+IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
 LICE_PATH = $(WDL_PATH)/lice
-NSVG_PATH = $(IGRAPHICS_PATH)/NanoSVG
-NVG_PATH = $(IGRAPHICS_PATH)/nanovg/src
-NVGMTL_PATH = $(IGRAPHICS_PATH)/MetalNanoVG/src
-AGG_PATH = $(IGRAPHICS_PATH)/agg
+NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
+NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
+NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
+AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG
 FT_PATH = $(STATICLIBS_INC_PATH)/freetype2
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support

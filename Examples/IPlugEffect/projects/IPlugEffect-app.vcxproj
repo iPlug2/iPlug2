@@ -267,18 +267,20 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\ASIO_SDK\asio.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiodrivers.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiodrvr.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiolist.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\asiosys.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\dsound.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\ginclude.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\iasiodrv.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\iasiothiscallresolver.h" />
-    <ClInclude Include="..\..\..\ASIO_SDK\soundcard.h" />
-    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.h" />
-    <ClInclude Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asio.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiodrivers.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiodrvr.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiolist.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiosys.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\dsound.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\functiondiscoverykeys_devpkey.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\ginclude.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiodrv.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiothiscallresolver.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\soundcard.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.h" />
+    <ClInclude Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.h" />
+    <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP_host.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h" />
@@ -360,19 +362,21 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
-    <ClInclude Include="..\app_wrapper\app_main.h" />
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\IPlugEffect.h" />
     <ClInclude Include="..\IPlugEffect_controls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\ASIO_SDK\asio.cpp" />
-    <ClCompile Include="..\..\..\ASIO_SDK\asiodrivers.cpp" />
-    <ClCompile Include="..\..\..\ASIO_SDK\asiolist.cpp" />
-    <ClCompile Include="..\..\..\ASIO_SDK\iasiothiscallresolver.cpp" />
-    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtAudio.cpp" />
-    <ClCompile Include="..\..\..\IPlug\APP\RTAudioMidi\RtMidi.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\asio.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiodrivers.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\asiolist.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiothiscallresolver.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.cpp" />
+    <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_dialog.cpp" />
+    <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp" />
+    <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp" />
@@ -430,8 +434,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\app_wrapper\app_dialog.cpp" />
-    <ClCompile Include="..\app_wrapper\app_main.cpp" />
     <ClCompile Include="..\IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -461,7 +463,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\resources\IPlugEffect.rc" />
+    <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

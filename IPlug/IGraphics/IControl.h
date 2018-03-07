@@ -127,14 +127,14 @@ public:
    * @param hide Set to true to hide the control */
   virtual void Hide(bool hide);
   
-  /** @return \c True if the control is hidden. */
+  /** @return \c true if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
   /** Sets grayout for the control to be true or false
-   * @param gray \c True for grayed out*/
+   * @param gray \c true for grayed out*/
   virtual void GrayOut(bool gray);
   
-  /** @return \c True if the control is grayed */
+  /** @return \c true if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
   void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }

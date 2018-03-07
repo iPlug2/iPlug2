@@ -43,6 +43,8 @@ public:
   , mScale(0)
   {}
   
+  virtual ~APIBitmap() {}
+    
   void SetBitmap(void* pBitmap, int w, int h, int s)
   {
     assert(((w % s) == 0) && ((h % s) == 0));
@@ -76,8 +78,8 @@ public:
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
   * @param n Number of frames (for multibitmaps)
-  * @param framesAreHorizontal \c True if the frames are positioned horizontally
-  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
+  * @param framesAreHorizontal \c true if the frames are positioned horizontally
+  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) \todo Subject to change
   * @param name Resource name for the bitmap
   */
     
@@ -87,12 +89,11 @@ public:
     , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
     , mN(n)
     , mFramesAreHorizontal(framesAreHorizontal)
-    , mScale(pAPIBitmap->GetScale())
     , mResourceName(name, (int) strlen(name))
   {
   }
     
-  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false), mScale(0)
+  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false)
   {
   }
     
@@ -116,6 +117,11 @@ public:
   * @return number of frames
   */
   inline int N() const { return mN; }
+  /**
+   * @return the scale of the bitmap
+   */
+  inline int GetScale() const { return mAPIBitmap->GetScale(); }
+
   /**
   * @return a pointer to the referenced APIBitmap
   */
@@ -143,10 +149,8 @@ private:
   int mH;
   /** Number of frames (for stacked bitmaps) */
   int mN;
-  /** \c True if the frames are positioned horizontally */
+  /** \c true if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
-  /** Scale of this bitmap */
-  int mScale;
   /** Resource path/name for the bitmap */
   WDL_String mResourceName;
 };
@@ -281,7 +285,7 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * @todo IBlend::weight needs documentation
+   * \todo IBlend::weight needs documentation
    * @param weight
   */
   IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
@@ -327,7 +331,7 @@ struct IStrokeOptions
     
     void SetDash(float *array, float offset, int count)
     {
-      assert(count >= 0 && count >= 8);
+      assert(count >= 0 && count <= 8);
       
       mCount = count;
       mOffset = offset;
@@ -373,17 +377,52 @@ struct IPattern
   WDL_TypedBuf<IColorStop> mStops;
   float mTransform[6];
   
-  IPattern(const IColor& color)
+  IPattern(const IColor& color) : mExtend(kExtendRepeat)
   {
     mType = kSolidPattern;
     mStops.Add(IColorStop(color, 0.0));
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
   
-  IPattern(EPatternType type)
+  IPattern(EPatternType type) : mExtend(kExtendNone)
   {
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+  }
+  
+  IPattern(float x1, float y1, float x2, float y2) : mExtend(kExtendNone)
+  {
+    mType = kLinearPattern;
+   
+    // Calculate the affine transform from one line segment to another!
+
+    const float xd = x2 - x1;
+    const float yd = y2 - y1;
+    const float size = sqrtf(xd * xd + yd * yd);
+    const float angle = -(atan2(yd, xd));
+    const float sinV = sinf(angle) / size;
+    const float cosV = cosf(angle) / size;
+    
+    const float xx = cosV;
+    const float xy = -sinV;
+    const float yx = sinV;
+    const float yy = cosV;
+    const float x0 = -(x1 * xx + y1 * xy);
+    const float y0 = -(x1 * yx + y1 * yy);
+    
+    SetTransform(xx, yx, xy, yy, x0, y0);
+  }
+
+  IPattern(float x1, float y1, float r) : mExtend(kExtendNone)
+  {
+    mType = kRadialPattern;
+    
+    const float xx = 1.0 / r;
+    const float yy = 1.0 / r;
+    const float x0 = -(x1 * xx);
+    const float y0 = -(y1 * yy);
+    
+    SetTransform(xx, 0, 0, yy, x0, y0);
   }
   
   int NStops() const
@@ -557,14 +596,14 @@ struct IRECT
     assert(cellIndex <= nRows * nColumns);
     
     int cell = 0;
-    for(int column = 0; column<nColumns; column++)
+    for(int row = 0; row<nRows; row++)
     {
-      for(int row = 0; row<nRows; row++)
+      for(int column = 0; column<nColumns; column++)
       {
         if(cell == cellIndex)
         {
-          const IRECT hrect = SubRectHorizontal(nRows, row);
-          return hrect.SubRectVertical(nColumns, column);
+          const IRECT vrect = SubRectVertical(nRows, row);
+          return vrect.SubRectHorizontal(nColumns, column);
         }
         
         cell++;
@@ -734,7 +773,7 @@ public:
       if (mDatas.Get(i)->data == data)
       {
         mDatas.Delete(i, true);
-        delete(data);
+        delete data;
         break;
       }
     }
@@ -745,7 +784,11 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      delete(mDatas.Get(i)->data);
+      // FIX - this doesn't work - why not?
+      /*
+      DataKey* key = mDatas.Get(i);
+      T* data = key->data;
+      delete data;*/
     }
     mDatas.Empty(true);
   };

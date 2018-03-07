@@ -1,0 +1,5 @@
+/*! \page errors Error Handling
+
+RtAudio makes restrained use of C++ exceptions.  That is, exceptions are thrown only when system errors occur that prevent further class operation or when the user makes invalid function calls.  In other cases, a warning message may be displayed and an appropriate value is returned.  For example, if a system error occurs when processing the RtAudio::getDeviceCount() function, the return value is zero.  In such a case, the user cannot expect to make use of most other RtAudio functions because no devices are available (and thus a stream cannot be opened).  A client can call the function RtAudio::showWarnings() with a boolean argument to enable or disable the printing of warning messages to <tt>stderr</tt>.  By default, warning messages are displayed.  There is a protected RtAudio method, error(), that can be modified to globally control how these messages are handled and reported.
+
+*/

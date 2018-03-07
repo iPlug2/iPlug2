@@ -150,16 +150,10 @@ int IPlugProcessor<sampleType>::MaxNChannelsForBus(ERoute direction, int busIdx)
 template<typename sampleType>
 int IPlugProcessor<sampleType>::NChannelsConnected(ERoute direction) const
 {
-  const WDL_PtrList<IChannelData<>>* pChannelData = nullptr;
-
-  if (direction == ERoute::kInput)
-    pChannelData = &mChannelData[kInput];
-  else
-    pChannelData = &mChannelData[kOutput];
+  const WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
   int count = 0;
-
-  for (auto i = 0; i<pChannelData->GetSize(); i++)
+  for (auto i = 0; i<channelData.GetSize(); i++)
   {
     count += (int) IsChannelConnected(direction, i);
   }
@@ -193,18 +187,10 @@ void IPlugProcessor<sampleType>::LimitToStereoIO()
 }
 
 template<typename sampleType>
-void IPlugProcessor<sampleType>::SetChannelLabel(ERoute direction, int idx, const char* str)
+void IPlugProcessor<sampleType>::SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased)
 {
-  if (direction == ERoute::kInput)
-  {
-    if (idx >= 0 && idx < MaxNChannels(ERoute::kInput))
-      mChannelData[kInput].Get(idx)->mLabel.Set(str);
-  }
-  else
-  {
-    if (idx >= 0 && idx < MaxNChannels(ERoute::kOutput))
-      mChannelData[kOutput].Get(idx)->mLabel.Set(str);
-  }
+  if (idx >= 0 && idx < MaxNChannels(direction))
+    mChannelData[direction].Get(idx)->mLabel.SetFormatted(MAX_CHAN_NAME_LEN, formatStr, idx+(!zeroBased));
 }
 
 template<typename sampleType>
