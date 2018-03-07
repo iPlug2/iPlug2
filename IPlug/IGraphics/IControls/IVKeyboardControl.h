@@ -1,3 +1,5 @@
+#include "IControl.h"
+
 /*
 
  IVKeyboardControl by Eugene Yakshin, 2018
@@ -49,25 +51,350 @@ public:
   };
   
   IVKeyboardControl(IDelegate& dlg, IRECT rect,
-                    int minNote = 36, int maxNote = 60);
+    int minNote = 36, int maxNote = 60)
+    : IControl(dlg, rect)
+    , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
+  {
+    mText.mFGColor = GetColor(kFR);
+    mDblAsSingleClick = true;
+    bool keepWidth = !(rect.W() <= 0.0);
+    if (rect.W() <= 0.0)
+    {
+      mRECT.R = mRECT.L + mRECT.H();
+      mTargetRECT = mRECT;
+    }
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override;
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnResize() override;
+    SetMinMaxNote(minNote, maxNote, keepWidth);
+  }
 
-  void Draw(IGraphics& graphics) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    int oldK = mKey;
+    mKey = GetKeyUnderMouse(x, y);
 
-  void SetMinMaxNote(int min, int max, bool keepWidth = true);
-  void SetNoteIsPlayed(int noteNum, bool played);
-  void SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR = 0.6);
-  void SetHeight(float h, bool keepProportions = false);
-  void SetWidth(float w, bool keepProportions = false);
-  void SetShowNotesAndVelocity(bool show);
-  void SetColors(const IColor bkColor, const IColor& wkColor, const IColor& pkColor = DEFAULT_PK_COLOR, const IColor& frColor = DEFAULT_FR_COLOR);
+    if (oldK != mKey)
+      mVelByWheel = false;
+
+    mMouseOverKey = mKey;
+
+    if (!mVelByWheel)
+      UpdateVelocity(y);
+
+    SetDirty();
+  }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    if (mKey > -1)
+    {
+      mKey = -1;
+      mMouseOverKey = -1;
+      mVelocity = 0.0;
+      mVelByWheel = false;
+      SetDirty();
+    }
+  }
+
+  void OnMouseOut() override
+  {
+    if (mKey > -1 || mShowNoteAndVel)
+    {
+      mKey = -1;
+      mMouseOverKey = -1;
+      mVelocity = 0.0;
+      mVelByWheel = false;
+      SetDirty();
+    }
+  }
+
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  {
+    OnMouseDown(x, y, mod);
+  }
+
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override
+  {
+    if (mKey > -1)
+    {
+      if (mod.C || mod.S) mVelocity += 0.003f * d;
+      else mVelocity += 0.03f * d;
+      mVelByWheel = true;
+      mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
+#ifdef _DEBUG
+      SetDirty();
+#else
+      if (mShowNoteAndVel)
+        SetDirty();
+#endif
+    }
+  }
+
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
+  {
+    if (mShowNoteAndVel)
+    {
+      mMouseOverKey = GetKeyUnderMouse(x, y);
+      SetDirty();
+    }
+  }
+
+  void OnResize() override
+  {
+    auto r = mRECT.W() / mTargetRECT.W();
+    auto dx = mRECT.L - mTargetRECT.L;
+    mWKWidth *= r;
+    for (int i = 0; i < NumKeys(); ++i)
+    {
+      auto kl = KeyLCoordPtr(i);
+      auto d = *kl - mRECT.L;
+      *kl = mRECT.L + d * r + dx;
+    }
+
+    mTargetRECT = mRECT;
+    SetDirty();
+  }
+
+  void Draw(IGraphics& graphics) override
+  {
+    auto shadowColor = IColor(60, 0, 0, 0);
+    graphics.FillRect(GetColor(kWK), mRECT);
+
+    auto& top = mRECT.T;
+    auto& wBot = mRECT.B;
+    auto bBot = top + mRECT.H() * mBKHeightRatio;
+    auto bKWidth = CalcBKWidth();
+
+    // first draw whites
+    for (int i = 0; i < NumKeys(); ++i)
+    {
+      if (!IsBlackKey(i))
+      {
+        auto kL = KeyLCoord(i);
+        auto kRect = IRECT(kL, top, kL + mWKWidth, wBot);
+        if (i == mKey || NoteIsPlayed(i))
+        {
+          // draw played white key
+          graphics.FillRect(GetColor(kPK), kRect);
+          if (mDrawShadows)
+          {
+            auto sr = kRect;
+            sr.R = sr.L + 0.35f * sr.W();
+            graphics.FillRect(shadowColor, sr);
+          }
+        }
+        if (mDrawBorders && i != 0)
+        { // only draw the left border if it doesn't overlay mRECT l border
+          graphics.DrawLine(GetColor(kFR), kL, top, kL, wBot);
+          if (i == NumKeys() - 2 && IsBlackKey(NumKeys() - 1))
+            graphics.DrawLine(GetColor(kFR), kL + mWKWidth, top, kL + mWKWidth, wBot);
+        }
+      }
+    }
+
+    // then blacks
+    for (int i = 0; i < NumKeys(); ++i)
+    {
+      if (IsBlackKey(i))
+      {
+        auto kL = KeyLCoord(i);
+        auto kRect = IRECT(kL, top, kL + bKWidth, bBot);
+        // first draw underlying shadows
+        if (mDrawShadows && i != mKey && !NoteIsPlayed(i) && i < NumKeys() - 1)
+        {
+          auto sr = kRect;
+          float w = sr.W();
+          sr.L += 0.6f * w;
+          if (i + 1 == mKey || NoteIsPlayed(i + 1))
+          {
+            // if white to the right is pressed, shadow is longer
+            w *= 1.3f;
+            sr.B = sr.T + 1.05f * sr.H();
+          }
+          sr.R = sr.L + w;
+          graphics.FillRect(shadowColor, sr);
+        }
+        graphics.FillRect(GetColor(kBK), kRect);
+        if (i == mKey || NoteIsPlayed(i))
+        {
+          // draw played black key
+          auto cBP = GetColor(kPK);
+          cBP.A = (int)mBKAlpha;
+          graphics.FillRect(cBP, kRect);
+        }
+        if (mDrawBorders)
+        { // draw l, r and bottom if they don't overlay the mRECT borders
+          if (mBKHeightRatio != 1.0)
+            graphics.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
+          if (i != 0)
+            graphics.DrawLine(GetColor(kFR), kL, top, kL, bBot);
+          if (i != NumKeys() - 1)
+            graphics.DrawLine(GetColor(kFR), kL + bKWidth, top, kL + bKWidth, bBot);
+        }
+      }
+    }
+
+    if (mDrawBorders)
+      graphics.DrawRect(GetColor(kFR), mRECT);
+
+    if (mShowNoteAndVel)
+    {
+      if (mMouseOverKey > -1)
+      {
+        auto r = IRECT(KeyLCoord(mMouseOverKey), top, 0, 0);
+        r.B = r.T + 1.2f * mText.mSize;
+        r.R = r.L + 35.0f;
+        WDL_String t;
+        GetNoteNameStr(mMinNote + mMouseOverKey, false, t);
+        if (mKey > -1)
+        {
+          t.AppendFormatted(16, ", vel: %3.2f", GetVelocity());
+          r.R += 60.0;
+        }
+        auto e = r.R - mRECT.R;
+        if (e > 0.0)
+        {
+          r.L -= e;
+          r.R -= e;
+        }
+        graphics.FillRect(GetColor(kWK), r);
+        graphics.DrawRect(GetColor(kFR), r);
+        graphics.DrawText(mText, t.Get(), r);
+      }
+    }
+
+#ifdef _DEBUG
+    //graphics.DrawRect(COLOR_GREEN, mTargetRECT);
+    //graphics.DrawRect(COLOR_BLUE, mRECT);
+    WDL_String ti;
+    ti.SetFormatted(32, "key: %d, vel: %3.2f", mKey, GetVelocity());
+    //ti.SetFormatted(32, "key: %d, vel: %d", mKey, GetVelocityInt());
+    //ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
+    IText txt(COLOR_RED, 20);
+    auto& mr = mRECT;
+    IRECT tr(mr.L + 20, mr.B - 20, mr.L + 160, mr.B);
+    graphics.DrawText(txt, ti.Get(), tr);
+#endif
+  }
+
+  void SetMinMaxNote(int min, int max, bool keepWidth = true)
+  {
+    if (min < 0 || max < 0) return;
+    if (min < max)
+    {
+      mMinNote = min;
+      mMaxNote = max;
+    }
+    else
+    {
+      mMinNote = max;
+      mMaxNote = min;
+    }
+
+    mNoteIsPlayed.Resize(NumKeys());
+    memset(mNoteIsPlayed.Get(), 0, mNoteIsPlayed.GetSize() * sizeof(bool));
+
+    //TODO: call to plugin to retain pressed keys
+
+    RecreateKeyBounds(keepWidth);
+  }
+  void SetNoteIsPlayed(int noteNum, bool played)
+  {
+    if (noteNum < mMinNote || noteNum > mMaxNote) return;
+    mNoteIsPlayed.Get()[noteNum - mMinNote] = played;
+    SetDirty();
+  }
+
+  void SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR = 0.6)
+  {
+    if (widthR <= 0.0 || heightR <= 0.0) return;
+    if (widthR > 1.0) widthR = 1.0;
+    if (heightR > 1.0) heightR = 1.0;
+    auto halfW = 0.5f * mWKWidth * mBKWidthR;
+    float r = widthR / mBKWidthR;
+    mBKWidthR = widthR;
+    mBKHeightRatio = heightR;
+    for (int i = 0; i < NumKeys(); ++i)
+    {
+      if (IsBlackKey(i))
+      {
+        auto kl = KeyLCoordPtr(i);
+        float mid = *kl + halfW;
+        *kl = mid - halfW * r;
+        if (*kl < mRECT.L) *kl = mRECT.L;
+      }
+    }
+    SetDirty();
+  }
+  void SetHeight(float h, bool keepProportions = false)
+  {
+    if (h <= 0.0) return;
+    auto& mR = mRECT;
+    auto r = h / mR.H();
+    mR.B = mR.T + mR.H() * r;
+
+    mTargetRECT = mRECT;
+
+    if (keepProportions)
+      SetWidth(mR.W() * r);
+    SetDirty();
+  }
+  void SetWidth(float w, bool keepProportions = false)
+  {
+    if (w <= 0.0) return;
+    auto& mR = mRECT;
+    auto r = w / mR.W();
+    mR.R = mR.L + mR.W() * r;
+    mWKWidth *= r;
+    for (int i = 0; i < NumKeys(); ++i)
+    {
+      auto kl = KeyLCoordPtr(i);
+      auto d = *kl - mR.L;
+      *kl = mR.L + d * r;
+    }
+
+    mTargetRECT = mRECT;
+
+    if (keepProportions)
+      SetHeight(mR.H() * r);
+
+    SetDirty();
+  }
+  void SetShowNotesAndVelocity(bool show)
+  {
+    mShowNoteAndVel = show;
+  }
+
+  void SetColors(const IColor BKColor, const IColor& WKColor, const IColor& PKColor = DEFAULT_PK_COLOR, const IColor& FRColor = DEFAULT_FR_COLOR)
+  {
+    SetColor(kBK, BKColor);
+    SetColor(kWK, WKColor);
+    SetColor(kPK, PKColor);
+    SetColor(kFR, FRColor);
+
+    mBKAlpha = (float)PKColor.A;
+
+    if (mBKAlpha < 240.f)
+    {
+      const float lumWK = WKColor.GetLuminocity() * WKColor.A / 255.f;
+      const float adjustment = PKColor.A / 255.f;
+      const float lumPK = PKColor.GetLuminocity() * adjustment;
+      const float lumRes = (1.f - adjustment) * lumWK + lumPK;
+      const float lumDW = lumRes - lumWK;
+      const float lumBK = BKColor.GetLuminocity() * BKColor.A / 255.f;
+
+      if ((lumDW < 0 && lumBK < lumWK) || (lumDW > 0 && lumBK > lumWK))
+      {
+        float dbWB = lumWK - lumBK; // not used in the conditions ^^ for readability
+        mBKAlpha += (255.f - mBKAlpha) * (1.f - dbWB * dbWB / 255.f / 255.f) + 0.5f;
+      }
+      else
+        mBKAlpha += lumDW + 0.5f;
+
+      mBKAlpha = BOUNDED(mBKAlpha, 15.f, 255.f);
+    }
+
+    SetDirty();
+  }
 
   void SetDrawShadows(bool draw) // todo make shadow offset a settable member
   {
@@ -98,14 +425,163 @@ public:
   int GetVelocityInt() const { return (int)(mVelocity * 127. + 0.5); }
 
 private:
-  void RecreateKeyBounds(bool keepWidth);
-  int GetKeyUnderMouse(float x, float y);
-  void UpdateVelocity(float y);
-  void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str);
+  void RecreateKeyBounds(bool keepWidth)
+  {
+    if (keepWidth)
+      mWKWidth = 0.f;
+
+    // create size-independent data.
+    mIsBlackKeyList.Resize(NumKeys());
+    mKeyLCoords.Resize(NumKeys());
+
+    float numWhites = 0.f;
+    for (int n = mMinNote, i = 0; n <= mMaxNote; ++n, i++)
+    {
+      if (n % 12 == 1 || n % 12 == 3 || n % 12 == 6 || n % 12 == 8 || n % 12 == 10)
+      {
+        mIsBlackKeyList.Get()[i] = true;
+      }
+      else
+      {
+        mIsBlackKeyList.Get()[i] = false;
+        numWhites += 1.f;
+      }
+    }
+
+    // black key middle isn't aligned exactly between whites
+    float WKPadStart = 0.f; // 1st note may be black
+    float WKPadEnd = 0.f;   // last note may be black
+
+    auto ShiftForKey = [this](int note)
+    {
+      // usually black key width + distance to the closest black key = white key width,
+      // and often b width is ~0.6 * w width
+      if (note == 0) return 0.f;
+      else if (note % 12 == 1)  return 7.f / 12.f;
+      else if (note % 12 == 3)  return 5.f / 12.f;
+      else if (note % 12 == 6)  return 2.f / 3.f;
+      else if (note % 12 == 8)  return 0.5f;
+      else if (note % 12 == 10) return 1.f / 3.f;
+      else return 0.f;
+    };
+
+    WKPadStart = ShiftForKey(mMinNote);
+
+    if (mMinNote != mMaxNote && IsBlackKey(mIsBlackKeyList.GetSize() - 1))
+      WKPadEnd = 1.f - ShiftForKey(mMaxNote);
+
+    // build rects
+    if (mWKWidth == 0.f)
+      mWKWidth = 0.2f * mRECT.H(); // first call from the constructor
+
+    if (keepWidth)
+    {
+      mWKWidth = mRECT.W();
+      if (numWhites) mWKWidth /= (numWhites + mBKWidthR * (WKPadStart + WKPadEnd));
+    }
+    float blackW = mWKWidth;
+    if (numWhites) blackW *= mBKWidthR;
+
+    float prevWKLeft = mRECT.L;
+
+    for (int k = 0; k < mIsBlackKeyList.GetSize(); ++k)
+    {
+      if (IsBlackKey(k))
+      {
+        float l = prevWKLeft;
+        if (k != 0)
+        {
+          auto s = ShiftForKey(mMinNote + k);
+          l -= s * blackW;
+        }
+        else prevWKLeft += WKPadStart * blackW;
+        mKeyLCoords.Get()[k] = l;
+      }
+      else
+      {
+        mKeyLCoords.Get()[k] = prevWKLeft;
+        prevWKLeft += mWKWidth;
+      }
+    }
+
+    mTargetRECT = mRECT;
+    SetDirty();
+  }
+
+  int GetKeyUnderMouse(float x, float y)
+  {
+    auto& top = mRECT.T;
+    auto& WKBottom = mRECT.B;
+    auto BKBottom = top + mRECT.H() * mBKHeightRatio;
+    auto BKWidth = CalcBKWidth();
+
+    // black keys are on top
+    int k = -1;
+    for (int i = 0; i < NumKeys(); ++i)
+    {
+      if (IsBlackKey(i))
+      {
+        auto kL = KeyLCoord(i);
+        auto kRect = IRECT(kL, top, kL + BKWidth, BKBottom);
+        if (kRect.Contains(x, y))
+        {
+          k = i;
+          break;
+        }
+      }
+    }
+
+    if (k < 0) for (int i = 0; i < NumKeys(); ++i)
+    {
+      if (!IsBlackKey(i))
+      {
+        auto kL = KeyLCoord(i);
+        auto keyBounds = IRECT(kL, top, kL + mWKWidth, WKBottom);
+        if (keyBounds.Contains(x, y))
+        {
+          k = i;
+          break;
+        }
+      }
+    }
+
+    return k;
+  }
+
+  void UpdateVelocity(float y)
+  {
+    if (mKey > -1)
+    {
+      auto h = mRECT.H();
+
+      if (IsBlackKey(mKey))
+        h *= mBKHeightRatio;
+
+      mVelocity = (float)(y - mRECT.T) / (0.95f * h);
+      // 0.95 is to get max velocity around the bottom
+      mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
+    }
+    else mVelocity = 0.f;
+  }
+  void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str)
+  {
+    int oct = midiNoteNum / 12;
+    midiNoteNum -= 12 * oct;
+    const char* notes[12] = { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+    const char* n = notes[midiNoteNum];
+    str.Set(n);
+    if (addOctave)
+      str.AppendFormatted(2, "%d", --oct);
+  }
+
   bool IsBlackKey(int i) const { return *(mIsBlackKeyList.Get() + i); }
+
   float KeyLCoord(int i) { return *(mKeyLCoords.Get() + i); }
+
   float* KeyLCoordPtr(int i) { return mKeyLCoords.Get() + i; }
+
   bool NoteIsPlayed(int i) const { return *(mNoteIsPlayed.Get() + i); }
+
   int NumKeys() const { return mMaxNote - mMinNote + 1; }
 
   float CalcBKWidth() const
@@ -134,3 +610,8 @@ protected:
   WDL_TypedBuf<bool> mNoteIsPlayed;
   WDL_TypedBuf<float> mKeyLCoords;
 };
+
+const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
+const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
+const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
+const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
