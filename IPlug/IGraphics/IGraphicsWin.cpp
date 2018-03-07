@@ -773,7 +773,7 @@ void IGraphicsWin::CloseWindow()
   }
 }
 
-IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx, IPopupMenu& baseMenu)
+IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, const IPopupMenu& baseMenu)
 {
   long oldIDx = offsetIdx;
   offsetIdx += baseMenu.NItems();
@@ -781,49 +781,49 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
   if (idx < offsetIdx)
   {
     idxInMenu = idx - oldIDx;
-    return &baseMenu;
+    return &const_cast<IPopupMenu&>(baseMenu);
   }
 
-  IPopupMenu* menu = 0;
+  IPopupMenu* pMenu = nullptr;
 
   for(int i = 0; i< baseMenu.NItems(); i++)
   {
-    IPopupMenu::Item* menuItem = baseMenu.GetItem(i);
-    if(menuItem->GetSubmenu())
+    IPopupMenu::Item* pMenuItem = const_cast<IPopupMenu&>(baseMenu).GetItem(i);
+    if(pMenuItem->GetSubmenu())
     {
-      menu = GetItemMenu(idx, idxInMenu, offsetIdx, *menuItem->GetSubmenu());
+      pMenu = GetItemMenu(idx, idxInMenu, offsetIdx, *pMenuItem->GetSubmenu());
 
-      if(menu)
+      if(pMenu)
         break;
     }
   }
 
-  return menu;
+  return pMenu;
 }
 
-HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
+HMENU IGraphicsWin::CreateMenu(const IPopupMenu& menu, long* pOffsetIdx)
 {
   HMENU hMenu = ::CreatePopupMenu();
 
   WDL_String escapedText;
 
   int flags = 0;
-  long offset = *offsetIdx;
+  long offset = *pOffsetIdx;
   long nItems = menu.NItems();
-  *offsetIdx += nItems;
+  *pOffsetIdx += nItems;
   long inc = 0;
 
   for(int i = 0; i< nItems; i++)
   {
-    IPopupMenu::Item* menuItem = menu.GetItem(i);
+    IPopupMenu::Item* pMenuItem = const_cast<IPopupMenu&>(menu).GetItem(i);
 
-    if (menuItem->GetIsSeparator())
+    if (pMenuItem->GetIsSeparator())
     {
       AppendMenu(hMenu, MF_SEPARATOR, 0, 0);
     }
     else
     {
-      const char* str = menuItem->GetText();
+      const char* str = pMenuItem->GetText();
       char* titleWithPrefixNumbers = 0;
 
       if (menu.GetPrefix())
@@ -866,9 +866,9 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
       //if (nItems < 160 && pMenu->getNbItemsPerColumn () > 0 && inc && !(inc % _menu->getNbItemsPerColumn ()))
       //  flags |= MF_MENUBARBREAK;
 
-      if (menuItem->GetSubmenu())
+      if (pMenuItem->GetSubmenu())
       {
-        HMENU submenu = CreateMenu(*menuItem->GetSubmenu(), pOffsetIdx);
+        HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
           AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText);
@@ -876,13 +876,13 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
       }
       else
       {
-        if (menuItem->GetEnabled())
+        if (pMenuItem->GetEnabled())
           flags |= MF_ENABLED;
         else
           flags |= MF_GRAYED;
-        if (menuItem->GetIsTitle())
+        if (pMenuItem->GetIsTitle())
           flags |= MF_DISABLED;
-        if (menuItem->GetChecked())
+        if (pMenuItem->GetChecked())
           flags |= MF_CHECKED;
         else
           flags |= MF_UNCHECKED;
@@ -899,7 +899,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, IRECT& areaRect)
+IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& areaRect)
 {
   ReleaseMouseCapture();
 
