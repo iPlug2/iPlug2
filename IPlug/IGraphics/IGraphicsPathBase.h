@@ -53,15 +53,15 @@ public:
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
-  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override
+  void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
   {
-    PathRect(rect);
+    PathRect(bounds);
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
-  void DrawRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend) override
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend) override
   {
-    PathRoundRect(rect, corner);
+    PathRoundRect(bounds, corner);
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
@@ -83,12 +83,12 @@ public:
     PathStroke(color, 1.0, IStrokeOptions(), pBlend);
   }
   
-  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override
+  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
   {
     float dashLength = 2;
     IStrokeOptions options;
     options.mDash.SetDash(&dashLength, 0.0, 1);
-    PathRect(rect);
+    PathRect(bounds);
     PathStroke(color, 1.0, options, pBlend);
   }
 
@@ -98,15 +98,15 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override
+  void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
   {
-    PathRect(rect);
+    PathRect(bounds);
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  void FillRoundRect(const IColor& color, const IRECT& rect, float corner, const IBlend* pBlend) override
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend) override
   {
-    PathRoundRect(rect, corner);
+    PathRoundRect(bounds, corner);
     PathFill(color, IFillOptions(), pBlend);
   }
   
@@ -151,23 +151,23 @@ public:
     PathClose();
   }
   
-  void PathRect(const IRECT& rect) override
+  void PathRect(const IRECT& bounds) override
   {
-    PathMoveTo(rect.L, rect.T);
-    PathLineTo(rect.R, rect.T);
-    PathLineTo(rect.R, rect.B);
-    PathLineTo(rect.L, rect.B);
+    PathMoveTo(bounds.L, bounds.T);
+    PathLineTo(bounds.R, bounds.T);
+    PathLineTo(bounds.R, bounds.B);
+    PathLineTo(bounds.L, bounds.B);
     PathClose();
   }
   
-  void PathRoundRect(const IRECT& rect, float cr) override
+  void PathRoundRect(const IRECT& bounds, float cr) override
   {
-    const double y = rect.B - rect.H();
-    PathMoveTo(rect.L, y + cr);
-    PathArc(rect.L + cr, y + cr, cr, 180.0, 270.0);
-    PathArc(rect.L + rect.W() - cr, y + cr, cr, 270.0, 360.0);
-    PathArc(rect.L + rect.W() - cr, y + rect.H() - cr, cr, 0.0, 90.0);
-    PathArc(rect.L + cr, y + rect.H() - cr, cr, 90.0, 180.0);
+    const double y = bounds.B - bounds.H();
+    PathMoveTo(bounds.L, y + cr);
+    PathArc(bounds.L + cr, y + cr, cr, 180.0, 270.0);
+    PathArc(bounds.L + bounds.W() - cr, y + cr, cr, 270.0, 360.0);
+    PathArc(bounds.L + bounds.W() - cr, y + bounds.H() - cr, cr, 0.0, 90.0);
+    PathArc(bounds.L + cr, y + bounds.H() - cr, cr, 90.0, 180.0);
     PathClose();
   }
   

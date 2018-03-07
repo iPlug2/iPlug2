@@ -132,7 +132,7 @@ public:
 
   void SetDisplayScale(int scale) override;
 
-  void Draw(const IRECT& rect) override;
+  void Draw(const IRECT& bounds) override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
@@ -162,14 +162,14 @@ public:
   void PathTransformScale(float scale) override { mTransform = agg::trans_affine_scaling(scale) * mTransform; }
   void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure = false) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return 0; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
- // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, int scale) override;
+ // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* cacheName, int scale) override;
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
@@ -180,7 +180,7 @@ private:
   agg::pixel_map* CreateAPIBitmap(int w, int h);
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
 
-  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
+  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
 

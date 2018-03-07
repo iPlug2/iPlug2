@@ -568,7 +568,7 @@ public:
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, float x, float y) { const IRECT tempRect = IRECT(x,y,x,y); return CreatePopupMenu(menu, tempRect); }
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, float x, float y) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds); }
 
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */

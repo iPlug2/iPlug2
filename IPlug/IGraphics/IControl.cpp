@@ -132,11 +132,11 @@ void IControl::PromptUserInput()
   }
 }
 
-void IControl::PromptUserInput(IRECT& textRect)
+void IControl::PromptUserInput(IRECT& bounds)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    GetUI()->PromptUserInput(*this, textRect);
+    GetUI()->PromptUserInput(*this, bounds);
     Redraw();
   }
 }

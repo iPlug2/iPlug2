@@ -136,7 +136,7 @@ IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, in
   return bitmap;
 }
 /*
-IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale)
+IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale)
 {
   return bitmap;
 }*/
@@ -174,14 +174,14 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
+bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
 {
   return true;
 }
 
-bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, destRect, true);
+  return DrawText(text, str, bounds, true);
 }
 
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

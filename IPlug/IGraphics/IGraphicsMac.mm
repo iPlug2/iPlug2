@@ -153,11 +153,11 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
   return false;
 }
 
-bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
   CocoaAutoReleasePool pool;
 
-  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, destRect);
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
