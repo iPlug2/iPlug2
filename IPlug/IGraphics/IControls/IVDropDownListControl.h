@@ -1,17 +1,20 @@
+#pragma once
 #include "IControl.h"
+
 /** A vector drop down list.
 Put this control on top of a draw stack
 so that the expanded list is fully visible
 and doesn't close when mouse is over another control */
+
 class IVDropDownListControl : public IControl,
- public IVectorBase
+                              public IVectorBase
 {
  typedef WDL_PtrList<WDL_String> strBuf;
 
- static const IColor IVDropDownListControl::DEFAULT_BG_COLOR;
- static const IColor IVDropDownListControl::DEFAULT_FR_COLOR;
- static const IColor IVDropDownListControl::DEFAULT_TXT_COLOR;
- static const IColor IVDropDownListControl::DEFAULT_HL_COLOR;
+ static const IColor DEFAULT_BG_COLOR;
+ static const IColor DEFAULT_FR_COLOR;
+ static const IColor DEFAULT_TXT_COLOR;
+ static const IColor DEFAULT_HL_COLOR;
 
  // map to IVectorBase colors
  enum EVBColor
@@ -24,17 +27,18 @@ class IVDropDownListControl : public IControl,
 
 public:
 
-  IVDropDownListControl(IDelegate& dlg, IRECT rect, int param)
-    : IControl(dlg, rect, param),
-    IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
+  IVDropDownListControl(IDelegate& dlg, IRECT rect, int paramIdx)
+  : IControl(dlg, rect, paramIdx)
+  , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
     mInitRect = rect;
     mText.mFGColor = DEFAULT_TXT_COLOR;
     FillNamesFromParamDisplayTexts();
   }
-  IVDropDownListControl(IDelegate& dlg, IRECT rect, int param, int numStates, const char* names...)
-    : IControl(dlg, rect, param),
-    IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
+  
+  IVDropDownListControl(IDelegate& dlg, IRECT rect, int numStates, const char* names...)
+  : IControl(dlg, rect, kNoParameter)
+  , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
     mInitRect = rect;
     mText.mFGColor = DEFAULT_TXT_COLOR;
@@ -52,7 +56,7 @@ public:
  ~IVDropDownListControl()
  {
    mValNames.Empty(true);
- };
+ }
 
  void Draw(IGraphics& graphics) override
  {
@@ -77,7 +81,7 @@ public:
 
      if (mDrawBorders)
        graphics.DrawRect(GetColor(lFR), initR);
-     graphics.DrawTextA(mText, NameForVal(StateFromNormalized()), textR);
+     graphics.DrawText(mText, NameForVal(StateFromNormalized()), textR);
      ShrinkRects(); // shrink here to clean the expanded area
    }
 
@@ -112,13 +116,13 @@ public:
 
        if (mDrawBorders)
          graphics.DrawRect(GetColor(lFR), vR);
-       graphics.DrawTextA(mText, NameForVal(v), tR);
+       graphics.DrawText(mText, NameForVal(v), tR);
        ++sy;
      }
 
      if (mDrawBorders)
      {
-       if (!mDrawShadows)   // panelRect == mRECT
+       if (!mDrawShadows) // panelRect == mRECT
        {
          --panelR.R; // fix for strange graphics behavior
          --panelR.B; // mRECT right and bottom are not drawn in expanded state (on Win)
@@ -373,7 +377,7 @@ protected:
      mValNames.Add(new WDL_String(va_arg(args, const char*)));
  }
 
- auto NameForVal(int val)
+ const char* NameForVal(int val)
  {
    return (mValNames.Get(val))->Get();
  }

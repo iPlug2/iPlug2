@@ -51,9 +51,9 @@ public:
   };
   
   IVKeyboardControl(IDelegate& dlg, IRECT rect,
-    int minNote = 36, int maxNote = 60)
-    : IControl(dlg, rect)
-    , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
+                    int minNote = 36, int maxNote = 60)
+  : IControl(dlg, rect)
+  , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   {
     mText.mFGColor = GetColor(kFR);
     mDblAsSingleClick = true;
