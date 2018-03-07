@@ -899,7 +899,7 @@ HMENU IGraphicsWin::CreateMenu(const IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& areaRect)
+IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds)
 {
   ReleaseMouseCapture();
 
@@ -911,8 +911,8 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& a
   {
     POINT cPos;
 
-    cPos.x = areaRect.L;
-    cPos.y = areaRect.B;
+    cPos.x = bounds.L;
+    cPos.y = bounds.B;
 
     ClientToScreen(mDelegateWnd, &cPos);
 
@@ -946,7 +946,7 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& a
   return result;
 }
 
-void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str)
+void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
   if (mParamEditWnd)
     return;
@@ -962,7 +962,7 @@ void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const I
   }
 
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
-    textRect.L, textRect.T, textRect.W()+1, textRect.H()+1,
+    bounds.L, bounds.T, bounds.W()+1, bounds.H()+1,
     mDelegateWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);

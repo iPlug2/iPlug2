@@ -38,10 +38,10 @@ public:
    * In a plug-in, this would typically be your main plug-in class, which inherits from IPlugBaseGraphics, which implements the interface.
    * If you're doing something using IGraphics without IPlugBaseGraphics (e.g. drawing into an extra window), you need to implement the delegate interface somewhere
    * to handle parameter changes.
-   * @param rect The rectangular area that the control occupies
+   * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -67,7 +67,7 @@ public:
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
 
-  virtual void OnTextEntryCompletion(const char* txt) {}
+  virtual void OnTextEntryCompletion(const char* str) {}
 
   /** Called in response to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
@@ -87,12 +87,13 @@ public:
   
   /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu,
    * if we are linked to a parameter, specifying bounds for the text entry/pop-up menu corner */
-  void PromptUserInput(IRECT& rect);
+  void PromptUserInput(IRECT& bounds);
   
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
   /** @param tooltip Text to be displayed */
-  inline void SetTooltip(const char* tooltip) { mTooltip.Set(tooltip); }
+  inline void SetTooltip(const char* str) { mTooltip.Set(str); }
+  
   /** @return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
@@ -118,9 +119,9 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
-  void SetRECT(const IRECT& rect) { mRECT = rect; OnResize(); }
+  void SetRECT(const IRECT& bounds) { mRECT = bounds; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetRECT(const IRECT& rect) { mTargetRECT = rect; }
+  void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; }
 
 
   /** Shows or hides the IControl.
@@ -210,7 +211,7 @@ public:
 
   bool GetMouseIsOver() { return mMouseIsOver; }
   
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& rect);
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds);
   
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
@@ -346,8 +347,8 @@ protected:
 class IPanelControl : public IControl, public IVectorBase
 {
 public:
-  IPanelControl(IDelegate& dlg, IRECT rect, const IColor& color)
-  : IControl(dlg, rect)
+  IPanelControl(IDelegate& dlg, IRECT bounds, const IColor& color)
+  : IControl(dlg, bounds)
   , IVectorBase(&color)
   {}
 
@@ -393,8 +394,8 @@ protected:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IDelegate& dlg, ISVG& svg, IRECT rect, int paramIdx)
-    : IControl(dlg, rect, paramIdx)
+  ISVGControl(IDelegate& dlg, ISVG& svg, IRECT bounds, int paramIdx)
+    : IControl(dlg, bounds, paramIdx)
     , mSVG(svg)
   {}
 
@@ -411,8 +412,8 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IDelegate& dlg, IRECT rect, const IText& text, const char* str = "")
-  : IControl(dlg, rect)
+  ITextControl(IDelegate& dlg, IRECT bounds, const IText& text, const char* str = "")
+  : IControl(dlg, bounds)
   , mStr(str)
   {
     IControl::mText = text;
@@ -432,7 +433,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IDelegate& dlg, IRECT rect, int paramIdx, const IText& text, bool showParamLabel = true);
+  ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel = true);
   ~ICaptionControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -448,9 +449,9 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter,
+  IKnobControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IControl(dlg, rect, paramIdx)
+    : IControl(dlg, bounds, paramIdx)
     , mDirection(direction)
     , mGearing(gearing)
   {}
@@ -470,7 +471,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
+  ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
     uint32_t numStates = 2);
 
   virtual ~ISwitchControlBase() {}
@@ -485,8 +486,8 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IDelegate& dlg, IRECT rect, const char* extension /* e.g. ".txt"*/)
-  : IControl(dlg, rect)
+  IDirBrowseControlBase(IDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  : IControl(dlg, bounds)
   {
     mExtension.Set(extension);
   }

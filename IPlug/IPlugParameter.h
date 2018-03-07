@@ -25,7 +25,7 @@ public:
   /** Sets the parameter value
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
-  void SetDisplayText(double value, const char* text);
+  void SetDisplayText(double value, const char* str);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
   void SetShape(double shape);
@@ -70,7 +70,7 @@ public:
   int NDisplayTexts() const;
   const char* GetDisplayText(int value) const;
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
-  bool MapDisplayText(const char* pStr, double* pValue) const;  // Reverse map back to value.
+  bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
   
   double GetShape() const { return mShape; }
   double GetStep() const { return mStep; }

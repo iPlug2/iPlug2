@@ -140,7 +140,7 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return new CairoBitmap(pOutSurface, scale);
 }
 /*
-IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, const char* name, int targetScale)
+IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& bounds, const char* name, int targetScale)
 {
   cairo_surface_t* pInSurface = (cairo_surface_t*) inBitmap.mAPIBitmap->GetBitmap();
   int newW = (int)(inBitmap.W * targetScale);
@@ -154,7 +154,7 @@ IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& rect, c
   
   // Paint from one surface to another
   cairo_set_source_surface(pOutContext, pInSurface, 0, 0);
-  cairo_rectangle(pOutContext, rect.L, rect.T, rect.W(), rect.H());
+  cairo_rectangle(pOutContext, bounds.L, bounds.T, bounds.W(), bounds.H());
   cairo_scale(pOutContext, targetScale, targetScale);
   cairo_paint(pOutContext);
   cairo_surface_set_device_scale(pOutSurface, targetScale, targetScale);
@@ -294,7 +294,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, bool measure)
+bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
 {
 #if defined(OS_WIN) && defined(IGRAPHICS_FREETYPE)
   // TODO: lots!
@@ -313,7 +313,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, b
 
   if (measure)
   {
-    rect = IRECT(0, 0, textExtents.width, fontExtents.height);
+    bounds = IRECT(0, 0, textExtents.width, fontExtents.height);
     cairo_font_face_destroy(pFace);
     return true;
   }
@@ -322,14 +322,14 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, b
 
   switch (text.mAlign)
   {
-    case IText::EAlign::kAlignNear:x = rect.L; break;
-    case IText::EAlign::kAlignFar: x = rect.R - textExtents.width - textExtents.x_bearing; break;
-    case IText::EAlign::kAlignCenter: x = rect.L + ((rect.W() - textExtents.width - textExtents.x_bearing) / 2.0); break;
+    case IText::EAlign::kAlignNear:x = bounds.L; break;
+    case IText::EAlign::kAlignFar: x = bounds.R - textExtents.width - textExtents.x_bearing; break;
+    case IText::EAlign::kAlignCenter: x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0); break;
     default: break;
   }
 
   // TODO: Add vertical alignment
-  y = rect.T + fontExtents.ascent;
+  y = bounds.T + fontExtents.ascent;
 
   cairo_move_to(mContext, x, y);
   SetCairoSourceRGBA(text.mFGColor);
@@ -340,9 +340,9 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& rect, b
 	return true;
 }
 
-bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, destRect, true);
+  return DrawText(text, str, bounds, true);
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)

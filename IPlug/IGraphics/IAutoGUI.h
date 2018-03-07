@@ -11,9 +11,9 @@
 //   WDL_TypedBuf<int> mParamsToMux;
 //   WDL_String mLabel;
 //
-//   AGTab(IRECT rect, const char* pLabel)
+//   AGTab(IRECT bounds, const char* pLabel)
 //   {
-//     mRECT = rect;
+//     mRECT = bounds;
 //     mLabel.Set(pLabel);
 //   }
 //
@@ -114,8 +114,8 @@
 //   const char** mParamNameStrings;
 //
 // public:
-//   AGPresetSaveButtonControl(IDelegate& dlg, IRECT rect, IText& text, const char** ppParamNameStrings)
-//   : IPanelControl(dlg, rect, COLOR_RED)
+//   AGPresetSaveButtonControl(IDelegate& dlg, IRECT bounds, IText& text, const char** ppParamNameStrings)
+//   : IPanelControl(dlg, bounds, COLOR_RED)
 //   , mParamNameStrings(ppParamNameStrings)
 //   {
 //     mText = text;

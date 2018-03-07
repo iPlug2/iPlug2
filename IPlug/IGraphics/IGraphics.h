@@ -113,12 +113,6 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
 
-  /** Fill a point/pixel with a color. \todo what about high DPI displays 
-   * @param color The color to fill the shape with
-   * @param x The X coordinate in the graphics context at which to draw
-   * @param y The Y coordinate in the graphics context at which to draw */
-  virtual void ForcePixel(const IColor& color, int x, int y) = 0;
-
   /** Draw a line to the graphics context
    * @param color The color to draw the shape with
    * @param x1 The X coordinate in the graphics context of the start of the line
@@ -551,7 +545,7 @@ public:
   /** Prompt for user input either using a text entry or pop up menu
    * @param control Reference to the control which the prompt relates to
    * @param bounds Rectangular region of the graphics context that the prompt (e.g. text entry box) should occupy */
-  void PromptUserInput(IControl& control, IRECT& bounds);
+  void PromptUserInput(IControl& control, const IRECT& bounds);
 
   /** Called by the platform class after returning from a prompt (typically a text entry) in order to update a control with a new value
    * @param control Reference to the control which the call relates to
@@ -568,7 +562,7 @@ public:
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, float x, float y) { const IRECT tempRect = IRECT(x,y,x,y); return CreatePopupMenu(menu, tempRect); }
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, float x, float y) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds); }
 
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */

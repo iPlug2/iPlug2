@@ -267,7 +267,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 }
 
 // not called for opengl/metal
-- (void) drawRect: (NSRect) rect
+- (void) drawRect: (NSRect) bounds
 {
   if (mGraphics)
   {
@@ -284,8 +284,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     if (mGraphics->GetPlatformContext())
     {
-      IRECT tmpRect = ToIRECT(mGraphics, &rect);
-      mGraphics->Draw(tmpRect);
+      IRECT tmpBounds = ToIRECT(mGraphics, &bounds);
+      mGraphics->Draw(tmpBounds);
     }
 
   }
@@ -483,14 +483,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self setNeedsDisplay: YES];
 }
 
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) rect;
+- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
 {
-  IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:rect] autorelease];
+  IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
   NSMenu* nsMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&const_cast<IPopupMenu&>(menu) :dummyView] autorelease];
 
   NSWindow* pWindow = [self window];
 
-  NSPoint wp = {rect.origin.x, rect.origin.y - 4};
+  NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
   wp = [self convertPointToBase:wp];
 
   //fix position for retina display
@@ -621,9 +621,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return CSTR_NOT_EMPTY(tooltip) ? ToNSString((const char*) tooltip) : @"";
 }
 
-- (void) registerToolTip: (IRECT&) rect
+- (void) registerToolTip: (IRECT&) bounds
 {
-  [self addToolTipRect: ToNSRect(mGraphics, rect) owner: self userData: nil];
+  [self addToolTipRect: ToNSRect(mGraphics, bounds) owner: self userData: nil];
 }
 
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification

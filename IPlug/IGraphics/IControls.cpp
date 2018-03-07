@@ -2,9 +2,9 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc
+IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc
   , const IVColorSpec& colorSpec, uint32_t numStates, EDirection dir)
-  : ISwitchControlBase(dlg, rect, paramIdx, actionFunc, numStates)
+  : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
   , mDirection(dir)
 {
@@ -37,11 +37,11 @@ void IVSwitchControl::Draw(IGraphics& graphics)
   graphics.FillCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), (handle.W()/2.)-2, &mBlend);
 }
 
-IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT rect, int param,
+IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int param,
                              const IVColorSpec& colorSpec,
                              float rMin, float rMax, float aMin, float aMax,
                              EDirection direction, double gearing)
-: IKnobControlBase(dlg, rect, param, direction, gearing)
+: IKnobControlBase(dlg, bounds, param, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
@@ -49,7 +49,7 @@ IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT rect, int param,
 , mOuterRadius(rMax)
 {
   if (mOuterRadius == 0.0f)
-    mOuterRadius = 0.5f * (float) rect.W();
+    mOuterRadius = 0.5f * (float) bounds.W();
 }
 
 void IVKnobControl::Draw(IGraphics& graphics)

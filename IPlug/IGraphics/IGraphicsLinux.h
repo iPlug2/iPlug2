@@ -11,12 +11,12 @@
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.h"
   typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-#else
+#elif !defined DOXYGEN_SHOULD_SKIP_THIS
   #include "IGraphicsLice.h"
   typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
 #endif
 
-/** IGraphics platform class for linux  
+/** IGraphics platform class for linux
 *   @ingroup PlatformClasses
 */
 class IGraphicsLinux
@@ -37,7 +37,7 @@ public:
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
-  
+
   void UpdateTooltips() override;
 
   void HostPath(WDL_String& path) override;
@@ -52,8 +52,8 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& rect) override;
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
+  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
