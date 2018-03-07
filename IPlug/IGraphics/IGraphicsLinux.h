@@ -11,12 +11,12 @@
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.h"
   typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-#else
+#elif !defined DOXYGEN_SHOULD_SKIP_THIS
   #include "IGraphicsLice.h"
   typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
 #endif
 
-/** IGraphics platform class for linux  
+/** IGraphics platform class for linux
 *   @ingroup PlatformClasses
 */
 class IGraphicsLinux
@@ -37,7 +37,7 @@ public:
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
-  
+
   void UpdateTooltips() override;
 
   void HostPath(WDL_String& path) override;
