@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IControls\IVMeterControl.h"
+#include "IVMeterControl.h"
 
 const int kNumPrograms = 1;
 
