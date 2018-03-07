@@ -555,7 +555,7 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, IRECT& textRect)
+IPopupMenu* IGraphicsMac::CreatePopupMenu(const IPopupMenu& menu, const IRECT& textRect)
 {
   ReleaseMouseCapture();
 

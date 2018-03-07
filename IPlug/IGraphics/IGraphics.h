@@ -562,13 +562,13 @@ public:
    * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
    * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  virtual IPopupMenu* CreatePopupMenu(IPopupMenu& menu, IRECT& bounds) = 0;
+  virtual IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) = 0;
 
   /** Shows a platform pop up/contextual menu at point in the graphics context
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y) { const IRECT tempRect = IRECT(x,y,x,y); return CreatePopupMenu(menu, tempRect); }
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, float x, float y) { const IRECT tempRect = IRECT(x,y,x,y); return CreatePopupMenu(menu, tempRect); }
 
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */

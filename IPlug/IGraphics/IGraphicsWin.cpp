@@ -899,7 +899,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, IRECT& areaRect)
+IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, IRECT& areaRect)
 {
   ReleaseMouseCapture();
 

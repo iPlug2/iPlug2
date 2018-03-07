@@ -71,7 +71,7 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, IRECT& rect) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& rect) override;
   void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& textRect, const char* str, IParam* pParam) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
