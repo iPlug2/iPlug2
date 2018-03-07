@@ -498,7 +498,7 @@
 
 //static
 WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{  
+{
   IPlugAPPHost* app = IPlugAPPHost::sInstance;
 
   switch (uMsg)
@@ -507,8 +507,8 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       gHWND = hwndDlg;
 //
 //      if(!app->AttachGUI())
-//        printf("couldn't attach gui\n"); //todo error
-      
+//        printf("couldn't attach gui\n"); //TODO error
+
 //      ClientResize(hwndDlg, PLUG_WIDTH, PLUG_HEIGHT);
 
       ShowWindow(hwndDlg,SW_SHOW);
@@ -545,14 +545,14 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           bool pluginOpensAboutBox = false;
 
           //TODO: open about box
-          
-          if (pluginOpensAboutBox == false) 
+
+          if (pluginOpensAboutBox == false)
           {
             WDL_String info;
             info.Append(PLUG_COPYRIGHT_STR"\nBuilt on " __DATE__);
             MessageBox(hwndDlg, info.Get(), PLUG_NAME, MB_OK);
           }
-          
+
           return 0;
         }
 //        case ID_HELP:
@@ -560,7 +560,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //          WDL_String info;
 //          info.Set("open help");
 //          MessageBox(hwndDlg, info.Get(), PLUG_NAME, MB_OK);
-//          
+//
 //          return 0;
 //        }
 //        case ID_PREFERENCES:

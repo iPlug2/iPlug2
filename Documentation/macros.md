@@ -1,5 +1,5 @@
 # About the project level preprocessor macros
-@todo improve this!
+\todo improve this!
 
 IPlug uses preprocessor macros to select certain APIs and functionality at compile time. The following macros can be defined at project level (in the visual studio project/.props file, xcode project/xconfig file, or CMake script). 
 

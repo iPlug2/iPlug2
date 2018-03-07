@@ -1,6 +1,6 @@
 # Examples
 
-@todo This is obsolete, but here to be updated
+\todo This is obsolete, but here to be updated
 
 ## Introduction
 
@@ -17,7 +17,7 @@ Some of these are optional, but without them the build-scripts will need to be e
 **Windows**
 
 * [Microsoft Visual Studio 2017 Community](https://www.visualstudio.com/downloads/) (or one of the premium versions)
-@todo Add a list of Visual Studio packages required
+\todo Add a list of Visual Studio packages required
 
 * [Python 2.7 or 3](http://www.python.org/) for running various scripts
 * [Inno Setup](http://www.jrsoftware.org/isinfo.php) for creating installers
@@ -112,7 +112,7 @@ The template projects use static linking with the MSVC2017 runtime libraries (/M
 
 If you change your project to dynamic linking, you'll need to provide the redistributable in your installer, google for "Microsoft Visual C++ 2017 Redistributable Package".
 
-@todo This may need to be updated due to recent Microsoft changes
+\todo This may need to be updated due to recent Microsoft changes
 
 ## macOS Issues
 

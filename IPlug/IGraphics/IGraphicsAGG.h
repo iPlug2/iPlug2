@@ -59,9 +59,9 @@ public:
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
 
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
-  
+
   // Path Types
-  
+
   typedef agg::path_storage PathType;
   typedef agg::conv_curve<PathType> CurvedPathType;
   typedef agg::conv_stroke<CurvedPathType> StrokeType;
@@ -73,13 +73,13 @@ public:
   typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
   typedef agg::rasterizer_scanline_aa<> RasterizerType;
   typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
-  
+
   class Rasterizer
   {
   public:
 
     RenbaseType& GetBase() { return mRenBase; }
-    
+
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
 
     void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
@@ -89,7 +89,7 @@ public:
       mRenBase = RenbaseType(pixF);
       mRenBase.clear(agg::rgba(0, 0, 0, 0));
     }
-    
+
     template <typename VertexSourceType>
     void RasterizeAntiAlias(VertexSourceType& path, spanGenType& spanGen)
     {
@@ -99,7 +99,7 @@ public:
 
       agg::render_scanlines_aa(mRasterizer, scanline, mRenBase, spanAllocator, spanGen);
     }
-    
+
     template <typename VertexSourceType>
     void Rasterize(VertexSourceType& path, agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
     {
@@ -113,20 +113,20 @@ public:
       agg::scanline_p8 scanline;
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
-    
+
     template <typename VertexSourceType>
     void SetPath(VertexSourceType& path)
     {
       mRasterizer.reset();
       mRasterizer.add_path(path);
     }
-    
+
     void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
 
     RenbaseType mRenBase;
     RasterizerType mRasterizer;
   };
-  
+
   IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
 
@@ -136,28 +136,28 @@ public:
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
-  
+
   void PathClear() override { mPath.remove_all(); }
   void PathStart() override { mPath.start_new_path(); }
   void PathClose() override { mPath.close_polygon(); }
-  
+
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
 
   void PathMoveTo(float x, float y) override { mPath.move_to(x, y); }
   void PathLineTo(float x, float y) override { mPath.line_to(x, y);}
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { mPath.curve4(x1, y1, x2, y2, x3, y3); }
-  
+
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
-  
+
   void PathStateSave() override { mState.push(mTransform); }
-  
+
   void PathStateRestore() override
   {
     mTransform = mState.top();
     mState.pop();
   }
-  
+
   void PathTransformTranslate(float x, float y) override { mTransform = agg::trans_affine_translation(x, y) * mTransform; }
   void PathTransformScale(float scale) override { mTransform = agg::trans_affine_scaling(scale) * mTransform; }
   void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
@@ -166,7 +166,7 @@ public:
   bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
 
   IColor GetPoint(int x, int y) override;
-  void* GetData() override { return 0; } //todo
+  void* GetData() override { return 0; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
  // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* cacheName, int scale) override;
@@ -175,13 +175,13 @@ public:
   void RenderDrawBitmap() override;
 
 private:
-  
+
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   agg::pixel_map* CreateAPIBitmap(int w, int h);
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager);
-  
+
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
 
   PixfmtType mPixf;
@@ -192,10 +192,10 @@ private:
   Rasterizer mRasterizer;
   agg::trans_affine mTransform;
   PixelMapType mPixelMap;
-  
+
   // TODO Oli probably wants this to not be STL but there's nothing in WDL for this...
   std::stack<agg::trans_affine> mState;
-  
+
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;

@@ -71,10 +71,10 @@ public:
 
   /** Draw an SVG image to the graphics context with rotation 
    * @param svg The SVG image to draw to the graphics context
-   * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. /todo check this
-   * @param destCentreY The Y coordinate in the graphics context of the centre point at which to rotate the image around. /todo check this
-   * @param width /todo
-   * @param height /todo
+   * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
+   * @param destCentreY The Y coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
+   * @param width \todo
+   * @param height \todo
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedSVG(ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
@@ -82,38 +82,38 @@ public:
   /** Draw a bitmap (raster) image to the graphics context
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
-   * @param srcX The X coordinate in the source image to draw from /todo
-   * @param srcY The Y coordinate in the source image to draw from /todo
+   * @param srcX The X coordinate in the source image to draw from \todo
+   * @param srcY The Y coordinate in the source image to draw from \todo
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
-   * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. /todo check this
-   * @param destCentreY The Y coordinate in the graphics context of the centre point at which to rotate the image around. /todo check this
+   * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
+   * @param destCentreY The Y coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
    * @param angle The angle of rotation in degrees
-   * @param yOffsetZeroDeg /todo
+   * @param yOffsetZeroDeg \todo
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedBitmap(IBitmap& bitmap, int destCentreX, int destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
 
   /** Draw a rotated, masked bitmap to the graphics context
-   * @param base The base bitmap image to draw to the graphics context /todo explain base
-   * @param mask The mask bitmap image to draw to the graphics context /todo explain mask
-   * @param top The bitmap image to draw to the graphics context /todo explain top
+   * @param base The base bitmap image to draw to the graphics context \todo explain base
+   * @param mask The mask bitmap image to draw to the graphics context \todo explain mask
+   * @param top The bitmap image to draw to the graphics context \todo explain top
    * @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
 
-  /** Fill a point with a color. On 1:1 screens a point is a pixel. /todo is this correct? what about high DPI displays
+  /** Fill a point with a color. On 1:1 screens a point is a pixel. \todo is this correct? what about high DPI displays
    * @param color The color to fill the point with
    * @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
 
-  /** Fill a point/pixel with a color. /todo what about high DPI displays 
+  /** Fill a point/pixel with a color. \todo what about high DPI displays 
    * @param color The color to fill the shape with
    * @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw */
@@ -240,17 +240,17 @@ public:
    * @param bounds Either should contain the rectangular region in the graphics where you would like to draw the text (when measure = false)
    * or if measure == true, after calling the method this IRECT will be updated with the rectangular region the text will occupy
    * @param measure Pass true if you wish to measure the rectangular region this text will occupy, rather than draw
-   * @return true on valid input data /todo check this */
+   * @return true on valid input data \todo check this */
   virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) = 0;
 
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @return true on valid input data /todo check this */
+   * @return true on valid input data \todo check this */
   virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds) = 0;
 
-  /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. /todo check this
+  /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
    * @param y The Y coordinate in the graphics context of the pixel
    * @return An IColor specifiying the color of the pixel at x,y */
@@ -309,30 +309,30 @@ public:
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
-   * @param x /todo
+   * @param x \todo
    * @param pBlend Optional blend method, see IBlend documentation */
   void DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend = 0);
 
   /** Draw a horizontal line, within a rectangular region of the graphics context  
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
-   * @param y /todo
+   * @param y \todo
    * @param pBlend Optional blend method, see IBlend documentation */
   void DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend = 0);
 
-  /** /todo
+  /** \todo
    * @param color The color to draw the line with
-   * @param xi /todo
-   * @param yLo /todo
-   * @param yHi /todo
+   * @param xi \todo
+   * @param yLo \todo
+   * @param yHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
   void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
 
-  /** /todo
+  /** \todo
    * @param color The color to draw the line with
-   * @param xi /todo
-   * @param yLo /todo
-   * @param yHi /todo
+   * @param xi \todo
+   * @param yLo \todo
+   * @param yHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
 
@@ -400,17 +400,17 @@ public:
    * @param tablet, \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
 
-  /** Call to force end text entry (will cancel any half input text /todo check) */
+  /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
 
-  /** /todo detailled description of how this works
+  /** \todo detailled description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
    * @param scale New scale ratio */
   virtual void Resize(int w, int h, float scale);
 
   /** Open a new platform view for this graphics context
-   * @param pParentWnd void pointer to parent platform window or view handle (if applicable) /todo check
+   * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
    * @return void pointer to newly created IGraphics platform view */
   virtual void* OpenWindow(void* pParentWnd) = 0;
 
@@ -429,14 +429,14 @@ public:
    * @return /c true on success */
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
-  /** Call this if you modify control tool tips at runtime. /todo explain */ 
+  /** Call this if you modify control tool tips at runtime. \todo explain */ 
   virtual void UpdateTooltips() = 0;
 
   /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
    * @param str The text message to display in the dialogue
-   * @param caption The title of the message box window /todo check
-   * @param type An integer describing the button options available either MB_OK, MB_YESNO, MB_CANCEL /todo explain better
-   * @return /todo check */
+   * @param caption The title of the message box window \todo check
+   * @param type An integer describing the button options available either MB_OK, MB_YESNO, MB_CANCEL \todo explain better
+   * @return \todo check */
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
 
   /** Create a platform text entry box
@@ -450,7 +450,7 @@ public:
    * @param filename Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
    * @param action Determines whether this is an open dialog or a save dialog
-   * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” /todo check */
+   * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
   virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
 
   /** Create a platform color chooser dialog. NOTE: this method will block the main thread
@@ -461,9 +461,9 @@ public:
 
   /** Open a URL in the platform’s default browser
    * @param url CString specifying the URL to open
-   * @param msgWindowTitle /todo ?
-   * @param confirmMsg /todo ?
-   * @param errMsgOnFailure /todo ?
+   * @param msgWindowTitle \todo ?
+   * @param confirmMsg \todo ?
+   * @param errMsgOnFailure \todo ?
    * @return /true on success */
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
 
@@ -500,11 +500,11 @@ public:
    * @return \c true on success (if the path was valid) */
   virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) = 0;
 
-  /** Used on Windows to set the HINSTANCE handle, which allows graphics APIs to load resources from the binary. /todo doesn’t this do something on Mac too?
+  /** Used on Windows to set the HINSTANCE handle, which allows graphics APIs to load resources from the binary. \todo doesn’t this do something on Mac too?
    * @param pInstance void pointer to the platform instance */
   virtual void SetPlatformInstance(void* pInstance) {}
 
-  /** Get a void pointer that can be cast back to HINSTANCE /todo what about Mac? */
+  /** Get a void pointer that can be cast back to HINSTANCE \todo what about Mac? */
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Set the platform draw context
@@ -521,7 +521,7 @@ public:
    * On Windows resources are usually baked into the binary via the resource compiler. In this case the filename argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
    * Behind the scenes this method will make sure resources are loaded statically in memory. 
    * @param filename The resource filename including extension. If no resource is found the method will then check filename as if it is an absolute path.
-   * @param type /todo
+   * @param type \todo
    * @param result WDL_String which will contain the full path of the resource of success
    * @return \c true on success */
   virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
@@ -570,7 +570,7 @@ public:
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y) { const IRECT tempRect = IRECT(x,y,x,y); return CreatePopupMenu(menu, tempRect); }
 
-  /** Enables strict drawing mode. /todo explain strict drawing
+  /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
 
@@ -582,11 +582,11 @@ public:
    * @return A whole number representing the height of the graphics context in pixels on a 1:1 screen */
   int Height() const { return mHeight; }
 
-  /** Gets the width of the graphics context including scaling /todo better explanation
+  /** Gets the width of the graphics context including scaling \todo better explanation
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
   int WindowWidth() const { return int((float) mWidth * mScale); }
 
-  /** Gets the height of the graphics context including scaling /todo better explanation
+  /** Gets the height of the graphics context including scaling \todo better explanation
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
   int WindowHeight() const { return int((float) mHeight * mScale); }
 
@@ -607,7 +607,7 @@ public:
   IDelegate& GetDelegate() { return mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param filename CString filename resource id for the bitmap image /todo check this */
+   * @param filename CString filename resource id for the bitmap image \todo check this */
   void AttachBackground(const char* filename);
 
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
@@ -660,8 +660,8 @@ public:
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param dX Delta X value /todo explain
-   * @param dY Delta Y value /todo explain
+   * @param dX Delta X value \todo explain
+   * @param dY Delta Y value \todo explain
    * @param mod IMouseMod struct contain information about the modifiers held */
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
 
@@ -674,19 +674,19 @@ public:
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held
-   * @param delta Delta value /todo explain */
+   * @param delta Delta value \todo explain */
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float delta);
 
   /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
    * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
    * @param key An integer represent the key pressed, see EIPlugKeyCodes
-   * @return \c true if handled /todo check this */
+   * @return \c true if handled \todo check this */
   bool OnKeyDown(float x, float y, int key);
 
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param mod IMouseMod struct contain information about the modifiers held
-   * @return \c true if handled /todo check this */
+   * @return \c true if handled \todo check this */
   bool OnMouseOver(float x, float y, const IMouseMod& mod);
 
   /** */
@@ -711,10 +711,10 @@ public:
    * @return An integer representing the last clicked parameter index (or -1 if none) */
   int GetLastClickedParamForPTAutomation();
 
-  /** [AAX only] /todo
+  /** [AAX only] \todo
    * @param paramIdx The index of the parameter to highlight
    * @param isHighlighted /c true if the parameter should be highlighted 
-   * @param color An integer corresponding to AAX_EParameterHighlight /todo check Enum name */
+   * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
   void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
 
   /** [VST3 primarily]
@@ -741,7 +741,7 @@ public:
   /** @param enable Set \c true if you wish to show the rectangular region that is drawn on each frame, in order to debug redraw problems */
   inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
 
-  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) /todo we need a separate page for liveedit info
+  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
    * @param enable Set \c true if you wish to enable live editing mode
    * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
    * @param gridsize The size of the layout grid in pixels */

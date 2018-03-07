@@ -79,7 +79,7 @@ public:
   * @param h Bitmap height (in pixels)
   * @param n Number of frames (for multibitmaps)
   * @param framesAreHorizontal \c true if the frames are positioned horizontally
-  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
+  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) \todo Subject to change
   * @param name Resource name for the bitmap
   */
     
@@ -285,7 +285,7 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * @todo IBlend::weight needs documentation
+   * \todo IBlend::weight needs documentation
    * @param weight
   */
   IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
