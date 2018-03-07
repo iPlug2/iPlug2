@@ -419,8 +419,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
-    <ClCompile Include="..\main_dialog.cpp" />
-    <ClCompile Include="..\main_win.cpp" />
+    <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">

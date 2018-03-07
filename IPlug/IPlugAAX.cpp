@@ -43,18 +43,18 @@ void AAX_CEffectGUI_IPLUG::DeleteViewContainer()
   mPlug->CloseWindow();
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point *oEffectViewSize) const
+AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point* pNewViewSize) const
 {
   if (mPlug->HasUI())
   {
-    oEffectViewSize->horz = (float) mPlug->Width();
-    oEffectViewSize->vert = (float) mPlug->Height();
+    pNewViewSize->horz = (float) mPlug->Width();
+    pNewViewSize->vert = (float) mPlug->Height();
   }
   
   return AAX_SUCCESS; 
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(const char* paramID)
+AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(AAX_CParamID paramID)
 {
   return AAX_SUCCESS;
 } 
@@ -124,69 +124,69 @@ AAX_Result IPlugAAX::EffectInit()
   mBypassParameter->SetType( AAX_eParameterType_Discrete );
   mParameterManager.AddParameter(mBypassParameter);
       
-  for (int i=0;i<NParams();i++)
+  for (int i=0; i<NParams(); i++)
   {
-    IParam *p = GetParam(i);
-    AAX_IParameter* param = nullptr;
+    IParam* pParam = GetParam(i);
+    AAX_IParameter* pAAXParam = nullptr;
     
-    WDL_String* paramID = new WDL_String("_", 1);
-    paramID->SetFormatted(MAX_AAX_PARAMID_LEN, "%i", i+kAAXParamIdxOffset);
-    mParamIDs.Add(paramID);
+    WDL_String* pParamIDStr = new WDL_String("_", 1);
+    pParamIDStr->SetFormatted(MAX_AAX_PARAMID_LEN, "%i", i+kAAXParamIdxOffset);
+    mParamIDs.Add(pParamIDStr);
     
-    switch (p->Type()) 
+    switch (pParam->Type())
     {
       case IParam::kTypeDouble:
       {
-        param = new AAX_CParameter<double>(paramID->Get(), 
-                                          AAX_CString(p->GetNameForHost()), 
-                                          p->GetDefault(), 
-                                          AAX_CIPlugTaperDelegate<double>(p->GetMin(), p->GetMax(), p->GetShape()),
-                                          AAX_CUnitDisplayDelegateDecorator<double>( AAX_CNumberDisplayDelegate<double>(), AAX_CString(p->GetLabelForHost())), 
-                                          p->GetCanAutomate());
+        pAAXParam = new AAX_CParameter<double>(pParamIDStr->Get(),
+                                          AAX_CString(pParam->GetNameForHost()),
+                                          pParam->GetDefault(),
+                                          AAX_CIPlugTaperDelegate<double>(pParam->GetMin(), pParam->GetMax(), pParam->GetShape()),
+                                          AAX_CUnitDisplayDelegateDecorator<double>( AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabelForHost())),
+                                          pParam->GetCanAutomate());
         
-        param->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
-        param->SetType(AAX_eParameterType_Continuous);
+        pAAXParam->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
+        pAAXParam->SetType(AAX_eParameterType_Continuous);
 
         break;
       }
       case IParam::kTypeInt:
       {
-        param = new AAX_CParameter<int>(paramID->Get(), 
-                                        AAX_CString(p->GetNameForHost()), 
-                                        (int)p->GetDefault(), 
-                                        AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
-                                        AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int>(), AAX_CString(p->GetLabelForHost())), 
-                                        p->GetCanAutomate());
+        pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
+                                        AAX_CString(pParam->GetNameForHost()),
+                                        (int)pParam->GetDefault(),
+                                        AAX_CLinearTaperDelegate<int>((int)pParam->GetMin(), (int)pParam->GetMax()),
+                                        AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int>(), AAX_CString(pParam->GetLabelForHost())),
+                                        pParam->GetCanAutomate());
         
-        param->SetNumberOfSteps(128);
-        param->SetType(AAX_eParameterType_Continuous);
+        pAAXParam->SetNumberOfSteps(128);
+        pAAXParam->SetType(AAX_eParameterType_Continuous);
 
         break;
       }
       case IParam::kTypeEnum:
       case IParam::kTypeBool: 
       {
-        int nTexts = p->NDisplayTexts();
+        int nTexts = pParam->NDisplayTexts();
         
         std::map<int, AAX_CString> displayTexts;
         
-        for (int j=0; j<p->NDisplayTexts(); j++) 
+        for (int j=0; j<pParam->NDisplayTexts(); j++)
         {
           double value;
-          const char* text = p->GetDisplayTextAtIdx(j, &value);
+          const char* text = pParam->GetDisplayTextAtIdx(j, &value);
           
           displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)) );
         }
         
-        param = new AAX_CParameter<int>(paramID->Get(), 
-                                        AAX_CString(p->GetNameForHost()), 
-                                        (int)p->GetDefault(), 
-                                        AAX_CLinearTaperDelegate<int>((int)p->GetMin(), (int)p->GetMax()), 
+        pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
+                                        AAX_CString(pParam->GetNameForHost()),
+                                        (int)pParam->GetDefault(),
+                                        AAX_CLinearTaperDelegate<int>((int) pParam->GetMin(), (int) pParam->GetMax()),
                                         AAX_CStringDisplayDelegate<int>(displayTexts),
-                                        p->GetCanAutomate());
+                                        pParam->GetCanAutomate());
         
-        param->SetNumberOfSteps(nTexts);
-        param->SetType(AAX_eParameterType_Discrete);
+        pAAXParam->SetNumberOfSteps(nTexts);
+        pAAXParam->SetType(AAX_eParameterType_Discrete);
                 
         break; 
       }
@@ -194,7 +194,7 @@ AAX_Result IPlugAAX::EffectInit()
         break;
     }
     
-    mParameterManager.AddParameter(param);    
+    mParameterManager.AddParameter(pAAXParam);
   }
   
   AAX_CSampleRate sr;
@@ -221,13 +221,14 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   
   int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
   
-  // TODO: UI thread only? If not, need to lock mParams_mutex
   if ((paramIdx >= 0) && (paramIdx < NParams())) 
   {
+    ENTER_PARAMS_MUTEX;
     GetParam(paramIdx)->SetNormalized(iValue);
     SendParameterValueToUIFromAPI(paramIdx, iValue, true);
     
-    OnParamChange(paramIdx, kAutomation);      
+    OnParamChange(paramIdx, kAutomation);
+    LEAVE_PARAMS_MUTEX;
   }
   
   // Now the control has changed
@@ -252,25 +253,25 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   
   if (DoesMIDI()) 
   {
-    AAX_IMIDINode* midiIn = pRenderInfo->mInputNode;
-    AAX_CMidiStream* midiBuffer = midiIn->GetNodeBuffer();
-    AAX_CMidiPacket* midiBufferPtr = midiBuffer->mBuffer;
-    uint32_t packets_count = midiBuffer->mBufferSize;
+    AAX_IMIDINode* pMidiIn = pRenderInfo->mInputNode;
+    AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
+    AAX_CMidiPacket* pMidiPacket = pMidiBuffer->mBuffer;
+    uint32_t packets_count = pMidiBuffer->mBufferSize;
     
     // Setup MIDI Out node pointers 
 //		AAX_IMIDINode* midiNodeOut = instance->mMIDINodeOutP;
 //		AAX_CMidiStream* midiBufferOut = midiNodeOut->GetNodeBuffer();
 //		AAX_CMidiPacket* midiBufferOutPtr = midiBufferOut->mBuffer;
         
-    for (int i = 0; i<packets_count; i++, midiBufferPtr++) 
+    for (int i = 0; i<packets_count; i++, pMidiPacket++) 
     {
-      IMidiMsg msg(midiBufferPtr->mTimestamp, midiBufferPtr->mData[0], midiBufferPtr->mData[1], midiBufferPtr->mData[2]);
+      IMidiMsg msg(pMidiPacket->mTimestamp, pMidiPacket->mData[0], pMidiPacket->mData[1], pMidiPacket->mData[2]);
       ProcessMidiMsg(msg);
     }
   }
   
-  AAX_IMIDINode* transportNode = pRenderInfo->mTransportNode;
-  mTransport = transportNode->GetTransport();
+  AAX_IMIDINode* pTransportNode = pRenderInfo->mTransportNode;
+  mTransport = pTransportNode->GetTransport();
 
   int32_t numSamples = *(pRenderInfo->mNumSamples);
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
@@ -393,9 +394,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChun
     pos = UnserializeState(chunk, pos);
     
     for (int i = 0; i< NParams(); i++)
-    {
       SetParameterNormalizedValue(mParamIDs.Get(i)->Get(), GetParam(i)->GetNormalized() );
-    }
     
     OnRestoreState();
     mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the compare light 
