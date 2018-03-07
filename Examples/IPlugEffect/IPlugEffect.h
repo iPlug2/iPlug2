@@ -18,15 +18,9 @@ enum ELayout
   kGainY = 100
 };
 
-
 class IPlugEffect : public IPlug
 {
 public:
-  IControl* pMeter1 = nullptr;
-  IControl* pMeter2 = nullptr;
-  IControl* pMeter3 = nullptr;
-  IControl* pMeter4 = nullptr;
-  IControl* pMeter5 = nullptr;
   IPlugEffect(IPlugInstanceInfo instanceInfo);
 //  ~IPlugEffect();
 //   void OnReset() override;
