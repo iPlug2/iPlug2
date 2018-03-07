@@ -11,7 +11,6 @@ IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, cons
   : IControl(dlg, rect, kNoParameter)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR)
 {
-
   ChannelSpecificData d;
   for (auto ch = 0; ch != numChannels; ++ch)
   {
@@ -25,10 +24,14 @@ IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, cons
   SetRMSWindowMs(300.0);
   SetLevelMarks("3 0s -3 -6s -9 -12s -18s -24s -30s -36s -42s -48s -54s -60s");
 
-  va_list args;
-  va_start(args, chanNames);
-  SetChanNames(chanNames, args);
-  va_end(args);
+  if(chanNames)
+  {
+    va_list args;
+    va_start(args, chanNames);
+    SetChanNames(chanNames, args);
+    va_end(args);
+  }
+  
   RecalcMaxChNameH(0.f);
 
   if (rect.Empty())
@@ -188,7 +191,7 @@ void IVMeterControl::ProcessInsOuts(sample** ins, sample** outs, int blockSize, 
 }
 
 
-auto IVMeterControl::GetRMS(int chId)
+double IVMeterControl::GetRMS(int chId)
 {
   auto rms = RMSSum(chId) / RMSBufLen(chId);
   if (AESFix(chId))
@@ -197,11 +200,10 @@ auto IVMeterControl::GetRMS(int chId)
   return rms;
 }
 
-auto IVMeterControl::GetMaxPeak(int chId)
+double IVMeterControl::GetMaxPeak(int chId)
 {
   return MaxPeak(chId);
 }
-
 
 void IVMeterControl::SetUnitsDB(bool db, int chId, bool scaleFollowsUnits)
 {
@@ -874,9 +876,9 @@ void IVMeterControl::Draw(IGraphics& graphics)
         auto tt = mMarkText;
         tt.mFGColor = shadowColor;
         auto sr = ShiftRectBy(pvtr, 1.0, 1.0);
-        graphics.DrawTextA(tt, mps.Get(), sr);
+        graphics.DrawText(tt, mps.Get(), sr);
       }
-      graphics.DrawTextA(mMarkText, mps.Get(), pvtr);
+      graphics.DrawText(mMarkText, mps.Get(), pvtr);
     }
 
     if (DrawChanName(ch)) // can be inside the loop because names are below the meters
@@ -886,7 +888,7 @@ void IVMeterControl::Draw(IGraphics& graphics)
       cnr.B += h;
       cnr.T = cnr.B - h;
       cnr = ShiftRectBy(cnr, ChanNameHOffset(ch));
-      graphics.DrawTextA(mText, ChanNamePtr(ch)->Get(), cnr);
+      graphics.DrawText(mText, ChanNamePtr(ch)->Get(), cnr);
     }
 
 
@@ -900,7 +902,7 @@ void IVMeterControl::Draw(IGraphics& graphics)
     ps.SetFormatted(16, "rms\n%4.2f", vt);
     auto dtr = rawR;
     dtr.T = dtr.B - 2.0f * trms.mSize - 10.0f;
-    graphics.DrawTextA(trms, ps.Get(), dtr);
+    graphics.DrawText(trms, ps.Get(), dtr);
 
     auto tl = GetVCoordFromValInMeterRect(ch, OverThresh(ch), meterRect);
     graphics.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
@@ -916,7 +918,7 @@ void IVMeterControl::Draw(IGraphics& graphics)
   // fpss.SetFormatted(8, "fps\n%d", (int) fps);
   // auto dtr = mRECT;
   // dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
-  // graphics.DrawTextA(txtfps, fpss.Get(), dtr);
+  // graphics.DrawText(txtfps, fpss.Get(), dtr);
 
   graphics.DrawRect(COLOR_BLUE, mRECT);
 #endif
@@ -1372,9 +1374,9 @@ void IVMeterControl::DrawMarks(IGraphics& graphics)
             auto tt = mTxt;
             tt.mFGColor = shadowColor;
             auto sr = ShiftRectBy(tr, 1.f, 1.f);
-            graphics.DrawTextA(tt, ltxt.Get(), sr);
+            graphics.DrawText(tt, ltxt.Get(), sr);
           }
-          graphics.DrawTextA(mTxt, ltxt.Get(), tr);
+          graphics.DrawText(mTxt, ltxt.Get(), tr);
         }
       };
 

@@ -8,7 +8,7 @@ Eugene.Yakshin [at] ya [dot] ru
 */
 
 class IVMeterControl : public IControl
-  , public IVectorBase
+                     , public IVectorBase
 {
 public:
   static const IColor DEFAULT_BG_COLOR;
@@ -27,7 +27,7 @@ public:
     mRms = kX1
   };
 
-  IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...);
+  IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames = 0, ...);
 
   ~IVMeterControl();
 
@@ -45,8 +45,8 @@ public:
   // handy if meter measures both inputs and outputs:
   void ProcessInsOuts(sample** ins, sample** outs, int blockSize, int numIns = -1, int numOuts = -1);
 
-  auto GetRMS(int chId);
-  auto GetMaxPeak(int chId);
+  double GetRMS(int chId);
+  double GetMaxPeak(int chId);
 
   void SetUnitsDB(bool db, int chId = -1, bool scaleFollowsUnits = true);
   void SetScaleLog(bool logScale, int chId = -1);
@@ -235,7 +235,7 @@ protected:
   void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
 
   // getters
-  auto Ch(int i) { return mChanData.Get() + i; }
+  ChannelSpecificData* Ch(int i) { return mChanData.Get() + i; }
 
   double* RawValuePtr(int i)                { return &(Ch(i)->rawValue); }
   double RawValue(int i)                    { return *RawValuePtr(i); }
