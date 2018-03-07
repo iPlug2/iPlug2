@@ -232,7 +232,7 @@ void IGraphics::UpdatePeers(IControl* pCaller)
   }
 }
 
-void IGraphics::PromptUserInput(IControl& control, IRECT& bounds)
+void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
 {
   const IParam* pParam = control.GetParam();
   

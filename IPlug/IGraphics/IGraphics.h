@@ -551,7 +551,7 @@ public:
   /** Prompt for user input either using a text entry or pop up menu
    * @param control Reference to the control which the prompt relates to
    * @param bounds Rectangular region of the graphics context that the prompt (e.g. text entry box) should occupy */
-  void PromptUserInput(IControl& control, IRECT& bounds);
+  void PromptUserInput(IControl& control, const IRECT& bounds);
 
   /** Called by the platform class after returning from a prompt (typically a text entry) in order to update a control with a new value
    * @param control Reference to the control which the call relates to
