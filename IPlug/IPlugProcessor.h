@@ -136,7 +136,7 @@ public:
   bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // /todo only supports a single I/O config
 
   /** @param direction Whether you want to test inputs or outputs
-   * @return Total number of input or output channel buffers (not nessecarily connected) */
+   * @return Total number of input or output channel buffers (not necessarily connected) */
   int MaxNChannels(ERoute direction) const { return mChannelData[direction].GetSize(); }
 
   /** @param direction Whether you want to test inputs or outputs
