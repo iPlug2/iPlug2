@@ -47,6 +47,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls\IVMeterControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -156,6 +159,15 @@
     <ClInclude Include="..\IPlugEffect_controls.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
       <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVDropDownListControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVKeyboardControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVMeterControl.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

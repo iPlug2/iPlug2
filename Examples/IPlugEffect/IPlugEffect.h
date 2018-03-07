@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
+#include "IControls\IVMeterControl.h"
 
 const int kNumPrograms = 1;
 
@@ -32,4 +33,7 @@ public:
 //    DBGMSG("number of inputs connected %i\n", NInChansConnected());
 //    DBGMSG("number of outputs connected %i\n", NOutChansConnected());
 //  }
+
+private:
+  IVMeterControl* pMeter;
 };
