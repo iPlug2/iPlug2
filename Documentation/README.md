@@ -20,7 +20,7 @@ Discuss IPlug on the [WDL forum](http://forum.cockos.com/forumdisplay.php?f=32
 </a>
 
 ### Requirements
-WDL-OL/IPlug requires a compiler that supports C++11, and is tested with MS Visual Studio 2017 and Xcode 9. It supports Windows XP or higher and macOS 10.7+.
+WDL-OL/IPlug requires a compiler that supports C++11, and is tested with MS Visual Studio 2017 and Xcode 9. It is developed to target Windows 7 or higher and macOS 10.7+. If you wish to compile for older operating systems it may be possible, but will require adjusting some settings.
 
 ## About this documentation
 ### Where do I begin?
