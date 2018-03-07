@@ -143,14 +143,6 @@ void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlen
   LICE_PutPixel(mDrawBitmap, int((x * ds) + 0.5f), int((y  * ds) + 0.5f), LiceColor(color), weight, LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::ForcePixel(const IColor& color, int x, int y)
-{
-  const float ds = GetDisplayScale();
-  LICE_pixel* px = mDrawBitmap->getBits();
-  px += int(x * ds) + int(y  * ds) * mDrawBitmap->getRowSpan();
-  *px = LiceColor(color);
-}
-
 void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
 {
   const float ds = GetDisplayScale();

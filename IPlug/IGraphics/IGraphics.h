@@ -113,12 +113,6 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
 
-  /** Fill a point/pixel with a color. \todo what about high DPI displays 
-   * @param color The color to fill the shape with
-   * @param x The X coordinate in the graphics context at which to draw
-   * @param y The Y coordinate in the graphics context at which to draw */
-  virtual void ForcePixel(const IColor& color, int x, int y) = 0;
-
   /** Draw a line to the graphics context
    * @param color The color to draw the shape with
    * @param x1 The X coordinate in the graphics context of the start of the line

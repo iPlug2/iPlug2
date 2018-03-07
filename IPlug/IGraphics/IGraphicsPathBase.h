@@ -135,12 +135,6 @@ public:
     FillRect(color, IRECT(x, y, 1, 1), pBlend);
   }
   
-  void ForcePixel(const IColor& color, int x, int y) override
-  {
-    IColor preMulColor(255, (color.R * color.A) / 255, (color.G * color.A) / 255, (color.B * color.A) / 255);
-    DrawPoint(preMulColor, x, y, 0);
-  }
-  
   bool HasPathSupport() const override { return true; }
   
   void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override
