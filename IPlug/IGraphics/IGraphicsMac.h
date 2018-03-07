@@ -58,8 +58,8 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& rect) override;
-  void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 

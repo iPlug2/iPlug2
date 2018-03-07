@@ -555,23 +555,23 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePopupMenu(const IPopupMenu& menu, const IRECT& textRect)
+IPopupMenu* IGraphicsMac::CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds)
 {
   ReleaseMouseCapture();
 
   if (mView)
   {
-    NSRect areaRect = ToNSRect(this, textRect);
+    NSRect areaRect = ToNSRect(this, bounds);
     return [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
   else return 0;
 }
 
-void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str)
+void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
   if (mView)
   {
-    NSRect areaRect = ToNSRect(this, textRect);
+    NSRect areaRect = ToNSRect(this, bounds);
     [(IGRAPHICS_VIEW*) mView createTextEntry: control: text: str: areaRect];
   }
 }
