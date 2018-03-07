@@ -346,6 +346,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPP.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
@@ -421,6 +422,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IVMeterControl.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPP.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
