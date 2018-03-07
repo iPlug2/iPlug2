@@ -110,9 +110,9 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override
+  void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend) override
   {
-    PathConvexPolygon(x, y, npoints);
+    PathConvexPolygon(x, y, nPoints);
     PathFill(color, IFillOptions(), pBlend);
   }
   
@@ -172,10 +172,10 @@ public:
     PathClose();
   }
   
-  void PathConvexPolygon(float* x, float* y, int npoints) override
+  void PathConvexPolygon(float* x, float* y, int nPoints) override
   {
     PathMoveTo(x[0], y[0]);
-    for(int i = 1; i < npoints; i++)
+    for(int i = 1; i < nPoints; i++)
       PathLineTo(x[i], y[i]);
     PathClose();
   }
