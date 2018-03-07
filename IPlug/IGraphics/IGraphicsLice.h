@@ -90,7 +90,7 @@ public:
   void* GetData() override { return mDrawBitmap->getBits(); }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
   //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) override;
   

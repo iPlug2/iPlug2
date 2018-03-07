@@ -34,7 +34,7 @@ public:
   void* GetData() override { return nullptr; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;

@@ -59,7 +59,7 @@ public:
   void* GetData() override { return (void*) mVG; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override;

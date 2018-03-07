@@ -64,7 +64,7 @@ IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& bounds, co
 }
 */
 
-void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend)
+void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {
   //TODO:
 //  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
@@ -76,11 +76,11 @@ void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, fl
   //TODO:
 }
 
-void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   const float ds = GetDisplayScale();
-  IRECT bounds = dest;
-  bounds.Scale(ds);
+  IRECT sr = bounds;
+  sr.Scale(ds);
   
   IRECT sdr = mDrawRECT;
   sdr.Scale(ds);
@@ -89,9 +89,9 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
   srcY *= ds;
   
   LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetRawBitmap();
-  IRECT r = bounds.Intersect(sdr);
-  srcX += r.L - bounds.L;
-  srcY += r.T - bounds.T;
+  IRECT r = sr.Intersect(sdr);
+  srcX += r.L - sr.L;
+  srcY += r.T - sr.T;
   LICE_Blit(mDrawBitmap, pLB, r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
