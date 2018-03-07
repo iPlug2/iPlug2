@@ -32,25 +32,22 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   IRECT bounds = pGraphics->GetBounds();
   IColor color;
-
-//  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(0, nRows, nColumns).GetPadded(-5.), kGain));
-//  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(1, nRows, nColumns).GetPadded(-5.), -1));
-
-  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(4, nRows, nColumns).GetPadded(-5.), kGain));
-  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(5, nRows, nColumns).GetPadded(-5.), -1));
-    
-  pGraphics->AttachControl(new IGradientControl(*this, bounds.SubRectVertical(4, 0), kGain));
-  pGraphics->AttachControl(new IMultiPathControl(*this, bounds.SubRectVertical(4, 1), -1));
-    
-  auto svg1 = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
-  auto svg2 = pGraphics->LoadSVG(TIGER_FN); // load initial svg, can be a resource or absolute path
-  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(6, nRows, nColumns).GetPadded(-5.), svg1, -1));
-  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(7, nRows, nColumns).GetPadded(-5.), svg2, -1));
+//
+//  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(4, nRows, nColumns).GetPadded(-5.), kGain));
+//  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(5, nRows, nColumns).GetPadded(-5.), -1));
+//
+//  pGraphics->AttachControl(new IGradientControl(*this, bounds.SubRectVertical(4, 0), kGain));
+//  pGraphics->AttachControl(new IMultiPathControl(*this, bounds.SubRectVertical(4, 1), -1));
+//
+//  auto svg1 = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
+//  auto svg2 = pGraphics->LoadSVG(TIGER_FN); // load initial svg, can be a resource or absolute path
+//  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(6, nRows, nColumns).GetPadded(-5.), svg1, -1));
+//  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(7, nRows, nColumns).GetPadded(-5.), svg2, -1));
 
     
-//  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
+//  for(auto cell = 0; cell < (nRows * nColumns); cell++ )
 //  {
-//    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
+//    IRECT cellRect = bounds.GetGridCell(cell, nRows, nColumns);
 //    pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics](IControl* pCaller)
 //                                                   {
 //                                                     pCaller->SetMEWhenGrayed(true);
@@ -58,26 +55,26 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //                                                   }));
 //  }
 
-//  auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
-//
-//  for(auto cell = 0; cell < (NRows * NColumns); cell++ )
+  auto svg = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
+
+//  for(auto cell = 0; cell < (nRows * nColumns); cell++ )
 //  {
-//    IRECT cellRect = bounds.GetGridCell(cell, NRows, NColumns);
-//    auto knobControl = new SVGKnob(*this, cellRect, svg, kGain);
-//    pGraphics->AttachControl(knobControl);
+    IRECT cellRect = bounds.GetGridCell(0, nRows, nColumns);
+    auto knobControl = new IVSVGKnob(*this, cellRect, svg, kGain);
+    pGraphics->AttachControl(knobControl);
 //  }
 
-  //  auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, NRows, NColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
-//                                           [pGraphics, knobControl](IControl* pCaller)
-//                                           {
-//                                             WDL_String path;
-//                                             dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
-//                                             auto svg = pGraphics->LoadSVG(path.Get());
-//                                             knobControl->SetSVG(svg);
-//                                           },
-//                                          DEFAULT_TEXT, ".svg");
-//  fileMenuControl->SetPath(SVG_FOLDER);
-//  pGraphics->AttachControl(fileMenuControl);
+  auto fileMenuControl = new FileMenu(*this, bounds.GetGridCell(1, nRows, nColumns).SubRectVertical(2, 1).GetVPadded(-20.).GetHPadded(-20.),
+                                         [pGraphics, knobControl](IControl* pCaller)
+                                         {
+                                           WDL_String path;
+                                           dynamic_cast<IDirBrowseControlBase*>(pCaller)->GetSelecteItemPath(path);
+                                           auto svg = pGraphics->LoadSVG(path.Get());
+                                           knobControl->SetSVG(svg);
+                                         },
+                                        DEFAULT_TEXT, ".svg");
+  fileMenuControl->SetPath(SVG_FOLDER);
+  pGraphics->AttachControl(fileMenuControl);
 
 
 //  IRECT kbrect = bounds.SubRectVertical(2, 1).GetPadded(-5.); // same as joining two cells
