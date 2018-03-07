@@ -803,7 +803,7 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long &idxInMenu, long &offsetIdx
 
 HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 {
-  HMENU hMenu = CreatePopupMenu();
+  HMENU hMenu = ::CreatePopupMenu();
 
   WDL_String escapedText;
 
@@ -868,7 +868,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
 
       if (menuItem->GetSubmenu())
       {
-        HMENU submenu = CreateMenu(*menuItem->GetSubmenu(), offsetIdx);
+        HMENU submenu = CreateMenu(*menuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
           AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText);
@@ -899,7 +899,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* offsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect)
+IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, IRECT& areaRect)
 {
   ReleaseMouseCapture();
 

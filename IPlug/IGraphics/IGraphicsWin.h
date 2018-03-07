@@ -39,6 +39,8 @@ public:
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
+  void MoveMouseCursor(float x, float y) override { /* TODO */ };
+
   int ShowMessageBox(const char* str, const char* caption, int type) override;
 
   void* OpenWindow(void* pParentWnd) override;
