@@ -92,7 +92,8 @@ public:
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
   /** @param tooltip Text to be displayed */
-  inline void SetTooltip(const char* str) { mTooltip.Set(tooltip); }
+  inline void SetTooltip(const char* str) { mTooltip.Set(str); }
+  
   /** @return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
