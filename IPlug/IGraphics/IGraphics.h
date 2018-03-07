@@ -439,9 +439,6 @@ public:
    * @return /todo check */
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
 
-  /** /todo */
-  virtual IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& bounds) = 0;
-
   /** Create a platform text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
    * @param text An IText struct to set the formatting of the text entry box
@@ -561,8 +558,17 @@ public:
    * @param str The new value as a CString */
   void SetControlValueFromStringAfterPrompt(IControl& control, const char* str);
 
-  /** /todo */
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, float x, float y) { IRECT tempRect = IRECT(x,y,x,y); return CreateIPopupMenu(menu, tempRect); }
+  /** Shows a platform pop up/contextual menu in relation to a rectangular region of the graphics context
+   * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
+   * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
+   * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
+  virtual IPopupMenu* CreatePopupMenu(IPopupMenu& menu, IRECT& bounds) = 0;
+
+  /** Shows a platform pop up/contextual menu at point in the graphics context
+   * @param x The X coordinate in the graphics context at which to pop up the menu
+   * @param y The Y coordinate in the graphics context at which to pop up the menu
+   * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y) { const IRECT tempRect = IRECT(x,y,x,y); return CreatePopupMenu(menu, tempRect); }
 
   /** Enables strict drawing mode. /todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */

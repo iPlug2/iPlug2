@@ -258,7 +258,7 @@ void IGraphics::PromptUserInput(IControl& control, IRECT& textRect)
           menu.AddItem( new IPopupMenu::Item(str), -1 );
       }
 
-      if(CreateIPopupMenu(menu, textRect))
+      if(CreatePopupMenu(menu, textRect))
         control.SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
     }
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
@@ -920,7 +920,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     }
 
 #else
-    CreateIPopupMenu(contextMenu, x, y);
+    CreatePopupMenu(contextMenu, x, y);
     pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
 #endif
   }

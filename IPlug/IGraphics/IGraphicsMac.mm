@@ -12,19 +12,19 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-int GetSystemVersion() 
+int GetSystemVersion()
 {
   static int32_t v;
   if (!v)
   {
-    if (NSAppKitVersionNumber >= 1266.0) 
+    if (NSAppKitVersionNumber >= 1266.0)
     {
       if (NSAppKitVersionNumber >= 1404.0)
         v = 0x10b0;
       else
         v = 0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
     }
-    else 
+    else
     {
       SInt32 a = 0x1040;
       Gestalt(gestaltSystemVersion,&a);
@@ -81,7 +81,7 @@ bool IGraphicsMac::IsSandboxed()
 {
   NSString* pHomeDir = NSHomeDirectory();
   //  NSString* pBundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-  
+
   if ([pHomeDir containsString:@"Library/Containers/"])
   {
     return true;
@@ -109,11 +109,11 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
 
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(bundleID)];
   NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  
+
   if (isCorrectType && pBundle && pFile)
   {
     NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
-    
+
     if (pPath)
     {
       fullPath.Set([pPath cString]);
@@ -133,9 +133,9 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     {
       printf("SAND");
     }
-    
+
     bool foundInBundle = GetResourcePathFromBundle(GetBundleID(), name, type, result);
-    
+
     if(foundInBundle)
       return true;
     else
@@ -143,12 +143,12 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
       NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
 
       if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-      {        
+      {
         result.Set(name);
         return true;
       }
     }
-    
+
   }
   return false;
 }
@@ -165,14 +165,14 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   TRACE;
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
-  
+
   if (pParent) // Cocoa VST host.
   {
     [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
   }
-  
+
   UpdateTooltips();
-  
+
   return mView;
 }
 
@@ -206,16 +206,16 @@ void IGraphicsMac::Resize(int w, int h, float scale)
   if (mView)
   {
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
-      
+
     // Prevent animation during resize
     // N.B. - The bounds perform scaling on the window, and so use the nominal size
-      
+
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
     [(IGRAPHICS_VIEW*) mView setBoundsSize:NSMakeSize(Width(), Height())];
     [NSAnimationContext endGrouping];
-      
+
     SetAllControlsDirty();
   }
 }
@@ -245,14 +245,14 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
   point.x = x / GetDisplayScale() + (mouse.x - mMouseX / GetDisplayScale());
   point.y = y / GetDisplayScale() + (mouseY - mMouseY / GetDisplayScale());
-    
+
   if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
   {
     //IGraphics::MoveMouseCursor(x, y);
     mMouseX = x;
     mMouseY = y;
   }
-    
+
   CGAssociateMouseAndMouseCursorPosition(true);
 }
 
@@ -334,16 +334,16 @@ void IGraphicsMac::UpdateTooltips()
   if (!(mView && TooltipsEnabled())) return;
 
   CocoaAutoReleasePool pool;
-  
+
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
-  
+
   IControl** ppControl = mControls.GetList();
-  
-  for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl) 
+
+  for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl)
   {
     IControl* pControl = *ppControl;
     const char* tooltip = pControl->GetTooltip();
-    if (tooltip && !pControl->IsHidden()) 
+    if (tooltip && !pControl->IsHidden())
     {
       IRECT pR = pControl->GetTargetRECT();
       if (!pControl->GetTargetRECT().Empty())
@@ -363,7 +363,7 @@ void IGraphicsMac::HostPath(WDL_String& path)
 {
   CocoaAutoReleasePool pool;
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
-  
+
   if (pBundle)
   {
     NSString* pPath = [pBundle executablePath];
@@ -378,11 +378,11 @@ void IGraphicsMac::PluginPath(WDL_String& path)
 {
   CocoaAutoReleasePool pool;
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: ToNSString(GetBundleID())];
-  
+
   if (pBundle)
   {
     NSString* pPath = [[pBundle bundlePath] stringByDeletingLastPathComponent];
-    
+
     if (pPath)
     {
       path.Set([pPath UTF8String]);
@@ -411,7 +411,7 @@ void IGraphicsMac::VST3PresetsPath(WDL_String& path, const char* mfrName, const 
     pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
   else
     pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
-  
+
   NSString* pApplicationSupportDirectory = [pPaths objectAtIndex:0];
   path.SetFormatted(MAX_PATH, "%s/Audio/Presets/%s/%s/", [pApplicationSupportDirectory UTF8String], mfrName, pluginName);
 }
@@ -419,12 +419,12 @@ void IGraphicsMac::VST3PresetsPath(WDL_String& path, const char* mfrName, const 
 void IGraphicsMac::AppSupportPath(WDL_String& path, bool isSystem)
 {
   NSArray *pPaths;
-  
+
   if (isSystem)
     pPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSSystemDomainMask, YES);
   else
     pPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  
+
   NSString *pApplicationSupportDirectory = [pPaths objectAtIndex:0];
   path.Set([pApplicationSupportDirectory UTF8String]);
 }
@@ -439,23 +439,23 @@ void IGraphicsMac::SandboxSafeAppSupportPath(WDL_String& path)
 bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 {
   CocoaAutoReleasePool pool;
-  
+
   BOOL success = FALSE;
-  
+
   if(path.GetLength())
   {
     NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
-    
+
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
       if (select)
       {
         NSString* pParentDirectoryPath = [pPath stringByDeletingLastPathComponent];
-        
+
         if (pParentDirectoryPath)
         {
           success = [[NSWorkspace sharedWorkspace] openFile:pParentDirectoryPath];
-          
+
           if (success)
             success = [[NSWorkspace sharedWorkspace] selectFile: pPath inFileViewerRootedAtPath:pParentDirectoryPath];
         }
@@ -463,10 +463,10 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       else {
         success = [[NSWorkspace sharedWorkspace] openFile:pPath];
       }
-      
+
     }
   }
-  
+
   return (bool) success;
 }
 
@@ -555,14 +555,14 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreateIPopupMenu(IPopupMenu& menu, IRECT& textRect)
+IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, IRECT& textRect)
 {
   ReleaseMouseCapture();
 
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, textRect);
-    return [(IGRAPHICS_VIEW*) mView createIPopupMenu: menu: areaRect];
+    return [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
   else return 0;
 }
@@ -612,7 +612,7 @@ int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
 bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 {
   NSString* pTextOnClipboard = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
-  
+
   if (pTextOnClipboard == nil)
   {
     str.Set("");

@@ -64,7 +64,7 @@ public:
   IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* offsetIdx);
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& areaRect) override;
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, IRECT& areaRect) override;
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);

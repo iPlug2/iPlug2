@@ -80,7 +80,7 @@
       {
         [nsMenuItem setState:NSOffState];
       }
-      
+
       if (menuItem->GetEnabled())
       {
         [nsMenuItem setEnabled:YES];
@@ -128,7 +128,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   {
     int i = 0;
     int len = (int) [partialString length];
-    
+
     for (i = 0; i < len; i++)
     {
       if (![filterCharacterSet characterIsMember:[partialString characterAtIndex:i]])
@@ -226,9 +226,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     self.wantsLayer = YES;
   }
 #endif
-  
+
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
-  
+
   double sec = 1.0 / (double) pGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
@@ -258,7 +258,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   {
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
-    
+
     if (mGraphics)
     {
       mGraphics->SetAllControlsDirty();
@@ -272,7 +272,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics)
   {
     //TODO: can we really only get this context on the first draw call?
-      
+
     if (!mGraphics->GetPlatformContext())
     {
         CGContextRef pCGC = nullptr;
@@ -281,13 +281,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
         pCGC = (CGContextRef) [gc graphicsPort];
         mGraphics->SetPlatformContext(pCGC);
     }
-      
+
     if (mGraphics->GetPlatformContext())
     {
       IRECT tmpRect = ToIRECT(mGraphics, &rect);
       mGraphics->Draw(tmpRect);
     }
-    
+
   }
 }
 
@@ -296,7 +296,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   IRECT r;
 #ifdef IGRAPHICS_NANOVG
   mGraphics->BeginFrame();
-  
+
   //TODO: this is redrawing every IControl!
   r.R = mGraphics->WindowWidth();
   r.B = mGraphics->WindowHeight();
@@ -322,9 +322,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     *pY = mGraphics->Height() - pt.y - 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
-    
+
     // Detect tablet input correctly
-      
+
     mGraphics->SetTabletInput(pEvent.subtype == NSTabletPointEventSubtype);
     mGraphics->SetMousePosition(*pX, *pY);
   }
@@ -336,7 +336,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self getMouseXY:pEvent x:&info.x y:&info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
-  
+
   return info;
 }
 
@@ -346,7 +346,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self getMouseXY:pEvent x:&info.x y:&info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
-    
+
   return info;
 }
 
@@ -475,15 +475,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   if (mEdControl->GetParam())
     mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
-  
+
   mEdControl->OnTextEntryCompletion(txt);
   mGraphics->SetAllControlsDirty();
-  
+
   [self endUserInput ];
   [self setNeedsDisplay: YES];
 }
 
-- (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
 {
   IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:rect] autorelease];
   NSMenu* nsMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu :dummyView] autorelease];
@@ -492,7 +492,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   NSPoint wp = {rect.origin.x, rect.origin.y - 4};
   wp = [self convertPointToBase:wp];
-  
+
   //fix position for retina display
   float displayScale = 1.0f;
   NSScreen* screen = [pWindow screen];
@@ -552,7 +552,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 
   const IParam* pParam = control.GetParam();
-  
+
   // set up formatter
   if (pParam)
   {
@@ -589,9 +589,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [mTextFieldView setBordered: NO];
   [mTextFieldView setFocusRingType:NSFocusRingTypeNone];
 #endif
-  
+
   [mTextFieldView setDelegate: (id<NSTextFieldDelegate>) self];
-  
+
   [self addSubview: mTextFieldView];
   NSWindow* pWindow = [self window];
   [pWindow makeKeyAndOrderFront:nil];
@@ -616,7 +616,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   int c = mGraphics ? GetMouseOver(mGraphics) : -1;
   if (c < 0) return @"";
-  
+
   const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
   return CSTR_NOT_EMPTY(tooltip) ? ToNSString((const char*) tooltip) : @"";
 }
@@ -629,10 +629,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification
 {
   NSWindow* pWindow = [self window];
-  
+
   if (!pWindow)
     return;
-  
+
   CGFloat newScale = [pWindow backingScaleFactor];
 
   if (newScale != mGraphics->GetDisplayScale())
@@ -644,7 +644,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (NSDragOperation)draggingEntered: (id <NSDraggingInfo>) sender
 {
   NSPasteboard *pPasteBoard = [sender draggingPasteboard];
-  
+
   if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
     return NSDragOperationGeneric;
   else
@@ -665,7 +665,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     float y = mGraphics->Height() - relativePoint.y - 3.f;
     mGraphics->OnDrop([pFirstFile UTF8String], x, y);
   }
-  
+
   return YES;
 }
 

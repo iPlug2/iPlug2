@@ -91,7 +91,7 @@ public:
     menu.AddItem("Load Program...");
     menu.AddItem("Load Bank...");
 
-    if(gui->CreateIPopupMenu(&menu, &mRECT))
+    if(gui->CreatePopupMenu(&menu, &mRECT))
     {
       int itemChosen = menu.GetChosenItemIdx();
       WDL_String fileName;

@@ -85,7 +85,7 @@ NSString* ToNSString(const char* cStr);
 - (void) killTimer;
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
