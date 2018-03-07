@@ -208,6 +208,18 @@
 		4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */; };
 		4FD52137202A5BD000A4D22A /* dfx-au-utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD52135202A5BD000A4D22A /* dfx-au-utilities.h */; };
 		4FDA1DED201277B30027C868 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F21A6EE2001270400B7B057 /* coreiids.cpp */; };
+		4FE2348A20503A24005030E0 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE2348520503A24005030E0 /* IVDropDownListControl.h */; };
+		4FE2348B20503A24005030E0 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE2348520503A24005030E0 /* IVDropDownListControl.h */; };
+		4FE2348C20503A24005030E0 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE2348620503A24005030E0 /* IVKeyboardControl.h */; };
+		4FE2348D20503A24005030E0 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE2348620503A24005030E0 /* IVKeyboardControl.h */; };
+		4FE2348E20503A24005030E0 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE2348720503A24005030E0 /* IVMeterControl.cpp */; };
+		4FE2348F20503A24005030E0 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE2348720503A24005030E0 /* IVMeterControl.cpp */; };
+		4FE2349020503A24005030E0 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE2348720503A24005030E0 /* IVMeterControl.cpp */; };
+		4FE2349120503A24005030E0 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE2348720503A24005030E0 /* IVMeterControl.cpp */; };
+		4FE2349220503A24005030E0 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE2348720503A24005030E0 /* IVMeterControl.cpp */; };
+		4FE2349320503A24005030E0 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE2348720503A24005030E0 /* IVMeterControl.cpp */; };
+		4FE2349420503A24005030E0 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE2348820503A24005030E0 /* IVMeterControl.h */; };
+		4FE2349520503A24005030E0 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE2348820503A24005030E0 /* IVMeterControl.h */; };
 		4FF016F7134E14E2001447BA /* mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F4134E14E2001447BA /* mutex.h */; };
 		4FF016F8134E14E2001447BA /* ptrlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F5134E14E2001447BA /* ptrlist.h */; };
 		4FF016F9134E14E2001447BA /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF016F6134E14E2001447BA /* wdlstring.h */; };
@@ -532,6 +544,10 @@
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
+		4FE2348520503A24005030E0 /* IVDropDownListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVDropDownListControl.h; sourceTree = "<group>"; };
+		4FE2348620503A24005030E0 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
+		4FE2348720503A24005030E0 /* IVMeterControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IVMeterControl.cpp; sourceTree = "<group>"; };
+		4FE2348820503A24005030E0 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
 		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
 		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
@@ -986,7 +1002,6 @@
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
-				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
@@ -1130,6 +1145,18 @@
 			name = NanoVG;
 			sourceTree = "<group>";
 		};
+		4FE2348420503A24005030E0 /* IControls */ = {
+			isa = PBXGroup;
+			children = (
+				4FE2348520503A24005030E0 /* IVDropDownListControl.h */,
+				4FE2348620503A24005030E0 /* IVKeyboardControl.h */,
+				4FE2348720503A24005030E0 /* IVMeterControl.cpp */,
+				4FE2348820503A24005030E0 /* IVMeterControl.h */,
+			);
+			name = IControls;
+			path = ../../../IPlug/IGraphics/IControls;
+			sourceTree = "<group>";
+		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
@@ -1148,9 +1175,11 @@
 		4FF142621FD4A5FD00A65575 /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
+				4FE2348420503A24005030E0 /* IControls */,
 				4F69BB5C2013C501002C8948 /* PlatformClasses */,
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
+				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
 				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
@@ -1194,6 +1223,8 @@
 				4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */,
 				4F78D93E13B63BA50032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */,
 				4FD52137202A5BD000A4D22A /* dfx-au-utilities.h in Headers */,
+				4FE2348B20503A24005030E0 /* IVDropDownListControl.h in Headers */,
+				4FE2348D20503A24005030E0 /* IVKeyboardControl.h in Headers */,
 				4F78D94013B63BA50032E0F3 /* IPlug_include_in_plug_src.h in Headers */,
 				4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */,
 				4FF142C61FD4A61E00A65575 /* IGraphicsUtilites.h in Headers */,
@@ -1205,6 +1236,7 @@
 				4F78DA0713B63CD90032E0F3 /* IPlugAU.h in Headers */,
 				4F6D9DF32016B7F7009E1E3E /* IPlugBaseGraphics.h in Headers */,
 				4F7C94782029473E00B20111 /* IPlugPresets.h in Headers */,
+				4FE2349520503A24005030E0 /* IVMeterControl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1212,6 +1244,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FE2348A20503A24005030E0 /* IVDropDownListControl.h in Headers */,
 				4F690CA1203A398900A4A13E /* IPlugAPP_host.h in Headers */,
 				4F78DABB13B640620032E0F3 /* IPlugAPP.h in Headers */,
 				4F6D9DF22016B7F7009E1E3E /* IPlugBaseGraphics.h in Headers */,
@@ -1229,8 +1262,10 @@
 				4F78DA8B13B640050032E0F3 /* ptrlist.h in Headers */,
 				4F78DA8C13B640050032E0F3 /* wdlstring.h in Headers */,
 				4F78DA8D13B640050032E0F3 /* heapbuf.h in Headers */,
+				4FE2348C20503A24005030E0 /* IVKeyboardControl.h in Headers */,
 				4FF142841FD4A61E00A65575 /* IGraphicsStructs.h in Headers */,
 				4F78DA8E13B640050032E0F3 /* wdlendian.h in Headers */,
+				4FE2349420503A24005030E0 /* IVMeterControl.h in Headers */,
 				4F78DA8F13B640050032E0F3 /* swell.h in Headers */,
 				4F78DA9013B640050032E0F3 /* swell-functions.h in Headers */,
 				4F78DA9113B640050032E0F3 /* swell-internal.h in Headers */,
@@ -1645,6 +1680,7 @@
 				4FF142A31FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */,
 				4FF142901FD4A61E00A65575 /* IGraphics.cpp in Sources */,
+				4FE2348F20503A24005030E0 /* IVMeterControl.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4F7C94722029473E00B20111 /* IPlugPresets.cpp in Sources */,
 				4F78D9F313B63C6A0032E0F3 /* IPlugVST.cpp in Sources */,
@@ -1655,6 +1691,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FE2349320503A24005030E0 /* IVMeterControl.cpp in Sources */,
 				4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */,
 				4F6D9DF12016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */,
@@ -1677,6 +1714,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FE2349120503A24005030E0 /* IVMeterControl.cpp in Sources */,
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F6D9DEF2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
@@ -1739,6 +1777,7 @@
 				4FF142A41FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F9828D3140A9EB700F3FCC1 /* vstsinglecomponenteffect.cpp in Sources */,
 				4F9828D4140A9EB700F3FCC1 /* conststringtable.cpp in Sources */,
+				4FE2349020503A24005030E0 /* IVMeterControl.cpp in Sources */,
 				4F9828D5140A9EB700F3FCC1 /* funknown.cpp in Sources */,
 				4F9828D6140A9EB700F3FCC1 /* ustring.cpp in Sources */,
 			);
@@ -1764,6 +1803,7 @@
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4FB600271567CB0A0020189A /* IPlugAAX.cpp in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
+				4FE2349220503A24005030E0 /* IVMeterControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1797,6 +1837,7 @@
 				4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */,
 				4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4FE2348E20503A24005030E0 /* IVMeterControl.cpp in Sources */,
 				4FF1428F1FD4A61E00A65575 /* IGraphics.cpp in Sources */,
 				4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */,
 			);
