@@ -153,7 +153,7 @@ protected:
     double RMSSum = 0.0;
 
     float meterWidth = 20.f;
-    float distToNextM = 30.f; // use for gluing chans into groups like ins and outs
+    float distToNextM = 1.f; // use for gluing chans into groups like ins and outs
 
     bool drawMemRect = true;
     bool drawPeakRect = true;
