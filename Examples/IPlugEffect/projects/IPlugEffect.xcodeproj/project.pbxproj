@@ -462,6 +462,7 @@
 		4F7C946E2029473D00B20111 /* IPlugPresets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPresets.cpp; path = ../../../IPlug/IPlugPresets.cpp; sourceTree = "<group>"; };
 		4F7C94702029473D00B20111 /* IPlugPresets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPresets.h; path = ../../../IPlug/IPlugPresets.h; sourceTree = "<group>"; };
 		4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
+		4F8ECF40205169C700292D0A /* IPlugEasing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEasing.h; path = ../../../IPlug/IPlugEasing.h; sourceTree = "<group>"; };
 		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; };
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
 		4F8F61B120280CB4003F2573 /* IPlugBase_select.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugBase_select.h; path = ../../../IPlug/IPlugBase_select.h; sourceTree = "<group>"; };
@@ -912,6 +913,7 @@
 				4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */,
 				4F7C94702029473D00B20111 /* IPlugPresets.h */,
 				4F7C946E2029473D00B20111 /* IPlugPresets.cpp */,
+				4F8ECF40205169C700292D0A /* IPlugEasing.h */,
 				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
 				4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */,
 				4FD7C3A1203372AD009DBA2C /* IPlugDelegate.h */,
@@ -986,7 +988,6 @@
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
-				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
@@ -1152,6 +1153,7 @@
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
+				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
