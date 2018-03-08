@@ -18,7 +18,7 @@ LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
             lice_textnew.o lice_png.o
 
 OBJS = app_main.o main_dialog.o $(SWELL_OBJS) $(LICE_OBJS)
-RESFILES = resources/IPlugEffect.rc_mac_dlg resources/IPlugEffect.rc_mac_menu
+RESFILES = resources/main.rc_mac_dlg resources/main.rc_mac_menu
 
 ### Compiler/Linker Flags
 CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Werror -Wno-deprecated-declarations
