@@ -382,26 +382,16 @@ void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, flo
 
 void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
 {
-  const float angleRadians = DegToRad(angle-90.f);
-  const float sinV = sinf(angleRadians);
-  const float cosV = cosf(angleRadians);
-  const float xLo = (cx + rMin * cosV);
-  const float xHi = (cx + rMax * cosV);
-  const float yLo = (cy + rMin * sinV);
-  const float yHi = (cy + rMax * sinV);
-  DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+  float data[2][2];
+  RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
+  DrawLine(color, data[0][0], data[0][1], data[1][0], data[1][1], pBlend, thickness);
 }
 
 void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, float rMax)
 {
-    const float angleRadians = DegToRad(angle);
-    const float sinV = sinf(angleRadians);
-    const float cosV = cosf(angleRadians);
-    const float xLo = (cx + rMin * cosV);
-    const float xHi = (cx + rMax * cosV);
-    const float yLo = (cy + rMin * sinV);
-    const float yHi = (cy + rMax * sinV);
-    PathLine(xLo, yLo, xHi, yHi);
+  float data[2][2];
+  RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
+  PathLine(data[0][0], data[0][1], data[1][0], data[1][1]);
 }
 
 void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend)
