@@ -40,60 +40,61 @@ public:
     PathStateRestore();
   }
   
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
   {
     FillRect(color, IRECT(x, y, x+1.5, y+1.5), pBlend);
   }
+  
+  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override
   {
     PathMoveTo(x1, y1);
     PathLineTo(x2, y2);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override
+  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness) override
   {
     PathTriangle(x1, y1, x2, y2, x3, y3);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
+  void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override
   {
     PathRect(bounds);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend) override
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend, float thickness) override
   {
     PathRoundRect(bounds, corner);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend) override
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend, float thickness) override
   {
     PathConvexPolygon(x, y, nPoints);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend) override
+  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend, float thickness) override
   {
     PathArc(cx, cy, r, aMin -90.f, aMax -90.f);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override
+  void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float thickness) override
   {
     PathCircle(cx, cy, r);
-    PathStroke(color, 1.0, IStrokeOptions(), pBlend);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
+  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override
   {
     float dashLength = 2;
     IStrokeOptions options;
     options.mDash.SetDash(&dashLength, 0.0, 1);
     PathRect(bounds);
-    PathStroke(color, 1.0, options, pBlend);
+    PathStroke(color, thickness, options, pBlend);
   }
 
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override

@@ -356,31 +356,31 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IB
   }
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend, float thickness)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
   float xi = bounds.L + int(x * (bounds.R - bounds.L));
-  return DrawVerticalLine(color, xi, bounds.T, bounds.B, pBlend);
+  return DrawVerticalLine(color, xi, bounds.T, bounds.B, pBlend, thickness);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend, float thickness)
 {
   y = BOUNDED(y, 0.0f, 1.0f);
   float yi = bounds.B - (y * (float) (bounds.B - bounds.T));
-  return DrawHorizontalLine(color, yi, bounds.L, bounds.R, pBlend);
+  return DrawHorizontalLine(color, yi, bounds.L, bounds.R, pBlend, thickness);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend, float thickness)
 {
-  DrawLine(color, xi, yLo, xi, yHi, pBlend);
+  DrawLine(color, xi, yLo, xi, yHi, pBlend, thickness);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend, float thickness)
 {
-  DrawLine(color, xLo, yi, xHi, yi, pBlend);
+  DrawLine(color, xLo, yi, xHi, yi, pBlend, thickness);
 }
 
-void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend, float thickness)
 {
   float data[2][2];
   RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
@@ -394,14 +394,14 @@ void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, floa
   PathLine(data[0][0], data[0][1], data[1][0], data[1][1]);
 }
 
-void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend)
+void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend, float thickness)
 {
   // Vertical Lines grid
   if (gridSizeH > 1)
   {
     for (int x = 0; x < bounds.W(); x += gridSizeH)
     {
-      DrawVerticalLine(color, bounds, (float)x/(float) bounds.W(), pBlend);
+      DrawVerticalLine(color, bounds, (float)x/(float) bounds.W(), pBlend, thickness);
     }
   }
     // Horizontal Lines grid
@@ -409,7 +409,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH
   {
     for (int y = 0; y < bounds.H(); y += gridSizeV)
     {
-      DrawHorizontalLine(color, bounds, (float)y/(float) bounds.H(), pBlend);
+      DrawHorizontalLine(color, bounds, (float)y/(float) bounds.H(), pBlend, thickness);
     }
   }
 }

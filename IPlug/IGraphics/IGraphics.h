@@ -120,8 +120,8 @@ public:
    * @param x2 The X coordinate in the graphics context of the end of the line
    * @param y2 The Y coordinate in the graphics context of the end of the line
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
    * @param x1 The X coordinate in the graphics context of the first vertex
@@ -131,21 +131,21 @@ public:
    * @param x3 The X coordinate in the graphics context of the third vertex
    * @param y3 The Y coordinate in the graphics context of the third vertex
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a rectangle to the graphics context
    * @param bounds The rectangular area in which to draw the shape
    * @param color The color to draw the shape to draw the shape with
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a circle to the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
    * @param cr The corner width in pixels
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr = 5.f, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr = 5.f, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw an arc to the graphics context
    * @param color The color to draw the shape with
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
@@ -154,29 +154,29 @@ public:
    * @param aMin the start angle  of the arc at in degrees clockwise where 0 is up
    * @param aMax the end angle  of the arc at in degrees clockwise where 0 is up
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a circle to the graphics context
    * @param color The color to draw the shape with
    * @param cx The X coordinate in the graphics context of the centre of the circle
    * @param cy The Y coordinate in the graphics context of the centre of the circle
    * @param r The radius of the circle
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a convex polygon to the graphics to the graphics context
    * @param color The color to draw the shape with
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
    * @param y Pointer to the first element in an array of Y coordinates for the vertices of the polygon
    * @param nPoints The number of points in the coordinate arrays
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0) = 0;
-
+  virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a dotted rectangle to the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
   /** Fill a triangle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -305,31 +305,31 @@ public:
    * @param bounds The rectangular region to draw the line in
    * @param x \todo
    * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend = 0);
-
-  /** Draw a horizontal line, within a rectangular region of the graphics context  
+  void DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend = 0, float thickness = 1.f);
+  
+  /** Draw a horizontal line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
    * @param y \todo
    * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend = 0);
-
+  void DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend = 0, float thickness = 1.f);
+  
   /** \todo
    * @param color The color to draw the line with
    * @param xi \todo
    * @param yLo \todo
    * @param yHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
-  void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
-
+  void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0, float thickness = 1.f);
+  
   /** \todo
    * @param color The color to draw the line with
    * @param xi \todo
    * @param yLo \todo
    * @param yHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
-  void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
-
+  void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0, float thickness = 1.f);
+  
   /** Draw a radial line to the graphics context, useful for pointers on dials
    * @param color The color to draw the line with
    * @param cx centre point x coordinate
@@ -338,7 +338,7 @@ public:
    * @param rMin minima of the radial line (distance from cx,cy)
    * @param rMax maxima of the radial line (distance from cx,cy)
    * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
+  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0, float thickness = 1.f);
   
   /** Draw a grid to the graphics context
    * @param color The color to draw the grid lines with
@@ -346,7 +346,7 @@ public:
    * @param gridSizeH The width of the grid cells
    * @param gridSizeV The height of the grid cells
    * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0);
+  void DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
   
 #pragma mark - IGraphics drawing API Path support
   
