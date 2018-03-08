@@ -41,6 +41,10 @@ public:
   }
   
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override
+  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
+  {
+    FillRect(color, IRECT(x, y, x+1.5, y+1.5), pBlend);
+  }
   {
     PathMoveTo(x1, y1);
     PathLineTo(x2, y2);
@@ -129,12 +133,7 @@ public:
     PathCircle(cx, cy, r);
     PathFill(color, IFillOptions(), pBlend);
   }
-  
-  void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
-  {
-    FillRect(color, IRECT(x, y, 1, 1), pBlend);
-  }
-  
+
   bool HasPathSupport() const override { return true; }
   
   void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) override
