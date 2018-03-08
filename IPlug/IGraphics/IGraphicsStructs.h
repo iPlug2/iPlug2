@@ -633,6 +633,16 @@ struct IRECT
     return IRECT(L, T-padding, R, B+padding);
   }
   
+  inline IRECT GetMidHPadded(float padding) const
+  {
+    return IRECT(MW()-padding, T, MW()+padding, B);
+  }
+  
+  inline IRECT GetMidVPadded(float padding) const
+  {
+    return IRECT(L, MH()-padding, R, MH()+padding);
+  }
+  
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
