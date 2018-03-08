@@ -75,7 +75,7 @@ void IVSliderControl::Draw(IGraphics& graphics)
 void IVSliderControl::OnResize()
 {
   mTrack = mRECT.GetPadded(-10);
-  SetDirty();
+  SetDirty(false);
 }
 
 IVKeyboardControl::IVKeyboardControl(IDelegate& dlg, IRECT bounds,
@@ -184,7 +184,7 @@ void IVKeyboardControl::OnResize()
   }
   
   mTargetRECT = mRECT;
-  SetDirty();
+  SetDirty(false);
 }
 
 void IVKeyboardControl::Draw(IGraphics & graphics)
@@ -705,6 +705,6 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 //  else
 //    mTrack = mTargetRECT = mRECT.GetHPadded(-mHandleBitmap.W());
 //
-//  SetDirty();
+//  SetDirty(false);
 //}
 //
