@@ -1,67 +1,128 @@
-<html>
-<head>
-<link rel="stylesheet" href="IPlugWAM.css">
-<script src="WAM/datachannel.js"></script>
-<script src="WAM/controller.js"></script>
-<script src="WAM/processor.js"></script>
-<script src="IPlugWAM-asm.js"></script>
-<script src="IPlugWAM-controller.js"></script>
-<script src="IPlugWAM-processor.js"></script>
-  
-<script>  
-  function init()
-  {
-    var actx = new AudioContext();
-    var wam = new IPlugWAMController();
-    wam.init(actx, 512).then(function ()
-    {
-      wam.connect(actx.destination);
-      createGenericGUI(wam);
-      // -- MIDI
-      if (navigator.requestMIDIAccess)
-        navigator.requestMIDIAccess().then(function (midi)
-        {
-          var midiIn = midi.inputs.values().next().value;
-          wam.connect(midiIn);
-          midiInfo.innerHTML = "MIDI input port: " + midiIn.name;
-        },
-        function (err) { console.log(err); });
-    });
-  }
-  
-  function createGenericGUI(wam)
-  {
-    if(wam.descriptor.parameters != undefined) {
-      wam.descriptor.parameters.forEach( function (p)
-      {
-        var label  = document.createElement("p");
-        var slider = document.createElement("input");
-        label.className = "labelx";
-        label.textContent = p.name;
-        slider.type  = "range";
-        slider.min   = p.min; slider.max = p.max; slider.value = p.def;
-        slider.wamID = p.id;
-        var div = document.createElement("div");
-        div.appendChild(label);
-        div.appendChild(slider);
-        document.querySelector("#gui").appendChild(div);
-      
-        slider.oninput = function (e)
-        {
-          var slider = e.target;
-          wam.setParam(slider.wamID, slider.value|0);
+<script src="audioworklet.js"></script>
+<script src="wamsdk/wam-controller.js"></script>
+<script src="IPlugWAM-awn.js"></script>
+<dom-module id="IPlugWAM">
+  <template>
+    <style>
+      body {
+        font-family: sans-serif;
+        font-weight: 100;
+        font-size: 14px;
+        user-select: none;
+        cursor: default;
+        padding: 5px 0 0 10px;
+      }
+
+      header {
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-weight: 100;
+        margin: 0;
+        font-size: 20px;
+      }
+
+      #unsupported {
+        margin-bottom: 30px;
+      }
+
+      #unsupported a {
+        text-decoration: underline;
+      }
+
+      #content {
+        width: 800px;
+        background: #000;
+        padding: 5px;
+      }
+
+      #topbar {
+        display: flex;
+        background: #222;
+        color: #eee;
+        height: 40px;
+        line-height: 40px;
+        padding-left: 10px;
+        border-bottom: 5px solid darkgreen;
+      }
+
+      .right {
+        display: flex;
+        margin-left: auto;
+      }
+
+      .control {
+        margin: 0 10px;
+      }
+
+      label {
+        color: #bbb;
+        font-size: 12px;
+      }
+
+      select {
+        background: #222;
+        color: #eee;
+        height: 20px;
+        margin-top: 10px;
+        cursor: pointer;
+      }
+
+      li {
+        cursor: pointer;
+      }
+
+      footer {
+        width: 810px;
+        display: flex;
+        justify-content: flex-end;
+        font-size: 12px;
+        color: #444;
+        margin-top: 5px;
+      }
+
+      a,
+      a:visited {
+        color: #000;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: darkgreen;
+      }
+    </style>
+    <div id="content">
+    </div>
+  </template>
+  <script>
+    IPlugWAM = Polymer({
+
+      is: 'IPlugWAM',
+
+      created: function main() {
+
+        if (AWPF.isAudioWorkletPolyfilled)
+          actx = AWPF.context;
+        else actx = GlobalContext.context;
+
+        IPLUGWAM.importScripts(actx).then(() => {
+          IPlugWAM = new DX7(actx);
+          myoutput = actx.createGain();
+          IPlugWAM.connect(myoutput);
+          initGUI();
+          initMidi();
+        });
+
+        function initGUI() {
+          let dx = document.querySelector("IPlugWAM");
         }
-      });
-    }
-  }
-</script>
-</head>
-<body onload="init()">
-  <div id="content">
-    <h4>IPlugWAM</h4>
-    <p id="info">IPlugWAM</p>
-    <div id="gui"></div>
-    <div id="midiInfo"></div>
-  </div>
-</body>
-</html>
+
+        function initMidi() {
+        }
+      }
+
+    })
+  </script>
+</dom-module>

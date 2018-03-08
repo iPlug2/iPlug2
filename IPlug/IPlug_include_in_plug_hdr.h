@@ -40,6 +40,7 @@
   typedef IPlugAPP IPlug;
   #define API_EXT "app"
 #elif defined WAM_API
+  #include "IPlugWAM.h"
   typedef IPlugWAM IPlug;
 #else
   #error "No API defined!"
@@ -60,9 +61,9 @@
 
 #elif defined OS_WEB
 
-#ifndef NO_IGRAPHICS
-  #include "IGraphicsWeb.h"
-#endif
+//#ifndef NO_IGRAPHICS
+//  #include "IGraphicsWeb.h"
+//#endif
 
 #elif defined OS_LINUX
   //TODO

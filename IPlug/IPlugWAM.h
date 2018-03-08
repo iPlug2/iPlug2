@@ -20,11 +20,11 @@ public:
   IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   //WAM
-  virtual const char* init(uint32_t bufsize, uint32_t sr, void* desc);
-//  virtual void terminate() {}
-//  virtual void resize(uint32_t bufsize) {}
+  virtual const char* init(uint32_t bufsize, uint32_t sr, void* pDesc) override;
+//  virtual void terminate() override {}
+//  virtual void resize(uint32_t bufsize) override {}
   
-  virtual void onProcess(WAM::AudioBus* audio, void* data) override;
+  virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
 //  virtual void onMidi(byte status, byte data1, byte data2) override {}
 //  virtual void onSysex(byte* msg, uint32_t size) override {}
 //  virtual void onMessage(char* verb, char* res, double data) override {}

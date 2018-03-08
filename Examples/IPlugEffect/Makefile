@@ -50,28 +50,26 @@
 # clean:
 # 	-rm $(APP) $(OBJS) $(RESFILES)
 
-TARGET = ./build-web/IPlugEffect-WAM.js
-API = ./Dependencies/IPlug/WAM_SDK/wamsdk
-WDL_PATH = ../../WDL
-IPLUG_PATH = ../../IPlug
+ROOT = ../..
+TARGET = IPlugEffect-WAM.js
+API = $(ROOT)/Dependencies/IPlug/WAM_SDK/wamsdk
+WDL_PATH = $(ROOT)/WDL
+IPLUG_PATH = $(ROOT)/IPlug
 
 SRC = \
 IPlugEffect.cpp \
 $(API)/processor.cpp \
-$(IPLUG)/IPlugWAM.cpp \
-$(IPLUG)/IPlugBase.cpp \
-$(IPLUG)/IPlugStructs.cpp \
-$(IPLUG)/IPlugParameter.cpp
+$(IPLUG_PATH)/IPlugWAM.cpp \
+$(IPLUG_PATH)/IPlugBase.cpp \
+$(IPLUG_PATH)/IPlugParameter.cpp
 
-CFLAGS = -I./ -I$(API) -I$(WDL) -I$(IPLUG) -DWEB_API -Wno-c++11-compat-deprecated-writable-strings
-LDFLAGS = -O1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s ASSERTIONS=1
 EXPORTS = "[\
 	'_createModule','_wam_init','_wam_terminate','_wam_resize', \
 	'_wam_onprocess', '_wam_onmidi', '_wam_onsysex', '_wam_onparam', \
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I$(API) -I$(MSFA)
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -DWAM_API -std=c++11
 LDFLAGS = -O2 -s EXPORTED_FUNCTIONS=$(EXPORTS)
 JSFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM'"
 

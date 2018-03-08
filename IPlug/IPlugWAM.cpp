@@ -1,11 +1,11 @@
 #include "IPlugWAM.h"
 
-const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* desc)
+const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 {
   wam_logs("init\n");
   
-  SetSampleRate(sr);
-  SetBlockSize(bufsize);
+  _SetSampleRate(sr);
+  _SetBlockSize(bufsize);
   
   WDL_String json;
   json.Set("{\n");
@@ -61,24 +61,24 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* desc)
   return json.Get();
 }
 
-void IPlugWAM::onProcess(WAM::AudioBus* audio, void* data)
+void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
 {
-  AttachInputBuffers(0, NInChannels(), audio->inputs, GetBlockSize());
-  AttachOutputBuffers(0, NOutChannels(), audio->outputs);
-  ProcessBuffers((float) 0.0f, GetBlockSize());
+  _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, GetBlockSize());
+  _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, GetBlockSize());
+  _ProcessBuffers((float) 0.0f, GetBlockSize());
 }
 
-void IPlugWAM::onMidi(byte status, byte data1, byte data2)
-{
-  wam_logs("onMidi\n");
-}
-
-void IPlugWAM::onParam(uint32_t idparam, double value)
-{
-  wam_logs("onParam\n");
-  
-  GetParam(idparam)->Set(value);
-  OnParamChange(idparam);
-}
+//void IPlugWAM::onMidi(byte status, byte data1, byte data2)
+//{
+//  wam_logs("onMidi\n");
+//}
+//
+//void IPlugWAM::onParam(uint32_t idparam, double value)
+//{
+//  wam_logs("onParam\n");
+//
+//  GetParam(idparam)->Set(value);
+//  OnParamChange(idparam);
+//}
 
 
