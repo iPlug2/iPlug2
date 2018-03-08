@@ -1,0 +1,11 @@
+* { margin:0; padding:0; font-family:sans-serif; }
+body { background:#444; }
+#content { background:#fff; min-width:700px; max-width:700px; margin:10px auto; padding: 20px; }
+p { margin:10px 0; font-size:11pt; line-height:14pt; }
+
+#gui { border:1px solid #aaa; display:inline-block; padding:10px; margin-top:15px; }
+#gui div { height:20px; }
+.labelx { margin:0; display:inline-block; width:35px; }
+#gui input { vertical-align:-3px; }
+
+#midiInfo { margin-top:30px; font-size:11pt; }

@@ -1,0 +1,67 @@
+<html>
+<head>
+<link rel="stylesheet" href="IPlugWAM.css">
+<script src="WAM/datachannel.js"></script>
+<script src="WAM/controller.js"></script>
+<script src="WAM/processor.js"></script>
+<script src="IPlugWAM-asm.js"></script>
+<script src="IPlugWAM-controller.js"></script>
+<script src="IPlugWAM-processor.js"></script>
+  
+<script>  
+  function init()
+  {
+    var actx = new AudioContext();
+    var wam = new IPlugWAMController();
+    wam.init(actx, 512).then(function ()
+    {
+      wam.connect(actx.destination);
+      createGenericGUI(wam);
+      // -- MIDI
+      if (navigator.requestMIDIAccess)
+        navigator.requestMIDIAccess().then(function (midi)
+        {
+          var midiIn = midi.inputs.values().next().value;
+          wam.connect(midiIn);
+          midiInfo.innerHTML = "MIDI input port: " + midiIn.name;
+        },
+        function (err) { console.log(err); });
+    });
+  }
+  
+  function createGenericGUI(wam)
+  {
+    if(wam.descriptor.parameters != undefined) {
+      wam.descriptor.parameters.forEach( function (p)
+      {
+        var label  = document.createElement("p");
+        var slider = document.createElement("input");
+        label.className = "labelx";
+        label.textContent = p.name;
+        slider.type  = "range";
+        slider.min   = p.min; slider.max = p.max; slider.value = p.def;
+        slider.wamID = p.id;
+        var div = document.createElement("div");
+        div.appendChild(label);
+        div.appendChild(slider);
+        document.querySelector("#gui").appendChild(div);
+      
+        slider.oninput = function (e)
+        {
+          var slider = e.target;
+          wam.setParam(slider.wamID, slider.value|0);
+        }
+      });
+    }
+  }
+</script>
+</head>
+<body onload="init()">
+  <div id="content">
+    <h4>IPlugWAM</h4>
+    <p id="info">IPlugWAM</p>
+    <div id="gui"></div>
+    <div id="midiInfo"></div>
+  </div>
+</body>
+</html>
