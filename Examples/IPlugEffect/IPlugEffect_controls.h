@@ -314,6 +314,12 @@ public:
   {
   }
   
+  IBKnobRotaterControl(IPlugBaseGraphics& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
+  , mBitmap(bitmap)
+  {
+  }
+  
   void Draw(IGraphics& graphics) override
   {
     double angle = -130.0 + mValue * 260.0;

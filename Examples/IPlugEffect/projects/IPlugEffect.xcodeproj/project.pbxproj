@@ -88,6 +88,18 @@
 		4F69BB722013C534002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F69BB732013C534002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
 		4F69BB742013C534002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
+		4F6BD7BF2052D17D00214060 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BD2052D17D00214060 /* knob-rotate.png */; };
+		4F6BD7C02052D17D00214060 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BD2052D17D00214060 /* knob-rotate.png */; };
+		4F6BD7C12052D17D00214060 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BD2052D17D00214060 /* knob-rotate.png */; };
+		4F6BD7C22052D17D00214060 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BD2052D17D00214060 /* knob-rotate.png */; };
+		4F6BD7C32052D17D00214060 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BD2052D17D00214060 /* knob-rotate.png */; };
+		4F6BD7C42052D17D00214060 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BD2052D17D00214060 /* knob-rotate.png */; };
+		4F6BD7C52052D17D00214060 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */; };
+		4F6BD7C62052D17D00214060 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */; };
+		4F6BD7C72052D17D00214060 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */; };
+		4F6BD7C82052D17D00214060 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */; };
+		4F6BD7C92052D17D00214060 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */; };
+		4F6BD7CA2052D17D00214060 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */; };
 		4F6D9DEC2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */; };
 		4F6D9DED2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */; };
 		4F6D9DEE2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */; };
@@ -463,6 +475,8 @@
 		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IPlug/IGraphics/IGraphicsMac_view.mm; sourceTree = "<group>"; };
 		4F69BB652013C521002C8948 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IPlug/IGraphics/IGraphicsMac.mm; sourceTree = "<group>"; };
+		4F6BD7BD2052D17D00214060 /* knob-rotate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "knob-rotate.png"; path = "../resources/img/knob-rotate.png"; sourceTree = "<group>"; };
+		4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "knob-rotate@2x.png"; path = "../resources/img/knob-rotate@2x.png"; sourceTree = "<group>"; };
 		4F6D9DE92016B7F7009E1E3E /* IPlugBaseGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugBaseGraphics.cpp; path = ../../../IPlug/IPlugBaseGraphics.cpp; sourceTree = "<group>"; };
 		4F6D9DEA2016B7F7009E1E3E /* IPlugBaseGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugBaseGraphics.h; path = ../../../IPlug/IPlugBaseGraphics.h; sourceTree = "<group>"; };
 		4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatform.h; path = ../../../IPlug/IPlugPlatform.h; sourceTree = "<group>"; };
@@ -1078,6 +1092,8 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				4F6BD7BD2052D17D00214060 /* knob-rotate.png */,
+				4F6BD7BE2052D17D00214060 /* knob-rotate@2x.png */,
 				4F2F94F92052A6480087A37F /* knob.png */,
 				4F2F94FB2052A6480087A37F /* knob@2x.png */,
 				B8C5FB3B204AF4C400D5C34E /* 23.svg */,
@@ -1197,7 +1213,6 @@
 				4F69BB5C2013C501002C8948 /* PlatformClasses */,
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
-				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
 				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
@@ -1513,6 +1528,8 @@
 				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95032052A6480087A37F /* knob@2x.png in Resources */,
+				4F6BD7C62052D17D00214060 /* knob-rotate@2x.png in Resources */,
+				4F6BD7C02052D17D00214060 /* knob-rotate.png in Resources */,
 				4F2F94FD2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1524,6 +1541,8 @@
 				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95052052A6480087A37F /* knob@2x.png in Resources */,
+				4F6BD7C82052D17D00214060 /* knob-rotate@2x.png in Resources */,
+				4F6BD7C22052D17D00214060 /* knob-rotate.png in Resources */,
 				4F2F94FF2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1532,6 +1551,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6BD7C42052D17D00214060 /* knob-rotate.png in Resources */,
+				4F6BD7CA2052D17D00214060 /* knob-rotate@2x.png in Resources */,
 				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
 				4F2F95012052A6480087A37F /* knob.png in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
@@ -1547,6 +1568,8 @@
 				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95042052A6480087A37F /* knob@2x.png in Resources */,
+				4F6BD7C72052D17D00214060 /* knob-rotate@2x.png in Resources */,
+				4F6BD7C12052D17D00214060 /* knob-rotate.png in Resources */,
 				4F2F94FE2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1558,6 +1581,8 @@
 				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95062052A6480087A37F /* knob@2x.png in Resources */,
+				4F6BD7C92052D17D00214060 /* knob-rotate@2x.png in Resources */,
+				4F6BD7C32052D17D00214060 /* knob-rotate.png in Resources */,
 				4F2F95002052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1566,10 +1591,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6BD7BF2052D17D00214060 /* knob-rotate.png in Resources */,
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
 				4F2F94FC2052A6480087A37F /* knob.png in Resources */,
 				4F2F95022052A6480087A37F /* knob@2x.png in Resources */,
 				B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */,
+				4F6BD7C52052D17D00214060 /* knob-rotate@2x.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);

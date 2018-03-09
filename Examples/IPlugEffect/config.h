@@ -68,5 +68,6 @@
 #define APP_MULT 0.25
 
 #define PNGKNOB_FN "resources/img/knob.png"
+#define PNGKNOBROTATE_FN "resources/img/knob-rotate.png"
 #define SVGKNOB_FN "resources/img/BefacoBigKnob.svg"
 #define TIGER_FN "resources/img/23.svg"
