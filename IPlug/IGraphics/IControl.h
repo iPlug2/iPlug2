@@ -119,10 +119,9 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
-  void SetRECT(const IRECT& bounds) { mRECT = bounds; OnResize(); }
+  void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; }
-
+  void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
 
   /** Shows or hides the IControl.
    * @param hide Set to true to hide the control */
@@ -292,6 +291,11 @@ public:
               &spec.mX2Color,
               &spec.mX3Color);
   }
+  
+  void SetRoundness(float roundness)
+  {
+    mRoundness = roundness;
+  }
 
   void AddColor(const IColor& color)
   {
@@ -341,6 +345,7 @@ public:
   }
 protected:
   WDL_TypedBuf<IColor> mColors;
+  float mRoundness = 10.f;
 };
 
 /** A basic control to fill a rectangle with a color */
@@ -465,6 +470,27 @@ public:
 protected:
   EDirection mDirection;
   double mGearing;
+};
+
+class ISliderControlBase : public IControl
+{
+public:
+  ISliderControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+  : IControl(dlg, bounds, paramIdx)
+  , mDirection(dir)
+  , mOnlyHandle(onlyHandle)
+  {
+    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+  }
+  
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  
+protected:
+  EDirection mDirection;
+  IRECT mTrack;
+  bool mOnlyHandle;
+  int mHandleSize;
 };
 
 /** Parent for switch controls (including buttons a.k.a. momentary switches)*/

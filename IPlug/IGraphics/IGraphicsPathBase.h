@@ -184,7 +184,7 @@ public:
   virtual void PathStateRestore() = 0;
   
   virtual void PathTransformTranslate(float x, float y) = 0;
-  virtual void PathTransformScale(float scale) = 0;
+  virtual void PathTransformScale(float scaleX, float scaleY) = 0;
   virtual void PathTransformRotate(float angle) = 0;
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
@@ -196,7 +196,7 @@ public:
     PathStateSave();
     PathTransformTranslate(dest.L, dest.T);
     ClipRegion(IRECT(0, 0, dest.W(), dest.H()));
-    PathTransformScale(scale);
+    PathTransformScale(scale, scale);
     RenderNanoSVG(svg.mImage);
     PathStateRestore();
   }

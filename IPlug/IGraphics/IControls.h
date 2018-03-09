@@ -60,7 +60,7 @@ public:
   void Draw(IGraphics& g) override
   {
 #ifdef IGRAPHICS_LICE
-    g.DrawText(mText, "NO LICE SVG", mRECT);
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
 #else
     g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + mValue * (mEndAngle - mStartAngle));
 #endif
@@ -78,24 +78,21 @@ private:
   float mEndAngle = 135.f;
 };
 
-class IVSliderControl : public IControl
+class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection dir = kVertical)
-  : IControl(dlg, bounds, paramIdx)
+  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx,
+                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10)
+  : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
-  , mDirection(dir)
   {
   }
   
   void Draw(IGraphics& graphics) override;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   void OnResize() override;
 private:
-  EDirection mDirection;
-  IRECT mTrack;
 };
 
 class IVButtonControl : public IControl,
@@ -204,7 +201,7 @@ public:
 //  ~IBSliderControl() {}
 //
 //  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-//  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y); }
+//  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y, mDirection, mTrack); }
 //  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
 //  virtual void Draw(IGraphics& graphics) override;
 //  virtual bool IsHit(float x, float y) const override;
@@ -216,11 +213,22 @@ public:
 //  double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
 //  IRECT GetHandleRECT(double value = -1.0) const;
 //protected:
-//  virtual void SnapToMouse(float x, float y);
+////  virtual void SnapToMouse(float x, float y);
 //  int mLen, mHandleHeadroom;
 //  IBitmap mHandleBitmap;
 //  EDirection mDirection;
+//  IRECT mTrack;
 //  bool mOnlyHandle;
+//};
+//class IBSliderControl : public ISliderControlBase
+//{
+//  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
+//                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+//  
+//  ~IBSliderControl() {}
+//  
+//private:
+//  IBitmap mHandleBitmap;
 //};
 
 /** Display monospace bitmap font text */
