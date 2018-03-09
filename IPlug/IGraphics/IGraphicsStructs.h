@@ -494,7 +494,7 @@ struct IText
 const IText DEFAULT_TEXT = IText();
 
 /** Used to manage a rectangular area, independant of draw class/platform.
- * An IRECT is always specified in 1:1 pixels, any scaling for HiDPI happens in the drawing class.
+ * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
  * In IGraphics 0,0 is top left. */
 struct IRECT
 {

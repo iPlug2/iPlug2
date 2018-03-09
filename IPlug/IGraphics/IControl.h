@@ -58,7 +58,7 @@ public:
   /** Implement to do something when something was drag n dropped onto this control */
   virtual void OnDrop(const char* str) {};
 
-  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen) */
+  /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen) */
   virtual void OnRescale() {}
 
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should pass false as the argument to avoid triggering parameter changes */
@@ -365,9 +365,8 @@ class IBitmapControl : public IControl
 {
 public:
   /** Creates a bitmap control with a given parameter
-   * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
-   * @param bitmap Image to be drawn
-  */
+   * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
+   * @param bitmap Image to be drawn */
   IBitmapControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
   , mBitmap(bitmap)
@@ -387,7 +386,7 @@ public:
 
   virtual void Draw(IGraphics& g) override;
 
-  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen),
+  /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
 
