@@ -240,7 +240,6 @@
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
-				4FA9F9752050BA2B00D0F482 /* IGraphicsPathBase.h */,
 				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
@@ -340,6 +339,7 @@
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
+				4FA9F9752050BA2B00D0F482 /* IGraphicsPathBase.h */,
 				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,

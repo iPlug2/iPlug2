@@ -2,6 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 #include "IVKeyboardControl.h"
+#include "IVDropDownListControl.h"
 
 #include "config.h"
 
@@ -44,6 +45,10 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   pGraphics->AttachControl(new IVSliderControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).GetMidHPadded(20.), kGain));
 
+  pGraphics->AttachControl(new IVDropDownListControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).SubRectVertical(3, 0), 3, "one", "two", "three"));
+  pGraphics->AttachControl(new IVButtonControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), -1));
+  pGraphics->AttachControl(pMeter = new IVMeterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), 2));
+
   IRECT kbrect = bounds.SubRectVertical(4, 3).GetPadded(-5.);
   pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
 
@@ -71,4 +76,6 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       outputs[c][s] = inputs[c][s] * gain;
     }
   }
+  
+  pMeter->ProcessBus(outputs, nFrames);
 }

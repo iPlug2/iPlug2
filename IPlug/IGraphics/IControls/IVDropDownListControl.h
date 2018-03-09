@@ -162,7 +162,7 @@ public:
        if (i != mState)
        {
          mState = i;
-         //DbgMsg("mState ", mState);
+         //DBGMSG("%s %f" ,"mState ", mState);
          SetDirty(false);
        }
      }
@@ -184,7 +184,7 @@ public:
      mValue = NormalizedFromState();
      SetDirty();
    }
-   //DbgMsg("mValue ", mValue);
+   //DBGMSG("%s %f" ,"mValue ", mValue);
  }
 
  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override
@@ -196,8 +196,8 @@ public:
    {
      mState = ns;
      mValue = NormalizedFromState();
-     //DbgMsg("mState ", mState);
-     //DbgMsg("mValue ", mValue);
+     //DBGMSG("%s %f" ,"mState ", mState);
+     //DBGMSG("%s %f" ,"mValue ", mValue);
      if (!mExpanded)
        mBlink = true;
      SetDirty();
@@ -212,8 +212,8 @@ public:
    {
      mState = ns;
      mValue = NormalizedFromState();
-     //DbgMsg("mState ", mState);
-     //DbgMsg("mValue ", mValue);
+     //DBGMSG("%s %f" ,"mState ", mState);
+     //DBGMSG("%s %f" ,"mValue ", mValue);
      if (!mExpanded)
        mBlink = true;
      SetDirty();
@@ -227,8 +227,8 @@ public:
    mExpanded = false;
    mLastX = mLastY = -1.0;
    SetDirty(false);
-   //DbgMsg("mState ", mState);
-   //DbgMsg("mValue ", mValue);
+   //DBGMSG("%s %f" ,"mState ", mState);
+   //DBGMSG("%s %f" ,"mValue ", mValue);
  }
 
  void OnMouseUp(float x, float y, const IMouseMod& mod) override
@@ -516,22 +516,6 @@ protected:
  IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
  {
    return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
- }
-
- void DbgMsg(const char* msg, float val)
- {
-#ifdef _DEBUG
-   char str[32];
-   int p = 0;
-   while (*msg != '\0')
-   {
-     str[p] = *msg;
-     ++msg;
-     ++p;
-   }
-   sprintf(str + p, "%f", val);
-   DBGMSG(str);
-#endif
  }
 };
 
