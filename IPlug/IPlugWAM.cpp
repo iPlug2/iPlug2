@@ -15,33 +15,34 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
   for (int idx = 0; idx < NParams(); idx++)
   {
     IParam* pParam = GetParam(idx);
-    json.AppendFormatted(8192, "{");
-    json.AppendFormatted(8192, "\"id\":%i, ", idx);
-    json.AppendFormatted(8192, "\"name\":\"%s\", ", pParam->GetNameForHost());
-    switch (pParam->Type())
-    {
-      case IParam::kTypeNone:
-        break;
-      case IParam::kTypeBool:
-        json.AppendFormatted(8192, "\"type\":\"%s\", ", "bool");
-        break;
-      case IParam::kTypeInt:
-        json.AppendFormatted(8192, "\"type\":\"%s\", ", "int");
-        break;
-      case IParam::kTypeEnum:
-        json.AppendFormatted(8192, "\"type\":\"%s\", ", "enum");
-        break;
-      case IParam::kTypeDouble:
-        json.AppendFormatted(8192, "\"type\":\"%s\", ", "float");
-        break;
-      default:
-        break;
-    }
-    json.AppendFormatted(8192, "\"min\":%f, ", pParam->GetMin());
-    json.AppendFormatted(8192, "\"max\":%f, ", pParam->GetMax());
-    json.AppendFormatted(8192, "\"default\":%f, ", pParam->GetDefault());
-    json.AppendFormatted(8192, "\"rate\":\"audio\"");
-    json.AppendFormatted(8192, "}");
+    pParam->GetJSON(json, idx);
+//    json.AppendFormatted(8192, "{");
+//    json.AppendFormatted(8192, "\"id\":%i, ", idx);
+//    json.AppendFormatted(8192, "\"name\":\"%s\", ", pParam->GetNameForHost());
+//    switch (pParam->Type())
+//    {
+//      case IParam::kTypeNone:
+//        break;
+//      case IParam::kTypeBool:
+//        json.AppendFormatted(8192, "\"type\":\"%s\", ", "bool");
+//        break;
+//      case IParam::kTypeInt:
+//        json.AppendFormatted(8192, "\"type\":\"%s\", ", "int");
+//        break;
+//      case IParam::kTypeEnum:
+//        json.AppendFormatted(8192, "\"type\":\"%s\", ", "enum");
+//        break;
+//      case IParam::kTypeDouble:
+//        json.AppendFormatted(8192, "\"type\":\"%s\", ", "float");
+//        break;
+//      default:
+//        break;
+//    }
+//    json.AppendFormatted(8192, "\"min\":%f, ", pParam->GetMin());
+//    json.AppendFormatted(8192, "\"max\":%f, ", pParam->GetMax());
+//    json.AppendFormatted(8192, "\"default\":%f, ", pParam->GetDefault());
+//    json.AppendFormatted(8192, "\"rate\":\"audio\"");
+//    json.AppendFormatted(8192, "}");
     
     if(idx < NParams()-1)
       json.AppendFormatted(8192, ",\n");
