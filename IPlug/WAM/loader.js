@@ -1191,9 +1191,9 @@ var memoryInitializer = null;
 function integrateWasmJS(Module) {
     var method = Module["wasmJSMethod"] || "native-wasm";
     Module["wasmJSMethod"] = method;
-    var wasmTextFile = Module["wasmTextFile"] || "dx7.wast";
-    var wasmBinaryFile = Module["wasmBinaryFile"] || "dx7.wasm";
-    var asmjsCodeFile = Module["asmjsCodeFile"] || "dx7.temp.asm.js";
+    var wasmTextFile = Module["wasmTextFile"] || "IPlugEffect-WAM.wast";
+    var wasmBinaryFile = Module["wasmBinaryFile"] || "IPlugEffect-WAM.wasm";
+    var asmjsCodeFile = Module["asmjsCodeFile"] || "IPlugEffect-WAM.temp.asm.js";
     if (typeof Module["locateFile"] === "function") {
         wasmTextFile = Module["locateFile"](wasmTextFile);
         wasmBinaryFile = Module["locateFile"](wasmBinaryFile);

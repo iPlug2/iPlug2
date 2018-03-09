@@ -8,16 +8,16 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
 
 (function(scope) {
   "use strict";
-  
+
   // namespace to avoid polluting global scope
   window.AWPF = window.AWPF || {}
-  
+
   // --------------------------------------------------------------------------
   //
   //
   AWPF.PolyfillAudioWorklet = function() {
     var imports = {};
-   
+
     function importOnWorker(src) {
       if (!AWPF.worker.onmessage) AWPF.worker.onmessage = onmessage;
       return new Promise(function(resolve, reject) {
@@ -25,7 +25,7 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
         AWPF.worker.postMessage({ type:"import", url:src });
       });
     }
-    
+
     var onmessage = function (e) {
       var msg = e.data;
       switch (msg.type) {
@@ -52,20 +52,20 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
           break;
       }
     }
-    
+
     return { addModule:importOnWorker }
   }
-  
+
   // --------------------------------------------------------------------------
   //
   //
   AWPF.AudioWorkletNode = function (context, nodeName, options) {
-    
+
     if (AWPF.descriptorMap[nodeName] === undefined)
       throw new Error("NotSupportedException");
     // TODO step 9
 
-    this.id = AWPF.workletNodes.length;    
+    this.id = AWPF.workletNodes.length;
     AWPF.workletNodes.push(this);
 
     var messageChannel = new MessageChannel();
@@ -80,11 +80,11 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
     if (options.outputChannelCount === undefined)   options.outputChannelCount = [1];
     if (options.inputChannelCount.length  != options.numberOfInputs)  throw new Error("InvalidArgumentException");
     if (options.outputChannelCount.length != options.numberOfOutputs) throw new Error("InvalidArgumentException");
-    
+
     // -- io configuration is currently static
     this.inputBus  = [];
     this.outputBus = [];
-    
+
     function configureBus (type, options) {
       var numPorts = (type == "input") ? options.numberOfInputs : options.numberOfOutputs;
       var channelCount = (type == "input") ? options.inputChannelCount : options.outputChannelCount;
@@ -93,7 +93,7 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
         var bus = new Array(numPorts);
         for (var i=0; i<numPorts; i++) {
           var nchannels = channelCount[i];
-          if (nchannels <= 0) throw new Error("InvalidArgumentException");        
+          if (nchannels <= 0) throw new Error("InvalidArgumentException");
           var port = new Array(nchannels);
           for (var c=0; c<nchannels; c++)
             port[c] = new SharedArrayBuffer(options.samplesPerBuffer * 4);
@@ -103,7 +103,7 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
       }
       return [];
     }
-    
+
     this.inputBus  = configureBus("input",  options);
     this.outputBus = configureBus("output", options);
 
@@ -115,12 +115,12 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
     var spn = context.createScriptProcessor(options.samplesPerBuffer, 0,1);
     this.input = spn;
     var outbuf = new Float32Array(this.outputBus[0][0]);  // spn limitation
-    
+
     this.connect = function (dst) {
       spn.onaudioprocess = onprocess.bind(this);
       spn.connect(dst)
     }
-    
+
     this.disconnect = function () {
       spn.onaudioprocess = null;
       spn.disconnect();
@@ -128,24 +128,24 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
 
     this.onprocessorstatechange = function (e) {
       this.processorState = e.detail;
-      console.log("state:", e.detail);              
+      console.log("state:", e.detail);
     }
-    
+
     var onprocess = function (ape) {
       if (this.processor === undefined) return;
-      
+
       var ibuff = ape.inputBuffer;
       var obuff = ape.outputBuffer;
       var outL  = obuff.getChannelData(0);
       outL.set(outbuf);
-      
+
       var msg = { type:"process", processor:this.processor, time:context.currentTime };
       AWPF.worker.postMessage(msg);
     }
   }
-  
+
   // --------------------------------------------------------------------------
-  
+
   // -- borrowed from Google's AudioWorklet demo page
   AWPF.AudioWorkletAvailable = function (actx) {
     return actx.audioWorklet &&
@@ -153,7 +153,7 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
       typeof actx.audioWorklet.addModule === 'function' &&
       window.AudioWorkletNode;
   }
-  
+
   if (!AWPF.AudioWorkletAvailable(scope)) {
     AWPF.descriptorMap = {};   // node name to parameter descriptor map (should be in BAC)
     AWPF.workletNodes  = [];
@@ -161,11 +161,11 @@ AudioContext = window.AudioContext || window.webkitAudioContext;
     AWPF.context = scope;
     scope.audioWorklet = AWPF.audioWorklet;
     window.AudioWorkletNode = AWPF.AudioWorkletNode;
-    
+
     AWPF.worker = new Worker("audioworker.js");
     AWPF.worker.postMessage({ type:"init", sampleRate:scope.sampleRate });
-    
+
     console.warn('Using Worker polyfill of AudioWorklet, audio will not be performance isolated.');
     AWPF.isAudioWorkletPolyfilled = true;
-  } 
+  }
 })(new AudioContext())

@@ -51,7 +51,7 @@
 # 	-rm $(APP) $(OBJS) $(RESFILES)
 
 ROOT = ../..
-TARGET = IPlugEffect-WAM.js
+TARGET = ./build-web/IPlugEffect-WAM.js
 API = $(ROOT)/Dependencies/IPlug/WAM_SDK/wamsdk
 WDL_PATH = $(ROOT)/WDL
 IPLUG_PATH = $(ROOT)/IPlug

@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="IPlugWAM.css">
+    <script src="audioworklet.js"></script>
+    <script src="wam-controller.js"></script>
+    <script src="IPlugWAM-awn.js"></script>
+
+    <script>
+      function init() {
+        if (AWPF.isAudioWorkletPolyfilled)
+          actx = AWPF.context;
+        else
+          actx = new AudioContext();
+
+        IPLUGWAM.importScripts(actx).then(() => {
+          IPlugWAM = new IPLUGWAM(actx);
+          output = actx.createGain();
+          IPlugWAM.connect(output);
+          createGenericGUI(IPlugWAM);
+        });
+      }
+
+      function createGenericGUI(wam) {
+        if(wam.descriptor.parameters != undefined) {
+          wam.descriptor.parameters.forEach( function (p) {
+            var label  = document.createElement("p");
+            var slider = document.createElement("input");
+            label.className = "labelx";
+            label.textContent = p.name;
+            slider.type  = "range";
+            slider.min   = p.min; slider.max = p.max; slider.value = p.def;
+            slider.wamID = p.id;
+            var div = document.createElement("div");
+            div.appendChild(label);
+            div.appendChild(slider);
+            document.querySelector("#gui").appendChild(div);
+
+            slider.oninput = function (e) {
+              var slider = e.target;
+              wam.setParam(slider.wamID, slider.value|0);
+            }
+          });
+        }
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <div id="content">
+      <h4>IPlugWAM</h4>
+      <p id="info">IPlugWAM</p>
+    </div>
+  </body>
+</html>

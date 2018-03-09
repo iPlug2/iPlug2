@@ -1,5 +1,5 @@
 <script src="audioworklet.js"></script>
-<script src="wamsdk/wam-controller.js"></script>
+<script src="wam-controller.js"></script>
 <script src="IPlugWAM-awn.js"></script>
 <dom-module id="IPlugWAM">
   <template>
@@ -108,7 +108,7 @@
         else actx = GlobalContext.context;
 
         IPLUGWAM.importScripts(actx).then(() => {
-          IPlugWAM = new DX7(actx);
+          IPlugWAM = new IPLUGWAM(actx);
           myoutput = actx.createGain();
           IPlugWAM.connect(myoutput);
           initGUI();
