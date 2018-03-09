@@ -78,24 +78,21 @@ private:
   float mEndAngle = 135.f;
 };
 
-class IVSliderControl : public IControl
+class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection dir = kVertical)
-  : IControl(dlg, bounds, paramIdx)
+  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx,
+                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10)
+  : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
-  , mDirection(dir)
   {
   }
   
   void Draw(IGraphics& graphics) override;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   void OnResize() override;
 private:
-  EDirection mDirection;
-  IRECT mTrack;
 };
 
 /*
@@ -250,32 +247,43 @@ public:
 };
 
 /** A slider with a bitmap for the handle. The bitmap snaps to a mouse click or drag. */
-class IBSliderControl : public IControl
-{
-public:
-  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
-                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
-  ~IBSliderControl() {}
-
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y); }
-  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-  virtual void Draw(IGraphics& graphics) override;
-  virtual bool IsHit(float x, float y) const override;
-  virtual void OnRescale() override;
-  virtual void OnResize() override;
-
-  int GetLength() const { return mLen; }
-  int GetHandleHeadroom() const { return mHandleHeadroom; }
-  double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
-  IRECT GetHandleRECT(double value = -1.0) const;
-protected:
-  virtual void SnapToMouse(float x, float y);
-  int mLen, mHandleHeadroom;
-  IBitmap mHandleBitmap;
-  EDirection mDirection;
-  bool mOnlyHandle;
-};
+//class IBSliderControl : public IControl
+//{
+//public:
+//  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
+//                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+//  ~IBSliderControl() {}
+//
+//  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+//  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y, mDirection, mTrack); }
+//  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
+//  virtual void Draw(IGraphics& graphics) override;
+//  virtual bool IsHit(float x, float y) const override;
+//  virtual void OnRescale() override;
+//  virtual void OnResize() override;
+//
+//  int GetLength() const { return mLen; }
+//  int GetHandleHeadroom() const { return mHandleHeadroom; }
+//  double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
+//  IRECT GetHandleRECT(double value = -1.0) const;
+//protected:
+////  virtual void SnapToMouse(float x, float y);
+//  int mLen, mHandleHeadroom;
+//  IBitmap mHandleBitmap;
+//  EDirection mDirection;
+//  IRECT mTrack;
+//  bool mOnlyHandle;
+//};
+//class IBSliderControl : public ISliderControlBase
+//{
+//  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
+//                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+//  
+//  ~IBSliderControl() {}
+//  
+//private:
+//  IBitmap mHandleBitmap;
+//};
 
 /** Display monospace bitmap font text */
 // TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line

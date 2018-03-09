@@ -13,9 +13,9 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
 
 void IVSwitchControl::Draw(IGraphics& graphics)
 {
-  const int state = (int)std::round(mValue / mStep);
+//  const int state = (int)std::round(mValue / mStep);
 
-  graphics.FillRect(GetColor(EVColor::kBG), mRECT, &mBlend);
+  graphics.FillRoundRect(GetColor(EVColor::kBG), mRECT, mRoundness, &mBlend);
 
 //
   IRECT handle;
@@ -57,24 +57,46 @@ void IVKnobControl::Draw(IGraphics& graphics)
   const float v = mAngleMin + ((float) mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
   const float radius = (mRECT.W()/2.f) - 2.f;
-  graphics.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2, GetMouseIsOver() ? &BLEND_25 : &BLEND_10);
-  graphics.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50);
-  graphics.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v, &BLEND_50);
-  graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius);
+//  graphics.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2);
+//  graphics.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50, 5.f);
+  graphics.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v);
+  graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius, 0, 5.f);
 }
 
 void IVSliderControl::Draw(IGraphics& graphics)
 {
-  graphics.FillRect(GetColor(kBG), mRECT);
+  graphics.FillRoundRect(GetColor(kBG), mRECT, 5);
   
-  const float top = mTrack.B - (mValue * mTrack.H());
-  IRECT innerRect = IRECT(mTrack.L, top, mTrack.R, mRECT.B);
-  graphics.FillRect(GetColor(kFG), innerRect);
+  if(mDirection == kVertical)
+  {
+//    const float halfHandleSize = mHandleSize / 2.f;
+//
+//    const float handleTop = mTrack.B - (mValue * mTrack.H());
+//    const float handleBottom = handleTop - halfHandleSize;
+//
+//    const float filledTrackTop = mTrack.B - (mValue * (mTrack.H()));
+//    const float filledTrackBottom = mTrack.B;
+//
+//    IRECT filledTrack = IRECT(mTrack.L, filledTrackTop, mTrack.R, filledTrackBottom);
+//    IRECT handle = IRECT(mTrack.L, handleTop, mTrack.R, handleBottom);
+  }
+  else
+  {
+    
+  }
+  
+  graphics.FillRoundRect(GetColor(kFG), mTrack, 5, &BLEND_10);
+//  graphics.FillRoundRect(GetColor(kFG), filledTrack, 5);
+  //graphics.FillRoundRect(GetColor(kHL), handle, 0);
 }
 
 void IVSliderControl::OnResize()
 {
-  mTrack = mRECT.GetPadded(-10);
+  if(mDirection == kVertical)
+    mTrack = mRECT.GetPadded(-mHandleSize).GetMidHPadded(5);
+  else
+    mTrack = mRECT.GetPadded(-mHandleSize).GetMidVPadded(5);
+
   SetDirty(false);
 }
 
@@ -598,6 +620,34 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
+//IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection dir, bool onlyHandle)
+//: ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx, dir)
+//, mHandleBitmap(bitmap)
+//, mOnlyHandle(onlyHandle)
+//{
+//}
+//
+//void IBSliderControl::Draw(IGraphics& graphics)
+//{
+//  IRECT r = GetHandleRECT();
+//  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
+//}
+//
+//void IBSliderControl::OnRescale()
+//{
+//  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
+//}
+//
+//void IBSliderControl::OnResize()
+//{
+//  if (mDirection == kVertical)
+//    mTrack = mTargetRECT = mRECT.GetVPadded(-mHandleBitmap.H());
+//  else
+//    mTrack = mTargetRECT = mRECT.GetHPadded(-mHandleBitmap.W());
+//
+//  SetDirty();
+//}
+
 //IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 //: IControl(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 //, mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
@@ -608,9 +658,9 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 //{
 //  if (value < 0.0)
 //    value = mValue;
-//  
+//
 //  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W(), mRECT.T + mHandleBitmap.H());
-//  
+//
 //  if (mDirection == kVertical)
 //  {
 //    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
@@ -707,4 +757,5 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 //
 //  SetDirty(false);
 //}
-//
+
+
