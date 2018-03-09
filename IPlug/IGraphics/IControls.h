@@ -60,7 +60,7 @@ public:
   void Draw(IGraphics& g) override
   {
 #ifdef IGRAPHICS_LICE
-    g.DrawText(mText, "NO LICE SVG", mRECT);
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
 #else
     g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + mValue * (mEndAngle - mStartAngle));
 #endif
