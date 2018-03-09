@@ -1129,3 +1129,23 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
   return nullptr;
 }
 
+//auto IGraphics::LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false)
+//{
+//  WDL_String fn(fileName);
+//  
+//  const char* ext = fn.get_fileext();
+//  
+//  if(strcmp(ext, "png"))
+//  {
+//    return LoadBitmap(fileName, nStates, framesAreHorizontal);
+//  }
+//  else if(strcmp(ext, "svg"))
+//  {
+//    return LoadSVG(fileName);
+//  }
+//  else if(strcmp(ext, "ttf"))
+//  {
+//    return LoadFont(fileName);
+//  }
+//}
+

@@ -145,10 +145,10 @@ public:
   /** Draw a circle to the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
-   * @param cr The corner width in pixels
+   * @param cornerRadius The corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr = 5.f, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius = 5.f, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
   /** Draw an arc to the graphics context
    * @param color The color to draw the shape with
@@ -206,9 +206,9 @@ public:
   /** Fill a rounded rectangle in the graphics context with a color
    * @param color The color to fill the shape with
    * @param bounds The rectangular region to fill the shape in
-   * @param cr The corner radius in pixels
+   * @param cornerRadius The corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cr = 5.f, const IBlend* pBlend = 0) = 0;
+  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius = 5.f, const IBlend* pBlend = 0) = 0;
 
   /** Fill a circle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -273,7 +273,6 @@ public:
   inline virtual void ResetClipRegion() {};
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHorizontal = false);
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
   //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) = 0;
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
@@ -545,11 +544,6 @@ public:
    * @param bounds The rectangular region to draw */
   virtual void Draw(const IRECT& bounds);
 
-  /** Load an SVG from disk
-   * @param filename A CString absolute path to the SVG on disk
-   * @return An ISVG representing the image */
-  virtual ISVG LoadSVG(const char* filename);
-
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
   void UpdatePeers(IControl* pCaller);
@@ -706,29 +700,6 @@ public:
   /** */ 
   void OnGUIIdle();
 
-  /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
-   * The purpose is to facillitate ProTool's special contextual menus (for configuring parameter automation)
-   * @param x The X coordinate in the graphics context to check
-   * @param y The Y coordinate in the graphics contextto check
-   * @return An integer representing the parameter index that was found (or -1 if not found) */
-  int GetParamIdxForPTAutomation(float x, float y);
-
-  /** [AAX only]
-   * @return An integer representing the last clicked parameter index (or -1 if none) */
-  int GetLastClickedParamForPTAutomation();
-
-  /** [AAX only] \todo
-   * @param paramIdx The index of the parameter to highlight
-   * @param isHighlighted /c true if the parameter should be highlighted 
-   * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
-  void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
-
-  /** [VST3 primarily]
-   * @param controlIdx <#controlIdx>
-   * @param x The X coordinate in the graphics context at which to popup the context menu
-   * @param y The Y coordinate in the graphics context at which to popup the context menu */
-  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
-
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
 
@@ -771,9 +742,54 @@ public:
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
-  /** @param name The name of the font to load */
-  virtual void LoadFont(const char* name);
+#pragma mark - Plug-in API Specific
+  
+  /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
+   * The purpose is to facillitate ProTool's special contextual menus (for configuring parameter automation)
+   * @param x The X coordinate in the graphics context to check
+   * @param y The Y coordinate in the graphics contextto check
+   * @return An integer representing the parameter index that was found (or -1 if not found) */
+  int GetParamIdxForPTAutomation(float x, float y);
+  
+  /** [AAX only]
+   * @return An integer representing the last clicked parameter index (or -1 if none) */
+  int GetLastClickedParamForPTAutomation();
+  
+  /** [AAX only] \todo
+   * @param paramIdx The index of the parameter to highlight
+   * @param isHighlighted /c true if the parameter should be highlighted
+   * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
+  void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
+  
+  /** [VST3 primarily]
+   * @param controlIdx <#controlIdx>
+   * @param x The X coordinate in the graphics context at which to popup the context menu
+   * @param y The Y coordinate in the graphics context at which to popup the context menu */
+  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
+  
+#pragma mark - Resource Loading
+  /** Load a bitmap image from disk
+   * @param filename CString file name
+   * @param nStates The number of states/frames in a multi-frame stacked bitmap
+   * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @return An IBitmap representing the image */
+  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
 
+  /** Load an SVG from disk
+   * @param filename A CString absolute path to the SVG on disk
+   * @return An ISVG representing the image */
+  virtual ISVG LoadSVG(const char* fileName);
+  
+  /** @param name The name of the font to load */
+  virtual void LoadFont(const char* fileName);
+
+  /** Load a resource from disk (C++ 14 only)
+   * @param filename CString file name
+   * @param nStates The number of states/frames if the resource is a multi-frame stacked bitmap
+   * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @return An IXXX representing the resource */
+//  auto LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
+  
 protected:
   IDelegate& mDelegate;
 
