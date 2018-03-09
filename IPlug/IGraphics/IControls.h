@@ -92,7 +92,6 @@ public:
   
   void Draw(IGraphics& graphics) override;
   void OnResize() override;
-private:
 };
 
 class IVButtonControl : public IControl,

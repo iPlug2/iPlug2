@@ -67,27 +67,27 @@ void IVSliderControl::Draw(IGraphics& graphics)
 {
   graphics.FillRoundRect(GetColor(kBG), mRECT, 5);
   
+  IRECT filledTrack, handle;
+  
   if(mDirection == kVertical)
   {
-//    const float halfHandleSize = mHandleSize / 2.f;
-//
-//    const float handleTop = mTrack.B - (mValue * mTrack.H());
-//    const float handleBottom = handleTop - halfHandleSize;
-//
-//    const float filledTrackTop = mTrack.B - (mValue * (mTrack.H()));
-//    const float filledTrackBottom = mTrack.B;
-//
-//    IRECT filledTrack = IRECT(mTrack.L, filledTrackTop, mTrack.R, filledTrackBottom);
-//    IRECT handle = IRECT(mTrack.L, handleTop, mTrack.R, handleBottom);
+    const float halfHandleSize = mHandleSize / 2.f;
+
+    const float handleTop = mTrack.B - (mValue * mTrack.H());
+    const float handleBottom = handleTop - halfHandleSize;
+
+    const float filledTrackTop = mTrack.B - (mValue * (mTrack.H()));
+    const float filledTrackBottom = mTrack.B;
+
+    filledTrack = IRECT(mTrack.L, filledTrackTop, mTrack.R, filledTrackBottom);
+    handle = IRECT(mTrack.L, handleTop, mTrack.R, handleBottom);
   }
   else
   {
-    
+    //TODO:
   }
   
-  graphics.FillRoundRect(GetColor(kFG), mTrack, 5, &BLEND_10);
-//  graphics.FillRoundRect(GetColor(kFG), filledTrack, 5);
-  //graphics.FillRoundRect(GetColor(kHL), handle, 0);
+  graphics.FillRect(GetColor(kFG), filledTrack, &mBlend);
 }
 
 void IVSliderControl::OnResize()
