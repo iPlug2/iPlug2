@@ -219,16 +219,21 @@ public:
 //  IRECT mTrack;
 //  bool mOnlyHandle;
 //};
-//class IBSliderControl : public ISliderControlBase
-//{
-//  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
-//                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
-//  
-//  ~IBSliderControl() {}
-//  
-//private:
-//  IBitmap mHandleBitmap;
-//};
+
+class IBSliderControl : public ISliderControlBase
+{
+  IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& handleBitmap,
+                  EDirection dir = kVertical, bool onlyHandle = false);
+  
+  ~IBSliderControl() {}
+
+  virtual void Draw(IGraphics& g) override;
+  virtual void OnRescale() override;
+  virtual void OnResize() override;
+  
+private:
+  IBitmap mHandleBitmap;
+};
 
 /** Display monospace bitmap font text */
 // TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
