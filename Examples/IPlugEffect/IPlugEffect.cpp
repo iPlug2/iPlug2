@@ -37,6 +37,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   auto bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
   
   pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(6, nRows, nColumns).GetPadded(-5.), bitmap1, -1));
+  pGraphics->AttachControl(new IVSliderControl(*this, bounds.GetGridCell(6, nRows, nColumns).GetPadded(-5.), -1));
 
   IRECT kbrect = bounds.SubRectVertical(4, 3).GetPadded(-5.);
   pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
