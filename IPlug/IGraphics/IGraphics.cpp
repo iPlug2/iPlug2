@@ -356,62 +356,52 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IB
   }
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend, float thickness)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
   float xi = bounds.L + int(x * (bounds.R - bounds.L));
-  return DrawVerticalLine(color, xi, bounds.T, bounds.B, pBlend);
+  return DrawVerticalLine(color, xi, bounds.T, bounds.B, pBlend, thickness);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend, float thickness)
 {
   y = BOUNDED(y, 0.0f, 1.0f);
   float yi = bounds.B - (y * (float) (bounds.B - bounds.T));
-  return DrawHorizontalLine(color, yi, bounds.L, bounds.R, pBlend);
+  return DrawHorizontalLine(color, yi, bounds.L, bounds.R, pBlend, thickness);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend, float thickness)
 {
-  DrawLine(color, xi, yLo, xi, yHi, pBlend);
+  DrawLine(color, xi, yLo, xi, yHi, pBlend, thickness);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend, float thickness)
 {
-  DrawLine(color, xLo, yi, xHi, yi, pBlend);
+  DrawLine(color, xLo, yi, xHi, yi, pBlend, thickness);
 }
 
-void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend, float thickness)
 {
-  const float angleRadians = DegToRad(angle-90.f);
-  const float sinV = sinf(angleRadians);
-  const float cosV = cosf(angleRadians);
-  const float xLo = (cx + rMin * cosV);
-  const float xHi = (cx + rMax * cosV);
-  const float yLo = (cy + rMin * sinV);
-  const float yHi = (cy + rMax * sinV);
-  DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+  float data[2][2];
+  RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
+  DrawLine(color, data[0][0], data[0][1], data[1][0], data[1][1], pBlend, thickness);
 }
 
 void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, float rMax)
 {
-    const float angleRadians = DegToRad(angle);
-    const float sinV = sinf(angleRadians);
-    const float cosV = cosf(angleRadians);
-    const float xLo = (cx + rMin * cosV);
-    const float xHi = (cx + rMax * cosV);
-    const float yLo = (cy + rMin * sinV);
-    const float yHi = (cy + rMax * sinV);
-    PathLine(xLo, yLo, xHi, yHi);
+  float data[2][2];
+  RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
+  PathLine(data[0][0], data[0][1], data[1][0], data[1][1]);
 }
 
-void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend)
+void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend, float thickness)
 {
   // Vertical Lines grid
   if (gridSizeH > 1)
   {
     for (int x = 0; x < bounds.W(); x += gridSizeH)
     {
-      DrawVerticalLine(color, bounds, (float)x/(float) bounds.W(), pBlend);
+      DrawVerticalLine(color, bounds, (float)x/(float) bounds.W(), pBlend, thickness);
     }
   }
     // Horizontal Lines grid
@@ -419,7 +409,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH
   {
     for (int y = 0; y < bounds.H(); y += gridSizeV)
     {
-      DrawHorizontalLine(color, bounds, (float)y/(float) bounds.H(), pBlend);
+      DrawHorizontalLine(color, bounds, (float)y/(float) bounds.H(), pBlend, thickness);
     }
   }
 }
@@ -1138,4 +1128,24 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
 
   return nullptr;
 }
+
+//auto IGraphics::LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false)
+//{
+//  WDL_String fn(fileName);
+//  
+//  const char* ext = fn.get_fileext();
+//  
+//  if(strcmp(ext, "png"))
+//  {
+//    return LoadBitmap(fileName, nStates, framesAreHorizontal);
+//  }
+//  else if(strcmp(ext, "svg"))
+//  {
+//    return LoadSVG(fileName);
+//  }
+//  else if(strcmp(ext, "ttf"))
+//  {
+//    return LoadFont(fileName);
+//  }
+//}
 

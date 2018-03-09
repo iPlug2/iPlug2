@@ -119,9 +119,10 @@ public:
    * @param y1 The Y coordinate in the graphics context of the start of the line
    * @param x2 The X coordinate in the graphics context of the end of the line
    * @param y2 The Y coordinate in the graphics context of the end of the line
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0) = 0;
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
    * @param x1 The X coordinate in the graphics context of the first vertex
@@ -130,22 +131,25 @@ public:
    * @param y2 The Y coordinate in the graphics context of the second vertex
    * @param x3 The X coordinate in the graphics context of the third vertex
    * @param y3 The Y coordinate in the graphics context of the third vertex
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a rectangle to the graphics context
    * @param bounds The rectangular area in which to draw the shape
    * @param color The color to draw the shape to draw the shape with
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a circle to the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
-   * @param cr The corner width in pixels
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr = 5.f, const IBlend* pBlend = 0) = 0;
-
+   * @param cornerRadius The corner radius in pixels
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius = 5.f, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw an arc to the graphics context
    * @param color The color to draw the shape with
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
@@ -153,30 +157,34 @@ public:
    * @param r The radius of the circle on which the arc lies
    * @param aMin the start angle  of the arc at in degrees clockwise where 0 is up
    * @param aMax the end angle  of the arc at in degrees clockwise where 0 is up
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a circle to the graphics context
    * @param color The color to draw the shape with
    * @param cx The X coordinate in the graphics context of the centre of the circle
    * @param cy The Y coordinate in the graphics context of the centre of the circle
    * @param r The radius of the circle
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a convex polygon to the graphics to the graphics context
    * @param color The color to draw the shape with
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
    * @param y Pointer to the first element in an array of Y coordinates for the vertices of the polygon
    * @param nPoints The number of points in the coordinate arrays
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0) = 0;
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a dotted rectangle to the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
   /** Fill a triangle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -198,9 +206,9 @@ public:
   /** Fill a rounded rectangle in the graphics context with a color
    * @param color The color to fill the shape with
    * @param bounds The rectangular region to fill the shape in
-   * @param cr The corner radius in pixels
+   * @param cornerRadius The corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cr = 5.f, const IBlend* pBlend = 0) = 0;
+  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius = 5.f, const IBlend* pBlend = 0) = 0;
 
   /** Fill a circle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -265,7 +273,6 @@ public:
   inline virtual void ResetClipRegion() {};
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap LoadBitmap(const char* name, int nStates = 1, bool framesAreHorizontal = false);
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
   //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) = 0;
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
@@ -304,32 +311,34 @@ public:
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
    * @param x \todo
-   * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend = 0);
-
-  /** Draw a horizontal line, within a rectangular region of the graphics context  
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  void DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend = 0, float thickness = 1.f);
+  
+  /** Draw a horizontal line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
    * @param y \todo
-   * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend = 0);
-
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  void DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend = 0, float thickness = 1.f);
+  
   /** \todo
    * @param color The color to draw the line with
    * @param xi \todo
    * @param yLo \todo
    * @param yHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
-  void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0);
-
+  void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0, float thickness = 1.f);
+  
   /** \todo
    * @param color The color to draw the line with
    * @param xi \todo
    * @param yLo \todo
    * @param yHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
-  void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0);
-
+  void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0, float thickness = 1.f);
+  
   /** Draw a radial line to the graphics context, useful for pointers on dials
    * @param color The color to draw the line with
    * @param cx centre point x coordinate
@@ -337,16 +346,18 @@ public:
    * @param angle The angle to draw at in degrees clockwise where 0 is up
    * @param rMin minima of the radial line (distance from cx,cy)
    * @param rMax maxima of the radial line (distance from cx,cy)
-   * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0);
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0, float thickness = 1.f);
   
   /** Draw a grid to the graphics context
    * @param color The color to draw the grid lines with
    * @param bounds The rectangular region to fill the grid in
    * @param gridSizeH The width of the grid cells
    * @param gridSizeV The height of the grid cells
-   * @param pBlend Optional blend method, see IBlend documentation */
-  void DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0);
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  void DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
   
 #pragma mark - IGraphics drawing API Path support
   
@@ -533,11 +544,6 @@ public:
    * @param bounds The rectangular region to draw */
   virtual void Draw(const IRECT& bounds);
 
-  /** Load an SVG from disk
-   * @param filename A CString absolute path to the SVG on disk
-   * @return An ISVG representing the image */
-  virtual ISVG LoadSVG(const char* filename);
-
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
   void UpdatePeers(IControl* pCaller);
@@ -694,29 +700,6 @@ public:
   /** */ 
   void OnGUIIdle();
 
-  /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
-   * The purpose is to facillitate ProTool's special contextual menus (for configuring parameter automation)
-   * @param x The X coordinate in the graphics context to check
-   * @param y The Y coordinate in the graphics contextto check
-   * @return An integer representing the parameter index that was found (or -1 if not found) */
-  int GetParamIdxForPTAutomation(float x, float y);
-
-  /** [AAX only]
-   * @return An integer representing the last clicked parameter index (or -1 if none) */
-  int GetLastClickedParamForPTAutomation();
-
-  /** [AAX only] \todo
-   * @param paramIdx The index of the parameter to highlight
-   * @param isHighlighted /c true if the parameter should be highlighted 
-   * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
-  void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
-
-  /** [VST3 primarily]
-   * @param controlIdx <#controlIdx>
-   * @param x The X coordinate in the graphics context at which to popup the context menu
-   * @param y The Y coordinate in the graphics context at which to popup the context menu */
-  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
-
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
 
@@ -759,9 +742,54 @@ public:
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
-  /** @param name The name of the font to load */
-  virtual void LoadFont(const char* name);
+#pragma mark - Plug-in API Specific
+  
+  /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
+   * The purpose is to facillitate ProTool's special contextual menus (for configuring parameter automation)
+   * @param x The X coordinate in the graphics context to check
+   * @param y The Y coordinate in the graphics contextto check
+   * @return An integer representing the parameter index that was found (or -1 if not found) */
+  int GetParamIdxForPTAutomation(float x, float y);
+  
+  /** [AAX only]
+   * @return An integer representing the last clicked parameter index (or -1 if none) */
+  int GetLastClickedParamForPTAutomation();
+  
+  /** [AAX only] \todo
+   * @param paramIdx The index of the parameter to highlight
+   * @param isHighlighted /c true if the parameter should be highlighted
+   * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
+  void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
+  
+  /** [VST3 primarily]
+   * @param controlIdx <#controlIdx>
+   * @param x The X coordinate in the graphics context at which to popup the context menu
+   * @param y The Y coordinate in the graphics context at which to popup the context menu */
+  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
+  
+#pragma mark - Resource Loading
+  /** Load a bitmap image from disk
+   * @param filename CString file name
+   * @param nStates The number of states/frames in a multi-frame stacked bitmap
+   * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @return An IBitmap representing the image */
+  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
 
+  /** Load an SVG from disk
+   * @param filename A CString absolute path to the SVG on disk
+   * @return An ISVG representing the image */
+  virtual ISVG LoadSVG(const char* fileName);
+  
+  /** @param name The name of the font to load */
+  virtual void LoadFont(const char* fileName);
+
+  /** Load a resource from disk (C++ 14 only)
+   * @param filename CString file name
+   * @param nStates The number of states/frames if the resource is a multi-frame stacked bitmap
+   * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @return An IXXX representing the resource */
+//  auto LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
+  
 protected:
   IDelegate& mDelegate;
 

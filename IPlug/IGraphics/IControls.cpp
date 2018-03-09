@@ -75,7 +75,7 @@ void IVSliderControl::Draw(IGraphics& graphics)
 void IVSliderControl::OnResize()
 {
   mTrack = mRECT.GetPadded(-10);
-  SetDirty();
+  SetDirty(false);
 }
 
 

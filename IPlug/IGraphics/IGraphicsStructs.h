@@ -633,6 +633,16 @@ struct IRECT
     return IRECT(L, T-padding, R, B+padding);
   }
   
+  inline IRECT GetMidHPadded(float padding) const
+  {
+    return IRECT(MW()-padding, T, MW()+padding, B);
+  }
+  
+  inline IRECT GetMidVPadded(float padding) const
+  {
+    return IRECT(L, MH()-padding, R, MH()+padding);
+  }
+  
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -683,6 +693,28 @@ struct IRECT
   IRECT GetFlipped(int graphicsHeight) const
   {
     return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
+  }
+  
+  IRECT GetCentredInside(IRECT sr)
+  {
+    IRECT r;
+    r.L = MW() - sr.W() / 2.;
+    r.T = MH() - sr.H() / 2.;
+    r.R = r.L + sr.W();
+    r.B = r.T + sr.H();
+    
+    return r;
+  }
+  
+  IRECT GetCentredInside(IBitmap bitmap)
+  {
+    IRECT r;
+    r.L = MW() - bitmap.FW() / 2.;
+    r.T = MH() - bitmap.FH() / 2.;
+    r.R = r.L + (float) bitmap.FW();
+    r.B = r.T + (float) bitmap.FH();
+    
+    return r;
   }
 };
 

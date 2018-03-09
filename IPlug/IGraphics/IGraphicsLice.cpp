@@ -143,13 +143,13 @@ void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlen
   LICE_PutPixel(mDrawBitmap, int((x * ds) + 0.5f), int((y  * ds) + 0.5f), LiceColor(color), weight, LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend)
+void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness)
 {
   const float ds = GetDisplayScale();
   LICE_FLine(mDrawBitmap, x1 * ds, y1 * ds, x2 * ds, y2 * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
+void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float)
 {
   const float ds = GetDisplayScale();
   LICE_FLine(mDrawBitmap, x1 * ds, y1 * ds, x2 * ds, y2 * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -157,7 +157,7 @@ void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float 
   LICE_FLine(mDrawBitmap, x3 * ds, y3 * ds, x1 * ds, y1 * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
+void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float)
 {
   const float ds = GetDisplayScale();
   IRECT r = bounds;
@@ -169,7 +169,7 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBl
   LICE_FLine(mDrawBitmap, r.L, r.T, r.L, r.B, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend)
+void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float)
 {
   const float ds = GetDisplayScale();
   //TODO: review floating point input support
@@ -178,7 +178,7 @@ void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, floa
   LICE_RoundRect(mDrawBitmap, r.L, r.T, r.W(), r.H(), cr * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
+void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float)
 {
   const float ds = GetDisplayScale();
   
@@ -188,19 +188,19 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
   LICE_FLine(mDrawBitmap, x[npoints - 1] * ds, y[npoints - 1] * ds, x[0] * ds, y[0] * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend)
+void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend, float thickness)
 {
   const float ds = GetDisplayScale();
   LICE_Arc(mDrawBitmap, cx * ds, cy * ds, r * ds, DegToRad(aMin), DegToRad(aMax), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
+void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float)
 {
   const float ds = GetDisplayScale();
   LICE_Circle(mDrawBitmap, cx * ds, cy * ds, r * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
+void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float)
 {
   //TODO: review floating point input support
   const float ds = GetDisplayScale();
