@@ -55,6 +55,9 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 	#define WDL_LITTLE_ENDIAN
 #elif __BIG_ENDIAN__ // PowerPC
 	#define WDL_BIG_ENDIAN
+
+#elif defined(EMSCRIPTEN)
+  #define WDL_LITTLE_ENDIAN
 #else
 	#error Unknown endian
 #endif
@@ -68,8 +71,11 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 #else
 	#error Unsupported endian
 #endif
-#if __FLOAT_WORD_ORDER__ != __BYTE_ORDER__
-	#error Unsupported float endian
+
+#ifndef EMSCRIPTEN
+  #if __FLOAT_WORD_ORDER__ != __BYTE_ORDER__
+    #error Unsupported float endian
+  #endif
 #endif
 
 // GNU C, Intel C++
@@ -78,6 +84,9 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 
 // Intel C++
 #elif defined(__x86_64) || defined(__x86_64__)
+#define WDL_LITTLE_ENDIAN
+
+#elif defined(EMSCRIPTEN)
 #define WDL_LITTLE_ENDIAN
 
 #else
@@ -96,7 +105,7 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
   #include "TargetConditionals.h"
   #if defined(TARGET_OS_IPHONE) | defined(TARGET_IPHONE_SIMULATOR)
     #include <libkern/OSByteOrder.h>
-    
+
     // iOS
     #define WDL_bswap16(x) OSSwapInt16(x)
     #define WDL_bswap32(x) OSSwapInt32(x)
