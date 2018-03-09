@@ -23,18 +23,18 @@ void IGraphicsTest::init()
   pGraphics->OpenWindow((void*)gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);
-  //  pGraphics->EnableLiveEdit(true);
+  //pGraphics->EnableLiveEdit(true);
 
-  const int nRows = 2;
-  const int nColumns = 2;
+  const int nRows = 20;
+  const int nColumns = 20;
   IRECT bounds = pGraphics->GetBounds();
 
-//  for (int i = 0; i < nRows * nColumns; i++)
-//  {
-//    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
-//    pGraphics->AttachControl(new IVButtonControl(*this, cellBounds, -1));
-//  }
-  pGraphics->AttachControl(new IVDropDownListControl(*this, bounds.GetPadded(-50).SubRectVertical(3, 0), 3, "one", "two", "three"));
+  for (int i = 0; i < nRows * nColumns; i++)
+  {
+//    IRECT cellBounds = bounds.GetRandomSubRect();
+    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-2.);
+    pGraphics->AttachControl(new IPanelControl(*this, cellBounds, IColor::GetRandomColor()));
+  }
 
 #endif
 }

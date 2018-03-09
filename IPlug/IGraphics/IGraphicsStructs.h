@@ -4,6 +4,7 @@
 #include <cassert>
 #include <functional>
 #include <algorithm>
+#include <random>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -35,16 +36,16 @@ public:
   , mWidth(w)
   , mHeight(h)
   , mScale(s) {}
-  
+
   APIBitmap()
   : mBitmap(nullptr)
   , mWidth(0)
   , mHeight(0)
   , mScale(0)
   {}
-  
+
   virtual ~APIBitmap() {}
-    
+
   void SetBitmap(void* pBitmap, int w, int h, int s)
   {
     assert(((w % s) == 0) && ((h % s) == 0));
@@ -72,17 +73,15 @@ public:
 class IBitmap
 {
 public:
-    
+
   /** Creates a new IBitmap object
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
   * @param n Number of frames (for multibitmaps)
   * @param framesAreHorizontal \c true if the frames are positioned horizontally
-  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) \todo Subject to change
   * @param name Resource name for the bitmap
   */
-    
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
     , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
@@ -92,22 +91,18 @@ public:
     , mResourceName(name, (int) strlen(name))
   {
   }
-    
+
   IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false)
   {
   }
-    
-  /**
-  * @return overall bitmap width
-  */
+
+  /** @return overall bitmap width */
   inline int W() const { return mW; }
-  /**
-  * @return overall bitmap height
-  */
+
+  /** @return overall bitmap height */
   inline int H() const { return mH; }
-  /**
-  * @return Width of a single frame
-  */
+
+  /** @return Width of a single frame */
   inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
   /**
   * @return Height of a single frame
@@ -138,9 +133,9 @@ public:
   * @return the resource name
   */
   inline const WDL_String& GetResourceName() const { return mResourceName; }
-    
+
 private:
-    
+
   /** Pointer to the API specific bitmap data */
   APIBitmap* mAPIBitmap;
   /** Bitmap width (in pixels) */
@@ -192,7 +187,7 @@ struct IColor
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
-  
+
   void AddContrast(double c)
   {
     const int mod = int(c * 255.);
@@ -200,7 +195,7 @@ struct IColor
     G = std::min(G += mod, 255);
     B = std::min(B += mod, 255);
   }
-  
+
   IColor GetContrasted(double c) const
   {
     const int mod = int(c * 255.);
@@ -210,17 +205,17 @@ struct IColor
     n.B = std::min(n.B += mod, 255);
     return n;
   }
-  
+
   static IColor GetRandomColor(bool randomAlpha = false)
   {
     int A = randomAlpha ? rand() & 0xFF : 255;
     int R = std::rand() & 0xFF;
     int G = std::rand() & 0xFF;
     int B = std::rand() & 0xFF;
-    
+
     return IColor(A, R, G, B);
   }
-  
+
   int GetLuminocity() const
   {
     auto min = R < G ? (R < B ? R : B) : (G < B ? G : B);
@@ -241,9 +236,9 @@ const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
 const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
-const IColor DEFAULT_BGCOLOR = COLOR_BLACK;
-const IColor DEFAULT_FGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_FRCOLOR = COLOR_BLACK;
+const IColor DEFAULT_BGCOLOR = COLOR_WHITE;
+const IColor DEFAULT_FGCOLOR = COLOR_BLACK;
+const IColor DEFAULT_FRCOLOR = COLOR_WHITE;
 const IColor DEFAULT_HLCOLOR = COLOR_YELLOW;
 const IColor DEFAULT_X1COLOR = COLOR_RED;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
@@ -261,7 +256,7 @@ struct IVColorSpec
   IColor mX1Color = DEFAULT_X1COLOR;
   IColor mX2Color = DEFAULT_X2COLOR;
   IColor mX3Color = DEFAULT_X3COLOR;
-  
+
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
                  const IColor FRColor = DEFAULT_FRCOLOR,
@@ -271,7 +266,7 @@ struct IVColorSpec
                  const IColor X3Color = DEFAULT_X3COLOR)
   {
   }
-  
+
   void ResetColors() { SetColors(); }
 };
 
@@ -315,7 +310,7 @@ struct IFillOptions
   : mFillRule(kFillEvenOdd)
   , mPreserve(false)
   {}
-  
+
   EFillRule mFillRule;
   bool mPreserve;
 };
@@ -328,24 +323,24 @@ struct IStrokeOptions
     int GetCount() const { return mCount; }
     float GetOffset() const { return mOffset; }
     const float *GetArray() const { return mArray; }
-    
+
     void SetDash(float *array, float offset, int count)
     {
       assert(count >= 0 && count <= 8);
-      
+
       mCount = count;
       mOffset = offset;
-      
+
       for (int i = 0; i < count; i++)
         mArray[i] = array[i];
     }
-    
+
   private:
     float mArray[8];
     float mOffset = 0;
     int mCount = 0;
   };
-  
+
   float mMiterLimit = 1.;
   bool mPreserve = false;
   ELineCap mCapOption = kCapButt;
@@ -358,14 +353,14 @@ struct IColorStop
   IColorStop()
   : mOffset(0.0)
   {}
-  
+
   IColorStop(IColor color, float offset)
   : mColor(color)
   , mOffset(offset)
   {
     assert(offset >= 0.0 && offset <= 1.0);
   }
-  
+
   IColor mColor;
   float mOffset;
 };
@@ -376,24 +371,24 @@ struct IPattern
   EPatternExtend mExtend;
   WDL_TypedBuf<IColorStop> mStops;
   float mTransform[6];
-  
+
   IPattern(const IColor& color) : mExtend(kExtendRepeat)
   {
     mType = kSolidPattern;
     mStops.Add(IColorStop(color, 0.0));
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
-  
+
   IPattern(EPatternType type) : mExtend(kExtendNone)
   {
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
-  
+
   IPattern(float x1, float y1, float x2, float y2) : mExtend(kExtendNone)
   {
     mType = kLinearPattern;
-   
+
     // Calculate the affine transform from one line segment to another!
 
     const float xd = x2 - x1;
@@ -402,39 +397,39 @@ struct IPattern
     const float angle = -(atan2(yd, xd));
     const float sinV = sinf(angle) / size;
     const float cosV = cosf(angle) / size;
-    
+
     const float xx = cosV;
     const float xy = -sinV;
     const float yx = sinV;
     const float yy = cosV;
     const float x0 = -(x1 * xx + y1 * xy);
     const float y0 = -(x1 * yx + y1 * yy);
-    
+
     SetTransform(xx, yx, xy, yy, x0, y0);
   }
 
   IPattern(float x1, float y1, float r) : mExtend(kExtendNone)
   {
     mType = kRadialPattern;
-    
+
     const float xx = 1.0 / r;
     const float yy = 1.0 / r;
     const float x0 = -(x1 * xx);
     const float y0 = -(y1 * yy);
-    
+
     SetTransform(xx, 0, 0, yy, x0, y0);
   }
-  
+
   int NStops() const
   {
     return mStops.GetSize();
   }
-  
+
   const IColorStop& GetStop(int idx) const
   {
     return *(mStops.Get() + idx);
   }
-  
+
   void AddStop(IColor color, float offset)
   {
     assert(mType != kSolidPattern);
@@ -459,7 +454,7 @@ struct IText
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-  
+
   IText(const IColor& color = DEFAULT_FGCOLOR,
         int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
@@ -480,7 +475,7 @@ struct IText
   {
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
-  
+
   char mFont[FONT_LEN];
   int mSize;
   IColor mFGColor;
@@ -502,7 +497,7 @@ struct IRECT
 
   IRECT() { L = T = R = B = 0.f; }
   IRECT(float l, float t, float r, float b) : L(l), R(r), T(t), B(b) {}
-  
+
   IRECT(float x, float y, IBitmap& bitmap)
   {
     L = x;
@@ -547,7 +542,7 @@ struct IRECT
   {
     if (Intersects(rhs))
       return IRECT(std::max(L, rhs.L), std::max(T, rhs.T), std::min(R, rhs.R), std::min(B, rhs.B));
-    
+
     return IRECT();
   }
 
@@ -590,11 +585,11 @@ struct IRECT
 
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
-  
+
   inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const
   {
     assert(cellIndex <= nRows * nColumns);
-    
+
     int cell = 0;
     for(int row = 0; row<nRows; row++)
     {
@@ -605,24 +600,24 @@ struct IRECT
           const IRECT vrect = SubRectVertical(nRows, row);
           return vrect.SubRectHorizontal(nColumns, column);
         }
-        
+
         cell++;
       }
     }
-    
+
     return *this;
   }
-  
+
   inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
-  
+
   inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
     return IRECT(L+padL, T+padT, R+padR, B+padB);
   }
-  
+
   inline IRECT GetHPadded(float padding) const
   {
     return IRECT(L-padding, T, R+padding, B);
@@ -632,17 +627,17 @@ struct IRECT
   {
     return IRECT(L, T-padding, R, B+padding);
   }
-  
+
   inline IRECT GetMidHPadded(float padding) const
   {
     return IRECT(MW()-padding, T, MW()+padding, B);
   }
-  
+
   inline IRECT GetMidVPadded(float padding) const
   {
     return IRECT(L, MH()-padding, R, MH()+padding);
   }
-  
+
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -666,7 +661,7 @@ struct IRECT
       B = rhs.B - 1;
     }
   }
-  
+
   void Scale(float scale)
   {
     L = std::floor(0.5f + (L * scale));
@@ -674,12 +669,31 @@ struct IRECT
     R = std::floor(0.5f + (R * scale));
     B = std::floor(0.5f + (B * scale));
   }
-  
+
   IRECT GetScaled(float scale) const
   {
     IRECT r = *this;
     r.Scale(scale);
     return r;
+  }
+
+  void GetRandomPoint(double& x, double& y) const
+  {
+    std::random_device rd;
+    std::mt19937 gen(rd()); // TODO: most sensible RNG?
+    std::uniform_real_distribution<> dist(0., 1.);
+    x = L + dist(gen) * W();
+    y = T + dist(gen) * H();
+  }
+
+  IRECT GetRandomSubRect() const
+  {
+    double l, t, r, b;
+    GetRandomPoint(l, t);
+    IRECT tmp = IRECT(l, t, R, B);
+    tmp.GetRandomPoint(r, b);
+
+    return IRECT(l, t, r, b);
   }
 
   void ScaleBounds(float scale)
@@ -689,12 +703,12 @@ struct IRECT
     R = std::ceil(R * scale);
     B = std::ceil(B * scale);
   }
-  
+
   IRECT GetFlipped(int graphicsHeight) const
   {
     return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
   }
-  
+
   IRECT GetCentredInside(IRECT sr)
   {
     IRECT r;
@@ -702,10 +716,10 @@ struct IRECT
     r.T = MH() - sr.H() / 2.;
     r.R = r.L + sr.W();
     r.B = r.T + sr.H();
-    
+
     return r;
   }
-  
+
   IRECT GetCentredInside(IBitmap bitmap)
   {
     IRECT r;
@@ -713,7 +727,7 @@ struct IRECT
     r.T = MH() - bitmap.FH() / 2.;
     r.R = r.L + (float) bitmap.FW();
     r.B = r.T + (float) bitmap.FH();
-    
+
     return r;
   }
 };
@@ -737,66 +751,66 @@ template <class T>
 class StaticStorage
 {
 public:
-  
+
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
-    
+
   uint32_t hash(const char* str)
   {
     uint32_t hash = 5381;
     int c;
-    
+
     while ((c = *str++))
     {
       hash = ((hash << 5) + hash) + c;
     }
-    
+
     return hash;
   }
-  
+
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
-      
+
     uint32_t hashID;
     WDL_String name;
     double scale;
     T* data;
   };
-    
+
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
-    
+
     uint32_t hashID = hash(cacheName.Get());
-    
+
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
       DataKey* key = mDatas.Get(i);
-      
+
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
       if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get()))
         return key->data;
     }
     return nullptr;
   }
-  
+
   void Add(T* data, const char* str, double scale = 1. /* scale where 2x = retina, omit if not needed */)
   {
     DataKey* key = mDatas.Add(new DataKey);
-    
+
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
-    
+
     key->hashID = hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
     key->name.Set(str);
-    
+
     DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
-  
+
   void Remove(T* data)
   {
     int i, n = mDatas.GetSize();
@@ -810,7 +824,7 @@ public:
       }
     }
   }
-  
+
   void Clear()
   {
     int i, n = mDatas.GetSize();
@@ -824,12 +838,12 @@ public:
     }
     mDatas.Empty(true);
   };
-    
+
   ~StaticStorage()
   {
     Clear();
   }
-    
+
 private:
   WDL_PtrList<DataKey> mDatas;
 };
