@@ -45,7 +45,6 @@ public:
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
   typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
-  typedef agg::pixfmt_custom_blend_rgba<BlenderTypePre, agg::rendering_buffer> PixfmtTypePre;
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> RendererSolid;
   typedef agg::renderer_scanline_bin_solid<RenbaseType> RendererBin;
@@ -53,7 +52,6 @@ public:
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> InterpolatorType;
   typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
-  typedef agg::span_image_filter_rgba_bilinear_clip<PixfmtType, InterpolatorType> spanGenType;
   typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
@@ -91,16 +89,6 @@ public:
     }
     
     template <typename VertexSourceType>
-    void RasterizeAntiAlias(VertexSourceType& path, spanGenType& spanGen)
-    {
-      SetPath(path);
-      SpanAllocatorType spanAllocator;
-      agg::scanline_u8 scanline;
-
-      agg::render_scanlines_aa(mRasterizer, scanline, mRenBase, spanAllocator, spanGen);
-    }
-    
-    template <typename VertexSourceType>
     void Rasterize(VertexSourceType& path, agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
     {
       SetPath(path);
@@ -108,7 +96,7 @@ public:
     }
 
     template <typename RendererType>
-    void Rasterize(RendererType& renderer)
+    void Rasterize(RendererType& renderer, float alpha = 1.f)
     {
       agg::scanline_p8 scanline;
       agg::render_scanlines(mRasterizer, scanline, renderer);

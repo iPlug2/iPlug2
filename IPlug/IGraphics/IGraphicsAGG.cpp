@@ -189,7 +189,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   PixfmtType imgPixfSrc(src);
   
-  // FIX - blending (and also elsewhere)
+  // FIX - blending (and also elsewhere) and speed for no rotation/scaling and integer coords...
   
   agg::trans_affine dstMtx(mTransform);
   dstMtx *= agg::trans_affine_scaling(GetDisplayScale());
@@ -199,13 +199,11 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx *= agg::trans_affine_translation(-dest.L, -dest.T);
   srcMtx *= agg::trans_affine_translation(srcX, srcY);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
-  
   imgSourceType imgSrc(imgPixfSrc);
   InterpolatorType interpolator(srcMtx);
   SpanAllocatorType spanAllocator;
   SpanGeneratorType spanGenerator(imgSrc, interpolator);
   BitmapRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
-  
   agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
   agg::conv_transform<agg::rounded_rect> tr(rect, dstMtx);
   
@@ -267,12 +265,15 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   
   imgSourceType imgSrc(img_base);
   
-  spanGenType sg(img_base, agg::rgba(0,0,0,0), interpolator);
+  SpanGeneratorType spanGenerator(imgSrc, interpolator);
+  SpanAllocatorType spanAllocator;
+  BitmapRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
   
   agg::rounded_rect rect(0, 0, width, height, 0);
   agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
   
-  mRasterizer.RasterizeAntiAlias(tr, sg);
+  mRasterizer.SetPath(tr);
+  mRasterizer.Rasterize(renderer);
 }
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)

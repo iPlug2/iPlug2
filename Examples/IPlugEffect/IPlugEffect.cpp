@@ -10,6 +10,9 @@
 #define SVG_FOLDER "/Users/oli/Dev/VCVRack/Rack/res/ComponentLibrary/"
 #define KNOB_FN "resources/img/BefacoBigKnob.svg"
 #define TIGER_FN "resources/img/23.svg"
+#define KNOB_BITMAP1_FN "resources/img/dial_large.png"
+#define KNOB_BITMAP2_FN "resources/img/dial_medium.png"
+#define KNOB_BITMAP3_FN "resources/img/IKnobRotaterControl.png"
 #else
 #define SVG_FOLDER "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\"
 #define KNOB_FN "C:\\Program Files\\VCV\\Rack\\res\\ComponentLibrary\\BefacoBigKnob.svg"
@@ -40,8 +43,16 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(5, nRows, nColumns).GetPadded(-5.), -1));
     
   pGraphics->AttachControl(new IGradientControl(*this, bounds.SubRectVertical(4, 0), kGain));
-  pGraphics->AttachControl(new IMultiPathControl(*this, bounds.SubRectVertical(4, 1), -1));
+  //pGraphics->AttachControl(new IMultiPathControl(*this, bounds.SubRectVertical(4, 1), -1));
     
+  IBitmap bitmap1 = pGraphics->LoadBitmap(KNOB_BITMAP1_FN, 101,  true);
+  IBitmap bitmap2 = pGraphics->LoadBitmap(KNOB_BITMAP2_FN, 101,  true);
+  IBitmap bitmap3 = pGraphics->LoadBitmap(KNOB_BITMAP3_FN, 1,  true);
+
+  IRECT mid = bounds.SubRectVertical(4, 1);
+  pGraphics->AttachControl(new IBKnobControl(*this, mid.L + 10, mid.T + 10, bitmap2, -1));
+  pGraphics->AttachControl(new IBKnobRotaterControl(*this, mid.MW() + 10, mid.T + 10, bitmap3, -1));
+
   auto svg1 = pGraphics->LoadSVG(KNOB_FN); // load initial svg, can be a resource or absolute path
   auto svg2 = pGraphics->LoadSVG(TIGER_FN); // load initial svg, can be a resource or absolute path
   pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(6, nRows, nColumns).GetPadded(-5.), svg1, -1));

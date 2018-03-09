@@ -242,6 +242,24 @@
 		B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		B8F615F0204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
+		B8F615F1204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
+		B8F615F2204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
+		B8F615F3204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
+		B8F615F4204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
+		B8F615F5204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
+		B8F615F6204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
+		B8F615F7204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
+		B8F615F8204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
+		B8F615F9204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
+		B8F615FA204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
+		B8F615FB204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
+		B8F615FC204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
+		B8F615FD204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
+		B8F615FE204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
+		B8F615FF204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
+		B8F61600204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
+		B8F61601204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -551,6 +569,9 @@
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IPlug/IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8C5FB3B204AF4C400D5C34E /* 23.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = 23.svg; path = ../resources/img/23.svg; sourceTree = "<group>"; };
+		B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IKnobRotaterControl.png; path = ../resources/img/IKnobRotaterControl.png; sourceTree = "<group>"; };
+		B8F615EE204CA35200CE71C9 /* dial_large@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dial_large@2x.png"; path = "../resources/img/dial_large@2x.png"; sourceTree = "<group>"; };
+		B8F615EF204CA35200CE71C9 /* dial_medium.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dial_medium.png; path = ../resources/img/dial_medium.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1047,6 +1068,9 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				B8F615EE204CA35200CE71C9 /* dial_large@2x.png */,
+				B8F615EF204CA35200CE71C9 /* dial_medium.png */,
+				B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */,
 				B8C5FB3B204AF4C400D5C34E /* 23.svg */,
 				4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */,
 			);
@@ -1456,7 +1480,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F615FD204CA35200CE71C9 /* dial_medium.png in Resources */,
+				B8F615F1204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8F615F7204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1465,7 +1492,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F615FF204CA35200CE71C9 /* dial_medium.png in Resources */,
+				B8F615F3204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8F615F9204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1474,9 +1504,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F61601204CA35200CE71C9 /* dial_medium.png in Resources */,
 				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */,
+				B8F615F5204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
+				B8F615FB204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1484,7 +1517,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F615FE204CA35200CE71C9 /* dial_medium.png in Resources */,
+				B8F615F2204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8F615F8204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1493,7 +1529,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F61600204CA35200CE71C9 /* dial_medium.png in Resources */,
+				B8F615F4204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8F615FA204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1505,6 +1544,9 @@
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
 				B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				B8F615F0204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
+				B8F615FC204CA35200CE71C9 /* dial_medium.png in Resources */,
+				B8F615F6204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1887,6 +1929,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
+					"$(VST2_SDK)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_PREPROCESS = NO;
@@ -1965,6 +2008,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
+					"$(VST2_SDK)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_PREPROCESS = NO;
@@ -2628,6 +2672,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
+					"$(VST2_SDK)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_PREPROCESS = NO;

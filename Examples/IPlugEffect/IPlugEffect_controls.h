@@ -271,3 +271,54 @@ private:
   
   int mShape;
 };
+
+class IBKnobControl : public IKnobControlBase
+{
+public:
+  IBKnobControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int param)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), param)
+  , mBitmap(bitmap)
+  {
+  }
+  
+  void Draw(IGraphics& graphics) override
+  {
+    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    graphics.DrawBitmap(mBitmap, mRECT, i);
+  }
+  
+  void OnRescale() override
+  {
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
+  
+private:
+  
+  IBitmap mBitmap;
+};
+
+class IBKnobRotaterControl : public IKnobControlBase
+{
+public:
+  IBKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int param)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), param)
+  , mBitmap(bitmap)
+  {
+  }
+  
+  void Draw(IGraphics& graphics) override
+  {
+    double angle = -130.0 + mValue * 260.0;
+    graphics.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
+  }
+  
+  void OnRescale() override
+  {
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
+  
+private:
+  
+  IBitmap mBitmap;
+};
+
