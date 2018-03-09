@@ -58,7 +58,7 @@ public:
    mValNames.Empty(true);
  }
 
- void Draw(IGraphics& graphics) override
+ void Draw(IGraphics& g) override
  {
    auto initR = GetInitRect();
    auto shadowColor = IColor(60, 0, 0, 0);
@@ -68,20 +68,20 @@ public:
    if (!mExpanded)
    {
      if (mDrawShadows && !mEmboss)
-       DrawOuterShadowForRect(initR, shadowColor, graphics);
+       DrawOuterShadowForRect(initR, shadowColor, g);
 
      if (mBlink)
      {
        mBlink = false;
-       graphics.FillRect(GetColor(lHL), initR);
+       g.FillRect(GetColor(lHL), initR);
        SetDirty(false);
      }
      else
-       graphics.FillRect(GetColor(lBG), initR);
+       g.FillRect(GetColor(lBG), initR);
 
      if (mDrawBorders)
-       graphics.DrawRect(GetColor(lFR), initR);
-     graphics.DrawText(mText, NameForVal(StateFromNormalized()), textR);
+       g.DrawRect(GetColor(lFR), initR);
+     g.DrawText(mText, NameForVal(StateFromNormalized()), textR);
      ShrinkRects(); // shrink here to clean the expanded area
    }
 
@@ -89,10 +89,10 @@ public:
    {
      auto panelR = GetExpandedRect();
      if (mDrawShadows && !mEmboss)
-       DrawOuterShadowForRect(panelR, shadowColor, graphics);
-     graphics.FillRect(GetColor(lBG), panelR);
+       DrawOuterShadowForRect(panelR, shadowColor, g);
+     g.FillRect(GetColor(lBG), panelR);
      if (mDrawShadows && mEmboss)
-       DrawInnerShadowForRect(panelR, shadowColor, graphics);
+       DrawInnerShadowForRect(panelR, shadowColor, g);
      int sx = -1;
      int sy = 0;
      auto rw = initR.W();
@@ -110,13 +110,13 @@ public:
        if (v == mState)
        {
          if (mDrawShadows) // draw when emboss too, looks good
-           DrawOuterShadowForRect(vR, shadowColor, graphics);
-         graphics.FillRect(GetColor(lHL), vR);
+           DrawOuterShadowForRect(vR, shadowColor, g);
+         g.FillRect(GetColor(lHL), vR);
        }
 
        if (mDrawBorders)
-         graphics.DrawRect(GetColor(lFR), vR);
-       graphics.DrawText(mText, NameForVal(v), tR);
+         g.DrawRect(GetColor(lFR), vR);
+       g.DrawText(mText, NameForVal(v), tR);
        ++sy;
      }
 
@@ -127,14 +127,14 @@ public:
          --panelR.R; // fix for strange graphics behavior
          --panelR.B; // mRECT right and bottom are not drawn in expanded state (on Win)
        }
-       graphics.DrawRect(GetColor(lFR), panelR);
+       g.DrawRect(GetColor(lFR), panelR);
      }
    }
 
 #ifdef _DEBUG
-   //graphics.DrawRect(COLOR_ORANGE, mInitRect);
-   //graphics.DrawRect(COLOR_BLUE, mRECT);
-   //graphics.DrawRect(COLOR_GREEN, mTargetRECT); // if padded will not be drawn correctly
+   //g.DrawRect(COLOR_ORANGE, mInitRect);
+   //g.DrawRect(COLOR_BLUE, mRECT);
+   //g.DrawRect(COLOR_GREEN, mTargetRECT); // if padded will not be drawn correctly
 #endif
 
  }
@@ -485,7 +485,7 @@ protected:
      ExpandRects();
  }
 
- void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+ void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
  {
    auto& o = mShadowOffset;
    auto slr = r;
@@ -493,14 +493,14 @@ protected:
    auto str = r;
    str.L += o;
    str.B = str.T + o;
-   graphics.FillRect(shadowColor, slr);
-   graphics.FillRect(shadowColor, str);
+   g.FillRect(shadowColor, slr);
+   g.FillRect(shadowColor, str);
  }
 
- void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+ void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
  {
    auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
-   graphics.FillRect(shadowColor, sr);
+   g.FillRect(shadowColor, sr);
  }
 
  IRECT GetRectToAlignTextIn(IRECT r)

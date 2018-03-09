@@ -11,11 +11,11 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
   mStep = 1.f / float(mNumStates) - 1.f;
 }
 
-void IVSwitchControl::Draw(IGraphics& graphics)
+void IVSwitchControl::Draw(IGraphics& g)
 {
 //  const int state = (int)std::round(mValue / mStep);
 
-  graphics.FillRoundRect(GetColor(EVColor::kBG), mRECT, mRoundness, &mBlend);
+  g.FillRoundRect(GetColor(EVColor::kBG), mRECT, mRoundness, &mBlend);
 
 //
   IRECT handle;
@@ -30,11 +30,12 @@ void IVSwitchControl::Draw(IGraphics& graphics)
 //  else
     handle = mRECT;
 //
- // graphics.FillRect(GetColor(EVColor::kFG), handle.GetPadded(-10), &mBlend);
-  graphics.FillCircle(GetColor(EVColor::kFG), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
+ // g.FillRect(GetColor(EVColor::kFG), handle.GetPadded(-10), &mBlend);
+//  g.FillCircle(GetColor(EVColor::kFG), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
 
-  //graphics.DrawRect(GetColor(EVColor::kFR), mRECT.GetPadded(-5), &mBlend);
-  graphics.FillCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), (handle.W()/2.)-2, &mBlend);
+  g.FillEllipse(GetColor(EVColor::kFG), mRECT, &mBlend);
+  //g.DrawRect(GetColor(EVColor::kFR), mRECT.GetPadded(-5), &mBlend);
+//  g.FillCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), (handle.W()/2.)-2, GetMouseIsOver() ? &BLEND_25 : &BLEND_10);
 }
 
 IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int param,
@@ -52,20 +53,20 @@ IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int param,
     mOuterRadius = 0.5f * (float) bounds.W();
 }
 
-void IVKnobControl::Draw(IGraphics& graphics)
+void IVKnobControl::Draw(IGraphics& g)
 {
   const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
   const float cx = mRECT.MW(), cy = mRECT.MH();
   const float radius = (mRECT.W()/2.f) - 2.f;
-//  graphics.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2);
-//  graphics.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50, 5.f);
-  graphics.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v);
-  graphics.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius, 0, 5.f);
+//  g.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2);
+//  g.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50, 5.f);
+  g.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v);
+  g.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius, 0, 5.f);
 }
 
-void IVSliderControl::Draw(IGraphics& graphics)
+void IVSliderControl::Draw(IGraphics& g)
 {
-  graphics.FillRoundRect(GetColor(kBG), mRECT, 5);
+  g.FillRoundRect(GetColor(kBG), mRECT, 5);
   
   IRECT filledTrack, handle;
   
@@ -87,7 +88,7 @@ void IVSliderControl::Draw(IGraphics& graphics)
     //TODO:
   }
   
-  graphics.FillRect(GetColor(kFG), filledTrack, &mBlend);
+  g.FillRect(GetColor(kFG), filledTrack, &mBlend);
 }
 
 void IVSliderControl::OnResize()
@@ -116,40 +117,40 @@ const IColor IVButtonControl::DEFAULT_FR_COLOR = IColor(255, 70, 70, 70);
 const IColor IVButtonControl::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
 const IColor IVButtonControl::DEFAULT_PR_COLOR = IColor(255, 240, 240, 240);
 
-void IVButtonControl::Draw(IGraphics& graphics)
+void IVButtonControl::Draw(IGraphics& g)
 {
   auto btnRect = GetButtonRect();
   auto shadowColor = IColor(60, 0, 0, 0);
 
   if (mValue > 0.5)
   {
-    graphics.FillRect(GetColor(bPR), btnRect);
+    g.FillRect(GetColor(bPR), btnRect);
 
     if (mDrawShadows && mEmboss)
-      DrawInnerShadowForRect(btnRect, shadowColor, graphics);
+      DrawInnerShadowForRect(btnRect, shadowColor, g);
 
     if (mTxtOn.GetLength())
     {
       auto textR = GetRectToAlignTextIn(btnRect, 1);
-      graphics.DrawText(mText, mTxtOn.Get(), textR);
+      g.DrawText(mText, mTxtOn.Get(), textR);
     }
   }
   else
   {
     if (mDrawShadows && !mEmboss)
-      DrawOuterShadowForRect(btnRect, shadowColor, graphics);
+      DrawOuterShadowForRect(btnRect, shadowColor, g);
 
-    graphics.FillRect(GetColor(bBG), btnRect);
+    g.FillRect(GetColor(bBG), btnRect);
 
     if (mTxtOff.GetLength())
     {
       auto textR = GetRectToAlignTextIn(btnRect, 0);
-      graphics.DrawText(mText, mTxtOff.Get(), textR);
+      g.DrawText(mText, mTxtOff.Get(), textR);
     }
   }
 
   if(mDrawBorders)
-    graphics.DrawRect(GetColor(bFR), btnRect);
+    g.DrawRect(GetColor(bFR), btnRect);
 }
 
 IRECT IVButtonControl::GetRectToAlignTextIn(IRECT r, int state)
@@ -172,7 +173,7 @@ IRECT IVButtonControl::GetButtonRect()
   return br;
 }
 
-void IVButtonControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+void IVButtonControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
 {
   auto& o = mShadowOffset;
   auto slr = r;
@@ -180,8 +181,8 @@ void IVButtonControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraph
   auto str = r;
   str.L += o;
   str.B = str.T + o;
-  graphics.FillRect(shadowColor, slr);
-  graphics.FillRect(shadowColor, str);
+  g.FillRect(shadowColor, slr);
+  g.FillRect(shadowColor, str);
 }
 
 void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -316,10 +317,10 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 //{
 //}
 //
-//void IBSliderControl::Draw(IGraphics& graphics)
+//void IBSliderControl::Draw(IGraphics& g)
 //{
 //  IRECT r = GetHandleRECT();
-//  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
+//  g.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
 //}
 //
 //void IBSliderControl::OnRescale()
@@ -424,10 +425,10 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 //  SetDirty();
 //}
 //
-//void IBSliderControl::Draw(IGraphics& graphics)
+//void IBSliderControl::Draw(IGraphics& g)
 //{
 //  IRECT r = GetHandleRECT();
-//  graphics.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
+//  g.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
 //}
 //
 //bool IBSliderControl::IsHit(float x, float y) const

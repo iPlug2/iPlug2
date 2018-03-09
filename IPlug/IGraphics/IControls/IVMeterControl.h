@@ -52,22 +52,22 @@ public:
   void SetNumDisplayPrecision(int precision, int chId = -1);
 
   void SetOverdriveThreshold(double thresh, int chId = -1);
-  
+
   void SetHoldPeaks(bool hold)
   {
     mHoldPeaks = hold;
   }
-  
+
   void SetPeakDropTimeMs(double ms, int chId = -1);
   void SetDrawPeakRect(bool draw, int chId = -1);
   void SetDrawMaxPeak(bool draw, int chId = -1);
-  
+
   void SetPeakRectHeight(double h)
   {
     mPeakRectHeight = (float) h;
     SetDirty();
   }
-  
+
   void SetDrawMemRect(bool draw, int chId = -1);
 
   void SetDrawRMS(bool draw, int chId = -1);
@@ -77,7 +77,7 @@ public:
   void SetDrawChName(bool draw, int chId = -1);
   void SetChanName(int chId, const char* name);
   void SetChanNames(const char* names, ...);
-  
+
   void SetChNameHOffset(int chId, double offset)
   {
     *ChanNameHOffsetPtr(chId) = (float) offset;
@@ -100,7 +100,7 @@ public:
   {
     SetTexts(txt, txt);
   }
-  
+
   void SetTexts(IText chNameTxt, IText marksTxt);
 
   void SetDrawBorders(bool draw)
@@ -108,20 +108,20 @@ public:
     mDrawBorders = draw;
     SetDirty();
   }
-  
+
   void SetDrawShadows(bool draw)
   {
     mDrawShadows = draw;
     SetDirty();
   }
 
-  void Draw(IGraphics& graphics)  override;
-  
+  void Draw(IGraphics& g) override;
+
   void SetDirty(bool pushParamToDelegate = false) override
   {
     mDirty = true;
   }
-  
+
   void OnResize() override;
 
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
@@ -230,7 +230,7 @@ protected:
   void SetChanNames(const char* names, va_list args);
   void RecalcMaxChNameH(float oldAbsH);
 
-  void DrawMarks(IGraphics& graphics);
+  void DrawMarks(IGraphics& g);
   void RecalcMaxLabelLen(int ch);
 
   WDL_String PrecisionString(int ch);
@@ -239,7 +239,7 @@ protected:
   IRECT ShiftRectBy(IRECT r, float dx, float dy = 0.0);
   IRECT ShiftRectVerticallyAt(IRECT r, float y);
   void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth);
-  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
+  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g);
 
   // getters
   ChannelSpecificData* Ch(int i) { return mChanData.Get() + i; }
@@ -333,4 +333,4 @@ protected:
   float ChanNameHOffset(int i)              { return *ChanNameHOffsetPtr(i); }
   WDL_String* ChanNamePtr(int i)            { return *ChanNamePP(i); }
   WDL_String** ChanNamePP(int i)            { return &(Ch(i)->chanName); }
-  };
+};

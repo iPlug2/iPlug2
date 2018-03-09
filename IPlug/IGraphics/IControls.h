@@ -23,7 +23,7 @@ public:
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
-  void Draw(IGraphics& graphics)  override;
+  void Draw(IGraphics& g)  override;
   
 private:
   float mStep;
@@ -41,7 +41,7 @@ public:
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   ~IVKnobControl() {}
 
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
   
 protected:
   float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
@@ -90,7 +90,7 @@ public:
   {
   }
   
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
   void OnResize() override;
 };
 
@@ -117,7 +117,7 @@ public:
                   const char *txtOff = "off", const char *txtOn = "on");
   ~IVButtonControl() {};
 
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
   void SetTexts(const char *txtOff, const char *txtOn, bool fitToText = false, float pad = 10.0);
@@ -146,11 +146,11 @@ protected:
   bool mEmboss = false;
   float mShadowOffset = 3.0;
 
-  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics);
-  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g);
+  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
   {
     auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
-    graphics.FillRect(shadowColor, sr);
+    g.FillRect(shadowColor, sr);
   }
   IRECT GetRectToAlignTextIn(IRECT r, int state);
   IRECT GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding = 0.0);
@@ -202,7 +202,7 @@ public:
 //  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 //  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y, mDirection, mTrack); }
 //  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-//  virtual void Draw(IGraphics& graphics) override;
+//  virtual void Draw(IGraphics& g) override;
 //  virtual bool IsHit(float x, float y) const override;
 //  virtual void OnRescale() override;
 //  virtual void OnResize() override;
@@ -247,9 +247,9 @@ public:
     mStr.Set(str);
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
-    graphics.DrawBitmapedText(mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
+    g.DrawBitmapedText(mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
 
 protected:

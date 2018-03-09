@@ -208,11 +208,11 @@ void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
   SetDirty(false);
 }
 
-void IControl::DrawPTHighlight(IGraphics& graphics)
+void IControl::DrawPTHighlight(IGraphics& g)
 {
   if (mPTisHighlighted)
   {
-    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
+    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
   }
 }
 
@@ -252,12 +252,12 @@ void IControl::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "}");
 }
 
-void IPanelControl::Draw(IGraphics& graphics)
+void IPanelControl::Draw(IGraphics& g)
 {
-  graphics.FillRect(GetColor(0), mRECT, &mBlend);
+  g.FillRect(GetColor(0), mRECT, &mBlend);
 }
 
-void IBitmapControl::Draw(IGraphics& graphics)
+void IBitmapControl::Draw(IGraphics& g)
 {
   int i = 1;
   if (mBitmap.N() > 1)
@@ -266,7 +266,7 @@ void IBitmapControl::Draw(IGraphics& graphics)
     i = BOUNDED(i, 1, mBitmap.N());
   }
 
-  graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+  g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
 void IBitmapControl::OnRescale()
@@ -274,10 +274,10 @@ void IBitmapControl::OnRescale()
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
-void ISVGControl::Draw(IGraphics& graphics)
+void ISVGControl::Draw(IGraphics& g)
 {
-  graphics.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
-    //graphics.DrawSVG(mSVG, mRECT);
+  g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
+    //g.DrawSVG(mSVG, mRECT);
 };
 
 void ITextControl::SetTextFromDelegate(const char* str)
@@ -289,12 +289,12 @@ void ITextControl::SetTextFromDelegate(const char* str)
   }
 }
 
-void ITextControl::Draw(IGraphics& graphics)
+void ITextControl::Draw(IGraphics& g)
 {
   char* cStr = mStr.Get();
   if (CSTR_NOT_EMPTY(cStr))
   {
-    graphics.DrawText(mText, cStr, mRECT);
+    g.DrawText(mText, cStr, mRECT);
   }
 }
 
@@ -317,7 +317,7 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   }
 }
 
-void ICaptionControl::Draw(IGraphics& graphics)
+void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
   
@@ -332,7 +332,7 @@ void ICaptionControl::Draw(IGraphics& graphics)
     }
   }
   
-  return ITextControl::Draw(graphics);
+  return ITextControl::Draw(g);
 }
 
 ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc,

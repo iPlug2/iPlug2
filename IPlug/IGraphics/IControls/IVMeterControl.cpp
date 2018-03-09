@@ -745,9 +745,9 @@ void IVMeterControl::SetTexts(IText chNameTxt, IText marksTxt)
 }
 
 
-void IVMeterControl::Draw(IGraphics& graphics)
+void IVMeterControl::Draw(IGraphics& g)
 {
-  double fps = graphics.FPS();
+  double fps = g.FPS();
   auto spf = 1.0 / fps;
   auto sampPerDraw = mSampleRate / fps;
   auto shadowColor = IColor(60, 0, 0, 0);
@@ -762,15 +762,15 @@ void IVMeterControl::Draw(IGraphics& graphics)
     // background and shadows
     auto bgRect = meterRect;
     if (DrawPeakRect(ch)) bgRect.T -= mPeakRectHeight;
-    graphics.FillRect(GetColor(mBg), bgRect);
+    g.FillRect(GetColor(mBg), bgRect);
     if (mDrawShadows)
-      DrawInnerShadowForRect(bgRect, shadowColor, graphics);
+      DrawInnerShadowForRect(bgRect, shadowColor, g);
 
     // raw value rect
     auto rawR = meterRect;
     rawR.T = GetVCoordFromValInMeterRect(ch, v, meterRect);
     if (v >= MinDisplayVal(ch))
-      graphics.FillRect(GetColor(mRaw), rawR);
+      g.FillRect(GetColor(mRaw), rawR);
 
     // memory rect
     // math
@@ -803,10 +803,10 @@ void IVMeterControl::Draw(IGraphics& graphics)
       memR.B = rawR.T;
       auto c = GetColor(mRaw);
       c.A /= 2;
-      graphics.FillRect(c, memR);
+      g.FillRect(c, memR);
       auto pc = LinearBlendColors(GetColor(mRaw), GetColor(mPeak), OverBlink(ch));
       if (p <= MaxDisplayVal(ch))
-        graphics.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
+        g.DrawLine(pc, memR.L, memR.T, memR.R, memR.T);
     }
 
     // rms rect
@@ -818,7 +818,7 @@ void IVMeterControl::Draw(IGraphics& graphics)
       {
         auto rmsR = meterRect;
         rmsR.T = GetVCoordFromValInMeterRect(ch, rms, meterRect);
-        graphics.FillRect(GetColor(mRms), rmsR);
+        g.FillRect(GetColor(mRms), rmsR);
 
       }
     }
@@ -835,14 +835,14 @@ void IVMeterControl::Draw(IGraphics& graphics)
       pR.B = meterRect.T;
       auto pc = LinearBlendColors(COLOR_TRANSPARENT, GetColor(mPeak), OverBlink(ch));
       pvtr = pR;
-      graphics.FillRect(pc, pR);
+      g.FillRect(pc, pR);
     }
     // math
     if (!HoldingAPeak(ch))
       *OverBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
 
     if (mDrawBorders)
-      graphics.DrawRect(GetColor(mFr), bgRect);
+      g.DrawRect(GetColor(mFr), bgRect);
 
     if (DrawMaxPeak(ch)) // not to draw borders over the peak value
     {
@@ -876,9 +876,9 @@ void IVMeterControl::Draw(IGraphics& graphics)
         auto tt = mMarkText;
         tt.mFGColor = shadowColor;
         auto sr = ShiftRectBy(pvtr, 1.0, 1.0);
-        graphics.DrawText(tt, mps.Get(), sr);
+        g.DrawText(tt, mps.Get(), sr);
       }
-      graphics.DrawText(mMarkText, mps.Get(), pvtr);
+      g.DrawText(mMarkText, mps.Get(), pvtr);
     }
 
     if (DrawChanName(ch)) // can be inside the loop because names are below the meters
@@ -888,7 +888,7 @@ void IVMeterControl::Draw(IGraphics& graphics)
       cnr.B += h;
       cnr.T = cnr.B - h;
       cnr = ShiftRectBy(cnr, ChanNameHOffset(ch));
-      graphics.DrawText(mText, ChanNamePtr(ch)->Get(), cnr);
+      g.DrawText(mText, ChanNamePtr(ch)->Get(), cnr);
     }
 
 
@@ -902,14 +902,14 @@ void IVMeterControl::Draw(IGraphics& graphics)
     ps.SetFormatted(16, "rms\n%4.2f", vt);
     auto dtr = rawR;
     dtr.T = dtr.B - 2.0f * trms.mSize - 10.0f;
-    graphics.DrawText(trms, ps.Get(), dtr);
+    g.DrawText(trms, ps.Get(), dtr);
 
     auto tl = GetVCoordFromValInMeterRect(ch, OverThresh(ch), meterRect);
-    graphics.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
+    g.DrawLine(COLOR_ORANGE, meterRect.L, tl, meterRect.R + 0.3f * DistToTheNextM(ch), tl);
 #endif
   }
 
-  DrawMarks(graphics); // draw outside because meters can be drawn over the marks
+  DrawMarks(g); // draw outside because meters can be drawn over the marks
 
 #ifdef _DEBUG
   //auto txtfps = mText;
@@ -918,9 +918,9 @@ void IVMeterControl::Draw(IGraphics& graphics)
   // fpss.SetFormatted(8, "fps\n%d", (int) fps);
   // auto dtr = mRECT;
   // dtr.T = dtr.B - 2.0f * txtfps.mSize - 10.0f;
-  // graphics.DrawText(txtfps, fpss.Get(), dtr);
+  // g.DrawText(txtfps, fpss.Get(), dtr);
 
-  graphics.DrawRect(COLOR_BLUE, mRECT);
+  g.DrawRect(COLOR_BLUE, mRECT);
 #endif
 
   SetDirty();
@@ -1160,7 +1160,7 @@ void IVMeterControl::RecalcMaxChNameH(float oldAbsH)
 }
 
 
-void IVMeterControl::DrawMarks(IGraphics& graphics)
+void IVMeterControl::DrawMarks(IGraphics& g)
 {
   auto shadowColor = IColor(60, 0, 0, 0);
   for (auto ch = 0; ch != NumChannels(); ++ch)
@@ -1318,9 +1318,9 @@ void IVMeterControl::DrawMarks(IGraphics& graphics)
         if (mDrawShadows)
         {
           auto sr = ShiftRectBy(lr, 2.f, 1.f);
-          graphics.FillRect(shadowColor, sr);
+          g.FillRect(shadowColor, sr);
         }
-        graphics.FillRect(mMarkText.mTextEntryBGColor, lr);
+        g.FillRect(mMarkText.mTextEntryBGColor, lr);
       };
 
       auto DrawMark = [&] (float h, bool ignoreLabels = false)
@@ -1337,7 +1337,7 @@ void IVMeterControl::DrawMarks(IGraphics& graphics)
         rLabMark = ShiftRectVerticallyAt(rLabMark, h);
 
         auto tr = ShiftRectVerticallyAt(LabTxtRect, h - mMarkText.mSize / 2);
-        //graphics.DrawRect(COLOR_RED, tr);
+        //g.DrawRect(COLOR_RED, tr);
 
         // first form a string
         WDL_String ltxt;
@@ -1374,9 +1374,9 @@ void IVMeterControl::DrawMarks(IGraphics& graphics)
             auto tt = mTxt;
             tt.mFGColor = shadowColor;
             auto sr = ShiftRectBy(tr, 1.f, 1.f);
-            graphics.DrawText(tt, ltxt.Get(), sr);
+            g.DrawText(tt, ltxt.Get(), sr);
           }
-          graphics.DrawText(mTxt, ltxt.Get(), tr);
+          g.DrawText(mTxt, ltxt.Get(), tr);
         }
       };
 
@@ -1529,7 +1529,7 @@ void IVMeterControl::BasicTextMeasure(const char* txt, float& numLines, float& m
   }
 }
 
-void IVMeterControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& graphics)
+void IVMeterControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
 {
   auto& o = mShadowOffset;
   auto slr = r;
@@ -1537,6 +1537,6 @@ void IVMeterControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphi
   auto str = r;
   str.L += o;
   str.B = str.T + o;
-  graphics.FillRect(shadowColor, slr);
-  graphics.FillRect(shadowColor, str);
+  g.FillRect(shadowColor, slr);
+  g.FillRect(shadowColor, str);
 }

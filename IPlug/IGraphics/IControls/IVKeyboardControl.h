@@ -154,10 +154,10 @@ public:
     SetDirty();
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
     auto shadowColor = IColor(60, 0, 0, 0);
-    graphics.FillRect(GetColor(kWK), mRECT);
+    g.FillRect(GetColor(kWK), mRECT);
 
     auto& top = mRECT.T;
     auto& wBot = mRECT.B;
@@ -174,19 +174,19 @@ public:
         if (i == mKey || NoteIsPlayed(i))
         {
           // draw played white key
-          graphics.FillRect(GetColor(kPK), kRect);
+          g.FillRect(GetColor(kPK), kRect);
           if (mDrawShadows)
           {
             auto sr = kRect;
             sr.R = sr.L + 0.35f * sr.W();
-            graphics.FillRect(shadowColor, sr);
+            g.FillRect(shadowColor, sr);
           }
         }
         if (mDrawBorders && i != 0)
         { // only draw the left border if it doesn't overlay mRECT l border
-          graphics.DrawLine(GetColor(kFR), kL, top, kL, wBot);
+          g.DrawLine(GetColor(kFR), kL, top, kL, wBot);
           if (i == NumKeys() - 2 && IsBlackKey(NumKeys() - 1))
-            graphics.DrawLine(GetColor(kFR), kL + mWKWidth, top, kL + mWKWidth, wBot);
+            g.DrawLine(GetColor(kFR), kL + mWKWidth, top, kL + mWKWidth, wBot);
         }
       }
     }
@@ -211,30 +211,30 @@ public:
             sr.B = sr.T + 1.05f * sr.H();
           }
           sr.R = sr.L + w;
-          graphics.FillRect(shadowColor, sr);
+          g.FillRect(shadowColor, sr);
         }
-        graphics.FillRect(GetColor(kBK), kRect);
+        g.FillRect(GetColor(kBK), kRect);
         if (i == mKey || NoteIsPlayed(i))
         {
           // draw played black key
           auto cBP = GetColor(kPK);
           cBP.A = (int)mBKAlpha;
-          graphics.FillRect(cBP, kRect);
+          g.FillRect(cBP, kRect);
         }
         if (mDrawBorders)
         { // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
-            graphics.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
+            g.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
           if (i != 0)
-            graphics.DrawLine(GetColor(kFR), kL, top, kL, bBot);
+            g.DrawLine(GetColor(kFR), kL, top, kL, bBot);
           if (i != NumKeys() - 1)
-            graphics.DrawLine(GetColor(kFR), kL + bKWidth, top, kL + bKWidth, bBot);
+            g.DrawLine(GetColor(kFR), kL + bKWidth, top, kL + bKWidth, bBot);
         }
       }
     }
 
     if (mDrawBorders)
-      graphics.DrawRect(GetColor(kFR), mRECT);
+      g.DrawRect(GetColor(kFR), mRECT);
 
     if (mShowNoteAndVel)
     {
@@ -256,15 +256,15 @@ public:
           r.L -= e;
           r.R -= e;
         }
-        graphics.FillRect(GetColor(kWK), r);
-        graphics.DrawRect(GetColor(kFR), r);
-        graphics.DrawText(mText, t.Get(), r);
+        g.FillRect(GetColor(kWK), r);
+        g.DrawRect(GetColor(kFR), r);
+        g.DrawText(mText, t.Get(), r);
       }
     }
 
 #ifdef _DEBUG
-    //graphics.DrawRect(COLOR_GREEN, mTargetRECT);
-    //graphics.DrawRect(COLOR_BLUE, mRECT);
+    //g.DrawRect(COLOR_GREEN, mTargetRECT);
+    //g.DrawRect(COLOR_BLUE, mRECT);
     WDL_String ti;
     ti.SetFormatted(32, "key: %d, vel: %3.2f", mKey, GetVelocity());
     //ti.SetFormatted(32, "key: %d, vel: %d", mKey, GetVelocityInt());
@@ -272,7 +272,7 @@ public:
     IText txt(COLOR_RED, 20);
     auto& mr = mRECT;
     IRECT tr(mr.L + 20, mr.B - 20, mr.L + 160, mr.B);
-    graphics.DrawText(txt, ti.Get(), tr);
+    g.DrawText(txt, ti.Get(), tr);
 #endif
   }
 

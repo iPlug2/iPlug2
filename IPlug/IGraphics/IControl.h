@@ -77,9 +77,9 @@ public:
   // captured by the control on double click).
   bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
 
-  virtual void Draw(IGraphics& graphics) = 0;
+  virtual void Draw(IGraphics& g) = 0;
 
-  virtual void DrawPTHighlight(IGraphics& graphics);
+  virtual void DrawPTHighlight(IGraphics& g);
   virtual void SetPTParameterHighlight(bool isHighlighted, int color);
 
   /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu, if we are linked to a parameter. */
@@ -357,7 +357,7 @@ public:
   , IVectorBase(&color)
   {}
 
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
 };
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */
@@ -385,7 +385,7 @@ public:
 
   virtual ~IBitmapControl() {}
 
-  virtual void Draw(IGraphics& graphics) override;
+  virtual void Draw(IGraphics& g) override;
 
   /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
@@ -406,7 +406,7 @@ public:
 
   virtual ~ISVGControl() {}
 
-  virtual void Draw(IGraphics& graphics) override;
+  virtual void Draw(IGraphics& g) override;
 
 private:
   //TODO: cache the SVG to intermediate bitmap?
@@ -429,7 +429,7 @@ public:
   virtual void SetTextFromDelegate(const char* str);
   virtual void ClearTextFromDelegate() { SetTextFromDelegate(""); }
 
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
 
 protected:
   WDL_String mStr;
@@ -442,7 +442,7 @@ public:
   ~ICaptionControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
 
 protected:
   bool mShowParamLabel;
