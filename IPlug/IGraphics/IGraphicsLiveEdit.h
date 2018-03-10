@@ -12,7 +12,6 @@ public:
   , mGridSize(gridSize)
   {
     mTargetRECT = mRECT;
-    mBlend.mWeight = 0.2f;
   }
   
   ~IGraphicsLiveEdit() {}
@@ -131,7 +130,7 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &mBlend);
+    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &BLEND_25);
     
     for(int i = 1; i < graphics.NControls(); i++)
     {

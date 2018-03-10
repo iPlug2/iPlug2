@@ -175,8 +175,15 @@ public:
   virtual void OnRescale() override;
   virtual void OnResize() override;
   
+  void GrayOut(bool gray) override
+  {
+    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+    IControl::GrayOut(gray);
+  }
+  
 private:
   IBitmap mHandleBitmap;
+  IBlend mBlend;
 };
 
 /** Display monospace bitmap font text */
@@ -184,7 +191,7 @@ private:
 class IBTextControl : public ITextControl
 {
 public:
-  IBTextControl(IDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
+  IBTextControl(IDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
   : ITextControl(dlg, bounds, text, str)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
@@ -192,6 +199,7 @@ public:
   , mMultiLine(multiLine)
   , mVCentre(vCenter)
   , mTextBitmap(bitmap)
+  , mBlend(blend)
   {
     mStr.Set(str);
   }
@@ -200,6 +208,12 @@ public:
   {
     g.DrawBitmapedText(mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
+  
+  void GrayOut(bool gray) override
+  {
+    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+    IControl::GrayOut(gray);
+  }
 
 protected:
   WDL_String mStr;
@@ -207,6 +221,7 @@ protected:
   bool mMultiLine;
   bool mVCentre;
   IBitmap mTextBitmap;
+  IBlend mBlend;
 };
 
 /**@}*/

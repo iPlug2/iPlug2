@@ -18,14 +18,14 @@ void IVSwitchControl::Draw(IGraphics& g)
 {
   const float cornerRadius = mRoundness * (mRECT.W() / 2.);
 
-  g.FillRoundRect(GetColor(kBG), mRECT, mRoundness, &mBlend);
+  g.FillRoundRect(GetColor(kBG), mRECT, mRoundness);
 
   IRECT handleBounds = GetHandleBounds();
   IColor shadowColor = IColor(60, 0, 0, 0);
 
   if (mValue > 0.5)
   {
-    g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius, &mBlend);
+    g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
 
     if (mDrawShadows && mEmboss)
     {
@@ -37,13 +37,13 @@ void IVSwitchControl::Draw(IGraphics& g)
   else
   {
     if (mDrawShadows && !mEmboss)
-      g.FillRoundRect(shadowColor, handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius, &mBlend);
+      g.FillRoundRect(shadowColor, handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
-    g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius, &mBlend);
+    g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
   }
 
  if(mDrawFrame)
-   g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, &mBlend);
+   g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius);
 }
 
 IRECT IVSwitchControl::GetHandleBounds()
@@ -108,7 +108,7 @@ void IVSliderControl::Draw(IGraphics& g)
     //TODO:
   }
 
-  g.FillRect(GetColor(kFG), filledTrack, &mBlend);
+  g.FillRect(GetColor(kFG), filledTrack);
 }
 
 void IVSliderControl::OnResize()
@@ -146,7 +146,7 @@ IBSliderControl::IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBi
 void IBSliderControl::Draw(IGraphics& g)
 {
 //  IRECT r = GetHandleRECT();
-  g.DrawBitmap(mHandleBitmap, mRECT, 1, &mBlend);
+  g.DrawBitmap(mHandleBitmap, mRECT, 1);
 }
 
 void IBSliderControl::OnRescale()
@@ -254,7 +254,7 @@ void IBSliderControl::OnResize()
 //void IBSliderControl::Draw(IGraphics& g)
 //{
 //  IRECT r = GetHandleRECT();
-//  g.DrawBitmap(mHandleBitmap, r, 1, &mBlend);
+//  g.DrawBitmap(mHandleBitmap, r, 1);
 //}
 //
 //bool IBSliderControl::IsHit(float x, float y) const

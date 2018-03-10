@@ -148,8 +148,6 @@ public:
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
-  void SetBlend(IBlend blend) { mBlend = blend; }
-
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
@@ -231,7 +229,6 @@ protected:
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx = kNoParameter;
 
-  IBlend mBlend;
   IText mText;
 
   WDL_TypedBuf<AuxParam> mAuxParams;
@@ -401,7 +398,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.FillRect(mColor, mRECT, &mBlend);
+    g.FillRect(mColor, mRECT);
   }
   
 private:
@@ -440,6 +437,7 @@ public:
 
 protected:
   IBitmap mBitmap;
+  IBlend mBlend;
 };
 
 /** A basic control to draw an SVG image to the screen. */

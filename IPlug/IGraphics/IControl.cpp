@@ -93,7 +93,6 @@ void IControl::Hide(bool hide)
 void IControl::GrayOut(bool gray)
 {
   mGrayed = gray;
-  mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
   SetDirty(false);
 }
 
@@ -227,7 +226,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 {
   if (mPTisHighlighted)
   {
-    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
+    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2);
   }
 }
 

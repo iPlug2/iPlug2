@@ -46,12 +46,12 @@ public:
     if (!mExpanded)
     {
       if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(shadowColor, ir.GetShifted(mShadowOffset, mShadowOffset), cornerRadius, &mBlend);
+        g.FillRoundRect(shadowColor, ir.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
       
-      g.FillRoundRect(GetColor(kFG), ir, cornerRadius, &mBlend);
+      g.FillRoundRect(GetColor(kFG), ir, cornerRadius);
       
       if (mDrawFrame)
-        g.DrawRoundRect(GetColor(kFR), ir, cornerRadius, &mBlend);
+        g.DrawRoundRect(GetColor(kFR), ir, cornerRadius);
       
       Collapse(); // Collapse here to clean the expanded area
     }
@@ -73,17 +73,17 @@ public:
         IRECT vR = ir.GetShifted(sx * rw, sy * rh);
         
         if (v != mState)
-          g.FillRoundRect(GetColor(kFG), vR, cornerRadius, &mBlend);
+          g.FillRoundRect(GetColor(kFG), vR, cornerRadius);
         else
         {
           if (mDrawShadows)
-            g.FillRoundRect(shadowColor, vR.GetShifted(mShadowOffset, mShadowOffset), cornerRadius, &mBlend);
+            g.FillRoundRect(shadowColor, vR.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
           
-          g.FillRoundRect(GetColor(kPR), vR, cornerRadius, &mBlend);
+          g.FillRoundRect(GetColor(kPR), vR, cornerRadius);
         }
         
         if (mDrawFrame)
-          g.DrawRoundRect(GetColor(kFR), vR, cornerRadius, &mBlend);
+          g.DrawRoundRect(GetColor(kFR), vR, cornerRadius);
         
         ++sy;
       }
