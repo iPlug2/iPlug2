@@ -64,9 +64,15 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend, float thickness) override
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend, float thickness) override
   {
-    PathRoundRect(bounds, corner);
+    PathRoundRect(bounds, cornerRadius);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
+  
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override
+  {
+    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
@@ -109,9 +115,15 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  void FillRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend) override
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend) override
   {
-    PathRoundRect(bounds, corner);
+    PathRoundRect(bounds, cornerRadius);
+    PathFill(color, IFillOptions(), pBlend);
+  }
+  
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override
+  {
+    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
     PathFill(color, IFillOptions(), pBlend);
   }
   
@@ -162,6 +174,17 @@ public:
     PathArc(bounds.L + bounds.W() - cr, y + cr, cr, 270.0, 360.0);
     PathArc(bounds.L + bounds.W() - cr, y + bounds.H() - cr, cr, 0.0, 90.0);
     PathArc(bounds.L + cr, y + bounds.H() - cr, cr, 90.0, 180.0);
+    PathClose();
+  }
+  
+  void PathRoundRect(const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL) override
+  {
+    const double y = bounds.B - bounds.H();
+    PathMoveTo(bounds.L, y + cRTL);
+    PathArc(bounds.L + cRTL, y + cRTL, cRTL, 180.0, 270.0);
+    PathArc(bounds.L + bounds.W() - cRTR, y + cRTR, cRTR, 270.0, 360.0);
+    PathArc(bounds.L + bounds.W() - cRBR, y + bounds.H() - cRBR, cRBR, 0.0, 90.0);
+    PathArc(bounds.L + cRBL, y + bounds.H() - cRBL, cRBL, 90.0, 180.0);
     PathClose();
   }
   
