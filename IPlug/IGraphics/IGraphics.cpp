@@ -232,7 +232,7 @@ void IGraphics::UpdatePeers(IControl* pCaller)
   }
 }
 
-void IGraphics::PromptUserInput(IControl& control, IRECT& textRect)
+void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
 {
   const IParam* pParam = control.GetParam();
   
@@ -258,19 +258,19 @@ void IGraphics::PromptUserInput(IControl& control, IRECT& textRect)
           menu.AddItem( new IPopupMenu::Item(str), -1 );
       }
 
-      if(CreateIPopupMenu(menu, textRect))
+      if(CreatePopupMenu(menu, bounds))
         control.SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
     }
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
     {
       pParam->GetDisplayForHost(currentText, false);
-      CreateTextEntry(control, control.GetText(), textRect, currentText.Get());
+      CreateTextEntry(control, control.GetText(), bounds, currentText.Get());
     }
   }
 }
 
-void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, const IBlend* pBlend)
+void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
@@ -288,10 +288,10 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& rect, int bmpState, con
       srcY = int(0.5f + bitmap.H() * (float) (bmpState - 1) / (float) bitmap.N());
     }
   }
-  return DrawBitmap(bitmap, rect, srcX, srcY, pBlend);
+  return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
   if (CSTR_NOT_EMPTY(str))
   {
@@ -301,16 +301,16 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     float basicXOffset = 0.;
 
     if (vCenter)
-      basicYOffset = rect.T + ((rect.H() - charHeight) / 2.f);
+      basicYOffset = bounds.T + ((bounds.H() - charHeight) / 2.f);
     else
-      basicYOffset = rect.T;
+      basicYOffset = bounds.T;
 
     if (text.mAlign == IText::kAlignCenter)
-      basicXOffset = rect.L + ((rect.W() - (stringLength * charWidth)) / 2.f);
+      basicXOffset = bounds.L + ((bounds.W() - (stringLength * charWidth)) / 2.f);
     else if (text.mAlign == IText::kAlignNear)
-      basicXOffset = rect.L;
+      basicXOffset = bounds.L;
     else if (text.mAlign == IText::kAlignFar)
-      basicXOffset = rect.R - (stringLength * charWidth);
+      basicXOffset = bounds.R - (stringLength * charWidth);
 
     int widthAsOneLine = charWidth * stringLength;
 
@@ -321,12 +321,12 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
 
     if(multiline)
     {
-      if (widthAsOneLine > rect.W())
+      if (widthAsOneLine > bounds.W())
       {
-        nCharsThatFitIntoLine = int(rect.W() / (float)charWidth);
-        nLines = int(float(widthAsOneLine) / rect.W()) + 1;
+        nCharsThatFitIntoLine = int(bounds.W() / (float)charWidth);
+        nLines = int(float(widthAsOneLine) / bounds.W()) + 1;
       }
-      else // line is shorter than width of rect
+      else // line is shorter than width of bounds
       {
         nCharsThatFitIntoLine = stringLength;
         nLines = 1;
@@ -334,7 +334,7 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
     }
     else
     {
-      nCharsThatFitIntoLine = int(rect.W() / (float) charWidth);
+      nCharsThatFitIntoLine = int(bounds.W() / (float) charWidth);
       nLines = 1;
     }
 
@@ -356,80 +356,70 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& rect, IText& text, IBle
   }
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& rect, float x, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend, float thickness)
 {
   x = BOUNDED(x, 0.0f, 1.0f);
-  float xi = rect.L + int(x * (rect.R - rect.L));
-  return DrawVerticalLine(color, xi, rect.T, rect.B, pBlend);
+  float xi = bounds.L + int(x * (bounds.R - bounds.L));
+  return DrawVerticalLine(color, xi, bounds.T, bounds.B, pBlend, thickness);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& rect, float y, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend, float thickness)
 {
   y = BOUNDED(y, 0.0f, 1.0f);
-  float yi = rect.B - (y * (float) (rect.B - rect.T));
-  return DrawHorizontalLine(color, yi, rect.L, rect.R, pBlend);
+  float yi = bounds.B - (y * (float) (bounds.B - bounds.T));
+  return DrawHorizontalLine(color, yi, bounds.L, bounds.R, pBlend, thickness);
 }
 
-void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend)
+void IGraphics::DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend, float thickness)
 {
-  DrawLine(color, xi, yLo, xi, yHi, pBlend);
+  DrawLine(color, xi, yLo, xi, yHi, pBlend, thickness);
 }
 
-void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend)
+void IGraphics::DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend, float thickness)
 {
-  DrawLine(color, xLo, yi, xHi, yi, pBlend);
+  DrawLine(color, xLo, yi, xHi, yi, pBlend, thickness);
 }
 
-void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend)
+void IGraphics::DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend, float thickness)
 {
-  const float angleRadians = DegToRad(angle-90.f);
-  const float sinV = sinf(angleRadians);
-  const float cosV = cosf(angleRadians);
-  const float xLo = (cx + rMin * cosV);
-  const float xHi = (cx + rMax * cosV);
-  const float yLo = (cy + rMin * sinV);
-  const float yHi = (cy + rMax * sinV);
-  DrawLine(color, xLo, yLo, xHi, yHi, pBlend);
+  float data[2][2];
+  RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
+  DrawLine(color, data[0][0], data[0][1], data[1][0], data[1][1], pBlend, thickness);
 }
 
 void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, float rMax)
 {
-    const float angleRadians = DegToRad(angle);
-    const float sinV = sinf(angleRadians);
-    const float cosV = cosf(angleRadians);
-    const float xLo = (cx + rMin * cosV);
-    const float xHi = (cx + rMax * cosV);
-    const float yLo = (cy + rMin * sinV);
-    const float yHi = (cy + rMax * sinV);
-    PathLine(xLo, yLo, xHi, yHi);
+  float data[2][2];
+  RadialPoints(angle, cx, cy, rMin, rMax, 2, data);
+  PathLine(data[0][0], data[0][1], data[1][0], data[1][1]);
 }
 
-void IGraphics::DrawGrid(const IColor& color, const IRECT& rect, int gridSizeH, int gridSizeV, const IBlend* pBlend)
+void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend, float thickness)
 {
   // Vertical Lines grid
   if (gridSizeH > 1)
   {
-    for (int x = 0; x < rect.W(); x += gridSizeH)
+    for (int x = 0; x < bounds.W(); x += gridSizeH)
     {
-      DrawVerticalLine(color, rect, (float)x/(float) rect.W(), pBlend);
+      DrawVerticalLine(color, bounds, (float)x/(float) bounds.W(), pBlend, thickness);
     }
   }
     // Horizontal Lines grid
   if (gridSizeV > 1)
   {
-    for (int y = 0; y < rect.H(); y += gridSizeV)
+    for (int y = 0; y < bounds.H(); y += gridSizeV)
     {
-      DrawHorizontalLine(color, rect, (float)y/(float) rect.H(), pBlend);
+      DrawHorizontalLine(color, bounds, (float)y/(float) bounds.H(), pBlend, thickness);
     }
   }
 }
 
-bool IGraphics::IsDirty(IRECT& rect)
+bool IGraphics::IsDirty(IRECT& bounds)
 {
 #ifndef NDEBUG
   if (mShowControlBounds)
   {
-    rect = mDrawRECT;
+    bounds = mDrawRECT;
     return true;
   }
 #endif
@@ -442,7 +432,7 @@ bool IGraphics::IsDirty(IRECT& rect)
     IControl* pControl = *ppControl;
     if (pControl->IsDirty())
     {
-      rect = rect.Union(pControl->GetRECT());
+      bounds = bounds.Union(pControl->GetRECT());
       dirty = true;
     }
   }
@@ -464,7 +454,7 @@ bool IGraphics::IsDirty(IRECT& rect)
 
 // The OS is announcing what needs to be redrawn,
 // which may be a larger area than what is strictly dirty.
-void IGraphics::Draw(const IRECT& rect)
+void IGraphics::Draw(const IRECT& bounds)
 {
   int n = mControls.GetSize();
 
@@ -473,12 +463,12 @@ void IGraphics::Draw(const IRECT& rect)
 
   if (mStrict)
   {
-    mDrawRECT = rect;
+    mDrawRECT = bounds;
     IControl** ppControl = mControls.GetList();
     for (auto i = 0; i < n; ++i, ++ppControl)
     {
       IControl* pControl = *ppControl;
-      if (!(pControl->IsHidden()) && rect.Intersects(pControl->GetRECT()))
+      if (!(pControl->IsHidden()) && bounds.Intersects(pControl->GetRECT()))
       {
         ClipRegion(mDrawRECT);
         pControl->Draw(*this);
@@ -522,12 +512,12 @@ void IGraphics::Draw(const IRECT& rect)
         IControl* pControl = mControls.Get(i); // assign control i to pControl
         if (pControl->IsDirty())   // if pControl is dirty
         {
-          mDrawRECT = pControl->GetRECT(); // put the rect in the mDrawRect member variable
+          mDrawRECT = pControl->GetRECT(); // put the bounds in the mDrawRect member variable
           for (auto j = 0; j < n; ++j)   // loop through all controls
           {
             IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
 
-            // if control1 == control2 OR control2 is not hidden AND control2's rect intersects mDrawRect
+            // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
             if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT().Intersects(mDrawRECT)))
             {
               ClipRegion(mDrawRECT);
@@ -551,7 +541,7 @@ void IGraphics::Draw(const IRECT& rect)
   {
     static IColor c;
     c.Randomise(50);
-    FillRect(c, rect);
+    FillRect(c, bounds);
   }
 
   if(mShowControlBounds)
@@ -896,9 +886,9 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 
     Steinberg::Vst::ParamID p = paramIdx;
 
-    Steinberg::Vst::IContextMenu* menu = handler->createContextMenu(pVST3->GetView(), &p);
+    Steinberg::Vst::IContextMenu* pVST3ContextMenu = handler->createContextMenu(pVST3->GetView(), &p);
 
-    if (menu)
+    if (pVST3ContextMenu)
     {
       Steinberg::Vst::IContextMenu::Item item = {0};
 
@@ -912,15 +902,15 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
         else
           item.flags = 0;
 
-        menu->addItem(item, GetControl(controlIdx));
+        pVST3ContextMenu->addItem(item, GetControl(controlIdx));
       }
 
-      menu->popup((Steinberg::UCoord) x,(Steinberg::UCoord) y);
-      menu->release();
+      pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
+      pVST3ContextMenu->release();
     }
 
 #else
-    CreateIPopupMenu(contextMenu, x, y);
+    CreatePopupMenu(contextMenu, x, y);
     pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
 #endif
   }
@@ -1138,4 +1128,24 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
 
   return nullptr;
 }
+
+//auto IGraphics::LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false)
+//{
+//  WDL_String fn(fileName);
+//  
+//  const char* ext = fn.get_fileext();
+//  
+//  if(strcmp(ext, "png"))
+//  {
+//    return LoadBitmap(fileName, nStates, framesAreHorizontal);
+//  }
+//  else if(strcmp(ext, "svg"))
+//  {
+//    return LoadSVG(fileName);
+//  }
+//  else if(strcmp(ext, "ttf"))
+//  {
+//    return LoadFont(fileName);
+//  }
+//}
 

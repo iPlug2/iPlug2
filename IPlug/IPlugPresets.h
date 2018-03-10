@@ -28,11 +28,8 @@ public:
   IPlugPresetHandler(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugPresetHandler();
 
-  /**
-   Called by API class in order to attach this.
-   
-   @param pPlug pointer to the API class
-   */
+  /** Called by API class in order to attach this.
+   @param pPlug pointer to the API class */
   void AttachPresetHandler(void* pPlug) { mPlugBase = pPlug; }
   
   virtual void PresetsChangedByHost() {} // does nothing by default

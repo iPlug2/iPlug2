@@ -42,6 +42,18 @@
 		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
+		4F2F94FC2052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4F2F94FD2052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4F2F94FE2052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4F2F94FF2052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4F2F95002052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4F2F95012052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4F2F95022052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
+		4F2F95032052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
+		4F2F95042052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
+		4F2F95052052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
+		4F2F95062052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
+		4F2F95072052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
 		4F3862EF2014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F02014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F12014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -242,24 +254,6 @@
 		B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
-		B8F615F0204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
-		B8F615F1204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
-		B8F615F2204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
-		B8F615F3204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
-		B8F615F4204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
-		B8F615F5204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */; };
-		B8F615F6204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
-		B8F615F7204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
-		B8F615F8204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
-		B8F615F9204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
-		B8F615FA204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
-		B8F615FB204CA35200CE71C9 /* dial_large@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EE204CA35200CE71C9 /* dial_large@2x.png */; };
-		B8F615FC204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
-		B8F615FD204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
-		B8F615FE204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
-		B8F615FF204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
-		B8F61600204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
-		B8F61601204CA35200CE71C9 /* dial_medium.png in Resources */ = {isa = PBXBuildFile; fileRef = B8F615EF204CA35200CE71C9 /* dial_medium.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -352,6 +346,8 @@
 		4F23BA1413B647E50097A67E /* IPlugEffect-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-macOS-Info.plist"; path = "../resources/IPlugEffect-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST2-Info.plist"; path = "../resources/IPlugEffect-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; };
+		4F2F94F92052A6480087A37F /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = knob.png; path = ../resources/img/knob.png; sourceTree = "<group>"; };
+		4F2F94FB2052A6480087A37F /* knob@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "knob@2x.png"; path = "../resources/img/knob@2x.png"; sourceTree = "<group>"; };
 		4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugEffect.cpp; path = ../IPlugEffect.cpp; sourceTree = "<group>"; };
 		4F3862EE2014BBEC0009F402 /* IPlugEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEffect.h; path = ../IPlugEffect.h; sourceTree = "<group>"; };
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
@@ -480,6 +476,7 @@
 		4F7C946E2029473D00B20111 /* IPlugPresets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPresets.cpp; path = ../../../IPlug/IPlugPresets.cpp; sourceTree = "<group>"; };
 		4F7C94702029473D00B20111 /* IPlugPresets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPresets.h; path = ../../../IPlug/IPlugPresets.h; sourceTree = "<group>"; };
 		4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
+		4F8ECF40205169C700292D0A /* IPlugEasing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEasing.h; path = ../../../IPlug/IPlugEasing.h; sourceTree = "<group>"; };
 		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; };
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
 		4F8F61B120280CB4003F2573 /* IPlugBase_select.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugBase_select.h; path = ../../../IPlug/IPlugBase_select.h; sourceTree = "<group>"; };
@@ -569,9 +566,6 @@
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IPlug/IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8C5FB3B204AF4C400D5C34E /* 23.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = 23.svg; path = ../resources/img/23.svg; sourceTree = "<group>"; };
-		B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IKnobRotaterControl.png; path = ../resources/img/IKnobRotaterControl.png; sourceTree = "<group>"; };
-		B8F615EE204CA35200CE71C9 /* dial_large@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dial_large@2x.png"; path = "../resources/img/dial_large@2x.png"; sourceTree = "<group>"; };
-		B8F615EF204CA35200CE71C9 /* dial_medium.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dial_medium.png; path = ../resources/img/dial_medium.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -933,6 +927,7 @@
 				4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */,
 				4F7C94702029473D00B20111 /* IPlugPresets.h */,
 				4F7C946E2029473D00B20111 /* IPlugPresets.cpp */,
+				4F8ECF40205169C700292D0A /* IPlugEasing.h */,
 				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
 				4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */,
 				4FD7C3A1203372AD009DBA2C /* IPlugDelegate.h */,
@@ -1007,7 +1002,6 @@
 		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
 			isa = PBXGroup;
 			children = (
-				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FDA1DD320123CDA0027C868 /* NanoVG */,
 				4FDA1DCC20123C730027C868 /* Lice */,
 				4FDA1DCD20123C8B0027C868 /* Cairo */,
@@ -1068,9 +1062,8 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
-				B8F615EE204CA35200CE71C9 /* dial_large@2x.png */,
-				B8F615EF204CA35200CE71C9 /* dial_medium.png */,
-				B8F615ED204CA35200CE71C9 /* IKnobRotaterControl.png */,
+				4F2F94F92052A6480087A37F /* knob.png */,
+				4F2F94FB2052A6480087A37F /* knob@2x.png */,
 				B8C5FB3B204AF4C400D5C34E /* 23.svg */,
 				4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */,
 			);
@@ -1176,6 +1169,7 @@
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
+				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
 				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
@@ -1480,11 +1474,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8F615FD204CA35200CE71C9 /* dial_medium.png in Resources */,
-				B8F615F1204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
-				B8F615F7204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */,
+				4F2F95032052A6480087A37F /* knob@2x.png in Resources */,
+				4F2F94FD2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1492,11 +1485,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8F615FF204CA35200CE71C9 /* dial_medium.png in Resources */,
-				B8F615F3204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
-				B8F615F9204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */,
+				4F2F95052052A6480087A37F /* knob@2x.png in Resources */,
+				4F2F94FF2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1504,12 +1496,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8F61601204CA35200CE71C9 /* dial_medium.png in Resources */,
 				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
+				4F2F95012052A6480087A37F /* knob.png in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */,
-				B8F615F5204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
-				B8F615FB204CA35200CE71C9 /* dial_large@2x.png in Resources */,
+				4F2F95072052A6480087A37F /* knob@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1517,11 +1508,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8F615FE204CA35200CE71C9 /* dial_medium.png in Resources */,
-				B8F615F2204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
-				B8F615F8204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */,
+				4F2F95042052A6480087A37F /* knob@2x.png in Resources */,
+				4F2F94FE2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1529,11 +1519,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8F61600204CA35200CE71C9 /* dial_medium.png in Resources */,
-				B8F615F4204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
 				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
-				B8F615FA204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */,
+				4F2F95062052A6480087A37F /* knob@2x.png in Resources */,
+				4F2F95002052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1542,11 +1531,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
+				4F2F94FC2052A6480087A37F /* knob.png in Resources */,
+				4F2F95022052A6480087A37F /* knob@2x.png in Resources */,
 				B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
-				B8F615F0204CA35200CE71C9 /* IKnobRotaterControl.png in Resources */,
-				B8F615FC204CA35200CE71C9 /* dial_medium.png in Resources */,
-				B8F615F6204CA35200CE71C9 /* dial_large@2x.png in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1929,7 +1917,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
-					"$(VST2_SDK)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_PREPROCESS = NO;
@@ -2008,7 +1995,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
-					"$(VST2_SDK)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_PREPROCESS = NO;
@@ -2672,7 +2658,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
-					"$(VST2_SDK)",
 				);
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_PREPROCESS = NO;

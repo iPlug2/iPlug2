@@ -70,21 +70,18 @@ public:
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
-  void ForcePixel(const IColor& color, int x, int y) override;
-  
-  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend) override;
-  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void DrawRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void DrawRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
-  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
-  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend) override;
-    
-  void DrawDottedRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
+  void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
+  void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness) override;
+  void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float thickness) override;
+  void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend, float thickness) override;
+  void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, float thickness) override;
+  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
 
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
-  void FillRect(const IColor& color, const IRECT& rect, const IBlend* pBlend) override;
-  void FillRoundRect(const IColor& color, const IRECT& rect, float cr, const IBlend* pBlend) override;
+  void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
   void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
@@ -92,10 +89,10 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetData() override { return mDrawBitmap->getBits(); }
 
-  bool DrawText(const IText& text, const char* str, IRECT& rect, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
-  //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& rect, const char* name, int targetScale) override;
+  //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) override;
   
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 

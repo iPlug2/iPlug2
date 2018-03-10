@@ -11,27 +11,23 @@ template <typename T>
 class AAX_CIPlugTaperDelegate : public AAX_ITaperDelegate<T>
 {
 public: 
-  AAX_CIPlugTaperDelegate(T minValue=0, T maxValue=1, double shape = 1.);
+  AAX_CIPlugTaperDelegate(IParam& iParam);
   
   //Virtual AAX_ITaperDelegate Overrides
   AAX_CIPlugTaperDelegate<T>* Clone() const;
-  T GetMinimumValue() const { return mMinValue; }
-  T GetMaximumValue() const { return mMaxValue; }
+  T GetMinimumValue() const { return mParam.GetMin(); }
+  T GetMaximumValue() const { return mParam.GetMax(); }
   T ConstrainRealValue(T value) const;
   T NormalizedToReal(double normalizedValue) const;
   double  RealToNormalized(T realValue) const;
 
 private:
-  T mMinValue;
-  T mMaxValue;
-  double mShape;
+  IParam& mParam;
 };
 
 template <typename T>
-AAX_CIPlugTaperDelegate<T>::AAX_CIPlugTaperDelegate(T minValue, T maxValue, double shape):AAX_ITaperDelegate<T>(),
-  mMinValue(minValue),
-  mMaxValue(maxValue),
-  mShape(shape)
+AAX_CIPlugTaperDelegate<T>::AAX_CIPlugTaperDelegate(IParam& iParam):AAX_ITaperDelegate<T>(),
+  mParam(iParam)
 {
 }
 
@@ -44,27 +40,17 @@ AAX_CIPlugTaperDelegate<T>*   AAX_CIPlugTaperDelegate<T>::Clone() const
 template <typename T>
 T   AAX_CIPlugTaperDelegate<T>::ConstrainRealValue(T value) const
 {
-  if (value > mMaxValue)
-    return mMaxValue;
-  if (value < mMinValue)
-    return mMinValue;
-  return value;
+  return mParam.Clamp(value);
 }
 
 template <typename T>
 T   AAX_CIPlugTaperDelegate<T>::NormalizedToReal(double normalizedValue) const
-{  
-  double doubleRealValue = FromNormalizedParam(normalizedValue, mMinValue, mMaxValue, mShape);
-  
-  T realValue = (T)doubleRealValue;
-  
-  return ConstrainRealValue(realValue);
+{
+  return mParam.Clamp(mParam.GetNonNormalized(normalizedValue));
 }
 
 template <typename T>
 double  AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
 {
-  realValue = ConstrainRealValue(realValue);
-  
-  return ToNormalizedParam(realValue, mMinValue, mMaxValue, mShape);
+  return mParam.GetNormalized(realValue);
 }

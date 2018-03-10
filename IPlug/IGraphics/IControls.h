@@ -19,7 +19,7 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr,
+  IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   uint32_t numStates = 2, EDirection dir = kVertical);
 
@@ -35,7 +35,7 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IDelegate& dlg, IRECT rect, int paramIdx,
+  IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
                 float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
@@ -51,8 +51,8 @@ protected:
 class IVSVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IDelegate& dlg, IRECT rect, ISVG& svg, int paramIdx = kNoParameter)
-    : IKnobControlBase(dlg, rect, paramIdx)
+  IVSVGKnob(IDelegate& dlg, IRECT bounds, ISVG& svg, int paramIdx = kNoParameter)
+    : IKnobControlBase(dlg, bounds, paramIdx)
     , mSVG(svg)
   {
   }
@@ -82,8 +82,8 @@ class IVSliderControl : public IControl
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IDelegate& dlg, IRECT rect, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection dir = kVertical)
-  : IControl(dlg, rect, paramIdx)
+  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection dir = kVertical)
+  : IControl(dlg, bounds, paramIdx)
   , IVectorBase(colorSpec)
   , mDirection(dir)
   {
@@ -148,7 +148,7 @@ public:
     //kFR = kFR
   };
   
-  IVKeyboardControl(IDelegate& dlg, IRECT rect,
+  IVKeyboardControl(IDelegate& dlg, IRECT bounds,
                     int minNote = 36, int maxNote = 60);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -282,8 +282,8 @@ protected:
 class IBTextControl : public ITextControl
 {
 public:
-  IBTextControl(IDelegate& dlg, IRECT rect, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
-  : ITextControl(dlg, rect, text, str)
+  IBTextControl(IDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType bl = kBlendNone)
+  : ITextControl(dlg, bounds, text, str)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
   , mCharOffset(charOffset)

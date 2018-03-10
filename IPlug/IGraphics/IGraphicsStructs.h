@@ -78,8 +78,8 @@ public:
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
   * @param n Number of frames (for multibitmaps)
-  * @param framesAreHorizontal \c True if the frames are positioned horizontally
-  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) @todo Subject to change
+  * @param framesAreHorizontal \c true if the frames are positioned horizontally
+  * @param sourceScale Scaling of the original bitmap (typically 1, 2 would be for a @2x hi dpi bitmap) \todo Subject to change
   * @param name Resource name for the bitmap
   */
     
@@ -149,7 +149,7 @@ private:
   int mH;
   /** Number of frames (for stacked bitmaps) */
   int mN;
-  /** \c True if the frames are positioned horizontally */
+  /** \c true if the frames are positioned horizontally */
   bool mFramesAreHorizontal;
   /** Resource path/name for the bitmap */
   WDL_String mResourceName;
@@ -285,7 +285,7 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * @todo IBlend::weight needs documentation
+   * \todo IBlend::weight needs documentation
    * @param weight
   */
   IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
@@ -633,6 +633,16 @@ struct IRECT
     return IRECT(L, T-padding, R, B+padding);
   }
   
+  inline IRECT GetMidHPadded(float padding) const
+  {
+    return IRECT(MW()-padding, T, MW()+padding, B);
+  }
+  
+  inline IRECT GetMidVPadded(float padding) const
+  {
+    return IRECT(L, MH()-padding, R, MH()+padding);
+  }
+  
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -683,6 +693,28 @@ struct IRECT
   IRECT GetFlipped(int graphicsHeight) const
   {
     return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
+  }
+  
+  IRECT GetCentredInside(IRECT sr)
+  {
+    IRECT r;
+    r.L = MW() - sr.W() / 2.;
+    r.T = MH() - sr.H() / 2.;
+    r.R = r.L + sr.W();
+    r.B = r.T + sr.H();
+    
+    return r;
+  }
+  
+  IRECT GetCentredInside(IBitmap bitmap)
+  {
+    IRECT r;
+    r.L = MW() - bitmap.FW() / 2.;
+    r.T = MH() - bitmap.FH() / 2.;
+    r.R = r.L + (float) bitmap.FW();
+    r.B = r.T + (float) bitmap.FH();
+    
+    return r;
   }
 };
 

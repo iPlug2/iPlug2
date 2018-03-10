@@ -18,6 +18,28 @@ static inline float DegToRad(float degrees)
  return (float) PI * (degrees / 180.f);
 }
 
+/** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
+ * @param angle The angle to draw at in degrees clockwise where 0 is up
+ * @param cx centre point x coordinate
+ * @param cy centre point y coordinate
+ * @param rMin minima of the radial line (distance from cx,cy)
+ * @param rMax maxima of the radial line (distance from cx,cy)
+ * @param nPoints Number of points between rMin and rMax to obtain
+ * @param data Multidimensional array for nPoints pairs of float coordinates for the points */
+static inline void RadialPoints(float angleDegrees, float cx, float cy, float rMin, float rMax, int nPoints, float data[][2])
+{
+  const float angleRadians = DegToRad(angleDegrees-90.f);
+  const float sinV = sinf(angleRadians);
+  const float cosV = cosf(angleRadians);
+  
+  for(auto i = 0; i < nPoints; i++)
+  {
+    const float r = rMin+(rMax-rMin) * (float) i / float (nPoints-1);
+    data[i][0] = (cx + r * cosV);
+    data[i][1] = (cy + r * sinV);
+  }
+}
+
 #ifdef AAX_API
 #include "AAX_Enums.h"
 

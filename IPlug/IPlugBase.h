@@ -84,7 +84,7 @@ public:
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
    * @param noteNumber MIDI note to get the textual description for
    * @param str char array to set the text for the note. Should be less thatn kVstMaxNameLen (64) characters
-   * @return return \c true if you specified a custom textual description for this note */
+   * @return \c true if you specified a custom textual description for this note */
   virtual bool GetMidiNoteText(int noteNumber, char* str) const { *str = '\0'; return false; }
 
   /** You need to implement this method if you are not using IGraphics and you want to support AAX's view interface functionality
@@ -236,7 +236,7 @@ public:
 
   /** Serializes the current double precision floating point, non-normalised values (IParam::mValue) of all parameters, into a binary byte chunk.
    * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
-   * @return return \c true if the serialization was successful */
+   * @return \c true if the serialization was successful */
   bool SerializeParams(IByteChunk& chunk);
 
   /** Unserializes double precision floating point, non-normalised values from a byte chunk into mParams.

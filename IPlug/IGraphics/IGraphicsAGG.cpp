@@ -210,8 +210,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   mRasterizer.SetPath(tr);
   mRasterizer.Rasterize(renderer);
   /*
-  IRECT rect = dest;
-  rect.Scale(GetDisplayScale());
+  IRECT bounds = dest;
+  bounds.Scale(GetDisplayScale());
   
   srcX *= GetDisplayScale();
   srcY *= GetDisplayScale();
@@ -221,8 +221,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   
   mPixf.comp_op(AGGBlendMode(pBlend));
   
-  agg::rect_i r(srcX, srcY, srcX + rect.W(), srcY + rect.H());
-  mRasterizer.GetBase().blend_from(PixfmtType(buf), &r, -srcX + rect.L, -srcY + rect.T, AGGCover(pBlend));
+  agg::rect_i r(srcX, srcY, srcX + bounds.W(), srcY + bounds.H());
+  mRasterizer.GetBase().blend_from(PixfmtType(buf), &r, -srcX + bounds.L, -srcY + bounds.T, AGGCover(pBlend));
    */
 }
 
@@ -269,8 +269,8 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   SpanAllocatorType spanAllocator;
   BitmapRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
   
-  agg::rounded_rect rect(0, 0, width, height, 0);
-  agg::conv_transform<agg::rounded_rect> tr(rect, srcMatrix);
+  agg::rounded_rect bounds(0, 0, width, height, 0);
+  agg::conv_transform<agg::rounded_rect> tr(bounds, srcMatrix);
   
   mRasterizer.SetPath(tr);
   mRasterizer.Rasterize(renderer);
@@ -368,10 +368,10 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
 }
 
 /*
-IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, const char* cacheName, int scale)
+IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& bounds, const char* cacheName, int scale)
 {
   agg::pixel_map* pPixelMap = (agg::pixel_map*) srcbitmap.mAPIBitmap->GetBitmap();
-  agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(rect.W(), rect.H());
+  agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(bounds.W(), bounds.H());
   
   agg::rendering_buffer src;
   agg::rendering_buffer dest;
@@ -386,9 +386,9 @@ IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& rect, co
 
   renbase.clear(agg::rgba(0, 0, 0, 0));
   
-  agg::rect_i src_r(rect.L, rect.T, rect.R, rect.B);
+  agg::rect_i src_r(bounds.L, bounds.T, bounds.R, bounds.B);
   
-  renbase.copy_from(imgPixfSrc, &src_r, -rect.L, -rect.T);
+  renbase.copy_from(imgPixfSrc, &src_r, -bounds.L, -bounds.T);
   
   AGGBitmap *pAPIBitmap = new AGGBitmap(pCopy, scale);
   
@@ -475,8 +475,8 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   SpanGeneratorType spanGenerator(imgSrc, interpolator);
   BitmapRenderType renderer(renBase, spanAllocator, spanGenerator);
   
-  agg::rounded_rect rect(0, 0, destW, destH, 0);
-  rasterizer.add_path(rect);
+  agg::rounded_rect bounds(0, 0, destW, destH, 0);
+  rasterizer.add_path(bounds);
   agg::render_scanlines(rasterizer, scanline, renderer);
   
   return new AGGBitmap(pCopy, scale);
@@ -491,7 +491,7 @@ void IGraphicsAGG::RenderDrawBitmap()
 #endif
 }
 
-void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& rect, const char* str, FontManagerType& manager)
+void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager)
 {
   LineInfo info;
   info.mStartChar = 0;
@@ -526,7 +526,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
       pLine->mWidth = xCount;
     }
     
-    if (rect.W() > 0 && xCount >= rect.W())
+    if (bounds.W() > 0 && xCount >= bounds.W())
     {
       assert(pLine);
       
@@ -547,15 +547,15 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect, bool measure)
+bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBounds, bool measure)
 {
 //  if (!str || str[0] == '\0')
 //  {
 //    return true;
 //  }
 //
-//  IRECT rect = destRect;
-//  rect.Scale(GetDisplayScale());
+//  IRECT bounds = destBounds;
+//  bounds.Scale(GetDisplayScale());
 //
 //  RendererSolid renSolid(mRenBase);
 //  RendererBin renBin(mRenBase);
@@ -600,12 +600,12 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //    mFontEngine.width(text.mSize * GetDisplayScale());
 //    mFontEngine.flip_y(true);
 //
-//    double x = rect.L;
-//    double y = rect.T + (text.mSize * GetDisplayScale());
+//    double x = bounds.L;
+//    double y = bounds.T + (text.mSize * GetDisplayScale());
 //
 //    WDL_TypedBuf<LineInfo> lines;
 //
-//    CalculateTextLines(&lines, rect, str, mFontManager);
+//    CalculateTextLines(&lines, bounds, str, mFontManager);
 //
 //    LineInfo * pLines = lines.Get();
 //
@@ -614,13 +614,13 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
 //      switch (text.mAlign)
 //      {
 //        case IText::kAlignNear:
-//          x = rect.L;
+//          x = bounds.L;
 //          break;
 //        case IText::kAlignCenter:
-//          x = rect.L + ((rect.W() - pLines->mWidth) / 2);
+//          x = bounds.L + ((bounds.W() - pLines->mWidth) / 2);
 //          break;
 //        case IText::kAlignFar:
-//          x = rect.L + (rect.W() - pLines->mWidth);
+//          x = bounds.L + (bounds.W() - pLines->mWidth);
 //          break;
 //      }
 //
@@ -689,11 +689,11 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destRect,
   return false;
 }
 
-bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRect)
+bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
 //  if (!str || str[0] == '\0')
 //  {
-//    destRect.Clear();
+//    destBounds.Clear();
 //    return true;
 //  }
 
@@ -741,7 +741,7 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
 //
 //    WDL_TypedBuf<LineInfo> lines;
 //
-//    CalculateTextLines(&lines, destRect, str, mFontManager);
+//    CalculateTextLines(&lines, destBounds, str, mFontManager);
 //
 //    LineInfo * pLines = lines.Get();
 //
@@ -757,8 +757,8 @@ bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& destRe
 //      height += text.mSize * GetDisplayScale();
 //    }
 //
-//    destRect.L = 0; destRect.T = 0;
-//    destRect.R = max_width; destRect.B = height;
+//    destBounds.L = 0; destBounds.T = 0;
+//    destBounds.R = max_width; destBounds.B = height;
 //
 //    return true;
 //  }
@@ -774,10 +774,10 @@ agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 
 */
 
-void IGraphicsAGG::Draw(const IRECT& rect)
+void IGraphicsAGG::Draw(const IRECT& bounds)
 {
   mRasterizer.ClearWhite();
-  IGraphics::Draw(rect);
+  IGraphics::Draw(bounds);
 }
 
 #include "IGraphicsAGG_src.cpp"

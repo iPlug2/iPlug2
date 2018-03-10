@@ -2,9 +2,10 @@
 
 /**
  * @file
- * @brief Constant definitions, magic numbers
+ * @brief Constant definitions, Types, magic numbers
  */
 
+#include <functional>
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
 #define SAMPLE_TYPE_DOUBLE
@@ -19,6 +20,8 @@ typedef double PLUG_SAMPLE_SRC;
 #endif
 
 typedef PLUG_SAMPLE_DST sample;
+
+typedef std::function<double(double, double, bool)> IShapeFunc;
 
 #define LOGFILE "IPlugLog.txt"
 #define MAX_PROCESS_TRACE_COUNT 100

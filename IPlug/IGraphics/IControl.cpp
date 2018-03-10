@@ -3,10 +3,10 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
-IControl::IControl(IDelegate& dlg, IRECT rect, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
-, mRECT(rect)
-, mTargetRECT(rect)
+, mRECT(bounds)
+, mTargetRECT(bounds)
 , mParamIdx(paramIdx)
 , mActionFunc(actionFunc)
 {
@@ -132,11 +132,11 @@ void IControl::PromptUserInput()
   }
 }
 
-void IControl::PromptUserInput(IRECT& textRect)
+void IControl::PromptUserInput(IRECT& bounds)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
-    GetUI()->PromptUserInput(*this, textRect);
+    GetUI()->PromptUserInput(*this, bounds);
     Redraw();
   }
 }
@@ -224,16 +224,16 @@ const IParam* IControl::GetParam()
     return nullptr;
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& rect)
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds)
 {
-  rect.Constrain(x, y);
+  bounds.Constrain(x, y);
   
   float val;
   
   if(direction == kVertical)
-    val = 1.f - (y-rect.T) / rect.H();
+    val = 1.f - (y-bounds.T) / bounds.H();
   else
-    val = 1.f - (x-rect.B) / rect.W();
+    val = 1.f - (x-bounds.B) / bounds.W();
   
   mValue = round( val / 0.001 ) * 0.001;
   
@@ -298,8 +298,8 @@ void ITextControl::Draw(IGraphics& graphics)
   }
 }
 
-ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT rect, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(dlg, rect, text)
+ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
+: ITextControl(dlg, bounds, text)
 , mShowParamLabel(showParamLabel)
 {
   assert(paramIdx > kNoParameter);
@@ -335,9 +335,9 @@ void ICaptionControl::Draw(IGraphics& graphics)
   return ITextControl::Draw(graphics);
 }
 
-ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT rect, int paramIdx, std::function<void(IControl*)> actionFunc,
+ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc,
   uint32_t numStates)
-  : IControl(dlg, rect, paramIdx, actionFunc)
+  : IControl(dlg, bounds, paramIdx, actionFunc)
 {
   if (paramIdx > kNoParameter)
     mNumStates = (uint32_t) GetParam()->GetRange() + 1;

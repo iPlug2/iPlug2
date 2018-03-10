@@ -27,7 +27,7 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    IPopupMenu* menu = GetUI()->CreateIPopupMenu(mMainMenu, mRECT);
+    IPopupMenu* menu = GetUI()->CreatePopupMenu(mMainMenu, mRECT);
     
     if(menu)
     {
@@ -50,8 +50,8 @@ private:
 class IArcControl : public IKnobControlBase
 {
 public:
-  IArcControl(IPlugBaseGraphics& plug, IRECT rect, int param, float angle1 = -135.f, float angle2 = 135.f)
-  : IKnobControlBase(plug, rect, param)
+  IArcControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
+  : IKnobControlBase(plug, rect, paramIdx)
   , mAngle1(angle1)
   , mAngle2(angle2)
   {
@@ -101,8 +101,8 @@ private:
 class IPolyControl : public IKnobControlBase
 {
 public:
-  IPolyControl(IPlugBaseGraphics& plug, IRECT rect, int param)
-  : IKnobControlBase(plug, rect, param)
+  IPolyControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  : IKnobControlBase(plug, rect, paramIdx)
   {
   }
   
@@ -145,8 +145,8 @@ private:
 class IGradientControl : public IKnobControlBase
 {
 public:
-  IGradientControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
-  : IKnobControlBase(plug, rect, paramIdx)
+  IGradientControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdxIdx)
+  : IKnobControlBase(plug, rect, paramIdxIdx)
   {
     RandomiseGradient();
   }
@@ -202,8 +202,8 @@ private:
 class IMultiPathControl : public IKnobControlBase
 {
 public:
-  IMultiPathControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
-  : IKnobControlBase(plug, rect, paramIdx), mShape(0)
+  IMultiPathControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdxIdx)
+  : IKnobControlBase(plug, rect, paramIdxIdx), mShape(0)
   {
   }
   
@@ -216,6 +216,8 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
+    graphics.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
+    
     if (graphics.HasPathSupport())
     {
       double r = mValue * (mRECT.H() / 2.0);
@@ -275,8 +277,14 @@ private:
 class IBKnobControl : public IKnobControlBase
 {
 public:
-  IBKnobControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int param)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), param)
+  IBKnobControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
+  , mBitmap(bitmap)
+  {
+  }
+  
+  IBKnobControl(IPlugBaseGraphics& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
   , mBitmap(bitmap)
   {
   }
@@ -300,8 +308,8 @@ private:
 class IBKnobRotaterControl : public IKnobControlBase
 {
 public:
-  IBKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int param)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), param)
+  IBKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
   , mBitmap(bitmap)
   {
   }

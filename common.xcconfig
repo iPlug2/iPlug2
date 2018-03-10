@@ -45,6 +45,7 @@ APP_DEFS = APP_API __MACOSX_CORE__
 
 // the top level WDL-OL folder e.g. where this common.xcconfig is
 ROOT = $(SRCROOT)/../../..
+PROJECT_ROOT = $(SRCROOT)/..
 
 PKGMAN_PATH = /usr/local
 
@@ -67,7 +68,7 @@ AAX_SDK = $(ROOT)/AAX_SDK
 CA_SDK = $(ROOT)/CA_SDK
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
 
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 

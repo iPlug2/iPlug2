@@ -163,6 +163,8 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          APIBitmap \
                          AGGBitmap \
                          LICEBitmap \
+                         Rasterizer \
+                         DashOptions 
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
@@ -299,7 +301,7 @@ EXPAND_ONLY_PREDEF     = NO
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
-PREDEFINED             = 
+PREDEFINED             = DOXYGEN_SHOULD_SKIP_THIS
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 

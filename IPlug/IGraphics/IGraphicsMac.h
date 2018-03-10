@@ -11,7 +11,7 @@
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.h"
   typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-#else
+#elif !defined DOXYGEN_SHOULD_SKIP_THIS
   #include "IGraphicsLice.h"
   typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
 #endif
@@ -42,7 +42,7 @@ public:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
-  const char* GetUIAPI() override;
+  const char* GetPlatformAPIStr() override;
   
   void UpdateTooltips() override;
 
@@ -58,8 +58,8 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreateIPopupMenu(IPopupMenu& menu, IRECT& rect) override;
-  void CreateTextEntry(IControl& control, const IText& text, const IRECT& textRect, const char* str) override;
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
@@ -70,7 +70,7 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  bool MeasureText(const IText& text, const char* str, IRECT& destRect) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
   void* mLayer;
 

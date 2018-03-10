@@ -3,10 +3,10 @@
 #import <Cocoa/Cocoa.h>
 #include "IGraphicsMac.h"
 
-inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& rect)
+inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float B = (pGraphics->Height() - rect.B);
-  return NSMakeRect(rect.L, B, rect.W(), rect.H());
+  float B = (pGraphics->Height() - bounds.B);
+  return NSMakeRect(bounds.L, B, bounds.W(), bounds.H());
 }
 
 inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
@@ -68,7 +68,7 @@ NSString* ToNSString(const char* cStr);
 - (BOOL) acceptsFirstResponder;
 - (BOOL) acceptsFirstMouse: (NSEvent*) pEvent;
 - (void) viewDidMoveToWindow;
-- (void) drawRect: (NSRect) rect;
+- (void) drawRect: (NSRect) bounds;
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
@@ -85,11 +85,11 @@ NSString* ToNSString(const char* cStr);
 - (void) killTimer;
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (IPopupMenu*) createIPopupMenu: (IPopupMenu&) menu : (NSRect) rect;
+- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
-- (void) registerToolTip: (IRECT&) rect;
+- (void) registerToolTip: (IRECT&) bounds;
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;

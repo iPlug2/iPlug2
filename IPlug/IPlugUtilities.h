@@ -112,16 +112,6 @@ inline void GetVersionStr(int version, WDL_String& str)
   str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
-inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape)
-{
-  return std::pow((nonNormalizedValue - min) / (max - min), 1.0 / shape);
-}
-
-inline double FromNormalizedParam(double normalizedValue, double min, double max, double shape)
-{
-  return min + std::pow((double) normalizedValue, shape) * (max - min);
-}
-
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {

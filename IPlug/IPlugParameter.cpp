@@ -34,7 +34,7 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeFunc shapeFunc)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -55,6 +55,11 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   }
   
   SetShape(shape);
+  
+  if(shape != 1.) // TODO: this assumes any param with shape != .1 is using ShapeFuncPowCurve
+    mShapeFunc = ShapeFuncPowCurve;
+  else
+    mShapeFunc = shapeFunc;
 }
 
 void IParam::SetShape(double shape)
@@ -79,7 +84,7 @@ double IParam::DBToAmp() const
 
 void IParam::SetNormalized(double normalizedValue)
 {
-  mValue = FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
+  mValue = FromNormalizedParam(normalizedValue);
   
   if (mType != kTypeDouble)
   {
@@ -97,17 +102,17 @@ double IParam::GetNormalized() const
 double IParam::GetNormalized(double nonNormalizedValue) const
 {
   nonNormalizedValue = BOUNDED(nonNormalizedValue, mMin, mMax);
-  return ToNormalizedParam(nonNormalizedValue, mMin, mMax, mShape);
+  return ToNormalizedParam(nonNormalizedValue);
 }
 
 double IParam::GetNonNormalized(double normalizedValue) const
 {
-  return FromNormalizedParam(normalizedValue, mMin, mMax, mShape);
+  return FromNormalizedParam(normalizedValue);
 }
 
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
-  if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape);
+  if (normalized) value = FromNormalizedParam(value);
 
   if (withDisplayText)
   {
@@ -188,9 +193,8 @@ const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
   DisplayText* pDT = mDisplayTexts.Get()+idx;
   
   if (pValue)
-  {
     *pValue = pDT->mValue;
-  }
+
   return pDT->mText;
 }
 

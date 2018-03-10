@@ -1,6 +1,6 @@
 # Quick Start
 
-@todo Lots more to do here!
+\todo Lots more to do here!
 
 ## Adding/modifying resources
 
@@ -45,7 +45,7 @@ Open _WDL-OL/Projects/MyNewPlugin/MyNewPlugin.xcodeproj_ and drag cat.png into t
 **Visual Studio**
 
 Edit _WDL-OL/Projects/MyNewPlugin/MyNewPlugin.rc_
-@todo Complete the guide for Visual Studio
+\todo Complete the guide for Visual Studio
 
 Now you have included the resource in your build, you can actually use it in the source code. In the plug-in's constructor, after creating the graphics context you can call:
 
