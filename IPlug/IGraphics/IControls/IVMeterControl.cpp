@@ -843,7 +843,7 @@ void IVMeterControl::Draw(IGraphics& g)
     if (!HoldingAPeak(ch))
       *OverBlinkPtr(ch) *= GetExpForDrop(1000.0 + 2.5 * DropMs(ch), fps);
 
-    if (mDrawBorders)
+    if (mDrawFrame)
       g.DrawRect(GetColor(mFr), bgRect);
 
     if (DrawMaxPeak(ch)) // not to draw borders over the peak value
@@ -1147,18 +1147,18 @@ void IVMeterControl::SetChanNames(const char* names, va_list args)
 
 void IVMeterControl::RecalcMaxChNameH(float oldAbsH)
 {
-  mChNameMaxH = 0.f;
-  float w, h;
-  for (int ch = 0; ch != NumChannels(); ++ch)
-    if (DrawChanName(ch))
-    {
-      BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
-      if (w != 0.0 && h > mChNameMaxH) mChNameMaxH = h;
-    }
-
-  auto finalAbsH = mChNameMaxH * mText.mSize;
-  mRECT.B += (finalAbsH - oldAbsH);
-  mTargetRECT = mRECT;
+//  mChNameMaxH = 0.f;
+//  float w, h;
+//  for (int ch = 0; ch != NumChannels(); ++ch)
+//    if (DrawChanName(ch))
+//    {
+//      BasicTextMeasure(ChanNamePtr(ch)->Get(), h, w);
+//      if (w != 0.0 && h > mChNameMaxH) mChNameMaxH = h;
+//    }
+//
+//  auto finalAbsH = mChNameMaxH * mText.mSize;
+//  mRECT.B += (finalAbsH - oldAbsH);
+//  mTargetRECT = mRECT;
 }
 
 
@@ -1297,7 +1297,7 @@ void IVMeterControl::DrawMarks(IGraphics& g)
                 rr.R -= ex;
               }
             }
-            if (mDrawBorders) rl.L += 1.f;
+            if (mDrawFrame) rl.L += 1.f;
           }
         }
         else
@@ -1426,7 +1426,7 @@ void IVMeterControl::RecalcMaxLabelLen(int ch)
           WDL_String l;
           l.SetFormatted(8, PrecisionString(ch).Get(), v);
           RemoveTrailingZeroes(&l);
-          BasicTextMeasure(l.Get(), th, len);
+//          BasicTextMeasure(l.Get(), th, len);
         }
       }
     }
@@ -1509,27 +1509,27 @@ IRECT IVMeterControl::ShiftRectVerticallyAt(IRECT r, float y)
   return r;
 }
 
-void IVMeterControl::BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth)
-{
-  float w = 0.0;
-  maxLineWidth = 0.0;
-  numLines = 0.0;
-  while (true)
-  {
-    if (*txt == '\0' || *txt == '\n')
-    {
-      ++numLines;
-      if (w > maxLineWidth)
-        maxLineWidth = w;
-      if (*txt == '\0')
-        break;
-      w = 0.0;
-    }
-    else
-      ++w;
-    ++txt;
-  }
-}
+//void IVMeterControl::BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth)
+//{
+//  float w = 0.0;
+//  maxLineWidth = 0.0;
+//  numLines = 0.0;
+//  while (true)
+//  {
+//    if (*txt == '\0' || *txt == '\n')
+//    {
+//      ++numLines;
+//      if (w > maxLineWidth)
+//        maxLineWidth = w;
+//      if (*txt == '\0')
+//        break;
+//      w = 0.0;
+//    }
+//    else
+//      ++w;
+//    ++txt;
+//  }
+//}
 
 void IVMeterControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
 {

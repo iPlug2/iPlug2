@@ -383,7 +383,7 @@ protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
   float mRoundness = 0.f;
-  float mShadowOffset = 5.0;
+  float mShadowOffset = 3.f;
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;

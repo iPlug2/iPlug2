@@ -105,7 +105,7 @@ public:
 
   void SetDrawBorders(bool draw)
   {
-    mDrawBorders = draw;
+    mDrawFrame = draw;
     SetDirty();
   }
 
@@ -117,7 +117,8 @@ public:
 
   void Draw(IGraphics& g) override;
 
-  void SetDirty(bool pushParamToDelegate = false) override
+  //TODO wrong
+  void SetDirty(bool triggerAction = false) override
   {
     mDirty = true;
   }
@@ -197,7 +198,7 @@ protected:
 
   bool mDrawShadows = true;
   float mShadowOffset = 3.f;
-  bool mDrawBorders = true;
+  bool mDrawFrame = true;
 
   double GetExpForDrop(double ms, double fps)
   {
@@ -238,7 +239,7 @@ protected:
   IColor LinearBlendColors(IColor cA, IColor cB, double mix);
   IRECT ShiftRectBy(IRECT r, float dx, float dy = 0.0);
   IRECT ShiftRectVerticallyAt(IRECT r, float y);
-  void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth);
+//  void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth);
   void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g);
 
   // getters

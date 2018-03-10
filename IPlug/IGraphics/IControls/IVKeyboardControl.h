@@ -52,7 +52,7 @@ public:
   
   IVKeyboardControl(IDelegate& dlg, IRECT bounds,
                     int minNote = 36, int maxNote = 60)
-  : IControl(dlg, bounds)
+  : IControl(dlg, bounds, kNoParameter)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   {
     AttachIControl(this);
@@ -184,7 +184,7 @@ public:
             g.FillRect(shadowColor, sr);
           }
         }
-        if (mDrawBorders && i != 0)
+        if (mDrawFrame && i != 0)
         { // only draw the left border if it doesn't overlay mRECT l border
           g.DrawLine(GetColor(kFR), kL, top, kL, wBot);
           if (i == NumKeys() - 2 && IsBlackKey(NumKeys() - 1))
@@ -223,7 +223,7 @@ public:
           cBP.A = (int)mBKAlpha;
           g.FillRect(cBP, kRect);
         }
-        if (mDrawBorders)
+        if (mDrawFrame)
         { // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
             g.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
@@ -235,7 +235,7 @@ public:
       }
     }
 
-    if (mDrawBorders)
+    if (mDrawFrame)
       g.DrawRect(GetColor(kFR), mRECT);
 
     if (mShowNoteAndVel)
@@ -406,7 +406,7 @@ public:
 
   void SetDrawBorders(bool draw)
   {
-    mDrawBorders = draw;
+    mDrawFrame = draw;
     SetDirty();
   }
 
