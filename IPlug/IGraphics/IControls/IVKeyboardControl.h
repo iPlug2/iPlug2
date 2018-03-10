@@ -594,9 +594,6 @@ private:
 
 protected:
   bool mShowNoteAndVel = false;
-  bool mDrawShadows = true;
-  bool mDrawBorders = true;
-
   float mWKWidth = 0.f;
   float mBKWidthR = 0.6f;
   float mBKHeightRatio = 0.6f;

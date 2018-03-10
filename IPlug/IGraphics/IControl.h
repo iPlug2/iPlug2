@@ -346,6 +346,10 @@ public:
 protected:
   WDL_TypedBuf<IColor> mColors;
   float mRoundness = 10.f;
+  float mShadowOffset = 3.0;
+  bool mDrawBorders = true;
+  bool mDrawShadows = true;
+  bool mEmboss = false;
 };
 
 /** A basic control to fill a rectangle with a color */

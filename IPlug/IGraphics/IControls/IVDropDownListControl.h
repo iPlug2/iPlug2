@@ -358,10 +358,6 @@ protected:
 
  bool mExpanded = false;
  bool mBlink = false;
- bool mDrawBorders = true;
- bool mDrawShadows = true;
- bool mEmboss = false;
- float mShadowOffset = 3.0;
 
  float mLastX = -1.0; // to avoid lots of useless extra computations
  float mLastY = -1.0;

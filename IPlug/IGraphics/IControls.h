@@ -21,7 +21,7 @@ class IVSwitchControl : public ISwitchControlBase
 public:
   IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  uint32_t numStates = 2, EDirection dir = kVertical);
+                  int numStates = 2, EDirection dir = kVertical);
 
   void Draw(IGraphics& g)  override;
   
@@ -141,11 +141,6 @@ protected:
   float mTxtH[2]; // [off, on], needed for nice multiline text drawing
   float mTxtW[2];
 
-  bool mDrawBorders = true;
-  bool mDrawShadows = true;
-  bool mEmboss = false;
-  float mShadowOffset = 3.0;
-
   void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g);
   void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
   {
@@ -222,6 +217,7 @@ public:
 
 class IBSliderControl : public ISliderControlBase
 {
+public:
   IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& handleBitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
   
