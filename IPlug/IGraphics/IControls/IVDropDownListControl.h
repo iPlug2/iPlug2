@@ -109,8 +109,8 @@ public:
          ++sx;
          sy = 0;
        }
-       IRECT vR = ShiftRectBy(initR, sx * rw, sy * rh);
-//       IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
+       IRECT vR = initR.GetShifted(sx * rw, sy * rh);
+//       IRECT tR = textR.GetShifted(sx * rw, sy * rh);
        if (v == mState)
        {
          if (mDrawShadows) // draw when emboss too, looks good
@@ -409,7 +409,7 @@ protected:
      ir.B -= mShadowOffset;
    }
    if (mExpanded)
-     ir = ShiftRectBy(ir, mRECT.L - ir.L, mRECT.T - ir.T); // if mRECT didn't fit and was shifted.
+     ir = ir.GetShifted(mRECT.L - ir.L, mRECT.T - ir.T); // if mRECT didn't fit and was shifted.
                                                            // will be different for some other expand directions
    return ir;
  }
@@ -458,14 +458,14 @@ protected:
    auto ex = mR.R - br.R;
    if (ex > 0.0)
    {
-     mR = ShiftRectBy(mR, -ex);
-     mT = ShiftRectBy(mT, -ex);
+     mR.Shift(-ex);
+     mT.Shift(-ex);
    }
    auto ey = mR.B - br.B;
    if (ey > 0.0)
    {
-     mR = ShiftRectBy(mR, 0.0, -ey);
-     mT = ShiftRectBy(mT, 0.0, -ey);
+     mR.Shift(0.0, -ey);
+     mT.Shift(0.0, -ey);
    }
 
    mExpanded = true;
