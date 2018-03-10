@@ -361,19 +361,19 @@ public:
     mControl->SetDirty(false);
   }
   
-  void SetDrawShadows(bool draw, bool keepButtonRect = true)
+  void SetDrawShadows(bool draw)
   {
     mDrawShadows = draw;
     mControl->SetDirty(false);
   }
   
-  void SetEmboss(bool emboss, bool keepButtonRect = true)
+  void SetEmboss(bool emboss)
   {
     mEmboss = emboss;
     mControl->SetDirty(false);
   }
   
-  void SetShadowOffset(float offset, bool keepButtonRect = true)
+  void SetShadowOffset(float offset)
   {
     mShadowOffset = offset;
     mControl->SetDirty(false);

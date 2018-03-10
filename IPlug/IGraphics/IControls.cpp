@@ -9,34 +9,51 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
   , mDirection(dir)
 {
   AttachIControl(this);
+  mDblAsSingleClick = true;
+
   mStep = 1.f / float(mNumStates) - 1.f;
 }
 
 void IVSwitchControl::Draw(IGraphics& g)
 {
-//  const int state = (int)std::round(mValue / mStep);
+  const float cornerRadius = mRoundness * (mRECT.W() / 2.);
 
-  g.FillRoundRect(GetColor(EVColor::kBG), mRECT, mRoundness, &mBlend);
+  g.FillRoundRect(GetColor(kBG), mRECT, mRoundness, &mBlend);
 
-//
-  IRECT handle;
-//
-//  if (mNumStates > 2)
-//  {
-//    if (mDirection == kHorizontal)
-//      handle = mRECT.SubRectHorizontal(mNumStates, state);
-//    if (mDirection == kVertical)
-//      handle = mRECT.SubRectVertical(mNumStates, state);
-//  }
-//  else
-    handle = mRECT;
-//
- // g.FillRect(GetColor(EVColor::kFG), handle.GetPadded(-10), &mBlend);
-//  g.FillCircle(GetColor(EVColor::kFG), handle.MW(), handle.MH(), handle.W()/2., &mBlend);
+  IRECT handleBounds = GetHandleBounds();
+  IColor shadowColor = IColor(60, 0, 0, 0);
 
-  g.FillEllipse(GetColor(EVColor::kFG), mRECT, &mBlend);
-  //g.DrawRect(GetColor(EVColor::kFR), mRECT.GetPadded(-5), &mBlend);
-//  g.FillCircle(GetColor(EVColor::kFR), handle.MW(), handle.MH(), (handle.W()/2.)-2, GetMouseIsOver() ? &BLEND_25 : &BLEND_10);
+  if (mValue > 0.5)
+  {
+    g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius, &mBlend);
+
+    if (mDrawShadows && mEmboss)
+    {
+      g.PathRect(handleBounds.GetHSliced(mShadowOffset));
+      g.PathRect(handleBounds.GetVSliced(mShadowOffset));
+      g.PathFill(shadowColor);
+    }
+  }
+  else
+  {
+    if (mDrawShadows && !mEmboss)
+      g.FillRoundRect(shadowColor, handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius, &mBlend);
+
+    g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius, &mBlend);
+  }
+
+ if(mDrawFrame)
+   g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, &mBlend);
+}
+
+IRECT IVSwitchControl::GetHandleBounds()
+{
+  IRECT handleBounds = mRECT;
+
+  if (mDrawShadows && !mEmboss)
+    handleBounds.GetShifted(0, 0, -mShadowOffset, -mShadowOffset);
+
+  return handleBounds;
 }
 
 IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int param,
@@ -70,9 +87,9 @@ void IVKnobControl::Draw(IGraphics& g)
 void IVSliderControl::Draw(IGraphics& g)
 {
   g.FillRoundRect(GetColor(kBG), mRECT, 5);
-  
+
   IRECT filledTrack, handle;
-  
+
   if(mDirection == kVertical)
   {
     const float halfHandleSize = mHandleSize / 2.f;
@@ -90,7 +107,7 @@ void IVSliderControl::Draw(IGraphics& g)
   {
     //TODO:
   }
-  
+
   g.FillRect(GetColor(kFG), filledTrack, &mBlend);
 }
 
@@ -104,202 +121,6 @@ void IVSliderControl::OnResize()
   SetDirty(false);
 }
 
-
-IVButtonControl::IVButtonControl(IDelegate& dlg, IRECT rect, int param,
-                                 const char *txtOff, const char *txtOn)
-  : IControl(dlg, rect, param),
-    IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
-{
-  AttachIControl(this);
-
-  mText.mFGColor = GetColor(bTXT);
-//  SetTexts(txtOff, txtOn);
-  mDblAsSingleClick = true;
-};
-
-const IColor IVButtonControl::DEFAULT_BG_COLOR = IColor(255, 200, 200, 200);
-const IColor IVButtonControl::DEFAULT_FR_COLOR = IColor(255, 70, 70, 70);
-const IColor IVButtonControl::DEFAULT_TXT_COLOR = DEFAULT_FR_COLOR;
-const IColor IVButtonControl::DEFAULT_PR_COLOR = IColor(255, 240, 240, 240);
-
-void IVButtonControl::Draw(IGraphics& g)
-{
-  auto btnRect = GetButtonRect();
-  auto shadowColor = IColor(60, 0, 0, 0);
-
-  if (mValue > 0.5)
-  {
-    g.FillRect(GetColor(bPR), btnRect);
-
-    if (mDrawShadows && mEmboss)
-      DrawInnerShadowForRect(btnRect, shadowColor, g);
-
-//    if (mTxtOn.GetLength())
-//    {
-//      auto textR = GetRectToAlignTextIn(btnRect, 1);
-//      g.DrawText(mText, mTxtOn.Get(), textR);
-//    }
-  }
-  else
-  {
-    if (mDrawShadows && !mEmboss)
-      DrawOuterShadowForRect(btnRect, shadowColor, g);
-
-    g.FillRect(GetColor(bBG), btnRect);
-
-//    if (mTxtOff.GetLength())
-//    {
-//      auto textR = GetRectToAlignTextIn(btnRect, 0);
-//      g.DrawText(mText, mTxtOff.Get(), textR);
-//    }
-  }
-
-  if(mDrawBorders)
-    g.DrawRect(GetColor(bFR), btnRect);
-}
-
-//IRECT IVButtonControl::GetRectToAlignTextIn(IRECT r, int state)
-//{
-//  // this rect is not precise, it serves as a horizontal level
-//  auto tr = r;
-//  tr.T += 0.5f * (tr.H() - mText.mSize * mTxtH[state]) - 1.0f; // -1 looks better with small text
-//  tr.B = tr.T + 0.1f;
-//  return tr;
-//}
-
-IRECT IVButtonControl::GetButtonRect()
-{
-  auto br = mRECT;
-  if (mDrawShadows && !mEmboss)
-  {
-    br.R -= mShadowOffset;
-    br.B -= mShadowOffset;
-  }
-  return br;
-}
-
-void IVButtonControl::DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
-{
-  auto& o = mShadowOffset;
-  auto slr = r;
-  slr.R = slr.L + o;
-  auto str = r;
-  str.L += o;
-  str.B = str.T + o;
-  g.FillRect(shadowColor, slr);
-  g.FillRect(shadowColor, str);
-}
-
-void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-  if (mValue > 0.5) mValue = 0.0;
-  else mValue = 1.0;
-  SetDirty();
-}
-
-//void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitToText, float pad)
-//{
-//  mTxtOff.Set(txtOff);
-//  mTxtOn.Set(txtOn);
-//  BasicTextMeasure(mTxtOff.Get(), mTxtH[0], mTxtW[0]);
-//  BasicTextMeasure(mTxtOn.Get(), mTxtH[1], mTxtW[1]);
-//  if (fitToText)
-//  {
-//    auto h = mTxtH[0];
-//    if (mTxtH[1] > h)
-//      h = mTxtH[1];
-//    auto w = mTxtW[0];
-//    if (mTxtW[1] > w)
-//      w = mTxtW[1];
-//
-//    mRECT = mTargetRECT = GetRectToFitTextIn(mRECT, (float) mText.mSize, w, h, pad);
-//  }
-//  SetDirty(false);
-//}
-
-//IRECT IVButtonControl::GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding)
-//{
-//  IRECT textR = r;
-//  // first center empty rect in the middle of mRECT
-//  textR.L = textR.R = r.L + 0.5f * r.W();
-//  textR.T = textR.B = r.T + 0.5f * r.H();
-//
-//  // then expand to fit text
-//  widthInSymbols *= 0.5f * 0.44f * fontSize; // 0.44 is approx average character w/h ratio
-//  numLines *= 0.5f * fontSize;
-//  textR.L -= widthInSymbols;
-//  textR.R += widthInSymbols;
-//  textR.T -= numLines;
-//  textR.B += numLines;
-//
-//  if (!mEmboss && mDrawShadows)
-//  {
-//    textR.R += mShadowOffset;
-//    textR.B += mShadowOffset;
-//  }
-//
-//  if (padding < 0.0) padding *= -1.0;
-//  textR = textR.GetPadded(padding);
-//
-//  return textR;
-//}
-
-void IVButtonControl::SetDrawShadows(bool draw, bool keepButtonRect)
-{
-  if (draw == mDrawShadows) return;
-
-  if (keepButtonRect && !mEmboss)
-  {
-    auto d = mShadowOffset;
-    if (!draw) d *= -1.0;
-    mRECT.R += d;
-    mRECT.B += d;
-    mTargetRECT = mRECT;
-  }
-
-  mDrawShadows = draw;
-  SetDirty(false);
-}
-
-void IVButtonControl::SetEmboss(bool emboss, bool keepButtonRect)
-{
-  if (emboss == mEmboss) return;
-
-  if (keepButtonRect && mDrawShadows)
-  {
-    auto d = mShadowOffset;
-    if (emboss) d *= -1.0;
-    mRECT.R += d;
-    mRECT.B += d;
-    mTargetRECT = mRECT;
-  }
-
-  mEmboss = emboss;
-  SetDirty(false);
-}
-
-void IVButtonControl::SetShadowOffset(float offset, bool keepButtonRect)
-{
-  if (offset == mShadowOffset) return;
-
-  auto oldOff = mShadowOffset;
-
-  if (offset < 0.0)
-    mShadowOffset = 0.0;
-  else
-    mShadowOffset = offset;
-
-  if (keepButtonRect && mDrawShadows && !mEmboss)
-  {
-    auto d = offset - oldOff;
-    mRECT.R += d;
-    mRECT.B += d;
-    mTargetRECT = mRECT;
-  }
-
-  SetDirty(false);
-}
-
 #pragma mark - BITMAP CONTROLS
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -308,10 +129,10 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue += 1.0 / (double)(mBitmap.N() - 1);
   else
     mValue += 1.0;
-  
+
   if (mValue > 1.001)
     mValue = 0.0;
-  
+
   SetDirty();
 }
 

@@ -19,12 +19,12 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr,
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
-  void Draw(IGraphics& g)  override;
-  
+  void Draw(IGraphics& g) override;
+
+  IRECT GetHandleBounds() override;
+
 private:
   float mStep;
   EDirection mDirection;
@@ -82,10 +82,19 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx,
+  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10)
   : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
+  , IVectorBase(colorSpec)
+  {
+    AttachIControl(this);
+  }
+  
+  IVSliderControl(IDelegate& dlg, IRECT bounds, IActionFunction aF,
+                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10)
+  : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
   {
     AttachIControl(this);
@@ -95,69 +104,12 @@ public:
   void OnResize() override;
 };
 
-class IVButtonControl : public IControl,
-                        public IVectorBase
+class IVContactControl : public IVSwitchControl
 {
 public:
-
-  static const IColor DEFAULT_BG_COLOR;
-  static const IColor DEFAULT_PR_COLOR;
-  static const IColor DEFAULT_TXT_COLOR;
-  static const IColor DEFAULT_FR_COLOR;
-
-  // map to IVectorBase colors
-  enum EVBColor
-  {
-    bTXT = kFG,
-    bBG = kBG,
-    bPR = kHL,
-    bFR = kFR
-  };
-
-  IVButtonControl(IDelegate& dlg, IRECT rect, int param,
-                  const char *txtOff = "off", const char *txtOn = "on");
-  ~IVButtonControl() {};
-
-  void Draw(IGraphics& g) override;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-
-//  void SetTexts(const char *txtOff, const char *txtOn, bool fitToText = false, float pad = 10.0);
-
-  void SetDrawBorders(bool draw)
-  {
-    mDrawBorders = draw;
-    SetDirty(false);
-  }
-  void SetDrawShadows(bool draw, bool keepButtonRect = true);
-  void SetEmboss(bool emboss, bool keepButtonRect = true);
-  void SetShadowOffset(float offset, bool keepButtonRect = true);
-  void SetRect(IRECT r)
-  {
-    mRECT = mTargetRECT = r;
-    SetDirty(false);
-  }
-
-protected:
-//  WDL_String mTxtOff, mTxtOn;
-//  float mTxtH[2]; // [off, on], needed for nice multiline text drawing
-//  float mTxtW[2];
-
-  void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g);
-  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
-  {
-    g.FillRect(shadowColor, r.GetShifted(mShadowOffset, mShadowOffset));
-  }
-//  IRECT GetRectToAlignTextIn(IRECT r, int state);
-//  IRECT GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding = 0.0);
-  IRECT GetButtonRect();
-};
-
-class IVContactControl : public IVButtonControl
-{
-public:
-  IVContactControl(IDelegate& dlg, IRECT rect, int param,
-                   const char *txtOff = "off", const char *txtOn = "on") :
-    IVButtonControl(dlg, rect, param, txtOff, txtOn) {};
+  IVContactControl(IDelegate& dlg, IRECT bounds, int paramIdx)
+  : IVSwitchControl(dlg, bounds, paramIdx)
+  {};
 
   ~IVContactControl() {};
 
@@ -170,7 +122,7 @@ public:
 
 #pragma mark - Bitmap Controls
 
-/** A vector switch control. Click to cycle through states. */
+/** A bitmap switch control. Click to cycle through states. */
 class IBSwitchControl : public IBitmapControl
 {
 public:
