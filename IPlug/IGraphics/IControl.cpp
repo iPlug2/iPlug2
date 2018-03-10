@@ -12,6 +12,15 @@ IControl::IControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction a
 {
 }
 
+IControl::IControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+: mDelegate(dlg)
+, mRECT(bounds)
+, mTargetRECT(bounds)
+, mParamIdx(kNoParameter)
+, mActionFunc(actionFunc)
+{
+}
+
 void IControl::SetValueFromDelegate(double value)
 {
   if (mDefaultValue < 0.0)
@@ -37,28 +46,34 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
-void IControl::SetDirty(bool pushParamToDelegate)
+void IControl::SetDirty(bool triggerAction)
 {
   mValue = BOUNDED(mValue, mClampLo, mClampHi);
   mDirty = true;
   
-  if (pushParamToDelegate && mParamIdx >= 0)
+  if (triggerAction)
   {
-    mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
-    GetUI()->UpdatePeers(this);
-//    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
+    if(mParamIdx > kNoParameter)
+    {
+      mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
+      GetUI()->UpdatePeers(this);
+  //    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
 
-//    if (mValDisplayControl)
-//    {
-//      WDL_String display;
-//      pParam->GetDisplayForHost(display);
-//      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
-//    }
-//
-//    if (mNameDisplayControl)
-//    {
-//      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
-//    }
+  //    if (mValDisplayControl)
+  //    {
+  //      WDL_String display;
+  //      pParam->GetDisplayForHost(display);
+  //      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
+  //    }
+  //
+  //    if (mNameDisplayControl)
+  //    {
+  //      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
+  //    }
+    }
+    
+    if (mActionFunc != nullptr)
+      mActionFunc(this);
   }
 }
 
@@ -357,9 +372,6 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue += step;
     mValue = fmod(1., mValue);
   }
-
-  if (mActionFunc != nullptr)
-    mActionFunc(this);
 
   SetDirty();
 }

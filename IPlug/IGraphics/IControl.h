@@ -42,6 +42,9 @@ public:
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  
+  IControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
+
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -150,7 +153,7 @@ public:
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
-  virtual void SetDirty(bool pushParamToDelegate = true);
+  virtual void SetDirty(bool triggerAction = true);
   virtual void SetClean();
   virtual bool IsDirty() { return mDirty; } // This is not const, because it may be overridden and used to update something at the fps
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
