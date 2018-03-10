@@ -696,6 +696,11 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
+  IRECT GetShifted(float x, float y = 0.0)
+  {
+    return IRECT(L + x, T + y, R + x, B + y);
+  }
+  
   void ScaleBounds(float scale)
   {
     L = std::floor(L * scale);

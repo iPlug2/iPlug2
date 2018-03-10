@@ -120,7 +120,7 @@ public:
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
-  void SetTexts(const char *txtOff, const char *txtOn, bool fitToText = false, float pad = 10.0);
+//  void SetTexts(const char *txtOff, const char *txtOn, bool fitToText = false, float pad = 10.0);
 
   void SetDrawBorders(bool draw)
   {
@@ -137,23 +137,18 @@ public:
   }
 
 protected:
-  WDL_String mTxtOff, mTxtOn;
-  float mTxtH[2]; // [off, on], needed for nice multiline text drawing
-  float mTxtW[2];
+//  WDL_String mTxtOff, mTxtOn;
+//  float mTxtH[2]; // [off, on], needed for nice multiline text drawing
+//  float mTxtW[2];
 
   void DrawInnerShadowForRect(IRECT r, IColor shadowColor, IGraphics& g);
   void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
   {
-    auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
-    g.FillRect(shadowColor, sr);
+    g.FillRect(shadowColor, r.GetShifted(mShadowOffset, mShadowOffset));
   }
-  IRECT GetRectToAlignTextIn(IRECT r, int state);
-  IRECT GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding = 0.0);
+//  IRECT GetRectToAlignTextIn(IRECT r, int state);
+//  IRECT GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding = 0.0);
   IRECT GetButtonRect();
-  IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
-  {
-    return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
-  }
 };
 
 class IVContactControl : public IVButtonControl

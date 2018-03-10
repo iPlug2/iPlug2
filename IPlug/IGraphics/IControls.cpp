@@ -3,7 +3,7 @@
 #pragma mark - VECTOR CONTROLS
 
 IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc
-  , const IVColorSpec& colorSpec, uint32_t numStates, EDirection dir)
+  , const IVColorSpec& colorSpec, int numStates, EDirection dir)
   : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
   , mDirection(dir)
@@ -108,7 +108,7 @@ IVButtonControl::IVButtonControl(IDelegate& dlg, IRECT rect, int param,
     IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
 {
   mText.mFGColor = GetColor(bTXT);
-  SetTexts(txtOff, txtOn);
+//  SetTexts(txtOff, txtOn);
   mDblAsSingleClick = true;
 };
 
@@ -129,11 +129,11 @@ void IVButtonControl::Draw(IGraphics& g)
     if (mDrawShadows && mEmboss)
       DrawInnerShadowForRect(btnRect, shadowColor, g);
 
-    if (mTxtOn.GetLength())
-    {
-      auto textR = GetRectToAlignTextIn(btnRect, 1);
-      g.DrawText(mText, mTxtOn.Get(), textR);
-    }
+//    if (mTxtOn.GetLength())
+//    {
+//      auto textR = GetRectToAlignTextIn(btnRect, 1);
+//      g.DrawText(mText, mTxtOn.Get(), textR);
+//    }
   }
   else
   {
@@ -142,25 +142,25 @@ void IVButtonControl::Draw(IGraphics& g)
 
     g.FillRect(GetColor(bBG), btnRect);
 
-    if (mTxtOff.GetLength())
-    {
-      auto textR = GetRectToAlignTextIn(btnRect, 0);
-      g.DrawText(mText, mTxtOff.Get(), textR);
-    }
+//    if (mTxtOff.GetLength())
+//    {
+//      auto textR = GetRectToAlignTextIn(btnRect, 0);
+//      g.DrawText(mText, mTxtOff.Get(), textR);
+//    }
   }
 
   if(mDrawBorders)
     g.DrawRect(GetColor(bFR), btnRect);
 }
 
-IRECT IVButtonControl::GetRectToAlignTextIn(IRECT r, int state)
-{
-  // this rect is not precise, it serves as a horizontal level
-  auto tr = r;
-  tr.T += 0.5f * (tr.H() - mText.mSize * mTxtH[state]) - 1.0f; // -1 looks better with small text
-  tr.B = tr.T + 0.1f;
-  return tr;
-}
+//IRECT IVButtonControl::GetRectToAlignTextIn(IRECT r, int state)
+//{
+//  // this rect is not precise, it serves as a horizontal level
+//  auto tr = r;
+//  tr.T += 0.5f * (tr.H() - mText.mSize * mTxtH[state]) - 1.0f; // -1 looks better with small text
+//  tr.B = tr.T + 0.1f;
+//  return tr;
+//}
 
 IRECT IVButtonControl::GetButtonRect()
 {
@@ -192,52 +192,52 @@ void IVButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitToText, float pad)
-{
-  mTxtOff.Set(txtOff);
-  mTxtOn.Set(txtOn);
-  BasicTextMeasure(mTxtOff.Get(), mTxtH[0], mTxtW[0]);
-  BasicTextMeasure(mTxtOn.Get(), mTxtH[1], mTxtW[1]);
-  if (fitToText)
-  {
-    auto h = mTxtH[0];
-    if (mTxtH[1] > h)
-      h = mTxtH[1];
-    auto w = mTxtW[0];
-    if (mTxtW[1] > w)
-      w = mTxtW[1];
+//void IVButtonControl::SetTexts(const char *txtOff, const char *txtOn, bool fitToText, float pad)
+//{
+//  mTxtOff.Set(txtOff);
+//  mTxtOn.Set(txtOn);
+//  BasicTextMeasure(mTxtOff.Get(), mTxtH[0], mTxtW[0]);
+//  BasicTextMeasure(mTxtOn.Get(), mTxtH[1], mTxtW[1]);
+//  if (fitToText)
+//  {
+//    auto h = mTxtH[0];
+//    if (mTxtH[1] > h)
+//      h = mTxtH[1];
+//    auto w = mTxtW[0];
+//    if (mTxtW[1] > w)
+//      w = mTxtW[1];
+//
+//    mRECT = mTargetRECT = GetRectToFitTextIn(mRECT, (float) mText.mSize, w, h, pad);
+//  }
+//  SetDirty(false);
+//}
 
-    mRECT = mTargetRECT = GetRectToFitTextIn(mRECT, (float) mText.mSize, w, h, pad);
-  }
-  SetDirty(false);
-}
-
-IRECT IVButtonControl::GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding)
-{
-  IRECT textR = r;
-  // first center empty rect in the middle of mRECT
-  textR.L = textR.R = r.L + 0.5f * r.W();
-  textR.T = textR.B = r.T + 0.5f * r.H();
-
-  // then expand to fit text
-  widthInSymbols *= 0.5f * 0.44f * fontSize; // 0.44 is approx average character w/h ratio
-  numLines *= 0.5f * fontSize;
-  textR.L -= widthInSymbols;
-  textR.R += widthInSymbols;
-  textR.T -= numLines;
-  textR.B += numLines;
-
-  if (!mEmboss && mDrawShadows)
-  {
-    textR.R += mShadowOffset;
-    textR.B += mShadowOffset;
-  }
-
-  if (padding < 0.0) padding *= -1.0;
-  textR = textR.GetPadded(padding);
-
-  return textR;
-}
+//IRECT IVButtonControl::GetRectToFitTextIn(IRECT r, float fontSize, float widthInSymbols, float numLines, float padding)
+//{
+//  IRECT textR = r;
+//  // first center empty rect in the middle of mRECT
+//  textR.L = textR.R = r.L + 0.5f * r.W();
+//  textR.T = textR.B = r.T + 0.5f * r.H();
+//
+//  // then expand to fit text
+//  widthInSymbols *= 0.5f * 0.44f * fontSize; // 0.44 is approx average character w/h ratio
+//  numLines *= 0.5f * fontSize;
+//  textR.L -= widthInSymbols;
+//  textR.R += widthInSymbols;
+//  textR.T -= numLines;
+//  textR.B += numLines;
+//
+//  if (!mEmboss && mDrawShadows)
+//  {
+//    textR.R += mShadowOffset;
+//    textR.B += mShadowOffset;
+//  }
+//
+//  if (padding < 0.0) padding *= -1.0;
+//  textR = textR.GetPadded(padding);
+//
+//  return textR;
+//}
 
 void IVButtonControl::SetDrawShadows(bool draw, bool keepButtonRect)
 {

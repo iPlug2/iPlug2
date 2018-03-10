@@ -63,7 +63,7 @@ public:
    auto initR = GetInitRect();
    auto shadowColor = IColor(60, 0, 0, 0);
 
-   auto textR = GetRectToAlignTextIn(initR);
+//   auto textR = GetRectToAlignTextIn(initR);
 
    if (!mExpanded)
    {
@@ -81,7 +81,7 @@ public:
 
      if (mDrawBorders)
        g.DrawRect(GetColor(lFR), initR);
-     g.DrawText(mText, NameForVal(StateFromNormalized()), textR);
+//     g.DrawText(mText, NameForVal(StateFromNormalized()), textR);
      ShrinkRects(); // shrink here to clean the expanded area
    }
 
@@ -106,7 +106,7 @@ public:
          sy = 0;
        }
        IRECT vR = ShiftRectBy(initR, sx * rw, sy * rh);
-       IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
+//       IRECT tR = ShiftRectBy(textR, sx * rw, sy * rh);
        if (v == mState)
        {
          if (mDrawShadows) // draw when emboss too, looks good
@@ -116,7 +116,7 @@ public:
 
        if (mDrawBorders)
          g.DrawRect(GetColor(lFR), vR);
-       g.DrawText(mText, NameForVal(v), tR);
+//       g.DrawText(mText, NameForVal(v), tR);
        ++sy;
      }
 
@@ -495,24 +495,18 @@ protected:
 
  void DrawOuterShadowForRect(IRECT r, IColor shadowColor, IGraphics& g)
  {
-   auto sr = ShiftRectBy(r, mShadowOffset, mShadowOffset);
-   g.FillRect(shadowColor, sr);
+   g.FillRect(shadowColor, r.GetShifted(mShadowOffset, mShadowOffset));
  }
 
- IRECT GetRectToAlignTextIn(IRECT r)
- {
-   // this rect is not precise, it serves as a horizontal level
-   auto tr = r;
-   // assume all items are 1 line high
-   tr.T += 0.5f * (tr.H() - mText.mSize) - 1.0f; // -1 looks better with small text
-   tr.B = tr.T + 0.1f;
-   return tr;
- }
-
- IRECT ShiftRectBy(IRECT r, float x, float y = 0.0)
- {
-   return IRECT(r.L + x, r.T + y, r.R + x, r.B + y);
- }
+// IRECT GetRectToAlignTextIn(IRECT r)
+// {
+//   // this rect is not precise, it serves as a horizontal level
+//   auto tr = r;
+//   // assume all items are 1 line high
+//   tr.T += 0.5f * (tr.H() - mText.mSize) - 1.0f; // -1 looks better with small text
+//   tr.B = tr.T + 0.1f;
+//   return tr;
+// }
 };
 
 const IColor IVDropDownListControl::DEFAULT_BG_COLOR = IColor(255, 200, 200, 200);
