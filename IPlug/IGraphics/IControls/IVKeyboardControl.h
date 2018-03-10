@@ -44,12 +44,12 @@ public:
   // map to IVectorBase colors
   enum EVKColor
   {
-    kBK = kFG,
-    kWK = kBG,
-    kPK = kHL,
+    kBK = kFG, // Black Keys
+    kWK = kBG, // White Keys
+    kPK = kHL, // Pressed Keys
     //kFR = kFR
   };
-  
+
   IVKeyboardControl(IDelegate& dlg, IRECT bounds,
                     int minNote = 36, int maxNote = 60)
   : IControl(dlg, bounds, kNoParameter)
