@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include "wdlstring.h"
+#include "ptrlist.h"
 
 #include "IPlugConstants.h"
 #include "IPlugPlatform.h"
