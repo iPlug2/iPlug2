@@ -272,19 +272,21 @@ class IVectorBase
 public:
   IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
               const IColor* pFGColor = &DEFAULT_FGCOLOR,
-              const IColor* pFRColor = 0,
+              const IColor* pPRColor = &DEFAULT_PRCOLOR,
+              const IColor* pFRColor = &DEFAULT_FRCOLOR,
               const IColor* pHLColor = 0,
               const IColor* pX1Color = 0,
               const IColor* pX2Color = 0,
               const IColor* pX3Color = 0)
   {
-    SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
+    SetColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
   }
 
   IVectorBase(const IVColorSpec& spec)
   {
     SetColors(&spec.mBGColor,
               &spec.mFGColor,
+              &spec.mPRColor,
               &spec.mFRColor,
               &spec.mHLColor,
               &spec.mX1Color,
@@ -314,6 +316,7 @@ public:
   {
     SetColors(&spec.mBGColor,
               &spec.mFGColor,
+              &spec.mPRColor,
               &spec.mFRColor,
               &spec.mHLColor,
               &spec.mX1Color,
@@ -323,6 +326,7 @@ public:
 
   void SetColors(const IColor* pBGColor = 0,
                  const IColor* pFGColor = 0,
+                 const IColor* pPRColor = 0,
                  const IColor* pFRColor = 0,
                  const IColor* pHLColor = 0,
                  const IColor* pX1Color = 0,
@@ -331,6 +335,7 @@ public:
   {
     if(pBGColor) AddColor(*pBGColor);
     if(pFGColor) AddColor(*pFGColor);
+    if(pPRColor) AddColor(*pPRColor);
     if(pFRColor) AddColor(*pFRColor);
     if(pHLColor) AddColor(*pHLColor);
     if(pX1Color) AddColor(*pX1Color);

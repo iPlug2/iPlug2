@@ -226,8 +226,12 @@ struct IColor
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
+const IColor COLOR_TRANSLUCENT(5, 0, 0, 0);
 const IColor COLOR_BLACK(255, 0, 0, 0);
 const IColor COLOR_GRAY(255, 127, 127, 127);
+const IColor COLOR_LIGHT_GRAY(255, 240, 240, 240);
+const IColor COLOR_MID_GRAY(255, 200, 200, 200);
+const IColor COLOR_DARK_GRAY(255, 70, 70, 70);
 const IColor COLOR_WHITE(255, 255, 255, 255);
 const IColor COLOR_RED(255, 255, 0, 0);
 const IColor COLOR_GREEN(255, 0, 255, 0);
@@ -236,9 +240,15 @@ const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
 
 const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
-const IColor DEFAULT_BGCOLOR = COLOR_WHITE;
-const IColor DEFAULT_FGCOLOR = COLOR_BLACK;
-const IColor DEFAULT_FRCOLOR = COLOR_WHITE;
+#ifndef NDEBUG
+const IColor DEFAULT_BGCOLOR = COLOR_TRANSLUCENT;
+#else
+const IColor DEFAULT_BGCOLOR = COLOR_TRANSPARENT;
+#endif
+const IColor DEFAULT_FGCOLOR = COLOR_MID_GRAY;
+const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
+
+const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
 const IColor DEFAULT_HLCOLOR = COLOR_YELLOW;
 const IColor DEFAULT_X1COLOR = COLOR_RED;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
@@ -251,6 +261,7 @@ struct IVColorSpec
 {
   IColor mBGColor = DEFAULT_BGCOLOR;
   IColor mFGColor = DEFAULT_FGCOLOR;
+  IColor mPRColor = DEFAULT_PRCOLOR;
   IColor mFRColor = DEFAULT_FRCOLOR;
   IColor mHLColor = DEFAULT_HLCOLOR;
   IColor mX1Color = DEFAULT_X1COLOR;
@@ -259,6 +270,7 @@ struct IVColorSpec
 
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
+                 const IColor PRColor = DEFAULT_PRCOLOR,
                  const IColor FRColor = DEFAULT_FRCOLOR,
                  const IColor HLColor = DEFAULT_HLCOLOR,
                  const IColor X1Color = DEFAULT_X1COLOR,
@@ -638,6 +650,22 @@ struct IRECT
     return IRECT(L, MH()-padding, R, MH()+padding);
   }
 
+  inline IRECT GetHSliced(float w, bool rhs = false)
+  {
+    if(rhs)
+      return IRECT(R - w, T, R, B);
+    else
+      return IRECT(L, T, L + w, B);
+  }
+  
+  inline IRECT GetVSliced(float h, bool bot = false)
+  {
+    if(bot)
+      return IRECT(L, B - h, R, B);
+    else
+      return IRECT(L, T + h, R, B);
+  }
+  
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -696,6 +724,14 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
+  void Shift(float l, float t, float r, float b)
+  {
+    L += l;
+    T += t;
+    R += r;
+    B += b;
+  }
+  
   void Shift(float x, float y = 0.f)
   {
     L += x;
@@ -707,6 +743,11 @@ struct IRECT
   IRECT GetShifted(float x, float y = 0.f) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
+  }
+  
+  IRECT GetShifted(float l, float t, float r, float b) const
+  {
+    return IRECT(L + l, T + t, R + r, B + b);
   }
   
   void ScaleBounds(float scale)
@@ -732,6 +773,22 @@ struct IRECT
 
     return r;
   }
+  
+  IRECT GetCentredInside(float w, float h = 0.f)
+  {
+    assert(w > 0.f);
+    
+    if(h <= 0.f)
+      h = w;
+    
+    IRECT r;
+    r.L = MW() - w / 2.;
+    r.T = MH() - h / 2.;
+    r.R = r.L + w;
+    r.B = r.T + h;
+    
+    return r;
+  }
 
   IRECT GetCentredInside(IBitmap bitmap)
   {
@@ -742,6 +799,14 @@ struct IRECT
     r.B = r.T + (float) bitmap.FH();
 
     return r;
+  }
+  
+  float GetLengthOfShortestSide()
+  {
+    if(W() < H())
+       return W();
+    else
+      return H();
   }
 };
 
