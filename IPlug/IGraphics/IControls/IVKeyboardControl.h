@@ -55,6 +55,8 @@ public:
   : IControl(dlg, bounds)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   {
+    AttachIControl(this);
+
     mText.mFGColor = GetColor(kFR);
     mDblAsSingleClick = true;
     bool keepWidth = !(bounds.W() <= 0.0);

@@ -11,6 +11,8 @@ IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT bounds, int numChannels, co
   : IControl(dlg, bounds, kNoParameter)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR)
 {
+  AttachIControl(this);
+
   ChannelSpecificData d;
   for (auto ch = 0; ch != numChannels; ++ch)
   {

@@ -292,6 +292,8 @@ public:
               &spec.mX3Color);
   }
   
+  void AttachIControl(IControl* pControl) { mControl = pControl; }
+  
   void SetRoundness(float roundness)
   {
     mRoundness = roundness;
@@ -343,7 +345,27 @@ public:
     else
       return mColors.Get()[0];
   }
+  
+//  void SetDrawBorders(bool draw)
+//  {
+//    mDrawBorders = draw;
+////    SetDirty(false);
+//  }
+//  
+//  void SetDrawShadows(bool draw, bool keepButtonRect = true)
+//  {
+//  }
+//  
+//  void SetEmboss(bool emboss, bool keepButtonRect = true)
+//  {
+//  }
+//  
+//  void SetShadowOffset(float offset, bool keepButtonRect = true)
+//  {
+//  }
+  
 protected:
+  IControl* mControl;
   WDL_TypedBuf<IColor> mColors;
   float mRoundness = 10.f;
   float mShadowOffset = 3.0;
@@ -359,7 +381,9 @@ public:
   IPanelControl(IDelegate& dlg, IRECT bounds, const IColor& color)
   : IControl(dlg, bounds)
   , IVectorBase(&color)
-  {}
+  {
+    AttachIControl(this);
+  }
 
   void Draw(IGraphics& g) override;
 };

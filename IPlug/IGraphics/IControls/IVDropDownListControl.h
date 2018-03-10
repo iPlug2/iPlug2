@@ -31,6 +31,8 @@ public:
   : IControl(dlg, bounds, paramIdx)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
+    AttachIControl(this);
+
     mInitRect = bounds;
     mText.mFGColor = DEFAULT_TXT_COLOR;
     FillNamesFromParamDisplayTexts();
@@ -40,6 +42,8 @@ public:
   : IControl(dlg, bounds, kNoParameter)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
+    AttachIControl(this);
+
     mInitRect = bounds;
     mText.mFGColor = DEFAULT_TXT_COLOR;
     if (numStates)

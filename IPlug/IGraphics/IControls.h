@@ -88,6 +88,7 @@ public:
   : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
   {
+    AttachIControl(this);
   }
   
   void Draw(IGraphics& g) override;

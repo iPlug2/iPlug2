@@ -8,6 +8,7 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
   , IVectorBase(colorSpec)
   , mDirection(dir)
 {
+  AttachIControl(this);
   mStep = 1.f / float(mNumStates) - 1.f;
 }
 
@@ -49,6 +50,8 @@ IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int param,
 , mInnerRadius(rMin)
 , mOuterRadius(rMax)
 {
+  AttachIControl(this);
+
   if (mOuterRadius == 0.0f)
     mOuterRadius = 0.5f * (float) bounds.W();
 }
@@ -107,6 +110,8 @@ IVButtonControl::IVButtonControl(IDelegate& dlg, IRECT rect, int param,
   : IControl(dlg, rect, param),
     IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PR_COLOR)
 {
+  AttachIControl(this);
+
   mText.mFGColor = GetColor(bTXT);
 //  SetTexts(txtOff, txtOn);
   mDblAsSingleClick = true;
