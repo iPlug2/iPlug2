@@ -299,11 +299,6 @@ public:
   
   void AttachIControl(IControl* pControl) { mControl = pControl; }
   
-  void SetRoundness(float roundness)
-  {
-    mRoundness = roundness;
-  }
-
   void AddColor(const IColor& color)
   {
     mColors.Add(color);
@@ -354,46 +349,63 @@ public:
       return mColors.Get()[0];
   }
   
-//  void SetDrawBorders(bool draw)
-//  {
-//    mDrawBorders = draw;
-////    SetDirty(false);
-//  }
-//  
-//  void SetDrawShadows(bool draw, bool keepButtonRect = true)
-//  {
-//  }
-//  
-//  void SetEmboss(bool emboss, bool keepButtonRect = true)
-//  {
-//  }
-//  
-//  void SetShadowOffset(float offset, bool keepButtonRect = true)
-//  {
-//  }
+  void SetRoundness(float roundness)
+  {
+    mRoundness = BOUNDED(roundness, 0.f, 1.f);
+    mControl->SetDirty(false);
+  }
+
+  void SetDrawFrame(bool draw)
+  {
+    mDrawFrame = draw;
+    mControl->SetDirty(false);
+  }
+  
+  void SetDrawShadows(bool draw, bool keepButtonRect = true)
+  {
+    mDrawShadows = draw;
+    mControl->SetDirty(false);
+  }
+  
+  void SetEmboss(bool emboss, bool keepButtonRect = true)
+  {
+    mEmboss = emboss;
+    mControl->SetDirty(false);
+  }
+  
+  void SetShadowOffset(float offset, bool keepButtonRect = true)
+  {
+    mShadowOffset = offset;
+    mControl->SetDirty(false);
+  }
   
 protected:
-  IControl* mControl;
+  IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mRoundness = 10.f;
-  float mShadowOffset = 3.0;
-  bool mDrawBorders = true;
+  float mRoundness = 0.f;
+  float mShadowOffset = 5.0;
+  bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
 };
 
 /** A basic control to fill a rectangle with a color */
-class IPanelControl : public IControl, public IVectorBase
+class IPanelControl : public IControl
 {
 public:
   IPanelControl(IDelegate& dlg, IRECT bounds, const IColor& color)
   : IControl(dlg, bounds)
-  , IVectorBase(&color)
+  , mColor(color)
   {
-    AttachIControl(this);
   }
 
-  void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(mColor, mRECT, &mBlend);
+  }
+  
+private:
+  IColor mColor;
 };
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */
@@ -441,8 +453,11 @@ public:
 
   virtual ~ISVGControl() {}
 
-  virtual void Draw(IGraphics& g) override;
-
+  virtual void Draw(IGraphics& g) override
+  {
+    g.DrawSVG(mSVG, mRECT);
+  }
+  
 private:
   //TODO: cache the SVG to intermediate bitmap?
   ISVG mSVG;
@@ -510,8 +525,18 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+  ISliderControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+                     EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
   : IControl(dlg, bounds, paramIdx)
+  , mDirection(dir)
+  , mOnlyHandle(onlyHandle)
+  {
+    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+  }
+  
+  ISliderControlBase(IDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+                     EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+  : IControl(dlg, bounds, aF)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
   {
@@ -533,14 +558,16 @@ class ISwitchControlBase : public IControl
 {
 public:
   ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
-    uint32_t numStates = 2);
+    int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
+  virtual IRECT GetHandleBounds() = 0;
+  
 protected:
-  uint32_t mNumStates;
+  int mNumStates;
 };
 
 /** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */

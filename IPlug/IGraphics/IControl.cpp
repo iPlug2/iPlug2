@@ -263,13 +263,7 @@ void IControl::GetJSON(WDL_String& json, int idx) const
 //  json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
 //  json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
 //  json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
-  json.AppendFormatted(8192, "\"rate\":\"audio\"");
   json.AppendFormatted(8192, "}");
-}
-
-void IPanelControl::Draw(IGraphics& g)
-{
-  g.FillRect(GetColor(0), mRECT, &mBlend);
 }
 
 void IBitmapControl::Draw(IGraphics& g)
@@ -288,12 +282,6 @@ void IBitmapControl::OnRescale()
 {
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
-
-void ISVGControl::Draw(IGraphics& g)
-{
-  g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
-    //g.DrawSVG(mSVG, mRECT);
-};
 
 void ITextControl::SetTextFromDelegate(const char* str)
 {
@@ -351,11 +339,11 @@ void ICaptionControl::Draw(IGraphics& g)
 }
 
 ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc,
-  uint32_t numStates)
+  int numStates)
   : IControl(dlg, bounds, paramIdx, actionFunc)
 {
   if (paramIdx > kNoParameter)
-    mNumStates = (uint32_t) GetParam()->GetRange() + 1;
+    mNumStates = (int) GetParam()->GetRange() + 1;
   else
     mNumStates = numStates;
 
