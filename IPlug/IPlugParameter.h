@@ -21,7 +21,7 @@ public:
   void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // LABEL not used here
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeFunc shapeFunc = IEaseLinear<double>);
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeFunc shapeFunc = ShapeFuncLinear);
 
   /** Sets the parameter value
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
@@ -59,6 +59,16 @@ public:
   double GetNormalized(double nonNormalizedValue) const;
   double GetNonNormalized(double normalizedValue) const;
 
+  inline double ToNormalizedParam(double nonNormalizedValue) const
+  {
+    return mShapeFunc((nonNormalizedValue - mMin) / (mMax - mMin), mShape, false);
+  }
+  
+  inline double FromNormalizedParam(double normalizedValue) const
+  {
+    return mMin + mShapeFunc(normalizedValue, mShape, true) * (mMax - mMin);
+  }
+  
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
   
@@ -76,7 +86,7 @@ public:
   double GetShape() const { return mShape; }
   double GetStep() const { return mStep; }
   double GetDefault() const { return mDefault; }
-  double GetDefaultNormalized() const { return ToNormalizedParam(mDefault, mMin, mMax, mShape, mShapeFunc); }
+  double GetDefaultNormalized() const { return ToNormalizedParam(mDefault); }
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
   void GetBounds(double& lo, double& hi) const;
@@ -86,8 +96,8 @@ public:
   bool GetIsMeta() const { return mIsMeta; }
   
   void GetJSON(WDL_String& json, int idx) const;
-
 private:
+  
   EParamType mType = kTypeNone;
   double mValue = 0.0;
   double mMin = 0.0;
@@ -103,7 +113,7 @@ private:
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
-  IShapeFunc mShapeFunc = IEaseLinear<double>;
+  IShapeFunc mShapeFunc = ShapeFuncLinear;
   
   struct DisplayText
   {

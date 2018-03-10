@@ -11,7 +11,7 @@
 
 // line y = x
 template<class TYPE>
-TYPE IEaseLinear(TYPE x, TYPE c)
+TYPE IEaseLinear(TYPE x)
 {
   return x;
 }
@@ -25,14 +25,14 @@ TYPE IEasePowCurve(TYPE x, TYPE c)
 
 // parabola y = x^2
 template<class TYPE>
-TYPE IEaseQuadraticIn(TYPE x, TYPE c)
+TYPE IEaseQuadraticIn(TYPE x)
 {
   return x * x;
 }
 
 // parabola y = -x^2 + 2x
 template<class TYPE>
-TYPE IEaseQuadraticOut(TYPE x, TYPE c)
+TYPE IEaseQuadraticOut(TYPE x)
 {
   return -(x * (x - 2));
 }
@@ -41,7 +41,7 @@ TYPE IEaseQuadraticOut(TYPE x, TYPE c)
 // y = (1/2)((2x)^2)             ; [0, 0.5)
 // y = -(1/2)((2x-1)*(2x-3) - 1) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseQuadraticInOut(TYPE x, TYPE c)
+TYPE IEaseQuadraticInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -55,14 +55,14 @@ TYPE IEaseQuadraticInOut(TYPE x, TYPE c)
 
 // cubic y = x^3
 template<class TYPE>
-TYPE IEaseCubicIn(TYPE x, TYPE c)
+TYPE IEaseCubicIn(TYPE x)
 {
   return x * x * x;
 }
 
 // cubic y = (x - 1)^3 + 1
 template<class TYPE>
-TYPE IEaseCubicOut(TYPE x, TYPE c)
+TYPE IEaseCubicOut(TYPE x)
 {
   TYPE f = (x - 1);
   return f * f * f + 1;
@@ -72,7 +72,7 @@ TYPE IEaseCubicOut(TYPE x, TYPE c)
 // y = (1/2)((2x)^3)       ; [0, 0.5)
 // y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseCubicInOut(TYPE x, TYPE c)
+TYPE IEaseCubicInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -87,14 +87,14 @@ TYPE IEaseCubicInOut(TYPE x, TYPE c)
 
 // quartic x^4
 template<class TYPE>
-TYPE IEaseQuarticIn(TYPE x, TYPE c)
+TYPE IEaseQuarticIn(TYPE x)
 {
   return x * x * x * x;
 }
 
 // quartic y = 1 - (x - 1)^4
 template<class TYPE>
-TYPE IEaseQuarticOut(TYPE x, TYPE c)
+TYPE IEaseQuarticOut(TYPE x)
 {
   TYPE f = (x - 1);
   return f * f * f * (1 - x) + 1;
@@ -104,7 +104,7 @@ TYPE IEaseQuarticOut(TYPE x, TYPE c)
 // y = (1/2)((2x)^4)        ; [0, 0.5)
 // y = -(1/2)((2x-2)^4 - 2) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseQuarticInOut(TYPE x, TYPE c)
+TYPE IEaseQuarticInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -119,14 +119,14 @@ TYPE IEaseQuarticInOut(TYPE x, TYPE c)
 
 // quintic y = x^5
 template<class TYPE>
-TYPE IEaseQuinticIn(TYPE x, TYPE c)
+TYPE IEaseQuinticIn(TYPE x)
 {
   return x * x * x * x * x;
 }
 
 // quintic y = (x - 1)^5 + 1
 template<class TYPE>
-TYPE IEaseQuinticOut(TYPE x, TYPE c)
+TYPE IEaseQuinticOut(TYPE x)
 {
   TYPE f = (x - 1);
   return f * f * f * f * f + 1;
@@ -136,7 +136,7 @@ TYPE IEaseQuinticOut(TYPE x, TYPE c)
 // y = (1/2)((2x)^5)       ; [0, 0.5)
 // y = (1/2)((2x-2)^5 + 2) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseQuinticInOut(TYPE x, TYPE c)
+TYPE IEaseQuinticInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -151,35 +151,35 @@ TYPE IEaseQuinticInOut(TYPE x, TYPE c)
 
 // Modeled after quarter-cycle of sine wave
 template<class TYPE>
-TYPE IEaseSineIn(TYPE x, TYPE c)
+TYPE IEaseSineIn(TYPE x)
 {
   return std::sin((x - 1) * M_PI_2) + 1;
 }
 
 // Modeled after quarter-cycle of sine wave (different phase)
 template<class TYPE>
-TYPE IEaseSineOut(TYPE x, TYPE c)
+TYPE IEaseSineOut(TYPE x)
 {
   return std::sin(x * M_PI_2);
 }
 
 // Modeled after half sine wave
 template<class TYPE>
-TYPE IEaseSineInOut(TYPE x, TYPE c)
+TYPE IEaseSineInOut(TYPE x)
 {
   return 0.5 * (1 - std::cos(x * M_PI));
 }
 
 // Modeled after shifted quadrant IV of unit circle
 template<class TYPE>
-TYPE IEaseCircularIn(TYPE x, TYPE c)
+TYPE IEaseCircularIn(TYPE x)
 {
   return 1 - std::sqrt(1 - (x * x));
 }
 
 // Modeled after shifted quadrant II of unit circle
 template<class TYPE>
-TYPE IEaseCircularOut(TYPE x, TYPE c)
+TYPE IEaseCircularOut(TYPE x)
 {
   return std::sqrt((2 - x) * x);
 }
@@ -188,7 +188,7 @@ TYPE IEaseCircularOut(TYPE x, TYPE c)
 // y = (1/2)(1 - std::sqrt(1 - 4x^2))           ; [0, 0.5)
 // y = (1/2)(std::sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseCircularInOut(TYPE x, TYPE c)
+TYPE IEaseCircularInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -202,14 +202,14 @@ TYPE IEaseCircularInOut(TYPE x, TYPE c)
 
 // exponential function y = 2^(10(x - 1))
 template<class TYPE>
-TYPE IEaseExponentialIn(TYPE x, TYPE c)
+TYPE IEaseExponentialIn(TYPE x)
 {
   return (x == 0.0) ? x : std::pow(2, 10 * (x - 1));
 }
 
 // exponential function y = -2^(-10x) + 1
 template<class TYPE>
-TYPE IEaseExponentialOut(TYPE x, TYPE c)
+TYPE IEaseExponentialOut(TYPE x)
 {
   return (x == 1.0) ? x : 1 - std::pow(2, -10 * x);
 }
@@ -218,7 +218,7 @@ TYPE IEaseExponentialOut(TYPE x, TYPE c)
 // y = (1/2)2^(10(2x - 1))         ; [0,0.5)
 // y = -(1/2)*2^(-10(2x - 1))) + 1 ; [0.5,1]
 template<class TYPE>
-TYPE IEaseExponentialInOut(TYPE x, TYPE c)
+TYPE IEaseExponentialInOut(TYPE x)
 {
   if(x == 0.0 || x == 1.0) return x;
 
@@ -234,14 +234,14 @@ TYPE IEaseExponentialInOut(TYPE x, TYPE c)
 
 // damped sine wave y = std::sin(13pi/2*x)*std::pow(2, 10 * (x - 1))
 template<class TYPE>
-TYPE IEaseElasticIn(TYPE x, TYPE c)
+TYPE IEaseElasticIn(TYPE x)
 {
   return std::sin(13 * M_PI_2 * x) * std::pow(2, 10 * (x - 1));
 }
 
 // damped sine wave y = std::sin(-13pi/2*(x + 1))*std::pow(2, -10x) + 1
 template<class TYPE>
-TYPE IEaseElasticOut(TYPE x, TYPE c)
+TYPE IEaseElasticOut(TYPE x)
 {
   return std::sin(-13 * M_PI_2 * (x + 1)) * std::pow(2, -10 * x) + 1;
 }
@@ -250,7 +250,7 @@ TYPE IEaseElasticOut(TYPE x, TYPE c)
 // y = (1/2)*std::sin(13pi/2*(2*x))*std::pow(2, 10 * ((2*x) - 1))      ; [0,0.5)
 // y = (1/2)*(std::sin(-13pi/2*((2x-1)+1))*std::pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseElasticInOut(TYPE x, TYPE c)
+TYPE IEaseElasticInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -264,14 +264,14 @@ TYPE IEaseElasticInOut(TYPE x, TYPE c)
 
 // overshooting cubic y = x^3-x*std::sin(x*pi)
 template<class TYPE>
-TYPE IEaseBackIn(TYPE x, TYPE c)
+TYPE IEaseBackIn(TYPE x)
 {
   return x * x * x - x * std::sin(x * M_PI);
 }
 
 // Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*std::sin((1-x)*pi))
 template<class TYPE>
-TYPE IEaseBackOut(TYPE x, TYPE c)
+TYPE IEaseBackOut(TYPE x)
 {
   TYPE f = (1 - x);
   return 1 - (f * f * f - f * std::sin(f * M_PI));
@@ -281,7 +281,7 @@ TYPE IEaseBackOut(TYPE x, TYPE c)
 // y = (1/2)*((2x)^3-(2x)*std::sin(2*x*pi))           ; [0, 0.5)
 // y = (1/2)*(1-((1-x)^3-(1-x)*std::sin((1-x)*pi))+1) ; [0.5, 1]
 template<class TYPE>
-TYPE IEaseBackInOut(TYPE x, TYPE c)
+TYPE IEaseBackInOut(TYPE x)
 {
   if(x < 0.5)
   {
@@ -296,7 +296,7 @@ TYPE IEaseBackInOut(TYPE x, TYPE c)
 }
 
 template<class TYPE>
-TYPE IEaseBounceOut(TYPE x, TYPE c)
+TYPE IEaseBounceOut(TYPE x)
 {
   if(x < 4/11.0)
   {
@@ -317,20 +317,31 @@ TYPE IEaseBounceOut(TYPE x, TYPE c)
 }
 
 template<class TYPE>
-TYPE IEaseBounceIn(TYPE x, TYPE c)
+TYPE IEaseBounceIn(TYPE x)
 {
-  return 1 - IEaseBounceOut(1 - x, c);
+  return 1 - IEaseBounceOut(1 - x);
 }
 
 template<class TYPE>
-TYPE IEaseBounceInOut(TYPE x, TYPE c)
+TYPE IEaseBounceInOut(TYPE x)
 {
   if(x < 0.5)
   {
-    return 0.5 * IEaseBounceIn(x*2, c);
+    return 0.5 * IEaseBounceIn(x*2);
   }
   else
   {
-    return 0.5 * IEaseBounceOut(x * 2 - 1, c) + 0.5;
+    return 0.5 * IEaseBounceOut(x * 2 - 1) + 0.5;
   }
 }
+
+static double ShapeFuncLinear(double x, double c, bool inputIsNormalized)
+{
+  return x;
+}
+
+static double ShapeFuncPowCurve(double x, double c, bool inputIsNormalized)
+{
+  return std::pow(x, 1.0 / c);
+}
+

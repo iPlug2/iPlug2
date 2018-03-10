@@ -21,7 +21,7 @@ typedef double PLUG_SAMPLE_SRC;
 
 typedef PLUG_SAMPLE_DST sample;
 
-typedef std::function<double(double, double)> IShapeFunc;
+typedef std::function<double(double, double, bool)> IShapeFunc;
 
 #define LOGFILE "IPlugLog.txt"
 #define MAX_PROCESS_TRACE_COUNT 100
