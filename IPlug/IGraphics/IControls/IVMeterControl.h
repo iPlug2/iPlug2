@@ -27,7 +27,7 @@ public:
     mRms = kX1
   };
 
-  IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames = 0, ...);
+  IVMeterControl(IDelegate& dlg, IRECT bounds, int numChannels, const char* chanNames = 0, ...);
   ~IVMeterControl();
 
 // todo add thread safe channel add/del.

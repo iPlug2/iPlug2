@@ -50,15 +50,15 @@ public:
     //kFR = kFR
   };
   
-  IVKeyboardControl(IDelegate& dlg, IRECT rect,
+  IVKeyboardControl(IDelegate& dlg, IRECT bounds,
                     int minNote = 36, int maxNote = 60)
-  : IControl(dlg, rect)
+  : IControl(dlg, bounds)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   {
     mText.mFGColor = GetColor(kFR);
     mDblAsSingleClick = true;
-    bool keepWidth = !(rect.W() <= 0.0);
-    if (rect.W() <= 0.0)
+    bool keepWidth = !(bounds.W() <= 0.0);
+    if (bounds.W() <= 0.0)
     {
       mRECT.R = mRECT.L + mRECT.H();
       mTargetRECT = mRECT;

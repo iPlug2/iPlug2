@@ -7,8 +7,8 @@ const IColor IVMeterControl::DEFAULT_PK_COLOR = IColor(255, 240, 60, 60);
 const IColor IVMeterControl::DEFAULT_FR_COLOR = DEFAULT_BG_COLOR;
 
 
-IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, const char* chanNames, ...)
-  : IControl(dlg, rect, kNoParameter)
+IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT bounds, int numChannels, const char* chanNames, ...)
+  : IControl(dlg, bounds, kNoParameter)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_RAW_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR, &DEFAULT_RMS_COLOR)
 {
   ChannelSpecificData d;
@@ -34,7 +34,7 @@ IVMeterControl::IVMeterControl(IDelegate& dlg, IRECT rect, int numChannels, cons
   
   RecalcMaxChNameH(0.f);
 
-  if (rect.Empty())
+  if (bounds.Empty())
     mRECT = mTargetRECT = GetControlRectFromChannelsData(false);
   else
     OnResize();

@@ -27,20 +27,20 @@ class IVDropDownListControl : public IControl,
 
 public:
 
-  IVDropDownListControl(IDelegate& dlg, IRECT rect, int paramIdx)
-  : IControl(dlg, rect, paramIdx)
+  IVDropDownListControl(IDelegate& dlg, IRECT bounds, int paramIdx)
+  : IControl(dlg, bounds, paramIdx)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
-    mInitRect = rect;
+    mInitRect = bounds;
     mText.mFGColor = DEFAULT_TXT_COLOR;
     FillNamesFromParamDisplayTexts();
   }
   
-  IVDropDownListControl(IDelegate& dlg, IRECT rect, int numStates, const char* names...)
-  : IControl(dlg, rect, kNoParameter)
+  IVDropDownListControl(IDelegate& dlg, IRECT bounds, int numStates, const char* names...)
+  : IControl(dlg, bounds, kNoParameter)
   , IVectorBase(&DEFAULT_BG_COLOR, &DEFAULT_TXT_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_HL_COLOR)
   {
-    mInitRect = rect;
+    mInitRect = bounds;
     mText.mFGColor = DEFAULT_TXT_COLOR;
     if (numStates)
     {
