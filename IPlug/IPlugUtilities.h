@@ -112,16 +112,6 @@ inline void GetVersionStr(int version, WDL_String& str)
   str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
-inline double ToNormalizedParam(double nonNormalizedValue, double min, double max, double shape, IShapeFunc shapeFunc)
-{
-  return shapeFunc((nonNormalizedValue - min) / (max - min), shape);
-}
-
-inline double FromNormalizedParam(double normalizedValue, double min, double max, double shape, IShapeFunc shapeFunc)
-{
-  return min + shapeFunc(normalizedValue, shape) * (max - min);
-}
-
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
