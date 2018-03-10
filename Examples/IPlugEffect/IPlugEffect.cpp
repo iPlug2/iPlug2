@@ -21,7 +21,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   
   const int nRows = 4;
-  const int nColumns = 4;
+  const int nColumns = 6;
   int cellIdx = 0;
   IRECT bounds = pGraphics->GetBounds();
   IColor color;
@@ -43,12 +43,25 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), bitmap1, kGain));
   pGraphics->AttachControl(new IBKnobRotaterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), bitmap2, kGain));
 
-  pGraphics->AttachControl(new IVSliderControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).GetMidHPadded(20.), kGain));
+  IVSliderControl* pSlider = new IVSliderControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).GetMidHPadded(20.));
+  
+  pSlider->SetActionFunction([pGraphics, pSlider](IControl* pCaller) {
+                               for (auto i = 0; i < pGraphics->NControls(); i++) {
+                                 IVectorBase* pVectorBase = dynamic_cast<IVectorBase*>(pGraphics->GetControl(i));
+                                 if(pVectorBase)
+//                                   pVectorBase->SetShadowOffset(pSlider->GetValue() * 10.f);
+                                   pVectorBase->SetRoundness(pSlider->GetValue());
+                               }
+                             });
+  
+  pGraphics->AttachControl(pSlider);
 
-  pGraphics->AttachControl(new IVDropDownListControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).SubRectVertical(3, 0), 3, "one", "two", "three"));
-  pGraphics->AttachControl(new IVButtonControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), -1));
-  pGraphics->AttachControl(pMeter = new IVMeterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), 2));
+  pGraphics->AttachControl(mMeter = new IVMeterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), 2));
+  
+  pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetCentredInside(80.f), -1));
 
+  pGraphics->AttachControl(new IVDropDownListControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).SubRectVertical(3, 0), kNoParameter, DEFAULT_SPEC, 5, "one", "two", "three", "four", "five"));
+  
   IRECT kbrect = bounds.SubRectVertical(4, 3).GetPadded(-5.);
   pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
 
@@ -77,5 +90,5 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     }
   }
   
-  pMeter->ProcessBus(outputs, nFrames);
+  mMeter->ProcessBus(outputs, nFrames);
 }

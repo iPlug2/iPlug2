@@ -42,7 +42,7 @@
 #define PLUG_DOES_MIDI 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
-#define PLUG_WIDTH 600
+#define PLUG_WIDTH 900
 #define PLUG_HEIGHT 600
 
 #define AUV2_ENTRY IPlugEffect_Entry

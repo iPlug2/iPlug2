@@ -23,17 +23,7 @@ class IPlugEffect : public IPlug
 {
 public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
-//  ~IPlugEffect();
-//   void OnReset() override;
-//  void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
-
-//  void OnActivate(bool activate) override
-//  {
-//    DBGMSG("number of inputs connected %i\n", NInChansConnected());
-//    DBGMSG("number of outputs connected %i\n", NOutChansConnected());
-//  }
-
 private:
-  IVMeterControl* pMeter;
+  IVMeterControl* mMeter;
 };
