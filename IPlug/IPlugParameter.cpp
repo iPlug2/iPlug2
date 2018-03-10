@@ -193,9 +193,8 @@ const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
   DisplayText* pDT = mDisplayTexts.Get()+idx;
   
   if (pValue)
-  {
     *pValue = pDT->mValue;
-  }
+
   return pDT->mText;
 }
 
