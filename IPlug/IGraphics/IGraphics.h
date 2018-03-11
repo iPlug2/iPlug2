@@ -774,6 +774,11 @@ public:
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
   inline int GetMouseOver() const { return mMouseOver; }
 
+  /** Get the x, y position in the graphics context of the last mouse down message. Does not get cleared on mouse up etc.
+   * @param x Where the X position will be stored
+   * @param float&y Where the Y position will be stored */
+  void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
+  
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
@@ -853,6 +858,8 @@ private:
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
+  float mMouseDownX = -1.f;
+  float mMouseDownY = -1.f;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;

@@ -24,9 +24,11 @@ public:
   void Draw(IGraphics& g) override;
 
   IRECT GetHandleBounds() override;
+  void Animate(double progress) override { mFlashCircleRadius = progress * mRECT.W() / 2.; SetDirty(false); }
 
 private:
   float mStep;
+  float mFlashCircleRadius = 0.f;
   EDirection mDirection;
 };
 

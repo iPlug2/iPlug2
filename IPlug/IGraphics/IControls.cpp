@@ -10,6 +10,8 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
+  
+  SetActionFunction(DefaultClickActionFunc);
 
   mStep = 1.f / float(mNumStates) - 1.f;
 }
@@ -17,7 +19,7 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
 void IVSwitchControl::Draw(IGraphics& g)
 {
   const float cornerRadius = mRoundness * (mRECT.W() / 2.);
-
+  
   g.FillRoundRect(GetColor(kBG), mRECT, mRoundness);
 
   IRECT handleBounds = GetHandleBounds();
@@ -41,14 +43,21 @@ void IVSwitchControl::Draw(IGraphics& g)
 
     g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
   }
-
+  
+  if(GetAnimationFunction())
+  {
+    float mouseDownX, mouseDownY;
+    g.GetMouseDownPoint(mouseDownX, mouseDownY);
+    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
+  }
+    
  if(mDrawFrame)
-   g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius);
+   g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mStrokeThickness);
 }
 
 IRECT IVSwitchControl::GetHandleBounds()
 {
-  IRECT handleBounds = mRECT;
+  IRECT handleBounds = mRECT.GetPadded(-mStrokeThickness);
 
   if (mDrawShadows && !mEmboss)
     handleBounds.GetShifted(0, 0, -mShadowOffset, -mShadowOffset);

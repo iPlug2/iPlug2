@@ -125,7 +125,7 @@ public:
   void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
   void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
-
+  void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
   /** Shows or hides the IControl.
    * @param hide Set to true to hide the control */
   virtual void Hide(bool hide);
@@ -153,7 +153,14 @@ public:
 
   virtual void SetDirty(bool triggerAction = true);
   virtual void SetClean();
-  virtual bool IsDirty() { return mDirty; } // This is not const, because it may be overridden and used to update something at the fps
+  
+  virtual bool IsDirty()
+  {
+    if(mAnimationFunc)
+      mAnimationFunc(this);
+    
+    return mDirty;
+  } // This is not const, because it may be overridden and used to update something at the fps
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }  // Disables the right-click manual value entry.
 
@@ -213,18 +220,39 @@ public:
   
   void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds);
   
+  virtual void Animate(double progress) {}
+
+  void EndAnimation()
+  {
+    mAnimationFunc = nullptr;
+    SetDirty(false);
+  }
+  
+  void SetAnimation(IAnimationFunction func, int duration)
+  {
+    mAnimationFunc = func;
+    mAnimationStartTime = std::chrono::high_resolution_clock::now();
+    mAnimationDuration = Milliseconds(duration);
+  }
+  
+  IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
+  
+  double GetAnimationProgress()
+  {
+    auto elapsed = Milliseconds(Time::now() - mAnimationStartTime);
+    return elapsed.count() / mAnimationDuration.count();
+  }
+  
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
-
+  
 #pragma mark - IControl Member variables
 protected:
   IDelegate& mDelegate;
   IGraphics* mGraphics = nullptr;
   IRECT mRECT;
   IRECT mTargetRECT;
-
-  IActionFunction mActionFunc = nullptr;
 
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx = kNoParameter;
@@ -245,7 +273,7 @@ protected:
   bool mClamped = false;
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
-  bool mMEWhenGrayed = false; 
+  bool mMEWhenGrayed = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;
@@ -262,6 +290,12 @@ protected:
   END_DEFINE_INTERFACES (FObject)
   REFCOUNT_METHODS(FObject)
 #endif
+  
+private:
+  IActionFunction mActionFunc = nullptr;
+  IAnimationFunction mAnimationFunc = nullptr;
+  TimePoint mAnimationStartTime;
+  Milliseconds mAnimationDuration;
 };
 
 #pragma mark - BASIC CONTROLS AND BASE CLASSES
@@ -376,11 +410,18 @@ public:
     mControl->SetDirty(false);
   }
   
+  void SetStrokeThickness(float thickness)
+  {
+    mStrokeThickness = thickness;
+    mControl->SetDirty(false);
+  }
+  
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mRoundness = 0.f;
+  float mRoundness = 0.1f;
   float mShadowOffset = 3.f;
+  float mStrokeThickness = 2.f;
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
@@ -600,3 +641,6 @@ protected:
   WDL_PtrList<WDL_String> mFiles;
   WDL_String mExtension;
 };
+
+void DefaultAnimationFunc(IControl* pCaller);
+void DefaultClickActionFunc(IControl* pCaller);

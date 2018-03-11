@@ -3,6 +3,7 @@
 #include "IPlugParameter.h"
 #include "IControls.h"
 #include "IVDropDownListControl.h"
+#include "IPlugEasing.h"
 
 #define MAC_TITLEBAR_BODGE 22
 
@@ -23,17 +24,44 @@ void IGraphicsTest::init()
   pGraphics->OpenWindow((void*)gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);
-  //pGraphics->EnableLiveEdit(true);
+//  pGraphics->EnableLiveEdit(true);
 
-  const int nRows = 20;
-  const int nColumns = 20;
+  const int nRows = 10;
+  const int nColumns = 10;
   IRECT bounds = pGraphics->GetBounds();
+  
 
-  for (int i = 0; i < nRows * nColumns; i++)
+  for (int i = 0; i < 50; i++)
   {
-//    IRECT cellBounds = bounds.GetRandomSubRect();
-    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-2.);
-    pGraphics->AttachControl(new IPanelControl(*this, cellBounds, IColor::GetRandomColor()));
+    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
+    IRECT endRect = bounds.GetGridCell(i + 50, nRows, nColumns).GetPadded(-5.);;
+    
+    IVSwitchControl* pSw = new IVSwitchControl(*this, cellBounds);
+    pGraphics->AttachControl(pSw);
+
+//    IAnimationFunction animationFunction = [pGraphics, cellBounds, endRect](IControl* pCaller)
+//    {
+//      auto progress = pCaller->GetAnimationProgress();
+//      printf("%f progress\n", progress);
+//
+//      if(progress > 1.)
+//      {
+//        pCaller->EndAnimation();
+//        return;
+//      }
+//      
+//      IRECT nb;
+//      IRECT::LinearInterpolateBetween(cellBounds, endRect, nb, IEaseSineOut(progress));
+//      pCaller->SetTargetAndDrawRECTs(nb);
+//      pCaller->Animate(progress);
+//    };
+//
+//    IActionFunction actionFunction = [animationFunction, pGraphics](IControl* pCaller)
+//    {
+//      pCaller->SetAnimation(animationFunction, 1000);
+//    };
+//    
+//    pSw->SetActionFunction(actionFunction);
   }
 
 #endif

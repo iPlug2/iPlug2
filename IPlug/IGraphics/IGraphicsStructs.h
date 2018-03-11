@@ -21,6 +21,11 @@
 class IControl;
 
 typedef std::function<void(IControl*)> IActionFunction;
+typedef std::function<void(IControl*)> IAnimationFunction;
+
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
+typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
 class LICE_IFont;
 /**
@@ -226,7 +231,7 @@ struct IColor
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
-const IColor COLOR_TRANSLUCENT(5, 0, 0, 0);
+const IColor COLOR_TRANSLUCENT(10, 0, 0, 0);
 const IColor COLOR_BLACK(255, 0, 0, 0);
 const IColor COLOR_GRAY(255, 127, 127, 127);
 const IColor COLOR_LIGHT_GRAY(255, 240, 240, 240);
@@ -249,7 +254,7 @@ const IColor DEFAULT_FGCOLOR = COLOR_MID_GRAY;
 const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
 
 const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
-const IColor DEFAULT_HLCOLOR = COLOR_YELLOW;
+const IColor DEFAULT_HLCOLOR = COLOR_TRANSLUCENT;
 const IColor DEFAULT_X1COLOR = COLOR_RED;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
 const IColor DEFAULT_X3COLOR = COLOR_BLUE;
@@ -696,6 +701,14 @@ struct IRECT
     T = std::floor(0.5f + (T * scale));
     R = std::floor(0.5f + (R * scale));
     B = std::floor(0.5f + (B * scale));
+  }
+  
+  static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, double progress)
+  {
+    result.L = start.L + progress * (dest.L -  start.L);
+    result.T = start.T + progress * (dest.T -  start.T);
+    result.R = start.R + progress * (dest.R -  start.R);
+    result.B = start.B + progress * (dest.B -  start.B);
   }
 
   IRECT GetScaled(float scale) const

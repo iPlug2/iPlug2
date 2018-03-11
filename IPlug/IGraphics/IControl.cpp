@@ -3,6 +3,24 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
+void DefaultAnimationFunc(IControl* pCaller)
+{
+  auto progress = pCaller->GetAnimationProgress();
+  
+  if(progress > 1.)
+  {
+    pCaller->EndAnimation();
+    return;
+  }
+  
+  pCaller->Animate(progress);
+};
+
+void DefaultClickActionFunc(IControl* pCaller)
+{
+  pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
+};
+
 IControl::IControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(bounds)
@@ -350,7 +368,7 @@ ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramId
 }
 
 void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
+{  
   if (mNumStates == 2)
     mValue = !mValue;
   else

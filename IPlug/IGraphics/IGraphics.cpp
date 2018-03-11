@@ -594,6 +594,9 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
+  mMouseDownX = x;
+  mMouseDownY = y;
+  
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
