@@ -101,7 +101,7 @@ void IVKnobControl::Draw(IGraphics& g)
 
 void IVSliderControl::Draw(IGraphics& g)
 {
-  g.FillRoundRect(GetColor(kBG), mRECT, 5);
+  g.FillRect(GetColor(kBG), mRECT);
 
   IRECT filledTrack, handle;
 

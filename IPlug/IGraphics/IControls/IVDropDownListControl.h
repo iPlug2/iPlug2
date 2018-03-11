@@ -11,8 +11,7 @@ public IVectorBase
 {
 public:
   IVDropDownListControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
-                        const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection direction = kVertical,
-                        int nStates = 0, const char* labels = 0, ...)
+                        const IVColorSpec& colorSpec = DEFAULT_SPEC, EDirection direction = kVertical, int nStates = 0, const char* labels = 0, ...)
   : IControl(dlg, bounds, paramIdx)
   , IVectorBase(colorSpec)
   , mCollapsedBounds(bounds)
