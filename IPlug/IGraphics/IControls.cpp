@@ -18,17 +18,19 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
 
 void IVSwitchControl::Draw(IGraphics& g)
 {
-  const float cornerRadius = mRoundness * (mRECT.W() / 2.);
-  
-  g.FillRoundRect(GetColor(kBG), mRECT, mRoundness);
+  g.FillRect(GetColor(kBG), mRECT);
 
-  IRECT handleBounds = GetHandleBounds();
-  IColor shadowColor = IColor(60, 0, 0, 0);
+  const IRECT handleBounds = GetHandleBounds();
+  
+  const float cornerRadius = mRoundness * (handleBounds.W() / 2.);
+
+  static const IColor shadowColor = IColor(60, 0, 0, 0);
 
   if (mValue > 0.5)
   {
     g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
 
+    //inner shadow
     if (mDrawShadows && mEmboss)
     {
       g.PathRect(handleBounds.GetHSliced(mShadowOffset));
@@ -38,6 +40,7 @@ void IVSwitchControl::Draw(IGraphics& g)
   }
   else
   {
+    //outer shadow
     if (mDrawShadows && !mEmboss)
       g.FillRoundRect(shadowColor, handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
@@ -50,17 +53,20 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
     g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
   }
-    
- if(mDrawFrame)
-   g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mStrokeThickness);
+  
+  if(mDrawFrame)
+    g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mStrokeThickness);
 }
 
 IRECT IVSwitchControl::GetHandleBounds()
 {
-  IRECT handleBounds = mRECT.GetPadded(-mStrokeThickness);
+  IRECT handleBounds = mRECT;
 
+  if(mDrawFrame)
+    handleBounds.GetPadded(-mStrokeThickness * 0.5f);
+  
   if (mDrawShadows && !mEmboss)
-    handleBounds.GetShifted(0, 0, -mShadowOffset, -mShadowOffset);
+    handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
 
   return handleBounds;
 }

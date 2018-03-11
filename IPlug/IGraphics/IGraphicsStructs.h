@@ -655,7 +655,7 @@ struct IRECT
     return IRECT(L, MH()-padding, R, MH()+padding);
   }
 
-  inline IRECT GetHSliced(float w, bool rhs = false)
+  inline IRECT GetHSliced(float w, bool rhs = false) const
   {
     if(rhs)
       return IRECT(R - w, T, R, B);
@@ -663,7 +663,7 @@ struct IRECT
       return IRECT(L, T, L + w, B);
   }
   
-  inline IRECT GetVSliced(float h, bool bot = false)
+  inline IRECT GetVSliced(float h, bool bot = false) const
   {
     if(bot)
       return IRECT(L, B - h, R, B);
