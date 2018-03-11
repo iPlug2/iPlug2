@@ -303,7 +303,7 @@ const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 
 // Path related structures for patterns and fill/stroke options
 
-enum EFillRule { kFillEvenOdd, kFillWinding };
+enum EFillRule { kFillWinding, kFillEvenOdd };
 enum ELineCap { kCapButt, kCapRound, kCapSquare };
 enum ELineJoin { kJoinMiter, kJoinRound, kJoinBevel };
 enum EPatternType { kSolidPattern, kLinearPattern, kRadialPattern };
@@ -312,7 +312,7 @@ enum EPatternExtend { kExtendNone, kExtendPad, kExtendReflect, kExtendRepeat };
 struct IFillOptions
 {
   IFillOptions()
-  : mFillRule(kFillEvenOdd)
+  : mFillRule(kFillWinding)
   , mPreserve(false)
   {}
   
