@@ -416,6 +416,17 @@ public:
     mControl->SetDirty(false);
   }
   
+  IRECT GetAdjustedHandleBounds(IRECT handleBounds)
+  {    
+    if(mDrawFrame)
+      handleBounds.GetPadded(-mStrokeThickness * 0.5f);
+    
+    if (mDrawShadows && !mEmboss)
+      handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
+    
+    return handleBounds;
+  }
+  
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
@@ -602,9 +613,6 @@ public:
   virtual ~ISwitchControlBase() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-
-  virtual IRECT GetHandleBounds() = 0;
-  
 protected:
   int mNumStates;
 };

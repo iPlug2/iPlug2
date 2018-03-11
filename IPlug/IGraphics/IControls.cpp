@@ -20,7 +20,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
 
-  const IRECT handleBounds = GetHandleBounds();
+  const IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
   
   const float cornerRadius = mRoundness * (handleBounds.W() / 2.);
 
@@ -47,6 +47,9 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
   }
   
+  if(mMouseIsOver)
+    g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
+  
   if(GetAnimationFunction())
   {
     float mouseDownX, mouseDownY;
@@ -58,45 +61,46 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mStrokeThickness);
 }
 
-IRECT IVSwitchControl::GetHandleBounds()
-{
-  IRECT handleBounds = mRECT;
-
-  if(mDrawFrame)
-    handleBounds.GetPadded(-mStrokeThickness * 0.5f);
-  
-  if (mDrawShadows && !mEmboss)
-    handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
-
-  return handleBounds;
-}
-
-IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int param,
+IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
                              const IVColorSpec& colorSpec,
-                             float rMin, float rMax, float aMin, float aMax,
+                             float aMin, float aMax,
                              EDirection direction, double gearing)
-: IKnobControlBase(dlg, bounds, param, direction, gearing)
+: IKnobControlBase(dlg, bounds, paramIdx, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
-, mInnerRadius(rMin)
-, mOuterRadius(rMax)
 {
   AttachIControl(this);
-
-  if (mOuterRadius == 0.0f)
-    mOuterRadius = 0.5f * (float) bounds.W();
 }
 
 void IVKnobControl::Draw(IGraphics& g)
 {
+  g.FillRect(GetColor(kBG), mRECT);
+  
+  IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
+  
+  handleBounds.ScaleAboutCentre(0.80);
+
+  static const IColor shadowColor = IColor(60, 0, 0, 0);
+
   const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
-  const float cx = mRECT.MW(), cy = mRECT.MH();
-  const float radius = (mRECT.W()/2.f) - 2.f;
-//  g.FillCircle(GetColor(EVColor::kFR), cx, cy, radius+2);
-//  g.DrawCircle(GetColor(EVColor::kBG), cx, cy, radius, &BLEND_50, 5.f);
-  g.FillArc(GetColor(EVColor::kBG), cx, cy, radius, mAngleMin, v);
-  g.DrawRadialLine(GetColor(EVColor::kFG), cx, cy, v, mInnerRadius * radius, mOuterRadius * radius, 0, 5.f);
+  const float cx = handleBounds.MW(), cy = handleBounds.MH();
+  const float radius = (handleBounds.W()/2.f);
+
+  g.DrawArc(GetColor(kFR), cx, cy, (mRECT.W()/2.f) - 5.f, mAngleMin, v, 0, 3.f);
+  
+  if (mDrawShadows && !mEmboss)
+    g.FillCircle(shadowColor, cx + mShadowOffset, cy + mShadowOffset, radius); 
+  
+  g.FillCircle(GetColor(kFG), cx, cy, radius);
+
+  g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9, 0, mStrokeThickness);
+
+  if(mMouseIsOver)
+    g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
+  
+  g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStrokeThickness);
+  g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mStrokeThickness);
 }
 
 void IVSliderControl::Draw(IGraphics& g)

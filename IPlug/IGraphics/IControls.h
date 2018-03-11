@@ -23,7 +23,6 @@ public:
 
   void Draw(IGraphics& g) override;
 
-  IRECT GetHandleBounds() override;
   void Animate(double progress) override { mFlashCircleRadius = progress * mRECT.W() / 2.; SetDirty(false); }
 
 private:
@@ -39,14 +38,20 @@ class IVKnobControl : public IKnobControlBase
 public:
   IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                float rMin = 0.f, float rMax = 1.f, float aMin = -135.f, float aMax = 135.f,
+                float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
+  
+  IVKnobControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
+                const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                float aMin = -135.f, float aMax = 135.f,
+                EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
+  
   ~IVKnobControl() {}
 
   void Draw(IGraphics& g) override;
   
 protected:
-  float mAngleMin, mAngleMax, mInnerRadius, mOuterRadius;
+  float mAngleMin, mAngleMax;
 };
 
 /** A vector knob control which rotates an SVG image */
