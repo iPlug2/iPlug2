@@ -703,6 +703,18 @@ struct IRECT
     B = std::floor(0.5f + (B * scale));
   }
   
+  void ScaleAboutCentre(float scale)
+  {
+    float x = MW();
+    float y = MH();
+    float hw = W() / 2.f;
+    float hh = H() / 2.f;
+    L = x - (hw * scale);
+    T = y - (hh * scale);
+    R = x + (hw * scale);
+    B = y + (hh * scale);
+  }
+  
   static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, double progress)
   {
     result.L = start.L + progress * (dest.L -  start.L);
