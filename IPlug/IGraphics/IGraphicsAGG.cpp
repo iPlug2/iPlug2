@@ -27,7 +27,7 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   }
 }
 
-inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 {
   if (!pBlend)
     return 255;
@@ -38,7 +38,7 @@ inline const agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 // Rasterizing
 
 template <typename FuncType, typename ColorArrayType>
-void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
   IGraphicsAGG::SpanAllocatorType spanAllocator;
   IGraphicsAGG::InterpolatorType spanInterpolator(xform);
@@ -53,11 +53,11 @@ void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gra
   SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
   RendererGradientType renderer(rasterizer.GetBase(), spanAllocator, spanGradient);
   
-  rasterizer.Rasterize(renderer);
+  rasterizer.Rasterize(renderer, op);
 }
 
 template <typename FuncType, typename ColorArrayType>
-void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray)
+void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
   // FIX extend none
   
@@ -65,13 +65,13 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
   {
     case kExtendNone:
     case kExtendPad:
-      GradientRasterize(rasterizer, gradientFunc, xform, colorArray);
+      GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
       break;
     case kExtendReflect:
-      GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray);
+      GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
     case kExtendRepeat:
-      GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray);
+      GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
   }
 }
@@ -91,7 +91,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
       
       // Rasterize
       
-      Rasterize(renderer);
+      Rasterize(renderer, AGGBlendMode(pBlend));
     }
       break;
       
@@ -126,11 +126,11 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray, AGGBlendMode(pBlend));
       }
       else
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, AGGBlendMode(pBlend));
       }
     }
     break;
@@ -156,8 +156,7 @@ void IGraphicsAGG::SetDisplayScale(int scale)
 {
   mPixelMap.create(Width() * scale, Height() * scale);
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
-  mPixf = PixfmtType(mRenBuf);
-  mRasterizer.SetOutput(mPixf);
+  mRasterizer.SetOutput(mRenBuf);
 
   IGraphics::SetDisplayScale(scale);
 }
@@ -208,7 +207,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   agg::conv_transform<agg::rounded_rect> tr(rect, dstMtx);
   
   mRasterizer.SetPath(tr);
-  mRasterizer.Rasterize(renderer);
+  mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
   /*
   IRECT bounds = dest;
   bounds.Scale(GetDisplayScale());
@@ -273,7 +272,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   agg::conv_transform<agg::rounded_rect> tr(bounds, srcMatrix);
   
   mRasterizer.SetPath(tr);
-  mRasterizer.Rasterize(renderer);
+  mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
 }
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)

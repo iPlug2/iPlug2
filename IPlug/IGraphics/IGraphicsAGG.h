@@ -82,9 +82,10 @@ public:
 
     void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
 
-    void SetOutput(PixfmtType& pixF)
+    void SetOutput(agg::rendering_buffer& renBuf)
     {
-      mRenBase = RenbaseType(pixF);
+      mPixf = PixfmtType(renBuf);
+      mRenBase = RenbaseType(mPixf);
       mRenBase.clear(agg::rgba(0, 0, 0, 0));
     }
 
@@ -96,9 +97,10 @@ public:
     }
 
     template <typename RendererType>
-    void Rasterize(RendererType& renderer, float alpha = 1.f)
+    void Rasterize(RendererType& renderer, agg::comp_op_e op, float alpha = 1.f)
     {
       agg::scanline_p8 scanline;
+      mPixf.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
 
@@ -112,6 +114,7 @@ public:
     void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
 
     RenbaseType mRenBase;
+    PixfmtType mPixf;
     RasterizerType mRasterizer;
   };
 
@@ -172,7 +175,6 @@ private:
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
 
-  PixfmtType mPixf;
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
