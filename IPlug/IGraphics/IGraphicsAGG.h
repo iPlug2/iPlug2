@@ -15,6 +15,30 @@
 #include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
+template <class SpanGeneratorType>
+class alpha_span_generator : public SpanGeneratorType
+{
+public:
+  
+  alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
+  : SpanGeneratorType(source, interpolator), alpha(a) {}
+  
+  void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
+  {
+    SpanGeneratorType::generate(span, x, y, len);
+    
+    if (alpha != 255)
+    {
+      for (unsigned i = 0; i < len; i++, span++)
+        span->a = (span->a * alpha + SpanGeneratorType::base_mask) >> SpanGeneratorType::base_shift;
+    }
+  }
+  
+private:
+  
+  agg::cover_type alpha;
+};
+
 class AGGBitmap : public APIBitmap
 {
 public:
@@ -54,7 +78,9 @@ public:
   typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
   typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
+  typedef alpha_span_generator<SpanGeneratorType> SpanAlphaGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
+  typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, alpha_span_generator<SpanGeneratorType> > BitmapAlphaRenderType;
 
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
 
@@ -97,11 +123,18 @@ public:
     }
 
     template <typename RendererType>
-    void Rasterize(RendererType& renderer, agg::comp_op_e op, float alpha = 1.f)
+    void Rasterize(RendererType& renderer, agg::comp_op_e op)
     {
       agg::scanline_p8 scanline;
       mPixf.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
+    }
+    
+    void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
+    {
+      mPixf.comp_op(op);
+      agg::rect_i r(srcX, srcY, srcX + bounds.W(), srcY + bounds.H());
+      mRenBase.blend_from(PixfmtType(renBuf), &r, -srcX + bounds.L, -srcY + bounds.T, cover);
     }
 
     template <typename VertexSourceType>
