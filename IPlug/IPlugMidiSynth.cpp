@@ -1,4 +1,4 @@
-#include "IPlugMIDISynth.h"
+#include "IPlugMidiSynth.h"
 
 MIDISynth::MIDISynth(EPolyMode polyMode)
 {
