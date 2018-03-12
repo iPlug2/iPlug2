@@ -18,7 +18,7 @@ MidiSynth::~MidiSynth()
   mVS.Empty(true);
 }
 
-bool MidiSynth::ProcessBlock(double** inputs, double** outputs, int nFrames)
+bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   assert(NVoices());
   

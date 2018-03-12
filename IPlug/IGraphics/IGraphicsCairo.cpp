@@ -139,32 +139,6 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
     
   return new CairoBitmap(pOutSurface, scale);
 }
-/*
-IBitmap IGraphicsCairo::CropBitmap(const IBitmap& inBitmap, const IRECT& bounds, const char* name, int targetScale)
-{
-  cairo_surface_t* pInSurface = (cairo_surface_t*) inBitmap.mAPIBitmap->GetBitmap();
-  int newW = (int)(inBitmap.W * targetScale);
-  int newH = (int)(inBitmap.H * targetScale);
-    
-  uint8_t* pOutBuffer = new uint8_t[newW * newH * 4];
-  
-  // Convert output to cairo
-  cairo_surface_t* pOutSurface = cairo_image_surface_create_for_data(pOutBuffer, CAIRO_FORMAT_ARGB32, newW, newH, 0);
-  cairo_t* pOutContext = cairo_create(pOutSurface);
-  
-  // Paint from one surface to another
-  cairo_set_source_surface(pOutContext, pInSurface, 0, 0);
-  cairo_rectangle(pOutContext, bounds.L, bounds.T, bounds.W(), bounds.H());
-  cairo_scale(pOutContext, targetScale, targetScale);
-  cairo_paint(pOutContext);
-  cairo_surface_set_device_scale(pOutSurface, targetScale, targetScale);
-    
-  // Destroy cairo stuff
-  cairo_destroy(pOutContext);
-  
-  return IBitmap(new CairoBitmap(pOutSurface, targetScale)); //TODO: surface will not be destroyed, unless this is retained
-}
-*/
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {

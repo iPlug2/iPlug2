@@ -52,7 +52,7 @@ PKGMAN_PATH = /usr/local
 DEPS_PATH = $(ROOT)/Dependencies
 
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the STATICLIBS_PATH build setting to point to PKGMAN_PATH
-STATICLIBS_PATH = $(DEPS_PATH)/IGraphics/install
+STATICLIBS_PATH = $(DEPS_PATH)/IGraphics/Libs/install
 STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
 
 // IPlug dependencies

@@ -135,11 +135,6 @@ IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, in
 {
   return bitmap;
 }
-/*
-IBitmap IGraphicsNanoVG::CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale)
-{
-  return bitmap;
-}*/
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
@@ -212,6 +207,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   else
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
+  nvgPathWinding(mVG, NVG_CCW);
   nvgStroke(mVG);
   
   if (!options.mPreserve)
