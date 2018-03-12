@@ -781,6 +781,8 @@ public:
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
+  
+  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 
 #pragma mark - Plug-in API Specific
 
@@ -828,8 +830,10 @@ public:
    * @param nStates The number of states/frames if the resource is a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
    * @return An IXXX representing the resource */
-//  auto LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
-
+#ifdef IPLUG_CPP14
+  auto LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
+#endif
+  
 protected:
   IDelegate& mDelegate;
 

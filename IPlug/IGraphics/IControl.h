@@ -313,12 +313,12 @@ public:
               const IColor* pX2Color = 0,
               const IColor* pX3Color = 0)
   {
-    SetColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
+    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
   }
 
   IVectorBase(const IVColorSpec& spec)
   {
-    SetColors(&spec.mBGColor,
+    AddColors(&spec.mBGColor,
               &spec.mFGColor,
               &spec.mPRColor,
               &spec.mFRColor,
@@ -334,26 +334,8 @@ public:
   {
     mColors.Add(color);
   }
-
-  void SetColor(int colorIdx, const IColor& color)
-  {
-    if(colorIdx < mColors.GetSize())
-      mColors.Get()[colorIdx] = color;
-  }
-
-  void SetColors(IVColorSpec& spec)
-  {
-    SetColors(&spec.mBGColor,
-              &spec.mFGColor,
-              &spec.mPRColor,
-              &spec.mFRColor,
-              &spec.mHLColor,
-              &spec.mX1Color,
-              &spec.mX2Color,
-              &spec.mX3Color);
-  }
-
-  void SetColors(const IColor* pBGColor = 0,
+  
+  void AddColors(const IColor* pBGColor = 0,
                  const IColor* pFGColor = 0,
                  const IColor* pPRColor = 0,
                  const IColor* pFRColor = 0,
@@ -372,6 +354,47 @@ public:
     if(pX3Color) AddColor(*pX3Color);
   }
 
+  void SetColor(int colorIdx, const IColor& color)
+  {
+    if(colorIdx < mColors.GetSize())
+      mColors.Get()[colorIdx] = color;
+    
+    mControl->SetDirty(false);
+  }
+  
+  void SetColors(const IColor& BGColor,
+                 const IColor& FGColor,
+                 const IColor& PRColor,
+                 const IColor& FRColor,
+                 const IColor& HLColor,
+                 const IColor& X1Color,
+                 const IColor& X2Color,
+                 const IColor& X3Color)
+  {
+    mColors.Get()[kBG] = BGColor;
+    mColors.Get()[kFG] = FGColor;
+    mColors.Get()[kPR] = PRColor;
+    mColors.Get()[kFR] = FRColor;
+    mColors.Get()[kHL] = HLColor;
+    mColors.Get()[kX1] = X1Color;
+    mColors.Get()[kX2] = X2Color;
+    mColors.Get()[kX3] = X3Color;
+    
+    mControl->SetDirty(false);
+  }
+
+  void SetColors(const IVColorSpec& spec)
+  {
+    SetColors(spec.mBGColor,
+              spec.mFGColor,
+              spec.mPRColor,
+              spec.mFRColor,
+              spec.mHLColor,
+              spec.mX1Color,
+              spec.mX2Color,
+              spec.mX3Color);
+  }
+
   IColor& GetColor(int colorIdx)
   {
     if(colorIdx < mColors.GetSize())
@@ -380,46 +403,28 @@ public:
       return mColors.Get()[0];
   }
   
-  void SetRoundness(float roundness)
-  {
-    mRoundness = BOUNDED(roundness, 0.f, 1.f);
-    mControl->SetDirty(false);
-  }
+  void SetRoundness(float roundness) { mRoundness = BOUNDED(roundness, 0.f, 1.f); mControl->SetDirty(false); }
+  void SetDrawFrame(bool draw) { mDrawFrame = draw; mControl->SetDirty(false); }
+  void SetDrawShadows(bool draw) { mDrawShadows = draw; mControl->SetDirty(false); }
+  void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
+  void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
+  void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
 
-  void SetDrawFrame(bool draw)
+  void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
-    mDrawFrame = draw;
-    mControl->SetDirty(false);
-  }
-  
-  void SetDrawShadows(bool draw)
-  {
-    mDrawShadows = draw;
-    mControl->SetDirty(false);
-  }
-  
-  void SetEmboss(bool emboss)
-  {
+    mDrawFrame = drawFrame;
+    mDrawShadows = drawShadows;
     mEmboss = emboss;
-    mControl->SetDirty(false);
-  }
-  
-  void SetShadowOffset(float offset)
-  {
-    mShadowOffset = offset;
-    mControl->SetDirty(false);
-  }
-  
-  void SetStrokeThickness(float thickness)
-  {
-    mStrokeThickness = thickness;
-    mControl->SetDirty(false);
+    mRoundness = roundness;
+    mFrameThickness = frameThickness;
+    mShadowOffset = shadowOffset;
+    SetColors(spec);
   }
   
   IRECT GetAdjustedHandleBounds(IRECT handleBounds)
-  {    
+  {
     if(mDrawFrame)
-      handleBounds.GetPadded(-mStrokeThickness * 0.5f);
+      handleBounds.GetPadded(-mFrameThickness * 0.5f);
     
     if (mDrawShadows && !mEmboss)
       handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
@@ -432,7 +437,7 @@ protected:
   WDL_TypedBuf<IColor> mColors;
   float mRoundness = 0.1f;
   float mShadowOffset = 3.f;
-  float mStrokeThickness = 2.f;
+  float mFrameThickness = 2.f;
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;

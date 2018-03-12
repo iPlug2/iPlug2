@@ -58,7 +58,7 @@ void IVSwitchControl::Draw(IGraphics& g)
   }
   
   if(mDrawFrame)
-    g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mStrokeThickness);
+    g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
 }
 
 IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
@@ -94,13 +94,13 @@ void IVKnobControl::Draw(IGraphics& g)
   
   g.FillCircle(GetColor(kFG), cx, cy, radius);
 
-  g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9, 0, mStrokeThickness);
+  g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9, 0, mFrameThickness);
 
   if(mMouseIsOver)
     g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
   
-  g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStrokeThickness);
-  g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mStrokeThickness);
+  g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
+  g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
 }
 
 void IVSliderControl::Draw(IGraphics& g)
