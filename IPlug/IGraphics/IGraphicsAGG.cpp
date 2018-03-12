@@ -29,10 +29,7 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 
 inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 {
-  if (!pBlend)
-    return 255;
-  
-  return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(pBlend->mWeight * 255.f)), agg::cover_type(255)));
+  return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
 
 // Rasterizing
