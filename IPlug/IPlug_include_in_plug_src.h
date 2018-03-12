@@ -280,7 +280,13 @@ extern "C"
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #elif defined WAM_API
+  IPlug* MakePlug()
+  {
+    IPlugInstanceInfo instanceInfo;
+    return new PLUG_CLASS_NAME(instanceInfo);
+  }
 
+  extern "C" { EMSCRIPTEN_KEEPALIVE void* createModule() { return (void*) MakePlug(); } }
 #else
   #error "No API defined!"
 #endif

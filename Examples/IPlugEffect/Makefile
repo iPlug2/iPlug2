@@ -69,7 +69,7 @@ EXPORTS = "[\
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -DWAM_API -std=c++11
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -DWAM_API -std=c++11 -s ASSERTIONS=1 -D NO_IGRAPHICS
 LDFLAGS = -O2 -s EXPORTED_FUNCTIONS=$(EXPORTS)
 JSFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM'"
 
