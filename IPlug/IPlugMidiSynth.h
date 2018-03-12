@@ -107,120 +107,7 @@ public:
   MidiSynth(EPolyMode polyMode = kPolyModePoly);
   ~MidiSynth();
 
-  void NoteOnOffMono(const IMidiMsg& msg);
-
-  void NoteOnOffPoly(const IMidiMsg& msg);
-
-  inline void TriggerMonoNote(KeyPressInfo note);
-
-  inline void StopVoicesForKey(int note)
-  {
-    // now stop voices associated with this key
-    for (int v = 0; v < NVoices(); v++)
-    {
-      if (GetVoice(v)->mKey == note)
-      {
-        if (GetVoice(v)->GetBusy())
-        {
-          StopVoice(*GetVoice(v));
-        }
-      }
-    }
-  }
-
-  inline void StopVoice(Voice& voice)
-  {
-    voice.Release();
-    voice.RemovedFromKey();
-  }
-
-  /** Override this method if you need to implement a tuning table for microtonal support
-   * @param key The input MIDI pitch of the key pressed
-   * @return The adjusted MIDI pitch */
-  virtual double GetAdjustedPitch(int key)
-  {
-    return key;
-  }
-
-  inline void ReleaseAllVoices()
-  {
-    for (int v = 0; v < NVoices(); v++)
-    {
-      if (GetVoice(v)->GetBusy())
-      {
-        Voice* pVoice = GetVoice(v);
-        pVoice->Release();
-        pVoice->RemovedFromKey();
-      }
-    }
-  }
-
-  inline void SoftKillAllVoices()
-  {
-    for (int v = 0; v < NVoices(); v++)
-    {
-      Voice* pVoice = GetVoice(v);
-      pVoice->Kill(true);
-      pVoice->RemovedFromKey();
-    }
-  }
-
-  inline void HardKillAllVoices()
-  {
-    for (int v = 0; v < NVoices(); v++)
-    {
-      Voice* pVoice = GetVoice(v);
-      pVoice->Kill(false);
-      pVoice->RemovedFromKey();
-    }
-  }
-
-  inline int CheckKey(int key)
-  {
-    for(int v = 0; v < NVoices(); v++)
-    {
-      if(GetVoice(v)->mKey == key)
-        return v;
-    }
-
-    return -1;
-  }
-
-  inline bool VoicesAreBusy()
-  {
-    for(int v = 0; v < NVoices(); v++)
-    {
-      if(GetVoice(v)->GetBusy())
-        return true;
-    }
-
-    return false;
-  }
-
-  inline int FindFreeVoice()
-  {
-    for(int v = 0; v < NVoices(); v++)
-    {
-      if(!GetVoice(v)->GetBusy())
-        return v;
-    }
-
-    int64_t mostRecentTime = mSampleTime;
-    int longestPlayingVoice = -1;
-
-    for(int v = 0; v < NVoices(); v++)
-    {
-      if (GetVoice(v)->mStartTime < mostRecentTime)
-      {
-        longestPlayingVoice = v;
-        mostRecentTime = GetVoice(v)->mStartTime;
-      }
-    }
-
-    return longestPlayingVoice;
-  }
-
-  void ResetSampleTime()
+  void Reset()
   {
     mSampleTime = 0;
   }
@@ -271,6 +158,121 @@ public:
    * @return \c true if the synth is silent */
   bool ProcessBlock(double** inputs, double** outputs, int nFrames);
 
+protected:
+  /** Override this method if you need to implement a tuning table for microtonal support
+   * @param key The input MIDI pitch of the key pressed
+   * @return The adjusted MIDI pitch */
+  virtual double GetAdjustedPitch(int key)
+  {
+    return key;
+  }
+  
+private:
+  void NoteOnOffMono(const IMidiMsg& msg);
+  
+  void NoteOnOffPoly(const IMidiMsg& msg);
+  
+  inline void TriggerMonoNote(KeyPressInfo note);
+  
+  inline void StopVoicesForKey(int note)
+  {
+    // now stop voices associated with this key
+    for (int v = 0; v < NVoices(); v++)
+    {
+      if (GetVoice(v)->mKey == note)
+      {
+        if (GetVoice(v)->GetBusy())
+        {
+          StopVoice(*GetVoice(v));
+        }
+      }
+    }
+  }
+  
+  inline void StopVoice(Voice& voice)
+  {
+    voice.Release();
+    voice.RemovedFromKey();
+  }
+  
+  inline void ReleaseAllVoices()
+  {
+    for (int v = 0; v < NVoices(); v++)
+    {
+      if (GetVoice(v)->GetBusy())
+      {
+        Voice* pVoice = GetVoice(v);
+        pVoice->Release();
+        pVoice->RemovedFromKey();
+      }
+    }
+  }
+  
+  inline void SoftKillAllVoices()
+  {
+    for (int v = 0; v < NVoices(); v++)
+    {
+      Voice* pVoice = GetVoice(v);
+      pVoice->Kill(true);
+      pVoice->RemovedFromKey();
+    }
+  }
+  
+  inline void HardKillAllVoices()
+  {
+    for (int v = 0; v < NVoices(); v++)
+    {
+      Voice* pVoice = GetVoice(v);
+      pVoice->Kill(false);
+      pVoice->RemovedFromKey();
+    }
+  }
+  
+  inline int CheckKey(int key)
+  {
+    for(int v = 0; v < NVoices(); v++)
+    {
+      if(GetVoice(v)->mKey == key)
+        return v;
+    }
+    
+    return -1;
+  }
+  
+  inline bool VoicesAreBusy()
+  {
+    for(int v = 0; v < NVoices(); v++)
+    {
+      if(GetVoice(v)->GetBusy())
+        return true;
+    }
+    
+    return false;
+  }
+  
+  inline int FindFreeVoice()
+  {
+    for(int v = 0; v < NVoices(); v++)
+    {
+      if(!GetVoice(v)->GetBusy())
+        return v;
+    }
+    
+    int64_t mostRecentTime = mSampleTime;
+    int longestPlayingVoice = -1;
+    
+    for(int v = 0; v < NVoices(); v++)
+    {
+      if (GetVoice(v)->mStartTime < mostRecentTime)
+      {
+        longestPlayingVoice = v;
+        mostRecentTime = GetVoice(v)->mStartTime;
+      }
+    }
+    
+    return longestPlayingVoice;
+  }
+  
 private:
   WDL_PtrList<Voice> mVS;
 
