@@ -156,7 +156,7 @@ public:
    * @param outputs Pointer to output Arrays
    * @param nFrames The number of sample frames to process
    * @return \c true if the synth is silent */
-  bool ProcessBlock(double** inputs, double** outputs, int nFrames);
+  bool ProcessBlock(sample** inputs, sample** outputs, int nFrames);
 
 protected:
   /** Override this method if you need to implement a tuning table for microtonal support
