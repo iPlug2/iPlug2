@@ -42,7 +42,7 @@ public:
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
   {
-    FillRect(color, IRECT(x, y, x+1.5, y+1.5), pBlend);
+    FillRect(color, IRECT(x, y, x+1.f, y+1.f), pBlend);
   }
   
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override

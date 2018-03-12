@@ -694,6 +694,28 @@ struct IRECT
   {
     return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
   }
+  
+  IRECT GetCentredInside(IRECT sr)
+  {
+    IRECT r;
+    r.L = MW() - sr.W() / 2.;
+    r.T = MH() - sr.H() / 2.;
+    r.R = r.L + sr.W();
+    r.B = r.T + sr.H();
+    
+    return r;
+  }
+  
+  IRECT GetCentredInside(IBitmap bitmap)
+  {
+    IRECT r;
+    r.L = MW() - bitmap.FW() / 2.;
+    r.T = MH() - bitmap.FH() / 2.;
+    r.R = r.L + (float) bitmap.FW();
+    r.B = r.T + (float) bitmap.FH();
+    
+    return r;
+  }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */

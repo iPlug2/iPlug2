@@ -56,8 +56,8 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   
   SetShape(shape);
   
-  if(shape != 1.) // TODO: this assumes any param with shape != .1 is using PowCurve
-    mShapeFunc = IEasePowCurve<double>;
+  if(shape != 1.) // TODO: this assumes any param with shape != .1 is using ShapeFuncPowCurve
+    mShapeFunc = ShapeFuncPowCurve;
   else
     mShapeFunc = shapeFunc;
 }
@@ -84,7 +84,7 @@ double IParam::DBToAmp() const
 
 void IParam::SetNormalized(double normalizedValue)
 {
-  mValue = FromNormalizedParam(normalizedValue, mMin, mMax, mShape, mShapeFunc);
+  mValue = FromNormalizedParam(normalizedValue);
   
   if (mType != kTypeDouble)
   {
@@ -102,17 +102,17 @@ double IParam::GetNormalized() const
 double IParam::GetNormalized(double nonNormalizedValue) const
 {
   nonNormalizedValue = BOUNDED(nonNormalizedValue, mMin, mMax);
-  return ToNormalizedParam(nonNormalizedValue, mMin, mMax, mShape, mShapeFunc);
+  return ToNormalizedParam(nonNormalizedValue);
 }
 
 double IParam::GetNonNormalized(double normalizedValue) const
 {
-  return FromNormalizedParam(normalizedValue, mMin, mMax, mShape, mShapeFunc);
+  return FromNormalizedParam(normalizedValue);
 }
 
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
-  if (normalized) value = FromNormalizedParam(value, mMin, mMax, mShape, mShapeFunc);
+  if (normalized) value = FromNormalizedParam(value);
 
   if (withDisplayText)
   {
@@ -193,9 +193,8 @@ const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
   DisplayText* pDT = mDisplayTexts.Get()+idx;
   
   if (pValue)
-  {
     *pValue = pDT->mValue;
-  }
+
   return pDT->mText;
 }
 

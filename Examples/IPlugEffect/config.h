@@ -42,7 +42,7 @@
 #define PLUG_DOES_MIDI 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
-#define PLUG_WIDTH 300
+#define PLUG_WIDTH 600
 #define PLUG_HEIGHT 600
 
 #define AUV2_ENTRY IPlugEffect_Entry
@@ -67,3 +67,6 @@
 #define APP_N_VECTOR_WAIT 50
 #define APP_MULT 0.25
 
+#define PNGKNOB_FN "resources/img/knob.png"
+#define SVGKNOB_FN "resources/img/BefacoBigKnob.svg"
+#define TIGER_FN "resources/img/23.svg"
