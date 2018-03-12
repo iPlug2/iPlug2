@@ -8,10 +8,10 @@
 
 using namespace hiir;
 
-class IPlugOverSampler
+class OverSampler
 {
 public:
-  IPlugOverSampler()
+  OverSampler()
   : mWritePos(0)
   , mDownSamplerOutput(0.f)
   {
@@ -71,7 +71,7 @@ public:
     ClearBuffers();
   }
 
-  ~IPlugOverSampler()
+  ~OverSampler()
   {
   }
 
