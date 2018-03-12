@@ -2,8 +2,8 @@
 
 #include <functional>
 
-#include "FPUUpsampler2x.h"
-#include "FPUDownsampler2x.h"
+#include "HIIR/FPUUpsampler2x.h"
+#include "HIIR/FPUDownsampler2x.h"
 //#include "PolyphaseIIR2Designer.h"
 
 using namespace hiir;
@@ -15,6 +15,11 @@ public:
   : mWritePos(0)
   , mDownSamplerOutput(0.f)
   {
+    memset(mUp16x, 0, 16 * sizeof(float));
+    memset(mUp8x, 0, 8 * sizeof(float));
+    memset(mUp4x, 0, 4 * sizeof(float));
+    memset(mUp2x, 0, 2 * sizeof(float));
+
     memset(mDown16x, 0, 16 * sizeof(float));
     memset(mDown8x, 0, 8 * sizeof(float));
     memset(mDown4x, 0, 4 * sizeof(float));
@@ -82,25 +87,25 @@ public:
     mUpsampler8x.process_block(mUp4x, mUp8x, 4);
     mUpsampler16x.process_block(mUp8x, mUp16x, 8);
   }
-  
+
   inline void ProcessUp8x(double input)
   {
     mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
     mUpsampler4x.process_block(mUp2x, mUp4x, 2);
     mUpsampler8x.process_block(mUp4x, mUp8x, 4);
   }
-  
+
   inline void ProcessUp4x(double input)
   {
     mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
     mUpsampler4x.process_block(mUp4x, mUp2x, 2);
   }
-  
+
   inline void ProcessUp2x(double input)
   {
     mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
   }
-  
+
   inline void ProcessDown16x(double input)
   {
     mDown16x[mWritePos] = (float) input;
@@ -174,9 +179,9 @@ public:
   double Process(double input, std::function<double(double)> func, int oversamplingFactor = 2)
   {
     double upSampledInput, output;
-    
+
     upSampledInput = input;
-    
+
     for (int j = 0; j < oversamplingFactor; j++)
     {
       switch(oversamplingFactor) // we are switching on oversamplingFactor, NOT j so calls to one of the functions will happen oversamplingFactor times
@@ -188,11 +193,11 @@ public:
         default: break;
       }
     }
-    
+
     for (int j = 0; j < oversamplingFactor; j++)
     {
       output = func(upSampledInput); // func gets executed oversamplingFactor times
-      
+
       switch(oversamplingFactor)
       {
         case 2: ProcessDown2x(output); break;
@@ -202,13 +207,13 @@ public:
         default: break;
       }
     }
-    
+
     if(oversamplingFactor > 1)
       output = GetDownSamplerOutput();
-    
+
     return output;
   }
-  
+
   double ProcessGen(std::function<double()> genFunc, int oversamplingFactor = 2)
   {
     double output;
@@ -232,16 +237,16 @@ public:
 
     return output;
   }
-  
+
 private:
   int mWritePos;
   float mDownSamplerOutput = 0.f;
-  
+
   float mUp16x[16];
   float mUp8x[8];
   float mUp4x[4];
   float mUp2x[2];
-  
+
   float mDown16x[16];
   float mDown8x[8];
   float mDown4x[4];
