@@ -1,6 +1,6 @@
 #include "IPlugMidiSynth.h"
 
-MIDISynth::MIDISynth(EPolyMode polyMode)
+MidiSynth::MidiSynth(EPolyMode polyMode)
 {
   //TODO: check this should stop any allocations
   mSustainedNotes.reserve(128);
@@ -13,18 +13,18 @@ MIDISynth::MIDISynth(EPolyMode polyMode)
   }
 }
 
-MIDISynth::~MIDISynth()
+MidiSynth::~MidiSynth()
 {
   mVS.Empty(true);
 }
 
-bool MIDISynth::ProcessBlock(double** inputs, double** outputs, int nFrames)
+bool MidiSynth::ProcessBlock(double** inputs, double** outputs, int nFrames)
 {
   assert(NVoices());
   
   if (mVoicesAreActive | !mMidiQueue.Empty())
   {
-    SynthVoice* pVoice;
+    Voice* pVoice;
 
     for (int s = 0; s < nFrames; ++s)
     {
@@ -177,7 +177,7 @@ bool MIDISynth::ProcessBlock(double** inputs, double** outputs, int nFrames)
 
 #pragma mark - NOTE TRIGGER METHODS
 
-void MIDISynth::NoteOnOffPoly(const IMidiMsg& msg)
+void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
 {
   int status = msg.StatusMsg();
   int velocity = msg.Velocity();
@@ -193,7 +193,7 @@ void MIDISynth::NoteOnOffPoly(const IMidiMsg& msg)
     if (v == -1) // shouldn't happen
       return;
     
-    SynthVoice* pVoice = GetVoice(v);
+    Voice* pVoice = GetVoice(v);
     
     int prevKey = note;
     
@@ -257,7 +257,7 @@ void MIDISynth::NoteOnOffPoly(const IMidiMsg& msg)
   }
 }
 
-void MIDISynth::NoteOnOffMono(const IMidiMsg& msg)
+void MidiSynth::NoteOnOffMono(const IMidiMsg& msg)
 {
   int status = msg.StatusMsg();
   int velocity = msg.Velocity();
@@ -330,11 +330,11 @@ void MIDISynth::NoteOnOffMono(const IMidiMsg& msg)
   }
 }
 
-void MIDISynth::TriggerMonoNote(KeyPressInfo note)
+void MidiSynth::TriggerMonoNote(KeyPressInfo note)
 {
   for (int v = 0; v < mUnisonVoices; v++)
   {
-    SynthVoice* pVoice = GetVoice(v);
+    Voice* pVoice = GetVoice(v);
     
     pVoice->mKey = note.mKey;
     pVoice->mStackIdx = v;
@@ -357,7 +357,7 @@ void MIDISynth::TriggerMonoNote(KeyPressInfo note)
   mVoicesAreActive = true;
 }
 
-void MIDISynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
+void MidiSynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
 {
   HardKillAllVoices();
   

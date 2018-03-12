@@ -18,7 +18,7 @@
 /** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
  *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only)
  *  NOTE: This is not currently particularly efficient, and needs a bit more work to be more generalisable */
-class MIDISynth
+class MidiSynth
 {
 public:
   struct KeyPressInfo
@@ -51,7 +51,7 @@ public:
   };
 
 #pragma mark - Voice class
-  class SynthVoice
+  class Voice
   {
   public:
     virtual bool GetBusy() const = 0;
@@ -99,13 +99,13 @@ public:
     double mAftertouch = 0.;
     int mStackIdx = -1;
     
-    friend class MIDISynth;
+    friend class MidiSynth;
   };
 
 public:
 #pragma mark - Engine class
-  MIDISynth(EPolyMode polyMode = kPolyModePoly);
-  ~MIDISynth();
+  MidiSynth(EPolyMode polyMode = kPolyModePoly);
+  ~MidiSynth();
 
   void NoteOnOffMono(const IMidiMsg& msg);
 
@@ -128,7 +128,7 @@ public:
     }
   }
 
-  inline void StopVoice(SynthVoice& voice)
+  inline void StopVoice(Voice& voice)
   {
     voice.Release();
     voice.RemovedFromKey();
@@ -148,7 +148,7 @@ public:
     {
       if (GetVoice(v)->GetBusy())
       {
-        SynthVoice* pVoice = GetVoice(v);
+        Voice* pVoice = GetVoice(v);
         pVoice->Release();
         pVoice->RemovedFromKey();
       }
@@ -159,7 +159,7 @@ public:
   {
     for (int v = 0; v < NVoices(); v++)
     {
-      SynthVoice* pVoice = GetVoice(v);
+      Voice* pVoice = GetVoice(v);
       pVoice->Kill(true);
       pVoice->RemovedFromKey();
     }
@@ -169,7 +169,7 @@ public:
   {
     for (int v = 0; v < NVoices(); v++)
     {
-      SynthVoice* pVoice = GetVoice(v);
+      Voice* pVoice = GetVoice(v);
       pVoice->Kill(false);
       pVoice->RemovedFromKey();
     }
@@ -242,7 +242,7 @@ public:
     mATMode = mode; //TODO: implement click safe solution
   }
 
-  inline SynthVoice* GetVoice(int voiceIdx)
+  inline Voice* GetVoice(int voiceIdx)
   {
     return mVS.Get(voiceIdx);
   }
@@ -252,7 +252,7 @@ public:
     return mVS.GetSize();
   }
 
-  void AddVoice(SynthVoice* pVoice)
+  void AddVoice(Voice* pVoice)
   {
     mVS.Add(pVoice);
   }
@@ -272,7 +272,7 @@ public:
   bool ProcessBlock(double** inputs, double** outputs, int nFrames);
 
 private:
-  WDL_PtrList<SynthVoice> mVS;
+  WDL_PtrList<Voice> mVS;
 
   int64_t mSampleTime = 0;
   double mSampleRate = DEFAULT_SAMPLE_RATE;
@@ -297,5 +297,5 @@ public: // these are public for state saving
 
 } WDL_FIXALIGN;
 
-inline bool operator==(const MIDISynth::KeyPressInfo& lhs, const MIDISynth::KeyPressInfo& rhs) { return lhs.mKey == rhs.mKey; }
+inline bool operator==(const MidiSynth::KeyPressInfo& lhs, const MidiSynth::KeyPressInfo& rhs) { return lhs.mKey == rhs.mKey; }
 
