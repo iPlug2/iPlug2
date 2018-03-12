@@ -339,7 +339,7 @@ TYPE IEaseBounceInOut(TYPE x)
 static IShapeConvertor ShapePowCurve()
 {
   struct normalizedToValue { double operator()(double x, double min, double max, double shape) { return min + std::pow(x, shape) * (max - min); } };
-  struct valueToNormalized { double operator()(double x, double min, double max, double shape) { return  std::pow((x - min) / (max - min), 1.0 / shape); } };
+  struct valueToNormalized { double operator()(double x, double min, double max, double shape) { return std::pow((x - min) / (max - min), 1.0 / shape); } };
     
   IShapeConvertor convertor;
     
