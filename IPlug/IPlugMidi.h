@@ -392,7 +392,7 @@ void MyPlug::ProcessBlock(double** inputs, double** outputs, int nFrames)
     while (!mMidiQueue.Empty())
     {
       IMidiMsg* pMsg = mMidiQueue.Peek();
-      if (pMsg->mOffset > offset) break;
+      if (msg.mOffset > offset) break;
 
       // To-do: Handle the MIDI message
 
@@ -424,7 +424,7 @@ public:
 
   // Adds a MIDI message at the back of the queue. If the queue is full,
   // it will automatically expand itself.
-  void Add(IMidiMsg* pMsg)
+  void Add(const IMidiMsg& msg)
   {
     if (mBack >= mSize)
     {
@@ -435,17 +435,17 @@ public:
 
 #ifndef DONT_SORT_IMIDIQUEUE
     // Insert the MIDI message at the right offset.
-    if (mBack > mFront && pMsg->mOffset < mBuf[mBack - 1].mOffset)
+    if (mBack > mFront && msg.mOffset < mBuf[mBack - 1].mOffset)
     {
       int i = mBack - 2;
-      while (i >= mFront && pMsg->mOffset < mBuf[i].mOffset) --i;
+      while (i >= mFront && msg.mOffset < mBuf[i].mOffset) --i;
       i++;
       memmove(&mBuf[i + 1], &mBuf[i], (mBack - i) * sizeof(IMidiMsg));
-      mBuf[i] = *pMsg;
+      mBuf[i] = msg;
     }
     else
 #endif
-      mBuf[mBack] = *pMsg;
+      mBuf[mBack] = msg;
     ++mBack;
   }
 
@@ -465,7 +465,7 @@ public:
 
   // Returns the "next" MIDI message (all the way in the front of the
   // queue), but does *not* remove it from the queue.
-  inline IMidiMsg* Peek() const { return &mBuf[mFront]; }
+  inline IMidiMsg& Peek() const { return mBuf[mFront]; }
 
   // Moves back MIDI messages all the way to the front of the queue, thus
   // freeing up space at the back, and updates the sample offset of the

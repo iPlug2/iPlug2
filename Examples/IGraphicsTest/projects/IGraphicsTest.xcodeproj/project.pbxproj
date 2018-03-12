@@ -168,7 +168,6 @@
 			children = (
 				4F6F5365202FDB9900FEE3A7 /* IGraphicsTest.h */,
 				4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */,
-				4F6F5359202FD49200FEE3A7 /* main.cpp */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
@@ -214,6 +213,7 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4F6F5359202FD49200FEE3A7 /* main.cpp */,
 				4F8B32602014C7D600EF1F61 /* IGraphicsTest.xcconfig */,
 				4FF7B0D4156A825000E6CB12 /* common.xcconfig */,
 				4F3FB118202273A500622761 /* IGraphicsTest.entitlements */,

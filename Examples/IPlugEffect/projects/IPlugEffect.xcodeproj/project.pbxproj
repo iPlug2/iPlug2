@@ -147,6 +147,7 @@
 		4F7C94762029473E00B20111 /* IPlugPresets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7C946E2029473D00B20111 /* IPlugPresets.cpp */; };
 		4F7C94772029473E00B20111 /* IPlugPresets.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F7C94702029473D00B20111 /* IPlugPresets.h */; };
 		4F7C94782029473E00B20111 /* IPlugPresets.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F7C94702029473D00B20111 /* IPlugPresets.h */; };
+		4F8E41EE20536AE400B14050 /* IPlugEffect.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F8F61A9202807B9003F2573 /* IPlugProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8F61A7202807B9003F2573 /* IPlugProcessor.h */; };
 		4F8F61AA202807B9003F2573 /* IPlugProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8F61A7202807B9003F2573 /* IPlugProcessor.h */; };
 		4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -322,6 +323,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				4F8E41EE20536AE400B14050 /* IPlugEffect.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1167,10 +1169,10 @@
 			children = (
 				4F69BB5C2013C501002C8948 /* PlatformClasses */,
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
+				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
 				B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */,
-				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
 				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
 				4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */,
