@@ -193,7 +193,6 @@ public:
   void* GetData() override { return 0; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
- // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* cacheName, int scale) override;
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;

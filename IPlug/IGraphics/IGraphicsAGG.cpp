@@ -386,34 +386,6 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-/*
-IBitmap IGraphicsAGG::CropBitmap(const IBitmap& srcbitmap, const IRECT& bounds, const char* cacheName, int scale)
-{
-  agg::pixel_map* pPixelMap = (agg::pixel_map*) srcbitmap.mAPIBitmap->GetBitmap();
-  agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(bounds.W(), bounds.H());
-  
-  agg::rendering_buffer src;
-  agg::rendering_buffer dest;
-  
-  src.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
-  dest.attach(pCopy->buf(), pCopy->width(), pCopy->height(), pCopy->row_bytes());
-  
-  PixfmtType imgPixfSrc(src);
-  PixfmtType imgPixfDest(dest);
-  
-  RenbaseType renbase(imgPixfDest);
-
-  renbase.clear(agg::rgba(0, 0, 0, 0));
-  
-  agg::rect_i src_r(bounds.L, bounds.T, bounds.R, bounds.B);
-  
-  renbase.copy_from(imgPixfSrc, &src_r, -bounds.L, -bounds.T);
-  
-  AGGBitmap *pAPIBitmap = new AGGBitmap(pCopy, scale);
-  
-  return IBitmap(new AGGBitmap(pCopy, scale));  //TODO: surface will not be destroyed, unless this is retained
-}
-*/
 //IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
 //{
 //  agg::pixel_map* pPixelMap = (agg::pixel_map*) CreateAPIBitmap(w, h);
