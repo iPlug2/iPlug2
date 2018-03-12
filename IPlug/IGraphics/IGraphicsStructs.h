@@ -613,6 +613,11 @@ struct IRECT
     return *this;
   }
   
+  bool IsPixelAligned() const
+  {
+    return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+  }
+
   inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
