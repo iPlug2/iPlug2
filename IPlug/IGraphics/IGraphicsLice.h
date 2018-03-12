@@ -91,9 +91,7 @@ public:
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-  
-  //IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) override;
-  
+    
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:

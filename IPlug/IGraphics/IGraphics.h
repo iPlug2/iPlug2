@@ -274,7 +274,6 @@ public:
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
-  //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) = 0;
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
