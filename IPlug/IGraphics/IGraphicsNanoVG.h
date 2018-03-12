@@ -68,6 +68,9 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
 
+  inline void ClipRegion(const IRECT& r) override { nvgScissor(mVG, r.L, r.T, r.W(), r.H()); }
+  inline void ResetClipRegion() override { nvgResetScissor(mVG); }
+  
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
