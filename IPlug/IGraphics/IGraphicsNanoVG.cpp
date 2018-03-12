@@ -212,7 +212,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   else
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
-  nvgPathWinding(NVG_CCW);
+  nvgPathWinding(mVG, NVG_CCW);
   nvgStroke(mVG);
   
   if (!options.mPreserve)
