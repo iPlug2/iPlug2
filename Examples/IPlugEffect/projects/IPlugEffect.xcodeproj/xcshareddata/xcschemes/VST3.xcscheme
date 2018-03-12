@@ -48,6 +48,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
+         BundleIdentifier = "com.steinberg.vst3.plugintesthost"
          FilePath = "/Applications/VST3PluginTestHost.app">
       </PathRunnable>
       <MacroExpansion>
