@@ -14,7 +14,7 @@ inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nul
 inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
-    return agg::comp_op_src;
+    return agg::comp_op_src_over;
   
   switch (pBlend->mMethod)
   {
@@ -179,31 +179,59 @@ void IGraphicsAGG::SetDisplayScale(int scale)
 //  return IFontData(font_buf);
 //}
 
+bool checkTransform(const agg::trans_affine& mtx)
+{
+  double mtx_copy[6];
+  const double epsilon = agg::affine_epsilon;
+  mtx.store_to(mtx_copy);
+  
+  if (!agg::is_equal_eps(mtx_copy[4] - floor(mtx_copy[4]), 0.0, epsilon))
+    return false;
+  if (!agg::is_equal_eps(mtx_copy[5] - floor(mtx_copy[5]), 0.0, epsilon))
+    return false;
+
+  agg::trans_affine mtx_without_translate;
+
+  mtx_copy[4] = 0.0;
+  mtx_copy[5] = 0.0;
+  mtx_without_translate.load_from(mtx_copy);
+  
+  return mtx_without_translate.is_identity();
+}
+
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  double scale = GetDisplayScale();
+  IRECT bounds = dest.GetScaled(scale);
+
   agg::pixel_map* pSource = (agg::pixel_map*) bitmap.GetRawBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   PixfmtType imgPixfSrc(src);
   
   agg::trans_affine dstMtx(mTransform);
-  dstMtx *= agg::trans_affine_scaling(GetDisplayScale());
+  dstMtx *= agg::trans_affine_scaling(scale);
   
-  // FIX - make this check correct
-  if (dest.IsPixelAligned())
+  agg::trans_affine srcMtx;
+  srcMtx /= dstMtx;
+  srcMtx *= agg::trans_affine_translation(-dest.L, -dest.T);
+  srcMtx *= agg::trans_affine_translation(srcX, srcY);
+  srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
+  
+  if (bounds.IsPixelAligned() && checkTransform(srcMtx))
   {
-    double s = GetDisplayScale();
-    IRECT bounds = dest;
-    bounds.Scale(s);
+    double tx, ty;
     
-    mRasterizer.BlendFrom(src, bounds, srcX * s, srcY * s, AGGBlendMode(pBlend), AGGCover(pBlend));
+    dstMtx.translation(&tx, &ty);
+    
+    bounds.L += tx;
+    bounds.T += ty;
+    bounds.R += tx;
+    bounds.B += ty;
+    
+    mRasterizer.BlendFrom(src, bounds, srcX * scale, srcY * scale, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
   {
-    agg::trans_affine srcMtx;
-    srcMtx /= dstMtx;
-    srcMtx *= agg::trans_affine_translation(-dest.L, -dest.T);
-    srcMtx *= agg::trans_affine_translation(srcX, srcY);
-    srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
     imgSourceType imgSrc(imgPixfSrc);
     InterpolatorType interpolator(srcMtx);
     SpanAllocatorType spanAllocator;

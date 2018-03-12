@@ -134,7 +134,7 @@ public:
     {
       mPixf.comp_op(op);
       agg::rect_i r(srcX, srcY, srcX + bounds.W(), srcY + bounds.H());
-      mRenBase.blend_from(PixfmtType(renBuf), &r, -srcX + bounds.L, -srcY + bounds.T, cover);
+      mRenBase.blend_from(PixfmtType(renBuf), &r, bounds.L - srcX, bounds.T - srcY, cover);
     }
 
     template <typename VertexSourceType>
