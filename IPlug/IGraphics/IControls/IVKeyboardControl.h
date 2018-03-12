@@ -82,7 +82,7 @@ public:
     if (!mVelByWheel)
       UpdateVelocity(y);
 
-    SetDirty();
+    SetDirty(false);
   }
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
@@ -93,7 +93,7 @@ public:
       mMouseOverKey = -1;
       mVelocity = 0.0;
       mVelByWheel = false;
-      SetDirty();
+      SetDirty(false);
     }
   }
 
@@ -105,7 +105,7 @@ public:
       mMouseOverKey = -1;
       mVelocity = 0.0;
       mVelByWheel = false;
-      SetDirty();
+      SetDirty(false);
     }
   }
 
@@ -123,10 +123,10 @@ public:
       mVelByWheel = true;
       mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
 #ifdef _DEBUG
-      SetDirty();
+      SetDirty(false);
 #else
       if (mShowNoteAndVel)
-        SetDirty();
+        SetDirty(false);
 #endif
     }
   }
@@ -136,7 +136,7 @@ public:
     if (mShowNoteAndVel)
     {
       mMouseOverKey = GetKeyUnderMouse(x, y);
-      SetDirty();
+      SetDirty(false);
     }
   }
 
@@ -153,7 +153,7 @@ public:
     }
 
     mTargetRECT = mRECT;
-    SetDirty();
+    SetDirty(false);
   }
 
   void Draw(IGraphics& g) override
@@ -223,15 +223,13 @@ public:
           cBP.A = (int)mBKAlpha;
           g.FillRect(cBP, kRect);
         }
-        if (mDrawFrame)
-        { // draw l, r and bottom if they don't overlay the mRECT borders
-          if (mBKHeightRatio != 1.0)
-            g.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
-          if (i != 0)
-            g.DrawLine(GetColor(kFR), kL, top, kL, bBot);
-          if (i != NumKeys() - 1)
-            g.DrawLine(GetColor(kFR), kL + bKWidth, top, kL + bKWidth, bBot);
-        }
+       // draw l, r and bottom if they don't overlay the mRECT borders
+        if (mBKHeightRatio != 1.0)
+          g.DrawLine(GetColor(kFR), kL, bBot, kL + bKWidth, bBot);
+        if (i != 0)
+          g.DrawLine(GetColor(kFR), kL, top, kL, bBot);
+        if (i != NumKeys() - 1)
+          g.DrawLine(GetColor(kFR), kL + bKWidth, top, kL + bKWidth, bBot);
       }
     }
 
@@ -299,11 +297,12 @@ public:
 
     RecreateKeyBounds(keepWidth);
   }
+  
   void SetNoteIsPlayed(int noteNum, bool played)
   {
     if (noteNum < mMinNote || noteNum > mMaxNote) return;
     mNoteIsPlayed.Get()[noteNum - mMinNote] = played;
-    SetDirty();
+    SetDirty(false);
   }
 
   void SetBlackToWhiteWidthAndHeightRatios(float widthR, float heightR = 0.6)
@@ -325,7 +324,7 @@ public:
         if (*kl < mRECT.L) *kl = mRECT.L;
       }
     }
-    SetDirty();
+    SetDirty(false);
   }
   void SetHeight(float h, bool keepProportions = false)
   {
@@ -338,8 +337,9 @@ public:
 
     if (keepProportions)
       SetWidth(mR.W() * r);
-    SetDirty();
+    SetDirty(false);
   }
+  
   void SetWidth(float w, bool keepProportions = false)
   {
     if (w <= 0.0) return;
@@ -359,8 +359,9 @@ public:
     if (keepProportions)
       SetHeight(mR.H() * r);
 
-    SetDirty();
+    SetDirty(false);
   }
+  
   void SetShowNotesAndVelocity(bool show)
   {
     mShowNoteAndVel = show;
@@ -395,19 +396,7 @@ public:
       mBKAlpha = BOUNDED(mBKAlpha, 15.f, 255.f);
     }
 
-    SetDirty();
-  }
-
-  void SetDrawShadows(bool draw) // todo make shadow offset a settable member
-  {
-    mDrawShadows = draw;
-    SetDirty();
-  }
-
-  void SetDrawBorders(bool draw)
-  {
-    mDrawFrame = draw;
-    SetDirty();
+    SetDirty(false);
   }
 
   // returns pressed key number inside the keyboard
@@ -507,7 +496,7 @@ private:
     }
 
     mTargetRECT = mRECT;
-    SetDirty();
+    SetDirty(false);
   }
 
   int GetKeyUnderMouse(float x, float y)
