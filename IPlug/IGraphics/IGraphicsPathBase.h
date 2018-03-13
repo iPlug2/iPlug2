@@ -154,17 +154,21 @@ public:
     PathClose();
   }
   
-  void PathRoundRect(const IRECT& bounds, float cr) override
+  void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) override
   {
     const double y = bounds.B - bounds.H();
-    PathMoveTo(bounds.L, y + cr);
-    PathArc(bounds.L + cr, y + cr, cr, 180.0, 270.0);
-    PathArc(bounds.L + bounds.W() - cr, y + cr, cr, 270.0, 360.0);
-    PathArc(bounds.L + bounds.W() - cr, y + bounds.H() - cr, cr, 0.0, 90.0);
-    PathArc(bounds.L + cr, y + bounds.H() - cr, cr, 90.0, 180.0);
+    PathMoveTo(bounds.L, y + ctl);
+    PathArc(bounds.L + ctl, y + ctl, ctl, 180.0, 270.0);
+    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 270.0, 360.0);
+    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 0.0, 90.0);
+    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 90.0, 180.0);
     PathClose();
   }
   
+  void PathRoundRect(const IRECT& bounds, float cr) override
+  {
+    PathRoundRect(bounds, cr, cr, cr, cr);
+  }
   void PathCircle(float cx, float cy, float r) override
   {
     PathMoveTo(cx + r, cy);
