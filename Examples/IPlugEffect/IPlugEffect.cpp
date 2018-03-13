@@ -53,10 +53,12 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
                                    pVectorBase->SetRoundness(pSlider->GetValue());
                                }
                              });
-  
+    
   pGraphics->AttachControl(pSlider);
 
-  pGraphics->AttachControl(mMeter = new IVMeterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), 2));
+  pGraphics->AttachControl(new IVKnobControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), kGain));
+
+//  pGraphics->AttachControl(mMeter = new IVMeterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), 2));
   
   pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetCentredInside(80.f), -1));
 
@@ -90,5 +92,5 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     }
   }
   
-  mMeter->ProcessBus(outputs, nFrames);
+ // mMeter->ProcessBus(outputs, nFrames);
 }
