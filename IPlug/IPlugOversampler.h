@@ -277,11 +277,11 @@ private:
   float mDown4x[4];
   float mDown2x[2];
 
-  Upsampler2xFPU<2> mUpsampler2x; // for 1x to 2x SR
+  Upsampler2xFPU<12> mUpsampler2x; // for 1x to 2x SR
   Upsampler2xFPU<4> mUpsampler4x;  // for 2x to 4x SR
   Upsampler2xFPU<3> mUpsampler8x;  // for 4x to 8x SR
   Upsampler2xFPU<2> mUpsampler16x; // for 8x to 16x SR
-  Downsampler2xFPU<2> mDownsampler2x; // decimator for 2x to 1x SR
+  Downsampler2xFPU<12> mDownsampler2x; // decimator for 2x to 1x SR
   Downsampler2xFPU<4> mDownsampler4x;  // decimator for 4x to 2x SR
   Downsampler2xFPU<3> mDownsampler8x;  // decimator for 8x to 4x SR
   Downsampler2xFPU<2> mDownsampler16x; // decimator for 16x to 8x SR
