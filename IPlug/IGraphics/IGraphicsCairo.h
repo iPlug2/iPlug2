@@ -52,7 +52,7 @@ public:
   void PathStateRestore() override { cairo_restore(mContext); }
   
   void PathTransformTranslate(float x, float y) override { cairo_translate(mContext, x, y); }
-  void PathTransformScale(float scale) override { cairo_scale(mContext, scale, scale); }
+  void PathTransformScale(float scaleX, float scaleY) override { cairo_scale(mContext, scaleX, scaleY); }
   void PathTransformRotate(float angle) override { cairo_rotate(mContext, DegToRad(angle)); }
     
   IColor GetPoint(int x, int y) override;

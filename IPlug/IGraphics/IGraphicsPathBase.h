@@ -188,8 +188,10 @@ public:
   virtual void PathStateRestore() = 0;
   
   virtual void PathTransformTranslate(float x, float y) = 0;
-  virtual void PathTransformScale(float scale) = 0;
+  virtual void PathTransformScale(float scaleX, float scaleY) = 0;
   virtual void PathTransformRotate(float angle) = 0;
+  
+  void PathTransformScale(float scale) { PathTransformScale(scale, scale); }
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {

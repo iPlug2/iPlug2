@@ -183,7 +183,7 @@ public:
   }
 
   void PathTransformTranslate(float x, float y) override { mTransform = agg::trans_affine_translation(x, y) * mTransform; }
-  void PathTransformScale(float scale) override { mTransform = agg::trans_affine_scaling(scale) * mTransform; }
+  void PathTransformScale(float scaleX, float scaleY) override { mTransform = agg::trans_affine_scaling(scaleX, scaleY) * mTransform; }
   void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) override;
