@@ -4,13 +4,24 @@
 
 #include "HIIR/FPUUpsampler2x.h"
 #include "HIIR/FPUDownsampler2x.h"
-//#include "PolyphaseIIR2Designer.h"
+//#include "HIIR/PolyphaseIIR2Designer.h"
 
 using namespace hiir;
 
 class OverSampler
 {
 public:
+  
+  enum EFactor
+  {
+    kNone = 0,
+    k2x,
+    k4x,
+    k8x,
+    k16x,
+    kNumFactors
+  };
+  
   OverSampler()
   : mWritePos(0)
   , mDownSamplerOutput(0.f)
@@ -176,15 +187,23 @@ public:
     mDownsampler16x.clear_buffers();
   }
 
-  double Process(double input, std::function<double(double)> func, int oversamplingFactor = 2)
+  /**
+   Over sample an input function (up sample input -> process with function -> down sample)
+
+   @param input The audio sample to input
+   @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate
+   @param mOverSamplingFactor A power of 2 oversampling factor or 0 for no oversampling
+   @return The audio sample output
+   */
+  double Process(double input, std::function<double(double)> func)
   {
     double upSampledInput, output;
 
     upSampledInput = input;
 
-    for (int j = 0; j < oversamplingFactor; j++)
+    for (int j = 0; j < mOverSamplingFactor; j++)
     {
-      switch(oversamplingFactor) // we are switching on oversamplingFactor, NOT j so calls to one of the functions will happen oversamplingFactor times
+      switch(mOverSamplingFactor) // we are switching on mOverSamplingFactor, NOT j so calls to one of the functions will happen mOverSamplingFactor times
       {
         case 2: ProcessUp2x(upSampledInput); break;
         case 4: ProcessUp4x(upSampledInput); break;
@@ -194,11 +213,11 @@ public:
       }
     }
 
-    for (int j = 0; j < oversamplingFactor; j++)
+    for (int j = 0; j < mOverSamplingFactor; j++)
     {
-      output = func(upSampledInput); // func gets executed oversamplingFactor times
+      output = func(upSampledInput); // func gets executed mOverSamplingFactor times
 
-      switch(oversamplingFactor)
+      switch(mOverSamplingFactor)
       {
         case 2: ProcessDown2x(output); break;
         case 4: ProcessDown4x(output); break;
@@ -208,21 +227,21 @@ public:
       }
     }
 
-    if(oversamplingFactor > 1)
+    if(mOverSamplingFactor > 1)
       output = GetDownSamplerOutput();
 
     return output;
   }
 
-  double ProcessGen(std::function<double()> genFunc, int oversamplingFactor = 2)
+  double ProcessGen(std::function<double()> genFunc)
   {
     double output;
 
-    for (int j = 0; j < oversamplingFactor; j++)
+    for (int j = 0; j < mOverSamplingFactor; j++)
     {
       output = genFunc();
 
-      switch(oversamplingFactor)
+      switch(mOverSamplingFactor)
       {
         case 2: ProcessDown2x(output); break;
         case 4: ProcessDown4x(output); break;
@@ -232,13 +251,19 @@ public:
       }
     }
 
-    if(oversamplingFactor > 1)
+    if(mOverSamplingFactor > 1)
       output = GetDownSamplerOutput();
 
     return output;
   }
+  
+  void SetOverSampling(EFactor factor)
+  {
+    mOverSamplingFactor = pow(2, (int) factor);
+  }
 
 private:
+  int mOverSamplingFactor = 1;
   int mWritePos;
   float mDownSamplerOutput = 0.f;
 
@@ -252,11 +277,11 @@ private:
   float mDown4x[4];
   float mDown2x[2];
 
-  Upsampler2xFPU<12> mUpsampler2x; // for 1x to 2x SR
+  Upsampler2xFPU<2> mUpsampler2x; // for 1x to 2x SR
   Upsampler2xFPU<4> mUpsampler4x;  // for 2x to 4x SR
   Upsampler2xFPU<3> mUpsampler8x;  // for 4x to 8x SR
   Upsampler2xFPU<2> mUpsampler16x; // for 8x to 16x SR
-  Downsampler2xFPU<12> mDownsampler2x; // decimator for 2x to 1x SR
+  Downsampler2xFPU<2> mDownsampler2x; // decimator for 2x to 1x SR
   Downsampler2xFPU<4> mDownsampler4x;  // decimator for 4x to 2x SR
   Downsampler2xFPU<3> mDownsampler8x;  // decimator for 8x to 4x SR
   Downsampler2xFPU<2> mDownsampler16x; // decimator for 16x to 8x SR
