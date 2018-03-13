@@ -91,10 +91,10 @@ public:
   typedef agg::conv_stroke<CurvedPathType> StrokeType;
   typedef agg::conv_dash<CurvedPathType> DashType;
   typedef agg::conv_stroke<DashType> DashStrokeType;
-  typedef agg::conv_transform<PathType> TransformedPathType;
-  typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
-  typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
-  typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
+  //typedef agg::conv_transform<PathType> TransformedPathType;
+  //typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
+  //typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
+  //typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
   typedef agg::rasterizer_scanline_aa<> RasterizerType;
   typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
 
@@ -167,9 +167,9 @@ public:
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
 
-  void PathMoveTo(float x, float y) override { mPath.move_to(x, y); }
-  void PathLineTo(float x, float y) override { mPath.line_to(x, y);}
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { mPath.curve4(x1, y1, x2, y2, x3, y3); }
+  void PathMoveTo(float x, float y) override;
+  void PathLineTo(float x, float y) override;
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
@@ -183,7 +183,7 @@ public:
   }
 
   void PathTransformTranslate(float x, float y) override { mTransform = agg::trans_affine_translation(x, y) * mTransform; }
-  void PathTransformScale(float scale) override { mTransform = agg::trans_affine_scaling(scale) * mTransform; }
+  void PathTransformScale(float scaleX, float scaleY) override { mTransform = agg::trans_affine_scaling(scaleX, scaleY) * mTransform; }
   void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) override;

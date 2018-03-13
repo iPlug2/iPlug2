@@ -376,9 +376,12 @@ public:
 
   virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
   virtual void PathRect(const IRECT& bounds) {}
+  virtual void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) {}
   virtual void PathRoundRect(const IRECT& bounds, float cr = 5.f) {}
   virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
   virtual void PathCircle(float cx, float cy, float r) {}
+  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) {}
+  virtual void PathEllipse(const IRECT& bounds) {}
   virtual void PathConvexPolygon(float* x, float* y, int nPoints) {}
   
   virtual void PathMoveTo(float x, float y) {}

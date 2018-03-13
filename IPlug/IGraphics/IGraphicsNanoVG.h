@@ -52,7 +52,7 @@ public:
   void PathStateRestore() override { nvgRestore(mVG); }
     
   void PathTransformTranslate(float x, float y) override { nvgTranslate(mVG, x, y); }
-  void PathTransformScale(float scale) override { nvgScale(mVG, scale, scale); }
+  void PathTransformScale(float scaleX, float scaleY) override { nvgScale(mVG, scaleX, scaleY); }
   void PathTransformRotate(float angle) override { nvgRotate(mVG, DegToRad(angle)); }
     
   IColor GetPoint(int x, int y) override;
