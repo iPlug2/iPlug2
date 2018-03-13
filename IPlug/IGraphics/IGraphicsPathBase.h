@@ -169,6 +169,28 @@ public:
   {
     PathRoundRect(bounds, cr, cr, cr, cr);
   }
+  
+  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
+  {
+    PathStateSave();
+    
+    if (r1 <= 0.0 || r2 <= 0.0)
+      return;
+    
+    PathTransformTranslate(x, y);
+    PathTransformRotate(angle);
+    PathTransformScale(r1, r2);
+    
+    PathCircle(0.0, 0.0, 1.0);
+    
+    PathStateRestore();
+  }
+  
+  void PathEllipse(const IRECT& bounds) override
+  {
+    PathEllipse(bounds.MW(), bounds.MH(), bounds.W() / 2.f, bounds.H() / 2.f);
+  }
+  
   void PathCircle(float cx, float cy, float r) override
   {
     PathMoveTo(cx + r, cy);
