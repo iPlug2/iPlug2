@@ -20,11 +20,22 @@ void IParam::InitBool(const char* name, bool defaultVal, const char* label, cons
   SetDisplayText(1, "on");
 }
 
-void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, const char* group)
+void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, const char* group, const char* listItems, ...)
 {
   if (mType == kTypeNone) mType = kTypeEnum;
   
   InitInt(name, defaultVal, 0, nEnums - 1, label, group);
+  
+  if(listItems)
+  {
+    SetDisplayText(0, listItems);
+
+    va_list args;
+    va_start(args, listItems);
+    for (auto i = 1; i < nEnums; ++i)
+      SetDisplayText(i, va_arg(args, const char*));
+    va_end(args);
+  }
 }
 
 void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label, const char* group)

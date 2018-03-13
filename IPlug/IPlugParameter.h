@@ -18,8 +18,8 @@ public:
 
   EParamType Type() const { return mType; }
 
-  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // LABEL not used here
-  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
+  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // // LABEL not used here TODO: so why have it?
+  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
   void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeConvertor shapeConvertor = IShapeConvertor());
 
