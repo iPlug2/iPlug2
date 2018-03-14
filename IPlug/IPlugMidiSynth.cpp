@@ -1,6 +1,7 @@
 #include "IPlugMidiSynth.h"
 
-MidiSynth::MidiSynth(EPolyMode polyMode)
+MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize)
+: mGranularity(blockSize)
 {
   //TODO: check this should stop any allocations
   mSustainedNotes.reserve(128);
@@ -22,14 +23,23 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   assert(NVoices());
   
+  memset(outputs[0], 0, nFrames * sizeof(sample));
+  
   if (mVoicesAreActive | !mMidiQueue.Empty())
   {
+    int bs = mGranularity;
+    int samplesRemaining = nFrames;
+    int s = 0;
+    
     Voice* pVoice;
 
-    for (int s = 0; s < nFrames; ++s)
+    while(samplesRemaining > 0)
     {
-      mSampleTime++;
-
+      if(samplesRemaining < bs)
+        bs = samplesRemaining;
+      
+      s = nFrames - samplesRemaining;
+      
       //TODO: here there should be a mechanism for updating "click safe" variables
 
       while (!mMidiQueue.Empty())
@@ -37,6 +47,8 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
         IMidiMsg& msg = mMidiQueue.Peek();
 
         if (msg.mOffset > s) break;
+        
+        printf("%i\n", msg.mOffset);
 
         int status = msg.StatusMsg(); // get the MIDI status byte
 
@@ -138,9 +150,12 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 
         if (pVoice->GetBusy())
         {
-          pVoice->ProcessSample(inputs, outputs, s, mPitchBend);
+          pVoice->ProcessSamples(inputs, outputs, s, bs, mPitchBend);
         }
       }
+      
+      samplesRemaining -= bs;
+      mSampleTime += bs;
     }
 
     bool voicesbusy = false;
@@ -168,7 +183,6 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   }
   else // empty block
   {
-    //TODO zero outputs
     return true;
   }
 
