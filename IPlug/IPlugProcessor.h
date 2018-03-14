@@ -148,7 +148,6 @@ public:
    * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections */
   int NChannelsConnected(ERoute direction) const;
   
-  
   /** Convienience method to find out how many input channels are connected
    * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
   inline int NInputChannelsConnected() { return NChannelsConnected(ERoute::kInput); }
