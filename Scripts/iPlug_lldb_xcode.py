@@ -3,25 +3,29 @@ import re
 
 # USAGE
 #
-# Put this line in your ~/.lldbinit file:
-#
+# EITHER (automatic)
+# Run the setup_iplug_lldb_xcode.sh script that sits alongside this one to add this to the lldb import paths
+# OR (manually) Put this line in your ~/.lldbinit file:
 #  command script import [path]
-#
 # Where [path] is the full path to this file. For example:
-#
 #  command script import /Users/me/juce-toys/juce_lldb_xcode.py
 
 def __lldb_init_module(debugger, dict):
 
-    debugger.HandleCommand('type summary add WDL_String -F iPlug_lldb_xcode.string_summary')
+    # types that are opaque without this script
+    debugger.HandleCommand('type summary add WDL_String -F iplug_lldb_xcode.string_summary -w iplug')
+    debugger.HandleCommand('type synthetic add WDL_TypedBuf<.*> -x -l iplug_lldb_xcode.WDL_TypedBufChildrenProvider -w iplug')
+    debugger.HandleCommand('type synthetic add WDL_PtrList<.*> -x -l iplug_lldb_xcode.WDL_PtrListChildrenProvider -w iplug')
 
-    debugger.HandleCommand('type summary add --inline-children IRECT')
-    debugger.HandleCommand('type summary add --inline-children IColor')
-    debugger.HandleCommand('type summary add --inline-children IBlend')
+    # types that should summarise on one line
+    debugger.HandleCommand('type summary add --inline-children IRECT -w iplug')
+    debugger.HandleCommand('type summary add --inline-children IColor -w iplug')
+    debugger.HandleCommand('type summary add --inline-children IBlend -w iplug')
 
-    debugger.HandleCommand('type synthetic add WDL_TypedBuf<.*> -x -l iPlug_lldb_xcode.WDL_TypedBufChildrenProvider')
+    # turn the category on
+    debugger.HandleCommand('type category enable iplug')
 
-    debugger.HandleCommand('type synthetic add WDL_PtrList<.*> -x -l iPlug_lldb_xcode.WDL_PtrListChildrenProvider')
+# summary function for WDL_String
 
 def string_summary(valueObject, dictionary):
     debugger = lldb.debugger
@@ -29,6 +33,8 @@ def string_summary(valueObject, dictionary):
     char_ptr = target.FindFirstType("char").GetPointerType()
     s = valueObject.GetChildMemberWithName('m_hb').GetChildMemberWithName('m_buf').Cast(char_ptr).GetSummary()
     return s
+
+# Reports synthetic chlider for WDL_TypedBuf
 
 class WDL_TypedBufChildrenProvider:
     def __init__(self, valobj, internal_dict):
@@ -82,6 +88,8 @@ class WDL_TypedBufChildrenProvider:
 
     def has_children(self):
         return True
+
+# Reports synthetic chlider for WDL_PtrList
 
 class WDL_PtrListChildrenProvider:
     def __init__(self, valobj, internal_dict):
