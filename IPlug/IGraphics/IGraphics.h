@@ -106,7 +106,7 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend = 0) = 0;
 
-  /** Fill a point with a color. On 1:1 screens a point is a pixel. \todo is this correct? what about high DPI displays
+  /** Fill a rectangle corresponding to a pixel on a 1:! screen with a color
    * @param color The color to fill the point with
    * @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
@@ -177,13 +177,13 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) {};
   
-  /** Draw an ellipse within a rectangular region of the graphics context
+  /** Draw an ellipse around a central point given two radii and an angle of orientation
    * @param color The color to draw the shape with
    * @param x The X coordinate in the graphics context of the centre of the ellipse
    * @param y The Y coordinate in the graphics context of the centre of the ellipse
-   * @param r1 \todo
-   * @param r2 \todo
-   * @param angle \todo
+   * @param r1 The radius of the ellipse along the line found by rotating the x-axis by the angle
+   * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
+   * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
   virtual void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0, float thickness = 1.f) {};
@@ -246,9 +246,9 @@ public:
    * @param color The color to draw the shape with
    * @param x The X coordinate in the graphics context of the centre of the ellipse
    * @param y The Y coordinate in the graphics context of the centre of the ellipse
-   * @param r1 \todo
-   * @param r2 \todo
-   * @param angle \todo
+   * @param r1 The radius of the ellipse along the line found by rotating the x-axis by the angle
+   * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
+   * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0) {};
   
