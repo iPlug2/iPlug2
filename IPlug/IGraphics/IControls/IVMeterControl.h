@@ -27,7 +27,7 @@ public:
     mRms = kX1
   };
 
-  IVMeterControl(IDelegate& dlg, IRECT bounds, int numChannels, const char* chanNames = 0, ...);
+  IVMeterControl(IDelegate& dlg, IRECT bounds, int nChans, const char* chanNames = 0, ...);
   ~IVMeterControl();
 
 // todo add thread safe channel add/del.
@@ -204,10 +204,12 @@ protected:
   {
     return pow(0.01, 1000.0 / (ms * fps)); // musicdsp.org "envelope follower" discussion
   }
+  
   double GetInvExpForDrop(double ms, double fps)
   {
     return pow(0.01, 1000.0 / (-ms * 2.0 * fps)); // 2.0 is empirical adjustment, nicer visually
   }
+  
   double GetPeakFromMemExp(int chId)
   {
     return MemPeak(chId) - (MemExp(chId) - 1.0);
