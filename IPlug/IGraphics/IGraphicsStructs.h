@@ -5,6 +5,7 @@
 #include <functional>
 #include <algorithm>
 #include <random>
+#include <chrono>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
