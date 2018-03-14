@@ -299,13 +299,6 @@ public:
   /** @return A CString representing the Drawing API in use e.g. "LICE" */
   virtual const char* GetDrawingAPIStr() = 0;
 
-  /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
-   * @param bounds The rectangular region to clip  */
-  inline virtual void ClipRegion(const IRECT& bounds) {};
-
-  /** This is overridden in some IGraphics drawing classes so you can reset clipping after drawing a shape */
-  inline virtual void ResetClipRegion() {};
-
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
@@ -425,6 +418,17 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+private:
+    
+  /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
+   * @param bounds The rectangular region to clip  */
+  inline virtual void ClipRegion(const IRECT& bounds) {};
+    
+  /** This is overridden in some IGraphics drawing classes so you can reset clipping after drawing a shape */
+  inline virtual void ResetClipRegion() {};
+
+public:
+    
 #pragma mark - IGraphics platform implementation
   /** Call to hide the mouse cursor */ 
   virtual void HideMouseCursor() {};

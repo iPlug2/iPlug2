@@ -20,6 +20,7 @@
 #include "agg_conv_curve.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_smooth_poly1.h"
+#include "agg_conv_clip_polygon.h"
 #include "agg_conv_marker.h"
 #include "agg_arrowhead.h"
 #include "agg_vcgen_markers_term.h"
