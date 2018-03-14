@@ -72,12 +72,14 @@ public:
     virtual void Kill(bool isSoft) { DBGMSG("Voice Hard Killed\n"); }
 
     /** Process a single sample of audio data for the voice
-     * @param inputs Pointer to input channel arrays (sometimes synthesisers have audio inputs)
+     * @param inputs Pointer to input channel arrays. Sometimes synthesisers have audio inputs. Alternatively you can pass in modulation from global LFOs etc here.
      * @param outputs Pointer to output channel arrays
      * @param sampleIdx The index of the sample to process */
-    virtual void ProcessSample(sample** inputs, sample** outputs, int sampleIdx, double pitchBend)
+    virtual void ProcessSamples(sample** inputs, sample** outputs, int startIdx, int count, double pitchBend)
     {
-      outputs[0][sampleIdx] = 0.;
+      for (auto s = startIdx; s < startIdx + count; s++) {
+        outputs[0][s] = 0.;
+      }
     }
 
     /** If you have members that need to update when the sample rate changes you can do that by overriding this method
@@ -98,13 +100,13 @@ public:
     double mBasePitch = 0.;
     double mAftertouch = 0.;
     int mStackIdx = -1;
-    
+
     friend class MidiSynth;
   };
 
 public:
 #pragma mark - Engine class
-  MidiSynth(EPolyMode polyMode = kPolyModePoly);
+  MidiSynth(EPolyMode polyMode = kPolyModePoly, int blockSize = 16);
   ~MidiSynth();
 
   void Reset()
@@ -118,12 +120,12 @@ public:
   {
     mPitchBendRange = rangeInSemitones;
   }
-  
+
   void SetPolyMode(EPolyMode mode)
   {
     mPolyMode = mode; //TODO: implement click safe solution
   }
-  
+
   void SetATMode(EATMode mode)
   {
     mATMode = mode; //TODO: implement click safe solution
@@ -146,10 +148,13 @@ public:
 
   void AddMidiMsgToQueue(const IMidiMsg& msg)
   {
-    mMidiQueue.Add(msg);
-  }
+    IMidiMsg quantizedMsg = msg;
 
-  // return \c true if the synth is silent
+    if(mGranularity > 1)
+      quantizedMsg.mOffset = (msg.mOffset / mGranularity) * mGranularity;
+
+    mMidiQueue.Add(quantizedMsg);
+  }
 
   /** Processes a block of audio samples
    * @param inputs Pointer to input Arrays
@@ -166,14 +171,14 @@ protected:
   {
     return key;
   }
-  
+
 private:
   void NoteOnOffMono(const IMidiMsg& msg);
-  
+
   void NoteOnOffPoly(const IMidiMsg& msg);
-  
+
   inline void TriggerMonoNote(KeyPressInfo note);
-  
+
   inline void StopVoicesForKey(int note)
   {
     // now stop voices associated with this key
@@ -188,13 +193,13 @@ private:
       }
     }
   }
-  
+
   inline void StopVoice(Voice& voice)
   {
     voice.Release();
     voice.RemovedFromKey();
   }
-  
+
   inline void ReleaseAllVoices()
   {
     for (int v = 0; v < NVoices(); v++)
@@ -207,7 +212,7 @@ private:
       }
     }
   }
-  
+
   inline void SoftKillAllVoices()
   {
     for (int v = 0; v < NVoices(); v++)
@@ -217,7 +222,7 @@ private:
       pVoice->RemovedFromKey();
     }
   }
-  
+
   inline void HardKillAllVoices()
   {
     for (int v = 0; v < NVoices(); v++)
@@ -227,7 +232,7 @@ private:
       pVoice->RemovedFromKey();
     }
   }
-  
+
   inline int CheckKey(int key)
   {
     for(int v = 0; v < NVoices(); v++)
@@ -235,10 +240,10 @@ private:
       if(GetVoice(v)->mKey == key)
         return v;
     }
-    
+
     return -1;
   }
-  
+
   inline bool VoicesAreBusy()
   {
     for(int v = 0; v < NVoices(); v++)
@@ -246,10 +251,10 @@ private:
       if(GetVoice(v)->GetBusy())
         return true;
     }
-    
+
     return false;
   }
-  
+
   inline int FindFreeVoice()
   {
     for(int v = 0; v < NVoices(); v++)
@@ -257,10 +262,10 @@ private:
       if(!GetVoice(v)->GetBusy())
         return v;
     }
-    
+
     int64_t mostRecentTime = mSampleTime;
     int longestPlayingVoice = -1;
-    
+
     for(int v = 0; v < NVoices(); v++)
     {
       if (GetVoice(v)->mStartTime < mostRecentTime)
@@ -269,12 +274,13 @@ private:
         mostRecentTime = GetVoice(v)->mStartTime;
       }
     }
-    
+
     return longestPlayingVoice;
   }
-  
+
 private:
   WDL_PtrList<Voice> mVS;
+  int mGranularity = 16;
 
   int64_t mSampleTime = 0;
   double mSampleRate = DEFAULT_SAMPLE_RATE;
