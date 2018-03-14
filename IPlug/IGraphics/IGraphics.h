@@ -177,6 +177,17 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) {};
   
+  /** Draw an ellipse within a rectangular region of the graphics context
+   * @param color The color to draw the shape with
+   * @param x The X coordinate in the graphics context of the centre of the ellipse
+   * @param y The Y coordinate in the graphics context of the centre of the ellipse
+   * @param r1 \todo
+   * @param r2 \todo
+   * @param angle \todo
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0, float thickness = 1.f) {};
+
   /** Draw a convex polygon to the graphics to the graphics context
    * @param color The color to draw the shape with
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
@@ -230,6 +241,16 @@ public:
    * @param bounds The rectangular region to fill the shape in
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) {};
+  
+  /** Fill an ellipse in the graphics context
+   * @param color The color to draw the shape with
+   * @param x The X coordinate in the graphics context of the centre of the ellipse
+   * @param y The Y coordinate in the graphics context of the centre of the ellipse
+   * @param r1 \todo
+   * @param r2 \todo
+   * @param angle \todo
+   * @param pBlend Optional blend method, see IBlend documentation */
+  virtual void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0) {};
   
   /** Fill an arc segment in the graphics context with a color
    * @param color The color to fill the shape with

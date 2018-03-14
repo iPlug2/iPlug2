@@ -102,6 +102,12 @@ public:
     PathEllipse(bounds);
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
+  
+  void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override
+  {
+    PathEllipse(x, y, r1, r2, angle);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
 
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override
   {
@@ -144,6 +150,12 @@ public:
   void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
   {
     PathEllipse(bounds);
+    PathFill(color, IFillOptions(), pBlend);
+  }
+  
+  void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override
+  {
+    PathEllipse(x, y, r1, r2, angle);
     PathFill(color, IFillOptions(), pBlend);
   }
 
