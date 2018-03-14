@@ -392,19 +392,6 @@ public:
    * @param thickness Optional line thickness */
   void DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
 
-  /** Draws an ellipse within a rectangular region
-   * @param color The color to draw the grid lines with
-   * @param bounds The rectangular region in which to draw the ellipse
-   * @param pBlend Optional blend method, see IBlend documentation
-   * @param thickness Optional line thickness */
-  virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) {};
-
-  /** Fills an ellipse within a rectangular region
-   * @param color The color to draw the grid lines with
-   * @param bounds The rectangular region in which to fill the ellipse shape
-   * @param pBlend Optional blend method, see IBlend documentation  */
-  virtual void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) {};
-
 #pragma mark - IGraphics drawing API Path support
 
   virtual bool HasPathSupport() const { return false; }
