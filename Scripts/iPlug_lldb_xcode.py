@@ -21,6 +21,7 @@ def __lldb_init_module(debugger, dict):
     debugger.HandleCommand('type summary add --inline-children IRECT -w iplug')
     debugger.HandleCommand('type summary add --inline-children IColor -w iplug')
     debugger.HandleCommand('type summary add --inline-children IBlend -w iplug')
+    debugger.HandleCommand('type summary add --inline-children IMouseMod -w iplug')
 
     # turn the category on
     debugger.HandleCommand('type category enable iplug')
