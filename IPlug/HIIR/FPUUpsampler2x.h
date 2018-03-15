@@ -25,7 +25,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 namespace hiir
 {
 
-template <int NC>
+template <int NC, typename T>
 class Upsampler2xFPU
 {
 public:
@@ -56,7 +56,7 @@ public:
     - out_0: First output sample.
     - out_1: Second output sample.
   */
-  inline void process_sample (float &out_0, float &out_1, float input);
+  inline void process_sample (T &out_0, T &out_1, T input);
 
   /*
   Name: process_block
@@ -69,7 +69,7 @@ public:
   Output parameters:
     - out_0_ptr: Output sample array, capacity: nbr_spl * 2 samples.
   */
-  void process_block (float out_ptr [], const float in_ptr [], long nbr_spl);
+  void process_block (T out_ptr [], const T in_ptr [], long nbr_spl);
 
   /*
   Name: clear_buffers
@@ -80,9 +80,9 @@ public:
   void clear_buffers ();
 
 private:
-  Array <float, NBR_COEFS> _coef;
-  Array <float, NBR_COEFS> _x;
-  Array <float, NBR_COEFS> _y;
+  Array <T, NBR_COEFS> _coef;
+  Array <T, NBR_COEFS> _x;
+  Array <T, NBR_COEFS> _y;
 
 private:
   bool operator == (const Upsampler2xFPU &other);
@@ -90,8 +90,8 @@ private:
 
 };  // class Upsampler2xFPU
 
-template <int NC>
-Upsampler2xFPU <NC>::Upsampler2xFPU ()
+template <int NC, typename T>
+Upsampler2xFPU <NC, T>::Upsampler2xFPU ()
 : _coef ()
 , _x ()
 , _y ()
@@ -103,26 +103,26 @@ Upsampler2xFPU <NC>::Upsampler2xFPU ()
   clear_buffers ();
 }
 
-template <int NC>
-void Upsampler2xFPU <NC>::set_coefs (const double coef_arr [NBR_COEFS])
+template <int NC, typename T>
+void Upsampler2xFPU <NC, T>::set_coefs (const double coef_arr [NBR_COEFS])
 {
   assert (coef_arr != 0);
 
   for (int i = 0; i < NBR_COEFS; ++i)
   {
-    _coef [i] = static_cast <float> (coef_arr [i]);
+    _coef [i] = static_cast <T> (coef_arr [i]);
   }
 }
 
-template <int NC>
-void Upsampler2xFPU <NC>::process_sample (float &out_0, float &out_1, float input)
+template <int NC, typename T>
+void Upsampler2xFPU <NC, T>::process_sample (T &out_0, T &out_1, T input)
 {
   assert (&out_0 != 0);
   assert (&out_1 != 0);
 
-  float even = input;
-  float odd = input;
-  StageProcFPU <NBR_COEFS>::process_sample_pos (
+  T even = input;
+  T odd = input;
+  StageProcFPU <NBR_COEFS, T>::process_sample_pos (
     NBR_COEFS,
     even,
     odd,
@@ -134,8 +134,8 @@ void Upsampler2xFPU <NC>::process_sample (float &out_0, float &out_1, float inpu
   out_1 = odd;
 }
 
-template <int NC>
-void Upsampler2xFPU <NC>::process_block (float out_ptr [], const float in_ptr [], long nbr_spl)
+template <int NC, typename T>
+void Upsampler2xFPU <NC, T>::process_block (T out_ptr [], const T in_ptr [], long nbr_spl)
 {
   assert (out_ptr != 0);
   assert (in_ptr != 0);
@@ -155,8 +155,8 @@ void Upsampler2xFPU <NC>::process_block (float out_ptr [], const float in_ptr []
   while (pos < nbr_spl);
 }
 
-template <int NC>
-void Upsampler2xFPU <NC>::clear_buffers ()
+template <int NC, typename T>
+void Upsampler2xFPU <NC, T>::clear_buffers ()
 {
   for (int i = 0; i < NBR_COEFS; ++i)
   {

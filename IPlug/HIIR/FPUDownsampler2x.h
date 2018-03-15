@@ -23,7 +23,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 namespace hiir
 {
-template <int NC>
+template <int NC, typename T>
 class Downsampler2xFPU
 {
 public:
@@ -50,7 +50,7 @@ public:
   - in_ptr: pointer on the two samples to decimate
   Returns: Samplerate-reduced sample.
   */
-  inline float process_sample(const float in_ptr [2]);
+  inline T process_sample(const T in_ptr [2]);
 
   /*
   Name: process_block
@@ -63,7 +63,7 @@ public:
   Output parameters:
   - out_ptr: Array for the output samples, capacity: nbr_spl samples.
   */
-  void process_block(float out_ptr[], const float in_ptr[], long nbr_spl);
+  void process_block(T out_ptr[], const T in_ptr[], long nbr_spl);
   
   /*
    Name: process_sample_split
@@ -81,7 +81,7 @@ public:
    - low: output sample, lower part of the spectrum (downsampling)
    - high: output sample, higher part of the spectrum.
    */
-  inline void process_sample_split(float &low, float &high, const float in_ptr[2]);
+  inline void process_sample_split(T &low, T &high, const T in_ptr[2]);
 
   /*
   Name: process_block_split
@@ -103,7 +103,7 @@ public:
   - out_h_ptr: Array for the output samples, higher part of the spectrum.
       Capacity: nbr_spl samples.
   */
-  void process_block_split(float out_l_ptr[], float out_h_ptr[], const float in_ptr[], long nbr_spl);
+  void process_block_split(T out_l_ptr[], T out_h_ptr[], const T in_ptr[], long nbr_spl);
 
   /*
   Name: clear_buffers
@@ -114,9 +114,9 @@ public:
   void clear_buffers();
 
 private:
-  Array <float, NBR_COEFS> _coef;
-  Array <float, NBR_COEFS> _x;
-  Array <float, NBR_COEFS> _y;
+  Array <T, NBR_COEFS> _coef;
+  Array <T, NBR_COEFS> _x;
+  Array <T, NBR_COEFS> _y;
 
 private:
   bool operator == (const Downsampler2xFPU &other);
@@ -125,8 +125,8 @@ private:
 };  // class Downsampler2xFPU
 
 
-template <int NC>
-Downsampler2xFPU <NC>::Downsampler2xFPU ()
+template <int NC, typename T>
+Downsampler2xFPU <NC, T>::Downsampler2xFPU ()
 : _coef ()
 , _x ()
 , _y ()
@@ -138,30 +138,30 @@ Downsampler2xFPU <NC>::Downsampler2xFPU ()
   clear_buffers ();
 }
 
-template <int NC>
-void  Downsampler2xFPU <NC>::set_coefs (const double coef_arr[])
+template <int NC, typename T>
+void  Downsampler2xFPU <NC, T>::set_coefs (const double coef_arr[])
 {
   assert (coef_arr != 0);
 
   for (int i = 0; i < NBR_COEFS; ++i)
   {
-    _coef [i] = static_cast <float> (coef_arr [i]);
+    _coef [i] = static_cast <T> (coef_arr [i]);
   }
 }
 
-template <int NC>
-float Downsampler2xFPU <NC>::process_sample (const float in_ptr [2])
+template <int NC, typename T>
+T Downsampler2xFPU <NC, T>::process_sample (const T in_ptr [2])
 {
   assert (in_ptr != 0);
 
-  float spl_0 (in_ptr [1]);
-  float spl_1 (in_ptr [0]);
+  T spl_0 (in_ptr [1]);
+  T spl_1 (in_ptr [0]);
 
   #if defined (_MSC_VER)
     #pragma inline_depth (255)
   #endif  // _MSC_VER
 
-  StageProcFPU <NBR_COEFS>::process_sample_pos (
+  StageProcFPU <NBR_COEFS, T>::process_sample_pos (
     NBR_COEFS,
     spl_0,
     spl_1,
@@ -174,8 +174,8 @@ float Downsampler2xFPU <NC>::process_sample (const float in_ptr [2])
 }
 
 
-template <int NC>
-void Downsampler2xFPU <NC>::process_block (float out_ptr[], const float in_ptr[], long nbr_spl)
+template <int NC, typename T>
+void Downsampler2xFPU <NC, T>::process_block (T out_ptr[], const T in_ptr[], long nbr_spl)
 {
   assert (in_ptr != 0);
   assert (out_ptr != 0);
@@ -191,21 +191,21 @@ void Downsampler2xFPU <NC>::process_block (float out_ptr[], const float in_ptr[]
   while (pos < nbr_spl);
 }
 
-template <int NC>
-void Downsampler2xFPU <NC>::process_sample_split (float &low, float &high, const float in_ptr [2])
+template <int NC, typename T>
+void Downsampler2xFPU <NC, T>::process_sample_split (T &low, T &high, const T in_ptr [2])
 {
   assert (&low != 0);
   assert (&high != 0);
   assert (in_ptr != 0);
 
-  float       spl_0 = in_ptr [1];
-  float       spl_1 = in_ptr [0];
+  T       spl_0 = in_ptr [1];
+  T       spl_1 = in_ptr [0];
 
   #if defined (_MSC_VER)
     #pragma inline_depth (255)
   #endif  // _MSC_VER
 
-  StageProcFPU <NBR_COEFS>::process_sample_pos (
+  StageProcFPU <NBR_COEFS, T>::process_sample_pos (
     NBR_COEFS,
     spl_0,
     spl_1,
@@ -218,8 +218,8 @@ void Downsampler2xFPU <NC>::process_sample_split (float &low, float &high, const
   high = spl_0 - low; // (spl_0 - spl_1) * 0.5f;
 }
 
-template <int NC>
-void Downsampler2xFPU <NC>::process_block_split (float out_l_ptr[], float out_h_ptr[], const float in_ptr[], long nbr_spl)
+template <int NC, typename T>
+void Downsampler2xFPU <NC, T>::process_block_split (T out_l_ptr[], T out_h_ptr[], const T in_ptr[], long nbr_spl)
 {
   assert (in_ptr != 0);
   assert (out_l_ptr != 0);
@@ -243,8 +243,8 @@ void Downsampler2xFPU <NC>::process_block_split (float out_l_ptr[], float out_h_
   while (pos < nbr_spl);
 }
 
-template <int NC>
-void Downsampler2xFPU <NC>::clear_buffers ()
+template <int NC, typename T>
+void Downsampler2xFPU <NC, T>::clear_buffers ()
 {
   for (int i = 0; i < NBR_COEFS; ++i)
   {

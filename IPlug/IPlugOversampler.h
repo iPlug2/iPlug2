@@ -8,6 +8,7 @@
 
 using namespace hiir;
 
+template<typename sampleType>
 class OverSampler
 {
 public:
@@ -26,16 +27,6 @@ public:
   : mWritePos(0)
   , mDownSamplerOutput(0.f)
   {
-    memset(mUp16x, 0, 16 * sizeof(float));
-    memset(mUp8x, 0, 8 * sizeof(float));
-    memset(mUp4x, 0, 4 * sizeof(float));
-    memset(mUp2x, 0, 2 * sizeof(float));
-
-    memset(mDown16x, 0, 16 * sizeof(float));
-    memset(mDown8x, 0, 8 * sizeof(float));
-    memset(mDown4x, 0, 4 * sizeof(float));
-    memset(mDown2x, 0, 2 * sizeof(float));
-
     static double coeffs2x[12] = { 0.036681502163648017, 0.13654762463195794, 0.27463175937945444, 0.42313861743656711, 0.56109869787919531, 0.67754004997416184, 0.76974183386322703, 0.83988962484963892, 0.89226081800387902, 0.9315419599631839, 0.96209454837808417, 0.98781637073289585 };
 ;
 //    PolyphaseIir2Designer::compute_coefs(coeffs2x, 96., 0.01);
@@ -108,7 +99,7 @@ public:
    * @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate
    * @param mOverSamplingFactor A power of 2 oversampling factor or 0 for no oversampling
    * @return The audio sample output */
-  double Process(double input, std::function<double(double)> func)
+  double Process(double input, std::function<sampleType(sampleType)> func)
   {
     double output;
 
@@ -173,11 +164,11 @@ public:
     return output;
   }
 
-  double ProcessGen(std::function<double()> genFunc)
+  double ProcessGen(std::function<sampleType()> genFunc)
   {
-    auto ProcessDown16x = [&](double input)
+    auto ProcessDown16x = [&](sampleType input)
     {
-      mDown16x[mWritePos] = (float) input;
+      mDown16x[mWritePos] = (sampleType) input;
       
       mWritePos++;
       mWritePos &= 15;
@@ -193,7 +184,7 @@ public:
     
     auto ProcessDown8x = [&](double input)
     {
-      mDown8x[mWritePos] = (float) input;
+      mDown8x[mWritePos] = (sampleType) input;
       
       mWritePos++;
       mWritePos &= 7;
@@ -208,7 +199,7 @@ public:
     
     auto ProcessDown4x = [&](double input)
     {
-      mDown4x[mWritePos] = (float) input;
+      mDown4x[mWritePos] = (sampleType) input;
       
       mWritePos++;
       mWritePos &= 3;
@@ -222,7 +213,7 @@ public:
     
     auto ProcessDown2x = [&](double input)
     {
-      mDown2x[mWritePos] = (float) input;
+      mDown2x[mWritePos] = (sampleType) input;
       
       mWritePos = !mWritePos;
       
@@ -263,27 +254,27 @@ public:
 private:
   int mOverSamplingFactor = 1;
   int mWritePos;
-  float mDownSamplerOutput = 0.f;
+  sampleType mDownSamplerOutput = 0.;
 
-  float mUp16x[16];
-  float mUp8x[8];
-  float mUp4x[4];
-  float mUp2x[2];
+  sampleType mUp16x[16] = {};
+  sampleType mUp8x[8] = {};
+  sampleType mUp4x[4] = {};
+  sampleType mUp2x[2] = {};
 
-  float mDown16x[16];
-  float mDown8x[8];
-  float mDown4x[4];
-  float mDown2x[2];
+  sampleType mDown16x[16] = {};
+  sampleType mDown8x[8] = {};
+  sampleType mDown4x[4] = {};
+  sampleType mDown2x[2] = {};
 
-  Upsampler2xFPU<12> mUpsampler2x; // for 1x to 2x SR
+  Upsampler2xFPU<12, sampleType> mUpsampler2x; // for 1x to 2x SR
   //TODO: these could be replaced by cheaper alternatives
-  Upsampler2xFPU<4> mUpsampler4x;  // for 2x to 4x SR
-  Upsampler2xFPU<3> mUpsampler8x;  // for 4x to 8x SR
-  Upsampler2xFPU<2> mUpsampler16x; // for 8x to 16x SR
+  Upsampler2xFPU<4, sampleType> mUpsampler4x;  // for 2x to 4x SR
+  Upsampler2xFPU<3, sampleType> mUpsampler8x;  // for 4x to 8x SR
+  Upsampler2xFPU<2, sampleType> mUpsampler16x; // for 8x to 16x SR
   
-  Downsampler2xFPU<12> mDownsampler2x; // decimator for 2x to 1x SR
+  Downsampler2xFPU<12, sampleType> mDownsampler2x; // decimator for 2x to 1x SR
   //TODO: these could be replaced by cheaper alternatives
-  Downsampler2xFPU<4> mDownsampler4x;  // decimator for 4x to 2x SR
-  Downsampler2xFPU<3> mDownsampler8x;  // decimator for 8x to 4x SR
-  Downsampler2xFPU<2> mDownsampler16x; // decimator for 16x to 8x SR
+  Downsampler2xFPU<4, sampleType> mDownsampler4x;  // decimator for 4x to 2x SR
+  Downsampler2xFPU<3, sampleType> mDownsampler8x;  // decimator for 8x to 4x SR
+  Downsampler2xFPU<2, sampleType> mDownsampler16x; // decimator for 16x to 8x SR
 };
