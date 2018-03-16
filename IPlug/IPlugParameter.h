@@ -78,12 +78,12 @@ public:
 
   inline double ToNormalizedParam(double nonNormalizedValue) const
   {
-    return mShape->ValueToNormalized(nonNormalizedValue, *this);
+    return BOUNDED(mShape->ValueToNormalized(nonNormalizedValue, *this), 0, 1);
   }
   
   inline double FromNormalizedParam(double normalizedValue) const
   {
-    return mShape->NormalizedToValue(normalizedValue, *this);
+    return BOUNDED(mShape->NormalizedToValue(normalizedValue, *this), mMin, mMax);
   }
   
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
