@@ -14,14 +14,14 @@ public:
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
 
   IParam();
-  ~IParam() {};
+  ~IParam() { delete mShapeConvertor; };
 
   EParamType Type() const { return mType; }
 
   void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // // LABEL not used here TODO: so why have it?
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeConvertor shapeConvertor = IShapeConvertor());
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeConvertor* shapeConvertor = nullptr);
 
   /** Sets the parameter value
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
@@ -29,7 +29,6 @@ public:
   void SetDisplayText(double value, const char* str);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
-  void SetShape(double shape);
   void SetIsMeta(bool meta) { mIsMeta = meta; }
   void SetToDefault() { mValue = mDefault; }
 
@@ -61,12 +60,12 @@ public:
 
   inline double ToNormalizedParam(double nonNormalizedValue) const
   {
-    return mShapeConvertor.mValueToNormalized(nonNormalizedValue, mMin, mMax, mShape);
+    return mShapeConvertor->valueToNormalized(nonNormalizedValue, mMin, mMax);
   }
   
   inline double FromNormalizedParam(double normalizedValue) const
   {
-    return mShapeConvertor.mNormalizedToValue(normalizedValue, mMin, mMax, mShape);
+    return mShapeConvertor->normalizedToValue(normalizedValue, mMin, mMax);
   }
   
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
@@ -83,7 +82,6 @@ public:
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
   
-  double GetShape() const { return mShape; }
   double GetStep() const { return mStep; }
   double GetDefault() const { return mDefault; }
   double GetDefaultNormalized() const { return ToNormalizedParam(mDefault); }
@@ -103,7 +101,6 @@ private:
   double mMin = 0.0;
   double mMax = 1.0;
   double mStep = 1.0;
-  double mShape = 1.0;
   double mDefault = 0.0;
   int mDisplayPrecision = 0;
   bool mNegateDisplay = false;
@@ -113,7 +110,7 @@ private:
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
-  IShapeConvertor mShapeConvertor;
+  IShapeConvertor* mShapeConvertor = nullptr;
   
   struct DisplayText
   {

@@ -45,7 +45,7 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeConvertor shapeConvertor)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeConvertor* shapeConvertor)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -65,16 +65,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
   
-  SetShape(shape);
-  
-  if (shape != 1.0) // TODO: this assumes any param with shape != .1 is using ShapeFuncPowCurve
-    mShapeConvertor = ShapePowCurve();
-}
-
-void IParam::SetShape(double shape)
-{
-  if(shape != 0.0)
-    mShape = shape;
+  mShapeConvertor = shapeConvertor ? mShapeConvertor : new IShapeConvertor;
 }
 
 void IParam::SetDisplayText(double value, const char* str)
