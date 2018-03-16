@@ -10,14 +10,14 @@ IParam::IParam()
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
 };
 
-void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group)
+void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group, const char* offText, const char* onText)
 {
   if (mType == kTypeNone) mType = kTypeBool;
   
   InitEnum(name, (defaultVal ? 1 : 0), 2, label, group);
 
-  SetDisplayText(0, "off");
-  SetDisplayText(1, "on");
+  SetDisplayText(0, offText);
+  SetDisplayText(1, onText);
 }
 
 void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, const char* group, const char* listItems, ...)
