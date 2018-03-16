@@ -66,7 +66,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   }
   
   assert (!mShape && "Parameter has already been initialised!");
-  mShape = shape ? mShape : new Shape;
+  mShape = shape ? shape : new Shape;
   mShape->Init(*this);
 }
 
