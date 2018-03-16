@@ -323,18 +323,3 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
-
-struct IShapeConvertor
-{
-  virtual ~IShapeConvertor() {}
-        
-  virtual double normalizedToValue(double x, double min, double max)
-  {
-    return min + x * (max - min);
-  }
-  
-  virtual double valueToNormalized(double x, double min, double max)
-  {
-    return (x - min) / (max - min);
-  }
-};

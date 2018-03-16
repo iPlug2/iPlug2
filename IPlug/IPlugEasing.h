@@ -335,21 +335,3 @@ TYPE IEaseBounceInOut(TYPE x)
     return 0.5 * IEaseBounceOut(x * 2 - 1) + 0.5;
   }
 }
-
-struct ShapePowCurve : public IShapeConvertor
-{
-  ShapePowCurve(double shape) : mShape(shape) {}
-  
-  double normalizedToValue(double x, double min, double max) override
-  {
-    return min + std::pow(x, mShape) * (max - min);
-  }
-  
-  double valueToNormalized(double x, double min, double max) override
-  {
-    return  std::pow((x - min) / (max - min), 1.0 / mShape);
-  }
-    
-  double mShape;
-};
-

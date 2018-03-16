@@ -45,7 +45,7 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeConvertor* shapeConvertor)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, Shape* shape)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -65,7 +65,9 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
   
-  mShapeConvertor = shapeConvertor ? mShapeConvertor : new IShapeConvertor;
+  assert (!mShape && "Parameter has already been initialised!");
+  mShape = shape ? mShape : new Shape;
+  mShape->Init(*this);
 }
 
 void IParam::SetDisplayText(double value, const char* str)
