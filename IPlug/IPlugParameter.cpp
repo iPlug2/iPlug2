@@ -71,6 +71,40 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     mShapeConvertor = ShapePowCurve();
 }
 
+void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group);
+  //TODO: shape
+}
+
+void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group);
+  //TODO: shape
+}
+
+void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, const char *group)
+{
+  int nItems = maxVal - minVal;
+  InitEnum(name, defaultVal, nItems, "", group);
+  WDL_String displayText;
+  for (auto i = 0; i < nItems; i++)
+  {
+    MidiNoteName(minVal + i, displayText);
+    SetDisplayText(i, displayText.Get());
+  }
+}
+
+void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group);
+}
+
+void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group);
+}
+
 void IParam::SetShape(double shape)
 {
   if(shape != 0.0)
@@ -284,3 +318,5 @@ void IParam::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "\"rate\":\"audio\"");
   json.AppendFormatted(8192, "}");
 }
+
+
