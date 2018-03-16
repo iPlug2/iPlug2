@@ -150,11 +150,11 @@ public:
   
   /** Convienience method to find out how many input channels are connected
    * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
-  inline int NInputChannelsConnected() { return NChannelsConnected(ERoute::kInput); }
+  inline int NInChansConnected() { return NChannelsConnected(ERoute::kInput); }
   
   /** Convienience method to find out how many output channels are connected
    * @return The number of channels connected for output. WARNING: this assumes consecutive channel connections */
-  inline int NOutputChannelsConnected() { return NChannelsConnected(ERoute::kOutput); }
+  inline int NOutChansConnected() { return NChannelsConnected(ERoute::kOutput); }
 
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
