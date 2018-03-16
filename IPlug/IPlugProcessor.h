@@ -251,7 +251,7 @@ private:
   bool mRenderingOffline = false;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
-  /* The data to use as a scratch buffers for audio input/output */
+  /* Manages pointers to the actual data for each channel */
   WDL_TypedBuf<sampleType*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
