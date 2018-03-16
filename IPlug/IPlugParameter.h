@@ -20,12 +20,12 @@ public:
     
     virtual void Init(const IParam& param) {}
     
-    virtual double NormalizedToValue(double value, const IParam& param)
+    virtual double NormalizedToValue(double value, const IParam& param) const
     {
       return param.mMin + value * (param.mMax - param.mMin);
     }
     
-    virtual double ValueToNormalized(double value, const IParam& param)
+    virtual double ValueToNormalized(double value, const IParam& param) const
     {
       return (value - param.mMin) / (param.mMax - param.mMin);
     }
@@ -145,12 +145,12 @@ struct ShapePowCurve : public IParam::Shape
 {
   ShapePowCurve(double shape) : mShape(shape) {}
   
-  double NormalizedToValue(double value, const IParam& param) override
+  double NormalizedToValue(double value, const IParam& param) const override
   {
     return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
   }
   
-  virtual double ValueToNormalized(double value, const IParam& param) override
+  virtual double ValueToNormalized(double value, const IParam& param) const override
   {
     return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
   }
@@ -169,12 +169,12 @@ struct ShapeExpLog : public IParam::Shape
     mMul = OpReverse(param.GetMax() / param.GetMin());
   }
   
-  double NormalizedToValue(double value, const IParam& param) override
+  double NormalizedToValue(double value, const IParam& param) const override
   {
     return OpForward(mAdd + value * mMul);
   }
   
-  virtual double ValueToNormalized(double value, const IParam& param) override
+  virtual double ValueToNormalized(double value, const IParam& param) const override
   {
     return (OpReverse(value) - mAdd) / mMul;
   }
