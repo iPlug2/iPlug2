@@ -70,15 +70,23 @@ public:
     /** Kill a playing voice. Hard kill should kill voice immediately (potentially causing glitch)
      *  Soft kill should kill voice as quickly as possible with a fade out to avoid glitch */
     virtual void Kill(bool isSoft) { DBGMSG("Voice Hard Killed\n"); }
-
-    /** Process a single sample of audio data for the voice
-     * @param inputs Pointer to input channel arrays. Sometimes synthesisers have audio inputs. Alternatively you can pass in modulation from global LFOs etc here.
-     * @param outputs Pointer to output channel arrays
-     * @param sampleIdx The index of the sample to process */
-    virtual void ProcessSamples(sample** inputs, sample** outputs, int startIdx, int count, double pitchBend)
+    
+    /** Process a block of audio data for the voice
+     @param inputs Pointer to input channel arrays. Sometimes synthesisers have audio inputs. Alternatively you can pass in modulation from global LFOs etc here.
+     @param outputs Pointer to output channel arrays. You should add to the existing data in these arrays (so that all the voices get summed)
+     @param nInputs The number of input channels that contain valid data
+     @param nOutputs input channels that contain valid data
+     @param startIdx The start index of the block of samples to process
+     @param nFrames The number of samples the process in this block
+     @param pitchBend The value of the pitch bender, in the range -1 to 1 */
+    virtual void ProcessSamples(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames, double pitchBend)
     {
-      for (auto s = startIdx; s < startIdx + count; s++) {
-        outputs[0][s] = 0.;
+      for (auto c = 0; c < nOutputs; c++)
+      {
+        for (auto s = startIdx; s < startIdx + nFrames; s++)
+        {
+          outputs[c][s] += 0.; // if you are following this no-op example, remember you need to accumulate the output of all the different voices
+        }
       }
     }
 
@@ -112,14 +120,12 @@ public:
   void Reset()
   {
     mSampleTime = 0;
+    mHeldKeys.clear();
+    mSustainedNotes.clear();
+    HardKillAllVoices();
   }
 
   void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
-
-  void SetPitchBendRange(double rangeInSemitones)
-  {
-    mPitchBendRange = rangeInSemitones;
-  }
 
   void SetPolyMode(EPolyMode mode)
   {
@@ -159,9 +165,11 @@ public:
   /** Processes a block of audio samples
    * @param inputs Pointer to input Arrays
    * @param outputs Pointer to output Arrays
+   * @param nInputs The number of input channels that contain valid data
+   * @param nOutputs input channels that contain valid data
    * @param nFrames The number of sample frames to process
    * @return \c true if the synth is silent */
-  bool ProcessBlock(sample** inputs, sample** outputs, int nFrames);
+  bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
 
 protected:
   /** Override this method if you need to implement a tuning table for microtonal support
@@ -284,8 +292,7 @@ private:
 
   int64_t mSampleTime = 0;
   double mSampleRate = DEFAULT_SAMPLE_RATE;
-  double mPitchBendRange = 12.;
-  double mPitchBend = 0.;
+  double mPitchBend = 0.; // pitch bender status in the range -1 to +1
   double mModWheel = 0.; //TODO: not used
   double mPrevVelNorm = 0.; //TODO: not used
 

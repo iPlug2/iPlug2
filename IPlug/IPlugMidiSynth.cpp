@@ -6,7 +6,7 @@ MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize)
   //TODO: check this should stop any allocations
   mSustainedNotes.reserve(128);
   mHeldKeys.reserve(128);
-  
+
   for (int i=0; i<128; i++)
   {
     mVelocityLUT[i] = i;
@@ -19,27 +19,25 @@ MidiSynth::~MidiSynth()
   mVS.Empty(true);
 }
 
-bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames)
 {
   assert(NVoices());
-  
-  memset(outputs[0], 0, nFrames * sizeof(sample));
-  
+
   if (mVoicesAreActive | !mMidiQueue.Empty())
   {
     int bs = mGranularity;
     int samplesRemaining = nFrames;
     int s = 0;
-    
+
     Voice* pVoice;
 
     while(samplesRemaining > 0)
     {
       if(samplesRemaining < bs)
         bs = samplesRemaining;
-      
+
       s = nFrames - samplesRemaining;
-      
+
       //TODO: here there should be a mechanism for updating "click safe" variables
 
       while (!mMidiQueue.Empty())
@@ -47,8 +45,6 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
         IMidiMsg& msg = mMidiQueue.Peek();
 
         if (msg.mOffset > s) break;
-        
-        printf("%i\n", msg.mOffset);
 
         int status = msg.StatusMsg(); // get the MIDI status byte
 
@@ -91,7 +87,7 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
           }
           case IMidiMsg::kPitchWheel:
           {
-            mPitchBend = msg.PitchWheel() * mPitchBendRange;
+            mPitchBend = msg.PitchWheel();
             break;
           }
           case IMidiMsg::kControlChange:
@@ -150,10 +146,10 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 
         if (pVoice->GetBusy())
         {
-          pVoice->ProcessSamples(inputs, outputs, s, bs, mPitchBend);
+          pVoice->ProcessSamples(inputs, outputs, nInputs, nOutputs, s, bs, mPitchBend);
         }
       }
-      
+
       samplesRemaining -= bs;
       mSampleTime += bs;
     }
@@ -196,32 +192,32 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
   int status = msg.StatusMsg();
   int velocity = msg.Velocity();
   int note = msg.NoteNumber();
-  
+
   if (status == IMidiMsg::kNoteOn && velocity)
   {
     velocity = BOUNDED(mVelocityLUT[velocity], 1, 127);
     double velNorm = (double) velocity / 127.;
-    
+
     int v = FindFreeVoice(); // or first one triggered
-    
+
     if (v == -1) // shouldn't happen
       return;
-    
+
     Voice* pVoice = GetVoice(v);
-    
+
     int prevKey = note;
-    
+
     if (!mHeldKeys.empty())
       prevKey = mHeldKeys.back().mKey;
-    
+
     KeyPressInfo theNote = KeyPressInfo(note, velNorm);
-    
+
     if(std::find(mHeldKeys.begin(), mHeldKeys.end(), theNote) == mHeldKeys.end())
       mHeldKeys.push_back(theNote);
-    
+
     if(std::find(mSustainedNotes.begin(), mSustainedNotes.end(), theNote) == mSustainedNotes.end())
       mSustainedNotes.push_back(theNote);
-    
+
     pVoice->mStartTime = mSampleTime;
     pVoice->mKey = note;
     pVoice->mBasePitch = GetAdjustedPitch(note);
@@ -234,7 +230,7 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
   {
     std::vector<KeyPressInfo>::iterator it;
     bool erase = false;
-    
+
     // REMOVE released key from held keys list. Do this even if the sustain pedal is down
     for (it = mHeldKeys.begin(); it != mHeldKeys.end(); it++)
     {
@@ -244,15 +240,15 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
         break;
       }
     }
-    
+
     if (erase)
       mHeldKeys.erase(it);
-    
+
     if (!mSustainPedalDown)
     {
       // REMOVE released key from sustained keys list
       erase = false;
-      
+
       for (it = mSustainedNotes.begin(); it != mSustainedNotes.end(); it++)
       {
         if (it->mKey == note)
@@ -261,10 +257,10 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
           break;
         }
       }
-      
+
       if (erase)
         mSustainedNotes.erase(it);
-      
+
       // now stop voices associated with this key
       StopVoicesForKey(note);
     }
@@ -276,30 +272,30 @@ void MidiSynth::NoteOnOffMono(const IMidiMsg& msg)
   int status = msg.StatusMsg();
   int velocity = msg.Velocity();
   int note = msg.NoteNumber();
-  
+
   if (status == IMidiMsg::kNoteOn && velocity)
   {
     velocity = BOUNDED(mVelocityLUT[velocity], 1, 127);
     double velNorm = (double) velocity / 127.;
-    
+
     KeyPressInfo theNote = KeyPressInfo(note, velNorm);
-    
+
     if(std::find(mHeldKeys.begin(), mHeldKeys.end(), theNote) == mHeldKeys.end())
       mHeldKeys.push_back(theNote);
-    
+
     // kinda stupid in mono modes only ever 1 sustained note
     mSustainedNotes.clear();
     mSustainedNotes.push_back(theNote);
-    
+
     TriggerMonoNote(theNote);
-    
+
     mPrevVelNorm = velNorm;
   }
   else  // Note off
   {
     std::vector<KeyPressInfo>::iterator it;
     bool erase = false;
-    
+
     // REMOVE released key from held keys list. Do this even if the sustain pedal is down
     for (it = mHeldKeys.begin(); it != mHeldKeys.end(); it++)
     {
@@ -309,15 +305,15 @@ void MidiSynth::NoteOnOffMono(const IMidiMsg& msg)
         break;
       }
     }
-    
+
     if (erase)
       mHeldKeys.erase(it);
-    
+
     // if there are still held keys...
     if(!mHeldKeys.empty())
     {
       KeyPressInfo queuedNote = mHeldKeys.back();
-      
+
       if (queuedNote.mKey != GetVoice(0)->mKey)
       {
         // kinda stupid in mono modes only ever 1 sustained note
@@ -331,7 +327,7 @@ void MidiSynth::NoteOnOffMono(const IMidiMsg& msg)
       if (mSustainPedalDown)
       {
         KeyPressInfo queuedNote = mSustainedNotes.back();
-        
+
         if (queuedNote.mKey != GetVoice(0)->mKey)
         {
           // don't need to add to sustained queue, allready in it
@@ -349,12 +345,12 @@ void MidiSynth::TriggerMonoNote(KeyPressInfo note)
   for (int v = 0; v < mUnisonVoices; v++)
   {
     Voice* pVoice = GetVoice(v);
-    
+
     pVoice->mKey = note.mKey;
     pVoice->mStackIdx = v;
     pVoice->mBasePitch = GetAdjustedPitch(note.mKey);
     pVoice->mAftertouch = 0.;
-    
+
     const bool voiceFree = !pVoice->GetBusy();
     const bool voiceReleased = pVoice->GetReleased();
 
@@ -367,19 +363,17 @@ void MidiSynth::TriggerMonoNote(KeyPressInfo note)
       pVoice->Trigger(note.mVelNorm, true);
     }
   }
-  
+
   mVoicesAreActive = true;
 }
 
 void MidiSynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
 {
-  HardKillAllVoices();
-  
-  mHeldKeys.clear();
-  mSustainedNotes.clear();
+  Reset();
+
   mSampleRate = sampleRate;
   mMidiQueue.Resize(blockSize);
-  
+
   for(int v = 0; v < NVoices(); v++)
   {
     GetVoice(v)->SetSampleRate(sampleRate);
