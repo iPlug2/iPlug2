@@ -7,6 +7,7 @@
     <WDL_PATH>$(SolutionDir)..\..\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(SolutionDir)..\..\IPlug</IPLUG_PATH>
+    <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
     <DEPS_PATH>$(SolutionDir)..\..\Dependencies</DEPS_PATH>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
@@ -76,6 +77,9 @@
     </BuildMacro>
     <BuildMacro Include="IPLUG_PATH">
       <Value>$(IPLUG_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="EXTRAS_PATH">
+      <Value>$(EXTRAS_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
