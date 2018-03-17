@@ -1,0 +1,56 @@
+#pragma once
+
+// A static delayline used to delay bypassed signals to match mLatency in AAX/VST3/AU
+template<typename T>
+class NChanDelayLine
+{
+public:
+  NChanDelayLine(int nInputChans = 2, int nOutputChans = 2)
+  : mNInChans(nInputChans)
+  , mNOutChans(nOutputChans)
+  {}
+
+  void SetDelayTime(int delayTimeSamples)
+  {
+    mDTSamples = delayTimeSamples;
+    mBuffer.Resize(mNInChans * delayTimeSamples);
+    mWriteAddress = 0;
+    ClearBuffer();
+  }
+
+  void ClearBuffer()
+  {
+    memset(mBuffer.Get(), 0, mNInChans * mDTSamples * sizeof(T));
+  }
+
+  void ProcessBlock(T** inputs, T** outputs, int nFrames)
+  {
+    T* buffer = mBuffer.Get();
+
+    for (auto s = 0 ; s < nFrames; ++s)
+    {
+      int32_t readAddress = mWriteAddress - mDTSamples;
+      readAddress %= mDTSamples;
+
+      for (auto c = 0; c < mNInChans; c++)
+      {
+        if (c < mNOutChans)
+        {
+          const int offset = c * mDTSamples;
+          outputs[c][s] = buffer[offset + readAddress];
+          buffer[offset + mWriteAddress] = inputs[c][s];
+        }
+      }
+
+      mWriteAddress++;
+      mWriteAddress %= mDTSamples;
+    }
+  }
+
+private:
+  WDL_TypedBuf<T> mBuffer;
+  uint32_t mNInChans, mNOutChans;
+  uint32_t mWriteAddress = 0;
+  uint32_t mDTSamples = 0;
+} WDL_FIXALIGN;
+

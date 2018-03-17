@@ -19,8 +19,7 @@
 struct IPlugConfig;
 
 /** The base class for IPlug Audio Processing. It knows nothing about presets or parameters or user interface.  */
-
-template<typename sampleType>
+template<typename T>
 class IPlugProcessor
 {
 public:
@@ -37,7 +36,7 @@ public:
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
-  virtual void ProcessBlock(sampleType** inputs, sampleType** outputs, int nFrames);
+  virtual void ProcessBlock(T** inputs, T** outputs, int nFrames);
 
   /** Override this method to handle incoming MIDI messages. The method is called prior to ProcessBlock().
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
@@ -150,11 +149,11 @@ public:
   
   /** Convienience method to find out how many input channels are connected
    * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
-  inline int NInputChannelsConnected() { return NChannelsConnected(ERoute::kInput); }
+  inline int NInChansConnected() { return NChannelsConnected(ERoute::kInput); }
   
   /** Convienience method to find out how many output channels are connected
    * @return The number of channels connected for output. WARNING: this assumes consecutive channel connections */
-  inline int NOutputChannelsConnected() { return NChannelsConnected(ERoute::kOutput); }
+  inline int NOutChansConnected() { return NChannelsConnected(ERoute::kOutput); }
 
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
@@ -251,15 +250,15 @@ private:
   bool mRenderingOffline = false;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
-  /* The data to use as a scratch buffers for audio input/output */
-  WDL_TypedBuf<sampleType*> mScratchData[2];
+  /* Manages pointers to the actual data for each channel */
+  WDL_TypedBuf<T*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
   /** Pointer to a multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
-  NChanDelayLine<sampleType>* mLatencyDelay = nullptr;
+  NChanDelayLine<T>* mLatencyDelay = nullptr;
 };
 
 #include "IPlugProcessor.cpp"

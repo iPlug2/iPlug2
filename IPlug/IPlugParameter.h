@@ -18,10 +18,16 @@ public:
 
   EParamType Type() const { return mType; }
 
-  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // // LABEL not used here TODO: so why have it?
+  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
   void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeConvertor shapeConvertor = IShapeConvertor());
+
+  void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, const char* group = "");
+  void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, const char* group = "");
+  void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, const char* group = "");
+  void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, const char* group = "");
+  void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., const char* group = "");
 
   /** Sets the parameter value
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
