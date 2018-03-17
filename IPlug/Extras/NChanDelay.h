@@ -4,57 +4,53 @@
 template<typename T>
 class NChanDelayLine
 {
-private:
-  WDL_TypedBuf<T> mBuffer;
-  unsigned long mWriteAddress;
-  unsigned int mNumInChans, mNumOutChans;
-  unsigned long mDTSamples;
-  
 public:
-  NChanDelayLine(int maxInputChans = 2, int maxOutputChans = 2)
-  : mNumInChans(maxInputChans)
-  , mNumOutChans(maxOutputChans)
-  , mWriteAddress(0)
-  , mDTSamples(0) {}
-  
-  ~NChanDelayLine() {}
-  
+  NChanDelayLine(int nInputChans = 2, int nOutputChans = 2)
+  : mNInChans(nInputChans)
+  , mNOutChans(nOutputChans)
+  {}
+
   void SetDelayTime(int delayTimeSamples)
   {
     mDTSamples = delayTimeSamples;
-    mBuffer.Resize(mNumInChans * delayTimeSamples);
+    mBuffer.Resize(mNInChans * delayTimeSamples);
     mWriteAddress = 0;
     ClearBuffer();
   }
-  
+
   void ClearBuffer()
   {
-    memset(mBuffer.Get(), 0, mNumInChans * mDTSamples * sizeof(T));
+    memset(mBuffer.Get(), 0, mNInChans * mDTSamples * sizeof(T));
   }
-  
+
   void ProcessBlock(T** inputs, T** outputs, int nFrames)
   {
     T* buffer = mBuffer.Get();
-    
-    for (int s = 0 ; s < nFrames; ++s)
+
+    for (auto s = 0 ; s < nFrames; ++s)
     {
-      signed long readAddress = mWriteAddress - mDTSamples;
+      int32_t readAddress = mWriteAddress - mDTSamples;
       readAddress %= mDTSamples;
-      
-      for (int chan = 0; chan < mNumInChans; chan++)
+
+      for (auto c = 0; c < mNInChans; c++)
       {
-        if (chan < mNumOutChans)
+        if (c < mNOutChans)
         {
-          unsigned long offset = chan * mDTSamples;
-          outputs[chan][s] = buffer[offset + readAddress];
-          buffer[offset + mWriteAddress] = inputs[chan][s];
+          const int offset = c * mDTSamples;
+          outputs[c][s] = buffer[offset + readAddress];
+          buffer[offset + mWriteAddress] = inputs[c][s];
         }
       }
-      
+
       mWriteAddress++;
       mWriteAddress %= mDTSamples;
     }
   }
-  
+
+private:
+  WDL_TypedBuf<T> mBuffer;
+  uint32_t mNInChans, mNOutChans;
+  uint32_t mWriteAddress = 0;
+  uint32_t mDTSamples = 0;
 } WDL_FIXALIGN;
 
