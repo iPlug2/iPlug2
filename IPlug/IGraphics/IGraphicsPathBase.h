@@ -247,7 +247,6 @@ public:
     
     PathStateSave();
     PathTransformTranslate(dest.L, dest.T);
-    ClipRegion(IRECT(0, 0, dest.W(), dest.H()));
     PathTransformScale(scale);
     RenderNanoSVG(svg.mImage);
     PathStateRestore();

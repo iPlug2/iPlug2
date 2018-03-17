@@ -402,7 +402,9 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
         dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
     StrokeOptions(strokes, thickness, options);
-    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
+    agg::conv_clip_polygon<DashStrokeType> path(strokes);
+    DoClip(path);
+    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
   }
   else
   {
@@ -411,7 +413,9 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     //TransformedStrokePathType path(strokes, xform);
     
     StrokeOptions(strokes, thickness, options);
-    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
+    agg::conv_clip_polygon<StrokeType> path(strokes);
+    DoClip(path);
+    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
   }
   
   if (!options.mPreserve)
@@ -421,8 +425,10 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   CurvedPathType curvedPath(mPath);
+  agg::conv_clip_polygon<CurvedPathType> path(curvedPath);
+  DoClip(path);
   
-  mRasterizer.Rasterize(curvedPath, GetRasterTransform(), pattern, pBlend, options.mFillRule);
+  mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend, options.mFillRule);
   if (!options.mPreserve)
     PathClear();
 }

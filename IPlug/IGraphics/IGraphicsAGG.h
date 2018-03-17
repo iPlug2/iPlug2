@@ -207,6 +207,17 @@ private:
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
 
+  template<typename PathType> void DoClip(PathType& path)
+  {
+    IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
+    clip.Scale(GetDisplayScale());
+    path.clip_box(clip.L, clip.T, clip.R, clip.B);
+  }
+  
+  void ClipRegion(const IRECT& r) override { mClipRECT = r; }
+  void ResetClipRegion() override { mClipRECT = IRECT(); }
+
+  IRECT mClipRECT;
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;

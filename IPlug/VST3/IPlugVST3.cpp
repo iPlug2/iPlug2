@@ -66,7 +66,7 @@ public:
       flags |= ParameterInfo::kCanAutomate;
     }
     
-    info.defaultNormalizedValue = valueNormalized = pParam->GetDefaultNormalized();
+    info.defaultNormalizedValue = valueNormalized = pParam->(ToNormalized(pParam->GetDefaultNormalized));
     info.flags = flags;
     info.id = tag;
     info.unitId = unitID;
