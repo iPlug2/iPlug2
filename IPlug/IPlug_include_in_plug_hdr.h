@@ -4,7 +4,7 @@
     \brief IPlug header include
 
     Include this file in the main header for your plugin
-    A preprocessor macro for a particular API such as VST_API should be defined at project level
+    A preprocessor macro for a particular API such as VST2_API should be defined at project level
 */
 
 #include <cstdio>
@@ -12,7 +12,7 @@
 #include "config.h"
 
 #define API_EXT2
-#ifdef VST_API
+#ifdef VST2_API
   #include "IPlugVST.h"
   typedef IPlugVST IPlug;
   #define API_EXT "vst"
