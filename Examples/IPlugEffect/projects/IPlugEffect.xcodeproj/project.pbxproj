@@ -2466,6 +2466,7 @@
 					"$(ALL_DEFS)",
 					"$(EXTRA_ALL_DEFS)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -2485,6 +2486,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -2513,6 +2515,7 @@
 					"$(ALL_DEFS)",
 					"$(EXTRA_ALL_DEFS)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -2541,6 +2544,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -2569,6 +2573,7 @@
 					"$(EXTRA_ALL_DEFS)",
 					"$(ALL_DEFS)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -2596,6 +2601,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
