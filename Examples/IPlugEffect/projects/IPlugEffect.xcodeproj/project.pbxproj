@@ -68,6 +68,18 @@
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
+		4F57B1D8205D544900D2834E /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D5205D541700D2834E /* knob-rotate.png */; };
+		4F57B1D9205D544900D2834E /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D7205D541700D2834E /* knob-rotate@2x.png */; };
+		4F57B1DA205D544B00D2834E /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D5205D541700D2834E /* knob-rotate.png */; };
+		4F57B1DB205D544B00D2834E /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D7205D541700D2834E /* knob-rotate@2x.png */; };
+		4F57B1DC205D544C00D2834E /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D5205D541700D2834E /* knob-rotate.png */; };
+		4F57B1DD205D544C00D2834E /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D7205D541700D2834E /* knob-rotate@2x.png */; };
+		4F57B1DE205D544D00D2834E /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D5205D541700D2834E /* knob-rotate.png */; };
+		4F57B1DF205D544D00D2834E /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D7205D541700D2834E /* knob-rotate@2x.png */; };
+		4F57B1E0205D544D00D2834E /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D5205D541700D2834E /* knob-rotate.png */; };
+		4F57B1E1205D544D00D2834E /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D7205D541700D2834E /* knob-rotate@2x.png */; };
+		4F57B1E2205D544F00D2834E /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D5205D541700D2834E /* knob-rotate.png */; };
+		4F57B1E3205D544F00D2834E /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F57B1D7205D541700D2834E /* knob-rotate@2x.png */; };
 		4F5E01DA20142D8000C4EDEA /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5E01D820142D7F00C4EDEA /* IPlugAUv3.mm */; };
 		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
 		4F690CA1203A398900A4A13E /* IPlugAPP_host.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F690CA0203A398900A4A13E /* IPlugAPP_host.h */; };
@@ -377,6 +389,8 @@
 		4F4CC4261549BED600A9EA21 /* IPlugAAX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX.h; path = ../../../IPlug/IPlugAAX.h; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../../IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
 		4F56CC702022A55D00CF585F /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../../../IPlug/AUv3/IPlugViewController.xib; sourceTree = "<group>"; };
+		4F57B1D5205D541700D2834E /* knob-rotate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "knob-rotate.png"; path = "../resources/img/knob-rotate.png"; sourceTree = "<group>"; };
+		4F57B1D7205D541700D2834E /* knob-rotate@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "knob-rotate@2x.png"; path = "../resources/img/knob-rotate@2x.png"; sourceTree = "<group>"; };
 		4F5E01D820142D7F00C4EDEA /* IPlugAUv3.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAUv3.mm; path = ../../../IPlug/IPlugAUv3.mm; sourceTree = "<group>"; };
 		4F5E01D920142D8000C4EDEA /* IPlugAUv3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUv3.h; path = ../../../IPlug/IPlugAUv3.h; sourceTree = "<group>"; };
 		4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAPP_main.cpp; path = ../../../IPlug/APP/IPlugAPP_main.cpp; sourceTree = "<group>"; };
@@ -1140,6 +1154,8 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				4F57B1D5205D541700D2834E /* knob-rotate.png */,
+				4F57B1D7205D541700D2834E /* knob-rotate@2x.png */,
 				4F2F94F92052A6480087A37F /* knob.png */,
 				4F2F94FB2052A6480087A37F /* knob@2x.png */,
 				B8C5FB3B204AF4C400D5C34E /* 23.svg */,
@@ -1556,6 +1572,8 @@
 				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95032052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1DB205D544B00D2834E /* knob-rotate@2x.png in Resources */,
+				4F57B1DA205D544B00D2834E /* knob-rotate.png in Resources */,
 				4F2F94FD2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1567,6 +1585,8 @@
 				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95052052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1DF205D544D00D2834E /* knob-rotate@2x.png in Resources */,
+				4F57B1DE205D544D00D2834E /* knob-rotate.png in Resources */,
 				4F2F94FF2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1575,6 +1595,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F57B1E2205D544F00D2834E /* knob-rotate.png in Resources */,
+				4F57B1E3205D544F00D2834E /* knob-rotate@2x.png in Resources */,
 				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
 				4F2F95012052A6480087A37F /* knob.png in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
@@ -1587,11 +1609,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F57B1DC205D544C00D2834E /* knob-rotate.png in Resources */,
 				4F815918205D50EB00393585 /* LICENSE.txt in Resources */,
 				4F81598B205D50EB00393585 /* LICENSE.txt in Resources */,
 				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95042052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1DD205D544C00D2834E /* knob-rotate@2x.png in Resources */,
 				4F81597B205D50EB00393585 /* LICENSE.txt in Resources */,
 				4F2F94FE2052A6480087A37F /* knob.png in Resources */,
 			);
@@ -1604,6 +1628,8 @@
 				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95062052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1E1205D544D00D2834E /* knob-rotate@2x.png in Resources */,
+				4F57B1E0205D544D00D2834E /* knob-rotate.png in Resources */,
 				4F2F95002052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1612,10 +1638,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F57B1D8205D544900D2834E /* knob-rotate.png in Resources */,
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
 				4F2F94FC2052A6480087A37F /* knob.png in Resources */,
 				4F2F95022052A6480087A37F /* knob@2x.png in Resources */,
 				B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */,
+				4F57B1D9205D544900D2834E /* knob-rotate@2x.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);
