@@ -44,7 +44,11 @@ public:
   };
   
   IParam();
-  ~IParam() { delete mShape; };
+  
+  ~IParam()
+  {
+    delete mShape;
+  };
 
   EParamType Type() const { return mType; }
 
@@ -91,15 +95,15 @@ public:
     
   void SetNormalized(double normalizedValue);
   double GetNormalized() const;
-  double GetNormalized(double nonNormalizedValue) const;
-  double GetNonNormalized(double normalizedValue) const;
+//  double GetNormalized(double nonNormalizedValue) const;
+//  double GetNonNormalized(double normalizedValue) const;
 
-  inline double ToNormalizedParam(double nonNormalizedValue) const
+  inline double ToNormalized(double nonNormalizedValue) const
   {
     return BOUNDED(mShape->ValueToNormalized(nonNormalizedValue, *this), 0, 1);
   }
   
-  inline double FromNormalizedParam(double normalizedValue) const
+  inline double FromNormalized(double normalizedValue) const
   {
     return BOUNDED(mShape->NormalizedToValue(normalizedValue, *this), mMin, mMax);
   }

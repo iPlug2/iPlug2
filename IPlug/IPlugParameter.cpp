@@ -124,7 +124,7 @@ double IParam::DBToAmp() const
 
 void IParam::SetNormalized(double normalizedValue)
 {
-  mValue = FromNormalizedParam(normalizedValue);
+  mValue = FromNormalized(normalizedValue);
   
   if (mType != kTypeDouble)
   {
@@ -136,23 +136,12 @@ void IParam::SetNormalized(double normalizedValue)
 
 double IParam::GetNormalized() const
 {
-  return GetNormalized(mValue);
-}
-
-double IParam::GetNormalized(double nonNormalizedValue) const
-{
-  nonNormalizedValue = BOUNDED(nonNormalizedValue, mMin, mMax);
-  return ToNormalizedParam(nonNormalizedValue);
-}
-
-double IParam::GetNonNormalized(double normalizedValue) const
-{
-  return FromNormalizedParam(normalizedValue);
+  return ToNormalized(mValue);
 }
 
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
-  if (normalized) value = FromNormalizedParam(value);
+  if (normalized) value = FromNormalized(value);
 
   if (withDisplayText)
   {
