@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "IPlugVST.h"
+#include "IPlugVST2.h"
 
 const int VST_VERSION = 2400;
 
@@ -11,7 +11,7 @@ int VSTSpkrArrType(int nchan)
   return kSpeakerArrUserDefined;
 }
 
-IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIVST2)
   , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
   , IPlugPresetHandler(c, kAPIVST2)
@@ -71,27 +71,27 @@ IPlugVST::IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   }
 }
 
-void IPlugVST::BeginInformHostOfParamChange(int idx)
+void IPlugVST2::BeginInformHostOfParamChange(int idx)
 {
   mHostCallback(&mAEffect, audioMasterBeginEdit, idx, 0, 0, 0.0f);
 }
 
-void IPlugVST::InformHostOfParamChange(int idx, double normalizedValue)
+void IPlugVST2::InformHostOfParamChange(int idx, double normalizedValue)
 {
   mHostCallback(&mAEffect, audioMasterAutomate, idx, 0, 0, (float) normalizedValue);
 }
 
-void IPlugVST::EndInformHostOfParamChange(int idx)
+void IPlugVST2::EndInformHostOfParamChange(int idx)
 {
   mHostCallback(&mAEffect, audioMasterEndEdit, idx, 0, 0, 0.0f);
 }
 
-void IPlugVST::InformHostOfProgramChange()
+void IPlugVST2::InformHostOfProgramChange()
 {
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-EHost IPlugVST::GetHost()
+EHost IPlugVST2::GetHost()
 {
   EHost host = IPLUG_BASE_CLASS::GetHost();
 
@@ -118,7 +118,7 @@ EHost IPlugVST::GetHost()
   return host;
 }
 
-void IPlugVST::ResizeGraphics()
+void IPlugVST2::ResizeGraphics()
 {
   if (HasUI())
   {
@@ -130,13 +130,13 @@ void IPlugVST::ResizeGraphics()
   }
 }
 
-void IPlugVST::SetLatency(int samples)
+void IPlugVST2::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
   IPlugProcessor::SetLatency(samples);
 }
 
-bool IPlugVST::SendVSTEvent(VstEvent& event)
+bool IPlugVST2::SendVSTEvent(VstEvent& event)
 {
   // It would be more efficient to bundle these and send at the end of a processed block,
   // but that would require writing OnBlockEnd and making sure it always gets called,
@@ -148,7 +148,7 @@ bool IPlugVST::SendVSTEvent(VstEvent& event)
   return (mHostCallback(&mAEffect, audioMasterProcessEvents, 0, 0, &events, 0.0f) == 1);
 }
 
-bool IPlugVST::SendMidiMsg(const IMidiMsg& msg)
+bool IPlugVST2::SendMidiMsg(const IMidiMsg& msg)
 {
   VstMidiEvent midiEvent;
   memset(&midiEvent, 0, sizeof(VstMidiEvent));
@@ -163,7 +163,7 @@ bool IPlugVST::SendMidiMsg(const IMidiMsg& msg)
   return SendVSTEvent((VstEvent&) midiEvent);
 }
 
-bool IPlugVST::SendSysEx(ISysEx& msg)
+bool IPlugVST2::SendSysEx(ISysEx& msg)
 {
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
@@ -177,7 +177,7 @@ bool IPlugVST::SendSysEx(ISysEx& msg)
   return SendVSTEvent((VstEvent&) sysexEvent);
 }
 
-void IPlugVST::HostSpecificInit()
+void IPlugVST2::HostSpecificInit()
 {
   if (!mHostSpecificInitDone)
   {
@@ -204,10 +204,10 @@ void IPlugVST::HostSpecificInit()
   }
 }
 
-VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt)
+VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt)
 {
   // VSTDispatcher is an IPlugVST class member, we can access anything in IPlugVST from here.
-  IPlugVST* _this = (IPlugVST*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (!_this)
   {
     return 0;
@@ -763,7 +763,7 @@ VstIntPtr VSTCALLBACK IPlugVST::VSTDispatcher(AEffect *pEffect, VstInt32 opCode,
 }
 
 template <class SAMPLETYPE>
-void IPlugVST::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
+void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
 {
   if (DoesMIDI())
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
@@ -803,34 +803,34 @@ void IPlugVST::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32
 }
 
 // Deprecated.
-void VSTCALLBACK IPlugVST::VSTProcess(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
+void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
   TRACE;
-  IPlugVST* _this = (IPlugVST*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffersAccumulating(nFrames);
 }
 
-void VSTCALLBACK IPlugVST::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
+void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
   TRACE;
-  IPlugVST* _this = (IPlugVST*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffers((float) 0.0f, nFrames);
 }
 
-void VSTCALLBACK IPlugVST::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
+void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
 {
   TRACE;
-  IPlugVST* _this = (IPlugVST*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffers((double) 0.0, nFrames);
 }
 
-float VSTCALLBACK IPlugVST::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
+float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
 {
   Trace(TRACELOC, "%d", idx);
-  IPlugVST* _this = (IPlugVST*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
     ENTER_PARAMS_MUTEX_STATIC;
@@ -842,10 +842,10 @@ float VSTCALLBACK IPlugVST::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
   return 0.0f;
 }
 
-void VSTCALLBACK IPlugVST::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float value)
+void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float value)
 {
   Trace(TRACELOC, "%d:%f", idx, value);
-  IPlugVST* _this = (IPlugVST*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
     ENTER_PARAMS_MUTEX_STATIC;

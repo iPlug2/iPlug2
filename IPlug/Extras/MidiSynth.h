@@ -137,6 +137,11 @@ public:
     mATMode = mode; //TODO: implement click safe solution
   }
 
+  void SetNoteOffset(double offset)
+  {
+    mPitchOffset = offset;
+  }
+  
   inline Voice* GetVoice(int voiceIdx)
   {
     return mVS.Get(voiceIdx);
@@ -177,7 +182,7 @@ protected:
    * @return The adjusted MIDI pitch */
   virtual double GetAdjustedPitch(int key)
   {
-    return key;
+    return key + mPitchOffset;
   }
 
 private:
@@ -295,7 +300,7 @@ private:
   double mPitchBend = 0.; // pitch bender status in the range -1 to +1
   double mModWheel = 0.; //TODO: not used
   double mPrevVelNorm = 0.; //TODO: not used
-
+  double mPitchOffset = 0.; // Adjustment in semitones of notes
   bool mSustainPedalDown = false;
   bool mVoicesAreActive = false;
   uint16_t mUnisonVoices = 1;

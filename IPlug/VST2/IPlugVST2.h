@@ -20,12 +20,12 @@ struct IPlugInstanceInfo
 /**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses
 */
-class IPlugVST : public IPLUG_BASE_CLASS
+class IPlugVST2 : public IPLUG_BASE_CLASS
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public IPlugPresetHandler
 {
 public:
-  IPlugVST(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   //IPlugBase
   void BeginInformHostOfParamChange(int idx) override;
@@ -81,6 +81,6 @@ public:
   AEffect mAEffect;
 };
 
-IPlugVST* MakePlug();
+IPlugVST2* MakePlug();
 
 #endif
