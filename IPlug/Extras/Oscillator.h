@@ -10,12 +10,7 @@ public:
     SetFreqCPS(1.);
   }
 
-  virtual inline sampleType Process(double freqHz)
-  {
-    SetFreqCPS(freqHz);
-    mPhase = mPhase + mPhaseIncr;
-    return std::sin(mPhase * PI * 2.);
-  }
+  virtual inline sampleType Process(double freqHz) = 0;
 
   inline void SetFreqCPS(double freqHz)
   {
@@ -37,6 +32,23 @@ protected:
   double mPhaseIncr = 0.; // how much to add to the phase on each sampleType
   double mSampleRateReciprocal = 1./44100.;
   double mStartPhase;
+};
+
+template <typename sampleType>
+class SinOscillator : public IOscillator<sampleType>
+{
+public:
+  SinOscillator(double startPhase = 0.)
+  : IOscillator<sampleType>(startPhase)
+  {
+  }
+
+  virtual inline sampleType Process(double freqHz) override
+  {
+    IOscillator<sampleType>::SetFreqCPS(freqHz);
+    IOscillator<sampleType>::mPhase = IOscillator<sampleType>::mPhase + IOscillator<sampleType>::mPhaseIncr;
+    return std::sin(IOscillator<sampleType>::mPhase * PI * 2.);
+  }
 };
 
 /*
@@ -146,4 +158,4 @@ private:
   static const sampleType mLUT[513];
 } ALIGNED(8);
 
-#include "IPlugOscillator_table.h"
+#include "Oscillator_table.h"

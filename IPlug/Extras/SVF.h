@@ -6,10 +6,10 @@
  * - http://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
  */
 
-#define ISVFMODES_VALIST "LowPass", "HighPass", "BandPass", "Notch", "Peak", "Bell", "LowPassShelf", "HighPassShelf"
+#define SVFMODES_VALIST "LowPass", "HighPass", "BandPass", "Notch", "Peak", "Bell", "LowPassShelf", "HighPassShelf"
 
 template<typename sampleType = double, int NC = 1>
-class ISVF
+class SVF
 {
 public:
 
@@ -26,7 +26,7 @@ public:
     kNumModes
   };
 
-  ISVF(EMode mode = kLowPass, double freqCPS = 1000.)
+  SVF(EMode mode = kLowPass, double freqCPS = 1000.)
   {
     mNewState.mode = mState.mode = mode;
     mNewState.freq = mState.freq = freqCPS;
@@ -209,7 +209,7 @@ private:
     double gain = 1.;
     double sampleRate = 44100.;
 
-    bool operator != (const Settings &other) const 
+    bool operator != (const Settings &other) const
     {
       return !(mode == other.mode && freq == other.freq && Q == other.Q && gain == other.gain && sampleRate == other.sampleRate);
     }

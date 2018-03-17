@@ -1,4 +1,4 @@
-#include "IPlugMidiSynth.h"
+#include "MidiSynth.h"
 
 MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize)
 : mGranularity(blockSize)
