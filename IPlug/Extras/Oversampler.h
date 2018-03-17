@@ -125,12 +125,12 @@ public:
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
       mUpsampler4x.process_block(mUp4x, mUp2x, 2);
       mUpsampler8x.process_block(mUp8x, mUp4x, 4);
-      
+
       for (auto i = 0; i < 8; i++)
       {
         mDown8x[i] = func(mUp8x[i]);
       }
-      
+
       mDownsampler8x.process_block(mDown4x, mDown8x, 4);
       mDownsampler4x.process_block(mDown2x, mDown4x, 2);
       output = mDownsampler2x.process_sample(mDown2x);
@@ -139,19 +139,19 @@ public:
     {
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
       mUpsampler4x.process_block(mUp4x, mUp2x, 2);
-      
+
       for (auto i = 0; i < 4; i++)
       {
         mDown4x[i] = func(mUp4x[i]);
       }
-      
+
       mDownsampler4x.process_block(mDown2x, mDown4x, 2);
       output = mDownsampler2x.process_sample(mDown2x);
     }
     else if (mOverSamplingFactor == 2)
     {
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
-      
+
       mDown2x[0] = func(mUp2x[0]);
       mDown2x[1] = func(mUp2x[1]);
       output = mDownsampler2x.process_sample(mDown2x);
@@ -160,7 +160,7 @@ public:
     {
       output = func(input);
     }
-    
+
     return output;
   }
 
@@ -169,10 +169,10 @@ public:
     auto ProcessDown16x = [&](T input)
     {
       mDown16x[mWritePos] = (T) input;
-      
+
       mWritePos++;
       mWritePos &= 15;
-      
+
       if(mWritePos == 0)
       {
         mDownsampler16x.process_block(mDown8x, mDown16x, 8);
@@ -181,14 +181,14 @@ public:
         mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
       }
     };
-    
+
     auto ProcessDown8x = [&](double input)
     {
       mDown8x[mWritePos] = (T) input;
-      
+
       mWritePos++;
       mWritePos &= 7;
-      
+
       if(mWritePos == 0)
       {
         mDownsampler8x.process_block(mDown4x, mDown8x, 4);
@@ -196,33 +196,33 @@ public:
         mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
       }
     };
-    
+
     auto ProcessDown4x = [&](double input)
     {
       mDown4x[mWritePos] = (T) input;
-      
+
       mWritePos++;
       mWritePos &= 3;
-      
+
       if(mWritePos == 0)
       {
         mDownsampler4x.process_block(mDown2x, mDown4x, 2);
         mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
       }
     };
-    
+
     auto ProcessDown2x = [&](double input)
     {
       mDown2x[mWritePos] = (T) input;
-      
+
       mWritePos = !mWritePos;
-      
+
       if(mWritePos == 0)
       {
         mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
       }
     };
-    
+
     double output;
 
     for (int j = 0; j < mOverSamplingFactor; j++)
@@ -256,6 +256,7 @@ private:
   int mWritePos;
   T mDownSamplerOutput = 0.;
 
+  //TODO: is it necessary/lower to have all these different arrays?
   T mUp16x[16] = {};
   T mUp8x[8] = {};
   T mUp4x[4] = {};
@@ -271,7 +272,7 @@ private:
   Upsampler2xFPU<4, T> mUpsampler4x;  // for 2x to 4x SR
   Upsampler2xFPU<3, T> mUpsampler8x;  // for 4x to 8x SR
   Upsampler2xFPU<2, T> mUpsampler16x; // for 8x to 16x SR
-  
+
   Downsampler2xFPU<12, T> mDownsampler2x; // decimator for 2x to 1x SR
   //TODO: these could be replaced by cheaper alternatives
   Downsampler2xFPU<4, T> mDownsampler4x;  // decimator for 4x to 2x SR
