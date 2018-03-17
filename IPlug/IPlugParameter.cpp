@@ -72,12 +72,14 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 
 void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group);
+  mUnit = kUnitFrequency;
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group, new ShapeExp);
   //TODO: shape
 }
 
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
+  mUnit = kUnitSeconds;
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group);
   //TODO: shape
 }
@@ -96,11 +98,13 @@ void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal,
 
 void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
+  mUnit = kUnitDB;
   InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group);
 }
 
 void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, const char *group)
 {
+  mUnit = kUnitPercentage;
   InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group);
 }
 
@@ -279,6 +283,18 @@ void IParam::GetBounds(double& lo, double& hi) const
 {
   lo = mMin;
   hi = mMax;
+}
+
+IParam::MetaData IParam::GetMetaData() const
+{
+    MetaData data;
+    
+    data.mParamUnit = mUnit;
+    data.mDisplayType = mShape->GetDisplayType();
+    data.mCustomUnit = mUnit == kUnitCustom ? mLabel : nullptr;
+    data.mMeta = mIsMeta;
+    
+    return data;
 }
 
 void IParam::GetJSON(WDL_String& json, int idx) const

@@ -13,12 +13,24 @@ class IParam
 public:
 
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
-
+  enum EParamUnit { kUnitFrequency, kUnitDB, kUnitSeconds, kUnitPercentage, kUnitCustom };
+  enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquare, kDisplaySqRoot, kDisplayCube, kDisplayCubeRoot };
+  
+  struct MetaData
+  {
+    EDisplayType mDisplayType;
+    EParamUnit mParamUnit;
+    const char* mCustomUnit = nullptr;
+    bool mMeta;
+  };
+  
   struct Shape
   {
     virtual ~Shape() {}
     
     virtual void Init(const IParam& param) {}
+    
+    virtual EDisplayType GetDisplayType() const { return kDisplayLinear; }
     
     virtual double NormalizedToValue(double value, const IParam& param) const
     {
@@ -30,7 +42,7 @@ public:
       return (value - param.mMin) / (param.mMax - param.mMin);
     }
   };
-
+  
   IParam();
   ~IParam() { delete mShape; };
 
@@ -50,11 +62,11 @@ public:
   /** Sets the parameter value
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
   void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
+  void SetToDefault() { mValue = mDefault; }
   void SetDisplayText(double value, const char* str);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
   void SetIsMeta(bool meta) { mIsMeta = meta; }
-  void SetToDefault() { mValue = mDefault; }
 
   // Call this if your param is (x, y) but you want to always display (-x, -y)
   void NegateDisplay() { mNegateDisplay = true; }
@@ -106,21 +118,21 @@ public:
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
   
-  double GetStep() const { return mStep; }
   double GetDefault() const { return mDefault; }
-  double GetDefaultNormalized() const { return ToNormalizedParam(mDefault); }
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
   void GetBounds(double& lo, double& hi) const;
   double GetRange() const { return mMax - mMin; }
-  int GetPrecision() const {return mDisplayPrecision;}
+  double GetStep() const { return mStep; }
+  int GetDisplayPrecision() const {return mDisplayPrecision;}
   bool GetCanAutomate() const { return mCanAutomate; }
-  bool GetIsMeta() const { return mIsMeta; }
+  MetaData GetMetaData() const;
   
   void GetJSON(WDL_String& json, int idx) const;
 private:
   
   EParamType mType = kTypeNone;
+  EParamUnit mUnit = kUnitCustom;
   double mValue = 0.0;
   double mMin = 0.0;
   double mMax = 1.0;
