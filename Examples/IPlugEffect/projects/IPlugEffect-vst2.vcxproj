@@ -332,7 +332,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugVST.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugVST2.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
@@ -412,7 +412,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugVST.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugVST2.cpp" />
     <ClCompile Include="..\IPlugEffect.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -59,7 +59,7 @@
     {
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
-      IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
+      IPlugVST2* pPlug = new PLUG_CLASS_NAME(instanceInfo);
 
       if (pPlug)
       {
