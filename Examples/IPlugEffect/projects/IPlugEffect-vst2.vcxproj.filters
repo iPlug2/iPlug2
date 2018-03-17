@@ -135,10 +135,10 @@
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VST_SDK\aeffectx.h">
+    <ClInclude Include="..\..\..\VST2_SDK\aeffectx.h">
       <Filter>IPlug\VST2</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VST_SDK\aeffect.h">
+    <ClInclude Include="..\..\..\VST2_SDK\aeffect.h">
       <Filter>IPlug\VST2</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugVST.h">

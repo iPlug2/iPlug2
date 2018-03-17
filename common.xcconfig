@@ -64,9 +64,10 @@ RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
 // Plug-in SDK paths
-VST3_SDK = $(ROOT)/VST3_SDK
-AAX_SDK = $(ROOT)/AAX_SDK
-CA_SDK = $(ROOT)/CA_SDK
+VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
+VST3_SDK = $(DEPS_PATH)/IPlug/VST3_SDK
+AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
+CA_SDK = $(DEPS_PATH)/IPlug/CA_SDK
 
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH)
