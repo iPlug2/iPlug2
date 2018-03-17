@@ -5,7 +5,6 @@
 #include "wdlstring.h"
 
 #include "IPlugUtilities.h"
-#include "IPlugEasing.h"
 
 /** IPlug's parameter class */
 class IParam
