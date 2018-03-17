@@ -164,31 +164,28 @@ struct ShapePowCurve : public IParam::Shape
   double mShape;
 };
 
-template <double OpForward(double), double OpReverse(double)>
-struct ShapeExpLog : public IParam::Shape
+struct ShapeExp : public IParam::Shape
 {
-  ShapeExpLog() : mMul(1.0), mAdd(1.0) {}
+  ShapeExp() : mMul(1.0), mAdd(1.0) {}
   
   void Init(const IParam& param) override
   {
-    mAdd = OpReverse(param.GetMin());
-    mMul = OpReverse(param.GetMax() / param.GetMin());
+    mAdd = std::log(param.GetMin());
+    mMul = std::log(param.GetMax() / param.GetMin());
   }
   
   double NormalizedToValue(double value, const IParam& param) const override
   {
-    return OpForward(mAdd + value * mMul);
+    return std::exp(mAdd + value * mMul);
   }
   
   virtual double ValueToNormalized(double value, const IParam& param) const override
   {
-    return (OpReverse(value) - mAdd) / mMul;
+    return (std::log(value) - mAdd) / mMul;
   }
   
   double mMul;
   double mAdd;
 };
 
-typedef ShapeExpLog<std::log, std::exp> ShapeLog;
-typedef ShapeExpLog<std::exp, std::log> ShapeExp;
 
