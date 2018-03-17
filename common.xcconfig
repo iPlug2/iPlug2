@@ -59,6 +59,7 @@ STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
+EXTRAS_PATH = $(IPLUG_PATH)/Extras
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
@@ -68,7 +69,7 @@ AAX_SDK = $(ROOT)/AAX_SDK
 CA_SDK = $(ROOT)/CA_SDK
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH)
 
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 
