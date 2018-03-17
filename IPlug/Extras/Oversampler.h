@@ -8,7 +8,7 @@
 
 using namespace hiir;
 
-template<typename sampleType>
+template<typename T>
 class OverSampler
 {
 public:
@@ -99,7 +99,7 @@ public:
    * @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate
    * @param mOverSamplingFactor A power of 2 oversampling factor or 0 for no oversampling
    * @return The audio sample output */
-  double Process(double input, std::function<sampleType(sampleType)> func)
+  double Process(double input, std::function<T(T)> func)
   {
     double output;
 
@@ -164,11 +164,11 @@ public:
     return output;
   }
 
-  double ProcessGen(std::function<sampleType()> genFunc)
+  double ProcessGen(std::function<T()> genFunc)
   {
-    auto ProcessDown16x = [&](sampleType input)
+    auto ProcessDown16x = [&](T input)
     {
-      mDown16x[mWritePos] = (sampleType) input;
+      mDown16x[mWritePos] = (T) input;
       
       mWritePos++;
       mWritePos &= 15;
@@ -184,7 +184,7 @@ public:
     
     auto ProcessDown8x = [&](double input)
     {
-      mDown8x[mWritePos] = (sampleType) input;
+      mDown8x[mWritePos] = (T) input;
       
       mWritePos++;
       mWritePos &= 7;
@@ -199,7 +199,7 @@ public:
     
     auto ProcessDown4x = [&](double input)
     {
-      mDown4x[mWritePos] = (sampleType) input;
+      mDown4x[mWritePos] = (T) input;
       
       mWritePos++;
       mWritePos &= 3;
@@ -213,7 +213,7 @@ public:
     
     auto ProcessDown2x = [&](double input)
     {
-      mDown2x[mWritePos] = (sampleType) input;
+      mDown2x[mWritePos] = (T) input;
       
       mWritePos = !mWritePos;
       
@@ -254,27 +254,27 @@ public:
 private:
   int mOverSamplingFactor = 1;
   int mWritePos;
-  sampleType mDownSamplerOutput = 0.;
+  T mDownSamplerOutput = 0.;
 
-  sampleType mUp16x[16] = {};
-  sampleType mUp8x[8] = {};
-  sampleType mUp4x[4] = {};
-  sampleType mUp2x[2] = {};
+  T mUp16x[16] = {};
+  T mUp8x[8] = {};
+  T mUp4x[4] = {};
+  T mUp2x[2] = {};
 
-  sampleType mDown16x[16] = {};
-  sampleType mDown8x[8] = {};
-  sampleType mDown4x[4] = {};
-  sampleType mDown2x[2] = {};
+  T mDown16x[16] = {};
+  T mDown8x[8] = {};
+  T mDown4x[4] = {};
+  T mDown2x[2] = {};
 
-  Upsampler2xFPU<12, sampleType> mUpsampler2x; // for 1x to 2x SR
+  Upsampler2xFPU<12, T> mUpsampler2x; // for 1x to 2x SR
   //TODO: these could be replaced by cheaper alternatives
-  Upsampler2xFPU<4, sampleType> mUpsampler4x;  // for 2x to 4x SR
-  Upsampler2xFPU<3, sampleType> mUpsampler8x;  // for 4x to 8x SR
-  Upsampler2xFPU<2, sampleType> mUpsampler16x; // for 8x to 16x SR
+  Upsampler2xFPU<4, T> mUpsampler4x;  // for 2x to 4x SR
+  Upsampler2xFPU<3, T> mUpsampler8x;  // for 4x to 8x SR
+  Upsampler2xFPU<2, T> mUpsampler16x; // for 8x to 16x SR
   
-  Downsampler2xFPU<12, sampleType> mDownsampler2x; // decimator for 2x to 1x SR
+  Downsampler2xFPU<12, T> mDownsampler2x; // decimator for 2x to 1x SR
   //TODO: these could be replaced by cheaper alternatives
-  Downsampler2xFPU<4, sampleType> mDownsampler4x;  // decimator for 4x to 2x SR
-  Downsampler2xFPU<3, sampleType> mDownsampler8x;  // decimator for 8x to 4x SR
-  Downsampler2xFPU<2, sampleType> mDownsampler16x; // decimator for 16x to 8x SR
+  Downsampler2xFPU<4, T> mDownsampler4x;  // decimator for 4x to 2x SR
+  Downsampler2xFPU<3, T> mDownsampler8x;  // decimator for 8x to 4x SR
+  Downsampler2xFPU<2, T> mDownsampler16x; // decimator for 16x to 8x SR
 };

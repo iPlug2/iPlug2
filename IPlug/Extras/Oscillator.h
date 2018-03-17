@@ -1,6 +1,6 @@
 #pragma once
 
-template <typename sampleType>
+template <typename T>
 class IOscillator
 {
 public:
@@ -10,7 +10,7 @@ public:
     SetFreqCPS(1.);
   }
 
-  virtual inline sampleType Process(double freqHz) = 0;
+  virtual inline T Process(double freqHz) = 0;
 
   inline void SetFreqCPS(double freqHz)
   {
@@ -29,25 +29,25 @@ public:
 
 protected:
   double mPhase = 0.;  // float phase (goes between 0. and 1.)
-  double mPhaseIncr = 0.; // how much to add to the phase on each sampleType
+  double mPhaseIncr = 0.; // how much to add to the phase on each T
   double mSampleRateReciprocal = 1./44100.;
   double mStartPhase;
 };
 
-template <typename sampleType>
-class SinOscillator : public IOscillator<sampleType>
+template <typename T>
+class SinOscillator : public IOscillator<T>
 {
 public:
   SinOscillator(double startPhase = 0.)
-  : IOscillator<sampleType>(startPhase)
+  : IOscillator<T>(startPhase)
   {
   }
 
-  virtual inline sampleType Process(double freqHz) override
+  virtual inline T Process(double freqHz) override
   {
-    IOscillator<sampleType>::SetFreqCPS(freqHz);
-    IOscillator<sampleType>::mPhase = IOscillator<sampleType>::mPhase + IOscillator<sampleType>::mPhaseIncr;
-    return std::sin(IOscillator<sampleType>::mPhase * PI * 2.);
+    IOscillator<T>::SetFreqCPS(freqHz);
+    IOscillator<T>::mPhase = IOscillator<T>::mPhase + IOscillator<T>::mPhaseIncr;
+    return std::sin(IOscillator<T>::mPhase * PI * 2.);
   }
 };
 
@@ -97,8 +97,8 @@ public:
 #define ALIGNED(x) __attribute__ ((aligned (x)))
 #endif
 
-template <typename sampleType>
-class FastSinOscillator : public IOscillator<sampleType>
+template <typename T>
+class FastSinOscillator : public IOscillator<T>
 {
   union tabfudge
   {
@@ -108,14 +108,14 @@ class FastSinOscillator : public IOscillator<sampleType>
 
 public:
   FastSinOscillator(double startPhase = 0.)
-  : IOscillator<sampleType>(startPhase)
+  : IOscillator<T>(startPhase)
   {
   }
 
   //todo rewrite this
-  inline sampleType Process(double freqCPS) override
+  inline T Process(double freqCPS) override
   {
-    IOscillator<sampleType>::SetFreqCPS(freqCPS);
+    IOscillator<T>::SetFreqCPS(freqCPS);
 
     double output = 0.;
     ProcessBlock(&output, 1);
@@ -123,10 +123,10 @@ public:
     return output;
   }
 
-  void ProcessBlock(sampleType* pOutput, int nFrames)
+  void ProcessBlock(T* pOutput, int nFrames)
   {
-    double phase = IOscillator<sampleType>::mPhase + (double) UNITBIT32;
-    const double phaseIncr = IOscillator<sampleType>::mPhaseIncr * tableSize;
+    double phase = IOscillator<T>::mPhase + (double) UNITBIT32;
+    const double phaseIncr = IOscillator<T>::mPhaseIncr * tableSize;
 
     union tabfudge tf;
     tf.d = UNITBIT32;
@@ -136,12 +136,12 @@ public:
     {
       tf.d = phase;
       phase += phaseIncr;
-      const sampleType* addr = mLUT + (tf.i[HIOFFSET] & tableSizeM1); // Obtain the integer portion
+      const T* addr = mLUT + (tf.i[HIOFFSET] & tableSizeM1); // Obtain the integer portion
       tf.i[HIOFFSET] = normhipart; // Force the double to wrap.
       const double frac = tf.d - UNITBIT32;
-      const sampleType f1 = addr[0];
-      const sampleType f2 = addr[1];
-      pOutput[s] = sampleType(f1 + frac * (f2 - f1));
+      const T f1 = addr[0];
+      const T f2 = addr[1];
+      pOutput[s] = T(f1 + frac * (f2 - f1));
     }
 
     // Restore mPhase
@@ -149,13 +149,13 @@ public:
     const int normhipart2 = tf.i[HIOFFSET];
     tf.d = phase + (UNITBIT32 * tableSize - UNITBIT32); // Remove the offset we introduced at the start of UNITBIT32.
     tf.i[HIOFFSET] = normhipart2;
-    IOscillator<sampleType>::mPhase = tf.d - UNITBIT32 * tableSize;
+    IOscillator<T>::mPhase = tf.d - UNITBIT32 * tableSize;
   }
 
 private:
   static const int tableSize = 512; // 2^9
   static const int tableSizeM1 = 511; // 2^9 -1
-  static const sampleType mLUT[513];
+  static const T mLUT[513];
 } ALIGNED(8);
 
 #include "Oscillator_table.h"

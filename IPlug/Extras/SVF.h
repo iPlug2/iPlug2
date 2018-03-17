@@ -8,7 +8,7 @@
 
 #define SVFMODES_VALIST "LowPass", "HighPass", "BandPass", "Notch", "Peak", "Bell", "LowPassShelf", "HighPassShelf"
 
-template<typename sampleType = double, int NC = 1>
+template<typename T = double, int NC = 1>
 class SVF
 {
 public:
@@ -39,7 +39,7 @@ public:
   void SetMode(EMode mode) { mNewState.mode = mode; }
   void SetSampleRate(double sampleRate) { mNewState.sampleRate = sampleRate; }
 
-  void ProcessBlock(sampleType** inputs, sampleType** outputs, int nChans, int nFrames)
+  void ProcessBlock(T** inputs, T** outputs, int nChans, int nFrames)
   {
     assert(nChans <= NC);
 
@@ -58,7 +58,7 @@ public:
         mIc1eq[c] = 2. * mV1[c] - mIc1eq[c];
         mIc2eq[c] = 2. * mV2[c] - mIc2eq[c];
 
-        outputs[c][s] = (sampleType) m_m0 * v0 + m_m1 * mV1[c] + m_m2 * mV2[c];
+        outputs[c][s] = (T) m_m0 * v0 + m_m1 * mV1[c] + m_m2 * mV2[c];
       }
     }
   }
