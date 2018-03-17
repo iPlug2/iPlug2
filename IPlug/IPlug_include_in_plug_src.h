@@ -4,12 +4,12 @@
     \brief IPlug source include
 
     Include this file in the main source for your plugin, after #including the main header for your plugin.
-    A preprocessor macro for a particular API such as VST_API should be defined at project level
+    A preprocessor macro for a particular API such as VST2_API should be defined at project level
     Depending on the API macro defined, a different entry point and helper methods are activated
 */
 #if defined OS_WIN
   HINSTANCE gHInstance = 0;
-  #if defined(VST_API) || defined(AAX_API)
+  #if defined(VST2_API) || defined(AAX_API)
   #ifdef __MINGW32__
   extern "C"
   #endif
@@ -52,14 +52,14 @@
   #error "No OS defined!"
 #endif
 
-#if defined VST_API
+#if defined VST2_API
   extern "C"
   {
     EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
     {
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
-      IPlugVST* pPlug = new PLUG_CLASS_NAME(instanceInfo);
+      IPlugVST2* pPlug = new PLUG_CLASS_NAME(instanceInfo);
 
       if (pPlug)
       {

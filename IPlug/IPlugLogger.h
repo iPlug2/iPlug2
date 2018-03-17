@@ -232,7 +232,7 @@
         }
       }
       
-#ifdef VST_API
+#ifdef VST2_API
       if(strstr(str, "effGetProgram") || strstr(str, "effEditGetRect") || strstr(funcName, "MouseOver"))
 #else
       if(strstr(funcName, "MouseOver") || strstr(funcName, "idle"))
@@ -260,7 +260,7 @@
     }
   }
 
-  #ifdef VST_API
+  #ifdef VST2_API
   #include "aeffectx.h"
   static const char* VSTOpcodeStr(int opCode)
   {

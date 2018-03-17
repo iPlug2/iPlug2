@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
@@ -35,9 +35,6 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugVST.cpp">
-      <Filter>IPlug\VST2</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST2\IPlugVST2.cpp">
+      <Filter>IPlug\VST2</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControls\IVMeterControl.cpp">
       <Filter>IGraphics</Filter>
@@ -138,15 +138,6 @@
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VST2_SDK\aeffectx.h">
-      <Filter>IPlug\VST2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VST2_SDK\aeffect.h">
-      <Filter>IPlug\VST2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugVST.h">
-      <Filter>IPlug\VST2</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -160,14 +151,14 @@
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVDropDownListControl.h">
-      <Filter>IGraphics</Filter>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffect.h">
+      <Filter>IPlug\VST2</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVKeyboardControl.h">
-      <Filter>IGraphics</Filter>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffectx.h">
+      <Filter>IPlug\VST2</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVMeterControl.h">
-      <Filter>IGraphics</Filter>
+    <ClInclude Include="..\..\..\IPlug\VST2\IPlugVST2.h">
+      <Filter>IPlug\VST2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

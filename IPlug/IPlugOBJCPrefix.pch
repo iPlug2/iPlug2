@@ -7,7 +7,7 @@
     #define OBJC_PREFIX vWDLOL
   #endif
 
-  #if defined(VST_API)
+  #if defined(VST2_API)
     #define API _vst
   #elif defined(AU_API)
     #define API _au

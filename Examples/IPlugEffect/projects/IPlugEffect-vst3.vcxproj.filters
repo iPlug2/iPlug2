@@ -450,9 +450,6 @@
     <ClInclude Include="..\..\..\VST3_SDK\public.sdk\source\vst\vstspeakerarray.h">
       <Filter>IPlug\VST3\public.sdk\vst</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugVST.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
