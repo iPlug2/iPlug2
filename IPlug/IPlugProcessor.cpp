@@ -12,8 +12,8 @@
 #define strtok_r strtok_s
 #endif
 
-template<typename sampleType>
-IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
+template<typename T>
+IPlugProcessor<T>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   : mLatency(c.latency)
   , mIsInstrument(c.plugIsInstrument)
   , mDoesMIDI(c.plugDoesMidi)
@@ -26,7 +26,7 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   mScratchData[kInput].Resize(totalNInChans);
   mScratchData[kOutput].Resize(totalNOutChans);
 
-  sampleType** ppInData = mScratchData[kInput].Get();
+  T** ppInData = mScratchData[kInput].Get();
 
   for (auto i = 0; i < totalNInChans; ++i, ++ppInData)
   {
@@ -36,7 +36,7 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
     mChannelData[kInput].Add(pInChannel);
   }
 
-  sampleType** ppOutData = mScratchData[kOutput].Get();
+  T** ppOutData = mScratchData[kOutput].Get();
 
   for (auto i = 0; i < totalNOutChans; ++i, ++ppOutData)
   {
@@ -48,8 +48,8 @@ IPlugProcessor<sampleType>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   }
 }
 
-template<typename sampleType>
-IPlugProcessor<sampleType>::~IPlugProcessor()
+template<typename T>
+IPlugProcessor<T>::~IPlugProcessor()
 {
   TRACE;
 
@@ -61,8 +61,8 @@ IPlugProcessor<sampleType>::~IPlugProcessor()
     DELETE_NULL(mLatencyDelay);
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::ProcessBlock(sampleType** inputs, sampleType** outputs, int nFrames)
+template<typename T>
+void IPlugProcessor<T>::ProcessBlock(T** inputs, T** outputs, int nFrames)
 {
   int i, nIn = mChannelData[kInput].GetSize(), nOut = mChannelData[kOutput].GetSize();
   int j = 0;
@@ -70,25 +70,25 @@ void IPlugProcessor<sampleType>::ProcessBlock(sampleType** inputs, sampleType** 
   {
     if (i < nIn)
     {
-      memcpy(outputs[i], inputs[i], nFrames * sizeof(sampleType));
+      memcpy(outputs[i], inputs[i], nFrames * sizeof(T));
       j++;
     }
   }
   // zero remaining outs
   for (/* same j */; j < nOut; ++j)
   {
-    memset(outputs[j], 0, nFrames * sizeof(sampleType));
+    memset(outputs[j], 0, nFrames * sizeof(T));
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::ProcessMidiMsg(const IMidiMsg& msg)
+template<typename T>
+void IPlugProcessor<T>::ProcessMidiMsg(const IMidiMsg& msg)
 {
   SendMidiMsg(msg);
 }
 
-template<typename sampleType>
-bool IPlugProcessor<sampleType>::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
+template<typename T>
+bool IPlugProcessor<T>::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 {
   bool rc = true;
   int n = msgs.GetSize();
@@ -99,8 +99,8 @@ bool IPlugProcessor<sampleType>::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   return rc;
 }
 
-template<typename sampleType>
-double IPlugProcessor<sampleType>::GetSamplesPerBeat() const
+template<typename T>
+double IPlugProcessor<T>::GetSamplesPerBeat() const
 {
   const double tempo = GetTempo();
 
@@ -112,8 +112,8 @@ double IPlugProcessor<sampleType>::GetSamplesPerBeat() const
 
 #pragma mark -
 
-template<typename sampleType>
-int IPlugProcessor<sampleType>::MaxNBuses(ERoute direction) const
+template<typename T>
+int IPlugProcessor<T>::MaxNBuses(ERoute direction) const
 {
   int maxNBuses = 0;
   //find the maximum channel count for each input or output bus
@@ -125,8 +125,8 @@ int IPlugProcessor<sampleType>::MaxNBuses(ERoute direction) const
   return maxNBuses;
 }
 
-template<typename sampleType>
-int IPlugProcessor<sampleType>::MaxNChannelsForBus(ERoute direction, int busIdx) const
+template<typename T>
+int IPlugProcessor<T>::MaxNChannelsForBus(ERoute direction, int busIdx) const
 {
   if(HasWildcardBus(direction))
     return -1;
@@ -147,8 +147,8 @@ int IPlugProcessor<sampleType>::MaxNChannelsForBus(ERoute direction, int busIdx)
   return maxChansOnBuses[busIdx];
 }
 
-template<typename sampleType>
-int IPlugProcessor<sampleType>::NChannelsConnected(ERoute direction) const
+template<typename T>
+int IPlugProcessor<T>::NChannelsConnected(ERoute direction) const
 {
   const WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
@@ -161,8 +161,8 @@ int IPlugProcessor<sampleType>::NChannelsConnected(ERoute direction) const
   return count;
 }
 
-template<typename sampleType>
-bool IPlugProcessor<sampleType>::LegalIO(int NInputChans, int NOutputChans) const
+template<typename T>
+bool IPlugProcessor<T>::LegalIO(int NInputChans, int NOutputChans) const
 {
   bool legal = false;
 
@@ -176,8 +176,8 @@ bool IPlugProcessor<sampleType>::LegalIO(int NInputChans, int NOutputChans) cons
   return legal;
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::LimitToStereoIO()
+template<typename T>
+void IPlugProcessor<T>::LimitToStereoIO()
 {
   if (MaxNChannels(ERoute::kInput) > 2)
     _SetChannelConnections(ERoute::kInput, 2, MaxNChannels(ERoute::kInput) - 2, false);
@@ -186,15 +186,15 @@ void IPlugProcessor<sampleType>::LimitToStereoIO()
     _SetChannelConnections(ERoute::kOutput, 2, MaxNChannels(ERoute::kOutput) - 2, true);
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased)
+template<typename T>
+void IPlugProcessor<T>::SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased)
 {
   if (idx >= 0 && idx < MaxNChannels(direction))
     mChannelData[direction].Get(idx)->mLabel.SetFormatted(MAX_CHAN_NAME_LEN, formatStr, idx+(!zeroBased));
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::SetLatency(int samples)
+template<typename T>
+void IPlugProcessor<T>::SetLatency(int samples)
 {
   mLatency = samples;
 
@@ -203,8 +203,8 @@ void IPlugProcessor<sampleType>::SetLatency(int samples)
 }
 
 //static
-template<typename sampleType>
-int IPlugProcessor<sampleType>::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
+template<typename T>
+int IPlugProcessor<T>::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
 {
   bool foundAWildcard = false;
   int IOConfigIndex = 0;
@@ -328,8 +328,8 @@ int IPlugProcessor<sampleType>::ParseChannelIOStr(const char* IOStr, WDL_PtrList
 
 #pragma mark -
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_SetChannelConnections(ERoute direction, int idx, int n, bool connected)
+template<typename T>
+void IPlugProcessor<T>::_SetChannelConnections(ERoute direction, int idx, int n, bool connected)
 {
   WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
@@ -345,8 +345,8 @@ void IPlugProcessor<sampleType>::_SetChannelConnections(ERoute direction, int id
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int)
+template<typename T>
+void IPlugProcessor<T>::_AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int)
 {
   WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
@@ -361,8 +361,8 @@ void IPlugProcessor<sampleType>::_AttachBuffers(ERoute direction, int idx, int n
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames)
+template<typename T>
+void IPlugProcessor<T>::_AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames)
 {
   WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];
 
@@ -389,17 +389,17 @@ void IPlugProcessor<sampleType>::_AttachBuffers(ERoute direction, int idx, int n
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
+template<typename T>
+void IPlugProcessor<T>::_PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
   if (mLatency && mLatencyDelay)
     mLatencyDelay->ProcessBlock(mScratchData[kInput].Get(), mScratchData[kOutput].Get(), nFrames);
   else
-    IPlugProcessor<sampleType>::ProcessBlock(mScratchData[kInput].Get(), mScratchData[kOutput].Get(), nFrames);
+    IPlugProcessor<T>::ProcessBlock(mScratchData[kInput].Get(), mScratchData[kOutput].Get(), nFrames);
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames)
+template<typename T>
+void IPlugProcessor<T>::_PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 {
   // for PLUG_SAMPLE_SRC bit buffers, first run the delay (if mLatency) on the PLUG_SAMPLE_DST IPlug buffers
   _PassThroughBuffers(PLUG_SAMPLE_DST(0.), nFrames);
@@ -417,14 +417,14 @@ void IPlugProcessor<sampleType>::_PassThroughBuffers(PLUG_SAMPLE_SRC type, int n
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames)
+template<typename T>
+void IPlugProcessor<T>::_ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
   ProcessBlock(mScratchData[kInput].Get(), mScratchData[kOutput].Get(), nFrames);
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
+template<typename T>
+void IPlugProcessor<T>::_ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 {
   ProcessBlock(mScratchData[kInput].Get(), mScratchData[kOutput].Get(), nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
@@ -441,8 +441,8 @@ void IPlugProcessor<sampleType>::_ProcessBuffers(PLUG_SAMPLE_SRC type, int nFram
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_ProcessBuffersAccumulating(int nFrames)
+template<typename T>
+void IPlugProcessor<T>::_ProcessBuffersAccumulating(int nFrames)
 {
   ProcessBlock(mScratchData[kInput].Get(), mScratchData[kOutput].Get(), nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
@@ -463,8 +463,8 @@ void IPlugProcessor<sampleType>::_ProcessBuffersAccumulating(int nFrames)
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_ZeroScratchBuffers()
+template<typename T>
+void IPlugProcessor<T>::_ZeroScratchBuffers()
 {
   int i, nIn = MaxNChannels(ERoute::kInput), nOut = MaxNChannels(ERoute::kOutput);
 
@@ -481,8 +481,8 @@ void IPlugProcessor<sampleType>::_ZeroScratchBuffers()
   }
 }
 
-template<typename sampleType>
-void IPlugProcessor<sampleType>::_SetBlockSize(int blockSize)
+template<typename T>
+void IPlugProcessor<T>::_SetBlockSize(int blockSize)
 {
   if (blockSize != mBlockSize)
   {

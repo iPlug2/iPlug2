@@ -38,7 +38,6 @@ public:
 
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHoriztonal, double scale) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, double targetScale) override;
-  IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, double targetScale) override;
   void ReleaseBitmap(IBitmap& bitmap) override;
   void RetainBitmap(IBitmap& bitmap, const char * cacheName) override;
 
@@ -84,6 +83,9 @@ protected:
   void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
 //  void OSLoadFont(const char* name, const int size) override;
 //  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
+    
+  inline void ClipRegion(const IRECT& r) override;
+  inline void ResetClipRegion() override;
 }
 
 #endif

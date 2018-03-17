@@ -303,16 +303,10 @@ const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 
 // Path related structures for patterns and fill/stroke options
 
-enum EFillRule { kFillEvenOdd, kFillWinding };
-enum ELineCap { kCapButt, kCapRound, kCapSquare };
-enum ELineJoin { kJoinMiter, kJoinRound, kJoinBevel };
-enum EPatternType { kSolidPattern, kLinearPattern, kRadialPattern };
-enum EPatternExtend { kExtendNone, kExtendPad, kExtendReflect, kExtendRepeat };
-
 struct IFillOptions
 {
   IFillOptions()
-  : mFillRule(kFillEvenOdd)
+  : mFillRule(kFillWinding)
   , mPreserve(false)
   {}
   
@@ -613,6 +607,11 @@ struct IRECT
     return *this;
   }
   
+  bool IsPixelAligned() const
+  {
+    return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+  }
+
   inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);

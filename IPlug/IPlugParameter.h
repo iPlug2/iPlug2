@@ -18,10 +18,16 @@ public:
 
   EParamType Type() const { return mType; }
 
-  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = ""); // LABEL not used here
-  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = ""); // LABEL not used here
+  void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
+  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeFunc shapeFunc = ShapeFuncLinear);
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", double shape = 1., IShapeConvertor shapeConvertor = IShapeConvertor());
+
+  void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, const char* group = "");
+  void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, const char* group = "");
+  void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, const char* group = "");
+  void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, const char* group = "");
+  void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., const char* group = "");
 
   /** Sets the parameter value
    * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
@@ -61,12 +67,12 @@ public:
 
   inline double ToNormalizedParam(double nonNormalizedValue) const
   {
-    return mShapeFunc((nonNormalizedValue - mMin) / (mMax - mMin), mShape, false);
+    return mShapeConvertor.mValueToNormalized(nonNormalizedValue, mMin, mMax, mShape);
   }
   
   inline double FromNormalizedParam(double normalizedValue) const
   {
-    return mMin + mShapeFunc(normalizedValue, mShape, true) * (mMax - mMin);
+    return mShapeConvertor.mNormalizedToValue(normalizedValue, mMin, mMax, mShape);
   }
   
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
@@ -113,7 +119,7 @@ private:
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
-  IShapeFunc mShapeFunc = ShapeFuncLinear;
+  IShapeConvertor mShapeConvertor;
   
   struct DisplayText
   {

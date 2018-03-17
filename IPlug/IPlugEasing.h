@@ -7,6 +7,7 @@
  */
 
 
+#include "IPlugStructs.h"
 #include <math.h>
 
 // line y = x
@@ -335,13 +336,16 @@ TYPE IEaseBounceInOut(TYPE x)
   }
 }
 
-static double ShapeFuncLinear(double x, double c, bool inputIsNormalized)
+static IShapeConvertor ShapePowCurve()
 {
-  return x;
-}
+  struct normalizedToValue { double operator()(double x, double min, double max, double shape) { return min + std::pow(x, shape) * (max - min); } };
+  struct valueToNormalized { double operator()(double x, double min, double max, double shape) { return  std::pow((x - min) / (max - min), 1.0 / shape); } };
+    
+  IShapeConvertor convertor;
+    
+  convertor.mNormalizedToValue = normalizedToValue();
+  convertor.mNormalizedToValue = valueToNormalized();
 
-static double ShapeFuncPowCurve(double x, double c, bool inputIsNormalized)
-{
-  return std::pow(x, 1.0 / c);
+  return convertor;
 }
 

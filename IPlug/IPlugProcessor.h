@@ -19,8 +19,7 @@
 struct IPlugConfig;
 
 /** The base class for IPlug Audio Processing. It knows nothing about presets or parameters or user interface.  */
-
-template<typename sampleType>
+template<typename T>
 class IPlugProcessor
 {
 public:
@@ -37,7 +36,7 @@ public:
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
-  virtual void ProcessBlock(sampleType** inputs, sampleType** outputs, int nFrames);
+  virtual void ProcessBlock(T** inputs, T** outputs, int nFrames);
 
   /** Override this method to handle incoming MIDI messages. The method is called prior to ProcessBlock().
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
@@ -130,7 +129,7 @@ public:
    * @return return The maximum number of channels on that bus */
   int MaxNChannelsForBus(ERoute direction, int busIdx) const;
 
-  /** Check if we have any wildcard characters in the channel io configs
+  /** Check if we have any wildcard characters in the channel I/O configs
    * @param direction Return input or output bus count
    * @return \c true if the bus has a wildcard, meaning it should work on any number of channels */
   bool HasWildcardBus(ERoute direction) const { return mIOConfigs.Get(0)->ContainsWildcard(direction); } // \todo only supports a single I/O config
@@ -145,8 +144,16 @@ public:
   bool IsChannelConnected(ERoute direction, int chIdx) const { return (chIdx < mChannelData[direction].GetSize() && mChannelData[direction].Get(chIdx)->mConnected); }
 
   /** @param direction Whether you want to test inputs or outputs
-   * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections*/
+   * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections */
   int NChannelsConnected(ERoute direction) const;
+  
+  /** Convienience method to find out how many input channels are connected
+   * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
+  inline int NInChansConnected() { return NChannelsConnected(ERoute::kInput); }
+  
+  /** Convienience method to find out how many output channels are connected
+   * @return The number of channels connected for output. WARNING: this assumes consecutive channel connections */
+  inline int NOutChansConnected() { return NChannelsConnected(ERoute::kOutput); }
 
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
@@ -154,7 +161,7 @@ public:
    * @return \c true if the configurations is valid */
   bool LegalIO(int NInputChans, int NOutputChans) const; //TODO: this should be updated
 
-  /** @return \c true if this plug-in has a side-chain input, which may not necessarily be active in the current io config */
+  /** @return \c true if this plug-in has a side-chain input, which may not necessarily be active in the current I/O config */
   bool HasSidechainInput() const { return MaxNBuses(ERoute::kInput) > 1; }
 
   /** @return The number of channels and the side-chain input \todo this will change */
@@ -196,9 +203,9 @@ public:
    * @param channelIOList A list of pointers to ChannelIO structs, where we will store here
    * @param totalNInChans The total number of input channels across all buses will be stored here
    * @param totalNOutChans The total number of output channels across all buses will be stored here
-   * @param totalNInBuses The total number of input buses across all channel io configs will be stored here
-   * @param totalNOutBuses The total number of output buses across all channel io configs will be stored here
-   * @return The number of space separated channel io configs that have been detected in IOStr */
+   * @param totalNInBuses The total number of input buses across all channel I/O configs will be stored here
+   * @param totalNOutBuses The total number of output buses across all channel I/O configs will be stored here
+   * @return The number of space separated channel I/O configs that have been detected in IOStr */
   static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
 
 protected:
@@ -243,15 +250,15 @@ private:
   bool mRenderingOffline = false;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
-  /* The data to use as a scratch buffers for audio input/output */
-  WDL_TypedBuf<sampleType*> mScratchData[2];
+  /* Manages pointers to the actual data for each channel */
+  WDL_TypedBuf<T*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
   /** Pointer to a multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
-  NChanDelayLine<sampleType>* mLatencyDelay = nullptr;
+  NChanDelayLine<T>* mLatencyDelay = nullptr;
 };
 
 #include "IPlugProcessor.cpp"

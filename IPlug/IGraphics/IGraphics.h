@@ -170,6 +170,24 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
+  /** Draw an ellipse within a rectangular region of the graphics context
+   * @param color The color to draw the shape with
+   * @param bounds The rectangular region to draw the shape in
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) {};
+  
+  /** Draw an ellipse within a rectangular region of the graphics context
+   * @param color The color to draw the shape with
+   * @param x The X coordinate in the graphics context of the centre of the ellipse
+   * @param y The Y coordinate in the graphics context of the centre of the ellipse
+   * @param r1 \todo
+   * @param r2 \todo
+   * @param angle \todo
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0, float thickness = 1.f) {};
+
   /** Draw a convex polygon to the graphics to the graphics context
    * @param color The color to draw the shape with
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
@@ -218,6 +236,22 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
 
+  /** Fill an ellipse within a rectangular region of the graphics context
+   * @param color The color to fill the shape with
+   * @param bounds The rectangular region to fill the shape in
+   * @param pBlend Optional blend method, see IBlend documentation */
+  virtual void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) {};
+  
+  /** Fill an ellipse in the graphics context
+   * @param color The color to draw the shape with
+   * @param x The X coordinate in the graphics context of the centre of the ellipse
+   * @param y The Y coordinate in the graphics context of the centre of the ellipse
+   * @param r1 \todo
+   * @param r2 \todo
+   * @param angle \todo
+   * @param pBlend Optional blend method, see IBlend documentation */
+  virtual void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0) {};
+  
   /** Fill an arc segment in the graphics context with a color
    * @param color The color to fill the shape with
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
@@ -274,7 +308,6 @@ public:
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
-  //virtual IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale) = 0;
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
@@ -377,9 +410,12 @@ public:
 
   virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
   virtual void PathRect(const IRECT& bounds) {}
+  virtual void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) {}
   virtual void PathRoundRect(const IRECT& bounds, float cr = 5.f) {}
   virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
   virtual void PathCircle(float cx, float cy, float r) {}
+  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) {}
+  virtual void PathEllipse(const IRECT& bounds) {}
   virtual void PathConvexPolygon(float* x, float* y, int nPoints) {}
   
   virtual void PathMoveTo(float x, float y) {}

@@ -15,6 +15,30 @@
 #include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
+template <class SpanGeneratorType>
+class alpha_span_generator : public SpanGeneratorType
+{
+public:
+  
+  alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
+  : SpanGeneratorType(source, interpolator), alpha(a) {}
+  
+  void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
+  {
+    SpanGeneratorType::generate(span, x, y, len);
+    
+    if (alpha != 255)
+    {
+      for (unsigned i = 0; i < len; i++, span++)
+        span->a = (span->a * alpha + SpanGeneratorType::base_mask) >> SpanGeneratorType::base_shift;
+    }
+  }
+  
+private:
+  
+  agg::cover_type alpha;
+};
+
 class AGGBitmap : public APIBitmap
 {
 public:
@@ -54,7 +78,9 @@ public:
   typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
   typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
+  typedef alpha_span_generator<SpanGeneratorType> SpanAlphaGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
+  typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, alpha_span_generator<SpanGeneratorType> > BitmapAlphaRenderType;
 
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
 
@@ -65,10 +91,10 @@ public:
   typedef agg::conv_stroke<CurvedPathType> StrokeType;
   typedef agg::conv_dash<CurvedPathType> DashType;
   typedef agg::conv_stroke<DashType> DashStrokeType;
-  typedef agg::conv_transform<PathType> TransformedPathType;
-  typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
-  typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
-  typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
+  //typedef agg::conv_transform<PathType> TransformedPathType;
+  //typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
+  //typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
+  //typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
   typedef agg::rasterizer_scanline_aa<> RasterizerType;
   typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
 
@@ -82,9 +108,10 @@ public:
 
     void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
 
-    void SetOutput(PixfmtType& pixF)
+    void SetOutput(agg::rendering_buffer& renBuf)
     {
-      mRenBase = RenbaseType(pixF);
+      mPixf = PixfmtType(renBuf);
+      mRenBase = RenbaseType(mPixf);
       mRenBase.clear(agg::rgba(0, 0, 0, 0));
     }
 
@@ -96,10 +123,18 @@ public:
     }
 
     template <typename RendererType>
-    void Rasterize(RendererType& renderer, float alpha = 1.f)
+    void Rasterize(RendererType& renderer, agg::comp_op_e op)
     {
       agg::scanline_p8 scanline;
+      mPixf.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
+    }
+    
+    void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
+    {
+      mPixf.comp_op(op);
+      agg::rect_i r(srcX, srcY, srcX + bounds.W(), srcY + bounds.H());
+      mRenBase.blend_from(PixfmtType(renBuf), &r, bounds.L - srcX, bounds.T - srcY, cover);
     }
 
     template <typename VertexSourceType>
@@ -112,6 +147,7 @@ public:
     void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
 
     RenbaseType mRenBase;
+    PixfmtType mPixf;
     RasterizerType mRasterizer;
   };
 
@@ -131,9 +167,9 @@ public:
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
 
-  void PathMoveTo(float x, float y) override { mPath.move_to(x, y); }
-  void PathLineTo(float x, float y) override { mPath.line_to(x, y);}
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { mPath.curve4(x1, y1, x2, y2, x3, y3); }
+  void PathMoveTo(float x, float y) override;
+  void PathLineTo(float x, float y) override;
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
@@ -147,7 +183,7 @@ public:
   }
 
   void PathTransformTranslate(float x, float y) override { mTransform = agg::trans_affine_translation(x, y) * mTransform; }
-  void PathTransformScale(float scale) override { mTransform = agg::trans_affine_scaling(scale) * mTransform; }
+  void PathTransformScale(float scaleX, float scaleY) override { mTransform = agg::trans_affine_scaling(scaleX, scaleY) * mTransform; }
   void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) override;
@@ -157,7 +193,6 @@ public:
   void* GetData() override { return 0; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
- // IBitmap CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* cacheName, int scale) override;
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
   void RenderDrawBitmap() override;
@@ -172,7 +207,6 @@ private:
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
 
-  PixfmtType mPixf;
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;

@@ -470,7 +470,7 @@ void IGraphics::Draw(const IRECT& bounds)
       IControl* pControl = *ppControl;
       if (!(pControl->IsHidden()) && bounds.Intersects(pControl->GetRECT()))
       {
-        ClipRegion(mDrawRECT);
+        ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
         pControl->Draw(*this);
 
 #ifdef AAX_API
@@ -493,7 +493,7 @@ void IGraphics::Draw(const IRECT& bounds)
         IControl* pControl2 = mControls.Get(j);
         if (!j || !(pControl2->IsHidden()))
         {
-          ClipRegion(pControl2->GetRECT());
+          ClipRegion(mDrawRECT.Intersect(pControl2->GetRECT()));
           pControl2->Draw(*this);
 
 #ifdef AAX_API
@@ -520,7 +520,7 @@ void IGraphics::Draw(const IRECT& bounds)
             // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
             if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT().Intersects(mDrawRECT)))
             {
-              ClipRegion(mDrawRECT);
+              ClipRegion(mDrawRECT.Intersect(pControl2->GetRECT()));
               pControl2->Draw(*this);
 
 #ifdef AAX_API

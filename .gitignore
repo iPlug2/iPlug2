@@ -21,11 +21,10 @@
 build-*
 
 _*
-VST3_SDK/*
-VST_SDK/*
-AAX_SDK/*
-ASIO_SDK/*
-CA_SDK/*
+Dependencies/IPlug/VST3_SDK/*
+Dependencies/IPlug/VST2_SDK/*
+Dependencies/IPlug/AAX_SDK/*
+# Dependencies/IPlug/CA_SDK/*
 
 Icon?
 .DS_Stor*
@@ -44,9 +43,5 @@ Ports/*
 *.db-shm
 *.db-wal
 *.opendb
-IPlug/IGraphics/AGG/agg*
-/IPlug/IGraphics/NanoVG
-/IPlug/IGraphics/MetalNanoVG
-/Dependencies/IGraphics/install
-/Dependencies/IGraphics/build.log
-/Dependencies/IGraphics/build
+/Dependencies/IGraphics/Libs
+/Dependencies/IGraphics/Libs

@@ -26,13 +26,15 @@ spin() {
     printf "    \b\b\b\b"
 }
 
+cd "${0%/*}"
 
-BUILD_LOCATION="$PWD/build"
-INSTALL_LOCATION="$PWD/install"
+BASE_LOCATION="$PWD/Libs"
+BUILD_LOCATION="$BASE_LOCATION/build-mac"
+INSTALL_LOCATION="$BASE_LOCATION/install"
 INCLUDE_PATH="$INSTALL_LOCATION/include"
 LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
-LOG_PATH="$PWD"
+LOG_PATH="$BASE_LOCATION"
 
 ##echo "CFLAGS $CFLAGS"
 
@@ -44,6 +46,11 @@ echo "     please relax and have a cup of tea, it'll take a while..."
 echo
 echo "###################################################################################"
 echo
+
+if [ ! -d "$BASE_LOCATION" ]
+then
+  mkdir "$BASE_LOCATION"
+fi
 
 if [ ! -d "$BUILD_LOCATION" ]
 then

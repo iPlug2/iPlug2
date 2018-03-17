@@ -96,6 +96,18 @@ public:
     PathRect(bounds);
     PathStroke(color, thickness, options, pBlend);
   }
+  
+  void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override
+  {
+    PathEllipse(bounds);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
+  
+  void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override
+  {
+    PathEllipse(x, y, r1, r2, angle);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
 
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override
   {
@@ -134,6 +146,18 @@ public:
     PathCircle(cx, cy, r);
     PathFill(color, IFillOptions(), pBlend);
   }
+  
+  void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override
+  {
+    PathEllipse(bounds);
+    PathFill(color, IFillOptions(), pBlend);
+  }
+  
+  void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override
+  {
+    PathEllipse(x, y, r1, r2, angle);
+    PathFill(color, IFillOptions(), pBlend);
+  }
 
   bool HasPathSupport() const override { return true; }
   
@@ -154,15 +178,41 @@ public:
     PathClose();
   }
   
-  void PathRoundRect(const IRECT& bounds, float cr) override
+  void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) override
   {
     const double y = bounds.B - bounds.H();
-    PathMoveTo(bounds.L, y + cr);
-    PathArc(bounds.L + cr, y + cr, cr, 180.0, 270.0);
-    PathArc(bounds.L + bounds.W() - cr, y + cr, cr, 270.0, 360.0);
-    PathArc(bounds.L + bounds.W() - cr, y + bounds.H() - cr, cr, 0.0, 90.0);
-    PathArc(bounds.L + cr, y + bounds.H() - cr, cr, 90.0, 180.0);
+    PathMoveTo(bounds.L, y + ctl);
+    PathArc(bounds.L + ctl, y + ctl, ctl, 180.0, 270.0);
+    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 270.0, 360.0);
+    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 0.0, 90.0);
+    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 90.0, 180.0);
     PathClose();
+  }
+  
+  void PathRoundRect(const IRECT& bounds, float cr) override
+  {
+    PathRoundRect(bounds, cr, cr, cr, cr);
+  }
+  
+  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
+  {
+    PathStateSave();
+    
+    if (r1 <= 0.0 || r2 <= 0.0)
+      return;
+    
+    PathTransformTranslate(x, y);
+    PathTransformRotate(angle);
+    PathTransformScale(r1, r2);
+    
+    PathCircle(0.0, 0.0, 1.0);
+    
+    PathStateRestore();
+  }
+  
+  void PathEllipse(const IRECT& bounds) override
+  {
+    PathEllipse(bounds.MW(), bounds.MH(), bounds.W() / 2.f, bounds.H() / 2.f);
   }
   
   void PathCircle(float cx, float cy, float r) override
@@ -184,8 +234,10 @@ public:
   virtual void PathStateRestore() = 0;
   
   virtual void PathTransformTranslate(float x, float y) = 0;
-  virtual void PathTransformScale(float scale) = 0;
+  virtual void PathTransformScale(float scaleX, float scaleY) = 0;
   virtual void PathTransformRotate(float angle) = 0;
+  
+  void PathTransformScale(float scale) { PathTransformScale(scale, scale); }
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {

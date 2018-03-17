@@ -19,7 +19,7 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const double gain = GetParam(kGain)->Value() / 100.;
   LEAVE_PARAMS_MUTEX;
   
-  const int nChans = NChannelsConnected(ERoute::kOutput);
+  const int nChans = NOutChansConnected();
   
   for (auto s = 0; s < nFrames; s++) {
     for (auto c = 0; c < nChans; c++) {

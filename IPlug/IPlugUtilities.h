@@ -287,3 +287,22 @@ static void GetHostNameStr(EHost host, char* pHostName)
       break;
   }
 }
+
+static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false/*, bool middleCisC4 = false*/)
+{
+  static const char noteNames[12][3] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
+  
+  int midiPitchR = (int) std::round(midiPitch);
+  int pitchClass = midiPitchR % 12;
+  int octave = (midiPitchR / 12) - 2;
+  
+  if (cents)
+  {
+    double frac = (midiPitch - (float) midiPitchR) * 100.;
+    noteName.SetFormatted(32, "%s%i %.0f", noteNames[pitchClass], octave, frac);
+  }
+  else
+  {
+    noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
+  }
+}

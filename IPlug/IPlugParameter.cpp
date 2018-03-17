@@ -10,21 +10,32 @@ IParam::IParam()
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
 };
 
-void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group)
+void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group, const char* offText, const char* onText)
 {
   if (mType == kTypeNone) mType = kTypeBool;
   
   InitEnum(name, (defaultVal ? 1 : 0), 2, label, group);
 
-  SetDisplayText(0, "off");
-  SetDisplayText(1, "on");
+  SetDisplayText(0, offText);
+  SetDisplayText(1, onText);
 }
 
-void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, const char* group)
+void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, const char* group, const char* listItems, ...)
 {
   if (mType == kTypeNone) mType = kTypeEnum;
   
   InitInt(name, defaultVal, 0, nEnums - 1, label, group);
+  
+  if(listItems)
+  {
+    SetDisplayText(0, listItems);
+
+    va_list args;
+    va_start(args, listItems);
+    for (auto i = 1; i < nEnums; ++i)
+      SetDisplayText(i, va_arg(args, const char*));
+    va_end(args);
+  }
 }
 
 void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label, const char* group)
@@ -34,7 +45,7 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeFunc shapeFunc)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeConvertor shapeConvertor)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -56,10 +67,42 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   
   SetShape(shape);
   
-  if(shape != 1.) // TODO: this assumes any param with shape != .1 is using ShapeFuncPowCurve
-    mShapeFunc = ShapeFuncPowCurve;
-  else
-    mShapeFunc = shapeFunc;
+  if (shape != 1.0) // TODO: this assumes any param with shape != .1 is using ShapeFuncPowCurve
+    mShapeConvertor = ShapePowCurve();
+}
+
+void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group);
+  //TODO: shape
+}
+
+void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group);
+  //TODO: shape
+}
+
+void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, const char *group)
+{
+  int nItems = maxVal - minVal;
+  InitEnum(name, defaultVal, nItems, "", group);
+  WDL_String displayText;
+  for (auto i = 0; i < nItems; i++)
+  {
+    MidiNoteName(minVal + i, displayText);
+    SetDisplayText(i, displayText.Get());
+  }
+}
+
+void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group);
+}
+
+void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group);
 }
 
 void IParam::SetShape(double shape)
@@ -275,3 +318,5 @@ void IParam::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "\"rate\":\"audio\"");
   json.AppendFormatted(8192, "}");
 }
+
+

@@ -50,19 +50,6 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
     
   return new LICEBitmap(pDest, scale);
 }
-/*
-IBitmap IGraphicsLice::CropBitmap(const IBitmap& bitmap, const IRECT& bounds, const char* name, int targetScale)
-{
-  int destW = bounds.W(), destH = bounds.H();
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) bitmap.mAPIBitmap->GetBitmap();
-  LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  LICE_Blit(pDest, pSrc, 0, 0, bounds.L, bounds.T, destW, destH, 1.0f, LICE_BLIT_MODE_COPY);
-  
-  IBitmap bmp(pDest, destW, destH, bitmap.N, bitmap.mFramesAreHorizontal, targetScale, bitmap.mSourceScale, name);
-  s_bitmapCache.Add((LICE_IBitmap*) bmp.mData, name, targetScale);
-  return bmp;
-}
-*/
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {

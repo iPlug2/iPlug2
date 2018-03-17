@@ -78,3 +78,38 @@ enum EVColor
   kX3,     // extra3
   kNumDefaultVColors
 };
+
+enum EFillRule
+{
+  kFillWinding,
+  kFillEvenOdd
+};
+
+enum ELineCap
+{
+  kCapButt,
+  kCapRound,
+  kCapSquare
+};
+
+enum ELineJoin
+{
+  kJoinMiter,
+  kJoinRound,
+  kJoinBevel
+};
+
+enum EPatternType
+{
+  kSolidPattern,
+  kLinearPattern,
+  kRadialPattern
+};
+
+enum EPatternExtend
+{
+  kExtendNone,
+  kExtendPad,
+  kExtendReflect,
+  kExtendRepeat
+};
