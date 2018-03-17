@@ -5,7 +5,6 @@
 #include "wdlstring.h"
 
 #include "IPlugUtilities.h"
-#include "IPlugEasing.h"
 
 /** IPlug's parameter class */
 class IParam
@@ -13,8 +12,8 @@ class IParam
 public:
 
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
-  enum EParamUnit { kUnitFrequency, kUnitDB, kUnitSeconds, kUnitPercentage, kUnitCustom };
-  enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquare, kDisplaySqRoot, kDisplayCube, kDisplayCubeRoot };
+  enum EParamUnit { kUnitPercentage, kUnitSeconds, kUnitMilliseconds, kUnitSamples, kUnitDB, kUnitLinearGain, kUnitPan, kUnitPhase, kUnitDegrees, kUnitMeters, kUnitRate, kUnitRatio, kUnitFrequency, kUnitOctaves, kUnitCents, kUnitAbsCents, kUnitSemitones, kUnitMIDINote, kUnitMIDICtrlNum, kUnitBPM, kUnitBeats, kUnitCustom };
+  enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquared, kDisplaySquareRoot, kDisplayCubed, kDisplayCubeRoot };
   
   struct MetaData
   {
@@ -167,6 +166,20 @@ struct ShapePowCurve : public IParam::Shape
 {
   ShapePowCurve(double shape) : mShape(shape) {}
   
+  IParam::EDisplayType GetDisplayType() const override
+  {
+    if (mShape > 2.5)
+      return IParam::kDisplayCubeRoot;
+    if (mShape > 1.5)
+      return IParam::kDisplaySquareRoot;
+    if (mShape < (2.0 / 5.0))
+      return IParam::kDisplayCubed;
+    if (mShape < (2.0 / 3.0))
+      return IParam::kDisplaySquared;
+
+    return IParam::kDisplayLinear;
+  }
+                    
   double NormalizedToValue(double value, const IParam& param) const override
   {
     return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
@@ -188,6 +201,11 @@ struct ShapeExp : public IParam::Shape
   {
     mAdd = std::log(param.GetMin());
     mMul = std::log(param.GetMax() / param.GetMin());
+  }
+  
+  IParam::EDisplayType GetDisplayType() const override
+  {
+    return IParam::kDisplayLog;
   }
   
   double NormalizedToValue(double value, const IParam& param) const override
