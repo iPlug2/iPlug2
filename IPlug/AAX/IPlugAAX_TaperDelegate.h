@@ -32,25 +32,25 @@ AAX_CIPlugTaperDelegate<T>::AAX_CIPlugTaperDelegate(IParam& iParam):AAX_ITaperDe
 }
 
 template <typename T>
-AAX_CIPlugTaperDelegate<T>*   AAX_CIPlugTaperDelegate<T>::Clone() const
+AAX_CIPlugTaperDelegate<T>* AAX_CIPlugTaperDelegate<T>::Clone() const
 {
   return new AAX_CIPlugTaperDelegate(*this);
 }
 
 template <typename T>
-T   AAX_CIPlugTaperDelegate<T>::ConstrainRealValue(T value) const
+T AAX_CIPlugTaperDelegate<T>::ConstrainRealValue(T value) const
 {
   return mParam.Clamp(value);
 }
 
 template <typename T>
-T   AAX_CIPlugTaperDelegate<T>::NormalizedToReal(double normalizedValue) const
+T AAX_CIPlugTaperDelegate<T>::NormalizedToReal(double normalizedValue) const
 {
-  return mParam.Clamp(mParam.GetNonNormalized(normalizedValue));
+  return mParam.Clamp(mParam.FromNormalized(normalizedValue));
 }
 
 template <typename T>
-double  AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
+double AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
 {
-  return mParam.GetNormalized(realValue);
+  return mParam.ToNormalized(realValue);
 }

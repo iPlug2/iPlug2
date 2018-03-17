@@ -52,7 +52,7 @@ public:
     UString(info.title, str16BufferSize(String128)).assign(pParam->GetNameForHost());
     UString(info.units, str16BufferSize(String128)).assign(pParam->GetLabelForHost());
     
-    precision = pParam->GetPrecision();
+    precision = pParam->GetDisplayPrecision();
     
     if (pParam->Type() != IParam::kTypeDouble)
       info.stepCount = pParam->GetRange();
@@ -66,7 +66,7 @@ public:
       flags |= ParameterInfo::kCanAutomate;
     }
     
-    info.defaultNormalizedValue = valueNormalized = pParam->(ToNormalized(pParam->GetDefaultNormalized));
+    info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());
     info.flags = flags;
     info.id = tag;
     info.unitId = unitID;
@@ -82,19 +82,19 @@ public:
   virtual bool fromString(const TChar* string, ParamValue& valueNormalized) const override
   {
     String str((TChar*)string);
-    valueNormalized = mIPlugParam->GetNormalized(atof(str.text8()));
+    valueNormalized = mIPlugParam->ToNormalized(atof(str.text8()));
     
     return true;
   }
   
   virtual Steinberg::Vst::ParamValue toPlain(ParamValue valueNormalized) const override
   {
-    return mIPlugParam->GetNonNormalized(valueNormalized);
+    return mIPlugParam->FromNormalized(valueNormalized);
   }
   
   virtual Steinberg::Vst::ParamValue toNormalized(ParamValue plainValue) const override
   {
-    return mIPlugParam->GetNormalized(valueNormalized);
+    return mIPlugParam->ToNormalized(valueNormalized);
   }
   
   OBJ_METHODS(IPlugVST3Parameter, Parameter)
@@ -633,7 +633,7 @@ ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue 
   ENTER_PARAMS_MUTEX;
   IParam* pParam = GetParam(tag);
   if (pParam)
-    plainValue = pParam->GetNormalized(plainValue);
+    plainValue = pParam->ToNormalized(plainValue);
   LEAVE_PARAMS_MUTEX;
 
   return plainValue;
