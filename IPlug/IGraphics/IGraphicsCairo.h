@@ -65,18 +65,6 @@ public:
 
   void SetPlatformContext(void* pContext) override;
 
-  inline void ClipRegion(const IRECT& r) override
-  {
-    PathClear();
-    PathRect(r);
-    cairo_clip(mContext);
-  }
-
-  inline void ResetClipRegion() override
-  {
-    cairo_reset_clip(mContext);
-  }
-
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
@@ -85,6 +73,20 @@ protected:
   void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
   
 private:
+  
+  void ClipRegion(const IRECT& r) override
+  {
+    cairo_reset_clip(mContext);
+    PathClear();
+    PathRect(r);
+    cairo_clip(mContext);
+  }
+  
+  void ResetClipRegion() override
+  {
+    cairo_reset_clip(mContext);
+  }
+  
   cairo_t* mContext;
   cairo_surface_t* mSurface;
 };

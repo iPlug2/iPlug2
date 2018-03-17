@@ -7,33 +7,32 @@
  */
 
 
-#include "IPlugStructs.h"
 #include <math.h>
 
 // line y = x
-template<class TYPE>
-TYPE IEaseLinear(TYPE x)
+template<class T>
+T IEaseLinear(T x)
 {
   return x;
 }
 
 // line y = x ^ 1/c;
-template<class TYPE>
-TYPE IEasePowCurve(TYPE x, TYPE c)
+template<class T>
+T IEasePowCurve(T x, T c)
 {
   return std::pow(x, 1.0 / c);
 }
 
 // parabola y = x^2
-template<class TYPE>
-TYPE IEaseQuadraticIn(TYPE x)
+template<class T>
+T IEaseQuadraticIn(T x)
 {
   return x * x;
 }
 
 // parabola y = -x^2 + 2x
-template<class TYPE>
-TYPE IEaseQuadraticOut(TYPE x)
+template<class T>
+T IEaseQuadraticOut(T x)
 {
   return -(x * (x - 2));
 }
@@ -41,8 +40,8 @@ TYPE IEaseQuadraticOut(TYPE x)
 // piecewise quadratic
 // y = (1/2)((2x)^2)             ; [0, 0.5)
 // y = -(1/2)((2x-1)*(2x-3) - 1) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseQuadraticInOut(TYPE x)
+template<class T>
+T IEaseQuadraticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -55,25 +54,25 @@ TYPE IEaseQuadraticInOut(TYPE x)
 }
 
 // cubic y = x^3
-template<class TYPE>
-TYPE IEaseCubicIn(TYPE x)
+template<class T>
+T IEaseCubicIn(T x)
 {
   return x * x * x;
 }
 
 // cubic y = (x - 1)^3 + 1
-template<class TYPE>
-TYPE IEaseCubicOut(TYPE x)
+template<class T>
+T IEaseCubicOut(T x)
 {
-  TYPE f = (x - 1);
+  T f = (x - 1);
   return f * f * f + 1;
 }
 
 // piecewise cubic
 // y = (1/2)((2x)^3)       ; [0, 0.5)
 // y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseCubicInOut(TYPE x)
+template<class T>
+T IEaseCubicInOut(T x)
 {
   if(x < 0.5)
   {
@@ -81,31 +80,31 @@ TYPE IEaseCubicInOut(TYPE x)
   }
   else
   {
-    TYPE f = ((2 * x) - 2);
+    T f = ((2 * x) - 2);
     return 0.5 * f * f * f + 1;
   }
 }
 
 // quartic x^4
-template<class TYPE>
-TYPE IEaseQuarticIn(TYPE x)
+template<class T>
+T IEaseQuarticIn(T x)
 {
   return x * x * x * x;
 }
 
 // quartic y = 1 - (x - 1)^4
-template<class TYPE>
-TYPE IEaseQuarticOut(TYPE x)
+template<class T>
+T IEaseQuarticOut(T x)
 {
-  TYPE f = (x - 1);
+  T f = (x - 1);
   return f * f * f * (1 - x) + 1;
 }
 
 // piecewise quartic
 // y = (1/2)((2x)^4)        ; [0, 0.5)
 // y = -(1/2)((2x-2)^4 - 2) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseQuarticInOut(TYPE x)
+template<class T>
+T IEaseQuarticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -113,31 +112,31 @@ TYPE IEaseQuarticInOut(TYPE x)
   }
   else
   {
-    TYPE f = (x - 1);
+    T f = (x - 1);
     return -8 * f * f * f * f + 1;
   }
 }
 
 // quintic y = x^5
-template<class TYPE>
-TYPE IEaseQuinticIn(TYPE x)
+template<class T>
+T IEaseQuinticIn(T x)
 {
   return x * x * x * x * x;
 }
 
 // quintic y = (x - 1)^5 + 1
-template<class TYPE>
-TYPE IEaseQuinticOut(TYPE x)
+template<class T>
+T IEaseQuinticOut(T x)
 {
-  TYPE f = (x - 1);
+  T f = (x - 1);
   return f * f * f * f * f + 1;
 }
 
 // piecewise quintic
 // y = (1/2)((2x)^5)       ; [0, 0.5)
 // y = (1/2)((2x-2)^5 + 2) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseQuinticInOut(TYPE x)
+template<class T>
+T IEaseQuinticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -145,42 +144,42 @@ TYPE IEaseQuinticInOut(TYPE x)
   }
   else
   {
-    TYPE f = ((2 * x) - 2);
+    T f = ((2 * x) - 2);
     return  0.5 * f * f * f * f * f + 1;
   }
 }
 
 // Modeled after quarter-cycle of sine wave
-template<class TYPE>
-TYPE IEaseSineIn(TYPE x)
+template<class T>
+T IEaseSineIn(T x)
 {
   return std::sin((x - 1) * M_PI_2) + 1;
 }
 
 // Modeled after quarter-cycle of sine wave (different phase)
-template<class TYPE>
-TYPE IEaseSineOut(TYPE x)
+template<class T>
+T IEaseSineOut(T x)
 {
   return std::sin(x * M_PI_2);
 }
 
 // Modeled after half sine wave
-template<class TYPE>
-TYPE IEaseSineInOut(TYPE x)
+template<class T>
+T IEaseSineInOut(T x)
 {
   return 0.5 * (1 - std::cos(x * M_PI));
 }
 
 // Modeled after shifted quadrant IV of unit circle
-template<class TYPE>
-TYPE IEaseCircularIn(TYPE x)
+template<class T>
+T IEaseCircularIn(T x)
 {
   return 1 - std::sqrt(1 - (x * x));
 }
 
 // Modeled after shifted quadrant II of unit circle
-template<class TYPE>
-TYPE IEaseCircularOut(TYPE x)
+template<class T>
+T IEaseCircularOut(T x)
 {
   return std::sqrt((2 - x) * x);
 }
@@ -188,8 +187,8 @@ TYPE IEaseCircularOut(TYPE x)
 // piecewise circular function
 // y = (1/2)(1 - std::sqrt(1 - 4x^2))           ; [0, 0.5)
 // y = (1/2)(std::sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseCircularInOut(TYPE x)
+template<class T>
+T IEaseCircularInOut(T x)
 {
   if(x < 0.5)
   {
@@ -202,15 +201,15 @@ TYPE IEaseCircularInOut(TYPE x)
 }
 
 // exponential function y = 2^(10(x - 1))
-template<class TYPE>
-TYPE IEaseExponentialIn(TYPE x)
+template<class T>
+T IEaseExponentialIn(T x)
 {
   return (x == 0.0) ? x : std::pow(2, 10 * (x - 1));
 }
 
 // exponential function y = -2^(-10x) + 1
-template<class TYPE>
-TYPE IEaseExponentialOut(TYPE x)
+template<class T>
+T IEaseExponentialOut(T x)
 {
   return (x == 1.0) ? x : 1 - std::pow(2, -10 * x);
 }
@@ -218,8 +217,8 @@ TYPE IEaseExponentialOut(TYPE x)
 // piecewise exponential
 // y = (1/2)2^(10(2x - 1))         ; [0,0.5)
 // y = -(1/2)*2^(-10(2x - 1))) + 1 ; [0.5,1]
-template<class TYPE>
-TYPE IEaseExponentialInOut(TYPE x)
+template<class T>
+T IEaseExponentialInOut(T x)
 {
   if(x == 0.0 || x == 1.0) return x;
 
@@ -234,15 +233,15 @@ TYPE IEaseExponentialInOut(TYPE x)
 }
 
 // damped sine wave y = std::sin(13pi/2*x)*std::pow(2, 10 * (x - 1))
-template<class TYPE>
-TYPE IEaseElasticIn(TYPE x)
+template<class T>
+T IEaseElasticIn(T x)
 {
   return std::sin(13 * M_PI_2 * x) * std::pow(2, 10 * (x - 1));
 }
 
 // damped sine wave y = std::sin(-13pi/2*(x + 1))*std::pow(2, -10x) + 1
-template<class TYPE>
-TYPE IEaseElasticOut(TYPE x)
+template<class T>
+T IEaseElasticOut(T x)
 {
   return std::sin(-13 * M_PI_2 * (x + 1)) * std::pow(2, -10 * x) + 1;
 }
@@ -250,8 +249,8 @@ TYPE IEaseElasticOut(TYPE x)
 // piecewise exponentially-damped sine wave:
 // y = (1/2)*std::sin(13pi/2*(2*x))*std::pow(2, 10 * ((2*x) - 1))      ; [0,0.5)
 // y = (1/2)*(std::sin(-13pi/2*((2x-1)+1))*std::pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseElasticInOut(TYPE x)
+template<class T>
+T IEaseElasticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -264,40 +263,40 @@ TYPE IEaseElasticInOut(TYPE x)
 }
 
 // overshooting cubic y = x^3-x*std::sin(x*pi)
-template<class TYPE>
-TYPE IEaseBackIn(TYPE x)
+template<class T>
+T IEaseBackIn(T x)
 {
   return x * x * x - x * std::sin(x * M_PI);
 }
 
 // Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*std::sin((1-x)*pi))
-template<class TYPE>
-TYPE IEaseBackOut(TYPE x)
+template<class T>
+T IEaseBackOut(T x)
 {
-  TYPE f = (1 - x);
+  T f = (1 - x);
   return 1 - (f * f * f - f * std::sin(f * M_PI));
 }
 
 // piecewise overshooting cubic function:
 // y = (1/2)*((2x)^3-(2x)*std::sin(2*x*pi))           ; [0, 0.5)
 // y = (1/2)*(1-((1-x)^3-(1-x)*std::sin((1-x)*pi))+1) ; [0.5, 1]
-template<class TYPE>
-TYPE IEaseBackInOut(TYPE x)
+template<class T>
+T IEaseBackInOut(T x)
 {
   if(x < 0.5)
   {
-    TYPE f = 2 * x;
+    T f = 2 * x;
     return 0.5 * (f * f * f - f * std::sin(f * M_PI));
   }
   else
   {
-    TYPE f = (1 - (2*x - 1));
+    T f = (1 - (2*x - 1));
     return 0.5 * (1 - (f * f * f - f * std::sin(f * M_PI))) + 0.5;
   }
 }
 
-template<class TYPE>
-TYPE IEaseBounceOut(TYPE x)
+template<class T>
+T IEaseBounceOut(T x)
 {
   if(x < 4/11.0)
   {
@@ -317,14 +316,14 @@ TYPE IEaseBounceOut(TYPE x)
   }
 }
 
-template<class TYPE>
-TYPE IEaseBounceIn(TYPE x)
+template<class T>
+T IEaseBounceIn(T x)
 {
   return 1 - IEaseBounceOut(1 - x);
 }
 
-template<class TYPE>
-TYPE IEaseBounceInOut(TYPE x)
+template<class T>
+T IEaseBounceInOut(T x)
 {
   if(x < 0.5)
   {
@@ -335,17 +334,3 @@ TYPE IEaseBounceInOut(TYPE x)
     return 0.5 * IEaseBounceOut(x * 2 - 1) + 0.5;
   }
 }
-
-static IShapeConvertor ShapePowCurve()
-{
-  struct normalizedToValue { double operator()(double x, double min, double max, double shape) { return min + std::pow(x, shape) * (max - min); } };
-  struct valueToNormalized { double operator()(double x, double min, double max, double shape) { return std::pow((x - min) / (max - min), 1.0 / shape); } };
-    
-  IShapeConvertor convertor;
-    
-  convertor.mNormalizedToValue = normalizedToValue();
-  convertor.mNormalizedToValue = valueToNormalized();
-
-  return convertor;
-}
-

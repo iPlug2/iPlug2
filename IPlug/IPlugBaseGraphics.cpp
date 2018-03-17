@@ -89,7 +89,7 @@ void IPlugBaseGraphics::SetControlValueFromDelegate(int controlIdx, double norma
 void IPlugBaseGraphics::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
 {
   if (!normalized)
-    value = GetParam(paramIdx)->GetNormalized(value);
+    value = GetParam(paramIdx)->ToNormalized(value);
 
   for (auto c = 0; c < mGraphics->NControls(); c++)
   {

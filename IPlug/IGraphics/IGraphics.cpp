@@ -104,7 +104,7 @@ void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const ch
   if (pParam)
   {
     const double v = pParam->StringToValue(str);
-    control.SetValueFromUserInput(pParam->GetNormalized(v));
+    control.SetValueFromUserInput(pParam->ToNormalized(v));
   }
 }
 
@@ -174,8 +174,8 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 
     if (pParam)
     {
-      lo = pParam->GetNormalized(lo);
-      hi = pParam->GetNormalized(hi);
+      lo = pParam->ToNormalized(lo);
+      hi = pParam->ToNormalized(hi);
     }
   }
 
@@ -259,7 +259,7 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
       }
 
       if(CreatePopupMenu(menu, bounds))
-        control.SetValueFromUserInput(pParam->GetNormalized( (double) menu.GetChosenItemIdx() ));
+        control.SetValueFromUserInput(pParam->ToNormalized( (double) menu.GetChosenItemIdx() ));
     }
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
