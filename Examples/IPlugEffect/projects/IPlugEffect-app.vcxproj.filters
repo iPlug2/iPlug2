@@ -263,4 +263,7 @@
       <Filter>resources</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\IPlugEffect.ico" />
+  </ItemGroup>
 </Project>

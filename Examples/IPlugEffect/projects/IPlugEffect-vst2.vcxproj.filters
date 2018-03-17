@@ -35,9 +35,6 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
       <Filter>IGraphics\DrawClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugVST2.cpp">
-      <Filter>IPlug\VST2</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST2\IPlugVST2.cpp">
+      <Filter>IPlug\VST2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -135,15 +135,6 @@
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VST2_SDK\aeffectx.h">
-      <Filter>IPlug\VST2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VST2_SDK\aeffect.h">
-      <Filter>IPlug\VST2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugVST2.h">
-      <Filter>IPlug\VST2</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -156,6 +147,15 @@
     <ClInclude Include="..\IPlugEffect_controls.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
       <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffect.h">
+      <Filter>IPlug\VST2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffectx.h">
+      <Filter>IPlug\VST2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST2\IPlugVST2.h">
+      <Filter>IPlug\VST2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

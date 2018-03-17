@@ -465,6 +465,9 @@
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\IPlugEffect.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
