@@ -78,8 +78,6 @@ public:
   //call this to make sure the param display text allways has a sign
   void SignDisplay() { mSignDisplay = true; }
 
-  // Accessors / converters.
-  // These all return the readable value, not the VST (0,1).
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */
   double Value() const { return mValue; }
@@ -91,11 +89,9 @@ public:
   int Int() const { return int(mValue); }
   double DBToAmp() const;
   double Clamp(double value) const { return BOUNDED(value, mMin, mMax); }
-    
+  
   void SetNormalized(double normalizedValue);
   double GetNormalized() const;
-//  double GetNormalized(double nonNormalizedValue) const;
-//  double GetNonNormalized(double normalizedValue) const;
 
   inline double ToNormalized(double nonNormalizedValue) const
   {
@@ -133,7 +129,6 @@ public:
   
   void GetJSON(WDL_String& json, int idx) const;
 private:
-  
   EParamType mType = kTypeNone;
   EParamUnit mUnit = kUnitCustom;
   double mValue = 0.0;
@@ -164,7 +159,10 @@ private:
 
 struct ShapePowCurve : public IParam::Shape
 {
-  ShapePowCurve(double shape) : mShape(shape) {}
+  ShapePowCurve(double shape)
+  : mShape(shape)
+  {
+  }
   
   IParam::EDisplayType GetDisplayType() const override
   {
@@ -179,7 +177,7 @@ struct ShapePowCurve : public IParam::Shape
 
     return IParam::kDisplayLinear;
   }
-                    
+
   double NormalizedToValue(double value, const IParam& param) const override
   {
     return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
@@ -195,7 +193,10 @@ struct ShapePowCurve : public IParam::Shape
 
 struct ShapeExp : public IParam::Shape
 {
-  ShapeExp() : mMul(1.0), mAdd(1.0) {}
+  ShapeExp()
+  : mMul(1.0)
+  , mAdd(1.0)
+  {}
   
   void Init(const IParam& param) override
   {

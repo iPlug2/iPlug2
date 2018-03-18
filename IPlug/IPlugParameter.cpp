@@ -74,13 +74,11 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
   InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group, new ShapeExp, kUnitFrequency);
-  //TODO: shape
 }
 
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group, nullptr, kUnitSeconds);
-  //TODO: shape
 }
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, const char *group)
