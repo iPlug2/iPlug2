@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <functional>
 
 #include "wdlstring.h"
 
@@ -22,6 +23,8 @@ public:
     const char* mCustomUnit = nullptr;
     bool mMeta;
   };
+  
+  typedef std::function<void(double, WDL_String&)> DisplayFunc;
   
 #pragma mark - Shape
   
@@ -120,7 +123,7 @@ public:
   void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", Shape* shape = nullptr, EParamUnit unit = kUnitCustom);
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", Shape* shape = nullptr, EParamUnit unit = kUnitCustom, DisplayFunc displayFunc = nullptr);
 
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, const char* group = "");
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, const char* group = "");
@@ -217,7 +220,8 @@ private:
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
   Shape* mShape = nullptr;
-
+  DisplayFunc mDisplayFunction = nullptr;
+  
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
 

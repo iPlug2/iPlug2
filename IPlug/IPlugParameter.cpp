@@ -45,7 +45,8 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, Shape* shape, EParamUnit unit)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step,
+                        const char* label, const char* group, Shape* shape, EParamUnit unit, DisplayFunc displayFunc)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -58,6 +59,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mStep = step;
   mDefault = defaultVal;
   mUnit = unit;
+  mDisplayFunction = displayFunc;
 
   for (mDisplayPrecision = 0;
        mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);
@@ -137,7 +139,13 @@ double IParam::GetNormalized() const
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
   if (normalized) value = FromNormalized(value);
-
+  
+  if (mDisplayFunction != nullptr)
+  {
+    mDisplayFunction(value, str);
+    return;
+  }
+  
   if (withDisplayText)
   {
     const char* displayText = GetDisplayText((int) value);
@@ -155,7 +163,6 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
     displayValue = -displayValue;
 
   // Squash all zeros to positive
-  
   if (!displayValue) displayValue = 0.0;
 
   if (mDisplayPrecision == 0)
