@@ -127,6 +127,7 @@ AAX_Result IPlugAAX::EffectInit()
   for (int i=0; i<NParams(); i++)
   {
     IParam* pParam = GetParam(i);
+    IParam::MetaData metadata = pParam->GetMetaData();
     AAX_IParameter* pAAXParam = nullptr;
     
     WDL_String* pParamIDStr = new WDL_String("_", 1);
@@ -142,7 +143,7 @@ AAX_Result IPlugAAX::EffectInit()
                                           pParam->GetDefault(),
                                           AAX_CIPlugTaperDelegate<double>(*pParam),
                                           AAX_CUnitDisplayDelegateDecorator<double>( AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabelForHost())),
-                                          pParam->GetCanAutomate());
+                                          metadata.mCanAutomate);
         
         pAAXParam->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
         pAAXParam->SetType(AAX_eParameterType_Continuous);
@@ -156,7 +157,7 @@ AAX_Result IPlugAAX::EffectInit()
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int>((int)pParam->GetMin(), (int)pParam->GetMax()),
                                         AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int>(), AAX_CString(pParam->GetLabelForHost())),
-                                        pParam->GetCanAutomate());
+                                        metadata.mCanAutomate);
         
         pAAXParam->SetNumberOfSteps(128);
         pAAXParam->SetType(AAX_eParameterType_Continuous);
@@ -183,7 +184,7 @@ AAX_Result IPlugAAX::EffectInit()
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int>((int) pParam->GetMin(), (int) pParam->GetMax()),
                                         AAX_CStringDisplayDelegate<int>(displayTexts),
-                                        pParam->GetCanAutomate());
+                                        metadata.mCanAutomate);
         
         pAAXParam->SetNumberOfSteps(nTexts);
         pAAXParam->SetType(AAX_eParameterType_Discrete);

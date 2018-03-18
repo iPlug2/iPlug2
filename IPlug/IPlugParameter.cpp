@@ -10,22 +10,22 @@ IParam::IParam()
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
 };
 
-void IParam::InitBool(const char* name, bool defaultVal, const char* label, const char* group, const char* offText, const char* onText)
+void IParam::InitBool(const char* name, bool defaultVal, int flags, const char* label, const char* group, const char* offText, const char* onText)
 {
   if (mType == kTypeNone) mType = kTypeBool;
-  
-  InitEnum(name, (defaultVal ? 1 : 0), 2, label, group);
+
+  InitEnum(name, (defaultVal ? 1 : 0), 2, flags | kFlagStepped, label, group);
 
   SetDisplayText(0, offText);
   SetDisplayText(1, onText);
 }
 
-void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, const char* group, const char* listItems, ...)
+void IParam::InitEnum(const char* name, int defaultVal, int flags, int nEnums, const char* label, const char* group, const char* listItems, ...)
 {
   if (mType == kTypeNone) mType = kTypeEnum;
-  
-  InitInt(name, defaultVal, 0, nEnums - 1, label, group);
-  
+
+  InitInt(name, defaultVal, 0, nEnums - 1, flags | kFlagStepped, label, group);
+
   if(listItems)
   {
     SetDisplayText(0, listItems);
@@ -38,31 +38,31 @@ void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* 
   }
 }
 
-void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label, const char* group)
+void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, int flags, const char* label, const char* group)
 {
   if (mType == kTypeNone) mType = kTypeInt;
-  
-  InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
+
+  InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, flags | kFlagStepped, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step,
-                        const char* label, const char* group, Shape* shape, EParamUnit unit, DisplayFunc displayFunc)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, int flags, const char* label, const char* group, Shape* shape, EParamUnit unit, IDisplayFunc displayFunc)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
-  
+
   strcpy(mName, name);
   strcpy(mLabel, label);
   strcpy(mParamGroup, group);
-  
+
   // N.B. apply stepping and constrainst to the default value (and store the result)
-  
+
   Set(defaultVal);
-  
+
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
   mDefault = mValue;
   mUnit = unit;
+  mFlags = flags;
   mDisplayFunction = displayFunc;
 
   for (mDisplayPrecision = 0;
@@ -71,26 +71,28 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   {
     ;
   }
-    
+
   assert (!mShape && "Parameter has already been initialised!");
   mShape = shape ? shape : new Shape;
   mShape->Init(*this);
 }
 
-void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group, new ShapeExp, kUnitFrequency);
+  InitDouble(name, defaultVal, minVal, maxVal, step, flags, "Hz", group, new ShapeExp, kUnitFrequency);
+  //TODO: shape
 }
 
-void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group, nullptr, kUnitSeconds);
+  InitDouble(name, defaultVal, minVal, maxVal, step, flags, "Seconds", group, nullptr, kUnitSeconds);
+  //TODO: shape
 }
 
-void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, const char *group)
+void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)
 {
   int nItems = maxVal - minVal;
-  InitEnum(name, defaultVal, nItems, "", group);
+  InitEnum(name, defaultVal, nItems, flags, "", group);
   WDL_String displayText;
   for (auto i = 0; i < nItems; i++)
   {
@@ -99,14 +101,14 @@ void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal,
   }
 }
 
-void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
+void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group, nullptr, kUnitDB);
+  InitDouble(name, defaultVal, minVal, maxVal, step, flags, "dB", group, nullptr, kUnitDB);
 }
 
-void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, const char *group)
+void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group, nullptr, kUnitPercentage);
+  InitDouble(name, defaultVal, minVal, maxVal, 1, flags, "%", group, nullptr, kUnitPercentage);
 }
 
 void IParam::SetDisplayText(double value, const char* str)
@@ -126,12 +128,12 @@ double IParam::DBToAmp() const
 void IParam::SetNormalized(double normalizedValue)
 {
   mValue = FromNormalized(normalizedValue);
-  
+
   if (mType != kTypeDouble)
   {
     mValue = round(mValue / mStep) * mStep;
   }
-  
+
   mValue = std::min(mValue, mMax);
 }
 
@@ -143,13 +145,13 @@ double IParam::GetNormalized() const
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
   if (normalized) value = FromNormalized(value);
-  
+
   if (mDisplayFunction != nullptr)
   {
     mDisplayFunction(value, str);
     return;
   }
-  
+
   if (withDisplayText)
   {
     const char* displayText = GetDisplayText((int) value);
@@ -163,7 +165,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
 
   double displayValue = value;
 
-  if (mNegateDisplay)
+  if (mFlags & kFlagNegateDisplay)
     displayValue = -displayValue;
 
   // Squash all zeros to positive
@@ -173,7 +175,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
   {
     str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(round(displayValue)));
   }
-  else if (mSignDisplay && displayValue)
+  else if ((mFlags & kFlagSignDisplay) && displayValue)
   {
     char fmt[16];
     sprintf(fmt, "%%+.%df", mDisplayPrecision);
@@ -226,7 +228,7 @@ const char* IParam::GetDisplayText(int value) const
 const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
 {
   DisplayText* pDT = mDisplayTexts.Get()+idx;
-  
+
   if (pValue)
     *pValue = pDT->mValue;
 
@@ -236,7 +238,7 @@ const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
 bool IParam::MapDisplayText(const char* str, double* pValue) const
 {
   int n = mDisplayTexts.GetSize();
-  
+
   if (n)
   {
     DisplayText* pDT = mDisplayTexts.Get();
@@ -256,21 +258,21 @@ double IParam::StringToValue(const char* str) const
 {
   double v = 0.;
   bool mapped = (bool) NDisplayTexts();
-  
+
   if (mapped)
     mapped = MapDisplayText(str, &v);
-  
+
   if (!mapped && Type() != kTypeEnum && Type() != kTypeBool)
   {
     v = atof(str);
-    
-    if (GetDisplayIsNegated())
+
+    if (mFlags & kFlagNegateDisplay)
       v = -v;
-    
+
     v = Constrain(v);
     mapped = true;
   }
-  
+
   return v;
 }
 
@@ -283,12 +285,17 @@ void IParam::GetBounds(double& lo, double& hi) const
 IParam::MetaData IParam::GetMetaData() const
 {
     MetaData data;
-    
+
     data.mParamUnit = mUnit;
     data.mDisplayType = mShape->GetDisplayType();
     data.mCustomUnit = mUnit == kUnitCustom ? mLabel : nullptr;
-    data.mMeta = mIsMeta;
-    
+
+    data.mCanAutomate = !(mFlags & kFlagCannotAutomate);
+    data.mStepped = mFlags & kFlagStepped;
+    data.mNegateDisplay = mFlags & kFlagNegateDisplay;
+    data.mSignDisplay = mFlags & kFlagSignDisplay;
+    data.mMeta = mFlags & kFlagMeta;
+
     return data;
 }
 

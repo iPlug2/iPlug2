@@ -571,9 +571,9 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         IParam* pParam = GetParam(element);
         IParam::MetaData metadata = pParam->GetMetaData();
         
-        if (!pParam->GetCanAutomate())  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
-        if (pParam->NDisplayTexts()) pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
+        if (!metadata.mCanAutomate)  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
         if (metadata.mMeta) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
+        if (pParam->NDisplayTexts()) pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
 
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
