@@ -3,6 +3,64 @@
 
 #include "IPlugParameter.h"
 
+#pragma mark - Shape
+
+// Linear
+double IParam::Shape::NormalizedToValue(double value, const IParam& param) const
+{
+  return param.mMin + value * (param.mMax - param.mMin);
+}
+
+double IParam::Shape::ValueToNormalized(double value, const IParam& param) const
+{
+  return (value - param.mMin) / (param.mMax - param.mMin);
+}
+
+// Power curve shape
+IParam::ShapePowCurve::ShapePowCurve(double shape)
+: mShape(shape)
+{
+}
+
+IParam::EDisplayType IParam::ShapePowCurve::GetDisplayType() const
+{
+  if (mShape > 2.5) return IParam::kDisplayCubeRoot;
+  if (mShape > 1.5) return IParam::kDisplaySquareRoot;
+  if (mShape < (2.0 / 5.0)) return IParam::kDisplayCubed;
+  if (mShape < (2.0 / 3.0)) return IParam::kDisplaySquared;
+  
+  return IParam::kDisplayLinear;
+}
+
+double IParam::ShapePowCurve::NormalizedToValue(double value, const IParam& param) const
+{
+  return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
+}
+
+double IParam::ShapePowCurve::ValueToNormalized(double value, const IParam& param) const
+{
+  return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
+}
+
+// Exponential shape
+void IParam::ShapeExp::Init(const IParam& param)
+{
+  mAdd = std::log(param.GetMin());
+  mMul = std::log(param.GetMax() / param.GetMin());
+}
+
+double IParam::ShapeExp::NormalizedToValue(double value, const IParam& param) const
+{
+  return std::exp(mAdd + value * mMul);
+}
+
+double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) const
+{
+  return (std::log(value) - mAdd) / mMul;
+}
+
+#pragma mark -
+
 IParam::IParam()
 {
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));

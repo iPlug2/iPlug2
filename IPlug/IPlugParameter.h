@@ -32,76 +32,30 @@ public:
   struct Shape
   {
     virtual ~Shape() {}
-
     virtual void Init(const IParam& param) {}
-
     virtual EDisplayType GetDisplayType() const { return kDisplayLinear; }
-
-    virtual double NormalizedToValue(double value, const IParam& param) const
-    {
-      return param.mMin + value * (param.mMax - param.mMin);
-    }
-
-    virtual double ValueToNormalized(double value, const IParam& param) const
-    {
-      return (value - param.mMin) / (param.mMax - param.mMin);
-    }
+    virtual double NormalizedToValue(double value, const IParam& param) const;
+    virtual double ValueToNormalized(double value, const IParam& param) const;
   };
 
   // Non-linear shape structs
-  struct ShapePowCurve : public IParam::Shape
+  struct ShapePowCurve : public Shape
   {
-    ShapePowCurve(double shape)
-    : mShape(shape)
-    {
-    }
-
-    IParam::EDisplayType GetDisplayType() const override
-    {
-      if (mShape > 2.5) return IParam::kDisplayCubeRoot;
-      if (mShape > 1.5) return IParam::kDisplaySquareRoot;
-      if (mShape < (2.0 / 5.0)) return IParam::kDisplayCubed;
-      if (mShape < (2.0 / 3.0)) return IParam::kDisplaySquared;
-      
-      return IParam::kDisplayLinear;
-    }
-
-    double NormalizedToValue(double value, const IParam& param) const override
-    {
-      return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
-    }
+    ShapePowCurve(double shape);
+    IParam::EDisplayType GetDisplayType() const override;
+    double NormalizedToValue(double value, const IParam& param) const override;
+    double ValueToNormalized(double value, const IParam& param) const override;
     
-    double ValueToNormalized(double value, const IParam& param) const override
-    {
-      return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
-    }
-
     double mShape;
   };
-
-  struct ShapeExp : public IParam::Shape
+  
+  struct ShapeExp : public Shape
   {
-    void Init(const IParam& param) override
-    {
-      mAdd = std::log(param.GetMin());
-      mMul = std::log(param.GetMax() / param.GetMin());
-    }
-
-    IParam::EDisplayType GetDisplayType() const override
-    {
-      return IParam::kDisplayLog;
-    }
-
-    double NormalizedToValue(double value, const IParam& param) const override
-    {
-      return std::exp(mAdd + value * mMul);
-    }
+    void Init(const IParam& param) override;
+    IParam::EDisplayType GetDisplayType() const override { return IParam::kDisplayLog; }
+    double NormalizedToValue(double value, const IParam& param) const override;
+    double ValueToNormalized(double value, const IParam& param) const override;
     
-    double ValueToNormalized(double value, const IParam& param) const override
-    {
-      return (std::log(value) - mAdd) / mMul;
-    }
-
     double mMul = 1.0;
     double mAdd = 1.0;
   };
