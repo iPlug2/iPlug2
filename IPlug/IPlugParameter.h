@@ -148,7 +148,7 @@ public:
    * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
   void Set(double value) { mValue = Constrain(value); }
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
-  void SetString(const char* str) { Set(StringToValue(str)); }
+  void SetString(const char* str) { mValue = StringToValue(str); }
   void SetToDefault() { mValue = mDefault; }
 
   void SetDisplayText(double value, const char* str);
@@ -175,12 +175,12 @@ public:
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
   const char* GetParamGroupForHost() const;
-
+  const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
+  
   int NDisplayTexts() const;
   const char* GetDisplayText(int value) const;
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
-  
   
   EParamType Type() const { return mType; }
   EParamUnit Unit() const { return mUnit; }
@@ -193,8 +193,6 @@ public:
   double GetRange() const { return mMax - mMin; }
   double GetStep() const { return mStep; }
   int GetDisplayPrecision() const {return mDisplayPrecision;}
-  
-  const char *GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
   
   bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
   bool GetStepped() const { return mFlags & kFlagStepped; }
@@ -229,5 +227,3 @@ private:
 
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
-
-

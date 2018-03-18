@@ -312,5 +312,3 @@ void IParam::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "\"rate\":\"audio\"");
   json.AppendFormatted(8192, "}");
 }
-
-
