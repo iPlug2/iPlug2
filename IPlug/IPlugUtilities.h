@@ -37,7 +37,7 @@
 */
 
 template <typename T>
-T Bound(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
+T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
 #define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
 

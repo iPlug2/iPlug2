@@ -132,11 +132,11 @@ public:
 
   double StringToValue(const char* str) const;
 
-  inline double Constrain(double value) const { return Bound((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
+  inline double Constrain(double value) const { return Clip((mIsStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
   inline double ToNormalized(double nonNormalizedValue) const
   {
-    return Bound(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
+    return Clip(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
 
   inline double FromNormalized(double normalizedValue) const
