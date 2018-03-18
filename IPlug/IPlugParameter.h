@@ -131,6 +131,8 @@ public:
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, const char* group = "");
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., const char* group = "");
 
+  double StringToValue(const char* str) const;
+
   inline double ToNormalized(double nonNormalizedValue) const
   {
     return BOUNDED(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0, 1);
@@ -145,7 +147,9 @@ public:
    * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
   void Set(double value) { mValue = Constrain(value); }
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
+  void SetString(const char* str) { Set(StringToValue(str)); }
   void SetToDefault() { mValue = mDefault; }
+  
   void SetDisplayText(double value, const char* str);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
   // The higher the shape, the more resolution around host value zero.
@@ -171,16 +175,6 @@ public:
   double GetNormalized() const { return ToNormalized(mValue); }
   double Constrain(double value) const { return BOUNDED((mIsStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
-  inline double ToNormalized(double nonNormalizedValue) const
-  {
-    return BOUNDED(mShape->ValueToNormalized(nonNormalizedValue, *this), 0, 1);
-  }
-  
-  inline double FromNormalized(double normalizedValue) const
-  {
-    return BOUNDED(mShape->NormalizedToValue(normalizedValue, *this), mMin, mMax);
-  }
-  
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
   
