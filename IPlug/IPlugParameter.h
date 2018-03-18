@@ -23,6 +23,8 @@ public:
     bool mMeta;
   };
   
+#pragma mark - Shape
+  
   struct Shape
   {
     virtual ~Shape() {}
@@ -42,6 +44,70 @@ public:
     }
   };
   
+  // Non-linear shape structs
+  struct ShapePowCurve : public IParam::Shape
+  {
+    ShapePowCurve(double shape)
+    : mShape(shape)
+    {
+    }
+    
+    IParam::EDisplayType GetDisplayType() const override
+    {
+      if (mShape > 2.5)
+        return IParam::kDisplayCubeRoot;
+      if (mShape > 1.5)
+        return IParam::kDisplaySquareRoot;
+      if (mShape < (2.0 / 5.0))
+        return IParam::kDisplayCubed;
+      if (mShape < (2.0 / 3.0))
+        return IParam::kDisplaySquared;
+      
+      return IParam::kDisplayLinear;
+    }
+    
+    double NormalizedToValue(double value, const IParam& param) const override
+    {
+      return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
+    }
+    
+    virtual double ValueToNormalized(double value, const IParam& param) const override
+    {
+      return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
+    }
+    
+    double mShape;
+  };
+  
+  struct ShapeExp : public IParam::Shape
+  {
+    void Init(const IParam& param) override
+    {
+      mAdd = std::log(param.GetMin());
+      mMul = std::log(param.GetMax() / param.GetMin());
+    }
+    
+    IParam::EDisplayType GetDisplayType() const override
+    {
+      return IParam::kDisplayLog;
+    }
+    
+    double NormalizedToValue(double value, const IParam& param) const override
+    {
+      return std::exp(mAdd + value * mMul);
+    }
+    
+    virtual double ValueToNormalized(double value, const IParam& param) const override
+    {
+      return (std::log(value) - mAdd) / mMul;
+    }
+    
+    double mMul = 1.0;
+    double mAdd = 1.0;
+  };
+  
+#pragma mark -
+
   IParam();
   
   ~IParam()
@@ -129,6 +195,12 @@ public:
   
   void GetJSON(WDL_String& json, int idx) const;
 private:
+  struct DisplayText
+  {
+    double mValue;
+    char mText[MAX_PARAM_DISPLAY_LEN];
+  };
+  
   EParamType mType = kTypeNone;
   EParamUnit mUnit = kUnitCustom;
   double mValue = 0.0;
@@ -145,82 +217,7 @@ private:
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
   Shape* mShape = nullptr;
-  
-  struct DisplayText
-  {
-    double mValue;
-    char mText[MAX_PARAM_DISPLAY_LEN];
-  };
-  
+
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
-
-// Non-linear shape structs
-
-struct ShapePowCurve : public IParam::Shape
-{
-  ShapePowCurve(double shape)
-  : mShape(shape)
-  {
-  }
-  
-  IParam::EDisplayType GetDisplayType() const override
-  {
-    if (mShape > 2.5)
-      return IParam::kDisplayCubeRoot;
-    if (mShape > 1.5)
-      return IParam::kDisplaySquareRoot;
-    if (mShape < (2.0 / 5.0))
-      return IParam::kDisplayCubed;
-    if (mShape < (2.0 / 3.0))
-      return IParam::kDisplaySquared;
-
-    return IParam::kDisplayLinear;
-  }
-
-  double NormalizedToValue(double value, const IParam& param) const override
-  {
-    return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
-  }
-  
-  virtual double ValueToNormalized(double value, const IParam& param) const override
-  {
-    return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
-  }
-  
-  double mShape;
-};
-
-struct ShapeExp : public IParam::Shape
-{
-  ShapeExp()
-  : mMul(1.0)
-  , mAdd(1.0)
-  {}
-  
-  void Init(const IParam& param) override
-  {
-    mAdd = std::log(param.GetMin());
-    mMul = std::log(param.GetMax() / param.GetMin());
-  }
-  
-  IParam::EDisplayType GetDisplayType() const override
-  {
-    return IParam::kDisplayLog;
-  }
-  
-  double NormalizedToValue(double value, const IParam& param) const override
-  {
-    return std::exp(mAdd + value * mMul);
-  }
-  
-  virtual double ValueToNormalized(double value, const IParam& param) const override
-  {
-    return (std::log(value) - mAdd) / mMul;
-  }
-  
-  double mMul;
-  double mAdd;
-};
-
 
