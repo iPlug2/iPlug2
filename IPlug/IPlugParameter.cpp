@@ -53,11 +53,15 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   strcpy(mName, name);
   strcpy(mLabel, label);
   strcpy(mParamGroup, group);
-  mValue = defaultVal;
+  
+  // N.B. apply stepping and constrainst to the default value (and store the result)
+  
+  Set(defaultVal);
+  
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
-  mDefault = defaultVal;
+  mDefault = mValue;
   mUnit = unit;
   mDisplayFunction = displayFunc;
 
