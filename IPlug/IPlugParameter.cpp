@@ -91,13 +91,12 @@ void IParam::InitSeconds(const char *name, double defaultVal, double minVal, dou
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)
 {
-  int nItems = maxVal - minVal;
-  InitEnum(name, defaultVal, nItems, flags, "", group);
+  InitEnum(name, defaultVal, (maxVal - minVal) + 1, flags, "", group);
   WDL_String displayText;
-  for (auto i = 0; i < nItems; i++)
+  for (auto i = minVal; i <= maxVal; i++)
   {
-    MidiNoteName(minVal + i, displayText);
-    SetDisplayText(i, displayText.Get());
+    MidiNoteName(i, displayText);
+    SetDisplayText(i - minVal, displayText.Get());
   }
 }
 
