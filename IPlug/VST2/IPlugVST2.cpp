@@ -473,7 +473,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        return _this->GetParam(idx)->GetMetaData().mCanAutomate;
+        return _this->GetParam(idx)->GetCanAutomate();
       }
     }
     case effGetInputProperties:

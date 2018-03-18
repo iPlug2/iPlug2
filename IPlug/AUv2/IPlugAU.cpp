@@ -569,10 +569,9 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         
         ENTER_PARAMS_MUTEX;
         IParam* pParam = GetParam(element);
-        IParam::MetaData metadata = pParam->GetMetaData();
         
-        if (!metadata.mCanAutomate)  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
-        if (metadata.mMeta) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
+        if (!pParam->GetCanAutomate())  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
+        if (pParam->GetMeta()) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
         if (pParam->NDisplayTexts()) pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
 
         const char* paramName = pParam->GetNameForHost();
@@ -591,7 +590,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
             break;
           default:
           {
-            switch (metadata.mParamUnit)
+            switch (pParam->Unit())
             {
               case IParam::kUnitPercentage:     pInfo->unit = kAudioUnitParameterUnit_Percent;            break;
               case IParam::kUnitSeconds:        pInfo->unit = kAudioUnitParameterUnit_Seconds;            break;
@@ -617,10 +616,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
                 
               case IParam::kUnitCustom:
                 
-                if (CSTR_NOT_EMPTY(metadata.mCustomUnit))
+                if (CSTR_NOT_EMPTY(pParam->GetCustomUnit()))
                 {
                   pInfo->unit = kAudioUnitParameterUnit_CustomUnit;
-                  pInfo->unitName = CFStringCreateWithCString(0, metadata.mCustomUnit, kCFStringEncodingUTF8);
+                  pInfo->unitName = CFStringCreateWithCString(0, pParam->GetCustomUnit(), kCFStringEncodingUTF8);
                 }
                 else
                 {
@@ -631,7 +630,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           }
         }
 
-        switch (metadata.mDisplayType)
+        switch (pParam->DisplayType())
         {
           case IParam::kDisplayLinear:
             break;

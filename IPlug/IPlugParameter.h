@@ -24,19 +24,7 @@ public:
     kFlagSignDisplay      = 0x8,
     kFlagMeta             = 0x10
   };
-
-  struct MetaData
-  {
-    EDisplayType mDisplayType;
-    EParamUnit mParamUnit;
-    const char* mCustomUnit = nullptr;
-    bool mCanAutomate = false;
-    bool mStepped = false;
-    bool mNegateDisplay = false;
-    bool mSignDisplay = false;
-    bool mMeta = false;
-  };
-
+  
   typedef std::function<void(double, WDL_String&)> DisplayFunc;
 
 #pragma mark - Shape
@@ -131,8 +119,6 @@ public:
     delete mShape;
   };
 
-  EParamType Type() const { return mType; }
-
   void InitBool(const char* name, bool defaultValue, int flags = 0, const char* label = "", const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
   void InitEnum(const char* name, int defaultValue, int nEnums, int flags = 0, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, int flags = 0, const char* label = "", const char* group = "");
@@ -194,7 +180,12 @@ public:
   const char* GetDisplayText(int value) const;
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
-
+  
+  
+  EParamType Type() const { return mType; }
+  EParamUnit Unit() const { return mUnit; }
+  EDisplayType DisplayType() const { return mShape->GetDisplayType(); }
+  
   double GetDefault() const { return mDefault; }
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
@@ -202,9 +193,17 @@ public:
   double GetRange() const { return mMax - mMin; }
   double GetStep() const { return mStep; }
   int GetDisplayPrecision() const {return mDisplayPrecision;}
-  MetaData GetMetaData() const;
-
+  
+  const char *GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
+  
+  bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
+  bool GetStepped() const { return mFlags & kFlagStepped; }
+  bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }
+  bool GetSignDisplay() const { return mFlags & kFlagSignDisplay; }
+  bool GetMeta() const { return mFlags & kFlagMeta; }
+  
   void GetJSON(WDL_String& json, int idx) const;
+
 private:
   struct DisplayText
   {
@@ -230,4 +229,5 @@ private:
 
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
+
 

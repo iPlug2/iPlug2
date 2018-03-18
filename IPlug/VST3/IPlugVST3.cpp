@@ -61,7 +61,7 @@ public:
     
     int32 flags = 0;
 
-    if (pParam->GetMetaData().mCanAutomate) flags |= ParameterInfo::kCanAutomate;
+    if (pParam->GetCanAutomate()) flags |= ParameterInfo::kCanAutomate;
     if (pParam->Type() == IParam::kTypeEnum) flags |= ParameterInfo::kIsList;
     
     info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());

@@ -282,23 +282,6 @@ void IParam::GetBounds(double& lo, double& hi) const
   hi = mMax;
 }
 
-IParam::MetaData IParam::GetMetaData() const
-{
-    MetaData data;
-
-    data.mParamUnit = mUnit;
-    data.mDisplayType = mShape->GetDisplayType();
-    data.mCustomUnit = mUnit == kUnitCustom ? mLabel : nullptr;
-
-    data.mCanAutomate = !(mFlags & kFlagCannotAutomate);
-    data.mStepped = mFlags & kFlagStepped;
-    data.mNegateDisplay = mFlags & kFlagNegateDisplay;
-    data.mSignDisplay = mFlags & kFlagSignDisplay;
-    data.mMeta = mFlags & kFlagMeta;
-
-    return data;
-}
-
 void IParam::GetJSON(WDL_String& json, int idx) const
 {
   json.AppendFormatted(8192, "{");
