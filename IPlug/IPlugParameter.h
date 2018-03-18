@@ -12,8 +12,8 @@ class IParam
 public:
 
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
-  enum EParamUnit { kUnitFrequency, kUnitDB, kUnitSeconds, kUnitPercentage, kUnitCustom };
-  enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquare, kDisplaySqRoot, kDisplayCube, kDisplayCubeRoot };
+  enum EParamUnit { kUnitPercentage, kUnitSeconds, kUnitMilliseconds, kUnitSamples, kUnitDB, kUnitLinearGain, kUnitPan, kUnitPhase, kUnitDegrees, kUnitMeters, kUnitRate, kUnitRatio, kUnitFrequency, kUnitOctaves, kUnitCents, kUnitAbsCents, kUnitSemitones, kUnitMIDINote, kUnitMIDICtrlNum, kUnitBPM, kUnitBeats, kUnitCustom };
+  enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquared, kDisplaySquareRoot, kDisplayCubed, kDisplayCubeRoot };
   
   struct MetaData
   {
@@ -54,7 +54,7 @@ public:
   void InitBool(const char* name, bool defaultValue, const char* label = "", const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", const char* group = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", Shape* shape = nullptr);
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", const char* group = "", Shape* shape = nullptr, EParamUnit unit = kUnitCustom);
 
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, const char* group = "");
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, const char* group = "");
@@ -166,6 +166,20 @@ struct ShapePowCurve : public IParam::Shape
 {
   ShapePowCurve(double shape) : mShape(shape) {}
   
+  IParam::EDisplayType GetDisplayType() const override
+  {
+    if (mShape > 2.5)
+      return IParam::kDisplayCubeRoot;
+    if (mShape > 1.5)
+      return IParam::kDisplaySquareRoot;
+    if (mShape < (2.0 / 5.0))
+      return IParam::kDisplayCubed;
+    if (mShape < (2.0 / 3.0))
+      return IParam::kDisplaySquared;
+
+    return IParam::kDisplayLinear;
+  }
+                    
   double NormalizedToValue(double value, const IParam& param) const override
   {
     return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
@@ -187,6 +201,11 @@ struct ShapeExp : public IParam::Shape
   {
     mAdd = std::log(param.GetMin());
     mMul = std::log(param.GetMax() / param.GetMin());
+  }
+  
+  IParam::EDisplayType GetDisplayType() const override
+  {
+    return IParam::kDisplayLog;
   }
   
   double NormalizedToValue(double value, const IParam& param) const override

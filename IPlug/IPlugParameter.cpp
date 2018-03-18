@@ -45,7 +45,7 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, Shape* shape)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, Shape* shape, EParamUnit unit)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -57,6 +57,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
   mDefault = defaultVal;
+  mUnit = unit;
 
   for (mDisplayPrecision = 0;
        mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);
@@ -72,15 +73,13 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 
 void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  mUnit = kUnitFrequency;
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group, new ShapeExp);
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group, new ShapeExp, kUnitFrequency);
   //TODO: shape
 }
 
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  mUnit = kUnitSeconds;
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group);
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group, nullptr, kUnitSeconds);
   //TODO: shape
 }
 
@@ -98,14 +97,12 @@ void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal,
 
 void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  mUnit = kUnitDB;
-  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group);
+  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group, nullptr, kUnitDB);
 }
 
 void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, const char *group)
 {
-  mUnit = kUnitPercentage;
-  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group);
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group, nullptr, kUnitPercentage);
 }
 
 void IParam::SetDisplayText(double value, const char* str)
