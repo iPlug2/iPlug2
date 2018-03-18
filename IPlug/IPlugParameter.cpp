@@ -20,7 +20,7 @@ void IParam::InitBool(const char* name, bool defaultVal, int flags, const char* 
   SetDisplayText(1, onText);
 }
 
-void IParam::InitEnum(const char* name, int defaultVal, int flags, int nEnums, const char* label, const char* group, const char* listItems, ...)
+void IParam::InitEnum(const char* name, int defaultVal, int nEnums, int flags, const char* label, const char* group, const char* listItems, ...)
 {
   if (mType == kTypeNone) mType = kTypeEnum;
 
@@ -52,9 +52,9 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   strcpy(mName, name);
   strcpy(mLabel, label);
   strcpy(mParamGroup, group);
-
-  // N.B. apply stepping and constrainst to the default value (and store the result)
-
+  
+  // N.B. apply stepping and constraints to the default value (and store the result)
+  
   Set(defaultVal);
 
   mMin = minVal;
