@@ -131,9 +131,20 @@ public:
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, const char* group = "");
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., const char* group = "");
 
+  inline double ToNormalized(double nonNormalizedValue) const
+  {
+    return BOUNDED(mShape->ValueToNormalized(Step(nonNormalizedValue), *this), 0, 1);
+  }
+  
+  inline double FromNormalized(double normalizedValue) const
+  {
+    return Constrain(mShape->NormalizedToValue(normalizedValue, *this));
+  }
+  
   /** Sets the parameter value
-   * @param value Value to be set. Will be clamped between \c mMin and \c mMax */
-  void Set(double value) { mValue = BOUNDED(value, mMin, mMax); }
+   * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
+  void Set(double value) { mValue = Constrain(value); }
+  void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
   void SetToDefault() { mValue = mDefault; }
   void SetDisplayText(double value, const char* str);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
@@ -156,11 +167,10 @@ public:
   /** Returns the parameter's value as an integer
    * @return Current value of the parameter */
   int Int() const { return int(mValue); }
-  double DBToAmp() const;
-  double Clamp(double value) const { return BOUNDED(value, mMin, mMax); }
-  
-  void SetNormalized(double normalizedValue);
-  double GetNormalized() const;
+  double DBToAmp() const { return ::DBToAmp(mValue); }
+  double GetNormalized() const { return ToNormalized(mValue); }
+  double Constrain(double value) const { return BOUNDED(Step(value), mMin, mMax); }
+  double Step(double value) const { return mIsStepped ? round(value / mStep) * mStep : value; }
 
   inline double ToNormalized(double nonNormalizedValue) const
   {

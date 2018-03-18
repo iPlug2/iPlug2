@@ -267,7 +267,7 @@ double IParam::StringToValue(const char* str) const
     if (GetDisplayIsNegated())
       v = -v;
     
-    v = Clamp(v);
+    v = Constrain(v);
     mapped = true;
   }
   

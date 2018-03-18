@@ -40,13 +40,13 @@ AAX_CIPlugTaperDelegate<T>* AAX_CIPlugTaperDelegate<T>::Clone() const
 template <typename T>
 T AAX_CIPlugTaperDelegate<T>::ConstrainRealValue(T value) const
 {
-  return mParam.Clamp(value);
+  return mParam.Constrain(value);
 }
 
 template <typename T>
 T AAX_CIPlugTaperDelegate<T>::NormalizedToReal(double normalizedValue) const
 {
-  return mParam.Clamp(mParam.FromNormalized(normalizedValue));
+  return mParam.FromNormalized(normalizedValue);
 }
 
 template <typename T>
