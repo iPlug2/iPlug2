@@ -78,7 +78,7 @@ static inline bool CStringHasContents(const char* str) { return str && str[0] !=
  * \f$ 10^{\frac{x}{20}} \f$
  * @see #IAMP_DB
  */
-inline double DBToAmp(double dB)
+static inline double DBToAmp(double dB)
 {
   return exp(IAMP_DB * dB);
 }
@@ -88,26 +88,26 @@ inline double DBToAmp(double dB)
  * \f$ 20*log_{10}(x) \f$
  * @see #AMP_DB
  */
-inline double AmpToDB(double amp)
+static inline double AmpToDB(double amp)
 {
   return AMP_DB * log(fabs(amp));
 }
 
-inline void GetVersionParts(int version, int& ver, int& maj, int& min)
+static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
 {
   ver = (version & 0xFFFF0000) >> 16;
   maj = (version & 0x0000FF00) >> 8;
   min = version & 0x000000FF;
 }
 
-inline int GetDecimalVersion(int version)
+static inline int GetDecimalVersion(int version)
 {
   int ver, rmaj, rmin;
   GetVersionParts(version, ver, rmaj, rmin);
   return 10000 * ver + 100 * rmaj + rmin;
 }
 
-inline void GetVersionStr(int version, WDL_String& str)
+static inline void GetVersionStr(int version, WDL_String& str)
 {
   int ver, rmaj, rmin;
   GetVersionParts(version, ver, rmaj, rmin);
