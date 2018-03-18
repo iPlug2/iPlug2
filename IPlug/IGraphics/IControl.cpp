@@ -39,7 +39,7 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetDirty(bool pushParamToDelegate)
 {
-  mValue = BOUNDED(mValue, mClampLo, mClampHi);
+  mValue = Bound(mValue, mClampLo, mClampHi);
   mDirty = true;
   
   if (pushParamToDelegate && mParamIdx >= 0)
@@ -263,7 +263,7 @@ void IBitmapControl::Draw(IGraphics& graphics)
   if (mBitmap.N() > 1)
   {
     i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
-    i = BOUNDED(i, 1, mBitmap.N());
+    i = Bound(i, 1, mBitmap.N());
   }
 
   graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);

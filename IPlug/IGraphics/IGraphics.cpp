@@ -275,7 +275,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
   int srcX = 0;
   int srcY = 0;
 
-  bmpState = BOUNDED(bmpState, 1, bitmap.N());
+  bmpState = Bound(bmpState, 1, bitmap.N());
     
   if (bitmap.N() > 1 && bmpState > 1)
   {
@@ -358,14 +358,14 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IB
 
 void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend, float thickness)
 {
-  x = BOUNDED(x, 0.0f, 1.0f);
+  x = Bound(x, 0.0f, 1.0f);
   float xi = bounds.L + int(x * (bounds.R - bounds.L));
   return DrawVerticalLine(color, xi, bounds.T, bounds.B, pBlend, thickness);
 }
 
 void IGraphics::DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend, float thickness)
 {
-  y = BOUNDED(y, 0.0f, 1.0f);
+  y = Bound(y, 0.0f, 1.0f);
   float yi = bounds.B - (y * (float) (bounds.B - bounds.T));
   return DrawHorizontalLine(color, yi, bounds.L, bounds.R, pBlend, thickness);
 }

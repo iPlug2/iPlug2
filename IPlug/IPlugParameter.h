@@ -133,9 +133,11 @@ public:
 
   double StringToValue(const char* str) const;
 
+  inline double Constrain(double value) const { return Bound((mIsStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
+
   inline double ToNormalized(double nonNormalizedValue) const
   {
-    return BOUNDED(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0, 1);
+    return Bound(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
   
   inline double FromNormalized(double normalizedValue) const
@@ -152,7 +154,6 @@ public:
   
   void SetDisplayText(double value, const char* str);
   void SetCanAutomate(bool canAutomate) { mCanAutomate = canAutomate; }
-  // The higher the shape, the more resolution around host value zero.
   void SetIsMeta(bool meta) { mIsMeta = meta; }
 
   // Call this if your param is (x, y) but you want to always display (-x, -y)
@@ -173,7 +174,6 @@ public:
   int Int() const { return int(mValue); }
   double DBToAmp() const { return ::DBToAmp(mValue); }
   double GetNormalized() const { return ToNormalized(mValue); }
-  double Constrain(double value) const { return BOUNDED((mIsStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;

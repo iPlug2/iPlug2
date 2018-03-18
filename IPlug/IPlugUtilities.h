@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -28,14 +29,15 @@
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
 
-// TODO: replace BOUNDED with template based alternative
 /** Clamps the value \p x between \p lo and \p hi
  * @param x Input value
  * @param lo Minimum value to be allowed
  * @param hi Maximum value to be allowed
  * If \p x is outside given range, it will be set to one of the boundaries
 */
-#define BOUNDED(x,lo,hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+
+template <typename T>
+T Bound(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
 #define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
 
