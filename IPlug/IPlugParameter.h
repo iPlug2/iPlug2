@@ -172,6 +172,7 @@ private:
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
+  
   Shape* mShape = nullptr;
   DisplayFunc mDisplayFunction = nullptr;
 
