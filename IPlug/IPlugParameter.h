@@ -133,7 +133,7 @@ public:
 
   inline double ToNormalized(double nonNormalizedValue) const
   {
-    return BOUNDED(mShape->ValueToNormalized(Step(nonNormalizedValue), *this), 0, 1);
+    return BOUNDED(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0, 1);
   }
   
   inline double FromNormalized(double normalizedValue) const
@@ -169,8 +169,7 @@ public:
   int Int() const { return int(mValue); }
   double DBToAmp() const { return ::DBToAmp(mValue); }
   double GetNormalized() const { return ToNormalized(mValue); }
-  double Constrain(double value) const { return BOUNDED(Step(value), mMin, mMax); }
-  double Step(double value) const { return mIsStepped ? round(value / mStep) * mStep : value; }
+  double Constrain(double value) const { return BOUNDED((mIsStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
   inline double ToNormalized(double nonNormalizedValue) const
   {
