@@ -39,7 +39,7 @@
 template <typename T>
 T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
-#define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
+static inline bool CStringHasContents(const char* str) { return str && str[0] != '\0'; }
 
 #define MAKE_QUOTE(str) #str
 #define MAKE_STR(str) MAKE_QUOTE(str)

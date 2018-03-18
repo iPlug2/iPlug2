@@ -616,7 +616,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
                 
               case IParam::kUnitCustom:
                 
-                if (CSTR_NOT_EMPTY(pParam->GetCustomUnit()))
+                if (CStringHasContents(metadata.mCustomUnit))
                 {
                   pInfo->unit = kAudioUnitParameterUnit_CustomUnit;
                   pInfo->unitName = CFStringCreateWithCString(0, pParam->GetCustomUnit(), kCFStringEncodingUTF8);
@@ -660,7 +660,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         
         const char* paramGroupName = pParam->GetParamGroupForHost();
 
-        if (CSTR_NOT_EMPTY(paramGroupName))
+        if (CStringHasContents(paramGroupName))
         {
           int clumpID = 0;
           

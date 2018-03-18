@@ -293,7 +293,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
 
 void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
-  if (CSTR_NOT_EMPTY(str))
+  if (CStringHasContents(str))
   {
     int stringLength = (int) strlen(str);
 

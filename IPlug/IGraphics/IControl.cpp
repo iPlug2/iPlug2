@@ -292,7 +292,7 @@ void ITextControl::SetTextFromDelegate(const char* str)
 void ITextControl::Draw(IGraphics& graphics)
 {
   char* cStr = mStr.Get();
-  if (CSTR_NOT_EMPTY(cStr))
+  if (CStringHasContents(cStr))
   {
     graphics.DrawText(mText, cStr, mRECT);
   }

@@ -618,7 +618,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (c < 0) return @"";
 
   const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
-  return CSTR_NOT_EMPTY(tooltip) ? ToNSString((const char*) tooltip) : @"";
+  return CStringHasContents(tooltip) ? ToNSString((const char*) tooltip) : @"";
 }
 
 - (void) registerToolTip: (IRECT&) bounds

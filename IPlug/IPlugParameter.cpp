@@ -155,7 +155,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
   {
     const char* displayText = GetDisplayText((int) value);
 
-    if (CSTR_NOT_EMPTY(displayText))
+    if (CStringHasContents(displayText))
     {
       str.Set(displayText, MAX_PARAM_DISPLAY_LEN);
       return;
@@ -193,8 +193,7 @@ const char* IParam::GetNameForHost() const
 
 const char* IParam::GetLabelForHost() const
 {
-  const char* displayText = GetDisplayText((int) mValue);
-  return (CSTR_NOT_EMPTY(displayText)) ? "" : mLabel;
+  return (CStringHasContents(GetDisplayText((int) mValue))) ? "" : mLabel;
 }
 
 const char* IParam::GetParamGroupForHost() const
