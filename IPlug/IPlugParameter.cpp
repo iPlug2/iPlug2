@@ -211,16 +211,9 @@ int IParam::NDisplayTexts() const
 const char* IParam::GetDisplayText(int value) const
 {
   int n = mDisplayTexts.GetSize();
-  if (n)
+  for (DisplayText* pDT = mDisplayTexts.Get(); n; --n, ++pDT)
   {
-    DisplayText* pDT = mDisplayTexts.Get();
-    for (int i = 0; i < n; ++i, ++pDT)
-    {
-      if (value == pDT->mValue)
-      {
-        return pDT->mText;
-      }
-    }
+    if (value == pDT->mValue) return pDT->mText;
   }
   return "";
 }
@@ -228,27 +221,19 @@ const char* IParam::GetDisplayText(int value) const
 const char* IParam::GetDisplayTextAtIdx(int idx, double* pValue) const
 {
   DisplayText* pDT = mDisplayTexts.Get()+idx;
-
-  if (pValue)
-    *pValue = pDT->mValue;
-
+  if (pValue) *pValue = pDT->mValue;
   return pDT->mText;
 }
 
 bool IParam::MapDisplayText(const char* str, double* pValue) const
 {
   int n = mDisplayTexts.GetSize();
-
-  if (n)
+  for (DisplayText* pDT = mDisplayTexts.Get(); n; --n, ++pDT)
   {
-    DisplayText* pDT = mDisplayTexts.Get();
-    for (int i = 0; i < n; ++i, ++pDT)
+    if (!strcmp(str, pDT->mText))
     {
-      if (!strcmp(str, pDT->mText))
-      {
-        *pValue = pDT->mValue;
-        return true;
-      }
+      *pValue = pDT->mValue;
+      return true;
     }
   }
   return false;
