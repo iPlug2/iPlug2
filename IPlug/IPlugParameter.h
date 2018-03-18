@@ -58,15 +58,11 @@ public:
 
     IParam::EDisplayType GetDisplayType() const override
     {
-      if (mShape > 2.5)
-        return IParam::kDisplayCubeRoot;
-      if (mShape > 1.5)
-        return IParam::kDisplaySquareRoot;
-      if (mShape < (2.0 / 5.0))
-        return IParam::kDisplayCubed;
-      if (mShape < (2.0 / 3.0))
-        return IParam::kDisplaySquared;
-
+      if (mShape > 2.5) return IParam::kDisplayCubeRoot;
+      if (mShape > 1.5) return IParam::kDisplaySquareRoot;
+      if (mShape < (2.0 / 5.0)) return IParam::kDisplayCubed;
+      if (mShape < (2.0 / 3.0)) return IParam::kDisplaySquared;
+      
       return IParam::kDisplayLinear;
     }
 
@@ -74,8 +70,8 @@ public:
     {
       return param.GetMin() + std::pow(value, mShape) * (param.GetMax() - param.GetMin());
     }
-
-    virtual double ValueToNormalized(double value, const IParam& param) const override
+    
+    double ValueToNormalized(double value, const IParam& param) const override
     {
       return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
     }
@@ -100,8 +96,8 @@ public:
     {
       return std::exp(mAdd + value * mMul);
     }
-
-    virtual double ValueToNormalized(double value, const IParam& param) const override
+    
+    double ValueToNormalized(double value, const IParam& param) const override
     {
       return (std::log(value) - mAdd) / mMul;
     }
