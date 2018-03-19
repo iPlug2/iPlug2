@@ -54,6 +54,8 @@ public:
   class Voice
   {
   public:
+    virtual ~Voice() {};
+    
     virtual bool GetBusy() const = 0;
 
     /** @return true if voice is free or amp envs are in release stage */
