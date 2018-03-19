@@ -12,7 +12,6 @@
 *.mode1v3
 *.db
 *.LSOverride
-*.xcworkspace
 *.xcuserdata
 *.xcschememanagement.plist
 build-*
