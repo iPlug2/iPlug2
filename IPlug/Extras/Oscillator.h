@@ -24,7 +24,7 @@ public:
 
   void Reset()
   {
-    mPhase = 0.;
+    mPhase = mStartPhase;
   }
 
 protected:
@@ -108,7 +108,7 @@ class FastSinOscillator : public IOscillator<T>
 
 public:
   FastSinOscillator(double startPhase = 0.)
-  : IOscillator<T>(startPhase)
+  : IOscillator<T>(startPhase * tableSizeM1)
   {
   }
 
@@ -132,7 +132,7 @@ public:
     tf.d = UNITBIT32;
     const int normhipart = tf.i[HIOFFSET];
 
-    for (int s = 0; s < nFrames; s++)
+    for (auto s = 0; s < nFrames; s++)
     {
       tf.d = phase;
       phase += phaseIncr;
