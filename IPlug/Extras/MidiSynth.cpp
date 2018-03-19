@@ -205,10 +205,10 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
 
     Voice* pVoice = GetVoice(v);
 
-    int prevKey = note;
-
     if (!mHeldKeys.empty())
-      prevKey = mHeldKeys.back().mKey;
+      pVoice->mPrevKey = mHeldKeys.back().mKey;
+    else
+      pVoice->mPrevKey = note;
 
     KeyPressInfo theNote = KeyPressInfo(note, velNorm);
 
