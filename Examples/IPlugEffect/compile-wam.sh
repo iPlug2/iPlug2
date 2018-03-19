@@ -1,7 +1,12 @@
 #!/bin/sh
 
-rm -r build-web/*
-mkdir build-web
+if [ -d build-web ]
+then
+  rm -r build-web/*
+else
+  mkdir build-web
+fi
+
 mkdir build-web/scripts
 emmake make
 cd build-web/scripts
