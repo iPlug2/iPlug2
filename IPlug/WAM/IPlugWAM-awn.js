@@ -6,7 +6,7 @@ class IPLUGWAM extends WAMController
     options.numberOfOutputs = 1;
     options.outputChannelCount = [2];
 
-    super(actx, "IPLUGWAM", options);
+    super(actx, "IPlugWAM", options);
   }
 
   static importScripts (actx) {
