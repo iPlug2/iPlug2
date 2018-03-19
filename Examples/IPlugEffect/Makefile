@@ -51,15 +51,17 @@
 # 	-rm $(APP) $(OBJS) $(RESFILES)
 
 ROOT = ../..
-TARGET = ./build-web/IPlugEffect-WAM.js
+TARGET = ./build-web/scripts/IPlugEffect-WAM.js
 API = $(ROOT)/Dependencies/IPlug/WAM_SDK/wamsdk
 WDL_PATH = $(ROOT)/WDL
 IPLUG_PATH = $(ROOT)/IPlug
+EXTRAS_PATH = $(IPLUG_PATH)/Extras
+WAM_PATH = $(IPLUG_PATH)/WAM
 
 SRC = \
 IPlugEffect.cpp \
 $(API)/processor.cpp \
-$(IPLUG_PATH)/IPlugWAM.cpp \
+$(WAM_PATH)/IPlugWAM.cpp \
 $(IPLUG_PATH)/IPlugBase.cpp \
 $(IPLUG_PATH)/IPlugParameter.cpp
 
@@ -69,7 +71,7 @@ EXPORTS = "[\
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -DWAM_API -std=c++11 -s ASSERTIONS=1 -D NO_IGRAPHICS
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -D NO_IGRAPHICS
 LDFLAGS = -O2 -s EXPORTED_FUNCTIONS=$(EXPORTS)
 JSFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM'"
 

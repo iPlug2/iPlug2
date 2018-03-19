@@ -8,7 +8,8 @@
 using namespace WAM;
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo {};
+struct IPlugInstanceInfo
+{};
 
 /** WebAudioModule (WAM) API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
  * @ingroup APIClasses */
@@ -23,7 +24,7 @@ public:
   virtual const char* init(uint32_t bufsize, uint32_t sr, void* pDesc) override;
 //  virtual void terminate() override {}
 //  virtual void resize(uint32_t bufsize) override {}
-  
+
   virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
 //  virtual void onMidi(byte status, byte data1, byte data2) override {}
 //  virtual void onSysex(byte* msg, uint32_t size) override {}
@@ -40,7 +41,7 @@ public:
   EHost GetHost() override {};
   void ResizeGraphics() override {};
   void HostSpecificInit() override {};
-  
+
   //IPlugProcessor
   void SetLatency(int samples) override {};
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; }

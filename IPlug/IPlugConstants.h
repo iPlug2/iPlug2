@@ -150,7 +150,8 @@ enum EAPI
   kAPIAU = 2,
   kAPIAUv3 = 3,
   kAPIAAX = 4,
-  kAPIAPP = 5
+  kAPIAPP = 5,
+  kAPIWAM = 6
 };
 
 /** @enum EHost
@@ -194,7 +195,7 @@ enum EHost
   kHostWaveLabElements,
   kHostTwistedWave,
   kHostBitwig
-  
+
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost

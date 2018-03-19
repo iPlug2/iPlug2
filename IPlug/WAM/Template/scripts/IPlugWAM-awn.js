@@ -1,4 +1,4 @@
-class IPLUGWAM extends WAMController
+class IPlugWAMController extends WAMController
 {
   constructor (actx, options) {
     options = options || {};
@@ -11,10 +11,10 @@ class IPLUGWAM extends WAMController
 
   static importScripts (actx) {
     return new Promise( (resolve) => {
-      actx.audioWorklet.addModule("IPlugEffect-WAM.js").then(() => {
-      actx.audioWorklet.addModule("loader.js").then(() => {
-      actx.audioWorklet.addModule("wam-processor.js").then(() => {
-      actx.audioWorklet.addModule("IPlugWAM-awp.js").then(() => {
+      actx.audioWorklet.addModule("scripts/IPlugEffect-WAM.wasm.js").then(() => {
+      actx.audioWorklet.addModule("scripts/loader.js").then(() => {
+      actx.audioWorklet.addModule("scripts/wamsdk/wamsdk/wam-processor.js").then(() => {
+      actx.audioWorklet.addModule("scripts/IPlugWAM-awp.js").then(() => {
         setTimeout( function () { resolve(); }, 500);
       }) }) }) });
     })

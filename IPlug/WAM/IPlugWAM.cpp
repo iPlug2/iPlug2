@@ -1,17 +1,23 @@
 #include "IPlugWAM.h"
 
+IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
+  : IPLUG_BASE_CLASS(c, kAPIWAM)
+  , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIWAM)
+{
+}
+
 const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 {
   wam_logs("init\n");
-  
+
   _SetSampleRate(sr);
   _SetBlockSize(bufsize);
-  
+
   WDL_String json;
   json.Set("{\n");
-  json.AppendFormatted(8192, "\"audio\": { \"inputs\": [{ \"id\":0, \"channels\":0 }], \"outputs\": [{ \"id\":0, \"channels\":2 }] },\n");
+  json.AppendFormatted(8192, "\"audio\": { \"inputs\": [{ \"id\":0, \"channels\":%i }], \"outputs\": [{ \"id\":0, \"channels\":%i }] },\n", MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
   json.AppendFormatted(8192, "\"parameters\": [\n");
-  
+
   for (int idx = 0; idx < NParams(); idx++)
   {
     IParam* pParam = GetParam(idx);
@@ -43,22 +49,22 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 //    json.AppendFormatted(8192, "\"default\":%f, ", pParam->GetDefault());
 //    json.AppendFormatted(8192, "\"rate\":\"audio\"");
 //    json.AppendFormatted(8192, "}");
-    
+
     if(idx < NParams()-1)
       json.AppendFormatted(8192, ",\n");
     else
       json.AppendFormatted(8192, "\n");
-    
+
     onParam(idx, pParam->Value());
   }
-  
+
   json.Append("]\n}");
-  
+
   wam_logs(json.Get());
-  
+
   //TODO: correct place?
 //  Reset();
-  
+
   return json.Get();
 }
 
