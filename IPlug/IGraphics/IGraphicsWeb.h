@@ -83,9 +83,11 @@ protected:
   void OSLoadBitmap(const char* name, WDL_String& fullPath) override;
 //  void OSLoadFont(const char* name, const int size) override;
 //  bool LoadSVGFile(const WDL_String & file, WDL_String & fileOut);
-    
-  inline void ClipRegion(const IRECT& r) override;
-  inline void ResetClipRegion() override;
+  
+private:
+  
+  void ClipRegion(const IRECT& r) override;
+  void ResetClipRegion() override;
 }
 
 #endif

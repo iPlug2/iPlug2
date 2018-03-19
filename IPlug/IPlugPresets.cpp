@@ -543,7 +543,7 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
           pos = pPreset->mChunk.Get(&v, pos);
 
           WDL_EndianFloat v32;
-          v32.f = (float) GETPLUG->GetParam(i)->GetNormalized(v);
+          v32.f = (float) GETPLUG->GetParam(i)->ToNormalized(v);
           uint32_t swapped = WDL_bswap32(v32.int32);
           bnk.Put(&swapped);
         }

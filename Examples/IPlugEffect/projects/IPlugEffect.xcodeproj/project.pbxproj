@@ -536,7 +536,6 @@
 		4F815915205D50EB00393585 /* vstspeaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstspeaker.h; sourceTree = "<group>"; };
 		4F815916205D50EB00393585 /* vsttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsttypes.h; sourceTree = "<group>"; };
 		4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IPlugEffect.xcconfig; sourceTree = "<group>"; };
-		4F8ECF40205169C700292D0A /* IPlugEasing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEasing.h; path = ../../../IPlug/IPlugEasing.h; sourceTree = "<group>"; };
 		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; };
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
 		4F8F61B120280CB4003F2573 /* IPlugBase_select.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugBase_select.h; path = ../../../IPlug/IPlugBase_select.h; sourceTree = "<group>"; };
@@ -824,7 +823,6 @@
 				4F7C94702029473D00B20111 /* IPlugPresets.h */,
 				4F8F61A7202807B9003F2573 /* IPlugProcessor.h */,
 				4F7C946E2029473D00B20111 /* IPlugPresets.cpp */,
-				4F8ECF40205169C700292D0A /* IPlugEasing.h */,
 				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
 				4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */,
 				4FD7C3A1203372AD009DBA2C /* IPlugDelegate.h */,
@@ -2482,6 +2480,7 @@
 					"$(ALL_DEFS)",
 					"$(EXTRA_ALL_DEFS)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -2501,6 +2500,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -2529,6 +2529,7 @@
 					"$(ALL_DEFS)",
 					"$(EXTRA_ALL_DEFS)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -2557,6 +2558,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
@@ -2585,6 +2587,7 @@
 					"$(EXTRA_ALL_DEFS)",
 					"$(ALL_DEFS)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "$(COMPILER)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
@@ -2612,6 +2615,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
 				WARNING_CFLAGS = (
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",

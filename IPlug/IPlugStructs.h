@@ -323,18 +323,3 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
-
-struct IShapeConvertor
-{
-    IShapeConvertor()
-    {
-        struct normalizedToValue { double operator()(double x, double min, double max, double shape) { return min + x * (max - min); } };
-        struct valueToNormalized { double operator()(double x, double min, double max, double shape) { return (x - min) / (max - min); } };
-        
-        mNormalizedToValue = normalizedToValue();
-        mValueToNormalized = valueToNormalized();
-    }
-    
-    std::function<double(double, double, double, double)> mNormalizedToValue;
-    std::function<double(double, double, double, double)> mValueToNormalized;
-};

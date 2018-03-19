@@ -45,7 +45,8 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
   InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, const char* group, double shape, IShapeConvertor shapeConvertor)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step,
+                        const char* label, const char* group, Shape* shape, EParamUnit unit, DisplayFunc displayFunc)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
@@ -57,6 +58,8 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
   mDefault = defaultVal;
+  mUnit = unit;
+  mDisplayFunction = displayFunc;
 
   for (mDisplayPrecision = 0;
        mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);
@@ -64,23 +67,20 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   {
     ;
   }
-  
-  SetShape(shape);
-  
-  if (shape != 1.0) // TODO: this assumes any param with shape != .1 is using ShapeFuncPowCurve
-    mShapeConvertor = ShapePowCurve();
+    
+  assert (!mShape && "Parameter has already been initialised!");
+  mShape = shape ? shape : new Shape;
+  mShape->Init(*this);
 }
 
 void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group);
-  //TODO: shape
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", group, new ShapeExp, kUnitFrequency);
 }
 
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group);
-  //TODO: shape
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", group, nullptr, kUnitSeconds);
 }
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, const char *group)
@@ -97,18 +97,12 @@ void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal,
 
 void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group);
+  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", group, nullptr, kUnitDB);
 }
 
 void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group);
-}
-
-void IParam::SetShape(double shape)
-{
-  if(shape != 0.0)
-    mShape = shape;
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", group, nullptr, kUnitPercentage);
 }
 
 void IParam::SetDisplayText(double value, const char* str)
@@ -127,7 +121,7 @@ double IParam::DBToAmp() const
 
 void IParam::SetNormalized(double normalizedValue)
 {
-  mValue = FromNormalizedParam(normalizedValue);
+  mValue = FromNormalized(normalizedValue);
   
   if (mType != kTypeDouble)
   {
@@ -139,24 +133,19 @@ void IParam::SetNormalized(double normalizedValue)
 
 double IParam::GetNormalized() const
 {
-  return GetNormalized(mValue);
-}
-
-double IParam::GetNormalized(double nonNormalizedValue) const
-{
-  nonNormalizedValue = BOUNDED(nonNormalizedValue, mMin, mMax);
-  return ToNormalizedParam(nonNormalizedValue);
-}
-
-double IParam::GetNonNormalized(double normalizedValue) const
-{
-  return FromNormalizedParam(normalizedValue);
+  return ToNormalized(mValue);
 }
 
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
-  if (normalized) value = FromNormalizedParam(value);
-
+  if (normalized) value = FromNormalized(value);
+  
+  if (mDisplayFunction != nullptr)
+  {
+    mDisplayFunction(value, str);
+    return;
+  }
+  
   if (withDisplayText)
   {
     const char* displayText = GetDisplayText((int) value);
@@ -174,7 +163,6 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
     displayValue = -displayValue;
 
   // Squash all zeros to positive
-  
   if (!displayValue) displayValue = 0.0;
 
   if (mDisplayPrecision == 0)
@@ -286,6 +274,18 @@ void IParam::GetBounds(double& lo, double& hi) const
 {
   lo = mMin;
   hi = mMax;
+}
+
+IParam::MetaData IParam::GetMetaData() const
+{
+    MetaData data;
+    
+    data.mParamUnit = mUnit;
+    data.mDisplayType = mShape->GetDisplayType();
+    data.mCustomUnit = mUnit == kUnitCustom ? mLabel : nullptr;
+    data.mMeta = mIsMeta;
+    
+    return data;
 }
 
 void IParam::GetJSON(WDL_String& json, int idx) const

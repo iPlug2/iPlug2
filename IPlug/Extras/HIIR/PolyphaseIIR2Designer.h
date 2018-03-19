@@ -70,8 +70,8 @@ public:
   Description:
     Finds the minimum number of coefficients for a given filter specification
   Input parameters:
-    - attenuation: stopband attenuation, dB. > 0.
-    - transition: normalized transition bandwith. Range ]0 ; 1/2[
+    - attenuation: stop-band attenuation, dB. > 0.
+    - transition: normalized transition bandwidth. Range ]0 ; 1/2[
   Returns: Number of coefficients, > 0
   */
   static int compute_nbr_coefs_from_proto (double attenuation, double transition);
@@ -79,12 +79,12 @@ public:
   /*
   Name: compute_atten_from_order_tbw
   Description:
-  Compute the attenuation correspounding to a given number of coefficients
-  and the transition bandwith.
+  Compute the attenuation corresponding to a given number of coefficients
+  and the transition bandwidth.
   Input parameters:
   - nbr_coefs: Number of desired coefficients. > 0.
-  - transition: normalized transition bandwith. Range ]0 ; 1/2[
-  Returns: stopband attenuation, dB. > 0.
+  - transition: normalized transition bandwidth. Range ]0 ; 1/2[
+  Returns: stop-band attenuation, dB. > 0.
   */
   static double compute_atten_from_order_tbw (int nbr_coefs, double transition);
 
@@ -92,11 +92,11 @@ public:
   Name: compute_coefs
   Description:
     Computes coefficients for a half-band polyphase IIR filter, function of a
-    given stopband gain / transition bandwidth specification.
+    given stop-band gain / transition bandwidth specification.
     Order is automatically calculated.
   Input parameters:
-    - attenuation: stopband attenuation, dB. > 0.
-    - transition: normalized transition bandwith. Range ]0 ; 1/2[
+    - attenuation: stop-band attenuation, dB. > 0.
+    - transition: normalized transition bandwidth. Range ]0 ; 1/2[
   Output parameters:
     - coef_arr: Coefficient list, must be large enough to store all the
       coefficients. Filter order = nbr_coefs * 2 + 1
@@ -112,7 +112,7 @@ public:
   is set to the maximum value for these constraints.
   Input parameters:
   - nbr_coefs: Number of desired coefficients. > 0.
-  - transition: normalized transition bandwith. Range ]0 ; 1/2[
+  - transition: normalized transition bandwidth. Range ]0 ; 1/2[
   Output parameters:
   - coef_arr: Coefficient list, must be large enough to store all the
   coefficients.
