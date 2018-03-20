@@ -68,22 +68,22 @@ IParam::IParam()
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
 };
 
-void IParam::InitBool(const char* name, bool defaultVal, int flags, const char* label, const char* group, const char* offText, const char* onText)
+void IParam::InitBool(const char* name, bool defaultVal, const char* label, int flags, const char* group, const char* offText, const char* onText)
 {
   if (mType == kTypeNone) mType = kTypeBool;
-
-  InitEnum(name, (defaultVal ? 1 : 0), 2, flags | kFlagStepped, label, group);
+  
+  InitEnum(name, (defaultVal ? 1 : 0), 2, label, flags | kFlagStepped, group);
 
   SetDisplayText(0, offText);
   SetDisplayText(1, onText);
 }
 
-void IParam::InitEnum(const char* name, int defaultVal, int nEnums, int flags, const char* label, const char* group, const char* listItems, ...)
+void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* label, int flags, const char* group, const char* listItems, ...)
 {
   if (mType == kTypeNone) mType = kTypeEnum;
-
-  InitInt(name, defaultVal, 0, nEnums - 1, flags | kFlagStepped, label, group);
-
+  
+  InitInt(name, defaultVal, 0, nEnums - 1, label, flags | kFlagStepped, group);
+  
   if(listItems)
   {
     SetDisplayText(0, listItems);
@@ -96,14 +96,14 @@ void IParam::InitEnum(const char* name, int defaultVal, int nEnums, int flags, c
   }
 }
 
-void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, int flags, const char* label, const char* group)
+void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label, int flags, const char* group)
 {
   if (mType == kTypeNone) mType = kTypeInt;
-
-  InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, flags | kFlagStepped, label, group);
+  
+  InitDouble(name, (double) defaultVal, (double) minVal, (double) maxVal, 1.0, label, flags | kFlagStepped, group);
 }
 
-void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, int flags, const char* label, const char* group, Shape* shape, EParamUnit unit, IDisplayFunc displayFunc)
+void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, int flags, const char* group, Shape* shape, EParamUnit unit, DisplayFunc displayFunc)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
 
@@ -137,19 +137,17 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 
 void IParam::InitFrequency(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, flags, "Hz", group, new ShapeExp, kUnitFrequency);
-  //TODO: shape
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", flags, group, new ShapeExp, kUnitFrequency);
 }
 
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, flags, "Seconds", group, nullptr, kUnitSeconds);
-  //TODO: shape
+  InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", flags, group, nullptr, kUnitSeconds);
 }
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)
 {
-  InitEnum(name, defaultVal, (maxVal - minVal) + 1, flags, "", group);
+  InitEnum(name, defaultVal, (maxVal - minVal) + 1, "", flags, group);
   WDL_String displayText;
   for (auto i = minVal; i <= maxVal; i++)
   {
@@ -160,12 +158,12 @@ void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal,
 
 void IParam::InitGain(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, step, flags, "dB", group, nullptr, kUnitDB);
+  InitDouble(name, defaultVal, minVal, maxVal, step, "dB", flags, group, nullptr, kUnitDB);
 }
 
 void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
 {
-  InitDouble(name, defaultVal, minVal, maxVal, 1, flags, "%", group, nullptr, kUnitPercentage);
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "%", flags, group, nullptr, kUnitPercentage);
 }
 
 void IParam::SetDisplayText(double value, const char* str)
