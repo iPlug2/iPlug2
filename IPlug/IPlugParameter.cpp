@@ -217,7 +217,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
 
   if (withDisplayText)
   {
-    const char* displayText = GetDisplayText((int) value);
+    const char* displayText = GetDisplayText(value);
 
     if (CStringHasContents(displayText))
     {
@@ -270,7 +270,7 @@ int IParam::NDisplayTexts() const
   return mDisplayTexts.GetSize();
 }
 
-const char* IParam::GetDisplayText(int value) const
+const char* IParam::GetDisplayText(double value) const
 {
   int n = mDisplayTexts.GetSize();
   for (DisplayText* pDT = mDisplayTexts.Get(); n; --n, ++pDT)

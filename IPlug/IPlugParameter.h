@@ -128,7 +128,7 @@ public:
   const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
   
   int NDisplayTexts() const;
-  const char* GetDisplayText(int value) const;
+  const char* GetDisplayText(double value) const;
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
   
