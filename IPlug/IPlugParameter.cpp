@@ -63,6 +63,7 @@ double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) co
 
 IParam::IParam()
 {
+  mShape = new Shape;
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
@@ -106,6 +107,9 @@ void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, c
 void IParam::InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label, int flags, const char* group, Shape* shape, EParamUnit unit, DisplayFunc displayFunc)
 {
   if (mType == kTypeNone) mType = kTypeDouble;
+  
+  assert(!CSTR_NOT_EMPTY(mName) && "Parameter already initialised!");
+  assert(CSTR_NOT_EMPTY(name) && "Parameter must be given a name!");
 
   strcpy(mName, name);
   strcpy(mLabel, label);
@@ -129,9 +133,13 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   {
     ;
   }
-
-  assert (!mShape && "Parameter has already been initialised!");
-  mShape = shape ? shape : new Shape;
+    
+  if (shape)
+  {
+    delete mShape;
+    mShape = shape;
+  }
+  
   mShape->Init(*this);
 }
 
