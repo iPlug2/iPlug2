@@ -24,7 +24,6 @@ _*
 Dependencies/IPlug/VST3_SDK/*
 Dependencies/IPlug/VST2_SDK/*
 Dependencies/IPlug/AAX_SDK/*
-# Dependencies/IPlug/CA_SDK/*
 
 Icon?
 .DS_Stor*
@@ -44,4 +43,4 @@ Ports/*
 *.db-wal
 *.opendb
 /Dependencies/IGraphics/Libs
-/Dependencies/IGraphics/Libs
+/IPlug/AUv3

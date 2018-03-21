@@ -206,7 +206,7 @@ bool IPlugPresetHandler::RestorePreset(int idx)
 
 bool IPlugPresetHandler::RestorePreset(const char* name)
 {
-  if (CSTR_NOT_EMPTY(name))
+  if (CStringHasContents(name))
   {
     int n = mPresets.GetSize();
     for (int i = 0; i < n; ++i)
@@ -241,7 +241,7 @@ void IPlugPresetHandler::ModifyCurrentPreset(const char* name)
 
     GETPLUG->SerializeState(pPreset->mChunk);
 
-    if (CSTR_NOT_EMPTY(name))
+    if (CStringHasContents(name))
     {
       strcpy(pPreset->mName, name);
     }
@@ -383,7 +383,7 @@ const int kFXBVersionNum = 2;
 // big endian
 bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
 {
-  if (CSTR_NOT_EMPTY(file))
+  if (CStringHasContents(file))
   {
     FILE* fp = fopen(file, "wb");
 
@@ -456,7 +456,7 @@ bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
 
 bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
 {
-  if (CSTR_NOT_EMPTY(file))
+  if (CStringHasContents(file))
   {
     FILE* fp = fopen(file, "wb");
 
@@ -561,7 +561,7 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
 
 bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
 {
-  if (CSTR_NOT_EMPTY(file))
+  if (CStringHasContents(file))
   {
     FILE* fp = fopen(file, "rb");
 
@@ -652,7 +652,7 @@ bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
 
 bool IPlugPresetHandler::LoadBankFromFXB(const char* file)
 {
-  if (CSTR_NOT_EMPTY(file))
+  if (CStringHasContents(file))
   {
     FILE* fp = fopen(file, "rb");
 

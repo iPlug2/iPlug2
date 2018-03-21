@@ -722,7 +722,7 @@ HWND IGraphicsWin::GetMainWnd()
       }
       GetWndClassName(mMainWnd, &mMainWndClassName);
     }
-    else if (CSTR_NOT_EMPTY(mMainWndClassName.Get()))
+    else if (CStringHasContents(mMainWndClassName.Get()))
     {
       mPID = GetCurrentProcessId();
       EnumWindows(FindMainWindow, (LPARAM) this);
@@ -1111,7 +1111,7 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
     
-  if (CSTR_NOT_EMPTY(extensions))
+  if (CStringHasContents(extensions))
   {
     wchar_t extStr[256];
     wchar_t defExtStr[16];
@@ -1371,7 +1371,7 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
 
 bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  if (CSTR_NOT_EMPTY(name))
+  if (CStringHasContents(name))
   {
     WDL_String search(name);
     WDL_String typeUpper(type);

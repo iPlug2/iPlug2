@@ -223,7 +223,7 @@ struct IBusInfo
   : mDirection(direction)
   , mNChans(nchans)
   {
-    if(CSTR_NOT_EMPTY(label))
+    if(CStringHasContents(label))
       mLabel.Set(label);
     else
       mLabel.Set(RoutingDirStrs[direction]);

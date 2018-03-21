@@ -61,10 +61,8 @@ public:
     
     int32 flags = 0;
 
-    if (pParam->GetCanAutomate())
-    {
-      flags |= ParameterInfo::kCanAutomate;
-    }
+    if (pParam->GetCanAutomate()) flags |= ParameterInfo::kCanAutomate;
+    if (pParam->Type() == IParam::kTypeEnum) flags |= ParameterInfo::kIsList;
     
     info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());
     info.flags = flags;
@@ -211,7 +209,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
       
       const char* paramGroupName = p->GetParamGroupForHost();
 
-      if (CSTR_NOT_EMPTY(paramGroupName))
+      if (CStringHasContents(paramGroupName))
       {        
         for(int j = 0; j < NParamGroups(); j++)
         {

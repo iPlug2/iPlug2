@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -28,16 +29,15 @@
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
 
-// TODO: replace BOUNDED with template based alternative
-/** Clamps the value \p x between \p lo and \p hi
+/** Clips the value \p x between \p lo and \p hi
  * @param x Input value
  * @param lo Minimum value to be allowed
  * @param hi Maximum value to be allowed
- * If \p x is outside given range, it will be set to one of the boundaries
-*/
-#define BOUNDED(x,lo,hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
+ * If \p x is outside given range, it will be set to one of the boundaries */
+template <typename T>
+T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
-#define CSTR_NOT_EMPTY(cStr) ((cStr) && (cStr)[0] != '\0')
+static inline bool CStringHasContents(const char* str) { return str && str[0] != '\0'; }
 
 #define MAKE_QUOTE(str) #str
 #define MAKE_STR(str) MAKE_QUOTE(str)
@@ -76,7 +76,7 @@
  * \f$ 10^{\frac{x}{20}} \f$
  * @see #IAMP_DB
  */
-inline double DBToAmp(double dB)
+static inline double DBToAmp(double dB)
 {
   return exp(IAMP_DB * dB);
 }
@@ -86,26 +86,26 @@ inline double DBToAmp(double dB)
  * \f$ 20*log_{10}(x) \f$
  * @see #AMP_DB
  */
-inline double AmpToDB(double amp)
+static inline double AmpToDB(double amp)
 {
   return AMP_DB * log(fabs(amp));
 }
 
-inline void GetVersionParts(int version, int& ver, int& maj, int& min)
+static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
 {
   ver = (version & 0xFFFF0000) >> 16;
   maj = (version & 0x0000FF00) >> 8;
   min = version & 0x000000FF;
 }
 
-inline int GetDecimalVersion(int version)
+static inline int GetDecimalVersion(int version)
 {
   int ver, rmaj, rmin;
   GetVersionParts(version, ver, rmaj, rmin);
   return 10000 * ver + 100 * rmaj + rmin;
 }
 
-inline void GetVersionStr(int version, WDL_String& str)
+static inline void GetVersionStr(int version, WDL_String& str)
 {
   int ver, rmaj, rmin;
   GetVersionParts(version, ver, rmaj, rmin);

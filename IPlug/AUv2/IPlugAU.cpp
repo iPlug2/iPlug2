@@ -571,9 +571,9 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         IParam* pParam = GetParam(element);
         
         if (!pParam->GetCanAutomate())  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
-        if (pParam->GetMetaData().mMeta) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
-        if (pParam->NDisplayTexts())    pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
-      
+        if (pParam->GetMeta()) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
+        if (pParam->NDisplayTexts()) pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
+
         const char* paramName = pParam->GetNameForHost();
         pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
         strcpy(pInfo->name, paramName);   // Max 52.
@@ -590,27 +590,77 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
             break;
           default:
           {
-            const char* label = pParam->GetLabelForHost();
-            if (CSTR_NOT_EMPTY(label))
+            switch (pParam->Unit())
             {
-              pInfo->unit = kAudioUnitParameterUnit_CustomUnit;
-              pInfo->unitName = CFStringCreateWithCString(0, label, kCFStringEncodingUTF8);
-            }
-            else
-            {
-              pInfo->unit = kAudioUnitParameterUnit_Generic;
+              case IParam::kUnitPercentage:     pInfo->unit = kAudioUnitParameterUnit_Percent;            break;
+              case IParam::kUnitSeconds:        pInfo->unit = kAudioUnitParameterUnit_Seconds;            break;
+              case IParam::kUnitMilliseconds:   pInfo->unit = kAudioUnitParameterUnit_Milliseconds;       break;
+              case IParam::kUnitSamples:        pInfo->unit = kAudioUnitParameterUnit_SampleFrames;       break;
+              case IParam::kUnitDB:             pInfo->unit = kAudioUnitParameterUnit_Decibels;           break;
+              case IParam::kUnitLinearGain:     pInfo->unit = kAudioUnitParameterUnit_LinearGain;         break;
+              case IParam::kUnitPan:            pInfo->unit = kAudioUnitParameterUnit_Pan;                break;
+              case IParam::kUnitPhase:          pInfo->unit = kAudioUnitParameterUnit_Phase;              break;
+              case IParam::kUnitDegrees:        pInfo->unit = kAudioUnitParameterUnit_Degrees;            break;
+              case IParam::kUnitMeters:         pInfo->unit = kAudioUnitParameterUnit_Meters;             break;
+              case IParam::kUnitRate:           pInfo->unit = kAudioUnitParameterUnit_Rate;               break;
+              case IParam::kUnitRatio:          pInfo->unit = kAudioUnitParameterUnit_Ratio;              break;
+              case IParam::kUnitFrequency:      pInfo->unit = kAudioUnitParameterUnit_Hertz;              break;
+              case IParam::kUnitOctaves:        pInfo->unit = kAudioUnitParameterUnit_Octaves;            break;
+              case IParam::kUnitCents:          pInfo->unit = kAudioUnitParameterUnit_Cents;              break;
+              case IParam::kUnitAbsCents:       pInfo->unit = kAudioUnitParameterUnit_AbsoluteCents;      break;
+              case IParam::kUnitSemitones:      pInfo->unit = kAudioUnitParameterUnit_RelativeSemiTones;  break;
+              case IParam::kUnitMIDINote:       pInfo->unit = kAudioUnitParameterUnit_MIDINoteNumber;     break;
+              case IParam::kUnitMIDICtrlNum:    pInfo->unit = kAudioUnitParameterUnit_MIDIController;     break;
+              case IParam::kUnitBPM:            pInfo->unit = kAudioUnitParameterUnit_BPM;                break;
+              case IParam::kUnitBeats:          pInfo->unit = kAudioUnitParameterUnit_Beats;              break;
+                
+              case IParam::kUnitCustom:
+                
+                if (CStringHasContents(metadata.mCustomUnit))
+                {
+                  pInfo->unit = kAudioUnitParameterUnit_CustomUnit;
+                  pInfo->unitName = CFStringCreateWithCString(0, pParam->GetCustomUnit(), kCFStringEncodingUTF8);
+                }
+                else
+                {
+                  pInfo->unit = kAudioUnitParameterUnit_Generic;
+                }
+                break;
             }
           }
         }
-        double lo, hi;
-        pParam->GetBounds(lo, hi);
-        pInfo->minValue = lo;
-        pInfo->maxValue = hi;
+
+        switch (pParam->DisplayType())
+        {
+          case IParam::kDisplayLinear:
+            break;
+          case IParam::kDisplaySquared:
+            pInfo->flags |= kAudioUnitParameterFlag_DisplaySquared;
+            break;
+          case IParam::kDisplaySquareRoot:
+            pInfo->flags |= kAudioUnitParameterFlag_DisplaySquareRoot;
+            break;
+          case IParam::kDisplayCubed:
+            pInfo->flags |= kAudioUnitParameterFlag_DisplayCubed;
+            break;
+          case IParam::kDisplayCubeRoot:
+            pInfo->flags |= kAudioUnitParameterFlag_DisplayCubeRoot;
+            break;
+          case IParam::kDisplayExp:
+            pInfo->flags |= kAudioUnitParameterFlag_DisplayExponential;
+            break;
+          case IParam::kDisplayLog:
+            pInfo->flags |= kAudioUnitParameterFlag_DisplayLogarithmic;
+            break;
+        }
+        
+        pInfo->minValue = pParam->GetMin();
+        pInfo->maxValue = pParam->GetMax();
         pInfo->defaultValue = pParam->GetDefault();
         
         const char* paramGroupName = pParam->GetParamGroupForHost();
 
-        if (CSTR_NOT_EMPTY(paramGroupName))
+        if (CStringHasContents(paramGroupName))
         {
           int clumpID = 0;
           

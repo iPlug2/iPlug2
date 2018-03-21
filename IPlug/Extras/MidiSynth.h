@@ -54,6 +54,8 @@ public:
   class Voice
   {
   public:
+    virtual ~Voice() {};
+    
     virtual bool GetBusy() const = 0;
 
     /** @return true if voice is free or amp envs are in release stage */
@@ -104,7 +106,7 @@ public:
   public:
     int64_t mStartTime = -1;
     bool mLastBusy = false;
-    int mKey = -1;
+    int mKey = -1, mPrevKey = -1;
     double mBasePitch = 0.;
     double mAftertouch = 0.;
     int mStackIdx = -1;

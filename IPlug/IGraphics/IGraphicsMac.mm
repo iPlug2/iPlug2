@@ -127,7 +127,7 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
 
 bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
-  if(CSTR_NOT_EMPTY(name))
+  if(CStringHasContents(name))
   {
     if(IsSandboxed())
     {
@@ -494,7 +494,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   fileName.Set(""); // reset it
 
-  //if (CSTR_NOT_EMPTY(ext))
+  //if (CStringHasContents(ext))
   pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
 
   if (action == kFileSave)

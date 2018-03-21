@@ -66,7 +66,7 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetDirty(bool triggerAction)
 {
-  mValue = BOUNDED(mValue, mClampLo, mClampHi);
+  mValue = Clip(mValue, mClampLo, mClampHi);
   mDirty = true;
   
   if (triggerAction)
@@ -289,7 +289,7 @@ void IBitmapControl::Draw(IGraphics& g)
   if (mBitmap.N() > 1)
   {
     i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
-    i = BOUNDED(i, 1, mBitmap.N());
+    i = Clip(i, 1, mBitmap.N());
   }
 
   g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
@@ -312,7 +312,7 @@ void ITextControl::SetTextFromDelegate(const char* str)
 void ITextControl::Draw(IGraphics& g)
 {
   char* cStr = mStr.Get();
-  if (CSTR_NOT_EMPTY(cStr))
+  if (CStringHasContents(cStr))
   {
     g.DrawText(mText, cStr, mRECT);
   }

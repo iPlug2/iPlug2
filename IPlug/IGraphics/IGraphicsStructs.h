@@ -507,9 +507,15 @@ struct IRECT
 {
   float L, T, R, B;
 
-  IRECT() { L = T = R = B = 0.f; }
-  IRECT(float l, float t, float r, float b) : L(l), R(r), T(t), B(b) {}
-
+  IRECT()
+  {
+    L = T = R = B = 0.f;
+  }
+  
+  IRECT(float l, float t, float r, float b)
+  : L(l), R(r), T(t), B(b)
+  {}
+  
   IRECT(float x, float y, IBitmap& bitmap)
   {
     L = x;
@@ -856,8 +862,7 @@ class StaticStorage
 public:
 
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
-
-  uint32_t hash(const char* str)
+  uint32_t Hash(const char* str)
   {
     uint32_t hash = 5381;
     int c;
@@ -884,9 +889,9 @@ public:
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
-
-    uint32_t hashID = hash(cacheName.Get());
-
+    
+    uint32_t hashID = Hash(cacheName.Get());
+    
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
@@ -905,8 +910,8 @@ public:
 
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
-
-    key->hashID = hash(cacheName.Get());
+    
+    key->hashID = Hash(cacheName.Get());
     key->data = data;
     key->scale = scale;
     key->name.Set(str);

@@ -102,7 +102,7 @@ EHost IPlugVST2::GetHost()
     int version = 0;
     mHostCallback(&mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
 
-    if (CSTR_NOT_EMPTY(productStr))
+    if (CStringHasContents(productStr))
     {
       int decVer = (int) mHostCallback(&mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
       int ver = decVer / 10000;
@@ -711,7 +711,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     case effGetProgramNameIndexed:
     {
       strcpy((char*) ptr, _this->GetPresetName(idx));
-      return (CSTR_NOT_EMPTY((char*) ptr) ? 1 : 0);
+      return (CStringHasContents((char*) ptr) ? 1 : 0);
     }
     case effSetProgramName:
     {
