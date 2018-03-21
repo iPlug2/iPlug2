@@ -108,8 +108,8 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 {
   if (mType == kTypeNone) mType = kTypeDouble;
   
-  assert(!CSTR_NOT_EMPTY(mName) && "Parameter already initialised!");
-  assert(CSTR_NOT_EMPTY(name) && "Parameter must be given a name!");
+//  assert(CStringHasContents(mName) && "Parameter already initialised!");
+//  assert(CStringHasContents(name) && "Parameter must be given a name!");
 
   strcpy(mName, name);
   strcpy(mLabel, label);
@@ -181,28 +181,6 @@ void IParam::SetDisplayText(double value, const char* str)
   DisplayText* pDT = mDisplayTexts.Get() + n;
   pDT->mValue = value;
   strcpy(pDT->mText, str);
-}
-
-double IParam::DBToAmp() const
-{
-  return ::DBToAmp(mValue);
-}
-
-void IParam::SetNormalized(double normalizedValue)
-{
-  mValue = FromNormalized(normalizedValue);
-
-  if (mType != kTypeDouble)
-  {
-    mValue = round(mValue / mStep) * mStep;
-  }
-
-  mValue = std::min(mValue, mMax);
-}
-
-double IParam::GetNormalized() const
-{
-  return ToNormalized(mValue);
 }
 
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const

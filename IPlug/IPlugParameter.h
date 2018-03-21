@@ -82,7 +82,7 @@ public:
 
   double StringToValue(const char* str) const;
 
-  inline double Constrain(double value) const { return Clip((mIsStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
+  inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
   inline double ToNormalized(double nonNormalizedValue) const
   {
@@ -119,8 +119,6 @@ public:
 
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
-
-  double StringToValue(const char* str) const;
 
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
