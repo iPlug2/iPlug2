@@ -163,15 +163,15 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
       voicesbusy |= busy;
 
       activeCount += (busy==true);
-      #if DEBUG_VOICE_COUNT
-            if(GetVoice(v)->GetBusy()) printf("X");
-            else DBGMSG("_");
-          }
-          DBGMSG("\n");
-          DBGMSG("Num Voices busy %i\n", activeCount);
-      #else
+#if DEBUG_VOICE_COUNT
+      if(GetVoice(v)->GetBusy()) printf("X");
+      else DBGMSG("_");
     }
-      #endif
+    DBGMSG("\n");
+    DBGMSG("Num Voices busy %i\n", activeCount);
+#else
+    }
+#endif
 
     mVoicesAreActive = voicesbusy;
 
@@ -195,7 +195,7 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
 
   if (status == IMidiMsg::kNoteOn && velocity)
   {
-    velocity = BOUNDED(mVelocityLUT[velocity], 1, 127);
+    velocity = Clip(mVelocityLUT[velocity], 1, 127);
     double velNorm = (double) velocity / 127.;
 
     int v = FindFreeVoice(); // or first one triggered
@@ -205,10 +205,10 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
 
     Voice* pVoice = GetVoice(v);
 
-    int prevKey = note;
-
     if (!mHeldKeys.empty())
-      prevKey = mHeldKeys.back().mKey;
+      pVoice->mPrevKey = mHeldKeys.back().mKey;
+    else
+      pVoice->mPrevKey = note;
 
     KeyPressInfo theNote = KeyPressInfo(note, velNorm);
 
@@ -275,7 +275,7 @@ void MidiSynth::NoteOnOffMono(const IMidiMsg& msg)
 
   if (status == IMidiMsg::kNoteOn && velocity)
   {
-    velocity = BOUNDED(mVelocityLUT[velocity], 1, 127);
+    velocity = Clip(mVelocityLUT[velocity], 1, 127);
     double velNorm = (double) velocity / 127.;
 
     KeyPressInfo theNote = KeyPressInfo(note, velNorm);

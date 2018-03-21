@@ -209,7 +209,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
       
       const char* paramGroupName = p->GetParamGroupForHost();
 
-      if (CSTR_NOT_EMPTY(paramGroupName))
+      if (CStringHasContents(paramGroupName))
       {        
         for(int j = 0; j < NParamGroups(); j++)
         {

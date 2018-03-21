@@ -468,7 +468,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale
 {
   const char *path = resourcePath.Get();
 #ifdef OS_MAC
-  if (CSTR_NOT_EMPTY(path))
+  if (CStringHasContents(path))
   {
     const char* ext = path+strlen(path)-1;
     while (ext >= path && *ext != '.') --ext;

@@ -131,7 +131,7 @@ struct IMidiMsg
     Clear();
     mStatus = channel | (kPitchWheel << 4);
     int i = 8192 + (int) (value * 8192.0);
-    i = BOUNDED(i, 0, 16383);
+    i = Clip(i, 0, 16383);
     mData2 = i>>7;
     mData1 = i&0x7F;
   }

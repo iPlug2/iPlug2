@@ -24,7 +24,7 @@ public:
 
   void Reset()
   {
-    mPhase = 0.;
+    mPhase = mStartPhase;
   }
 
 protected:
@@ -108,7 +108,7 @@ class FastSinOscillator : public IOscillator<T>
 
 public:
   FastSinOscillator(double startPhase = 0.)
-  : IOscillator<T>(startPhase)
+  : IOscillator<T>(startPhase * tableSizeM1)
   {
   }
 
@@ -123,6 +123,25 @@ public:
     return output;
   }
 
+  static inline T Lookup(double phaseRadians)
+  {
+    double tPhase = phaseRadians / (PI * 2.) * tableSizeM1;
+    
+    tPhase += (double) UNITBIT32;
+
+    union tabfudge tf;
+    tf.d = UNITBIT32;
+    const int normhipart = tf.i[HIOFFSET];
+
+    tf.d = tPhase;
+    const T* addr = mLUT + (tf.i[HIOFFSET] & tableSizeM1);
+    tf.i[HIOFFSET] = normhipart;
+    const double frac = tf.d - UNITBIT32;
+    const T f1 = addr[0];
+    const T f2 = addr[1];
+    return f1 + frac * (f2 - f1);
+  }
+
   void ProcessBlock(T* pOutput, int nFrames)
   {
     double phase = IOscillator<T>::mPhase + (double) UNITBIT32;
@@ -132,7 +151,7 @@ public:
     tf.d = UNITBIT32;
     const int normhipart = tf.i[HIOFFSET];
 
-    for (int s = 0; s < nFrames; s++)
+    for (auto s = 0; s < nFrames; s++)
     {
       tf.d = phase;
       phase += phaseIncr;
