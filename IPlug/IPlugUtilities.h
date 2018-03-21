@@ -29,13 +29,11 @@
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
 #define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
 
-/** Clamps the value \p x between \p lo and \p hi
+/** Clips the value \p x between \p lo and \p hi
  * @param x Input value
  * @param lo Minimum value to be allowed
  * @param hi Maximum value to be allowed
- * If \p x is outside given range, it will be set to one of the boundaries
-*/
-
+ * If \p x is outside given range, it will be set to one of the boundaries */
 template <typename T>
 T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
