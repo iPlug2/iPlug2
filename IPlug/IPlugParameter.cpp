@@ -116,9 +116,6 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   strcpy(mParamGroup, group);
   
   // N.B. apply stepping and constraints to the default value (and store the result)
-  
-  Set(defaultVal);
-
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
@@ -127,6 +124,8 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mFlags = flags;
   mDisplayFunction = displayFunc;
 
+  Set(defaultVal);
+  
   for (mDisplayPrecision = 0;
        mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);
        ++mDisplayPrecision, step *= 10.0)

@@ -18,6 +18,7 @@ public:
 
   enum EFlags
   {
+    kFlagsNone            = 0,
     kFlagCannotAutomate   = 0x1,
     kFlagStepped          = 0x2,
     kFlagNegateDisplay    = 0x4,
