@@ -152,7 +152,7 @@ void IVKeyboardControl::OnMouseWheel(float x, float y, const IMouseMod & mod, fl
     if (mod.C || mod.S) mVelocity += 0.003f * d;
     else mVelocity += 0.03f * d;
     mVelByWheel = true;
-    mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
+    mVelocity = Clip(mVelocity, 1.f / 127.f, 1.f);
 #ifdef _DEBUG
     SetDirty();
 #else
@@ -427,7 +427,7 @@ void IVKeyboardControl::SetColors(const IColor BKColor, const IColor& WKColor, c
     else
       mBKAlpha += lumDW + 0.5f;
     
-    mBKAlpha = BOUNDED(mBKAlpha, 15.f, 255.f);
+    mBKAlpha = Clip(mBKAlpha, 15.f, 255.f);
   }
   
   SetDirty();
@@ -567,7 +567,7 @@ void IVKeyboardControl::UpdateVelocity(float y)
     
     mVelocity = (float)(y - mRECT.T) / (0.95f * h);
     // 0.95 is to get max velocity around the bottom
-    mVelocity = BOUNDED(mVelocity, 1.f / 127.f, 1.f);
+    mVelocity = Clip(mVelocity, 1.f / 127.f, 1.f);
   }
   else mVelocity = 0.f;
 }
