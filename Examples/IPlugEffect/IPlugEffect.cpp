@@ -7,6 +7,8 @@
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+, mFaustGen("Gain", "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Gain.dsp",
+                    "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Gain.cpp")
 {
   TRACE;
   

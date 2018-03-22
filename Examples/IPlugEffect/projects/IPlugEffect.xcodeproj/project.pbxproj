@@ -73,9 +73,11 @@
 		4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
 		4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.mm */; };
 		4F3AE17B12C0E5E2001FD7A4 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* config.h */; };
+		4F3B433E20632B8C00DBDACA /* IPlugFaust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3B433C20632B8C00DBDACA /* IPlugFaust.cpp */; };
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
+		4F65CBB72063C898003AFAFB /* IPlugFaust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3B433C20632B8C00DBDACA /* IPlugFaust.cpp */; };
 		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
 		4F690CA1203A398900A4A13E /* IPlugAPP_host.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F690CA0203A398900A4A13E /* IPlugAPP_host.h */; };
 		4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */; };
@@ -374,6 +376,8 @@
 		4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAUAudioUnit.mm; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.mm; sourceTree = "<group>"; };
 		4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUAudioUnit.h; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.h; sourceTree = "<group>"; };
 		4F3907872013ED2F00DDA490 /* IPlugEffect-macOS-AUv3-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-macOS-AUv3-Info.plist"; path = "../resources/IPlugEffect-macOS-AUv3-Info.plist"; sourceTree = "<group>"; };
+		4F3B433C20632B8C00DBDACA /* IPlugFaust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugFaust.cpp; path = ../../../IPlug/Extras/IPlugFaust.cpp; sourceTree = "<group>"; };
+		4F3B433D20632B8C00DBDACA /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugFaust.h; path = ../../../IPlug/Extras/IPlugFaust.h; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
 		4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-VST3-Info.plist"; path = "../resources/IPlugEffect-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3FB118202273A500622761 /* IPlugEffect.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IPlugEffect.entitlements; sourceTree = "<group>"; };
@@ -748,6 +752,15 @@
 			name = AUv3;
 			sourceTree = "<group>";
 		};
+		4F3B433A20632B6800DBDACA /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4F3B433C20632B8C00DBDACA /* IPlugFaust.cpp */,
+				4F3B433D20632B8C00DBDACA /* IPlugFaust.h */,
+			);
+			name = Extras;
+			sourceTree = "<group>";
+		};
 		4F3E69001409743C00C4D749 /* VST3 */ = {
 			isa = PBXGroup;
 			children = (
@@ -792,6 +805,7 @@
 		4F78D8D013B63B390032E0F3 /* IPlug */ = {
 			isa = PBXGroup;
 			children = (
+				4F3B433A20632B6800DBDACA /* Extras */,
 				4F78D9F913B63C920032E0F3 /* AUv2 */,
 				4F3907762013EBE800DDA490 /* AUv3 */,
 				4F4CC4241549BEBF00A9EA21 /* AAX */,
@@ -1750,6 +1764,7 @@
 				4F69BB6B2013C532002C8948 /* IGraphicsMac_view.mm in Sources */,
 				4F6D9DED2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
+				4F3B433E20632B8C00DBDACA /* IPlugFaust.cpp in Sources */,
 				4F69BB6A2013C532002C8948 /* IGraphicsMac.mm in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
@@ -1835,6 +1850,7 @@
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
 				4F815994205D51F000393585 /* vstparameters.cpp in Sources */,
 				4F815991205D51F000393585 /* vstcomponentbase.cpp in Sources */,
+				4F65CBB72063C898003AFAFB /* IPlugFaust.cpp in Sources */,
 				4F815987205D50EB00393585 /* conststringtable.cpp in Sources */,
 				4F81598D205D51F000393585 /* vstaudioeffect.cpp in Sources */,
 				4F81598C205D51CF00393585 /* vstsinglecomponenteffect.cpp in Sources */,
