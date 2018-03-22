@@ -228,7 +228,7 @@ void FaustFactory::MakeJson(::dsp *dsp)
 
 void FaustFactory::AddLibraryPath(const char* libraryPath)
 {
-  if (CSTR_NOT_EMPTY(libraryPath))
+  if (CStringHasContents(libraryPath))
   {
     if(!mLibraryPaths.Find(libraryPath))
       mLibraryPaths.Add(libraryPath);
@@ -237,12 +237,12 @@ void FaustFactory::AddLibraryPath(const char* libraryPath)
 
 void FaustFactory::AddCompileOption(const char* key, const char* value)
 {
-  if (CSTR_NOT_EMPTY(key))
+  if (CStringHasContents(key))
   {
     mCompileOptions.push_back(key);
   }
 
-  if (CSTR_NOT_EMPTY(value))
+  if (CStringHasContents(value))
   {
     mCompileOptions.push_back(value);
   }
