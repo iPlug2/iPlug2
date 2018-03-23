@@ -12,12 +12,11 @@
 #include "faust/sound-file.h"
 #endif
 
-int FaustFactory::gFaustGenCounter = 0;
-map<string, FaustFactory *> FaustFactory::gFactoryMap;
+int FaustGen::Factory::gFaustGenCounter = 0;
+map<string, FaustGen::Factory *> FaustGen::Factory::gFactoryMap;
 std::list<GUI*> GUI::fGuiList;
-//ztimedmap GUI::gTimedZoneMap;
 
-FaustFactory::FaustFactory(const char* name, const char* libraryPath, const char* drawPath)
+FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath)
 {
   mName.Set(name);
   mInstanceID = gFaustGenCounter++;
@@ -27,7 +26,7 @@ FaustFactory::FaustFactory(const char* name, const char* libraryPath, const char
   mDrawPath.Set(drawPath);
 }
 
-FaustFactory::~FaustFactory()
+FaustGen::Factory::~Factory()
 {
   FreeDSPFactory();
   mSourceCodeStr.Set("");
@@ -35,7 +34,7 @@ FaustFactory::~FaustFactory()
 //  mMidiHandler.stop_midi();
 }
 
-void FaustFactory::FreeDSPFactory()
+void FaustGen::Factory::FreeDSPFactory()
 {
   WDL_MutexLock lock(&mDSPMutex);
 
@@ -48,7 +47,7 @@ void FaustFactory::FreeDSPFactory()
   mFactory = nullptr;
 }
 
-llvm_dsp_factory *FaustFactory::CreateFactoryFromBitCode()
+llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromBitCode()
 {
   //return readDSPFactoryFromBitCodeStr(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
 
@@ -61,7 +60,7 @@ llvm_dsp_factory *FaustFactory::CreateFactoryFromBitCode()
   */
 }
 
-llvm_dsp_factory *FaustFactory::CreateFactoryFromSourceCode()
+llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 {
   WDL_String name;
   name.SetFormatted(64, "FaustGen-%d", mInstanceID);
@@ -121,7 +120,7 @@ llvm_dsp_factory *FaustFactory::CreateFactoryFromSourceCode()
   }
 }
 
-::dsp *FaustFactory::CreateDSPInstance(int nVoices)
+::dsp *FaustGen::Factory::CreateDSPInstance(int nVoices)
 {
   ::dsp* pMonoDSP = mFactory->createDSPInstance();
 
@@ -142,7 +141,7 @@ llvm_dsp_factory *FaustFactory::CreateFactoryFromSourceCode()
     return pMonoDSP;
 }
 
-::dsp *FaustFactory::CreateDSPAux(const char* str)
+::dsp *FaustGen::Factory::CreateDSPAux(const char* str)
 {
   ::dsp* pDSP = nullptr;
   FMeta meta;
@@ -221,7 +220,7 @@ end:
   return pDSP;
 }
 
-void FaustFactory::AddLibraryPath(const char* libraryPath)
+void FaustGen::Factory::AddLibraryPath(const char* libraryPath)
 {
   if (CStringHasContents(libraryPath))
   {
@@ -230,7 +229,7 @@ void FaustFactory::AddLibraryPath(const char* libraryPath)
   }
 }
 
-void FaustFactory::AddCompileOption(const char* key, const char* value)
+void FaustGen::Factory::AddCompileOption(const char* key, const char* value)
 {
   if (CStringHasContents(key))
   {
@@ -243,7 +242,7 @@ void FaustFactory::AddCompileOption(const char* key, const char* value)
   }
 }
 
-void FaustFactory::PrintCompileOptions()
+void FaustGen::Factory::PrintCompileOptions()
 {
   if (mCompileOptions.size() > 0)
   {
@@ -258,7 +257,7 @@ void FaustFactory::PrintCompileOptions()
   }
 }
 
-void FaustFactory::SetDefaultCompileOptions()
+void FaustGen::Factory::SetDefaultCompileOptions()
 {
   // Clear and set default value
   mCompileOptions.clear();
@@ -305,7 +304,7 @@ void FaustFactory::SetDefaultCompileOptions()
   */
 }
 
-void FaustFactory::UpdateSourceCode(const char* str)
+void FaustGen::Factory::UpdateSourceCode(const char* str)
 {
   DBGMSG("FaustGen: Updating source code %s...\n", str);
 
@@ -337,7 +336,7 @@ void FaustFactory::UpdateSourceCode(const char* str)
   }
 }
 
-void FaustFactory::RemoveInstance(FaustGen* pDSP)
+void FaustGen::Factory::RemoveInstance(FaustGen* pDSP)
 {
   mInstances.erase(pDSP);
 
@@ -349,7 +348,7 @@ void FaustFactory::RemoveInstance(FaustGen* pDSP)
   }
 }
 
-bool FaustFactory::LoadFile(const char* file)
+bool FaustGen::Factory::LoadFile(const char* file)
 {
   // Delete the existing Faust module
   FreeDSPFactory();
@@ -370,12 +369,12 @@ bool FaustFactory::LoadFile(const char* file)
   return true; // TODO: return false if fail
 }
 
-bool FaustFactory::WriteToFile(const char* file)
+bool FaustGen::Factory::WriteToFile(const char* file)
 {
   return false;
 }
 
-void FaustFactory::SetCompileOptions(std::initializer_list<const char*> options)
+void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> options)
 {
   DBGMSG("FaustGen: Compiler options modified for FaustGen\n");
 
@@ -420,14 +419,14 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, const char* outpu
   mArchitectureFile.Set(archFile);
   mName.Set(name);
   
-  if (FaustFactory::gFactoryMap.find(name) != FaustFactory::gFactoryMap.end())
+  if (FaustGen::Factory::gFactoryMap.find(name) != FaustGen::Factory::gFactoryMap.end())
   {
-    mFactory = FaustFactory::gFactoryMap[name];
+    mFactory = FaustGen::Factory::gFactoryMap[name];
   }
   else
   {
-    mFactory = new FaustFactory(name, libraryPath, drawPath);
-    FaustFactory::gFactoryMap[name] = mFactory;
+    mFactory = new Factory(name, libraryPath, drawPath);
+    FaustGen::Factory::gFactoryMap[name] = mFactory;
   }
   
   mFactory->AddInstance(this);
@@ -473,12 +472,12 @@ void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
   }
 }
 
-void FaustGen::GetSVGPath(WDL_String& path)
+void FaustGen::GetDrawPath(WDL_String& path)
 {
   path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceID);
 }
 
-bool FaustGen::CompileArchitectureFile()
+bool FaustGen::CompileCPP()
 {
   //TODO: add compiler options
   WDL_String command;

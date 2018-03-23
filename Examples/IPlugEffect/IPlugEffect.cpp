@@ -11,7 +11,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   TRACE;
   mFaustGain.Init("import(\"stdfaust.lib\");process = _, no.noise * (vslider(\"Gain\", 0, 0., 1, 0.1));");
   mFaustGain.CreateIPlugParameters(*this);
-  mFaustGain.CompileArchitectureFile();
+  mFaustGain.CompileCPP();
   
   PrintDebugInfo();
 }
