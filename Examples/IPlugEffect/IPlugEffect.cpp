@@ -29,10 +29,12 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(2, nRows, nColumns).GetPadded(-5.), kGain));
   pGraphics->AttachControl(new IMultiPathControl(*this, bounds.GetGridCell(3, nRows, nColumns).GetPadded(-5.), -1));
 
+#ifndef OS_WIN
   auto svg1 = pGraphics->LoadSVG(SVGKNOB_FN);
   auto svg2 = pGraphics->LoadSVG(TIGER_FN);
   pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(4, nRows, nColumns).GetPadded(-5.), svg1, -1));
   pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(5, nRows, nColumns).GetPadded(-5.), svg2, -1));
+#endif
 
   auto bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
   
