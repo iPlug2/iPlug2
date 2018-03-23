@@ -11,6 +11,8 @@
 
 #include "IPlugBase.h"
 
+#include "Oversampler.h"
+
 #if defined OS_MAC || defined OS_LINUX
 #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
 #else
@@ -172,6 +174,7 @@ public:
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
   
 protected:
+  OverSampler<sample>* mOverSampler = nullptr;
   WDL_String mName;
   int mNVoices;
   ::dsp* mDSP = nullptr;
