@@ -1,7 +1,12 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IPlugFaust.h"
+
+#ifndef FAUST_COMPILED
+  #include "IPlugFaustGen.h"
+#else
+  #include "Gain.hpp"
+#endif
 
 const int kNumPrograms = 1;
 
@@ -25,8 +30,8 @@ class IPlugEffect : public IPlug
 public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
 //  ~IPlugEffect();
-//   void OnReset() override;
-//  void OnParamChange(int paramIdx) override;
+  void OnReset() override;
+  void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
 //  void OnActivate(bool activate) override
@@ -35,5 +40,5 @@ public:
 //    DBGMSG("number of outputs connected %i\n", NOutChansConnected());
 //  }
   
-  FaustGen mFaustGen;
+  FaustGen mFaustGain;
 };

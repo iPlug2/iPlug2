@@ -1,35 +1,33 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
-#include "IControls.h"
 #include "config.h"
-
-#include "IPlugEffect_controls.h"
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
-, mFaustGen("Gain", "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Gain.dsp",
-                    "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Gain.cpp")
+, mFaustGain("Gain", "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Gain.dsp",
+                     "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Gain.hpp",
+                     "/Users/oli/Dev/MyPlugins/IPlug/Extras/IPlugFaust_arch.cpp")
 {
   TRACE;
+  mFaustGain.Init("import(\"stdfaust.lib\");process = _, no.noise * (vslider(\"Gain\", 0, 0., 1, 0.1));");
+  mFaustGain.CreateIPlugParameters(*this);
+  mFaustGain.CompileArchitectureFile();
   
-  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
-
   PrintDebugInfo();
 }
 
 void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-//  ENTER_PARAMS_MUTEX;
-//  const double gain = GetParam(kGain)->Value() / 100.;
-//  LEAVE_PARAMS_MUTEX;
-//
-//  const int nChans = NOutChansConnected();
-//
-//  for (auto s = 0; s < nFrames; s++) {
-//    for (auto c = 0; c < nChans; c++) {
-//      outputs[c][s] = inputs[c][s] * gain;
-//    }
-//  }
-//
-  mFaustGen.ProcessBlock(inputs, outputs, nFrames);
+  mFaustGain.ProcessBlock(inputs, outputs, nFrames);
 }
+
+void IPlugEffect::OnReset()
+{
+  mFaustGain.SetSampleRate(GetSampleRate());
+}
+
+void IPlugEffect::OnParamChange(int paramIdx)
+{
+  mFaustGain.SetParameterValue(paramIdx, GetParam(paramIdx)->Value());
+}
+
