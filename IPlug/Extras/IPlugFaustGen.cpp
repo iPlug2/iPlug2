@@ -1,4 +1,7 @@
-#include "IPlugFaust.h"
+#ifndef FAUST_COMPILED
+
+#include "IPlugFaustGen.h"
+#include "IPlugUtilities.h"
 
 #include "faust/dsp/libfaust.h"
 
@@ -12,7 +15,7 @@
 int FaustFactory::gFaustGenCounter = 0;
 map<string, FaustFactory *> FaustFactory::gFactoryMap;
 std::list<GUI*> GUI::fGuiList;
-ztimedmap GUI::gTimedZoneMap;
+//ztimedmap GUI::gTimedZoneMap;
 
 FaustFactory::FaustFactory(const char* name, const char* libraryPath, const char* drawPath)
 {
@@ -97,6 +100,7 @@ llvm_dsp_factory *FaustFactory::CreateFactoryFromSourceCode()
 
   if (pFactory)
   {
+    
     return pFactory;
   }
   else
@@ -215,15 +219,6 @@ end:
   // Prepare JSON
 //  MakeJson(pDSP);
   return pDSP;
-}
-
-void FaustFactory::MakeJson(::dsp *dsp)
-{
-  // Prepare JSON
-//  JSONUI builder(m_siginlets, m_sigoutlets);
-//  dsp->buildUserInterface(&builder);
-//  dsp->metadata(&builder);
-//  fJSON = builder.JSON();
 }
 
 void FaustFactory::AddLibraryPath(const char* libraryPath)
@@ -384,9 +379,8 @@ void FaustFactory::SetCompileOptions(std::initializer_list<const char*> options)
 {
   DBGMSG("FaustGen: Compiler options modified for FaustGen\n");
 
-  if (options.size() == 0) {
+  if (options.size() == 0)
     DBGMSG("FaustGen: No argument entered, no additional compilation option will be used");
-  }
 
   mOptions = options;
 //
@@ -416,8 +410,16 @@ void FaustFactory::SetCompileOptions(std::initializer_list<const char*> options)
 
 }
 
-FaustGen::FaustGen(const char* name, const char* inputFile, const char* outputFile, const char* drawPath, const char* libraryPath)
+#pragma mark -
+
+FaustGen::FaustGen(const char* name, const char* inputDSPFile, const char* outputCPPFile, const char* archFile, const char* drawPath, const char* libraryPath, int nVoices)
+: IPlugFaust(name, nVoices)
 {
+  mInputDSPFile.Set(inputDSPFile);
+  mOutputCPPFile.Set(outputCPPFile);
+  mArchitectureFile.Set(archFile);
+  mName.Set(name);
+  
   if (FaustFactory::gFactoryMap.find(name) != FaustFactory::gFactoryMap.end())
   {
     mFactory = FaustFactory::gFactoryMap[name];
@@ -435,19 +437,8 @@ FaustGen::~FaustGen()
 {
   FreeDSP();
 
-  // Has to be done *before* RemoveInstance that may free mFactory and thus mFactory->mMidiHandler
-  //delete mMidiUI;
-
   if(mFactory)
     mFactory->RemoveInstance(this);
-}
-
-void FaustGen::FreeDSP()
-{
-//  RemoveMidiHandler();
-  delete mDSP;
-  mDSP = nullptr;
-//  fDSPUI.clear();
 }
 
 void FaustGen::SourceCodeChanged()
@@ -457,31 +448,22 @@ void FaustGen::SourceCodeChanged()
   //  SetDirty();
 }
 
-void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
-{
-  //TODO: implement thread safety mechanism / mutex to prevent errors if DSP is not compiled
-  if (mDSP)
-  {
-    mDSP->compute(nFrames, inputs, outputs);
-  }
-}
+//void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+//{
+//  // TODO: thread safety
+//}
 
-void FaustGen::SetSampleRate(double sampleRate)
+void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
 {
-  mDSP->init(sampleRate);
-}
-
-void FaustGen::Init(const char* str)
-{
-  mDSP = mFactory->CreateDSPAux(str);
+//  TODO: if sourceStr is empty load file
+//  if(!CStringHasContents(sourceStr))
+  
+  mDSP = mFactory->CreateDSPAux(sourceStr);
   assert(mDSP);
 
-  //TODO: build user interface
-  // Initialize User Interface (here connnection with controls)
-//    mDSP->buildUserInterface(&mDSPUI);
-//
 //    AddMidiHandler();
 //    mDSP->buildUserInterface(mMidiUI);
+  mDSP->buildUserInterface(this);
 
   mDSP->init(DEFAULT_SAMPLE_RATE);
 
@@ -490,3 +472,27 @@ void FaustGen::Init(const char* str)
     //TODO: do something when I/O is wrong
   }
 }
+
+void FaustGen::GetSVGPath(WDL_String& path)
+{
+  path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceID);
+}
+
+bool FaustGen::CompileArchitectureFile()
+{
+  //TODO: add compiler options
+  WDL_String command;
+  command.SetFormatted(1024, "%s -cn %s -i -a %s %s -o %s", FAUST_EXE, mName.Get(), mArchitectureFile.Get(), mInputDSPFile.Get(), mOutputCPPFile.Get());
+
+  DBGMSG("Executing shell command: %s\n", command.Get());
+  
+  if(system(command.Get()) > -1)
+  {
+    return true;
+  }
+  
+  return false;
+}
+
+#endif // #ifndef FAUST_COMPILED
+

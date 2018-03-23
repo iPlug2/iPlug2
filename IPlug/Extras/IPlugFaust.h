@@ -1,30 +1,10 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <set>
-#include <vector>
-#include <map>
+#include "faust/gui/UI.h"
+#include "faust/gui/MidiUI.h"
+#include "assocarray.h"
 
-#include "IPlugPlatform.h"
-
-#define FAUSTFLOAT double
-
-#include "faust/dsp/llvm-dsp.h"
-// #include "faust/gui/JSONUI.h"
-// #include "faust/gui/MidiUI.h"
-
-#include "mutex.h"
-
-#ifndef OS_WIN
-#include <libgen.h>
-#endif
-
-#define DEFAULT_SOURCE_CODE "import(\"stdfaust.lib\");\nprocess=_;"
-#define FAUSTGEN_VERSION "1.19"
-#define LLVM_OPTIMIZATION -1  // means 'maximum'
+#include "IPlugBase.h"
 
 #if defined OS_MAC || defined OS_LINUX
 #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
@@ -32,136 +12,162 @@
 #define DEFAULT_FAUST_LIBRARY_PATH //TODO
 #endif
 
-using namespace std;
-
-class FaustGen;
-
-class FaustFactory
+class IPlugFaust : public UI, public Meta
 {
-#ifdef OS_MAC
-  static string GetLLVMArchStr()
-  {
-    int tmp;
-    return (sizeof(&tmp) == 8) ? "" : "i386-apple-darwin10.6.0";
-  }
-#endif
-  
-  //static const char *getCodeSize()
-  //{
-  //  int tmp;
-  //  return (sizeof(&tmp) == 8) ? "64 bits" : "32 bits";
-  //}
-
-  friend class FaustGen;
-
 public:
-  FaustFactory(const char* name, const char* libPath, const char* drawPath);
-  ~FaustFactory();
   
-  llvm_dsp_factory* CreateFactoryFromBitCode();
-  llvm_dsp_factory* CreateFactoryFromSourceCode();
-  ::dsp* CreateDSPAux(const char* str = 0);
-  
-  void FreeDSPFactory();
-  void SetDefaultCompileOptions();
-  void PrintCompileOptions();
-  
-  int GetInstanceID() { return mInstanceID; }
-  const char* GetName() { return mName.Get(); }
-  const char* GetSourceCode() { return mSourceCodeStr.Get(); }
-  const char* GetJSON() { return mJSON.Get(); }
-  
-  void UpdateSourceCode(const char* str);
-
-  ::dsp* CreateDSPInstance(int nVoices = 0);
-  void AddInstance(FaustGen* pDSP) { mInstances.insert(pDSP); }
-  void RemoveInstance(FaustGen* pDSP);
-
-  bool LoadFile(const char* file);
-  bool WriteToFile(const char* file);
-  void SetCompileOptions(std::initializer_list<const char*> options);
-  
-private:
-  void AddLibraryPath(const char* libraryPath);
-  void AddCompileOption(const char* key, const char* value = "");
-  void MakeJson(::dsp* pDSP);
-private:
-  struct FMeta : public Meta, public std::map<std::string, std::string>
+  IPlugFaust(const char* name, int nVoices = 1)
+  : mNVoices(nVoices)
   {
-    void declare(const char *key, const char *value)
+    mName.Set(name);
+  }
+  
+  virtual ~IPlugFaust()
+  {
+    // Has to be done *before* RemoveInstance that may free mFactory and thus mFactory->mMidiHandler
+    //delete mMidiUI;
+
+    mParams.Empty(true);
+  }
+  
+  virtual void Init(const char* sourceStr = "", int maxNInputs = -1, int maxNOutputs = -1) = 0;
+  
+  virtual void GetSVGPath(WDL_String& path) {}
+  virtual bool CompileArchitectureFile() { return true; }
+  
+  void FreeDSP()
+  {
+    DELETE_NULL(mDSP);
+  }
+  
+  // Unique
+  void SetSampleRate(double sampleRate)
+  {
+    if (mDSP)
+      mDSP->init((int) sampleRate);
+  }
+  
+  void ProcessMidiMsg(const IMidiMsg& msg)
+  {
+//    TODO:
+  }
+  
+  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+  {
+    if (mDSP)
+      mDSP->compute(nFrames, inputs, outputs);
+  }
+  
+  void SetParameterValue(int paramIdx, double normalizedValue)
+  {
+    assert(paramIdx < NParams());
+    
+    *(mZones.Get(paramIdx)) = normalizedValue;
+  }
+  
+  void SetParameterValue(const char* labelToLookup, double normalizedValue)
+  {
+    FAUSTFLOAT* dest = nullptr;
+    dest = mMap.Get(labelToLookup, nullptr);
+    
+    if(dest)
+      *dest = normalizedValue;
+  }
+  
+  int CreateIPlugParameters(IPlugBase& plug, int startIdx = 0)
+  {
+    int plugParamIdx = startIdx;
+
+    for (auto p = 0; p < NParams(); p++)
     {
-//      DBGMSG("FaustGen: metadata:\n");
-//
-//      if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
-//      {
-//        DBGMSG("\t\tkey:%s : %s\n", key, value);
-//      }
-//
-      (*this)[key] = value;
+      plugParamIdx += p;
+      assert(plugParamIdx < plug.NParams());
+      
+      plug.GetParam(plugParamIdx)->Init(*mParams.Get(p));
     }
     
-    const std::string get(const char *key, const char *def)
-    {
-      if (this->find(key) != this->end())
-      {
-        return (*this)[key];
-      }
-      else
-      {
-        return def;
-      }
-    }
-  };
-  
-private:
-  int mInstanceID;
-  WDL_Mutex mDSPMutex;
-  set<FaustGen*> mInstances;
+    return plugParamIdx;
+  }
 
-  llvm_dsp_factory* mFactory = nullptr;
-  //  midi_handler mMidiHandler;
-  WDL_String mSourceCodeStr;
-  WDL_String mBitCodeStr;
-  WDL_String mDrawPath;
-  WDL_String mName;
-  WDL_String mJSON;
-  
-  WDL_TypedBuf<const char*> mLibraryPaths;
-  vector<const char*> mOptions;
-  vector<const char*> mCompileOptions;
-
-  int mNDSPInputs = 0;
-  int mNDSPOutputs = 0;
-  int mOptimizationLevel = LLVM_OPTIMIZATION;
-  static int gFaustGenCounter;
-  static map<string, FaustFactory*> gFactoryMap;
-};
-
-class FaustGen
-{
-  friend class FaustFactory;
-public:
-  
-  FaustGen(const char* name, const char* inputFile = 0, const char* outputFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH);
-  ~FaustGen();
-
-  void GetSVGPath(WDL_String& path)
+  int NParams()
   {
-    path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceID);
+    return mParams.GetSize();
   }
   
-  void Init(const char* str);
-  void FreeDSP();
-//  void AddMidiHandler();
-//  void RemoveMidiHandler();
+  // Meta
+  void declare(const char *key, const char *value) override
+  {
+    // TODO:
+  }
   
-  void SetSampleRate(double sampleRate);
+  // UI
   
-  void ProcessBlock(sample** inputs, sample** outputs, int nFrames);
-private:
-  void SourceCodeChanged();
-  FaustFactory* mFactory = nullptr;
-  // MidiUI* mMidiUI;
+  // TODO:
+  void openTabBox(const char *label) override {}
+  void openHorizontalBox(const char *label) override {}
+  void openVerticalBox(const char *label) override {}
+  void closeBox() override {}
+  
+  void addButton(const char *label, FAUSTFLOAT *zone) override
+  {
+    IParam* pParam = new IParam();
+    pParam->InitBool(label, 0);
+    mParams.Add(pParam);
+    mZones.Add(zone);
+    mMap.Insert(label, zone);
+  }
+  
+  void addCheckButton(const char *label, FAUSTFLOAT *zone) override
+  {
+    IParam* pParam = new IParam();
+    pParam->InitBool(label, 0);
+    mParams.Add(pParam);
+    mZones.Add(zone);
+    mMap.Insert(label, zone);
+  }
+  
+  void addVerticalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
+  {
+    IParam* pParam = new IParam();
+    pParam->InitDouble(label, init, min, max, step);
+    mParams.Add(pParam);
+    mZones.Add(zone);
+    mMap.Insert(label, zone);
+  }
+  
+  void addHorizontalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
+  {
+    IParam* pParam = new IParam();
+    pParam->InitDouble(label, init, min, max, step);
+    mParams.Add(pParam);
+    mZones.Add(zone);
+    mMap.Insert(label, zone);
+  }
+  
+  void addNumEntry(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
+  {
+    IParam* pParam = new IParam();
+    pParam->InitEnum(label, init, max - min);
+    mParams.Add(pParam);
+    mZones.Add(zone);
+    mMap.Insert(label, zone);
+  }
+  
+  // TODO:
+  void addHorizontalBargraph(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT min, FAUSTFLOAT max) override {}
+  void addVerticalBargraph(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT min, FAUSTFLOAT max) override {}
+  void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
+  
+protected:
+  WDL_String mName;
+  int mNVoices;
   ::dsp* mDSP = nullptr;
+  MidiUI* mMidiUI = nullptr;
+  WDL_PtrList<IParam> mParams;
+  WDL_PtrList<FAUSTFLOAT> mZones;
+  WDL_StringKeyedArray<FAUSTFLOAT*> mMap;
 };
+
+
+
 
