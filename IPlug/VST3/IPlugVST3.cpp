@@ -207,7 +207,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 
       UnitID unitID = kRootUnitId;
       
-      const char* paramGroupName = p->GetParamGroupForHost();
+      const char* paramGroupName = p->GetGroupForHost();
 
       if (CStringHasContents(paramGroupName))
       {        

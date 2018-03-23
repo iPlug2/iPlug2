@@ -123,7 +123,7 @@ public:
 
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
-  const char* GetParamGroupForHost() const;
+  const char* GetGroupForHost() const;
   const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
   
   int NDisplayTexts() const;

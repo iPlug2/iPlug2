@@ -237,7 +237,7 @@ const char* IParam::GetLabelForHost() const
   return (CStringHasContents(GetDisplayText((int) mValue))) ? "" : mLabel;
 }
 
-const char* IParam::GetParamGroupForHost() const
+const char* IParam::GetGroupForHost() const
 {
   return mParamGroup;
 }
