@@ -69,7 +69,7 @@ class FaustGen : public IPlugFaust
     void SetDefaultCompileOptions();
     void PrintCompileOptions();
     
-    int GetInstanceID() { return mInstanceID; }
+    int GetInstanceID() { return mInstanceIdx; }
     const char* GetName() { return mName.Get(); }
     const char* GetSourceCode() { return mSourceCodeStr.Get(); }
     
@@ -115,7 +115,7 @@ class FaustGen : public IPlugFaust
     };
     
   private:
-    int mInstanceID;
+    int mInstanceIdx;
     WDL_Mutex mDSPMutex;
     set<FaustGen*> mInstances;
     
@@ -130,11 +130,11 @@ class FaustGen : public IPlugFaust
     vector<const char*> mOptions;
     vector<const char*> mCompileOptions;
     
-    int mNDSPInputs = 0;
-    int mNDSPOutputs = 0;
+    int mNInputs = 0;
+    int mNOutputs = 0;
     int mOptimizationLevel = LLVM_OPTIMIZATION;
-    static int gFactoryCounter;
-    static map<string, Factory*> gFactoryMap;
+    static int sFactoryCounter;
+    static map<string, Factory*> sFactoryMap;
     WDL_String mInputDSPFile;
   };
 public:

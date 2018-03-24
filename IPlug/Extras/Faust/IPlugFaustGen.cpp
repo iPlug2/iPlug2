@@ -12,14 +12,14 @@
 #include "faust/sound-file.h"
 #endif
 
-int FaustGen::Factory::gFactoryCounter = 0;
-map<string, FaustGen::Factory *> FaustGen::Factory::gFactoryMap;
+int FaustGen::Factory::sFactoryCounter = 0;
+map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
 
 FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath, const char* inputDSP)
 {
   mName.Set(name);
-  mInstanceID = gFactoryCounter++;
+  mInstanceIdx = sFactoryCounter++;
 //  mMidiHandler.start_midi();
 
   mLibraryPaths.Add(libraryPath);
@@ -64,7 +64,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromBitCode()
 llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 {
   WDL_String name;
-  name.SetFormatted(64, "FaustGen-%d", mInstanceID);
+  name.SetFormatted(64, "FaustGen-%d", mInstanceIdx);
 
   SetDefaultCompileOptions();
   PrintCompileOptions();
@@ -214,8 +214,8 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
 end:
   assert(pDSP);
-  mNDSPInputs = pDSP->getNumInputs();
-  mNDSPOutputs = pDSP->getNumOutputs();
+  mNInputs = pDSP->getNumInputs();
+  mNOutputs = pDSP->getNumOutputs();
   // Prepare JSON
 //  MakeJson(pDSP);
   return pDSP;
@@ -344,7 +344,7 @@ void FaustGen::Factory::RemoveInstance(FaustGen* pDSP)
   // Last instance : remove factory from global table and commit suicide...
   if (mInstances.size() == 0)
   {
-    gFactoryMap.erase(mName.Get());
+    sFactoryMap.erase(mName.Get());
     delete this;
   }
 }
@@ -416,14 +416,14 @@ FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, cons
 : IPlugFaust(name, nVoices)
 {
   //if a factory doesn't already exist for this name, create one otherwise set mFactory to the existing one
-  if (FaustGen::Factory::gFactoryMap.find(name) != FaustGen::Factory::gFactoryMap.end())
+  if (FaustGen::Factory::sFactoryMap.find(name) != FaustGen::Factory::sFactoryMap.end())
   {
-    mFactory = FaustGen::Factory::gFactoryMap[name];
+    mFactory = FaustGen::Factory::sFactoryMap[name];
   }
   else
   {
     mFactory = new Factory(name, libraryPath, drawPath, inputDSPFile);
-    FaustGen::Factory::gFactoryMap[name] = mFactory;
+    FaustGen::Factory::sFactoryMap[name] = mFactory;
   }
   
   mFactory->AddInstance(this);
@@ -463,7 +463,7 @@ void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
 
   mDSP->init(DEFAULT_SAMPLE_RATE);
 
-  if ((mFactory->mNDSPInputs != mDSP->getNumInputs()) || (mFactory->mNDSPOutputs != mDSP->getNumOutputs()))
+  if ((mFactory->mNInputs != mDSP->getNumInputs()) || (mFactory->mNOutputs != mDSP->getNumOutputs()))
   {
     //TODO: do something when I/O is wrong
   }
@@ -471,7 +471,7 @@ void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
 
 void FaustGen::GetDrawPath(WDL_String& path)
 {
-  path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceID);
+  path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceIdx);
 }
 
 bool FaustGen::CompileCPP()
@@ -486,7 +486,7 @@ bool FaustGen::CompileCPP()
   WDL_String outputFile;
 //  WDL_String outputFiles;
 
-  for (auto f : Factory::gFactoryMap)
+  for (auto f : Factory::sFactoryMap)
   {
     inputFile = f.second->mInputDSPFile;
     outputFile = inputFile;
