@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+#define OLBPFRAND() -1. + (2. * rand()/(RAND_MAX+1.) ) // returns random value between -1. and 1.
+
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
@@ -23,7 +25,7 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   
   for (auto s = 0; s < nFrames; s++) {
     for (auto c = 0; c < nChans; c++) {
-      outputs[c][s] = inputs[c][s] * gain;
+      outputs[c][s] = OLBPFRAND() * gain;
     }
   }
 }
