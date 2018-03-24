@@ -81,7 +81,7 @@ public:
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
 
-  void Init(IParam& p);
+  void Init(const IParam& p);
   
   double StringToValue(const char* str) const;
 
