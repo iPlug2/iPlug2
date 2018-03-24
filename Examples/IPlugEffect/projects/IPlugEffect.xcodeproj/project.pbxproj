@@ -26,7 +26,6 @@
 
 /* Begin PBXBuildFile section */
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
-		4F0FE1BB2065A8D400D4A498 /* Gain.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4F0FE1B92065A8D300D4A498 /* Gain.dsp */; };
 		4F10D3D4203A6711003EF82A /* RtAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10D3D2203A6710003EF82A /* RtAudio.h */; };
 		4F10D3D5203A6711003EF82A /* RtAudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D3203A6711003EF82A /* RtAudio.cpp */; };
 		4F10D3D8203A6719003EF82A /* RtMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10D3D6203A6719003EF82A /* RtMidi.h */; };
@@ -270,8 +269,6 @@
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; };
 		4F0848282015129400F9E881 /* IPlugAAX_TaperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_TaperDelegate.h; path = ../../../IPlug/AAX/IPlugAAX_TaperDelegate.h; sourceTree = "<group>"; };
 		4F0FE1B6206559B200D4A498 /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugFaust.h; path = ../../../IPlug/Extras/IPlugFaust.h; sourceTree = "<group>"; };
-		4F0FE1B92065A8D300D4A498 /* Gain.dsp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Gain.dsp; path = ../Gain.dsp; sourceTree = "<group>"; };
-		4F0FE1BD2065B0C200D4A498 /* Gain.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Gain.hpp; path = ../Gain.hpp; sourceTree = "<group>"; };
 		4F10D3D2203A6710003EF82A /* RtAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtAudio.h; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.h; sourceTree = "<group>"; };
 		4F10D3D3203A6711003EF82A /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtAudio.cpp; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.cpp; sourceTree = "<group>"; };
 		4F10D3D6203A6719003EF82A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.h; sourceTree = "<group>"; };
@@ -547,8 +544,6 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
-				4F0FE1B92065A8D300D4A498 /* Gain.dsp */,
-				4F0FE1BD2065B0C200D4A498 /* Gain.hpp */,
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
@@ -1352,7 +1347,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F0FE1BB2065A8D400D4A498 /* Gain.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

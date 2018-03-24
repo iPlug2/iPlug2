@@ -28,6 +28,6 @@ public:
   void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
-  FGain mFaustGain;
+  FGain mFaustNoise;
   FOsc mFaustOsc;
 };
