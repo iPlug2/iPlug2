@@ -25,6 +25,7 @@
 #define FAUSTGEN_VERSION "1.19"
 #define LLVM_OPTIMIZATION -1  // means 'maximum'
 #define FAUST_EXE "/usr/local/bin/faust"
+#define FAUST_CLASS_PREFIX "F"
 
 using namespace std;
 

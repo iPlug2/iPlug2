@@ -81,7 +81,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     argv[i] = mCompileOptions[i];
   }
 
-  // Generate SVG file
+  // Generate SVG file // this shouldn't get called if we not making SVGs
   if (!generateAuxFilesFromString(name.Get(), mSourceCodeStr.Get(), N, argv, error))
   {
     DBGMSG("FaustGen: Generate SVG error : %s\n", error.c_str());
@@ -483,11 +483,19 @@ bool FaustGen::CompileCPP()
   WDL_String command;
   command.SetFormatted(1024, "%s -cn %s -i -a %s %s -o %s", FAUST_EXE, mName.Get(), mArchitectureFile.Get(), mInputDSPFile.Get(), mOutputCPPFile.Get());
 
-  DBGMSG("Executing shell command: %s\n", command.Get());
+  DBGMSG("Executing faust shell command: %s\n", command.Get());
   
   if(system(command.Get()) > -1)
   {
-    return true;
+    command.SetFormatted(1024, "sed -i \"\" \"s/FaustGen/%s%s/g\" %s", FAUST_CLASS_PREFIX, mName.Get(), mOutputCPPFile.Get());
+    
+    DBGMSG("Executing sed shell command: %s\n", command.Get());
+
+    if(system(command.Get()) > -1)
+    {
+      return true;
+    }
+    
   }
   
   return false;
