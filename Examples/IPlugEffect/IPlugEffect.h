@@ -2,14 +2,10 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 
-#ifndef FAUST_COMPILED
-  #include "IPlugFaustGen.h"
-  #define FGain FaustGen
-  #define FOsc FaustGen
-#else
-  #include "Gain.hpp"
-  #include "Osc.hpp"
-#endif
+#include "IPlugFaustGen.h"
+
+FAUST_BLOCK(Noise);
+FAUST_BLOCK(Osc);
 
 const int kNumPrograms = 1;
 
@@ -28,6 +24,7 @@ public:
   void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
-  FGain mFaustNoise;
-  FOsc mFaustOsc;
+  Noise mFaustNoise;
+  Osc mFaustOsc1;
+  //, mFaustOsc2;
 };

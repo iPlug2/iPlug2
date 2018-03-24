@@ -12,18 +12,19 @@
 #include "faust/sound-file.h"
 #endif
 
-int FaustGen::Factory::gFaustGenCounter = 0;
+int FaustGen::Factory::gFactoryCounter = 0;
 map<string, FaustGen::Factory *> FaustGen::Factory::gFactoryMap;
 std::list<GUI*> GUI::fGuiList;
 
-FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath)
+FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath, const char* inputDSP)
 {
   mName.Set(name);
-  mInstanceID = gFaustGenCounter++;
+  mInstanceID = gFactoryCounter++;
 //  mMidiHandler.start_midi();
 
   mLibraryPaths.Add(libraryPath);
   mDrawPath.Set(drawPath);
+  mInputDSPFile.Set(inputDSP);
 }
 
 FaustGen::Factory::~Factory()
@@ -411,21 +412,17 @@ void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> opt
 
 #pragma mark -
 
-FaustGen::FaustGen(const char* name, const char* inputDSPFile, const char* outputCPPFile, const char* archFile, const char* drawPath, const char* libraryPath, int nVoices)
+FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, const char* outputCPPFile, const char* drawPath, const char* libraryPath)
 : IPlugFaust(name, nVoices)
 {
-  mInputDSPFile.Set(inputDSPFile);
-  mOutputCPPFile.Set(outputCPPFile);
-  mArchitectureFile.Set(archFile);
-  mName.Set(name);
-  
+  //if a factory doesn't already exist for this name, create one otherwise set mFactory to the existing one
   if (FaustGen::Factory::gFactoryMap.find(name) != FaustGen::Factory::gFactoryMap.end())
   {
     mFactory = FaustGen::Factory::gFactoryMap[name];
   }
   else
   {
-    mFactory = new Factory(name, libraryPath, drawPath);
+    mFactory = new Factory(name, libraryPath, drawPath, inputDSPFile);
     FaustGen::Factory::gFactoryMap[name] = mFactory;
   }
   
@@ -479,26 +476,97 @@ void FaustGen::GetDrawPath(WDL_String& path)
 
 bool FaustGen::CompileCPP()
 {
-  //TODO: add compiler options
-  WDL_String command;
-  command.SetFormatted(1024, "%s -cn %s -i -a %s %s -o %s", FAUST_EXE, mName.Get(), mArchitectureFile.Get(), mInputDSPFile.Get(), mOutputCPPFile.Get());
-
-  DBGMSG("Executing faust shell command: %s\n", command.Get());
+  WDL_String archFile;
+  archFile.Set(__FILE__);
+  archFile.remove_filepart(true);
+  archFile.Append("IPlugFaust_arch.cpp");
   
-  if(system(command.Get()) > -1)
+  WDL_String command;
+  WDL_String inputFile;
+  WDL_String outputFile;
+//  WDL_String outputFiles;
+
+  for (auto f : Factory::gFactoryMap)
   {
-    command.SetFormatted(1024, "sed -i \"\" \"s/FaustGen/%s%s/g\" %s", FAUST_CLASS_PREFIX, mName.Get(), mOutputCPPFile.Get());
+    inputFile = f.second->mInputDSPFile;
+    outputFile = inputFile;
+    outputFile.remove_fileext();
+    outputFile.AppendFormatted(1024, ".tmp");
+//    outputFiles.AppendFormatted(1024, "%s ", outputFile.Get());
+    command.SetFormatted(1024, "%s -cn %s%s -i -a %s %s -o %s", FAUST_EXE, FAUST_CLASS_PREFIX, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
     
-    DBGMSG("Executing sed shell command: %s\n", command.Get());
+    DBGMSG("Executing faust shell command: %s\n", command.Get());
 
     if(system(command.Get()) > -1)
     {
-      return true;
+      // BSD sed, may not work on linux
+      command.SetFormatted(1024, "sed -i \"\" \"s/FaustGen/%s/g\" %s", f.second->mName.Get(), outputFile.Get());
+      
+      DBGMSG("Executing sed shell command: %s\n", command.Get());
+      
+      if(system(command.Get()) == -1)
+      {
+        DBGMSG("Error executing sed\n");
+
+        return false;
+      }
     }
-    
+    else
+    {
+      return false;
+    }
   }
   
-  return false;
+  WDL_String folder = inputFile;
+  folder.remove_filepart(true);
+  WDL_String finalOutput = folder;
+  finalOutput.AppendFormatted(1024, "FaustCode.hpp");
+//  command.SetFormatted(1024, "cat %s > %s", outputFiles.Get(), finalOutput.Get());
+  command.SetFormatted(1024, "cat %s*.tmp > %s", folder.Get(), finalOutput.Get());
+
+  if(system(command.Get()) == -1)
+  {
+    DBGMSG("Error concatanating files\n");
+    
+    return false;
+  }
+  
+  //TODO: annoying we have to do this to avoid min/max problems
+  // BSD sed, may not work on linux
+  command.SetFormatted(1024, "sed -i \"\" \"s/min(/std::min(/g\" %s", finalOutput.Get());
+  
+  DBGMSG("Executing sed shell command: %s\n", command.Get());
+  
+  if(system(command.Get()) == -1)
+  {
+    DBGMSG("Error executing sed\n");
+    
+    return false;
+  }
+  
+  // BSD sed, may not work on linux
+  command.SetFormatted(1024, "sed -i \"\" \"s/max(/std::max(/g\" %s", finalOutput.Get());
+
+  DBGMSG("Executing sed shell command: %s\n", command.Get());
+  
+  if(system(command.Get()) == -1)
+  {
+    DBGMSG("Error executing sed\n");
+    
+    return false;
+  }
+  
+//  command.SetFormatted(1024, "rm %s", outputFiles.Get());
+  command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
+
+  if(system(command.Get()) == -1)
+  {
+    DBGMSG("Error removing output files\n");
+    
+    return false;
+  }
+  
+  return true;
 }
 
 #endif // #ifndef FAUST_COMPILED

@@ -48,7 +48,7 @@ public:
   /** Call this method with the JIT compiler in order to execute a shell command and compile the C++ code against the IPlugFaust_arch architecture file
    * There is a NO-OP implementation here so that when not using the JIT compiler, the same class can be used interchangeably
    * @return \c true on success */
-  virtual bool CompileCPP() { return true; }
+  static bool CompileCPP() { return true; }
   
   void FreeDSP()
   {

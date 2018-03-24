@@ -4,38 +4,34 @@
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
-, mFaustNoise("Noise", "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Noise.dsp",
-                     "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Noise.hpp",
-                     "/Users/oli/Dev/MyPlugins/IPlug/Extras/IPlugFaust_arch.cpp")
-, mFaustOsc("Osc",   "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp",
-                     "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.hpp",
-                     "/Users/oli/Dev/MyPlugins/IPlug/Extras/IPlugFaust_arch.cpp")
+, mFaustNoise("Noise",  1, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Noise.dsp")
+, mFaustOsc1("Osc",     1, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp")
+//, mFaustOsc2("Osc",     1, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp")
 {
   TRACE;
   
   //These Inits will not be necessary when faust .DSP input file is read
   mFaustNoise.Init("import(\"stdfaust.lib\");gain = vslider(\"Gain\", 0, 0., 1, 0.1); process = no.noise * gain, no.noise * gain;");
-  mFaustOsc.Init("import(\"stdfaust.lib\");process(l,r) = l + (os.osc(1000)), r + (os.osc(440));");
+  mFaustOsc1.Init("import(\"stdfaust.lib\");process(l,r) = l + (os.osc(1000)), r + (os.osc(440));");
 
   mFaustNoise.CreateIPlugParameters(*this);
   
-  // these need to be triggered automatically when the files change
-  mFaustNoise.CompileCPP();
-  mFaustOsc.CompileCPP();
+  // calling this will compile all .dsp files to a single FaustCode.hpp in the same folder, which will be included in the release build
+  FaustGen::CompileCPP();
 
   PrintDebugInfo();
 }
 
 void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  mFaustNoise.ProcessBlock(inputs, outputs, nFrames);
-  mFaustOsc.ProcessBlock(outputs, outputs, nFrames);
+  //mFaustNoise.ProcessBlock(inputs, outputs, nFrames);
+  mFaustOsc1.ProcessBlock(inputs, outputs, nFrames);
 }
 
 void IPlugEffect::OnReset()
 {
   mFaustNoise.SetSampleRate(GetSampleRate());
-  mFaustOsc.SetSampleRate(GetSampleRate());
+  mFaustOsc1.SetSampleRate(GetSampleRate());
 }
 
 void IPlugEffect::OnParamChange(int paramIdx)

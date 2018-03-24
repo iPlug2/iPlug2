@@ -335,6 +335,8 @@
 		4F78DB5F13B6462B0032E0F3 /* IPlugEffect.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7C946E2029473D00B20111 /* IPlugPresets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPresets.cpp; path = ../../../IPlug/IPlugPresets.cpp; sourceTree = "<group>"; };
 		4F7C94702029473D00B20111 /* IPlugPresets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPresets.h; path = ../../../IPlug/IPlugPresets.h; sourceTree = "<group>"; };
+		4F7E3A032066F60100815317 /* Noise.dsp */ = {isa = PBXFileReference; lastKnownFileType = text; name = Noise.dsp; path = ../Noise.dsp; sourceTree = "<group>"; };
+		4F7E3A052066F60100815317 /* Osc.dsp */ = {isa = PBXFileReference; lastKnownFileType = text; name = Osc.dsp; path = ../Osc.dsp; sourceTree = "<group>"; };
 		4F8157DD205D50EA00393585 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		4F8157E0205D50EA00393585 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
 		4F8157E1205D50EA00393585 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memorystream.h; sourceTree = "<group>"; };
@@ -544,6 +546,8 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
+				4F7E3A032066F60100815317 /* Noise.dsp */,
+				4F7E3A052066F60100815317 /* Osc.dsp */,
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
@@ -693,8 +697,8 @@
 				4F78D8EC13B63BA40032E0F3 /* IPlugBase.h */,
 				4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */,
 				4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */,
-				4F7C94702029473D00B20111 /* IPlugPresets.h */,
 				4F8F61A7202807B9003F2573 /* IPlugProcessor.h */,
+				4F7C94702029473D00B20111 /* IPlugPresets.h */,
 				4F7C946E2029473D00B20111 /* IPlugPresets.cpp */,
 				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
 				4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */,
@@ -1270,7 +1274,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0920;
 				TargetAttributes = {
 					4F39075F2013EBA300DDA490 = {
 						CreatedOnToolsVersion = 9.2;

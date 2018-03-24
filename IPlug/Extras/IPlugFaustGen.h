@@ -1,6 +1,14 @@
 #pragma once
 
 #ifndef FAUST_COMPILED
+#define FAUST_BLOCK(x) typedef FaustGen x
+#else
+#define FAUST_BLOCK(x)
+#include "FaustCode.hpp"
+typedef IPlugFaust FaustGen;
+#endif
+
+#ifndef FAUST_COMPILED
 
 #include <iostream>
 #include <string>
@@ -29,10 +37,6 @@
 
 using namespace std;
 
-class FaustGen;
-
-
-
 class FaustGen : public IPlugFaust
 {
   class Factory
@@ -54,7 +58,7 @@ class FaustGen : public IPlugFaust
     friend class FaustGen;
     
   public:
-    Factory(const char* name, const char* libPath, const char* drawPath);
+    Factory(const char* name, const char* libPath, const char* drawPath, const char* inputDSP);
     ~Factory();
     
     llvm_dsp_factory* CreateFactoryFromBitCode();
@@ -129,18 +133,18 @@ class FaustGen : public IPlugFaust
     int mNDSPInputs = 0;
     int mNDSPOutputs = 0;
     int mOptimizationLevel = LLVM_OPTIMIZATION;
-    static int gFaustGenCounter;
+    static int gFactoryCounter;
     static map<string, Factory*> gFactoryMap;
+    WDL_String mInputDSPFile;
   };
 public:
   
   FaustGen(const char* name,
+           int nVoices = 1,
            const char* inputDSPFile = 0,
            const char* outputCPPFile = 0,
-           const char* archFile = 0,
            const char* drawPath = 0,
-           const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH,
-           int nVoices = 1);
+           const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH);
   
   ~FaustGen();
   
@@ -148,14 +152,11 @@ public:
   void Init(const char* sourceStr = "", int maxNInputs = -1, int maxNOutputs = -1) override;
 //  void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void GetDrawPath(WDL_String& path) override;
-  bool CompileCPP() override;
+  static bool CompileCPP();
   
 private:
   void SourceCodeChanged();
   Factory* mFactory = nullptr;
-  WDL_String mInputDSPFile;
-  WDL_String mOutputCPPFile;
-  WDL_String mArchitectureFile;
 };
 
 #endif // #ifndef FAUST_COMPILED
