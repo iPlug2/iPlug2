@@ -194,8 +194,8 @@ enum EHost
   kHostWaveLab,
   kHostWaveLabElements,
   kHostTwistedWave,
-  kHostBitwig
-
+  kHostBitwig,
+  kHostWWW,
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost

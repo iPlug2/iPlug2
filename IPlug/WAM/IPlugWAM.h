@@ -38,7 +38,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-  EHost GetHost() override {};
+  EHost GetHost() override { return EHost::kHostWWW; }
   void ResizeGraphics() override {};
   void HostSpecificInit() override {};
 

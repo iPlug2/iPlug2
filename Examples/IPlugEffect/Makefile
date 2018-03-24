@@ -58,8 +58,7 @@ IPLUG_PATH = $(ROOT)/IPlug
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 WAM_PATH = $(IPLUG_PATH)/WAM
 
-SRC = \
-IPlugEffect.cpp \
+SRC = IPlugEffect.cpp \
 $(API)/processor.cpp \
 $(WAM_PATH)/IPlugWAM.cpp \
 $(IPLUG_PATH)/IPlugBase.cpp \
@@ -71,7 +70,7 @@ EXPORTS = "[\
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -D NO_IGRAPHICS
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -D NO_IGRAPHICS -Wno-bitwise-op-parentheses
 LDFLAGS = -O2 -s EXPORTED_FUNCTIONS=$(EXPORTS)
 JSFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM'"
 
