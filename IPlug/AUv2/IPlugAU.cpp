@@ -658,7 +658,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pInfo->maxValue = pParam->GetMax();
         pInfo->defaultValue = pParam->GetDefault();
         
-        const char* paramGroupName = pParam->GetParamGroupForHost();
+        const char* paramGroupName = pParam->GetGroupForHost();
 
         if (CStringHasContents(paramGroupName))
         {

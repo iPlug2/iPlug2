@@ -18,6 +18,7 @@ public:
 
   enum EFlags
   {
+    kFlagsNone            = 0,
     kFlagCannotAutomate   = 0x1,
     kFlagStepped          = 0x2,
     kFlagNegateDisplay    = 0x4,
@@ -124,7 +125,7 @@ public:
 
   const char* GetNameForHost() const;
   const char* GetLabelForHost() const;
-  const char* GetParamGroupForHost() const;
+  const char* GetGroupForHost() const;
   const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
   
   int NDisplayTexts() const;
