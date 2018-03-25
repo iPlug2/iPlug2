@@ -12,12 +12,15 @@
 #include "faust/sound-file.h"
 #endif
 
+int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
+Steinberg::Timer* FaustGen::sTimer = nullptr;
 
 FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath, const char* inputDSP)
 {
+  mPreviousTime = TimeZero();
   mName.Set(name);
   mInstanceIdx = sFactoryCounter++;
 //  mMidiHandler.start_midi();
@@ -44,8 +47,8 @@ void FaustGen::Factory::FreeDSPFactory()
     inst->FreeDSP();
   }
 
-  deleteDSPFactory(mFactory); // this is commented in faustgen~
-  mFactory = nullptr;
+  deleteDSPFactory(mLLVMFactory); // this is commented in faustgen~
+  mLLVMFactory = nullptr;
 }
 
 llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromBitCode()
@@ -123,7 +126,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
 ::dsp *FaustGen::Factory::CreateDSPInstance(int nVoices)
 {
-  ::dsp* pMonoDSP = mFactory->createDSPInstance();
+  ::dsp* pMonoDSP = mLLVMFactory->createDSPInstance();
 
   // Check 'nvoices' metadata
   if (nVoices == 0)
@@ -153,7 +156,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     mSourceCodeStr.Set(str);
 
   // Factory already allocated
-  if (mFactory)
+  if (mLLVMFactory)
   {
     pDSP = CreateDSPInstance();
     DBGMSG("FaustGen: Factory already allocated, %i input(s), %i output(s)\n", pDSP->getNumInputs(), pDSP->getNumOutputs());
@@ -163,8 +166,8 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   // Tries to create from bitcode
   if (mBitCodeStr.GetLength())
   {
-    mFactory = CreateFactoryFromBitCode();
-    if (mFactory)
+    mLLVMFactory = CreateFactoryFromBitCode();
+    if (mLLVMFactory)
     {
       pDSP = CreateDSPInstance();
       pDSP->metadata(&meta);
@@ -176,8 +179,8 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   // Otherwise tries to create from source code
   if (mSourceCodeStr.GetLength())
   {
-    mFactory = CreateFactoryFromSourceCode();
-    if (mFactory)
+    mLLVMFactory = CreateFactoryFromSourceCode();
+    if (mLLVMFactory)
     {
       pDSP = CreateDSPInstance();
       pDSP->metadata(&meta);
@@ -188,27 +191,28 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
     // Otherwise creates default DSP keeping the same input/output number
 #ifdef OS_WIN
-  // Prepare compile options
-  const char* argv[64];
-  
-  const int N = (int) mCompileOptions.size();
-  
-  assert(N < 64);
-  
-  for (auto i = 0; i< N; i++)
-  {
-    argv[i] = mCompileOptions[i];
-  }
-
-  argv[N] = "-l";
-  argv[N + 1] = "llvm_math.ll";
-  argv[N + 2] = 0; // NULL terminated argv
-
-  mFactory = createDSPFactoryFromString("default", DEFAULT_SOURCE_CODE, N + 2, argv, getTarget(), error, 0);
+//  // Prepare compile options
+//  const char* argv[64];
+//
+//  const int N = (int) mCompileOptions.size();
+//
+//  assert(N < 64);
+//
+//  for (auto i = 0; i< N; i++)
+//  {
+//    argv[i] = mCompileOptions[i];
+//  }
+//
+//  argv[N] = "-l";
+//  argv[N + 1] = "llvm_math.ll";
+//  argv[N + 2] = 0; // NULL terminated argv
+//
+//  mLLVMFactory = createDSPFactoryFromString("default", DEFAULT_SOURCE_CODE, N + 2, argv, getTarget(), error, 0);
 #else
   mSourceCodeStr.Set(DEFAULT_SOURCE_CODE);
-  mFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
+  mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
 #endif
+  
   pDSP = CreateDSPInstance();
   DBGMSG("FaustGen: Allocation of default DSP succeeded, %i input(s), %i output(s)\n", pDSP->getNumInputs(), pDSP->getNumOutputs());
 
@@ -216,8 +220,6 @@ end:
   assert(pDSP);
   mNInputs = pDSP->getNumInputs();
   mNOutputs = pDSP->getNumOutputs();
-  // Prepare JSON
-//  MakeJson(pDSP);
   return pDSP;
 }
 
@@ -415,6 +417,8 @@ void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> opt
 FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, const char* outputCPPFile, const char* drawPath, const char* libraryPath)
 : IPlugFaust(name, nVoices)
 {
+  sFaustGenCounter++;
+  
   //if a factory doesn't already exist for this name, create one otherwise set mFactory to the existing one
   if (FaustGen::Factory::sFactoryMap.find(name) != FaustGen::Factory::sFactoryMap.end())
   {
@@ -431,6 +435,13 @@ FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, cons
 
 FaustGen::~FaustGen()
 {
+  if (sFaustGenCounter-- <= 0 && sTimer != nullptr)
+  {
+    sTimer->stop();
+    sTimer->release();
+    sTimer = nullptr;
+  }
+  
   FreeDSP();
 
   if(mFactory)
@@ -443,11 +454,6 @@ void FaustGen::SourceCodeChanged()
 
   //  SetDirty();
 }
-
-//void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
-//{
-//  // TODO: thread safety
-//}
 
 void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
 {
@@ -467,10 +473,15 @@ void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
   {
     //TODO: do something when I/O is wrong
   }
+  
+  if(sTimer == nullptr)
+    sTimer = Steinberg::Timer::create(this, FAUST_TIMER_INTERVAL);
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)
 {
+  assert(!CStringHasContents(mFactory->mDrawPath.Get()));
+  
   path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceIdx);
 }
 
@@ -568,6 +579,30 @@ bool FaustGen::CompileCPP()
   
   return true;
 }
+
+void FaustGen::onTimer(Steinberg::Timer* pTimer)
+{
+  WDL_String* pInputFile;
+  bool needRecompile = false;
+  
+  for (auto f : Factory::sFactoryMap)
+  {
+    pInputFile = &f.second->mInputDSPFile;
+    StatType buf;
+    GetStat(pInputFile->Get(), &buf);
+    Time oldTime = f.second->mPreviousTime;
+    Time newTime = GetModifiedTime(buf);
+    
+    if(!Equal(newTime, oldTime))
+      needRecompile = true;
+    
+    f.second->mPreviousTime = newTime;
+  }
+  
+  if(needRecompile)
+    CompileCPP();
+}
+
 
 #endif // #ifndef FAUST_COMPILED
 
