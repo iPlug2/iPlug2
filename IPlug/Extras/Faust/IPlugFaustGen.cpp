@@ -435,7 +435,7 @@ FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, cons
 
 FaustGen::~FaustGen()
 {
-  if (sFaustGenCounter-- <= 0 && sTimer != nullptr)
+  if (--sFaustGenCounter <= 0 && sTimer != nullptr)
   {
     sTimer->stop();
     sTimer->release();
