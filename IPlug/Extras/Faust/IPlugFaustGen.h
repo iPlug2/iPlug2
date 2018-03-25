@@ -57,7 +57,7 @@ static inline Time TimeZero() { return (Time) 0; }
 #include <libgen.h>
 #endif
 
-#define DEFAULT_SOURCE_CODE "import(\"stdfaust.lib\");\nprocess=_;"
+#define DEFAULT_SOURCE_CODE "import(\"stdfaust.lib\");\nprocess=_,_;"
 #define FAUSTGEN_VERSION "1.19"
 #define LLVM_OPTIMIZATION -1  // means 'maximum'
 #define FAUST_EXE "/usr/local/bin/faust"
