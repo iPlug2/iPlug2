@@ -103,7 +103,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   if (pFactory)
   {
-    
+
     return pFactory;
   }
   else
@@ -150,7 +150,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   ::dsp* pDSP = nullptr;
   FMeta meta;
   std::string error;
-  
+
   //init with str
   if(str)
     mSourceCodeStr.Set(str);
@@ -212,7 +212,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   mSourceCodeStr.Set(DEFAULT_SOURCE_CODE);
   mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
 #endif
-  
+
   pDSP = CreateDSPInstance();
   DBGMSG("FaustGen: Allocation of default DSP succeeded, %i input(s), %i output(s)\n", pDSP->getNumInputs(), pDSP->getNumOutputs());
 
@@ -252,7 +252,7 @@ void FaustGen::Factory::PrintCompileOptions()
     DBGMSG("FaustGen: Compile options\n");
 
     int idx = 0;
-    
+
     for (auto c : mCompileOptions)
     {
       DBGMSG("\t\t%i: = %s\n", idx++, c);
@@ -280,7 +280,7 @@ void FaustGen::Factory::SetDefaultCompileOptions()
     AddCompileOption("-svg");
     AddCompileOption("-O", mDrawPath.Get());
   }
-  
+
   // All options set in the 'compileoptions' message
   for (auto c : mOptions)
   {
@@ -418,7 +418,7 @@ FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, cons
 : IPlugFaust(name, nVoices)
 {
   sFaustGenCounter++;
-  
+
   //if a factory doesn't already exist for this name, create one otherwise set mFactory to the existing one
   if (FaustGen::Factory::sFactoryMap.find(name) != FaustGen::Factory::sFactoryMap.end())
   {
@@ -429,7 +429,7 @@ FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, cons
     mFactory = new Factory(name, libraryPath, drawPath, inputDSPFile);
     FaustGen::Factory::sFactoryMap[name] = mFactory;
   }
-  
+
   mFactory->AddInstance(this);
 }
 
@@ -441,7 +441,7 @@ FaustGen::~FaustGen()
     sTimer->release();
     sTimer = nullptr;
   }
-  
+
   FreeDSP();
 
   if(mFactory)
@@ -455,11 +455,11 @@ void FaustGen::SourceCodeChanged()
   //  SetDirty();
 }
 
-void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
+void FaustGen::Init(int oversampling, int maxNInputs, int maxNOutputs)
 {
 //  TODO: if sourceStr is empty load file
 //  if(!CStringHasContents(sourceStr))
-  
+
   mDSP = mFactory->CreateDSPAux(sourceStr);
   assert(mDSP);
 
@@ -473,7 +473,7 @@ void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
   {
     //TODO: do something when I/O is wrong
   }
-  
+
   if(sTimer == nullptr)
     sTimer = Steinberg::Timer::create(this, FAUST_TIMER_INTERVAL);
 }
@@ -481,7 +481,7 @@ void FaustGen::Init(const char* sourceStr, int maxNInputs, int maxNOutputs)
 void FaustGen::GetDrawPath(WDL_String& path)
 {
   assert(!CStringHasContents(mFactory->mDrawPath.Get()));
-  
+
   path.SetFormatted(MAX_WIN32_PATH_LEN, "%sFaustGen-%d-svg/process.svg", mFactory->mDrawPath.Get(), mFactory->mInstanceIdx);
 }
 
@@ -491,7 +491,7 @@ bool FaustGen::CompileCPP()
   archFile.Set(__FILE__);
   archFile.remove_filepart(true);
   archFile.Append("IPlugFaust_arch.cpp");
-  
+
   WDL_String command;
   WDL_String inputFile;
   WDL_String outputFile;
@@ -505,16 +505,16 @@ bool FaustGen::CompileCPP()
     outputFile.AppendFormatted(1024, ".tmp");
 //    outputFiles.AppendFormatted(1024, "%s ", outputFile.Get());
     command.SetFormatted(1024, "%s -cn %s%s -i -a %s %s -o %s", FAUST_EXE, FAUST_CLASS_PREFIX, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
-    
+
     DBGMSG("Executing faust shell command: %s\n", command.Get());
 
     if(system(command.Get()) > -1)
     {
       // BSD sed, may not work on linux
       command.SetFormatted(1024, "sed -i \"\" \"s/FaustGen/%s/g\" %s", f.second->mName.Get(), outputFile.Get());
-      
+
       DBGMSG("Executing sed shell command: %s\n", command.Get());
-      
+
       if(system(command.Get()) == -1)
       {
         DBGMSG("Error executing sed\n");
@@ -527,7 +527,7 @@ bool FaustGen::CompileCPP()
       return false;
     }
   }
-  
+
   WDL_String folder = inputFile;
   folder.remove_filepart(true);
   WDL_String finalOutput = folder;
@@ -538,45 +538,45 @@ bool FaustGen::CompileCPP()
   if(system(command.Get()) == -1)
   {
     DBGMSG("Error concatanating files\n");
-    
+
     return false;
   }
-  
+
   //TODO: annoying we have to do this to avoid min/max problems
   // BSD sed, may not work on linux
   command.SetFormatted(1024, "sed -i \"\" \"s/min(/std::min(/g\" %s", finalOutput.Get());
-  
+
   DBGMSG("Executing sed shell command: %s\n", command.Get());
-  
+
   if(system(command.Get()) == -1)
   {
     DBGMSG("Error executing sed\n");
-    
+
     return false;
   }
-  
+
   // BSD sed, may not work on linux
   command.SetFormatted(1024, "sed -i \"\" \"s/max(/std::max(/g\" %s", finalOutput.Get());
 
   DBGMSG("Executing sed shell command: %s\n", command.Get());
-  
+
   if(system(command.Get()) == -1)
   {
     DBGMSG("Error executing sed\n");
-    
+
     return false;
   }
-  
+
 //  command.SetFormatted(1024, "rm %s", outputFiles.Get());
   command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
 
   if(system(command.Get()) == -1)
   {
     DBGMSG("Error removing output files\n");
-    
+
     return false;
   }
-  
+
   return true;
 }
 
@@ -584,7 +584,7 @@ void FaustGen::onTimer(Steinberg::Timer* pTimer)
 {
   WDL_String* pInputFile;
   bool needRecompile = false;
-  
+
   for (auto f : Factory::sFactoryMap)
   {
     pInputFile = &f.second->mInputDSPFile;
@@ -592,13 +592,13 @@ void FaustGen::onTimer(Steinberg::Timer* pTimer)
     GetStat(pInputFile->Get(), &buf);
     Time oldTime = f.second->mPreviousTime;
     Time newTime = GetModifiedTime(buf);
-    
+
     if(!Equal(newTime, oldTime))
       needRecompile = true;
-    
+
     f.second->mPreviousTime = newTime;
   }
-  
+
   if(needRecompile)
     CompileCPP();
 }
