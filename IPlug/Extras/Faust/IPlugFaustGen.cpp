@@ -545,31 +545,6 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
-  // TODO: annoying we have to do this to avoid min/max problems
-  // BSD sed, may not work on linux
-  command.SetFormatted(1024, "sed -i \"\" \"s/min(/std::min(/g\" %s", finalOutput.Get());
-
-//  DBGMSG("Executing sed shell command: %s\n", command.Get());
-
-  if(system(command.Get()) == -1)
-  {
-    DBGMSG("Error executing sed %s %i\n", __FILE__, __LINE__);
-
-    return false;
-  }
-
-  // BSD sed, may not work on linux
-//  command.SetFormatted(1024, "sed -i \"\" \"s/max(/std::max(/g\" %s", finalOutput.Get());
-
-//  DBGMSG("Executing sed shell command: %s\n", command.Get());
-
-  if(system(command.Get()) == -1)
-  {
-    DBGMSG("Error executing sed %s %i\n", __FILE__, __LINE__);
-
-    return false;
-  }
-
   command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
 
   if(system(command.Get()) == -1)
