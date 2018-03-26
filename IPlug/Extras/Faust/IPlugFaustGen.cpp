@@ -91,10 +91,10 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   }
 
   // Generate SVG file // this shouldn't get called if we not making SVGs
-  if (!generateAuxFilesFromString(name.Get(), mSourceCodeStr.Get(), N, argv, error))
-  {
-    DBGMSG("FaustGen: Generate SVG error : %s\n", error.c_str());
-  }
+//  if (!generateAuxFilesFromString(name.Get(), mSourceCodeStr.Get(), N, argv, error))
+//  {
+//    DBGMSG("FaustGen: Generate SVG error : %s\n", error.c_str());
+//  }
 
 #ifdef OS_WIN
   argv[N] = "-l";
@@ -108,7 +108,6 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   if (pFactory)
   {
-
     return pFactory;
   }
   else
