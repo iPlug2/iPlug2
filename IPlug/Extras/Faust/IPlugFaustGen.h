@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef FAUST_COMPILED
-#define FAUST_BLOCK(x) typedef FaustGen x
+#define FAUST_BLOCK(class, member, file) FaustGen member = FaustGen(#class, 1, file)
 #else
-#define FAUST_BLOCK(x)
+#define FAUST_BLOCK(class, member, file) class member = class(#class, 1, file)
 #include "FaustCode.hpp"
-typedef IPlugFaust FaustGen;
+typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 #endif
 
 #ifndef FAUST_COMPILED
@@ -154,8 +154,8 @@ class FaustGen : public IPlugFaust,
 
     llvm_dsp_factory* mLLVMFactory = nullptr;
     //  midi_handler mMidiHandler;
-    WDL_String mSourceCodeStr;
-    WDL_String mBitCodeStr;
+    WDL_FastString mSourceCodeStr;
+    WDL_FastString mBitCodeStr;
     WDL_String mDrawPath;
     WDL_String mName;
 

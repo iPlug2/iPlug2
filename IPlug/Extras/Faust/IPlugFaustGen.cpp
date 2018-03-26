@@ -475,9 +475,7 @@ FaustGen::~FaustGen()
 
 void FaustGen::SourceCodeChanged()
 {
-//  Init();
-
-  //  SetDirty();
+  Init(5000);
 }
 
 void FaustGen::Init(int recompileInterval, int oversampling, int maxNInputs, int maxNOutputs)
