@@ -1,11 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-
 #include "IPlugFaustGen.h"
-
-FAUST_BLOCK(Noise);
-FAUST_BLOCK(Osc);
 
 const int kNumPrograms = 1;
 
@@ -24,7 +20,7 @@ public:
   void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
-  Noise mFaustNoise;
-  Osc mFaustOsc1;
-  //, mFaustOsc2;
+  FAUST_BLOCK(Noise, mNoise, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Noise.dsp");
+  FAUST_BLOCK(Osc, mOsc1, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp");
+  FAUST_BLOCK(Osc, mOsc2, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp");
 };
