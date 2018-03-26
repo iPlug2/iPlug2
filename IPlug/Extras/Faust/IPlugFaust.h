@@ -30,9 +30,7 @@ public:
   , mNVoices(nVoices)
   {
     if(rate > 1)
-    {
       mOverSampler = new OverSampler<sample>(OverSampler<>::RateToFactor(rate));
-    }
     
     mName.Set(name);
   }
@@ -89,8 +87,11 @@ public:
   void SetParameterValue(int paramIdx, double normalizedValue)
   {
     assert(paramIdx < NParams());
-
-    *(mZones.Get(paramIdx)) = normalizedValue;
+    
+    if(mZones.GetSize() == NParams())
+      *(mZones.Get(paramIdx)) = normalizedValue;
+    else
+      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
   }
 
   void SetParameterValue(const char* labelToLookup, double normalizedValue)
@@ -101,7 +102,7 @@ public:
     if(dest)
       *dest = normalizedValue;
     else
-      DBGMSG("No parameter named %s\n", labelToLookup);
+      DBGMSG("IPlugFaust-%s:: No parameter named %s\n", mName.Get(), labelToLookup);
   }
 
   int CreateIPlugParameters(IPlugBase& plug, int startIdx = 0)
