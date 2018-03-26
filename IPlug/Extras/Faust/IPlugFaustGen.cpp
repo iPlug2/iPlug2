@@ -480,20 +480,25 @@ void FaustGen::SourceCodeChanged()
 
 void FaustGen::Init(int maxNInputs, int maxNOutputs)
 {
-  mMap.DeleteAll(false);
+  mZones.Empty(); // remove existing pointers to zones
+  
   mDSP = mFactory->GetDSP();
   assert(mDSP);
 
 //    AddMidiHandler();
 //    mDSP->buildUserInterface(mMidiUI);
   mDSP->buildUserInterface(this);
-
   mDSP->init(DEFAULT_SAMPLE_RATE);
 
   if ((mFactory->mNInputs != mDSP->getNumInputs()) || (mFactory->mNOutputs != mDSP->getNumOutputs()))
   {
     //TODO: do something when I/O is wrong
   }
+  
+  BuildParameterMap(); // build a new map based on updated code
+  mInitialized = true;
+  
+  mPlug.OnParamReset(EParamSource::kRecompile);
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)

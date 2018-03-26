@@ -113,7 +113,10 @@ public:
       plugParamIdx += p;
       assert(plugParamIdx < plug.NParams());
 
-      plug.GetParam(plugParamIdx)->Init(*mParams.Get(p));
+      IParam* pParam = plug.GetParam(plugParamIdx);
+      double currentValue = pParam->Value();
+      pParam->Init(*mParams.Get(p));
+      pParam->Set(currentValue);
     }
 
     return plugParamIdx;
@@ -137,50 +140,30 @@ public:
   void openHorizontalBox(const char *label) override {}
   void openVerticalBox(const char *label) override {}
   void closeBox() override {}
-
+  
   void addButton(const char *label, FAUSTFLOAT *zone) override
   {
-    IParam* pParam = new IParam();
-    pParam->InitBool(label, 0);
-    mParams.Add(pParam);
-    mZones.Add(zone);
-    mMap.Insert(label, zone);
+    AddOrInsert(IParam::kTypeBool, label, zone);
   }
 
   void addCheckButton(const char *label, FAUSTFLOAT *zone) override
   {
-    IParam* pParam = new IParam();
-    pParam->InitBool(label, 0);
-    mParams.Add(pParam);
-    mZones.Add(zone);
-    mMap.Insert(label, zone);
+    AddOrInsert(IParam::kTypeBool, label, zone);
   }
 
   void addVerticalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
   {
-    IParam* pParam = new IParam();
-    pParam->InitDouble(label, init, min, max, step);
-    mParams.Add(pParam);
-    mZones.Add(zone);
-    mMap.Insert(label, zone);
+    AddOrInsert(IParam::kTypeDouble, label, zone, init, min, max, step);
   }
 
   void addHorizontalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
   {
-    IParam* pParam = new IParam();
-    pParam->InitDouble(label, init, min, max, step);
-    mParams.Add(pParam);
-    mZones.Add(zone);
-    mMap.Insert(label, zone);
+    AddOrInsert(IParam::kTypeDouble, label, zone, init, min, max, step);
   }
 
   void addNumEntry(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
   {
-    IParam* pParam = new IParam();
-    pParam->InitEnum(label, init, max - min);
-    mParams.Add(pParam);
-    mZones.Add(zone);
-    mMap.Insert(label, zone);
+    AddOrInsert(IParam::kTypeEnum, label, zone, init, min, max, step);
   }
 
   // TODO:
@@ -189,6 +172,68 @@ public:
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
 
 protected:
+  void AddOrInsert(IParam::EParamType type, const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.)
+  {
+    IParam* pParam = nullptr;
+    
+    const int idx = FindExistingParameterWithName(label);
+    
+    if(idx > -1)
+      pParam = mParams.Get(idx);
+    else
+      pParam = new IParam();
+    
+    switch (type)
+    {
+      case IParam::EParamType::kTypeBool:
+        pParam->InitBool(label, 0);
+        break;
+      case IParam::EParamType::kTypeInt:
+        pParam->InitBool(label, 0);
+        break;
+      case IParam::EParamType::kTypeEnum:
+        pParam->InitEnum(label, init, max - min);
+        //TODO: metadata
+        break;
+      case IParam::EParamType::kTypeDouble:
+        pParam->InitDouble(label, init, min, max, step);
+        break;
+      default:
+        break;
+    }
+    
+    if(idx == -1)
+      mParams.Add(pParam);
+    
+    mZones.Add(zone);
+  }
+  
+  void BuildParameterMap()
+  {
+    for(auto p = 0; p < NParams(); p++)
+    {
+      mMap.Insert(mParams.Get(p)->GetNameForHost(), mZones.Get(p)); // insert will overwrite keys with the same name
+    }
+    
+    if(mIPlugParamStartIdx > -1) // if we've allready linked parameters
+    {
+      CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
+    }
+  }
+
+  int FindExistingParameterWithName(const char* name)
+  {
+    for(auto p = 0; p < NParams(); p++)
+    {
+      if(strcmp(name, mParams.Get(p)->GetNameForHost()) == 0)
+      {
+        return p;
+      }
+    }
+    
+    return -1;
+  }
+  
   OverSampler<sample>* mOverSampler = nullptr;
   WDL_String mName;
   int mNVoices;
@@ -196,9 +241,10 @@ protected:
   MidiUI* mMidiUI = nullptr;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
-  WDL_StringKeyedArray<FAUSTFLOAT*> mMap;
-  int mIPlugParamStartIdx = 0;
+  WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
+  int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
   IPlugBase& mPlug;
+  bool mInitialized = false;
 };
 
 

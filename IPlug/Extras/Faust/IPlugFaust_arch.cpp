@@ -13,15 +13,17 @@
 class FaustGen : public IPlugFaust
 {
 public:
-	FaustGen(const char* name, int nVoices = 1, const char* inputDSPFile = 0, const char* outputCPPFile = 0, const char* archFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH)
-	: IPlugFaust(name, nVoices)
+	FaustGen(IPlugBase& plug, const char* name, int nVoices = 1, const char* inputDSPFile = 0, const char* outputCPPFile = 0, const char* archFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH)
+	: IPlugFaust(plug, name, nVoices)
 	{
 	}
 
-	void Init(int recompileInterval = 0, int oversampling = 0, int maxNInputs = 0, int maxNOutputs = 0) override
+	void Init(int maxNInputs = 0, int maxNOutputs = 0) override
 	{
 		mDSP = new FAUSTCLASS();
 		mDSP->buildUserInterface(this);
+		BuildParameterMap();
+		mInitialized = true;
 	}
 };
 
