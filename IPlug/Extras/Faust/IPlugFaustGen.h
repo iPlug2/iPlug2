@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef FAUST_COMPILED
-#define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member = FaustGen(*this, #class, file, nvoices, rate)
+#define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member = FaustGen(#class, file, nvoices, rate)
 #else
-#define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member = Faust_##class (*this, #class, file, nvoices, rate)
+#define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member = Faust_##class (#class, file, nvoices, rate)
 #include "FaustCode.hpp"
 typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 #endif
@@ -174,7 +174,7 @@ class FaustGen : public IPlugFaust,
   };
 public:
 
-  FaustGen(IPlugBase& plug, const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
+  FaustGen(const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
            const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH);
 
   ~FaustGen();

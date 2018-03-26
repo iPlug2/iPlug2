@@ -25,9 +25,8 @@ class IPlugFaust : public UI, public Meta
 {
 public:
 
-  IPlugFaust(IPlugBase& plug, const char* name, int nVoices = 1, int rate = 1)
-  : mPlug(plug)
-  , mNVoices(nVoices)
+  IPlugFaust(const char* name, int nVoices = 1, int rate = 1)
+  : mNVoices(nVoices)
   {
     if(rate > 1)
       mOverSampler = new OverSampler<sample>(OverSampler<>::RateToFactor(rate));
@@ -105,16 +104,20 @@ public:
       DBGMSG("IPlugFaust-%s:: No parameter named %s\n", mName.Get(), labelToLookup);
   }
 
-  int CreateIPlugParameters(IPlugBase& plug, int startIdx = 0)
+  int CreateIPlugParameters(IPlugBase* pPlug, int startIdx = 0)
   {
+    assert(pPlug != nullptr);
+    
+    mPlug = pPlug;
+    
     int plugParamIdx = mIPlugParamStartIdx = startIdx;
 
     for (auto p = 0; p < NParams(); p++)
     {
       plugParamIdx += p;
-      assert(plugParamIdx < plug.NParams());
+      assert(plugParamIdx < pPlug->NParams());
 
-      IParam* pParam = plug.GetParam(plugParamIdx);
+      IParam* pParam = pPlug->GetParam(plugParamIdx);
       double currentValue = pParam->Value();
       pParam->Init(*mParams.Get(p));
       pParam->Set(currentValue);
@@ -216,7 +219,7 @@ protected:
       mMap.Insert(mParams.Get(p)->GetNameForHost(), mZones.Get(p)); // insert will overwrite keys with the same name
     }
     
-    if(mIPlugParamStartIdx > -1) // if we've allready linked parameters
+    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've allready linked parameters
     {
       CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
     }
@@ -244,7 +247,7 @@ protected:
   WDL_PtrList<FAUSTFLOAT> mZones;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
-  IPlugBase& mPlug;
+  IPlugBase* mPlug = nullptr;
   bool mInitialized = false;
 };
 

@@ -439,9 +439,9 @@ void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> opt
 
 #pragma mark -
 
-FaustGen::FaustGen(IPlugBase& plug, const char* name, const char* inputDSPFile, int nVoices, int rate,
+FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int rate,
                    const char* outputCPPFile, const char* drawPath, const char* libraryPath)
-: IPlugFaust(plug, name, nVoices, rate)
+: IPlugFaust(name, nVoices, rate)
 {
   sFaustGenCounter++;
 
@@ -497,7 +497,8 @@ void FaustGen::Init(int maxNInputs, int maxNOutputs)
   BuildParameterMap(); // build a new map based on updated code
   mInitialized = true;
   
-  mPlug.OnParamReset(EParamSource::kRecompile);
+  if(mPlug)
+    mPlug->OnParamReset(EParamSource::kRecompile);
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)

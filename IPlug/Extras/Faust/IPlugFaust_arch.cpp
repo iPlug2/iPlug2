@@ -15,9 +15,9 @@
 class Faust_mydsp : public IPlugFaust
 {
 public:
-	Faust_mydsp(IPlugBase& plug, const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
+	Faust_mydsp(const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
 						const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH)
-	: IPlugFaust(plug, name, nVoices)
+	: IPlugFaust(name, nVoices)
 	{
 	}
 
