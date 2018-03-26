@@ -189,7 +189,7 @@ protected:
         pParam->InitBool(label, 0);
         break;
       case IParam::EParamType::kTypeInt:
-        pParam->InitInt(label, init, min, max, 1);
+        pParam->InitInt(label, init, min, max);
         break;
       case IParam::EParamType::kTypeEnum:
         pParam->InitEnum(label, init, max - min);
