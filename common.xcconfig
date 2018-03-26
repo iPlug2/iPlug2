@@ -60,6 +60,7 @@ WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
+FAUST_PATH = $(EXTRAS_PATH)/Faust
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
@@ -69,7 +70,7 @@ VST3_SDK = $(DEPS_PATH)/IPlug/VST3_SDK
 AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH) $(FAUST_PATH)
 
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
 

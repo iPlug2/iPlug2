@@ -7,17 +7,20 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 {
   TRACE;
 
-  mNoise.Init(5000);
-  mOsc1.Init(5000);
-  mOsc2.Init(5000);
+  mNoise.Init();
+  mOsc1.Init();
+  mOsc2.Init();
   mNoise.CreateIPlugParameters(*this);
+  
+  mNoise.EnableTimer(true); //THIS SHOULD BE A STATIC METHOD Faustgen::EnableTimer(true);
+
   PrintDebugInfo();
 }
 
 void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  //mNoise.ProcessBlock(inputs, outputs, nFrames);
-  mOsc1.ProcessBlock(inputs, outputs, nFrames);
+  mNoise.ProcessBlock(inputs, outputs, nFrames);
+  //mOsc1.ProcessBlock(inputs, outputs, nFrames);
 }
 
 void IPlugEffect::OnReset()

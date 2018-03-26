@@ -20,7 +20,7 @@ public:
   void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
-  FAUST_BLOCK(Noise, mNoise, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Noise.dsp");
-  FAUST_BLOCK(Osc, mOsc1, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp");
-  FAUST_BLOCK(Osc, mOsc2, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp");
+  FAUST_BLOCK(Noise, mNoise, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Noise.dsp", 1, 1);
+  FAUST_BLOCK(Osc, mOsc1, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp", 1, 1);
+  FAUST_BLOCK(Osc, mOsc2, "/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/Osc.dsp", 1, 1);
 };

@@ -14,6 +14,7 @@
 
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
+bool FaustGen::sEnableTimer = false;
 map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
 Steinberg::Timer* FaustGen::sTimer = nullptr;
@@ -439,8 +440,9 @@ void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> opt
 
 #pragma mark -
 
-FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, const char* outputCPPFile, const char* drawPath, const char* libraryPath)
-: IPlugFaust(name, nVoices)
+FaustGen::FaustGen(IPlugBase& plug, const char* name, const char* inputDSPFile, int nVoices, int rate,
+                   const char* outputCPPFile, const char* drawPath, const char* libraryPath)
+: IPlugFaust(plug, name, nVoices, rate)
 {
   sFaustGenCounter++;
 
@@ -460,11 +462,9 @@ FaustGen::FaustGen(const char* name, int nVoices, const char* inputDSPFile, cons
 
 FaustGen::~FaustGen()
 {
-  if (--sFaustGenCounter <= 0 && sTimer != nullptr)
+  if (--sFaustGenCounter <= 0)
   {
-    sTimer->stop();
-    sTimer->release();
-    sTimer = nullptr;
+    EnableTimer(false);
   }
 
   FreeDSP();
@@ -475,11 +475,12 @@ FaustGen::~FaustGen()
 
 void FaustGen::SourceCodeChanged()
 {
-  Init(5000);
+  Init(true);
 }
 
-void FaustGen::Init(int recompileInterval, int oversampling, int maxNInputs, int maxNOutputs)
+void FaustGen::Init(int maxNInputs, int maxNOutputs)
 {
+  mMap.DeleteAll(false);
   mDSP = mFactory->GetDSP();
   assert(mDSP);
 
@@ -493,9 +494,6 @@ void FaustGen::Init(int recompileInterval, int oversampling, int maxNInputs, int
   {
     //TODO: do something when I/O is wrong
   }
-
-  if(sTimer == nullptr)
-    sTimer = Steinberg::Timer::create(this, recompileInterval);
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)
@@ -562,7 +560,7 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
-  //TODO: annoying we have to do this to avoid min/max problems
+  // TODO: annoying we have to do this to avoid min/max problems
   // BSD sed, may not work on linux
   command.SetFormatted(1024, "sed -i \"\" \"s/min(/std::min(/g\" %s", finalOutput.Get());
 
@@ -603,7 +601,7 @@ bool FaustGen::CompileCPP()
 void FaustGen::onTimer(Steinberg::Timer* pTimer)
 {
   WDL_String* pInputFile;
-  bool needCPPRecompile = false;
+  bool recompile = false;
 
   for (auto f : Factory::sFactoryMap)
   {
@@ -615,23 +613,43 @@ void FaustGen::onTimer(Steinberg::Timer* pTimer)
 
     if(!Equal(newTime, oldTime))
     {
-      needCPPRecompile = true;
+      recompile = true;
       f.second->FreeDSPFactory();
-      DBGMSG("File change detected...reJIT %s\n", pInputFile->Get());
+      DBGMSG("File change detected----------------------------------\n");
+      DBGMSG("Dynamically compiling %s\n", pInputFile->Get());
       f.second->LoadFile(pInputFile->Get());
-      Init(5000);
+      Init();
     }
       
     f.second->mPreviousTime = newTime;
   }
 
-  if(needCPPRecompile)
+  if(recompile)
   {
-    DBGMSG("Recompiling CPP...\n");
+    DBGMSG("Statically compiling all FAUST BLOCKS\n");
     CompileCPP();
   }
 }
 
+void FaustGen::EnableTimer(bool enable)
+{
+  if(enable)
+  {
+    if(sTimer == nullptr)
+      sTimer = Steinberg::Timer::create(this, FAUST_RECOMPILE_INTERVAL);
+  }
+  else
+  {
+    if(sTimer != nullptr)
+    {
+      sTimer->stop();
+      sTimer->release();
+      sTimer = nullptr;
+    }
+  }
+  
+  sEnableTimer = enable;
+}
 
 #endif // #ifndef FAUST_COMPILED
 
