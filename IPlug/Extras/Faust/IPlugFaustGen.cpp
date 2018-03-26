@@ -377,23 +377,27 @@ bool FaustGen::Factory::LoadFile(const char* file)
     StatType buf;
     GetStat(fileStr.Get(), &buf);
     mPreviousTime = GetModifiedTime(buf);
+    
+    mSourceCodeStr.Set(data.Get());
+    
+    // Add path of file to library path
+    fileStr.remove_filepart(true);
+    AddLibraryPath(fileStr.Get());
+    
+    mInputDSPFile.Set(file);
+    
+    // Update all instances
+    for (auto inst : mInstances)
+    {
+      inst->SourceCodeChanged();
+    }
+    
+    return true;
   }
   
-  mSourceCodeStr.Set(data.Get());
-
-  // Add path of file to library path
-  fileStr.remove_filepart(true);
-  AddLibraryPath(fileStr.Get());
-
-  mInputDSPFile.Set(file);
-
-  // Update all instances
-  for (auto inst : mInstances)
-  {
-    inst->SourceCodeChanged();
-  }
+  assert(0); //TODO: something sensible
   
-  return true; // TODO: return false if fail
+  return false;
 }
 
 bool FaustGen::Factory::WriteToFile(const char* file)
