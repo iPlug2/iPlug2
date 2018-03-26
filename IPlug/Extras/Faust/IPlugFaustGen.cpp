@@ -25,9 +25,10 @@ FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char
   mInstanceIdx = sFactoryCounter++;
 //  mMidiHandler.start_midi();
 
-  mLibraryPaths.Add(libraryPath);
+  AddLibraryPath(libraryPath);
   mDrawPath.Set(drawPath);
-  mInputDSPFile.Set(inputDSP);
+  
+  LoadFile(inputDSP);
 }
 
 FaustGen::Factory::~Factory()
@@ -47,8 +48,11 @@ void FaustGen::Factory::FreeDSPFactory()
     inst->FreeDSP();
   }
 
-  deleteDSPFactory(mLLVMFactory); // this is commented in faustgen~
-  mLLVMFactory = nullptr;
+  if(mLLVMFactory)
+  {
+    deleteDSPFactory(mLLVMFactory); // this is commented in faustgen~
+    mLLVMFactory = nullptr;
+  }
 }
 
 llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromBitCode()
@@ -82,7 +86,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   for (auto i = 0; i< N; i++)
   {
-    argv[i] = mCompileOptions[i];
+    argv[i] = mCompileOptions[i].c_str();
   }
 
   // Generate SVG file // this shouldn't get called if we not making SVGs
@@ -145,15 +149,11 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     return pMonoDSP;
 }
 
-::dsp *FaustGen::Factory::CreateDSPAux(const char* str)
+::dsp *FaustGen::Factory::GetDSP()
 {
   ::dsp* pDSP = nullptr;
   FMeta meta;
   std::string error;
-
-  //init with str
-  if(str)
-    mSourceCodeStr.Set(str);
 
   // Factory already allocated
   if (mLLVMFactory)
@@ -227,8 +227,8 @@ void FaustGen::Factory::AddLibraryPath(const char* libraryPath)
 {
   if (CStringHasContents(libraryPath))
   {
-    if(!mLibraryPaths.Find(libraryPath))
-      mLibraryPaths.Add(libraryPath);
+    if(std::find(mLibraryPaths.begin(), mLibraryPaths.end(), libraryPath) == mLibraryPaths.end())
+      mLibraryPaths.push_back(libraryPath);
   }
 }
 
@@ -255,7 +255,7 @@ void FaustGen::Factory::PrintCompileOptions()
 
     for (auto c : mCompileOptions)
     {
-      DBGMSG("\t\t%i: = %s\n", idx++, c);
+      DBGMSG("\t\t%i: = %s\n", idx++, c.c_str());
     }
   }
 }
@@ -269,9 +269,9 @@ void FaustGen::Factory::SetDefaultCompileOptions()
     AddCompileOption("-double");
 
   // All library paths
-  for (auto i = 0; i< mLibraryPaths.GetSize(); i++)
+  for (auto i = 0; i< mLibraryPaths.size(); i++)
   {
-    AddCompileOption("-I", mLibraryPaths.Get()[i]);
+    AddCompileOption("-I", mLibraryPaths[i].c_str());
   }
 
   // Draw path
@@ -285,13 +285,13 @@ void FaustGen::Factory::SetDefaultCompileOptions()
   for (auto c : mOptions)
   {
     // '-opt v' : parsed for LLVM optimization level
-    if (strcmp(c, "-opt") == 0)
+    if (c == "-opt")
     {
-      mOptimizationLevel = atoi(c);
+      mOptimizationLevel = atoi(c.c_str());
     }
     else
     {
-      AddCompileOption(c);
+      AddCompileOption(c.c_str());
     }
   }
 
@@ -354,21 +354,45 @@ void FaustGen::Factory::RemoveInstance(FaustGen* pDSP)
 bool FaustGen::Factory::LoadFile(const char* file)
 {
   // Delete the existing Faust module
-  FreeDSPFactory();
+  //FreeDSPFactory();
+  WDL_String fileStr(file);
 
   mBitCodeStr.Set("");
 
-//  mSourceCodeStr // load text file into here;
+  FILE* fp = fopen(file, "r");
+  WDL_String data;
+
+  if (fp)
+  {
+    long fileSize;
+    
+    fseek(fp , 0 , SEEK_END);
+    fileSize = ftell(fp);
+    rewind(fp);
+    data.SetLen((int) fileSize);
+    fread(data.Get(), fileSize, 1, fp);
+    
+    fclose(fp);
+    
+    StatType buf;
+    GetStat(fileStr.Get(), &buf);
+    mPreviousTime = GetModifiedTime(buf);
+  }
+  
+  mSourceCodeStr.Set(data.Get());
 
   // Add path of file to library path
-//  AddLibraryPath();
+  fileStr.remove_filepart(true);
+  AddLibraryPath(fileStr.Get());
+
+  mInputDSPFile.Set(file);
 
   // Update all instances
   for (auto inst : mInstances)
   {
     inst->SourceCodeChanged();
   }
-
+  
   return true; // TODO: return false if fail
 }
 
@@ -384,7 +408,8 @@ void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> opt
   if (options.size() == 0)
     DBGMSG("FaustGen: No argument entered, no additional compilation option will be used");
 
-  mOptions = options;
+  //TODO
+//  mOptions = options;
 //
 //  /*
 //  if (optimize) {
@@ -455,12 +480,9 @@ void FaustGen::SourceCodeChanged()
   //  SetDirty();
 }
 
-void FaustGen::Init(int oversampling, int maxNInputs, int maxNOutputs)
+void FaustGen::Init(int recompileInterval, int oversampling, int maxNInputs, int maxNOutputs)
 {
-//  TODO: if sourceStr is empty load file
-//  if(!CStringHasContents(sourceStr))
-
-  mDSP = mFactory->CreateDSPAux(sourceStr);
+  mDSP = mFactory->GetDSP();
   assert(mDSP);
 
 //    AddMidiHandler();
@@ -475,7 +497,7 @@ void FaustGen::Init(int oversampling, int maxNInputs, int maxNOutputs)
   }
 
   if(sTimer == nullptr)
-    sTimer = Steinberg::Timer::create(this, FAUST_TIMER_INTERVAL);
+    sTimer = Steinberg::Timer::create(this, recompileInterval);
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)
@@ -504,7 +526,7 @@ bool FaustGen::CompileCPP()
     outputFile.remove_fileext();
     outputFile.AppendFormatted(1024, ".tmp");
 //    outputFiles.AppendFormatted(1024, "%s ", outputFile.Get());
-    command.SetFormatted(1024, "%s -cn %s%s -i -a %s %s -o %s", FAUST_EXE, FAUST_CLASS_PREFIX, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
+    command.SetFormatted(1024, "%s -cn %s%s -double -i -a %s %s -o %s", FAUST_EXE, FAUST_CLASS_PREFIX, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
 
     DBGMSG("Executing faust shell command: %s\n", command.Get());
 
@@ -583,7 +605,7 @@ bool FaustGen::CompileCPP()
 void FaustGen::onTimer(Steinberg::Timer* pTimer)
 {
   WDL_String* pInputFile;
-  bool needRecompile = false;
+  bool needCPPRecompile = false;
 
   for (auto f : Factory::sFactoryMap)
   {
@@ -594,13 +616,22 @@ void FaustGen::onTimer(Steinberg::Timer* pTimer)
     Time newTime = GetModifiedTime(buf);
 
     if(!Equal(newTime, oldTime))
-      needRecompile = true;
-
+    {
+      needCPPRecompile = true;
+      f.second->FreeDSPFactory();
+      DBGMSG("File change detected...reJIT %s\n", pInputFile->Get());
+      f.second->LoadFile(pInputFile->Get());
+      Init(5000);
+    }
+      
     f.second->mPreviousTime = newTime;
   }
 
-  if(needRecompile)
+  if(needCPPRecompile)
+  {
+    DBGMSG("Recompiling CPP...\n");
     CompileCPP();
+  }
 }
 
 

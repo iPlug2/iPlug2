@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	void Init(const char* str, int maxNInputs = 0, int maxNOutputs = 0) override
+	void Init(int recompileInterval = 0, int oversampling = 0, int maxNInputs = 0, int maxNOutputs = 0) override
 	{
 		mDSP = new FAUSTCLASS();
 		mDSP->buildUserInterface(this);
