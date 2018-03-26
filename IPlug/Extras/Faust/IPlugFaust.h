@@ -143,27 +143,27 @@ public:
   
   void addButton(const char *label, FAUSTFLOAT *zone) override
   {
-    AddOrInsert(IParam::kTypeBool, label, zone);
+    AddOrUpdateParam(IParam::kTypeBool, label, zone);
   }
 
   void addCheckButton(const char *label, FAUSTFLOAT *zone) override
   {
-    AddOrInsert(IParam::kTypeBool, label, zone);
+    AddOrUpdateParam(IParam::kTypeBool, label, zone);
   }
 
   void addVerticalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
   {
-    AddOrInsert(IParam::kTypeDouble, label, zone, init, min, max, step);
+    AddOrUpdateParam(IParam::kTypeDouble, label, zone, init, min, max, step);
   }
 
   void addHorizontalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
   {
-    AddOrInsert(IParam::kTypeDouble, label, zone, init, min, max, step);
+    AddOrUpdateParam(IParam::kTypeDouble, label, zone, init, min, max, step);
   }
 
   void addNumEntry(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
   {
-    AddOrInsert(IParam::kTypeEnum, label, zone, init, min, max, step);
+    AddOrUpdateParam(IParam::kTypeEnum, label, zone, init, min, max, step);
   }
 
   // TODO:
@@ -172,7 +172,7 @@ public:
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
 
 protected:
-  void AddOrInsert(IParam::EParamType type, const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.)
+  void AddOrUpdateParam(IParam::EParamType type, const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.)
   {
     IParam* pParam = nullptr;
     
