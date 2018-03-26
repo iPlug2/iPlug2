@@ -13,7 +13,8 @@
 class FaustGen : public IPlugFaust
 {
 public:
-	FaustGen(IPlugBase& plug, const char* name, int nVoices = 1, const char* inputDSPFile = 0, const char* outputCPPFile = 0, const char* archFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH)
+	FaustGen(IPlugBase& plug, const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
+						const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH)
 	: IPlugFaust(plug, name, nVoices)
 	{
 	}
