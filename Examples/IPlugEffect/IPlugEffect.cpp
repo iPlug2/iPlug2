@@ -10,7 +10,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   mNoise.Init();
   mOsc1.Init();
   mOsc2.Init();
-  mNoise.CreateIPlugParameters(*this);
+  mNoise.CreateIPlugParameters(this);
   
   mNoise.EnableTimer(true); //THIS SHOULD BE A STATIC METHOD Faustgen::EnableTimer(true);
 

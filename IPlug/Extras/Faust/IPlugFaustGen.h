@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef FAUST_COMPILED
-#define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member = FaustGen(#class, file, nvoices, rate)
+#define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member {#class, file, nvoices, rate}
 #else
-#define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member = Faust_##class (#class, file, nvoices, rate)
+#define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member {#class, file, nvoices, rate}
 #include "FaustCode.hpp"
 typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 #endif

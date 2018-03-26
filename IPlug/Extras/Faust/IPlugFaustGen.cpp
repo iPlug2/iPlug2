@@ -575,7 +575,7 @@ void FaustGen::onTimer(Steinberg::Timer* pTimer)
     {
       recompile = true;
       f.second->FreeDSPFactory();
-      DBGMSG("FaustGen-%s: File change detected----------------------------------\n", mName.Get());
+      DBGMSG("FaustGen-%s: File change detected ----------------------------------\n", mName.Get());
       DBGMSG("FaustGen-%s: JIT compiling %s\n", mName.Get(), pInputFile->Get());
       f.second->LoadFile(pInputFile->Get());
       Init();
