@@ -67,6 +67,7 @@ RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
 VST3_SDK = $(DEPS_PATH)/IPlug/VST3_SDK
 AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
+REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH)
