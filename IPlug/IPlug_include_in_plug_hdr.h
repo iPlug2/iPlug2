@@ -13,8 +13,13 @@
 
 #define API_EXT2
 #ifdef VST2_API
+#ifdef REAPER_PLUGIN
+  #include "IPlugReaper.h"
+  typedef IPlugReaper IPlug;
+#else
   #include "IPlugVST2.h"
   typedef IPlugVST2 IPlug;
+#endif
   #define API_EXT "vst"
 #elif defined VST3_API
   #include "IPlugVST3.h"
