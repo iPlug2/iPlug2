@@ -12,7 +12,7 @@ class IPlugWAMController extends WAMController
   static importScripts (actx) {
     return new Promise( (resolve) => {
       actx.audioWorklet.addModule("scripts/IPlugEffect-WAM.wasm.js").then(() => {
-      actx.audioWorklet.addModule("scripts/loader.js").then(() => {
+      actx.audioWorklet.addModule("scripts/IPlugEffect-WAM.js").then(() => {
       actx.audioWorklet.addModule("scripts/wamsdk/wamsdk/wam-processor.js").then(() => {
       actx.audioWorklet.addModule("scripts/IPlugWAM-awp.js").then(() => {
         setTimeout( function () { resolve(); }, 500);

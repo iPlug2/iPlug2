@@ -14,18 +14,18 @@ struct IPlugInstanceInfo
 /** WebAudioModule (WAM) API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
  * @ingroup APIClasses */
 class IPlugWAM : public IPLUG_BASE_CLASS
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugProcessor<float>
                , public Processor
 {
 public:
   IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   //WAM
-  virtual const char* init(uint32_t bufsize, uint32_t sr, void* pDesc) override;
-//  virtual void terminate() override {}
-//  virtual void resize(uint32_t bufsize) override {}
+  const char* init(uint32_t bufsize, uint32_t sr, void* pDesc) override;
+  void terminate() override { DBGMSG("terminate"); }
+  void resize(uint32_t bufsize) override { DBGMSG("resize"); }
 
-  virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
+  void onProcess(WAM::AudioBus* pAudio, void* pData) override;
 //  virtual void onMidi(byte status, byte data1, byte data2) override {}
 //  virtual void onSysex(byte* msg, uint32_t size) override {}
 //  virtual void onMessage(char* verb, char* res, double data) override {}

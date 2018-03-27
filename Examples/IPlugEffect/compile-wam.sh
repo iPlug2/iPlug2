@@ -15,8 +15,9 @@ echo "
 fs = require('fs');
 let wasmData = fs.readFileSync(\"IPlugEffect-WAM.wasm\");
 let wasmStr = wasmData.join(\",\");
-let wasmOut = \"AudioWorkletGlobalScope.WAM = { ENVIRONMENT: 'WEB' }\\\n\";
-wasmOut += \"AudioWorkletGlobalScope.WAM.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
+let wasmOut = \"AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}\\\n\";
+wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug = { ENVIRONMENT: 'WEB' }\\\n\";
+wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
 fs.writeFileSync(\"IPlugEffect-WAM.wasm.js\", wasmOut);
 // later we will possibly switch to base64
 // as suggested by Stephane Letz / Faust
@@ -29,8 +30,9 @@ rm encode-wasm.js
 
 mkdir wamsdk
 mkdir awp
-cp -r ../../../../Dependencies/IPlug/WAM_SDK/ wamsdk
-cp -r ../../../../Dependencies/IPlug/WAM_AWP/ awp
+cp -r ../../../../Dependencies/IPlug/WAM_SDK/wamsdk wamsdk
+cp ../../../../Dependencies/IPlug/WAM_AWP/*.js awp
 cp ../../../../IPlug/WAM/Template/scripts/*.js .
 cd ..
 cp ../../../IPlug/WAM/Template/IPlugWAM-*.html .
+python -m SimpleHTTPServer & open -n -a Google\ Chrome\ Canary http://localhost:8000/IPlugWAM-standalone.html

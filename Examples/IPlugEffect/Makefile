@@ -64,15 +64,12 @@ $(WAM_PATH)/IPlugWAM.cpp \
 $(IPLUG_PATH)/IPlugBase.cpp \
 $(IPLUG_PATH)/IPlugParameter.cpp
 
-EXPORTS = "[\
-	'_createModule','_wam_init','_wam_terminate','_wam_resize', \
-	'_wam_onprocess', '_wam_onmidi', '_wam_onsysex', '_wam_onparam', \
-	'_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch' \
-	]"
+EXPORTS = "['_createModule','_wam_init','_wam_terminate','_wam_resize', '_wam_onprocess', '_wam_onmidi', '_wam_onsysex', '_wam_onparam', '_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch']"
 
-CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -D NO_IGRAPHICS -Wno-bitwise-op-parentheses
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -DNO_IGRAPHICS -DSAMPLE_TYPE_FLOAT -Wno-bitwise-op-parentheses
 LDFLAGS = -O2 -s EXPORTED_FUNCTIONS=$(EXPORTS)
-JSFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM'" -s ASSERTIONS=1
+JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=0 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IPlug'"
+# -s ASSERTIONS=1 
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(SRC)
