@@ -48,7 +48,11 @@
 //   before including this file. You must put these definitions where REAPERAPI_IMPLEMENT is defined
 //   and you can optionally put them elsewhere (to detect needed REAPERAPI_WANT_xxx lines at compile-
 //   time rather than link-time).
-//   
+//
+
+// REAPERAPI_LoadAPI modified for lambda ... thanks Xenakios
+#include <functional>
+
 #if !defined(_LICE_H) && !defined(REAPERAPI_NO_LICE)
 typedef unsigned int LICE_pixel;
 typedef unsigned char LICE_pixel_chan;
@@ -6426,7 +6430,8 @@ REAPERAPI_DEF //==============================================
 #endif
 
 #ifdef REAPERAPI_IMPLEMENT
-  int REAPERAPI_LoadAPI(void *(*getAPI)(const char *))
+//int REAPERAPI_LoadAPI(void *(*getAPI)(const char *))
+  int REAPERAPI_LoadAPI(std::function<void*(const char*)> getAPI)
   {
     static const struct { void **dest; const char *name; } table[]={
       #if defined(REAPERAPI_WANT___mergesort) || !defined(REAPERAPI_MINIMAL)
