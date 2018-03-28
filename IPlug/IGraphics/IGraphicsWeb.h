@@ -6,7 +6,7 @@
 
 #include "IGraphicsPathBase.h"
 
-/** IGraphics draw/platform class using Web (HTML5 canvas)
+/** IGraphics draw/platform class HTML5 canvas
 *   @ingroup DrawClasses
 *   @ingroup PlatformClasses */
 class IGraphicsWeb : public IGraphicsPathBase

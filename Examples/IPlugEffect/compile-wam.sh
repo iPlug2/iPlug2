@@ -1,5 +1,7 @@
 #!/bin/sh
 
+pkill -f python
+
 if [ -d build-web ]
 then
   rm -r build-web/scripts
@@ -38,11 +40,11 @@ cd ..
 cp ../../../IPlug/WAM/Template/IPlugWAM-standalone.html IPlugEffect-standalone.html
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-standalone.html
 
-#python -m SimpleHTTPServer 8000 &
-
 osascript <<EOF
 tell application "Google Chrome Canary"
   open location "http://localhost:8000/IPlugEffect-standalone.html"
   activate
 end tell
 EOF
+
+python -m SimpleHTTPServer 8000
