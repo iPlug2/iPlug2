@@ -1,17 +1,20 @@
 #include "IGraphicsWeb.h"
+#include <string>
 
 using namespace emscripten;
 
 IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
-  DBGMSG("Hello IGraphics!\n");
+  DBGMSG("HELLO IGraphics!\n");
+
+  val document = val::global("document");
+  document["body"]["style"].set("backgroundColor", "SteelBlue");
   
-  val doc = val::global("Document");
-  val canvas = doc.call<val>("getElementById('canvas')");
-  val ctx = canvas.call<val>("getContext('2d')");
-  ctx.set("fillStyle", val("red"));
-  ctx.call<val>("fillRect(10, 10, 100, 100");
+//  val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
+//  val ctx = canvas.call<val>("getContext", std::string("2d"));
+//  ctx.set("fillStyle", std::string("red"));
+//  ctx.call<val>("fillRect", ;
 }
 
 IGraphicsWeb::~IGraphicsWeb()

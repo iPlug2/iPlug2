@@ -286,7 +286,14 @@ extern "C"
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 
-  extern "C" { EMSCRIPTEN_KEEPALIVE void* createModule() { return (void*) MakePlug(); } }
+  extern "C"
+  {
+    EMSCRIPTEN_KEEPALIVE void* createModule()
+    {
+      DBGMSG("HELLO!\n");
+      return (void*) MakePlug();
+    }
+  }
 #else
   #error "No API defined!"
 #endif
