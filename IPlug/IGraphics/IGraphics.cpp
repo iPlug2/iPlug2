@@ -1,9 +1,10 @@
 
 #include "IGraphics.h"
 
+#ifndef OS_WEB
 #define NANOSVG_IMPLEMENTATION
-#include <cstdio>
 #include "nanosvg.h"
+#endif
 
 #ifdef VST3_API
 #include "IPlugVST3.h"
@@ -12,12 +13,15 @@
 
 #include "IPlugParameter.h"
 
-#ifndef NDEBUG
+#ifdef NDEBUG
+#ifndef OS_WEB
 #include "IGraphicsLiveEdit.h"
+#endif
 #endif
 
 #include "IControl.h"
 
+#ifndef OS_WEB
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
@@ -35,9 +39,13 @@ struct SVGHolder
     mImage = nullptr;
   }
 };
+#endif
 
 static StaticStorage<APIBitmap> s_bitmapCache;
+
+#ifndef OS_WEB
 static StaticStorage<SVGHolder> s_SVGCache;
+#endif
 
 IGraphics::IGraphics(IDelegate& dlg, int w, int h, int fps)
 : mDelegate(dlg)
@@ -966,6 +974,7 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #endif
 }
 
+#ifndef OS_WEB
 ISVG IGraphics::LoadSVG(const char* name)
 {
   WDL_String path;
@@ -985,6 +994,7 @@ ISVG IGraphics::LoadSVG(const char* name)
 
   return ISVG(pHolder->mImage);
 }
+#endif
 
 void IGraphics::LoadFont(const char* name)
 {

@@ -7,11 +7,13 @@
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#ifndef OS_WIN
+#if defined OS_MAC || defined OS_LINUX
 #include "swell.h"
 #endif
 
+#ifndef OS_WEB
 #include "nanosvg.h"
+#endif
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
@@ -155,6 +157,8 @@ private:
   WDL_String mResourceName;
 };
 
+#ifndef OS_WEB
+
 struct ISVG
 {
   NSVGimage* mImage = nullptr;
@@ -181,6 +185,8 @@ struct ISVG
       return 0;
   }
 };
+
+#endif
 
 /** Used to manage Color data, independant of draw class/platform.*/
 struct IColor

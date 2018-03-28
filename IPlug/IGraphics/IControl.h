@@ -389,7 +389,7 @@ public:
 protected:
   IBitmap mBitmap;
 };
-
+#ifndef OS_WEB
 /** A basic control to draw an SVG image to the screen. */
 class ISVGControl : public IControl
 {
@@ -407,6 +407,7 @@ private:
   //TODO: cache the SVG to intermediate bitmap?
   ISVG mSVG;
 };
+#endif
 
 /** A basic control to output text to the screen. */
 class ITextControl : public IControl

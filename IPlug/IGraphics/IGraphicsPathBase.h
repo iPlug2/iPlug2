@@ -2,7 +2,10 @@
 #include <algorithm>
 
 #include "IGraphics.h"
+
+#ifndef OS_WEB
 #include "nanosvg.h"
+#endif
 
 class IGraphicsPathBase : public IGraphics
 {
@@ -239,6 +242,7 @@ public:
   
   void PathTransformScale(float scale) { PathTransformScale(scale, scale); }
   
+  #ifndef OS_WEB
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
     double xScale = dest.W() / svg.W();
@@ -367,4 +371,5 @@ private:
       }
     }
   }
+  #endif
 };

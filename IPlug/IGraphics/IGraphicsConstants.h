@@ -39,6 +39,9 @@ const int DEFAULT_TEXT_SIZE = 10;
 #elif defined OS_LINUX
 const char* const DEFAULT_FONT = "DejaVu Sans";
 const int DEFAULT_TEXT_SIZE = 10;
+#elif defined OS_WEB
+const char* const DEFAULT_FONT = "DejaVu Sans";
+const int DEFAULT_TEXT_SIZE = 10;
 #endif
 
 const int FONT_LEN = 32;

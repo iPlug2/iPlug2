@@ -273,13 +273,13 @@ void IBitmapControl::OnRescale()
 {
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
-
+#ifndef OS_WEB
 void ISVGControl::Draw(IGraphics& graphics)
 {
   graphics.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
     //graphics.DrawSVG(mSVG, mRECT);
 };
-
+#endif
 void ITextControl::SetTextFromDelegate(const char* str)
 {
   if (strcmp(mStr.Get(), str))
