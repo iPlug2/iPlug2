@@ -101,6 +101,25 @@ public:
 
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
+  
+  IParam* AddParam()
+  {
+    IParam* pNewParam = new IParam();
+    mParams.Add(pNewParam);
+    return pNewParam;
+  }
+  
+  IParam* InsertParam(int idx)
+  {
+    IParam* pNewParam = new IParam();
+    mParams.Insert(idx, pNewParam);
+    return pNewParam;
+  }
+  
+  void RemoveParam(int idx)
+  {
+    mParams.Delete(idx);
+  }
 
   /** Get a pointer to one of the plug-ins IParam objects
    ** WARNING: The IPlugBase::mParams is accessed by multiple threads, and this method has no thread safety mechanism.
