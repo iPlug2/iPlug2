@@ -21,7 +21,7 @@ public:
 
   void PathClear() override {} // TODO:
   void PathStart() override {} // TODO:
-  void PathClose() override {}
+  void PathClose() override {} // TODO:
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override {} // TODO:
 
@@ -49,36 +49,38 @@ public:
 
   void SetPlatformContext(void* pContext) override {} // TODO:
 
-//  virtual void HideMouseCursor() {};
-//  virtual void ShowMouseCursor() {};
-//  virtual void MoveMouseCursor(float x, float y) = 0;
-//  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
-//  virtual void ForceEndUserEdit() = 0;
-//  virtual void Resize(int w, int h, float scale);
-//  virtual void* OpenWindow(void* pParentWnd) = 0;
-//  virtual void CloseWindow() = 0;
-//  virtual void* GetWindow() = 0;
-//  virtual bool WindowIsOpen() { return GetWindow(); }
-//  virtual bool GetTextFromClipboard(WDL_String& str) = 0;
-//  virtual void UpdateTooltips() = 0;
-//  virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
-//  virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
-//  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
-//  virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
-//  virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
-//  virtual const char* GetPlatformAPIStr() { return ""; }
+  virtual void HideMouseCursor() override {} // TODO:
+  virtual void ShowMouseCursor() override {} // TODO:
+  virtual void MoveMouseCursor(float x, float y) override {} // TODO:
+  virtual void ForceEndUserEdit() override {} // TODO:
+  virtual void Resize(int w, int h, float scale) override {} // TODO:
+  virtual void* OpenWindow(void* pParentWnd) override {} // TODO:
+  virtual void CloseWindow() override {} // TODO:
+  virtual void* GetWindow() override {} // TODO:
+  virtual bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
+  virtual bool GetTextFromClipboard(WDL_String& str) override {} // TODO:
+  virtual void UpdateTooltips() override {} // TODO:
+  virtual int ShowMessageBox(const char* str, const char* caption, int type) override {} // TODO:
+  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override {} // TODO:
+  virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
+  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO:
+  virtual bool PromptForColor(IColor& color, const char* str = "") override {} // TODO:
+  virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
+  virtual const char* GetPlatformAPIStr() override { return "WEB"; }
   
-//   void HostPath(WDL_String& path) override;
-//   void PluginPath(WDL_String& path) override;
-//   void DesktopPath(WDL_String& path) override;
-//   void AppSupportPath(WDL_String& path, bool isSystem = false) override;
-//   void SandboxSafeAppSupportPath(WDL_String& path) override;
-//   void VST3PresetsPath(WDL_String& path, bool isSystem = true);
-//   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override;
+  void HostPath(WDL_String& path) override {} // TODO:
+  void PluginPath(WDL_String& path) override {} // TODO:
+  void UserHomePath(WDL_String& path) override {} // TODO:
+  void DesktopPath(WDL_String& path) override  {} // TODO:
+  void AppSupportPath(WDL_String& path, bool isSystem = false) override  {} // TODO:
+  void SandboxSafeAppSupportPath(WDL_String& path) override {} // TODO:
+  void VST3PresetsPath(WDL_String& path, bool isSystem = true) {} // TODO:
+  bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
 
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override {} // TODO:
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override {} // TODO:
+  bool OSFindResource(const char* name, const char* type, WDL_String& result) override {} // TODO:
 
 private:
 //  void ClipRegion(const IRECT& r) override {} // TODO:

@@ -42,7 +42,7 @@
   #endif
 #elif defined OS_WEB
    #ifndef NO_IGRAPHICS
-   IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
+   IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
    {
      IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
      return pGraphics;

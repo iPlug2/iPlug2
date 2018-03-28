@@ -61,9 +61,9 @@
 
 #elif defined OS_WEB
 
-//#ifndef NO_IGRAPHICS
-//  #include "IGraphicsWeb.h"
-//#endif
+#ifndef NO_IGRAPHICS
+  #include "IGraphicsWeb.h"
+#endif
 
 #elif defined OS_LINUX
   //TODO

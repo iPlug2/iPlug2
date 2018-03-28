@@ -6,7 +6,7 @@
  */
 
 #ifndef NO_IGRAPHICS
-#if defined(IGRAPHICS_AGG) + defined(IGRAPHICS_CAIRO) + defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_LICE) != 1
+#if defined(IGRAPHICS_AGG) + defined(IGRAPHICS_CAIRO) + defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_LICE) + defined(IGRAPHICS_WEB) != 1
 #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 #endif
@@ -441,10 +441,6 @@ public:
    * @param y New Y position in pixels */
   virtual void MoveMouseCursor(float x, float y) = 0;
 
-  /**  Set by the platform class if the mouse input is coming from a tablet/stylus
-   * @param tablet, \c true means input is from a tablet */
-  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
-
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
 
@@ -782,6 +778,10 @@ public:
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
+  /**  Set by the platform class if the mouse input is coming from a tablet/stylus
+   * @param tablet, \c true means input is from a tablet */
+  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
+  
 #pragma mark - Plug-in API Specific
   
   /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.

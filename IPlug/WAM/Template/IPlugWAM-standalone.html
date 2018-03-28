@@ -7,6 +7,14 @@
     <script>
     var actx, IPlugWAM;
 
+    function onload() {
+      var canvas = document.getElementById('canvas');
+      var ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = 'green';
+      ctx.fillRect(10, 10, 100, 100);
+    };
+
     function main () {
       if (AWPF.isAudioWorkletPolyfilled)
         actx = AWPF.context;
@@ -47,11 +55,12 @@
     }
     </script>
   </head>
-  <body>
+  <body onload="onload()">
     <div id="content">
       <h4>IPlugWAM</h4>
     <button type="button" onclick="main()">Start web audio!</button>
     </div>
+    <canvas id="canvas"></canvas>
     <div id="unsupported">
 <!--
     <p>AudioWorklet is unsupported in this browser version, using experimental AudioWorklet polyfill as fallback

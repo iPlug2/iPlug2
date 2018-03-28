@@ -10,6 +10,20 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 {
   TRACE;
   
+  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
+  pGraphics->AttachPanelBackground(COLOR_GRAY);
+  
+//  const int nRows = 2;
+//  const int nColumns = 2;
+//  IRECT bounds = pGraphics->GetBounds();
+//  
+//  IRECT cellRect = bounds.GetGridCell(0, nRows, nColumns);
+//  pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics, this](IControl* pCaller)
+//                                               {
+//                                               }));
+  
+  AttachGraphics(pGraphics);
+  
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
   PrintDebugInfo();
