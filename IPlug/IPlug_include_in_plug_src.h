@@ -41,13 +41,13 @@
   }
   #endif
 #elif defined OS_WEB
-//   #ifndef NO_IGRAPHICS
-//   IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
-//   {
-//     IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
-//     return pGraphics;
-//   }
-//   #endif
+   #ifndef NO_IGRAPHICS
+   IGraphics* MakeGraphics(IGraphicsDelegate& dlg, int w, int h, int fps = 0)
+   {
+     IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
+     return pGraphics;
+   }
+   #endif
 #else
   #error "No OS defined!"
 #endif

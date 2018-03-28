@@ -46,7 +46,7 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
 void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
 {
-  DBGMSG("Audio\n");
+  EM_ASM( console.log("wam process"); );
 
 //   _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, GetBlockSize());
 //   _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, GetBlockSize());
