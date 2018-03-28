@@ -14,6 +14,7 @@
 #define API_EXT2
 #ifdef VST2_API
 #ifdef REAPER_PLUGIN
+  #define LICE_PROVIDED_BY_APP
   #include "IPlugReaper.h"
   typedef IPlugReaper IPlug;
 #else
