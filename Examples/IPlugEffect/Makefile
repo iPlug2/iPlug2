@@ -67,7 +67,8 @@ IPLUG_SRC = $(API)/processor.cpp \
 IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IControl.cpp \
 	$(IGRAPHICS_PATH)/IControls.cpp \
 	$(IGRAPHICS_PATH)/IGraphics.cpp \
-	$(IGRAPHICS_PATH)/IGraphicsWeb.cpp
+	$(IGRAPHICS_PATH)/IGraphicsWeb.cpp \
+	$(IPLUG_PATH)/IPlugBaseGraphics.cpp
 
 THIS_SRC = IPlugEffect.cpp 
 
@@ -79,7 +80,7 @@ EXPORTS = "[\
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -DNO_IGRAPHICS -DSAMPLE_TYPE_FLOAT -Wno-bitwise-op-parentheses
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(IGRAPHICS_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -DIGRAPHICS_WEB -DSAMPLE_TYPE_FLOAT -Wno-bitwise-op-parentheses
 LDFLAGS = -O2 -s EXPORTED_FUNCTIONS=$(EXPORTS)
 JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=0 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IPlug'"
 # -s ASSERTIONS=1 
