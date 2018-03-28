@@ -49,24 +49,24 @@ public:
 
   void SetPlatformContext(void* pContext) override {} // TODO:
 
-  virtual void HideMouseCursor() override {} // TODO:
-  virtual void ShowMouseCursor() override {} // TODO:
-  virtual void MoveMouseCursor(float x, float y) override {} // TODO:
-  virtual void ForceEndUserEdit() override {} // TODO:
-  virtual void Resize(int w, int h, float scale) override {} // TODO:
-  virtual void* OpenWindow(void* pParentWnd) override {} // TODO:
-  virtual void CloseWindow() override {} // TODO:
-  virtual void* GetWindow() override {} // TODO:
-  virtual bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
-  virtual bool GetTextFromClipboard(WDL_String& str) override {} // TODO:
-  virtual void UpdateTooltips() override {} // TODO:
-  virtual int ShowMessageBox(const char* str, const char* caption, int type) override {} // TODO:
+  void HideMouseCursor() override {} // TODO:
+  void ShowMouseCursor() override {} // TODO:
+  void MoveMouseCursor(float x, float y) override {} // TODO:
+  void ForceEndUserEdit() override {} // TODO:
+  void Resize(int w, int h, float scale) override {} // TODO:
+  void* OpenWindow(void* pParentWnd) override {} // TODO:
+  void CloseWindow() override {} // TODO:
+  void* GetWindow() override {} // TODO:
+  bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
+  bool GetTextFromClipboard(WDL_String& str) override {} // TODO:
+  void UpdateTooltips() override {} // TODO:
+  int ShowMessageBox(const char* str, const char* caption, int type) override {} // TODO:
   IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override {} // TODO:
-  virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
-  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO:
-  virtual bool PromptForColor(IColor& color, const char* str = "") override {} // TODO:
-  virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
-  virtual const char* GetPlatformAPIStr() override { return "WEB"; }
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
+  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO:
+  bool PromptForColor(IColor& color, const char* str = "") override {} // TODO:
+  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
+  const char* GetPlatformAPIStr() override { return "WEB"; }
   
   void HostPath(WDL_String& path) override {} // TODO:
   void PluginPath(WDL_String& path) override {} // TODO:
