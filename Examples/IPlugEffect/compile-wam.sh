@@ -34,7 +34,6 @@ cp ../../../../IPlug/WAM/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
 cp ../../../../IPlug/WAM/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
-cp ../../../../IPlug/WAM/Template/scripts/loader.js IPlugEffect-loader.js
 cd ..
 cp ../../../IPlug/WAM/Template/IPlugWAM-standalone.html IPlugEffect-standalone.html
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-standalone.html
