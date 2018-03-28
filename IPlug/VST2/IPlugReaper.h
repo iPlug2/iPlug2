@@ -14,7 +14,7 @@ public:
   : IPlugVST2(instanceInfo, config)
   {
     int errorCount = REAPERAPI_LoadAPI([this](const char* str) {
-                                         return (void*)mHostCallback(NULL, 0xdeadbeef, 0xdeadf00d, 0, (void*)str, 0.0);
+                                         return (void*) mHostCallback(NULL, 0xdeadbeef, 0xdeadf00d, 0, (void*) str, 0.0);
                                        });
     if (errorCount > 0)
       LogToReaper("some errors when loading reaper api functions\n");
@@ -114,5 +114,13 @@ public:
   }
   
 private:
+//  template<typename T>
+//  T (*GetFunc(VstInt32 p1, VstIntPtr p2, const char* str = NULL, float p3 = 0.f))()
+//  {
+//    T (*func)();
+//    *(long *)&func = mHostCallback(&mAEffect, 0xdeadbeef, p1, p2, (void*) str, p3);
+//    return func;
+//  }
+  
   IREAPERVideoProcessor* mVideoProc = nullptr;
 };
