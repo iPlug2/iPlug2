@@ -51,7 +51,7 @@ enum EVST3ParamIDs
 };
 
 //TODO: these should be in a namespace, to avoid conflicts with third-party libraries
-static const double PI = 3.141592653589793238;
+static const double PI = 3.1415926535897932384626433832795;
 
 /** @brief Magic number for gain to dB conversion.
  * Approximates \f$ 20*log_{10}(x) \f$

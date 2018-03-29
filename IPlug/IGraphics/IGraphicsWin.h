@@ -16,8 +16,8 @@
     #define IGRAPHICS_DRAW_CLASS IGraphicsNanoVG
     #include "IGraphicsNanoVG.h"
   #elif !defined DOXYGEN_SHOULD_SKIP_THIS
-    #define IGRAPHICS_DRAW_CLASS IGraphicsLice
-    #include "IGraphicsLice.h"
+    #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
+    #include "IGraphicsCairo.h"
   #endif
 #endif
 

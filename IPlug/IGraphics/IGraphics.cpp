@@ -594,6 +594,9 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
+  mMouseDownX = x;
+  mMouseDownY = y;
+  
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -1129,23 +1132,34 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
   return nullptr;
 }
 
-//auto IGraphics::LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false)
-//{
-//  WDL_String fn(fileName);
-//  
-//  const char* ext = fn.get_fileext();
-//  
-//  if(strcmp(ext, "png"))
-//  {
-//    return LoadBitmap(fileName, nStates, framesAreHorizontal);
-//  }
-//  else if(strcmp(ext, "svg"))
-//  {
-//    return LoadSVG(fileName);
-//  }
-//  else if(strcmp(ext, "ttf"))
-//  {
-//    return LoadFont(fileName);
-//  }
-//}
+#ifdef IPLUG_CPP14
+auto IGraphics::LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false)
+{
+  WDL_String fn(fileName);
+  
+  const char* ext = fn.get_fileext();
+  
+  if(strcmp(ext, "png"))
+  {
+    return LoadBitmap(fileName, nStates, framesAreHorizontal);
+  }
+  else if(strcmp(ext, "svg"))
+  {
+    return LoadSVG(fileName);
+  }
+  else if(strcmp(ext, "ttf"))
+  {
+    return LoadFont(fileName);
+  }
+}
+#endif
 
+void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IVectorBase* pVB = dynamic_cast<IVectorBase*>(GetControl(c));
+    if(pVB)
+      pVB->Style(drawFrame, drawShadow, emboss, roundness, frameThickness, shadowOffset, spec);
+  }
+}

@@ -1138,6 +1138,8 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				4F57B1D5205D541700D2834E /* knob-rotate.png */,
+				4F57B1D7205D541700D2834E /* knob-rotate@2x.png */,
 				4F2F94F92052A6480087A37F /* knob.png */,
 				4F2F94FB2052A6480087A37F /* knob@2x.png */,
 				B8C5FB3B204AF4C400D5C34E /* 23.svg */,
@@ -1554,6 +1556,8 @@
 				4F9DC954201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95032052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1DB205D544B00D2834E /* knob-rotate@2x.png in Resources */,
+				4F57B1DA205D544B00D2834E /* knob-rotate.png in Resources */,
 				4F2F94FD2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1565,6 +1569,8 @@
 				4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95052052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1DF205D544D00D2834E /* knob-rotate@2x.png in Resources */,
+				4F57B1DE205D544D00D2834E /* knob-rotate.png in Resources */,
 				4F2F94FF2052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1573,6 +1579,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F57B1E2205D544F00D2834E /* knob-rotate.png in Resources */,
+				4F57B1E3205D544F00D2834E /* knob-rotate@2x.png in Resources */,
 				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
 				4F2F95012052A6480087A37F /* knob.png in Resources */,
 				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
@@ -1585,11 +1593,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F57B1DC205D544C00D2834E /* knob-rotate.png in Resources */,
 				4F815918205D50EB00393585 /* LICENSE.txt in Resources */,
 				4F81598B205D50EB00393585 /* LICENSE.txt in Resources */,
 				4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95042052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1DD205D544C00D2834E /* knob-rotate@2x.png in Resources */,
 				4F81597B205D50EB00393585 /* LICENSE.txt in Resources */,
 				4F2F94FE2052A6480087A37F /* knob.png in Resources */,
 			);
@@ -1602,6 +1612,8 @@
 				4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */,
 				4F2F95062052A6480087A37F /* knob@2x.png in Resources */,
+				4F57B1E1205D544D00D2834E /* knob-rotate@2x.png in Resources */,
+				4F57B1E0205D544D00D2834E /* knob-rotate.png in Resources */,
 				4F2F95002052A6480087A37F /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1610,10 +1622,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F57B1D8205D544900D2834E /* knob-rotate.png in Resources */,
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
 				4F2F94FC2052A6480087A37F /* knob.png in Resources */,
 				4F2F95022052A6480087A37F /* knob@2x.png in Resources */,
 				B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */,
+				4F57B1D9205D544900D2834E /* knob-rotate@2x.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);

@@ -64,9 +64,15 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend, float thickness) override
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend, float thickness) override
   {
-    PathRoundRect(bounds, corner);
+    PathRoundRect(bounds, cornerRadius);
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
+  
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override
+  {
+    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
@@ -121,9 +127,15 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  void FillRoundRect(const IColor& color, const IRECT& bounds, float corner, const IBlend* pBlend) override
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend) override
   {
-    PathRoundRect(bounds, corner);
+    PathRoundRect(bounds, cornerRadius);
+    PathFill(color, IFillOptions(), pBlend);
+  }
+  
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override
+  {
+    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
     PathFill(color, IFillOptions(), pBlend);
   }
   
