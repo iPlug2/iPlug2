@@ -24,7 +24,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   
   AttachGraphics(pGraphics);
   
-  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
 
   PrintDebugInfo();
 }

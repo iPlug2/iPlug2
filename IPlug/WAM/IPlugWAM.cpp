@@ -4,6 +4,10 @@ IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPLUG_BASE_CLASS(c, kAPIWAM)
   , IPlugProcessor<float>(c, kAPIWAM)
 {
+  int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
+
+  _SetChannelConnections(ERoute::kInput, 0, nInputs, true);
+  _SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
 }
 
 const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
@@ -46,6 +50,8 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
 void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
 {
+  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere
+  _SetChannelConnections(ERoute::kOutput, 0, 2, true); //TODO: go elsewhere
   _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, GetBlockSize());
   _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, GetBlockSize());
   _ProcessBuffers((float) 0.0f, GetBlockSize());
