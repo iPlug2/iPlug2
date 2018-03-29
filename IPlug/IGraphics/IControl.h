@@ -403,7 +403,7 @@ public:
       return mColors.Get()[0];
   }
   
-  void SetRoundness(float roundness) { mRoundness = BOUNDED(roundness, 0.f, 1.f); mControl->SetDirty(false); }
+  void SetRoundness(float roundness) { mRoundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mDrawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mDrawShadows = draw; mControl->SetDirty(false); }
   void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
