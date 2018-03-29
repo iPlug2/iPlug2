@@ -290,8 +290,9 @@ extern "C"
   {
     EMSCRIPTEN_KEEPALIVE void* createModule()
     {
-      DBGMSG("HELLO!\n");
-      return (void*) MakePlug();
+      DBGMSG("CREATE MODULE!\n");
+      Processor* pWAM = dynamic_cast<Processor*>(MakePlug());
+      return (void*) pWAM;
     }
   }
 #else
