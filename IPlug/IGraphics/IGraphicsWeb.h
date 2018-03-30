@@ -19,25 +19,25 @@ public:
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override {} // TODO:
 
-  void PathClear() override {} // TODO:
-  void PathStart() override {} // TODO:
-  void PathClose() override {} // TODO:
+  void PathClear() override { getContext().call<void>("beginPath"); } // TODO:
+  void PathStart() override { getContext().call<void>("beginPath"); } // TODO:
+  void PathClose() override { getContext().call<void>("closePath"); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override {} // TODO:
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { getContext().call<void>("arc", cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
 
-  void PathMoveTo(float x, float y) override {} // TODO:
-  void PathLineTo(float x, float y) override {} // TODO:
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override {} // TODO:
+  void PathMoveTo(float x, float y) override { getContext().call<void>("moveTo", x, y); }
+  void PathLineTo(float x, float y) override { getContext().call<void>("lineTo", x, y); }
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { getContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3); }
 
-  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override {} // TODO:
-  void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override {} // TODO:
+  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
+  void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
-  void PathStateSave() override {} // TODO:
-  void PathStateRestore() override {} // TODO:
+  void PathStateSave() override { getContext().call<void>("save"); }
+  void PathStateRestore() override {  getContext().call<void>("restore"); }
 
-  void PathTransformTranslate(float x, float y) override {} // TODO:
-  void PathTransformScale(float scaleX, float scaleY) override {} // TODO:
-  void PathTransformRotate(float angle) override {} // TODO:
+  void PathTransformTranslate(float x, float y) override { getContext().call<void>("translate", x, y); }
+  void PathTransformScale(float scaleX, float scaleY) override { getContext().call<void>("scale", scaleX, scaleY); }
+  void PathTransformRotate(float angle) override { getContext().call<void>("rotate", angle); }
 
   IColor GetPoint(int x, int y) override {} // TODO:
   void* GetData() override {} // TODO:
@@ -53,7 +53,7 @@ public:
   void ShowMouseCursor() override {} // TODO:
   void MoveMouseCursor(float x, float y) override {} // TODO:
   void ForceEndUserEdit() override {} // TODO:
-  void Resize(int w, int h, float scale) override {} // TODO:
+  void Resize(int w, int h, float scale) override;
   void* OpenWindow(void* pParentWnd) override {} // TODO:
   void CloseWindow() override {} // TODO:
   void* GetWindow() override {} // TODO:
@@ -85,5 +85,18 @@ protected:
 private:
 //  void ClipRegion(const IRECT& r) override {} // TODO:
 //  void ResetClipRegion() override {} // TODO:
+  
+  emscripten::val getCanvas()
+  {
+    return emscripten::val::global("document").call<emscripten::val>("getElementById", std::string("canvas"));
+  }
+
+  emscripten::val getContext()
+  {
+    emscripten::val canvas = getCanvas();
+    return canvas.call<emscripten::val>("getContext", std::string("2d"));
+  }
+  
+  void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend);
 };
 

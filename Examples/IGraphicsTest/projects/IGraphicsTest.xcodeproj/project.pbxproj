@@ -84,12 +84,12 @@
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
 		4F3ECAAE2038561700630EC5 /* IPlugPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatform.h; path = ../../../IPlug/IPlugPlatform.h; sourceTree = "<group>"; };
-		4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsTest.cpp; path = ../IGraphicsTest.cpp; sourceTree = "<group>"; };
+		4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsTest.cpp; path = ../IGraphicsTest.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F3FB118202273A500622761 /* IGraphicsTest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IGraphicsTest.entitlements; sourceTree = "<group>"; };
 		4F69BB5D2013C520002C8948 /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac.h; path = ../../../IPlug/IGraphics/IGraphicsMac.h; sourceTree = "<group>"; };
-		4F69BB5E2013C520002C8948 /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWeb.h; path = ../../../IPlug/IGraphics/IGraphicsWeb.h; sourceTree = "<group>"; };
+		4F69BB5E2013C520002C8948 /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsWeb.h; path = ../../../IPlug/IGraphics/IGraphicsWeb.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F69BB5F2013C520002C8948 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../../IPlug/IGraphics/IGraphicsWin.h; sourceTree = "<group>"; };
-		4F69BB602013C520002C8948 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IPlug/IGraphics/IGraphicsWeb.cpp; sourceTree = "<group>"; };
+		4F69BB602013C520002C8948 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IPlug/IGraphics/IGraphicsWeb.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F69BB612013C520002C8948 /* IGraphicsMac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IGraphicsMac.m; path = ../../../IPlug/IGraphics/IGraphicsMac.m; sourceTree = "<group>"; };
 		4F69BB622013C521002C8948 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWin.cpp; path = ../../../IPlug/IGraphics/IGraphicsWin.cpp; sourceTree = "<group>"; };
 		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
@@ -150,6 +150,8 @@
 		4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLice.h; path = ../../../IPlug/IGraphics/IGraphicsLice.h; sourceTree = "<group>"; };
 		4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPopupMenu.h; path = ../../../IPlug/IGraphics/IPopupMenu.h; sourceTree = "<group>"; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../../common.xcconfig; sourceTree = SOURCE_ROOT; };
+		B80972F5206E41FD0070ACB8 /* main_web.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = main_web.cpp; path = ../main_web.cpp; sourceTree = "<group>"; tabWidth = 2; };
+		B80972F6206E5A5C0070ACB8 /* IGraphicsTest_controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsTest_controls.h; path = ../IGraphicsTest_controls.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +168,7 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
+				B80972F6206E5A5C0070ACB8 /* IGraphicsTest_controls.h */,
 				4F6F5365202FDB9900FEE3A7 /* IGraphicsTest.h */,
 				4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */,
 				089C167CFE841241C02AAC07 /* Resources */,
@@ -213,6 +216,7 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B80972F5206E41FD0070ACB8 /* main_web.cpp */,
 				4F6F5359202FD49200FEE3A7 /* main.cpp */,
 				4F8B32602014C7D600EF1F61 /* IGraphicsTest.xcconfig */,
 				4FF7B0D4156A825000E6CB12 /* common.xcconfig */,

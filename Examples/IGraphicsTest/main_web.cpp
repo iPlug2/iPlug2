@@ -1,9 +1,12 @@
-// #include "IGraphicsTest.h"
+#include "IGraphicsTest.h"
 #include <stdio.h>
 
+IGraphicsTest gIGraphicsTest;
 
-int main(int argc, char **argv)
+
+int main()
 {
-  printf("hello, world!\n");
+  gIGraphicsTest.init();
+    
   return 0;
 }
