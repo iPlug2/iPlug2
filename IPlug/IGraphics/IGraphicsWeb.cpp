@@ -17,7 +17,7 @@ EMSCRIPTEN_BINDINGS(IGraphics) {
   function("mouse_web_handler", &MouseHandler);
 }
 
-std::string getColor(const IColor& color, float alpha = 1.0)
+std::string GetColor(const IColor& color, float alpha = 1.0)
 {
   char cString[64];
   
@@ -164,7 +164,7 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
     case kSolidPattern:
     {
       const IColor color = pattern.GetStop(0).mColor;
-      std::string colorString = getColor(color, BlendWeight(pBlend));
+      std::string colorString = GetColor(color, BlendWeight(pBlend));
 
       context.set("fillStyle", colorString);
       context.set("strokeStyle", colorString);
@@ -192,7 +192,7 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        gradient.call<void>("addColorStop", stop.mOffset, getColor(stop.mColor));
+        gradient.call<void>("addColorStop", stop.mOffset, GetColor(stop.mColor));
       }
       
       context.set("fillStyle", gradient);
