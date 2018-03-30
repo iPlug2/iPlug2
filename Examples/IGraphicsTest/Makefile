@@ -1,7 +1,7 @@
 ##LINUX ONLY FOR NOW
-# 
+#
 # APP=IGraphicsTest
-# 
+#
 # ROOT = ../..
 # IPLUG_PATH = $(ROOT)/IPlug
 # WDL_PATH = $(ROOT)/WDL
@@ -12,36 +12,36 @@
 # DEPS_PATH = $(ROOT)/Dependencies
 # IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
 # NANOSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
-# 
+#
 # IPLUG_INC_PATHS = -I$(IPLUG_PATH) -I$(WDL_PATH) -I$(SWELL_PATH)
 # IGRAPHICS_INC_PATHS = -I$(IGRAPHICS_PATH) -I$(NANOSVG_PATH)
-# 
+#
 # ARCH := $(shell uname -m)
 # UNAME_S := $(shell uname -s)
-# 
+#
 # PKG_CONFIG = pkg-config
-# 
+#
 # CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result
-# 
+#
 # ifeq ($(UNAME_S),Darwin)
 #   CFLAGS += -Wno-unused-private-field -DSWELL_FORCE_GENERIC
 #   DLL_EXT=.dylib
 # else
 #   DLL_EXT=.so
 # endif
-# 
+#
 # ifndef ALLOW_WARNINGS
 #   CFLAGS += -Werror
 # endif
 # ifndef DEPRECATED_WARNINGS
 #   CFLAGS +=  -Wno-deprecated-declarations
 # endif
-# 
+#
 # ifneq ($(filter arm%,$(ARCH)),)
 #   CFLAGS += -fsigned-char -marm
 # endif
-# 
-# 
+#
+#
 # ifdef DEBUG
 # CFLAGS += -O0 -g -D_DEBUG
 # else
@@ -50,13 +50,13 @@
 #     CFLAGS += -s
 #   endif
 # endif
-# 
-# LINKEXTRA =  -lpthread -ldl 
-# 
+#
+# LINKEXTRA =  -lpthread -ldl
+#
 # vpath %.cpp .. $(LICE_PATH)
 # vpath %.cpp .. $(SWELL_PATH)
-# 
-# 
+#
+#
 # ### Objects and resources
 # SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
 #              swell-menu-generic.o swell-kb-generic.o swell-dlg-generic.o \
@@ -64,29 +64,29 @@
 #              swell-appstub-generic.o \
 #              swell-generic-headless.o \
 #              swell-generic-gdk.o \
-#              swell-gdi-generic.o 
-# 
+#              swell-gdi-generic.o
+#
 # ifndef NOLICE
-# SWELL_OBJS += swell-gdi-lice.o 
+# SWELL_OBJS += swell-gdi-lice.o
 # LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
 #             lice_textnew.o lice_png.o
 # endif
-# 
+#
 # OBJS = main.o IGraphicsTest.o $(SWELL_OBJS)
 # RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
-# 
+#
 # ### Compiler/Linker Flags
-# 
+#
 # CFLAGS += $(IPLUG_INC_PATHS)
 # CFLAGS += $(IGRAPHICS_INC_PATHS)
 # CFLAGS += -DNOMINMAX
-# CFLAGS += -DNO_IGRAPHICS 
+# CFLAGS += -DNO_IGRAPHICS
 # CFLAGS += -std=c++11
-# 
+#
 # ifneq ($(filter arm%,$(ARCH)),)
 #   CFLAGS += -fsigned-char -marm
 # endif
-# 
+#
 # ifndef NOGDK
 #   ifdef GDK2
 #     CFLAGS += -DSWELL_TARGET_GDK=2 $(shell $(PKG_CONFIG) --cflags gdk-2.0)
@@ -121,7 +121,7 @@
 #   ifndef NOLICE
 #     CFLAGS += -DSWELL_LICE_GDI
 #     OBJS += $(LICE_OBJS)
-# 
+#
 #     ifndef NOFREETYPE
 #         CFLAGS += -DSWELL_FREETYPE $(shell freetype-config --cflags)
 #         ifndef PRELOAD_GDK
@@ -141,18 +141,17 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IControl.cpp \
 	$(IGRAPHICS_PATH)/IControls.cpp \
 	$(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(IGRAPHICS_PATH)/IGraphicsWeb.cpp
-	
-THIS_SRC = main_web.cpp 
-#IGraphicsTest.cpp
+
+THIS_SRC = main_web.cpp IGraphicsTest.cpp
 
 SRC = $(IGRAPHICS_SRC) $(THIS_SRC)
 
-EXPORTS = "['main']"
+EXPORTS = "['_main']"
 
 CFLAGS = -I./ -I$(IPLUG_PATH) -I$(WDL_PATH) -I$(IGRAPHICS_PATH) -std=c++11 -DIGRAPHICS_WEB -Wno-bitwise-op-parentheses
-LDFLAGS = -s EXPORTED_FUNCTIONS=$(EXPORTS) -O1
-JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=0 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 --bind -s ASSERTIONS=0
-#JSFLAGS = 
+LDFLAGS = -s EXPORTED_FUNCTIONS=$(EXPORTS) #-O1
+JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 --bind -s ASSERTIONS=0
+#JSFLAGS =
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(SRC)
