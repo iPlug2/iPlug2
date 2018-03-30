@@ -16,7 +16,7 @@ void IGraphicsTest::init()
   
   //Bitmap knobBitmap = mGraphics->LoadBitmap("img/knob.png", 60);
   
-  mGraphics->Resize(400, 400, 1);
+  mGraphics->Resize(400, 400, 1.4);
   mGraphics->AttachControl(new IGradientControl(*this, IRECT(20, 20, 150, 120), -1));
   mGraphics->AttachControl(new IPolyControl(*this, IRECT(20, 200, 150, 330), -1));
   mGraphics->AttachControl(new IArcControl(*this, IRECT(220, 20, 320, 120), -1));

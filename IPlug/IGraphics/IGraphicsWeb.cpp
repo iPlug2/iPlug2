@@ -11,7 +11,6 @@ void MouseHandler(std::string object, std::string type, double x, double y, doub
   IMouseMod modifiers(0, 0, buttonStates & 4, buttonStates & 2, buttonStates & 1);
   
   pGraphics->OnMouseEvent(type, x, y, modifiers);
-  printf("Mouse %x %s, %s %lf %lf %lf\n", pGraphics, object.c_str(), type.c_str(), x, y, state);
 }
 
 EMSCRIPTEN_BINDINGS(IGraphics) {
@@ -62,9 +61,7 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   char callback[256];
   
   sprintf(callback, "Module.mouse_web_handler('%x', e.type, e.offsetX, e.offsetY, e.shiftKey | e.ctrlKey << 2 | e.altKey << 3)", this);
-  
-  printf(callback);
-  
+    
   val eventListener = val::global("Function").new_(std::string("e"), std::string(callback));
   GetCanvas().call<void>("addEventListener", std::string("dblclick"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mousedown"), eventListener);
@@ -226,6 +223,8 @@ void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
 
 void IGraphicsWeb::Resize(int w, int h, float scale)
 {
+  IGraphics::Resize(w, h, scale);
+  
   emscripten::val canvas = GetCanvas();
 
   canvas.set("width", w * scale);
@@ -316,9 +315,9 @@ void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMo
   mLastX = x;
   mLastY = y;
   
-  Draw(GetBounds());
-  
   // TODO - timer based drawing...
+
+  Draw(GetBounds());
 }
 
 
