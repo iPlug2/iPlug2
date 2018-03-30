@@ -91,7 +91,7 @@ public:
   
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override {} // TODO:
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
 private:

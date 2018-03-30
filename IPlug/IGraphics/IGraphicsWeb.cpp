@@ -278,24 +278,51 @@ APIBitmap* IGraphicsWeb::LoadAPIBitmap(const WDL_String& resourcePath, int scale
   return new WebBitmap(img, scale);
 }
 
+APIBitmap* IGraphicsWeb::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+{
+  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
+  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
+  
+  RetainVal* imgSrc = (RetainVal*)pBitmap->GetBitmap();
+  
+  // Make an offscreen canvas and resize
+  val documentHead = val::global("document")["head"];
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  documentHead.call<val>("appendChild", canvas);
+  val canvasNode = documentHead["lastChild"];
+  val context = canvas.call<emscripten::val>("getContext", std::string("2d"));
+  context.set("width", destW);
+  context.set("height", destH);
+  
+  // Scale and draw
+  context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
+  context.call<void>("drawImage", imgSrc->mItem, 0, 0);
+  
+  // Copy to an image
+  val img = val::global("Image").new_();
+  img.set("src", canvas.call<val>("toDataURL"));
+  
+  // Delete the canvas
+  documentHead.call<val>("removeChild", canvasNode);
+
+  return new WebBitmap(img, scale);
+}
+
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
   {
     std::string url = name;
     
-    // TODO: safely check if the file exists...
+    // N.B. this is synchronous, which is badness in webland
     
-    /*val request = val::global("HttpRequest").new_();
-    
-    request.call<void>("open", 'HEAD', url, false);
+    val request = val::global("XMLHttpRequest").new_();
+    request.call<void>("open", std::string("HEAD"), url, false);
     request.call<void>("send");
-
-    printf("url %s\n", url.c_str());
-
-    if (!request["status"].equals(val(0)))
+    
+    if (!request["status"].equals(val(200)))
       return false;
-    */
+
     result = WDL_String(url.c_str());
     
     return true;
