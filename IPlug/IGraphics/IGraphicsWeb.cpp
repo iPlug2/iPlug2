@@ -13,8 +13,16 @@ void MouseHandler(std::string object, std::string type, double x, double y, doub
   pGraphics->OnMouseEvent(type, x, y, modifiers);
 }
 
+void TimerHandler(std::string object)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
+
+  pGraphics->OnTimer();
+}
+
 EMSCRIPTEN_BINDINGS(IGraphics) {
   function("mouse_web_handler", &MouseHandler);
+  function("timer_web_handler", &TimerHandler);
 }
 
 std::string GetColor(const IColor& color, float alpha = 1.0)
@@ -72,6 +80,13 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   GetCanvas().call<void>("addEventListener", std::string("mouseover"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mouseout"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
+  
+  // Bind the timer
+  
+  sprintf(callback, "Module.timer_web_handler('%x')", this);
+  
+  val timerFunction = val::global("Function").new_(std::string(callback));
+  val::global("window").call<void>("setInterval", timerFunction, 1000.0/FPS());
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -223,6 +238,19 @@ void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
   }
 }
 
+void IGraphicsWeb::ClipRegion(const IRECT& r)
+{
+  PathStateSave();
+  PathRect(r);
+  GetContext().call<void>("clip");
+  PathStart();
+}
+
+void IGraphicsWeb::ResetClipRegion()
+{
+  PathStateRestore();
+}
+
 void IGraphicsWeb::Resize(int w, int h, float scale)
 {
   IGraphics::Resize(w, h, scale);
@@ -275,6 +303,14 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
   return false;
 }
 
+void IGraphicsWeb::OnTimer()
+{
+  IRECT r;
+  
+  if (IsDirty(r))
+    Draw(r);
+}
+
 void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMouseMod& modifiers)
 {
   x /= GetScale();
@@ -316,10 +352,6 @@ void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMo
   
   mLastX = x;
   mLastY = y;
-  
-  // TODO: timer based drawing...
-
-  Draw(GetBounds());
 }
 
 

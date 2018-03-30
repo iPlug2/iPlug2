@@ -86,6 +86,7 @@ public:
   void VST3PresetsPath(WDL_String& path, bool isSystem = true) {} // TODO:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
 
+  void OnTimer();
   void OnMouseEvent(std::string& type, double x, double y, const IMouseMod& modifiers);
   
 protected:
@@ -94,8 +95,8 @@ protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
 private:
-//  void ClipRegion(const IRECT& r) override {} // TODO:
-//  void ResetClipRegion() override {} // TODO:
+  void ClipRegion(const IRECT& r) override;
+  void ResetClipRegion() override;
   
   emscripten::val GetCanvas()
   {
