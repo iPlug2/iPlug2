@@ -4,6 +4,20 @@
 
 using namespace emscripten;
 
+void MouseHandler(std::string object, std::string type, double x, double y, double state)
+{
+  int buttonStates = state;
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
+  IMouseMod modifiers(0, 0, buttonStates & 4, buttonStates & 2, buttonStates & 1);
+  
+  pGraphics->OnMouseEvent(type, x, y, modifiers);
+  printf("Mouse %x %s, %s %lf %lf %lf\n", pGraphics, object.c_str(), type.c_str(), x, y, state);
+}
+
+EMSCRIPTEN_BINDINGS(IGraphics) {
+  function("mouse_web_handler", &MouseHandler);
+}
+
 std::string getColor(const IColor& color, float alpha = 1.0)
 {
   char cString[64];
@@ -13,21 +27,74 @@ std::string getColor(const IColor& color, float alpha = 1.0)
   return cString;
 }
 
+struct RetainVal
+{
+  RetainVal(val item) : mItem(item) {}
+  val mItem;
+};
+
+WebBitmap::WebBitmap(val image, int scale)
+{
+  int width = image["naturalWidth"].as<int>();
+  int height = image["naturalHeight"].as<int>();
+  
+  SetBitmap(new RetainVal(image), width, height, scale);
+}
+
+WebBitmap::~WebBitmap()
+{
+  RetainVal *image = (RetainVal *)GetBitmap();
+  delete image;
+}
+
 IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
+  printf("HELLO IGraphics!\n");
+
+  // Seed random number generator randomly
+  
   val randomGenerator = val::global("Math");
   std::srand(32768 * randomGenerator.call<double>("random"));
-  printf("HELLO IGraphics!\n");
+  
+  // Bind event listener to the canvas for all mouse events
+  
+  char callback[256];
+  
+  sprintf(callback, "Module.mouse_web_handler('%x', e.type, e.offsetX, e.offsetY, e.shiftKey | e.ctrlKey << 2 | e.altKey << 3)", this);
+  
+  printf(callback);
+  
+  val eventListener = val::global("Function").new_(std::string("e"), std::string(callback));
+  GetCanvas().call<void>("addEventListener", std::string("dblclick"), eventListener);
+  GetCanvas().call<void>("addEventListener", std::string("mousedown"), eventListener);
+  GetCanvas().call<void>("addEventListener", std::string("mouseup"), eventListener);
+  GetCanvas().call<void>("addEventListener", std::string("mousemove"), eventListener);
+  GetCanvas().call<void>("addEventListener", std::string("mouseover"), eventListener);
+  GetCanvas().call<void>("addEventListener", std::string("mouseout"), eventListener);
+  GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
 {
 }
 
+void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+{
+  val context = GetContext();
+  
+  RetainVal* img = (RetainVal*)bitmap.GetRawBitmap();
+  
+  PathStateSave();
+  SetWebBlendMode(pBlend);
+  context.set("globalAlpha", BlendWeight(pBlend));
+  context.call<void>("drawImage", img->mItem, srcX, srcY, dest.W(), dest.H(), dest.L, dest.R, dest.W(), dest.H());
+  PathStateRestore();
+}
+
 void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  val context = getContext();
+  val context = GetContext();
   double dashArray[8];
   
   // First set options
@@ -64,7 +131,7 @@ void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IS
 
 void IGraphicsWeb::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  val context = getContext();
+  val context = GetContext();
 
   // FIX - fill rules?
   //options.mFillRule
@@ -91,8 +158,9 @@ void invertTransform(float *xform, const float *xformIn)
 
 void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
-  //cairo_set_operator(mContext, CairoBlendMode(pBlend));
-  val context = getContext();
+  val context = GetContext();
+  
+  SetWebBlendMode(pBlend);
   
   switch (pattern.mType)
   {
@@ -137,13 +205,120 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
   }
 }
 
+void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
+{
+  val context = GetContext();
+
+  if (!pBlend)
+  {
+    context.set("globalCompositeOperation", "source-over");
+  }
+  switch (pBlend->mMethod)
+  {
+    case kBlendClobber:     context.set("globalCompositeOperation", "source-over");   break;
+    case kBlendAdd:         context.set("globalCompositeOperation", "lighter");       break;
+    case kBlendColorDodge:  context.set("globalCompositeOperation", "source-over");   break;
+    case kBlendNone:
+    default:
+      context.set("globalCompositeOperation", "source-over");
+  }
+}
+
 void IGraphicsWeb::Resize(int w, int h, float scale)
 {
-  emscripten::val canvas = getCanvas();
+  emscripten::val canvas = GetCanvas();
 
   canvas.set("width", w * scale);
   canvas.set("height", h * scale);
   
   PathTransformScale(scale, scale);
 }
+
+APIBitmap* IGraphicsWeb::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+{
+  val img = val::global("Image").new_(100, 100);
+  img.set("src", resourcePath.Get());
+  
+  // TODO - make sure the image has finished loading
+  
+  printf("loading %s\n", resourcePath.Get());
+  //while(!img["complete"].as<bool>());
+
+  assert(img["complete"].as<bool>());  // Protect against typos in resource.h and .rc files.
+
+  return new WebBitmap(img, scale);
+}
+
+bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
+{
+  if (CStringHasContents(name))
+  {
+    std::string url = name;
+    
+    // TODO - safely check if the file exists...
+    
+    /*val request = val::global("HttpRequest").new_();
+    
+    request.call<void>("open", 'HEAD', url, false);
+    request.call<void>("send");
+
+    printf("url %s\n", url.c_str());
+
+    if (!request["status"].equals(val(0)))
+      return false;
+    */
+    result = WDL_String(url.c_str());
+    
+    return true;
+  }
+  return false;
+}
+
+void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMouseMod& modifiers)
+{
+  x /= GetScale();
+  y /= GetScale();
+  
+  if (!type.compare("mousedown"))
+  {
+    OnMouseDown(x, y, modifiers);
+    mMouseDown = true;
+  }
+  else if (!type.compare("mouseup"))
+  {
+    OnMouseUp(x, y, modifiers);
+    mMouseDown = false;
+  }
+  else if (!type.compare("mousemove"))
+  {
+    if (mMouseDown)
+      OnMouseDrag(x, y, x - mLastX, y - mLastY, modifiers);
+    else
+      OnMouseOver(x, y, modifiers);
+  }
+  else if (!type.compare("mouseover"))
+  {
+    OnMouseOver(x, y, modifiers);
+  }
+  else if (!type.compare("dblclick"))
+  {
+    OnMouseDblClick(x, y, modifiers);
+  }
+  else if (!type.compare("mouseout"))
+  {
+    OnMouseOut();
+  }
+  else if (!type.compare("mousewheel"))
+  {
+    //OnMouseOut();
+  }
+  
+  mLastX = x;
+  mLastY = y;
+  
+  Draw(GetBounds());
+  
+  // TODO - timer based drawing...
+}
+
 
