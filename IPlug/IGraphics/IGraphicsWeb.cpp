@@ -37,7 +37,9 @@ WebBitmap::WebBitmap(val image, int scale)
   int width = image["naturalWidth"].as<int>();
   int height = image["naturalHeight"].as<int>();
   
-  SetBitmap(new RetainVal(image), width, height, scale);
+  // TODO: this value won't be correct on load, because the bitmap isn't loaded yet...
+  
+  SetBitmap(new RetainVal(image), 48, 48 * 60, scale);
 }
 
 WebBitmap::~WebBitmap()
@@ -85,7 +87,7 @@ void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   PathStateSave();
   SetWebBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
-  context.call<void>("drawImage", img->mItem, srcX, srcY, dest.W(), dest.H(), dest.L, dest.R, dest.W(), dest.H());
+  context.call<void>("drawImage", img->mItem, srcX, srcY, dest.W(), dest.H(), dest.L, dest.T, dest.W(), dest.H());
   PathStateRestore();
 }
 
@@ -238,12 +240,12 @@ APIBitmap* IGraphicsWeb::LoadAPIBitmap(const WDL_String& resourcePath, int scale
   val img = val::global("Image").new_(100, 100);
   img.set("src", resourcePath.Get());
   
-  // TODO - make sure the image has finished loading
+  // TODO: make sure the image has finished loading
   
   printf("loading %s\n", resourcePath.Get());
   //while(!img["complete"].as<bool>());
 
-  assert(img["complete"].as<bool>());  // Protect against typos in resource.h and .rc files.
+  //assert(img["complete"].as<bool>());  // Protect against typos in resource.h and .rc files.
 
   return new WebBitmap(img, scale);
 }
@@ -254,7 +256,7 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
   {
     std::string url = name;
     
-    // TODO - safely check if the file exists...
+    // TODO: safely check if the file exists...
     
     /*val request = val::global("HttpRequest").new_();
     
@@ -315,7 +317,7 @@ void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMo
   mLastX = x;
   mLastY = y;
   
-  // TODO - timer based drawing...
+  // TODO: timer based drawing...
 
   Draw(GetBounds());
 }
