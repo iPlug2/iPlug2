@@ -19,7 +19,7 @@ public:
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override {} // TODO:
 
-  void PathClear() override { getContext().call<void>("beginPath"); } // TODO:
+  void PathClear() override { getContext().call<void>("beginPath"); }
   void PathStart() override { getContext().call<void>("beginPath"); } // TODO:
   void PathClose() override { getContext().call<void>("closePath"); }
 
