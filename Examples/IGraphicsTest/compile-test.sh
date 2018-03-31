@@ -11,14 +11,17 @@ mkdir build-web
 
 emmake make
 
-cp -r resources/img build-web
-cd build-web
+if [ -a build-web/IGraphicsTest.wasm ]
+then
+  cp -r resources/img build-web
+  cd build-web
 
-osascript <<EOF
-tell application "Google Chrome Canary"
-  open location "http://localhost:8000/IGraphicsTest.html"
-  activate
-end tell
+  osascript <<EOF
+  tell application "Google Chrome Canary"
+      open location "http://localhost:8000/IGraphicsTest.html"
+          activate
+          end tell
 EOF
 
-python -m SimpleHTTPServer 8000
+  python -m SimpleHTTPServer 8000
+fi
