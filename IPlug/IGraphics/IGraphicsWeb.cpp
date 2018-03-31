@@ -4,19 +4,15 @@
 
 using namespace emscripten;
 
-void MouseHandler(std::string object, std::string type, double x, double y, double state)
+void MouseHandler(std::string object, val event, double outside)
 {
-  int buttonStates = state;
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
-  IMouseMod modifiers(0, 0, buttonStates & 4, buttonStates & 2, buttonStates & 1);
-  
-  pGraphics->OnMouseEvent(type, x, y, modifiers);
+  pGraphics->OnMouseEvent(event, outside);
 }
 
 void TimerHandler(std::string object)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
-
   pGraphics->OnTimer();
 }
 
@@ -70,8 +66,8 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   
   char callback[256];
   
-  sprintf(callback, "Module.mouse_web_handler('%x', e.type, e.offsetX, e.offsetY, e.shiftKey | e.ctrlKey << 2 | e.altKey << 3)", this);
-    
+  sprintf(callback, "Module.mouse_web_handler('%x', e, 0);", this);
+
   val eventListener = val::global("Function").new_(std::string("e"), std::string(callback));
   GetCanvas().call<void>("addEventListener", std::string("dblclick"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mousedown"), eventListener);
@@ -81,9 +77,14 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   GetCanvas().call<void>("addEventListener", std::string("mouseout"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
   
+  sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
+  val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
+  val::global("window").call<void>("addEventListener", std::string("mousemove"), eventListener2, true);
+  val::global("window").call<void>("addEventListener", std::string("mouseup"), eventListener2, true);
+  
   // Bind the timer
   
-  sprintf(callback, "Module.timer_web_handler('%x')", this);
+  sprintf(callback, "Module.timer_web_handler('%lx')", this);
   
   val timerFunction = val::global("Function").new_(std::string(callback));
   val::global("window").call<void>("setInterval", timerFunction, 1000.0/FPS());
@@ -268,13 +269,21 @@ APIBitmap* IGraphicsWeb::LoadAPIBitmap(const WDL_String& resourcePath, int scale
   val img = val::global("Image").new_(100, 100);
   img.set("src", resourcePath.Get());
   
-  // TODO: make sure the image has finished loading
+  // Use XMLHttpRequest to allow synchronous loading
+  val request = val::global("XMLHttpRequest").new_();
+  request.call<void>("open", std::string("GET"), std::string(resourcePath.Get()), false);
+  request.call<void>("send");
   
-  printf("loading %s\n", resourcePath.Get());
-  //while(!img["complete"].as<bool>());
-
-  //assert(img["complete"].as<bool>());  // Protect against typos in resource.h and .rc files.
-
+  assert(request["status"].equals(val(200)));
+  
+  //printf("Object %s\n", request["response"].as<std::string>().c_str());
+  // Now load the image from a generated URL
+  //val blob = val::global("Blob").new_(request["response"]);
+  //val url = val::global("window")["URL"].call<val>("createObjectURL", blob);
+  //img.set("src", url);
+  
+  //assert(img["complete"].as<bool>());
+  
   return new WebBitmap(img, scale);
 }
 
@@ -338,8 +347,34 @@ void IGraphicsWeb::OnTimer()
     Draw(r);
 }
 
-void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMouseMod& modifiers)
+void IGraphicsWeb::OnMouseEvent(val event, bool outside)
 {
+  std::string type = event["type"].as<std::string>();
+  double x, y = -1.0;
+  
+  if (outside)
+  {
+    if (!mMouseDown || !mMouseOutside)
+      return;
+    
+    x = event["pageX"].as<double>() - mPositionL;
+    y = event["pageY"].as<double>() - mPositionT;
+  }
+  else
+  {
+    x = event["offsetX"].as<double>();
+    y = event["offsetY"].as<double>();
+   
+    mPositionL = event["pageX"].as<double>() - x;
+    mPositionT = event["pageY"].as<double>() - y;
+  }
+  
+  event.call<void>("stopImmediatePropagation");
+  event.call<void>("preventDefault");
+
+  
+  IMouseMod modifiers(0, 0, event["shiftKey"].as<bool>(), event["ctrlKey"].as<bool>(), event["altKey"].as<bool>());
+
   x /= GetScale();
   y /= GetScale();
   
@@ -355,14 +390,18 @@ void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMo
   }
   else if (!type.compare("mousemove"))
   {
-    if (mMouseDown)
-      OnMouseDrag(x, y, x - mLastX, y - mLastY, modifiers);
-    else
-      OnMouseOver(x, y, modifiers);
+    if (mLastX != x || mLastY != y)
+    {
+      if (mMouseDown)
+        OnMouseDrag(x, y, x - mLastX, y - mLastY, modifiers);
+      else
+        OnMouseOver(x, y, modifiers);
+    }
   }
   else if (!type.compare("mouseover"))
   {
     OnMouseOver(x, y, modifiers);
+    mMouseOutside = false;
   }
   else if (!type.compare("dblclick"))
   {
@@ -371,6 +410,7 @@ void IGraphicsWeb::OnMouseEvent(std::string& type, double x, double y, const IMo
   else if (!type.compare("mouseout"))
   {
     OnMouseOut();
+    mMouseOutside = true;
   }
   else if (!type.compare("mousewheel"))
   {
