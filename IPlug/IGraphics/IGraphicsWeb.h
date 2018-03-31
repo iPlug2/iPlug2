@@ -60,8 +60,8 @@ public:
   IColor GetPoint(int x, int y) override {} // TODO:
   void* GetData() override {} // TODO:
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override {} // TODO:
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override {} // TODO:
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure);
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds);
 
   void RenderDrawBitmap() override { /* Nothing to do here */ }
 
@@ -119,7 +119,7 @@ private:
     return canvas.call<emscripten::val>("getContext", std::string("2d"));
   }
   
-  void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend);
+  void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetWebBlendMode(const IBlend* pBlend);
 
   RetainVal* mWindowListener = nullptr;

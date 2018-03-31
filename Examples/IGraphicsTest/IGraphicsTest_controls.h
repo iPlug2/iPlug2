@@ -274,6 +274,47 @@ private:
   int mShape;
 };
 
+class RandomTextControl : public IControl
+{
+public:
+    RandomTextControl(IDelegate& plug, IRECT bounds)
+    : IControl(plug, bounds, -1)
+    {
+        Randomise();
+    }
+    
+    void OnMouseDown(float x, float y, const IMouseMod& mod) override
+    {
+        Randomise();
+        SetDirty(false);
+    }
+    
+    void Randomise()
+    {
+        int size = (std::rand() % 40) + 5;
+        int style = (std::rand() % 3);
+        int align = (std::rand() % 3);
+        int type = (std::rand() % 4);
+        mStringIndex = (std::rand() % 6);
+        
+        char* types[] = { "Arial", "Chicago" , "Times", "Palatino" };
+
+        mText = IText(IColor::GetRandomColor(), size, types[type], (IText::EStyle) style, (IText::EAlign) align);
+    }
+    
+    void Draw(IGraphics& graphics) override
+    {
+        char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
+
+        graphics.FillRect(COLOR_BLACK, mRECT);
+        graphics.DrawText(mText, words[mStringIndex], mRECT);
+    }
+    
+private:
+    
+    int mStringIndex;
+};
+
 class IBKnobControl : public IKnobControlBase
 {
 public:
