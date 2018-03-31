@@ -10,6 +10,12 @@ void MouseHandler(std::string object, val event, double outside)
   pGraphics->OnMouseEvent(event, outside);
 }
 
+void KeyHandler(std::string object, val event)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
+  pGraphics->OnKeyEvent(event);
+}
+
 void TimerHandler(std::string object)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
@@ -18,6 +24,7 @@ void TimerHandler(std::string object)
 
 EMSCRIPTEN_BINDINGS(IGraphics) {
   function("mouse_web_handler", &MouseHandler);
+  function("key_web_handler", &KeyHandler);
   function("timer_web_handler", &TimerHandler);
 }
 
@@ -29,12 +36,6 @@ std::string GetColor(const IColor& color, float alpha = 1.0)
   
   return cString;
 }
-
-struct RetainVal
-{
-  RetainVal(val item) : mItem(item) {}
-  val mItem;
-};
 
 WebBitmap::WebBitmap(val image, int scale)
 {
@@ -78,9 +79,14 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
   
   sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
+  
+  mWindowListener = new RetainVal(val::global("Function").new_(std::string("e"), std::string(callback)));
+  
+  sprintf(callback, "Module.key_web_handler('%x', e);", this);
+  
   val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
-  val::global("window").call<void>("addEventListener", std::string("mousemove"), eventListener2, true);
-  val::global("window").call<void>("addEventListener", std::string("mouseup"), eventListener2, true);
+  val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
+  GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener2);
   
   // Bind the timer
   
@@ -92,6 +98,7 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
 
 IGraphicsWeb::~IGraphicsWeb()
 {
+  delete mWindowListener;
 }
 
 void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -222,20 +229,18 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
 
 void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
 {
-  val context = GetContext();
-
   if (!pBlend)
   {
-    context.set("globalCompositeOperation", "source-over");
+    GetContext().set("globalCompositeOperation", "source-over");
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     context.set("globalCompositeOperation", "source-over");   break;
-    case kBlendAdd:         context.set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  context.set("globalCompositeOperation", "source-over");   break;
+    case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
+    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "source-over");   break;
     case kBlendNone:
     default:
-      context.set("globalCompositeOperation", "source-over");
+      GetContext().set("globalCompositeOperation", "source-over");
   }
 }
 
@@ -354,9 +359,6 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   
   if (outside)
   {
-    if (!mMouseDown || !mMouseOutside)
-      return;
-    
     x = event["pageX"].as<double>() - mPositionL;
     y = event["pageY"].as<double>() - mPositionT;
   }
@@ -364,15 +366,23 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   {
     x = event["offsetX"].as<double>();
     y = event["offsetY"].as<double>();
-   
+    
     mPositionL = event["pageX"].as<double>() - x;
     mPositionT = event["pageY"].as<double>() - y;
   }
   
+  if (mMouseState == kMouseStateDownOutside && (!outside || !type.compare("mouseup")))
+  {
+    mMouseState = kMouseStateDownInside;
+
+    val::global("window").call<void>("removeEventListener", std::string("mousemove"), mWindowListener->mItem, true);
+    val::global("window").call<void>("removeEventListener", std::string("mouseup"), mWindowListener->mItem, true);
+  }
+  
+  GetCanvas().call<void>("focus");
   event.call<void>("stopImmediatePropagation");
   event.call<void>("preventDefault");
 
-  
   IMouseMod modifiers(0, 0, event["shiftKey"].as<bool>(), event["ctrlKey"].as<bool>(), event["altKey"].as<bool>());
 
   x /= GetScale();
@@ -381,18 +391,18 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   if (!type.compare("mousedown"))
   {
     OnMouseDown(x, y, modifiers);
-    mMouseDown = true;
+    mMouseState = kMouseStateDownInside;
   }
   else if (!type.compare("mouseup"))
   {
     OnMouseUp(x, y, modifiers);
-    mMouseDown = false;
+    mMouseState = kMouseStateUp;
   }
   else if (!type.compare("mousemove"))
   {
     if (mLastX != x || mLastY != y)
     {
-      if (mMouseDown)
+      if (mMouseState != kMouseStateUp)
         OnMouseDrag(x, y, x - mLastX, y - mLastY, modifiers);
       else
         OnMouseOver(x, y, modifiers);
@@ -401,7 +411,6 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   else if (!type.compare("mouseover"))
   {
     OnMouseOver(x, y, modifiers);
-    mMouseOutside = false;
   }
   else if (!type.compare("dblclick"))
   {
@@ -410,7 +419,14 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   else if (!type.compare("mouseout"))
   {
     OnMouseOut();
-    mMouseOutside = true;
+    
+    if (mMouseState == kMouseStateDownInside)
+    {
+      mMouseState = kMouseStateDownOutside;
+      
+      val::global("window").call<void>("addEventListener", std::string("mousemove"), mWindowListener->mItem, true);
+      val::global("window").call<void>("addEventListener", std::string("mouseup"), mWindowListener->mItem, true);
+    }
   }
   else if (!type.compare("mousewheel"))
   {
@@ -419,6 +435,13 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   
   mLastX = x;
   mLastY = y;
+}
+
+void IGraphicsWeb::OnKeyEvent(val event)
+{
+  // TODO: correct key codes
+  int key = event["keyCode"].as<int>();
+  OnKeyDown(mLastX, mLastY, key);
 }
 
 
