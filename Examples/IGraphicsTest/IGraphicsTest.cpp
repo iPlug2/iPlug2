@@ -21,7 +21,7 @@ void IGraphicsTest::init()
   mGraphics->AttachControl(new IPolyControl(*this, IRECT(20, 200, 150, 330), -1));
   mGraphics->AttachControl(new IArcControl(*this, IRECT(220, 20, 320, 120), -1));
   mGraphics->AttachControl(new IBKnobControl(*this, 220, 200, knobBitmap, -1));
-
+  mGraphics->AttachControl(new RandomTextControl(*this, IRECT(220, 260, 380, 380)));
   mGraphics->GetControl(2)->SetValueFromDelegate((double) rand() / RAND_MAX);
   mGraphics->GetControl(3)->SetValueFromDelegate((double) rand() / RAND_MAX);
   mGraphics->GetControl(4)->SetValueFromDelegate((double) rand() / RAND_MAX);

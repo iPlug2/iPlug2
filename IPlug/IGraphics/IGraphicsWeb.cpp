@@ -244,6 +244,56 @@ void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
   }
 }
 
+bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
+{
+  // TODO: orientation
+  
+  val context = GetContext();
+  std::string textString(str);
+  
+  char fontString[FONT_LEN + 64];
+  char* styles[] = { "normal", "bold", "italic" };
+  double textHeight = text.mSize;
+  context.set("textBaseline", std::string("top"));
+  val font = context["font"];
+  sprintf(fontString, "%s %lfpx %s", styles[text.mStyle], textHeight, text.mFont);
+  context.set("font", std::string(fontString));
+  double textWidth = GetContext().call<val>("measureText", textString)["width"].as<double>();
+  
+  if (measure)
+  {
+    bounds = IRECT(0, 0, textWidth, textHeight);
+    return true;
+  }
+  else
+  {
+    double x = bounds.L;
+    double y = bounds.T;
+    
+    switch (text.mAlign)
+    {
+      case IText::kAlignNear:     break;
+      case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
+      case IText::kAlignFar:      x = bounds.R - textWidth;               break;
+    }
+
+    PathStateSave();
+    PathRect(bounds);
+    GetContext().call<void>("clip");
+    PathStart();
+    SetWebSourcePattern(text.mFGColor);
+    context.call<void>("fillText", textString, x, y);
+    PathStateRestore();
+  }
+  
+  return true;
+}
+
+bool IGraphicsWeb::MeasureText(const IText& text, const char* str, IRECT& bounds)
+{
+  return DrawText(text, str, bounds, true);
+}
+
 void IGraphicsWeb::ClipRegion(const IRECT& r)
 {
   PathStateSave();
