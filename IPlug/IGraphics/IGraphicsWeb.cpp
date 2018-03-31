@@ -10,6 +10,12 @@ void MouseHandler(std::string object, val event, double outside)
   pGraphics->OnMouseEvent(event, outside);
 }
 
+void KeyHandler(std::string object, val event)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
+  pGraphics->OnKeyEvent(event);
+}
+
 void TimerHandler(std::string object)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
@@ -18,6 +24,7 @@ void TimerHandler(std::string object)
 
 EMSCRIPTEN_BINDINGS(IGraphics) {
   function("mouse_web_handler", &MouseHandler);
+  function("key_web_handler", &KeyHandler);
   function("timer_web_handler", &TimerHandler);
 }
 
@@ -78,9 +85,16 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
   
   sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
+  
   val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
   val::global("window").call<void>("addEventListener", std::string("mousemove"), eventListener2, true);
   val::global("window").call<void>("addEventListener", std::string("mouseup"), eventListener2, true);
+  
+  sprintf(callback, "Module.key_web_handler('%x', e);", this);
+  
+  val eventListener3 = val::global("Function").new_(std::string("e"), std::string(callback));
+  val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
+  GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener3);
   
   // Bind the timer
   
@@ -222,20 +236,18 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
 
 void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
 {
-  val context = GetContext();
-
   if (!pBlend)
   {
-    context.set("globalCompositeOperation", "source-over");
+    GetContext().set("globalCompositeOperation", "source-over");
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     context.set("globalCompositeOperation", "source-over");   break;
-    case kBlendAdd:         context.set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  context.set("globalCompositeOperation", "source-over");   break;
+    case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
+    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "source-over");   break;
     case kBlendNone:
     default:
-      context.set("globalCompositeOperation", "source-over");
+      GetContext().set("globalCompositeOperation", "source-over");
   }
 }
 
@@ -369,10 +381,10 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
     mPositionT = event["pageY"].as<double>() - y;
   }
   
+  GetCanvas().call<void>("focus");
   event.call<void>("stopImmediatePropagation");
   event.call<void>("preventDefault");
 
-  
   IMouseMod modifiers(0, 0, event["shiftKey"].as<bool>(), event["ctrlKey"].as<bool>(), event["altKey"].as<bool>());
 
   x /= GetScale();
@@ -419,6 +431,13 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   
   mLastX = x;
   mLastY = y;
+}
+
+void IGraphicsWeb::OnKeyEvent(val event)
+{
+  // TODO: correct key codes
+  int key = event["keyCode"].as<int>();
+  OnKeyDown(mLastX, mLastY, key);
 }
 
 

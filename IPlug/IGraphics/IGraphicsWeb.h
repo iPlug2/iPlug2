@@ -88,7 +88,8 @@ public:
 
   void OnTimer();
   void OnMouseEvent(emscripten::val event, bool outside);
-  
+  void OnKeyEvent(emscripten::val event);
+
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
