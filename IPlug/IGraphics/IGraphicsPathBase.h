@@ -317,6 +317,8 @@ private:
   
   void RenderNanoSVG(NSVGimage* pImage)
   {
+    assert(pImage != nullptr);
+
     for (NSVGshape* pShape = pImage->shapes; pShape; pShape = pShape->next)
     {
       if (!(pShape->flags & NSVG_FLAGS_VISIBLE))

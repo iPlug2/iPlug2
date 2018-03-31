@@ -152,12 +152,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
                 else
                 {
                   v = atof(txt);
-                  if (pParam->GetDisplayIsNegated())
+                  if (pParam->GetNegateDisplay())
                   {
                     v = -v;
                   }
                 }
-                pGraphics->mEdControl->SetValueFromUserInput(pParam->GetNormalized(v));
+                pGraphics->mEdControl->SetValueFromUserInput(pParam->ToNormalized(v));
               }
               else
               {
