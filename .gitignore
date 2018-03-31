@@ -26,6 +26,7 @@ Dependencies/IPlug/VST2_SDK/*
 Dependencies/IPlug/AAX_SDK/*
 Dependencies/IPlug/WAM_AWP/*
 Dependencies/IPlug/WAM_SDK/*
+Dependencies/IGraphics/AGG/*
 
 Icon?
 .DS_Stor*

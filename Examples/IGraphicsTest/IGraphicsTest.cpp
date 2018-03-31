@@ -14,15 +14,18 @@ void IGraphicsTest::init()
   
   mGraphics = pGraphics;
   
-  mGraphics->Resize(400, 400, 2);
+  IBitmap knobBitmap = mGraphics->LoadBitmap("img/knob.png", 60);
+  
+  mGraphics->Resize(400, 400, 1.4);
   mGraphics->AttachControl(new IGradientControl(*this, IRECT(20, 20, 150, 120), -1));
   mGraphics->AttachControl(new IPolyControl(*this, IRECT(20, 200, 150, 330), -1));
   mGraphics->AttachControl(new IArcControl(*this, IRECT(220, 20, 320, 120), -1));
-  
+  mGraphics->AttachControl(new IBKnobControl(*this, 220, 200, knobBitmap, -1));
+
   mGraphics->GetControl(2)->SetValueFromDelegate((double) rand() / RAND_MAX);
   mGraphics->GetControl(3)->SetValueFromDelegate((double) rand() / RAND_MAX);
-
-mGraphics->Draw(mGraphics->GetBounds());
+  mGraphics->GetControl(4)->SetValueFromDelegate((double) rand() / RAND_MAX);
+  mGraphics->Draw(mGraphics->GetBounds());
 }
 
 void IGraphicsTest::SetParameterValueFromUI(int paramIdx, double value)

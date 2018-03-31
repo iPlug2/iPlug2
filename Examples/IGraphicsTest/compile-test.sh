@@ -11,6 +11,7 @@ mkdir build-web
 
 emmake make
 
+cp -r resources/img build-web
 cd build-web
 
 osascript <<EOF
