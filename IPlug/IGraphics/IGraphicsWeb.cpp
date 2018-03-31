@@ -37,12 +37,6 @@ std::string GetColor(const IColor& color, float alpha = 1.0)
   return cString;
 }
 
-struct RetainVal
-{
-  RetainVal(val item) : mItem(item) {}
-  val mItem;
-};
-
 WebBitmap::WebBitmap(val image, int scale)
 {
   int width = image["naturalWidth"].as<int>();
@@ -86,15 +80,13 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   
   sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
   
-  val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
-  val::global("window").call<void>("addEventListener", std::string("mousemove"), eventListener2, true);
-  val::global("window").call<void>("addEventListener", std::string("mouseup"), eventListener2, true);
+  mWindowListener = new RetainVal(val::global("Function").new_(std::string("e"), std::string(callback)));
   
   sprintf(callback, "Module.key_web_handler('%x', e);", this);
   
-  val eventListener3 = val::global("Function").new_(std::string("e"), std::string(callback));
+  val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
-  GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener3);
+  GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener2);
   
   // Bind the timer
   
@@ -106,6 +98,7 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
 
 IGraphicsWeb::~IGraphicsWeb()
 {
+  delete mWindowListener;
 }
 
 void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -366,9 +359,6 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   
   if (outside)
   {
-    if (!mMouseDown || !mMouseOutside)
-      return;
-    
     x = event["pageX"].as<double>() - mPositionL;
     y = event["pageY"].as<double>() - mPositionT;
   }
@@ -376,9 +366,17 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   {
     x = event["offsetX"].as<double>();
     y = event["offsetY"].as<double>();
-   
+    
     mPositionL = event["pageX"].as<double>() - x;
     mPositionT = event["pageY"].as<double>() - y;
+  }
+  
+  if (mMouseState == kMouseStateDownOutside && (!outside || !type.compare("mouseup")))
+  {
+    mMouseState = kMouseStateDownInside;
+
+    val::global("window").call<void>("removeEventListener", std::string("mousemove"), mWindowListener->mItem, true);
+    val::global("window").call<void>("removeEventListener", std::string("mouseup"), mWindowListener->mItem, true);
   }
   
   GetCanvas().call<void>("focus");
@@ -393,18 +391,18 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   if (!type.compare("mousedown"))
   {
     OnMouseDown(x, y, modifiers);
-    mMouseDown = true;
+    mMouseState = kMouseStateDownInside;
   }
   else if (!type.compare("mouseup"))
   {
     OnMouseUp(x, y, modifiers);
-    mMouseDown = false;
+    mMouseState = kMouseStateUp;
   }
   else if (!type.compare("mousemove"))
   {
     if (mLastX != x || mLastY != y)
     {
-      if (mMouseDown)
+      if (mMouseState != kMouseStateUp)
         OnMouseDrag(x, y, x - mLastX, y - mLastY, modifiers);
       else
         OnMouseOver(x, y, modifiers);
@@ -413,7 +411,6 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   else if (!type.compare("mouseover"))
   {
     OnMouseOver(x, y, modifiers);
-    mMouseOutside = false;
   }
   else if (!type.compare("dblclick"))
   {
@@ -422,7 +419,14 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   else if (!type.compare("mouseout"))
   {
     OnMouseOut();
-    mMouseOutside = true;
+    
+    if (mMouseState == kMouseStateDownInside)
+    {
+      mMouseState = kMouseStateDownOutside;
+      
+      val::global("window").call<void>("addEventListener", std::string("mousemove"), mWindowListener->mItem, true);
+      val::global("window").call<void>("addEventListener", std::string("mouseup"), mWindowListener->mItem, true);
+    }
   }
   else if (!type.compare("mousewheel"))
   {

@@ -14,11 +14,20 @@ public:
   virtual ~WebBitmap();
 };
 
+struct RetainVal
+{
+  RetainVal(emscripten::val item) : mItem(item) {}
+  emscripten::val mItem;
+};
+
 /** IGraphics draw/platform class HTML5 canvas
 *   @ingroup DrawClasses
 *   @ingroup PlatformClasses */
 class IGraphicsWeb : public IGraphicsPathBase
 {
+  
+  enum MouseState { kMouseStateUp, kMouseStateDownInside, kMouseStateDownOutside };
+  
 public:
     
   const char* GetDrawingAPIStr() override { return "WEB"; }
@@ -113,8 +122,8 @@ private:
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend);
   void SetWebBlendMode(const IBlend* pBlend);
 
-  bool mMouseOutside = true;
-  bool mMouseDown = false;
+  RetainVal* mWindowListener = nullptr;
+  MouseState mMouseState = kMouseStateUp;
   double mLastX = -1;
   double mLastY = -1;
   double mPositionL = -1;
