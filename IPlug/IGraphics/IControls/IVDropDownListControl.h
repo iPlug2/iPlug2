@@ -133,7 +133,7 @@ public:
   {
     int ns = mState;
     ns += (int) d;
-    ns = BOUNDED(ns, 0, NButtons() - 1);
+    ns = Clip(ns, 0, NButtons() - 1);
 
     if (ns != mState)
     {
