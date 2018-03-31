@@ -87,7 +87,7 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
 
   void OnTimer();
-  void OnMouseEvent(std::string& type, double x, double y, const IMouseMod& modifiers);
+  void OnMouseEvent(emscripten::val event, bool outside);
   
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
@@ -111,9 +111,12 @@ private:
   
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend);
   void SetWebBlendMode(const IBlend* pBlend);
-  
+
+  bool mMouseOutside = true;
   bool mMouseDown = false;
   double mLastX = -1;
   double mLastY = -1;
+  double mPositionL = -1;
+  double mPositionT = -1;
 };
 
