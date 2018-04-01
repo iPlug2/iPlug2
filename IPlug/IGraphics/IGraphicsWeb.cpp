@@ -148,7 +148,7 @@ void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IS
   context.call<void>("stroke");
   
   if (!options.mPreserve)
-    PathStart();
+    PathClear();
 }
 
 void IGraphicsWeb::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
@@ -163,7 +163,7 @@ void IGraphicsWeb::PathFill(const IPattern& pattern, const IFillOptions& options
   context.call<void>("fill");
 
   if (!options.mPreserve)
-    PathStart();
+    PathClear();
 }
 
 void invertTransform(float *xform, const float *xformIn)
@@ -280,7 +280,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
     PathStateSave();
     PathRect(bounds);
     GetContext().call<void>("clip");
-    PathStart();
+    PathClear();
     SetWebSourcePattern(text.mFGColor);
     context.call<void>("fillText", textString, x, y);
     PathStateRestore();
@@ -299,7 +299,7 @@ void IGraphicsWeb::ClipRegion(const IRECT& r)
   PathStateSave();
   PathRect(r);
   GetContext().call<void>("clip");
-  PathStart();
+  PathClear();
 }
 
 void IGraphicsWeb::ResetClipRegion()
