@@ -67,9 +67,9 @@ public:
 
   void SetPlatformContext(void* pContext) override {} // TODO:
 
-  void HideMouseCursor() override {} // TODO:
-  void ShowMouseCursor() override {} // TODO:
-  void MoveMouseCursor(float x, float y) override {} // TODO:
+  void HideMouseCursor() override { emscripten::val::global("document")["body"]["style"].set("cursor", std::string("none")); }
+  void ShowMouseCursor() override { emscripten::val::global("document")["body"]["style"].set("cursor", std::string("auto")); }
+  void MoveMouseCursor(float x, float y) override { /* Can't move a mose cursor in the browser */ }
   void ForceEndUserEdit() override {} // TODO:
   void Resize(int w, int h, float scale) override;
   void* OpenWindow(void* pParentWnd) override {} // TODO:
