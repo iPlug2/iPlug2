@@ -233,3 +233,15 @@ void IPlugBase::InitParamRange(int startIdx, int endIdx, int countStart, const c
   }
 }
 
+void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char *inputStr, const char *outputStr)
+{
+//  WDL_String nameStr;
+//  for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
+//  {
+//    IParam* pParam = GetParam(p);
+//    int outIdx = startIdx + (p-cloneStartIdx);
+//    GetParam(outIdx)->Init
+//  }
+}
+
+
