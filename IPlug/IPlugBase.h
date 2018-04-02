@@ -125,6 +125,14 @@ public:
    * @param displayFunc An IParam::DisplayFunc lambda function to specify a custom display function */
   void InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", IParam::Shape* shape = nullptr, IParam::EParamUnit unit = IParam::kUnitCustom, IParam::DisplayFunc displayFunc = nullptr);
   
+  
+  /** Clone a range of parameters, optionally doing a string substitution on the parameter name.
+   * @param cloneStartIdx The index of the first parameter to clone
+   * @param cloneEndIdx The index of the last parameter to clone
+   * @param startIdx The start of the cloned range
+   * @param searchStr A CString to search for in the input parameter name
+   * @param replaceStr A CString to replace searchStr in the output parameter name
+   * @param newGroup If the new parameter should have a different group, update here */
   void CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
   
   /** @return the name of the plug-in as a CString */
