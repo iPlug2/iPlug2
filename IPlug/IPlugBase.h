@@ -125,7 +125,7 @@ public:
    * @param displayFunc An IParam::DisplayFunc lambda function to specify a custom display function */
   void InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", IParam::Shape* shape = nullptr, IParam::EParamUnit unit = IParam::kUnitCustom, IParam::DisplayFunc displayFunc = nullptr);
   
-  void CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* inputStr, const char* outputStr);
+  void CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
   
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }

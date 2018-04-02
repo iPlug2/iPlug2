@@ -233,15 +233,15 @@ void IPlugBase::InitParamRange(int startIdx, int endIdx, int countStart, const c
   }
 }
 
-void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char *inputStr, const char *outputStr)
+void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr, const char* replaceStr, const char* newGroup)
 {
-//  WDL_String nameStr;
-//  for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
-//  {
-//    IParam* pParam = GetParam(p);
-//    int outIdx = startIdx + (p-cloneStartIdx);
-//    GetParam(outIdx)->Init
-//  }
+  for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
+  {
+    IParam* pParam = GetParam(p);
+    int outIdx = startIdx + (p-cloneStartIdx);
+    GetParam(outIdx)->Init(*pParam, searchStr, replaceStr, newGroup); /* TODO: we can't yet clone shape */
+    GetParam(outIdx)->Set(pParam->Value());
+  }
 }
 
 
