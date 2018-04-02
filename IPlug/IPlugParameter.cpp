@@ -173,6 +173,11 @@ void IParam::InitPercentage(const char *name, double defaultVal, double minVal, 
   InitDouble(name, defaultVal, minVal, maxVal, 1, "%", flags, group, nullptr, kUnitPercentage);
 }
 
+void IParam::Init(const IParam& p)
+{
+  InitDouble(p.mName, p.mDefault, p.mMin, p.mMax, p.mStep, p.mLabel, p.mFlags, p.mParamGroup, nullptr /* TODO: shape */, p.mUnit, p.mDisplayFunction);
+}
+
 void IParam::SetDisplayText(double value, const char* str)
 {
   int n = mDisplayTexts.GetSize();

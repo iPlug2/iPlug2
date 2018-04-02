@@ -1,5 +1,7 @@
 #pragma once
 
+#define OVERSAMPLING_FACTORS_VA_LIST "None", "2x", "4x", "8x", "16x"
+
 #include <functional>
 
 #include "HIIR/FPUUpsampler2x.h"
@@ -8,7 +10,7 @@
 
 using namespace hiir;
 
-template<typename T>
+template<typename T = double>
 class OverSampler
 {
 public:
@@ -23,10 +25,10 @@ public:
     kNumFactors
   };
 
-  OverSampler()
-  : mWritePos(0)
-  , mDownSamplerOutput(0.f)
+  OverSampler(EFactor factor = kNone)
   {
+    SetOverSampling(factor);
+    
     static double coeffs2x[12] = { 0.036681502163648017, 0.13654762463195794, 0.27463175937945444, 0.42313861743656711, 0.56109869787919531, 0.67754004997416184, 0.76974183386322703, 0.83988962484963892, 0.89226081800387902, 0.9315419599631839, 0.96209454837808417, 0.98781637073289585 };
 ;
 //    PolyphaseIir2Designer::compute_coefs(coeffs2x, 96., 0.01);
@@ -78,10 +80,6 @@ public:
     Reset();
   }
 
-  ~OverSampler()
-  {
-  }
-
   void Reset()
   {
     mUpsampler2x.clear_buffers();
@@ -97,13 +95,13 @@ public:
   /** Over sample an input sample with a per-sample function (up sample input -> process with function -> down sample)
    * @param input The audio sample to input
    * @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate
-   * @param mOverSamplingFactor A power of 2 oversampling factor or 0 for no oversampling
+   * @param mRate A power of 2 oversampling factor or 0 for no oversampling
    * @return The audio sample output */
   double Process(double input, std::function<T(T)> func)
   {
     double output;
 
-    if(mOverSamplingFactor == 16)
+    if(mRate == 16)
     {
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
       mUpsampler4x.process_block(mUp4x, mUp2x, 2);
@@ -120,7 +118,7 @@ public:
       mDownsampler4x.process_block(mDown2x, mDown4x, 2);
       output = mDownsampler2x.process_sample(mDown2x);
     }
-    else if (mOverSamplingFactor == 8)
+    else if (mRate == 8)
     {
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
       mUpsampler4x.process_block(mUp4x, mUp2x, 2);
@@ -135,7 +133,7 @@ public:
       mDownsampler4x.process_block(mDown2x, mDown4x, 2);
       output = mDownsampler2x.process_sample(mDown2x);
     }
-    else if (mOverSamplingFactor == 4)
+    else if (mRate == 4)
     {
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
       mUpsampler4x.process_block(mUp4x, mUp2x, 2);
@@ -148,7 +146,7 @@ public:
       mDownsampler4x.process_block(mDown2x, mDown4x, 2);
       output = mDownsampler2x.process_sample(mDown2x);
     }
-    else if (mOverSamplingFactor == 2)
+    else if (mRate == 2)
     {
       mUpsampler2x.process_sample(mUp2x[0], mUp2x[1], input);
 
@@ -225,11 +223,11 @@ public:
 
     double output;
 
-    for (int j = 0; j < mOverSamplingFactor; j++)
+    for (int j = 0; j < mRate; j++)
     {
       output = genFunc();
 
-      switch(mOverSamplingFactor)
+      switch(mRate)
       {
         case 2: ProcessDown2x(output); break;
         case 4: ProcessDown4x(output); break;
@@ -239,7 +237,7 @@ public:
       }
     }
 
-    if(mOverSamplingFactor > 1)
+    if(mRate > 1)
       output = mDownSamplerOutput;
 
     return output;
@@ -247,13 +245,31 @@ public:
 
   void SetOverSampling(EFactor factor)
   {
-    mOverSamplingFactor = pow(2, (int) factor);
+    mRate = pow(2, (int) factor);
     Reset();
+  }
+  
+  static EFactor RateToFactor(int rate)
+  {
+    switch (rate)
+    {
+      case 1: return EFactor::kNone;
+      case 2: return EFactor::k2x;
+      case 4: return EFactor::k4x;
+      case 8: return EFactor::k8x;
+      case 16: return EFactor::k16x;
+      default: assert(0); return EFactor::kNone;
+    }
+  }
+  
+  int GetRate()
+  {
+    return mRate;
   }
 
 private:
-  int mOverSamplingFactor = 1;
-  int mWritePos;
+  int mRate = 1;
+  int mWritePos = 0;
   T mDownSamplerOutput = 0.;
 
   //TODO: is it necessary/lower to have all these different arrays?
