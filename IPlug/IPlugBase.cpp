@@ -222,3 +222,14 @@ int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
   
   return ver;
 }
+
+void IPlugBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
+{
+  WDL_String nameStr;
+  for (auto p = startIdx; p <= endIdx; p++)
+  {
+    nameStr.SetFormatted(MAX_PARAM_NAME_LEN, nameFmtStr, countStart + (p-startIdx));
+    GetParam(p)->InitDouble(nameStr.Get(), defaultVal, minVal, maxVal, step, label, flags, group, shape, unit, displayFunc);
+  }
+}
+
