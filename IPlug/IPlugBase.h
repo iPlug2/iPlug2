@@ -76,6 +76,9 @@ public:
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
   virtual bool OnHostRequestingAboutBox() { return false; } // TODO: implement this for VST 3
 
+  /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
+  virtual bool OnHostRequestingProductHelp(bool checkForImplementation = false) { return false; } // TODO: implement this for VST 3
+  
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
   virtual void OnHostIdentified() {}
@@ -222,7 +225,7 @@ public:
 
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
   virtual void InformHostOfProgramChange() {};
-
+  
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()

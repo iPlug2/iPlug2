@@ -4,7 +4,6 @@
 #include <cassert>
 
 #include "wdlendian.h"
-#include "wdl_base64.h"
 
 #include "IPlugBase.h"
 
