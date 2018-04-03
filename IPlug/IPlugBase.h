@@ -76,6 +76,9 @@ public:
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
   virtual bool OnHostRequestingAboutBox() { return false; } // TODO: implement this for VST 3
 
+  /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
+  virtual bool OnHostRequestingProductHelp(bool checkForImplementation = false) { return false; } // TODO: implement this for VST 3
+  
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
   virtual void OnHostIdentified() {}
@@ -124,6 +127,16 @@ public:
    * @param unit An IParam::EParamUnit which can be used in audiounit plug-ins to specify certain kinds of parameter
    * @param displayFunc An IParam::DisplayFunc lambda function to specify a custom display function */
   void InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", IParam::Shape* shape = nullptr, IParam::EParamUnit unit = IParam::kUnitCustom, IParam::DisplayFunc displayFunc = nullptr);
+  
+  
+  /** Clone a range of parameters, optionally doing a string substitution on the parameter name.
+   * @param cloneStartIdx The index of the first parameter to clone
+   * @param cloneEndIdx The index of the last parameter to clone
+   * @param startIdx The start of the cloned range
+   * @param searchStr A CString to search for in the input parameter name
+   * @param replaceStr A CString to replace searchStr in the output parameter name
+   * @param newGroup If the new parameter should have a different group, update here */
+  void CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
   
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }
@@ -212,7 +225,7 @@ public:
 
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
   virtual void InformHostOfProgramChange() {};
-
+  
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()

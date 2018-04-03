@@ -549,6 +549,42 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   }
 }
 
+void IGraphicsMac::PromptForDirectory(WDL_String& dir)
+{
+  NSString* defaultPath;
+  
+  if (dir.GetLength())
+  {
+    defaultPath = [NSString stringWithCString:dir.Get() encoding:NSUTF8StringEncoding];
+  }
+  else
+  {
+    defaultPath = [NSString stringWithCString:DEFAULT_PATH encoding:NSUTF8StringEncoding];
+    dir.Set(DEFAULT_PATH);
+  }
+  
+  NSOpenPanel* panelOpen = [NSOpenPanel openPanel];
+  
+  [panelOpen setTitle:@"Choose a Directory"];
+  [panelOpen setCanChooseFiles:NO];
+  [panelOpen setCanChooseDirectories:YES];
+  [panelOpen setResolvesAliases:YES];
+  [panelOpen setCanCreateDirectories:YES];
+  
+  [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
+  
+  if ([panelOpen runModal] == NSOKButton)
+  {
+    NSString* fullPath = [ panelOpen filename ] ;
+    dir.Set( [fullPath UTF8String] );
+    dir.Append("/");
+  }
+  else
+  {
+    dir.Set("");
+  }
+}
+
 bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
 {
   //TODO:

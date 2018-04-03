@@ -56,14 +56,17 @@ public:
 
   void ModifyCurrentPreset(const char* name = 0); // Sets the currently active preset to whatever current params are.
   int NPresets() { return mPresets.GetSize(); }
-  int GetCurrentPresetIdx() { return mCurrentPresetIdx; }
+  int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
   bool RestorePreset(int idx);
   bool RestorePreset(const char* name);
   const char* GetPresetName(int idx);
 
+  void SetCurrentPresetIdx(int idx) { assert(idx < NPresets()); mCurrentPresetIdx = idx; }
+
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
   void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
   void DumpPresetBlob(const char* file);
+  void DumpAllPresetsBlob(const char* filename);
   void DumpBankBlob(const char* file);
 
   //VST2 Presets
@@ -71,22 +74,22 @@ public:
   bool SaveBankAsFXB(const char* file);
   bool LoadProgramFromFXP(const char* file);
   bool LoadBankFromFXB(const char* file);
-//  bool SaveBankAsFXPs(const char* path);
+  bool SaveBankAsFXPs(const char* path) { return false; }
 
-//   VST3 format
-//   bool SaveProgramAsVSTPreset(const char* file);
-//   bool LoadProgramFromVSTPreset(const char* file);
-//   bool SaveBankAsVSTPresets(const char* path);
-//
-//   AU format
-//   bool SaveProgramAsAUPreset(const char* name, const char* file);
-//   bool LoadProgramFromAUPreset(const char* file);
-//   bool SaveBankAsAUPresets(const char* path);
-//
-//   ProTools format
-//   bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID);
-//   bool LoadProgramFromProToolsPreset(const char* file);
-//   bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID);
+  //VST3 format
+  bool SaveProgramAsVSTPreset(const char* file) { return false; }
+  bool LoadProgramFromVSTPreset(const char* file) { return false; }
+  bool SaveBankAsVSTPresets(const char* path) { return false; }
+
+  //AU format
+  bool SaveProgramAsAUPreset(const char* name, const char* file) { return false; }
+  bool LoadProgramFromAUPreset(const char* file) { return false; }
+  bool SaveBankAsAUPresets(const char* path) { return false; }
+
+  //ProTools format
+  bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) { return false; }
+  bool LoadProgramFromProToolsPreset(const char* file) { return false; }
+  bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID) { return false; }
 
   int mCurrentPresetIdx = 0;
 

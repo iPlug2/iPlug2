@@ -95,6 +95,8 @@ public:
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
 
+  void Init(const IParam& p, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
+  
   double StringToValue(const char* str) const;
 
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
@@ -149,7 +151,14 @@ public:
   EParamUnit Unit() const { return mUnit; }
   EDisplayType DisplayType() const { return mShape->GetDisplayType(); }
   
-  double GetDefault() const { return mDefault; }
+  double GetDefault(bool normalized = false) const
+  {
+    if(normalized)
+      return ToNormalized(GetDefault());
+    else
+      return mDefault;
+  }
+  
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
   void GetBounds(double& lo, double& hi) const;
@@ -157,6 +166,7 @@ public:
   double GetStep() const { return mStep; }
   int GetDisplayPrecision() const {return mDisplayPrecision;}
   
+  int GetFlags() const { return mFlags; }
   bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
   bool GetStepped() const { return mFlags & kFlagStepped; }
   bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }

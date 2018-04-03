@@ -4,7 +4,6 @@
 #include <cassert>
 
 #include "wdlendian.h"
-#include "wdl_base64.h"
 
 #include "IPlugBase.h"
 
@@ -232,4 +231,16 @@ void IPlugBase::InitParamRange(int startIdx, int endIdx, int countStart, const c
     GetParam(p)->InitDouble(nameStr.Get(), defaultVal, minVal, maxVal, step, label, flags, group, shape, unit, displayFunc);
   }
 }
+
+void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr, const char* replaceStr, const char* newGroup)
+{
+  for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
+  {
+    IParam* pParam = GetParam(p);
+    int outIdx = startIdx + (p-cloneStartIdx);
+    GetParam(outIdx)->Init(*pParam, searchStr, replaceStr, newGroup); /* TODO: we can't yet clone shape */
+    GetParam(outIdx)->Set(pParam->Value());
+  }
+}
+
 

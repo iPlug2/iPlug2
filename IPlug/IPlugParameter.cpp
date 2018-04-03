@@ -173,6 +173,31 @@ void IParam::InitPercentage(const char *name, double defaultVal, double minVal, 
   InitDouble(name, defaultVal, minVal, maxVal, 1, "%", flags, group, nullptr, kUnitPercentage);
 }
 
+void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr, const char* newGroup)
+{
+  WDL_String str(p.mName);
+  WDL_String group(p.mParamGroup);
+  
+  if (CStringHasContents(searchStr))
+  {
+    char* pos = strstr(str.Get(), searchStr);
+    
+    if(pos)
+    {
+      int insertionPos = str.Get() - pos;
+      str.DeleteSub(insertionPos, (int) strlen(searchStr));
+      str.Insert(replaceStr, insertionPos);
+    }
+  }
+  
+  if (CStringHasContents(newGroup))
+  {
+    group.Set(newGroup);
+  }
+  
+  InitDouble(str.Get(), p.mDefault, p.mMin, p.mMax, p.mStep, p.mLabel, p.mFlags, group.Get(), nullptr /* TODO: shape */, p.mUnit, p.mDisplayFunction);
+}
+
 void IParam::SetDisplayText(double value, const char* str)
 {
   int n = mDisplayTexts.GetSize();
