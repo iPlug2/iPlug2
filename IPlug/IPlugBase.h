@@ -74,10 +74,10 @@ public:
   virtual void OnWindowResize() {}
 
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
-  virtual bool OnHostRequestingAboutBox() { return false; } // TODO: implement this for VST 3
+  virtual void OnHostRequestingAboutBox() {} // TODO: implement this for VST 3
 
   /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
-  virtual bool OnHostRequestingProductHelp(bool checkForImplementation = false) { return false; } // TODO: implement this for VST 3
+  virtual void OnHostRequestingProductHelp() {} // TODO: implement this for VST 3
   
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
