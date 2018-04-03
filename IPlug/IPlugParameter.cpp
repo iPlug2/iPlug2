@@ -6,12 +6,12 @@
 #pragma mark - Shape
 
 // Linear
-double IParam::Shape::NormalizedToValue(double value, const IParam& param) const
+double IParam::ShapeLinear::NormalizedToValue(double value, const IParam& param) const
 {
   return param.mMin + value * (param.mMax - param.mMin);
 }
 
-double IParam::Shape::ValueToNormalized(double value, const IParam& param) const
+double IParam::ShapeLinear::ValueToNormalized(double value, const IParam& param) const
 {
   return (value - param.mMin) / (param.mMax - param.mMin);
 }
@@ -24,10 +24,10 @@ IParam::ShapePowCurve::ShapePowCurve(double shape)
 
 IParam::EDisplayType IParam::ShapePowCurve::GetDisplayType() const
 {
-  if (mShape > 2.5) return IParam::kDisplayCubeRoot;
-  if (mShape > 1.5) return IParam::kDisplaySquareRoot;
-  if (mShape < (2.0 / 5.0)) return IParam::kDisplayCubed;
-  if (mShape < (2.0 / 3.0)) return IParam::kDisplaySquared;
+  if (mShape > 2.5) return kDisplayCubeRoot;
+  if (mShape > 1.5) return kDisplaySquareRoot;
+  if (mShape < (2.0 / 5.0)) return kDisplayCubed;
+  if (mShape < (2.0 / 3.0)) return kDisplaySquared;
   
   return IParam::kDisplayLinear;
 }
@@ -63,7 +63,7 @@ double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) co
 
 IParam::IParam()
 {
-  mShape = new Shape;
+  mShape = new ShapeLinear;
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
