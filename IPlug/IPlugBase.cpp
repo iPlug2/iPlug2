@@ -237,8 +237,8 @@ void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx
   for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
   {
     IParam* pParam = GetParam(p);
-    int outIdx = startIdx + (p-cloneStartIdx);
-    GetParam(outIdx)->Init(*pParam, searchStr, replaceStr, newGroup); /* TODO: we can't yet clone shape */
+    int outIdx = startIdx + (p - cloneStartIdx);
+    GetParam(outIdx)->Init(*pParam, searchStr, replaceStr, newGroup);
     GetParam(outIdx)->Set(pParam->Value());
   }
 }

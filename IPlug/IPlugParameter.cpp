@@ -195,7 +195,7 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
     group.Set(newGroup);
   }
   
-  InitDouble(str.Get(), p.mDefault, p.mMin, p.mMax, p.mStep, p.mLabel, p.mFlags, group.Get(), nullptr /* TODO: shape */, p.mUnit, p.mDisplayFunction);
+  InitDouble(str.Get(), p.mDefault, p.mMin, p.mMax, p.mStep, p.mLabel, p.mFlags, group.Get(), p.mShape->Clone(), p.mUnit, p.mDisplayFunction);
 }
 
 void IParam::SetDisplayText(double value, const char* str)
