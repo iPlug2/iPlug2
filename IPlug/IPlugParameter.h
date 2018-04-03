@@ -151,7 +151,14 @@ public:
   EParamUnit Unit() const { return mUnit; }
   EDisplayType DisplayType() const { return mShape->GetDisplayType(); }
   
-  double GetDefault() const { return mDefault; }
+  double GetDefault(bool normalized = false) const
+  {
+    if(normalized)
+      return ToNormalized(GetDefault());
+    else
+      return mDefault;
+  }
+  
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
   void GetBounds(double& lo, double& hi) const;
