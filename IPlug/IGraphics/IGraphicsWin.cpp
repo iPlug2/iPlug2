@@ -1186,6 +1186,40 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   }
 }
 
+void IGraphicsWin::PromptForDirectory(WDL_String& dir)
+{
+  BROWSEINFO bi;
+  memset(&bi, 0, sizeof(bi));
+  
+  bi.ulFlags   = BIF_USENEWUI;
+  bi.hwndOwner = mPlugWnd;
+  bi.lpszTitle = "Choose a Directory";
+  
+  // must call this if using BIF_USENEWUI
+  ::OleInitialize(NULL);
+  LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
+  
+  if(pIDL != NULL)
+  {
+    char buffer[_MAX_PATH] = {'\0'};
+    
+    if(::SHGetPathFromIDList(pIDL, buffer) != 0)
+    {
+      dir.Set(buffer);
+      dir.Append("\\");
+    }
+    
+    // free the item id list
+    CoTaskMemFree(pIDL);
+  }
+  else
+  {
+    dir.Set("");
+  }
+  
+  ::OleUninitialize();
+}
+
 UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
   if (uiMsg == WM_INITDIALOG && lParam)
