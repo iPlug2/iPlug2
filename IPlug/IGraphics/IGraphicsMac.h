@@ -56,6 +56,7 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
+  void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override;
