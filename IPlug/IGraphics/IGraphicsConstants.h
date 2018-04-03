@@ -37,7 +37,7 @@ const int DEFAULT_TEXT_SIZE = 12;
 const char* const DEFAULT_FONT = "Monaco";
 const int DEFAULT_TEXT_SIZE = 10;
 #ifndef DEFAULT_PATH
-const char* DEFAULT_PATH = "~/Desktop";
+static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 #elif defined OS_LINUX
 const char* const DEFAULT_FONT = "DejaVu Sans";
