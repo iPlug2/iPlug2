@@ -352,7 +352,7 @@ void ICaptionControl::Draw(IGraphics& g)
     }
   }
 
-  return ITextControl::Draw(graphics);
+  return ITextControl::Draw(g);
 }
 
 ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc,
