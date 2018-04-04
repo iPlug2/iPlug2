@@ -312,6 +312,11 @@ public:
   }
   
   virtual ~IBitmapBase() {}
+  
+  void GrayOut(bool gray)
+  {
+    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+  }
 
 protected:
   IBitmap mBitmap;
@@ -460,7 +465,7 @@ public:
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mRoundness = 0.1f;
+  float mRoundness = 0.f;
   float mShadowOffset = 3.f;
   float mFrameThickness = 2.f;
   bool mDrawFrame = true;
@@ -514,6 +519,12 @@ public:
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
+  }
 };
 
 /** A basic control to draw an SVG image to the screen. */
