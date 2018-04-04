@@ -219,7 +219,7 @@ public:
 
   bool GetMouseIsOver() { return mMouseIsOver; }
   
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds);
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
   
   virtual void Animate(double progress) {}
 
@@ -301,6 +301,22 @@ private:
 };
 
 #pragma mark - BASIC CONTROLS AND BASE CLASSES
+
+class IBitmapBase
+{
+public:
+  IBitmapBase(IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : mBitmap(bitmap)
+  , mBlend(blend)
+  {
+  }
+  
+  virtual ~IBitmapBase() {}
+
+protected:
+  IBitmap mBitmap;
+  IBlend mBlend;
+};
 
 /** A An interface for IVControls, in order for them to share a common set of colors. If you need more flexibility for theming, you're on your own! */
 class IVectorBase
@@ -466,6 +482,7 @@ private:
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */
 class IBitmapControl : public IControl
+                     , public IBitmapBase
 {
 public:
   /** Creates a bitmap control with a given parameter
@@ -473,17 +490,14 @@ public:
    * @param bitmap Image to be drawn */
   IBitmapControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-    mBlend = blend;
-  }
+  , IBitmapBase(bitmap, blend)
+  {}
 
   /** Creates a bitmap control without a parameter */
   IBitmapControl(IDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
-  , mBitmap(bitmap)
+  , IBitmapBase(bitmap, blend)
   {
-    mBlend = blend;
   }
 
   virtual ~IBitmapControl() {}
@@ -493,10 +507,6 @@ public:
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
-
-protected:
-  IBitmap mBitmap;
-  IBlend mBlend;
 };
 
 /** A basic control to draw an SVG image to the screen. */

@@ -155,38 +155,17 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& handleBitmap,
+IBSliderControl::IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
-, mHandleBitmap(handleBitmap)
+, IBitmapBase(bitmap)
 {
 }
 
-void IBSliderControl::Draw(IGraphics& g)
+IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+: ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
+, IBitmapBase(bitmap)
 {
-//  IRECT r = GetHandleRECT();
-  g.DrawBitmap(mHandleBitmap, mRECT, 1);
-}
-
-void IBSliderControl::OnRescale()
-{
-  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
-}
-
-void IBSliderControl::OnResize()
-{
-  if (mDirection == kVertical)
-    mTrack = mTargetRECT = mRECT.GetVPadded(-mHandleBitmap.H());
-  else
-    mTrack = mTargetRECT = mRECT.GetHPadded(-mHandleBitmap.W());
-
-  SetDirty();
-}
-
-//IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
-//: IControl(dlg, IRECT(), paramIdx)
-//, mLen(len), mHandleBitmap(bitmap), mDirection(direction), mOnlyHandle(onlyHandle)
-//{
 //  if (direction == kVertical)
 //  {
 //    mHandleHeadroom = mHandleBitmap.H();
@@ -197,111 +176,25 @@ void IBSliderControl::OnResize()
 //    mHandleHeadroom = mHandleBitmap.W();
 //    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H());
 //  }
-//}
-//
-//IRECT IBSliderControl::GetHandleRECT(double value) const
-//{
-//  if (value < 0.0)
-//  {
-//    value = mValue;
-//
-//  IRECT r(mRECT.L, mRECT.T, mRECT.L + mHandleBitmap.W(), mRECT.T + mHandleBitmap.H());
-//
-//  if (mDirection == kVertical)
-//  {
-//    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
-//    r.T += offs;
-//    r.B += offs;
-//  }
-//  else
-//  {
-//    int offs = int(value * (double) (mLen - mHandleHeadroom));
-//    r.L += offs;
-//    r.R += offs;
-//  }
-//  return r;
-//}
-//
-//void IBSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-//{
-//#ifdef PROTOOLS
-//  if (mod.A)
-//  {
-//    if (mDefaultValue >= 0.0)
-//    {
-//      mValue = mDefaultValue;
-//      SetDirty();
-//      return;
-//    }
-//  }
-//  else
-//#endif
-//    if (mod.R)
-//    {
-//      PromptUserInput();
-//      return;
-//    }
-//
-//  return SnapToMouse(x, y);
-//}
-//
-//void IBSliderControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
-//{
-//#ifdef PROTOOLS
-//  if (mod.C)
-//    mValue += 0.001 * d;
-//#else
-//  if (mod.C || mod.S)
-//    mValue += 0.001 * d;
-//#endif
-//  else
-//    mValue += 0.01 * d;
-//
-//  SetDirty();
-//}
-//
-//void IBSliderControl::SnapToMouse(float x, float y)
-//{
-//  if (mDirection == kVertical)
-//    mValue = 1.0 - (double) (y - mRECT.T - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-//  else
-//    mValue = (double) (x - mRECT.L - mHandleHeadroom / 2) / (double) (mLen - mHandleHeadroom);
-//
-//  SetDirty();
-//}
-//
-//void IBSliderControl::Draw(IGraphics& g)
-//{
+}
+
+void IBSliderControl::Draw(IGraphics& g)
+{
 //  IRECT r = GetHandleRECT();
-//  g.DrawBitmap(mHandleBitmap, r, 1);
-//}
-//
-//bool IBSliderControl::IsHit(float x, float y) const
-//{
-//  if(mOnlyHandle)
-//  {
-//    IRECT r = GetHandleRECT();
-//    return r.Contains(x, y);
-//  }
-//  else
-//  {
-//    return mTargetRECT.Contains(x, y);
-//  }
-//}
-//
-//void IBSliderControl::OnRescale()
-//{
-//  mHandleBitmap = GetUI()->GetScaledBitmap(mHandleBitmap);
-//}
-//
-//void IBSliderControl::OnResize()
-//{
-//  if (mDirection == kVertical)
-//    mTrack = mTargetRECT = mRECT.GetVPadded(-mHandleBitmap.H());
-//  else
-//    mTrack = mTargetRECT = mRECT.GetHPadded(-mHandleBitmap.W());
-//
-//  SetDirty(false);
-//}
+  g.DrawBitmap(mBitmap, mRECT, 1);
+}
 
+void IBSliderControl::OnRescale()
+{
+  mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+}
 
+void IBSliderControl::OnResize()
+{
+  if (mDirection == kVertical)
+    mTrack = mTargetRECT = mRECT.GetVPadded(-mBitmap.H());
+  else
+    mTrack = mTargetRECT = mRECT.GetHPadded(-mBitmap.W());
+
+  SetDirty();
+}
