@@ -449,7 +449,7 @@ public:
   IRECT GetAdjustedHandleBounds(IRECT handleBounds)
   {
     if(mDrawFrame)
-      handleBounds.GetPadded(-mFrameThickness * 0.5f);
+      handleBounds.Pad(- 0.5 * mFrameThickness);
     
     if (mDrawShadows && !mEmboss)
       handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
