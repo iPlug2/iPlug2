@@ -773,6 +773,7 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 void IGraphics::ReleaseMouseCapture()
 {
   mMouseCapture = -1;
+  HideMouseCursor(false);
 }
 
 bool IGraphics::OnKeyDown(float x, float y, int key)
