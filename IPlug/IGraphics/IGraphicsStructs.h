@@ -633,6 +633,48 @@ struct IRECT
   {
     return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
   }
+  
+  inline IRECT Pad(float padding)
+  {
+    L -= padding;
+    T -= padding;
+    R += padding;
+    B += padding;
+  }
+  
+  inline IRECT Pad(float padL, float padT, float padR, float padB)
+  {
+    L += padL;
+    T += padT;
+    R += padR;
+    B += padB;
+  }
+  
+  inline IRECT HPad(float padding)
+  {
+    L -= padding;
+    R += padding;
+  }
+  
+  inline IRECT VPad(float padding)
+  {
+    T -= padding;
+    B += padding;
+  }
+  
+  inline IRECT MidHPad(float padding)
+  {
+    const float mw = MW();
+    L = mw - padding;
+    R = mw + padding;
+  }
+  
+  inline IRECT MidVPad(float padding)
+  {
+    const float mh = MH();
+    T = mh - padding;
+    B = mh + padding;
+  }
 
   inline IRECT GetPadded(float padding) const
   {
