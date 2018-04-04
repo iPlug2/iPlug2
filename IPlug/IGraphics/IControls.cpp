@@ -191,3 +191,27 @@ void IBSliderControl::OnResize()
 
   SetDirty();
 }
+
+IRECT IBSliderControl::GetHandleRECT(double value) const
+{
+//  if (value < 0.0)
+//  {
+//    value = mValue;
+//
+//  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
+//
+//  if (mDirection == kVertical)
+//  {
+//    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
+//    r.T += offs;
+//    r.B += offs;
+//  }
+//  else
+//  {
+//    int offs = int(value * (double) (mLen - mHandleHeadroom));
+//    r.L += offs;
+//    r.R += offs;
+//  }
+//  return r;
+}
+
