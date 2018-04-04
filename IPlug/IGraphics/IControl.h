@@ -144,6 +144,7 @@ public:
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
   bool GetMOWhenGrayed() const { return mMOWhenGrayed; }
   bool GetMEWhenGrayed() const { return mMEWhenGrayed; }
+  bool GetIgnoreMouse() const { return mIgnoreMouse; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
@@ -274,6 +275,7 @@ protected:
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
   bool mMEWhenGrayed = false;
+  bool mIgnoreMouse = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;

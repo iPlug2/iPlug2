@@ -33,16 +33,29 @@ public:
   struct Shape
   {
     virtual ~Shape() {}
+    virtual Shape* Clone() const = 0;
     virtual void Init(const IParam& param) {}
-    virtual EDisplayType GetDisplayType() const { return kDisplayLinear; }
-    virtual double NormalizedToValue(double value, const IParam& param) const;
-    virtual double ValueToNormalized(double value, const IParam& param) const;
+    virtual EDisplayType GetDisplayType() const = 0;
+    virtual double NormalizedToValue(double value, const IParam& param) const = 0;
+    virtual double ValueToNormalized(double value, const IParam& param) const = 0;
   };
 
+  // Linear shape structs
+  struct ShapeLinear : public Shape
+  {
+      Shape* Clone() const override { return new ShapeLinear(); };
+      IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
+      double NormalizedToValue(double value, const IParam& param) const override;
+      double ValueToNormalized(double value, const IParam& param) const override;
+    
+      double mShape;
+  };
+  
   // Non-linear shape structs
   struct ShapePowCurve : public Shape
   {
     ShapePowCurve(double shape);
+    Shape* Clone() const override { return new ShapePowCurve(mShape); };
     IParam::EDisplayType GetDisplayType() const override;
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
@@ -53,7 +66,8 @@ public:
   struct ShapeExp : public Shape
   {
     void Init(const IParam& param) override;
-    IParam::EDisplayType GetDisplayType() const override { return IParam::kDisplayLog; }
+    Shape* Clone() const override { return new ShapeExp(); };
+    IParam::EDisplayType GetDisplayType() const override { return kDisplayLog; }
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
     
@@ -81,6 +95,8 @@ public:
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
 
+  void Init(const IParam& p, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
+  
   double StringToValue(const char* str) const;
 
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
@@ -135,7 +151,8 @@ public:
   EParamUnit Unit() const { return mUnit; }
   EDisplayType DisplayType() const { return mShape->GetDisplayType(); }
   
-  double GetDefault() const { return mDefault; }
+  double GetDefault(bool normalized = false) const { return normalized ? ToNormalized(GetDefault()) : mDefault; }
+  
   double GetMin() const { return mMin; }
   double GetMax() const { return mMax; }
   void GetBounds(double& lo, double& hi) const;
@@ -143,6 +160,7 @@ public:
   double GetStep() const { return mStep; }
   int GetDisplayPrecision() const {return mDisplayPrecision;}
   
+  int GetFlags() const { return mFlags; }
   bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
   bool GetStepped() const { return mFlags & kFlagStepped; }
   bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }

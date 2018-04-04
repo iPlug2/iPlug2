@@ -141,6 +141,37 @@ public:
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
 };
 
+/** A bitmap knob/dial control */
+class IBKnobControl : public IKnobControlBase
+{
+public:
+  IBKnobControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
+  , mBitmap(bitmap)
+  {
+  }
+  
+  IBKnobControl(IDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
+  , mBitmap(bitmap)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+  }
+  
+  void OnRescale() override
+  {
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
+  
+private:
+  IBitmap mBitmap;
+};
+
 /** A slider with a bitmap for the handle. The bitmap snaps to a mouse click or drag. */
 //class IBSliderControl : public IControl
 //{

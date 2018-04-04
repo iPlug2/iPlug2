@@ -259,16 +259,16 @@ const IParam* IControl::GetParam()
 void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds)
 {
   bounds.Constrain(x, y);
-  
+
   float val;
-  
+
   if(direction == kVertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
     val = 1.f - (x-bounds.B) / bounds.W();
-  
+
   mValue = round( val / 0.001 ) * 0.001;
-  
+
   SetDirty(); // will send parameter value to delegate
 }
 
@@ -323,7 +323,7 @@ ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, con
 , mShowParamLabel(showParamLabel)
 {
   assert(paramIdx > kNoParameter);
-  
+
   mParamIdx = paramIdx;
   mDblAsSingleClick = true;
   mDisablePrompt = false;
@@ -340,19 +340,19 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
-  
+
   if(pParam)
   {
     pParam->GetDisplayForHost(mStr);
-    
+
     if (mShowParamLabel)
     {
       mStr.Append(" ");
       mStr.Append(pParam->GetLabelForHost());
     }
   }
-  
-  return ITextControl::Draw(g);
+
+  return ITextControl::Draw(graphics);
 }
 
 ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc,

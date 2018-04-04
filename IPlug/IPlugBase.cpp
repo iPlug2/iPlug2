@@ -4,7 +4,6 @@
 #include <cassert>
 
 #include "wdlendian.h"
-#include "wdl_base64.h"
 
 #include "IPlugBase.h"
 
@@ -222,3 +221,26 @@ int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
   
   return ver;
 }
+
+void IPlugBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
+{
+  WDL_String nameStr;
+  for (auto p = startIdx; p <= endIdx; p++)
+  {
+    nameStr.SetFormatted(MAX_PARAM_NAME_LEN, nameFmtStr, countStart + (p-startIdx));
+    GetParam(p)->InitDouble(nameStr.Get(), defaultVal, minVal, maxVal, step, label, flags, group, shape, unit, displayFunc);
+  }
+}
+
+void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr, const char* replaceStr, const char* newGroup)
+{
+  for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
+  {
+    IParam* pParam = GetParam(p);
+    int outIdx = startIdx + (p - cloneStartIdx);
+    GetParam(outIdx)->Init(*pParam, searchStr, replaceStr, newGroup);
+    GetParam(outIdx)->Set(pParam->Value());
+  }
+}
+
+
