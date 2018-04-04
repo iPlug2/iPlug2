@@ -21,10 +21,7 @@ void IVSwitchControl::Draw(IGraphics& g)
   g.FillRect(GetColor(kBG), mRECT);
 
   const IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
-  
   const float cornerRadius = mRoundness * (handleBounds.W() / 2.);
-
-  static const IColor shadowColor = IColor(60, 0, 0, 0);
 
   if (mValue > 0.5)
   {
@@ -35,14 +32,14 @@ void IVSwitchControl::Draw(IGraphics& g)
     {
       g.PathRect(handleBounds.GetHSliced(mShadowOffset));
       g.PathRect(handleBounds.GetVSliced(mShadowOffset));
-      g.PathFill(shadowColor);
+      g.PathFill(GetColor(kSH));
     }
   }
   else
   {
     //outer shadow
     if (mDrawShadows && !mEmboss)
-      g.FillRoundRect(shadowColor, handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+      g.FillRoundRect(GetColor(kSH), handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
     g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
   }
@@ -76,12 +73,8 @@ IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
 void IVKnobControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
-  
   IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
-  
   handleBounds.ScaleAboutCentre(0.80);
-
-  static const IColor shadowColor = IColor(60, 0, 0, 0);
 
   const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
   const float cx = handleBounds.MW(), cy = handleBounds.MH();
@@ -90,7 +83,7 @@ void IVKnobControl::Draw(IGraphics& g)
   g.DrawArc(GetColor(kFR), cx, cy, (mRECT.W()/2.f) - 5.f, mAngleMin, v, 0, 3.f);
   
   if (mDrawShadows && !mEmboss)
-    g.FillCircle(shadowColor, cx + mShadowOffset, cy + mShadowOffset, radius); 
+    g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, radius);
   
   g.FillCircle(GetColor(kFG), cx, cy, radius);
 

@@ -43,12 +43,10 @@ public:
     IRECT ir = GetCollapsedBounds();
     const float cornerRadius = mRoundness * (ir.GetLengthOfShortestSide() / 2.);
 
-    IColor shadowColor = IColor(60, 0, 0, 0);
-
     if (!mExpanded)
     {
       if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(shadowColor, ir.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+        g.FillRoundRect(GetColor(kSH), ir.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
       g.FillRoundRect(GetColor(kFG), ir, cornerRadius);
 
@@ -79,7 +77,7 @@ public:
         else
         {
           if (mDrawShadows)
-            g.FillRoundRect(shadowColor, vR.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+            g.FillRoundRect(GetColor(kSH), vR.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
           g.FillRoundRect(GetColor(kPR), vR, cornerRadius);
         }

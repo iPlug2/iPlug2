@@ -254,8 +254,9 @@ const IColor DEFAULT_BGCOLOR = COLOR_TRANSPARENT;
 const IColor DEFAULT_FGCOLOR = COLOR_MID_GRAY;
 const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
 
-const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
+const IColor DEFAULT_FRCOLOR = COLOR_GREEN;
 const IColor DEFAULT_HLCOLOR = COLOR_TRANSLUCENT;
+const IColor DEFAULT_SHCOLOR = IColor(60, 0, 0, 0);
 const IColor DEFAULT_X1COLOR = COLOR_RED;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
 const IColor DEFAULT_X3COLOR = COLOR_BLUE;
@@ -270,6 +271,7 @@ struct IVColorSpec
   IColor mPRColor = DEFAULT_PRCOLOR;
   IColor mFRColor = DEFAULT_FRCOLOR;
   IColor mHLColor = DEFAULT_HLCOLOR;
+  IColor mSHColor = DEFAULT_SHCOLOR;
   IColor mX1Color = DEFAULT_X1COLOR;
   IColor mX2Color = DEFAULT_X2COLOR;
   IColor mX3Color = DEFAULT_X3COLOR;
@@ -279,6 +281,7 @@ struct IVColorSpec
                  const IColor PRColor = DEFAULT_PRCOLOR,
                  const IColor FRColor = DEFAULT_FRCOLOR,
                  const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor SHColor = DEFAULT_SHCOLOR,
                  const IColor X1Color = DEFAULT_X1COLOR,
                  const IColor X2Color = DEFAULT_X2COLOR,
                  const IColor X3Color = DEFAULT_X3COLOR)

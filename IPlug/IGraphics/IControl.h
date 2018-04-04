@@ -327,11 +327,12 @@ public:
               const IColor* pPRColor = &DEFAULT_PRCOLOR,
               const IColor* pFRColor = &DEFAULT_FRCOLOR,
               const IColor* pHLColor = 0,
+              const IColor* pSHColor = 0,
               const IColor* pX1Color = 0,
               const IColor* pX2Color = 0,
               const IColor* pX3Color = 0)
   {
-    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
+    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
   IVectorBase(const IVColorSpec& spec)
@@ -341,6 +342,7 @@ public:
               &spec.mPRColor,
               &spec.mFRColor,
               &spec.mHLColor,
+              &spec.mSHColor,
               &spec.mX1Color,
               &spec.mX2Color,
               &spec.mX3Color);
@@ -358,6 +360,7 @@ public:
                  const IColor* pPRColor = 0,
                  const IColor* pFRColor = 0,
                  const IColor* pHLColor = 0,
+                 const IColor* pSHColor = 0,
                  const IColor* pX1Color = 0,
                  const IColor* pX2Color = 0,
                  const IColor* pX3Color = 0)
@@ -367,6 +370,7 @@ public:
     if(pPRColor) AddColor(*pPRColor);
     if(pFRColor) AddColor(*pFRColor);
     if(pHLColor) AddColor(*pHLColor);
+    if(pSHColor) AddColor(*pSHColor);
     if(pX1Color) AddColor(*pX1Color);
     if(pX2Color) AddColor(*pX2Color);
     if(pX3Color) AddColor(*pX3Color);
@@ -385,6 +389,7 @@ public:
                  const IColor& PRColor,
                  const IColor& FRColor,
                  const IColor& HLColor,
+                 const IColor& SHColor,
                  const IColor& X1Color,
                  const IColor& X2Color,
                  const IColor& X3Color)
@@ -394,6 +399,7 @@ public:
     mColors.Get()[kPR] = PRColor;
     mColors.Get()[kFR] = FRColor;
     mColors.Get()[kHL] = HLColor;
+    mColors.Get()[kSH] = SHColor;
     mColors.Get()[kX1] = X1Color;
     mColors.Get()[kX2] = X2Color;
     mColors.Get()[kX3] = X3Color;
@@ -408,6 +414,7 @@ public:
               spec.mPRColor,
               spec.mFRColor,
               spec.mHLColor,
+              spec.mSHColor,
               spec.mX1Color,
               spec.mX2Color,
               spec.mX3Color);
