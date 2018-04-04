@@ -41,24 +41,25 @@ void IControl::SetDirty(bool pushParamToDelegate)
 {
   mValue = Clip(mValue, mClampLo, mClampHi);
   mDirty = true;
-  
+
   if (pushParamToDelegate && mParamIdx >= 0)
   {
     mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
     GetUI()->UpdatePeers(this);
-//    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
 
-//    if (mValDisplayControl)
-//    {
-//      WDL_String display;
-//      pParam->GetDisplayForHost(display);
-//      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
-//    }
-//
-//    if (mNameDisplayControl)
-//    {
-//      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
-//    }
+    const IParam* pParam = mDelegate.GetParamObjectFromUI(mParamIdx);
+
+    if (mValDisplayControl)
+    {
+      WDL_String display;
+      pParam->GetDisplayForHost(display);
+      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get()); //TODO NOT DELEGATE
+    }
+
+    if (mNameDisplayControl)
+    {
+      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost()); //TODO NOT DELEGATE
+    }
   }
 }
 
@@ -227,16 +228,16 @@ const IParam* IControl::GetParam()
 void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds)
 {
   bounds.Constrain(x, y);
-  
+
   float val;
-  
+
   if(direction == kVertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
     val = 1.f - (x-bounds.B) / bounds.W();
-  
+
   mValue = round( val / 0.001 ) * 0.001;
-  
+
   SetDirty(); // will send parameter value to delegate
 }
 
@@ -303,7 +304,7 @@ ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, con
 , mShowParamLabel(showParamLabel)
 {
   assert(paramIdx > kNoParameter);
-  
+
   mParamIdx = paramIdx;
   mDblAsSingleClick = true;
   mDisablePrompt = false;
@@ -320,18 +321,18 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 void ICaptionControl::Draw(IGraphics& graphics)
 {
   const IParam* pParam = GetParam();
-  
+
   if(pParam)
   {
     pParam->GetDisplayForHost(mStr);
-    
+
     if (mShowParamLabel)
     {
       mStr.Append(" ");
       mStr.Append(pParam->GetLabelForHost());
     }
   }
-  
+
   return ITextControl::Draw(graphics);
 }
 
