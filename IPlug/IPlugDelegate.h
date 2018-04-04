@@ -67,4 +67,6 @@ public:
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
   virtual void ResizeGraphicsFromUI() {};
+  
+  virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
 };
