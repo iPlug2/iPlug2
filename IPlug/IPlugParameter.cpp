@@ -184,7 +184,7 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
     
     if(pos)
     {
-      int insertionPos = str.Get() - pos;
+      int insertionPos = (int) (str.Get() - pos);
       str.DeleteSub(insertionPos, (int) strlen(searchStr));
       str.Insert(replaceStr, insertionPos);
     }
