@@ -123,6 +123,16 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
+  /** Draw a dotted line to the graphics context
+   * @param color The color to draw the shape with
+   * @param x1 The X coordinate in the graphics context of the start of the line
+   * @param y1 The Y coordinate in the graphics context of the start of the line
+   * @param x2 The X coordinate in the graphics context of the end of the line
+   * @param y2 The Y coordinate in the graphics context of the end of the line
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
    * @param x1 The X coordinate in the graphics context of the first vertex
