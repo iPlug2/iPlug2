@@ -301,6 +301,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.R = mGraphics->WindowWidth();
   r.B = mGraphics->WindowHeight();
 //  if(mGraphics->IsDirty(r))
+  mGraphics->IsDirty(r); // TEMP TO FORCE UPDATES ON ANIMATION
   mGraphics->Draw(r);
 
   mGraphics->EndFrame();
