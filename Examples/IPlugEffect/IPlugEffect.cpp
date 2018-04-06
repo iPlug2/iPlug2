@@ -64,6 +64,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 
   pGraphics->AttachControl(new IVDropDownListControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).SubRectVertical(3, 0), kNoParameter, DEFAULT_SPEC, kVertical, 5, "one", "two", "three", "four", "five"));
   
+  pGraphics->AttachControl(new IVDropDownListControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).SubRectVertical(3, 0), kNoParameter, DEFAULT_SPEC, kVertical, 5, "one", "two", "three", "four", "five"));
+  
   IRECT kbrect = bounds.SubRectVertical(4, 3).GetPadded(-5.);
   pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
 
