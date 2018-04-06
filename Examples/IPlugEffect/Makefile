@@ -56,6 +56,7 @@ API = $(ROOT)/Dependencies/IPlug/WAM_SDK/wamsdk
 WDL_PATH = $(ROOT)/WDL
 IPLUG_PATH = $(ROOT)/IPlug
 IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
+ICONTROLS_PATH = $(IGRAPHICS_PATH)/IControls
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 WAM_PATH = $(IPLUG_PATH)/WAM
 
@@ -80,7 +81,7 @@ EXPORTS = "[\
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(IGRAPHICS_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -DIGRAPHICS_WEB -DSAMPLE_TYPE_FLOAT -Wno-bitwise-op-parentheses
+CFLAGS = -I./ -I$(API) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(IGRAPHICS_PATH) -I$(ICONTROLS_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWAM_API -std=c++11 -DIGRAPHICS_WEB -DSAMPLE_TYPE_FLOAT -Wno-bitwise-op-parentheses
 LDFLAGS = -s EXPORTED_FUNCTIONS=$(EXPORTS) -O1
 JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=0 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IPlug'" --bind -s ASSERTIONS=0
 

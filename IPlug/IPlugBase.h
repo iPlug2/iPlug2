@@ -74,8 +74,11 @@ public:
   virtual void OnWindowResize() {}
 
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
-  virtual bool OnHostRequestingAboutBox() { return false; } // TODO: implement this for VST 3
+  virtual void OnHostRequestingAboutBox() {} // TODO: implement this for VST 3
 
+  /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
+  virtual void OnHostRequestingProductHelp() {} // TODO: implement this for VST 3
+  
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
   virtual void OnHostIdentified() {}
@@ -107,7 +110,7 @@ public:
    * @param paramIdx The index of the parameter object to be got
    * @return A pointer to the IParam object at paramIdx */
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
-
+  
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }
 
@@ -195,10 +198,79 @@ public:
 
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
   virtual void InformHostOfProgramChange() {};
+  
+#pragma mark - Parameter methods
+  
+  /** Initialise a range of parameters simultaneously. This mirrors the arguments available in IParam::InitDouble, for maximum flexibility
+   * @param startIdx The index of the first parameter to initialise
+   * @param endIdx The index of the last parameter to initialise
+   * @param countStart An integer representing the start of the count in the format string. If the first parameter should have "0" in its name, set this to 0
+   * @param nameFmtStr A limited format string where %i can be used to get the index + countStart, in the range of parameters specified
+   * @param defaultVal A default real value for the parameter
+   * @param minVal A minimum real value for the parameter
+   * @param maxVal A Maximum real value for the parameter
+   * @param step The parameter step
+   * @param label A CString label for the parameter e.g. "decibels"
+   * @param flags Any flags, see IParam::EFlags
+   * @param group A CString group name for the parameter, e.g. "envelope"
+   * @param shape A IParam::Shape class to determine how the parameter shape should be skewed
+   * @param unit An IParam::EParamUnit which can be used in audiounit plug-ins to specify certain kinds of parameter
+   * @param displayFunc An IParam::DisplayFunc lambda function to specify a custom display function */
+  void InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", IParam::Shape* shape = nullptr, IParam::EParamUnit unit = IParam::kUnitCustom, IParam::DisplayFunc displayFunc = nullptr);
+  
+  /** Clone a range of parameters, optionally doing a string substitution on the parameter name.
+   * @param cloneStartIdx The index of the first parameter to clone
+   * @param cloneEndIdx The index of the last parameter to clone
+   * @param startIdx The start of the cloned range
+   * @param searchStr A CString to search for in the input parameter name
+   * @param replaceStr A CString to replace searchStr in the output parameter name
+   * @param newGroup If the new parameter should have a different group, update here */
+  void CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
+  
+  /** Modify a range of parameters with a lamda function
+   * @param startIdx The index of the first parameter to modify
+   * @param endIdx The index of the last parameter to modify
+   * @param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default, modify certain params based on their group */
+  void ModifyParamValues(int startIdx, int endIdx, std::function<void(IParam& param)> func);
+  
+  /** Modify a parameter group simulataneously
+   * @param paramGroup The name of the group to modify
+   * @param param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
+  void ModifyParamValues(const char* paramGroup, std::function<void(IParam& param)> func);
 
+  /** Copy a range of parameter values
+   * @param startIdx The index of the first parameter value to copy
+   * @param destIdx The index of the first destination parameter
+   * @param nParams The number of parameters to copy */
+  void CopyParamValues(int startIdx, int destIdx, int nParams);
+  
+  /** Copy a range of parameter values for a parameter group
+   * @param inGroup The name of the group to copy from
+   * @param outGroup The name of the group to copy to */
+  void CopyParamValues(const char* inGroup, const char* outGroup);
+  
+  /** Randomise parameter values within a range. NOTE for more flexibility in terms of RNG etc, use ModifyParamValues()
+   * @param startIdx The index of the first parameter to modify
+   * @param endIdx The index of the last parameter to modify */
+  void RandomiseParamValues(int startIdx, int endIdx);
+  
+  /** Randomise parameter values for a parameter group
+   * @param paramGroup The name of the group to modify */
+  void RandomiseParamValues(const char* paramGroup);
+  
+  /** Default parameter values within a range.
+   * @param startIdx The index of the first parameter to modify
+   * @param endIdx The index of the last parameter to modify */
+  void DefaultParamValues(int startIdx, int endIdx);
+  
+  /** Default parameter values for a parameter group
+   * @param paramGroup The name of the group to modify */
+  void DefaultParamValues(const char* paramGroup);
+  
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
+   * NOTE: It may be called on the high priority audio thread
    * @param paramIdx The index of the parameter that changed
    * @param value The new value
    * @param normalized /true if @param value is normalised */

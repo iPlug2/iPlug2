@@ -10,11 +10,19 @@ PKG_CONFIG = pkg-config
 
 CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result
 
+CFLAGS += -DSWELL_MAKING_DYLIB
+
 ifeq ($(UNAME_S),Darwin)
   CFLAGS += -Wno-unused-private-field -DSWELL_FORCE_GENERIC
   DLL_EXT=.dylib
+  CLANG=1
 else
   DLL_EXT=.so
+endif
+
+ifdef CLANG
+  CC = clang
+  CXX = clang++
 endif
 
 ifndef ALLOW_WARNINGS
@@ -33,7 +41,7 @@ ifdef DEBUG
 CFLAGS += -O0 -g -D_DEBUG
 else
 CFLAGS += -O2 -DNDEBUG
-  ifneq ($(UNAME_S),Darwin)
+  ifndef CLANG
     CFLAGS += -s
   endif
 endif

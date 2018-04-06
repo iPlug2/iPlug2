@@ -9,8 +9,6 @@ public:
   {
     mText = text;
     mLabel.SetFormatted(32, "%s \n%s File", "Select a", extension);
-
-    mActionFunc = actionFunc;
   }
   
   void SetPath(const char* path)
@@ -35,8 +33,6 @@ public:
       mSelectedIndex = item->GetTag();
       mSelectedMenu = menu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
       mLabel.Set(item->GetText());
-      
-      mActionFunc(this);
     }
     
     //Redraw(); // TODO:  seems to need this
@@ -65,7 +61,7 @@ public:
   
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->ShowMouseCursor();
+    GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
   
@@ -114,7 +110,7 @@ public:
   
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->ShowMouseCursor();
+    GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
   
@@ -314,60 +310,3 @@ private:
     
     int mStringIndex;
 };
-
-class IBKnobControl : public IKnobControlBase
-{
-public:
-  IBKnobControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-  
-  IBKnobControl(IDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-  
-  void Draw(IGraphics& graphics) override
-  {
-    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
-    graphics.DrawBitmap(mBitmap, mRECT, i);
-  }
-  
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-  
-private:
-  
-  IBitmap mBitmap;
-};
-
-class IBKnobRotaterControl : public IKnobControlBase
-{
-public:
-  IBKnobRotaterControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-  
-  void Draw(IGraphics& graphics) override
-  {
-    double angle = -130.0 + mValue * 260.0;
-    graphics.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
-  }
-  
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-  
-private:
-  
-  IBitmap mBitmap;
-};
-

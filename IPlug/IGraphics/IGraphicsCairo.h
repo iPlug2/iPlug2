@@ -42,7 +42,7 @@ public:
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
     
   void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
-  void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y);}
+  void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y); }
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3); }
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;

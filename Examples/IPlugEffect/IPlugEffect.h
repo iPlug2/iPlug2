@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
+#include "IVMeterControl.h"
 
 const int kNumPrograms = 1;
 
@@ -18,19 +19,11 @@ enum ELayout
   kGainY = 100
 };
 
-
 class IPlugEffect : public IPlug
 {
 public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
-//  ~IPlugEffect();
-//   void OnReset() override;
-//  void OnParamChange(int paramIdx) override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
-  
-//  void OnActivate(bool activate) override
-//  {
-//    DBGMSG("number of inputs connected %i\n", NInChansConnected());
-//    DBGMSG("number of outputs connected %i\n", NOutChansConnected());
-//  }
+private:
+  IVMeterControl* mMeter;
 };

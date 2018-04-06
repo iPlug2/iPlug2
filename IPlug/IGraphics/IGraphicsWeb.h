@@ -67,8 +67,14 @@ public:
 
   void SetPlatformContext(void* pContext) override {} // TODO:
 
-  void HideMouseCursor() override { emscripten::val::global("document")["body"]["style"].set("cursor", std::string("none")); }
-  void ShowMouseCursor() override { emscripten::val::global("document")["body"]["style"].set("cursor", std::string("auto")); }
+  void HideMouseCursor(bool hide, bool returnToStartPos) override
+  {
+    if(hide)
+      emscripten::val::global("document")["body"]["style"].set("cursor", std::string("none"));
+    else
+      emscripten::val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+  }
+
   void MoveMouseCursor(float x, float y) override { /* Can't move a mose cursor in the browser */ }
   void ForceEndUserEdit() override {} // TODO:
   void Resize(int w, int h, float scale) override;
@@ -82,6 +88,7 @@ public:
   IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override {} // TODO:
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO:
+  void PromptForDirectory(WDL_String& path) override {} // TODO:
   bool PromptForColor(IColor& color, const char* str = "") override {} // TODO:
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
   const char* GetPlatformAPIStr() override { return "WEB"; }

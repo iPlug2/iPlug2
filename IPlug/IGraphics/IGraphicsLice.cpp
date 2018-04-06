@@ -136,6 +136,13 @@ void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, 
   LICE_FLine(mDrawBitmap, x1 * ds, y1 * ds, x2 * ds, y2 * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
+void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness)
+{
+  const float ds = GetDisplayScale();
+  const int dash = 2 * ds;
+  LICE_DashedLine(mDrawBitmap, x1 * ds, y1 * ds, x2 * ds, y2 * ds, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
+}
+
 void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float)
 {
   const float ds = GetDisplayScale();

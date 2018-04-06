@@ -131,6 +131,25 @@ static void ToLower(char* cDest, const char* cSrc)
   cDest[i] = '\0';
 }
 
+inline void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
+  float w = 0.0;
+  maxLineWidth = 0.0;
+  numLines = 0.0;
+  while (true) {
+    if (*txt == '\0' || *txt == '\n') {
+      ++numLines;
+      if (w > maxLineWidth)
+        maxLineWidth = w;
+      if (*txt == '\0')
+        break;
+      w = 0.0;
+      }
+    else
+      ++w;
+    ++txt;
+    }
+  }
+
 /** Gets the host ID from a human-readable name
  * @param host Host name to search for
  * @return Identifier of the host (see ::EHost)
@@ -139,7 +158,7 @@ static EHost LookUpHost(const char* inHost)
 {
   char host[256];
   ToLower(host, inHost);
-  
+
   // C4 is version >= 8.2
   if (strstr(host, "cubase")) return kHostCubase;
   if (strstr(host, "reaper")) return kHostReaper;
@@ -171,7 +190,7 @@ static EHost LookUpHost(const char* inHost)
   if (strstr(host, "wavelab elements")) return kHostWaveLabElements;
   if (strstr(host, "bitwig studio")) return kHostBitwig;
   if (strstr(host, "twistedwave")) return kHostTwistedWave;
-  
+
   return kHostUnknown;
 }
 

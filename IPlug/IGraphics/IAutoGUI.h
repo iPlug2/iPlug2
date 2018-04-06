@@ -95,15 +95,15 @@
 //     SetDirty();
 //   }
 //
-//   void Draw(IGraphics& graphics) override
+//   void Draw(IGraphics& g) override
 //   {
 //     for (int t = 0; t < mTabs.GetSize(); t++)
 //     {
 //       if (t == mActive) {
-//         graphics.FillRect(mOnColor, mTabs.Get(t)->mRECT);
+//         g.FillRect(mOnColor, mTabs.Get(t)->mRECT);
 //       }
-//       graphics.DrawRect(mfgcolor, mTabs.Get(t)->mRECT);
-//       graphics.DrawText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
+//       g.DrawRect(mfgcolor, mTabs.Get(t)->mRECT);
+//       g.DrawText(mText, mTabs.Get(t)->mLabel.Get(), mTabs.Get(t)->mRECT);
 //     }
 //   }
 // };
@@ -134,10 +134,10 @@
 //     }
 //   }
 //
-//   void Draw(IGraphics& graphics) override
+//   void Draw(IGraphics& g) override
 //   {
-//     graphics.FillRect(mColor, mRECT);
-//     graphics.DrawText(mText, "Dump preset", mRECT);
+//     g.FillRect(mColor, mRECT);
+//     g.DrawText(mText, "Dump preset", mRECT);
 //   }
 // };
 //
@@ -145,7 +145,7 @@
 // #define HEIGHT 50
 // #define GAP 2
 //
-// void GenerateKnobGUI(IGraphics& graphics,
+// void GenerateKnobGUI(IGraphics& g,
 //                      IDelegate& dlg,
 //                      IText& text,
 //                      const IColor& bgcolor,
@@ -153,9 +153,9 @@
 //                      int minWidth,
 //                      int minHeight)
 // {
-//   graphics.AttachPanelBackground(bgcolor);
+//   g.AttachPanelBackground(bgcolor);
 //
-//   const int w = graphics.Width();
+//   const int w = g.Width();
 //
 //   // Calculate max bounds
 //   WDL_String tmtext;
@@ -166,7 +166,7 @@
 //   {
 //     IRECT thisParamNameMaxBounds;
 //     tmtext.Set(dlg.GetParam(p)->GetNameForHost());
-//     graphics.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
+//     g.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
 //     paramNameMaxBounds = paramNameMaxBounds.Union(thisParamNameMaxBounds);
 //
 //     // hope that the display texts are longer than normal values for double params etc
@@ -175,7 +175,7 @@
 //     {
 //       IRECT thisParamValueMaxBounds;
 //       tmtext.Set(dlg.GetParam(p)->GetDisplayTextAtIdx(dt));
-//       graphics.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
+//       g.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
 //       paramValueMaxBounds = paramValueMaxBounds.Union(thisParamValueMaxBounds);
 //     }
 //   }
@@ -209,16 +209,16 @@
 //     switch (dlg.GetParam(p)->Type())
 //     {
 //       case IParam::kTypeBool:
-//         graphics.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
+//         g.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
 //         break;
 //       case IParam::kTypeInt:
-//         graphics.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
+//         g.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
 //         break;
 //       case IParam::kTypeEnum:
-//         graphics.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
+//         g.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
 //         break;
 //       case IParam::kTypeDouble:
-//         graphics.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
+//         g.AttachControl(new AGKnobControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.H()));
 //         break;
 //       default:
 //         break;
@@ -226,9 +226,9 @@
 //   }
 // }
 //
-// void GenerateSliderGUI(IGraphics& graphics, IPlug& dlg, IText& text, const IColor& bgcolor, const IColor& fgcolor, int colWidth = 300, int tabs = 0, const char** pParamNameStrings = 0)
+// void GenerateSliderGUI(IGraphics& g, IPlug& dlg, IText& text, const IColor& bgcolor, const IColor& fgcolor, int colWidth = 300, int tabs = 0, const char** pParamNameStrings = 0)
 // {
-//   graphics.AttachPanelBackground(bgcolor);
+//   g.AttachPanelBackground(bgcolor);
 //
 //   WDL_PtrList<const char> groupNames;
 //   WDL_String thisGroup("");
@@ -242,7 +242,7 @@
 //   {
 //     IRECT thisParamNameMaxBounds;
 //     tmtext.Set(dlg.GetParam(p)->GetNameForHost());
-//     graphics.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
+//     g.MeasureText(text, tmtext.Get(), thisParamNameMaxBounds);
 //     paramNameMaxBounds = paramNameMaxBounds.Union(thisParamNameMaxBounds);
 //
 //     // hope that the display texts are longer than normal values for double params etc
@@ -251,7 +251,7 @@
 //     {
 //       IRECT thisParamValueMaxBounds;
 //       tmtext.Set(dlg.GetParam(p)->GetDisplayTextAtIdx(dt));
-//       graphics.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
+//       g.MeasureText(text, tmtext.Get(), thisParamValueMaxBounds);
 //       paramValueMaxBounds = paramValueMaxBounds.Union(thisParamValueMaxBounds);
 //     }
 //
@@ -274,7 +274,7 @@
 //   {
 //     IRECT buttonsRect = IRECT(2, yoffs, colWidth-2, yoffs + paramNameMaxBounds.H());
 //
-//     graphics.AttachControl(new AGPresetSaveButtonControl(dlg, buttonsRect, text, pParamNameStrings));
+//     g.AttachControl(new AGPresetSaveButtonControl(dlg, buttonsRect, text, pParamNameStrings));
 //
 //     yoffs += 20;
 //   }
@@ -285,7 +285,7 @@
 //   if (tabs)
 //   {
 //     pTabsControl = new AGPanelTabs(dlg, tabsRect, text, bgcolor, fgcolor, COLOR_RED);
-//     graphics.AttachControl(pTabsControl);
+//     g.AttachControl(pTabsControl);
 //     yoffs += 20;
 //   }
 //
@@ -330,30 +330,30 @@
 // //    switch (dlg.GetParam(p)->Type())
 // //    {
 // //      case IParam::kTypeBool:
-// //        graphics.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+// //        g.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 // //        break;
 // //      case IParam::kTypeInt:
-// //        graphics.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+// //        g.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 // //        break;
 // //      case IParam::kTypeEnum:
-// //        graphics.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+// //        g.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 // //        break;
 // //      case IParam::kTypeDouble:
-// //        graphics.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
+// //        g.AttachControl(new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W()));
 // //        break;
 // //      default:
 // //        break;
 // //    }
 //
 //     IControl* pControl = new AGHSliderControl(dlg, paramRect, p, text, bgcolor, fgcolor, paramNameMaxBounds.W(), paramValueMaxBounds.W());
-//     graphics.AttachControl(pControl);
+//     g.AttachControl(pControl);
 //
 //     if (tabs && groupIdx != 1)
 //     {
 //       pControl->Hide(true);
 //     }
 //
-//     if (yoffs + paramNameMaxBounds.H() >= graphics.Height() - 5)
+//     if (yoffs + paramNameMaxBounds.H() >= g.Height() - 5)
 //     {
 //       col++;
 //       yoffs = 2;

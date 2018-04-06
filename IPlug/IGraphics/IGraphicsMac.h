@@ -35,8 +35,7 @@ public:
   bool WindowIsOpen() override;
   void Resize(int w, int h, float scale) override;
   
-  void HideMouseCursor() override;
-  void ShowMouseCursor() override;
+  void HideMouseCursor(bool hide, bool returnToStartPosition) override;
   void MoveMouseCursor(float x, float y) override;
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
@@ -56,6 +55,7 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
+  void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override;
@@ -81,12 +81,7 @@ protected:
 
 private:
   void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
-  
   WDL_String mBundleID;
-      
-  float mMouseX = -1;
-  float mMouseY = -1;
-
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 
