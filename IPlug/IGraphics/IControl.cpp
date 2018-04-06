@@ -256,16 +256,16 @@ const IParam* IControl::GetParam()
     return nullptr;
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds)
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO:! */)
 {
   bounds.Constrain(x, y);
 
   float val;
 
   if(direction == kVertical)
-    val = 1.f - (y-bounds.T) / bounds.H();
+    val = 1.f - (y-bounds.T) / bounds.H(); //mValue = 1.0 - (double) (y - (mRECT.B - (mRECT.H()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
   else
-    val = 1.f - (x-bounds.B) / bounds.W();
+    val = 1.f - (x-bounds.B) / bounds.W(); //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
 
   mValue = round( val / 0.001 ) * 0.001;
 
