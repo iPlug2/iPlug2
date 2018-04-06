@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <ctime>
 #include <cassert>
+#include <random>
 
 #include "wdlendian.h"
 
@@ -242,5 +243,47 @@ void IPlugBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx
     GetParam(outIdx)->Set(pParam->Value());
   }
 }
+
+void IPlugBase::CopyParamValues(int startIdx, int destIdx, int nParams)
+{
+  assert((startIdx + nParams) < NParams());
+  assert((destIdx + nParams) < NParams());
+  assert((startIdx + nParams) < destIdx);
+
+  for (auto p = startIdx; p < startIdx + nParams; p++)
+  {
+    GetParam(destIdx++)->Set(GetParam(p)->Value());
+  }
+}
+
+void IPlugBase::ModifyParamValues(int startIdx, int endIdx, std::function<void(IParam&)>func)
+{
+  for (auto p = startIdx; p <= endIdx; p++)
+  {
+    func(* GetParam(p));
+  }
+}
+
+void IPlugBase::DefaultParamValues(int startIdx, int endIdx)
+{
+  ModifyParamValues(startIdx, endIdx, [](IParam& param)
+                                        {
+                                          param.SetToDefault();
+                                        });
+}
+
+void IPlugBase::RandomiseParamValues(int startIdx, int endIdx)
+{
+  std::random_device rd;
+  std::default_random_engine gen(rd());
+  std::uniform_real_distribution<> dis(0., 1.);
+  
+  ModifyParamValues(startIdx, endIdx, [&gen, &dis](IParam& param)
+                                      {
+                                        param.SetNormalized(dis(gen));
+                                      });
+}
+
+
 
 
