@@ -49,8 +49,7 @@ public:
   bool WindowIsOpen() override;
   void Resize(int w, int h) override;
 
-  void HideMouseCursor() override;
-  void ShowMouseCursor() override;
+  void HideMouseCursor(bool hide) override;
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;

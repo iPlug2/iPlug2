@@ -35,8 +35,7 @@ public:
   bool WindowIsOpen() override;
   void Resize(int w, int h, float scale) override;
   
-  void HideMouseCursor() override;
-  void ShowMouseCursor() override;
+  void HideMouseCursor(bool hide, bool returnToStartPosition) override;
   void MoveMouseCursor(float x, float y) override;
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
@@ -82,12 +81,7 @@ protected:
 
 private:
   void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
-  
   WDL_String mBundleID;
-      
-  float mMouseX = -1;
-  float mMouseY = -1;
-
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 

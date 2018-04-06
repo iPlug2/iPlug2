@@ -64,9 +64,16 @@ void Sleep(int ms)
 
 DWORD GetTickCount()
 {
+#ifdef __APPLE__
+  // could switch to mach_getabsolutetime() maybe
   struct timeval tm={0,};
   gettimeofday(&tm,NULL);
   return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
+#else
+  struct timespec ts={0,};
+  clock_gettime(CLOCK_MONOTONIC,&ts);
+  return (DWORD) (ts.tv_sec*1000 + ts.tv_nsec/1000000);
+#endif
 }
 
 
@@ -338,11 +345,10 @@ again:
               break;
             }
 #else
-            struct timeval tm={0,};
-            gettimeofday(&tm,NULL);
             struct timespec ts;
-            ts.tv_sec = msTO/1000 + tm.tv_sec;
-            ts.tv_nsec = (tm.tv_usec + (msTO%1000)*1000) * 1000;
+            clock_gettime(CLOCK_MONOTONIC,&ts);
+            ts.tv_sec += msTO/1000;
+            ts.tv_nsec += (msTO%1000)*1000000;
             if (ts.tv_nsec>=1000000000) 
             {
               int n = ts.tv_nsec/1000000000;
@@ -401,8 +407,23 @@ HANDLE CreateEvent(void *SA, BOOL manualReset, BOOL initialSig, const char *igno
   buf->isSignal = !!initialSig;
   buf->isManualReset = !!manualReset;
   
-  pthread_mutex_init(&buf->mutex,NULL);
+  pthread_mutexattr_t attr;
+  pthread_mutexattr_init(&attr);
+#ifdef __linux__
+  pthread_mutexattr_setprotocol(&attr,PTHREAD_PRIO_INHERIT);
+#endif
+  pthread_mutex_init(&buf->mutex,&attr);
+  pthread_mutexattr_destroy(&attr);
+
+#ifndef __APPLE__
+  pthread_condattr_t cattr;
+  pthread_condattr_init(&cattr);
+  pthread_condattr_setclock(&cattr,CLOCK_MONOTONIC);
+  pthread_cond_init(&buf->cond,&cattr);
+  pthread_condattr_destroy(&cattr);
+#else
   pthread_cond_init(&buf->cond,NULL);
+#endif
   
   return (HANDLE)buf;
 }
@@ -470,6 +491,8 @@ BOOL SetThreadPriority(HANDLE hand, int prio)
       {
         lb--;
         if (prio < THREAD_PRIORITY_ABOVE_NORMAL) lb--;
+
+        if (lb > 40) lb = 40; // if not HIGHEST or higher, do not permit RT priority of more than 40
       }
     }
     param.sched_priority = lb < 1 ? 1 : lb;
@@ -592,10 +615,21 @@ int WinIntersectRect(RECT *out, const RECT *in1, const RECT *in2)
 }
 void WinUnionRect(RECT *out, const RECT *in1, const RECT *in2)
 {
-  out->left = wdl_min(in1->left,in2->left);
-  out->top = wdl_min(in1->top,in2->top);
-  out->right=wdl_max(in1->right,in2->right);
-  out->bottom=wdl_max(in1->bottom,in2->bottom);
+  if (in1->left == in1->right && in1->top == in1->bottom) 
+  {
+    *out = *in2;
+  }
+  else if (in2->left == in2->right && in2->top == in2->bottom) 
+  {
+    *out = *in1;
+  }
+  else
+  {
+    out->left = wdl_min(in1->left,in2->left);
+    out->top = wdl_min(in1->top,in2->top);
+    out->right=wdl_max(in1->right,in2->right);
+    out->bottom=wdl_max(in1->bottom,in2->bottom);
+  }
 }
 
 
@@ -678,6 +712,14 @@ HINSTANCE LoadLibrary(const char *fn)
 {
   return LoadLibraryGlobals(fn,false);
 }
+
+#ifndef SWELL_TARGET_OSX
+extern "C" {
+  void *SWELLAPI_GetFunc(const char *name);
+};
+#endif
+      
+
 HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
 {
   if (!fn || !*fn) return NULL;
@@ -732,9 +774,13 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
     *(void **)&SWELL_dllMain = GetProcAddress(rec,"SWELL_dllMain");
     if (SWELL_dllMain)
     {
-      void *SWELLAPI_GetFunc(const char *name);
-      
-      if (!SWELL_dllMain(rec,DLL_PROCESS_ATTACH,(void*)NULL)) // todo: eventually pass SWELLAPI_GetFunc, maybe?
+      if (!SWELL_dllMain(rec,DLL_PROCESS_ATTACH,
+#ifdef SWELL_TARGET_OSX
+            NULL
+#else
+            (void*)SWELLAPI_GetFunc
+#endif
+            ))
       {
         FreeLibrary(rec);
         return 0;

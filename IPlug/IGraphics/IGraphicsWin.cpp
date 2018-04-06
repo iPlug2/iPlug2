@@ -65,17 +65,13 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
   IMouseInfo info;
   info.x = mMouseX = GET_X_LPARAM(lParam) / GetScale();
   info.y = mMouseY = GET_Y_LPARAM(lParam) / GetScale();
-  info.ms = IMouseMod((wParam & MK_LBUTTON),
-    (wParam & MK_RBUTTON),
-    (wParam & MK_SHIFT),
-    (wParam & MK_CONTROL),
-
+  info.ms = IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), (wParam & MK_SHIFT), (wParam & MK_CONTROL),
 #ifdef AAX_API
     GetAsyncKeyState(VK_MENU) < 0
 #else
     GetKeyState(VK_MENU) < 0
 #endif
-      );
+  );
   return info;
 }
 
@@ -585,28 +581,30 @@ void IGraphicsWin::Resize(int w, int h, float scale)
   }
 }
 
-void IGraphicsWin::HideMouseCursor()
+void IGraphicsWin::HideMouseCursor(bool hide)
 {
-  if (!mCursorHidden)
+  if(hide)
   {
-    POINT p;
-    GetCursorPos(&p);
-
-    mHiddenMousePointX = p.x;
-    mHiddenMousePointY = p.y;
-
-    ShowCursor(false);
-    mCursorHidden=true;
+    if (mCursorHidden)
+    {
+      SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
+      ShowCursor(true);
+      mCursorHidden = false;
+    }
   }
-}
-
-void IGraphicsWin::ShowMouseCursor()
-{
-  if (mCursorHidden)
+  else
   {
-    SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
-    ShowCursor(true);
-    mCursorHidden=false;
+    if (!mCursorHidden)
+    {
+      POINT p;
+      GetCursorPos(&p);
+      
+      mHiddenMousePointX = p.x;
+      mHiddenMousePointY = p.y;
+      
+      ShowCursor(false);
+      mCursorHidden = true;
+    }
   }
 }
 
@@ -1442,6 +1440,6 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 #include "nanovg.c"
 //#include "nanovg_mtl.m"
 #else
-#include "IGraphicsLice.cpp"
+#include "IGraphicsCairo.cpp"
 #endif
 #endif

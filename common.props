@@ -10,6 +10,7 @@
     <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
     <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH)</IPLUG_INC_PATHS>
     <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
+    <ICONTROLS_PATH>$(IGRAPHICS_PATH)\IControls</ICONTROLS_PATH>
     <DEPS_PATH>$(SolutionDir)..\..\Dependencies</DEPS_PATH>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
@@ -88,6 +89,9 @@
     </BuildMacro>
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ICONTROLS_PATH">
+      <Value>$(ICONTROLS_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="DEPS_PATH">
       <Value>$(DEPS_PATH)</Value>

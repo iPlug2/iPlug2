@@ -3,11 +3,38 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
+void DefaultAnimationFunc(IControl* pCaller)
+{
+  auto progress = pCaller->GetAnimationProgress();
+  
+  if(progress > 1.)
+  {
+    pCaller->EndAnimation();
+    return;
+  }
+  
+  pCaller->Animate(progress);
+};
+
+void DefaultClickActionFunc(IControl* pCaller)
+{
+  pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
+};
+
 IControl::IControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
 , mParamIdx(paramIdx)
+, mActionFunc(actionFunc)
+{
+}
+
+IControl::IControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+: mDelegate(dlg)
+, mRECT(bounds)
+, mTargetRECT(bounds)
+, mParamIdx(kNoParameter)
 , mActionFunc(actionFunc)
 {
 }
@@ -37,28 +64,34 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
-void IControl::SetDirty(bool pushParamToDelegate)
+void IControl::SetDirty(bool triggerAction)
 {
   mValue = Clip(mValue, mClampLo, mClampHi);
   mDirty = true;
   
-  if (pushParamToDelegate && mParamIdx >= 0)
+  if (triggerAction)
   {
-    mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
-    GetUI()->UpdatePeers(this);
-//    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
+    if(mParamIdx > kNoParameter)
+    {
+      mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
+      GetUI()->UpdatePeers(this);
+  //    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
 
-//    if (mValDisplayControl)
-//    {
-//      WDL_String display;
-//      pParam->GetDisplayForHost(display);
-//      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
-//    }
-//
-//    if (mNameDisplayControl)
-//    {
-//      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
-//    }
+  //    if (mValDisplayControl)
+  //    {
+  //      WDL_String display;
+  //      pParam->GetDisplayForHost(display);
+  //      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
+  //    }
+  //
+  //    if (mNameDisplayControl)
+  //    {
+  //      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
+  //    }
+    }
+    
+    if (mActionFunc != nullptr)
+      mActionFunc(this);
   }
 }
 
@@ -78,7 +111,6 @@ void IControl::Hide(bool hide)
 void IControl::GrayOut(bool gray)
 {
   mGrayed = gray;
-  mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
   SetDirty(false);
 }
 
@@ -208,11 +240,11 @@ void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
   SetDirty(false);
 }
 
-void IControl::DrawPTHighlight(IGraphics& graphics)
+void IControl::DrawPTHighlight(IGraphics& g)
 {
   if (mPTisHighlighted)
   {
-    graphics.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2, &mBlend);
+    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2);
   }
 }
 
@@ -224,19 +256,19 @@ const IParam* IControl::GetParam()
     return nullptr;
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds)
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO:! */)
 {
   bounds.Constrain(x, y);
-  
+
   float val;
-  
+
   if(direction == kVertical)
-    val = 1.f - (y-bounds.T) / bounds.H();
+    val = 1.f - (y-bounds.T) / bounds.H(); //mValue = 1.0 - (double) (y - (mRECT.B - (mRECT.H()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
   else
-    val = 1.f - (x-bounds.B) / bounds.W();
-  
+    val = 1.f - (x-bounds.B) / bounds.W(); //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
+
   mValue = round( val / 0.001 ) * 0.001;
-  
+
   SetDirty(); // will send parameter value to delegate
 }
 
@@ -248,16 +280,10 @@ void IControl::GetJSON(WDL_String& json, int idx) const
 //  json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
 //  json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
 //  json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
-  json.AppendFormatted(8192, "\"rate\":\"audio\"");
   json.AppendFormatted(8192, "}");
 }
 
-void IPanelControl::Draw(IGraphics& graphics)
-{
-  graphics.FillRect(GetColor(0), mRECT, &mBlend);
-}
-
-void IBitmapControl::Draw(IGraphics& graphics)
+void IBitmapControl::Draw(IGraphics& g)
 {
   int i = 1;
   if (mBitmap.N() > 1)
@@ -266,19 +292,13 @@ void IBitmapControl::Draw(IGraphics& graphics)
     i = Clip(i, 1, mBitmap.N());
   }
 
-  graphics.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+  g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
 }
 
 void IBitmapControl::OnRescale()
 {
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
-
-void ISVGControl::Draw(IGraphics& graphics)
-{
-  graphics.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), 78  * PI / 180.0);
-    //graphics.DrawSVG(mSVG, mRECT);
-};
 
 void ITextControl::SetTextFromDelegate(const char* str)
 {
@@ -289,12 +309,12 @@ void ITextControl::SetTextFromDelegate(const char* str)
   }
 }
 
-void ITextControl::Draw(IGraphics& graphics)
+void ITextControl::Draw(IGraphics& g)
 {
   char* cStr = mStr.Get();
   if (CStringHasContents(cStr))
   {
-    graphics.DrawText(mText, cStr, mRECT);
+    g.DrawText(mText, cStr, mRECT);
   }
 }
 
@@ -303,7 +323,7 @@ ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, con
 , mShowParamLabel(showParamLabel)
 {
   assert(paramIdx > kNoParameter);
-  
+
   mParamIdx = paramIdx;
   mDblAsSingleClick = true;
   mDisablePrompt = false;
@@ -317,30 +337,30 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   }
 }
 
-void ICaptionControl::Draw(IGraphics& graphics)
+void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
-  
+
   if(pParam)
   {
     pParam->GetDisplayForHost(mStr);
-    
+
     if (mShowParamLabel)
     {
       mStr.Append(" ");
       mStr.Append(pParam->GetLabelForHost());
     }
   }
-  
-  return ITextControl::Draw(graphics);
+
+  return ITextControl::Draw(g);
 }
 
 ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc,
-  uint32_t numStates)
+  int numStates)
   : IControl(dlg, bounds, paramIdx, actionFunc)
 {
   if (paramIdx > kNoParameter)
-    mNumStates = (uint32_t) GetParam()->GetRange() + 1;
+    mNumStates = (int) GetParam()->GetRange() + 1;
   else
     mNumStates = numStates;
 
@@ -348,7 +368,7 @@ ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramId
 }
 
 void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
+{  
   if (mNumStates == 2)
     mValue = !mValue;
   else
@@ -357,9 +377,6 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue += step;
     mValue = fmod(1., mValue);
   }
-
-  if (mActionFunc != nullptr)
-    mActionFunc(this);
 
   SetDirty();
 }

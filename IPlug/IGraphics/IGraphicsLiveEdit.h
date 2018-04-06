@@ -12,7 +12,6 @@ public:
   , mGridSize(gridSize)
   {
     mTargetRECT = mRECT;
-    mBlend.mWeight = 0.2f;
   }
   
   ~IGraphicsLiveEdit() {}
@@ -23,9 +22,6 @@ public:
     
     if (c > 0)
     {
-      mMouseDownX = x;
-      mMouseDownY = y;
-      
       IControl* pControl = GetUI()->GetControl(c);
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
@@ -102,6 +98,9 @@ public:
   
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
+    float mouseDownX, mouseDownY;
+    GetUI()->GetMouseDownPoint(mouseDownX, mouseDownY);
+    
     if(mClickedOnControl > 0)
     {
       IControl* pControl = GetUI()->GetControl(mClickedOnControl);
@@ -109,16 +108,16 @@ public:
       
       if(mMouseClickedOnResizeHandle)
       {
-        r.R = SnapToGrid(mMouseDownRECT.R + (x - mMouseDownX));
-        r.B = SnapToGrid(mMouseDownRECT.B + (y - mMouseDownY));
+        r.R = SnapToGrid(mMouseDownRECT.R + (x - mouseDownX));
+        r.B = SnapToGrid(mMouseDownRECT.B + (y - mouseDownY));
         
         if(r.R < mMouseDownRECT.L +mGridSize) r.R = mMouseDownRECT.L+mGridSize;
         if(r.B < mMouseDownRECT.T +mGridSize) r.B = mMouseDownRECT.T+mGridSize;
       }
       else
       {
-        r.L = SnapToGrid(mMouseDownRECT.L + (x - mMouseDownX));
-        r.T = SnapToGrid(mMouseDownRECT.T + (y - mMouseDownY));
+        r.L = SnapToGrid(mMouseDownRECT.L + (x - mouseDownX));
+        r.T = SnapToGrid(mMouseDownRECT.T + (y - mouseDownY));
         r.R = r.L + mMouseDownRECT.W();
         r.B = r.T + mMouseDownRECT.H();
       }
@@ -131,7 +130,7 @@ public:
   
   void Draw(IGraphics& graphics) override
   {
-    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &mBlend);
+    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &BLEND_25);
     
     for(int i = 1; i < graphics.NControls(); i++)
     {
@@ -182,9 +181,6 @@ private:
   IRECT mMouseDownRECT = IRECT(0, 0, 0, 0);
   IRECT mMouseDownTargetRECT = IRECT(0, 0, 0, 0);
 
-  float mMouseDownX = 0;
-  float mMouseDownY = 0;
-  
   int mGridSize = 10;
   int mClickedOnControl = -1;
 };

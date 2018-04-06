@@ -1688,7 +1688,7 @@ void EnableWindow(HWND hwnd, int enable)
   if (bla && [bla respondsToSelector:@selector(setEnabled:)])
   {
     if (enable == -1000 && [bla respondsToSelector:@selector(setEnabledSwellNoFocus)])
-      [bla setEnabledSwellNoFocus];
+      [(SWELL_hwndChild *)bla setEnabledSwellNoFocus];
     else
       [bla setEnabled:(enable?YES:NO)];
     if ([bla isKindOfClass:[SWELL_TextField class]])
@@ -4632,6 +4632,7 @@ void ListView_SetItemCount(HWND h, int cnt)
   if (!tv->m_lbMode && (tv->style & LVS_OWNERDATA))
   {
     tv->ownermode_cnt=cnt;
+    [tv noteNumberOfRowsChanged];
   }
 }
 
