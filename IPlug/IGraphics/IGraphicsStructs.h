@@ -877,7 +877,7 @@ struct IRECT
     return r;
   }
   
-  float GetLengthOfShortestSide()
+  float GetLengthOfShortestSide() const
   {
     if(W() < H())
        return W();
