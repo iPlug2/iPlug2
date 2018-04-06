@@ -24,6 +24,10 @@
   #define ARCH_64BIT
 #endif
 
+#if __cplusplus == 201402L
+#define IPLUG_CPP14
+#endif
+
 //these two components of the c standard library are used thoughtout IPlug/WDL 
 #include <cstring>
 #include <cstdlib>

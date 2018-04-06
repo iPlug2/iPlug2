@@ -220,21 +220,51 @@ void IGraphicsMac::Resize(int w, int h, float scale)
   }
 }
 
-void IGraphicsMac::HideMouseCursor()
+void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
 {
-  if (!mCursorHidden)
+  if(hide)
   {
-    if (CGDisplayHideCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = true;
-    if (!mTabletInput) CGAssociateMouseAndMouseCursorPosition(false);
+    if (!mCursorHidden)
+    {
+      CGDisplayHideCursor(CGMainDisplayID());
+      
+      CGAssociateMouseAndMouseCursorPosition(false);
+      
+      if (returnToStartPosition)
+      {
+        NSPoint mouse = [NSEvent mouseLocation];
+        mCursorX = mouse.x;
+        mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y; // flipped
+      }
+      else
+      {
+        mCursorX = -1.f;
+        mCursorY = -1.f;
+      }
+  
+      mCursorHidden = true;
+    }
   }
-}
-
-void IGraphicsMac::ShowMouseCursor()
-{
-  if (mCursorHidden)
+  else
   {
-    if (CGDisplayShowCursor(CGMainDisplayID()) == CGDisplayNoErr) mCursorHidden = false;
-    CGAssociateMouseAndMouseCursorPosition(true);
+    if (mCursorHidden)
+    {
+      CGAssociateMouseAndMouseCursorPosition(true);
+      
+      if ((mCursorX + mCursorY) > 0.f)
+      {
+        CGPoint point;
+        point.x = mCursorX;
+        point.y = mCursorY;
+        CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
+        mCursorX = -1.f;
+        mCursorY = -1.f;
+      }
+
+      CGDisplayShowCursor(CGMainDisplayID());
+    }
+    
+    mCursorHidden = false;
   }
 }
 
@@ -243,14 +273,13 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGPoint point;
   NSPoint mouse = [NSEvent mouseLocation];
   double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
-  point.x = x / GetDisplayScale() + (mouse.x - mMouseX / GetDisplayScale());
-  point.y = y / GetDisplayScale() + (mouseY - mMouseY / GetDisplayScale());
+  point.x = x / GetDisplayScale() + (mouse.x - mCursorX / GetDisplayScale());
+  point.y = y / GetDisplayScale() + (mouseY - mCursorY / GetDisplayScale());
 
   if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
   {
-    //IGraphics::MoveMouseCursor(x, y);
-    mMouseX = x;
-    mMouseY = y;
+    mCursorX = x;
+    mCursorY = y;
   }
 
   CGAssociateMouseAndMouseCursorPosition(true);
@@ -258,8 +287,8 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
 
 void IGraphicsMac::SetMousePosition(float x, float y)
 {
-  mMouseX = x;
-  mMouseY = y;
+//  mMouseX = x;
+//  mMouseY = y;
 }
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
@@ -546,6 +575,42 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
         path.Append("/");
       }
     }
+  }
+}
+
+void IGraphicsMac::PromptForDirectory(WDL_String& dir)
+{
+  NSString* defaultPath;
+  
+  if (dir.GetLength())
+  {
+    defaultPath = [NSString stringWithCString:dir.Get() encoding:NSUTF8StringEncoding];
+  }
+  else
+  {
+    defaultPath = [NSString stringWithCString:DEFAULT_PATH encoding:NSUTF8StringEncoding];
+    dir.Set(DEFAULT_PATH);
+  }
+  
+  NSOpenPanel* panelOpen = [NSOpenPanel openPanel];
+  
+  [panelOpen setTitle:@"Choose a Directory"];
+  [panelOpen setCanChooseFiles:NO];
+  [panelOpen setCanChooseDirectories:YES];
+  [panelOpen setResolvesAliases:YES];
+  [panelOpen setCanCreateDirectories:YES];
+  
+  [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
+  
+  if ([panelOpen runModal] == NSOKButton)
+  {
+    NSString* fullPath = [ panelOpen filename ] ;
+    dir.Set( [fullPath UTF8String] );
+    dir.Append("/");
+  }
+  else
+  {
+    dir.Set("");
   }
 }
 

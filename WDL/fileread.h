@@ -204,6 +204,7 @@ public:
       DWORD h=0;
       DWORD l=GetFileSize(m_fh,&h);
       m_fsize=(((WDL_FILEREAD_POSTYPE)h)<<32)|l;
+      if (m_fsize<0 || (l == INVALID_FILE_SIZE && GetLastError() != NO_ERROR)) m_fsize=0;
 
       if (!h && l < mmap_maxsize && m_async<=0)
       {
@@ -271,19 +272,20 @@ public:
 #endif
       m_fsize=lseek(m_filedes,0,SEEK_END);
       lseek(m_filedes,0,SEEK_SET);
+      if (m_fsize<0) m_fsize=0;
 
       if (m_fsize < mmap_maxsize)
       {
         if (m_fsize >= mmap_minsize)
         {
-          m_mmap_view = mmap(NULL,m_fsize,PROT_READ,MAP_SHARED,m_filedes,0);
+          m_mmap_view = mmap(NULL,(size_t)m_fsize,PROT_READ,MAP_SHARED,m_filedes,0);
           if (m_mmap_view == MAP_FAILED) m_mmap_view = 0;
           else m_fsize_maychange=false;
         }
         else
         {
-          m_mmap_totalbufmode = malloc(m_fsize);
-          m_fsize = pread(m_filedes,m_mmap_totalbufmode,m_fsize,0);
+          m_mmap_totalbufmode = malloc((size_t)m_fsize);
+          m_fsize = pread(m_filedes,m_mmap_totalbufmode,(size_t)m_fsize,0);
           m_fsize_maychange=false;
         }
       }
@@ -332,7 +334,7 @@ public:
     if (m_fh != INVALID_HANDLE_VALUE) CloseHandle(m_fh);
     m_fh=INVALID_HANDLE_VALUE;
 #elif defined(WDL_POSIX_NATIVE_READ)
-    if (m_mmap_view) munmap(m_mmap_view,m_fsize);
+    if (m_mmap_view) munmap(m_mmap_view,(size_t)m_fsize);
     m_mmap_view=0;
     if (m_filedes>=0) 
     {

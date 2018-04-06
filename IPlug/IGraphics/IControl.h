@@ -42,6 +42,9 @@ public:
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  
+  IControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
+
   virtual ~IControl() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
@@ -58,7 +61,7 @@ public:
   /** Implement to do something when something was drag n dropped onto this control */
   virtual void OnDrop(const char* str) {};
 
-  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen) */
+  /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen) */
   virtual void OnRescale() {}
 
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should pass false as the argument to avoid triggering parameter changes */
@@ -77,9 +80,9 @@ public:
   // captured by the control on double click).
   bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
 
-  virtual void Draw(IGraphics& graphics) = 0;
+  virtual void Draw(IGraphics& g) = 0;
 
-  virtual void DrawPTHighlight(IGraphics& graphics);
+  virtual void DrawPTHighlight(IGraphics& g);
   virtual void SetPTParameterHighlight(bool isHighlighted, int color);
 
   /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu, if we are linked to a parameter. */
@@ -119,11 +122,10 @@ public:
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
   void SetText(IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
-  void SetRECT(const IRECT& bounds) { mRECT = bounds; OnResize(); }
+  void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
-  void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; }
-
-
+  void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
+  void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
   /** Shows or hides the IControl.
    * @param hide Set to true to hide the control */
   virtual void Hide(bool hide);
@@ -142,18 +144,24 @@ public:
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
   bool GetMOWhenGrayed() const { return mMOWhenGrayed; }
   bool GetMEWhenGrayed() const { return mMEWhenGrayed; }
+  bool GetIgnoreMouse() const { return mIgnoreMouse; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
-  void SetBlend(IBlend blend) { mBlend = blend; }
-
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
-  virtual void SetDirty(bool pushParamToDelegate = true);
+  virtual void SetDirty(bool triggerAction = true);
   virtual void SetClean();
-  virtual bool IsDirty() { return mDirty; } // This is not const, because it may be overridden and used to update something at the fps
+  
+  virtual bool IsDirty()
+  {
+    if(mAnimationFunc)
+      mAnimationFunc(this);
+    
+    return mDirty;
+  } // This is not const, because it may be overridden and used to update something at the fps
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }  // Disables the right-click manual value entry.
 
@@ -211,12 +219,35 @@ public:
 
   bool GetMouseIsOver() { return mMouseIsOver; }
   
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds);
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
+  
+  virtual void Animate(double progress) {}
+
+  void EndAnimation()
+  {
+    mAnimationFunc = nullptr;
+    SetDirty(false);
+  }
+  
+  void SetAnimation(IAnimationFunction func, int duration)
+  {
+    mAnimationFunc = func;
+    mAnimationStartTime = std::chrono::high_resolution_clock::now();
+    mAnimationDuration = Milliseconds(duration);
+  }
+  
+  IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
+  
+  double GetAnimationProgress()
+  {
+    auto elapsed = Milliseconds(Time::now() - mAnimationStartTime);
+    return elapsed.count() / mAnimationDuration.count();
+  }
   
 #ifdef VST3_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
-
+  
 #pragma mark - IControl Member variables
 protected:
   IDelegate& mDelegate;
@@ -224,12 +255,9 @@ protected:
   IRECT mRECT;
   IRECT mTargetRECT;
 
-  IActionFunction mActionFunc = nullptr;
-
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx = kNoParameter;
 
-  IBlend mBlend;
   IText mText;
 
   WDL_TypedBuf<AuxParam> mAuxParams;
@@ -246,7 +274,8 @@ protected:
   bool mClamped = false;
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
-  bool mMEWhenGrayed = false; 
+  bool mMEWhenGrayed = false;
+  bool mIgnoreMouse = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;
@@ -263,9 +292,36 @@ protected:
   END_DEFINE_INTERFACES (FObject)
   REFCOUNT_METHODS(FObject)
 #endif
+  
+private:
+  IActionFunction mActionFunc = nullptr;
+  IAnimationFunction mAnimationFunc = nullptr;
+  TimePoint mAnimationStartTime;
+  Milliseconds mAnimationDuration;
 };
 
 #pragma mark - BASIC CONTROLS AND BASE CLASSES
+
+class IBitmapBase
+{
+public:
+  IBitmapBase(IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : mBitmap(bitmap)
+  , mBlend(blend)
+  {
+  }
+  
+  virtual ~IBitmapBase() {}
+  
+  void GrayOut(bool gray)
+  {
+    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+  }
+
+protected:
+  IBitmap mBitmap;
+  IBlend mBlend;
+};
 
 /** A An interface for IVControls, in order for them to share a common set of colors. If you need more flexibility for theming, you're on your own! */
 class IVectorBase
@@ -273,63 +329,100 @@ class IVectorBase
 public:
   IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
               const IColor* pFGColor = &DEFAULT_FGCOLOR,
-              const IColor* pFRColor = 0,
+              const IColor* pPRColor = &DEFAULT_PRCOLOR,
+              const IColor* pFRColor = &DEFAULT_FRCOLOR,
               const IColor* pHLColor = 0,
+              const IColor* pSHColor = 0,
               const IColor* pX1Color = 0,
               const IColor* pX2Color = 0,
               const IColor* pX3Color = 0)
   {
-    SetColors(pBGColor, pFGColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
+    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
   IVectorBase(const IVColorSpec& spec)
   {
-    SetColors(&spec.mBGColor,
+    AddColors(&spec.mBGColor,
               &spec.mFGColor,
+              &spec.mPRColor,
               &spec.mFRColor,
               &spec.mHLColor,
+              &spec.mSHColor,
               &spec.mX1Color,
               &spec.mX2Color,
               &spec.mX3Color);
   }
-
+  
+  void AttachIControl(IControl* pControl) { mControl = pControl; }
+  
   void AddColor(const IColor& color)
   {
     mColors.Add(color);
   }
-
-  void SetColor(int colorIdx, const IColor& color)
-  {
-    if(colorIdx < mColors.GetSize())
-      mColors.Get()[colorIdx] = color;
-  }
-
-  void SetColors(IVColorSpec& spec)
-  {
-    SetColors(&spec.mBGColor,
-              &spec.mFGColor,
-              &spec.mFRColor,
-              &spec.mHLColor,
-              &spec.mX1Color,
-              &spec.mX2Color,
-              &spec.mX3Color);
-  }
-
-  void SetColors(const IColor* pBGColor = 0,
+  
+  void AddColors(const IColor* pBGColor = 0,
                  const IColor* pFGColor = 0,
+                 const IColor* pPRColor = 0,
                  const IColor* pFRColor = 0,
                  const IColor* pHLColor = 0,
+                 const IColor* pSHColor = 0,
                  const IColor* pX1Color = 0,
                  const IColor* pX2Color = 0,
                  const IColor* pX3Color = 0)
   {
     if(pBGColor) AddColor(*pBGColor);
     if(pFGColor) AddColor(*pFGColor);
+    if(pPRColor) AddColor(*pPRColor);
     if(pFRColor) AddColor(*pFRColor);
     if(pHLColor) AddColor(*pHLColor);
+    if(pSHColor) AddColor(*pSHColor);
     if(pX1Color) AddColor(*pX1Color);
     if(pX2Color) AddColor(*pX2Color);
     if(pX3Color) AddColor(*pX3Color);
+  }
+
+  void SetColor(int colorIdx, const IColor& color)
+  {
+    if(colorIdx < mColors.GetSize())
+      mColors.Get()[colorIdx] = color;
+    
+    mControl->SetDirty(false);
+  }
+  
+  void SetColors(const IColor& BGColor,
+                 const IColor& FGColor,
+                 const IColor& PRColor,
+                 const IColor& FRColor,
+                 const IColor& HLColor,
+                 const IColor& SHColor,
+                 const IColor& X1Color,
+                 const IColor& X2Color,
+                 const IColor& X3Color)
+  {
+    mColors.Get()[kBG] = BGColor;
+    mColors.Get()[kFG] = FGColor;
+    mColors.Get()[kPR] = PRColor;
+    mColors.Get()[kFR] = FRColor;
+    mColors.Get()[kHL] = HLColor;
+    mColors.Get()[kSH] = SHColor;
+    mColors.Get()[kX1] = X1Color;
+    mColors.Get()[kX2] = X2Color;
+    mColors.Get()[kX3] = X3Color;
+    
+    mControl->SetDirty(false);
+  }
+
+  void SetColors(const IVColorSpec& spec)
+  {
+    SetColors(spec.mBGColor,
+              spec.mFGColor,
+              spec.mPRColor,
+              spec.mFRColor,
+              spec.mHLColor,
+              spec.mSHColor,
+              spec.mX1Color,
+              spec.mX2Color,
+              spec.mX3Color);
   }
 
   IColor& GetColor(int colorIdx)
@@ -339,55 +432,99 @@ public:
     else
       return mColors.Get()[0];
   }
+  
+  void SetRoundness(float roundness) { mRoundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
+  void SetDrawFrame(bool draw) { mDrawFrame = draw; mControl->SetDirty(false); }
+  void SetDrawShadows(bool draw) { mDrawShadows = draw; mControl->SetDirty(false); }
+  void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
+  void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
+  void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
+
+  void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
+  {
+    mDrawFrame = drawFrame;
+    mDrawShadows = drawShadows;
+    mEmboss = emboss;
+    mRoundness = roundness;
+    mFrameThickness = frameThickness;
+    mShadowOffset = shadowOffset;
+    SetColors(spec);
+  }
+  
+  IRECT GetAdjustedHandleBounds(IRECT handleBounds)
+  {
+    if(mDrawFrame)
+      handleBounds.Pad(- 0.5 * mFrameThickness);
+    
+    if (mDrawShadows && !mEmboss)
+      handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
+    
+    return handleBounds;
+  }
+  
 protected:
+  IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
+  float mRoundness = 0.f;
+  float mShadowOffset = 3.f;
+  float mFrameThickness = 2.f;
+  bool mDrawFrame = true;
+  bool mDrawShadows = true;
+  bool mEmboss = false;
 };
 
 /** A basic control to fill a rectangle with a color */
-class IPanelControl : public IControl, public IVectorBase
+class IPanelControl : public IControl
 {
 public:
   IPanelControl(IDelegate& dlg, IRECT bounds, const IColor& color)
   : IControl(dlg, bounds)
-  , IVectorBase(&color)
-  {}
+  , mColor(color)
+  {
+  }
 
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(mColor, mRECT);
+  }
+  
+private:
+  IColor mColor;
 };
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */
 class IBitmapControl : public IControl
+                     , public IBitmapBase
 {
 public:
   /** Creates a bitmap control with a given parameter
-   * @param paramIdx Parameter index (-1 or KNoParameter, if this should not be linked to a parameter)
-   * @param bitmap Image to be drawn
-  */
+   * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
+   * @param bitmap Image to be drawn */
   IBitmapControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-    mBlend = blend;
-  }
+  , IBitmapBase(bitmap, blend)
+  {}
 
   /** Creates a bitmap control without a parameter */
   IBitmapControl(IDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
-  , mBitmap(bitmap)
+  , IBitmapBase(bitmap, blend)
   {
-    mBlend = blend;
   }
 
   virtual ~IBitmapControl() {}
 
-  virtual void Draw(IGraphics& graphics) override;
+  virtual void Draw(IGraphics& g) override;
 
-  /** Implement to do something when graphics is scaled globally (e.g. moves to hidpi screen),
+  /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
-
-protected:
-  IBitmap mBitmap;
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
+  }
 };
 
 /** A basic control to draw an SVG image to the screen. */
@@ -401,8 +538,11 @@ public:
 
   virtual ~ISVGControl() {}
 
-  virtual void Draw(IGraphics& graphics) override;
-
+  virtual void Draw(IGraphics& g) override
+  {
+    g.DrawSVG(mSVG, mRECT);
+  }
+  
 private:
   //TODO: cache the SVG to intermediate bitmap?
   ISVG mSVG;
@@ -424,7 +564,7 @@ public:
   virtual void SetTextFromDelegate(const char* str);
   virtual void ClearTextFromDelegate() { SetTextFromDelegate(""); }
 
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
 
 protected:
   WDL_String mStr;
@@ -437,7 +577,7 @@ public:
   ~ICaptionControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void Draw(IGraphics& graphics) override;
+  void Draw(IGraphics& g) override;
 
 protected:
   bool mShowParamLabel;
@@ -467,19 +607,49 @@ protected:
   double mGearing;
 };
 
+class ISliderControlBase : public IControl
+{
+public:
+  ISliderControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+                     EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+  : IControl(dlg, bounds, paramIdx)
+  , mDirection(dir)
+  , mOnlyHandle(onlyHandle)
+  {
+    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+  }
+  
+  ISliderControlBase(IDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+                     EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+  : IControl(dlg, bounds, aF)
+  , mDirection(dir)
+  , mOnlyHandle(onlyHandle)
+  {
+    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+  }
+  
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  
+protected:
+  EDirection mDirection;
+  IRECT mTrack;
+  bool mOnlyHandle;
+  int mHandleSize;
+};
+
 /** Parent for switch controls (including buttons a.k.a. momentary switches)*/
 class ISwitchControlBase : public IControl
 {
 public:
   ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
-    uint32_t numStates = 2);
+    int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-
 protected:
-  uint32_t mNumStates;
+  int mNumStates;
 };
 
 /** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
@@ -514,3 +684,6 @@ protected:
   WDL_PtrList<WDL_String> mFiles;
   WDL_String mExtension;
 };
+
+void DefaultAnimationFunc(IControl* pCaller);
+void DefaultClickActionFunc(IControl* pCaller);

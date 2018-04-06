@@ -49,8 +49,7 @@ public:
   bool WindowIsOpen() override;
   void Resize(int w, int h) override;
 
-  void HideMouseCursor() override;
-  void ShowMouseCursor() override;
+  void HideMouseCursor(bool hide) override;
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
@@ -68,6 +67,7 @@ public:
 //   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override;
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext) override;
+  void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& bounds) override;

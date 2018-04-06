@@ -8,6 +8,8 @@ static const int DEFAULT_FPS = 25;
 // Only looked at if USE_IDLE_CALLS is defined.
 static const int IDLE_TICKS = 20;
 
+#define DEFAULT_ANIMATION_DURATION 200
+
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
@@ -36,6 +38,9 @@ const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_MAC
 const char* const DEFAULT_FONT = "Monaco";
 const int DEFAULT_TEXT_SIZE = 10;
+#ifndef DEFAULT_PATH
+static const char* DEFAULT_PATH = "~/Desktop";
+#endif
 #elif defined OS_LINUX
 const char* const DEFAULT_FONT = "DejaVu Sans";
 const int DEFAULT_TEXT_SIZE = 10;
@@ -69,13 +74,17 @@ enum EDirection
 
 enum EVColor
 {
-  kBG = 0, // background
-  kFG,     // foreground
-  kFR,     // frame
-  kHL,     // highlight
-  kX1,     // extra1
-  kX2,     // extra2
-  kX3,     // extra3
+  kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
+  kFG,        // foreground
+  kOFF = kFG, // off states will use the same color as kFG to fill
+  kPR,        // pressed
+  kON = kPR,  // on states will use the same color as kPR to fill
+  kFR,        // frame: the color of the stroke/borders
+  kHL,        // highlight: mouse over or focus
+  kSH,        // shadow
+  kX1,        // extra1
+  kX2,        // extra2
+  kX3,        // extra3
   kNumDefaultVColors
 };
 

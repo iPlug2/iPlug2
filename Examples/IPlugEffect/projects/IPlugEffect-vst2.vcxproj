@@ -31,6 +31,7 @@
     <ProjectGuid>{2EB4846A-93E0-43A0-821E-12237105168F}</ProjectGuid>
     <RootNamespace>IPlugEffect</RootNamespace>
     <ProjectName>IPlugEffect-vst2</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -252,6 +253,9 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffectx.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVDropDownListControl.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVKeyboardControl.h" />
+    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
@@ -345,6 +349,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls\IVMeterControl.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>

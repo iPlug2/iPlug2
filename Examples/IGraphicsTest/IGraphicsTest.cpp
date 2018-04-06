@@ -2,6 +2,8 @@
 
 #include "IPlugParameter.h"
 #include "IControls.h"
+#include "IVDropDownListControl.h"
+#include "Easing.h"
 
 #define MAC_TITLEBAR_BODGE 22
 
@@ -22,26 +24,46 @@ void IGraphicsTest::init()
   pGraphics->OpenWindow((void*)gHWND);
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);
-  //  pGraphics->EnableLiveEdit(true);
+//  pGraphics->EnableLiveEdit(true);
 
-  const int nRows = 2;
-  const int nColumns = 2;
+  const int nRows = 10;
+  const int nColumns = 10;
   IRECT bounds = pGraphics->GetBounds();
+  
 
-  IRECT cellRect = bounds.GetGridCell(0, nRows, nColumns);
-  pGraphics->AttachControl(new IVSwitchControl(*this, cellRect, kNoParameter, [pGraphics, this](IControl* pCaller)
+  for (int i = 0; i < 50; i++)
   {
-    pGraphics->Resize(gSizes[mSizeIdx], gSizes[mSizeIdx], 1.);
-    mSizeIdx = mSizeIdx + 1;
-    mSizeIdx %= 4;
-  }));
-  //  for (int i = 0; i < nRows * nColumns; i++)
-  //  {
-  //    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
-  //    pGraphics->AttachControl(new IVKnobControl(dummyDelegate, cellBounds, kGain));
-  //  }
+    IRECT cellBounds = bounds.GetGridCell(i, nRows, nColumns).GetPadded(-5.);
+    IRECT endRect = bounds.GetGridCell(i + 50, nRows, nColumns).GetPadded(-5.);;
+    
+    IVSwitchControl* pSw = new IVSwitchControl(*this, cellBounds);
+    pGraphics->AttachControl(pSw);
 
-  mGraphics = pGraphics;
+//    IAnimationFunction animationFunction = [pGraphics, cellBounds, endRect](IControl* pCaller)
+//    {
+//      auto progress = pCaller->GetAnimationProgress();
+//      printf("%f progress\n", progress);
+//
+//      if(progress > 1.)
+//      {
+//        pCaller->EndAnimation();
+//        return;
+//      }
+//      
+//      IRECT nb;
+//      IRECT::LinearInterpolateBetween(cellBounds, endRect, nb, IEaseSineOut(progress));
+//      pCaller->SetTargetAndDrawRECTs(nb);
+//      pCaller->Animate(progress);
+//    };
+//
+//    IActionFunction actionFunction = [animationFunction, pGraphics](IControl* pCaller)
+//    {
+//      pCaller->SetAnimation(animationFunction, 1000);
+//    };
+//    
+//    pSw->SetActionFunction(actionFunction);
+  }
+
 #endif
 }
 
