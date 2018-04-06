@@ -61,7 +61,7 @@ public:
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->ShowMouseCursor();
+    GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
 
@@ -110,7 +110,7 @@ public:
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->ShowMouseCursor();
+    GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
 

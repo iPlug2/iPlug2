@@ -37,8 +37,7 @@ public:
 
   void Resize(int w, int h, float scale) override;
 
-  void HideMouseCursor() override;
-  void ShowMouseCursor() override;
+  void HideMouseCursor(bool hide) override;
   void MoveMouseCursor(float x, float y) override { /* TODO - Oli - I have code for this - Alex */ };
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
@@ -117,12 +116,6 @@ private:
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-
-  float mMouseX;
-  float mMouseY;
-  float mHiddenMousePointX = -1;
-  float mHiddenMousePointY = -1;
-
 public:
   static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

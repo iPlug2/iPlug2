@@ -461,11 +461,8 @@ private:
 public:
     
 #pragma mark - IGraphics platform implementation
-  /** Call to hide the mouse cursor */
-  virtual void HideMouseCursor() {};
-
-  /** Call to show the mouse cursor when it is hidden */
-  virtual void ShowMouseCursor() {};
+  /** Call to hide the mouse cursor */ 
+  virtual void HideMouseCursor(bool hide = true, bool returnToStartPosition = true) {};
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
@@ -778,7 +775,7 @@ public:
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
 
-  /***/
+  /** Used to tell the graphics context to stop tracking mouse interaction with a control \todo internal only? */
   void ReleaseMouseCapture();
 
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
@@ -875,8 +872,6 @@ public:
 #endif
   
 protected:
-  IDelegate& mDelegate;
-
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
@@ -885,12 +880,15 @@ protected:
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
+protected:
+  IDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mTabletInput = false;
-
+  float mCursorX = -1.f;
+  float mCursorY = -1.f;
 private:
   int GetMouseControlIdx(float x, float y, bool mo = false);
 
