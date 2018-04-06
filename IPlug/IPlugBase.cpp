@@ -256,11 +256,48 @@ void IPlugBase::CopyParamValues(int startIdx, int destIdx, int nParams)
   }
 }
 
+void IPlugBase::CopyParamValues(const char* inGroup, const char *outGroup)
+{
+  WDL_PtrList<IParam> inParams, outParams;
+  
+  for (auto p = 0; p < NParams(); p++)
+  {
+    IParam* pParam = GetParam(p);
+    if(strcmp(pParam->GetGroupForHost(), inGroup) == 0)
+    {
+      inParams.Add(pParam);
+    }
+    else if(strcmp(pParam->GetGroupForHost(), outGroup) == 0)
+    {
+      outParams.Add(pParam);
+    }
+  }
+  
+  assert(inParams.GetSize() == outParams.GetSize());
+  
+  for (auto p = 0; p < inParams.GetSize(); p++)
+  {
+    outParams.Get(p)->Set(inParams.Get(p)->Value());
+  }
+}
+
 void IPlugBase::ModifyParamValues(int startIdx, int endIdx, std::function<void(IParam&)>func)
 {
   for (auto p = startIdx; p <= endIdx; p++)
   {
     func(* GetParam(p));
+  }
+}
+
+void IPlugBase::ModifyParamValues(const char* paramGroup, std::function<void (IParam &)> func)
+{
+  for (auto p = 0; p < NParams(); p++)
+  {
+    IParam* pParam = GetParam(p);
+    if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+    {
+      func(*pParam);
+    }
   }
 }
 
@@ -270,6 +307,14 @@ void IPlugBase::DefaultParamValues(int startIdx, int endIdx)
                                         {
                                           param.SetToDefault();
                                         });
+}
+
+void IPlugBase::DefaultParamValues(const char* paramGroup)
+{
+  ModifyParamValues(paramGroup, [](IParam& param)
+                    {
+                      param.SetToDefault();
+                    });
 }
 
 void IPlugBase::RandomiseParamValues(int startIdx, int endIdx)
@@ -283,6 +328,20 @@ void IPlugBase::RandomiseParamValues(int startIdx, int endIdx)
                                         param.SetNormalized(dis(gen));
                                       });
 }
+
+void IPlugBase::RandomiseParamValues(const char *paramGroup)
+{
+  std::random_device rd;
+  std::default_random_engine gen(rd());
+  std::uniform_real_distribution<> dis(0., 1.);
+  
+  ModifyParamValues(paramGroup, [&gen, &dis](IParam& param)
+                    {
+                      param.SetNormalized(dis(gen));
+                    });
+}
+
+
 
 
 

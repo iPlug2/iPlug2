@@ -199,6 +199,8 @@ public:
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
   virtual void InformHostOfProgramChange() {};
   
+#pragma mark - Parameter methods
+  
   /** Initialise a range of parameters simultaneously. This mirrors the arguments available in IParam::InitDouble, for maximum flexibility
    * @param startIdx The index of the first parameter to initialise
    * @param endIdx The index of the last parameter to initialise
@@ -225,27 +227,45 @@ public:
    * @param newGroup If the new parameter should have a different group, update here */
   void CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
   
-  /** Modify a range of parameter values with a lamda function
+  /** Modify a range of parameters with a lamda function
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify
-   * @param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default */
+   * @param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default, modify certain params based on their group */
   void ModifyParamValues(int startIdx, int endIdx, std::function<void(IParam& param)> func);
   
+  /** Modify a parameter group simulataneously
+   * @param paramGroup The name of the group to modify
+   * @param param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
+  void ModifyParamValues(const char* paramGroup, std::function<void(IParam& param)> func);
+
   /** Copy a range of parameter values
    * @param startIdx The index of the first parameter value to copy
    * @param destIdx The index of the first destination parameter
    * @param nParams The number of parameters to copy */
   void CopyParamValues(int startIdx, int destIdx, int nParams);
   
+  /** Copy a range of parameter values for a parameter group
+   * @param inGroup The name of the group to copy from
+   * @param outGroup The name of the group to copy to */
+  void CopyParamValues(const char* inGroup, const char* outGroup);
+  
   /** Randomise parameter values within a range. NOTE for more flexibility in terms of RNG etc, use ModifyParamValues()
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
   void RandomiseParamValues(int startIdx, int endIdx);
   
+  /** Randomise parameter values for a parameter group
+   * @param paramGroup The name of the group to modify */
+  void RandomiseParamValues(const char* paramGroup);
+  
   /** Default parameter values within a range.
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
   void DefaultParamValues(int startIdx, int endIdx);
+  
+  /** Default parameter values for a parameter group
+   * @param paramGroup The name of the group to modify */
+  void DefaultParamValues(const char* paramGroup);
   
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
