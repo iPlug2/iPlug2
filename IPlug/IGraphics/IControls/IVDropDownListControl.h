@@ -31,29 +31,41 @@ public:
       for (int i = 0; i < GetParam()->NDisplayTexts(); ++i)
         mButtonLabels.Add(new WDL_String(GetParam()->GetDisplayTextAtIdx(i)));
     }
+    
+    SetActionFunction(DefaultClickActionFunc);
   }
 
   ~IVDropDownListControl()
   {
     mButtonLabels.Empty(true);
   }
+  
+  void Animate(double progress) override
+  {
+    mFlashCircleRadius = progress * mRECT.W() / 2.;
+    SetDirty(false);
+  }
 
   void Draw(IGraphics& g) override
   {
-    IRECT ir = GetCollapsedBounds();
-    const float cornerRadius = mRoundness * (ir.GetLengthOfShortestSide() / 2.);
+    g.FillRect(GetColor(kBG), mRECT);
 
-    IColor shadowColor = IColor(60, 0, 0, 0);
+    IRECT collapsedBounds = GetCollapsedBounds();
+    
+    const float cornerRadius = mRoundness * (collapsedBounds.GetLengthOfShortestSide() / 2.);
 
     if (!mExpanded)
     {
       if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(shadowColor, ir.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+        g.FillRoundRect(GetColor(kSH), collapsedBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
-      g.FillRoundRect(GetColor(kFG), ir, cornerRadius);
+      g.FillRoundRect(GetColor(kFG), collapsedBounds, cornerRadius);
+
+      if(mMouseIsOver)
+        g.FillRoundRect(GetColor(kHL), collapsedBounds, cornerRadius);
 
       if (mDrawFrame)
-        g.DrawRoundRect(GetColor(kFR), ir, cornerRadius);
+        g.DrawRoundRect(GetColor(kFR), collapsedBounds, cornerRadius, 0, mFrameThickness);
 
       Collapse(); // Collapse here to clean the expanded area
     }
@@ -61,8 +73,14 @@ public:
     {
       int sx = -1;
       int sy = 0;
-      const float rw = ir.W();
-      const float rh = ir.H();
+      
+      GetAdjustedHandleBounds(collapsedBounds);
+      
+      const float rw = collapsedBounds.W() + mShadowOffset; //TODO: what if no shadow
+      const float rh = collapsedBounds.H() + mShadowOffset;
+      
+      float xshift = mRECT.L - collapsedBounds.L; // TODO: something wrong here, when flush with right of UI
+      float yshift = mRECT.T - collapsedBounds.T;
       // now just shift the rects and draw them
       for (int v = 0; v < NButtons(); ++v)
       {
@@ -72,23 +90,32 @@ public:
           sy = 0;
         }
 
-        IRECT vR = ir.GetShifted(sx * rw, sy * rh);
+        IRECT vR = mCollapsedBounds.GetShifted(sx * rw, sy * rh);
+        vR = GetAdjustedHandleBounds(vR);
+        vR.Shift(xshift, yshift);
 
         if (v != mState)
           g.FillRoundRect(GetColor(kFG), vR, cornerRadius);
         else
         {
           if (mDrawShadows)
-            g.FillRoundRect(shadowColor, vR.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+            g.FillRoundRect(GetColor(kSH), vR.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
 
           g.FillRoundRect(GetColor(kPR), vR, cornerRadius);
         }
 
         if (mDrawFrame)
-          g.DrawRoundRect(GetColor(kFR), vR, cornerRadius);
+          g.DrawRoundRect(GetColor(kFR), vR, cornerRadius, 0, mFrameThickness);
 
         ++sy;
       }
+    }
+    
+    if(GetAnimationFunction())
+    {
+      float mouseDownX, mouseDownY;
+      g.GetMouseDownPoint(mouseDownX, mouseDownY);
+      g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
     }
   }
 
@@ -133,7 +160,7 @@ public:
   {
     int ns = mState;
     ns += (int) d;
-    ns = BOUNDED(ns, 0, NButtons() - 1);
+    ns = Clip(ns, 0, NButtons() - 1);
 
     if (ns != mState)
     {
@@ -150,16 +177,17 @@ public:
     {
       mLastX = x;
       mLastY = y;
-      IRECT er = GetExpandedBounds();
-      if (mExpanded && er.Contains(x, y))
+      IRECT expandedBounds = GetExpandedBounds();
+      
+      if (mExpanded && expandedBounds.Contains(x, y))
       {
-        float rx = x - er.L;
-        float ry = y - er.T;
+        float rx = x - expandedBounds.L;
+        float ry = y - expandedBounds.T;
 
-        IRECT cr = GetCollapsedBounds();
+        IRECT collapsedBounds = GetCollapsedBounds();
 
-        int ix = (int)(rx / cr.W());
-        int iy = (int)(ry / cr.H());
+        int ix = (int)(rx / collapsedBounds.W());
+        int iy = (int)(ry / collapsedBounds.H());
 
         int i = ix * mListHeight + iy;
 
@@ -242,17 +270,7 @@ private:
 
   IRECT GetCollapsedBounds()
   {
-    IRECT ir = mCollapsedBounds;
-
-    if (mDrawShadows && !mEmboss)
-      ir.GetShifted(-mShadowOffset, -mShadowOffset);
-
-    if (mExpanded)
-      ir = ir.GetShifted(mRECT.L - ir.L, mRECT.T - ir.T);
-    // if mRECT didn't fit and was shifted.
-    // will be different for some other expand directions
-
-    return ir;
+    return GetAdjustedHandleBounds(mCollapsedBounds);
   }
 
   IRECT GetExpandedBounds()
@@ -268,22 +286,22 @@ private:
   void Expand()
   {
     // expand from top left of init Rect
-    IRECT cr = GetCollapsedBounds();
-    const float l = cr.L;
-    const float t = cr.T;
+    IRECT collapsedBounds = GetCollapsedBounds();
+    const float l = collapsedBounds.L;
+    const float t = collapsedBounds.T;
     // if num states > max list height, we need more columns
     float w = (float) NButtons() / mListHeight;
     if (w < 1.0) w = 1.0;
     else w += 0.5;
     w = std::round(w);
-    w *= cr.W();
+    w *= (collapsedBounds.W() + mShadowOffset);
 
     float h = 0.f;
 
     if (NButtons() > mListHeight)
-      h = (float) mListHeight * cr.H();
+      h = (float) mListHeight * (collapsedBounds.H() + mShadowOffset);
     else
-      h = NButtons() * cr.H();
+      h = NButtons() * (collapsedBounds.H() + mShadowOffset);
 
     // TODO: mDirection
     IRECT _mRECT = mRECT;
@@ -291,11 +309,11 @@ private:
 
     _mRECT = IRECT(l, t, l + w, t + h);
 
-    if (mDrawShadows && !mEmboss)
-      _mRECT.GetShifted(mShadowOffset, mShadowOffset);
+//    if (mDrawShadows && !mEmboss)
+//      _mRECT.GetShifted(mShadowOffset, mShadowOffset);
 
     // we don't want expansion to collapse right around the borders, that'd be very UI unfriendly
-    _mTargetRECT = _mRECT.GetPadded(20.0); // todo perhaps padding should depend on display dpi
+//    _mTargetRECT = _mRECT.GetPadded(20.0); // todo perhaps padding should depend on display dpi
     // expansion may get over the bounds. if so, shift it
 
     IRECT uir = GetUI()->GetBounds();
@@ -340,12 +358,12 @@ private:
   IRECT mCollapsedBounds;
   EDirection mDirection;
   WDL_PtrList<WDL_String> mButtonLabels;
-
+  float mGap = 5.f;
   bool mExpanded = false;
   float mLastX = -1.0;
   float mLastY = -1.0;
   int mState = -1;
-
+  float mFlashCircleRadius = 0.f;
   int mListHeight = 3; // how long the list can get before adding a new column/row
 };
 

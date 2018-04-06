@@ -331,6 +331,7 @@ typedef struct WindowPropRec
 -(void *)swellGetProp:(const char *)name wantRemove:(BOOL)rem;
 -(int)swellSetProp:(const char *)name value:(void *)val ;
 -(NSOpenGLContext *)swellGetGLContext;
+- (void) setEnabledSwellNoFocus;
 
 // NSAccessibility
 
@@ -1075,7 +1076,7 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(group_text,RGB(0,0,0)) \
   fd(group_shadow, RGB(96,96,96), _3dshadow) \
   fd(group_hilight, RGB(224,224,224), _3dhilight) \
-  f(focus_hilight, RGB(192,192,255)) \
+  f(focus_hilight, RGB(140,190,233)) \
 
   
 

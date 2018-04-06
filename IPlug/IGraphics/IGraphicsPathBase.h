@@ -52,6 +52,16 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
+  void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override
+  {
+    float dashLength = 2;
+    IStrokeOptions options;
+    options.mDash.SetDash(&dashLength, 0.0, 1);
+    PathMoveTo(x1, y1);
+    PathLineTo(x2, y2);
+    PathStroke(color, thickness, options, pBlend);
+  }
+  
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness) override
   {
     PathTriangle(x1, y1, x2, y2, x3, y3);

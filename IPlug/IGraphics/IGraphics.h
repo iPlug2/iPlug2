@@ -123,6 +123,16 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
+  /** Draw a dotted line to the graphics context
+   * @param color The color to draw the shape with
+   * @param x1 The X coordinate in the graphics context of the start of the line
+   * @param y1 The Y coordinate in the graphics context of the start of the line
+   * @param x2 The X coordinate in the graphics context of the end of the line
+   * @param y2 The Y coordinate in the graphics context of the end of the line
+   * @param pBlend Optional blend method, see IBlend documentation
+   * @param thickness Optional line thickness */
+  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
    * @param x1 The X coordinate in the graphics context of the first vertex
@@ -451,11 +461,8 @@ private:
 public:
     
 #pragma mark - IGraphics platform implementation
-  /** Call to hide the mouse cursor */
-  virtual void HideMouseCursor() {};
-
-  /** Call to show the mouse cursor when it is hidden */
-  virtual void ShowMouseCursor() {};
+  /** Call to hide the mouse cursor */ 
+  virtual void HideMouseCursor(bool hide = true, bool returnToStartPosition = true) {};
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
@@ -518,6 +525,10 @@ public:
    * @param action Determines whether this is an open dialog or a save dialog
    * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
   virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
+
+  /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
+   * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */
+  virtual void PromptForDirectory(WDL_String& dir) = 0;
 
   /** Create a platform color chooser dialog. NOTE: this method will block the main thread
    * @param color When a color is chosen the IColor referenced will be updated with the new color
@@ -764,7 +775,7 @@ public:
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
 
-  /***/
+  /** Used to tell the graphics context to stop tracking mouse interaction with a control \todo internal only? */
   void ReleaseMouseCapture();
 
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
@@ -861,8 +872,6 @@ public:
 #endif
   
 protected:
-  IDelegate& mDelegate;
-
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
@@ -871,12 +880,15 @@ protected:
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
+protected:
+  IDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mTabletInput = false;
-
+  float mCursorX = -1.f;
+  float mCursorY = -1.f;
 private:
   int GetMouseControlIdx(float x, float y, bool mo = false);
 

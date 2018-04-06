@@ -38,6 +38,9 @@ const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_MAC
 const char* const DEFAULT_FONT = "Monaco";
 const int DEFAULT_TEXT_SIZE = 10;
+#ifndef DEFAULT_PATH
+static const char* DEFAULT_PATH = "~/Desktop";
+#endif
 #elif defined OS_LINUX
 const char* const DEFAULT_FONT = "DejaVu Sans";
 const int DEFAULT_TEXT_SIZE = 10;
@@ -78,7 +81,7 @@ enum EVColor
   kON = kPR,  // on states will use the same color as kPR to fill
   kFR,        // frame: the color of the stroke/borders
   kHL,        // highlight: mouse over or focus
-//  kTXT,       // text
+  kSH,        // shadow
   kX1,        // extra1
   kX2,        // extra2
   kX3,        // extra3

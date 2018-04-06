@@ -256,6 +256,7 @@ const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
 
 const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
 const IColor DEFAULT_HLCOLOR = COLOR_TRANSLUCENT;
+const IColor DEFAULT_SHCOLOR = IColor(60, 0, 0, 0);
 const IColor DEFAULT_X1COLOR = COLOR_RED;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
 const IColor DEFAULT_X3COLOR = COLOR_BLUE;
@@ -270,6 +271,7 @@ struct IVColorSpec
   IColor mPRColor = DEFAULT_PRCOLOR;
   IColor mFRColor = DEFAULT_FRCOLOR;
   IColor mHLColor = DEFAULT_HLCOLOR;
+  IColor mSHColor = DEFAULT_SHCOLOR;
   IColor mX1Color = DEFAULT_X1COLOR;
   IColor mX2Color = DEFAULT_X2COLOR;
   IColor mX3Color = DEFAULT_X3COLOR;
@@ -279,6 +281,7 @@ struct IVColorSpec
                  const IColor PRColor = DEFAULT_PRCOLOR,
                  const IColor FRColor = DEFAULT_FRCOLOR,
                  const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor SHColor = DEFAULT_SHCOLOR,
                  const IColor X1Color = DEFAULT_X1COLOR,
                  const IColor X2Color = DEFAULT_X2COLOR,
                  const IColor X3Color = DEFAULT_X3COLOR)
@@ -630,6 +633,48 @@ struct IRECT
   {
     return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
   }
+  
+  inline IRECT Pad(float padding)
+  {
+    L -= padding;
+    T -= padding;
+    R += padding;
+    B += padding;
+  }
+  
+  inline IRECT Pad(float padL, float padT, float padR, float padB)
+  {
+    L += padL;
+    T += padT;
+    R += padR;
+    B += padB;
+  }
+  
+  inline IRECT HPad(float padding)
+  {
+    L -= padding;
+    R += padding;
+  }
+  
+  inline IRECT VPad(float padding)
+  {
+    T -= padding;
+    B += padding;
+  }
+  
+  inline IRECT MidHPad(float padding)
+  {
+    const float mw = MW();
+    L = mw - padding;
+    R = mw + padding;
+  }
+  
+  inline IRECT MidVPad(float padding)
+  {
+    const float mh = MH();
+    T = mh - padding;
+    B = mh + padding;
+  }
 
   inline IRECT GetPadded(float padding) const
   {
@@ -832,7 +877,7 @@ struct IRECT
     return r;
   }
   
-  float GetLengthOfShortestSide()
+  float GetLengthOfShortestSide() const
   {
     if(W() < H())
        return W();

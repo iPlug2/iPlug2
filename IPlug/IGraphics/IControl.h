@@ -144,6 +144,7 @@ public:
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
   bool GetMOWhenGrayed() const { return mMOWhenGrayed; }
   bool GetMEWhenGrayed() const { return mMEWhenGrayed; }
+  bool GetIgnoreMouse() const { return mIgnoreMouse; }
 
   // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
@@ -218,7 +219,7 @@ public:
 
   bool GetMouseIsOver() { return mMouseIsOver; }
   
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds);
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
   
   virtual void Animate(double progress) {}
 
@@ -274,6 +275,7 @@ protected:
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
   bool mMEWhenGrayed = false;
+  bool mIgnoreMouse = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;
@@ -300,6 +302,27 @@ private:
 
 #pragma mark - BASIC CONTROLS AND BASE CLASSES
 
+class IBitmapBase
+{
+public:
+  IBitmapBase(IBitmap& bitmap, EBlendType blend = kBlendNone)
+  : mBitmap(bitmap)
+  , mBlend(blend)
+  {
+  }
+  
+  virtual ~IBitmapBase() {}
+  
+  void GrayOut(bool gray)
+  {
+    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+  }
+
+protected:
+  IBitmap mBitmap;
+  IBlend mBlend;
+};
+
 /** A An interface for IVControls, in order for them to share a common set of colors. If you need more flexibility for theming, you're on your own! */
 class IVectorBase
 {
@@ -309,11 +332,12 @@ public:
               const IColor* pPRColor = &DEFAULT_PRCOLOR,
               const IColor* pFRColor = &DEFAULT_FRCOLOR,
               const IColor* pHLColor = 0,
+              const IColor* pSHColor = 0,
               const IColor* pX1Color = 0,
               const IColor* pX2Color = 0,
               const IColor* pX3Color = 0)
   {
-    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pX1Color, pX2Color, pX3Color);
+    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
   IVectorBase(const IVColorSpec& spec)
@@ -323,6 +347,7 @@ public:
               &spec.mPRColor,
               &spec.mFRColor,
               &spec.mHLColor,
+              &spec.mSHColor,
               &spec.mX1Color,
               &spec.mX2Color,
               &spec.mX3Color);
@@ -340,6 +365,7 @@ public:
                  const IColor* pPRColor = 0,
                  const IColor* pFRColor = 0,
                  const IColor* pHLColor = 0,
+                 const IColor* pSHColor = 0,
                  const IColor* pX1Color = 0,
                  const IColor* pX2Color = 0,
                  const IColor* pX3Color = 0)
@@ -349,6 +375,7 @@ public:
     if(pPRColor) AddColor(*pPRColor);
     if(pFRColor) AddColor(*pFRColor);
     if(pHLColor) AddColor(*pHLColor);
+    if(pSHColor) AddColor(*pSHColor);
     if(pX1Color) AddColor(*pX1Color);
     if(pX2Color) AddColor(*pX2Color);
     if(pX3Color) AddColor(*pX3Color);
@@ -367,6 +394,7 @@ public:
                  const IColor& PRColor,
                  const IColor& FRColor,
                  const IColor& HLColor,
+                 const IColor& SHColor,
                  const IColor& X1Color,
                  const IColor& X2Color,
                  const IColor& X3Color)
@@ -376,6 +404,7 @@ public:
     mColors.Get()[kPR] = PRColor;
     mColors.Get()[kFR] = FRColor;
     mColors.Get()[kHL] = HLColor;
+    mColors.Get()[kSH] = SHColor;
     mColors.Get()[kX1] = X1Color;
     mColors.Get()[kX2] = X2Color;
     mColors.Get()[kX3] = X3Color;
@@ -390,6 +419,7 @@ public:
               spec.mPRColor,
               spec.mFRColor,
               spec.mHLColor,
+              spec.mSHColor,
               spec.mX1Color,
               spec.mX2Color,
               spec.mX3Color);
@@ -424,7 +454,7 @@ public:
   IRECT GetAdjustedHandleBounds(IRECT handleBounds)
   {
     if(mDrawFrame)
-      handleBounds.GetPadded(-mFrameThickness * 0.5f);
+      handleBounds.Pad(- 0.5 * mFrameThickness);
     
     if (mDrawShadows && !mEmboss)
       handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
@@ -435,7 +465,7 @@ public:
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mRoundness = 0.1f;
+  float mRoundness = 0.f;
   float mShadowOffset = 3.f;
   float mFrameThickness = 2.f;
   bool mDrawFrame = true;
@@ -464,6 +494,7 @@ private:
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */
 class IBitmapControl : public IControl
+                     , public IBitmapBase
 {
 public:
   /** Creates a bitmap control with a given parameter
@@ -471,17 +502,14 @@ public:
    * @param bitmap Image to be drawn */
   IBitmapControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-    mBlend = blend;
-  }
+  , IBitmapBase(bitmap, blend)
+  {}
 
   /** Creates a bitmap control without a parameter */
   IBitmapControl(IDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
-  , mBitmap(bitmap)
+  , IBitmapBase(bitmap, blend)
   {
-    mBlend = blend;
   }
 
   virtual ~IBitmapControl() {}
@@ -491,10 +519,12 @@ public:
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   virtual void OnRescale() override;
-
-protected:
-  IBitmap mBitmap;
-  IBlend mBlend;
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
+  }
 };
 
 /** A basic control to draw an SVG image to the screen. */

@@ -256,19 +256,19 @@ const IParam* IControl::GetParam()
     return nullptr;
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds)
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO:! */)
 {
   bounds.Constrain(x, y);
-  
+
   float val;
-  
+
   if(direction == kVertical)
-    val = 1.f - (y-bounds.T) / bounds.H();
+    val = 1.f - (y-bounds.T) / bounds.H(); //mValue = 1.0 - (double) (y - (mRECT.B - (mRECT.H()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
   else
-    val = 1.f - (x-bounds.B) / bounds.W();
-  
+    val = 1.f - (x-bounds.B) / bounds.W(); //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
+
   mValue = round( val / 0.001 ) * 0.001;
-  
+
   SetDirty(); // will send parameter value to delegate
 }
 
@@ -323,7 +323,7 @@ ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, con
 , mShowParamLabel(showParamLabel)
 {
   assert(paramIdx > kNoParameter);
-  
+
   mParamIdx = paramIdx;
   mDblAsSingleClick = true;
   mDisablePrompt = false;
@@ -340,18 +340,18 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
-  
+
   if(pParam)
   {
     pParam->GetDisplayForHost(mStr);
-    
+
     if (mShowParamLabel)
     {
       mStr.Append(" ");
       mStr.Append(pParam->GetLabelForHost());
     }
   }
-  
+
   return ITextControl::Draw(g);
 }
 

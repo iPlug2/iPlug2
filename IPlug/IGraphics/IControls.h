@@ -23,7 +23,11 @@ public:
 
   void Draw(IGraphics& g) override;
 
-  void Animate(double progress) override { mFlashCircleRadius = progress * mRECT.W() / 2.; SetDirty(false); }
+  void Animate(double progress) override
+  {
+    mFlashCircleRadius = progress * mRECT.W() / 2.;
+    SetDirty(false);
+  }
 
 private:
   float mStep;
@@ -46,7 +50,7 @@ public:
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   
-  ~IVKnobControl() {}
+  virtual ~IVKnobControl() {}
 
   void Draw(IGraphics& g) override;
   
@@ -107,7 +111,9 @@ public:
     AttachIControl(this);
   }
   
-  void Draw(IGraphics& g) override;
+  virtual ~IVSliderControl() {}
+  
+  virtual void Draw(IGraphics& g) override;
   void OnResize() override;
 };
 
@@ -118,7 +124,7 @@ public:
   : IVSwitchControl(dlg, bounds, paramIdx)
   {};
 
-  ~IVContactControl() {};
+  virtual ~IVContactControl() {};
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
@@ -135,90 +141,124 @@ class IBSwitchControl : public IBitmapControl
 public:
   IBSwitchControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap)
   : IBitmapControl(dlg, x, y, paramIdx, bitmap) {}
-  ~IBSwitchControl() {}
+  virtual ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
 };
 
-/** A slider with a bitmap for the handle. The bitmap snaps to a mouse click or drag. */
-//class IBSliderControl : public IControl
-//{
-//public:
-//  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
-//                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
-//  ~IBSliderControl() {}
-//
-//  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-//  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { return SnapToMouse(x, y, mDirection, mTrack); }
-//  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-//  virtual void Draw(IGraphics& g) override;
-//  virtual bool IsHit(float x, float y) const override;
-//  virtual void OnRescale() override;
-//  virtual void OnResize() override;
-//
-//  int GetLength() const { return mLen; }
-//  int GetHandleHeadroom() const { return mHandleHeadroom; }
-//  double GetHandleValueHeadroom() const { return (double) mHandleHeadroom / (double) mLen; }
-//  IRECT GetHandleRECT(double value = -1.0) const;
-//protected:
-////  virtual void SnapToMouse(float x, float y);
-//  int mLen, mHandleHeadroom;
-//  IBitmap mHandleBitmap;
-//  EDirection mDirection;
-//  IRECT mTrack;
-//  bool mOnlyHandle;
-//};
-
-class IBSliderControl : public ISliderControlBase
+/** A bitmap knob/dial control */
+class IBKnobControl : public IKnobControlBase
+                    , public IBitmapBase
 {
 public:
-  IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& handleBitmap,
+  IBKnobControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
+  , IBitmapBase(bitmap)
+  {
+  }
+  
+  IBKnobControl(IDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
+  , IBitmapBase(bitmap)
+  {
+  }
+  
+  virtual ~IBKnobControl() {}
+  
+  virtual void Draw(IGraphics& g) override
+  {
+    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+  }
+  
+  void OnRescale() override
+  {
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
+  }
+};
+
+class IBKnobRotaterControl : public IBKnobControl
+{
+public:
+  IBKnobRotaterControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  : IBKnobControl(plug, IRECT(x, y, bitmap), bitmap, paramIdx)
+  {
+  }
+  
+  IBKnobRotaterControl(IDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  : IBKnobControl(plug, bounds.GetCentredInside(bitmap), bitmap, paramIdx)
+  {
+  }
+  
+  virtual ~IBKnobRotaterControl() {}
+
+  void Draw(IGraphics& g) override
+  {
+    double angle = -130.0 + mValue * 260.0;
+    g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
+  }
+};
+
+class IBSliderControl : public ISliderControlBase
+                      , public IBitmapBase
+{
+public:
+  IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
   
-  ~IBSliderControl() {}
+  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
+                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+  
+  virtual ~IBSliderControl() {}
 
   virtual void Draw(IGraphics& g) override;
   virtual void OnRescale() override;
   virtual void OnResize() override;
   
-  void GrayOut(bool gray) override
+  IRECT GetHandleRECT(double value = -1.0) const;
+
+  virtual void GrayOut(bool gray) override
   {
-    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+    IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
-  
-private:
-  IBitmap mHandleBitmap;
-  IBlend mBlend;
 };
 
 /** Display monospace bitmap font text */
 // TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
 class IBTextControl : public ITextControl
+                    , public IBitmapBase
 {
 public:
   IBTextControl(IDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
   : ITextControl(dlg, bounds, text, str)
+  , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
   , mCharOffset(charOffset)
   , mMultiLine(multiLine)
   , mVCentre(vCenter)
-  , mTextBitmap(bitmap)
-  , mBlend(blend)
   {
     mStr.Set(str);
   }
+  
+  virtual ~IBTextControl() {}
 
   void Draw(IGraphics& g) override
   {
-    g.DrawBitmapedText(mTextBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
+    g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
   
-  void GrayOut(bool gray) override
+  virtual void GrayOut(bool gray) override
   {
-    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+    IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
 
@@ -227,8 +267,6 @@ protected:
   int mCharWidth, mCharHeight, mCharOffset;
   bool mMultiLine;
   bool mVCentre;
-  IBitmap mTextBitmap;
-  IBlend mBlend;
 };
 
 /**@}*/

@@ -61,7 +61,7 @@ public:
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->ShowMouseCursor();
+    GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
 
@@ -110,7 +110,7 @@ public:
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->ShowMouseCursor();
+    GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
 
@@ -268,67 +268,5 @@ public:
 private:
 
   int mShape;
-};
-
-class IBKnobControl : public IKnobControlBase
-{
-public:
-  IBKnobControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-
-  IBKnobControl(IPlugBaseGraphics& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-
-  void Draw(IGraphics& g) override
-  {
-    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
-    g.DrawBitmap(mBitmap, mRECT, i);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-
-private:
-
-  IBitmap mBitmap;
-};
-
-class IBKnobRotaterControl : public IKnobControlBase
-{
-public:
-  IBKnobRotaterControl(IPlugBaseGraphics& plug, float x, float y, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-
-  IBKnobRotaterControl(IPlugBaseGraphics& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
-  , mBitmap(bitmap)
-  {
-  }
-
-  void Draw(IGraphics& g) override
-  {
-    double angle = -130.0 + mValue * 260.0;
-    g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-
-private:
-
-  IBitmap mBitmap;
 };
 

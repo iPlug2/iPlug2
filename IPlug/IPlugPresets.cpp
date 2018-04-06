@@ -335,6 +335,28 @@ void IPlugPresetHandler::DumpPresetSrcCode(const char* filename, const char* par
   }
 }
 
+void IPlugPresetHandler::DumpAllPresetsBlob(const char* filename)
+{
+  FILE* fp = fopen(filename, "w");
+  
+  char buf[MAX_BLOB_LENGTH] = "";
+  IByteChunk chnk;
+  
+  for (int i = 0; i< NPresets(); i++)
+  {
+    IPreset* pPreset = mPresets.Get(i);
+    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
+    
+    chnk.Clear();
+    chnk.PutChunk(&(pPreset->mChunk));
+    wdl_base64encode(chnk.GetBytes(), buf, chnk.Size());
+    
+    fprintf(fp, "%s\", %i, %i);\n", buf, chnk.Size(), pPreset->mChunk.Size());
+  }
+  
+  fclose(fp);
+}
+
 void IPlugPresetHandler::DumpPresetBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
