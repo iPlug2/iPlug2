@@ -1,7 +1,7 @@
 #include "IPlugWAM.h"
 
 IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPLUG_BASE_CLASS(c, kAPIWAM)
+  : IPlugBase(c, kAPIWAM)
   , IPlugProcessor<float>(c, kAPIWAM)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
@@ -40,7 +40,7 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
   json.Append("]\n}");
 
-  DBGMSG("%s\n", json.Get());
+//   DBGMSG("%s\n", json.Get());
 
   //TODO: correct place?
 //   OnReset();
@@ -50,24 +50,26 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
 void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
 {
+  DBGMSG("onProcess\n");
+
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere
-  _SetChannelConnections(ERoute::kOutput, 0, 2, true); //TODO: go elsewhere
+  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
   _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, GetBlockSize());
   _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, GetBlockSize());
   _ProcessBuffers((float) 0.0f, GetBlockSize());
 }
 
-//void IPlugWAM::onMidi(byte status, byte data1, byte data2)
-//{
-//  DBGMSG("onMidi\n");
-//}
+void IPlugWAM::onMidi(byte status, byte data1, byte data2)
+{
+  DBGMSG("onMidi\n");
+}
+
+void IPlugWAM::onParam(uint32_t idparam, double value)
+{
+  DBGMSG("onParam\n");
 //
-//void IPlugWAM::onParam(uint32_t idparam, double value)
-//{
-//  DBGMSG("onParam\n");
-//
-//  GetParam(idparam)->Set(value);
-//  OnParamChange(idparam);
-//}
+//   GetParam(idparam)->Set(value);
+//   OnParamChange(idparam);
+}
 
 

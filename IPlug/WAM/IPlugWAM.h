@@ -1,8 +1,8 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
-#include "IPlugBase_select.h"
-
+#include "IPlugBase.h"
+#include "IPlugProcessor.h"
 #include "processor.h"
 
 using namespace WAM;
@@ -13,7 +13,7 @@ struct IPlugInstanceInfo
 
 /** WebAudioModule (WAM) API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
  * @ingroup APIClasses */
-class IPlugWAM : public IPLUG_BASE_CLASS
+class IPlugWAM : public IPlugBase
                , public IPlugProcessor<float>
                , public Processor
 {
@@ -26,12 +26,12 @@ public:
   void resize(uint32_t bufsize) override { DBGMSG("resize"); }
 
   virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
-  virtual void onMidi(byte status, byte data1, byte data2) override {}
+  virtual void onMidi(byte status, byte data1, byte data2) override;
   virtual void onSysex(byte* msg, uint32_t size) override {}
   virtual void onMessage(char* verb, char* res, double data) override {}
   virtual void onMessage(char* verb, char* res, char* data) override {}
   virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override {}
-  virtual void onParam(uint32_t idparam, double value) override {}  // todo: other datatypes
+  virtual void onParam(uint32_t idparam, double value) override;
 
   //IPlugBase
   void BeginInformHostOfParamChange(int idx) override {};
