@@ -12,7 +12,6 @@ class IGraphics;
 
 /** An IPlugBase class for an IPlug plug-in that uses IGraphics for it's UI */
 class IPlugBaseGraphics : public IPlugBase
-                        , public IDelegate //TODO, should IPlugBase implement the delgate?
 {
 public:
   IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI);
@@ -31,11 +30,6 @@ public:
   //IDelegate
   void SetControlValueFromDelegate(int controlIdx, double normalizedValue) override;
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override;
-
-  const IParam* GetParamObjectFromUI(int paramIdx) override { return GetParam(paramIdx); }
-  void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
-  void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
-  void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   void ResizeGraphicsFromUI() override;
 
   //IPlugBaseGraphics
