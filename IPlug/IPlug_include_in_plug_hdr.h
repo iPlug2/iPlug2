@@ -59,4 +59,6 @@
   #error "No OS defined!"
 #endif
 
+#include "IGraphics_include_in_plug_hdr.h"
+
 
