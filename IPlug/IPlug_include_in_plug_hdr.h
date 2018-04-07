@@ -47,24 +47,16 @@
 #endif
 
 #ifdef OS_WIN
-  #ifndef NO_IGRAPHICS
-    #include "IGraphicsWin.h"
-  #endif
   #define EXPORT __declspec(dllexport)
-
 #elif defined OS_MAC
-  #ifndef NO_IGRAPHICS
-    #include "IGraphicsMac.h"
-  #endif
-  #define EXPORT __attribute__ ((visibility("default")))
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
-
-#elif defined OS_WEB
-
-#ifndef NO_IGRAPHICS
-  #include "IGraphicsWeb.h"
-#endif
-
+  #define EXPORT __attribute__ ((visibility("default")))
 #elif defined OS_LINUX
-  //TODO
+  //TODO:
+#elif defined OS_WEB
+  //TODO:
+#else
+  #error "No OS defined!"
 #endif
+
+
