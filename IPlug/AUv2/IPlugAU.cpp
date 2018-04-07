@@ -1779,7 +1779,7 @@ void IPlugAU::ClearConnections()
 #pragma mark - IPlugAU Constructor
 
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPLUG_BASE_CLASS(c, kAPIAU)
+: IPlugBase(c, kAPIAU)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
 , IPlugPresetHandler(c.nPresets)
 {
@@ -1911,7 +1911,7 @@ void IPlugAU::PreProcess()
 
 EHost IPlugAU::GetHost()
 {
-  EHost host = IPLUG_BASE_CLASS::GetHost();
+  EHost host = IPlugBase::GetHost();
   if (host == kHostUninit)
   {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
@@ -1924,14 +1924,14 @@ EHost IPlugAU::GetHost()
         CStrLocal str(id);
         //CFStringRef versStr = (CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
         SetHost(str.mCStr, 0);
-        host = IPLUG_BASE_CLASS::GetHost();
+        host = IPlugBase::GetHost();
       }
     }
     
     if (host == kHostUninit)
     {
       SetHost("", 0);
-      host = IPLUG_BASE_CLASS::GetHost();
+      host = IPlugBase::GetHost();
     }
   }
   return host;

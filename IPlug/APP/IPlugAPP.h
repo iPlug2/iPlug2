@@ -8,7 +8,6 @@
 
 
 #include "IPlugPlatform.h"
-#include "IPlugBase_select.h"
 
 #include "RtMidi.h"
 
@@ -28,10 +27,10 @@
   };
 #endif
 
-/**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
+/**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
-class IPlugAPP : public IPLUG_BASE_CLASS
+class IPlugAPP : public IPlugBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public IPlugPresetHandler
 {

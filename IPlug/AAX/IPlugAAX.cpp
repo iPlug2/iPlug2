@@ -82,7 +82,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 #pragma mark IPlugAAX Construct
 
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPLUG_BASE_CLASS(c, kAPIAAX)
+: IPlugBase(c, kAPIAAX)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
 , IPlugPresetHandler(c.nPresets)
 {

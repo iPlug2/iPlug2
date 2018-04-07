@@ -6,9 +6,10 @@
 #include "wdlendian.h"
 #include "wdl_base64.h"
 
-#include "IPlugBase_select.h"
+#include "IPlugBase.h"
+#include "IPlugPresets.h"
 
-#define GETPLUG static_cast<IPLUG_BASE_CLASS*>(mPlugBase)
+#define GETPLUG static_cast<IPlugBase*>(mPlugBase)
 
 IPlugPresetHandler::IPlugPresetHandler(int nFactoryPresets)
 {

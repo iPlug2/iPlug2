@@ -1,6 +1,5 @@
 #pragma once
 
-#include "IPlugBase.h"
 #include "IPlugDelegate.h"
 
 /**
@@ -10,19 +9,19 @@
 
 class IGraphics;
 
-/** An IPlugBase class for an IPlug plug-in that uses IGraphics for it's UI */
-class IPlugBaseGraphics : public IPlugBase
+/** An IPlug delgate base class for an IPlug plug-in that uses IGraphics for it's UI */
+class IGraphicsDelegate : public IDelegate
 {
 public:
-  IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI);
-  ~IPlugBaseGraphics();
+  IGraphicsDelegate(int nParams);
+  ~IGraphicsDelegate();
 
-  //IPlugBase
-  void* GetAAXViewInterface() override { return (void*) GetUI(); }
-  void* OpenWindow(void* pHandle) override;
-  void CloseWindow() override;
-  void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
-  void PrintDebugInfo() const override;
+//  //IPlugBase
+//  void* GetAAXViewInterface() override { return (void*) GetUI(); }
+//  void* OpenWindow(void* pHandle) override;
+//  void CloseWindow() override;
+//  void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
+//  void PrintDebugInfo() const override;
 
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() override;
@@ -32,7 +31,7 @@ public:
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override;
   void ResizeGraphicsFromUI() override;
 
-  //IPlugBaseGraphics
+  //IGraphicsDelegate
   void AttachGraphics(IGraphics* pGraphics);
   IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
 private:

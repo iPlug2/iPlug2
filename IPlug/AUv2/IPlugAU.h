@@ -14,7 +14,6 @@
 #include <AudioToolbox/AudioUnitUtilities.h>
 #include <AvailabilityMacros.h>
 
-#include "IPlugBase_select.h"
 
 struct AudioComponentPlugInInstance
 {
@@ -34,10 +33,10 @@ struct IPlugInstanceInfo
   WDL_String mCocoaViewFactoryClassName;
 };
 
-/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
+/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
-class IPlugAU : public IPLUG_BASE_CLASS
+class IPlugAU : public IPlugBase
               , public IPlugProcessor<PLUG_SAMPLE_DST>
               , public IPlugPresetHandler
 {

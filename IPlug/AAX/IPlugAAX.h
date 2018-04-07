@@ -8,7 +8,6 @@
 
 
 #include "IPlugPlatform.h"
-#include "IPlugBase_select.h"
 #include "IPlugAAX_Parameters.h"
 #include "AAX_CEffectGUI.h"
 
@@ -40,10 +39,10 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
-/**  AAX API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics 
+/**  AAX API base class for an IPlug plug-in, inherits from IPlugBase 
 *   @ingroup APIClasses
 */
-class IPlugAAX : public IPLUG_BASE_CLASS
+class IPlugAAX : public IPlugBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public IPlugPresetHandler
                , public AAX_CIPlugParameters

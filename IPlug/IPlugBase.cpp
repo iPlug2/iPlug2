@@ -9,7 +9,7 @@
 #include "IPlugBase.h"
 
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
-  : IDelegate(c.nParams)
+  : IPLUG_DELEGATE(c.nParams)
   , mUniqueID(c.uniqueID)
   , mMfrID(c.mfrID)
   , mVersion(c.vendorVersion)

@@ -12,7 +12,7 @@ int VSTSpkrArrType(int nchan)
 }
 
 IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPLUG_BASE_CLASS(c, kAPIVST2)
+  : IPlugBase(c, kAPIVST2)
   , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
   , IPlugPresetHandler(c.nPresets)
   , mHostCallback(instanceInfo.mVSTHostCallback)
@@ -93,7 +93,7 @@ void IPlugVST2::InformHostOfProgramChange()
 
 EHost IPlugVST2::GetHost()
 {
-  EHost host = IPLUG_BASE_CLASS::GetHost();
+  EHost host = IPlugBase::GetHost();
 
   if (host == kHostUninit)
   {
@@ -112,7 +112,7 @@ EHost IPlugVST2::GetHost()
     }
 
     SetHost(productStr, version);
-    host = IPLUG_BASE_CLASS::GetHost();
+    host = IPlugBase::GetHost();
   }
 
   return host;

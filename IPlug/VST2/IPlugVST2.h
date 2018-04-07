@@ -8,8 +8,9 @@
  */
 
 #include "aeffectx.h"
-
-#include "IPlugBase_select.h"
+#include "IPlugBase.h"
+#include "IPlugPresets.h"
+#include "IPlugProcessor.h"
 
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
@@ -17,10 +18,10 @@ struct IPlugInstanceInfo
   audioMasterCallback mVSTHostCallback;
 };
 
-/**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
+/**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
-class IPlugVST2 : public IPLUG_BASE_CLASS
+class IPlugVST2 : public IPlugBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public IPlugPresetHandler
 {

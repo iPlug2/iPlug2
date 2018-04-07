@@ -104,7 +104,7 @@ protected:
 #pragma mark - IPlugVST3 Constructor
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPLUG_BASE_CLASS(c, kAPIVST3)
+: IPlugBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
 , IPlugPresetHandler(c.nPresets)
 {

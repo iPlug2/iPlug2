@@ -12,7 +12,6 @@
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
 
-
 /**
  * @file
  * @copydoc IPlugPresets

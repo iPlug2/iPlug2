@@ -16,7 +16,6 @@
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 
-#include "IPlugBase_select.h"
 
 /** Used to pass various instance info to the API class, where needed */
 struct IPlugInstanceInfo {};
@@ -26,10 +25,10 @@ class IPlugVST3View;
 using namespace Steinberg;
 
 #pragma mark - IPlugVST3 constructor
-/**  VST3 base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
+/**  VST3 base class for an IPlug plug-in, inherits from IPlugBase
 *   @ingroup APIClasses
 */
-class IPlugVST3 : public IPLUG_BASE_CLASS
+class IPlugVST3 : public IPlugBase
                 , public IPlugProcessor<PLUG_SAMPLE_DST>
                 , public IPlugPresetHandler
                 , public Vst::SingleComponentEffect

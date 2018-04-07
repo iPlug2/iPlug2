@@ -7,7 +7,7 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
-#include "IPlugDelegate.h"
+#include "IPlugDelegate_select.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
@@ -22,7 +22,7 @@
 struct IPlugConfig;
 
 /** The lowest level base class of an IPlug plug-in. No UI framework code included.  This interface does not handle audio processing, see @IPlugProcessor  */
-class IPlugBase : public IDelegate
+class IPlugBase : public IPLUG_DELEGATE
 {
 
 public:

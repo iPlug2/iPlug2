@@ -1,18 +1,18 @@
-#include "IPlugBaseGraphics.h"
+#include "IPlugGraphicsDelegate.h"
 #include "IGraphics.h"
 #include "IControl.h"
 
-IPlugBaseGraphics::IPlugBaseGraphics(IPlugConfig config, EAPI plugAPI)
-: IPlugBase(config, plugAPI)
+IGraphicsDelegate::IGraphicsDelegate(int nParams)
+: IDelegate(nParams)
 {  
 }
 
-IPlugBaseGraphics::~IPlugBaseGraphics()
+IGraphicsDelegate::~IGraphicsDelegate()
 {
   DELETE_NULL(mGraphics);
 }
 
-void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
+void IGraphicsDelegate::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
   {
@@ -23,14 +23,14 @@ void IPlugBaseGraphics::AttachGraphics(IGraphics* pGraphics)
       SendParameterValueToUIFromDelegate(i, GetParam(i)->GetNormalized(), true);
     }
     
-    mHasUI = true;
+//    mHasUI = true;
     
     // TODO: is it safe/sensible to do this here
     pGraphics->OnDisplayScale();
   }
 }
 
-void IPlugBaseGraphics::OnRestoreState()
+void IGraphicsDelegate::OnRestoreState()
 {
   if (mGraphics)
   {
@@ -43,44 +43,44 @@ void IPlugBaseGraphics::OnRestoreState()
   }
 }
 
-void* IPlugBaseGraphics::OpenWindow(void* pHandle)
-{
-  if(mGraphics)
-    return mGraphics->OpenWindow(pHandle);
-  else
-    return nullptr;
-}
+//void* IGraphicsDelegate::OpenWindow(void* pHandle)
+//{
+//  if(mGraphics)
+//    return mGraphics->OpenWindow(pHandle);
+//  else
+//    return nullptr;
+//}
+//
+//void IGraphicsDelegate::CloseWindow()
+//{
+//  if(mGraphics)
+//    mGraphics->CloseWindow();
+//}
+//
+//void IGraphicsDelegate::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
+//{
+//  SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
+//}
+//
+//void IGraphicsDelegate::PrintDebugInfo() const
+//{
+//  assert(mGraphics != nullptr);
+//
+//  if(!mGraphics)
+//    return IPlugBase::PrintDebugInfo();
+//
+//  WDL_String buildInfo;
+//  GetBuildInfoStr(buildInfo);
+//  DBGMSG("\n%s\n%s Graphics %i FPS\n--------------------------------------------------\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
+//
+//#if defined TRACER_BUILD && !defined TRACE_TO_STDOUT
+//  WDL_String pHomePath;
+//  mGraphics->UserHomePath(pHomePath);
+//  DBGMSG("Location of the Tracer Build Log: \n%s/%s\n\n", pHomePath.Get(), LOGFILE);
+//#endif
+//}
 
-void IPlugBaseGraphics::CloseWindow()
-{
-  if(mGraphics)
-    mGraphics->CloseWindow();
-}
-
-void IPlugBaseGraphics::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
-{
-  SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
-}
-
-void IPlugBaseGraphics::PrintDebugInfo() const
-{
-  assert(mGraphics != nullptr);
-
-  if(!mGraphics)
-    return IPlugBase::PrintDebugInfo();
-    
-  WDL_String buildInfo;
-  GetBuildInfoStr(buildInfo);
-  DBGMSG("\n%s\n%s Graphics %i FPS\n--------------------------------------------------\n", buildInfo.Get(), mGraphics->GetDrawingAPIStr(), mGraphics->FPS());
-
-#if defined TRACER_BUILD && !defined TRACE_TO_STDOUT
-  WDL_String pHomePath;
-  mGraphics->UserHomePath(pHomePath);
-  DBGMSG("Location of the Tracer Build Log: \n%s/%s\n\n", pHomePath.Get(), LOGFILE);
-#endif
-}
-
-void IPlugBaseGraphics::SetControlValueFromDelegate(int controlIdx, double normalizedValue)
+void IGraphicsDelegate::SetControlValueFromDelegate(int controlIdx, double normalizedValue)
 {
   assert(mGraphics != nullptr);
 
@@ -90,7 +90,7 @@ void IPlugBaseGraphics::SetControlValueFromDelegate(int controlIdx, double norma
   }
 }
 
-void IPlugBaseGraphics::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
+void IGraphicsDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
 {
   assert(mGraphics != nullptr);
   
@@ -129,11 +129,11 @@ void IPlugBaseGraphics::SendParameterValueToUIFromDelegate(int paramIdx, double 
 //  }
 }
 
-void IPlugBaseGraphics::ResizeGraphicsFromUI()
+void IGraphicsDelegate::ResizeGraphicsFromUI()
 {
   assert(mGraphics != nullptr);
-
-  mWidth = mGraphics->WindowWidth();
-  mHeight = mGraphics->WindowHeight();
-  ResizeGraphics();
+//
+//  mWidth = mGraphics->WindowWidth();
+//  mHeight = mGraphics->WindowHeight();
+//  ResizeGraphics();
 }
