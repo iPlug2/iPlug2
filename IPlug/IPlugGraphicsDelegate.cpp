@@ -43,20 +43,20 @@ void IGraphicsDelegate::OnRestoreState()
   }
 }
 
-//void* IGraphicsDelegate::OpenWindow(void* pHandle)
-//{
-//  if(mGraphics)
-//    return mGraphics->OpenWindow(pHandle);
-//  else
-//    return nullptr;
-//}
-//
-//void IGraphicsDelegate::CloseWindow()
-//{
-//  if(mGraphics)
-//    mGraphics->CloseWindow();
-//}
-//
+void* IGraphicsDelegate::OpenWindow(void* pHandle)
+{
+  if(mGraphics)
+    return mGraphics->OpenWindow(pHandle);
+  else
+    return nullptr;
+}
+
+void IGraphicsDelegate::CloseWindow()
+{
+  if(mGraphics)
+    mGraphics->CloseWindow();
+}
+
 //void IGraphicsDelegate::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
 //{
 //  SendParameterValueToUIFromDelegate(paramIdx, value, normalized);

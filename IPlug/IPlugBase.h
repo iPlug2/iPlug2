@@ -65,12 +65,6 @@ public:
   /** Override this method to be notified when the UI is closed. */
   virtual void OnUIClose() { TRACE; }
 
-  /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
-  virtual void* OpenWindow(void* pHandle) { return nullptr; }
-
-  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
-  virtual void CloseWindow() {}
-
   /** Implement this to do something after the user interface is resized */
   virtual void OnWindowResize() {}
 

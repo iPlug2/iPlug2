@@ -7,7 +7,6 @@ IDelegate::IDelegate(int nParams)
     mParams.Add(new IParam());
 }
 
-
 IDelegate::~IDelegate()
 {
   mParams.Empty(true);

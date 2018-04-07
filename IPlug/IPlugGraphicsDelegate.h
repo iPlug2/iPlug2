@@ -18,8 +18,8 @@ public:
 
 //  //IPlugBase
 //  void* GetAAXViewInterface() override { return (void*) GetUI(); }
-//  void* OpenWindow(void* pHandle) override;
-//  void CloseWindow() override;
+  void* OpenWindow(void* pHandle) override;
+  void CloseWindow() override;
 //  void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
 //  void PrintDebugInfo() const override;
 

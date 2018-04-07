@@ -27,6 +27,12 @@ public:
   virtual ~IDelegate();
   
 #pragma mark -
+  /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
+  virtual void* OpenWindow(void* pHandle) {};
+  
+  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
+  virtual void CloseWindow() {};
+  
   /** This is called by API classes after restoring state and by IPlugPresetHandler::RestorePreset(). Typically used to update user interface, where parameter values have changed. */
   virtual void OnRestoreState() {};
   
