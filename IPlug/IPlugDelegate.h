@@ -28,7 +28,7 @@ public:
   
 #pragma mark -
   /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
-  virtual void* OpenWindow(void* pHandle) {};
+  virtual void* OpenWindow(void* pHandle) { return nullptr; }
   
   /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
   virtual void CloseWindow() {};
