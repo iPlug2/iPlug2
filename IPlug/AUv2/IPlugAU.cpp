@@ -1781,7 +1781,7 @@ void IPlugAU::ClearConnections()
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAU)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
-, IPlugPresetHandler(c, kAPIAU)
+, IPlugPresetHandler(c.nPresets)
 {
   AttachPresetHandler(this);
 

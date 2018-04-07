@@ -10,9 +10,9 @@
 
 #define GETPLUG static_cast<IPLUG_BASE_CLASS*>(mPlugBase)
 
-IPlugPresetHandler::IPlugPresetHandler(IPlugConfig c, EAPI plugAPI)
+IPlugPresetHandler::IPlugPresetHandler(int nFactoryPresets)
 {
-  for (int i = 0; i < c.nPresets; ++i)
+  for (int i = 0; i < nFactoryPresets; ++i)
     mPresets.Add(new IPreset());
 }
 

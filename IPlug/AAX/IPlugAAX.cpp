@@ -84,7 +84,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAAX)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
-, IPlugPresetHandler(c, kAPIAAX)
+, IPlugPresetHandler(c.nPresets)
 {
   AttachPresetHandler(this);
 

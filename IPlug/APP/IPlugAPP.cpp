@@ -7,7 +7,7 @@ extern HWND gHWND;
 IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPLUG_BASE_CLASS(c, kAPIAPP)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
-, IPlugPresetHandler(c, kAPIAPP)
+, IPlugPresetHandler(c.nPresets)
 {
   AttachPresetHandler(this);
 

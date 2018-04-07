@@ -25,7 +25,7 @@ struct IPlugConfig;
 class IPlugPresetHandler
 {
 public:
-  IPlugPresetHandler(IPlugConfig config, EAPI plugAPI);
+  IPlugPresetHandler(int nFactoryPresets);
   virtual ~IPlugPresetHandler();
 
   /** Called by API class in order to attach this.
