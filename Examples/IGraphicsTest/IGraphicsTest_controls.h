@@ -10,23 +10,23 @@ public:
     mText = text;
     mLabel.SetFormatted(32, "%s \n%s File", "Select a", extension);
   }
-  
+
   void SetPath(const char* path)
   {
     AddPath(path, "");
     SetUpMenu();
   }
-  
+
   void Draw(IGraphics& graphics) override
   {
     graphics.FillRect(COLOR_BLUE, mRECT);
     graphics.DrawText(mText, mLabel.Get(), mRECT);
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     IPopupMenu* menu = GetUI()->CreatePopupMenu(mMainMenu, mRECT);
-    
+
     if(menu)
     {
       IPopupMenu::Item* item = menu->GetItem(menu->GetChosenItemIdx());
@@ -34,11 +34,11 @@ public:
       mSelectedMenu = menu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
       mLabel.Set(item->GetText());
     }
-    
+
     //Redraw(); // TODO:  seems to need this
     SetDirty();
   }
-  
+
 private:
   WDL_String mLabel;
 };
@@ -52,19 +52,19 @@ public:
   , mAngle2(angle2)
   {
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->HideMouseCursor();
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
-  
+
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
-  
+
   void Draw(IGraphics& graphics) override
   {
     graphics.FillRect(COLOR_WHITE, mRECT.GetPadded(-2));
@@ -75,20 +75,20 @@ public:
     graphics.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), angle, 0.f, mRECT.W() * 0.49f);
     graphics.FillCircle(COLOR_WHITE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
     graphics.DrawCircle(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
-    
+
     angle = DegToRad(angle-90.f);
-    
+
     float x1 = mRECT.MW() + cosf(angle - 0.3f) * mRECT.W() * 0.3f;
     float y1 = mRECT.MH() + sinf(angle - 0.3f) * mRECT.W() * 0.3f;
     float x2 = mRECT.MW() + cosf(angle + 0.3f) * mRECT.W() * 0.3f;
     float y2 = mRECT.MH() + sinf(angle + 0.3f) * mRECT.W() * 0.3f;
     float x3 = mRECT.MW() + cosf(angle) * mRECT.W() * 0.44f;
     float y3 = mRECT.MH() + sinf(angle) * mRECT.W() * 0.44f;
-    
+
     graphics.FillTriangle(COLOR_WHITE, x1, y1, x2, y2, x3, y3);
     graphics.DrawTriangle(COLOR_BLACK, x1, y1, x2, y2, x3, y3);
   }
-  
+
 private:
   float mAngle1;
   float mAngle2;
@@ -101,19 +101,19 @@ public:
   : IKnobControlBase(plug, rect, paramIdx)
   {
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->HideMouseCursor();
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
-  
+
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->HideMouseCursor(false);
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
-  
+
 private:
   void Draw(IGraphics& graphics) override
   {
@@ -123,16 +123,16 @@ private:
     float angle = (-0.75f * (float) PI) + (float) mValue * (1.5f * (float) PI);
     float incr = (2.f * (float) PI) / npoints;
     float cr = (float) mValue * (mRECT.W() / 2.f);
-    
+
     graphics.FillRoundRect(COLOR_WHITE, mRECT.GetPadded(-2.f), cr);
     graphics.DrawRoundRect(COLOR_BLACK, mRECT.GetPadded(-2.f), cr);
-    
+
     for (int i = 0; i < npoints; i++)
     {
       xarray[i] = mRECT.MW() + sinf(angle + (float) i * incr) * mRECT.W() * 0.45f;
       yarray[i] = mRECT.MH() + cosf(angle + (float) i * incr) * mRECT.W() * 0.45f;
     }
-    
+
     graphics.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
     graphics.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
   }
@@ -146,13 +146,13 @@ public:
   {
     RandomiseGradient();
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     RandomiseGradient();
     SetDirty(false);
   }
-  
+
   void Draw(IGraphics& graphics) override
   {
     if (graphics.HasPathSupport())
@@ -168,29 +168,29 @@ public:
     else
       graphics.DrawText(mText, "UNSUPPORTED", mRECT);
   }
-  
+
   void RandomiseGradient()
   {
     //IPattern tmp(kLinearPattern);
     //tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
     IPattern tmp(kSolidPattern);
-    
+
     if (std::rand() & 0x100)
       tmp = IPattern(mRECT.MW(), mRECT.MH(), mRECT.MH());
     else
       tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
-    
+
       tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? kExtendNone : kExtendPad) : ((std::rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
-    
+
     tmp.AddStop(IColor::GetRandomColor(), 0.0);
     tmp.AddStop(IColor::GetRandomColor(), 0.1);
     tmp.AddStop(IColor::GetRandomColor(), 0.4);
     tmp.AddStop(IColor::GetRandomColor(), 0.6);
     tmp.AddStop(IColor::GetRandomColor(), 1.0);
-    
+
     mPattern = tmp;
   }
-  
+
 private:
   IPattern mPattern = IPattern(kLinearPattern);
 };
@@ -202,18 +202,18 @@ public:
   : IKnobControlBase(plug, rect, paramIdxIdx), mShape(0)
   {
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if (++mShape > 3)
       mShape = 0;
     SetDirty(false);
   }
-  
+
   void Draw(IGraphics& graphics) override
   {
     graphics.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
-    
+
     if (graphics.HasPathSupport())
     {
       double r = mValue * (mRECT.H() / 2.0);
@@ -251,7 +251,7 @@ public:
         graphics.PathLineTo(mRECT.MW(), mRECT.B);
         graphics.PathClose();
       }
-      
+
       IFillOptions fillOptions;
       fillOptions.mFillRule = mValue > 0.5 ? kFillEvenOdd : kFillWinding;
       fillOptions.mPreserve = true;
@@ -264,9 +264,9 @@ public:
     else
       graphics.DrawText(mText, "UNSUPPORTED", mRECT);
   }
-  
+
 private:
-  
+
   int mShape;
 };
 
@@ -278,13 +278,13 @@ public:
     {
         Randomise();
     }
-    
+
     void OnMouseDown(float x, float y, const IMouseMod& mod) override
     {
         Randomise();
         SetDirty(false);
     }
-    
+
     void Randomise()
     {
         int size = (std::rand() % 40) + 5;
@@ -292,21 +292,21 @@ public:
         int align = (std::rand() % 3);
         int type = (std::rand() % 4);
         mStringIndex = (std::rand() % 6);
-        
-        char* types[] = { "Arial", "Chicago" , "Times", "Palatino" };
+
+        const char* types[] = { "Arial", "Chicago" , "Times", "Palatino" };
 
         mText = IText(IColor::GetRandomColor(), size, types[type], (IText::EStyle) style, (IText::EAlign) align);
     }
-    
+
     void Draw(IGraphics& graphics) override
     {
-        char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
+        const char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
 
         graphics.FillRect(COLOR_BLACK, mRECT);
         graphics.DrawText(mText, words[mStringIndex], mRECT);
     }
-    
+
 private:
-    
+
     int mStringIndex;
 };
