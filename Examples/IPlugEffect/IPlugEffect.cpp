@@ -10,9 +10,9 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 {
   TRACE;
   
-  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
-  pGraphics->AttachPanelBackground(COLOR_GRAY);
-  
+//  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60);
+//  pGraphics->AttachPanelBackground(COLOR_GRAY);
+//
 //  const int nRows = 2;
 //  const int nColumns = 2;
 //  IRECT bounds = pGraphics->GetBounds();
@@ -22,7 +22,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 //                                               {
 //                                               }));
   
-  AttachGraphics(pGraphics);
+//  AttachGraphics(pGraphics);
   
   GetParam(kGain)->InitDouble("Gain", 50., 0., 100.0, 0.01, "%");
 
@@ -39,7 +39,7 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   
   for (auto s = 0; s < nFrames; s++) {
     for (auto c = 0; c < nChans; c++) {
-      outputs[c][s] = OLBPFRAND() * gain;
+      outputs[c][s] = inputs[c][s] * gain;
     }
   }
 }
