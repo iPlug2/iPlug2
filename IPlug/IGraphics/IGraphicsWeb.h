@@ -60,8 +60,8 @@ public:
   IColor GetPoint(int x, int y) override {} // TODO:
   void* GetData() override {} // TODO:
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure);
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds);
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
+  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   void RenderDrawBitmap() override { /* Nothing to do here */ }
 
