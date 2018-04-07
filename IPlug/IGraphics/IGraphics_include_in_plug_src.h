@@ -1,3 +1,5 @@
+#include "IPlugPlatform.h"
+
 #ifndef NO_IGRAPHICS
 
  #if defined OS_WIN

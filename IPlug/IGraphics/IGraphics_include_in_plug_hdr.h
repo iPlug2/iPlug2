@@ -7,7 +7,6 @@
  */
 
 #include "IPlugPlatform.h"
-#include "config.h"
 
 #ifndef NO_IGRAPHICS
 
