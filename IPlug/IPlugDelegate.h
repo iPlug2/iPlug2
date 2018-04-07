@@ -6,7 +6,8 @@
 
 #include "IPlugParameter.h"
 
-/** This pure virtual interface delegates communication in both directions between the UI and the plug-in's main class/API class.
+/** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
+ *  It is also the class that owns parameter objects
  *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
  *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
  *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
@@ -155,8 +156,14 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
+  /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in api class first when we click a button in our UI
+   * This method is overrided in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI() {};
   
+  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used rather than
+   * @param status The status byte of the MIDI message
+   * @param data1 The first data byte of the MIDI message
+   * @param data2 The second data byte of the MIDI message*/
   virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
   
 protected:
