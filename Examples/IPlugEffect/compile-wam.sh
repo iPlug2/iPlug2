@@ -40,11 +40,13 @@ cd ..
 cp ../../../IPlug/WAM/Template/IPlugWAM-standalone.html IPlugEffect-standalone.html
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-standalone.html
 
-osascript <<EOF
-tell application "Google Chrome Canary"
-  open location "http://localhost:8000/IPlugEffect-standalone.html"
-  activate
-end tell
-EOF
+cd ../
 
-python -m SimpleHTTPServer 8000
+pwd
+
+if [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
+then
+#   cp -r resources/img build-web
+  cd build-web
+  emrun --browser chrome_canary IPlugEffect-standalone.html
+fi
