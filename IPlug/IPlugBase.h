@@ -96,9 +96,6 @@ public:
    * @return pointer to the class that implements the IAAXViewInterface */
   virtual void* GetAAXViewInterface() { return nullptr; }
 
-  /** This is called by API classes after restoring stateand by IPlugPresetHandler::RestorePreset(). Typically used to update user interface, where parameter values have changed. */
-  virtual void OnRestoreState() {};
-
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugBase.cpp;
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;

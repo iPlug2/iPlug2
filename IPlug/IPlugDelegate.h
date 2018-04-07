@@ -27,6 +27,9 @@ public:
   virtual ~IDelegate();
   
 #pragma mark -
+  /** This is called by API classes after restoring state and by IPlugPresetHandler::RestorePreset(). Typically used to update user interface, where parameter values have changed. */
+  virtual void OnRestoreState() {};
+  
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
   /** @return Returns the number of parameters that belong to the plug-in. */
