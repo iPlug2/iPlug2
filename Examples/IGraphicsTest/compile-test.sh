@@ -15,13 +15,5 @@ if [ -a build-web/IGraphicsTest.wasm ]
 then
   cp -r resources/img build-web
   cd build-web
-
-  osascript <<EOF
-  tell application "Google Chrome Canary"
-      open location "http://localhost:8000/IGraphicsTest.html"
-          activate
-          end tell
-EOF
-
-  python -m SimpleHTTPServer 8000
+  emrun --browser chrome_canary --serve_after_close IGraphicsTest.html
 fi
