@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IVMeterControl.h"
 
 const int kNumPrograms = 1;
 
@@ -25,5 +24,5 @@ public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
 private:
-  IVMeterControl* mMeter;
+
 };
