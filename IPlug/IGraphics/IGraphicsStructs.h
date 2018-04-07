@@ -640,7 +640,7 @@ struct IRECT
     return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
   }
   
-  inline IRECT Pad(float padding)
+  inline void Pad(float padding)
   {
     L -= padding;
     T -= padding;
@@ -648,7 +648,7 @@ struct IRECT
     B += padding;
   }
   
-  inline IRECT Pad(float padL, float padT, float padR, float padB)
+  inline void Pad(float padL, float padT, float padR, float padB)
   {
     L += padL;
     T += padT;
@@ -656,26 +656,26 @@ struct IRECT
     B += padB;
   }
   
-  inline IRECT HPad(float padding)
+  inline void HPad(float padding)
   {
     L -= padding;
     R += padding;
   }
   
-  inline IRECT VPad(float padding)
+  inline void VPad(float padding)
   {
     T -= padding;
     B += padding;
   }
   
-  inline IRECT MidHPad(float padding)
+  inline void MidHPad(float padding)
   {
     const float mw = MW();
     L = mw - padding;
     R = mw + padding;
   }
   
-  inline IRECT MidVPad(float padding)
+  inline void MidVPad(float padding)
   {
     const float mh = MH();
     T = mh - padding;
@@ -967,7 +967,7 @@ public:
     key->scale = scale;
     key->name.Set(str);
 
-    DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
+    //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
   void Remove(T* data)
