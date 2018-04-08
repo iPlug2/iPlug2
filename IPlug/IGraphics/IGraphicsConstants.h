@@ -20,6 +20,8 @@ static const int IDLE_TICKS = 20;
 #define MAX_URL_LEN 256
 #define MAX_NET_ERR_MSG_LEN 1024
 
+#define MAX_IMG_SCALE 3
+
 static const int DEFAULT_TEXT_ENTRY_LEN = 7;
 static const double DEFAULT_GEARING = 4.0;
 

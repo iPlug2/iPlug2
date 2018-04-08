@@ -1091,9 +1091,9 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
 
 inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
 {
-  // Search downwards from 8, skipping targetScale before trying again
-  if (sourceScale == targetScale && (targetScale != 8))
-    sourceScale = 8;
+  // Search downwards from MAX_IMG_SCALE, skipping targetScale before trying again
+  if (sourceScale == targetScale && (targetScale != MAX_IMG_SCALE))
+    sourceScale = MAX_IMG_SCALE;
   else if (sourceScale == targetScale + 1)
     sourceScale = targetScale - 1;
   else
