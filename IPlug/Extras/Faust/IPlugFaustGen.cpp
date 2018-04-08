@@ -17,7 +17,7 @@ int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sEnableTimer = false;
 map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
-Steinberg::Timer* FaustGen::sTimer = nullptr;
+Timer* FaustGen::sTimer = nullptr;
 
 FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath, const char* inputDSP)
 {
@@ -562,7 +562,7 @@ bool FaustGen::CompileCPP()
   return true;
 }
 
-void FaustGen::onTimer(Steinberg::Timer* pTimer)
+void FaustGen::OnTimer(Timer& timer)
 {
   WDL_String* pInputFile;
   bool recompile = false;
@@ -601,14 +601,13 @@ void FaustGen::EnableTimer(bool enable)
   if(enable)
   {
     if(sTimer == nullptr)
-      sTimer = Steinberg::Timer::create(this, FAUST_RECOMPILE_INTERVAL);
+      sTimer = Timer::Create(*this, FAUST_RECOMPILE_INTERVAL);
   }
   else
   {
     if(sTimer != nullptr)
     {
-      sTimer->stop();
-      sTimer->release();
+      sTimer->Stop();
       sTimer = nullptr;
     }
   }

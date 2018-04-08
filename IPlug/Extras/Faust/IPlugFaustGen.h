@@ -48,8 +48,7 @@ static inline Time TimeZero() { return (Time) 0; }
 
 #include "faust/dsp/llvm-dsp.h"
 #include "IPlugFaust.h"
-
-#include "base/source/timer.h"
+#include "IPlugTimer.h"
 
 #include "mutex.h"
 
@@ -67,7 +66,7 @@ static inline Time TimeZero() { return (Time) 0; }
 using namespace std;
 
 class FaustGen : public IPlugFaust,
-                 public Steinberg::ITimerCallback
+                 public ITimerCallback
 {
   class Factory
   {
@@ -197,12 +196,12 @@ public:
   void EnableTimer(bool enable);
 
   //ITimerCallback
-  void onTimer(Steinberg::Timer* timer) override;
+  void OnTimer(Timer& timer) override;
   
 private:
   void SourceCodeChanged();
   Factory* mFactory = nullptr;
-  static Steinberg::Timer* sTimer;
+  static Timer* sTimer;
   static int sFaustGenCounter;
   static bool sEnableTimer;
 };

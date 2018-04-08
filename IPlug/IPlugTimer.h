@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <cstring>
 #include "ptrlist.h"
 #include "swell.h"
 
@@ -84,12 +85,4 @@ private:
   static WDL_PtrList<Timer_impl> sTimers;
   ITimerCallback& mCallBackClass;
 };
-
-WDL_PtrList<Timer_impl> Timer_impl::sTimers;
-
-//static
-Timer* Timer::Create(ITimerCallback& callback, uint32_t intervalMs)
-{
-  return new Timer_impl(callback, intervalMs);
-}
 

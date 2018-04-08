@@ -45,21 +45,10 @@
 		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F21907D2067030000D8C382 /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F21907B206702F500D8C382 /* IPlugFaustGen.cpp */; };
-		4F269BA720692DB80049B911 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
-		4F269BA820692DB80049B911 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C1205D50EB00393585 /* fbuffer.cpp */; };
-		4F269BA920692DB80049B911 /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C5205D50EB00393585 /* fdebug.cpp */; };
-		4F269BAA20692DB80049B911 /* fdynlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C7205D50EB00393585 /* fdynlib.cpp */; };
-		4F269BAB20692DB80049B911 /* fobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C9205D50EB00393585 /* fobject.cpp */; };
-		4F269BAC20692DB80049B911 /* fstreamer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158CC205D50EB00393585 /* fstreamer.cpp */; };
-		4F269BAD20692DB80049B911 /* fstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158CE205D50EB00393585 /* fstring.cpp */; };
-		4F269BAE20692DB80049B911 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158D1205D50EB00393585 /* timer.cpp */; };
-		4F269BAF20692DB80049B911 /* updatehandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158D3205D50EB00393585 /* updatehandler.cpp */; };
 		4F269BB120692DD60049B911 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DE205D50EB00393585 /* conststringtable.cpp */; };
 		4F269BB220692DD60049B911 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E0205D50EB00393585 /* coreiids.cpp */; };
 		4F269BB320692DD60049B911 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E7205D50EB00393585 /* funknown.cpp */; };
 		4F269BB420692DD60049B911 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158F7205D50EB00393585 /* ustring.cpp */; };
-		4F269BB520692E0C0049B911 /* fcondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DA205D50EB00393585 /* fcondition.cpp */; };
-		4F269BB620692E0C0049B911 /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DB205D50EB00393585 /* flock.cpp */; };
 		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
 		4F3862EF2014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F02014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -75,6 +64,19 @@
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
+		4F571888207A6996000B0304 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F571886207A6995000B0304 /* IPlugTimer.cpp */; };
+		4F571889207A6996000B0304 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F571886207A6995000B0304 /* IPlugTimer.cpp */; };
+		4F57188A207A6996000B0304 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F571886207A6995000B0304 /* IPlugTimer.cpp */; };
+		4F57188B207A6996000B0304 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F571886207A6995000B0304 /* IPlugTimer.cpp */; };
+		4F57188C207A6996000B0304 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F571886207A6995000B0304 /* IPlugTimer.cpp */; };
+		4F57188D207A6996000B0304 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F571886207A6995000B0304 /* IPlugTimer.cpp */; };
+		4F57188E207A6996000B0304 /* IPlugTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F571887207A6996000B0304 /* IPlugTimer.h */; };
+		4F57188F207A6996000B0304 /* IPlugTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F571887207A6996000B0304 /* IPlugTimer.h */; };
+		4F571890207A69AE000B0304 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4F571891207A69AF000B0304 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4F571892207A69AF000B0304 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4F571893207A69B0000B0304 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4F571894207A69B0000B0304 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
 		4F690CA1203A398900A4A13E /* IPlugAPP_host.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F690CA0203A398900A4A13E /* IPlugAPP_host.h */; };
 		4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */; };
@@ -330,6 +332,8 @@
 		4F4CC38D1549B92900A9EA21 /* AAXLibrary_common_release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = AAXLibrary_common_release.xcconfig; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary_common_release.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../../IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
 		4F56CC702022A55D00CF585F /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../../../IPlug/AUv3/IPlugViewController.xib; sourceTree = "<group>"; };
+		4F571886207A6995000B0304 /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; };
+		4F571887207A6996000B0304 /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; };
 		4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAPP_main.cpp; path = ../../../IPlug/APP/IPlugAPP_main.cpp; sourceTree = "<group>"; };
 		4F690CA0203A398900A4A13E /* IPlugAPP_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAPP_host.h; path = ../../../IPlug/APP/IPlugAPP_host.h; sourceTree = "<group>"; };
 		4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_host.cpp; path = ../../../IPlug/APP/IPlugAPP_host.cpp; sourceTree = "<group>"; };
@@ -729,6 +733,8 @@
 				4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */,
 				4F78D90513B63BA50032E0F3 /* IPlugMidi.h */,
 				4F78D8FA13B63BA50032E0F3 /* IPlugLogger.h */,
+				4F571886207A6995000B0304 /* IPlugTimer.cpp */,
+				4F571887207A6996000B0304 /* IPlugTimer.h */,
 			);
 			name = IPlug;
 			sourceTree = "<group>";
@@ -1047,6 +1053,7 @@
 		4FD16D1C13B634FB001D0217 /* Used by App & Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				4FD16D3F13B635A0001D0217 /* swell-misc.mm */,
 				4FD16D2B13B6353C001D0217 /* swell-internal.h */,
 				4FD16D3013B6355A001D0217 /* swell-types.h */,
 				4FD16D2213B6351C001D0217 /* swell-functions.h */,
@@ -1069,7 +1076,6 @@
 				4FD16D3913B63582001D0217 /* swell-kb.mm */,
 				4FD16D3B13B6358C001D0217 /* swell-miscdlg.mm */,
 				4FD16D3D13B63595001D0217 /* swell-menu.mm */,
-				4FD16D3F13B635A0001D0217 /* swell-misc.mm */,
 				4FD16D4113B635AB001D0217 /* swell-wnd.mm */,
 				4FD16D4313B635B2001D0217 /* swell.cpp */,
 			);
@@ -1113,6 +1119,7 @@
 				4F78D8D913B63B5D0032E0F3 /* aeffect.h in Headers */,
 				4F78D8DA13B63B5D0032E0F3 /* aeffectx.h in Headers */,
 				4FF0171A134E153A001447BA /* heapbuf.h in Headers */,
+				4F57188F207A6996000B0304 /* IPlugTimer.h in Headers */,
 				4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */,
 				4F78D93E13B63BA50032E0F3 /* IPlug_include_in_plug_hdr.h in Headers */,
 				4FD52137202A5BD000A4D22A /* dfx-au-utilities.h in Headers */,
@@ -1135,6 +1142,7 @@
 				4F6D9DF22016B7F7009E1E3E /* IPlugBaseGraphics.h in Headers */,
 				4F10D3D4203A6711003EF82A /* RtAudio.h in Headers */,
 				4F78DAB113B640470032E0F3 /* swell-menugen.h in Headers */,
+				4F57188E207A6996000B0304 /* IPlugTimer.h in Headers */,
 				4F8F61A9202807B9003F2573 /* IPlugProcessor.h in Headers */,
 				4F78DAB213B640470032E0F3 /* swell-dlggen.h in Headers */,
 				4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */,
@@ -1541,27 +1549,18 @@
 			files = (
 				4F269BB220692DD60049B911 /* coreiids.cpp in Sources */,
 				4F21907D2067030000D8C382 /* IPlugFaustGen.cpp in Sources */,
-				4F269BB520692E0C0049B911 /* fcondition.cpp in Sources */,
-				4F269BA720692DB80049B911 /* baseiids.cpp in Sources */,
-				4F269BA820692DB80049B911 /* fbuffer.cpp in Sources */,
-				4F269BB620692E0C0049B911 /* flock.cpp in Sources */,
 				4F269BB120692DD60049B911 /* conststringtable.cpp in Sources */,
 				4F3862F02014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
-				4F269BAA20692DB80049B911 /* fdynlib.cpp in Sources */,
-				4F269BAD20692DB80049B911 /* fstring.cpp in Sources */,
-				4F269BAB20692DB80049B911 /* fobject.cpp in Sources */,
 				4F6D9DED2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F269BB320692DD60049B911 /* funknown.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
-				4F269BAC20692DB80049B911 /* fstreamer.cpp in Sources */,
-				4F269BAE20692DB80049B911 /* timer.cpp in Sources */,
 				4F269BB420692DD60049B911 /* ustring.cpp in Sources */,
-				4F269BAF20692DB80049B911 /* updatehandler.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4F571890207A69AE000B0304 /* swell-misc.mm in Sources */,
+				4F571889207A6996000B0304 /* IPlugTimer.cpp in Sources */,
 				4F7C94722029473E00B20111 /* IPlugPresets.cpp in Sources */,
-				4F269BA920692DB80049B911 /* fdebug.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1570,9 +1569,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F6D9DF12016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
+				4F57188D207A6996000B0304 /* IPlugTimer.cpp in Sources */,
 				4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */,
 				4F7C94762029473E00B20111 /* IPlugPresets.cpp in Sources */,
 				4F3862F42014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
+				4F571894207A69B0000B0304 /* swell-misc.mm in Sources */,
 				4F1A5288205D915B00CF2908 /* IPlugAUv3.mm in Sources */,
 				4F1B08822014387400CE2770 /* IPlugParameter.cpp in Sources */,
 				4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */,
@@ -1586,9 +1587,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */,
+				4F57188B207A6996000B0304 /* IPlugTimer.cpp in Sources */,
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F6D9DEF2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
+				4F571891207A69AF000B0304 /* swell-misc.mm in Sources */,
 				4F7C94742029473E00B20111 /* IPlugPresets.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugBase.cpp in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
@@ -1602,9 +1605,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F81597C205D50EB00393585 /* baseiids.cpp in Sources */,
+				4F57188A207A6996000B0304 /* IPlugTimer.cpp in Sources */,
 				4F3862F12014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactoryvst3.cpp in Sources */,
 				4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */,
+				4F571892207A69AF000B0304 /* swell-misc.mm in Sources */,
 				4F81597E205D50EB00393585 /* fdebug.cpp in Sources */,
 				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugBase.cpp in Sources */,
@@ -1652,6 +1657,8 @@
 				4F6D9DF02016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugBase.cpp in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
+				4F571893207A69B0000B0304 /* swell-misc.mm in Sources */,
+				4F57188C207A6996000B0304 /* IPlugTimer.cpp in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
@@ -1670,6 +1677,7 @@
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
+				4F571888207A6996000B0304 /* IPlugTimer.cpp in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
 				4F6D9DEC2016B7F7009E1E3E /* IPlugBaseGraphics.cpp in Sources */,
