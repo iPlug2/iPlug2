@@ -7,17 +7,30 @@
 
 #include "IGraphicsPathBase.h"
 
-class WebBitmap : public APIBitmap
-{
-public:
-  WebBitmap(emscripten::val image, int scale);
-  virtual ~WebBitmap();
-};
+using namespace emscripten;
 
 struct RetainVal
 {
-  RetainVal(emscripten::val item) : mItem(item) {}
-  emscripten::val mItem;
+  RetainVal(val item)
+  : mItem(item)
+  {}
+  
+  val mItem;
+};
+
+class WebBitmap : public APIBitmap
+{
+public:
+  WebBitmap(val imageData, int w, int h, int s)
+  : APIBitmap(new RetainVal(imageData), w, h, s)
+  {
+  }
+  
+  virtual ~WebBitmap()
+  {
+    RetainVal* pImageData = (RetainVal*) GetBitmap();
+    delete pImageData;
+  }
 };
 
 /** IGraphics draw/platform class HTML5 canvas
@@ -68,9 +81,9 @@ public:
   void HideMouseCursor(bool hide, bool returnToStartPos) override
   {
     if(hide)
-      emscripten::val::global("document")["body"]["style"].set("cursor", std::string("none"));
+      val::global("document")["body"]["style"].set("cursor", std::string("none"));
     else
-      emscripten::val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+      val::global("document")["body"]["style"].set("cursor", std::string("auto"));
   }
 
   void MoveMouseCursor(float x, float y) override { /* Can't move a mose cursor in the browser */ }
@@ -100,8 +113,8 @@ public:
   void VST3PresetsPath(WDL_String& path, bool isSystem = true) {} // TODO:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
 
-  void OnMouseEvent(emscripten::val event, bool outside);
-  void OnKeyEvent(emscripten::val event);
+  void OnMouseEvent(val event, bool outside);
+  void OnKeyEvent(val event);
 
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
@@ -112,15 +125,15 @@ private:
   void ClipRegion(const IRECT& r) override;
   void ResetClipRegion() override;
 
-  emscripten::val GetCanvas()
+  val GetCanvas()
   {
-    return emscripten::val::global("document").call<emscripten::val>("getElementById", std::string("canvas"));
+    return val::global("document").call<val>("getElementById", std::string("canvas"));
   }
 
-  emscripten::val GetContext()
+  val GetContext()
   {
-    emscripten::val canvas = GetCanvas();
-    return canvas.call<emscripten::val>("getContext", std::string("2d"));
+    val canvas = GetCanvas();
+    return canvas.call<val>("getContext", std::string("2d"));
   }
 
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);

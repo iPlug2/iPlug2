@@ -1,6 +1,7 @@
 #include "IGraphicsWeb.h"
 #include <string>
 #include <stdio.h>
+#include <emscripten.h>
 
 using namespace emscripten;
 
@@ -24,42 +25,24 @@ EMSCRIPTEN_BINDINGS(IGraphics) {
 std::string GetColor(const IColor& color, float alpha = 1.0)
 {
   char cString[64];
-  
+
   sprintf(cString, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
-  
+
   return cString;
-}
-
-WebBitmap::WebBitmap(val image, int scale)
-{
-  int width = image["naturalWidth"].as<int>();
-  int height = image["naturalHeight"].as<int>();
-  
-  // TODO: this value won't be correct on load, because the bitmap isn't loaded yet...
-  
-  SetBitmap(new RetainVal(image), 48, 48 * 60, scale);
-}
-
-WebBitmap::~WebBitmap()
-{
-  RetainVal *image = (RetainVal *)GetBitmap();
-  delete image;
 }
 
 IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
-  printf("HELLO IGraphics!\n");
-
   // Seed random number generator randomly
-  
-  val randomGenerator = val::global("Math");
-  std::srand(32768 * randomGenerator.call<double>("random"));
-  
+//
+//  val randomGenerator = val::global("Math");
+//  std::srand(32768 * randomGenerator.call<double>("random"));
+
   // Bind event listener to the canvas for all mouse events
-  
+
   char callback[256];
-  
+
   sprintf(callback, "Module.mouse_web_handler('%x', e, 0);", this);
 
   val eventListener = val::global("Function").new_(std::string("e"), std::string(callback));
@@ -70,23 +53,16 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   GetCanvas().call<void>("addEventListener", std::string("mouseover"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mouseout"), eventListener);
   GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
-  
+
   sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
-  
+
   mWindowListener = new RetainVal(val::global("Function").new_(std::string("e"), std::string(callback)));
-  
+
   sprintf(callback, "Module.key_web_handler('%x', e);", this);
-  
+
   val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
   GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener2);
-  
-  // Bind the timer
-  
-  sprintf(callback, "Module.timer_web_handler('%lx')", this);
-  
-  val timerFunction = val::global("Function").new_(std::string(callback));
-  val::global("window").call<void>("setInterval", timerFunction, 1000.0/FPS());
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -97,9 +73,9 @@ IGraphicsWeb::~IGraphicsWeb()
 void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
-  
+
   RetainVal* img = (RetainVal*)bitmap.GetRawBitmap();
-  
+
   PathStateSave();
   SetWebBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
@@ -111,7 +87,7 @@ void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IS
 {
   val context = GetContext();
   double dashArray[8];
-  
+
   // First set options
 
   switch (options.mCapOption)
@@ -120,26 +96,26 @@ void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IS
     case kCapRound:   context.set("lineCap", "round");     break;
     case kCapSquare:  context.set("lineCap", "square");    break;
   }
-  
+
   switch (options.mJoinOption)
   {
     case kJoinMiter:  context.set("lineJoin", "miter");      break;
     case kJoinRound:  context.set("lineJoin", "round");      break;
     case kJoinBevel:  context.set("lineJoin", "bevel");      break;
   }
-  
+
   context.set("miterLimit", options.mMiterLimit);
   /*
   for (int i = 0; i < options.mDash.GetCount(); i++)
     dashArray[i] = *(options.mDash.GetArray() + i);
-  
+
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());*/
   context.set("lineWidth", thickness);
-  
+
   SetWebSourcePattern(pattern, pBlend);
 
   context.call<void>("stroke");
-  
+
   if (!options.mPreserve)
     PathClear();
 }
@@ -150,7 +126,7 @@ void IGraphicsWeb::PathFill(const IPattern& pattern, const IFillOptions& options
 
   // FIX - fill rules?
   //options.mFillRule
-  
+
   SetWebSourcePattern(pattern, pBlend);
 
   context.call<void>("fill");
@@ -162,7 +138,7 @@ void IGraphicsWeb::PathFill(const IPattern& pattern, const IFillOptions& options
 void invertTransform(float *xform, const float *xformIn)
 {
     double d = 1.0 / (xformIn[0] * xformIn[3] - xformIn[1] * xformIn[2]);
-  
+
     xform[0] = xformIn[3] * d;
     xform[1] = -xformIn[2] * d;
     xform[2] = -xformIn[1] * d;
@@ -174,9 +150,9 @@ void invertTransform(float *xform, const float *xformIn)
 void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
   val context = GetContext();
-  
+
   SetWebBlendMode(pBlend);
-  
+
   switch (pattern.mType)
   {
     case kSolidPattern:
@@ -188,7 +164,7 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
       context.set("strokeStyle", colorString);
     }
     break;
-      
+
     case kLinearPattern:
     case kRadialPattern:
     {
@@ -197,7 +173,7 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
       val gradient = (pattern.mType == kLinearPattern) ?
         context.call<val>("createLinearGradient", xform[4], xform[5], xform[0] + xform[4], xform[1] + xform[5]) :
         context.call<val>("createRadialGradient", xform[4], xform[5], 0.0, xform[4], xform[5], xform[0]);
-      
+
       /*
       switch (pattern.mExtend)
       {
@@ -206,13 +182,13 @@ void IGraphicsWeb::SetWebSourcePattern(const IPattern& pattern, const IBlend* pB
         case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
         case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
       }*/
-      
+
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
         gradient.call<void>("addColorStop", stop.mOffset, GetColor(stop.mColor));
       }
-      
+
       context.set("fillStyle", gradient);
       context.set("strokeStyle", gradient);
     }
@@ -240,10 +216,10 @@ void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
 bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
 {
   // TODO: orientation
-  
+
   val context = GetContext();
   std::string textString(str);
-  
+
   char fontString[FONT_LEN + 64];
   char* styles[] = { "normal", "bold", "italic" };
   double textHeight = text.mSize;
@@ -252,7 +228,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
   sprintf(fontString, "%s %lfpx %s", styles[text.mStyle], textHeight, text.mFont);
   context.set("font", std::string(fontString));
   double textWidth = GetContext().call<val>("measureText", textString)["width"].as<double>();
-  
+
   if (measure)
   {
     bounds = IRECT(0, 0, textWidth, textHeight);
@@ -262,7 +238,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
   {
     double x = bounds.L;
     double y = bounds.T;
-    
+
     switch (text.mAlign)
     {
       case IText::kAlignNear:     break;
@@ -278,7 +254,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
     context.call<void>("fillText", textString, x, y);
     PathStateRestore();
   }
-  
+
   return true;
 }
 
@@ -303,103 +279,98 @@ void IGraphicsWeb::ResetClipRegion()
 void IGraphicsWeb::Resize(int w, int h, float scale)
 {
   IGraphics::Resize(w, h, scale);
-  
-  emscripten::val canvas = GetCanvas();
+
+  val canvas = GetCanvas();
 
   canvas.set("width", w * scale);
   canvas.set("height", h * scale);
-  
+
   PathTransformScale(scale, scale);
 }
 
 APIBitmap* IGraphicsWeb::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  val img = val::global("Image").new_(100, 100);
-  img.set("src", resourcePath.Get());
+  int w, h;
+  char* cdata = emscripten_get_preloaded_image_data(resourcePath.Get(), &w, &h);
+  assert(cdata != nullptr);
   
-  // Use XMLHttpRequest to allow synchronous loading
-  val request = val::global("XMLHttpRequest").new_();
-  request.call<void>("open", std::string("GET"), std::string(resourcePath.Get()), false);
-  request.call<void>("send");
-  
-  assert(request["status"].equals(val(200)));
-  
-  //printf("Object %s\n", request["response"].as<std::string>().c_str());
-  // Now load the image from a generated URL
-  //val blob = val::global("Blob").new_(request["response"]);
-  //val url = val::global("window")["URL"].call<val>("createObjectURL", blob);
-  //img.set("src", url);
-  
-  //assert(img["complete"].as<bool>());
-  
-  return new WebBitmap(img, scale);
+  val imgdata = GetContext().call<val>("createImageData", w, h);
+  DBGMSG("LoadAPIBitmap %s %i %i\n", resourcePath.Get(), w, h);
+
+//  for (auto y = 0; y < h; y++)
+//  {
+//    auto base = y*width*4;
+//    for (auto x = 0; x < width; x++)
+//    {
+//      auto val = {{{ makeGetValue('s++', '0', 'i8', null, true) }}} * 4;
+//      auto start = base + x*4;
+//      imgdata[start]   = colors[val];
+//      imgdata[start+1] = colors[val+1];
+//      imgdata[start+2] = colors[val+2];
+//    }
+//    s += width*3;
+//  }
+
+  return new WebBitmap(imgdata, w, h, scale);
 }
 
 APIBitmap* IGraphicsWeb::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-  
+
   RetainVal* imgSrc = (RetainVal*)pBitmap->GetBitmap();
-  
+
   // Make an offscreen canvas and resize
   val documentHead = val::global("document")["head"];
   val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
   documentHead.call<val>("appendChild", canvas);
   val canvasNode = documentHead["lastChild"];
-  val context = canvas.call<emscripten::val>("getContext", std::string("2d"));
+  val context = canvas.call<val>("getContext", std::string("2d"));
   context.set("width", destW);
   context.set("height", destH);
-  
+
   // Scale and draw
   context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
   context.call<void>("drawImage", imgSrc->mItem, 0, 0);
-  
+
   // Copy to an image
   val img = val::global("Image").new_();
   img.set("src", canvas.call<val>("toDataURL"));
-  
+
   // Delete the canvas
   documentHead.call<val>("removeChild", canvasNode);
 
-  return new WebBitmap(img, scale);
+  return new WebBitmap(img, destW, destH, scale);
 }
 
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
   {
-    std::string url = name;
+    FILE* pFile = fopen(name, "rb");
     
-    // N.B. this is synchronous, which is badness in webland
-    
-    val request = val::global("XMLHttpRequest").new_();
-    request.call<void>("open", std::string("HEAD"), url, false);
-    request.call<void>("send");
-    
-    if (!request["status"].equals(val(200)))
+    if (!pFile)
       return false;
-
-    result = WDL_String(url.c_str());
     
+    int w, h;
+    char* cdata = emscripten_get_preloaded_image_data_from_FILE(pFile, &w, &h);
+    assert(cdata != nullptr);
+
+    fclose(pFile);
+    DBGMSG("found resource %s %i %i\n", name, w, h);
+    
+    result.SetFormatted(256, "./%s", name);
     return true;
   }
   return false;
-}
-
-void IGraphicsWeb::OnTimer()
-{
-  IRECT r;
-  
-  if (IsDirty(r))
-    Draw(r);
 }
 
 void IGraphicsWeb::OnMouseEvent(val event, bool outside)
 {
   std::string type = event["type"].as<std::string>();
   double x, y = -1.0;
-  
+
   if (outside)
   {
     x = event["pageX"].as<double>() - mPositionL;
@@ -409,11 +380,11 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   {
     x = event["offsetX"].as<double>();
     y = event["offsetY"].as<double>();
-    
+
     mPositionL = event["pageX"].as<double>() - x;
     mPositionT = event["pageY"].as<double>() - y;
   }
-  
+
   if (mMouseState == kMouseStateDownOutside && (!outside || !type.compare("mouseup")))
   {
     mMouseState = kMouseStateDownInside;
@@ -421,7 +392,7 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
     val::global("window").call<void>("removeEventListener", std::string("mousemove"), mWindowListener->mItem, true);
     val::global("window").call<void>("removeEventListener", std::string("mouseup"), mWindowListener->mItem, true);
   }
-  
+
   GetCanvas().call<void>("focus");
   event.call<void>("stopImmediatePropagation");
   event.call<void>("preventDefault");
@@ -430,7 +401,7 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
 
   x /= GetScale();
   y /= GetScale();
-  
+
   if (!type.compare("mousedown"))
   {
     OnMouseDown(x, y, modifiers);
@@ -462,11 +433,11 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   else if (!type.compare("mouseout"))
   {
     OnMouseOut();
-    
+
     if (mMouseState == kMouseStateDownInside)
     {
       mMouseState = kMouseStateDownOutside;
-      
+
       val::global("window").call<void>("addEventListener", std::string("mousemove"), mWindowListener->mItem, true);
       val::global("window").call<void>("addEventListener", std::string("mouseup"), mWindowListener->mItem, true);
     }
@@ -475,7 +446,7 @@ void IGraphicsWeb::OnMouseEvent(val event, bool outside)
   {
     //OnMouseOut();
   }
-  
+
   mLastX = x;
   mLastY = y;
 }
