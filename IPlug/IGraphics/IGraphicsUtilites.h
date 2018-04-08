@@ -10,12 +10,12 @@
 
 static inline double DegToRad(double degrees)
 {
-  return PI * (degrees / 180.0);
+  return ::PI * (degrees / 180.0);
 }
 
 static inline float DegToRad(float degrees)
 {
- return (float) PI * (degrees / 180.f);
+  return (float) ::PI * (degrees / 180.f);
 }
 
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
