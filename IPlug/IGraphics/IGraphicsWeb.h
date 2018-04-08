@@ -25,11 +25,9 @@ struct RetainVal
 *   @ingroup PlatformClasses */
 class IGraphicsWeb : public IGraphicsPathBase
 {
-  
   enum MouseState { kMouseStateUp, kMouseStateDownInside, kMouseStateDownOutside };
-  
+
 public:
-    
   const char* GetDrawingAPIStr() override { return "WEB"; }
 
   IGraphicsWeb(IDelegate& dlg, int w, int h, int fps);
@@ -92,7 +90,7 @@ public:
   bool PromptForColor(IColor& color, const char* str = "") override {} // TODO:
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
   const char* GetPlatformAPIStr() override { return "WEB"; }
-  
+
   void HostPath(WDL_String& path) override {} // TODO:
   void PluginPath(WDL_String& path) override {} // TODO:
   void UserHomePath(WDL_String& path) override {} // TODO:
@@ -102,7 +100,6 @@ public:
   void VST3PresetsPath(WDL_String& path, bool isSystem = true) {} // TODO:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
 
-  void OnTimer();
   void OnMouseEvent(emscripten::val event, bool outside);
   void OnKeyEvent(emscripten::val event);
 
@@ -114,7 +111,7 @@ protected:
 private:
   void ClipRegion(const IRECT& r) override;
   void ResetClipRegion() override;
-  
+
   emscripten::val GetCanvas()
   {
     return emscripten::val::global("document").call<emscripten::val>("getElementById", std::string("canvas"));
@@ -125,7 +122,7 @@ private:
     emscripten::val canvas = GetCanvas();
     return canvas.call<emscripten::val>("getContext", std::string("2d"));
   }
-  
+
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetWebBlendMode(const IBlend* pBlend);
 

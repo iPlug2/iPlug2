@@ -16,16 +16,9 @@ void KeyHandler(std::string object, val event)
   pGraphics->OnKeyEvent(event);
 }
 
-void TimerHandler(std::string object)
-{
-  IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
-  pGraphics->OnTimer();
-}
-
 EMSCRIPTEN_BINDINGS(IGraphics) {
   function("mouse_web_handler", &MouseHandler);
   function("key_web_handler", &KeyHandler);
-  function("timer_web_handler", &TimerHandler);
 }
 
 std::string GetColor(const IColor& color, float alpha = 1.0)
