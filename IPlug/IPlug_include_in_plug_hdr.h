@@ -67,3 +67,20 @@
 #elif defined OS_LINUX
   //TODO
 #endif
+
+#if defined OS_MAC && !defined APP_API
+#include <sys/time.h>
+#include <unistd.h>
+#include "swell.h"
+void Sleep(int ms)
+{
+  usleep(ms?ms*1000:100);
+}
+
+DWORD GetTickCount()
+{
+  struct timeval tm={0,};
+  gettimeofday(&tm,NULL);
+  return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
+}
+#endif
