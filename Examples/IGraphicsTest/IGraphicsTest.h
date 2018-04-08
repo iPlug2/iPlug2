@@ -11,7 +11,8 @@ class IGraphicsTest : public IGraphicsDelegate
 {
 public:
   IGraphicsTest();
-  
+  ~ IGraphicsTest() {}
+
   //IDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };

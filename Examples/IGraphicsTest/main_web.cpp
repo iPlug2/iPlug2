@@ -1,14 +1,15 @@
 #include <emscripten.h>
 #include "IGraphicsTest.h"
 
-IGraphicsTest gIGraphicsTest;
+IGraphicsTest* gIGraphicsTest = nullptr;
 
 void tick();
 
 int main()
 {
-  gIGraphicsTest.GetUI()->Resize(980, 580, 1);
-//   gIGraphicsTest.GetUI()->Draw(gIGraphicsTest.GetUI()->GetBounds());
+  gIGraphicsTest = new IGraphicsTest();
+  gIGraphicsTest->GetUI()->Resize(400, 400, 1);
+//   gIGraphicsTest->GetUI()->Draw(gIGraphicsTest->GetUI()->GetBounds());
 
 #ifdef __EMSCRIPTEN__
   // void emscripten_set_main_loop(em_callback_func func, int fps, int simulate_infinite_loop);
@@ -19,10 +20,15 @@ int main()
   }
 #endif
 
+  delete gIGraphicsTest;
+
   return 0;
 }
 
 void tick()
 {
+  IRECT r;
 
+  if ( gIGraphicsTest->GetUI()->IsDirty(r))
+     gIGraphicsTest->GetUI()->Draw(r);
 }
