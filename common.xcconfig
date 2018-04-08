@@ -87,7 +87,7 @@ FT_PATH = $(STATICLIBS_INC_PATH)/freetype2
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
 IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(ICONTROLS_PATH) $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(STATICLIBS_INC_PATH) $(FT_PATH)
 
-FAUST_INC_PATHS = /usr/local/include /opt/local/include
+FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 STATICLIBS_LIB_PATH = $(STATICLIBS_PATH)/lib
@@ -121,7 +121,7 @@ LIB_FAUST = /usr/local/lib/libfaust.a
 LIB_CURSES = /opt/local/lib/libncurses.a
 LIB_CURSES = /opt/local/lib/libncurses.a
 LIB_CRYPTO = /opt/local/lib/libcrypto.a
-LLVM = /opt/local/libexec/llvm-5.0/
+LLVM = /usr/local/opt/llvm
 
 FAUST_LNK_FLAGS = $(LIB_FAUST) $(LIB_CURSES) $(LIB_Z) $(LIB_CRYPTO) $(LLVM)/lib/libLLVMLTO.a $(LLVM)/lib/libLLVMPasses.a $(LLVM)/lib/libLLVMObjCARCOpts.a $(LLVM)/lib/libLLVMSymbolize.a $(LLVM)/lib/libLLVMDebugInfoPDB.a $(LLVM)/lib/libLLVMDebugInfoDWARF.a $(LLVM)/lib/libLLVMMIRParser.a $(LLVM)/lib/libLLVMCoverage.a $(LLVM)/lib/libLLVMTableGen.a $(LLVM)/lib/libLLVMDlltoolDriver.a $(LLVM)/lib/libLLVMOrcJIT.a $(LLVM)/lib/libLLVMObjectYAML.a $(LLVM)/lib/libLLVMLibDriver.a $(LLVM)/lib/libLLVMOption.a $(LLVM)/lib/libLLVMX86Disassembler.a $(LLVM)/lib/libLLVMX86AsmParser.a $(LLVM)/lib/libLLVMX86CodeGen.a $(LLVM)/lib/libLLVMGlobalISel.a $(LLVM)/lib/libLLVMSelectionDAG.a $(LLVM)/lib/libLLVMAsmPrinter.a $(LLVM)/lib/libLLVMDebugInfoCodeView.a $(LLVM)/lib/libLLVMDebugInfoMSF.a $(LLVM)/lib/libLLVMX86Desc.a $(LLVM)/lib/libLLVMMCDisassembler.a $(LLVM)/lib/libLLVMX86Info.a $(LLVM)/lib/libLLVMX86AsmPrinter.a $(LLVM)/lib/libLLVMX86Utils.a $(LLVM)/lib/libLLVMMCJIT.a $(LLVM)/lib/libLLVMLineEditor.a $(LLVM)/lib/libLLVMInterpreter.a $(LLVM)/lib/libLLVMExecutionEngine.a $(LLVM)/lib/libLLVMRuntimeDyld.a $(LLVM)/lib/libLLVMCodeGen.a $(LLVM)/lib/libLLVMTarget.a $(LLVM)/lib/libLLVMCoroutines.a $(LLVM)/lib/libLLVMipo.a $(LLVM)/lib/libLLVMInstrumentation.a $(LLVM)/lib/libLLVMVectorize.a $(LLVM)/lib/libLLVMScalarOpts.a $(LLVM)/lib/libLLVMLinker.a $(LLVM)/lib/libLLVMIRReader.a $(LLVM)/lib/libLLVMAsmParser.a $(LLVM)/lib/libLLVMInstCombine.a $(LLVM)/lib/libLLVMTransformUtils.a $(LLVM)/lib/libLLVMBitWriter.a $(LLVM)/lib/libLLVMAnalysis.a $(LLVM)/lib/libLLVMProfileData.a $(LLVM)/lib/libLLVMObject.a $(LLVM)/lib/libLLVMMCParser.a $(LLVM)/lib/libLLVMMC.a $(LLVM)/lib/libLLVMBitReader.a $(LLVM)/lib/libLLVMCore.a $(LLVM)/lib/libLLVMBinaryFormat.a $(LLVM)/lib/libLLVMSupport.a $(LLVM)/lib/libLLVMDemangle.a
 // ***** BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
