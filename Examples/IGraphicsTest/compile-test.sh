@@ -13,7 +13,7 @@ emmake make
 
 if [ -a build-web/IGraphicsTest.wasm ]
 then
-  cp -r resources/img build-web
+  #cp -r resources/img build-web
   cd build-web
   emrun --browser chrome_canary --serve_after_close IGraphicsTest.html
 fi
