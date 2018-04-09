@@ -46,7 +46,7 @@ public:
   virtual const char *get_type()=0;
   
   virtual void oscSend(const char *src, int len) {}
-//  virtual void midiSend(const unsigned char *buf, int len) {}
+  //  virtual void midiSend(const unsigned char *buf, int len) {}
   
   virtual void addinst(void (*callback)(void *d1, int dev_idx, char type, int msglen, void *msg), void *d1, int dev_idx)
   {
@@ -264,7 +264,7 @@ public:
   
   static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
   
-  void CreateReciever(WDL_String& results, OSCReciever* pReceiver, int port = 8000)
+  void CreateReciever(WDL_String& results, int port = 8000)
   {
     const char buf[] = "127.0.0.1";
     
@@ -315,7 +315,7 @@ public:
     {
       r->addinst(MessageCallback, this, m_devs.GetSize());
       m_devs.Add(r);
-
+      
       if (!is_reuse)
         g_devices.Add(r);
     }
@@ -414,7 +414,7 @@ private:
           OSC_MAKEINTMEM4BE(&rd_sz);
           rd_pos += 20;
         }
-//        if (m_var_msgs[3]) m_var_msgs[3][0] = evt->dev_ptr ? *evt->dev_ptr : -1.0;
+        //        if (m_var_msgs[3]) m_var_msgs[3][0] = evt->dev_ptr ? *evt->dev_ptr : -1.0;
         
         while (rd_pos + rd_sz <= evt->sz && rd_sz>=0)
         {
@@ -432,7 +432,7 @@ private:
           rd_sz = *(int *)(evt->msg+rd_pos-4);
           OSC_MAKEINTMEM4BE(&rd_sz);
         }
-  }
+      }
     }
     
     if(mOutputProc)
@@ -487,21 +487,21 @@ public:
     
     mInputProc = [&]()
     {
-//      const int sizeOfData = results.GetLength();
+      //      const int sizeOfData = results.GetLength();
       
       for (auto x = 0; x < g_devices.GetSize(); x++)
         g_devices.Get(x)->run_input(results);
       
-//      if (results.GetLength() != sizeOfData) // if some input device added results
-//      {
-//        OscMessageRead msg{mReadBuf, sizeOfData};
-//        OnOSCMessage(msg);
-//      }
+      //      if (results.GetLength() != sizeOfData) // if some input device added results
+      //      {
+      //        OscMessageRead msg{mReadBuf, sizeOfData};
+      //        OnOSCMessage(msg);
+      //      }
     };
   }
   
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
-
+  
 private:
   const char* mTest = "TEST";
   char mReadBuf[MAX_OSC_MSG_LEN] = {};
@@ -511,7 +511,7 @@ private:
 void OSCInterface::MessageCallback(void *d1, int dev_idx, char type, int len, void *msg)
 {
   OSCInterface* _this  = (OSCInterface *) d1;
-
+  
   if (_this && msg)
   {
     if (_this->m_incoming_events.GetSize() < 65536*8)
@@ -534,3 +534,4 @@ void OSCInterface::MessageCallback(void *d1, int dev_idx, char type, int len, vo
     }
   }
 }
+
