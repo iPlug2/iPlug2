@@ -85,4 +85,3 @@ private:
   static WDL_PtrList<Timer_impl> sTimers;
   ITimerCallback& mCallBackClass;
 };
-
