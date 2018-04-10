@@ -218,7 +218,7 @@ public:
 
   bool GetMouseIsOver() { return mMouseIsOver; }
   
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
+  virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
   
   virtual void Animate(double progress) {}
 

@@ -224,7 +224,7 @@ public:
   virtual void OnRescale() override;
   virtual void OnResize() override;
   
-  IRECT GetHandleRECT(double value = -1.0) const;
+  IRECT GetHandleBounds(double value = -1.0) const;
 
   virtual void GrayOut(bool gray) override
   {

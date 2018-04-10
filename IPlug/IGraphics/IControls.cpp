@@ -159,22 +159,22 @@ IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int 
 : ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {
-//  if (direction == kVertical)
-//  {
-//    mHandleHeadroom = mHandleBitmap.H();
-//    mRECT = mTargetRECT = IRECT(x, y, x + mHandleBitmap.W(), y + len);
-//  }
-//  else
-//  {
-//    mHandleHeadroom = mHandleBitmap.W();
-//    mRECT = mTargetRECT = IRECT(x, y, x + len, y + mHandleBitmap.H());
-//  }
+  if (direction == kVertical)
+  {
+    mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
+    mTrack = mRECT.GetPadded(0, bitmap.H(), 0, 0);
+  }
+  else
+  {
+    mRECT = mTargetRECT = IRECT(x, y, x + len, y + bitmap.H());
+    mTrack = mRECT.GetPadded(0, 0, bitmap.W(), 0);
+  }
 }
 
 void IBSliderControl::Draw(IGraphics& g)
 {
-//  IRECT r = GetHandleRECT();
-  g.DrawBitmap(mBitmap, mRECT, 1);
+  IRECT r = GetHandleBounds();
+  g.DrawBitmap(mBitmap, r, 1, &mBlend);
 }
 
 void IBSliderControl::OnRescale()
@@ -184,34 +184,30 @@ void IBSliderControl::OnRescale()
 
 void IBSliderControl::OnResize()
 {
-  if (mDirection == kVertical)
-    mTrack = mTargetRECT = mRECT.GetVPadded(-mBitmap.H());
-  else
-    mTrack = mTargetRECT = mRECT.GetHPadded(-mBitmap.W());
+
 
   SetDirty();
 }
 
-IRECT IBSliderControl::GetHandleRECT(double value) const
+IRECT IBSliderControl::GetHandleBounds(double value) const
 {
-//  if (value < 0.0)
-//  {
-//    value = mValue;
-//
-//  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
-//
-//  if (mDirection == kVertical)
-//  {
-//    int offs = int((1.0 - value) * (double) (mLen - mHandleHeadroom));
-//    r.T += offs;
-//    r.B += offs;
-//  }
-//  else
-//  {
-//    int offs = int(value * (double) (mLen - mHandleHeadroom));
-//    r.L += offs;
-//    r.R += offs;
-//  }
-//  return r;
+  if (value < 0.0)
+    value = mValue;
+  
+  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
+
+  if (mDirection == kVertical)
+  {
+    float offs = (1.f - value) * mTrack.H();
+    r.T += offs;
+    r.B += offs;
+  }
+  else
+  {
+    float offs = value * mTrack.W();
+    r.L += offs;
+    r.R += offs;
+  }
+  return r;
 }
 

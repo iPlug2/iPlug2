@@ -262,10 +262,13 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
 
   float val;
 
+  //val = 1.f - (y - (mRECT.B - (mRECT.H()*lengthMult)) / 2) / ((mLen*lengthMult));
+  
   if(direction == kVertical)
-    val = 1.f - (y-bounds.T) / bounds.H(); //mValue = 1.0 - (double) (y - (mRECT.B - (mRECT.H()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
+    val = 1.f - (y-bounds.T) / bounds.H();
   else
-    val = 1.f - (x-bounds.B) / bounds.W(); //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
+    //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
+    val = 1.f - (x-bounds.B) / bounds.W();
 
   mValue = round( val / 0.001 ) * 0.001;
 

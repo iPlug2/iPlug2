@@ -119,7 +119,7 @@ void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const ch
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(mDelegate, 0, 0, -1, bg, kBlendClobber);
+  IControl* pBG = new IBitmapControl(mDelegate, 0, 0, kNoParameter, bg, kBlendClobber);
   pBG->SetGraphics(this);
   mControls.Insert(0, pBG);
 }
@@ -296,6 +296,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
       srcY = int(0.5f + bitmap.H() * (float) (bmpState - 1) / (float) bitmap.N());
     }
   }
+    
   return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
