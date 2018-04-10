@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __IGRAPHICS_HDR_INC__
+#define __IGRAPHICS_HDR_INC__
 /** \file IGraphics_include_in_plug_hdr.h
  \brief IGraphics header include
 
@@ -21,3 +21,5 @@
 #endif
 
 #endif // NO_IGRAPHICS
+
+#endif //__IGRAPHICS_HDR_INC__

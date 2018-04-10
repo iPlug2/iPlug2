@@ -1,3 +1,6 @@
+#ifndef __IGRAPHICS_SRC_INC__
+#define __IGRAPHICS_SRC_INC__
+
 #include "IPlugPlatform.h"
 
 #ifndef NO_IGRAPHICS
@@ -29,3 +32,5 @@
     #error "No OS defined!"
   #endif
 #endif //NO_IGRAPHICS
+
+#endif //__IGRAPHICS_SRC_INC__
