@@ -32,12 +32,63 @@ std::string GetColor(const IColor& color, float alpha = 1.0)
 
 WebBitmap::WebBitmap(val image, int scale)
 {
-  int width = image["naturalWidth"].as<int>();
-  int height = image["naturalHeight"].as<int>();
+  std::string url = image["src"].as<std::string>();
+  int width, height;
+  
+  if(url.find("knob.png") != std::string::npos) {   width = 48; height = 2880; }
+  if(url.find("Background_Main.png") != std::string::npos) {   width = 980; height = 581; }
+  if(url.find("AboutBox.png") != std::string::npos) {   width = 980; height = 581; }
+  if(url.find("Detune_Oct.png") != std::string::npos) {   width = 41; height = 112; }
+  if(url.find("Detune_Polarity.png") != std::string::npos) {   width = 41; height = 36; }
+  if(url.find("Detune_Semi.png") != std::string::npos) {   width = 41; height = 336; }
+  if(url.find("Env_ADSRPanel.png") != std::string::npos) {   width = 872; height = 364; }
+  if(url.find("Env_EndPoint.png") != std::string::npos) {   width = 45; height = 140; }
+  if(url.find("Env_Loop.png") != std::string::npos) {   width = 19; height = 30; }
+  if(url.find("Env_Slider.png") != std::string::npos) {   width = 25; height = 42; }
+  if(url.find("Env_SustainPoint.png") != std::string::npos) {   width = 43; height = 160; }
+  if(url.find("Font_LCD.png") != std::string::npos) {   width = 1045; height = 16; }
+  if(url.find("Font_Presets.png") != std::string::npos) {   width = 855; height = 15; }
+  if(url.find("Master_EnvMode.png") != std::string::npos) {   width = 21; height = 338; }
+  if(url.find("Master_MixMode.png") != std::string::npos) {   width = 44; height = 180; }
+  if(url.find("Master_ModMode.png") != std::string::npos) {   width = 44; height = 135; }
+  if(url.find("Master_PitchbendRange.png") != std::string::npos) {   width = 41; height = 360; }
+  if(url.find("Master_PolyMode.png") != std::string::npos) {   width = 87; height = 162; }
+  if(url.find("MIDIActivityLed.png") != std::string::npos) {   width = 16; height = 26; }
+  if(url.find("OctaveShift.png") != std::string::npos) {   width = 41; height = 90; }
+  if(url.find("Osc_Shape.png") != std::string::npos) {   width = 41; height = 240; }
+  if(url.find("Osc_Shape_Dual.png") != std::string::npos) {   width = 34; height = 24; }
+  if(url.find("Pan_Lock.png") != std::string::npos) {   width = 20; height = 38; }
+  if(url.find("Preset_File.png") != std::string::npos) {   width = 47; height = 72; }
+  if(url.find("Preset_Next.png") != std::string::npos) {   width = 28; height = 72; }
+  if(url.find("Preset_Prev.png") != std::string::npos) {   width = 29; height = 72; }
+  if(url.find("Preset_Store.png") != std::string::npos) {   width = 28; height = 72; }
+  if(url.find("Preset_Tools.png") != std::string::npos) {   width = 58; height = 72; }
+  if(url.find("Scaling_AftertouchMode.png") != std::string::npos) {   width = 99; height = 98; }
+  if(url.find("Scaling_Curve.png") != std::string::npos) {   width = 42; height = 62; }
+  if(url.find("Scaling_Down.png") != std::string::npos) {   width = 34; height = 30; }
+  if(url.find("Scaling_Edit.png") != std::string::npos) {   width = 47; height = 96; }
+  if(url.find("Scaling_Left.png") != std::string::npos) {   width = 18; height = 62; }
+  if(url.find("Scaling_Lin.png") != std::string::npos) {   width = 36; height = 62; }
+  if(url.find("Scaling_LoadTun.png") != std::string::npos) {   width = 91; height = 56; }
+  if(url.find("Scaling_Lock.png") != std::string::npos) {   width = 28; height = 54; }
+  if(url.find("Scaling_Max.png") != std::string::npos) {   width = 37; height = 62; }
+  if(url.find("Scaling_Panel.png") != std::string::npos) {   width = 980; height = 370; }
+  if(url.find("Scaling_ResetTun.png") != std::string::npos) {   width = 91; height = 56; }
+  if(url.find("Scaling_Right.png") != std::string::npos) {   width = 18; height = 62; }
+  if(url.find("Scaling_Up.png") != std::string::npos) {   width = 34; height = 30; }
+  if(url.find("SmallKnob.png") != std::string::npos) {   width = 32; height = 2145; }
+  if(url.find("SmallKnobRim.png") != std::string::npos) {   width = 32; height = 2145; }
+  if(url.find("Vibrato_RateMode.png") != std::string::npos) {   width = 41; height = 60; }
+  if(url.find("Vibrato_Shape.png") != std::string::npos) {   width = 41; height = 210; }
+  if(url.find("Vibrato_SyncMode.png") != std::string::npos) {   width = 41; height = 60; }
+  if(url.find("LCDBG.png") != std::string::npos) {   width = 201; height = 110; }
+  
+  //  int width = image["naturalWidth"].as<int>();
+  //  int height = image["naturalHeight"].as<int>();
   
   // TODO: this value won't be correct on load, because the bitmap isn't loaded yet...
   
-  SetBitmap(new RetainVal(image), 48, 48 * 60, scale);
+  SetBitmap(new RetainVal(image), width, height, scale);
 }
 
 WebBitmap::~WebBitmap()
@@ -80,13 +131,6 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
   GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener2);
-  
-  // Bind the timer
-  
-  sprintf(callback, "Module.timer_web_handler('%lx')", this);
-  
-  val timerFunction = val::global("Function").new_(std::string(callback));
-  val::global("window").call<void>("setInterval", timerFunction, 1000.0/FPS());
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -385,14 +429,6 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
     return true;
   }
   return false;
-}
-
-void IGraphicsWeb::OnTimer()
-{
-  IRECT r;
-  
-  if (IsDirty(r))
-    Draw(r);
 }
 
 void IGraphicsWeb::OnMouseEvent(val event, bool outside)
