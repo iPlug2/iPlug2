@@ -12,6 +12,16 @@ IDelegate::~IDelegate()
   mParams.Empty(true);
 }
 
+void IDelegate::InitFromDelegate(IDelegate& delegate)
+{
+  for (auto p = 0; p < delegate.NParams(); p++)
+  {
+    IParam* pParam = delegate.GetParam(p);
+    GetParam(p)->Init(*pParam);
+    GetParam(p)->Set(pParam->Value());
+  }
+}
+
 void IDelegate::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;
@@ -129,5 +139,3 @@ void IDelegate::RandomiseParamValues(const char *paramGroup)
                       param.SetNormalized(dis(gen));
                     });
 }
-
-

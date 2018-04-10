@@ -7,6 +7,11 @@ IGraphicsDelegate::IGraphicsDelegate(int nParams)
 {  
 }
 
+IGraphicsDelegate::IGraphicsDelegate(IDelegate& mainDelegate)
+: IDelegate(mainDelegate.NParams())
+{
+}
+
 IGraphicsDelegate::~IGraphicsDelegate()
 {
   DELETE_NULL(mGraphics);

@@ -14,6 +14,8 @@ class IGraphicsDelegate : public IDelegate
 {
 public:
   IGraphicsDelegate(int nParams);
+  IGraphicsDelegate(IDelegate& mainDelegate);
+
   ~IGraphicsDelegate();
 
 // IDelegate
