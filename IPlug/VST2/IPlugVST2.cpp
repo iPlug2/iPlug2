@@ -214,15 +214,15 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
   }
 
   // Handle a couple of opcodes here to make debugging easier.
-  switch (opCode)
-  {
-    case effEditIdle:
-    case __effIdleDeprecated:
-    #ifdef USE_IDLE_CALLS
-    _this->OnIdle();
-    #endif
-    return 0;
-  }
+//  switch (opCode)
+//  {
+//    case effEditIdle:
+//    case __effIdleDeprecated:
+//    #ifdef USE_IDLE_CALLS
+//    _this->OnIdle();
+//    #endif
+//    return 0;
+//  }
 
   Trace(TRACELOC, "%d(%s):%d:%d", opCode, VSTOpcodeStr(opCode), idx, (int) value);
 
