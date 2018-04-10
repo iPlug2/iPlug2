@@ -21,14 +21,22 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mWidth(c.plugWidth)
   , mHeight(c.plugHeight)
   , mAPI(plugAPI)
+  , mHighPriorityToUIQueue(512) // TODO: CONSTANT
 {
   Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
   
   mParamDisplayStr.Set("", MAX_PARAM_DISPLAY_LEN);
+  mTimer = Timer::Create(*this, 20); // TODO: CONSTANT
 }
 
 IPlugBase::~IPlugBase()
 {
+  if(mTimer)
+  {
+    mTimer->Stop();
+    delete mTimer;
+  }
+
   TRACE;
 }
 
@@ -220,3 +228,20 @@ int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
   return ver;
 }
 
+void IPlugBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
+{
+  mHighPriorityToUIQueue.Push(ParamChange { paramIdx, value, normalized } );
+}
+
+void IPlugBase::OnTimer(Timer& t)
+{
+  //TODO: if transport not running why do this?
+  while(mHighPriorityToUIQueue.ElementsAvailable())
+  {
+    ParamChange p;
+    mHighPriorityToUIQueue.Pop(p);
+    SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized);
+  }
+  
+  OnIdle();
+}

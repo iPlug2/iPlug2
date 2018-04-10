@@ -225,8 +225,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   {
     ENTER_PARAMS_MUTEX;
     GetParam(paramIdx)->SetNormalized(iValue);
-    SendParameterValueToUIFromAPI(paramIdx, iValue, true);
-    
+    _SendParameterValueToUIFromAPI(paramIdx, iValue, true);
     OnParamChange(paramIdx, kAutomation);
     LEAVE_PARAMS_MUTEX;
   }

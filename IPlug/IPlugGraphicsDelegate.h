@@ -16,11 +16,10 @@ public:
   IGraphicsDelegate(int nParams);
   ~IGraphicsDelegate();
 
-//  //IPlugBase
+// IDelegate
 //  void* GetAAXViewInterface() override { return (void*) GetUI(); }
   void* OpenWindow(void* pHandle) override;
   void CloseWindow() override;
-//  void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) override;
 //  void PrintDebugInfo() const override;
 
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */

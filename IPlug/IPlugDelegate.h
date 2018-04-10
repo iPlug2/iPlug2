@@ -131,16 +131,19 @@ public:
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
   virtual void SetControlValueFromDelegate(int controlIdx, double normalizedValue) {};
   
-  /** This method is called by the API class in order to update the user interface with the new parameter values, typically after automation.
+  /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
+   * This method should not be called by a high priority thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring
+   * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated
    * @param value The new value of the parameter
    * @param normalized \c true if value is normalised */
-  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) {};
+  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx, value); }
 
 #pragma mark -
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
   
+  //TODO: this can go
   /** Called by the user interface in order to get a const pointer to an IParam object
    * @param paramIdx The index of the parameter to be retrieved
    * @return Pointer to an IParam object */
@@ -175,6 +178,7 @@ public:
    * @param data2 The second data byte of the MIDI message*/
   virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
   
+  virtual void OnParamChangeUI(int paramIdx, double value) {};
 protected:
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;

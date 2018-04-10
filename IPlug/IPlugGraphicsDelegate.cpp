@@ -57,11 +57,6 @@ void IGraphicsDelegate::CloseWindow()
     mGraphics->CloseWindow();
 }
 
-//void IGraphicsDelegate::SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
-//{
-//  SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
-//}
-//
 //void IGraphicsDelegate::PrintDebugInfo() const
 //{
 //  assert(mGraphics != nullptr);
@@ -127,6 +122,8 @@ void IGraphicsDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double 
 //      pControl->SetAuxParamValueFromPlug(auxParamIdx, value);
 //    }
 //  }
+  
+  IDelegate::SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
 }
 
 void IGraphicsDelegate::ResizeGraphicsFromUI()

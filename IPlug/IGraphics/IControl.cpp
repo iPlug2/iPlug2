@@ -75,19 +75,19 @@ void IControl::SetDirty(bool triggerAction)
     {
       mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
       GetUI()->UpdatePeers(this);
-  //    const IParam* pParam = mDelegate.GetParamFromUI(mParamIdx);
+      const IParam* pParam = mDelegate.GetParamObjectFromUI(mParamIdx);
 
-  //    if (mValDisplayControl)
-  //    {
-  //      WDL_String display;
-  //      pParam->GetDisplayForHost(display);
-  //      ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
-  //    }
-  //
-  //    if (mNameDisplayControl)
-  //    {
-  //      ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
-  //    }
+      if (mValDisplayControl)
+      {
+        WDL_String display;
+        pParam->GetDisplayForHost(display);
+        ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
+      }
+
+      if (mNameDisplayControl)
+      {
+        ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
+      }
     }
     
     if (mActionFunc != nullptr)

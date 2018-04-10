@@ -57,11 +57,6 @@ public:
    * @param active \c true if the host has activated the plug-in */
   virtual void OnActivate(bool active) { TRACE; }
 
-  /** Override this method to get an "idle"" call from the audio processing thread in VST2 plug-ins.
-   * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
-   * Only active if USE_IDLE_CALLS preprocessor macro is defined */
-  virtual void OnIdle() {}
-
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugProcessor.cpp
 
   /** Send a single MIDI message
@@ -146,11 +141,11 @@ public:
   /** @param direction Whether you want to test inputs or outputs
    * @return The number of channels connected for input/output. WARNING: this assumes consecutive channel connections */
   int NChannelsConnected(ERoute direction) const;
-  
+
   /** Convienience method to find out how many input channels are connected
    * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
   inline int NInChansConnected() { return NChannelsConnected(ERoute::kInput); }
-  
+
   /** Convienience method to find out how many output channels are connected
    * @return The number of channels connected for output. WARNING: this assumes consecutive channel connections */
   inline int NOutChansConnected() { return NChannelsConnected(ERoute::kOutput); }
@@ -183,7 +178,7 @@ public:
    * @param limited printf style format string to compose label for the channel - where %i will be the channel index
    * @param zeroBased If \c true the index in the format string will be zero based */
   void SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased = false);
-  
+
   /** Call this if the latency of your plug-in changes after initialization (perhaps from OnReset() )
    * This may not be supported by the host. The method is virtual because it's overridden in API classes.
    @param samples Latency in samples */

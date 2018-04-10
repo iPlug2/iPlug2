@@ -169,8 +169,7 @@ public:
   // Redraw() prevents the control from being cleaned immediately after drawing.
   void Redraw() { mRedraw = true; }
 
-  // This is an idle call from the GUI thread, as opposed to
-  // IPlugProcessor::OnIdle which is called from the audio processing thread.
+  // This is an idle call from the GUI thread
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
 

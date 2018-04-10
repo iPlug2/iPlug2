@@ -12,6 +12,8 @@
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
+#include "IPlugQueue.h"
+#include "IPlugTimer.h"
 
 /**
  * @file
@@ -23,6 +25,7 @@ struct IPlugConfig;
 
 /** The lowest level base class of an IPlug plug-in. No UI framework code included.  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugBase : public IPLUG_DELEGATE
+                , public ITimerCallback
 {
 
 public:
@@ -89,7 +92,10 @@ public:
    * (special shortcuts to add automation for a parameter etc.)
    * @return pointer to the class that implements the IAAXViewInterface */
   virtual void* GetAAXViewInterface() { return nullptr; }
-
+  
+  /** Override this method to get an "idle"" call on the main thread */
+  virtual void OnIdle() {}
+  
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugBase.cpp;
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
@@ -191,11 +197,11 @@ public:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
-   * NOTE: It may be called on the high priority audio thread
+   * NOTE: It may be called on the high priority audio thread. Its purpose is to place parameter changes in a queue to defer to main thread for the UI
    * @param paramIdx The index of the parameter that changed
    * @param value The new value
    * @param normalized /true if @param value is normalised */
-  virtual void SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized) {};
+  void _SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized);
 
   /** This method is used in order to place the IPlug version number intwhen serialising data. In theory this is for backwards compatibility.
    * @param chunk reference to the chunk where the version number will be placed */
@@ -269,8 +275,20 @@ protected:
   /** The default height of the plug-in UI if it has an interface. */
   int mHeight = 0;
 
+private:
+  void OnTimer(Timer& t) override;
+
 public:
+  struct ParamChange
+  {
+    int paramIdx;
+    double value;
+    bool normalized; // TODO: we shouldn't bother with this
+  };
+  
+  IPlugQueue<ParamChange> mHighPriorityToUIQueue;
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
   WDL_String mParamDisplayStr;
+  Timer* mTimer = nullptr;
 };
