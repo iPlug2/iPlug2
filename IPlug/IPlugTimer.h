@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <stdint.h>
 #include "ptrlist.h"
 #include "swell.h"
