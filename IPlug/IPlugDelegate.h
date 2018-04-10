@@ -142,7 +142,7 @@ public:
    * @param paramIdx The index of the parameter to be updated
    * @param value The new value of the parameter
    * @param normalized \c true if value is normalised */
-  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx, value); }
+  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx, value); } // TODO: normalised?
 
 #pragma mark -
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
@@ -161,9 +161,10 @@ public:
   virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
   /** Called by the user interface during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
+   * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
-  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) = 0;
+  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) { OnParamChangeUI(paramIdx, normalizedValue); } // TODO: normalised?
   
   /** Called by the user interface at the end of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is no longer being modified
