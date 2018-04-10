@@ -59,10 +59,6 @@
   #error "No OS defined!"
 #endif
 
-#elif defined OS_LINUX
-  //TODO
-#endif
-
 #if defined OS_MAC && !defined APP_API
 #include <sys/time.h>
 #include <unistd.h>
