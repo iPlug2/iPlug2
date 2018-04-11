@@ -273,7 +273,7 @@ public:
 #pragma mark - DELEGATION methods for sending values FROM the user interface
   
   /** Called by the user interface during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
-   * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
+   * NOTE: If you override this method you should call the base class implementation to make sure GetParam(paramIdx)->SetNormalized and OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
   virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) override { GetParam(paramIdx)->SetNormalized(normalizedValue); OnParamChangeUI(paramIdx); }
