@@ -3,7 +3,22 @@
 #include <cstring>
 #include <stdint.h>
 #include "ptrlist.h"
+
+#include "IPlugPlatform.h"
+
+#ifndef OS_WEB
 #include "swell.h"
+#else
+typedef uintptr_t UINT_PTR;
+typedef void* HWND;
+typedef signed char BOOL;
+typedef unsigned int DWORD;
+typedef unsigned int UINT;
+#define CALLBACK
+typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+static UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc) { return 0; }
+static BOOL KillTimer(HWND hwnd, UINT_PTR timerid) { return 0; }
+#endif
 
 /**
  * @file This file includes classes for implementing timers - in order to get a regular callback on the message thread
