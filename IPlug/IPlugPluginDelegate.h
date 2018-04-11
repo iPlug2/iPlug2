@@ -161,8 +161,19 @@ public:
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
   
+  /** Get the index of the current, active preset
+   * @return The index of the current preset */
+  int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
+  
+  /** Set the index of the current, active preset
+   * @param idx The index of the current preset */
+  void SetCurrentPresetIdx(int idx) { assert(idx > -1 && idx < NPresets()); mCurrentPresetIdx = idx; }
+  
+  /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
+  virtual void InformHostOfProgramChange() {};
 #pragma mark - Preset Manipulation - NO-OPs
   
+#ifdef NO_PRESETS
   /** Gets the number of factory presets. NOTE: some hosts don't like 0 presets, so even if you don't support factory presets, this method should return 1
    * @return The number of factory presets */
   virtual int NPresets() { return 1; }
@@ -187,16 +198,64 @@ public:
    * @return CString preset name */
   virtual const char* GetPresetName(int idx) { return "-"; }
   
-  /** Get the index of the current, active preset
-   * @return The index of the current preset */
-  int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
+#pragma mark - Preset Manipulation - OPs
   
-  /** Set the index of the current, active preset
-   * @param idx The index of the current preset */
-  void SetCurrentPresetIdx(int idx) { assert(idx > -1 && idx < NPresets()); mCurrentPresetIdx = idx; }
+#else
+  void ModifyCurrentPreset(const char* name = 0);
+  int NPresets() { return mPresets.GetSize(); }
+  bool RestorePreset(int idx);
+  bool RestorePreset(const char* name);
+  const char* GetPresetName(int idx);
   
-  /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
-  virtual void InformHostOfProgramChange() {};
+  // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
+  void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
+  // MakePreset(name, param1, param2, ..., paramN)
+  void MakePreset(const char* name, ...);
+  // MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
+  // nParamsNamed may be less than the total number of params.
+  void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
+  
+  // Use these methods with chunks-based plugins
+  void MakePresetFromChunk(const char* name, IByteChunk& chunk);
+  void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
+  
+  void PruneUninitializedPresets();
+  
+  // VST2 API only
+  virtual void OnPresetsModified() {}
+  void EnsureDefaultPreset();
+  bool SerializePresets(IByteChunk& chunk);
+  int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
+  // /VST2 API only
+  
+  // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
+  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
+  void DumpPresetBlob(const char* file);
+  void DumpAllPresetsBlob(const char* filename);
+  void DumpBankBlob(const char* file);
+  
+  //VST2 Presets
+  bool SaveProgramAsFXP(const char* file);
+  bool SaveBankAsFXB(const char* file);
+  bool LoadProgramFromFXP(const char* file);
+  bool LoadBankFromFXB(const char* file);
+  bool SaveBankAsFXPs(const char* path) { return false; }
+  
+  //VST3 format
+  bool SaveProgramAsVSTPreset(const char* file) { return false; }
+  bool LoadProgramFromVSTPreset(const char* file) { return false; }
+  bool SaveBankAsVSTPresets(const char* path) { return false; }
+  
+  //AU format
+  bool SaveProgramAsAUPreset(const char* name, const char* file) { return false; }
+  bool LoadProgramFromAUPreset(const char* file) { return false; }
+  bool SaveBankAsAUPresets(const char* path) { return false; }
+  
+  //ProTools format
+  bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) { return false; }
+  bool LoadProgramFromProToolsPreset(const char* file) { return false; }
+  bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID) { return false; }
+#endif
   
 #pragma mark - Parameter manipulation
   
@@ -312,4 +371,8 @@ protected:
   WDL_PtrList<const char> mParamGroups;
   /** A list of IParam objects. This list is populated in the delicate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;
+  
+#ifndef NO_PRESETS
+  WDL_PtrList<IPreset> mPresets;
+#endif
 };

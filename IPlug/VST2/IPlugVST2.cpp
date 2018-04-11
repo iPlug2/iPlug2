@@ -1,7 +1,7 @@
 #include <cstdio>
 #include "IPlugVST2.h"
 #ifndef NO_PRESETS
-#include "IPlugPresetsDelegate.h"
+#include "IPlugPluginDelegate.h"
 #endif
 
 const int VST_VERSION = 2400;
@@ -393,12 +393,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         if (isBank)
         {
           _this->ModifyCurrentPreset();
-#ifndef NO_PRESETS
-          savedOK = static_cast<IPresetsDelegate*>(_this)->SerializePresets(chunk);
-#else
-          savedOK = true;
-          assert(savedOK == true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetsDelegate
-#endif
+          savedOK = static_cast<IPluginDelegate*>(_this)->SerializePresets(chunk);
         }
         else
         {
@@ -427,11 +422,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 
         if (isBank)
         {
-          #ifndef NO_PRESETS
-          pos = static_cast<IPresetsDelegate*>(_this)->UnserializePresets(chunk, pos);
-          #else
-          assert(true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetsDelegate
-          #endif
+          pos = static_cast<IPluginDelegate*>(_this)->UnserializePresets(chunk, pos);
         }
         else
         {
