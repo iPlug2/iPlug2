@@ -80,68 +80,6 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** @return the name of the plug-in as a CString */
-  const char* GetPluginName() const { return mPluginName.Get(); }
-
-  /** Get the plug-in version number
-   * @param decimal Sets the output format
-   * @return Effect version in VVVVRRMM (if \p decimal is \c true) or Hexadecimal 0xVVVVRRMM (if \p decimal is \c false) format */
-  int GetPluginVersion(bool decimal) const;
-
-  /** Gets the plug-in version as a string
-   * @param str WDL_String to write to
-   * The output format is vX.M.m, where X - version, M - major, m - minor
-   * @note If \c _DEBUG is defined, \c D is appended to the version string
-   * @note If \c TRACER_BUILD is defined, \c T is appended to the version string*/
-  void GetPluginVersionStr(WDL_String& str) const;
-
-  /** Get the manufacturer name as a CString */
-  const char* GetMfrName() const { return mMfrName.Get(); }
-
-  /** Get the product name as a CString. A shipping product may contain multiple plug-ins, hence this. Not used in all APIs */
-  const char* GetProductName() const { return mProductName.Get(); }
-
-  /** @return The plug-in's unique four character ID as an integer */
-  int GetUniqueID() const { return mUniqueID; }
-
-  /** @return The plug-in manufacturer's unique four character ID as an integer */
-  int GetMfrID() const { return mMfrID; }
-
-  /** @return The host if it has been identified, see EHost enum for a list of possible hosts, implemented in the API class for VST2 and AUv2 */
-  virtual EHost GetHost() { return mHost; }
-
-  /** Get the host version number as an integer
-   * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
-   * @return The host version number as an integer. */
-  int GetHostVersion(bool decimal); //
-
-  /** Get the host version number as a string
-   * @param str string into which to write the host version */
-  void GetHostVersionStr(WDL_String& str);
-
-  /** @return The The plug-in API, see EAPI enum for a list of possible APIs */
-  EAPI GetAPI() const { return mAPI; }
-
-  /** @return  Returns a CString describing the plug-in API, e.g. "VST2" */
-  const char* GetAPIStr() const;
-
-  /** @return  Returns a CString either "x86" or "x64" describing the binary architecture */
-  const char* GetArchStr() const;
-
-  /** @brief Used to get the build date of the plug-in and architecture/api details in one string
-   * @note since the implementation is in IPlugBase.cpp, you may want to touch that file as part of your build script to force recompilation
-   * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
-  void GetBuildInfoStr(WDL_String& str) const;
-
-  /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
-  bool HasUI() const { return mHasUI; }
-
-  /** @return The default width of the plug-in UI in pixels, if defined in config.h */
-  int Width() const { return mWidth; }
-
-  /** @return The default height of the plug-in UI in pixels, if defined in config.h */
-  int Height() const { return mHeight; }
-
   /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
   void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
 
@@ -194,32 +132,6 @@ private:
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) = 0;
-protected:
-  /** The name of this plug-in */
-  WDL_String mPluginName;
-  /** Product name: if the plug-in is part of collection of plug-ins it might be one product */
-  WDL_String mProductName;
-  /** Plug-in Manufacturer name */
-  WDL_String mMfrName;
-  /* Plug-in unique four char ID as an int */
-  int mUniqueID;
-  /* Manufacturer unique four char ID as an int */
-  int mMfrID;
-  /** Plug-in version number stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision */
-  int mVersion;
-  /** Host version number stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision */
-  int mHostVersion = 0;
-  /** Host that has been identified, see EHost enum */
-  EHost mHost = kHostUninit;
-  /** API of this instance */
-  EAPI mAPI;
-
-  /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
-  bool mHasUI = false;
-  /** The default width of the plug-in UI if it has an interface. */
-  int mWidth = 0;
-  /** The default height of the plug-in UI if it has an interface. */
-  int mHeight = 0;
 
 private:
   void OnTimer(Timer& t) override;

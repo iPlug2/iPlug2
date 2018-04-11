@@ -12,11 +12,79 @@ IDelegate::~IDelegate()
   mParams.Empty(true);
 }
 
+int IDelegate::GetPluginVersion(bool decimal) const
+{
+  if (decimal)
+    return GetDecimalVersion(mVersion);
+  else
+    return mVersion;
+}
+
+void IDelegate::GetPluginVersionStr(WDL_String& str) const
+{
+  GetVersionStr(mVersion, str);
+#if defined TRACER_BUILD
+  str.Append("T");
+#endif
+#if defined _DEBUG
+  str.Append("D");
+#endif
+}
+
+int IDelegate::GetHostVersion(bool decimal)
+{
+  GetHost();
+  if (decimal)
+  {
+    return GetDecimalVersion(mHostVersion);
+  }
+  return mHostVersion;
+}
+
+void IDelegate::GetHostVersionStr(WDL_String& str)
+{
+  GetHost();
+  GetVersionStr(mHostVersion, str);
+}
+
+const char* IDelegate::GetAPIStr() const
+{
+  switch (GetAPI())
+  {
+    case kAPIVST2: return "VST2";
+    case kAPIVST3: return "VST3";
+    case kAPIAU: return "AU";
+    case kAPIAAX: return "AAX";
+    case kAPIAPP: return "Standalone";
+    case kAPIWAM: return "WAM";
+    default: return "";
+  }
+}
+
+const char* IDelegate::GetArchStr() const
+{
+#ifdef ARCH_64BIT
+  return "x64";
+#else
+  return "x86";
+#endif
+}
+
+void IDelegate::GetBuildInfoStr(WDL_String& str) const
+{
+  WDL_String version;
+  GetPluginVersionStr(version);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetPluginName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
+}
+
+#pragma mark -
 void IDelegate::OnParamChange(int paramIdx, EParamSource source)
 {
   Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
   OnParamChange(paramIdx);
 }
+
+#pragma mark -
 
 bool IDelegate::SerializeParams(IByteChunk& chunk)
 {
