@@ -7,7 +7,7 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
-#include "IPlugDelegate_select.h"
+#include "IPlugPluginDelegate.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
@@ -25,7 +25,7 @@ struct IPlugConfig;
 
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
-class IPlugBase : public PLUGBASE_SUPER_CLASS
+class IPlugBase : public IPluginDelegate
                 , public ITimerCallback
 {
 
