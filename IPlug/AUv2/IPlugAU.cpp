@@ -1484,7 +1484,7 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
 
   // TODO: IPlugVer should be in chunk!
   //  int pos;
-  //  GetIPlugVerFromChunk(chunk, pos)
+  //  IByteChunk::GetIPlugVerFromChunk(chunk, pos)
   
   if (!UnserializeState(chunk, 0))
   {

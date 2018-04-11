@@ -5,6 +5,7 @@
 #include "ptrlist.h"
 
 #include "IPlugParameter.h"
+#include "IPlugStructs.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
  *  It is also the class that owns parameter objects

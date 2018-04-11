@@ -15,6 +15,32 @@ public:
   IByteChunk() {}
   ~IByteChunk() {}
   
+  /** This method is used in order to place the IPlug version number in the chunk when serialising data. In theory this is for backwards compatibility.
+   * @param chunk reference to the chunk where the version number will be placed */
+  static void InitChunkWithIPlugVer(IByteChunk& chunk)
+  {
+    chunk.Clear();
+    int magic = IPLUG_VERSION_MAGIC;
+    chunk.Put(&magic);
+    int ver = IPLUG_VERSION;
+    chunk.Put(&ver);
+  }
+  
+  /** Helper method to retrieve the IPlug version number from the beginning of the byte chunk
+   * @param chunk The incoming byte chunk that contains the version number
+   * @param pos The position (in bytes) to start looking
+   * @return The IPlug version number, retrieved from the chunk, or 0 if it failed */
+  static int GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
+  {
+    int magic = 0, ver = 0;
+    int magicpos = chunk.Get(&magic, position);
+    
+    if (magicpos > position && magic == IPLUG_VERSION_MAGIC)
+      position = chunk.Get(&ver, magicpos);
+    
+    return ver;
+  }
+  
   /**
    * Copies data into the chunk
    * @param pBuf Pointer to the object to copy data from

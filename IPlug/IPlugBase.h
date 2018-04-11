@@ -203,16 +203,6 @@ public:
    * @param normalized /true if @param value is normalised */
   void _SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized);
 
-  /** This method is used in order to place the IPlug version number intwhen serialising data. In theory this is for backwards compatibility.
-   * @param chunk reference to the chunk where the version number will be placed */
-  void InitChunkWithIPlugVer(IByteChunk& chunk);
-
-  /** Helper method to retrieve the IPlug version number from the beginning of the byte chunk
-   * @param chunk The incoming byte chunk that contains the version number
-   * @param pos The position (in bytes) to start looking
-   * @return The IPlug version number, retrieved from the chunk, or 0 if it failed */
-  int GetIPlugVerFromChunk(const IByteChunk& chunk, int& pos);
-
   /** Called to set the name of the current host, if known.
   * @param host The name of the plug-in host
   * @param version The version of the plug-in host where version in hex = 0xVVVVRRMM */
