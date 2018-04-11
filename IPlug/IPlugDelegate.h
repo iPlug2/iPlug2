@@ -8,7 +8,9 @@
 #include "IPlugStructs.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
- *  It is also the class that owns parameter objects
+ *  It is also the class that owns parameter objects, and has methods for serialization of state
+ *  It provides a base interface for remote editors as well as the main plug-in, because we may have state/preset management in remote editors,
+ *  depending on the arrangement/separation we have chosen
  *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
  *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
  *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
@@ -19,12 +21,11 @@
  *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IDelegate interface,
  *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
  *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
- *  A parameter object is also referred to as a "param", in method names such as IPlugBase::GetParam(int paramIdx) and IControl::GetParam().
- */
+ *  A parameter object is also referred to as a "param", in method names such as IPlugBase::GetParam(int paramIdx) and IControl::GetParam(). */
 class IDelegate
 {
 public:
-  IDelegate(int nParams);
+  IDelegate(int nParams, int nPresets);
   virtual ~IDelegate();
   
 #pragma mark -
@@ -34,9 +35,11 @@ public:
   /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
   virtual void CloseWindow() {};
   
-  /** This is called by API classes after restoring state and by IPlugPresetHandler::RestorePreset(). Typically used to update user interface, where parameter values have changed. */
-  virtual void OnRestoreState() {};
+#pragma mark - Parameters
   
+  /** Get a pointer to one of the delegate's IParam objects
+  * @param paramIdx The index of the parameter object to be got
+  * @return A pointer to the IParam object at paramIdx */
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
 
   /** @return Returns the number of parameters that belong to the plug-in. */
@@ -54,6 +57,76 @@ public:
    * @param idx The index to return
    * @return CString for the unique group name */
   const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
+  
+#pragma mark - State Serialization
+  /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
+  bool DoesStateChunks() const { return mStateChunks; }
+  
+  /** Serializes the current double precision floating point, non-normalised values (IParam::mValue) of all parameters, into a binary byte chunk.
+   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
+   * @return \c true if the serialization was successful */
+  bool SerializeParams(IByteChunk& chunk);
+  
+  /** Unserializes double precision floating point, non-normalised values from a byte chunk into mParams.
+   * @param chunk The incoming chunk where parameter values are stored to unserialize
+   * @param startPos The start position in the chunk where parameter values are stored
+   * @return The new chunk position (endPos) */
+  int UnserializeParams(const IByteChunk& chunk, int startPos);
+  
+  /** Override this method to serialize custom state data, if your plugin does state chunks.
+   * @param chunk The output bytechunk where data can be serialized
+   * @return \c true if serialization was successful*/
+  virtual bool SerializeState(IByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
+  
+  /** Override this method to unserialize custom state data, if your plugin does state chunks.
+   * Implementations should call UnserializeParams() after custom data is unserialized
+   * @param chunk The incoming chunk containing the state data.
+   * @param startPos The position in the chunk where the data starts
+   * @return The new chunk position (endPos)*/
+  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
+  
+  /** This is called by API classes after restoring state and by IPresetDelegate::RestorePreset(). Typically used to update user interface, where parameter values have changed.
+   * If you need to do something when state is restored you can override it */
+  virtual void OnRestoreState() {};
+  
+#pragma mark - Preset Manipulation - NO-OPs
+
+  /** Gets the number of factory presets. NOTE: some hosts don't like 0 presets, so even if you don't support factory presets, this method should return 1
+   * @return The number of factory presets */
+  virtual int NPresets() { return 1; }
+
+  /** This method should update the current preset with current values
+   * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
+   * @param name CString name of the modified preset */
+  virtual void ModifyCurrentPreset(const char* name = 0) { };
+  
+  /** Restore a preset by index. This should also update mCurrentPresetIdx
+   * @param idx The index of the preset to restore
+   * @return \c true on success */
+  virtual bool RestorePreset(int idx) { mCurrentPresetIdx = idx; return true; }
+  
+  /** Restore a preset by name
+   * @param CString name of the preset to restore
+   * @return \c true on success */
+  virtual bool RestorePreset(const char* name) { return true; }
+  
+  /** Get the name a preset
+   * @param idx The index of the preset whose name to get
+   * @return CString preset name */
+  virtual const char* GetPresetName(int idx) { return "-"; }
+  
+  /** Get the index of the current, active preset
+   * @return The index of the current preset */
+  int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
+  
+  /** Set the index of the current, active preset
+   * @param idx The index of the current preset */
+  void SetCurrentPresetIdx(int idx) { assert(idx > -1 && idx < NPresets()); mCurrentPresetIdx = idx; }
+  
+  /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
+  virtual void InformHostOfProgramChange() {};
+  
+#pragma mark - Parameter manipulation
   
   /** Initialise this delegate from another one
    * @param delegate The delegate to clone */
@@ -125,7 +198,7 @@ public:
    * @param paramGroup The name of the group to modify */
   void DefaultParamValues(const char* paramGroup);
   
-#pragma mark -
+#pragma mark - DELEGATION methods for sending values TO the user interface
   // The following methods are called from the plug-in/delegate class in order to update the user interface.
   
   /** In IGraphics plug-ins, this method is used to update IControls in the user interface from the plug-in class, when the control is not linked
@@ -145,7 +218,7 @@ public:
    * @param normalized \c true if value is normalised */
   virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx, value); } // TODO: normalised?
 
-#pragma mark -
+#pragma mark - DELEGATION methods for sending values FROM the user interface
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
     
   /** Called by the user interface at the beginning of a parameter change gesture, in order to notify the host
@@ -184,4 +257,8 @@ protected:
   WDL_PtrList<const char> mParamGroups;
   /** A list of IParam objects. This list is populated in the delicate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;
+  
+  int mCurrentPresetIdx = 0;
+  /** \c true if the plug-in does opaque state chunks. If false the host will provide a default interface */
+  bool mStateChunks = false;
 };

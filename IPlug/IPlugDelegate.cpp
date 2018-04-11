@@ -1,7 +1,7 @@
 #include "IPlugDelegate.h"
 
 
-IDelegate::IDelegate(int nParams)
+IDelegate::IDelegate(int nParams, int nPresets/*not used*/)
 {
   for (int i = 0; i < nParams; ++i)
     mParams.Add(new IParam());
@@ -10,6 +10,39 @@ IDelegate::IDelegate(int nParams)
 IDelegate::~IDelegate()
 {
   mParams.Empty(true);
+}
+
+bool IDelegate::SerializeParams(IByteChunk& chunk)
+{
+  TRACE;
+  bool savedOK = true;
+  int i, n = mParams.GetSize();
+  for (i = 0; i < n && savedOK; ++i)
+  {
+    IParam* pParam = mParams.Get(i);
+    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
+    double v = pParam->Value();
+    savedOK &= (chunk.Put(&v) > 0);
+  }
+  return savedOK;
+}
+
+int IDelegate::UnserializeParams(const IByteChunk& chunk, int startPos)
+{
+  TRACE;
+  int i, n = mParams.GetSize(), pos = startPos;
+  ENTER_PARAMS_MUTEX;
+  for (i = 0; i < n && pos >= 0; ++i)
+  {
+    IParam* pParam = mParams.Get(i);
+    double v = 0.0;
+    pos = chunk.Get(&v, pos);
+    pParam->Set(v);
+    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
+  }
+  //  OnParamReset(kPresetRecall); // TODO: fix this!
+  LEAVE_PARAMS_MUTEX;
+  return pos;
 }
 
 void IDelegate::InitFromDelegate(IDelegate& delegate)

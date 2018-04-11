@@ -23,7 +23,8 @@
 
 struct IPlugConfig;
 
-/** The lowest level base class of an IPlug plug-in. No UI framework code included.  This interface does not handle audio processing, see @IPlugProcessor  */
+/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
+ *  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugBase : public IPLUG_DELEGATE
                 , public ITimerCallback
 {
@@ -42,18 +43,6 @@ public:
 
   /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
-
-  /** Override this method to serialize custom state data, if your plugin does state chunks.
-   * @param chunk The output bytechunk where data can be serialized
-   * @return \c true if serialization was successful*/
-  virtual bool SerializeState(IByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
-
-  /** Override this method to unserialize custom state data, if your plugin does state chunks.
-   * Implementations should call UnserializeParams() after custom data is unserialized
-   * @param chunk The incoming chunk containing the state data.
-   * @param startPos The position in the chunk where the data starts
-   * @return The new chunk position (endPos)*/
-  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
 
   /** Override this method to implement a custom comparison of incoming state data with your plug-ins state data, in order
    * to support the ProTools compare light when using custom state chunks. The default implementation will compare the serialized parameters.
@@ -100,12 +89,6 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** Get a pointer to one of the plug-ins IParam objects
-   ** WARNING: The IPlugBase::mParams is accessed by multiple threads, and this method has no thread safety mechanism.
-   * @param paramIdx The index of the parameter object to be got
-   * @return A pointer to the IParam object at paramIdx */
-  IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
-  
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }
 
@@ -159,9 +142,6 @@ public:
    * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
   void GetBuildInfoStr(WDL_String& str) const;
 
-  /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
-  bool DoesStateChunks() const { return mStateChunks; }
-
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
 
@@ -191,9 +171,6 @@ public:
    * @param normalizedValue The new (normalised) value*/
   void SetParameterValue(int paramIdx, double normalizedValue);
 
-  /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
-  virtual void InformHostOfProgramChange() {};
-
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
@@ -211,17 +188,6 @@ public:
   /** This method is called by some API classes, in order to do specific initialisation for particular problematic hosts.
    * This is not the same as OnHostIdentified(), which you may implement in your plug-in class to do your own specific initialisation after a host has been identified */
   virtual void HostSpecificInit() {}; //TODO: sort this method out, it's called differently from different APIs
-
-  /** Serializes the current double precision floating point, non-normalised values (IParam::mValue) of all parameters, into a binary byte chunk.
-   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
-   * @return \c true if the serialization was successful */
-  bool SerializeParams(IByteChunk& chunk);
-
-  /** Unserializes double precision floating point, non-normalised values from a byte chunk into mParams.
-   * @param chunk The incoming chunk where parameter values are stored to unserialize
-   * @param startPos The start position in the chunk where parameter values are stored
-   * @return The new chunk position (endPos) */
-  int UnserializeParams(const IByteChunk& chunk, int startPos);
 
   /** Calls OnParamChange() for each parameter and finally OnReset().
    * @param source Specifies the source of this parameter change */
@@ -256,8 +222,7 @@ protected:
   EHost mHost = kHostUninit;
   /** API of this instance */
   EAPI mAPI;
-  /** \c true if the plug-in does opaque state chunks. If false the host will provide a default interface */
-  bool mStateChunks = false;
+
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
   /** The default width of the plug-in UI if it has an interface. */
