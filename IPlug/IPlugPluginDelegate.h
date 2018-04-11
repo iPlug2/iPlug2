@@ -90,6 +90,10 @@ public:
   int Height() const { return mHeight; }
     
 #pragma mark - Parameters
+  
+  /** @return The number of unique parameter groups identified */
+  int NParamGroups() { return mParamGroups.GetSize(); }
+  
   /** Called to add a parameter group name, when a unique group name is discovered
    * @param name CString for the unique group name
    * @return Number of parameter groups */
@@ -346,7 +350,10 @@ protected:
   int mWidth = 0;
   /** The default height of the plug-in UI if it has an interface. */
   int mHeight = 0;
-    
+  
+  /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
+  WDL_PtrList<const char> mParamGroups;
+  
 #ifndef NO_PRESETS
   WDL_PtrList<IPreset> mPresets;
 #endif

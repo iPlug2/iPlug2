@@ -44,9 +44,6 @@ public:
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
   
-  /** @return The number of unique parameter groups identified */
-  int NParamGroups() { return mParamGroups.GetSize(); }
-  
   /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
   virtual void* OpenWindow(void* pHandle) { return nullptr; }
   
@@ -112,8 +109,6 @@ public:
   virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
   
 protected:
-  /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
-  WDL_PtrList<const char> mParamGroups;
   /** A list of IParam objects. This list is populated in the delicate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
