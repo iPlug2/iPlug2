@@ -9,7 +9,7 @@
 #include "IPlugBase.h"
 
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
-  : IPLUG_DELEGATE(c.nParams, c.nPresets)
+  : PLUG_DELEGATE(c.nParams, c.nPresets)
   , mHighPriorityToUIQueue(512) // TODO: CONSTANT
 {
   mUniqueID = c.uniqueID;

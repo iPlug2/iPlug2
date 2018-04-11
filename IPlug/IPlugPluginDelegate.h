@@ -1,6 +1,12 @@
 #pragma once
 
+#include <random>
+
+#include "ptrlist.h"
+
 #include "IPlugDelegate.h"
+#include "IPlugParameter.h"
+#include "IPlugStructs.h"
 
 /** This is the class that owns parameter objects, and has methods for serialization of state
  *  It provides a base interface for remote editors as well as the main plug-in, because we may have state/preset management in remote editors,
@@ -96,7 +102,7 @@ public:
   /** Get a pointer to one of the delegate's IParam objects
    * @param paramIdx The index of the parameter object to be got
    * @return A pointer to the IParam object at paramIdx */
-  IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
+  IParam* GetParam(int paramIdx) override { return mParams.Get(paramIdx); }
   
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }

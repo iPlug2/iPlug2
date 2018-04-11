@@ -9,7 +9,7 @@
 #include "IPlugPresetsDelegate.h"
 
 IPresetDelegate::IPresetDelegate(int nParams, int nPresets)
-: IDelegate(nParams, nPresets)
+: IPluginDelegate(nParams, nPresets)
 {
   for (int i = 0; i < nPresets; ++i)
     mPresets.Add(new IPreset());

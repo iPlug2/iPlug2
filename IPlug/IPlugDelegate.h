@@ -1,11 +1,7 @@
 #pragma once
+#include <cassert>
 
-#include <random>
-
-#include "ptrlist.h"
-
-#include "IPlugParameter.h"
-#include "IPlugStructs.h"
+class IParam;
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
  *  It is also the class that owns parameter objects, and has methods for serialization of state
@@ -31,6 +27,13 @@ public:
   
   virtual ~IDelegate()
   {
+  }
+  
+  virtual IParam* GetParam(int paramIdx)
+  {
+    // we should not hit this
+    assert(true);
+    return nullptr;
   }
   
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
@@ -72,7 +75,7 @@ public:
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
-  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) { }
+  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) {}
   
   /** Called by the user interface at the end of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is no longer being modified

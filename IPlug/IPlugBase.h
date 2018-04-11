@@ -25,7 +25,7 @@ struct IPlugConfig;
 
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
-class IPlugBase : public IPLUG_DELEGATE
+class IPlugBase : public PLUG_DELEGATE
                 , public ITimerCallback
 {
 
