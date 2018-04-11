@@ -8,14 +8,14 @@
 
 #include "IPlugPresetsDelegate.h"
 
-IPresetDelegate::IPresetDelegate(int nParams, int nPresets)
+IPresetsDelegate::IPresetsDelegate(int nParams, int nPresets)
 : IPluginDelegate(nParams, nPresets)
 {
   for (int i = 0; i < nPresets; ++i)
     mPresets.Add(new IPreset());
 }
 
-IPresetDelegate::~IPresetDelegate()
+IPresetsDelegate::~IPresetsDelegate()
 {
   TRACE;
 
@@ -36,7 +36,7 @@ IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
   return 0;
 }
 
-void IPresetDelegate::MakeDefaultPreset(const char* name, int nPresets)
+void IPresetsDelegate::MakeDefaultPreset(const char* name, int nPresets)
 {
   for (int i = 0; i < nPresets; ++i)
   {
@@ -50,7 +50,7 @@ void IPresetDelegate::MakeDefaultPreset(const char* name, int nPresets)
   }
 }
 
-void IPresetDelegate::MakePreset(const char* name, ...)
+void IPresetsDelegate::MakePreset(const char* name, ...)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -71,7 +71,7 @@ void IPresetDelegate::MakePreset(const char* name, ...)
   }
 }
 
-void IPresetDelegate::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
+void IPresetsDelegate::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
 {
   TRACE;
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
@@ -114,7 +114,7 @@ void IPresetDelegate::MakePresetFromNamedParams(const char* name, int nParamsNam
   }
 }
 
-void IPresetDelegate::MakePresetFromChunk(const char* name, IByteChunk& chunk)
+void IPresetsDelegate::MakePresetFromChunk(const char* name, IByteChunk& chunk)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -126,7 +126,7 @@ void IPresetDelegate::MakePresetFromChunk(const char* name, IByteChunk& chunk)
   }
 }
 
-void IPresetDelegate::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
+void IPresetsDelegate::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
@@ -150,13 +150,13 @@ void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
   sprintf(str, "%s %d", DEFAULT_USER_PRESET_NAME, nDefaultNames + 1);
 }
 
-void IPresetDelegate::EnsureDefaultPreset()
+void IPresetsDelegate::EnsureDefaultPreset()
 {
   TRACE;
   MakeDefaultPreset("Empty", mPresets.GetSize());
 }
 
-void IPresetDelegate::PruneUninitializedPresets()
+void IPresetsDelegate::PruneUninitializedPresets()
 {
   TRACE;
   int i = 0;
@@ -174,7 +174,7 @@ void IPresetDelegate::PruneUninitializedPresets()
   }
 }
 
-bool IPresetDelegate::RestorePreset(int idx)
+bool IPresetsDelegate::RestorePreset(int idx)
 {
   TRACE;
   bool restoredOK = false;
@@ -203,7 +203,7 @@ bool IPresetDelegate::RestorePreset(int idx)
   return restoredOK;
 }
 
-bool IPresetDelegate::RestorePreset(const char* name)
+bool IPresetsDelegate::RestorePreset(const char* name)
 {
   if (CStringHasContents(name))
   {
@@ -220,7 +220,7 @@ bool IPresetDelegate::RestorePreset(const char* name)
   return false;
 }
 
-const char* IPresetDelegate::GetPresetName(int idx)
+const char* IPresetsDelegate::GetPresetName(int idx)
 {
   if (idx >= 0 && idx < mPresets.GetSize())
   {
@@ -229,7 +229,7 @@ const char* IPresetDelegate::GetPresetName(int idx)
   return "";
 }
 
-void IPresetDelegate::ModifyCurrentPreset(const char* name)
+void IPresetsDelegate::ModifyCurrentPreset(const char* name)
 {
   if (mCurrentPresetIdx >= 0 && mCurrentPresetIdx < mPresets.GetSize())
   {
@@ -247,7 +247,7 @@ void IPresetDelegate::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPresetDelegate::SerializePresets(IByteChunk& chunk)
+bool IPresetsDelegate::SerializePresets(IByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -268,7 +268,7 @@ bool IPresetDelegate::SerializePresets(IByteChunk& chunk)
   return savedOK;
 }
 
-int IPresetDelegate::UnserializePresets(IByteChunk& chunk, int startPos)
+int IPresetsDelegate::UnserializePresets(IByteChunk& chunk, int startPos)
 {
   TRACE;
   WDL_String name;
@@ -296,7 +296,7 @@ int IPresetDelegate::UnserializePresets(IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPresetDelegate::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
+void IPresetsDelegate::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
 {
 // static bool sDumped = false;
   bool sDumped = false;
@@ -334,7 +334,7 @@ void IPresetDelegate::DumpPresetSrcCode(const char* filename, const char* paramE
   }
 }
 
-void IPresetDelegate::DumpAllPresetsBlob(const char* filename)
+void IPresetsDelegate::DumpAllPresetsBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   
@@ -356,7 +356,7 @@ void IPresetDelegate::DumpAllPresetsBlob(const char* filename)
   fclose(fp);
 }
 
-void IPresetDelegate::DumpPresetBlob(const char* filename)
+void IPresetsDelegate::DumpPresetBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   fprintf(fp, "MakePresetFromBlob(\"name\", \"");
@@ -372,7 +372,7 @@ void IPresetDelegate::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
-void IPresetDelegate::DumpBankBlob(const char* filename)
+void IPresetsDelegate::DumpBankBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   
@@ -402,7 +402,7 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPresetDelegate::SaveProgramAsFXP(const char* file)
+bool IPresetsDelegate::SaveProgramAsFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -475,7 +475,7 @@ bool IPresetDelegate::SaveProgramAsFXP(const char* file)
   return false;
 }
 
-bool IPresetDelegate::SaveBankAsFXB(const char* file)
+bool IPresetsDelegate::SaveBankAsFXB(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -580,7 +580,7 @@ bool IPresetDelegate::SaveBankAsFXB(const char* file)
     return false;
 }
 
-bool IPresetDelegate::LoadProgramFromFXP(const char* file)
+bool IPresetsDelegate::LoadProgramFromFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -671,7 +671,7 @@ bool IPresetDelegate::LoadProgramFromFXP(const char* file)
   return false;
 }
 
-bool IPresetDelegate::LoadBankFromFXB(const char* file)
+bool IPresetsDelegate::LoadBankFromFXB(const char* file)
 {
   if (CStringHasContents(file))
   {

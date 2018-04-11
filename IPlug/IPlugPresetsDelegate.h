@@ -19,11 +19,11 @@
 */
 
 /** Everything to do with saving presets */
-class IPresetDelegate : public IPluginDelegate
+class IPresetsDelegate : public IPluginDelegate
 {
 public:
-  IPresetDelegate(int nParams, int nPresets);
-  virtual ~IPresetDelegate();
+  IPresetsDelegate(int nParams, int nPresets);
+  virtual ~IPresetsDelegate();
   
   //IDelegate
   void ModifyCurrentPreset(const char* name = 0) override;

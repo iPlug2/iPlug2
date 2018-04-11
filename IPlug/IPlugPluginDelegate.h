@@ -157,7 +157,7 @@ public:
    * @return The new chunk position (endPos)*/
   virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
   
-  /** This is called by API classes after restoring state and by IPresetDelegate::RestorePreset(). Typically used to update user interface, where parameter values have changed.
+  /** This is called by API classes after restoring state and by IPresetsDelegate::RestorePreset(). Typically used to update user interface, where parameter values have changed.
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
   

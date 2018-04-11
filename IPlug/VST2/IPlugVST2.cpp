@@ -394,10 +394,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           _this->ModifyCurrentPreset();
 #ifndef NO_PRESETS
-          savedOK = static_cast<IPresetDelegate*>(_this)->SerializePresets(chunk);
+          savedOK = static_cast<IPresetsDelegate*>(_this)->SerializePresets(chunk);
 #else
           savedOK = true;
-          assert(savedOK == true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetDelegate
+          assert(savedOK == true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetsDelegate
 #endif
         }
         else
@@ -428,9 +428,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         if (isBank)
         {
           #ifndef NO_PRESETS
-          pos = static_cast<IPresetDelegate*>(_this)->UnserializePresets(chunk, pos);
+          pos = static_cast<IPresetsDelegate*>(_this)->UnserializePresets(chunk, pos);
           #else
-          assert(true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetDelegate
+          assert(true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetsDelegate
           #endif
         }
         else
