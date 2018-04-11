@@ -7,11 +7,6 @@ IGraphicsDelegate::IGraphicsDelegate(int nParams, int nPresets)
 {  
 }
 
-IGraphicsDelegate::IGraphicsDelegate(IDelegate& mainDelegate)
-: IGRAPHICS_DELEGATE(mainDelegate.NParams(), mainDelegate.NPresets())
-{
-}
-
 IGraphicsDelegate::~IGraphicsDelegate()
 {
   DELETE_NULL(mGraphics);

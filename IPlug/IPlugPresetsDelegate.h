@@ -11,7 +11,7 @@
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
-#include "IPlugDelegate.h"
+#include "IPlugPluginDelegate.h"
 /**
  * @file
  * @copydoc IPlugPresets
@@ -19,7 +19,7 @@
 */
 
 /** Everything to do with saving presets */
-class IPresetDelegate : public IDelegate
+class IPresetDelegate : public IPluginDelegate
 {
 public:
   IPresetDelegate(int nParams, int nPresets);

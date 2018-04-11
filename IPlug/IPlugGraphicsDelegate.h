@@ -14,9 +14,7 @@ class IGraphicsDelegate : public IGRAPHICS_DELEGATE
 {
 public:
   IGraphicsDelegate(int nParams, int nPresets);
-  IGraphicsDelegate(IDelegate& mainDelegate);
 //  IGraphicsDelegate(picojson::value json);
-
   ~IGraphicsDelegate();
 
 // IDelegate
