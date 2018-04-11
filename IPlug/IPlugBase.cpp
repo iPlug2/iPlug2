@@ -182,7 +182,7 @@ void IPlugBase::OnTimer(Timer& t)
   {
     ParamChange p;
     mHighPriorityToUIQueue.Pop(p);
-    SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized);
+    SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
   OnIdle();
