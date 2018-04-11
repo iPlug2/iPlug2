@@ -48,5 +48,5 @@ if [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
 then
 #   cp -r resources/img build-web
   cd build-web
-  emrun --browser chrome_canary IPlugEffect-standalone.html
+  emrun --no_emrun_detect --browser chrome_canary IPlugEffect-standalone.html
 fi
