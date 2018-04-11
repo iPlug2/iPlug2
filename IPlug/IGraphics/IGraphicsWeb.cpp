@@ -36,7 +36,7 @@ WebBitmap::WebBitmap(val image, int scale)
   int width, height;
   
   if(url.find("knob.png") != std::string::npos) {   width = 48; height = 2880; }
-  if(url.find("Background_Main.png") != std::string::npos) {   width = 980; height = 581; }
+  if(url.find("Background_Main.png") != std::string::npos) {   width = 980; height = 580; }
   if(url.find("AboutBox.png") != std::string::npos) {   width = 980; height = 581; }
   if(url.find("Detune_Oct.png") != std::string::npos) {   width = 41; height = 112; }
   if(url.find("Detune_Polarity.png") != std::string::npos) {   width = 41; height = 36; }
