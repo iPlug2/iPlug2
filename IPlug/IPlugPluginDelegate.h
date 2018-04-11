@@ -182,9 +182,9 @@ public:
    * @return CString preset name */
   virtual const char* GetPresetName(int idx) { return "-"; }
   
-#pragma mark - Preset Manipulation - OPs
-  
 #else
+  #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
+  
   void ModifyCurrentPreset(const char* name = 0);
   int NPresets() { return mPresets.GetSize(); }
   bool RestorePreset(int idx);
