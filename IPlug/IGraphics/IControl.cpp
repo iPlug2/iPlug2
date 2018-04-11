@@ -75,7 +75,7 @@ void IControl::SetDirty(bool triggerAction)
     {
       mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
       GetUI()->UpdatePeers(this);
-      const IParam* pParam = mDelegate.GetParamObjectFromUI(mParamIdx);
+      const IParam* pParam = mDelegate.GetParam(mParamIdx);
 
       if (mValDisplayControl)
       {
@@ -251,7 +251,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 const IParam* IControl::GetParam()
 {
   if(mParamIdx >= 0)
-    return mDelegate.GetParamObjectFromUI(mParamIdx);
+    return mDelegate.GetParam(mParamIdx);
   else
     return nullptr;
 }

@@ -146,13 +146,7 @@ public:
 
 #pragma mark -
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
-  
-  //TODO: this can go
-  /** Called by the user interface in order to get a const pointer to an IParam object
-   * @param paramIdx The index of the parameter to be retrieved
-   * @return Pointer to an IParam object */
-  virtual const IParam* GetParamObjectFromUI(int paramIdx) { return GetParam(paramIdx); }
-  
+    
   /** Called by the user interface at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified
    * The host may be trying to automate the parameter as well, so it needs to relinquish control when the user is

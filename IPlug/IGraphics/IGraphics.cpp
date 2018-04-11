@@ -178,7 +178,7 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 {
   if (!normalized)
   {
-    const IParam* pParam = mDelegate.GetParamObjectFromUI(paramIdx);
+    const IParam* pParam = mDelegate.GetParam(paramIdx);
 
     if (pParam)
     {
