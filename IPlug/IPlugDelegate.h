@@ -1,7 +1,11 @@
 #pragma once
 #include <cassert>
+#include <cstring>
+#include <stdint.h>
 
-class IParam;
+#include "ptrlist.h"
+
+#include "IPlugParameter.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
  *  It is also the class that owns parameter objects, and has methods for serialization of state
@@ -21,20 +25,33 @@ class IParam;
 class IDelegate
 {
 public:
-  IDelegate()
+  IDelegate(int nParams)
   {
+    for (int i = 0; i < nParams; ++i)
+      mParams.Add(new IParam());
   }
   
   virtual ~IDelegate()
   {
+    mParams.Empty(true);
   }
   
-  virtual IParam* GetParam(int paramIdx)
-  {
-    // we should not hit this
-    assert(true);
-    return nullptr;
-  }
+  /** Get a pointer to one of the delegate's IParam objects
+   * @param paramIdx The index of the parameter object to be got
+   * @return A pointer to the IParam object at paramIdx */
+  IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
+  
+  /** @return Returns the number of parameters that belong to the plug-in. */
+  int NParams() const { return mParams.GetSize(); }
+  
+  /** @return The number of unique parameter groups identified */
+  int NParamGroups() { return mParamGroups.GetSize(); }
+  
+  /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
+  virtual void* OpenWindow(void* pHandle) { return nullptr; }
+  
+  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
+  virtual void CloseWindow() {};
   
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameters using this method
@@ -93,4 +110,10 @@ public:
    * @param data1 The first data byte of the MIDI message
    * @param data2 The second data byte of the MIDI message*/
   virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
+  
+protected:
+  /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
+  WDL_PtrList<const char> mParamGroups;
+  /** A list of IParam objects. This list is populated in the delicate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
+  WDL_PtrList<IParam> mParams;
 };

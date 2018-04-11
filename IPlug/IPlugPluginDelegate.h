@@ -2,9 +2,7 @@
 
 #include <random>
 
-#include "ptrlist.h"
-
-#include "IPlugDelegate.h"
+#include "IPlugDelegate_select.h"
 #include "IPlugParameter.h"
 #include "IPlugStructs.h"
 
@@ -22,7 +20,7 @@
  *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
  *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
  *  A parameter object is also referred to as a "param", in method names such as IPlugBase::GetParam(int paramIdx) and IControl::GetParam(). */
-class IPluginDelegate : public IDelegate
+class IPluginDelegate : public IPLUGIN_SUPER_CLASS
 {
 public:
   IPluginDelegate(int nParams, int nPresets);
@@ -90,26 +88,8 @@ public:
   
   /** @return The default height of the plug-in UI in pixels, if defined in config.h */
   int Height() const { return mHeight; }
-  
-  /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
-  virtual void* OpenWindow(void* pHandle) { return nullptr; }
-  
-  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
-  virtual void CloseWindow() {};
-  
+    
 #pragma mark - Parameters
-  
-  /** Get a pointer to one of the delegate's IParam objects
-   * @param paramIdx The index of the parameter object to be got
-   * @return A pointer to the IParam object at paramIdx */
-  IParam* GetParam(int paramIdx) override { return mParams.Get(paramIdx); }
-  
-  /** @return Returns the number of parameters that belong to the plug-in. */
-  int NParams() const { return mParams.GetSize(); }
-  
-  /** @return The number of unique parameter groups identified */
-  int NParamGroups() { return mParamGroups.GetSize(); }
-  
   /** Called to add a parameter group name, when a unique group name is discovered
    * @param name CString for the unique group name
    * @return Number of parameter groups */
@@ -366,12 +346,7 @@ protected:
   int mWidth = 0;
   /** The default height of the plug-in UI if it has an interface. */
   int mHeight = 0;
-  
-  /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
-  WDL_PtrList<const char> mParamGroups;
-  /** A list of IParam objects. This list is populated in the delicate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
-  WDL_PtrList<IParam> mParams;
-  
+    
 #ifndef NO_PRESETS
   WDL_PtrList<IPreset> mPresets;
 #endif

@@ -1,14 +1,16 @@
-#include "IPlugPluginDelegate.h"
-
 #ifdef NO_IGRAPHICS
-  typedef IPluginDelegate PLUG_DELEGATE;
+  #include "IPlugDelegate.h"
+  typedef IDelegate IPLUGIN_SUPER_CLASS;
+  #include "IPlugPluginDelegate.h"
+  #define PLUGBASE_SUPER_CLASS IPluginDelegate
 #else
   #include "IPlugGraphicsDelegate.h"
-  typedef IPluginDelegate IGRAPHICS_DELEGATE;
+  typedef IGraphicsDelegate IPLUGIN_SUPER_CLASS;
+  #include "IPlugPluginDelegate.h"
   #ifdef SPLIT_UI // this means that the user interface is in a separated editor class
-    #define EDITOR_DELEGATE IGraphicsDelegate
-    #define PLUG_DELEGATE IPluginDelegate
+    #define EDITOR_SUPER_CLASS IPluginDelegate
+    #define PLUGBASE_SUPER_CLASS IPluginDelegate
   #else
-    #define PLUG_DELEGATE IGraphicsDelegate
+    #define PLUGBASE_SUPER_CLASS IPluginDelegate
   #endif
 #endif

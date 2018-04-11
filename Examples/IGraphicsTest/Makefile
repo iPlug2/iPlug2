@@ -10,7 +10,7 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IControl.cpp \
 	$(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(IGRAPHICS_PATH)/IGraphicsWeb.cpp
 
-IPLUG_SRC = $(IPLUG_PATH)/IPlugParameter.cpp $(IPLUG_PATH)/IPlugDelegate.cpp $(IPLUG_PATH)/IPlugGraphicsDelegate.cpp
+IPLUG_SRC = $(IPLUG_PATH)/IPlugParameter.cpp $(IPLUG_PATH)/IPlugGraphicsDelegate.cpp
 
 THIS_SRC = main_web.cpp IGraphicsTest.cpp
 

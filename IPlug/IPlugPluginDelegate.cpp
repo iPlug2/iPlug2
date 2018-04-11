@@ -3,10 +3,8 @@
 #include "wdl_base64.h"
 
 IPluginDelegate::IPluginDelegate(int nParams, int nPresets)
-{
-  for (int i = 0; i < nParams; ++i)
-    mParams.Add(new IParam());
-  
+: IPLUGIN_SUPER_CLASS(nParams)
+{  
 #ifndef NO_PRESETS
   for (int i = 0; i < nPresets; ++i)
     mPresets.Add(new IPreset());
@@ -15,8 +13,6 @@ IPluginDelegate::IPluginDelegate(int nParams, int nPresets)
 
 IPluginDelegate::~IPluginDelegate()
 {
-  mParams.Empty(true);
-  
 #ifndef NO_PRESETS
   mPresets.Empty(true);
 #endif

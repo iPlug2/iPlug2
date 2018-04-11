@@ -2,8 +2,8 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-IGraphicsDelegate::IGraphicsDelegate(int nParams, int nPresets)
-: IGRAPHICS_DELEGATE(nParams, nPresets)
+IGraphicsDelegate::IGraphicsDelegate(int nParams)
+: IDelegate(nParams)
 {  
 }
 
@@ -30,18 +30,18 @@ void IGraphicsDelegate::AttachGraphics(IGraphics* pGraphics)
   }
 }
 
-void IGraphicsDelegate::OnRestoreState()
-{
-  if (mGraphics)
-  {
-    int i, n = mParams.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      double v = mParams.Get(i)->Value();
-      SendParameterValueToUIFromDelegate(i, v, false);
-    }
-  }
-}
+//void IGraphicsDelegate::OnRestoreState()
+//{
+//  if (mGraphics)
+//  {
+//    int i, n = mParams.GetSize();
+//    for (i = 0; i < n; ++i)
+//    {
+//      double v = mParams.Get(i)->Value();
+//      SendParameterValueToUIFromDelegate(i, v, false);
+//    }
+//  }
+//}
 
 void* IGraphicsDelegate::OpenWindow(void* pHandle)
 {
