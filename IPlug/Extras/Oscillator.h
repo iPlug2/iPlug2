@@ -4,10 +4,10 @@ template <typename T>
 class IOscillator
 {
 public:
-  IOscillator(double startPhase = 0.)
+  IOscillator(double startPhase = 0., double startFreq = 1.)
   : mStartPhase(startPhase)
   {
-    SetFreqCPS(1.);
+    SetFreqCPS(startFreq);
   }
 
   virtual inline T Process(double freqHz) = 0;
@@ -38,8 +38,8 @@ template <typename T>
 class SinOscillator : public IOscillator<T>
 {
 public:
-  SinOscillator(double startPhase = 0.)
-  : IOscillator<T>(startPhase)
+  SinOscillator(double startPhase = 0., double startFreq = 1.)
+  : IOscillator<T>(startPhase, startFreq)
   {
   }
 
@@ -107,17 +107,25 @@ class FastSinOscillator : public IOscillator<T>
   } ALIGNED(8);
 
 public:
-  FastSinOscillator(double startPhase = 0.)
-  : IOscillator<T>(startPhase * tableSizeM1)
+  FastSinOscillator(double startPhase = 0., double startFreq = 1.)
+  : IOscillator<T>(startPhase * tableSizeM1, startFreq)
   {
   }
 
   //todo rewrite this
+  inline T Process()
+  {
+    T output = 0.;
+    ProcessBlock(&output, 1);
+
+    return output;
+  }
+
   inline T Process(double freqCPS) override
   {
     IOscillator<T>::SetFreqCPS(freqCPS);
 
-    double output = 0.;
+    T output = 0.;
     ProcessBlock(&output, 1);
 
     return output;
@@ -126,7 +134,7 @@ public:
   static inline T Lookup(double phaseRadians)
   {
     double tPhase = phaseRadians / (PI * 2.) * tableSizeM1;
-    
+
     tPhase += (double) UNITBIT32;
 
     union tabfudge tf;
