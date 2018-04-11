@@ -482,7 +482,7 @@ public:
   OSCReciever(int port = 8000)
   {
     WDL_String str;
-    CreateReciever(str, this, port);
+    CreateReciever(str, port);
     DBGMSG("%s\n", str.Get());
     
     mInputProc = [&]()
