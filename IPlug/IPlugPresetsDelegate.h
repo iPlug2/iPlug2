@@ -32,10 +32,6 @@ public:
   bool RestorePreset(const char* name) override;
   const char* GetPresetName(int idx) override;
   
-//  virtual void PresetsChangedByHost() {} // does nothing by default
-
-  void EnsureDefaultPreset();
-  
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
   // MakePreset(name, param1, param2, ..., paramN)
@@ -50,10 +46,13 @@ public:
 
   void PruneUninitializedPresets();
 
-  // Unserialize / SerializePresets - Only used by VST2
+  // VST2 API only
+  virtual void OnPresetsModified() {}
+  void EnsureDefaultPreset();
   bool SerializePresets(IByteChunk& chunk);
   int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
-
+  // /VST2 API only
+  
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
   void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
   void DumpPresetBlob(const char* file);

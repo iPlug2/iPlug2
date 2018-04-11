@@ -1,5 +1,8 @@
 #include <cstdio>
 #include "IPlugVST2.h"
+#ifndef NO_PRESETS
+#include "IPlugPresetsDelegate.h"
+#endif
 
 const int VST_VERSION = 2400;
 
@@ -390,7 +393,12 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         if (isBank)
         {
           _this->ModifyCurrentPreset();
-          savedOK = _this->SerializePresets(chunk);
+#ifndef NO_PRESETS
+          savedOK = static_cast<IPresetDelegate*>(_this)->SerializePresets(chunk);
+#else
+          savedOK = true;
+          assert(savedOK == true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetDelegate
+#endif
         }
         else
         {
@@ -419,7 +427,11 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 
         if (isBank)
         {
-          pos = _this->UnserializePresets(chunk, pos);
+          #ifndef NO_PRESETS
+          pos = static_cast<IPresetDelegate*>(_this)->UnserializePresets(chunk, pos);
+          #else
+          assert(true); //TODO: this is wrong, needs fixing, what to do if we hit this and we're not a IPresetDelegate
+          #endif
         }
         else
         {
@@ -715,7 +727,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (ptr)
       {
         _this->ModifyCurrentPreset((char*) ptr);
-        _this->PresetsChangedByHost();
+        _this->OnPresetsModified();
       }
       return 0;
     }

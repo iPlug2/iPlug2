@@ -6,8 +6,7 @@
 #include "wdlendian.h"
 #include "wdl_base64.h"
 
-#include "IPlugBase.h"
-#include "IPlugPresetDelegate.h"
+#include "IPlugPresetsDelegate.h"
 
 IPresetDelegate::IPresetDelegate(int nParams, int nPresets)
 : IDelegate(nParams, nPresets)
@@ -197,7 +196,7 @@ bool IPresetDelegate::RestorePreset(int idx)
     if (restoredOK)
     {
       mCurrentPresetIdx = idx;
-//      PresetsChangedByHost();
+      OnPresetsModified();
       OnRestoreState();
     }
   }

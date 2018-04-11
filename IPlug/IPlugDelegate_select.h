@@ -3,7 +3,7 @@
     #include "IPlugDelegate.h"
     typedef IDelegate IPLUG_DELEGATE;
   #else
-    #include "IPlugPresetDelegate.h"
+    #include "IPlugPresetsDelegate.h"
     typedef IPresetDelegate IPLUG_DELEGATE;
   #endif
 #else
@@ -12,7 +12,7 @@
     typedef IDelegate IGRAPHICS_DELEGATE;
     typedef IGraphicsDelegate IPLUG_DELEGATE;
   #else
-    #include "IPlugPresetDelegate.h"
+    #include "IPlugPresetsDelegate.h"
     typedef IPresetDelegate IGRAPHICS_DELEGATE;
     #include "IPlugGraphicsDelegate.h"
     typedef IGRAPHICS_DELEGATE IPLUG_DELEGATE;
