@@ -35,15 +35,6 @@ public:
 
 #pragma mark - Methods you can implement/override in your plug-in class - you do not call these methods
 
-  /** Override this method to do something when a parameter changes.
-   * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD
-   * @param paramIdx The index of the parameter that changed
-   * @param source One of the EParamSource options to indicate where the parameter change came from. */
-  virtual void OnParamChange(int paramIdx, EParamSource source);
-
-  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
-  virtual void OnParamChange(int paramIdx) {}
-
   /** Override this method to implement a custom comparison of incoming state data with your plug-ins state data, in order
    * to support the ProTools compare light when using custom state chunks. The default implementation will compare the serialized parameters.
    * @param incomingState The incoming state data

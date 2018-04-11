@@ -58,6 +58,21 @@ public:
    * @return CString for the unique group name */
   const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
   
+#pragma mark - Parameter Change
+  /** Override this method to do something when a parameter changes.
+   * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD
+   * @param paramIdx The index of the parameter that changed
+   * @param source One of the EParamSource options to indicate where the parameter change came from. */
+  virtual void OnParamChange(int paramIdx, EParamSource source);
+  
+  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
+  virtual void OnParamChange(int paramIdx) {}
+  
+  /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
+   * You should not update parameters using this method
+   * @param paramIdx The index of the parameter that changed */
+  virtual void OnParamChangeUI(int paramIdx) {};
+  
 #pragma mark - State Serialization
   /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
   bool DoesStateChunks() const { return mStateChunks; }
@@ -216,11 +231,11 @@ public:
    * @param paramIdx The index of the parameter to be updated
    * @param value The new value of the parameter
    * @param normalized \c true if value is normalised */
-  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx, value); } // TODO: normalised?
+  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx); } // TODO: normalised?
 
 #pragma mark - DELEGATION methods for sending values FROM the user interface
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
-    
+  
   /** Called by the user interface at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified
    * The host may be trying to automate the parameter as well, so it needs to relinquish control when the user is
@@ -232,7 +247,7 @@ public:
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
-  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) { OnParamChangeUI(paramIdx, normalizedValue); } // TODO: normalised?
+  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) { GetParam(paramIdx)->SetNormalized(normalizedValue); OnParamChangeUI(paramIdx); }
   
   /** Called by the user interface at the end of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is no longer being modified
@@ -251,7 +266,6 @@ public:
    * @param data2 The second data byte of the MIDI message*/
   virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
   
-  virtual void OnParamChangeUI(int paramIdx, double value) {};
 protected:
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;

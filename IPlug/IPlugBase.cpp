@@ -41,12 +41,6 @@ IPlugBase::~IPlugBase()
   TRACE;
 }
 
-void IPlugBase::OnParamChange(int paramIdx, EParamSource source)
-{
-  Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
-  OnParamChange(paramIdx);
-}
-
 bool IPlugBase::CompareState(const uint8_t* pIncomingState, int startPos)
 {
   bool isEqual = true;

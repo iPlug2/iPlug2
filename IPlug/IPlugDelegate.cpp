@@ -12,6 +12,12 @@ IDelegate::~IDelegate()
   mParams.Empty(true);
 }
 
+void IDelegate::OnParamChange(int paramIdx, EParamSource source)
+{
+  Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
+  OnParamChange(paramIdx);
+}
+
 bool IDelegate::SerializeParams(IByteChunk& chunk)
 {
   TRACE;
