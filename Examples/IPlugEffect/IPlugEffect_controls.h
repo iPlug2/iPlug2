@@ -3,7 +3,7 @@
 class FileMenu : public IDirBrowseControlBase
 {
 public:
-  FileMenu(IPlugBaseGraphics& plug, IRECT rect, const IText& text,
+  FileMenu(IDelegate& plug, IRECT rect, const IText& text,
            const char* extension)
   : IDirBrowseControlBase(plug, rect, extension)
   {
@@ -46,7 +46,7 @@ private:
 class IArcControl : public IKnobControlBase
 {
 public:
-  IArcControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
+  IArcControl(IDelegate& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
   : IKnobControlBase(plug, rect, paramIdx)
   , mAngle1(angle1)
   , mAngle2(angle2)
@@ -97,7 +97,7 @@ private:
 class IPolyControl : public IKnobControlBase
 {
 public:
-  IPolyControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdx)
+  IPolyControl(IDelegate& plug, IRECT rect, int paramIdx)
   : IKnobControlBase(plug, rect, paramIdx)
   {
   }
@@ -141,7 +141,7 @@ private:
 class IGradientControl : public IKnobControlBase
 {
 public:
-  IGradientControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdxIdx)
+  IGradientControl(IDelegate& plug, IRECT rect, int paramIdxIdx)
   : IKnobControlBase(plug, rect, paramIdxIdx)
   {
     RandomiseGradient();
@@ -198,7 +198,7 @@ private:
 class IMultiPathControl : public IKnobControlBase
 {
 public:
-  IMultiPathControl(IPlugBaseGraphics& plug, IRECT rect, int paramIdxIdx)
+  IMultiPathControl(IDelegate& plug, IRECT rect, int paramIdxIdx)
   : IKnobControlBase(plug, rect, paramIdxIdx), mShape(0)
   {
   }
