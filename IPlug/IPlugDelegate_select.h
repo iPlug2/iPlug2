@@ -15,6 +15,10 @@
     #include "IPlugPresetsDelegate.h"
     typedef IPresetDelegate IGRAPHICS_DELEGATE;
     #include "IPlugGraphicsDelegate.h"
-    typedef IGRAPHICS_DELEGATE IPLUG_DELEGATE;
+    #ifdef SPLIT_UI
+      typedef IGRAPHICS_DELEGATE IPLUG_DELEGATE;
+    #else
+      #define IPLUG_DELEGATE IGraphicsDelegate
+    #endif
   #endif
 #endif
