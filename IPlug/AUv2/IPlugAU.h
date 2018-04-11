@@ -38,7 +38,6 @@ struct IPlugInstanceInfo
 */
 class IPlugAU : public IPlugBase
               , public IPlugProcessor<PLUG_SAMPLE_DST>
-              , public IPlugPresetHandler
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);

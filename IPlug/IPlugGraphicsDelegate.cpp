@@ -2,13 +2,13 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-IGraphicsDelegate::IGraphicsDelegate(int nParams)
-: IDelegate(nParams)
+IGraphicsDelegate::IGraphicsDelegate(int nParams, int nPresets)
+: IGRAPHICS_DELEGATE(nParams, nPresets)
 {  
 }
 
 IGraphicsDelegate::IGraphicsDelegate(IDelegate& mainDelegate)
-: IDelegate(mainDelegate.NParams())
+: IGRAPHICS_DELEGATE(mainDelegate.NParams(), mainDelegate.NPresets())
 {
 }
 

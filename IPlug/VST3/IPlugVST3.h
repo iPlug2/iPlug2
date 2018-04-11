@@ -30,7 +30,6 @@ using namespace Steinberg;
 */
 class IPlugVST3 : public IPlugBase
                 , public IPlugProcessor<PLUG_SAMPLE_DST>
-                , public IPlugPresetHandler
                 , public Vst::SingleComponentEffect
 {
 public:

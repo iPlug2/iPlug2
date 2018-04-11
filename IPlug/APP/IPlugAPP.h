@@ -32,7 +32,6 @@
 */
 class IPlugAPP : public IPlugBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
-               , public IPlugPresetHandler
 {
 public:
   IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);

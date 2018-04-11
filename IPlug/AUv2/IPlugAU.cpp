@@ -1781,10 +1781,7 @@ void IPlugAU::ClearConnections()
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugBase(c, kAPIAU)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
-, IPlugPresetHandler(c.nPresets)
 {
-  AttachPresetHandler(this);
-
   Trace(TRACELOC, "%s", c.pluginName);
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));

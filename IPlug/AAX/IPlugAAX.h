@@ -44,7 +44,6 @@ private:
 */
 class IPlugAAX : public IPlugBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
-               , public IPlugPresetHandler
                , public AAX_CIPlugParameters
 {
 public:

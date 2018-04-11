@@ -84,10 +84,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugBase(c, kAPIAAX)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
-, IPlugPresetHandler(c.nPresets)
 {
-  AttachPresetHandler(this);
-
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);

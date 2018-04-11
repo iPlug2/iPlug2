@@ -11,27 +11,28 @@
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
 #include "IPlugParameter.h"
-
+#include "IPlugDelegate.h"
 /**
  * @file
  * @copydoc IPlugPresets
  *
 */
 
-struct IPlugConfig;
-
 /** Everything to do with saving presets */
-class IPlugPresetHandler
+class IPresetDelegate : public IDelegate
 {
 public:
-  IPlugPresetHandler(int nFactoryPresets);
-  virtual ~IPlugPresetHandler();
-
-  /** Called by API class in order to attach this.
-   @param pPlug pointer to the API class */
-  void AttachPresetHandler(void* pPlug) { mPlugBase = pPlug; }
+  IPresetDelegate(int nParams, int nPresets);
+  virtual ~IPresetDelegate();
   
-  virtual void PresetsChangedByHost() {} // does nothing by default
+  //IDelegate
+  void ModifyCurrentPreset(const char* name = 0) override;
+  int NPresets() override { return mPresets.GetSize(); }
+  bool RestorePreset(int idx) override;
+  bool RestorePreset(const char* name) override;
+  const char* GetPresetName(int idx) override;
+  
+//  virtual void PresetsChangedByHost() {} // does nothing by default
 
   void EnsureDefaultPreset();
   
@@ -52,15 +53,6 @@ public:
   // Unserialize / SerializePresets - Only used by VST2
   bool SerializePresets(IByteChunk& chunk);
   int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
-
-  void ModifyCurrentPreset(const char* name = 0); // Sets the currently active preset to whatever current params are.
-  int NPresets() { return mPresets.GetSize(); }
-  int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
-  bool RestorePreset(int idx);
-  bool RestorePreset(const char* name);
-  const char* GetPresetName(int idx);
-
-  void SetCurrentPresetIdx(int idx) { assert(idx < NPresets()); mCurrentPresetIdx = idx; }
 
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
   void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
@@ -90,8 +82,6 @@ public:
   bool LoadProgramFromProToolsPreset(const char* file) { return false; }
   bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID) { return false; }
 
-  int mCurrentPresetIdx = 0;
-
-  void* mPlugBase = nullptr;
+protected:
   WDL_PtrList<IPreset> mPresets;
 };

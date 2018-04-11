@@ -7,17 +7,16 @@
 #include "wdl_base64.h"
 
 #include "IPlugBase.h"
-#include "IPlugPresets.h"
+#include "IPlugPresetDelegate.h"
 
-#define GETPLUG static_cast<IPlugBase*>(mPlugBase)
-
-IPlugPresetHandler::IPlugPresetHandler(int nFactoryPresets)
+IPresetDelegate::IPresetDelegate(int nParams, int nPresets)
+: IDelegate(nParams, nPresets)
 {
-  for (int i = 0; i < nFactoryPresets; ++i)
+  for (int i = 0; i < nPresets; ++i)
     mPresets.Add(new IPreset());
 }
 
-IPlugPresetHandler::~IPlugPresetHandler()
+IPresetDelegate::~IPresetDelegate()
 {
   TRACE;
 
@@ -38,7 +37,7 @@ IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
   return 0;
 }
 
-void IPlugPresetHandler::MakeDefaultPreset(const char* name, int nPresets)
+void IPresetDelegate::MakeDefaultPreset(const char* name, int nPresets)
 {
   for (int i = 0; i < nPresets; ++i)
   {
@@ -47,12 +46,12 @@ void IPlugPresetHandler::MakeDefaultPreset(const char* name, int nPresets)
     {
       pPreset->mInitialized = true;
       strcpy(pPreset->mName, (name ? name : "Empty"));
-      GETPLUG->SerializeState(pPreset->mChunk);
+      SerializeState(pPreset->mChunk);
     }
   }
 }
 
-void IPlugPresetHandler::MakePreset(const char* name, ...)
+void IPresetDelegate::MakePreset(const char* name, ...)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -60,20 +59,20 @@ void IPlugPresetHandler::MakePreset(const char* name, ...)
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
 
-    int i, n = GETPLUG->NParams();
+    int i, n = NParams();
 
     double v = 0.0;
     va_list vp;
     va_start(vp, name);
     for (i = 0; i < n; ++i)
     {
-      GET_PARAM_FROM_VARARG(GETPLUG->GetParam(i)->Type(), vp, v);
+      GET_PARAM_FROM_VARARG(GetParam(i)->Type(), vp, v);
       pPreset->mChunk.Put(&v);
     }
   }
 }
 
-void IPlugPresetHandler::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
+void IPresetDelegate::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
 {
   TRACE;
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
@@ -82,7 +81,7 @@ void IPlugPresetHandler::MakePresetFromNamedParams(const char* name, int nParams
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
 
-    int i = 0, n = GETPLUG->NParams();
+    int i = 0, n = NParams();
 
     WDL_TypedBuf<double> vals;
     vals.Resize(n);
@@ -100,7 +99,7 @@ void IPlugPresetHandler::MakePresetFromNamedParams(const char* name, int nParams
       // This assert will fire if any of the passed-in param values do not match
       // the type that the param was initialized with (int for bool, int, enum; double for double).
       assert(paramIdx >= 0 && paramIdx < n);
-      GET_PARAM_FROM_VARARG(GETPLUG->GetParam(paramIdx)->Type(), vp, *(vals.Get() + paramIdx));
+      GET_PARAM_FROM_VARARG(GetParam(paramIdx)->Type(), vp, *(vals.Get() + paramIdx));
     }
     va_end(vp);
 
@@ -109,14 +108,14 @@ void IPlugPresetHandler::MakePresetFromNamedParams(const char* name, int nParams
     {
       if (*pV == PARAM_UNINIT)        // Any that weren't explicitly set, use the defaults.
       {
-        *pV = GETPLUG->GetParam(i)->Value();
+        *pV = GetParam(i)->Value();
       }
       pPreset->mChunk.Put(pV);
     }
   }
 }
 
-void IPlugPresetHandler::MakePresetFromChunk(const char* name, IByteChunk& chunk)
+void IPresetDelegate::MakePresetFromChunk(const char* name, IByteChunk& chunk)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -128,7 +127,7 @@ void IPlugPresetHandler::MakePresetFromChunk(const char* name, IByteChunk& chunk
   }
 }
 
-void IPlugPresetHandler::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
+void IPresetDelegate::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
@@ -152,13 +151,13 @@ void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
   sprintf(str, "%s %d", DEFAULT_USER_PRESET_NAME, nDefaultNames + 1);
 }
 
-void IPlugPresetHandler::EnsureDefaultPreset()
+void IPresetDelegate::EnsureDefaultPreset()
 {
   TRACE;
   MakeDefaultPreset("Empty", mPresets.GetSize());
 }
 
-void IPlugPresetHandler::PruneUninitializedPresets()
+void IPresetDelegate::PruneUninitializedPresets()
 {
   TRACE;
   int i = 0;
@@ -176,7 +175,7 @@ void IPlugPresetHandler::PruneUninitializedPresets()
   }
 }
 
-bool IPlugPresetHandler::RestorePreset(int idx)
+bool IPresetDelegate::RestorePreset(int idx)
 {
   TRACE;
   bool restoredOK = false;
@@ -188,24 +187,24 @@ bool IPlugPresetHandler::RestorePreset(int idx)
     {
       pPreset->mInitialized = true;
       MakeDefaultUserPresetName(&mPresets, pPreset->mName);
-      restoredOK = GETPLUG->SerializeState(pPreset->mChunk);
+      restoredOK = SerializeState(pPreset->mChunk);
     }
     else
     {
-      restoredOK = (GETPLUG->UnserializeState(pPreset->mChunk, 0) > 0);
+      restoredOK = (UnserializeState(pPreset->mChunk, 0) > 0);
     }
 
     if (restoredOK)
     {
       mCurrentPresetIdx = idx;
-      PresetsChangedByHost();
-      GETPLUG->OnRestoreState();
+//      PresetsChangedByHost();
+      OnRestoreState();
     }
   }
   return restoredOK;
 }
 
-bool IPlugPresetHandler::RestorePreset(const char* name)
+bool IPresetDelegate::RestorePreset(const char* name)
 {
   if (CStringHasContents(name))
   {
@@ -222,7 +221,7 @@ bool IPlugPresetHandler::RestorePreset(const char* name)
   return false;
 }
 
-const char* IPlugPresetHandler::GetPresetName(int idx)
+const char* IPresetDelegate::GetPresetName(int idx)
 {
   if (idx >= 0 && idx < mPresets.GetSize())
   {
@@ -231,7 +230,7 @@ const char* IPlugPresetHandler::GetPresetName(int idx)
   return "";
 }
 
-void IPlugPresetHandler::ModifyCurrentPreset(const char* name)
+void IPresetDelegate::ModifyCurrentPreset(const char* name)
 {
   if (mCurrentPresetIdx >= 0 && mCurrentPresetIdx < mPresets.GetSize())
   {
@@ -240,7 +239,7 @@ void IPlugPresetHandler::ModifyCurrentPreset(const char* name)
 
     Trace(TRACELOC, "%d %s", mCurrentPresetIdx, pPreset->mName);
 
-    GETPLUG->SerializeState(pPreset->mChunk);
+    SerializeState(pPreset->mChunk);
 
     if (CStringHasContents(name))
     {
@@ -249,7 +248,7 @@ void IPlugPresetHandler::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPlugPresetHandler::SerializePresets(IByteChunk& chunk)
+bool IPresetDelegate::SerializePresets(IByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -270,7 +269,7 @@ bool IPlugPresetHandler::SerializePresets(IByteChunk& chunk)
   return savedOK;
 }
 
-int IPlugPresetHandler::UnserializePresets(IByteChunk& chunk, int startPos)
+int IPresetDelegate::UnserializePresets(IByteChunk& chunk, int startPos)
 {
   TRACE;
   WDL_String name;
@@ -286,11 +285,11 @@ int IPlugPresetHandler::UnserializePresets(IByteChunk& chunk, int startPos)
     pos = chunk.GetBool(&(pPreset->mInitialized), pos);
     if (pPreset->mInitialized)
     {
-      pos = GETPLUG->UnserializeState(chunk, pos);
+      pos = UnserializeState(chunk, pos);
       if (pos > 0)
       {
         pPreset->mChunk.Clear();
-        GETPLUG->SerializeState(pPreset->mChunk);
+        SerializeState(pPreset->mChunk);
       }
     }
   }
@@ -298,7 +297,7 @@ int IPlugPresetHandler::UnserializePresets(IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPlugPresetHandler::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
+void IPresetDelegate::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
 {
 // static bool sDumped = false;
   bool sDumped = false;
@@ -306,12 +305,12 @@ void IPlugPresetHandler::DumpPresetSrcCode(const char* filename, const char* par
   if (!sDumped)
   {
     sDumped = true;
-    int i, n = GETPLUG->NParams();
+    int i, n = NParams();
     FILE* fp = fopen(filename, "w");
     fprintf(fp, "  MakePresetFromNamedParams(\"name\", %d", n);
     for (i = 0; i < n; ++i)
     {
-      IParam* pParam = GETPLUG->GetParam(i);
+      IParam* pParam = GetParam(i);
       char paramVal[32];
       switch (pParam->Type())
       {
@@ -336,7 +335,7 @@ void IPlugPresetHandler::DumpPresetSrcCode(const char* filename, const char* par
   }
 }
 
-void IPlugPresetHandler::DumpAllPresetsBlob(const char* filename)
+void IPresetDelegate::DumpAllPresetsBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   
@@ -358,7 +357,7 @@ void IPlugPresetHandler::DumpAllPresetsBlob(const char* filename)
   fclose(fp);
 }
 
-void IPlugPresetHandler::DumpPresetBlob(const char* filename)
+void IPresetDelegate::DumpPresetBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   fprintf(fp, "MakePresetFromBlob(\"name\", \"");
@@ -374,7 +373,7 @@ void IPlugPresetHandler::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
-void IPlugPresetHandler::DumpBankBlob(const char* filename)
+void IPresetDelegate::DumpBankBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   
@@ -404,7 +403,7 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
+bool IPresetDelegate::SaveProgramAsFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -416,24 +415,24 @@ bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
     int32_t byteSize = 0;
     int32_t fxpMagic;
     int32_t fxpVersion = WDL_bswap32(kFXPVersionNum);
-    int32_t pluginID = WDL_bswap32(GETPLUG->GetUniqueID());
-    int32_t pluginVersion = WDL_bswap32(GETPLUG->GetPluginVersion(true));
-    int32_t numParams = WDL_bswap32(GETPLUG->NParams());
+    int32_t pluginID = WDL_bswap32(GetUniqueID());
+    int32_t pluginVersion = WDL_bswap32(GetPluginVersion(true));
+    int32_t numParams = WDL_bswap32(NParams());
     char prgName[28];
     memset(prgName, 0, 28);
     strcpy(prgName, GetPresetName(GetCurrentPresetIdx()));
 
     pgm.Put(&chunkMagic);
 
-    if (GETPLUG->DoesStateChunks())
+    if (DoesStateChunks())
     {
       IByteChunk state;
       int32_t chunkSize;
 
       fxpMagic = WDL_bswap32('FPCh');
 
-      GETPLUG->InitChunkWithIPlugVer(state);
-      GETPLUG->SerializeState(state);
+      IByteChunk::InitChunkWithIPlugVer(state);
+      SerializeState(state);
 
       chunkSize = WDL_bswap32(state.Size());
       byteSize = WDL_bswap32(state.Size() + 60);
@@ -451,7 +450,7 @@ bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
     else
     {
       fxpMagic = WDL_bswap32('FxCk');
-      //byteSize = WDL_bswap32(20 + 28 + (GETPLUG->NParams() * 4) );
+      //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
       pgm.Put(&byteSize);
       pgm.Put(&fxpMagic);
       pgm.Put(&fxpVersion);
@@ -460,10 +459,10 @@ bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
       pgm.Put(&numParams);
       pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
 
-      for (int i = 0; i< GETPLUG->NParams(); i++)
+      for (int i = 0; i< NParams(); i++)
       {
         WDL_EndianFloat v32;
-        v32.f = (float) GETPLUG->GetParam(i)->GetNormalized();
+        v32.f = (float) GetParam(i)->GetNormalized();
         unsigned int swapped = WDL_bswap32(v32.int32);
         pgm.Put(&swapped);
       }
@@ -477,7 +476,7 @@ bool IPlugPresetHandler::SaveProgramAsFXP(const char* file)
   return false;
 }
 
-bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
+bool IPresetDelegate::SaveBankAsFXB(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -489,8 +488,8 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
     int32_t byteSize = 0;
     int32_t fxbMagic;
     int32_t fxbVersion = WDL_bswap32(kFXBVersionNum);
-    int32_t pluginID = WDL_bswap32(GETPLUG->GetUniqueID());
-    int32_t pluginVersion = WDL_bswap32(GETPLUG->GetPluginVersion(true));
+    int32_t pluginID = WDL_bswap32(GetUniqueID());
+    int32_t pluginVersion = WDL_bswap32(GetPluginVersion(true));
     int32_t numPgms =  WDL_bswap32(NPresets());
     int32_t currentPgm = WDL_bswap32(GetCurrentPresetIdx());
     char future[124];
@@ -498,14 +497,14 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
 
     bnk.Put(&chunkMagic);
 
-    if (GETPLUG->DoesStateChunks())
+    if (DoesStateChunks())
     {
       IByteChunk state;
       int32_t chunkSize;
 
       fxbMagic = WDL_bswap32('FBCh');
 
-      GETPLUG->InitChunkWithIPlugVer(state);
+      IByteChunk::InitChunkWithIPlugVer(state);
       SerializePresets(state);
 
       chunkSize = WDL_bswap32(state.Size());
@@ -538,7 +537,7 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
 
       int32_t fxpMagic = WDL_bswap32('FxCk');
       int32_t fxpVersion = WDL_bswap32(kFXPVersionNum);
-      int32_t numParams = WDL_bswap32(GETPLUG->NParams());
+      int32_t numParams = WDL_bswap32(NParams());
 
       for (int p = 0; p < NPresets(); p++)
       {
@@ -549,7 +548,7 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
         strcpy(prgName, pPreset->mName);
 
         bnk.Put(&chunkMagic);
-        //byteSize = WDL_bswap32(20 + 28 + (GETPLUG->NParams() * 4) );
+        //byteSize = WDL_bswap32(20 + 28 + (NParams() * 4) );
         bnk.Put(&byteSize);
         bnk.Put(&fxpMagic);
         bnk.Put(&fxpVersion);
@@ -560,13 +559,13 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
 
         int pos = 0;
 
-        for (int i = 0; i< GETPLUG->NParams(); i++)
+        for (int i = 0; i< NParams(); i++)
         {
           double v = 0.0;
           pos = pPreset->mChunk.Get(&v, pos);
 
           WDL_EndianFloat v32;
-          v32.f = (float) GETPLUG->GetParam(i)->ToNormalized(v);
+          v32.f = (float) GetParam(i)->ToNormalized(v);
           uint32_t swapped = WDL_bswap32(v32.int32);
           bnk.Put(&swapped);
         }
@@ -582,7 +581,7 @@ bool IPlugPresetHandler::SaveBankAsFXB(const char* file)
     return false;
 }
 
-bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
+bool IPresetDelegate::LoadProgramFromFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -631,39 +630,39 @@ bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
 
       if (chunkMagic != 'CcnK') return false;
       if (fxpVersion != kFXPVersionNum) return false; // TODO: what if a host saves as a different version?
-      if (pluginID != GETPLUG->GetUniqueID()) return false;
+      if (pluginID != GetUniqueID()) return false;
       //if (pluginVersion != GetPluginVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
-      //if (numParams != GETPLUG->NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
+      //if (numParams != NParams()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
-      if (GETPLUG->DoesStateChunks() && fxpMagic == 'FPCh')
+      if (DoesStateChunks() && fxpMagic == 'FPCh')
       {
         int32_t chunkSize;
         pos = pgm.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GETPLUG->GetIPlugVerFromChunk(pgm, pos);
-        GETPLUG->UnserializeState(pgm, pos);
+        IByteChunk::GetIPlugVerFromChunk(pgm, pos);
+        UnserializeState(pgm, pos);
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
-        GETPLUG->InformHostOfProgramChange();
+        InformHostOfProgramChange();
 
         return true;
       }
       else if (fxpMagic == 'FxCk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
       {
-        GETPLUG->ENTER_PARAMS_MUTEX;
-        for (int i = 0; i< GETPLUG->NParams(); i++)
+        ENTER_PARAMS_MUTEX;
+        for (int i = 0; i< NParams(); i++)
         {
           WDL_EndianFloat v32;
           pos = pgm.Get(&v32.int32, pos);
           v32.int32 = WDL_bswap_if_le(v32.int32);
-          GETPLUG->GetParam(i)->SetNormalized((double) v32.f);
+          GetParam(i)->SetNormalized((double) v32.f);
         }
-        GETPLUG->LEAVE_PARAMS_MUTEX;
+        LEAVE_PARAMS_MUTEX;
 
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
-        GETPLUG->InformHostOfProgramChange();
+        InformHostOfProgramChange();
 
         return true;
       }
@@ -673,7 +672,7 @@ bool IPlugPresetHandler::LoadProgramFromFXP(const char* file)
   return false;
 }
 
-bool IPlugPresetHandler::LoadBankFromFXB(const char* file)
+bool IPresetDelegate::LoadBankFromFXB(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -726,20 +725,20 @@ bool IPlugPresetHandler::LoadBankFromFXB(const char* file)
 
       if (chunkMagic != 'CcnK') return false;
       //if (fxbVersion != kFXBVersionNum) return false; // TODO: what if a host saves as a different version?
-      if (pluginID != GETPLUG->GetUniqueID()) return false;
+      if (pluginID != GetUniqueID()) return false;
       //if (pluginVersion != GetPluginVersion(true)) return false; // TODO: provide mechanism for loading earlier versions
       //if (numPgms != NPresets()) return false; // TODO: provide mechanism for loading earlier versions with less params
 
-      if (GETPLUG->DoesStateChunks() && fxbMagic == 'FBCh')
+      if (DoesStateChunks() && fxbMagic == 'FBCh')
       {
         int32_t chunkSize;
         pos = bnk.Get(&chunkSize, pos);
         chunkSize = WDL_bswap_if_le(chunkSize);
 
-        GETPLUG->GetIPlugVerFromChunk(bnk, pos);
+        IByteChunk::GetIPlugVerFromChunk(bnk, pos);
         UnserializePresets(bnk, pos);
         //RestorePreset(currentPgm);
-        GETPLUG->InformHostOfProgramChange();
+        InformHostOfProgramChange();
         return true;
       }
       else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
@@ -779,27 +778,27 @@ bool IPlugPresetHandler::LoadBankFromFXB(const char* file)
           if (chunkMagic != 'CcnK') return false;
           if (fxpMagic != 'FxCk') return false;
           if (fxpVersion != kFXPVersionNum) return false;
-          if (numParams != GETPLUG->NParams()) return false;
+          if (numParams != NParams()) return false;
 
           pos = bnk.GetBytes(prgName, 28, pos);
 
           RestorePreset(i);
 
-          GETPLUG->ENTER_PARAMS_MUTEX;
-          for (int j = 0; j< GETPLUG->NParams(); j++)
+          ENTER_PARAMS_MUTEX;
+          for (int j = 0; j< NParams(); j++)
           {
             WDL_EndianFloat v32;
             pos = bnk.Get(&v32.int32, pos);
             v32.int32 = WDL_bswap_if_le(v32.int32);
-            GETPLUG->GetParam(j)->SetNormalized((double) v32.f);
+            GetParam(j)->SetNormalized((double) v32.f);
           }
-          GETPLUG->LEAVE_PARAMS_MUTEX;
+          LEAVE_PARAMS_MUTEX;
 
           ModifyCurrentPreset(prgName);
         }
 
         RestorePreset(currentPgm);
-        GETPLUG->InformHostOfProgramChange();
+        InformHostOfProgramChange();
 
         return true;
       }

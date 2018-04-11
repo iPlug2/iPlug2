@@ -9,11 +9,10 @@
 #include "IPlugBase.h"
 
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
-  : IPLUG_DELEGATE(c.nParams)
+  : IPLUG_DELEGATE(c.nParams, c.nPresets)
   , mUniqueID(c.uniqueID)
   , mMfrID(c.mfrID)
   , mVersion(c.vendorVersion)
-  , mStateChunks(c.plugDoesChunks)
   , mPluginName(c.pluginName, MAX_PLUGIN_NAME_LEN)
   , mProductName(c.productName, MAX_PLUGIN_NAME_LEN)
   , mMfrName(c.mfrName, MAX_PLUGIN_NAME_LEN)
@@ -23,6 +22,8 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   , mAPI(plugAPI)
   , mHighPriorityToUIQueue(512) // TODO: CONSTANT
 {
+  mStateChunks = c.plugDoesChunks;
+  
   Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
   
   mParamDisplayStr.Set("", MAX_PARAM_DISPLAY_LEN);
@@ -166,39 +167,6 @@ void IPlugBase::OnParamReset(EParamSource source)
   }
 }
 
-bool IPlugBase::SerializeParams(IByteChunk& chunk)
-{
-  TRACE;
-  bool savedOK = true;
-  int i, n = mParams.GetSize();
-  for (i = 0; i < n && savedOK; ++i)
-  {
-    IParam* pParam = mParams.Get(i);
-    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
-    double v = pParam->Value();
-    savedOK &= (chunk.Put(&v) > 0);
-  }
-  return savedOK;
-}
-
-int IPlugBase::UnserializeParams(const IByteChunk& chunk, int startPos)
-{
-  TRACE;
-  int i, n = mParams.GetSize(), pos = startPos;
-  ENTER_PARAMS_MUTEX;
-  for (i = 0; i < n && pos >= 0; ++i)
-  {
-    IParam* pParam = mParams.Get(i);
-    double v = 0.0;
-    pos = chunk.Get(&v, pos);
-    pParam->Set(v);
-    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
-  }
-  OnParamReset(kPresetRecall);
-  LEAVE_PARAMS_MUTEX;
-  return pos;
-}
-
 void IPlugBase::DirtyParameters()
 {
   for (int p = 0; p < NParams(); p++)
@@ -206,26 +174,6 @@ void IPlugBase::DirtyParameters()
     double normalizedValue = GetParam(p)->GetNormalized();
     InformHostOfParamChange(p, normalizedValue);
   }
-}
-
-void IPlugBase::InitChunkWithIPlugVer(IByteChunk& chunk)
-{
-  chunk.Clear();
-  int magic = IPLUG_VERSION_MAGIC;
-  chunk.Put(&magic);
-  int ver = IPLUG_VERSION;
-  chunk.Put(&ver);
-}
-
-int IPlugBase::GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
-{
-  int magic = 0, ver = 0;
-  int magicpos = chunk.Get(&magic, position);
-  
-  if (magicpos > position && magic == IPLUG_VERSION_MAGIC)
-    position = chunk.Get(&ver, magicpos);
-  
-  return ver;
 }
 
 void IPlugBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)

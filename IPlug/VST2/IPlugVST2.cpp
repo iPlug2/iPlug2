@@ -14,12 +14,9 @@ int VSTSpkrArrType(int nchan)
 IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPlugBase(c, kAPIVST2)
   , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
-  , IPlugPresetHandler(c.nPresets)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", c.pluginName);
-
-  AttachPresetHandler(this);
 
   mHasVSTExtensions = VSTEXT_NONE;
 

@@ -9,7 +9,6 @@
 
 #include "aeffectx.h"
 #include "IPlugBase.h"
-#include "IPlugPresets.h"
 #include "IPlugProcessor.h"
 
 /** Used to pass various instance info to the API class */
@@ -22,8 +21,7 @@ struct IPlugInstanceInfo
 *   @ingroup APIClasses
 */
 class IPlugVST2 : public IPlugBase
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
-               , public IPlugPresetHandler
+                , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);

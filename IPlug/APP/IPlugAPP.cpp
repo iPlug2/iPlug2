@@ -7,10 +7,7 @@ extern HWND gHWND;
 IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugBase(c, kAPIAPP)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
-, IPlugPresetHandler(c.nPresets)
 {
-  AttachPresetHandler(this);
-
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);

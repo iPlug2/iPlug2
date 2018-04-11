@@ -106,7 +106,6 @@ protected:
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
-, IPlugPresetHandler(c.nPresets)
 {
   AttachPresetHandler(this);
 
@@ -609,7 +608,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
 // TODO: IPlugVer should be in chunk!
 //  int pos;
-//  GetIPlugVerFromChunk(chunk, pos)
+//  IByteChunk::GetIPlugVerFromChunk(chunk, pos)
 
   if (SerializeState(chunk))
   {

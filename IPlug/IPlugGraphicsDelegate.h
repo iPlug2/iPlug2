@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IPlugDelegate.h"
+#include "IPlugDelegate_select.h"
 
 /**
  * @file
@@ -10,11 +10,12 @@
 class IGraphics;
 
 /** An IPlug delgate base class for an IPlug plug-in that uses IGraphics for it's UI */
-class IGraphicsDelegate : public IDelegate
+class IGraphicsDelegate : public IGRAPHICS_DELEGATE
 {
 public:
-  IGraphicsDelegate(int nParams);
+  IGraphicsDelegate(int nParams, int nPresets);
   IGraphicsDelegate(IDelegate& mainDelegate);
+//  IGraphicsDelegate(picojson::value json);
 
   ~IGraphicsDelegate();
 
