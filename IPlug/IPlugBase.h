@@ -145,8 +145,7 @@ public:
   };
   
   IPlugQueue<ParamChange> mHighPriorityToUIQueue;
-  /** Lock when accessing mParams (including via GetParam) from the audio thread */
-  WDL_Mutex mParams_mutex;
+
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
 };

@@ -357,4 +357,9 @@ protected:
 #ifndef NO_PRESETS
   WDL_PtrList<IPreset> mPresets;
 #endif
+
+#ifndef NO_PARAMS_MUTEX
+  /** Lock when accessing mParams (including via GetParam) from the audio thread */
+  WDL_Mutex mParams_mutex;
+#endif
 };
