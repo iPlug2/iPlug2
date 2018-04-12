@@ -89,8 +89,8 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const int nChans = NOutChansConnected();
   
   for (auto s = 0; s < nFrames; s++) {
-    for (auto c = 0; c < nChans; c++) {
-      outputs[c][s] = inputs[c][s] * gain;
+    for (auto c = 0; c < 1; c++) {
+      outputs[c][s] = mOsc.Process() * 0.1;
     }
   }
   

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-
+#include "Extras/Oscillator.h"
 const int kNumPrograms = 1;
 
 enum EParams
@@ -24,5 +24,5 @@ public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
 private:
-
+  FastSinOscillator<sample> mOsc {0., 440.};
 };
