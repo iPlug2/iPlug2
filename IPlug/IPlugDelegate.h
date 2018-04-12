@@ -8,9 +8,7 @@
 #include "IPlugParameter.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
- *  It is also the class that owns parameter objects, and has methods for serialization of state
- *  It provides a base interface for remote editors as well as the main plug-in, because we may have state/preset management in remote editors,
- *  depending on the arrangement/separation we have chosen
+ *  It is also the class that owns parameter objects
  *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
  *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
  *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
