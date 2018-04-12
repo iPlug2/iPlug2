@@ -64,7 +64,8 @@ IPLUG_SRC = $(API)/processor.cpp \
 	$(WAM_PATH)/IPlugWAM.cpp \
 	$(IPLUG_PATH)/IPlugBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
-	$(IPLUG_PATH)/IPlugDelegate.cpp
+	$(IPLUG_PATH)/IPlugPluginDelegate.cpp \
+	$(IPLUG_PATH)/IPlugTimer.cpp 
 
 IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IControl.cpp \
 	$(IGRAPHICS_PATH)/IControls.cpp \
