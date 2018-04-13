@@ -17,9 +17,12 @@
  *  Note on method names: "FromUI" in a method name, means that that method is called by the UI class. Likewise "ToUI" means 
  *  that the method is delivering something wait for it... to the UI.
  *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IDelegate interface,
- *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
- *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
- *  A parameter object is also referred to as a "param", in method names such as IPlugBase::GetParam(int paramIdx) and IControl::GetParam(). */
+ *  which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics for a separate task.
+ *
+ *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
+ *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
+ *  A parameter OBJECT is also referred to as a "param", in method names such as IDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
+
 class IDelegate
 {
 public:
@@ -42,6 +45,8 @@ public:
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
   
+#pragma mark - Methods you may want to override...
+  
   /** Override this method when not using IGraphics in order to return a platform view handle e.g. NSView, UIView, HWND */
   virtual void* OpenWindow(void* pHandle) { return nullptr; }
   
@@ -53,7 +58,7 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx) {};
   
-  /** This is called by API classes after restoring state and by IPresetsDelegate::RestorePreset(). Typically used to update user interface, where parameter values have changed.
+  /** This is called by API classes after restoring state and by IPresetsDelegate::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
   
