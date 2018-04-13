@@ -134,7 +134,10 @@ EXCLUDE                = ../IPlug/IGraphics/NanoVG \
                          ../IPlug/AUv3/IPlugAUAudioUnit.h \
                          ../IPlug/AUv3/IPlugAUAudioUnit.mm \
                          ../IPlug/AUv3/IPlugViewController.mm \
-                         ../IPlug/AUv2/dfx-au-utilities.c
+                         ../IPlug/AUv2/dfx-au-utilities.h \
+                         ../IPlug/AUv2/dfx-au-utilities.c \
+                         ../IPlug/AUv2/IPlugAU_view_factory.mm
+
 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
@@ -153,7 +156,6 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          VIEW_CLASS \
                          ChannelIO \
                          LogFile \
-                         Timer \
                          AAX_CIPlugParameters \
                          SingleComponentEffect \
                          IGRAPHICS_FORMATTER \
@@ -174,7 +176,6 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          Rasterizer \
                          DashOptions \
                          alpha_span_generator \
-                         AUV2_VIEW_CLASS \
                          
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
