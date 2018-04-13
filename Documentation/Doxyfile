@@ -124,10 +124,18 @@ EXCLUDE                = ../IPlug/IGraphics/NanoVG \
                          ../IPlug/IGraphics/MetalNanoVG \
                          ../IPlug/IGraphics/AGG \
                          ../IPlug/IGraphics/stb \
-                         ../IPlug/AAX \
-                         ../IPlug/AUv3 \
-                         ../IPlug/AUv2 \
-                         ../IPlug/APP \
+                         ../IPlug/AAX/IPlugAAX_Describe.cpp \
+                         ../IPlug/AAX/IPlugAAX_Parameters.cpp \
+                         ../IPlug/AAX/IPlugAAX_Parameters.h \
+                         ../IPlug/AAX/IPlugAAX_TaperDelegate.h \
+                         ../IPlug/AAX/IPlugAAX_view_interface.h \
+                         ../IPlug/Extras \
+                         ../IPlug/AUv3/BufferedAudioBus.hpp \
+                         ../IPlug/AUv3/IPlugAUAudioUnit.h \
+                         ../IPlug/AUv3/IPlugAUAudioUnit.mm \
+                         ../IPlug/AUv3/IPlugViewController.mm \
+                         ../IPlug/AUv2/dfx-au-utilities.c
+
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXCLUDE_SYMBOLS        = IAutoGUI \
@@ -164,7 +172,10 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          AGGBitmap \
                          LICEBitmap \
                          Rasterizer \
-                         DashOptions 
+                         DashOptions \
+                         alpha_span_generator \
+                         AUV2_VIEW_CLASS \
+                         
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
@@ -301,7 +312,7 @@ EXPAND_ONLY_PREDEF     = NO
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
-PREDEFINED             = DOXYGEN_SHOULD_SKIP_THIS
+PREDEFINED             = DOXYGEN_SHOULD_SKIP_THIS NO_IGRAPHICS
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 
