@@ -141,10 +141,6 @@ public:
    * @return The new chunk position (endPos)*/
   virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
   
-  /** This is called by API classes after restoring state and by IPresetsDelegate::RestorePreset(). Typically used to update user interface, where parameter values have changed.
-   * If you need to do something when state is restored you can override it */
-  virtual void OnRestoreState() {};
-  
   /** Get the index of the current, active preset
    * @return The index of the current preset */
   int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
@@ -312,14 +308,6 @@ public:
   /** Default parameter values for a parameter group
    * @param paramGroup The name of the group to modify */
   void DefaultParamValues(const char* paramGroup);
-  
-#pragma mark - DELEGATION methods for sending values FROM the user interface
-  
-  /** Called by the user interface during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
-   * NOTE: If you override this method you should call the base class implementation to make sure GetParam(paramIdx)->SetNormalized and OnParamChangeUI gets triggered
-   * @param paramIdx The index of the parameter that is changing value
-   * @param value The new normalised value of the parameter */
-  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) override { GetParam(paramIdx)->SetNormalized(normalizedValue); OnParamChangeUI(paramIdx); }
 
 protected:
   int mCurrentPresetIdx = 0;
@@ -361,5 +349,5 @@ protected:
 #ifndef NO_PARAMS_MUTEX
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
-#endif
+#endif  
 };

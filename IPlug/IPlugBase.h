@@ -71,8 +71,15 @@ public:
   /** You need to implement this method if you are not using IGraphics and you want to support AAX's view interface functionality
    * (special shortcuts to add automation for a parameter etc.)
    * @return pointer to the class that implements the IAAXViewInterface */
-  virtual void* GetAAXViewInterface() { return nullptr; }
-  
+  virtual void* GetAAXViewInterface()
+  {
+#ifndef NO_IGRAPHICS
+    return (void*) GetUI();
+#else
+    return nullptr;
+#endif
+  }
+
   /** Override this method to get an "idle"" call on the main thread */
   virtual void OnIdle() {}
   

@@ -53,6 +53,10 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx) {};
   
+  /** This is called by API classes after restoring state and by IPresetsDelegate::RestorePreset(). Typically used to update user interface, where parameter values have changed.
+   * If you need to do something when state is restored you can override it */
+  virtual void OnRestoreState() {};
+  
 #pragma mark - DELEGATION methods for sending values TO the user interface
   // The following methods are called from the plug-in/delegate class in order to update the user interface.
   
@@ -87,7 +91,13 @@ public:
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
-  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue) {}
+  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue)
+  {
+    assert(paramIdx < NParams());
+    
+    GetParam(paramIdx)->SetNormalized(normalizedValue);
+    OnParamChangeUI(paramIdx);
+  }
   
   /** Called by the user interface at the end of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is no longer being modified

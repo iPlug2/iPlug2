@@ -22,26 +22,24 @@ void IGraphicsDelegate::AttachGraphics(IGraphics* pGraphics)
     {
       SendParameterValueToUIFromDelegate(i, GetParam(i)->GetNormalized(), true);
     }
-    
-//    mHasUI = true;
-    
+        
     // TODO: is it safe/sensible to do this here
     pGraphics->OnDisplayScale();
   }
 }
 
-//void IGraphicsDelegate::OnRestoreState()
-//{
-//  if (mGraphics)
-//  {
-//    int i, n = mParams.GetSize();
-//    for (i = 0; i < n; ++i)
-//    {
-//      double v = mParams.Get(i)->Value();
-//      SendParameterValueToUIFromDelegate(i, v, false);
-//    }
-//  }
-//}
+void IGraphicsDelegate::OnRestoreState()
+{
+  if (mGraphics)
+  {
+    int i, n = mParams.GetSize();
+    for (i = 0; i < n; ++i)
+    {
+      double v = mParams.Get(i)->Value();
+      SendParameterValueToUIFromDelegate(i, v, false);
+    }
+  }
+}
 
 void* IGraphicsDelegate::OpenWindow(void* pHandle)
 {
@@ -102,6 +100,8 @@ void IGraphicsDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double 
       // Could be more than one, don't break until we check them all.
     }
   }
+  
+  //TODO: aux params disabled
 //  int i, n = mControls.GetSize();
 //  IControl** ppControl = mControls.GetList();
 //  for (i = 0; i < n; ++i, ++ppControl)
@@ -126,6 +126,7 @@ void IGraphicsDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double 
   IDelegate::SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
 }
 
+// TODO: ResizeGraphicsFromUI
 void IGraphicsDelegate::ResizeGraphicsFromUI()
 {
   assert(mGraphics != nullptr);
