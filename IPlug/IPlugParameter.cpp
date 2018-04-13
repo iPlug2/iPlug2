@@ -175,6 +175,8 @@ void IParam::InitPercentage(const char *name, double defaultVal, double minVal, 
 
 void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr, const char* newGroup)
 {
+  if (mType == kTypeNone) mType = p.Type();
+
   WDL_String str(p.mName);
   WDL_String group(p.mParamGroup);
   
@@ -196,6 +198,13 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
   }
   
   InitDouble(str.Get(), p.mDefault, p.mMin, p.mMax, p.mStep, p.mLabel, p.mFlags, group.Get(), p.mShape->Clone(), p.mUnit, p.mDisplayFunction);
+  
+  for (auto i=0; i<p.NDisplayTexts(); i++)
+  {
+    double val;
+    const char* str = p.GetDisplayTextAtIdx(i, &val);
+    SetDisplayText(val, str);
+  }
 }
 
 void IParam::SetDisplayText(double value, const char* str)
