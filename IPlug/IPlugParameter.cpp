@@ -119,7 +119,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
-  mDefault = mValue;
+  mDefault = defaultVal;
   mUnit = unit;
   mFlags = flags;
   mDisplayFunction = displayFunc;
