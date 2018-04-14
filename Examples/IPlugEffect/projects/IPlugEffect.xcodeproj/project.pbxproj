@@ -369,6 +369,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4F05C5A32082223F00DD1621 /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_src.h; path = ../../../IPlug/IGraphics/IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
+		4F05C5A42082224000DD1621 /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_hdr.h; path = ../../../IPlug/IGraphics/IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
+		4F05C5A5208223C800DD1621 /* IPlugWEB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugWEB.h; path = ../../../IPlug/WAM/IPlugWEB.h; sourceTree = "<group>"; };
+		4F05C5A62082258A00DD1621 /* IPlugWEB.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWEB.cpp; path = ../../../IPlug/WAM/IPlugWEB.cpp; sourceTree = "<group>"; };
 		4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Parameters.cpp; path = ../../../IPlug/AAX/IPlugAAX_Parameters.cpp; sourceTree = "<group>"; };
 		4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_Parameters.h; path = ../../../IPlug/AAX/IPlugAAX_Parameters.h; sourceTree = "<group>"; };
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; };
@@ -824,6 +828,8 @@
 			children = (
 				4F5C2140206BE21500055DEC /* IPlugWAM.cpp */,
 				4F5C2141206BE21500055DEC /* IPlugWAM.h */,
+				4F05C5A5208223C800DD1621 /* IPlugWEB.h */,
+				4F05C5A62082258A00DD1621 /* IPlugWEB.cpp */,
 				4F39A96F2051E53600739CAB /* processor.cpp */,
 				4F39A9702051E53600739CAB /* processor.h */,
 			);
@@ -1327,6 +1333,8 @@
 				4F14D1F02074FE4400219377 /* IControls */,
 				4F69BB5C2013C501002C8948 /* PlatformClasses */,
 				4F94ABBD2013B2400058CC5E /* DrawClasses */,
+				4F05C5A42082224000DD1621 /* IGraphics_include_in_plug_hdr.h */,
+				4F05C5A32082223F00DD1621 /* IGraphics_include_in_plug_src.h */,
 				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
 				4FF142751FD4A61D00A65575 /* IGraphics.h */,
 				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,

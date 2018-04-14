@@ -11,7 +11,7 @@ using namespace WAM;
 struct IPlugInstanceInfo
 {};
 
-/** WebAudioModule (WAM) API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
+/** WebAudioModule (WAM) API base class for an IPlug plug-in
  * @ingroup APIClasses */
 class IPlugWAM : public IPlugBase
                , public IPlugProcessor<float>
@@ -27,10 +27,10 @@ public:
 
   virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
   virtual void onMidi(byte status, byte data1, byte data2) override;
-  virtual void onSysex(byte* msg, uint32_t size) override {}
-  virtual void onMessage(char* verb, char* res, double data) override {}
-  virtual void onMessage(char* verb, char* res, char* data) override {}
-  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override {}
+  virtual void onSysex(byte* msg, uint32_t size) override;
+//  virtual void onMessage(char* verb, char* res, double data) override;
+//  virtual void onMessage(char* verb, char* res, char* data) override;
+//  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
   virtual void onParam(uint32_t idparam, double value) override;
 
   //IPlugBase

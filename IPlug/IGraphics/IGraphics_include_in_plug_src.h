@@ -23,6 +23,7 @@
     return pGraphics;
   }
   #elif defined OS_WEB
+  IGraphics* gGraphics = nullptr;
   IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
@@ -31,6 +32,7 @@
   #else
     #error "No OS defined!"
   #endif
+
 #endif //NO_IGRAPHICS
 
 #endif //__IGRAPHICS_SRC_INC__

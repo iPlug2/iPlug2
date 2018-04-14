@@ -4,6 +4,8 @@
 
 using namespace emscripten;
 
+extern IGraphics* gGraphics;
+
 void MouseHandler(std::string object, val event, double outside)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) stoull(object, 0, 16);
@@ -36,6 +38,10 @@ WebBitmap::WebBitmap(val image, int scale)
   int width, height;
   
   if(url.find("knob.png") != std::string::npos) {   width = 48; height = 2880; }
+  if(url.find("knob@2x.png") != std::string::npos) {   width = 48; height = 2880; }
+  if(url.find("knob-rotate.png") != std::string::npos) {   width = 48; height = 2880; }
+  if(url.find("knob-rotate@2x.png") != std::string::npos) {   width = 48; height = 2880; }
+  
   if(url.find("Background_Main.png") != std::string::npos) {   width = 980; height = 580; }
   if(url.find("AboutBox.png") != std::string::npos) {   width = 980; height = 581; }
   if(url.find("Detune_Oct.png") != std::string::npos) {   width = 41; height = 112; }
@@ -113,14 +119,15 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   
   sprintf(callback, "Module.mouse_web_handler('%x', e, 0);", this);
 
+  emscripten::val canvas = GetCanvas();
   val eventListener = val::global("Function").new_(std::string("e"), std::string(callback));
-  GetCanvas().call<void>("addEventListener", std::string("dblclick"), eventListener);
-  GetCanvas().call<void>("addEventListener", std::string("mousedown"), eventListener);
-  GetCanvas().call<void>("addEventListener", std::string("mouseup"), eventListener);
-  GetCanvas().call<void>("addEventListener", std::string("mousemove"), eventListener);
-  GetCanvas().call<void>("addEventListener", std::string("mouseover"), eventListener);
-  GetCanvas().call<void>("addEventListener", std::string("mouseout"), eventListener);
-  GetCanvas().call<void>("addEventListener", std::string("mousewheel"), eventListener);
+  canvas.call<void>("addEventListener", std::string("dblclick"), eventListener);
+  canvas.call<void>("addEventListener", std::string("mousedown"), eventListener);
+  canvas.call<void>("addEventListener", std::string("mouseup"), eventListener);
+  canvas.call<void>("addEventListener", std::string("mousemove"), eventListener);
+  canvas.call<void>("addEventListener", std::string("mouseover"), eventListener);
+  canvas.call<void>("addEventListener", std::string("mouseout"), eventListener);
+  canvas.call<void>("addEventListener", std::string("mousewheel"), eventListener);
   
   sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
   
@@ -130,7 +137,10 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   
   val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
-  GetCanvas().call<void>("addEventListener", std::string("keydown"), eventListener2);
+  canvas.call<void>("addEventListener", std::string("keydown"), eventListener2);
+
+  canvas.set("width", w);
+  canvas.set("height", h);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -523,4 +533,12 @@ void IGraphicsWeb::OnKeyEvent(val event)
   OnKeyDown(mLastX, mLastY, key);
 }
 
+//static
+void IGraphicsWeb::OnMainLoopTimer()
+{
+  IRECT r;
+  
+  if (gGraphics->IsDirty(r))
+    gGraphics->Draw(r);
+}
 

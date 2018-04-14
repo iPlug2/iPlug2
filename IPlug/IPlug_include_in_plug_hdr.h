@@ -42,6 +42,9 @@
 #elif defined WAM_API
   #include "IPlugWAM.h"
   typedef IPlugWAM IPlug;
+#elif defined WEB_API
+  #include "IPlugWEB.h"
+  typedef IPlugWEB IPlug;
 #else
   #error "No API defined!"
 #endif

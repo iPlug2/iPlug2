@@ -26,7 +26,7 @@ public:
   virtual void OnRestoreState() override;
   
   //IGraphicsDelegate
-  void AttachGraphics(IGraphics* pGraphics);
+  virtual void AttachGraphics(IGraphics* pGraphics);
   virtual IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
   
 private:

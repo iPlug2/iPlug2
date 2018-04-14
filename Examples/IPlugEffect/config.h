@@ -44,6 +44,7 @@
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 900
 #define PLUG_HEIGHT 600
+#define PLUG_FPS 60
 
 #define AUV2_ENTRY IPlugEffect_Entry
 #define AUV2_ENTRY_STR "IPlugEffect_Entry"
@@ -67,7 +68,7 @@
 #define APP_N_VECTOR_WAIT 50
 #define APP_MULT 0.25
 
-#define PNGKNOB_FN "resources/img/knob.png"
-#define PNGKNOBROTATE_FN "resources/img/knob-rotate.png"
-#define SVGKNOB_FN "resources/img/BefacoBigKnob.svg"
-#define TIGER_FN "resources/img/23.svg"
+#define PNGKNOB_FN "knob.png"
+#define PNGKNOBROTATE_FN "knob-rotate.png"
+#define SVGKNOB_FN "BefacoBigKnob.svg"
+#define TIGER_FN "23.svg"

@@ -1,16 +1,22 @@
 #!/bin/sh
 
-pkill -f python
-
 if [ -d build-web ]
 then
-  rm -r build-web/scripts
-else
-  mkdir build-web
+  rm -r build-web
 fi
 
+mkdir build-web
 mkdir build-web/scripts
-emmake make
+
+echo MAKING  - WAM WASM MODULE -----------------------------
+emmake make --makefile Makefile-wam
+
+if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
+then
+  echo WAM compilation failed
+  exit
+fi
+
 cd build-web/scripts
 # thanks to Steven Yi / Csound
 echo "
@@ -37,16 +43,22 @@ sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
 cp ../../../../IPlug/WAM/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
 cd ..
-cp ../../../IPlug/WAM/Template/IPlugWAM-standalone.html IPlugEffect-standalone.html
-sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-standalone.html
-
+cp ../../../IPlug/WAM/Template/IPlugWAM-standalone.html index.html
+sed -i "" s/IPlugWAM/IPlugEffect/g index.html
 cd ../
 
-pwd
+echo
+echo MAKING  - WEB WASM MODULE -----------------------------
 
-if [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
+emmake make --makefile Makefile-web
+
+mv build-web/scripts/*.wasm build-web
+
+if [ -a build-web/IPlugEffect.wasm ]
 then
-#   cp -r resources/img build-web
+  cp -r resources/img/* build-web
   cd build-web
-  emrun --no_emrun_detect --browser chrome_canary IPlugEffect-standalone.html
+  emrun --no_emrun_detect --browser chrome_canary index.html
+  #   emrun --browser firefox index.html
 fi
+

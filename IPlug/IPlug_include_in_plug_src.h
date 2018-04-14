@@ -259,10 +259,33 @@ extern "C"
   {
     EMSCRIPTEN_KEEPALIVE void* createModule()
     {
-      DBGMSG("CREATE MODULE!\n");
+      DBGMSG("WAM CREATE MODULE!\n");
       Processor* pWAM = dynamic_cast<Processor*>(MakePlug());
       return (void*) pWAM;
     }
+  }
+#elif defined WEB_API
+  #include "config.h"
+
+  IPlug* MakePlug()
+  {
+    IPlugInstanceInfo instanceInfo;
+    return new PLUG_CLASS_NAME(instanceInfo);
+  }
+
+  IPlug* gPlug = nullptr;
+
+  int main()
+  {
+    DBGMSG("WEB WASM main()!\n");
+
+    gPlug = MakePlug();
+    
+    // TODO: when do we delete!
+    DBGMSG("delete gPlug!\n");
+//    delete gPlug;
+    
+    return 0;
   }
 #else
   #error "No API defined!"
