@@ -541,4 +541,3 @@ void IGraphicsWeb::OnMainLoopTimer()
   if (gGraphics->IsDirty(r))
     gGraphics->Draw(r);
 }
-

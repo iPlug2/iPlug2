@@ -104,7 +104,6 @@ public:
   void OnKeyEvent(emscripten::val event);
   
   static void OnMainLoopTimer();
-
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
@@ -135,4 +134,3 @@ private:
   double mPositionL = -1;
   double mPositionT = -1;
 };
-

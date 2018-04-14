@@ -184,9 +184,7 @@ void IBSliderControl::OnRescale()
 
 void IBSliderControl::OnResize()
 {
-
-
-  SetDirty();
+  SetDirty(false);
 }
 
 IRECT IBSliderControl::GetHandleBounds(double value) const

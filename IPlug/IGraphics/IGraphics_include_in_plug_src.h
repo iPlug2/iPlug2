@@ -23,11 +23,19 @@
     return pGraphics;
   }
   #elif defined OS_WEB
+#include <emscripten.h>
+
   IGraphics* gGraphics = nullptr;
+
   IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
     return pGraphics;
+  }
+
+  void StartMainLoopTimer()
+  {
+    emscripten_set_main_loop(dynamic_cast<IGraphicsWeb*>(gGraphics)->OnMainLoopTimer, gGraphics->FPS(), 1);
   }
   #else
     #error "No OS defined!"

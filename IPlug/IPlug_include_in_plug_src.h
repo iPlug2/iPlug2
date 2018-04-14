@@ -274,6 +274,7 @@ extern "C"
   }
 
   IPlug* gPlug = nullptr;
+  extern void StartMainLoopTimer();
 
   int main()
   {
@@ -281,6 +282,7 @@ extern "C"
 
     gPlug = MakePlug();
     
+    StartMainLoopTimer();
     // TODO: when do we delete!
     DBGMSG("delete gPlug!\n");
 //    delete gPlug;
