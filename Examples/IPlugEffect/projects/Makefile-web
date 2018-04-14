@@ -1,4 +1,4 @@
-include common.mk
+include projects/common.mk
 
 TARGET = ./build-web/scripts/IPlugEffect.js
 
@@ -6,7 +6,7 @@ SRC = $(WEB_SRC) IPlugEffect.cpp
 
 EXPORTS = "['_main']"
 
-CFLAGS = -I./ -I$(API_PATH) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(IGRAPHICS_PATH) -I$(ICONTROLS_PATH) -I$(EXTRAS_PATH) -I$(WAM_PATH) -DWEB_API -std=c++11 -DSAMPLE_TYPE_FLOAT -DIGRAPHICS_WEB -DNO_PARAMS_MUTEX -Wno-bitwise-op-parentheses
+CFLAGS = -I./ -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(IGRAPHICS_PATH) -I$(ICONTROLS_PATH) -I$(EXTRAS_PATH) -I$(IPLUG_WEB_PATH) -DWEB_API -std=c++11 -DSAMPLE_TYPE_FLOAT -DIGRAPHICS_WEB -DNO_PARAMS_MUTEX -Wno-bitwise-op-parentheses
 LDFLAGS = -s EXPORTED_FUNCTIONS=$(EXPORTS) -O2
 JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 --bind -s ASSERTIONS=0 
 # JSFLAGS = --pre-js Module.logReadFiles

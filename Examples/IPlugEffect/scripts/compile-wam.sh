@@ -1,5 +1,9 @@
 #!/bin/sh
 
+cd /Users/oli/Dev/MyPlugins/Examples/IPlugEffect
+
+pwd
+
 if [ -d build-web ]
 then
   rm -r build-web
@@ -9,7 +13,7 @@ mkdir build-web
 mkdir build-web/scripts
 
 echo MAKING  - WAM WASM MODULE -----------------------------
-emmake make --makefile Makefile-wam
+emmake make --makefile projects/Makefile-wam
 
 if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
 then
@@ -38,19 +42,19 @@ rm encode-wasm.js
 
 cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
 cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
-cp ../../../../IPlug/WAM/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
+cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
-cp ../../../../IPlug/WAM/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
+cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
 cd ..
-cp ../../../IPlug/WAM/Template/IPlugWAM-standalone.html index.html
+cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
 sed -i "" s/IPlugWAM/IPlugEffect/g index.html
 cd ../
 
 echo
 echo MAKING  - WEB WASM MODULE -----------------------------
 
-emmake make --makefile Makefile-web
+emmake make --makefile projects/Makefile-web
 
 mv build-web/scripts/*.wasm build-web
 
