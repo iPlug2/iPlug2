@@ -130,7 +130,7 @@ public:
   void OnParamReset(EParamSource source);  //
 
   //IDelegate
-  void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); }
+  void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginDelegate::SetParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   

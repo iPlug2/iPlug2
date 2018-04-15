@@ -26,7 +26,8 @@ public:
   void HostSpecificInit() override {};
 
   //This can go if IPlugProcessor Goes
-  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames) {};
+  virtual void ProcessBlock(float** inputs, float** outputs, int nFrames) {};
+  virtual void ProcessMidiMsg(const IMidiMsg& msg) {};
   inline int NOutChansConnected() {};
   
   //IDelegate
@@ -37,7 +38,7 @@ public:
   #ifndef NO_IGRAPHICS
   //IGraphicsDelegate
   void AttachGraphics(IGraphics* pGraphics) override;
-  #endif
+  #endif  
 };
 
 IPlugWEB* MakePlug();
