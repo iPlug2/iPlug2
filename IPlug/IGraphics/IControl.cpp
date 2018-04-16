@@ -264,7 +264,7 @@ const IParam* IControl::GetParam()
     return nullptr;
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO:! */)
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO: scalar! */)
 {
   bounds.Constrain(x, y);
 
@@ -528,4 +528,233 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 
     menuToAddTo = parentDirMenu;
   }
+}
+
+void IPopupMenuControlBase::Draw(IGraphics& g)
+{
+  assert(mMenu != nullptr);
+  
+  DrawBackground(g, mRECT);
+  
+  for(auto i = 0; i < mCellBounds.GetSize(); i++)
+  {
+
+    IRECT* pCellRect = mCellBounds.Get(i);
+    IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+    
+    if(pMenuItem->GetIsSeparator())
+      DrawSeparator(g, *pCellRect);
+    else
+    {
+      if(mMouseCellBounds == pCellRect)
+        DrawHighlightCell(g, *pCellRect, *pMenuItem);
+      else
+        DrawCell(g, *pCellRect, *pMenuItem);
+      
+      DrawCellText(g, *pCellRect, *pMenuItem);
+    }
+  }
+}
+
+bool IPopupMenuControlBase::IsDirty()
+{
+  //TODO: should this support animation functions?
+  if(mExpanded)
+    return true;
+  
+  return mDirty;
+}
+
+void IPopupMenuControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if(mExpanded)
+  {
+    mMouseCellBounds = HitTestCells(x, y);
+    Collapse();
+  }
+}
+
+void IPopupMenuControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  mMouseCellBounds = HitTestCells(x, y);
+  SetDirty(false);
+}
+
+void IPopupMenuControlBase::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  mMouseCellBounds = HitTestCells(x, y);
+  SetDirty(false);
+}
+
+void IPopupMenuControlBase::OnMouseOut()
+{
+  mMouseCellBounds = nullptr;
+  Collapse();
+}
+
+void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
+{
+  g.FillRoundRect(COLOR_WHITE, bounds, 5., &mBlend);
+}
+
+void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+{
+  g.DrawRect(COLOR_WHITE, bounds, &mBlend);
+}
+
+void IPopupMenuControlBase::DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+{
+  g.FillRect(COLOR_WHITE, bounds);
+  g.DrawRect(COLOR_BLACK, bounds);
+}
+
+void IPopupMenuControlBase::DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+{
+  IRECT textRect;
+  mText.mAlign = IText::kAlignNear;
+  g.MeasureText(mText, menuItem.GetText(), textRect);
+  textRect.HPad(TEXT_PAD);
+  mText.mAlign = IText::kAlignCenter;
+  textRect = bounds.GetCentredInside(textRect);
+  g.DrawText(mText, menuItem.GetText(), textRect);
+}
+
+void IPopupMenuControlBase::DrawSeparator(IGraphics& g, const IRECT& bounds)
+{
+  g.FillRect(COLOR_LIGHT_GRAY, bounds);
+}
+
+IPopupMenu* IPopupMenuControlBase::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+{
+  mMenu = &menu;
+  mCaller = pCaller;
+
+  IRECT span = {0, 0, bounds.W(), bounds.H() }; // this IRECT will be used to calculate the maximum dimensions of the longest text item in the menu
+  mText.mAlign = IText::kAlignNear; // temporarily left align text whilst measuring
+
+  for (auto i = 0; i < mMenu->NItems(); ++i)
+  {
+    IRECT textBounds;
+    GetUI()->MeasureText(mText, mMenu->GetItem(i)->GetText(), textBounds);
+    span = span.Union(textBounds);
+  }
+  
+  // if the widest string is wider than the requested bounds
+  if(span.W() > bounds.W())
+  {
+    span.HPad(TEXT_PAD); // add some padding because we don't want to be flush the edges of the text
+    mCollapsedBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
+  }
+  else
+    mCollapsedBounds = bounds;
+  
+  Expand();
+  
+  return mMenu;
+}
+
+void IPopupMenuControlBase::Expand()
+{
+  mCellBounds.Empty(true);
+  
+  float left = mCollapsedBounds.L + mPadding;
+  float top = mCollapsedBounds.T + mPadding;
+  
+  IRECT contextBounds = GetUI()->GetBounds();
+  
+  if(mDirection == kVertical)
+  {
+    for (auto i = 0; i < mMenu->NItems(); ++i)
+    {
+      IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+      float right, bottom;
+      float toAddX, toAddY; // the increments, different depending on item type
+      
+      if (pMenuItem->GetIsSeparator())
+      {
+        toAddX = CellWidth();
+        toAddY = mSeparatorSize;
+      }
+      else
+      {
+        toAddX = CellWidth();
+        toAddY = CellHeight();
+      }
+      
+      if((top + toAddY + mPadding) > contextBounds.B) // it's gonna go off the bottom
+      {
+        if(mScrollIfTooBig)
+        {
+          //TODO: scroll
+        }
+        else // new column
+        {
+          left += mCollapsedBounds.W() + mCellGap;
+          top = mCollapsedBounds.T + mPadding;
+        }
+      }
+      
+      if((left + toAddX + mPadding) > contextBounds.R) // it's gonna go off the right hand side
+      {
+        assert(true);
+        // TODO: the whole thing is gonna have to go the other way mate
+      }
+
+      if (pMenuItem->GetSubmenu())
+      {
+        //TODO: submenu
+      }
+      
+      right = left + toAddX;
+      bottom = top + toAddY;
+      
+      IRECT* pR = new IRECT(left, top, right, bottom);
+      mCellBounds.Add(pR);
+      top = bottom + mCellGap;
+    }
+    
+    IRECT span = *mCellBounds.Get(0);
+    
+    for(auto i = 1; i < mCellBounds.GetSize(); i++)
+    {
+      span = span.Union(*mCellBounds.Get(i));
+    }
+    
+    span.Pad(mPadding); // pad the unioned cell rects
+    
+    mTargetRECT = mRECT = span;
+    mExpanded = true;
+    GetUI()->UpdateTooltips(); //will disable
+//    GetUI()->SetCursor(); // TODO: SetCursor
+  }
+//  else // TODO: horizontal
+//  {
+//
+//  }
+  
+  SetDirty(false);
+}
+
+void IPopupMenuControlBase::Collapse()
+{
+  GetUI()->SetAllControlsDirty(); // before collapse so expanded area is dirtied
+  
+  mMenu->SetChosenItemIdx(-1);
+  
+  for(auto i = 0; i < mCellBounds.GetSize(); i++)
+  {
+    if(mMouseCellBounds == mCellBounds.Get(i))
+    {
+      mMenu->SetChosenItemIdx(i);
+    }
+  }
+  
+  if(mMenu->GetFunction())
+    mMenu->ExecFunction();
+  
+  if(mCaller)
+    mCaller->OnPopupMenuSelection(mMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
+  
+  mExpanded = false;
+  GetUI()->UpdateTooltips(); // will enable the tooltips
 }

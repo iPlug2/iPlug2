@@ -694,5 +694,94 @@ protected:
   WDL_String mExtension;
 };
 
-void DefaultAnimationFunc(IControl* pCaller);
-void DefaultClickActionFunc(IControl* pCaller);
+/** A base control for a pop-up menu/drop-down list that stays within the bounds of the IGraphics context
+ * On the web and on iOS, we don't have traditional contextual menus. This class provides a way of making a menu
+ * that works across all platforms
+ */
+class IPopupMenuControlBase : public IControl
+{
+public:
+  IPopupMenuControlBase(IDelegate& dlg, EDirection direction = kVertical)
+  : IControl(dlg, IRECT(), kNoParameter)
+  , mDirection(direction)
+  {
+    SetActionFunction(DefaultClickActionFunc);
+    
+    mText = IText(COLOR_BLACK, 12, nullptr, IText::kStyleNormal, IText::kAlignNear);
+    mDirty = false;
+  }
+  
+  virtual ~IPopupMenuControlBase() {}
+  
+  //IControl
+  virtual bool IsDirty() override;
+  void Draw(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override;
+  
+  //IPopupMenuControlBase
+  virtual void DrawBackground(IGraphics& g, const IRECT& bounds);
+
+  virtual void DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
+  
+  virtual void DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
+  
+  virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
+  
+  virtual void DrawSeparator(IGraphics& g, const IRECT& bounds);
+  
+  /** Call this to create a pop-up menu. This method
+   @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
+   @param pCaller The IControl that called this method, and will receive the call back after menu selection
+   @return the menu */
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller);
+  
+  bool GetExpanded() const { return mExpanded; }
+  
+private:
+  
+  /** This method is called to expand the modal pop-up menu. It calculates the dimensions and wrapping, to keep the cells within the graphics context. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
+  void Expand();
+  
+    /** This method is called to collapse the modal pop-up menu and make it invisible. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
+  virtual void Collapse();
+  
+  float CellWidth() const { return mCollapsedBounds.W(); }
+  float CellHeight() const { return mCollapsedBounds.H(); }
+  
+  /** Checks if any of the expanded cells contain a x, y coordinate, and if so returns an IRECT pointer to the cell bounds
+   * @param x X position to test
+   * @param y Y position to test
+   * @return Pointer to the cell bounds IRECT, or nullptr if nothing got hit */
+  IRECT* HitTestCells(float x, float y) const
+  {
+    for(auto i = 0; i < mCellBounds.GetSize(); i++)
+    {
+      IRECT* r = mCellBounds.Get(i);
+      if(r->Contains(x, y))
+      {
+        return r;
+      }
+    }
+    return nullptr;
+  }
+  
+private:
+  bool mExpanded = false;
+  EDirection mDirection;
+  IRECT mCollapsedBounds; // The rectangle that the control occupies when it's collapsed. The dimensions are the dimensions of 1 cell.
+  WDL_PtrList<IRECT> mCellBounds; // The size of this array will always correspond to the number of items in the top level of the menu
+  IRECT* mMouseCellBounds = nullptr;
+  IControl* mCaller = nullptr;
+  IPopupMenu* mMenu = nullptr; // This control does not own the menu
+  float mCellGap = 2.f; // the gap between cells
+  int mMaxColumnItems = 0; // how long the list can get before adding a new column - 0 equals no limit
+  int mMaxRowItems = 0; // how long the list can get before adding a new row - 0 equals no limit
+  float mSeparatorSize = 2.; // The size in pixels of a separator. This could be width or height
+  bool mScrollIfTooBig = false;
+  const float TEXT_PAD = 5.; // 5px on either side of text
+  float mPadding = 5.; // How much white space between the background and the cells
+  IBlend mBlend = { kBlendNone, 0.95f };
+};
