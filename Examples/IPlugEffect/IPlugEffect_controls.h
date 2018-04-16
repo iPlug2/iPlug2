@@ -25,18 +25,17 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    IPopupMenu* menu = GetUI()->CreatePopupMenu(mMainMenu, mRECT);
-
-    if(menu)
+    GetUI()->CreatePopupMenu(mMainMenu, mRECT);
+  }
+  
+  void OnPopupMenuSelection(IPopupMenu* pMenu) override
+  {
+    if(pMenu == &mMainMenu)
     {
-      IPopupMenu::Item* item = menu->GetItem(menu->GetChosenItemIdx());
-      mSelectedIndex = item->GetTag();
-      mSelectedMenu = menu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
-      mLabel.Set(item->GetText());
+      mSelectedIndex = pMenu->GetChosenItemIdx();
+      mSelectedMenu = pMenu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
+      mLabel.Set(pMenu->GetChosenItem()->GetText());
     }
-
-    //Redraw(); // TODO:  seems to need this
-    SetDirty();
   }
 
 private:
@@ -269,4 +268,3 @@ private:
 
   int mShape;
 };
-

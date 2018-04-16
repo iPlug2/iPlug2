@@ -10,9 +10,30 @@ EXPORTS = "[\
 	'_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
 	]"
 
-CFLAGS = -I./ -I$(WAM_SDK_PATH) -I$(WDL_PATH) -I$(IPLUG_PATH) -I$(IGRAPHICS_PATH) -I$(ICONTROLS_PATH) -I$(EXTRAS_PATH) -I$(IPLUG_WEB_PATH) -DWAM_API -std=c++11 -DNO_IGRAPHICS -DSAMPLE_TYPE_FLOAT -Wno-bitwise-op-parentheses
-LDFLAGS = -s EXPORTED_FUNCTIONS=$(EXPORTS) -O2
-JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=0 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IPlug'" --bind -s ASSERTIONS=0
+CFLAGS = \
+-I$(PROJECT_ROOT) \
+-I$(WAM_SDK_PATH) \
+-I$(WDL_PATH) \
+-I$(IPLUG_PATH) \
+-I$(IPLUG_EXTRAS_PATH) \
+-I$(IPLUG_WEB_PATH) \
+-DWAM_API \
+-DNO_IGRAPHICS \
+-DSAMPLE_TYPE_FLOAT \
+-std=c++11  \
+-Wno-bitwise-op-parentheses
+
+LDFLAGS = \
+-s EXPORTED_FUNCTIONS=$(EXPORTS) \
+-O2
+
+JSFLAGS = \
+-s BINARYEN_ASYNC_COMPILATION=0 \
+-s ALLOW_MEMORY_GROWTH=1 \
+-s WASM=1 \
+-s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IPlug'" \
+-s ASSERTIONS=0 \
+--bind
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(SRC)

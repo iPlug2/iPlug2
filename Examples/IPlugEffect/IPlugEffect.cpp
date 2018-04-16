@@ -1,10 +1,12 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
 
+#ifndef WAM_API
 #include "IControls.h"
 #include "IVKeyboardControl.h"
 #include "IVDropDownListControl.h"
 #include "IPlugEffect_controls.h"
+#endif
 
 IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
@@ -48,7 +50,6 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
     for (auto i = 0; i < pGraphics->NControls(); i++) {
       IVectorBase* pVectorBase = dynamic_cast<IVectorBase*>(pGraphics->GetControl(i));
       if(pVectorBase)
-        //                                   pVectorBase->SetShadowOffset(pSlider->GetValue() * 10.f);
         pVectorBase->SetRoundness(pSlider->GetValue());
     }
   });

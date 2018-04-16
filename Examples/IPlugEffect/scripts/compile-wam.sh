@@ -1,6 +1,8 @@
 #!/bin/sh
 
-cd /Users/oli/Dev/MyPlugins/Examples/IPlugEffect
+cd "$(dirname "$0")"
+
+cd ..
 
 pwd
 
