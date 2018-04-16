@@ -476,7 +476,7 @@ struct IText
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
 
-  IText(const IColor& color = DEFAULT_FGCOLOR,
+  IText(const IColor& color = DEFAULT_TEXTENTRY_FGCOLOR,
         int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
         EStyle style = kStyleNormal,
