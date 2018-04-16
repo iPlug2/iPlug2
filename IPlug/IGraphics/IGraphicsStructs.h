@@ -848,7 +848,7 @@ struct IRECT
     return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
   }
 
-  IRECT GetCentredInside(IRECT sr)
+  IRECT GetCentredInside(IRECT sr) const
   {
     IRECT r;
     r.L = MW() - sr.W() / 2.;
@@ -859,7 +859,7 @@ struct IRECT
     return r;
   }
   
-  IRECT GetCentredInside(float w, float h = 0.f)
+  IRECT GetCentredInside(float w, float h = 0.f) const
   {
     assert(w > 0.f);
     
