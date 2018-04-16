@@ -12,10 +12,14 @@
         background-size: cover;
       }
 
-      .iplug { padding-right: 0; margin-left: auto; margin-right: auto; display: block; box-shadow: 10px 10px 5px grey; outline:0; }
+      .control { margin:0 10px; }
+      label  { color:#bbb; font-size:12px; }
+      select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
+
+      .iplug { margin-right: auto; margin-left: auto; margin-xright: auto; display: block; outline:0; }
       div.iplug { text-align: center; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.iplug { border: 0px none; background-color: black; display: block }
+      canvas.iplug { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px grey; }
 
       #status {
         display: inline-block;
@@ -30,36 +34,21 @@
     <script src="scripts/audioworklet.js"></script>
     <script src="scripts/wam-controller.js"></script>
     <script src="scripts/IPlugWAM-awn.js"></script>
-
-    <script>
-    var actx, IPlugWAM;
-
-    function onLoad() {
-      if (AWPF.isAudioWorkletPolyfilled)
-        actx = AWPF.context;
-      else actx = new AudioContext();
-
-      IPlugWAMController.importScripts(actx).then(() => {
-        IPlugWAM = new IPlugWAMController(actx);
-        IPlugWAM.connect(actx.destination);
-
-        if(IPlugWAM != undefined) {
-          // create generic GUI?
-        }
-      });
-    }
-    </script>
   </head>
-  <body onload="onLoad()">
+  <body>
     <div id="content">
 <!--
-      <h4>IPlugWAM Web Audio Module</h4>
+      <h4>IPlugWAM_WAM Web Audio Module</h4>
  -->
 <!--
       <button type="button" onclick="main()">Start web audio!</button>
  -->
     </div>
-        <div class="iplug" id="status">Downloading...</div>
+    <div class="iplug" id="status">Downloading...</div>
+    <div class="control">
+      <label>midi in</label>
+      <select id="midiInSelect"></select>
+    </div>
     <div class="iplug">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
@@ -67,11 +56,46 @@
       <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 <!--     </div> -->
     <script type='text/javascript'>
+        var actx, IPlugWAM_WAM;
+
+        function initMidi () {
+          let combo = document.querySelector("#midiInSelect");
+          navigator.requestMIDIAccess().then((midiIF) => {
+            for (let input of midiIF.inputs.values()) {
+              let option = new Option(input.name);
+              option.port = input;
+              combo.appendChild(option);
+            }
+            combo.onchange = e => {
+              IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+            }
+            if (combo.options.length > 0)
+              combo.onchange({ target:combo });
+          })
+        }
+
+        function onLoad() {
+          if (AWPF.isAudioWorkletPolyfilled)
+            actx = AWPF.context;
+          else actx = new AudioContext();
+
+          IPlugWAMController.importScripts(actx).then(() => {
+            IPlugWAM_WAM = new IPlugWAMController(actx);
+            IPlugWAM_WAM.connect(actx.destination);
+
+            if(IPlugWAM_WAM != undefined) {
+              //initGUI();
+              let canvas = document.getElementById('canvas');
+              initMidi();
+            }
+          });
+        }
+
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
 
       var Module = {
-        preRun: [],
+        preRun: [onLoad],
         postRun: [],
         print: (function() {
           var element = document.getElementById('output');
@@ -141,6 +165,6 @@
         };
       };
     </script>
-    <script async type="text/javascript" src="scripts/IPlugWAM.js"></script>
+    <script src="scripts/IPlugWAM.js"></script>
   </body>
 </html>
