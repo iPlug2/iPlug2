@@ -648,7 +648,7 @@ IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
       pReturnMenu->ExecFunction();
     
     if(pCaller)
-      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if nullptr
+      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
   }
   
   return pReturnMenu;
