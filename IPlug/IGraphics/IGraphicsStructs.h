@@ -26,6 +26,9 @@ class IControl;
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
 
+void DefaultAnimationFunc(IControl* pCaller);
+void DefaultClickActionFunc(IControl* pCaller);
+
 typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
