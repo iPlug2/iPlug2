@@ -138,9 +138,9 @@ int IGraphics::AttachControl(IControl* pControl)
   return mControls.GetSize() - 1;
 }
 
-void IGraphics::AttachKeyCatcher(IControl& control)
+void IGraphics::AttachKeyCatcher(IControl* pControl)
 {
-  mKeyCatcher = &control;
+  mKeyCatcher = pControl;
   mKeyCatcher->SetGraphics(this);
 }
 

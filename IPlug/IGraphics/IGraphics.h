@@ -685,8 +685,11 @@ public:
   void AttachPanelBackground(const IColor& color);
 
   /** Attach a designated “Key Catcher” IControl.
-     * The key catcher is a special IControl that is not part of the main control stack and is not drawn in the graphics context. If you need to handle key presses globally you can create a custom IControl and override OnKeyDown(). Attach your control to the graphics context using this method. An igraphics context can only have a single key catcher control */
-  void AttachKeyCatcher(IControl& control);
+   * The key catcher is a special IControl that is not part of the main control stack and is not drawn in the graphics context. If you need to handle key presses globally you can create a custom IControl and override OnKeyDown(). Attach your control to the graphics context using this method. An igraphics context can only have a single key catcher control
+   @param pControl control description
+  */
+  void AttachKeyCatcher(IControl* pControl);
+
 
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
