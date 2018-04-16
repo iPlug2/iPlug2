@@ -817,6 +817,8 @@ public:
    * @param float&y Where the Y position will be stored */
   void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
   
+  IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
+  
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
