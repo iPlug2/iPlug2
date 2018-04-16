@@ -799,7 +799,7 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx
   return pMenu;
 }
 
-HMENU IGraphicsWin::CreateMenu(const IPopupMenu& menu, long* pOffsetIdx)
+HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
 {
   HMENU hMenu = ::CreatePopupMenu();
 
@@ -897,13 +897,13 @@ HMENU IGraphicsWin::CreateMenu(const IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
   ReleaseMouseCapture();
 
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
-  IPopupMenu* result = 0;
+  IPopupMenu* result = nullptr;
 
   if(hMenu)
   {
@@ -941,6 +941,10 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(const IPopupMenu& menu, const IRECT& b
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
     InvalidateRect(mDelegateWnd, &r, FALSE);
   }
+  
+  if(pCaller)
+    pCaller->OnPopupMenuSelection(result)
+  
   return result;
 }
 

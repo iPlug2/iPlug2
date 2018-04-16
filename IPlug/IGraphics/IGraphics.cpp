@@ -253,7 +253,7 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
     if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && nDisplayTexts))
     {
       pParam->GetDisplayForHost(currentText);
-      IPopupMenu menu;
+      mPromptPopupMenu.Clear();
 
       // Fill the menu
       for (int i = 0; i < nDisplayTexts; ++i)
@@ -261,13 +261,12 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
         const char* str = pParam->GetDisplayText(i);
         // TODO: what if two parameters have the same text?
         if (!strcmp(str, currentText.Get())) // strings are equal
-          menu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
+          mPromptPopupMenu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
         else // not equal
-          menu.AddItem( new IPopupMenu::Item(str), -1 );
+          mPromptPopupMenu.AddItem( new IPopupMenu::Item(str), -1 );
       }
 
-      if(CreatePopupMenu(menu, bounds))
-        control.SetValueFromUserInput(pParam->ToNormalized( (double) menu.GetChosenItemIdx() ));
+      CreatePopupMenu(mPromptPopupMenu, bounds, &control);
     }
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
@@ -876,7 +875,9 @@ void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color
 
 void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y)
 {
-  IPopupMenu contextMenu;
+  IPopupMenu& contextMenu = mPromptPopupMenu;
+  contextMenu.Clear();
+  
   IControl* pControl = GetControl(controlIdx);
 
   if(pControl)

@@ -141,6 +141,14 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #endif
 }
 
+void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
+{
+  if (pSelectedMenu != nullptr && mParamIdx >= 0 && !mDisablePrompt)
+  {
+    SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx() ));
+  }
+}
+
 void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)

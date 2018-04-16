@@ -620,16 +620,33 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
   ReleaseMouseCapture();
+  
+  IPopupMenu* pReturnMenu = nullptr;
 
-  if (mView)
+  if(mPopupControl) // if we are not using platform pop-up menus
   {
-    NSRect areaRect = ToNSRect(this, bounds);
-    return [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   }
-  else return 0;
+  else
+  {
+    if (mView)
+    {
+      NSRect areaRect = ToNSRect(this, bounds);
+      pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+    }
+    
+    //synchronous
+    if(pReturnMenu && pReturnMenu->GetFunction())
+      pReturnMenu->ExecFunction();
+    
+    if(pCaller)
+      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if nullptr
+  }
+  
+  return pReturnMenu;
 }
 
 void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)

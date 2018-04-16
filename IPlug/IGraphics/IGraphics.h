@@ -629,14 +629,16 @@ public:
   /** Shows a platform pop up/contextual menu in relation to a rectangular region of the graphics context
    * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
    * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
+   * @param pCaller A pointed to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  virtual IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) = 0;
+  virtual IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
 
   /** Shows a platform pop up/contextual menu at point in the graphics context
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
+   * @param pCaller A pointed to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, float x, float y) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds); }
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
 
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
@@ -890,6 +892,8 @@ protected:
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
+  IPopupMenu mPromptPopupMenu;
+
 private:
   int GetMouseControlIdx(float x, float y, bool mo = false);
 

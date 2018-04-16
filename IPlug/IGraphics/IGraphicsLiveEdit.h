@@ -44,11 +44,11 @@ public:
     }
     else if(mod.R)
     {
-      IPopupMenu menu;
-      menu.AddItem("IBitmapControl");
-      menu.AddItem("IVKnobControl");
-      
-      GetUI()->CreatePopupMenu(menu, x, y);
+//      IPopupMenu menu;
+//      menu.AddItem("IBitmapControl");
+//      menu.AddItem("IVKnobControl");
+//      
+//      GetUI()->CreatePopupMenu(menu, x, y);
     }
   }
   
