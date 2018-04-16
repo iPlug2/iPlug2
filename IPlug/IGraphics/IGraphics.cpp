@@ -701,7 +701,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   if (mHandleMouseOver)
   {
     int c = GetMouseControlIdx(x, y, true);
-    if (c >= 0)
+    if (c > 0) // the background should not receive MouseOver calls
     {
       mControls.Get(c)->OnMouseOver(x, y, mod);
       if (mMouseOver >= 0 && mMouseOver != c)
@@ -709,9 +709,11 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
         mControls.Get(mMouseOver)->OnMouseOut();
       }
       mMouseOver = c;
+      return true;
     }
   }
-  return mHandleMouseOver;
+  
+  return false;
 }
 
 //TODO: if control Rect is the same as IGraphicsBounds, this doesn't fire
