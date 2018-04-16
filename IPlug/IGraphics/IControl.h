@@ -231,7 +231,7 @@ public:
   
   virtual void Animate(double progress) {}
 
-  void EndAnimation()
+  virtual void EndAnimation()
   {
     mAnimationFunc = nullptr;
     SetDirty(false);
@@ -714,22 +714,36 @@ public:
   virtual ~IPopupMenuControlBase() {}
   
   //IControl
-  virtual bool IsDirty() override;
+  virtual bool IsDirty() override
+  {
+    return mExpanded | IControl::IsDirty();
+  }
+  
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   
+  void Animate(double progress) override
+  {
+    mBlend.mWeight = progress * mOpacity;
+    SetDirty(false);
+  }
+
+  void EndAnimation() override
+  {
+    mBlend.mWeight = mOpacity;
+    SetAnimation(nullptr, 0);
+    SetDirty(false);
+  }
+
   //IPopupMenuControlBase
   virtual void DrawBackground(IGraphics& g, const IRECT& bounds);
-
+  virtual void DrawShadow(IGraphics& g, const IRECT& bounds);
   virtual void DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
-  
   virtual void DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
-  
   virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
-  
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds);
   
   /** Call this to create a pop-up menu. This method
@@ -783,5 +797,8 @@ private:
   bool mScrollIfTooBig = false;
   const float TEXT_PAD = 5.; // 5px on either side of text
   float mPadding = 5.; // How much white space between the background and the cells
-  IBlend mBlend = { kBlendNone, 0.95f };
+  IBlend mBlend = { kBlendNone, 0.f };
+  float mRoundness = 5.f;
+  float mDropShadowSize = 10.f;
+  float mOpacity = 0.95f;
 };

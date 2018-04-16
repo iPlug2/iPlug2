@@ -534,14 +534,15 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
 {
   assert(mMenu != nullptr);
   
-  DrawBackground(g, mRECT);
-  
+  DrawBackground(g, mTargetRECT); // mTargetRECT = inner area
+  //DrawShadow(g, mRECT);
+
   for(auto i = 0; i < mCellBounds.GetSize(); i++)
   {
 
     IRECT* pCellRect = mCellBounds.Get(i);
     IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
-    
+
     if(pMenuItem->GetIsSeparator())
       DrawSeparator(g, *pCellRect);
     else
@@ -550,19 +551,10 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
         DrawHighlightCell(g, *pCellRect, *pMenuItem);
       else
         DrawCell(g, *pCellRect, *pMenuItem);
-      
+
       DrawCellText(g, *pCellRect, *pMenuItem);
     }
   }
-}
-
-bool IPopupMenuControlBase::IsDirty()
-{
-  //TODO: should this support animation functions?
-  if(mExpanded)
-    return true;
-  
-  return mDirty;
 }
 
 void IPopupMenuControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -594,7 +586,11 @@ void IPopupMenuControlBase::OnMouseOut()
 
 void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
 {
-  g.FillRoundRect(COLOR_WHITE, bounds, 5., &mBlend);
+  g.FillRoundRect(COLOR_WHITE, bounds, mRoundness, &mBlend);
+}
+
+void IPopupMenuControlBase::DrawShadow(IGraphics& g, const IRECT& bounds)
+{
 }
 
 void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
@@ -719,10 +715,10 @@ void IPopupMenuControlBase::Expand()
     {
       span = span.Union(*mCellBounds.Get(i));
     }
+
+    mTargetRECT = span.GetPadded(mPadding); // pad the unioned cell rects)
+    mRECT = span.GetPadded(mDropShadowSize + mPadding);
     
-    span.Pad(mPadding); // pad the unioned cell rects
-    
-    mTargetRECT = mRECT = span;
     mExpanded = true;
     GetUI()->UpdateTooltips(); //will disable
 //    GetUI()->SetCursor(); // TODO: SetCursor
@@ -732,7 +728,7 @@ void IPopupMenuControlBase::Expand()
 //
 //  }
   
-  SetDirty(false);
+  SetDirty(true); // triggers animation
 }
 
 void IPopupMenuControlBase::Collapse()
@@ -756,5 +752,7 @@ void IPopupMenuControlBase::Collapse()
     mCaller->OnPopupMenuSelection(mMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
   
   mExpanded = false;
+  mBlend.mWeight = 0.;
+
   GetUI()->UpdateTooltips(); // will enable the tooltips
 }
