@@ -59,6 +59,9 @@ IGraphics::~IGraphics()
 {
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
+  
+  if (mPopupControl)
+    DELETE_NULL(mPopupControl);
 
 #if !defined(NDEBUG) && defined(APP_API)
   if (mLiveEdit)
@@ -142,6 +145,12 @@ void IGraphics::AttachKeyCatcher(IControl* pControl)
 {
   mKeyCatcher = pControl;
   mKeyCatcher->SetGraphics(this);
+}
+
+void IGraphics::AttachPopupMenuControl(IPopupMenuControlBase* pControl)
+{
+  mPopupControl = pControl;
+  mPopupControl->SetGraphics(this);
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)
@@ -445,6 +454,12 @@ bool IGraphics::IsDirty(IRECT& bounds)
     }
   }
 
+  if (mPopupControl && mPopupControl->IsDirty())
+  {
+    bounds = bounds.Union(mPopupControl->GetRECT());
+    dirty = true;
+  }
+  
 #ifdef USE_IDLE_CALLS
   if (dirty)
   {
@@ -456,7 +471,7 @@ bool IGraphics::IsDirty(IRECT& bounds)
     mIdleTicks = 0;
   }
 #endif
-
+  
   return dirty;
 }
 
@@ -542,6 +557,12 @@ void IGraphics::Draw(const IRECT& bounds)
       }
     }
   }
+  
+  if(mPopupControl != nullptr && mPopupControl->IsDirty())
+  {
+    mPopupControl->Draw(*this);
+    mPopupControl->SetClean();
+  }
 
 #ifndef NDEBUG
   // some helpers for debugging
@@ -614,6 +635,16 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 #endif
 
   ReleaseMouseCapture();
+  
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    if(mPopupControl->GetRECT().Contains(x, y))
+    {
+      mPopupControl->OnMouseDown(x, y, mod);
+      return;
+    }
+  }
+  
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
   {
@@ -670,8 +701,22 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
     return;
   }
 #endif
+  
+
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    ReleaseMouseCapture();
+
+    if(mPopupControl->GetRECT().Contains(x, y))
+    {
+      mPopupControl->OnMouseUp(x, y, mod);
+      return;
+    }
+  }
+  
   int c = GetMouseControlIdx(x, y);
   ReleaseMouseCapture();
+
   if (c >= 0)
   {
     IControl* pControl = mControls.Get(c);
@@ -697,6 +742,18 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
     return true;
   }
 #endif
+  
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    if(mPopupControl->GetRECT().Contains(x, y))
+    {
+      mPopupControl->OnMouseOver(x, y, mod);
+    }
+    else
+    {
+      mPopupControl->OnMouseOut();
+    }
+  }
 
   if (mHandleMouseOver)
   {
@@ -719,9 +776,13 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 //TODO: if control Rect is the same as IGraphicsBounds, this doesn't fire
 void IGraphics::OnMouseOut()
 {
-  Trace("IGraphics::OnMouseDblClick", __LINE__, "");
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    mPopupControl->OnMouseOut();
+  }
+  
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
@@ -744,6 +805,12 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
     return;
   }
 #endif
+  
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    mPopupControl->OnMouseDrag(x, y, dX, dY, mod);
+    return;
+  }
 
   int c = mMouseCapture;
   if (c >= 0 && (dX != 0 || dY != 0))
@@ -777,6 +844,12 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    mPopupControl->OnMouseWheel(x, y, mod, d);
+    return;
+  }
+  
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
   {

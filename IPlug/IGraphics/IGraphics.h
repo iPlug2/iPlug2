@@ -37,6 +37,7 @@
 
 class IDelegate;
 class IControl;
+class IPopupMenuControlBase;
 class IParam;
 
 /**
@@ -690,7 +691,13 @@ public:
   */
   void AttachKeyCatcher(IControl* pControl);
 
+  /**
+   TODO:
 
+   @param pControl control description
+   */
+  void AttachPopupMenuControl(IPopupMenuControlBase* pControl);
+  
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
    * @return The index of the control (and the number of controls in the stack) */
@@ -897,6 +904,7 @@ protected:
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
+  IPopupMenuControlBase* mPopupControl = nullptr;
   IPopupMenu mPromptPopupMenu;
 
 private:
