@@ -720,6 +720,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseDblClick", __LINE__, "");
+  Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
