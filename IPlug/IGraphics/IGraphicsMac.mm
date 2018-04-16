@@ -366,6 +366,11 @@ void IGraphicsMac::UpdateTooltips()
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
+  if(mPopupControl && mPopupControl->GetExpanded())
+  {
+    return;
+  }
+  
   IControl** ppControl = mControls.GetList();
 
   for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl)
