@@ -6,6 +6,7 @@
 #include "IPlugPlatform.h"
 
 #include "IGraphicsPathBase.h"
+#include "IControl.h"
 
 class WebBitmap : public APIBitmap
 {
@@ -83,7 +84,16 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override {} // TODO:
   void UpdateTooltips() override {} // TODO:
   int ShowMessageBox(const char* str, const char* caption, int type) override {} // TODO:
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, const IRECT& bounds) override {} // TODO:
+  
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override
+  {
+    ReleaseMouseCapture();
+    
+    assert(mPopupControl != nullptr);
+    
+    mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  }
+  
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO:
   void PromptForDirectory(WDL_String& path) override {} // TODO:
@@ -132,5 +142,5 @@ private:
   double mLastX = -1;
   double mLastY = -1;
   double mPositionL = -1;
-  double mPositionT = -1;
+  double mPositionT = -1;  
 };
