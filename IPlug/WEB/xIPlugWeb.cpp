@@ -4,7 +4,7 @@
 #include "IGraphicsWeb.h"
 extern IGraphics* gGraphics;
 
-void IPlugWEB::AttachGraphics(IGraphics* pGraphics)
+void IPlugWeb::AttachGraphics(IGraphics* pGraphics)
 {
   gGraphics = pGraphics;
   IGraphicsDelegate::AttachGraphics(pGraphics);
@@ -12,7 +12,7 @@ void IPlugWEB::AttachGraphics(IGraphics* pGraphics)
 }
 #endif
 
-void IPlugWEB::SetParameterValueFromUI(int paramIdx, double value)
+void IPlugWeb::SetParameterValueFromUI(int paramIdx, double value)
 {
   WDL_String jsname;
   jsname.SetFormatted(64, "%s_WAM", GetPluginName());
@@ -21,12 +21,12 @@ void IPlugWEB::SetParameterValueFromUI(int paramIdx, double value)
   IPlugBase::SetParameterValueFromUI(paramIdx, value);
 };
 
-void IPlugWEB::BeginInformHostOfParamChangeFromUI(int paramIdx)
+void IPlugWeb::BeginInformHostOfParamChangeFromUI(int paramIdx)
 {
   //     emscripten::val::global(GetPluginName()).call<emscripten::val>("setParam", paramIdx, value);
 };
 
-void IPlugWEB::EndInformHostOfParamChangeFromUI(int paramIdx)
+void IPlugWeb::EndInformHostOfParamChangeFromUI(int paramIdx)
 {
   //     emscripten::val::global(GetPluginName()).call<emscripten::val>("setParam", paramIdx, value);
 }

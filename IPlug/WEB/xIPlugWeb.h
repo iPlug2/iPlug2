@@ -9,10 +9,10 @@ struct IPlugInstanceInfo
 {};
 
 /**  */
-class IPlugWEB : public IPlugBase
+class IPlugWeb : public IPlugBase
 {
 public:
-  IPlugWEB(IPlugInstanceInfo instanceInfo, IPlugConfig config)
+  IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
   : IPlugBase(config, kAPIWEB)
   {}
 
@@ -41,6 +41,6 @@ public:
   #endif  
 };
 
-IPlugWEB* MakePlug();
+IPlugWeb* MakePlug();
 
 #endif
