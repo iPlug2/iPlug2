@@ -314,5 +314,6 @@ extern "C"
     PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT))
 
+#ifndef NO_IGRAPHICS
 #include "IGraphics_include_in_plug_src.h"
-
+#endif

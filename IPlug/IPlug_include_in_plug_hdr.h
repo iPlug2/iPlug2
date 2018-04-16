@@ -43,7 +43,7 @@
   #include "IPlugWAM.h"
   typedef IPlugWAM IPlug;
 #elif defined WEB_API
-  #include "IPlugWEB.h"
+  #include "IPlugWeb.h"
   typedef IPlugWEB IPlug;
 #else
   #error "No API defined!"
@@ -79,4 +79,6 @@ DWORD GetTickCount()
 }
 #endif
 
+#ifndef NO_IGRAPHICS
 #include "IGraphics_include_in_plug_hdr.h"
+#endif
