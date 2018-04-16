@@ -16,7 +16,10 @@
 
 // this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
 
-/** A class for setting the contents of a pop up menu */
+/** A class for setting the contents of a pop up menu
+ * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function to be triggered when something is selected, the menu should persist across function calls.
+ * Therefore it should almost always be a member variable
+ * An IPopupMenu owns its sub items, including submenus */
 class IPopupMenu
 {
 public:
@@ -83,6 +86,8 @@ public:
     int mTag = -1;
   };
   
+  typedef std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)> IPopupFunction;
+
   #pragma mark -
   
   IPopupMenu(int prefix = 0, bool multicheck = false)
@@ -110,8 +115,26 @@ public:
   }
   
   Item* AddItem(const char* str, int index = -1, int itemFlags = Item::kNoFlags) { return AddItem(new Item(str, itemFlags), index); }
-  Item* AddItem(const char* str, int index, IPopupMenu* pSubmenu) { return AddItem(new Item(str, pSubmenu), index); }
-  Item* AddItem(const char* str, IPopupMenu* pSubmenu) { return AddItem(new Item(str, pSubmenu), -1); }
+  
+  Item* AddItem(const char* str, int index, IPopupMenu* pSubmenu)
+  {
+    assert(pSubmenu->GetFunction() == nullptr); // submenus should not have existing functions
+    
+    if(GetFunction())
+      pSubmenu->SetFunction(GetFunction());
+    
+    return AddItem(new Item(str, pSubmenu), index);
+  }
+  
+  Item* AddItem(const char* str, IPopupMenu* pSubmenu)
+  {
+    assert(pSubmenu->GetFunction() != nullptr); // submenus should not have existing functions
+    
+    if(GetFunction())
+      pSubmenu->SetFunction(GetFunction());
+    
+    return AddItem(new Item(str, pSubmenu), -1);
+  }
   
   Item* AddSeparator(int index = -1)
   {
@@ -197,9 +220,25 @@ public:
     return false;
   }
 
+  void SetFunction(IPopupFunction func)
+  {
+    mPopupFunc = func;
+  }
+  
+  IPopupFunction GetFunction()
+  {
+    return mPopupFunc;
+  }
+  
+  void ExecFunction()
+  {
+    mPopupFunc(mChosenItemIdx, GetItem(mChosenItemIdx));
+  }
+  
 private:
   int mPrefix; // 0 = no prefix, 1 = numbers no leading zeros, 2 = 1 lz, 3 = 2lz
   int mChosenItemIdx = -1;
   bool mCanMultiCheck; // multicheck = 0 doesn't actually prohibit multichecking, you should do that in your code, by calling CheckItemAlone instead of CheckItem
   WDL_PtrList<Item> mMenuItems;
+  IPopupFunction mPopupFunc = nullptr;
 };
