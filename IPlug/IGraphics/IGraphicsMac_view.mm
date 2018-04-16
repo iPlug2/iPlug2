@@ -33,9 +33,9 @@
 
   for (int i = 0; i < numItems; ++i)
   {
-    IPopupMenu::Item* menuItem = pMenu->GetItem(i);
+    IPopupMenu::Item* pMenuItem = pMenu->GetItem(i);
 
-    nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:menuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
+    nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
 
     if (pMenu->GetPrefix())
     {
@@ -52,14 +52,14 @@
       [nsMenuItemTitle insertString:prefixString atIndex:0];
     }
 
-    if (menuItem->GetSubmenu())
+    if (pMenuItem->GetSubmenu())
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
-      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:menuItem->GetSubmenu() :pView];
+      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:pMenuItem->GetSubmenu() :pView];
       [self setSubmenu: subMenu forItem:nsMenuItem];
       [subMenu release];
     }
-    else if (menuItem->GetIsSeparator())
+    else if (pMenuItem->GetIsSeparator())
     {
       [self addItem:[NSMenuItem separatorItem]];
     }
@@ -67,12 +67,12 @@
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(OnMenuSelection:) keyEquivalent:@""];
 
-      if (menuItem->GetIsTitle ())
+      if (pMenuItem->GetIsTitle ())
       {
         [nsMenuItem setIndentationLevel:1];
       }
 
-      if (menuItem->GetChecked())
+      if (pMenuItem->GetChecked())
       {
         [nsMenuItem setState:NSOnState];
       }
@@ -81,7 +81,7 @@
         [nsMenuItem setState:NSOffState];
       }
 
-      if (menuItem->GetEnabled())
+      if (pMenuItem->GetEnabled())
       {
         [nsMenuItem setEnabled:YES];
       }
