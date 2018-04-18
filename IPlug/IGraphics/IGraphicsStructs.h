@@ -243,6 +243,7 @@ struct IColor
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
 const IColor COLOR_TRANSLUCENT(10, 0, 0, 0);
 const IColor COLOR_BLACK(255, 0, 0, 0);
+const IColor COLOR_BLACK_DROP_SHADOW(128, 0, 0, 0);
 const IColor COLOR_GRAY(255, 127, 127, 127);
 const IColor COLOR_LIGHT_GRAY(255, 240, 240, 240);
 const IColor COLOR_MID_GRAY(255, 200, 200, 200);

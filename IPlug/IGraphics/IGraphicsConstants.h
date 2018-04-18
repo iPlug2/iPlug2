@@ -8,7 +8,7 @@ static const int DEFAULT_FPS = 25;
 // Only looked at if USE_IDLE_CALLS is defined.
 static const int IDLE_TICKS = 20;
 
-#define DEFAULT_ANIMATION_DURATION 200
+#define DEFAULT_ANIMATION_DURATION 100
 
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN

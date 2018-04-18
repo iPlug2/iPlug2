@@ -450,6 +450,8 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+  virtual void DrawDropShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f) {};
+
 private:
     
   /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
@@ -875,7 +877,7 @@ public:
   virtual ISVG LoadSVG(const char* fileName);
   #endif
   /** @param name The name of the font to load */
-  virtual void LoadFont(const char* fileName);
+  virtual void LoadFont(const char* fileName) {};
 
   /** Load a resource from disk (C++ 14 only)
    * @param filename CString file name

@@ -67,6 +67,9 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override;
 //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
 
+  void LoadFont(const char* name) override;
+  
+  void DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad) override;
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
