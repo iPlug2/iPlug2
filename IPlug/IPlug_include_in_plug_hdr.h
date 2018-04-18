@@ -45,6 +45,14 @@
 #elif defined WEB_API
   #include "IPlugWeb.h"
   typedef IPlugWeb IPlug;
+#elif defined VST3C_API
+  #include "IPlugVST3_Controller.h"
+  typedef IPlugVST3Controller IPlug;
+  #define API_EXT "vst3c"
+#elif defined VST3P_API
+  #include "IPlugVST3_Processor.h"
+  typedef IPlugVST3Processor IPlug;
+  #define API_EXT "vst3p"
 #else
   #error "No API defined!"
 #endif

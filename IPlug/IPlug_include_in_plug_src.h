@@ -47,8 +47,9 @@
     #endif
     }
   };
-#elif defined VST3_API
+#elif defined VST3C_API || defined VST3P_API
 #include "public.sdk/source/main/pluginfactoryvst3.h"
+#include "pluginterfaces/vst/ivstcomponent.h"
 
 unsigned int GUID_DATA1 = 0xF2AEE70D;
 unsigned int GUID_DATA2 = 0x00DE4F4E;
@@ -89,23 +90,39 @@ IPlug* MakePlug()
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 
-static Steinberg::FUnknown* createInstance (void*) {
+#if defined VST3P_API
+static Steinberg::FUnknown* createProcessorInstance (void*) {
   return (Steinberg::Vst::IAudioProcessor*) MakePlug();
 }
+#elif defined VST3C_API
+static Steinberg::FUnknown* createControllerInstance (void*) {
+  return (Steinberg::Vst::IEditController*) MakePlug();
+}
+#endif
 
-// Company Information
 BEGIN_FACTORY_DEF (PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
+#if defined VST3P_API
 DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
-            Steinberg::PClassInfo::kManyInstances,              // cardinality
-            kVstAudioEffectClass,                               // the component category (don't change this)
-            PLUG_NAME,                                          // plug-in name
-            Steinberg::Vst::kSimpleModeSupported,               // kSimpleModeSupported because we can't split the gui and plugin
-            VST3_SUBCATEGORY,                                   // Subcategory for this plug-in
-            PLUG_VERSION_STR,                                       // plug-in version
-            kVstVersionString,                                  // the VST 3 SDK version (dont changed this, use always this define)
-            createInstance)                                     // function pointer called when this component should be instantiated
-
+            PClassInfo::kManyInstances,  // cardinality
+            kVstAudioEffectClass,  // the component category (do not changed this)
+            PLUG_NAME " Processor",    // here the Plug-in name (to be changed)
+            Vst::kDistributable,  // means that component and controller could be distributed on different computers
+            VST3_SUBCATEGORY,    // Subcategory for this Plug-in (to be changed)
+            PLUG_VERSION_STR,    // Plug-in version (to be changed)
+            kVstVersionString,    // the VST 3 SDK version (do not changed this, use always this define)
+            createProcessorInstance)  // function pointer called when this component should be instantiated
+#elif defined VST3C_API
+DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
+            PClassInfo::kManyInstances,  // cardinality
+            kVstComponentControllerClass,// the Controller category (do not changed this)
+            PLUG_NAME " Controller",  // controller name (could be the same than component name)
+            0,            // not used here
+            "",            // not used here
+            PLUG_VERSION_STR,    // Plug-in version (to be changed)
+            kVstVersionString,    // the VST 3 SDK version (do not changed this, use always this define)
+            createControllerInstance)// function pointer called when this component should be instantiated
+#endif
 END_FACTORY
 
 #elif defined AU_API

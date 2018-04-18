@@ -232,6 +232,21 @@
 		4FC3B8392077B9E200589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FC3B83A2077B9E300589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FC3B83B2077B9E300589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4FC3EFCB2086C27800BD11FA /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
+		4FC3EFCE2086C35D00BD11FA /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
+		4FC3EFCF2086C35D00BD11FA /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
+		4FC3EFD12086C35D00BD11FA /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
+		4FC3EFD42086C49D00BD11FA /* libVST3C.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC3EFC42086C0A600BD11FA /* libVST3C.a */; };
+		4FC3EFF02086CE5700BD11FA /* eventlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFDD2086CE5600BD11FA /* eventlist.h */; };
+		4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFDF2086CE5600BD11FA /* hostclasses.h */; };
+		4FC3EFF42086CE5700BD11FA /* module.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE12086CE5600BD11FA /* module.h */; };
+		4FC3EFF82086CE5700BD11FA /* optional.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE52086CE5600BD11FA /* optional.h */; };
+		4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3EFE62086CE5600BD11FA /* parameterchanges.cpp */; };
+		4FC3EFFA2086CE5700BD11FA /* parameterchanges.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE72086CE5600BD11FA /* parameterchanges.h */; };
+		4FC3EFFC2086CE5700BD11FA /* plugprovider.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE92086CE5600BD11FA /* plugprovider.h */; };
+		4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEB2086CE5600BD11FA /* processdata.h */; };
+		4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFED2086CE5600BD11FA /* stringconvert.h */; };
+		4FC3F0012086CE5700BD11FA /* uid.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEE2086CE5600BD11FA /* uid.h */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -287,6 +302,65 @@
 		4FF142D31FD4A61E00A65575 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */; };
 		4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
 		4FF142D71FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
+		4FFBB8FB20863B0E00DDD0E7 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E12074F17700219377 /* knob-rotate.png */; };
+		4FFBB8FC20863B0E00DDD0E7 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8157DD205D50EA00393585 /* LICENSE.txt */; };
+		4FFBB8FD20863B0E00DDD0E7 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8158FC205D50EB00393585 /* LICENSE.txt */; };
+		4FFBB8FE20863B0E00DDD0E7 /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4FFBB8FF20863B0E00DDD0E7 /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
+		4FFBB90020863B0E00DDD0E7 /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
+		4FFBB90120863B0E00DDD0E7 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
+		4FFBB90220863B0E00DDD0E7 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8158BD205D50EB00393585 /* LICENSE.txt */; };
+		4FFBB90320863B0E00DDD0E7 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
+		4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
+		4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
+		4FFBB90720863B0E00DDD0E7 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
+		4FFBB90820863B0E00DDD0E7 /* pluginfactoryvst3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E9205D50EA00393585 /* pluginfactoryvst3.cpp */; };
+		4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588D205D50EB00393585 /* vstinitiids.cpp */; };
+		4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C5205D50EB00393585 /* fdebug.cpp */; };
+		4FFBB90B20863B0E00DDD0E7 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
+		4FFBB90C20863B0E00DDD0E7 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
+		4FFBB90D20863B0E00DDD0E7 /* fdynlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C7205D50EB00393585 /* fdynlib.cpp */; };
+		4FFBB90E20863B0E00DDD0E7 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E0205D50EA00393585 /* memorystream.cpp */; };
+		4FFBB90F20863B0E00DDD0E7 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
+		4FFBB91020863B0E00DDD0E7 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E2205D50EA00393585 /* pluginview.cpp */; };
+		4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158CE205D50EB00393585 /* fstring.cpp */; };
+		4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815892205D50EB00393585 /* vstpresetfile.cpp */; };
+		4FFBB91420863B0E00DDD0E7 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
+		4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158D1205D50EB00393585 /* timer.cpp */; };
+		4FFBB91620863B0E00DDD0E7 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F14D1F32074FE4400219377 /* IVMeterControl.cpp */; };
+		4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E7205D50EB00393585 /* funknown.cpp */; };
+		4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815881205D50EA00393585 /* vstbus.cpp */; };
+		4FFBB91920863B0E00DDD0E7 /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
+		4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E8205D50EA00393585 /* macmain.cpp */; };
+		4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DB205D50EB00393585 /* flock.cpp */; };
+		4FFBB91C20863B0E00DDD0E7 /* vstbypassprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815883205D50EA00393585 /* vstbypassprocessor.cpp */; };
+		4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158F7205D50EB00393585 /* ustring.cpp */; };
+		4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C9205D50EB00393585 /* fobject.cpp */; };
+		4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815890205D50EB00393585 /* vstparameters.cpp */; };
+		4FFBB92020863B0E00DDD0E7 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
+		4FFBB92120863B0E00DDD0E7 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815887205D50EB00393585 /* vstcomponentbase.cpp */; };
+		4FFBB92220863B0E00DDD0E7 /* IPlugVST3_Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F520863B0900DDD0E7 /* IPlugVST3_Processor.cpp */; };
+		4FFBB92320863B0E00DDD0E7 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DE205D50EB00393585 /* conststringtable.cpp */; };
+		4FFBB92420863B0E00DDD0E7 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81587E205D50EA00393585 /* vstaudioeffect.cpp */; };
+		4FFBB92520863B0E00DDD0E7 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815896205D50EB00393585 /* vstsinglecomponenteffect.cpp */; };
+		4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158D3205D50EB00393585 /* updatehandler.cpp */; };
+		4FFBB92720863B0E00DDD0E7 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
+		4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815885205D50EA00393585 /* vstcomponent.cpp */; };
+		4FFBB92920863B0E00DDD0E7 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
+		4FFBB92A20863B0E00DDD0E7 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
+		4FFBB92B20863B0E00DDD0E7 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158CC205D50EB00393585 /* fstreamer.cpp */; };
+		4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815894205D50EB00393585 /* vstrepresentation.cpp */; };
+		4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DA205D50EB00393585 /* fcondition.cpp */; };
+		4FFBB92F20863B0E00DDD0E7 /* macexport.exp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E7205D50EA00393585 /* macexport.exp */; };
+		4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C1205D50EB00393585 /* fbuffer.cpp */; };
+		4FFBB93220863B0E00DDD0E7 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
+		4FFBB93320863B0E00DDD0E7 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF1426D1FD4A61D00A65575 /* IControl.cpp */; };
+		4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E0205D50EB00393585 /* coreiids.cpp */; };
+		4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588E205D50EB00393585 /* vstnoteexpressiontypes.cpp */; };
+		4FFBB93E20863B5900DDD0E7 /* IPlugVST3_Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F520863B0900DDD0E7 /* IPlugVST3_Processor.cpp */; };
+		4FFBB93F20863B5900DDD0E7 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
+		4FFBB94020863B5900DDD0E7 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
 		B8C5FB3C204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB3D204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
@@ -351,6 +425,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
 			remoteInfo = "VST3_32&64_intel";
+		};
+		4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FC3EFC32086C0A600BD11FA;
+			remoteInfo = VST3C;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -587,6 +668,27 @@
 		4FBAA591207918230054E717 /* IPlugGraphicsDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugGraphicsDelegate.h; path = ../../../IPlug/IPlugGraphicsDelegate.h; sourceTree = "<group>"; };
 		4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugGraphicsDelegate.cpp; path = ../../../IPlug/IPlugGraphicsDelegate.cpp; sourceTree = "<group>"; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
+		4FC3EFBE2086B87E00BD11FA /* IPlugEffect_editor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugEffect_editor.cpp; path = ../IPlugEffect_editor.cpp; sourceTree = "<group>"; };
+		4FC3EFC42086C0A600BD11FA /* libVST3C.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVST3C.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eventlist.cpp; sourceTree = "<group>"; };
+		4FC3EFDD2086CE5600BD11FA /* eventlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventlist.h; sourceTree = "<group>"; };
+		4FC3EFDE2086CE5600BD11FA /* hostclasses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hostclasses.cpp; sourceTree = "<group>"; };
+		4FC3EFDF2086CE5600BD11FA /* hostclasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hostclasses.h; sourceTree = "<group>"; };
+		4FC3EFE02086CE5600BD11FA /* module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = module.cpp; sourceTree = "<group>"; };
+		4FC3EFE12086CE5600BD11FA /* module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module.h; sourceTree = "<group>"; };
+		4FC3EFE22086CE5600BD11FA /* module_linux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = module_linux.cpp; sourceTree = "<group>"; };
+		4FC3EFE32086CE5600BD11FA /* module_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = module_mac.mm; sourceTree = "<group>"; };
+		4FC3EFE42086CE5600BD11FA /* module_win32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = module_win32.cpp; sourceTree = "<group>"; };
+		4FC3EFE52086CE5600BD11FA /* optional.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = optional.h; sourceTree = "<group>"; };
+		4FC3EFE62086CE5600BD11FA /* parameterchanges.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parameterchanges.cpp; sourceTree = "<group>"; };
+		4FC3EFE72086CE5600BD11FA /* parameterchanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parameterchanges.h; sourceTree = "<group>"; };
+		4FC3EFE82086CE5600BD11FA /* plugprovider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugprovider.cpp; sourceTree = "<group>"; };
+		4FC3EFE92086CE5600BD11FA /* plugprovider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugprovider.h; sourceTree = "<group>"; };
+		4FC3EFEA2086CE5600BD11FA /* processdata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = processdata.cpp; sourceTree = "<group>"; };
+		4FC3EFEB2086CE5600BD11FA /* processdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = processdata.h; sourceTree = "<group>"; };
+		4FC3EFEC2086CE5600BD11FA /* stringconvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringconvert.cpp; sourceTree = "<group>"; };
+		4FC3EFED2086CE5600BD11FA /* stringconvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringconvert.h; sourceTree = "<group>"; };
+		4FC3EFEE2086CE5600BD11FA /* uid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uid.h; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
@@ -642,6 +744,12 @@
 		4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPopupMenu.h; path = ../../../IPlug/IGraphics/IPopupMenu.h; sourceTree = "<group>"; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../../common.xcconfig; sourceTree = SOURCE_ROOT; };
 		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_Controller.cpp; path = ../../../IPlug/VST3/IPlugVST3_Controller.cpp; sourceTree = "<group>"; };
+		4FFBB8F320863B0900DDD0E7 /* IPlugVST3_Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Controller.h; path = ../../../IPlug/VST3/IPlugVST3_Controller.h; sourceTree = "<group>"; };
+		4FFBB8F420863B0900DDD0E7 /* IPlugVST3_Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Processor.h; path = ../../../IPlug/VST3/IPlugVST3_Processor.h; sourceTree = "<group>"; };
+		4FFBB8F520863B0900DDD0E7 /* IPlugVST3_Processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_Processor.cpp; path = ../../../IPlug/VST3/IPlugVST3_Processor.cpp; sourceTree = "<group>"; };
+		4FFBB93B20863B0E00DDD0E7 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FFBB94120863E9300DDD0E7 /* IPlugVST3_Parameter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Parameter.h; path = ../../../IPlug/VST3/IPlugVST3_Parameter.h; sourceTree = "<group>"; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		B8C5FB3A204ABE7500D5C34E /* IGraphicsPathBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IPlug/IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8C5FB3B204AF4C400D5C34E /* 23.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = 23.svg; path = ../resources/img/23.svg; sourceTree = "<group>"; };
@@ -684,10 +792,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FC3EFC12086C0A600BD11FA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FD16A0713B63081001D0217 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FFBB93620863B0E00DDD0E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FC3EFD42086C49D00BD11FA /* libVST3C.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -700,6 +823,7 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
+				4FC3EFBE2086B87E00BD11FA /* IPlugEffect_editor.cpp */,
 				4F996297201BF3F600E7C158 /* IPlugEffect_controls.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
@@ -747,6 +871,8 @@
 				4F78DB5F13B6462B0032E0F3 /* IPlugEffect.component */,
 				4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */,
 				4F3907602013EBA300DDA490 /* IPlugEffect.appex */,
+				4FFBB93B20863B0E00DDD0E7 /* IPlugEffect.vst3 */,
+				4FC3EFC42086C0A600BD11FA /* libVST3C.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -850,6 +976,11 @@
 				4F8157DA205D50B600393585 /* VST3_SDK */,
 				4F1A527C205D911900CF2908 /* IPlugVST3.cpp */,
 				4F1A527D205D911900CF2908 /* IPlugVST3.h */,
+				4FFBB94120863E9300DDD0E7 /* IPlugVST3_Parameter.h */,
+				4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */,
+				4FFBB8F320863B0900DDD0E7 /* IPlugVST3_Controller.h */,
+				4FFBB8F520863B0900DDD0E7 /* IPlugVST3_Processor.cpp */,
+				4FFBB8F420863B0900DDD0E7 /* IPlugVST3_Processor.h */,
 			);
 			name = VST3;
 			sourceTree = "<group>";
@@ -1029,6 +1160,7 @@
 		4F8157EC205D50EA00393585 /* vst */ = {
 			isa = PBXGroup;
 			children = (
+				4FC3EFDB2086CE5600BD11FA /* hosting */,
 				4F81587E205D50EA00393585 /* vstaudioeffect.cpp */,
 				4F81587F205D50EA00393585 /* vstaudioeffect.h */,
 				4F815880205D50EA00393585 /* vstaudioprocessoralgo.h */,
@@ -1228,6 +1360,32 @@
 				4FDA1DD020123CB30027C868 /* AGG */,
 			);
 			name = DrawClasses;
+			sourceTree = "<group>";
+		};
+		4FC3EFDB2086CE5600BD11FA /* hosting */ = {
+			isa = PBXGroup;
+			children = (
+				4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */,
+				4FC3EFDD2086CE5600BD11FA /* eventlist.h */,
+				4FC3EFDE2086CE5600BD11FA /* hostclasses.cpp */,
+				4FC3EFDF2086CE5600BD11FA /* hostclasses.h */,
+				4FC3EFE02086CE5600BD11FA /* module.cpp */,
+				4FC3EFE12086CE5600BD11FA /* module.h */,
+				4FC3EFE22086CE5600BD11FA /* module_linux.cpp */,
+				4FC3EFE32086CE5600BD11FA /* module_mac.mm */,
+				4FC3EFE42086CE5600BD11FA /* module_win32.cpp */,
+				4FC3EFE52086CE5600BD11FA /* optional.h */,
+				4FC3EFE62086CE5600BD11FA /* parameterchanges.cpp */,
+				4FC3EFE72086CE5600BD11FA /* parameterchanges.h */,
+				4FC3EFE82086CE5600BD11FA /* plugprovider.cpp */,
+				4FC3EFE92086CE5600BD11FA /* plugprovider.h */,
+				4FC3EFEA2086CE5600BD11FA /* processdata.cpp */,
+				4FC3EFEB2086CE5600BD11FA /* processdata.h */,
+				4FC3EFEC2086CE5600BD11FA /* stringconvert.cpp */,
+				4FC3EFED2086CE5600BD11FA /* stringconvert.h */,
+				4FC3EFEE2086CE5600BD11FA /* uid.h */,
+			);
+			path = hosting;
 			sourceTree = "<group>";
 		};
 		4FD16A0213B6303B001D0217 /* img */ = {
@@ -1451,6 +1609,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FC3EFC22086C0A600BD11FA /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FC3EFF02086CE5700BD11FA /* eventlist.h in Headers */,
+				4FC3EFF42086CE5700BD11FA /* module.h in Headers */,
+				4FC3EFF82086CE5700BD11FA /* optional.h in Headers */,
+				4FC3F0012086CE5700BD11FA /* uid.h in Headers */,
+				4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */,
+				4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */,
+				4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */,
+				4FC3EFFA2086CE5700BD11FA /* parameterchanges.h in Headers */,
+				4FC3EFFC2086CE5700BD11FA /* plugprovider.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -1550,6 +1724,23 @@
 			productReference = 4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */;
 			productType = "com.apple.product-type.bundle";
 		};
+		4FC3EFC32086C0A600BD11FA /* VST3C */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FC3EFC52086C0A700BD11FA /* Build configuration list for PBXNativeTarget "VST3C" */;
+			buildPhases = (
+				4FC3EFC02086C0A600BD11FA /* Sources */,
+				4FC3EFC12086C0A600BD11FA /* Frameworks */,
+				4FC3EFC22086C0A600BD11FA /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VST3C;
+			productName = "IPlugEffect-VST3Controller";
+			productReference = 4FC3EFC42086C0A600BD11FA /* libVST3C.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		4FD16A0813B63081001D0217 /* APP */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */;
@@ -1571,6 +1762,26 @@
 			productReference = 4FD16A0913B63081001D0217 /* IPlugEffect.app */;
 			productType = "com.apple.product-type.application";
 		};
+		4FFBB8F820863B0E00DDD0E7 /* VST3P */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FFBB93720863B0E00DDD0E7 /* Build configuration list for PBXNativeTarget "VST3P" */;
+			buildPhases = (
+				4FFBB8F920863B0E00DDD0E7 /* Run Script - generate plists */,
+				4FFBB8FA20863B0E00DDD0E7 /* Resources */,
+				4FFBB90420863B0E00DDD0E7 /* Sources */,
+				4FFBB93620863B0E00DDD0E7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4FC3EFD32086C46800BD11FA /* PBXTargetDependency */,
+			);
+			name = VST3P;
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = IPlugExample;
+			productReference = 4FFBB93B20863B0E00DDD0E7 /* IPlugEffect.vst3 */;
+			productType = "com.apple.product-type.bundle";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1589,6 +1800,9 @@
 								enabled = 1;
 							};
 						};
+					};
+					4FC3EFC32086C0A600BD11FA = {
+						CreatedOnToolsVersion = 9.2;
 					};
 					4FD16A0813B63081001D0217 = {
 						DevelopmentTeam = 686EDA2T8T;
@@ -1629,6 +1843,8 @@
 				4F3AE17812C0E5E2001FD7A4 /* AU */,
 				4FB600121567CB0A0020189A /* AAX */,
 				4F39075F2013EBA300DDA490 /* AUv3 */,
+				4FFBB8F820863B0E00DDD0E7 /* VST3P */,
+				4FC3EFC32086C0A600BD11FA /* VST3C */,
 			);
 		};
 /* End PBXProject section */
@@ -1732,6 +1948,22 @@
 				4F14D1EA2074F17700219377 /* knob-rotate@2x.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FFBB8FA20863B0E00DDD0E7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FFBB8FB20863B0E00DDD0E7 /* knob-rotate.png in Resources */,
+				4FFBB8FC20863B0E00DDD0E7 /* LICENSE.txt in Resources */,
+				4FFBB8FD20863B0E00DDD0E7 /* LICENSE.txt in Resources */,
+				4FFBB8FE20863B0E00DDD0E7 /* BefacoBigKnob.svg in Resources */,
+				4FFBB8FF20863B0E00DDD0E7 /* 23.svg in Resources */,
+				4FFBB90020863B0E00DDD0E7 /* knob@2x.png in Resources */,
+				4FFBB90120863B0E00DDD0E7 /* knob-rotate@2x.png in Resources */,
+				4FFBB90220863B0E00DDD0E7 /* LICENSE.txt in Resources */,
+				4FFBB90320863B0E00DDD0E7 /* knob.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1854,6 +2086,21 @@
 			shellScript = "python ../scripts/generate_plists.py";
 			showEnvVarsInLog = 0;
 		};
+		4FFBB8F920863B0E00DDD0E7 /* Run Script - generate plists */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - generate plists";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python ../scripts/generate_plists.py";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1958,6 +2205,7 @@
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
+				4FFBB93E20863B5900DDD0E7 /* IPlugVST3_Processor.cpp in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
 				4F815994205D51F000393585 /* vstparameters.cpp in Sources */,
 				4FBAA598207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */,
@@ -1976,6 +2224,7 @@
 				4F815985205D50EB00393585 /* fcondition.cpp in Sources */,
 				4F81591D205D50EB00393585 /* macexport.exp in Sources */,
 				4F81597D205D50EB00393585 /* fbuffer.cpp in Sources */,
+				4FFBB93F20863B5900DDD0E7 /* IPlugVST3_Controller.cpp in Sources */,
 				4F1A527E205D911A00CF2908 /* IPlugVST3.cpp in Sources */,
 				4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */,
 				4FF142A41FD4A61E00A65575 /* IControl.cpp in Sources */,
@@ -2007,6 +2256,18 @@
 				4F14D1FD2074FE4400219377 /* IVMeterControl.cpp in Sources */,
 				4FBAA59A207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */,
 				4FC3B83A2077B9E300589CDA /* swell-misc.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FC3EFC02086C0A600BD11FA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */,
+				4FC3EFCE2086C35D00BD11FA /* IPlugPluginDelegate.cpp in Sources */,
+				4FC3EFCF2086C35D00BD11FA /* IPlugGraphicsDelegate.cpp in Sources */,
+				4FC3EFD12086C35D00BD11FA /* IPlugVST3_Controller.cpp in Sources */,
+				4FC3EFCB2086C27800BD11FA /* IPlugEffect.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2047,6 +2308,61 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FFBB90420863B0E00DDD0E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
+				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
+				4FFBB90720863B0E00DDD0E7 /* IPlugEffect.cpp in Sources */,
+				4FFBB90820863B0E00DDD0E7 /* pluginfactoryvst3.cpp in Sources */,
+				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
+				4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */,
+				4FFBB90B20863B0E00DDD0E7 /* swell-gdi.mm in Sources */,
+				4FFBB90C20863B0E00DDD0E7 /* IPlugBase.cpp in Sources */,
+				4FFBB90D20863B0E00DDD0E7 /* fdynlib.cpp in Sources */,
+				4FFBB90E20863B0E00DDD0E7 /* memorystream.cpp in Sources */,
+				4FFBB90F20863B0E00DDD0E7 /* IPlugParameter.cpp in Sources */,
+				4FFBB91020863B0E00DDD0E7 /* pluginview.cpp in Sources */,
+				4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */,
+				4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */,
+				4FFBB91420863B0E00DDD0E7 /* IGraphicsMac.m in Sources */,
+				4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */,
+				4FFBB91620863B0E00DDD0E7 /* IVMeterControl.cpp in Sources */,
+				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,
+				4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */,
+				4FFBB91920863B0E00DDD0E7 /* IPlugPluginDelegate.cpp in Sources */,
+				4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */,
+				4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */,
+				4FFBB91C20863B0E00DDD0E7 /* vstbypassprocessor.cpp in Sources */,
+				4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */,
+				4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */,
+				4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */,
+				4FFBB92020863B0E00DDD0E7 /* IPlugGraphicsDelegate.cpp in Sources */,
+				4FFBB92120863B0E00DDD0E7 /* vstcomponentbase.cpp in Sources */,
+				4FFBB92220863B0E00DDD0E7 /* IPlugVST3_Processor.cpp in Sources */,
+				4FFBB92320863B0E00DDD0E7 /* conststringtable.cpp in Sources */,
+				4FFBB92420863B0E00DDD0E7 /* vstaudioeffect.cpp in Sources */,
+				4FFBB92520863B0E00DDD0E7 /* vstsinglecomponenteffect.cpp in Sources */,
+				4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */,
+				4FFBB92720863B0E00DDD0E7 /* IGraphicsMac_view.mm in Sources */,
+				4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */,
+				4FFBB92920863B0E00DDD0E7 /* IGraphics.cpp in Sources */,
+				4FFBB92A20863B0E00DDD0E7 /* IGraphicsMac.mm in Sources */,
+				4FFBB92B20863B0E00DDD0E7 /* swell-misc.mm in Sources */,
+				4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */,
+				4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */,
+				4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */,
+				4FFBB92F20863B0E00DDD0E7 /* macexport.exp in Sources */,
+				4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */,
+				4FFBB94020863B5900DDD0E7 /* IPlugVST3_Controller.cpp in Sources */,
+				4FFBB93220863B0E00DDD0E7 /* IControls.cpp in Sources */,
+				4FFBB93320863B0E00DDD0E7 /* IControl.cpp in Sources */,
+				4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */,
+				4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2079,6 +2395,11 @@
 			isa = PBXTargetDependency;
 			target = 4F9828AA140A9EB700F3FCC1 /* VST3 */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
+		};
+		4FC3EFD32086C46800BD11FA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FC3EFC32086C0A600BD11FA /* VST3C */;
+			targetProxy = 4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2742,6 +3063,111 @@
 			};
 			name = Tracer;
 		};
+		4FC3EFC62086C0A700BD11FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3C_DEFS)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VST3_SDK)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4FC3EFC72086C0A700BD11FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3C_DEFS)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VST3_SDK)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4FC3EFC82086C0A700BD11FA /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_EXTENSION = a;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3C_DEFS)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VST3_SDK)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Tracer;
+		};
 		4FD16A0C13B63082001D0217 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2829,6 +3255,63 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
+			};
+			name = Tracer;
+		};
+		4FFBB93820863B0E00DDD0E7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = "$(VST3_PATH)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3P_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_FILE = "../resources/IPlugEffect-VST3-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Debug;
+		};
+		4FFBB93920863B0E00DDD0E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = "$(VST3_PATH)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3P_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_FILE = "../resources/IPlugEffect-VST3-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = vst3;
+			};
+			name = Release;
+		};
+		4FFBB93A20863B0E00DDD0E7 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = "$(VST3_PATH)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(VST3P_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(VST3_SDK)",
+				);
+				INFOPLIST_FILE = "../resources/IPlugEffect-VST3-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
 		};
@@ -2979,12 +3462,32 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		4FC3EFC52086C0A700BD11FA /* Build configuration list for PBXNativeTarget "VST3C" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FC3EFC62086C0A700BD11FA /* Debug */,
+				4FC3EFC72086C0A700BD11FA /* Release */,
+				4FC3EFC82086C0A700BD11FA /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD16A0C13B63082001D0217 /* Debug */,
 				4FD16A0D13B63082001D0217 /* Release */,
 				4FD16A0E13B63082001D0217 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FFBB93720863B0E00DDD0E7 /* Build configuration list for PBXNativeTarget "VST3P" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FFBB93820863B0E00DDD0E7 /* Debug */,
+				4FFBB93920863B0E00DDD0E7 /* Release */,
+				4FFBB93A20863B0E00DDD0E7 /* Tracer */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
