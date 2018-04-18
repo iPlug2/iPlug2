@@ -37,7 +37,7 @@ public:
 
   /** Override this method to implement a custom comparison of incoming state data with your plug-ins state data, in order
    * to support the ProTools compare light when using custom state chunks. The default implementation will compare the serialized parameters.
-   * @param incomingState The incoming state data
+   * @param pIncomingState The incoming state data
    * @param startPos The position to start in the incoming data in bytes
    * @return \c true in order to indicate that the states are equal. */
   virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
@@ -91,19 +91,19 @@ public:
   void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
 
   /** Call this method in order to notify the API of a graphics resize. */
-  virtual void ResizeGraphics() = 0;
+  virtual void ResizeGraphics() {};
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
-  virtual void BeginInformHostOfParamChange(int paramIdx) = 0;
+  virtual void BeginInformHostOfParamChange(int paramIdx) {};
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
-  virtual void EndInformHostOfParamChange(int paramIdx) = 0;
+  virtual void EndInformHostOfParamChange(int paramIdx) {};
 
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
    * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugBase::OnParamChange();
-   * @param idx The index of the parameter that changed
+   * @param paramIdx The index of the parameter that changed
    * @param normalizedValue The new (normalised) value*/
   void SetParameterValue(int paramIdx, double normalizedValue);
 
@@ -113,7 +113,7 @@ public:
    * NOTE: It may be called on the high priority audio thread. Its purpose is to place parameter changes in a queue to defer to main thread for the UI
    * @param paramIdx The index of the parameter that changed
    * @param value The new value
-   * @param normalized /true if @param value is normalised */
+   * @param normalized /true if value is normalised */
   void _SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized);
 
   /** Called to set the name of the current host, if known.
@@ -138,7 +138,7 @@ private:
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
-  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) = 0;
+  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
 
 private:
   void OnTimer(Timer& t) override;
