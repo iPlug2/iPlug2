@@ -25,36 +25,36 @@ IPlugVST3Controller::~IPlugVST3Controller()
 tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
   tresult result = EditControllerEx1::initialize (context);
-  
+
   if (result == kResultTrue)
   {
     UnitInfo uinfo;
     uinfo.id = kRootUnitId;
     uinfo.parentUnitId = kNoParentUnitId;
-    
+
     if (NPresets() > 1)
       uinfo.programListId = kPresetParam;
     else
       uinfo.programListId = kNoProgramListId;
-    
+
     UString name (uinfo.name, 128);
     name.fromAscii("Root");
     addUnit (new Unit (uinfo));
-    
+
     int32 flags = 0;
     UnitID unitID = kRootUnitId;
-    
+
     for (int i = 0; i < NParams(); i++)
     {
       IParam* pParam = GetParam(i);
-      
+
       pParam->SetToDefault();
-      
+
       flags = 0;
       unitID = kRootUnitId;
-      
+
       const char* paramGroupName = pParam->GetGroupForHost();
-      
+
       if (CStringHasContents(paramGroupName))
       {
         for(int j = 0; j < mParamGroups.GetSize(); j++)
@@ -64,12 +64,12 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
             unitID = j+1;
           }
         }
-        
+
         if (unitID == kRootUnitId) // new unit, nothing found, so add it
         {
           mParamGroups.Add(paramGroupName);
           unitID = mParamGroups.GetSize();
-          
+
           // Add the unit
           uinfo.id = unitID;
           uinfo.parentUnitId = kRootUnitId;
@@ -78,24 +78,24 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
           addUnit (new Unit (uinfo));
         }
       }
-      
+
       if (pParam->GetCanAutomate())
         flags |= ParameterInfo::kCanAutomate;
-      
+
 //      if (pParam->IsReadOnly())
 //        flags |= ParameterInfo::kIsReadOnly;
-      
+
       Parameter* pVSTParam = new IPlugVST3Parameter(pParam, flags, unitID);
       pVSTParam->setNormalized(pParam->GetDefault(true));
       parameters.addParameter(pVSTParam);
     }
-    
+
 //    if (!IsInstrument())
 //      parameters.addParameter (STR16 ("Bypass"), 0, 1, 0, ParameterInfo::kCanAutomate|ParameterInfo::kIsBypass, kBypassParam, kRootUnitId);
-//    
+//
 //    if (NPresets() > 1)
 //      parameters.addParameter(STR16("Preset"), STR16(""), NPresets(), 0, ParameterInfo::kIsProgramChange|ParameterInfo::kIsList, kPresetParam, kRootUnitId);
-//    
+//
 //    if (DoesMIDIIn())
 //    {
 //      mParamGroups.Add("MIDI Controllers");
@@ -109,7 +109,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //      UnitID midiControllersID = unitID;
 //
 //      char buf[32];
-      
+
 //      for (int chan = 0; chan < NUM_CC_CHANS_TO_ADD; chan++)
 //      {
 //        sprintf(buf, "Ch %i", chan+1);
@@ -131,18 +131,20 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //        parameters.addParameter (STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
 //      }
 //    }
-    
+
     if (NPresets())
     {
       ProgramListWithPitchNames* list = new ProgramListWithPitchNames (String ("Factory Presets"), kPresetParam, kRootUnitId);
-      
+
       for (int i = 0; i< NPresets(); i++)
       {
         list->addProgram (String (GetPresetName(i)));
       }
-      
+
 //      char noteName[128];
-      
+
+      // TODO: GetMidiNote ? !
+
 //      for (int i = 0; i< 128; i++)
 //      {
 //        if (MidiNoteName(i, noteName))
@@ -151,14 +153,14 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //          list->setPitchName(0, i, name); // TODO: this will only set it for the first preset!
 //        }
 //      }
-      
+
       addProgramList (list);
     }
-    
+
     String128 tmpStringBuf;
     char hostNameCString[128];
     FUnknownPtr<IHostApplication>app(context);
-    
+
     if (app)
     {
       app->getName(tmpStringBuf);
@@ -166,10 +168,10 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
       SetHost(hostNameCString, 0); // Can't get version in VST3
       OnHostIdentified();
     }
-    
+
     return kResultTrue;
   }
-  
+
   return kResultFalse;
 }
 
@@ -194,20 +196,20 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* state)
 ParamValue PLUGIN_API IPlugVST3Controller::plainParamToNormalized(ParamID tag, ParamValue plainValue)
 {
   IParam* pParam = GetParam(tag);
-  
+
   if (pParam)
     return pParam->ToNormalized(plainValue);
-  
+
   return plainValue;
 }
 
 ParamValue PLUGIN_API IPlugVST3Controller::normalizedParamToPlain(ParamID tag, ParamValue valueNormalized)
 {
   IParam* pParam = GetParam(tag);
-  
+
   if (pParam)
     return pParam->FromNormalized(valueNormalized);
-  
+
   return 0.;
 }
 
@@ -229,7 +231,7 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
       case kPresetParam:
       {
         RestorePreset(NPresets() * value);
-        
+
         break;
       }
       default:
@@ -239,14 +241,14 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
   else
   {
     IParam* pParam = GetParam(tag);
-    
+
     if (pParam)
     {
       pParam->SetNormalized(value);
       OnParamChangeUI(tag);
     }
   }
-  
+
   return EditControllerEx1::setParamNormalized(tag, value);
 }
 
@@ -264,11 +266,11 @@ ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
   else
   {
     IParam* pParam = GetParam(tag);
-    
+
     if (pParam)
       return pParam->GetNormalized();
   }
-  
+
   return 0.;
 }
 
@@ -332,7 +334,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
     Steinberg::UString(name, 128).fromAscii(GetPresetName(programIndex));
     return kResultTrue;
   }
-  
+
   return kResultFalse;
 }
 
@@ -343,7 +345,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //    //    beginEdit(kPresetParam);
 //    //    performEdit(kPresetParam, ToNormalizedParam(mCurrentPresetIdx, 0., NPresets(), 1.));
 //    //    endEdit(kPresetParam);
-//    
+//
 //    notifyProgramListChange(kPresetParam, mCurrentPresetIdx);
 //  }
 //}
