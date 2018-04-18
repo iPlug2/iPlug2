@@ -86,10 +86,8 @@ public:
   tresult PLUGIN_API getUnitByBus(Vst::MediaType type, Vst::BusDirection dir, int32 busIndex, int32 channel, int32& unitId) override {return kNotImplemented;}
   tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) override {return kNotImplemented;}
   
-  
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   IPlugVST3View* GetView() { return mViews.at(0); }
-  
   
 private:
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
