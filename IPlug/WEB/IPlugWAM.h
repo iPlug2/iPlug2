@@ -34,13 +34,13 @@ public:
   virtual void onParam(uint32_t idparam, double value) override;
 
   //IPlugBase
-  void BeginInformHostOfParamChange(int idx) override {};
-  void InformHostOfParamChange(int idx, double normalizedValue) override {};
-  void EndInformHostOfParamChange(int idx) override {};
-  void InformHostOfProgramChange() override {};
-  EHost GetHost() override { return EHost::kHostWWW; }
-  void ResizeGraphics() override {};
-  void HostSpecificInit() override {};
+//   void BeginInformHostOfParamChange(int idx) override {};
+//   void InformHostOfParamChange(int idx, double normalizedValue) override {};
+//   void EndInformHostOfParamChange(int idx) override {};
+//   void InformHostOfProgramChange() override {};
+//   EHost GetHost() override { return EHost::kHostWWW; }
+//   void ResizeGraphics() override {};
+//   void HostSpecificInit() override {};
 
   //IPlugProcessor
   void SetLatency(int samples) override {};

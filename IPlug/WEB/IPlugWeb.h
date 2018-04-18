@@ -24,11 +24,6 @@ public:
   EHost GetHost() override { return EHost::kHostWWW; }
   void ResizeGraphics() override {};
   void HostSpecificInit() override {};
-
-  //This can go if IPlugProcessor Goes
-  virtual void ProcessBlock(float** inputs, float** outputs, int nFrames) {};
-  virtual void ProcessMidiMsg(const IMidiMsg& msg) {};
-  inline int NOutChansConnected() {};
   
   //IDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;

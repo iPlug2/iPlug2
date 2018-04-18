@@ -19,6 +19,7 @@ CFLAGS = \
 -DSAMPLE_TYPE_FLOAT \
 -DIGRAPHICS_WEB \
 -DNO_PARAMS_MUTEX \
+-DIPLUG_EDITOR=1 \
 -std=c++11 \
 -Wno-bitwise-op-parentheses
 

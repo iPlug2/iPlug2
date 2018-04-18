@@ -20,6 +20,7 @@ CFLAGS = \
 -DWAM_API \
 -DNO_IGRAPHICS \
 -DSAMPLE_TYPE_FLOAT \
+-DIPLUG_DSP=1 \
 -std=c++11  \
 -Wno-bitwise-op-parentheses
 
