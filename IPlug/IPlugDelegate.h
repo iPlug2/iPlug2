@@ -7,7 +7,7 @@
 
 #include "IPlugParameter.h"
 
-/** This pure virtual interface delegates communication in both directions between a UI editor and the plug-in's main class/API class.
+/** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects
  *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
  *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
