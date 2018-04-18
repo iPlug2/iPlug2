@@ -216,7 +216,7 @@ public:
   /**@}*/
 
   /** Gets a reference to the class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.
-   * If you need to call other methods on that class, you can use dynamic_cast<ImplementorClass>(GetDelegate();
+   * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.*/
   IDelegate& GetDelegate() { return mDelegate; }
   
