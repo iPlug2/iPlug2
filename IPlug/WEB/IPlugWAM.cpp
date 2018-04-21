@@ -33,13 +33,9 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
       json.AppendFormatted(8192, ",\n");
     else
       json.AppendFormatted(8192, "\n");
-
-    onParam(idx, pParam->Value());
   }
 
   json.Append("]\n}");
-
-  DBGMSG("%s\n", json.Get());
 
   //TODO: correct place? - do we need a WAM reset message?
   OnReset();
@@ -66,7 +62,7 @@ void IPlugWAM::onMidi(byte status, byte data1, byte data2)
 
 void IPlugWAM::onParam(uint32_t idparam, double value)
 {
-//   DBGMSG("onParam %i %f\n", idparam, value);
+//  DBGMSG("IPlugWAM:: onParam %i %f\n", idparam, value);
   SetParameterValue(idparam, value);
 }
 
