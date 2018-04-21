@@ -40,9 +40,7 @@
 <!--
       <h4>IPlugWAM_WAM Web Audio Module</h4>
  -->
-<!--
       <button type="button" onclick="main()">Start web audio!</button>
- -->
     </div>
     <div class="iplug" id="status">Downloading...</div>
     <div class="control">
@@ -74,7 +72,7 @@
           })
         }
 
-        function onLoad() {
+        function main() {
           if (AWPF.isAudioWorkletPolyfilled)
             actx = AWPF.context;
           else actx = new AudioContext();
@@ -95,7 +93,7 @@
       var progressElement = document.getElementById('progress');
 
       var Module = {
-        preRun: [onLoad],
+        preRun: [],
         postRun: [],
         print: (function() {
           var element = document.getElementById('output');
