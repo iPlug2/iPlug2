@@ -4,26 +4,10 @@
 #include <windowsx.h>
 #include <winuser.h>
 
-//TODO: would be nice not to put this here
-#ifndef NO_IGRAPHICS
-  #ifdef IGRAPHICS_AGG
-    #define IGRAPHICS_DRAW_CLASS IGraphicsAGG
-    #include "IGraphicsAGG.h"
-  #elif defined IGRAPHICS_CAIRO
-    #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
-    #include "IGraphicsCairo.h"
-  #elif defined IGRAPHICS_NANOVG
-    #define IGRAPHICS_DRAW_CLASS IGraphicsNanoVG
-    #include "IGraphicsNanoVG.h"
-  #elif !defined DOXYGEN_SHOULD_SKIP_THIS
-    #define IGRAPHICS_DRAW_CLASS IGraphicsCairo
-    #include "IGraphicsCairo.h"
-  #endif
-#endif
+#include "IGraphics_select.h"
 
 /** IGraphics platform class for Windows
-*   @ingroup PlatformClasses
-*/
+*   @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:

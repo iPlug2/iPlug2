@@ -2,21 +2,9 @@
 
 #ifndef NO_IGRAPHICS
 
-#ifdef IGRAPHICS_AGG
-  #include "IGraphicsAGG.h"
-  typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.h"
-  typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
-#elif defined IGRAPHICS_NANOVG
-  #include "IGraphicsNanoVG.h"
-  typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-#elif !defined DOXYGEN_SHOULD_SKIP_THIS
-  #include "IGraphicsLice.h"
-  typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
-#endif
+#include "IGraphics_select.h"
 
-/** IGraphics platform class for macOS  
+/** IGraphics platform class for macOS
 *   @ingroup PlatformClasses
 */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
@@ -27,14 +15,14 @@ public:
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
   void CreateMetalLayer();
-  
+
   bool IsSandboxed();
-    
+
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h, float scale) override;
-  
+
   void HideMouseCursor(bool hide, bool returnToStartPosition) override;
   void MoveMouseCursor(float x, float y) override;
 
@@ -42,7 +30,7 @@ public:
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
-  
+
   void UpdateTooltips() override;
 
   void HostPath(WDL_String& path) override;
@@ -67,15 +55,15 @@ public:
 
   const char* GetBundleID()  { return mBundleID.Get(); }
   static int GetUserOSVersion();
-  
+
   bool GetTextFromClipboard(WDL_String& str) override;
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-  
+
   void* mLayer;
 
   void SetMousePosition(float x, float y);
-    
+
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 

@@ -2,24 +2,12 @@
 
 #ifndef NO_IGRAPHICS
 
-#ifdef IGRAPHICS_AGG
-  #include "IGraphicsAGG.h"
-  typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.h"
-  typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
-#elif defined IGRAPHICS_NANOVG
-  #include "IGraphicsNanoVG.h"
-  typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-#elif !defined DOXYGEN_SHOULD_SKIP_THIS
-  #include "IGraphicsLice.h"
-  typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
-#endif
+#include "IGraphics_select.h"
 
 /** IGraphics platform class for linux
 *   @ingroup PlatformClasses
 */
-class IGraphicsLinux
+class IGraphicsLinux final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsLinux(IGraphicsDelegate& dlg, int w, int h, int fps)  final;
