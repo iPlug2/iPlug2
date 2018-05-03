@@ -7,9 +7,6 @@
 
 #include "IPlugBase.h"
 
-/** Used to pass various instance info to the API class, where needed */
-struct IPlugInstanceInfo {};
-
 using namespace Steinberg;
 using namespace Vst;
 
@@ -18,12 +15,17 @@ class IPlugVST3Controller : public EditControllerEx1
                           , public IPlugBase
 {
 public:
+  struct IPlugInstanceInfo
+  {
+    Steinberg::FUID mOtherGUID;
+  };
+  
   IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c);
   virtual ~IPlugVST3Controller();
 
   // IEditController
   tresult PLUGIN_API initialize (FUnknown* context) override;
-  IPlugView* PLUGIN_API createView (FIDString name) override { return 0; }
+  IPlugView* PLUGIN_API createView (FIDString name) override;
   tresult PLUGIN_API setComponentState (IBStream* state) override; // receives the processor's state
   tresult PLUGIN_API setState (IBStream* state) override;
   tresult PLUGIN_API getState (IBStream* state) override;
@@ -56,8 +58,9 @@ public:
   
 private:
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
+  Steinberg::IPlugView* mView = nullptr;
 };
 
-IPlugVST3Controller* MakePlug();
+IPlugVST3Controller* MakeController();
 
 #endif // _IPLUGAPI_

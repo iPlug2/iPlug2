@@ -7,9 +7,10 @@
 
 #include "IPlugVST3.h"
 
-
 using namespace Steinberg;
 using namespace Vst;
+
+#include "IPlugVST3_Parameter.h"
 
 #ifndef CUSTOM_BUSTYPE_FUNC
 static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
@@ -44,15 +45,12 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 #endif //CUSTOM_BUSTYPE_FUNC
 
 
-
 #pragma mark - IPlugVST3 Constructor
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
 {
-  AttachPresetHandler(this);
-
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
 

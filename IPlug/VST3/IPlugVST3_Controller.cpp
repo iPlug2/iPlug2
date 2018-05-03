@@ -6,6 +6,7 @@
 //#include "public.sdk/source/vst/vstpresetfile.cpp"
 
 #include "IPlugVST3_Parameter.h"
+#include "IPlugVST3_view.h"
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -13,6 +14,7 @@ using namespace Steinberg::Vst;
 IPlugVST3Controller::IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugBase(c, kAPIVST3)
 {
+  //TODO: store processor GUID
 }
 
 IPlugVST3Controller::~IPlugVST3Controller()
@@ -173,6 +175,17 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
   }
 
   return kResultFalse;
+}
+
+IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
+{
+  if (name && strcmp(name, "editor") == 0)
+  {
+    mView = new IPlugVST3View(this);
+    return mView;
+  }
+  
+  return nullptr;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* state)

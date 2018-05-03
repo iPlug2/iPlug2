@@ -41,6 +41,8 @@ IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConf
 : IPlugBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
 {
+  setControllerClass(instanceInfo.mOtherGUID);
+
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   

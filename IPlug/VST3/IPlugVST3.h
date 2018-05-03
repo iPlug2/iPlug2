@@ -16,6 +16,8 @@
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 
+#include "IPlugBase.h"
+#include "IPlugProcessor.h"
 
 /** Used to pass various instance info to the API class, where needed */
 struct IPlugInstanceInfo {};

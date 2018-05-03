@@ -10,9 +10,6 @@
 #include "IPlugBase.h"
 #include "IPlugProcessor.h"
 
-/** Used to pass various instance info to the API class, where needed */
-struct IPlugInstanceInfo {};
-
 using namespace Steinberg;
 using namespace Vst;
 
@@ -21,6 +18,11 @@ class IPlugVST3Processor : public AudioEffect
                          , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
+  struct IPlugInstanceInfo
+  {
+    Steinberg::FUID mOtherGUID;
+  };
+  
   IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c);
   virtual ~IPlugVST3Processor();
 
@@ -56,6 +58,6 @@ private:
 //   spsc_queue<SysExChunk, capacity<2> > mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
 };
 
-IPlugVST3Processor* MakePlug();
+IPlugVST3Processor* MakeProcessor();
 
 #endif //_IPLUGAPI_

@@ -7,6 +7,8 @@
     A preprocessor macro for a particular API such as VST2_API should be defined at project level
     Depending on the API macro defined, a different entry point and helper methods are activated
 */
+
+#pragma mark - VST2
 #if defined OS_WIN
   HINSTANCE gHInstance = 0;
   #if defined(VST2_API) || defined(AAX_API)
@@ -47,14 +49,19 @@
     #endif
     }
   };
-#elif defined VST3C_API || defined VST3P_API
+
+#pragma mark - VST3
+#elif defined VST3_API || VST3C_API || defined VST3P_API
 #include "public.sdk/source/main/pluginfactoryvst3.h"
 #include "pluginterfaces/vst/ivstcomponent.h"
+#include "pluginterfaces/vst/ivsteditcontroller.h"
 
-unsigned int GUID_DATA1 = 0xF2AEE70D;
-unsigned int GUID_DATA2 = 0x00DE4F4E;
-unsigned int GUID_DATA3 = PLUG_MFR_ID;
-unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
+static unsigned int PROC_GUID_DATA1 = 0xF2AEE70D;
+static unsigned int PROC_GUID_DATA2 = 0x00DE4F4E;
+static unsigned int CTRL_GUID_DATA1 = 0xF2AEE70E;
+static unsigned int CTRL_GUID_DATA2 = 0x00DE4F4F;
+static unsigned int GUID_DATA3 = PLUG_MFR_ID;
+static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
 #ifndef EFFECT_TYPE_VST3
   #if PLUG_IS_INST
@@ -64,14 +71,15 @@ unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
   #endif
 #endif
 
+#if defined VST3P_API || defined VST3_API
 // called after library was loaded
 bool InitModule ()
 {
-  #ifdef OS_WIN
+#ifdef OS_WIN
   extern void* moduleHandle;
   gHInstance = (HINSTANCE) moduleHandle;
-  #endif
-
+#endif
+  
   return true;
 }
 
@@ -80,40 +88,79 @@ bool DeinitModule ()
 {
   return true;
 }
+#endif
 
+#if defined VST3P_API
+IPlug* MakeProcessor()
+{
+  static WDL_Mutex sMutex;
+  WDL_MutexLock lock(&sMutex);
+  IPlugVST3Processor::IPlugInstanceInfo instanceInfo;
+  instanceInfo.mOtherGUID = FUID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  return new PLUG_CLASS_NAME(instanceInfo);
+}
+
+static Steinberg::FUnknown* createProcessorInstance (void*) {
+  return (Steinberg::Vst::IAudioProcessor*) MakeProcessor();
+}
+
+extern IPlug* MakeController();
+
+static Steinberg::FUnknown* createControllerInstance (void*) {
+  return (Steinberg::Vst::IEditController*) MakeController();
+}
+
+#elif defined VST3C_API
+IPlug* MakeController()
+{
+  static WDL_Mutex sMutex;
+  WDL_MutexLock lock(&sMutex);
+  IPlugVST3Controller::IPlugInstanceInfo instanceInfo;
+  instanceInfo.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  return new PLUG_CLASS_NAME(instanceInfo);
+}
+#elif defined VST3_API
 IPlug* MakePlug()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugInstanceInfo instanceInfo;
-
+  
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 
-#if defined VST3P_API
-static Steinberg::FUnknown* createProcessorInstance (void*) {
+static Steinberg::FUnknown* createInstance (void*) {
   return (Steinberg::Vst::IAudioProcessor*) MakePlug();
 }
-#elif defined VST3C_API
-static Steinberg::FUnknown* createControllerInstance (void*) {
-  return (Steinberg::Vst::IEditController*) MakePlug();
-}
-#endif
 
 BEGIN_FACTORY_DEF (PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
+DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+            Steinberg::PClassInfo::kManyInstances,              // cardinality
+            kVstAudioEffectClass,                               // the component category (don't change this)
+            PLUG_NAME,                                          // plug-in name
+            Steinberg::Vst::kSimpleModeSupported,               // kSimpleModeSupported because we can't split the gui and plugin
+            VST3_SUBCATEGORY,                                   // Subcategory for this plug-in
+            PLUG_VERSION_STR,                                       // plug-in version
+            kVstVersionString,                                  // the VST 3 SDK version (dont changed this, use always this define)
+            createInstance)                                     // function pointer called when this component should be instantiated
+
+END_FACTORY
+#endif
+
 #if defined VST3P_API
-DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
+BEGIN_FACTORY_DEF (PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
+
+DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
             PClassInfo::kManyInstances,  // cardinality
             kVstAudioEffectClass,  // the component category (do not changed this)
-            PLUG_NAME " Processor",    // here the Plug-in name (to be changed)
+            PLUG_NAME,    // here the Plug-in name (to be changed)
             Vst::kDistributable,  // means that component and controller could be distributed on different computers
             VST3_SUBCATEGORY,    // Subcategory for this Plug-in (to be changed)
             PLUG_VERSION_STR,    // Plug-in version (to be changed)
             kVstVersionString,    // the VST 3 SDK version (do not changed this, use always this define)
             createProcessorInstance)  // function pointer called when this component should be instantiated
-#elif defined VST3C_API
-DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
+DEF_CLASS2 (INLINE_UID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4),
             PClassInfo::kManyInstances,  // cardinality
             kVstComponentControllerClass,// the Controller category (do not changed this)
             PLUG_NAME " Controller",  // controller name (could be the same than component name)
@@ -122,9 +169,10 @@ DEF_CLASS2 (INLINE_UID(GUID_DATA1, GUID_DATA2, GUID_DATA3, GUID_DATA4),
             PLUG_VERSION_STR,    // Plug-in version (to be changed)
             kVstVersionString,    // the VST 3 SDK version (do not changed this, use always this define)
             createControllerInstance)// function pointer called when this component should be instantiated
-#endif
-END_FACTORY
 
+END_FACTORY
+#endif
+#pragma mark - AUv2
 #elif defined AU_API
 //#include <AvailabilityMacros.h>
   IPlug* MakePlug(void* pMemory)
@@ -237,6 +285,7 @@ extern "C"
     }
 
   };
+#pragma mark - AUv3
 #elif defined AUv3_API
   IPlug* MakePlug()
   {
@@ -244,6 +293,7 @@ extern "C"
     instanceInfo.mBundleID.Set(BUNDLE_ID);
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+#pragma mark - AAX
 #elif defined AAX_API
   IPlug* MakePlug()
   {
@@ -251,6 +301,7 @@ extern "C"
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+#pragma mark - APP
 #elif defined APP_API
   IPlug* MakePlug(void* pMidiOutput, uint16_t& midiOutChan)
   {
@@ -265,6 +316,7 @@ extern "C"
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+#pragma mark - WAM
 #elif defined WAM_API
   IPlug* MakePlug()
   {
@@ -281,6 +333,7 @@ extern "C"
       return (void*) pWAM;
     }
   }
+#pragma mark - WEB
 #elif defined WEB_API
   #include "config.h"
 
@@ -310,6 +363,20 @@ extern "C"
   #error "No API defined!"
 #endif
 
+#if defined OS_MAC && !defined APP_API && !defined VST3P_API
+void Sleep(int ms)
+{
+  usleep(ms?ms*1000:100);
+}
+
+DWORD GetTickCount()
+{
+  struct timeval tm={0,};
+  gettimeofday(&tm,NULL);
+  return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
+}
+#endif
+
 /*
 #if defined _DEBUG
   #define PUBLIC_NAME APPEND_TIMESTAMP(PLUG_NAME " DEBUG")
@@ -331,6 +398,6 @@ extern "C"
     PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT))
 
-#ifndef NO_IGRAPHICS
+#if !defined NO_IGRAPHICS && !defined VST3P_API
 #include "IGraphics_include_in_plug_src.h"
 #endif

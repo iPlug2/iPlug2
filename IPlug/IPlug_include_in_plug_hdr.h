@@ -45,14 +45,20 @@
 #elif defined WEB_API
   #include "IPlugWeb.h"
   typedef IPlugWeb IPlug;
+#elif defined VST3_API
+  #include "IPlugVST3.h"
+  typedef IPlugVST3 IPlug;
+  #define API_EXT "vst3"
 #elif defined VST3C_API
   #include "IPlugVST3_Controller.h"
   typedef IPlugVST3Controller IPlug;
-  #define API_EXT "vst3c"
+  #undef PLUG_CLASS_NAME
+  #define PLUG_CLASS_NAME VST3Controller
+  #define API_EXT "vst3"
 #elif defined VST3P_API
   #include "IPlugVST3_Processor.h"
   typedef IPlugVST3Processor IPlug;
-  #define API_EXT "vst3p"
+  #define API_EXT "vst3"
 #else
   #error "No API defined!"
 #endif
@@ -70,23 +76,14 @@
   #error "No OS defined!"
 #endif
 
-#if defined OS_MAC && !defined APP_API
+#if defined OS_MAC && !defined APP_API && !defined VST3P_API
 #include <sys/time.h>
 #include <unistd.h>
 #include "swell.h"
-void Sleep(int ms)
-{
-  usleep(ms?ms*1000:100);
-}
-
-DWORD GetTickCount()
-{
-  struct timeval tm={0,};
-  gettimeofday(&tm,NULL);
-  return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
-}
+void Sleep(int ms);
+DWORD GetTickCount();
 #endif
 
-#ifndef NO_IGRAPHICS
+#if !defined NO_IGRAPHICS && !defined VST3P_API
 #include "IGraphics_include_in_plug_hdr.h"
 #endif
