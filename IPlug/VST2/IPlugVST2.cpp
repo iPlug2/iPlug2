@@ -360,10 +360,18 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     case effEditOpen:
     {
 #if defined(_WIN32) || defined(__LP64__) // __LP64__ = cocoa macOS
-      if (_this->OpenWindow(ptr)) return 1;
+      if (_this->OpenWindow(ptr))
+      {
+        _this->OnUIOpen();
+        return 1;
+      }
 #else   // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
       bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
-      if (iscocoa && _this->OpenWindow(ptr)) return 1; // cocoa supported open cocoa
+      if (iscocoa && _this->OpenWindow(ptr))
+      {
+        _this->OnUIOpen();
+        return 1; // cocoa supported open cocoa
+      }
 #endif
       return 0;
     }
