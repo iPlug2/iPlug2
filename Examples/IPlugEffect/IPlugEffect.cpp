@@ -1,7 +1,7 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
 
-IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
+PLUG_CLASS_NAME::PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
@@ -10,12 +10,12 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
 #if IPLUG_EDITOR
   CreateUI(); // this could be called by superclass - OnCreateUI?
 #endif
-  
+//  
   PrintDebugInfo();
 }
 
 #if IPLUG_DSP
-void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+void PLUG_CLASS_NAME::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->Value() / 100.;
 
@@ -25,8 +25,6 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       outputs[c][s] = mOsc.Process() * gain;
     }
   }
-
- // mMeter->ProcessBus(outputs, nFrames);
 }
 #endif
 
