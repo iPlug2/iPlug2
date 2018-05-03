@@ -7,13 +7,14 @@
  * @copydoc IPlugAU
  */
 
-
 #include <CoreServices/CoreServices.h>
 #include <AudioUnit/AUComponent.h>
 #include <AudioUnit/AudioUnitProperties.h>
 #include <AudioToolbox/AudioUnitUtilities.h>
 #include <AvailabilityMacros.h>
 
+#include "IPlugBase.h"
+#include "IPlugProcessor.h"
 
 struct AudioComponentPlugInInstance
 {

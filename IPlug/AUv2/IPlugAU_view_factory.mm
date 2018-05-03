@@ -3,6 +3,7 @@
 #include <AudioUnit/AUCocoaUIView.h>
 
 #include "config.h"   // This is your plugin's config.h.
+#include "IPlugBase.h"
 
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 

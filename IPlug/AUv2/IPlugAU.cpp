@@ -616,7 +616,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
                 
               case IParam::kUnitCustom:
                 
-                if (CStringHasContents(metadata.mCustomUnit))
+                if (CStringHasContents(pParam->GetCustomUnit()))
                 {
                   pInfo->unit = kAudioUnitParameterUnit_CustomUnit;
                   pInfo->unitName = CFStringCreateWithCString(0, pParam->GetCustomUnit(), kCFStringEncodingUTF8);

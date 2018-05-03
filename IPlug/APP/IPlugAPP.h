@@ -8,6 +8,8 @@
 
 
 #include "IPlugPlatform.h"
+#include "IPlugBase.h"
+#include "IPlugProcessor.h"
 
 #include "RtMidi.h"
 
