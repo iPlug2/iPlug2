@@ -13,7 +13,7 @@
 
 #include "IPlugParameter.h"
 
-#ifdef NDEBUG
+#ifdef DEBUG
 #ifndef OS_WEB
 #include "IGraphicsLiveEdit.h"
 #endif
@@ -59,7 +59,7 @@ IGraphics::~IGraphics()
 {
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
-  
+
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
 
@@ -82,15 +82,15 @@ IGraphics::~IGraphics()
 void IGraphics::Resize(int w, int h, float scale)
 {
   ReleaseMouseCapture();
-  
+
   float oldScale = mScale;
   mScale = scale;
   mWidth = w;
   mHeight = h;
-  
+
   if (oldScale != scale)
     OnDisplayScale();
-  
+
   GetDelegate().ResizeGraphicsFromUI();
 }
 
@@ -111,7 +111,7 @@ void IGraphics::OnDisplayScale()
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
 {
   const IParam* pParam = control.GetParam();
-  
+
   if (pParam)
   {
     const double v = pParam->StringToValue(str);
@@ -252,7 +252,7 @@ void IGraphics::UpdatePeers(IControl* pCaller)
 void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
 {
   const IParam* pParam = control.GetParam();
-  
+
   if(pParam)
   {
     IParam::EParamType type = pParam->Type();
@@ -292,7 +292,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
   int srcY = 0;
 
   bmpState = Clip(bmpState, 1, bitmap.N());
-    
+
   if (bitmap.N() > 1 && bmpState > 1)
   {
     if (bitmap.GetFramesAreHorizontal())
@@ -304,7 +304,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
       srcY = int(0.5f + bitmap.H() * (float) (bmpState - 1) / (float) bitmap.N());
     }
   }
-    
+
   return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
@@ -459,7 +459,7 @@ bool IGraphics::IsDirty(IRECT& bounds)
     bounds = bounds.Union(mPopupControl->GetRECT());
     dirty = true;
   }
-  
+
 #ifdef USE_IDLE_CALLS
   if (dirty)
   {
@@ -471,7 +471,7 @@ bool IGraphics::IsDirty(IRECT& bounds)
     mIdleTicks = 0;
   }
 #endif
-  
+
   return dirty;
 }
 
@@ -557,7 +557,7 @@ void IGraphics::Draw(const IRECT& bounds)
       }
     }
   }
-  
+
   if(mPopupControl != nullptr && mPopupControl->IsDirty())
   {
     mPopupControl->Draw(*this);
@@ -610,7 +610,7 @@ void IGraphics::SetStrictDrawing(bool strict)
 void IGraphics::MoveMouseCursor(float x, float y)
 {
   // Call this with the window-relative coords after doing platform specifc cursor move
-    
+
   if (mMouseCapture >= 0)
   {
     //mMouseX = x;
@@ -625,7 +625,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
   mMouseDownX = x;
   mMouseDownY = y;
-  
+
 #if !defined(NDEBUG) && defined(APP_API)
   if(mLiveEdit)
   {
@@ -635,7 +635,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 #endif
 
   ReleaseMouseCapture();
-  
+
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     if(mPopupControl->GetRECT().Contains(x, y))
@@ -644,7 +644,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
       return;
     }
   }
-  
+
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
   {
@@ -701,7 +701,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
     return;
   }
 #endif
-  
+
 
   if(mPopupControl && mPopupControl->GetExpanded())
   {
@@ -713,7 +713,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
       return;
     }
   }
-  
+
   int c = GetMouseControlIdx(x, y);
   ReleaseMouseCapture();
 
@@ -742,7 +742,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
     return true;
   }
 #endif
-  
+
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     if(mPopupControl->GetRECT().Contains(x, y))
@@ -769,7 +769,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -782,7 +782,7 @@ void IGraphics::OnMouseOut()
   {
     mPopupControl->OnMouseOut();
   }
-  
+
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
@@ -805,7 +805,7 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
     return;
   }
 #endif
-  
+
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     mPopupControl->OnMouseDrag(x, y, dX, dY, mod);
@@ -849,7 +849,7 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
     mPopupControl->OnMouseWheel(x, y, mod, d);
     return;
   }
-  
+
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
   {
@@ -906,7 +906,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
       else
         allow = !pControl->IsGrayed();
     }
-    
+
     if (!pControl->IsHidden() && !pControl->GetIgnoreMouse() && allow && pControl->IsHit(x, y))
     {
       return i;
@@ -953,7 +953,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 {
   IPopupMenu& contextMenu = mPromptPopupMenu;
   contextMenu.Clear();
-  
+
   IControl* pControl = GetControl(controlIdx);
 
   if(pControl)
@@ -1042,7 +1042,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
-#if !defined(NDEBUG) && defined(APP_API)
+#if defined(DEBUG) && defined(APP_API)
   if(enable)
   {
     mLiveEdit = new IGraphicsLiveEdit(GetDelegate(), file, gridsize);
