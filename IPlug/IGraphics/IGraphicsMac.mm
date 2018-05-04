@@ -125,26 +125,62 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
   return false;
 }
 
+NSString* GetAppexResourcePath(const char* bundleID, const char* fileName, const char* searchExt)
+{
+//  CocoaAutoReleasePool pool;
+  
+  const char* ext = fileName+strlen(fileName)-1;
+  while (ext >= fileName && *ext != '.') --ext;
+  ++ext;
+  
+  bool isCorrectType = !strcasecmp(ext, searchExt);
+  
+  NSBundle* pBundle = [[NSBundle bundleWithIdentifier:ToNSString(bundleID)] autorelease];
+  NSString* pFile = [[[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension] autorelease];
+  
+  NSString* pExt = [[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding] autorelease];
+  
+  if (isCorrectType && pBundle && pFile)
+  {
+    //NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
+    NSString* pPath = [[[[[[[[pBundle resourcePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+    
+    if (pPath)
+    {
+      return pPath;
+    }
+  }
+  
+  return nil;
+}
+
 bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if(CStringHasContents(name))
   {
-    if(IsSandboxed())
-    {
-      printf("SAND");
-    }
-
     bool foundInBundle = GetResourcePathFromBundle(GetBundleID(), name, type, result);
-
+  
+    //      NSURL* pGroupURL = [[NSFileManager defaultManager]
+    //                         containerURLForSecurityApplicationGroupIdentifier:
+    //                         @"group.io.github.iplug2.iplugeffect"];
+    //
     if(foundInBundle)
       return true;
     else
     {
-      NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-
+      NSString* pPath = nil;
+      
+      if(IsSandboxed())
+      {
+        pPath = GetAppexResourcePath(GetBundleID(), name, type);
+      }
+      else
+        pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+      
       if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        result.Set(name);
+        result.Set([pPath UTF8String]);
+        [pPath release];
         return true;
       }
     }
