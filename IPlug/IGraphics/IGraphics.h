@@ -450,6 +450,8 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+  virtual void DrawDropShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f) {};
+
 private:
     
   /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
@@ -862,7 +864,7 @@ public:
 
 #pragma mark - Resource Loading
   /** Load a bitmap image from disk
-   * @param filename CString file name
+   * @param fileName CString file name
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
    * @return An IBitmap representing the image */
@@ -870,12 +872,12 @@ public:
 
   #ifndef OS_WEB
   /** Load an SVG from disk
-   * @param filename A CString absolute path to the SVG on disk
+   * @param fileName A CString absolute path to the SVG on disk
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileName);
   #endif
-  /** @param name The name of the font to load */
-  virtual void LoadFont(const char* fileName);
+  /** @param fileName The name of the font to load */
+  virtual void LoadFont(const char* fileName) {};
   
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;

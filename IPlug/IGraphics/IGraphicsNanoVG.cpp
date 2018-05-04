@@ -171,6 +171,31 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
 {
+  nvgFontSize(mVG, 16);
+  nvgFontFace(mVG, "sans");
+  nvgFillColor(mVG, NanoVGColor(text.mFGColor));
+  
+  int align = 0;
+  switch (text.mAlign) // todo valign
+  {
+    case IText::kAlignNear: align = NVG_ALIGN_LEFT; break;
+    case IText::kAlignCenter: align = NVG_ALIGN_CENTER; break;
+    case IText::kAlignFar: align = NVG_ALIGN_RIGHT; break;
+    default:
+      break;
+  }
+  nvgTextAlign(mVG, align | NVG_ALIGN_MIDDLE);
+  
+  if(measure)
+  {
+    float fbounds[4];
+    nvgTextBounds(mVG, 0., 0., str, NULL, fbounds);
+    bounds.L = fbounds[0]; bounds.T = fbounds[1]; bounds.R = fbounds[2]; bounds.B = fbounds[3];
+    return true;
+  }
+  else
+    nvgText(mVG, bounds.MW() , bounds.MH(), str, NULL);
+  
   return true;
 }
 
@@ -182,7 +207,6 @@ bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& bou
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   // First set options
-  
   switch (options.mCapOption)
   {
     case kCapButt:   nvgLineCap(mVG, NSVG_CAP_BUTT);     break;
@@ -229,3 +253,49 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     PathClear();
 }
 
+void IGraphicsNanoVG::LoadFont(const char* name)
+{
+#ifdef IGRAPHICS_FREETYPE
+  if (mFTFace)
+  {
+    FT_Done_Face(mFTFace);
+    FT_Done_FreeType(mFTLibrary);
+  }
+  
+  FT_Init_FreeType(&mFTLibrary);
+  FT_New_Face(mFTLibrary, name, 0, &mFTFace);
+#else
+  
+  int fontIcons = nvgCreateFont(mVG, "icons", "/Users/oli/Dev/MyPlugins/entypo.ttf");
+  if (fontIcons == -1) {
+    DBGMSG("Could not add font icons.\n");
+  }
+  int fontNormal = nvgCreateFont(mVG, "sans", "/Users/oli/Dev/MyPlugins/Roboto-Regular.ttf");
+  if (fontNormal == -1) {
+    DBGMSG("Could not add font normal.\n");
+  }
+  int fontBold = nvgCreateFont(mVG, "sans-bold", "/Users/oli/Dev/MyPlugins/Roboto-Bold.ttf");
+  if (fontBold == -1) {
+    DBGMSG("Could not add font bold.\n");
+  }
+  int fontEmoji = nvgCreateFont(mVG, "emoji", "/Users/oli/Dev/MyPlugins/NotoEmoji-Regular.ttf");
+  if (fontEmoji == -1) {
+    DBGMSG("Could not add font emoji.\n");
+  }
+  nvgAddFallbackFontId(mVG, fontNormal, fontEmoji);
+  nvgAddFallbackFontId(mVG, fontBold, fontEmoji);
+#endif
+}
+
+void IGraphicsNanoVG::DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad)
+{
+  IRECT inner = bounds.GetPadded(-pad);
+  NVGpaint shadowPaint = nvgBoxGradient(mVG, inner.L, inner.T + ydrop, inner.W(), inner.H(), cr * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW), NanoVGColor(COLOR_TRANSPARENT));
+  nvgBeginPath(mVG);
+  nvgRect(mVG, bounds.L, bounds.T, bounds.W(), bounds.H());
+  nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
+  nvgPathWinding(mVG, NVG_HOLE);
+  nvgFillPaint(mVG, shadowPaint);
+  nvgFill(mVG);
+  nvgBeginPath(mVG);
+}

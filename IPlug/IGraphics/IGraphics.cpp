@@ -1078,20 +1078,6 @@ ISVG IGraphics::LoadSVG(const char* name)
 }
 #endif
 
-void IGraphics::LoadFont(const char* name)
-{
-#ifdef IGRAPHICS_FREETYPE
-  if (mFTFace)
-  {
-    FT_Done_Face(mFTFace);
-    FT_Done_FreeType(mFTLibrary);
-  }
-
-  FT_Init_FreeType(&mFTLibrary);
-  FT_New_Face(mFTLibrary, name, 0, &mFTFace);
-#endif
-}
-
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
 {
   const int targetScale = round(GetDisplayScale());

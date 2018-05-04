@@ -535,7 +535,7 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
   assert(mMenu != nullptr);
   
   DrawBackground(g, mTargetRECT); // mTargetRECT = inner area
-  //DrawShadow(g, mRECT);
+  DrawShadow(g, mRECT);
 
   for(auto i = 0; i < mCellBounds.GetSize(); i++)
   {
@@ -591,6 +591,7 @@ void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
 
 void IPopupMenuControlBase::DrawShadow(IGraphics& g, const IRECT& bounds)
 {
+  g.DrawDropShadow(bounds, mRoundness, 2., mDropShadowSize);
 }
 
 void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
