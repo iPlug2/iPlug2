@@ -13,9 +13,6 @@
 			<string>Acme</string>
 			<key>name</key>
 			<string>AcmeInc: IPlugEffect</string>
-			<key>resourceUsage</key>
-			<dict>
-			</dict>
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>

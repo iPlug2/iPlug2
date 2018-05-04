@@ -25,7 +25,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		4F08481F20150FD600F9E881 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
 		4F10D3D4203A6711003EF82A /* RtAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10D3D2203A6710003EF82A /* RtAudio.h */; };
 		4F10D3D5203A6711003EF82A /* RtAudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D3203A6711003EF82A /* RtAudio.cpp */; };
@@ -36,13 +35,11 @@
 		4F14D1E62074F17700219377 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E12074F17700219377 /* knob-rotate.png */; };
 		4F14D1E72074F17700219377 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E12074F17700219377 /* knob-rotate.png */; };
 		4F14D1E82074F17700219377 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E12074F17700219377 /* knob-rotate.png */; };
-		4F14D1E92074F17700219377 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E12074F17700219377 /* knob-rotate.png */; };
 		4F14D1EA2074F17700219377 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
 		4F14D1EB2074F17700219377 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
 		4F14D1EC2074F17700219377 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
 		4F14D1ED2074F17700219377 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
 		4F14D1EE2074F17700219377 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
-		4F14D1EF2074F17700219377 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E32074F17700219377 /* knob-rotate@2x.png */; };
 		4F14D1F52074FE4400219377 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F14D1F12074FE4400219377 /* IVDropDownListControl.h */; };
 		4F14D1F62074FE4400219377 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F14D1F12074FE4400219377 /* IVDropDownListControl.h */; };
 		4F14D1F72074FE4400219377 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F14D1F22074FE4400219377 /* IVKeyboardControl.h */; };
@@ -52,7 +49,6 @@
 		4F14D1FB2074FE4400219377 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F14D1F32074FE4400219377 /* IVMeterControl.cpp */; };
 		4F14D1FC2074FE4400219377 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F14D1F32074FE4400219377 /* IVMeterControl.cpp */; };
 		4F14D1FD2074FE4400219377 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F14D1F32074FE4400219377 /* IVMeterControl.cpp */; };
-		4F14D1FE2074FE4400219377 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F14D1F32074FE4400219377 /* IVMeterControl.cpp */; };
 		4F14D1FF2074FE4400219377 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F14D1F42074FE4400219377 /* IVMeterControl.h */; };
 		4F14D2002074FE4400219377 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F14D1F42074FE4400219377 /* IVMeterControl.h */; };
 		4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A527A205D910000CF2908 /* IPlugVST2.cpp */; };
@@ -60,17 +56,8 @@
 		4F1A5281205D913300CF2908 /* IPlugAPP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1A527F205D913200CF2908 /* IPlugAPP.h */; };
 		4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5280205D913300CF2908 /* IPlugAPP.cpp */; };
 		4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5284205D914A00CF2908 /* IPlugAAX.cpp */; };
-		4F1A5288205D915B00CF2908 /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; };
 		4F1A528B205D916F00CF2908 /* IPlugAU.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1A5289205D916F00CF2908 /* IPlugAU.h */; };
 		4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A528A205D916F00CF2908 /* IPlugAU.cpp */; };
-		4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
-		4F1B08822014387400CE2770 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
-		4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
-		4F1B0886201438C600CE2770 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF1426D1FD4A61D00A65575 /* IControl.cpp */; };
-		4F1B0887201438C600CE2770 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
-		4F1B0889201438D100CE2770 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
-		4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
 		4F1F1BEA135B1F60003A5BB2 /* wdlendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */; };
 		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
@@ -79,19 +66,16 @@
 		4F2F94FE2052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
 		4F2F94FF2052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
 		4F2F95002052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
-		4F2F95012052A6480087A37F /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94F92052A6480087A37F /* knob.png */; };
 		4F2F95022052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
 		4F2F95032052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
 		4F2F95042052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
 		4F2F95052052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
 		4F2F95062052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
-		4F2F95072052A6480087A37F /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F2F94FB2052A6480087A37F /* knob@2x.png */; };
 		4F35DEAD207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4F35DEAE207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4F35DEAF207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4F35DEB0207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4F35DEB1207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
-		4F35DEB2207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4F35DEB3207E5C5A00867D8F /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F35DEAC207E5C5A00867D8F /* IPlugPluginDelegate.h */; };
 		4F35DEB4207E5C5A00867D8F /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F35DEAC207E5C5A00867D8F /* IPlugPluginDelegate.h */; };
 		4F3862EF2014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -99,16 +83,12 @@
 		4F3862F12014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F22014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F32014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
-		4F3862F42014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F52014BBEC0009F402 /* IPlugEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3862EE2014BBEC0009F402 /* IPlugEffect.h */; };
 		4F3862F62014BBEC0009F402 /* IPlugEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3862EE2014BBEC0009F402 /* IPlugEffect.h */; };
-		4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
-		4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.mm */; };
 		4F3AE17B12C0E5E2001FD7A4 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 52FBBED30D0CF143001C8B8A /* config.h */; };
 		4F4237291FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F42372A1FC863060067D58C /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4237231FC863060067D58C /* IPlugUtilities.h */; };
 		4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
-		4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
 		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
 		4F690CA1203A398900A4A13E /* IPlugAPP_host.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F690CA0203A398900A4A13E /* IPlugAPP_host.h */; };
 		4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */; };
@@ -205,7 +185,6 @@
 		4F9DC955201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4F9DC956201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4F9DC957201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
-		4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
 		4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9561FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FA6B9571FF9C23700049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
@@ -223,18 +202,16 @@
 		4FBAA598207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
 		4FBAA599207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
 		4FBAA59A207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
-		4FBAA59B207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
 		4FBAA59C207918230054E717 /* IPlugDelegate_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBAA593207918230054E717 /* IPlugDelegate_select.h */; };
 		4FBAA59D207918230054E717 /* IPlugDelegate_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBAA593207918230054E717 /* IPlugDelegate_select.h */; };
 		4FC3B8372077B9E100589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FC3B8382077B9E200589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FC3B8392077B9E200589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FC3B83A2077B9E300589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
-		4FC3B83B2077B9E300589CDA /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FC3EFCB2086C27800BD11FA /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4FC3EFCE2086C35D00BD11FA /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4FC3EFCF2086C35D00BD11FA /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
-		4FC3EFD42086C49D00BD11FA /* libVST3C.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC3EFC42086C0A600BD11FA /* libVST3C.a */; };
+		4FC3EFD42086C49D00BD11FA /* IPlugEffectVST3Controller.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC3EFC42086C0A600BD11FA /* IPlugEffectVST3Controller.a */; };
 		4FC3EFF02086CE5700BD11FA /* eventlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFDD2086CE5600BD11FA /* eventlist.h */; };
 		4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFDF2086CE5600BD11FA /* hostclasses.h */; };
 		4FC3EFF42086CE5700BD11FA /* module.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE12086CE5600BD11FA /* module.h */; };
@@ -267,7 +244,6 @@
 		4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
-		4FDAC0EF207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0F0207D76C600299363 /* IPlugQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDAC0E8207D76C600299363 /* IPlugQueue.h */; };
 		4FDAC0F1207D76C600299363 /* IPlugQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDAC0E8207D76C600299363 /* IPlugQueue.h */; };
 		4FDAC0F2207D76C600299363 /* IPlugTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDAC0E9207D76C600299363 /* IPlugTimer.h */; };
@@ -300,6 +276,31 @@
 		4FF142D31FD4A61E00A65575 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */; };
 		4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
 		4FF142D71FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
+		4FF93DC9209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FF93DC1209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4FF93DD1209C5D6D00310D7C /* IPlugAUv3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1A5287205D915B00CF2908 /* IPlugAUv3.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		4FF93DD2209C5D6D00310D7C /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; };
+		4FF93DD4209C5D6D00310D7C /* IPlugAUAudioUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		4FF93DD5209C5D6D00310D7C /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
+		4FF93DD6209C5D6D00310D7C /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
+		4FF93DD7209C5D6D00310D7C /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.mm */; };
+		4FF93DD9209C5DEF00310D7C /* IPlugEffect_framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF93DD8209C5DEF00310D7C /* IPlugEffect_framework.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4FF93DDA209C5F1700310D7C /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
+		4FF93DDC209C5F2500310D7C /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
+		4FF93DDD209C5F2D00310D7C /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
+		4FF93DDE209C5F3B00310D7C /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
+		4FF93DDF209C5F3B00310D7C /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF1426D1FD4A61D00A65575 /* IControl.cpp */; };
+		4FF93DE0209C5F3B00310D7C /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
+		4FF93DE1209C5F5000310D7C /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
+		4FF93DE2209C5F5000310D7C /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
+		4FF93DE3209C5F7F00310D7C /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
+		4FF93DE4209C5F7F00310D7C /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */; };
+		4FF93DE5209C5F9100310D7C /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4FF93DE6209C5F9100310D7C /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
+		4FF93DE9209C5FC500310D7C /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
+		4FF93DF7209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FF93DF6209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.m */; };
+		4FF93DF9209C68A400310D7C /* IPlugViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF93DF8209C68A400310D7C /* IPlugViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		4FF93DFA209C68EC00310D7C /* IPlugEffectAUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FF93DC1209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework */; };
+		4FF93DFB209C6A3500310D7C /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
 		4FFBB8FB20863B0E00DDD0E7 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F14D1E12074F17700219377 /* knob-rotate.png */; };
 		4FFBB8FC20863B0E00DDD0E7 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8157DD205D50EA00393585 /* LICENSE.txt */; };
 		4FFBB8FD20863B0E00DDD0E7 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8158FC205D50EB00393585 /* LICENSE.txt */; };
@@ -361,7 +362,6 @@
 		B8C5FB3E204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB3F204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 		B8C5FB40204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
-		B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = B8C5FB3B204AF4C400D5C34E /* 23.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -428,6 +428,20 @@
 			remoteGlobalIDString = 4FC3EFC32086C0A600BD11FA;
 			remoteInfo = VST3C;
 		};
+		4FF93DC6209C5BAC00310D7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FF93DC0209C5BAC00310D7C;
+			remoteInfo = framework;
+		};
+		4FF93DEC209C607800310D7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FF93DC0209C5BAC00310D7C;
+			remoteInfo = AUv3F;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -440,6 +454,17 @@
 				4F8E41EE20536AE400B14050 /* IPlugEffect.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FF93DCE209C5BAC00310D7C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FF93DC9209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -665,7 +690,7 @@
 		4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugGraphicsDelegate.cpp; path = ../../../IPlug/IPlugGraphicsDelegate.cpp; sourceTree = "<group>"; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
 		4FC3EFBE2086B87E00BD11FA /* IPlugEffect_editor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugEffect_editor.cpp; path = ../IPlugEffect_editor.cpp; sourceTree = "<group>"; };
-		4FC3EFC42086C0A600BD11FA /* libVST3C.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVST3C.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FC3EFC42086C0A600BD11FA /* IPlugEffectVST3Controller.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = IPlugEffectVST3Controller.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eventlist.cpp; sourceTree = "<group>"; };
 		4FC3EFDD2086CE5600BD11FA /* eventlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventlist.h; sourceTree = "<group>"; };
 		4FC3EFDE2086CE5600BD11FA /* hostclasses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hostclasses.cpp; sourceTree = "<group>"; };
@@ -740,6 +765,12 @@
 		4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPopupMenu.h; path = ../../../IPlug/IGraphics/IPopupMenu.h; sourceTree = "<group>"; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../../common.xcconfig; sourceTree = SOURCE_ROOT; };
 		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4FF93DC1209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IPlugEffectAUv3Framework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FF93DCF209C5D5800310D7C /* IPlugEffect-macOS-AUv3-Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-macOS-AUv3-Framework-Info.plist"; path = "../resources/IPlugEffect-macOS-AUv3-Framework-Info.plist"; sourceTree = "<group>"; };
+		4FF93DD8209C5DEF00310D7C /* IPlugEffect_framework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugEffect_framework.h; sourceTree = "<group>"; };
+		4FF93DF5209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugEffect_AUAudioUnitFactory.h; sourceTree = "<group>"; };
+		4FF93DF6209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IPlugEffect_AUAudioUnitFactory.m; sourceTree = "<group>"; };
+		4FF93DF8209C68A400310D7C /* IPlugViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugViewController.h; path = ../../../IPlug/AUv3/IPlugViewController.h; sourceTree = "<group>"; };
 		4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_Controller.cpp; path = ../../../IPlug/VST3/IPlugVST3_Controller.cpp; sourceTree = "<group>"; };
 		4FFBB8F320863B0900DDD0E7 /* IPlugVST3_Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Controller.h; path = ../../../IPlug/VST3/IPlugVST3_Controller.h; sourceTree = "<group>"; };
 		4FFBB8F420863B0900DDD0E7 /* IPlugVST3_Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Processor.h; path = ../../../IPlug/VST3/IPlugVST3_Processor.h; sourceTree = "<group>"; };
@@ -763,6 +794,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FF93DFA209C68EC00310D7C /* IPlugEffectAUv3Framework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,11 +834,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FF93DBD209C5BAC00310D7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FFBB93620863B0E00DDD0E7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FC3EFD42086C49D00BD11FA /* libVST3C.a in Frameworks */,
+				4FC3EFD42086C49D00BD11FA /* IPlugEffectVST3Controller.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -849,6 +888,7 @@
 				4FDA1E102012CDB30027C868 /* resource.h */,
 				4F23BA1413B647E50097A67E /* IPlugEffect-macOS-Info.plist */,
 				4F3907872013ED2F00DDA490 /* IPlugEffect-macOS-AUv3-Info.plist */,
+				4FF93DCF209C5D5800310D7C /* IPlugEffect-macOS-AUv3-Framework-Info.plist */,
 				4F23BA1513B647E50097A67E /* IPlugEffect-VST2-Info.plist */,
 				4F3E693A1409747300C4D749 /* IPlugEffect-VST3-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */,
@@ -868,7 +908,8 @@
 				4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */,
 				4F3907602013EBA300DDA490 /* IPlugEffect.appex */,
 				4FFBB93B20863B0E00DDD0E7 /* IPlugEffect.vst3 */,
-				4FC3EFC42086C0A600BD11FA /* libVST3C.a */,
+				4FC3EFC42086C0A600BD11FA /* IPlugEffectVST3Controller.a */,
+				4FF93DC1209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -876,6 +917,9 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4FF93DD8209C5DEF00310D7C /* IPlugEffect_framework.h */,
+				4FF93DF5209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.h */,
+				4FF93DF6209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.m */,
 				4F3862FF2014BCC70009F402 /* scripts */,
 				4F8B32602014C7D600EF1F61 /* IPlugEffect.xcconfig */,
 				4FF7B0D4156A825000E6CB12 /* common.xcconfig */,
@@ -949,6 +993,7 @@
 				4F39077B2013EC0400DDA490 /* IPlugAUAudioUnit.h */,
 				4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */,
 				4F56CC702022A55D00CF585F /* IPlugViewController.xib */,
+				4FF93DF8209C68A400310D7C /* IPlugViewController.h */,
 				4F3907772013EC0400DDA490 /* IPlugViewController.mm */,
 			);
 			name = AUv3;
@@ -1620,6 +1665,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FF93DBE209C5BAC00310D7C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FF93DD9209C5DEF00310D7C /* IPlugEffect_framework.h in Headers */,
+				4FF93DF9209C68A400310D7C /* IPlugViewController.h in Headers */,
+				4FF93DD4209C5D6D00310D7C /* IPlugAUAudioUnit.h in Headers */,
+				4FF93DD1209C5D6D00310D7C /* IPlugAUv3.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -1653,6 +1709,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4FF93DED209C607800310D7C /* PBXTargetDependency */,
 			);
 			name = AUv3;
 			productName = AUv3;
@@ -1733,7 +1790,7 @@
 			);
 			name = VST3C;
 			productName = "IPlugEffect-VST3Controller";
-			productReference = 4FC3EFC42086C0A600BD11FA /* libVST3C.a */;
+			productReference = 4FC3EFC42086C0A600BD11FA /* IPlugEffectVST3Controller.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		4FD16A0813B63081001D0217 /* APP */ = {
@@ -1747,15 +1804,35 @@
 				4FD16A0713B63081001D0217 /* Frameworks */,
 				4F3907752013EBA400DDA490 /* Embed App Extensions */,
 				4F5E01B0201414B700C4EDEA /* Run Script - Register AUv3 */,
+				4FF93DCE209C5BAC00310D7C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4FF93DC7209C5BAC00310D7C /* PBXTargetDependency */,
 			);
 			name = APP;
 			productName = "OSXAPP_32&64_intel";
 			productReference = 4FD16A0913B63081001D0217 /* IPlugEffect.app */;
 			productType = "com.apple.product-type.application";
+		};
+		4FF93DC0209C5BAC00310D7C /* AUv3F */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FF93DCA209C5BAC00310D7C /* Build configuration list for PBXNativeTarget "AUv3F" */;
+			buildPhases = (
+				4FF93DBC209C5BAC00310D7C /* Sources */,
+				4FF93DBD209C5BAC00310D7C /* Frameworks */,
+				4FF93DBE209C5BAC00310D7C /* Headers */,
+				4FF93DBF209C5BAC00310D7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AUv3F;
+			productName = framework;
+			productReference = 4FF93DC1209C5BAC00310D7C /* IPlugEffectAUv3Framework.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 		4FFBB8F820863B0E00DDD0E7 /* VST3P */ = {
 			isa = PBXNativeTarget;
@@ -1791,6 +1868,9 @@
 						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
 							com.apple.Sandbox = {
 								enabled = 1;
 							};
@@ -1803,10 +1883,18 @@
 						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
 							com.apple.Sandbox = {
 								enabled = 1;
 							};
 						};
+					};
+					4FF93DC0209C5BAC00310D7C = {
+						CreatedOnToolsVersion = 9.3;
+						DevelopmentTeam = 686EDA2T8T;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -1838,6 +1926,7 @@
 				4F3AE17812C0E5E2001FD7A4 /* AU */,
 				4FB600121567CB0A0020189A /* AAX */,
 				4F39075F2013EBA300DDA490 /* AUv3 */,
+				4FF93DC0209C5BAC00310D7C /* AUv3F */,
 				4FFBB8F820863B0E00DDD0E7 /* VST3P */,
 				4FC3EFC32086C0A600BD11FA /* VST3C */,
 			);
@@ -1892,13 +1981,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F14D1E92074F17700219377 /* knob-rotate.png in Resources */,
-				4F14D1EF2074F17700219377 /* knob-rotate@2x.png in Resources */,
-				4F56CC712022A55D00CF585F /* IPlugViewController.xib in Resources */,
-				4F2F95012052A6480087A37F /* knob.png in Resources */,
-				4F9DC958201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
-				B8C5FB41204AF4C400D5C34E /* 23.svg in Resources */,
-				4F2F95072052A6480087A37F /* knob@2x.png in Resources */,
+				4FF93DFB209C6A3500310D7C /* IPlugViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1943,6 +2026,14 @@
 				4F14D1EA2074F17700219377 /* knob-rotate@2x.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FF93DBF209C5BAC00310D7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FF93DD6209C5D6D00310D7C /* IPlugViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2126,24 +2217,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F14D1FE2074FE4400219377 /* IVMeterControl.cpp in Sources */,
-				4FBAA59B207918230054E717 /* IPlugGraphicsDelegate.cpp in Sources */,
-				4F1B0885201438C600CE2770 /* IGraphics.cpp in Sources */,
-				4F3907802013EC1000DDA490 /* IPlugViewController.mm in Sources */,
-				4F08481F20150FD600F9E881 /* IGraphicsMac.m in Sources */,
-				4FDAC0EF207D76C600299363 /* IPlugTimer.cpp in Sources */,
-				4F3862F42014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
-				4FC3B83B2077B9E300589CDA /* swell-misc.mm in Sources */,
-				4F1B088A201438D100CE2770 /* IGraphicsMac_view.mm in Sources */,
-				4F1B0889201438D100CE2770 /* IGraphicsMac.mm in Sources */,
-				4F1B0886201438C600CE2770 /* IControl.cpp in Sources */,
-				4F1B0887201438C600CE2770 /* IControls.cpp in Sources */,
-				4F1A5288205D915B00CF2908 /* IPlugAUv3.mm in Sources */,
-				4F35DEB2207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */,
-				4F1B08822014387400CE2770 /* IPlugParameter.cpp in Sources */,
-				4F1B08812014387400CE2770 /* IPlugBase.cpp in Sources */,
-				4F39077E2013EC1000DDA490 /* IPlugAUAudioUnit.mm in Sources */,
-				4F1B088F20143A2500CE2770 /* swell-gdi.mm in Sources */,
+				4FF93DF7209C663B00310D7C /* IPlugEffect_AUAudioUnitFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2301,6 +2375,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FF93DBC209C5BAC00310D7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FF93DDE209C5F3B00310D7C /* IGraphics.cpp in Sources */,
+				4FF93DD5209C5D6D00310D7C /* IPlugAUAudioUnit.mm in Sources */,
+				4FF93DDC209C5F2500310D7C /* IPlugParameter.cpp in Sources */,
+				4FF93DDF209C5F3B00310D7C /* IControl.cpp in Sources */,
+				4FF93DE0209C5F3B00310D7C /* IControls.cpp in Sources */,
+				4FF93DE1209C5F5000310D7C /* IGraphicsMac.mm in Sources */,
+				4FF93DDD209C5F2D00310D7C /* IPlugTimer.cpp in Sources */,
+				4FF93DE3209C5F7F00310D7C /* IPlugPluginDelegate.cpp in Sources */,
+				4FF93DE4209C5F7F00310D7C /* IPlugGraphicsDelegate.cpp in Sources */,
+				4FF93DD7209C5D6D00310D7C /* IPlugViewController.mm in Sources */,
+				4FF93DE2209C5F5000310D7C /* IGraphicsMac_view.mm in Sources */,
+				4FF93DE5209C5F9100310D7C /* swell-misc.mm in Sources */,
+				4FF93DDA209C5F1700310D7C /* IPlugBase.cpp in Sources */,
+				4FF93DD2209C5D6D00310D7C /* IPlugAUv3.mm in Sources */,
+				4FF93DE9209C5FC500310D7C /* IPlugEffect.cpp in Sources */,
+				4FF93DE6209C5F9100310D7C /* swell-gdi.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FFBB90420863B0E00DDD0E7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2392,6 +2489,16 @@
 			isa = PBXTargetDependency;
 			target = 4FC3EFC32086C0A600BD11FA /* VST3C */;
 			targetProxy = 4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */;
+		};
+		4FF93DC7209C5BAC00310D7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FF93DC0209C5BAC00310D7C /* AUv3F */;
+			targetProxy = 4FF93DC6209C5BAC00310D7C /* PBXContainerItemProxy */;
+		};
+		4FF93DED209C607800310D7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FF93DC0209C5BAC00310D7C /* AUv3F */;
+			targetProxy = 4FF93DEC209C607800310D7C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -3068,7 +3175,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				EXECUTABLE_EXTENSION = a;
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3085,7 +3192,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = IPlugEffectVST3Controller;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -3104,7 +3211,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = a;
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST3C_DEFS)",
@@ -3120,7 +3227,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = IPlugEffectVST3Controller;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -3139,7 +3246,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = a;
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST3C_DEFS)",
@@ -3155,7 +3262,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = IPlugEffectVST3Controller;
 				SDKROOT = macosx;
 			};
 			name = Tracer;
@@ -3177,6 +3284,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3207,6 +3315,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3237,6 +3346,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3247,6 +3357,183 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
+			};
+			name = Tracer;
+		};
+		4FF93DCB209C5BAC00310D7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(AUv3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3-Framework-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"$(AUv3_FRAMEWORKS)",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugEffect.AUv3.framework;
+				PRODUCT_NAME = IPlugEffectAUv3Framework;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		4FF93DCC209C5BAC00310D7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(AUv3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3-Framework-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"$(AUv3_FRAMEWORKS)",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugEffect.AUv3.framework;
+				PRODUCT_NAME = IPlugEffectAUv3Framework;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		4FF93DCD209C5BAC00310D7C /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_VERSION = A;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(AUv3_DEFS)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3-Framework-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"$(AUv3_FRAMEWORKS)",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugEffect.AUv3.framework;
+				PRODUCT_NAME = IPlugEffectAUv3Framework;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WRAPPER_EXTENSION = framework;
 			};
 			name = Tracer;
 		};
@@ -3470,6 +3757,16 @@
 				4FD16A0C13B63082001D0217 /* Debug */,
 				4FD16A0D13B63082001D0217 /* Release */,
 				4FD16A0E13B63082001D0217 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FF93DCA209C5BAC00310D7C /* Build configuration list for PBXNativeTarget "AUv3F" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FF93DCB209C5BAC00310D7C /* Debug */,
+				4FF93DCC209C5BAC00310D7C /* Release */,
+				4FF93DCD209C5BAC00310D7C /* Tracer */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

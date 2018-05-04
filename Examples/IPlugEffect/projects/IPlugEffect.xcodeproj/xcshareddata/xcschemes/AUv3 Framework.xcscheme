@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0920"
+   LastUpgradeVersion = "0930"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FC3EFC32086C0A600BD11FA"
-               BuildableName = "IPlugEffectVST3Controller.a"
-               BlueprintName = "VST3C"
+               BlueprintIdentifier = "4FF93DC0209C5BAC00310D7C"
+               BuildableName = "IPlugEffectFramework.framework"
+               BlueprintName = "AUv3F"
                ReferencedContainer = "container:IPlugEffect.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FC3EFC32086C0A600BD11FA"
-            BuildableName = "IPlugEffectVST3Controller.a"
-            BlueprintName = "VST3C"
+            BlueprintIdentifier = "4FF93DC0209C5BAC00310D7C"
+            BuildableName = "IPlugEffectFramework.framework"
+            BlueprintName = "AUv3F"
             ReferencedContainer = "container:IPlugEffect.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FC3EFC32086C0A600BD11FA"
-            BuildableName = "IPlugEffectVST3Controller.a"
-            BlueprintName = "VST3C"
+            BlueprintIdentifier = "4FF93DC0209C5BAC00310D7C"
+            BuildableName = "IPlugEffectFramework.framework"
+            BlueprintName = "AUv3F"
             ReferencedContainer = "container:IPlugEffect.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
