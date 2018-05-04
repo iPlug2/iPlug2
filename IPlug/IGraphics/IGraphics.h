@@ -876,15 +876,6 @@ public:
   #endif
   /** @param name The name of the font to load */
   virtual void LoadFont(const char* fileName);
-
-  /** Load a resource from disk (C++ 14 only)
-   * @param filename CString file name
-   * @param nStates The number of states/frames if the resource is a multi-frame stacked bitmap
-   * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
-   * @return An IXXX representing the resource */
-#ifdef IPLUG_CPP14
-  auto LoadResource(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
-#endif
   
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
