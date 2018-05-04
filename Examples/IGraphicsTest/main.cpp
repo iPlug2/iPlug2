@@ -1,18 +1,17 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsTest.h"
+#include "resources/resource.h"
 
-IGraphicsTest gIGraphicsTest;
-
-extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+IGraphicsTest* gIGraphicsTest = nullptr;
 
 #pragma mark - WINDOWS
 #if defined(OS_WIN)
 #include <windows.h>
 #include <commctrl.h>
 HWND gHWND;
-
 HINSTANCE gHINSTANCE;
 UINT gScrollMessage;
+extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
@@ -95,6 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #include "swell.h"
 HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
+extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int main(int argc, char *argv[])
 {
@@ -194,6 +194,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 HWND gHWND;
 UINT gScrollMessage;
 extern HMENU SWELL_app_stocksysmenu;
+extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int main(int argc, char **argv)
 {
@@ -301,4 +302,41 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #include "resources/IGraphicsTest.rc_mac_dlg"
 #include "swell-menugen.h"
 #include "resources/IGraphicsTest.rc_mac_menu"
+
+#elif defined OS_WEB
+#pragma mark - WEB
+#include <emscripten.h>
+#include "IGraphicsTest.h"
+
+void tick();
+
+int main()
+{
+  gIGraphicsTest = new IGraphicsTest();
+//  gIGraphicsTest->GetUI()->Resize(400, 400, 1);
+//   gIGraphicsTest->GetUI()->Draw(gIGraphicsTest->GetUI()->GetBounds());
+  
+#ifdef __EMSCRIPTEN__
+  // void emscripten_set_main_loop(em_callback_func func, int fps, int simulate_infinite_loop);
+  emscripten_set_main_loop(tick, UI_FPS, 1);
+#else
+  while (1) {
+    tick();
+  }
 #endif
+  
+  delete gIGraphicsTest;
+  
+  return 0;
+}
+
+void tick()
+{
+  IRECT r;
+  
+  if ( gIGraphicsTest->GetUI()->IsDirty(r))
+    gIGraphicsTest->GetUI()->Draw(r);
+}
+#endif
+
+#include "IGraphicsTest.cpp"

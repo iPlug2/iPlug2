@@ -23,7 +23,7 @@
     return pGraphics;
   }
   #elif defined OS_WEB
-#include <emscripten.h>
+  #include <emscripten.h>
 
   IGraphics* gGraphics = nullptr;
 

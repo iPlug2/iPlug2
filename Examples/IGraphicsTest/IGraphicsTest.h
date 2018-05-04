@@ -6,6 +6,7 @@
 #define UI_WIDTH 700
 #define UI_HEIGHT 700
 #define UI_FPS 60
+#define BUNDLE_ID "com.OliLarkin.app.IGraphicsTest"
 
 class IGraphicsTest : public IGraphicsDelegate
 {
