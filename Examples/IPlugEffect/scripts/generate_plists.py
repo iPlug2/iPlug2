@@ -225,9 +225,8 @@ def main():
      COMP_TYPE = kAudioUnitType_Effect
 
   au['AudioUnit Version'] = PLUG_VER_STR
-  au['AudioComponents'] = [{}]
-  au['AudioComponents'][0]['resourceUsage'] = {}
 
+  au['AudioComponents'] = [{}]
   au['AudioComponents'][0]['description'] = PLUG_NAME_STR
   au['AudioComponents'][0]['factoryFunction'] = AUV2_FACTORY
   au['AudioComponents'][0]['manufacturer'] = PLUG_MFR_UID
@@ -236,6 +235,7 @@ def main():
   au['AudioComponents'][0]['type'] = COMP_TYPE
   au['AudioComponents'][0]['version'] = PLUG_VER
   au['AudioComponents'][0]['sandboxSafe'] = True
+#  au['AudioComponents'][0]['resourceUsage'] = {}
   #au['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
   
   plistlib.writePlist(au, plistpath)
@@ -260,10 +260,20 @@ def main():
   auv3['LSMinimumSystemVersion'] = "10.12.0"
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
-  NSExtensionAttributes = dict(AudioComponents = au['AudioComponents']),
+  NSExtensionAttributes = dict(AudioComponentBundle = "com.AcmeInc.app.IPlugEffect.AUv3.framework",
+                               AudioComponents = [{}]),
+                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
-  NSExtensionPrincipalClass = "IPlugViewController",
-  )
+  NSExtensionPrincipalClass = "IPlugViewController"
+                             )
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['description'] = PLUG_NAME_STR
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['manufacturer'] = PLUG_MFR_UID
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['name'] = PLUG_MFR_NAME_STR + ": " + PLUG_NAME_STR
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = PLUG_UID
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMP_TYPE
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = PLUG_VER
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
 
   plistlib.writePlist(auv3, plistpath)
 #  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
