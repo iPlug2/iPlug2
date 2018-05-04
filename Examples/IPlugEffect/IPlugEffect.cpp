@@ -19,10 +19,10 @@ void PLUG_CLASS_NAME::ProcessBlock(sample** inputs, sample** outputs, int nFrame
 {
   const double gain = GetParam(kGain)->Value() / 100.;
 
-//  const int nChans = NOutChansConnected();
+  const int nChans = NOutChansConnected();
   for (auto s = 0; s < nFrames; s++) {
-    for (auto c = 0; c < 1; c++) {
-      outputs[c][s] = mOsc.Process() * gain;
+    for (auto c = 0; c < nChans; c++) {
+      outputs[c][s] = inputs[c][s] * gain;//mOsc.Process()
     }
   }
 }
