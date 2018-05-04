@@ -255,17 +255,7 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
 
 void IGraphicsNanoVG::LoadFont(const char* name)
 {
-#ifdef IGRAPHICS_FREETYPE
-  if (mFTFace)
-  {
-    FT_Done_Face(mFTFace);
-    FT_Done_FreeType(mFTLibrary);
-  }
-  
-  FT_Init_FreeType(&mFTLibrary);
-  FT_New_Face(mFTLibrary, name, 0, &mFTFace);
-#else
-  
+  //TODO: remove these hard coded paths!
   int fontIcons = nvgCreateFont(mVG, "icons", "/Users/oli/Dev/MyPlugins/entypo.ttf");
   if (fontIcons == -1) {
     DBGMSG("Could not add font icons.\n");
@@ -284,7 +274,6 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   }
   nvgAddFallbackFontId(mVG, fontNormal, fontEmoji);
   nvgAddFallbackFontId(mVG, fontBold, fontEmoji);
-#endif
 }
 
 void IGraphicsNanoVG::DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad)
