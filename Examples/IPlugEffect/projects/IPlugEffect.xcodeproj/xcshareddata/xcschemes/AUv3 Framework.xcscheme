@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4FF93DC0209C5BAC00310D7C"
-               BuildableName = "IPlugEffectFramework.framework"
+               BuildableName = "IPlugEffectAUv3Framework.framework"
                BlueprintName = "AUv3F"
                ReferencedContainer = "container:IPlugEffect.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4FF93DC0209C5BAC00310D7C"
-            BuildableName = "IPlugEffectFramework.framework"
+            BuildableName = "IPlugEffectAUv3Framework.framework"
             BlueprintName = "AUv3F"
             ReferencedContainer = "container:IPlugEffect.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4FF93DC0209C5BAC00310D7C"
-            BuildableName = "IPlugEffectFramework.framework"
+            BuildableName = "IPlugEffectAUv3Framework.framework"
             BlueprintName = "AUv3F"
             ReferencedContainer = "container:IPlugEffect.xcodeproj">
          </BuildableReference>
