@@ -26,8 +26,6 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>AudioComponentBundle</key>
-			<string>com.AcmeInc.app.IPlugEffect.AUv3.framework</string>
 			<key>AudioComponents</key>
 			<array>
 				<dict>
@@ -52,8 +50,6 @@
 		<string>com.apple.AudioUnit-UI</string>
 		<key>NSExtensionPrincipalClass</key>
 		<string>IPlugViewController</string>
-		<key>NSExtensionServiceRoleType</key>
-		<string>NSExtensionServiceRoleTypeEditor</string>
 	</dict>
 </dict>
 </plist>

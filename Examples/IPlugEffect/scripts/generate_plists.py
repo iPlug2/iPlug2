@@ -260,9 +260,10 @@ def main():
   auv3['LSMinimumSystemVersion'] = "10.12.0"
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
-  NSExtensionAttributes = dict(AudioComponentBundle = "com.AcmeInc.app.IPlugEffect.AUv3.framework",
+  NSExtensionAttributes = dict(
+#                               AudioComponentBundle = "com.AcmeInc.app.IPlugEffect.AUv3.framework",
                                AudioComponents = [{}]),
-                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
+#                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
   NSExtensionPrincipalClass = "IPlugViewController"
                              )
