@@ -134,13 +134,14 @@ public:
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
+  void CreateTimer();
+  
 private:
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
 
-private:
   void OnTimer(Timer& t) override;
 
 public:

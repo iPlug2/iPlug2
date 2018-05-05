@@ -27,7 +27,6 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
   
   mParamDisplayStr.Set("", MAX_PARAM_DISPLAY_LEN);
-  mTimer = Timer::Create(*this, 20); // TODO: CONSTANT
 }
 
 IPlugBase::~IPlugBase()
@@ -39,6 +38,11 @@ IPlugBase::~IPlugBase()
   }
 
   TRACE;
+}
+
+void IPlugBase::CreateTimer()
+{
+  mTimer = Timer::Create(*this, 20); // TODO: CONSTANT
 }
 
 bool IPlugBase::CompareState(const uint8_t* pIncomingState, int startPos)
