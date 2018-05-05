@@ -39,7 +39,7 @@ public:
    * If you're doing something using IGraphics without IPlugBaseGraphics (e.g. drawing into an extra window), you need to implement the delegate interface somewhere
    * to handle parameter changes.
    * @param bounds The rectangular area that the control occupies
-   * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a dlgin parameter
+   * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
