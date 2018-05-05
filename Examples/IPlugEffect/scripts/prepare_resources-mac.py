@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# this script will create the info plist files based on config.h
+# this script will update info plist files based on config.h and copy resources to the ~/Music/PLUG_NAME folder
 
 # <?xml version="1.0" encoding="UTF-8"?>
 # <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -32,7 +32,10 @@ kAudioUnitType_MusicDevice      = "aumu"
 kAudioUnitType_MusicEffect      = "aumf"
 kAudioUnitType_Effect           = "aufx"
 
-import plistlib, os, datetime, fileinput, glob, sys, string
+DONT_COPY = ("")
+
+import plistlib, os, datetime, fileinput, glob, sys, string, shutil
+
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
@@ -40,21 +43,18 @@ print projectpath
 
 def replacestrs(filename, s, r):
   files = glob.glob(filename)
-  
+
   for line in fileinput.input(files,inplace=1):
     string.find(line, s)
     line = line.replace(s, r)
     sys.stdout.write(line)
 
 def main():
-
-  print "Processing Info.plist files..."
-
   MAJORSTR = ""
-  MINORSTR = "" 
+  MINORSTR = ""
   BUGFIXSTR = ""
   PLUG_VER_STR = ""
-  
+
   BUNDLE_MFR = ""
   BUNDLE_NAME = ""
   BUNDLE_DOMAIN = ""
@@ -69,7 +69,8 @@ def main():
   PLUG_IS_INSTRUMENT = 0
   PLUG_DOES_MIDI = 0
   PLUG_HAS_UI = 0
-  
+  PLUG_SHARED_RESOURCES = 0
+
   # extract values from config.h
   for line in fileinput.input(projectpath + "/config.h", inplace=0):
     if "#define PLUG_VERSION_HEX " in line:
@@ -80,51 +81,54 @@ def main():
       MINOR = PLUG_VER & 0x0000FF00
       MINORSTR = str(MINOR >> 8)
       BUGFIXSTR = str(PLUG_VER & 0x000000FF)
-      
+
     if "#define PLUG_NAME " in line:
       PLUG_NAME_STR = string.lstrip(line, "#define PLUG_NAME ")
-      
+
     if "#define PLUG_MFR " in line:
       PLUG_MFR_NAME_STR = string.lstrip(line, "#define PLUG_MFR ")
-      
+
     if "#define BUNDLE_MFR " in line:
       BUNDLE_MFR = string.lstrip(line, "#define BUNDLE_MFR ")
-      
+
     if "#define BUNDLE_NAME " in line:
       BUNDLE_NAME = string.lstrip(line, "#define BUNDLE_NAME ")
-    
+
     if "#define BUNDLE_DOMAIN " in line:
       BUNDLE_DOMAIN = string.lstrip(line, "#define BUNDLE_DOMAIN ")
 
     if "#define PLUG_CHANNEL_IO " in line:
       PLUG_CHANNEL_IO = string.lstrip(line, "#define PLUG_CHANNEL_IO ")
-      
+
     if "#define PLUG_COPYRIGHT_STR " in line:
       PLUG_COPYRIGHT = string.lstrip(line, "#define PLUG_COPYRIGHT_STR ")
 
     if "#define PLUG_UNIQUE_ID " in line:
       PLUG_UID = string.lstrip(line, "#define PLUG_UNIQUE_ID ")
-      
+
     if "#define PLUG_MFR_ID " in line:
       PLUG_MFR_UID = string.lstrip(line, "#define PLUG_MFR_ID ")
 
     if "#define AUV2_ENTRY " in line:
       AUV2_ENTRY = string.lstrip(line, "#define AUV2_ENTRY ")
-     
+
     if "#define AUV2_FACTORY " in line:
       AUV2_FACTORY = string.lstrip(line, "#define AUV2_FACTORY ")
 
     if "#define PLUG_IS_INSTRUMENT " in line:
       PLUG_IS_INSTRUMENT = int(string.lstrip(line, "#define PLUG_IS_INSTRUMENT "), 16)
-    
+
     if "#define PLUG_DOES_MIDI " in line:
       PLUG_DOES_MIDI = int(string.lstrip(line, "#define PLUG_DOES_MIDI "), 16)
-    
+
     if "#define PLUG_HAS_UI " in line:
       PLUG_HAS_UI = int(string.lstrip(line, "#define PLUG_HAS_UI "), 16)
-      
+
+    if "#define PLUG_SHARED_RESOURCES " in line:
+      PLUG_SHARED_RESOURCES = int(string.lstrip(line, "#define PLUG_SHARED_RESOURCES "), 16)
+
   FULLVERSIONSTR = MAJORSTR + "." + MINORSTR + "." + BUGFIXSTR
-  
+
   #strip quotes and newlines
   PLUG_VER_STR = PLUG_VER_STR[0:-1]
   BUNDLE_MFR = BUNDLE_MFR[1:-2]
@@ -144,12 +148,12 @@ def main():
   CFBundleVersion = FULLVERSIONSTR
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
-  
+
   fileinput.close()
-  
-  LSMinimumSystemVersion = "10.6.0"
-  
-  BASE_SDK = "macosx10.6"
+
+  LSMinimumSystemVersion = "10.7.0"
+
+  BASE_SDK = "macosx10.13"
   DEPLOYMENT_TARGET = "10.7"
 
   # extract values from common.xcconfig
@@ -163,9 +167,21 @@ def main():
   BASE_SDK = BASE_SDK[0:-1]
   DEPLOYMENT_TARGET = DEPLOYMENT_TARGET[0:-1]
   DEPLOYMENT_TARGET += ".0"
-  
+
   LSMinimumSystemVersion = DEPLOYMENT_TARGET
-  
+
+  print "Copying resources to shared folder..."
+
+  if PLUG_SHARED_RESOURCES:
+    dst = os.path.expanduser("~") + "/Music/IPlugEffect/Resources"
+    if os.path.exists(dst):
+     shutil.rmtree(dst)
+     #os.makedirs(dst)
+
+    shutil.copytree(projectpath + "/resources/img/", dst, ignore=shutil.ignore_patterns(*DONT_COPY))
+
+  print "Processing Info.plist files..."
+
 # VST3
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-VST3-Info.plist"
@@ -237,7 +253,7 @@ def main():
   au['AudioComponents'][0]['sandboxSafe'] = True
 #  au['AudioComponents'][0]['resourceUsage'] = {}
   #au['AudioComponents'][0]['resourceUsage']['temporary-exception.files.all.read-write'] = True
-  
+
   plistlib.writePlist(au, plistpath)
 #  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
@@ -275,6 +291,12 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMP_TYPE
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = PLUG_VER
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]
+
+  if PLUG_IS_INSTRUMENT:
+    auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Synth"
+  else:
+    auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Effects"
 
   plistlib.writePlist(auv3, plistpath)
 #  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
@@ -298,23 +320,23 @@ def main():
 # APP
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-macOS-Info.plist"
-  osxapp = plistlib.readPlist(plistpath)
-  osxapp['CFBundleExecutable'] = BUNDLE_NAME
-  osxapp['CFBundleGetInfoString'] = CFBundleGetInfoString
-  osxapp['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
-  osxapp['CFBundleName'] = BUNDLE_NAME
-  osxapp['CFBundleVersion'] = CFBundleVersion
-  osxapp['CFBundleShortVersionString'] = CFBundleVersion
-  osxapp['LSMinimumSystemVersion'] = LSMinimumSystemVersion
-  osxapp['CFBundlePackageType'] = CFBundlePackageType
-  osxapp['CFBundleSignature'] = PLUG_UID
-  osxapp['CSResourcesFileMapped'] = CSResourcesFileMapped
-  osxapp['NSPrincipalClass'] = "SWELLApplication"
-  osxapp['NSMainNibFile'] = "MainMenu"
-  osxapp['LSApplicationCategoryType'] = "public.app-category.music"
-  osxapp['CFBundleIconFile'] = BUNDLE_NAME + ".icns"
+  macOSapp = plistlib.readPlist(plistpath)
+  macOSapp['CFBundleExecutable'] = BUNDLE_NAME
+  macOSapp['CFBundleGetInfoString'] = CFBundleGetInfoString
+  macOSapp['CFBundleIdentifier'] = BUNDLE_DOMAIN + "." + BUNDLE_MFR + ".app." + BUNDLE_NAME + ""
+  macOSapp['CFBundleName'] = BUNDLE_NAME
+  macOSapp['CFBundleVersion'] = CFBundleVersion
+  macOSapp['CFBundleShortVersionString'] = CFBundleVersion
+  macOSapp['LSMinimumSystemVersion'] = LSMinimumSystemVersion
+  macOSapp['CFBundlePackageType'] = CFBundlePackageType
+  macOSapp['CFBundleSignature'] = PLUG_UID
+  macOSapp['CSResourcesFileMapped'] = CSResourcesFileMapped
+  macOSapp['NSPrincipalClass'] = "SWELLApplication"
+  macOSapp['NSMainNibFile'] = "MainMenu"
+  macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
+  macOSapp['CFBundleIconFile'] = BUNDLE_NAME + ".icns"
 
-  plistlib.writePlist(osxapp, plistpath)
+  plistlib.writePlist(macOSapp, plistpath)
 #  replacestrs(plistpath, "//Apple//", "//Apple Computer//");
 
 

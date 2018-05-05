@@ -45,6 +45,7 @@
 #define PLUG_WIDTH 900
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
+#define PLUG_SHARED_RESOURCES 1
 
 #define AUV2_ENTRY IPlugEffect_Entry
 #define AUV2_ENTRY_STR "IPlugEffect_Entry"

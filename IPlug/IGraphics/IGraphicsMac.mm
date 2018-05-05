@@ -80,7 +80,6 @@ IGraphicsMac::~IGraphicsMac()
 bool IGraphicsMac::IsSandboxed()
 {
   NSString* pHomeDir = NSHomeDirectory();
-  //  NSString* pBundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
 
   if ([pHomeDir containsString:@"Library/Containers/"])
   {
@@ -97,7 +96,7 @@ void IGraphicsMac::CreateMetalLayer()
 #endif
 }
 
-bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const char* searchExt, WDL_String& fullPath)
+bool IGraphicsMac::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
 {
   CocoaAutoReleasePool pool;
 
@@ -107,7 +106,7 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
 
   bool isCorrectType = !strcasecmp(ext, searchExt);
 
-  NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(bundleID)];
+  NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(GetBundleID())];
   NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
 
   if (isCorrectType && pBundle && pFile)
@@ -125,67 +124,57 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
   return false;
 }
 
-//void GetAppexResourcePath(const char* fileName, const char* searchExt, WDL_String& fullPath)
-//{
-//  CocoaAutoReleasePool pool;
-//
-//  const char* ext = fileName+strlen(fileName)-1;
-//  while (ext >= fileName && *ext != '.') --ext;
-//  ++ext;
-//
-//  bool isCorrectType = !strcasecmp(ext, searchExt);
-//
-//  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-//  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-//
-//  if (isCorrectType && pFile)
-//  {
-//    Dl_info exeInfo;
-//
-//    auto localSymbol = (void*) GetResourcePathFromBundle;
-//    dladdr (localSymbol, &exeInfo);
-//    NSString* pExeLocation = [NSString stringWithCString: exeInfo.dli_fname encoding:NSUTF8StringEncoding];
-//    NSString* pPath = [[[[pExeLocation stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-//
-//    if (pPath)
-//    {
-//      fullPath.Set([pPath UTF8String]);
-//    }
-//  }
-//}
+bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
+{
+  CocoaAutoReleasePool pool;
+
+  const char* ext = fileName+strlen(fileName)-1;
+  while (ext >= fileName && *ext != '.') --ext;
+  ++ext;
+
+  bool isCorrectType = !strcasecmp(ext, searchExt);
+
+  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+
+  if (isCorrectType && pFile)
+  {
+    WDL_String musicFolder;
+    SandboxSafeAppSupportPath(musicFolder);
+    NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
+    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:@"IPlugEffect" /* TODO: */] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+
+    if (pPath)
+    {
+      fullPath.Set([pPath UTF8String]);
+      return true;
+    }
+  }
+  
+  fullPath.Set("");
+  return false;
+}
 
 bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if(CStringHasContents(name))
   {
-    bool foundInBundle = GetResourcePathFromBundle(GetBundleID(), name, type, result);
-  
-    //      NSURL* pGroupURL = [[NSFileManager defaultManager]
-    //                         containerURLForSecurityApplicationGroupIdentifier:
-    //                         @"group.io.github.iplug2.iplugeffect"];
-    //
-    if(foundInBundle)
+    // first check this bundle
+    if(GetResourcePathFromBundle(name, type, result))
       return true;
-    else
+    
+    // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
+    if(GetResourcePathFromUsersMusicFolder(name, type, result))
+      return true;
+    
+    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skinablle UI)
+    NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+    
+    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
-      NSString* pPath = nil;
-      
-//      if(IsSandboxed())
-//      {
-//        WDL_String fp;
-//        GetAppexResourcePath(name, type, fp);
-//        pPath = [NSString stringWithCString:fp.Get() encoding:NSUTF8StringEncoding];
-//      }
-//      else
-        pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-      
-      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-      {
-        result.Set([pPath UTF8String]);
-        return true;
-      }
+      result.Set([pPath UTF8String]);
+      return true;
     }
-
   }
   return false;
 }

@@ -68,6 +68,8 @@ protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
 private:
+  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
   void* mView; // Can't forward-declare an IGraphicsView because it's an obj-C object.
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);

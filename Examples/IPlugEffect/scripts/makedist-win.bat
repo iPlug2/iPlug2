@@ -15,7 +15,7 @@ copy /b *.cpp+,,
 echo ------------------------------------------------------------------
 echo Updating version numbers ...
 cd..
-call python scripts\make_resource.py %1
+call python scripts\prepare_resources.py %1
 call python scripts\update_installer_version.py %1
 
 echo ------------------------------------------------------------------
