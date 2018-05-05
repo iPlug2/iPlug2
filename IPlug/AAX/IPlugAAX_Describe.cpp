@@ -24,7 +24,7 @@
  @param configIdx The index of the configuration in the channel i/o string (not used here)
  @param dir Whether this is being called for an input or output bus
  @param element The index of that bus in the list of dir buses
- @param pConfig The config struct derived from the channel i/o string token, this already contains data but
+ @param pConfig The config struct derived from the channel i/o string token, this already contains data but \todo
  @return an integer corresponding to one of the AAX_eStemFormat
  */
 uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)

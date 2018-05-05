@@ -54,7 +54,7 @@ public:
   virtual void CloseWindow() {};
   
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
-   * You should not update parameters using this method
+   * You should not update parameter objects using this method
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx) {};
   
@@ -74,7 +74,7 @@ public:
   virtual void SetControlValueFromDelegate(int controlIdx, double normalizedValue) {};
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
-   * This method should not be called by a high priority thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring
+   * This method should not be called by a high priority thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no low priority notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated
