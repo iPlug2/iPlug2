@@ -74,7 +74,7 @@ public:
   virtual void SetControlValueFromDelegate(int controlIdx, double normalizedValue) {};
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
-   * This method should not be called by a high priority thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no low priority notification from the API
+   * This method should only be called from the main thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated
