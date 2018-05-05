@@ -125,34 +125,34 @@ bool GetResourcePathFromBundle(const char* bundleID, const char* fileName, const
   return false;
 }
 
-NSString* GetAppexResourcePath(const char* bundleID, const char* fileName, const char* searchExt)
-{
+//void GetAppexResourcePath(const char* fileName, const char* searchExt, WDL_String& fullPath)
+//{
 //  CocoaAutoReleasePool pool;
-  
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-  
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-  
-  NSBundle* pBundle = [[NSBundle bundleWithIdentifier:ToNSString(bundleID)] autorelease];
-  NSString* pFile = [[[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension] autorelease];
-  
-  NSString* pExt = [[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding] autorelease];
-  
-  if (isCorrectType && pBundle && pFile)
-  {
-    //NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
-    NSString* pPath = [[[[[[[[pBundle resourcePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-    
-    if (pPath)
-    {
-      return pPath;
-    }
-  }
-  
-  return nil;
-}
+//
+//  const char* ext = fileName+strlen(fileName)-1;
+//  while (ext >= fileName && *ext != '.') --ext;
+//  ++ext;
+//
+//  bool isCorrectType = !strcasecmp(ext, searchExt);
+//
+//  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+//  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+//
+//  if (isCorrectType && pFile)
+//  {
+//    Dl_info exeInfo;
+//
+//    auto localSymbol = (void*) GetResourcePathFromBundle;
+//    dladdr (localSymbol, &exeInfo);
+//    NSString* pExeLocation = [NSString stringWithCString: exeInfo.dli_fname encoding:NSUTF8StringEncoding];
+//    NSString* pPath = [[[[pExeLocation stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+//
+//    if (pPath)
+//    {
+//      fullPath.Set([pPath UTF8String]);
+//    }
+//  }
+//}
 
 bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
@@ -170,17 +170,18 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     {
       NSString* pPath = nil;
       
-      if(IsSandboxed())
-      {
-        pPath = GetAppexResourcePath(GetBundleID(), name, type);
-      }
-      else
+//      if(IsSandboxed())
+//      {
+//        WDL_String fp;
+//        GetAppexResourcePath(name, type, fp);
+//        pPath = [NSString stringWithCString:fp.Get() encoding:NSUTF8StringEncoding];
+//      }
+//      else
         pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
       
       if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
         result.Set([pPath UTF8String]);
-        [pPath release];
         return true;
       }
     }
