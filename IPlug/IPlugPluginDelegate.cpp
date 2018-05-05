@@ -84,7 +84,7 @@ void IPluginDelegate::GetBuildInfoStr(WDL_String& str) const
 }
 
 #pragma mark -
-void IPluginDelegate::OnParamChange(int paramIdx, EParamSource source)
+void IPluginDelegate::OnParamChange(int paramIdx, EParamSource source, int sampleOffset)
 {
   Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
   OnParamChange(paramIdx);

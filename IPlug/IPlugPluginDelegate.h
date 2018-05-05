@@ -108,8 +108,10 @@ public:
   /** Override this method to do something when a parameter changes.
    * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD
    * @param paramIdx The index of the parameter that changed
-   * @param source One of the EParamSource options to indicate where the parameter change came from. */
-  virtual void OnParamChange(int paramIdx, EParamSource source);
+   * @param source One of the EParamSource options to indicate where the parameter change came from.
+   * @param sampleOffset For sample accurate parameter changes - index into current block
+   */
+  virtual void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1);
   
   /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
