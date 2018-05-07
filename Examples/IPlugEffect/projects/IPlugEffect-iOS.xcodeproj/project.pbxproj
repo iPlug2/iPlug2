@@ -7,24 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F3E0F6920A0BCD000A9C2BE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6620A0BC5B00A9C2BE /* LaunchScreen.storyboard */; };
-		4F3E0F6A20A0BCD900A9C2BE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* Main.storyboard */; };
+		4F3E0F6A20A0BCD900A9C2BE /* App.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* App.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
-		4F3E0F6E20A0BD5A00A9C2BE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6C20A0BD5A00A9C2BE /* ViewController.swift */; };
-		4F3E0F6F20A0BD5A00A9C2BE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6D20A0BD5A00A9C2BE /* AppDelegate.swift */; };
-		4F3E0F7220A0BECE00A9C2BE /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F7120A0BECE00A9C2BE /* SimplePlayEngine.swift */; };
 		4F3E0F9020A0C2FC00A9C2BE /* FilterDemo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F8E20A0C2FC00A9C2BE /* FilterDemo.mm */; };
 		4F3E0F9320A0C41D00A9C2BE /* IPlugEffectFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F3E0F9420A0C43E00A9C2BE /* DSPKernel.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4F3E0F8120A0C00D00A9C2BE /* DSPKernel.hpp */; };
 		4F3E0F9520A0C43E00A9C2BE /* DSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F8020A0C00D00A9C2BE /* DSPKernel.mm */; };
 		4F3E0F9620A0C43E00A9C2BE /* FilterDSPKernel.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4F3E0F7820A0BF3D00A9C2BE /* FilterDSPKernel.hpp */; };
-		4F3E0F9720A0C46800A9C2BE /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */; };
 		4F3E0F9820A0C4E400A9C2BE /* FilterDemo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3E0F8D20A0C2FC00A9C2BE /* FilterDemo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F3E0F9A20A0C5DF00A9C2BE /* IPlugEffectViewController+AUAudioUnitFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F9920A0C5DF00A9C2BE /* IPlugEffectViewController+AUAudioUnitFactory.swift */; };
 		4F3E0F9D20A0C64100A9C2BE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F3E0F9C20A0C64100A9C2BE /* AVFoundation.framework */; };
 		4F3E0F9F20A0C64900A9C2BE /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F3E0F9E20A0C64900A9C2BE /* AudioToolbox.framework */; };
-		4F3E0FA120A0C6F300A9C2BE /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA020A0C6F300A9C2BE /* MainInterface.storyboard */; };
+		4F3E0FA120A0C6F300A9C2BE /* AppExtension.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA020A0C6F300A9C2BE /* AppExtension.storyboard */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
+		4FB2269720A0D3A800614769 /* AppLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* AppLaunchScreen.storyboard */; };
+		4FB2269B20A0D3B900614769 /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269820A0D3B800614769 /* SimplePlayEngine.swift */; };
+		4FB2269C20A0D3B900614769 /* AppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269920A0D3B800614769 /* AppViewController.swift */; };
+		4FB2269D20A0D3B900614769 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269A20A0D3B900614769 /* AppDelegate.swift */; };
+		4FB226A020A0D53F00614769 /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */; };
 		91236D6A1B08F52E00734C5E /* IPlugEffectFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91236D551B08F52D00734C5E /* IPlugEffectFramework.framework */; };
 		91236D6B1B08F52E00734C5E /* IPlugEffectFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91236D551B08F52D00734C5E /* IPlugEffectFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		91236D811B08F59300734C5E /* IPlugEffectAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugEffectAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -83,12 +83,8 @@
 /* Begin PBXFileReference section */
 		4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Info.plist"; path = "../resources/IPlugEffect-iOS-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-AUv3-Info.plist"; path = "../resources/IPlugEffect-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
-		4F3E0F6620A0BC5B00A9C2BE /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ../resources/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		4F3E0F6720A0BC5B00A9C2BE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Main.storyboard; path = ../resources/Main.storyboard; sourceTree = "<group>"; };
+		4F3E0F6720A0BC5B00A9C2BE /* App.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = App.storyboard; path = ../resources/App.storyboard; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
-		4F3E0F6C20A0BD5A00A9C2BE /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = ../../../IPlug/AUv3/IOSApp/ViewController.swift; sourceTree = "<group>"; };
-		4F3E0F6D20A0BD5A00A9C2BE /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
-		4F3E0F7120A0BECE00A9C2BE /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
 		4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../../../IPlug/AUv3/IOSApp/IPlugEffectViewController.swift; sourceTree = "<group>"; };
 		4F3E0F7720A0BF3D00A9C2BE /* ParameterRamper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParameterRamper.hpp; sourceTree = "<group>"; };
 		4F3E0F7820A0BF3D00A9C2BE /* FilterDSPKernel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FilterDSPKernel.hpp; sourceTree = "<group>"; };
@@ -101,8 +97,12 @@
 		4F3E0F9920A0C5DF00A9C2BE /* IPlugEffectViewController+AUAudioUnitFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "IPlugEffectViewController+AUAudioUnitFactory.swift"; path = "../../../IPlug/AUv3/IOSApp/IPlugEffectViewController+AUAudioUnitFactory.swift"; sourceTree = "<group>"; };
 		4F3E0F9C20A0C64100A9C2BE /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		4F3E0F9E20A0C64900A9C2BE /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
-		4F3E0FA020A0C6F300A9C2BE /* MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainInterface.storyboard; path = ../../../IPlug/AUv3/IOSApp/MainInterface.storyboard; sourceTree = "<group>"; };
+		4F3E0FA020A0C6F300A9C2BE /* AppExtension.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = AppExtension.storyboard; path = ../../../IPlug/AUv3/IOSApp/AppExtension.storyboard; sourceTree = "<group>"; };
 		4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = drumLoop.caf; sourceTree = "<group>"; };
+		4FB2269620A0D3A800614769 /* AppLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = AppLaunchScreen.storyboard; path = ../resources/AppLaunchScreen.storyboard; sourceTree = "<group>"; };
+		4FB2269820A0D3B800614769 /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
+		4FB2269920A0D3B800614769 /* AppViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppViewController.swift; path = ../../../IPlug/AUv3/IOSApp/AppViewController.swift; sourceTree = "<group>"; };
+		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
 		91236D0D1B08F42B00734C5E /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D551B08F52D00734C5E /* IPlugEffectFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IPlugEffectFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugEffectAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugEffectAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -162,30 +162,38 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		9152BF2B1B0958E500D8C6A4 /* Frameworks and Libraries */ = {
+		4FB2269520A0D39C00614769 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
+				4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */,
+				4F3E0F6720A0BC5B00A9C2BE /* App.storyboard */,
+				4FB2269620A0D3A800614769 /* AppLaunchScreen.storyboard */,
+				4FB2269A20A0D3B900614769 /* AppDelegate.swift */,
+				4FB2269820A0D3B800614769 /* SimplePlayEngine.swift */,
+				4FB2269920A0D3B800614769 /* AppViewController.swift */,
 			);
-			name = "Frameworks and Libraries";
+			name = App;
+			sourceTree = "<group>";
+		};
+		4FB2269E20A0D49800614769 /* AppExtension */ = {
+			isa = PBXGroup;
+			children = (
+				4F3E0FA020A0C6F300A9C2BE /* AppExtension.storyboard */,
+				4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */,
+				4F3E0F9920A0C5DF00A9C2BE /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
+				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
+			);
+			name = AppExtension;
 			sourceTree = "<group>";
 		};
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
-				4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */,
-				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
+				4FB2269520A0D39C00614769 /* App */,
+				4FB2269E20A0D49800614769 /* AppExtension */,
 				4F3E0F7F20A0BFCA00A9C2BE /* Framework-Info.plist */,
-				4F3E0F6D20A0BD5A00A9C2BE /* AppDelegate.swift */,
-				4F3E0F6C20A0BD5A00A9C2BE /* ViewController.swift */,
-				4F3E0F7120A0BECE00A9C2BE /* SimplePlayEngine.swift */,
-				4F3E0F9920A0C5DF00A9C2BE /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
-				4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */,
-				4F3E0F6620A0BC5B00A9C2BE /* LaunchScreen.storyboard */,
-				4F3E0F6720A0BC5B00A9C2BE /* Main.storyboard */,
-				4F3E0FA020A0C6F300A9C2BE /* MainInterface.storyboard */,
-				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
 				4F3E0F7620A0BF3D00A9C2BE /* Shared */,
-				9152BF2B1B0958E500D8C6A4 /* Frameworks and Libraries */,
 				91D3DA171B023C1E008FFFBB /* Products */,
 				4F3E0F9B20A0C64100A9C2BE /* Frameworks */,
 			);
@@ -327,9 +335,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
-				4F3E0F6920A0BCD000A9C2BE /* LaunchScreen.storyboard in Resources */,
+				4FB2269720A0D3A800614769 /* AppLaunchScreen.storyboard in Resources */,
 				4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */,
-				4F3E0F6A20A0BCD900A9C2BE /* Main.storyboard in Resources */,
+				4F3E0F6A20A0BCD900A9C2BE /* App.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,7 +352,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F3E0FA120A0C6F300A9C2BE /* MainInterface.storyboard in Resources */,
+				4F3E0FA120A0C6F300A9C2BE /* AppExtension.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,9 +363,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F3E0F6F20A0BD5A00A9C2BE /* AppDelegate.swift in Sources */,
-				4F3E0F6E20A0BD5A00A9C2BE /* ViewController.swift in Sources */,
-				4F3E0F7220A0BECE00A9C2BE /* SimplePlayEngine.swift in Sources */,
+				4FB2269D20A0D3B900614769 /* AppDelegate.swift in Sources */,
+				4FB2269C20A0D3B900614769 /* AppViewController.swift in Sources */,
+				4FB2269B20A0D3B900614769 /* SimplePlayEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,9 +373,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FB226A020A0D53F00614769 /* IPlugEffectViewController.swift in Sources */,
 				4F3E0F9520A0C43E00A9C2BE /* DSPKernel.mm in Sources */,
 				4F3E0F9020A0C2FC00A9C2BE /* FilterDemo.mm in Sources */,
-				4F3E0F9720A0C46800A9C2BE /* IPlugEffectViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
