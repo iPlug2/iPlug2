@@ -1,11 +1,3 @@
-/*
-	Copyright (C) 2016 Apple Inc. All Rights Reserved.
-	See LICENSE.txt for this sample’s licensing information
-	
-	Abstract:
-	Header for the embedded IPlugEffectFramework.
-*/
-
 @import UIKit;
 
 //! Project version number for IPlugEffectFramework.

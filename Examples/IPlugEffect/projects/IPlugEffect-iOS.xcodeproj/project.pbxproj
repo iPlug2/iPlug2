@@ -141,7 +141,6 @@
 			isa = PBXGroup;
 			children = (
 				4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */,
-				4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */,
 				4F3E0F8D20A0C2FC00A9C2BE /* FilterDemo.h */,
 				4F3E0F8E20A0C2FC00A9C2BE /* FilterDemo.mm */,
 				4F3E0F8120A0C00D00A9C2BE /* DSPKernel.hpp */,
@@ -180,19 +179,28 @@
 			isa = PBXGroup;
 			children = (
 				4F3E0FA020A0C6F300A9C2BE /* AppExtension.storyboard */,
-				4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */,
 				4F3E0F9920A0C5DF00A9C2BE /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
 				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
 			);
 			name = AppExtension;
 			sourceTree = "<group>";
 		};
+		4FFF0FB420A0E14200D3092F /* Framework */ = {
+			isa = PBXGroup;
+			children = (
+				4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */,
+				4F3E0F7F20A0BFCA00A9C2BE /* Framework-Info.plist */,
+				4F3E0F7320A0BEEF00A9C2BE /* IPlugEffectViewController.swift */,
+			);
+			name = Framework;
+			sourceTree = "<group>";
+		};
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
 				4FB2269520A0D39C00614769 /* App */,
+				4FFF0FB420A0E14200D3092F /* Framework */,
 				4FB2269E20A0D49800614769 /* AppExtension */,
-				4F3E0F7F20A0BFCA00A9C2BE /* Framework-Info.plist */,
 				4F3E0F7620A0BF3D00A9C2BE /* Shared */,
 				91D3DA171B023C1E008FFFBB /* Products */,
 				4F3E0F9B20A0C64100A9C2BE /* Frameworks */,
