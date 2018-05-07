@@ -46,6 +46,15 @@ void IControl::SetValueFromDelegate(double value)
     mDefaultValue = mValue = value;
   }
 
+  //don't update this control from delegate, if any control with the same parameter index is being captured
+  IControl* capturedControl = GetUI()->GetCapturedControl();
+  
+  if(capturedControl)
+  {
+    if(capturedControl->ParamIdx() == mParamIdx)
+      return;
+  }
+  
   if (mValue != value)
   {
     mValue = value;

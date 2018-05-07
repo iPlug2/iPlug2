@@ -709,6 +709,8 @@ public:
    * @return A pointer to the IControl object at idx */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
+  IControl* GetCapturedControl() { if(mMouseCapture > 0) { return GetControl(mMouseCapture); } else return nullptr; }
+  
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
