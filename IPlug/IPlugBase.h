@@ -152,7 +152,7 @@ public:
     bool normalized; // TODO: we shouldn't bother with this
   };
   
-  IPlugQueue<ParamChange> mHighPriorityToUIQueue;
+  IPlugQueue<ParamChange> mParamChangeToUIQueue;
 
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;

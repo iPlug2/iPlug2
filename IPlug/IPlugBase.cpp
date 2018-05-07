@@ -10,7 +10,7 @@
 
 IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   : IPluginDelegate(c.nParams, c.nPresets)
-  , mHighPriorityToUIQueue(512) // TODO: CONSTANT
+  , mParamChangeToUIQueue(512) // TODO: CONSTANT
 {
   mUniqueID = c.uniqueID;
   mMfrID = c.mfrID;
@@ -114,15 +114,15 @@ void IPlugBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bool 
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
-  mHighPriorityToUIQueue.Push(ParamChange { paramIdx, value, normalized } );
+  mParamChangeToUIQueue.Push(ParamChange { paramIdx, value, normalized } );
 }
 
 void IPlugBase::OnTimer(Timer& t)
 {
-  while(mHighPriorityToUIQueue.ElementsAvailable())
+  while(mParamChangeToUIQueue.ElementsAvailable())
   {
     ParamChange p;
-    mHighPriorityToUIQueue.Pop(p);
+    mParamChangeToUIQueue.Pop(p);
     SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
