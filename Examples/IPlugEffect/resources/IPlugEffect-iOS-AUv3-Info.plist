@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>FilterDemoAppExtension</string>
+	<string>IPlugEffectAppExtension</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -30,11 +30,11 @@
 			<array>
 				<dict>
 					<key>description</key>
-					<string>FilterDemo</string>
+					<string>IPlugEffect</string>
 					<key>manufacturer</key>
 					<string>Demo</string>
 					<key>name</key>
-					<string>Demo: FilterDemo</string>
+					<string>Demo: IPlugEffect</string>
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>

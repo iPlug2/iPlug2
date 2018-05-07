@@ -11,7 +11,7 @@
 #import "FilterDSPKernel.hpp"
 #import "BufferedAudioBus.hpp"
 
-#pragma mark AUv3FilterDemo (Presets)
+#pragma mark AUv3IPlugEffect (Presets)
 
 static const UInt8 kNumberOfPresets = 3;
 static const NSInteger kDefaultFactoryPreset = 0;
@@ -50,9 +50,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString *name)
     return aPreset;
 }
 
-#pragma mark - AUv3FilterDemo : AUAudioUnit
+#pragma mark - AUv3IPlugEffect : AUAudioUnit
 
-@interface AUv3FilterDemo ()
+@interface AUv3IPlugEffect ()
 
 @property AUAudioUnitBus *outputBus;
 @property AUAudioUnitBusArray *inputBusArray;
@@ -60,7 +60,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString *name)
 
 @end
 
-@implementation AUv3FilterDemo {
+@implementation AUv3IPlugEffect {
 	// C++ members need to be ivars; they would be copied on access if they were properties.
     FilterDSPKernel  _kernel;
     BufferedInputBus _inputBus;

@@ -1,7 +1,7 @@
 /*
 	<samplecode>
 		<abstract>
-			A DSPKernel subclass implementing the realtime signal processing portion of the FilterDemo audio unit.
+			A DSPKernel subclass implementing the realtime signal processing portion of the IPlugEffect audio unit.
 		</abstract>
 	</samplecode>
 */
