@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F02B67520A18B9200C86910 /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F67D51220A11CC70061FB8E /* IPlugEffectViewController.swift */; };
 		4F02B67720A18BBF00C86910 /* AppExtension.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F02B67620A18BBE00C86910 /* AppExtension.storyboard */; };
 		4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
-		4F02B68220A19E4D00C86910 /* AppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269920A0D3B800614769 /* AppViewController.swift */; };
 		4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269A20A0D3B900614769 /* AppDelegate.swift */; };
+		4F2020FD20A1BE1400F22200 /* AppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F2020FC20A1BE1400F22200 /* AppViewController.swift */; };
+		4F20210220A1BF1E00F22200 /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
 		4F3E0F6A20A0BCD900A9C2BE /* App.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* App.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
@@ -114,16 +114,16 @@
 		4F02B67620A18BBE00C86910 /* AppExtension.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = AppExtension.storyboard; path = ../resources/AppExtension.storyboard; sourceTree = "<group>"; };
 		4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
+		4F2020FC20A1BE1400F22200 /* AppViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppViewController.swift; path = ../resources/AppViewController.swift; sourceTree = "<group>"; };
+		4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../resources/IPlugEffectViewController.swift; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Info.plist"; path = "../resources/IPlugEffect-iOS-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-AUv3-Info.plist"; path = "../resources/IPlugEffect-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* App.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = App.storyboard; path = ../resources/App.storyboard; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
 		4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugEffectFramework.h; sourceTree = "<group>"; };
 		4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = drumLoop.caf; sourceTree = "<group>"; };
-		4F67D51220A11CC70061FB8E /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../../../IPlug/AUv3/IOSApp/IPlugEffectViewController.swift; sourceTree = "<group>"; };
 		4F67D51720A122420061FB8E /* IPlugEffect-iOS-Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Framework-Info.plist"; path = "../resources/IPlugEffect-iOS-Framework-Info.plist"; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* AppLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = AppLaunchScreen.storyboard; path = ../resources/AppLaunchScreen.storyboard; sourceTree = "<group>"; };
-		4FB2269920A0D3B800614769 /* AppViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppViewController.swift; path = ../../../IPlug/AUv3/IOSApp/AppViewController.swift; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
 		4FFF103020A0E55900D3092F /* IPlugConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugConstants.h; path = ../../../IPlug/IPlugConstants.h; sourceTree = "<group>"; };
 		4FFF103120A0E55900D3092F /* IPlugQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugQueue.h; path = ../../../IPlug/IPlugQueue.h; sourceTree = "<group>"; };
@@ -242,8 +242,8 @@
 			children = (
 				4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */,
 				4FB2269A20A0D3B900614769 /* AppDelegate.swift */,
-				4FB2269920A0D3B800614769 /* AppViewController.swift */,
-				4F67D51220A11CC70061FB8E /* IPlugEffectViewController.swift */,
+				4F2020FC20A1BE1400F22200 /* AppViewController.swift */,
+				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -540,9 +540,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F2020FD20A1BE1400F22200 /* AppViewController.swift in Sources */,
 				4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */,
 				4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */,
-				4F02B68220A19E4D00C86910 /* AppViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,7 +565,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F02B67520A18B9200C86910 /* IPlugEffectViewController.swift in Sources */,
+				4F20210220A1BF1E00F22200 /* IPlugEffectViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
