@@ -312,7 +312,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
                   ENTER_PARAMS_MUTEX;
                   GetParam(idx)->SetNormalized((double)value);
                   _SendParameterValueToUIFromAPI(idx, (double) value, true);
-                  OnParamChange(idx, kAutomation);
+                  OnParamChange(idx, kHost);
                   LEAVE_PARAMS_MUTEX;
                 }
               }

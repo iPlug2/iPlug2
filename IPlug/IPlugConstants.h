@@ -125,7 +125,7 @@ static const int kNoParameter = -1;
 enum EParamSource
 {
   kReset,
-  kAutomation,
+  kHost,
   kPresetRecall,
   kGUI
 };
