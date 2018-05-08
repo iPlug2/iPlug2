@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5</string>
+	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>1.0.0</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -33,12 +33,12 @@
 					<string>IPlugEffect</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
-					<key>subtype</key>
-					<string>IpeF</string>
 					<key>name</key>
 					<string>Acme: IPlugEffect</string>
 					<key>sandboxSafe</key>
 					<true/>
+					<key>subtype</key>
+					<string>IpeF</string>
 					<key>tags</key>
 					<array>
 						<string>Effects</string>
@@ -50,10 +50,10 @@
 				</dict>
 			</array>
 		</dict>
-		<key>NSExtensionPrincipalClass</key>
-		<string>IPlugViewController</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>IPlugViewController</string>
 	</dict>
 </dict>
 </plist>

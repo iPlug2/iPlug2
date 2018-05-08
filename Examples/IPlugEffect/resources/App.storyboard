@@ -12,7 +12,7 @@
         <!--App View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" userLabel="App View Controller" customClass="AppViewController" customModule="IPlugEffect" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="AppViewController" id="BYZ-38-t0r" userLabel="App View Controller" customClass="AppViewController" customModule="IPlugEffect" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>

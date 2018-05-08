@@ -8,10 +8,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--IPlugEffect ViewController-->
+        <!--IPlugViewController-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="IPlugEffect ViewController" id="BYZ-38-t0r" customClass="IPlugViewController" customModule="IPlugEffectFramework" sceneMemberID="viewController">
+                <viewController title="IPlugViewController" id="BYZ-38-t0r" customClass="IPlugViewController" customModule="IPlugEffectFramework" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
