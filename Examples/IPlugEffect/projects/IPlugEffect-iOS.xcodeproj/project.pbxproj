@@ -113,6 +113,7 @@
 /* Begin PBXFileReference section */
 		4F02B67620A18BBE00C86910 /* AppExtension.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = AppExtension.storyboard; path = ../resources/AppExtension.storyboard; sourceTree = "<group>"; };
 		4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
+		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Info.plist"; path = "../resources/IPlugEffect-iOS-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-AUv3-Info.plist"; path = "../resources/IPlugEffect-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* App.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = App.storyboard; path = ../resources/App.storyboard; sourceTree = "<group>"; };
@@ -212,6 +213,7 @@
 		4F67D51620A121F60061FB8E /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4F2020F620A1B2B500F22200 /* scripts */,
 				4FB2269520A0D39C00614769 /* App */,
 				4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */,
 				4FFF108220A0FB1400D3092F /* common-ios.xcconfig */,
@@ -407,6 +409,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 91236D6C1B08F52E00734C5E /* Build configuration list for PBXNativeTarget "IPlugEffectFramework" */;
 			buildPhases = (
+				4F2020F820A1BB1700F22200 /* Run Script - prepare_resources-ios.py */,
 				91236D501B08F52D00734C5E /* Sources */,
 				91236D511B08F52D00734C5E /* Frameworks */,
 				91236D521B08F52D00734C5E /* Headers */,
@@ -513,6 +516,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F2020F820A1BB1700F22200 /* Run Script - prepare_resources-ios.py */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - prepare_resources-ios.py";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python ../scripts/prepare_resources-ios.py";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		91236D091B08F42B00734C5E /* Sources */ = {

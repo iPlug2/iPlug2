@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>IPlugEffectAppExtension</string>
 	<key>CFBundleExecutable</key>
 	<string>IPlugEffectAppExtension</string>
 	<key>CFBundleIdentifier</key>
@@ -32,7 +34,7 @@
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
-					<string>Acme: IPlugEffect</string>
+					<string>AcmeInc: IPlugEffect</string>
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
@@ -44,12 +46,12 @@
 					<key>type</key>
 					<string>aufx</string>
 					<key>version</key>
-					<integer>66817</integer>
+					<integer>65536</integer>
 				</dict>
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.AudioUnit</string>
+		<string>com.apple.AudioUnit-UI</string>
 		<key>NSExtensionPrincipalClass</key>
 		<string>IPlugViewController</string>
 	</dict>

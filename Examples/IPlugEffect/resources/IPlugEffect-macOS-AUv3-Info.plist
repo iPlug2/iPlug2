@@ -39,6 +39,10 @@
 					<true/>
 					<key>subtype</key>
 					<string>Ipef</string>
+					<key>tags</key>
+					<array>
+						<string>Effects</string>
+					</array>
 					<key>type</key>
 					<string>aufx</string>
 					<key>version</key>
