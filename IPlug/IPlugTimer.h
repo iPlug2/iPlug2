@@ -6,19 +6,31 @@
 
 #include "IPlugPlatform.h"
 
-#ifndef OS_WEB
-#include "swell.h"
+#if defined OS_WEB || defined OS_IOS
+class Timer;
+
+class ITimerCallback
+{
+public:
+  virtual ~ITimerCallback() {}
+  virtual void OnTimer(Timer& t) = 0;
+};
+
+class Timer
+{
+public:
+  static Timer* Create(ITimerCallback& callback, uint32_t intervalMs)
+  {
+    return new Timer();
+  }
+  
+  void Stop()
+  {
+  }
+};
+
 #else
-typedef uintptr_t UINT_PTR;
-typedef void* HWND;
-typedef signed char BOOL;
-typedef unsigned int DWORD;
-typedef unsigned int UINT;
-#define CALLBACK
-typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-static UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc) { return 0; }
-static BOOL KillTimer(HWND hwnd, UINT_PTR timerid) { return 0; }
-#endif
+#include "swell.h"
 
 /**
  * @file This file includes classes for implementing timers - in order to get a regular callback on the message thread
@@ -100,3 +112,5 @@ private:
   static WDL_PtrList<Timer_impl> sTimers;
   ITimerCallback& mCallBackClass;
 };
+
+#endif

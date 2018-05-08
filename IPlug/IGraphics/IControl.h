@@ -15,9 +15,13 @@
 #include "base/source/fobject.h"
 #endif
 
+#include "IPlugPlatform.h"
+
 #include "wdlstring.h"
-#include "dirscan.h"
 #include "ptrlist.h"
+#ifndef OS_IOS // no stat64
+#include "dirscan.h"
+#endif
 
 #include "IGraphics.h"
 #include "IPlugDelegate.h"

@@ -26,7 +26,7 @@
 #ifdef NDEBUG
   #define DBGMSG(...)
 #else
-  #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+  #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
     #define DBGMSG(...) printf(__VA_ARGS__)
   #elif defined OS_WIN
     void DBGMSG(const char *format, ...);

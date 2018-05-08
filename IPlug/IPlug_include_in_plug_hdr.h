@@ -65,7 +65,7 @@
 
 #ifdef OS_WIN
   #define EXPORT __declspec(dllexport)
-#elif defined OS_MAC
+#elif defined OS_MAC || defined OS_IOS
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
   #define EXPORT __attribute__ ((visibility("default")))
 #elif defined OS_LINUX
