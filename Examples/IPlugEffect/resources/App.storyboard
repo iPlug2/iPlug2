@@ -12,7 +12,7 @@
         <!--App View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" userLabel="App View Controller" customClass="ViewController" customModule="IPlugEffect" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" userLabel="App View Controller" customClass="AppViewController" customModule="IPlugEffect" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -64,7 +64,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="302.89855072463769" y="270.6521739130435"/>
+            <point key="canvasLocation" x="301.60000000000002" y="270.31484257871068"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="t9P-R6-5hi">
