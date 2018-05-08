@@ -11,7 +11,7 @@ IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 IPLUG_SRC = $(IPLUG_PATH)/IPlugBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
 	$(IPLUG_PATH)/IPlugPluginDelegate.cpp \
-	$(IPLUG_PATH)/IPlugTimer.cpp
+	# $(IPLUG_PATH)/IPlugTimer.cpp
 
 IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IControl.cpp \
 	$(IGRAPHICS_PATH)/IControls.cpp \
@@ -23,5 +23,3 @@ WAM_SRC = $(IPLUG_SRC) $(WAM_SDK_PATH)/processor.cpp $(IPLUG_WEB_PATH)/IPlugWAM.
 
 #every cpp file that is needed for the graphics WASM module
 WEB_SRC = $(IPLUG_SRC) $(IGRAPHICS_SRC) $(IPLUG_WEB_PATH)/IPlugWeb.cpp $(IPLUG_PATH)/IPlugGraphicsDelegate.cpp
-
-
