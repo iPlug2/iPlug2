@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FB600121567CB0A0020189A"
-               BuildableName = "IPlugEffect.aaxplugin"
-               BlueprintName = "AAX"
-               ReferencedContainer = "container:IPlugEffect.xcodeproj">
+               BlueprintIdentifier = "4FD16A0813B63081001D0217"
+               BuildableName = "IPlugEffect.app"
+               BlueprintName = "APP"
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -26,18 +26,25 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BuildableName = "IPlugEffect.app"
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Tracer"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -46,20 +53,22 @@
       enableGPUFrameCaptureMode = "3"
       enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
-      <PathRunnable
-         runnableDebuggingMode = "0"
-         BundleIdentifier = "com.avid.ProTools"
-         FilePath = "/Applications/Avid/ProTools_3PDev/Pro Tools.app">
-      </PathRunnable>
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FB600121567CB0A0020189A"
-            BuildableName = "IPlugEffect.aaxplugin"
-            BlueprintName = "AAX"
-            ReferencedContainer = "container:IPlugEffect.xcodeproj">
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BuildableName = "IPlugEffect.app"
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "registerauv3"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -69,10 +78,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <PathRunnable
-         runnableDebuggingMode = "0"
-         FilePath = "/Applications/Avid/ProTools_3PDev/Pro Tools.app">
-      </PathRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BuildableName = "IPlugEffect.app"
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

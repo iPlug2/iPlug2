@@ -32,13 +32,13 @@
 					<key>description</key>
 					<string>IPlugEffect</string>
 					<key>manufacturer</key>
-					<string>Demo</string>
+					<string>Acme</string>
+					<key>subtype</key>
+					<string>IpeF</string>
 					<key>name</key>
-					<string>Demo: IPlugEffect</string>
+					<string>Acme: IPlugEffect</string>
 					<key>sandboxSafe</key>
 					<true/>
-					<key>subtype</key>
-					<string>fltr</string>
 					<key>tags</key>
 					<array>
 						<string>Effects</string>
@@ -50,8 +50,8 @@
 				</dict>
 			</array>
 		</dict>
-		<key>NSExtensionMainStoryboard</key>
-		<string>AppExtension</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>IPlugViewController</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
 	</dict>

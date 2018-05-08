@@ -7,6 +7,8 @@ FOUNDATION_EXPORT double IPlugEffectFramework_VersionNumber;
 FOUNDATION_EXPORT const unsigned char IPlugEffectFramework_VersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <IPlugEffectFramework/PublicHeader.h>
-#import <IPlugEffectFramework/FilterDemo.h>
+#import <IPlugEffectFramework/config.h>
+#import <IPlugEffectFramework/IPlugViewController.h>
+#import <IPlugEffectFramework/IPlugAUAudioUnit.h>
 
-@class IPlugEffectViewController;
+@class IPlugViewController;

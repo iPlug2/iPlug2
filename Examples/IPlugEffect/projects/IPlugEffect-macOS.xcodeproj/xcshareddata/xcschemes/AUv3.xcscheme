@@ -18,7 +18,7 @@
                BlueprintIdentifier = "4F39075F2013EBA300DDA490"
                BuildableName = "IPlugEffect.appex"
                BlueprintName = "AUv3"
-               ReferencedContainer = "container:IPlugEffect.xcodeproj">
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -32,7 +32,7 @@
                BlueprintIdentifier = "4FD16A0813B63081001D0217"
                BuildableName = "IPlugEffect.app"
                BlueprintName = "APP"
-               ReferencedContainer = "container:IPlugEffect.xcodeproj">
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -50,14 +50,14 @@
             BlueprintIdentifier = "4F39075F2013EBA300DDA490"
             BuildableName = "IPlugEffect.appex"
             BlueprintName = "AUv3"
-            ReferencedContainer = "container:IPlugEffect.xcodeproj">
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Tracer"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
@@ -72,7 +72,7 @@
             BlueprintIdentifier = "4FD16A0813B63081001D0217"
             BuildableName = "IPlugEffect.app"
             BlueprintName = "APP"
-            ReferencedContainer = "container:IPlugEffect.xcodeproj">
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <CommandLineArguments>
@@ -98,7 +98,7 @@
             BlueprintIdentifier = "4FD16A0813B63081001D0217"
             BuildableName = "IPlugEffect.app"
             BlueprintName = "APP"
-            ReferencedContainer = "container:IPlugEffect.xcodeproj">
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

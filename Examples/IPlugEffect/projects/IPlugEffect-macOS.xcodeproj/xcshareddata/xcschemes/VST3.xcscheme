@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FC3EFC32086C0A600BD11FA"
-               BuildableName = "IPlugEffectVST3Controller.a"
-               BlueprintName = "VST3C"
-               ReferencedContainer = "container:IPlugEffect.xcodeproj">
+               BlueprintIdentifier = "4F9828AA140A9EB700F3FCC1"
+               BuildableName = "IPlugEffect.vst3"
+               BlueprintName = "VST3"
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -41,14 +41,21 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
+      enableGPUFrameCaptureMode = "3"
+      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
+      <PathRunnable
+         runnableDebuggingMode = "0"
+         BundleIdentifier = "com.steinberg.vst3.plugintesthost"
+         FilePath = "/Applications/VST3PluginTestHost.app">
+      </PathRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FC3EFC32086C0A600BD11FA"
-            BuildableName = "IPlugEffectVST3Controller.a"
-            BlueprintName = "VST3C"
-            ReferencedContainer = "container:IPlugEffect.xcodeproj">
+            BlueprintIdentifier = "4F9828AA140A9EB700F3FCC1"
+            BuildableName = "IPlugEffect.vst3"
+            BlueprintName = "VST3"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -60,15 +67,10 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FC3EFC32086C0A600BD11FA"
-            BuildableName = "IPlugEffectVST3Controller.a"
-            BlueprintName = "VST3C"
-            ReferencedContainer = "container:IPlugEffect.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
+      <PathRunnable
+         runnableDebuggingMode = "0"
+         FilePath = "/Applications/VST3PluginTestHost.app">
+      </PathRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
