@@ -4,16 +4,14 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>CFBundleDisplayName</key>
-	<string>IPlugEffectAppExtension</string>
 	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
+	<string>IPlugEffectAppExtension</string>
 	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<string>com.AcmeInc.IPlugEffectApp.AUv3</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>IPlugEffectAppExtension</string>
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
@@ -51,7 +49,7 @@
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.AudioUnit-UI</string>
+		<string>com.apple.AudioUnit</string>
 		<key>NSExtensionPrincipalClass</key>
 		<string>IPlugViewController</string>
 	</dict>
