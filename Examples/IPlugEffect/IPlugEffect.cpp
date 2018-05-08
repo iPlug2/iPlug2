@@ -5,7 +5,7 @@ PLUG_CLASS_NAME::PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   TRACE;
-  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   
 #if IPLUG_EDITOR
   CreateUI(); // this could be called by superclass - OnCreateUI?
