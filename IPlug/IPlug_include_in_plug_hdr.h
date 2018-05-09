@@ -76,7 +76,7 @@
   #error "No OS defined!"
 #endif
 
-#if defined OS_MAC && !defined APP_API && !defined VST3P_API
+#if defined OS_MAC && defined SWELL_NO_POSTMESSAGE && !defined VST3P_API
 #include <sys/time.h>
 #include <unistd.h>
 #include "swell.h"

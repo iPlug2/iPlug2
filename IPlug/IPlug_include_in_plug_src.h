@@ -363,7 +363,7 @@ extern "C"
   #error "No API defined!"
 #endif
 
-#if defined OS_MAC && !defined APP_API && !defined VST3P_API
+#if defined OS_MAC && defined SWELL_NO_POSTMESSAGE && !defined VST3P_API
 void Sleep(int ms)
 {
   usleep(ms?ms*1000:100);
