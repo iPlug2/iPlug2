@@ -70,7 +70,7 @@ void IPlugBase::PrintDebugInfo() const
 {
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
-  DBGMSG("\n--------------------------------------------------\n%s\nNO_IGRAPHICS\n", buildInfo.Get());
+  DBGMSG("\n--------------------------------------------------\n%s\n", buildInfo.Get());
 }
 
 #pragma mark -
