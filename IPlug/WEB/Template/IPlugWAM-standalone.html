@@ -9,6 +9,7 @@
         margin: 0;
         padding: none;
         background: white;
+/*         background: white url("page_background.jpg") no-repeat fixed center; */
         background-size: cover;
       }
 
@@ -30,7 +31,25 @@
         color: rgb(120, 120, 120);
       }
     </style>
-
+<!--
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+ -->
     <script src="scripts/audioworklet.js"></script>
     <script src="scripts/wam-controller.js"></script>
     <script src="scripts/IPlugWAM-awn.js"></script>
@@ -43,16 +62,16 @@
       <button type="button" onclick="main()">Start web audio!</button>
     </div>
     <div class="iplug" id="status">Downloading...</div>
-    <div class="control">
-      <label>midi in</label>
-      <select id="midiInSelect"></select>
-    </div>
     <div class="iplug">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
-<!--     <div class="iplug_border"> -->
+    <div id="wam" hidden=1>
+      <div class="control">
+        <label>MIDI in</label>
+        <select id="midiInSelect"></select>
+      </div>
       <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-<!--     </div> -->
+    </div>
     <script type='text/javascript'>
         var actx, IPlugWAM_WAM;
 
@@ -83,7 +102,7 @@
 
             if(IPlugWAM_WAM != undefined) {
               //initGUI();
-              let canvas = document.getElementById('canvas');
+              document.getElementById('wam').hidden = false;
               initMidi();
             }
           });
@@ -95,41 +114,6 @@
       var Module = {
         preRun: [],
         postRun: [],
-        print: (function() {
-          var element = document.getElementById('output');
-          if (element) element.value = ''; // clear browser cache
-          return function(text) {
-            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-            // These replacements are necessary if you render to raw HTML
-            //text = text.replace(/&/g, "&amp;");
-            //text = text.replace(/</g, "&lt;");
-            //text = text.replace(/>/g, "&gt;");
-            //text = text.replace('\n', '<br>', 'g');
-            console.log(text);
-            if (element) {
-              element.value += text + "\n";
-              element.scrollTop = element.scrollHeight; // focus on bottom
-            }
-          };
-        })(),
-        printErr: function(text) {
-          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-          if (0) { // XXX disabled for safety typeof dump == 'function') {
-            dump(text + '\n'); // fast, straight to the real console
-          } else {
-            console.error(text);
-          }
-        },
-        // canvas: (function() {
-//           var canvas = document.getElementById('canvas');
-//
-//           // As a default initial behavior, pop up an alert when webgl context is lost. To make your
-//           // application robust, you may want to override this behavior before shipping!
-//           // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
-//           canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
-//
-//           return canvas;
-//         })(),
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
