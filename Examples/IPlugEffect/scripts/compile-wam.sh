@@ -14,6 +14,10 @@ fi
 mkdir build-web
 mkdir build-web/scripts
 
+echo BUNDLING RESOURCES -----------------------------
+python /Users/oli/Dev/MyWeb/emscripten1.37.22/emscripten/1.37.22/tools/file_packager.py ./build-web/resources.data --use-preload-plugins --preload ./resources/img@/ --js-output=./build-web/resources.js
+echo -
+
 echo MAKING  - WAM WASM MODULE -----------------------------
 emmake make --makefile projects/Makefile-wam
 
@@ -62,9 +66,8 @@ mv build-web/scripts/*.wasm build-web
 
 if [ -a build-web/IPlugEffect.wasm ]
 then
-  cp -r resources/img/* build-web
   cd build-web
-  emrun --no_emrun_detect --browser chrome_canary index.html
+  emrun --no_emrun_detect --browser chrome index.html
   #   emrun --browser firefox index.html
 fi
 

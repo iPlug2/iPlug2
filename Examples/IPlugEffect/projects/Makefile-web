@@ -31,8 +31,8 @@ JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
 -s WASM=1 \
 -s ASSERTIONS=0 \
---bind 
-#--preload-file ./resources/img@/
+-s FORCE_FILESYSTEM=1 \
+--bind
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(SRC)

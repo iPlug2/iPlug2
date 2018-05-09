@@ -8,17 +8,16 @@
 #include "IGraphicsPathBase.h"
 #include "IControl.h"
 
-class WebBitmap : public APIBitmap
-{
-public:
-  WebBitmap(emscripten::val image, int scale);
-  virtual ~WebBitmap();
-};
-
 struct RetainVal
 {
   RetainVal(emscripten::val item) : mItem(item) {}
   emscripten::val mItem;
+};
+
+class WebBitmap : public APIBitmap
+{
+public:
+  WebBitmap(emscripten::val imageCanvas, const char* name, int scale);
 };
 
 /** IGraphics draw/platform class HTML5 canvas
@@ -137,10 +136,11 @@ private:
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetWebBlendMode(const IBlend* pBlend);
 
+  RetainVal* mPreloadedImages;
   RetainVal* mWindowListener = nullptr;
   MouseState mMouseState = kMouseStateUp;
   double mLastX = -1;
   double mLastY = -1;
   double mPositionL = -1;
-  double mPositionT = -1;  
+  double mPositionT = -1;
 };
