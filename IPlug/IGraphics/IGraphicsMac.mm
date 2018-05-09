@@ -8,6 +8,8 @@
 #include "IControl.h"
 #import "IGraphicsMac_view.h"
 
+#include "IPlugPluginDelegate.h"
+
 #include "swell.h"
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -141,8 +143,9 @@ bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   {
     WDL_String musicFolder;
     SandboxSafeAppSupportPath(musicFolder);
+    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginDelegate&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
     NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:@"IPlugEffect" /* TODO: */] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
 
     if (pPath)
     {
@@ -150,7 +153,7 @@ bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, con
       return true;
     }
   }
-  
+
   fullPath.Set("");
   return false;
 }
@@ -162,14 +165,14 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     // first check this bundle
     if(GetResourcePathFromBundle(name, type, result))
       return true;
-    
+
     // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
     if(GetResourcePathFromUsersMusicFolder(name, type, result))
       return true;
-    
+
     // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skinablle UI)
     NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-    
+
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
       result.Set([pPath UTF8String]);
@@ -253,9 +256,9 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
     if (!mCursorHidden)
     {
       CGDisplayHideCursor(CGMainDisplayID());
-      
+
       CGAssociateMouseAndMouseCursorPosition(false);
-      
+
       if (returnToStartPosition)
       {
         NSPoint mouse = [NSEvent mouseLocation];
@@ -267,7 +270,7 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
         mCursorX = -1.f;
         mCursorY = -1.f;
       }
-  
+
       mCursorHidden = true;
     }
   }
@@ -276,7 +279,7 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
     if (mCursorHidden)
     {
       CGAssociateMouseAndMouseCursorPosition(true);
-      
+
       if ((mCursorX + mCursorY) > 0.f)
       {
         CGPoint point;
@@ -289,7 +292,7 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
 
       CGDisplayShowCursor(CGMainDisplayID());
     }
-    
+
     mCursorHidden = false;
   }
 }
@@ -396,7 +399,7 @@ void IGraphicsMac::UpdateTooltips()
   {
     return;
   }
-  
+
   IControl** ppControl = mControls.GetList();
 
   for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl)
@@ -612,7 +615,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 void IGraphicsMac::PromptForDirectory(WDL_String& dir)
 {
   NSString* defaultPath;
-  
+
   if (dir.GetLength())
   {
     defaultPath = [NSString stringWithCString:dir.Get() encoding:NSUTF8StringEncoding];
@@ -622,17 +625,17 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir)
     defaultPath = [NSString stringWithCString:DEFAULT_PATH encoding:NSUTF8StringEncoding];
     dir.Set(DEFAULT_PATH);
   }
-  
+
   NSOpenPanel* panelOpen = [NSOpenPanel openPanel];
-  
+
   [panelOpen setTitle:@"Choose a Directory"];
   [panelOpen setCanChooseFiles:NO];
   [panelOpen setCanChooseDirectories:YES];
   [panelOpen setResolvesAliases:YES];
   [panelOpen setCanCreateDirectories:YES];
-  
+
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
-  
+
   if ([panelOpen runModal] == NSOKButton)
   {
     NSString* fullPath = [ panelOpen filename ] ;
@@ -654,7 +657,7 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
 IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
   ReleaseMouseCapture();
-  
+
   IPopupMenu* pReturnMenu = nullptr;
 
   if(mPopupControl) // if we are not using platform pop-up menus
@@ -668,15 +671,15 @@ IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
       NSRect areaRect = ToNSRect(this, bounds);
       pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
     }
-    
+
     //synchronous
     if(pReturnMenu && pReturnMenu->GetFunction())
       pReturnMenu->ExecFunction();
-    
+
     if(pCaller)
       pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
   }
-  
+
   return pReturnMenu;
 }
 
