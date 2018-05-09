@@ -78,22 +78,22 @@ public:
   
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
-    int c = GetUI()->GetMouseControlIdx(x, y, true);
-    if (c > 0)
-    {
-      IRECT cr = GetUI()->GetControl(c)->GetRECT();
-      IRECT h = GetHandleRect(cr);
-      
-      if(h.Contains(x, y))
-      {
-        SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
-        return;
-      }
-      else
-        SetCursor(LoadCursor(NULL, IDC_HAND));
-    }
-    else
-      SetCursor(LoadCursor(NULL, IDC_ARROW));
+//    int c = GetUI()->GetMouseControlIdx(x, y, true);
+//    if (c > 0)
+//    {
+//      IRECT cr = GetUI()->GetControl(c)->GetRECT();
+//      IRECT h = GetHandleRect(cr);
+//      
+//      if(h.Contains(x, y))
+//      {
+//        SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+//        return;
+//      }
+//      else
+//        SetCursor(LoadCursor(NULL, IDC_HAND));
+//    }
+//    else
+//      SetCursor(LoadCursor(NULL, IDC_ARROW));
   }
   
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
