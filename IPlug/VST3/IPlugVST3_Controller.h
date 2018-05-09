@@ -59,6 +59,7 @@ public:
 private:
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   Steinberg::IPlugView* mView = nullptr;
+  Steinberg::FUID mProcessorGUID;
 };
 
 IPlugVST3Controller* MakeController();
