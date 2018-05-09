@@ -22,6 +22,14 @@
   #endif
     return pGraphics;
   }
+  #elif defined OS_IOS
+  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
+  {
+    IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps);
+    pGraphics->SetBundleID(BUNDLE_ID);
+    pGraphics->CreateMetalLayer();
+    return pGraphics;
+  }
   #elif defined OS_WEB
   #include <emscripten.h>
 

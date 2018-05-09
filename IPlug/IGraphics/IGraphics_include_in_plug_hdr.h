@@ -18,6 +18,8 @@
   #include "IGraphicsWin.h"
 #elif defined OS_MAC
   #include "IGraphicsMac.h"
+#elif defined OS_IOS
+  #include "IGraphicsIOS.h"
 #elif defined OS_LINUX
   #include "IGraphicsLinux.h"
 #elif defined OS_WEB
