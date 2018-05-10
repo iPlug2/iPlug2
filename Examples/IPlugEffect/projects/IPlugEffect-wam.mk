@@ -1,4 +1,4 @@
-include ./projects/common.mk
+include ./projects/IPlugEffect.mk
 
 TARGET = ./build-web/scripts/IPlugEffect-WAM.js
 

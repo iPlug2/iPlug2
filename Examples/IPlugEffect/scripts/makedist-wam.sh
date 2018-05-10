@@ -19,7 +19,7 @@ python /Users/oli/Dev/MyWeb/emscripten1.37.22/emscripten/1.37.22/tools/file_pack
 echo -
 
 echo MAKING  - WAM WASM MODULE -----------------------------
-emmake make --makefile projects/Makefile-wam
+emmake make --makefile projects/IPlugEffect-wam.mk
 
 if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
 then
@@ -60,7 +60,7 @@ cd ../
 echo
 echo MAKING  - WEB WASM MODULE -----------------------------
 
-emmake make --makefile projects/Makefile-web
+emmake make --makefile projects/IPlugEffect-web.mk
 
 mv build-web/scripts/*.wasm build-web
 
@@ -70,4 +70,3 @@ then
   emrun --no_emrun_detect --browser chrome index.html
   #   emrun --browser firefox index.html
 fi
-
