@@ -20,7 +20,7 @@
  *  which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics for a separate task.
  *
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
- *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
+ *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
  *  A parameter OBJECT is also referred to as a "param", in method names such as IDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
 
 class IDelegate
