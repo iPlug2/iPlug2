@@ -23,7 +23,7 @@
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
 #include "IGraphicsUtilites.h"
-#include "IPopupMenu.h"
+#include "IGraphicsPopupMenu.h"
 
 #ifdef OS_MAC
 #ifdef FillRect

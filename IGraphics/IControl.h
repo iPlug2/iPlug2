@@ -19,9 +19,6 @@
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#ifndef OS_IOS // no stat64
-#include "dirscan.h"
-#endif
 
 #include "IGraphics.h"
 #include "IPlugDelegate.h"

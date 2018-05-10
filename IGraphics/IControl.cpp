@@ -3,6 +3,9 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
+#include "dirscan.h"
+
+
 void DefaultAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();
@@ -46,16 +49,10 @@ void IControl::SetValueFromDelegate(double value)
     mDefaultValue = mValue = value;
   }
 
-  //don't update this control from delegate, if any control with the same parameter index is being captured
+  //don't update this control from delegate, if this control is being captured (i.e. if host is automating the control, mouse is more important
   IControl* capturedControl = GetUI()->GetCapturedControl();
   
-  if(capturedControl)
-  {
-    if(capturedControl->ParamIdx() == mParamIdx)
-      return;
-  }
-  
-  if (mValue != value)
+  if (mValue != value && capturedControl != this)
   {
     mValue = value;
     SetDirty(false);
@@ -502,6 +499,7 @@ void IDirBrowseControlBase::GetSelecteItemPath(WDL_String& path)
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
+#if !defined OS_IOS
   WDL_DirScan d;
   IPopupMenu& parentDirMenu = menuToAddTo;
 
@@ -537,6 +535,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 
     menuToAddTo = parentDirMenu;
   }
+#endif
 }
 
 void IPopupMenuControlBase::Draw(IGraphics& g)
