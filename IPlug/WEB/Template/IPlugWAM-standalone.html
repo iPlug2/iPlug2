@@ -51,8 +51,8 @@
     <meta name="theme-color" content="#ffffff">
  -->
     <script src="scripts/audioworklet.js"></script>
-    <script src="scripts/wam-controller.js"></script>
-    <script src="scripts/IPlugWAM-awn.js"></script>
+    <script async src="resources.js"></script>
+    <script async src="scripts/IPlugWAM.js"></script>
   </head>
   <body>
     <div id="content">
@@ -73,29 +73,43 @@
       <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
-        var actx, IPlugWAM_WAM;
+      var IPlugWAM_WAM;
 
-        function initMidi () {
-          let combo = document.querySelector("#midiInSelect");
-          navigator.requestMIDIAccess().then((midiIF) => {
-            for (let input of midiIF.inputs.values()) {
-              let option = new Option(input.name);
-              option.port = input;
-              combo.appendChild(option);
-            }
-            combo.onchange = e => {
-              IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
-            }
-            if (combo.options.length > 0)
-              combo.onchange({ target:combo });
-          })
+      function initMidi () {
+        let combo = document.querySelector("#midiInSelect");
+        navigator.requestMIDIAccess().then((midiIF) => {
+          for (let input of midiIF.inputs.values()) {
+            let option = new Option(input.name);
+            option.port = input;
+            combo.appendChild(option);
+          }
+          combo.onchange = e => {
+            IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+          }
+          if (combo.options.length > 0)
+            combo.onchange({ target:combo });
+        })
+      }
+
+      function audioWorkletSupported(supported)
+      {
+        if(supported)
+          console.log("AudioWorklet Supported");
+        else {
+          console.log("AudioWorklet NOT Supported");
+          //document.getElementById("unsupported").style.display = "block";
         }
+      }
 
-        function main() {
-          if (AWPF.isAudioWorkletPolyfilled)
-            actx = AWPF.context;
-          else actx = new AudioContext();
+      function main() {
+        var controllerScripts = [
+          "scripts/wam-controller.js",
+          "scripts/IPlugWAM-awn.js"
+           ];
 
+        var actx = new AudioContext();
+        AWPF.polyfill(actx, controllerScripts).then( function () {
+          audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
           IPlugWAMController.importScripts(actx).then(() => {
             IPlugWAM_WAM = new IPlugWAMController(actx);
             IPlugWAM_WAM.connect(actx.destination);
@@ -106,7 +120,8 @@
               initMidi();
             }
           });
-        }
+        });
+      }
 
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
@@ -147,7 +162,5 @@
         };
       };
     </script>
-    <script async src="resources.js"></script>
-    <script async src="scripts/IPlugWAM.js"></script>
   </body>
 </html>
