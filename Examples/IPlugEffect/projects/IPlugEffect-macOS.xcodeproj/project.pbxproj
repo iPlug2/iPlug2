@@ -78,7 +78,7 @@
 		4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5280205D913300CF2908 /* IPlugAPP.cpp */; };
 		4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5284205D914A00CF2908 /* IPlugAAX.cpp */; };
 		4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A528A205D916F00CF2908 /* IPlugAU.cpp */; };
-		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
+		4F1B4AE42014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */; };
 		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
 		4F35DEAD207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
 		4F35DEAE207E5C5A00867D8F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */; };
@@ -232,7 +232,6 @@
 		4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
-		4FF93DFB209C6A3500310D7C /* IPlugViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F56CC702022A55D00CF585F /* IPlugViewController.xib */; };
 		4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
 		4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FFBB90720863B0E00DDD0E7 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -427,7 +426,7 @@
 		4F1A5287205D915B00CF2908 /* IPlugAUv3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUv3.h; path = ../../../IPlug/AUv3/IPlugAUv3.h; sourceTree = "<group>"; };
 		4F1A5289205D916F00CF2908 /* IPlugAU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAU.h; path = ../../../IPlug/AUv2/IPlugAU.h; sourceTree = "<group>"; };
 		4F1A528A205D916F00CF2908 /* IPlugAU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAU.cpp; path = ../../../IPlug/AUv2/IPlugAU.cpp; sourceTree = "<group>"; };
-		4F1B4AE32014D33600BC64D4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../resources/MainMenu.xib; sourceTree = "<group>"; };
+		4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = "IPlugEffect-macOS-MainMenu.xib"; path = "../resources/IPlugEffect-macOS-MainMenu.xib"; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F20EF33132C69FE0030E34C /* IPlugEffect.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F23BA1313B647E50097A67E /* IPlugEffect-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-AU-Info.plist"; path = "../resources/IPlugEffect-AU-Info.plist"; sourceTree = "<group>"; };
@@ -460,7 +459,6 @@
 		4F4CC38C1549B92900A9EA21 /* AAXLibrary_common_debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = AAXLibrary_common_debug.xcconfig; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary_common_debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F4CC38D1549B92900A9EA21 /* AAXLibrary_common_release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = AAXLibrary_common_release.xcconfig; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary_common_release.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../../IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
-		4F56CC702022A55D00CF585F /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../../../IPlug/AUv3/IPlugViewController.xib; sourceTree = "<group>"; };
 		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
 		4F63695420A463090022C370 /* IVMeterControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IVMeterControl.cpp; sourceTree = "<group>"; };
 		4F63695520A463090022C370 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
@@ -777,7 +775,7 @@
 			isa = PBXGroup;
 			children = (
 				4FD16A0213B6303B001D0217 /* img */,
-				4F1B4AE32014D33600BC64D4 /* MainMenu.xib */,
+				4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */,
 				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
 				4FDA1E102012CDB30027C868 /* resource.h */,
@@ -937,7 +935,6 @@
 				4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */,
 				4F1A5287205D915B00CF2908 /* IPlugAUv3.h */,
 				4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */,
-				4F56CC702022A55D00CF585F /* IPlugViewController.xib */,
 				4FF93DF8209C68A400310D7C /* IPlugViewController.h */,
 				4F3907772013EC0400DDA490 /* IPlugViewController.mm */,
 			);
@@ -1603,7 +1600,6 @@
 				4FD16A0613B63081001D0217 /* Sources */,
 				4FD16A0713B63081001D0217 /* Frameworks */,
 				4F3907752013EBA400DDA490 /* Embed App Extensions */,
-				4F5E01B0201414B700C4EDEA /* Run Script - Register AUv3 */,
 				4FF93DCE209C5BAC00310D7C /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -1744,7 +1740,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FF93DFB209C6A3500310D7C /* IPlugViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1770,7 +1765,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
-				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
+				4F1B4AE42014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1795,21 +1790,6 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4F5E01B0201414B700C4EDEA /* Run Script - Register AUv3 */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script - Register AUv3";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-			shellPath = /bin/sh;
-			shellScript = "";
-			showEnvVarsInLog = 0;
-		};
 		4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

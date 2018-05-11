@@ -31,7 +31,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7.0</string>
 	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>IPlugEffect-macOS-MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>SWELLApplication</string>
 </dict>

@@ -46,7 +46,7 @@ class AppViewController: UIViewController {
     let pluginURL = builtInPlugInsURL.appendingPathComponent("IPlugEffectAppExtension.appex")
     let appExtensionBundle = Bundle(url: pluginURL)
 
-    let storyboard = UIStoryboard(name: "AppExtension", bundle: appExtensionBundle)
+    let storyboard = UIStoryboard(name: "IPlugEffect-iOS-AUv3", bundle: appExtensionBundle)
     mPlugViewController = storyboard.instantiateInitialViewController()
 
     if let view = mPlugViewController.view {

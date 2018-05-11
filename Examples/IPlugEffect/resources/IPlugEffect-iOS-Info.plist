@@ -31,11 +31,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
-	<string>AppLaunchScreen</string>
+	<string>IPlugEffect-iOS-launchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
+	<string>IPlugEffect-iOS</string>
 	<key>UIMainStoryboardFile~ipad</key>
-	<string>App</string>
+	<string>IPlugEffect-iOS</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
