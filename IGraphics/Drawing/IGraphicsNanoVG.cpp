@@ -138,7 +138,7 @@ IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, in
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_IOS
   mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 #endif
 }
