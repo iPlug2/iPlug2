@@ -17,18 +17,43 @@
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
 //  [self setBoundsSize:CGSizeMake(pGraphics->Width(), pGraphics->Height())];
-//
-//  if (!self.wantsLayer) {
-//    self.layer = (CALayer*) mGraphics->mLayer;
-//    self.layer.opaque = NO;
-//    self.wantsLayer = YES;
-//  }
 
-  double sec = 1.0 / (double) pGraphics->FPS();
-  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
-  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
-
+//  double sec = 1.0 / (double) pGraphics->FPS();
+//  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
+//  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
+  self.layer.contentsScale = [UIScreen mainScreen].scale;
+  
+  // Initializes the display link.
+  _displayLink = [CADisplayLink displayLinkWithTarget:self
+                                             selector:@selector(render)];
+  [_displayLink addToRunLoop:[NSRunLoop mainRunLoop]
+                     forMode:NSRunLoopCommonModes];
+  
+  
   return self;
+}
+
+- (void)dealloc
+{
+  [_displayLink invalidate];
+  [super dealloc];
+}
+
+- (void)render
+{
+  IRECT r;
+  mGraphics->BeginFrame();
+  
+  //TODO: this is redrawing every IControl!
+  r.R = mGraphics->WindowWidth();
+  r.B = mGraphics->WindowHeight();
+  mGraphics->IsDirty(r);
+  //
+  
+  mGraphics->Draw(r);
+  
+  mGraphics->EndFrame();
+  [self.layer setNeedsDisplay]; // TODO: if nothing is dirty shouldn't set this
 }
 
 - (BOOL) isOpaque
@@ -41,27 +66,15 @@
   return YES;
 }
 
-- (void) onTimer: (NSTimer*) pTimer
-{
-  IRECT r;
-  mGraphics->BeginFrame();
-
-  //TODO: this is redrawing every IControl!
-  r.R = mGraphics->WindowWidth();
-  r.B = mGraphics->WindowHeight();
-  mGraphics->IsDirty(r);
-  //
-  
-  mGraphics->Draw(r);
-
-  mGraphics->EndFrame();
-//  [self setNeedsDisplay: YES];
-}
+//- (void) onTimer: (NSTimer*) pTimer
+//{
+//
+//}
 
 - (void) killTimer
 {
-  [mTimer invalidate];
-  mTimer = 0;
+//  [mTimer invalidate];
+//  mTimer = 0;
 }
 
 - (void) removeFromSuperview
@@ -84,6 +97,11 @@
 
 - (void) endUserInput
 {
+}
+
++ (Class)layerClass
+{
+  return [CAMetalLayer class];
 }
 
 @end

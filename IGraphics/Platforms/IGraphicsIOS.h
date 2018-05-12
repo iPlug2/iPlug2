@@ -32,7 +32,7 @@ public:
 
   const char* GetPlatformAPIStr() override;
 
-  void UpdateTooltips() override;
+  void UpdateTooltips() override {};
 
   void UserHomePath(WDL_String& path) override;
   void HostPath(WDL_String& path) override;

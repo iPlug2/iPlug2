@@ -188,13 +188,11 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
   
-  if (pParent) // Cocoa VST host.
+  if (pParent)
   {
     [(UIView*) pParent addSubview: (IGraphicsIOS_View*) mView];
   }
-  
-  UpdateTooltips();
-  
+
   return mView;
 }
 
@@ -203,8 +201,7 @@ void IGraphicsIOS::CloseWindow()
   if (mView)
   {
     IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
-//    [view removeAllToolTips];
-    [view killTimer];
+
     mView = nullptr;
     
     if (view->mGraphics)
@@ -265,10 +262,6 @@ void IGraphicsIOS::ForceEndUserEdit()
   {
     [(IGraphicsIOS_View*) mView endUserInput];
   }
-}
-
-void IGraphicsIOS::UpdateTooltips()
-{
 }
 
 const char* IGraphicsIOS::GetPlatformAPIStr()

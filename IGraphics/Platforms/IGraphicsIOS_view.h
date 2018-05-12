@@ -5,7 +5,8 @@
 
 @interface IGraphicsIOS_View : UIView
 {
-  NSTimer* mTimer;
+//  NSTimer* mTimer;
+  CADisplayLink* _displayLink;
 @public
   IGraphicsIOS* mGraphics; // OBJC instance variables have to be pointers
 }
