@@ -13,7 +13,7 @@ func fourCharCodeFrom(string : String) -> FourCharCode
   return result
 }
 
-class AppViewController: UIViewController {
+class IPlugEffectAppViewController: UIViewController {
   @IBOutlet var playButton: UIButton!
   @IBOutlet var auContainerView: UIView!
   var playEngine: SimplePlayEngine!
@@ -28,8 +28,8 @@ class AppViewController: UIViewController {
 
     var desc = AudioComponentDescription()
     desc.componentType = kAudioUnitType_Effect
-    desc.componentSubType = fourCharCodeFrom(string: "IpeF")
-    desc.componentManufacturer = fourCharCodeFrom(string: "Acme")
+    desc.componentSubType = fourCharCodeFrom(string: "IpeF") //TODO: hardcoded!
+    desc.componentManufacturer = fourCharCodeFrom(string: "Acme") //TODO: hardcoded!
     desc.componentFlags = 0
     desc.componentFlagsMask = 0
 
