@@ -56,7 +56,6 @@
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
 		4FB87C2D20A5E24000325894 /* IGraphicsNanoVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698020A463AF0022C370 /* IGraphicsNanoVG.cpp */; };
 		4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */; };
-		4FDF4D0920A71C6F002AC145 /* IPlugViewController-ios.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F45FDB220A70A8100FFD175 /* IPlugViewController-ios.xib */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
 		4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103120A0E55900D3092F /* IPlugQueue.h */; };
 		4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103220A0E55900D3092F /* IPlugParameter.cpp */; };
@@ -150,7 +149,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4F02B67620A18BBE00C86910 /* IPlugViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = IPlugViewController.storyboard; path = ../resources/IPlugViewController.storyboard; sourceTree = "<group>"; };
 		4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../resources/IPlugEffectViewController.swift; sourceTree = "<group>"; };
@@ -160,7 +158,6 @@
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
 		4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugEffectFramework.h; sourceTree = "<group>"; };
 		4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = drumLoop.caf; sourceTree = "<group>"; };
-		4F45FDB220A70A8100FFD175 /* IPlugViewController-ios.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "IPlugViewController-ios.xib"; path = "../resources/IPlugViewController-ios.xib"; sourceTree = "<group>"; };
 		4F45FDB520A70E0700FFD175 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = ../../../IPlug/AUv3/IOSApp/ViewController.h; sourceTree = "<group>"; };
 		4F45FDB620A70E0700FFD175 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewController.m; path = ../../../IPlug/AUv3/IOSApp/ViewController.m; sourceTree = "<group>"; };
 		4F63697620A463AF0022C370 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
@@ -420,8 +417,6 @@
 				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
 				4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */,
 				4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */,
-				4F45FDB220A70A8100FFD175 /* IPlugViewController-ios.xib */,
-				4F02B67620A18BBE00C86910 /* IPlugViewController.storyboard */,
 				4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */,
 				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
 				4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */,
@@ -735,7 +730,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FDF4D0920A71C6F002AC145 /* IPlugViewController-ios.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

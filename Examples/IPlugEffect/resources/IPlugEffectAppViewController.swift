@@ -46,9 +46,14 @@ class IPlugEffectAppViewController: UIViewController {
     let pluginURL = builtInPlugInsURL.appendingPathComponent("IPlugEffectAppExtension.appex")
     let appExtensionBundle = Bundle(url: pluginURL)
 
-    let storyboard = UIStoryboard(name: "IPlugEffect-iOS-AUv3", bundle: appExtensionBundle)
-    mPlugViewController = storyboard.instantiateInitialViewController()
+//    mPlugViewController = initWithNibName: "IPlugViewController-ios" bundle: appExtensionBundle as! IPlugViewController
+    
+//    let storyboard = UIStoryboard(name: "IPlugEffect-iOS-AUv3", bundle: appExtensionBundle)
+//    mPlugViewController = storyboard.instantiateViewController(withIdentifier: "ViewController") as! IPlugViewController
 
+//    let storyboard = UIStoryboard(name: "IPlugViewController", bundle: appExtensionBundle)
+//    mPlugViewController = storyboard.instantiateInitialViewController() as! IPlugViewController
+    
     if let view = mPlugViewController.view {
       addChildViewController(mPlugViewController)
       view.frame = auContainerView.bounds
