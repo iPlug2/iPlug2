@@ -178,6 +178,7 @@ def main():
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPrincipalClass = "IPlugViewController",
+                             #NSExtensionMainStoryboard = "IPlugEffect-iOS-AUv3",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
                              )
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
