@@ -332,7 +332,7 @@ def main():
   macOSapp['CFBundleSignature'] = PLUG_UID
   macOSapp['CSResourcesFileMapped'] = CSResourcesFileMapped
   macOSapp['NSPrincipalClass'] = "SWELLApplication"
-  macOSapp['NSMainNibFile'] = "MainMenu"
+  macOSapp['NSMainNibFile'] = "IPlugEffect-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
   macOSapp['CFBundleIconFile'] = BUNDLE_NAME + ".icns"
 
