@@ -82,7 +82,7 @@ public:
     return PutBytes(str, slen);
   }
   
-  inline int GetStr(WDL_String& str, int startPos)
+  inline int GetStr(WDL_String& str, int startPos) const
   {
     int len;
     int strStartPos = Get(&len, startPos);
