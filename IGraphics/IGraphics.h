@@ -20,6 +20,9 @@
 #include "IPlugAAX_view_interface.h"
 #endif
 
+#include "IPlugConstants.h"
+#include "IPlugLogger.h"
+
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
 #include "IGraphicsUtilites.h"

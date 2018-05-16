@@ -8,7 +8,11 @@
 
 
 #include "IPlugPlatform.h"
+#include "IPlugBase.h"
+#include "IPlugProcessor.h"
+
 #include "IPlugAAX_Parameters.h"
+
 #include "AAX_CEffectGUI.h"
 
 #include "AAX_Push8ByteStructAlignment.h"

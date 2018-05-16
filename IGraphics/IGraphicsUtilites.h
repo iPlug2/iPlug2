@@ -1,4 +1,5 @@
 #pragma once
+#include "IGraphicsConstants.h"
 
 // these are macros to shorten the instantiation of IControls
 // for a paramater ID MyParam, define constants named MyParam_X, MyParam_Y, MyParam_W, MyParam_H to specify the Control's IRect

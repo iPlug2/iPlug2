@@ -34,10 +34,6 @@
 #include <cstring>
 #include <cstdlib>
 
-//when TRACER_BUILD is defined enabling logging functionality.
-//Also includes DBGMSG macro for printing to console in debug builds
-#include "IPlugLogger.h"
-
 #ifdef NO_PARAMS_MUTEX
 #define ENTER_PARAMS_MUTEX
 #define LEAVE_PARAMS_MUTEX

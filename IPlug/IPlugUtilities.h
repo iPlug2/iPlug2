@@ -7,6 +7,8 @@
 #include <cstring>
 #include <cctype>
 
+#include "wdlstring.h"
+
 #include "IPlugConstants.h"
 #include "IPlugPlatform.h"
 
@@ -151,7 +153,7 @@ inline void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWid
   }
 
 /** Gets the host ID from a human-readable name
- * @param host Host name to search for
+ * @param inHost Host name to search for
  * @return Identifier of the host (see ::EHost)
  */
 static EHost LookUpHost(const char* inHost)

@@ -5,6 +5,7 @@
 #include "IPlugDelegate_select.h"
 #include "IPlugParameter.h"
 #include "IPlugStructs.h"
+#include "IPlugLogger.h"
 
 /** This is the class that owns parameter objects, and has methods for serialization of state
  *  It provides a base interface for remote editors as well as the main plug-in, because we may have state/preset management in remote editors,

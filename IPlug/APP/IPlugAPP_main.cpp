@@ -1,4 +1,5 @@
 #include "wdltypes.h"
+#include "wdlstring.h"
 #include "IPlugPlatform.h"
 #include "config.h"
 #include "resource.h"
