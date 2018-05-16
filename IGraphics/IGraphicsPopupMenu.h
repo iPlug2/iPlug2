@@ -54,7 +54,9 @@ public:
     ~Item()
     {
       if (mSubmenu)
-        DELETE_NULL(mSubmenu);
+        delete mSubmenu;
+      
+      mSubmenu = nullptr;
     }
     
     void SetText(const char* str) { mText.Set(str); }

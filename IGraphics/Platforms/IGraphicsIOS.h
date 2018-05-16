@@ -4,15 +4,12 @@
 #include "IPlugGraphicsDelegate.h"
 
 /** IGraphics platform class for IOS
-*   @ingroup PlatformClasses
-*/
+*   @ingroup PlatformClasses */
 class IGraphicsIOS : public IGraphicsNanoVG
 {
 public:
   IGraphicsIOS(IDelegate& dlg, int w, int h, int fps);
   virtual ~IGraphicsIOS();
-
-  bool IsSandboxed();
   
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
   void CreateMetalLayer();
@@ -21,11 +18,6 @@ public:
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h, float scale) override;
-
-  void SetTabletInput(bool tablet) { mTabletInput = tablet; }
-
-  void HideMouseCursor(bool hide, bool returnToStartPosition) override;
-  void MoveMouseCursor(float x, float y) override;
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
@@ -58,8 +50,6 @@ public:
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
-    
-  void* mLayer;
   
   void SetMousePosition(float x, float y);
 
@@ -68,7 +58,9 @@ protected:
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
   bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
 private:
-  void* mView;
+  void* mView = nullptr;
+  void* mLayer = nullptr;
+
   WDL_String mBundleID;
 
   bool mTabletInput = false;

@@ -3,6 +3,7 @@
 #import "IGraphicsMac_view.h"
 #include "IControl.h"
 #include "IPlugParameter.h"
+#include "IPlugLogger.h"
 
 @implementation IGRAPHICS_MENU_RCVR
 
@@ -195,17 +196,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 #pragma mark -
 
 @implementation IGRAPHICS_VIEW
-
-//- (id) init
-//{
-//  TRACE;
-//
-//  mGraphics = nullptr;
-//  mTimer = nullptr;
-//  mPrevX = 0;
-//  mPrevY = 0;
-//  return self;
-//}
 
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics
 {

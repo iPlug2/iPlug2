@@ -14,30 +14,8 @@ NSString* ToNSString(const char* cStr)
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-//int GetSystemVersion()
+//struct CocoaAutoReleasePool
 //{
-//  static int32_t v;
-//  if (!v)
-//  {
-//    if (NSAppKitVersionNumber >= 1266.0)
-//    {
-//      if (NSAppKitVersionNumber >= 1404.0)
-//        v = 0x10b0;
-//      else
-//        v = 0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
-//    }
-//    else
-//    {
-//      SInt32 a = 0x1040;
-//      Gestalt(gestaltSystemVersion,&a);
-//      v=a;
-//    }
-//  }
-//  return v;
-//}
-
-struct CocoaAutoReleasePool
-{
 //  NSAutoreleasePool* mPool;
 //
 //  CocoaAutoReleasePool()
@@ -49,26 +27,12 @@ struct CocoaAutoReleasePool
 //  {
 //    [mPool release];
 //  }
-};
-
-//#define IGRAPHICS_MAC_BLIT_BENCHMARK
-//#define IGRAPHICS_MAC_OLD_IMAGE_DRAWING
-
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-#include <sys/time.h>
-static double gettm()
-{
-  struct timeval tm={0,};
-  gettimeofday(&tm,NULL);
-  return (double)tm.tv_sec + (double)tm.tv_usec/1000000;
-}
-#endif
+//};
 
 #pragma mark -
 
 IGraphicsIOS::IGraphicsIOS(IDelegate& dlg, int w, int h, int fps)
 : IGraphicsNanoVG(dlg, w, h, fps)
-, mView(nullptr)
 {
   SetDisplayScale(1);
 //  NSApplicationLoad();
@@ -77,17 +41,6 @@ IGraphicsIOS::IGraphicsIOS(IDelegate& dlg, int w, int h, int fps)
 IGraphicsIOS::~IGraphicsIOS()
 {
   CloseWindow();
-}
-
-bool IGraphicsIOS::IsSandboxed()
-{
-  NSString* pHomeDir = NSHomeDirectory();
-  
-  if ([pHomeDir containsString:@"Library/Containers/"])
-  {
-    return true;
-  }
-  return false;
 }
 
 void IGraphicsIOS::CreateMetalLayer()
@@ -100,7 +53,7 @@ void IGraphicsIOS::CreateMetalLayer()
 
 bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
 {
-  CocoaAutoReleasePool pool;
+//  CocoaAutoReleasePool pool;
   
   const char* ext = fileName+strlen(fileName)-1;
   while (ext >= fileName && *ext != '.') --ext;
@@ -128,7 +81,7 @@ bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* s
 
 bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
 {
-  CocoaAutoReleasePool pool;
+//  CocoaAutoReleasePool pool;
   
   const char* ext = fileName+strlen(fileName)-1;
   while (ext >= fileName && *ext != '.') --ext;
@@ -237,18 +190,6 @@ void IGraphicsIOS::Resize(int w, int h, float scale)
     
     SetAllControlsDirty();
   }
-}
-
-void IGraphicsIOS::HideMouseCursor(bool hide, bool returnToStartPosition)
-{
-}
-
-void IGraphicsIOS::MoveMouseCursor(float x, float y)
-{
-}
-
-void IGraphicsIOS::SetMousePosition(float x, float y)
-{
 }
 
 int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, int type)

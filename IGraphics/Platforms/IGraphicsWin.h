@@ -7,7 +7,7 @@
 #include "IGraphics_select.h"
 
 /** IGraphics platform class for Windows
-*   @ingroup PlatformClasses */
+* @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
