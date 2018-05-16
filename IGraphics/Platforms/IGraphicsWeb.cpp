@@ -55,7 +55,6 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
 //  std::srand(32768 * randomGenerator.call<double>("random"));
   
   // Bind event listener to the canvas for all mouse events
-  
   char callback[256];
 
   sprintf(callback, "Module.mouse_web_handler('%x', e, 0);", this);
@@ -80,8 +79,16 @@ IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
   canvas.call<void>("addEventListener", std::string("keydown"), eventListener2);
 
-  canvas.set("width", w);
-  canvas.set("height", h);
+  int scale = val::global("window")["devicePixelRatio"].as<int>();
+  canvas["style"].set("width",val(w));
+  canvas["style"].set("height",val(h));
+  GetContext().call<void>("scale", scale, scale);
+  
+  canvas.set("width", w * scale);
+  canvas.set("height", h * scale);
+  
+  SetDisplayScale(scale);
+  PathTransformScale(scale, scale);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -90,14 +97,22 @@ IGraphicsWeb::~IGraphicsWeb()
   delete mPreloadedImages;
 }
 
-void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
   RetainVal* rv = (RetainVal*) bitmap.GetRawBitmap();
   PathStateSave();
   SetWebBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
-  context.call<void>("drawImage", rv->mItem, srcX, srcY, dest.W(), dest.H(), dest.L, dest.T, dest.W(), dest.H());
+  
+  const float ds = GetDisplayScale();
+  IRECT sr = bounds;
+  sr.Scale(ds);
+  
+  srcX *= ds;
+  srcY *= ds;
+  
+  context.call<void>("drawImage", rv->mItem, srcX, srcY, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
   PathStateRestore();
 }
 
@@ -106,8 +121,6 @@ void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IS
   val context = GetContext();
   double dashArray[8];
   
-  // First set options
-
   switch (options.mCapOption)
   {
     case kCapButt:    context.set("lineCap", "butt");      break;

@@ -8,21 +8,23 @@
 #include "IGraphicsPathBase.h"
 #include "IControl.h"
 
+using namespace emscripten;
+
 struct RetainVal
 {
-  RetainVal(emscripten::val item) : mItem(item) {}
-  emscripten::val mItem;
+  RetainVal(val item) : mItem(item) {}
+  val mItem;
 };
 
 class WebBitmap : public APIBitmap
 {
 public:
-  WebBitmap(emscripten::val imageCanvas, const char* name, int scale);
+  WebBitmap(val imageCanvas, const char* name, int scale);
 };
 
 /** IGraphics draw/platform class HTML5 canvas
-*   @ingroup DrawClasses
-*   @ingroup PlatformClasses */
+* @ingroup DrawClasses
+* @ingroup PlatformClasses */
 class IGraphicsWeb : public IGraphicsPathBase
 {
   enum MouseState { kMouseStateUp, kMouseStateDownInside, kMouseStateDownOutside };
@@ -33,8 +35,9 @@ public:
   IGraphicsWeb(IDelegate& dlg, int w, int h, int fps);
   ~IGraphicsWeb();
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-
+  void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawRotatedBitmap(IBitmap& bitmap, int destCentreX, int destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) { IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend); }
+  
   void PathClear() override { GetContext().call<void>("beginPath"); }
   void PathStart() override { GetContext().call<void>("beginPath"); } // TODO:
   void PathClose() override { GetContext().call<void>("closePath"); }
@@ -68,9 +71,9 @@ public:
   void HideMouseCursor(bool hide, bool returnToStartPos) override
   {
     if(hide)
-      emscripten::val::global("document")["body"]["style"].set("cursor", std::string("none"));
+      val::global("document")["body"]["style"].set("cursor", std::string("none"));
     else
-      emscripten::val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+      val::global("document")["body"]["style"].set("cursor", std::string("auto"));
   }
 
   void MoveMouseCursor(float x, float y) override { /* Can't move a mose cursor in the browser */ }
@@ -109,8 +112,8 @@ public:
   void VST3PresetsPath(WDL_String& path, bool isSystem = true) {} // TODO:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
 
-  void OnMouseEvent(emscripten::val event, bool outside);
-  void OnKeyEvent(emscripten::val event);
+  void OnMouseEvent(val event, bool outside);
+  void OnKeyEvent(val event);
   
   static void OnMainLoopTimer();
 protected:
@@ -122,15 +125,15 @@ private:
   void ClipRegion(const IRECT& r) override;
   void ResetClipRegion() override;
 
-  emscripten::val GetCanvas()
+  val GetCanvas()
   {
-    return emscripten::val::global("document").call<emscripten::val>("getElementById", std::string("canvas"));
+    return val::global("document").call<val>("getElementById", std::string("canvas"));
   }
 
-  emscripten::val GetContext()
+  val GetContext()
   {
-    emscripten::val canvas = GetCanvas();
-    return canvas.call<emscripten::val>("getContext", std::string("2d"));
+    val canvas = GetCanvas();
+    return canvas.call<val>("getContext", std::string("2d"));
   }
 
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
