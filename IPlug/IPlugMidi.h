@@ -2,8 +2,9 @@
 #include <cassert>
 #include <cstdint>
 
-#include "IPlugConstants.h"
-#include "IPlugUtilities.h"
+#ifdef TRACER_BUILD
+#include "IPlugLogger.h"
+#endif
 
 /** Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg
@@ -131,7 +132,7 @@ struct IMidiMsg
     Clear();
     mStatus = channel | (kPitchWheel << 4);
     int i = 8192 + (int) (value * 8192.0);
-    i = Clip(i, 0, 16383);
+    i = std::min(std::max(i, 0), 16383);
     mData2 = i>>7;
     mData1 = i&0x7F;
   }
@@ -407,6 +408,10 @@ void MyPlug::ProcessBlock(double** inputs, double** outputs, int nFrames)
 
 */
 
+#ifndef DEFAULT_BLOCK_SIZE
+  #define DEFAULT_BLOCK_SIZE 512
+#endif
+
 /** A class to help with queuing timestamped MIDI messages */
 class IMidiQueue
 {
@@ -535,4 +540,4 @@ protected:
 
   int mSize, mGrow;
   int mFront, mBack;
-} WDL_FIXALIGN;
+};
