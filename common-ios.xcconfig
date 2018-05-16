@@ -55,6 +55,7 @@ IPLUG_PATH = $(ROOT)/IPlug
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 FAUST_PATH = $(EXTRAS_PATH)/Faust
 OSC_PATH = $(EXTRAS_PATH)/OSC
+HIIR_PATH = $(EXTRAS_PATH)/HIIR
 
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH)
