@@ -473,7 +473,7 @@ public:
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
    * @param y New Y position in pixels */
-  virtual void MoveMouseCursor(float x, float y) = 0;
+  virtual void MoveMouseCursor(float x, float y) {}
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;

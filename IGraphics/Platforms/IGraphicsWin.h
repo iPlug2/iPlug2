@@ -22,7 +22,6 @@ public:
   void Resize(int w, int h, float scale) override;
 
   void HideMouseCursor(bool hide) override;
-  void MoveMouseCursor(float x, float y) override { /* TODO - Oli - I have code for this - Alex */ };
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
 

@@ -315,6 +315,7 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
 
 void IGraphicsMac::SetMousePosition(float x, float y)
 {
+  //TODO: FIX!
 //  mMouseX = x;
 //  mMouseY = y;
 }

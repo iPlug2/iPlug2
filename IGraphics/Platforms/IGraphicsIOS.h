@@ -51,8 +51,6 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str) override;
   
-  void SetMousePosition(float x, float y);
-
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
