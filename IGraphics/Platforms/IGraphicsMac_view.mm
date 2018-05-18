@@ -212,7 +212,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 #ifdef IGRAPHICS_NANOVG
   if (!self.wantsLayer) {
     self.layer = (CALayer*) mGraphics->mLayer;
-    self.layer.opaque = NO;
+    self.layer.opaque = YES;
     self.wantsLayer = YES;
   }
 #endif
