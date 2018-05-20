@@ -9,12 +9,12 @@
 /* Begin PBXBuildFile section */
 		4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269A20A0D3B900614769 /* AppDelegate.swift */; };
+		4F10E7B620B16C5A00F5B09B /* IPlugEffectAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */; };
 		4F20210220A1BF1E00F22200 /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
 		4F45598720A189590095B2BD /* IPlugEffectFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4F45FDB720A70E0700FFD175 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F45FDB620A70E0700FFD175 /* ViewController.m */; };
 		4F6369A620A463AF0022C370 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697620A463AF0022C370 /* IGraphicsLice.h */; };
 		4F6369A720A463AF0022C370 /* IGraphicsAGG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697720A463AF0022C370 /* IGraphicsAGG.h */; };
 		4F6369A920A463AF0022C370 /* IGraphicsLice_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697920A463AF0022C370 /* IGraphicsLice_src.h */; };
@@ -150,6 +150,7 @@
 
 /* Begin PBXFileReference section */
 		4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
+		4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectAppViewController.swift; path = ../resources/IPlugEffectAppViewController.swift; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../resources/IPlugEffectViewController.swift; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Info.plist"; path = "../resources/IPlugEffect-iOS-Info.plist"; sourceTree = "<group>"; };
@@ -158,8 +159,6 @@
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
 		4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugEffectFramework.h; sourceTree = "<group>"; };
 		4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = drumLoop.caf; sourceTree = "<group>"; };
-		4F45FDB520A70E0700FFD175 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = ../../../IPlug/AUv3/IOSApp/ViewController.h; sourceTree = "<group>"; };
-		4F45FDB620A70E0700FFD175 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewController.m; path = ../../../IPlug/AUv3/IOSApp/ViewController.m; sourceTree = "<group>"; };
 		4F63697620A463AF0022C370 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
 		4F63697720A463AF0022C370 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
 		4F63697820A463AF0022C370 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
@@ -430,8 +429,7 @@
 			children = (
 				4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */,
 				4FB2269A20A0D3B900614769 /* AppDelegate.swift */,
-				4F45FDB520A70E0700FFD175 /* ViewController.h */,
-				4F45FDB620A70E0700FFD175 /* ViewController.m */,
+				4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */,
 				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
 			);
 			name = App;
@@ -758,9 +756,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F45FDB720A70E0700FFD175 /* ViewController.m in Sources */,
 				4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */,
 				4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */,
+				4F10E7B620B16C5A00F5B09B /* IPlugEffectAppViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
