@@ -16,7 +16,7 @@
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>
-			<string>IpeF</string>
+			<string>Ipef</string>
 			<key>type</key>
 			<string>aufx</string>
 			<key>version</key>
@@ -42,7 +42,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>IpeF</string>
+	<string>Ipef</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>CSResourcesFileMapped</key>

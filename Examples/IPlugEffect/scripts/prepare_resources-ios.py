@@ -184,6 +184,7 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['description'] = PLUG_NAME_STR
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['manufacturer'] = PLUG_MFR_UID
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['factoryFunction'] = "IPlugEffectViewController"
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['name'] = PLUG_MFR_NAME_STR + ": " + PLUG_NAME_STR
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = PLUG_UID
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMP_TYPE

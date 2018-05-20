@@ -13,7 +13,7 @@
 		4F10E7BD20B1713000F5B09B /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
 		4F10E7BE20B17E4E00F5B09B /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */; };
-		4F10E7C420B189B100F5B09B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F10E7C320B189B100F5B09B /* AudioToolbox.framework */; };
+		4F10E7CA20B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
@@ -152,8 +152,9 @@
 		4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectAppViewController.swift; path = ../resources/IPlugEffectAppViewController.swift; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-MainInterface.storyboard"; path = "../resources/IPlugEffect-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C120B1880700F5B09B /* IPlugEffect-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IPlugEffect-Bridging-Header.h"; sourceTree = "<group>"; };
-		4F10E7C320B189B100F5B09B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
 		4F10E7C520B189DD00F5B09B /* IPlugEffect-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IPlugEffect-iOS.entitlements"; sourceTree = "<group>"; };
+		4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "IPlugEffectViewController+AUAudioUnitFactory.swift"; path = "../resources/IPlugEffectViewController+AUAudioUnitFactory.swift"; sourceTree = "<group>"; };
+		4F10E7CB20B191EA00F5B09B /* IPlugEffectFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugEffectFramework.h; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../resources/IPlugEffectViewController.swift; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Info.plist"; path = "../resources/IPlugEffect-iOS-Info.plist"; sourceTree = "<group>"; };
@@ -275,7 +276,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				91236D6A1B08F52E00734C5E /* IPlugEffectFramework.framework in Frameworks */,
-				4F10E7C420B189B100F5B09B /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,7 +300,6 @@
 		4F3E0F9B20A0C64100A9C2BE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4F10E7C320B189B100F5B09B /* AudioToolbox.framework */,
 				4F63697420A463AF0022C370 /* IGraphics */,
 				4F8028BE20A24F97003A66EC /* NanoVG */,
 				4FFF102F20A0E54C00D3092F /* WDL */,
@@ -391,8 +390,10 @@
 		4F67D51620A121F60061FB8E /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				4F10E7C120B1880700F5B09B /* IPlugEffect-Bridging-Header.h */,
 				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
+				4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
+				4F10E7CB20B191EA00F5B09B /* IPlugEffectFramework.h */,
+				4F10E7C120B1880700F5B09B /* IPlugEffect-Bridging-Header.h */,
 				4F2020F620A1B2B500F22200 /* scripts */,
 				4FB2269520A0D39C00614769 /* App */,
 				4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */,
@@ -486,8 +487,8 @@
 		4FFF105220A0E56400D3092F /* AUv3 */ = {
 			isa = PBXGroup;
 			children = (
-				4FFF105420A0E57000D3092F /* IPlugAUAudioUnit.h */,
 				4FFF105320A0E57000D3092F /* IPlugAUAudioUnit.mm */,
+				4FFF105420A0E57000D3092F /* IPlugAUAudioUnit.h */,
 				4FFF105920A0E57100D3092F /* IPlugAUv3.h */,
 				4FFF105820A0E57100D3092F /* IPlugAUv3.mm */,
 				4FFF105520A0E57100D3092F /* BufferedAudioBus.hpp */,
@@ -514,9 +515,9 @@
 			isa = PBXGroup;
 			children = (
 				4FFF108420A1036200D3092F /* config.h */,
+				4FFF108620A1036200D3092F /* IPlugEffect_controls.h */,
 				4FFF108820A1036200D3092F /* IPlugEffect.h */,
 				4FFF108720A1036200D3092F /* IPlugEffect.cpp */,
-				4FFF108620A1036200D3092F /* IPlugEffect_controls.h */,
 				4FFF108520A1036200D3092F /* IPlugEffect_editor.cpp */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
@@ -802,6 +803,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F10E7BE20B17E4E00F5B09B /* SimplePlayEngine.swift in Sources */,
+				4F10E7CA20B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -31,6 +31,8 @@
 				<dict>
 					<key>description</key>
 					<string>IPlugEffect</string>
+					<key>factoryFunction</key>
+					<string>IPlugEffectViewController</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
