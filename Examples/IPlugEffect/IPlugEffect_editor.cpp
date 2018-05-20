@@ -1,4 +1,4 @@
-#if IPLUG_EDITOR
+#if IPLUG_EDITOR && !defined NO_IGRAPHICS
 #include "IControls.h"
 #include "IVKeyboardControl.h"
 #include "IVDropDownListControl.h"
