@@ -50,10 +50,10 @@
 				</dict>
 			</array>
 		</dict>
+		<key>NSExtensionMainStoryboard</key>
+		<string>IPlugEffect-iOS-MainInterface</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
-		<key>NSExtensionPrincipalClass</key>
-		<string>IPlugViewController</string>
 	</dict>
 </dict>
 </plist>

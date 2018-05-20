@@ -11,7 +11,7 @@
         <!--App View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="AppViewController" id="BYZ-38-t0r" userLabel="App View Controller" customClass="ViewController" sceneMemberID="viewController">
+                <viewController title="AppViewController" id="BYZ-38-t0r" userLabel="App View Controller" customClass="IPlugEffectAppViewController" customModule="IPlugEffect" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -20,7 +20,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <containerView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oZU-Ig-hQr">
+                            <containerView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oZU-Ig-hQr" userLabel="auContainerView">
                                 <rect key="frame" x="0.0" y="69" width="1024" height="699"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </containerView>
@@ -44,8 +44,8 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="auContainerView" destination="oZU-Ig-hQr" id="gDh-WB-t3u"/>
-                        <outlet property="playButton" destination="awX-J2-WjW" id="yBe-iR-A9Z"/>
+                        <outlet property="auContainerView" destination="oZU-Ig-hQr" id="VoH-eJ-TP6"/>
+                        <outlet property="playButton" destination="awX-J2-WjW" id="sNj-SC-wse"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

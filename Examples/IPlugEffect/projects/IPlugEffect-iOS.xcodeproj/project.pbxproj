@@ -10,7 +10,8 @@
 		4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269A20A0D3B900614769 /* AppDelegate.swift */; };
 		4F10E7B620B16C5A00F5B09B /* IPlugEffectAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */; };
-		4F20210220A1BF1E00F22200 /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
+		4F10E7BA20B16CD300F5B09B /* IPlugEffect-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7B820B16CCF00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */; };
+		4F10E7BD20B1713000F5B09B /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
@@ -151,6 +152,7 @@
 /* Begin PBXFileReference section */
 		4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimplePlayEngine.swift; path = ../../../IPlug/AUv3/IOSApp/SimplePlayEngine.swift; sourceTree = "<group>"; };
 		4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectAppViewController.swift; path = ../resources/IPlugEffectAppViewController.swift; sourceTree = "<group>"; };
+		4F10E7B820B16CCF00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-MainInterface.storyboard"; path = "../resources/IPlugEffect-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugEffectViewController.swift; path = ../resources/IPlugEffectViewController.swift; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Info.plist"; path = "../resources/IPlugEffect-iOS-Info.plist"; sourceTree = "<group>"; };
@@ -416,6 +418,7 @@
 				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
 				4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */,
 				4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */,
+				4F10E7B820B16CCF00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */,
 				4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */,
 				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
 				4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */,
@@ -728,6 +731,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F10E7BA20B16CD300F5B09B /* IPlugEffect-iOS-MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -775,6 +779,7 @@
 				4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
+				4F10E7BD20B1713000F5B09B /* IPlugEffectViewController.swift in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
 				4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
@@ -790,7 +795,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F20210220A1BF1E00F22200 /* IPlugEffectViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1171,6 +1175,7 @@
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
 				);
+				IBSC_FLATTEN_NIBS = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "../build-ios";
@@ -1208,6 +1213,7 @@
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
 				);
+				IBSC_FLATTEN_NIBS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "../build-ios";

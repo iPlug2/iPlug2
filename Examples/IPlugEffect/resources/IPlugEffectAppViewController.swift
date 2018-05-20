@@ -1,6 +1,5 @@
 import UIKit
 import AudioToolbox
-import Foundation
 import IPlugEffectFramework
 
 func fourCharCodeFrom(string : String) -> FourCharCode
@@ -14,10 +13,11 @@ func fourCharCodeFrom(string : String) -> FourCharCode
 }
 
 class IPlugEffectAppViewController: UIViewController {
-  @IBOutlet var playButton: UIButton!
-  @IBOutlet var auContainerView: UIView!
+  @IBOutlet weak var playButton: UIButton!
+  @IBOutlet weak var auContainerView: UIView!
+  
   var playEngine: SimplePlayEngine!
-  var mPlugViewController: UIViewController!
+  var mAudioUnitViewController: UIViewController!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -28,7 +28,7 @@ class IPlugEffectAppViewController: UIViewController {
 
     var desc = AudioComponentDescription()
     desc.componentType = kAudioUnitType_Effect
-    desc.componentSubType = fourCharCodeFrom(string: "IpeF") //TODO: hardcoded!
+    desc.componentSubType = fourCharCodeFrom(string: "Ipef") //TODO: hardcoded!
     desc.componentManufacturer = fourCharCodeFrom(string: "Acme") //TODO: hardcoded!
     desc.componentFlags = 0
     desc.componentFlagsMask = 0
@@ -36,8 +36,7 @@ class IPlugEffectAppViewController: UIViewController {
     AUAudioUnit.registerSubclass(IPlugAUAudioUnit.self, as: desc, name:"iPlug: Local IPlugEffect", version: UInt32.max)
 
     playEngine.selectAudioUnitWithComponentDescription(desc) {
-    // This is an asynchronous callback when complete. Finish audio unit setup.
-
+      //
     }
   }
 
@@ -45,21 +44,16 @@ class IPlugEffectAppViewController: UIViewController {
     let builtInPlugInsURL = Bundle.main.builtInPlugInsURL!
     let pluginURL = builtInPlugInsURL.appendingPathComponent("IPlugEffectAppExtension.appex")
     let appExtensionBundle = Bundle(url: pluginURL)
-
-//    mPlugViewController = initWithNibName: "IPlugViewController-ios" bundle: appExtensionBundle as! IPlugViewController
     
-//    let storyboard = UIStoryboard(name: "IPlugEffect-iOS-AUv3", bundle: appExtensionBundle)
-//    mPlugViewController = storyboard.instantiateViewController(withIdentifier: "ViewController") as! IPlugViewController
+    let storyboard = UIStoryboard(name: "IPlugEffect-iOS-MainInterface", bundle: appExtensionBundle)
+    mAudioUnitViewController = storyboard.instantiateInitialViewController();
 
-//    let storyboard = UIStoryboard(name: "IPlugViewController", bundle: appExtensionBundle)
-//    mPlugViewController = storyboard.instantiateInitialViewController() as! IPlugViewController
-    
-    if let view = mPlugViewController.view {
-      addChildViewController(mPlugViewController)
+    if let view = mAudioUnitViewController.view {
+      addChildViewController(mAudioUnitViewController)
       view.frame = auContainerView.bounds
 
       auContainerView.addSubview(view)
-      mPlugViewController.didMove(toParentViewController: self)
+      mAudioUnitViewController.didMove(toParentViewController: self)
     }
   }
 

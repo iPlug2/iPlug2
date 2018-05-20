@@ -69,8 +69,8 @@
       launchAutomaticallySubstyle = "2">
       <RemoteRunnable
          runnableDebuggingMode = "0"
-         BundleIdentifier = "com.kymatica.AUM"
-         RemotePath = "/var/containers/Bundle/Application/491905C7-65C3-4E8D-B5BA-9963A30AE8C8/AUM.app">
+         BundleIdentifier = "com.apple.mobilegarageband"
+         RemotePath = "/var/containers/Bundle/Application/74C93F51-F99D-4B44-96B7-AB28FB694382/MobileGarageBand.app">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
