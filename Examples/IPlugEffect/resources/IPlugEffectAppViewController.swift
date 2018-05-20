@@ -2,14 +2,16 @@ import UIKit
 import AudioToolbox
 import IPlugEffectFramework
 
-func fourCharCodeFrom(string : String) -> FourCharCode
-{
-  assert(string.characters.count == 4, "String length must be 4")
-  var result : FourCharCode = 0
-  for char in string.utf16 {
-    result = (result << 8) + FourCharCode(char)
+// thanks audiokit
+public func fourCC(_ string: String) -> UInt32 {
+  let utf8 = string.utf8
+  precondition(utf8.count == 4, "Must be a 4 char string")
+  var out: UInt32 = 0
+  for char in utf8 {
+    out <<= 8
+    out |= UInt32(char)
   }
-  return result
+  return out
 }
 
 class IPlugEffectAppViewController: UIViewController {
@@ -28,16 +30,15 @@ class IPlugEffectAppViewController: UIViewController {
 
     var desc = AudioComponentDescription()
     desc.componentType = kAudioUnitType_Effect
-    desc.componentSubType = fourCharCodeFrom(string: "Ipef") //TODO: hardcoded!
-    desc.componentManufacturer = fourCharCodeFrom(string: "Acme") //TODO: hardcoded!
+    desc.componentSubType = fourCC("Ipef") //TODO: hardcoded!
+    desc.componentManufacturer = fourCC("Acme") //TODO: hardcoded!
     desc.componentFlags = 0
     desc.componentFlagsMask = 0
 
     AUAudioUnit.registerSubclass(IPlugAUAudioUnit.self, as: desc, name:"iPlug: Local IPlugEffect", version: UInt32.max)
 
     playEngine.selectAudioUnitWithComponentDescription(desc) {
-      let audioUnit = self.playEngine.testAudioUnit as! IPlugAUAudioUnit
-      self.mAudioUnitViewController.audioUnit = audioUnit
+      self.mAudioUnitViewController.audioUnit = self.playEngine.testAudioUnit
     }
   }
 

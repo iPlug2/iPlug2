@@ -10,3 +10,4 @@ FOUNDATION_EXPORT const unsigned char IPlugEffectFramework_VersionString[];
 #import <IPlugEffectFramework/IPlugAUAudioUnit.h>
 
 @class IPlugEffectViewController;
+
