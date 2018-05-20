@@ -159,6 +159,7 @@ void IGraphicsIOS::CloseWindow()
     
     if (view->mGraphics)
     {
+      [view killTimer];
       [view removeFromSuperview];   // Releases.
     }
   }

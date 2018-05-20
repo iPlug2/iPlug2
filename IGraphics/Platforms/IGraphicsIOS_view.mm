@@ -16,27 +16,50 @@
   r.size.width = (float) pGraphics->WindowWidth();
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
-//  [self setBoundsSize:CGSizeMake(pGraphics->Width(), pGraphics->Height())];
 
-//  double sec = 1.0 / (double) pGraphics->FPS();
-//  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
-//  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
+  self.layer.opaque = YES;
   self.layer.contentsScale = [UIScreen mainScreen].scale;
   
-  // Initializes the display link.
-  _displayLink = [CADisplayLink displayLinkWithTarget:self
+#if DISPLAY_LINK
+  mDisplayLink = [CADisplayLink displayLinkWithTarget:self
                                              selector:@selector(render)];
-  [_displayLink addToRunLoop:[NSRunLoop mainRunLoop]
+  [mDisplayLink addToRunLoop:[NSRunLoop mainRunLoop]
                      forMode:NSRunLoopCommonModes];
-  
+#else
+  double sec = 1.0 / (double) pGraphics->FPS();
+  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
+  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
+#endif
   
   return self;
 }
 
+#if DISPLAY_LINK
 - (void)dealloc
 {
-  [_displayLink invalidate];
+  [mDisplayLink invalidate];
   [super dealloc];
+}
+#else
+- (void) killTimer
+{
+  [mTimer invalidate];
+  mTimer = 0;
+}
+#endif
+
+- (void) onTimer: (NSTimer*) pTimer
+{
+#ifdef IGRAPHICS_NANOVG
+  [self render];
+#else
+  IRECT r;
+
+  if (mGraphics->IsDirty(r))
+  {
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+  }
+#endif
 }
 
 - (void)render
@@ -58,23 +81,12 @@
 
 - (BOOL) isOpaque
 {
-  return mGraphics ? YES : NO;
+  return NO;
 }
 
 - (BOOL) acceptsFirstResponder
 {
   return YES;
-}
-
-//- (void) onTimer: (NSTimer*) pTimer
-//{
-//
-//}
-
-- (void) killTimer
-{
-//  [mTimer invalidate];
-//  mTimer = 0;
 }
 
 - (void) removeFromSuperview

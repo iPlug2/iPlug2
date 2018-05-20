@@ -50,16 +50,15 @@ public:
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
-  
+
+  void* mLayer = nullptr;
+
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
   bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+
 private:
   void* mView = nullptr;
-  void* mLayer = nullptr;
-
   WDL_String mBundleID;
-
-  bool mTabletInput = false;
 };
