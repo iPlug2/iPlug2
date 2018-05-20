@@ -5,7 +5,7 @@
 import UIKit
 import CoreAudioKit
 
-class IPlugEffectViewController: AUViewController {
+public class IPlugEffectViewController: AUViewController {
   @IBOutlet weak var customView: UIView!
   
   public var audioUnit: IPlugAUAudioUnit? {
@@ -13,29 +13,28 @@ class IPlugEffectViewController: AUViewController {
     didSet {
       DispatchQueue.main.async {
         if self.isViewLoaded {
+          self.connectViewWithAU()
         }
       }
     }
   }
   
-  override func viewDidLoad() {
+  // this is where it happens when auv3 is loaded by a host
+  override public func viewDidLoad() {
     super.viewDidLoad()
     
-    // TODO: load and attach iGraphics subview
+    guard audioUnit != nil else { return }
+
+    connectViewWithAU()
   }
   
-  override func didReceiveMemoryWarning() {
+  override public func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
   }
-}
-
-//I would like to move this to the file IPlugEffectViewController+AUAudioUnitFactory but there is a problem because it doesn't find IPlugEffectViewController
-extension IPlugEffectViewController: AUAudioUnitFactory {
-
-  public override func beginRequest(with context: NSExtensionContext) { }
-
-  public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
-    audioUnit = try IPlugAUAudioUnit(componentDescription: componentDescription, options: [])
-    return audioUnit!
+  
+  func connectViewWithAU() {
+    // TODO: load and attach iGraphics subview
+    guard let paramTree = audioUnit?.parameterTree else { return }
+    
   }
 }

@@ -7,23 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2269A20A0D3B900614769 /* AppDelegate.swift */; };
 		4F10E7B620B16C5A00F5B09B /* IPlugEffectAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */; };
-		4F10E7BD20B1713000F5B09B /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
-		4F10E7BE20B17E4E00F5B09B /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */; };
 		4F10E7CA20B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */; };
+		4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
+		4F10E7CE20B1A69900F5B09B /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
 		4F45598720A189590095B2BD /* IPlugEffectFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3E0F9220A0C41D00A9C2BE /* IPlugEffectFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4F6369A620A463AF0022C370 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697620A463AF0022C370 /* IGraphicsLice.h */; };
-		4F6369A720A463AF0022C370 /* IGraphicsAGG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697720A463AF0022C370 /* IGraphicsAGG.h */; };
-		4F6369A920A463AF0022C370 /* IGraphicsLice_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697920A463AF0022C370 /* IGraphicsLice_src.h */; };
-		4F6369AA20A463AF0022C370 /* IGraphicsCairo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697A20A463AF0022C370 /* IGraphicsCairo.h */; };
 		4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */; };
-		4F6369AF20A463AF0022C370 /* IGraphicsAGG_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697F20A463AF0022C370 /* IGraphicsAGG_src.h */; };
 		4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */; };
 		4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */; };
 		4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699320A463AF0022C370 /* IGraphicsUtilites.h */; };
@@ -37,10 +31,8 @@
 		4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699E20A463AF0022C370 /* IControls.cpp */; };
 		4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699F20A463AF0022C370 /* IGraphicsStructs.h */; };
 		4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A020A463AF0022C370 /* IGraphicsConstants.h */; };
-		4F6369CF20A463AF0022C370 /* IGraphicsLiveEdit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */; };
 		4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A220A463AF0022C370 /* IGraphics_select.h */; };
 		4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A320A463AF0022C370 /* IGraphics_include_in_plug_src.h */; };
-		4F6369D220A463AF0022C370 /* IGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A420A463AF0022C370 /* IGraphics.h */; };
 		4F6369D320A463AF0022C370 /* IGraphicsAutoGUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A520A463AF0022C370 /* IGraphicsAutoGUI.h */; };
 		4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */; };
 		4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699020A463AF0022C370 /* IGraphicsIOS.h */; };
@@ -72,10 +64,8 @@
 		4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105320A0E57000D3092F /* IPlugAUAudioUnit.mm */; };
 		4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105420A0E57000D3092F /* IPlugAUAudioUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105520A0E57100D3092F /* BufferedAudioBus.hpp */; };
-		4FFF105E20A0E57100D3092F /* IPlugViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105620A0E57100D3092F /* IPlugViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105820A0E57100D3092F /* IPlugAUv3.mm */; };
 		4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105920A0E57100D3092F /* IPlugAUv3.h */; };
-		4FFF106220A0E57100D3092F /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugViewController.mm */; };
 		4FFF106A20A0E58600D3092F /* IPlugGraphicsDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106420A0E58600D3092F /* IPlugGraphicsDelegate.h */; };
 		4FFF106C20A0E58600D3092F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */; };
 		4FFF106D20A0E58600D3092F /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */; };
@@ -544,8 +534,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F45598720A189590095B2BD /* IPlugEffectFramework.h in Headers */,
+				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
-				4FFF105E20A0E57100D3092F /* IPlugViewController.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,
 				4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */,
 				4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */,
@@ -555,7 +545,6 @@
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
 				4F6369C820A463AF0022C370 /* IVMeterControl.h in Headers */,
 				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
-				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4FFF108D20A1036200D3092F /* IPlugEffect.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
@@ -570,9 +559,7 @@
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
 				4F6369CA20A463AF0022C370 /* IVKeyboardControl.h in Headers */,
 				4F6369C520A463AF0022C370 /* IControls.h in Headers */,
-				4F6369CF20A463AF0022C370 /* IGraphicsLiveEdit.h in Headers */,
 				4F8028C620A24FA9003A66EC /* stb_image.h in Headers */,
-				4F6369A720A463AF0022C370 /* IGraphicsAGG.h in Headers */,
 				4FFF107820A0E5A500D3092F /* heapbuf.h in Headers */,
 				4FFF108B20A1036200D3092F /* IPlugEffect_controls.h in Headers */,
 				4FFF104F20A0E55A00D3092F /* IPlugLogger.h in Headers */,
@@ -580,12 +567,9 @@
 				4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */,
 				4FFF106F20A0E58600D3092F /* IPlugDelegate_select.h in Headers */,
 				4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */,
-				4F6369AF20A463AF0022C370 /* IGraphicsAGG_src.h in Headers */,
 				4F8028C820A24FA9003A66EC /* stb_truetype.h in Headers */,
 				4FFF107B20A0E5A500D3092F /* mutex.h in Headers */,
-				4F6369AA20A463AF0022C370 /* IGraphicsCairo.h in Headers */,
 				4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */,
-				4F6369A620A463AF0022C370 /* IGraphicsLice.h in Headers */,
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
 				4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */,
@@ -602,8 +586,6 @@
 				4FFF105020A0E55A00D3092F /* IPlugBase.h in Headers */,
 				4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */,
 				4FFF104620A0E55A00D3092F /* IPlug_include_in_plug_hdr.h in Headers */,
-				4F6369D220A463AF0022C370 /* IGraphics.h in Headers */,
-				4F6369A920A463AF0022C370 /* IGraphicsLice_src.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,8 +754,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */,
-				4F02B67C20A1991E00C86910 /* SimplePlayEngine.swift in Sources */,
 				4F10E7B620B16C5A00F5B09B /* IPlugEffectAppViewController.swift in Sources */,
+				4F10E7CE20B1A69900F5B09B /* SimplePlayEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,11 +766,10 @@
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F6369C720A463AF0022C370 /* IVMeterControl.cpp in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
-				4FFF106220A0E57100D3092F /* IPlugViewController.mm in Sources */,
 				4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
-				4F10E7BD20B1713000F5B09B /* IPlugEffectViewController.swift in Sources */,
+				4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
 				4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
@@ -802,7 +783,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F10E7BE20B17E4E00F5B09B /* SimplePlayEngine.swift in Sources */,
 				4F10E7CA20B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -878,7 +858,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "IPlugEffect-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -926,7 +905,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "IPlugEffect-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -974,8 +952,8 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -988,7 +966,6 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1035,8 +1012,8 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -1048,7 +1025,6 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1102,9 +1078,7 @@
 				PRODUCT_NAME = IPlugEffectAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "IPlugEffect-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1148,9 +1122,7 @@
 				PRODUCT_NAME = IPlugEffectAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "IPlugEffect-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

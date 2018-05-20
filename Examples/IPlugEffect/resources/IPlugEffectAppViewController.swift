@@ -17,7 +17,7 @@ class IPlugEffectAppViewController: UIViewController {
   @IBOutlet weak var auContainerView: UIView!
   
   var playEngine: SimplePlayEngine!
-  var mAudioUnitViewController: UIViewController!
+  var mAudioUnitViewController: IPlugEffectViewController!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -36,7 +36,8 @@ class IPlugEffectAppViewController: UIViewController {
     AUAudioUnit.registerSubclass(IPlugAUAudioUnit.self, as: desc, name:"iPlug: Local IPlugEffect", version: UInt32.max)
 
     playEngine.selectAudioUnitWithComponentDescription(desc) {
-      //
+      let audioUnit = self.playEngine.testAudioUnit as! IPlugAUAudioUnit
+      self.mAudioUnitViewController.audioUnit = audioUnit
     }
   }
 
@@ -46,7 +47,7 @@ class IPlugEffectAppViewController: UIViewController {
     let appExtensionBundle = Bundle(url: pluginURL)
     
     let storyboard = UIStoryboard(name: "IPlugEffect-iOS-MainInterface", bundle: appExtensionBundle)
-    mAudioUnitViewController = storyboard.instantiateInitialViewController();
+    mAudioUnitViewController = storyboard.instantiateInitialViewController() as! IPlugEffectViewController
 
     if let view = mAudioUnitViewController.view {
       addChildViewController(mAudioUnitViewController)
