@@ -1,8 +1,5 @@
 /*
- 
-  This is the initial app extension view controller, which is linked by IPlugEffect-iOS-MainInterface storyboard
- 
- 
+  This is the initial app extension view controller, which is referenced by IPlugEffect-iOS-MainInterface storyboard
 */
 
 import UIKit
@@ -13,6 +10,7 @@ class IPlugEffectViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    var auv3ViewController = IPlugViewController();
     
     // load and attach subview
   }
