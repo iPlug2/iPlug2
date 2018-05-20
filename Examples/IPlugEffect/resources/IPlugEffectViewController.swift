@@ -6,7 +6,6 @@ import UIKit
 import CoreAudioKit
 
 class IPlugEffectViewController: AUViewController {
-  @IBOutlet weak var slider: UISlider!
   @IBOutlet weak var customView: UIView!
   
   public var audioUnit: IPlugAUAudioUnit? {
