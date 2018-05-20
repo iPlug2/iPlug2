@@ -28,7 +28,7 @@
                         </subviews>
                     </view>
                     <connections>
-                        <outlet property="customView" destination="XMY-Zi-giM" id="MCm-Uf-inW"/>
+                        <outlet property="IGraphicsView" destination="XMY-Zi-giM" id="MCm-Uf-inW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
