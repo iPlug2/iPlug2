@@ -38,7 +38,7 @@ class IPlugEffectAppViewController: UIViewController {
     AUAudioUnit.registerSubclass(IPlugAUAudioUnit.self, as: desc, name:"iPlug: Local IPlugEffect", version: UInt32.max)
 
     playEngine.selectAudioUnitWithComponentDescription(desc) {
-      self.mAudioUnitViewController.audioUnit = self.playEngine.testAudioUnit
+      self.mAudioUnitViewController.audioUnit = self.playEngine.testAudioUnit as? IPlugAUAudioUnit
     }
   }
 
