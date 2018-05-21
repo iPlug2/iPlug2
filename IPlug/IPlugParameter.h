@@ -24,7 +24,6 @@ public:
     kFlagNegateDisplay    = 0x4,
     kFlagSignDisplay      = 0x8,
     kFlagMeta             = 0x10,
-    kFlagOverview         = 0x12
   };
   
   typedef std::function<void(double, WDL_String&)> DisplayFunc;
@@ -167,7 +166,6 @@ public:
   bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }
   bool GetSignDisplay() const { return mFlags & kFlagSignDisplay; }
   bool GetMeta() const { return mFlags & kFlagMeta; }
-  bool GetOverview() const { return mFlags & kFlagOverview; }
 
   void GetJSON(WDL_String& json, int idx) const;
 

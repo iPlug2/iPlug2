@@ -40,6 +40,12 @@ IPlugBase::~IPlugBase()
   TRACE;
 }
 
+void IPlugBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results)
+{
+  for (int i = 0; i < count; i++)
+    results.Add(i);
+}
+
 void IPlugBase::CreateTimer()
 {
   mTimer = Timer::Create(*this, 20); // TODO: CONSTANT

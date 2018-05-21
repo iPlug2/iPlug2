@@ -60,6 +60,11 @@ public:
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
   virtual void OnHostIdentified() {}
+  
+  /** Called by AUv3 plug-ins to get the "overview parameters"
+   * @param count How many overview parameters
+   * @param results You should populate this typed buf with the indexes of the overview parameters if the host wants to show count number of controls */
+  virtual void OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results);
 
   /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
@@ -82,7 +87,7 @@ public:
 
   /** Override this method to get an "idle"" call on the main thread */
   virtual void OnIdle() {}
-  
+    
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugBase.cpp;
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
