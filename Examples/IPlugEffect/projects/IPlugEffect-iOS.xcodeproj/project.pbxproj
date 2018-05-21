@@ -396,12 +396,10 @@
 			isa = PBXGroup;
 			children = (
 				4FB2269520A0D39C00614769 /* Standalone App */,
-				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
-				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
+				4F2020F620A1B2B500F22200 /* scripts */,
 				4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
 				4F048C9620B1E74F002052E7 /* IPlugEffectFramework.h */,
 				4F10E7C120B1880700F5B09B /* IPlugEffect-Bridging-Header.h */,
-				4F2020F620A1B2B500F22200 /* scripts */,
 				4FFF108220A0FB1400D3092F /* common-ios.xcconfig */,
 				4FFF108320A0FCD900D3092F /* IPlugEffect-ios.xcconfig */,
 			);
@@ -539,6 +537,8 @@
 				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IPlugEffect.h */,
 				4FFF108720A1036200D3092F /* IPlugEffect.cpp */,
+				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
+				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
 				91D3DA171B023C1E008FFFBB /* Products */,

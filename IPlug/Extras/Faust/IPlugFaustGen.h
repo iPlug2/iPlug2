@@ -193,7 +193,7 @@ public:
    * @return \c true on success */
   static bool CompileCPP();
 
-  void EnableTimer(bool enable);
+  void EnableTimer(bool enable) override;
 
   //ITimerCallback
   void OnTimer(Timer& timer) override;

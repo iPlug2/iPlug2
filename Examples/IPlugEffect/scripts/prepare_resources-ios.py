@@ -155,10 +155,10 @@ def main():
   else:
     COMP_TYPE = kAudioUnitType_Effect
 
-  if PLUG_HAS_UI:
-    NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit-UI"
-  else:
-    NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit"
+#  if PLUG_HAS_UI:
+  NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit-UI"
+#  else:
+#    NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit"
 
   plistpath = projectpath + "/resources/" + BUNDLE_NAME + "-iOS-AUv3-Info.plist"
   auv3 = plistlib.readPlist(plistpath)
