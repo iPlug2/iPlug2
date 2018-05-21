@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <stdint.h>
+#include <cstring>
 #include "ptrlist.h"
 
 #include "IPlugPlatform.h"
