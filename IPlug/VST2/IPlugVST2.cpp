@@ -69,6 +69,8 @@ IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     mEditRect.right = c.plugWidth;
     mEditRect.bottom = c.plugHeight;
   }
+  
+  CreateTimer();
 }
 
 void IPlugVST2::BeginInformHostOfParamChange(int idx)

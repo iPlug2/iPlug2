@@ -1757,6 +1757,8 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   _SetBlockSize(DEFAULT_BLOCK_SIZE);
   ResizeScratchBuffers();
+  
+  CreateTimer();
 }
 
 IPlugAU::~IPlugAU()

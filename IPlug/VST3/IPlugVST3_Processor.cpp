@@ -53,8 +53,9 @@ IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConf
   }
   
   // Make sure the process context is predictably initialised in case it is used before process is called
-  
   memset(&mProcessContext, 0, sizeof(ProcessContext));
+  
+  CreateTimer();
 }
 
 IPlugVST3Processor::~IPlugVST3Processor() {}

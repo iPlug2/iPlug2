@@ -98,6 +98,8 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   
   _SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("ProTools", 0); // TODO:vendor version correct?
+  
+  CreateTimer();
 }
 
 IPlugAAX::~IPlugAAX()
