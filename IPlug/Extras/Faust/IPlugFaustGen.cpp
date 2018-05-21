@@ -14,7 +14,7 @@
 
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
-bool FaustGen::sEnableTimer = false;
+bool FaustGen::sAutoRecompile = false;
 map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
 Timer* FaustGen::sTimer = nullptr;
@@ -467,7 +467,7 @@ FaustGen::~FaustGen()
 {
   if (--sFaustGenCounter <= 0)
   {
-    EnableTimer(false);
+    SetAutoRecompile(false);
   }
 
   FreeDSP();
@@ -596,7 +596,7 @@ void FaustGen::OnTimer(Timer& timer)
   }
 }
 
-void FaustGen::EnableTimer(bool enable)
+void FaustGen::SetAutoRecompile(bool enable)
 {
   if(enable)
   {
@@ -612,7 +612,7 @@ void FaustGen::EnableTimer(bool enable)
     }
   }
   
-  sEnableTimer = enable;
+  sAutoRecompile = enable;
 }
 
 #endif // #ifndef FAUST_COMPILED

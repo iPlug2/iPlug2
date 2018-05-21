@@ -16,7 +16,7 @@
 #if defined OS_MAC || defined OS_LINUX
 #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
 #else
-#define DEFAULT_FAUST_LIBRARY_PATH //TODO
+#define DEFAULT_FAUST_LIBRARY_PATH "" //TODO
 #endif
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
@@ -29,7 +29,7 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<>::RateToFactor(rate));
+      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate));
     
     mName.Set(name);
   }
@@ -55,6 +55,8 @@ public:
    * @return \c true on success */
   static bool CompileCPP() { return true; }
 
+  virtual void SetAutoRecompile(bool enable) {}
+  
   void FreeDSP()
   {
     DELETE_NULL(mDSP);

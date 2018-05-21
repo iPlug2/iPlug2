@@ -193,7 +193,7 @@ public:
    * @return \c true on success */
   static bool CompileCPP();
 
-  void EnableTimer(bool enable) override;
+  void SetAutoRecompile(bool enable) override;
 
   //ITimerCallback
   void OnTimer(Timer& timer) override;
@@ -203,7 +203,7 @@ private:
   Factory* mFactory = nullptr;
   static Timer* sTimer;
   static int sFaustGenCounter;
-  static bool sEnableTimer;
+  static bool sAutoRecompile;
 };
 
 #endif // #ifndef FAUST_COMPILED
