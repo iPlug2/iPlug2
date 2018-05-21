@@ -15,6 +15,10 @@
 		4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
 		4F10E7CE20B1A69900F5B09B /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
 		4F10E7D020B1CB5800F5B09B /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
+		4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698020A463AF0022C370 /* IGraphicsNanoVG.cpp */; };
+		4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */; };
+		4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */; };
+		4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8028BB20A24DFD003A66EC /* nanovg_mtl.m */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
@@ -48,6 +52,13 @@
 		4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C520A24FA9003A66EC /* fontstash.h */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
 		4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */; };
+		4FF3206720B2C77700269268 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205A20B2C75000269268 /* knob-rotate.png */; };
+		4FF3206820B2C77700269268 /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205B20B2C75000269268 /* BefacoBigKnob.svg */; };
+		4FF3206920B2C77700269268 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205C20B2C75000269268 /* knob.png */; };
+		4FF3206A20B2C77700269268 /* knob@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205D20B2C75000269268 /* knob@2x.png */; };
+		4FF3206B20B2C77700269268 /* knob-rotate@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205E20B2C75000269268 /* knob-rotate@2x.png */; };
+		4FF3206C20B2C77700269268 /* 23.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205F20B2C75000269268 /* 23.svg */; };
+		4FF3206E20B2C84500269268 /* IPlugPathsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3206D20B2C84500269268 /* IPlugPathsIOS.mm */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
 		4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103120A0E55900D3092F /* IPlugQueue.h */; };
 		4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103220A0E55900D3092F /* IPlugParameter.cpp */; };
@@ -197,7 +208,6 @@
 		4F6369A420A463AF0022C370 /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics.h; sourceTree = "<group>"; };
 		4F6369A520A463AF0022C370 /* IGraphicsAutoGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAutoGUI.h; sourceTree = "<group>"; };
 		4F6369D820A464060022C370 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
-		4F6369D920A464470022C370 /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
 		4F6369E420A466320022C370 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
 		4F6369E520A466320022C370 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
 		4F8028BB20A24DFD003A66EC /* nanovg_mtl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nanovg_mtl.m; path = ../../../Dependencies/IGraphics/MetalNanoVG/src/nanovg_mtl.m; sourceTree = "<group>"; };
@@ -211,6 +221,14 @@
 		4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Framework-Info.plist"; path = "../resources/IPlugEffect-iOS-Framework-Info.plist"; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-launchScreen.storyboard"; path = "../resources/IPlugEffect-iOS-launchScreen.storyboard"; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
+		4FF3204920B2BC4C00269268 /* IPlugPaths.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
+		4FF3205A20B2C75000269268 /* knob-rotate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "knob-rotate.png"; sourceTree = "<group>"; };
+		4FF3205B20B2C75000269268 /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = BefacoBigKnob.svg; sourceTree = "<group>"; };
+		4FF3205C20B2C75000269268 /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = knob.png; sourceTree = "<group>"; };
+		4FF3205D20B2C75000269268 /* knob@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "knob@2x.png"; sourceTree = "<group>"; };
+		4FF3205E20B2C75000269268 /* knob-rotate@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "knob-rotate@2x.png"; sourceTree = "<group>"; };
+		4FF3205F20B2C75000269268 /* 23.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 23.svg; sourceTree = "<group>"; };
+		4FF3206D20B2C84500269268 /* IPlugPathsIOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPathsIOS.mm; path = ../../../IPlug/IPlugPathsIOS.mm; sourceTree = "<group>"; };
 		4FFF103020A0E55900D3092F /* IPlugConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugConstants.h; path = ../../../IPlug/IPlugConstants.h; sourceTree = "<group>"; };
 		4FFF103120A0E55900D3092F /* IPlugQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugQueue.h; path = ../../../IPlug/IPlugQueue.h; sourceTree = "<group>"; };
 		4FFF103220A0E55900D3092F /* IPlugParameter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugParameter.cpp; path = ../../../IPlug/IPlugParameter.cpp; sourceTree = "<group>"; };
@@ -336,7 +354,6 @@
 				4F63697B20A463AF0022C370 /* IGraphicsAGG_src.cpp */,
 				4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */,
 				4F63698020A463AF0022C370 /* IGraphicsNanoVG.cpp */,
-				4F6369D920A464470022C370 /* IGraphicsNanoVG_src.m */,
 			);
 			path = Drawing;
 			sourceTree = "<group>";
@@ -378,13 +395,13 @@
 		4F67D51620A121F60061FB8E /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4FB2269520A0D39C00614769 /* Standalone App */,
 				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
 				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
 				4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
 				4F048C9620B1E74F002052E7 /* IPlugEffectFramework.h */,
 				4F10E7C120B1880700F5B09B /* IPlugEffect-Bridging-Header.h */,
 				4F2020F620A1B2B500F22200 /* scripts */,
-				4FB2269520A0D39C00614769 /* App */,
 				4FFF108220A0FB1400D3092F /* common-ios.xcconfig */,
 				4FFF108320A0FCD900D3092F /* IPlugEffect-ios.xcconfig */,
 			);
@@ -409,6 +426,7 @@
 		4F8BF48D20A12D2E0081DF0A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FF3205920B2C75000269268 /* img */,
 				4F10E7C520B189DD00F5B09B /* IPlugEffect-iOS.entitlements */,
 				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
 				4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */,
@@ -422,14 +440,28 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
-		4FB2269520A0D39C00614769 /* App */ = {
+		4FB2269520A0D39C00614769 /* Standalone App */ = {
 			isa = PBXGroup;
 			children = (
 				4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */,
 				4FB2269A20A0D3B900614769 /* AppDelegate.swift */,
 				4F10E7B520B16C5900F5B09B /* IPlugEffectAppViewController.swift */,
 			);
-			name = App;
+			name = "Standalone App";
+			sourceTree = "<group>";
+		};
+		4FF3205920B2C75000269268 /* img */ = {
+			isa = PBXGroup;
+			children = (
+				4FF3205A20B2C75000269268 /* knob-rotate.png */,
+				4FF3205B20B2C75000269268 /* BefacoBigKnob.svg */,
+				4FF3205C20B2C75000269268 /* knob.png */,
+				4FF3205D20B2C75000269268 /* knob@2x.png */,
+				4FF3205E20B2C75000269268 /* knob-rotate@2x.png */,
+				4FF3205F20B2C75000269268 /* 23.svg */,
+			);
+			name = img;
+			path = ../resources/img;
 			sourceTree = "<group>";
 		};
 		4FFF102E20A0E54400D3092F /* IPlug */ = {
@@ -454,6 +486,8 @@
 				4FFF103B20A0E55A00D3092F /* IPlugStructs.h */,
 				4FFF103D20A0E55A00D3092F /* IPlugMidi.h */,
 				4FFF103E20A0E55A00D3092F /* IPlugLogger.h */,
+				4FF3204920B2BC4C00269268 /* IPlugPaths.h */,
+				4FF3206D20B2C84500269268 /* IPlugPathsIOS.mm */,
 			);
 			name = IPlug;
 			sourceTree = "<group>";
@@ -533,6 +567,7 @@
 				4F048C9720B1E74F002052E7 /* IPlugEffectFramework.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,
+				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
 				4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */,
 				4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */,
 				4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */,
@@ -540,7 +575,6 @@
 				4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */,
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
 				4F6369C820A463AF0022C370 /* IVMeterControl.h in Headers */,
-				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
 				4FFF108D20A1036200D3092F /* IPlugEffect.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
@@ -719,7 +753,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FF3206720B2C77700269268 /* knob-rotate.png in Resources */,
+				4FF3206920B2C77700269268 /* knob.png in Resources */,
+				4FF3206820B2C77700269268 /* BefacoBigKnob.svg in Resources */,
+				4FF3206B20B2C77700269268 /* knob-rotate@2x.png in Resources */,
+				4FF3206C20B2C77700269268 /* 23.svg in Resources */,
 				4F10E7C020B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard in Resources */,
+				4FF3206A20B2C77700269268 /* knob@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -760,15 +800,20 @@
 			files = (
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F10E7D020B1CB5800F5B09B /* GenericUI.swift in Sources */,
+				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
 				4F6369C720A463AF0022C370 /* IVMeterControl.cpp in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
 				4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
 				4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */,
+				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
+				4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */,
+				4FF3206E20B2C84500269268 /* IPlugPathsIOS.mm in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
 				4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
+				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginDelegate.cpp in Sources */,
 				4FFF108C20A1036200D3092F /* IPlugEffect.cpp in Sources */,
 				4FFF104B20A0E55A00D3092F /* IPlugBase.cpp in Sources */,

@@ -549,35 +549,10 @@ public:
   /** @return A CString representing the Platform API in use e.g. "macOS" */
   virtual const char* GetPlatformAPIStr() { return ""; }
 
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-  virtual void HostPath(WDL_String& path) = 0;
-
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-  virtual void PluginPath(WDL_String& path) = 0;
-
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-  virtual void DesktopPath(WDL_String& path) = 0;
-
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-  virtual void UserHomePath(WDL_String& path) = 0;
-
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure
-   * @param isSystem Set \c true if you want to obtain the system-wide path, otherwise the path will be in the user's home folder */
-  virtual void AppSupportPath(WDL_String& path, bool isSystem = false) = 0;
-
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-  virtual void SandboxSafeAppSupportPath(WDL_String& path) = 0;
-
-  /** @param path WDL_String reference where the path will be put on success or empty string on failure
-   * @param mfrName CString to specify the manfucturer name, which will be the top level folder for .vstpreset files for this manufacturer's product
-   * @param pluginName CString to specify the plug-in name, which will be the sub folder (beneath mfrName) in which the .vstpreset files are located
-   * @param isSystem Set \c true if you want to obtain the system-wide path, otherwise the path will be in the user's home folder */
-  virtual void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem = true) { path.Set(""); }
-
   /** @param path WDL_String reference where the path will be put on success or empty string on failure
    * @param select et \c true if you want to select the item in Explorer/Finder
    * @return \c true on success (if the path was valid) */
-  virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) = 0;
+  virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) { return false; }
 
   /** Used on Windows to set the HINSTANCE handle, which allows graphics APIs to load resources from the binary. \todo doesn’t this do something on Mac too?
    * @param pInstance void pointer to the platform instance */

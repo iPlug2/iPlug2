@@ -33,15 +33,7 @@ public:
 
   void UpdateTooltips() override;
 
-  void HostPath(WDL_String& path) override;
-  void PluginPath(WDL_String& path) override;
-  void DesktopPath(WDL_String& path) override;
-  void UserHomePath(WDL_String& path) override;
-  void AppSupportPath(WDL_String& path, bool isSystem) override;
-  void SandboxSafeAppSupportPath(WDL_String& path) override;
-  void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem) override;
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;

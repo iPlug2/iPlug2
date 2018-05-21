@@ -22,6 +22,7 @@
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (CGRect) areaRect;
 - (void) endUserInput;
 - (void) onTimer: (NSTimer*) pTimer;
+- (void) killTimer;
 @end
 
 #endif //NO_IGRAPHICS

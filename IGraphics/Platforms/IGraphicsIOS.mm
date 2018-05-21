@@ -6,6 +6,7 @@
 #include "IControl.h"
 
 #include "IPlugPluginDelegate.h"
+#include "IPlugPaths.h"
 
 NSString* ToNSString(const char* cStr)
 {
@@ -81,7 +82,7 @@ bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* s
 
 bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
 {
-//  CocoaAutoReleasePool pool;
+  //  CocoaAutoReleasePool pool; TODO:
   
   const char* ext = fileName+strlen(fileName)-1;
   while (ext >= fileName && *ext != '.') --ext;
@@ -99,7 +100,7 @@ bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, con
     NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginDelegate&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
     NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
     NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-    
+
     if (pPath)
     {
       fullPath.Set([pPath UTF8String]);
@@ -178,16 +179,7 @@ void IGraphicsIOS::Resize(int w, int h, float scale)
   
   if (mView)
   {
-//    CGSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
-    
-    // Prevent animation during resize
-    // N.B. - The bounds perform scaling on the window, and so use the nominal size
-    
-//    [NSAnimationContext beginGrouping]; // Prevent animated resizing
-//    [[NSAnimationContext currentContext] setDuration:0.0];
-//    [(IGraphicsIOS_View*) mView setFrameSize: size ];
-//    [(IGraphicsIOS_View*) mView setBoundsSize:CGSizeMake(Width(), Height())];
-//    [NSAnimationContext endGrouping];
+    //TODO
     
     SetAllControlsDirty();
   }
@@ -209,51 +201,6 @@ void IGraphicsIOS::ForceEndUserEdit()
 const char* IGraphicsIOS::GetPlatformAPIStr()
 {
   return "iOS";
-}
-
-void IGraphicsIOS::HostPath(WDL_String& path)
-{
-}
-
-void IGraphicsIOS::PluginPath(WDL_String& path)
-{
-}
-
-void IGraphicsIOS::DesktopPath(WDL_String& path)
-{
-}
-
-void IGraphicsIOS::UserHomePath(WDL_String& path)
-{
-}
-
-void IGraphicsIOS::VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
-{
-}
-
-void IGraphicsIOS::AppSupportPath(WDL_String& path, bool isSystem)
-{
-  NSArray *pPaths;
-  
-  if (isSystem)
-    pPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSSystemDomainMask, YES);
-  else
-    pPaths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  
-  NSString *pApplicationSupportDirectory = [pPaths objectAtIndex:0];
-  path.Set([pApplicationSupportDirectory UTF8String]);
-}
-
-void IGraphicsIOS::SandboxSafeAppSupportPath(WDL_String& path)
-{
-  NSArray *pPaths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
-  NSString *pUserMusicDirectory = [pPaths objectAtIndex:0];
-  path.Set([pUserMusicDirectory UTF8String]);
-}
-
-bool IGraphicsIOS::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
-{
-  return (bool) false;
 }
 
 void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)

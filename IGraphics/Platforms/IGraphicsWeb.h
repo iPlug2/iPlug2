@@ -102,15 +102,6 @@ public:
   bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
-  void HostPath(WDL_String& path) override {} // TODO:
-  void PluginPath(WDL_String& path) override {} // TODO:
-  void UserHomePath(WDL_String& path) override {} // TODO:
-  void DesktopPath(WDL_String& path) override  {} // TODO:
-  void AppSupportPath(WDL_String& path, bool isSystem = false) override  {} // TODO:
-  void SandboxSafeAppSupportPath(WDL_String& path) override {} // TODO:
-  void VST3PresetsPath(WDL_String& path, bool isSystem = true) {} // TODO:
-  bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) override {} // TODO:
-
   void OnMouseEvent(val event, bool outside);
   void OnKeyEvent(val event);
   

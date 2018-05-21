@@ -44,7 +44,7 @@
 - (void) killTimer
 {
   [mTimer invalidate];
-  mTimer = 0;
+  mTimer = nullptr;
 }
 #endif
 
