@@ -47,3 +47,4 @@ Ports/*
 *.opendb
 /Dependencies/IGraphics/Libs
 /IPlug/AUv3
+*.pyc
