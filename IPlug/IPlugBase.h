@@ -65,6 +65,17 @@ public:
    * @param count How many overview parameters
    * @param results You should populate this typed buf with the indexes of the overview parameters if the host wants to show count number of controls */
   virtual void OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results);
+  
+  /** Called by AUv3 plug-in hosts to query support for multiple UI sizes
+   * @param width The width the host offers
+   * @param height The height the host offers
+   * @return return \c true if your plug-in supports these dimensions */
+  virtual bool OnHostRequestingSupportedViewConfiguration(int width, int height) { return true; }
+  
+  /** Called by some AUv3 plug-in hosts when a particular UI size is selected
+   * @param width The selected width
+   * @param height The selected height */
+  virtual void OnHostSelectedViewConfiguration(int width, int height) {}
 
   /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
