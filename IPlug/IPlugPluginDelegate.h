@@ -105,6 +105,9 @@ public:
    * @return CString for the unique group name */
   const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
   
+  /** Implemented by the API class, call this if you update parameter labels and hopefully the host should update it's displays (not applicable to all APIs) */
+  virtual void InformHostOfParameterDetailsChange() {};
+  
 #pragma mark - Parameter Change
   /** Override this method to do something when a parameter changes.
    * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD

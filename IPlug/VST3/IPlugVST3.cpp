@@ -772,6 +772,12 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
   endEdit(idx);
 }
 
+void IPlugVST3::InformHostOfParameterDetailsChange()
+{
+  FUnknownPtr<IComponentHandler>handler(componentHandler);
+  handler->restartComponent(kParamTitlesChanged);
+}
+
 void IPlugVST3::ResizeGraphics()
 {
   if (HasUI())

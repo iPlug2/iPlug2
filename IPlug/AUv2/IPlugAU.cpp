@@ -1806,6 +1806,12 @@ void IPlugAU::InformHostOfProgramChange()
   InformListeners(kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global);
 }
 
+void IPlugAU::InformHostOfParameterDetailsChange()
+{
+  InformListeners(kAudioUnitProperty_ParameterList, kAudioUnitScope_Global);
+  InformListeners(kAudioUnitProperty_ParameterInfo, kAudioUnitScope_Global);
+}
+
 void IPlugAU::PreProcess()
 {
   ITimeInfo timeInfo;

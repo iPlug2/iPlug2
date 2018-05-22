@@ -44,6 +44,8 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override {}
   
+  void InformHostOfParameterDetailsChange() override;
+  
   //IPlugProcessor
   void ResizeGraphics() override;
   void SetLatency(int samples) override;
