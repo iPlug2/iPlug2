@@ -87,7 +87,28 @@ def parse_config(projectpath):
 
   config["FULL_VER_STR"] = MAJOR_STR + "." + MINOR_STR + "." + BUGFIX_STR
 
+  fileinput.close()
+
   return config
+
+def parse_xcconfig(configFile):
+  xcconfig = {}
+
+  xcconfig['BASE_SDK'] = "macosx10.13"
+  xcconfig['DEPLOYMENT_TARGET'] = "10.7"
+
+  for line in fileinput.input(configFile, inplace=0):
+    if not "//" in line:
+      if "BASE_SDK_MAC = " in line:
+        xcconfig['BASE_SDK_MAC'] = line[len("BASE_SDK_MAC = "):-1].strip('\"')
+      if "BASE_SDK_IOS = " in line:
+        xcconfig['BASE_SDK_IOS'] = line[len("BASE_SDK_IOS = "):-1].strip('\"')
+      if "DEPLOYMENT_TARGET = " in line:
+        xcconfig['DEPLOYMENT_TARGET'] = line[len("DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
+
+  fileinput.close()
+
+  return xcconfig
 
 if __name__ == '__main__':
   import sys

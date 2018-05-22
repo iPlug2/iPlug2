@@ -13,48 +13,28 @@ projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
 sys.path.insert(0, projectpath + '/../../scripts/')
 
-from parse_config import parse_config
+from parse_config import parse_config, parse_xcconfig
 
 def main():
-  
   config = parse_config(projectpath)
-
-  print config
+  xcconfig = parse_xcconfig(projectpath + '/../../common-ios.xcconfig')
 
   CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT']
   CFBundleVersion = config['FULL_VER_STR']
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
-
-  fileinput.close()
-
-  BASE_SDK = "iphoneos11.3"
-  DEPLOYMENT_TARGET = "11"
-
-  # extract values from common.xcconfig
-  for line in fileinput.input(projectpath + "/../../common-ios.xcconfig", inplace=0):
-    if not "//" in line:
-      if "BASE_SDK_IOS = " in line:
-        BASE_SDK = string.lstrip(line, "BASE_SDK_IOS = ")
-      if "DEPLOYMENT_TARGET = " in line:
-        DEPLOYMENT_TARGET = string.lstrip(line, "DEPLOYMENT_TARGET = ")
-
-  BASE_SDK = BASE_SDK[0:-1]
-  DEPLOYMENT_TARGET = DEPLOYMENT_TARGET[0:-1]
-  DEPLOYMENT_TARGET += ".0"
-
-  LSMinimumSystemVersion = DEPLOYMENT_TARGET
+  LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
 
   print "Processing Info.plist files..."
 
 # AUDIOUNIT v3
 
   if config['PLUG_IS_INSTRUMENT']:
-    COMP_TYPE = kAudioUnitType_MusicDevice
+    COMPONENT_TYPE = kAudioUnitType_MusicDevice
   elif config['PLUG_DOES_MIDI']:
-    COMP_TYPE = kAudioUnitType_MusicEffect
+    COMPONENT_TYPE = kAudioUnitType_MusicEffect
   else:
-    COMP_TYPE = kAudioUnitType_Effect
+    COMPONENT_TYPE = kAudioUnitType_Effect
 
   NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit-UI"
 
@@ -77,7 +57,7 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['factoryFunction'] = "IPlugEffectViewController"
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = config['PLUG_UID']
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMP_TYPE
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMPONENT_TYPE
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = config['PLUG_VER_INT']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]

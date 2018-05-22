@@ -15,36 +15,17 @@ projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
 sys.path.insert(0, projectpath + '/../../scripts/')
 
-from parse_config import parse_config
+from parse_config import parse_config, parse_xcconfig
 
 def main():
   config = parse_config(projectpath)
+  xcconfig = parse_xcconfig(projectpath + '/../../common.xcconfig')
 
   CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT']
   CFBundleVersion = config['FULL_VER_STR']
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
-
-  fileinput.close()
-
-  LSMinimumSystemVersion = "10.7.0"
-
-  BASE_SDK = "macosx10.13"
-  DEPLOYMENT_TARGET = "10.7"
-
-  # extract values from common.xcconfig
-  for line in fileinput.input(projectpath + "/../../common.xcconfig", inplace=0):
-    if not "//" in line:
-      if "BASE_SDK_MAC = " in line:
-        BASE_SDK = string.lstrip(line, "BASE_SDK_MAC = ")
-      if "DEPLOYMENT_TARGET = " in line:
-        DEPLOYMENT_TARGET = string.lstrip(line, "DEPLOYMENT_TARGET = ")
-
-  BASE_SDK = BASE_SDK[0:-1]
-  DEPLOYMENT_TARGET = DEPLOYMENT_TARGET[0:-1]
-  DEPLOYMENT_TARGET += ".0"
-
-  LSMinimumSystemVersion = DEPLOYMENT_TARGET
+  LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
 
   print "Copying resources to shared folder..."
 
@@ -52,7 +33,6 @@ def main():
     dst = os.path.expanduser("~") + "/Music/IPlugEffect/Resources"
     if os.path.exists(dst):
      shutil.rmtree(dst)
-     #os.makedirs(dst)
 
     shutil.copytree(projectpath + "/resources/img/", dst, ignore=shutil.ignore_patterns(*DONT_COPY))
 
@@ -94,39 +74,38 @@ def main():
 
 # AUDIOUNIT v2
 
-  plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-AU-Info.plist"
-  au = plistlib.readPlist(plistpath)
-  au['CFBundleExecutable'] = config['BUNDLE_NAME']
-  au['CFBundleGetInfoString'] = CFBundleGetInfoString
-  au['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".audiounit." + config['BUNDLE_NAME'] + ""
-  au['CFBundleName'] = config['BUNDLE_NAME']
-  au['CFBundleVersion'] = CFBundleVersion
-  au['CFBundleShortVersionString'] = CFBundleVersion
-  au['LSMinimumSystemVersion'] = LSMinimumSystemVersion
-  au['CFBundlePackageType'] = CFBundlePackageType
-  au['CFBundleSignature'] = config['PLUG_UID']
-  au['CSResourcesFileMapped'] = CSResourcesFileMapped
+  plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-au-Info.plist"
+  auv2 = plistlib.readPlist(plistpath)
+  auv2['CFBundleExecutable'] = config['BUNDLE_NAME']
+  auv2['CFBundleGetInfoString'] = CFBundleGetInfoString
+  auv2['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".audiounit." + config['BUNDLE_NAME'] + ""
+  auv2['CFBundleName'] = config['BUNDLE_NAME']
+  auv2['CFBundleVersion'] = CFBundleVersion
+  auv2['CFBundleShortVersionString'] = CFBundleVersion
+  auv2['LSMinimumSystemVersion'] = LSMinimumSystemVersion
+  auv2['CFBundlePackageType'] = CFBundlePackageType
+  auv2['CFBundleSignature'] = config['PLUG_UID']
+  auv2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   if config['PLUG_IS_INSTRUMENT']:
-    COMP_TYPE = kAudioUnitType_MusicDevice
+    COMPONENT_TYPE = kAudioUnitType_MusicDevice
   elif config['PLUG_DOES_MIDI']:
-     COMP_TYPE = kAudioUnitType_MusicEffect
+     COMPONENT_TYPE = kAudioUnitType_MusicEffect
   else:
-     COMP_TYPE = kAudioUnitType_Effect
+     COMPONENT_TYPE = kAudioUnitType_Effect
 
-  au['AudioUnit Version'] = config['PLUG_VER_HEX']
-  au['AudioComponents'] = [{}]
-  au['AudioComponents'][0]['description'] = config['PLUG_NAME']
-  au['AudioComponents'][0]['factoryFunction'] = config['AUV2_FACTORY']
-  au['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_UID']
-  au['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
-  au['AudioComponents'][0]['subtype'] = config['PLUG_UID']
-  au['AudioComponents'][0]['type'] = COMP_TYPE
-  au['AudioComponents'][0]['version'] = config['PLUG_VER_INT']
-  au['AudioComponents'][0]['sandboxSafe'] = True
+  auv2['AudioUnit Version'] = config['PLUG_VER_HEX']
+  auv2['AudioComponents'] = [{}]
+  auv2['AudioComponents'][0]['description'] = config['PLUG_NAME']
+  auv2['AudioComponents'][0]['factoryFunction'] = config['AUV2_FACTORY']
+  auv2['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_UID']
+  auv2['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
+  auv2['AudioComponents'][0]['subtype'] = config['PLUG_UID']
+  auv2['AudioComponents'][0]['type'] = COMPONENT_TYPE
+  auv2['AudioComponents'][0]['version'] = config['PLUG_VER_INT']
+  auv2['AudioComponents'][0]['sandboxSafe'] = True
 
-  plistlib.writePlist(au, plistpath)
-
+  plistlib.writePlist(auv2, plistpath)
 
 # AUDIOUNIT v3
 
@@ -158,7 +137,7 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_UID']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = config['PLUG_UID']
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMP_TYPE
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMPONENT_TYPE
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = config['PLUG_VER_INT']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]
@@ -205,15 +184,6 @@ def main():
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
 
   plistlib.writePlist(macOSapp, plistpath)
-
-
-#  print "Processing .exp symbol export file for audiounit v2 entry points..."
-
-#  expfile = open(config['BUNDLE_NAME'] + ".exp", "w")
-#  expfile.write("_" + config['AUV2_FACTORY'] + "\n")
-#  #if !AU_NO_COMPONENT_ENTRY
-#  expfile.write("_" + AUV2_ENTRY + "\n")
-#  expfile.close()
 
 if __name__ == '__main__':
   main()

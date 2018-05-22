@@ -6,12 +6,20 @@ cd ..
 
 pwd
 
+# trash the whole build-web folder
 if [ -d build-web ]
 then
   rm -r build-web
 fi
 
 mkdir build-web
+
+# trash only the scripts folder - uncomment if you have customised your html
+# if [ -d build-web/scripts ]
+# then
+#   rm -r build-web/scripts
+# fi
+
 mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
@@ -53,8 +61,11 @@ sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
 cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
 sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
 cd ..
+
+#copy in the template html - comment if you have customised the html
 cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
 sed -i "" s/IPlugWAM/IPlugEffect/g index.html
+
 cd ../
 
 echo
