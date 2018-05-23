@@ -221,6 +221,8 @@
 		4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Framework-Info.plist"; path = "../resources/IPlugEffect-iOS-Framework-Info.plist"; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-launchScreen.storyboard"; path = "../resources/IPlugEffect-iOS-launchScreen.storyboard"; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
+		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
+		4FDA600520B5868D00C49ABA /* IPlugEffect-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugEffect-ios.xcconfig"; path = "../config/IPlugEffect-ios.xcconfig"; sourceTree = "<group>"; };
 		4FF3204920B2BC4C00269268 /* IPlugPaths.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
 		4FF3205A20B2C75000269268 /* knob-rotate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "knob-rotate.png"; sourceTree = "<group>"; };
 		4FF3205B20B2C75000269268 /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = BefacoBigKnob.svg; sourceTree = "<group>"; };
@@ -267,7 +269,6 @@
 		4FFF107620A0E5A500D3092F /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = "<group>"; };
 		4FFF107720A0E5A500D3092F /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = "<group>"; };
 		4FFF108220A0FB1400D3092F /* common-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "common-ios.xcconfig"; path = "../../../common-ios.xcconfig"; sourceTree = "<group>"; };
-		4FFF108320A0FCD900D3092F /* IPlugEffect-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "IPlugEffect-ios.xcconfig"; sourceTree = "<group>"; };
 		4FFF108420A1036200D3092F /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; };
 		4FFF108720A1036200D3092F /* IPlugEffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugEffect.cpp; path = ../IPlugEffect.cpp; sourceTree = "<group>"; };
 		4FFF108820A1036200D3092F /* IPlugEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEffect.h; path = ../IPlugEffect.h; sourceTree = "<group>"; };
@@ -396,12 +397,13 @@
 			isa = PBXGroup;
 			children = (
 				4FB2269520A0D39C00614769 /* Standalone App */,
+				4FBBD7F420B6ABE700A37DE2 /* config */,
 				4F2020F620A1B2B500F22200 /* scripts */,
 				4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */,
 				4F048C9620B1E74F002052E7 /* IPlugEffectFramework.h */,
 				4F10E7C120B1880700F5B09B /* IPlugEffect-Bridging-Header.h */,
 				4FFF108220A0FB1400D3092F /* common-ios.xcconfig */,
-				4FFF108320A0FCD900D3092F /* IPlugEffect-ios.xcconfig */,
+				4FDA600520B5868D00C49ABA /* IPlugEffect-ios.xcconfig */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -1171,7 +1173,7 @@
 		};
 		91D3DA101B023C03008FFFBB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4FFF108320A0FCD900D3092F /* IPlugEffect-ios.xcconfig */;
+			baseConfigurationReference = 4FDA600520B5868D00C49ABA /* IPlugEffect-ios.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -1210,7 +1212,7 @@
 		};
 		91D3DA111B023C03008FFFBB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4FFF108320A0FCD900D3092F /* IPlugEffect-ios.xcconfig */;
+			baseConfigurationReference = 4FDA600520B5868D00C49ABA /* IPlugEffect-ios.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;

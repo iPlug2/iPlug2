@@ -1,4 +1,4 @@
-include projects/IPlugEffect.mk
+include ./config/IPlugEffect-web.mk
 
 TARGET = ./build-web/scripts/IPlugEffect.js
 

@@ -27,7 +27,7 @@ python /Users/oli/Dev/MyWeb/emscripten1.37.22/emscripten/1.37.22/tools/file_pack
 echo -
 
 echo MAKING  - WAM WASM MODULE -----------------------------
-emmake make --makefile projects/IPlugEffect-wam.mk
+emmake make --makefile projects/IPlugEffect-wam-processor.mk
 
 if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
 then
@@ -71,7 +71,7 @@ cd ../
 echo
 echo MAKING  - WEB WASM MODULE -----------------------------
 
-emmake make --makefile projects/IPlugEffect-web.mk
+emmake make --makefile projects/IPlugEffect-wam-controller.mk
 
 mv build-web/scripts/*.wasm build-web
 
