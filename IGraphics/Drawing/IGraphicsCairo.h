@@ -4,6 +4,8 @@
 
 #include "cairo/cairo.h"
 #ifdef OS_MAC
+#define __QUICKDRAW__
+#define __HISERVICES__
 #include "cairo/cairo-quartz.h"
 #else
 #include "cairo/cairo-win32.h"
