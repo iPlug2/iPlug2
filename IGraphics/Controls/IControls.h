@@ -96,18 +96,20 @@ class IVSliderControl : public ISliderControlBase
 public:
   IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10)
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10, int trackSize = 2)
   : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
+  , mTrackSize(trackSize)
   {
     AttachIControl(this);
   }
   
   IVSliderControl(IDelegate& dlg, IRECT bounds, IActionFunction aF,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10)
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10, int trackSize = 2)
   : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
+  , mTrackSize(trackSize)
   {
     AttachIControl(this);
   }
@@ -116,6 +118,9 @@ public:
   
   virtual void Draw(IGraphics& g) override;
   void OnResize() override;
+  
+private:
+  int mTrackSize;
 };
 
 class IVContactControl : public IVSwitchControl

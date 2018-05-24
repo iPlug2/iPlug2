@@ -94,35 +94,25 @@ void IVSliderControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
 
-  IRECT filledTrack, handle;
+  const float halfHandleSize = mHandleSize / 2.f;
 
-  if(mDirection == kVertical)
-  {
-    const float halfHandleSize = mHandleSize / 2.f;
+  IRECT filledTrack = mTrack.FracRect(mDirection, mValue);
 
-    const float handleTop = mTrack.B - (mValue * mTrack.H());
-    const float handleBottom = handleTop - halfHandleSize;
-
-    const float filledTrackTop = mTrack.B - (mValue * (mTrack.H()));
-    const float filledTrackBottom = mTrack.B;
-
-    filledTrack = IRECT(mTrack.L, filledTrackTop, mTrack.R, filledTrackBottom);
-    handle = IRECT(mTrack.L, handleTop, mTrack.R, handleBottom);
-  }
-  else
-  {
-    //TODO:
-  }
-
-  g.FillRect(GetColor(kFG), filledTrack);
+  g.FillRect(GetColor(kFG), mTrack);
+  g.FillRect(GetColor(kSH), filledTrack);
+  
+  g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
+  
+  if(GetMouseIsOver())
+    g.FillCircle(GetColor(kSH), filledTrack.R, filledTrack.MH(), halfHandleSize);
 }
 
 void IVSliderControl::OnResize()
 {
   if(mDirection == kVertical)
-    mTrack = mRECT.GetPadded(-mHandleSize).GetMidHPadded(5);
+    mTrack = mRECT.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
   else
-    mTrack = mRECT.GetPadded(-mHandleSize).GetMidVPadded(5);
+    mTrack = mRECT.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
 
   SetDirty(false);
 }
