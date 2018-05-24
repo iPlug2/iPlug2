@@ -17,18 +17,18 @@ public:
   {}
 
   //IPlugBase
-  void BeginInformHostOfParamChange(int idx) override {};
-  void InformHostOfParamChange(int idx, double normalizedValue) override {};
-  void EndInformHostOfParamChange(int idx) override {};
-  void InformHostOfProgramChange() override {};
+//  void BeginInformHostOfParamChange(int idx) override {};
+//  void InformHostOfParamChange(int idx, double normalizedValue) override {};
+//  void EndInformHostOfParamChange(int idx) override {};
+//  void InformHostOfProgramChange() override {};
   EHost GetHost() override { return EHost::kHostWWW; }
-  void ResizeGraphics() override {};
-  void HostSpecificInit() override {};
+//  void ResizeGraphics() override {};
+//  void HostSpecificInit() override {};
   
   //IDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;
-  void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
-  void EndInformHostOfParamChangeFromUI(int paramIdx) override;
+//  void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
+//  void EndInformHostOfParamChangeFromUI(int paramIdx) override;
   
   #ifndef NO_IGRAPHICS
   //IGraphicsDelegate
