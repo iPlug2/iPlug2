@@ -29,8 +29,6 @@
 		4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699420A463AF0022C370 /* IGraphics.cpp */; };
 		4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699520A463AF0022C370 /* IGraphicsPathBase.h */; };
 		4F6369C520A463AF0022C370 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699720A463AF0022C370 /* IControls.h */; };
-		4F6369C720A463AF0022C370 /* IVMeterControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699920A463AF0022C370 /* IVMeterControl.cpp */; };
-		4F6369C820A463AF0022C370 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699A20A463AF0022C370 /* IVMeterControl.h */; };
 		4F6369C920A463AF0022C370 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699B20A463AF0022C370 /* IVDropDownListControl.h */; };
 		4F6369CA20A463AF0022C370 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699C20A463AF0022C370 /* IVKeyboardControl.h */; };
 		4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699E20A463AF0022C370 /* IControls.cpp */; };
@@ -195,8 +193,6 @@
 		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
 		4F63699520A463AF0022C370 /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
 		4F63699720A463AF0022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
-		4F63699920A463AF0022C370 /* IVMeterControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IVMeterControl.cpp; sourceTree = "<group>"; };
-		4F63699A20A463AF0022C370 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
 		4F63699B20A463AF0022C370 /* IVDropDownListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVDropDownListControl.h; sourceTree = "<group>"; };
 		4F63699C20A463AF0022C370 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
 		4F63699E20A463AF0022C370 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
@@ -383,8 +379,6 @@
 		4F63699620A463AF0022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
-				4F63699920A463AF0022C370 /* IVMeterControl.cpp */,
-				4F63699A20A463AF0022C370 /* IVMeterControl.h */,
 				4F63699B20A463AF0022C370 /* IVDropDownListControl.h */,
 				4F63699C20A463AF0022C370 /* IVKeyboardControl.h */,
 				4F63699720A463AF0022C370 /* IControls.h */,
@@ -576,7 +570,6 @@
 				4F8028CB20A24FA9003A66EC /* nanovg_gl.h in Headers */,
 				4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */,
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
-				4F6369C820A463AF0022C370 /* IVMeterControl.h in Headers */,
 				4FFF108D20A1036200D3092F /* IPlugEffect.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
@@ -803,7 +796,6 @@
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F10E7D020B1CB5800F5B09B /* GenericUI.swift in Sources */,
 				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
-				4F6369C720A463AF0022C370 /* IVMeterControl.cpp in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
 				4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,

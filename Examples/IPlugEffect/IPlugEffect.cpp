@@ -25,7 +25,17 @@ void PLUG_CLASS_NAME::ProcessBlock(sample** inputs, sample** outputs, int nFrame
       outputs[c][s] = inputs[c][s] * gain;//mOsc.Process()
     }
   }
+  
+  mMeterBallistics.ProcessBlock(outputs, nFrames);
+  mScopeBallistics.ProcessBlock(outputs, nFrames);
 }
+
+void PLUG_CLASS_NAME::OnIdle()
+{
+  mMeterBallistics.TransmitData(*this);
+  mScopeBallistics.TransmitData(*this);
+}
+
 #endif
 
 #include "IPlugEffect_editor.cpp"

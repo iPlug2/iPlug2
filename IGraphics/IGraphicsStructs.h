@@ -600,6 +600,34 @@ struct IRECT
     if (y < T) y = T;
     else if (y > B) y = B;
   }
+  
+  inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
+  {
+    if(layoutDir == EDirection::kVertical)
+      return FracRectVertical(frac, fromTopOrRight);
+    else
+      return FracRectHorizontal(frac, fromTopOrRight);
+  }
+  
+  inline IRECT FracRectHorizontal(float frac, bool rhs = false) const
+  {
+    float widthOfSubRect = W() * frac;
+    
+    if(rhs)
+      return IRECT(R - widthOfSubRect, T, R, B);
+    else
+      return IRECT(L, T, L + widthOfSubRect, B);
+  }
+  
+  inline IRECT FracRectVertical(float frac, bool fromTop = false) const
+  {
+    float heightOfSubRect = H() * frac;
+
+    if(fromTop)
+      return IRECT(L, T, R, T + heightOfSubRect);
+    else
+      return IRECT(L, B - heightOfSubRect, R, B);
+  }
 
   inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
   {
@@ -615,6 +643,14 @@ struct IRECT
     float l = widthOfSubRect * (float) sliceIdx;
 
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
+  }
+  
+  inline IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
+  {
+    if(layoutDir == EDirection::kVertical)
+      return SubRectVertical(numSlices, sliceIdx);
+    else
+      return SubRectHorizontal(numSlices, sliceIdx);
   }
 
   inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const

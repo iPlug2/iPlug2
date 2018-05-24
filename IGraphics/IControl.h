@@ -649,6 +649,95 @@ protected:
   int mHandleSize;
 };
 
+class IVTrackControlBase : public IControl
+, public IVectorBase
+{
+public:
+  IVTrackControlBase(IDelegate& dlg, IRECT bounds, int maxNTracks = 1, const char* trackNames = 0, ...)
+  : IControl(dlg, bounds)
+  , mMaxNTracks(maxNTracks)
+  {
+    for (auto i=0; i<maxNTracks; i++) {
+      mTrackData.Add(TrackData());
+    }
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(GetColor(kBG), mRECT);
+    
+    const float cornerRadius = mRoundness * (mRECT.W() / 2.);
+    
+    for (auto ch = 0; ch < MaxNTracks(); ch++)
+    {
+      IRECT trackRect = mRECT.GetPadded(-mOuterPadding).SubRect(EDirection(!mDirection), MaxNTracks(), ch).GetPadded(-mTrackPadding);
+      
+      DrawTrack(g, trackRect, ch);
+    }
+    
+    if(mDrawFrame)
+      g.DrawRoundRect(GetColor(kFR), mRECT, cornerRadius, nullptr, mFrameThickness);
+  }
+  
+  int NTracks() { return mNTracks; }
+  int MaxNTracks() { return mMaxNTracks; }
+  
+private:
+  virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
+  {
+    DrawTrackBG(g, r, chIdx);
+    
+    DrawTrackHandle(g, r, chIdx);
+    
+    if(mDrawTrackFrame)
+      g.DrawRect(GetColor(kFR), r, nullptr, mFrameThickness);
+  }
+  
+  virtual void DrawTrackBG(IGraphics& g, IRECT& r, int chIdx)
+  {
+    g.FillRect(GetColor(kSH), r);
+  }
+  
+  virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
+  {
+    TrackData& data = mTrackData.Get()[chIdx];
+    
+    IRECT fillRect = r.FracRect(mDirection, data.value);
+    
+    g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
+    
+    IRECT peakRect;
+    
+    if(mDirection == kVertical)
+      peakRect = IRECT(fillRect.L, fillRect.T, fillRect.R, fillRect.T + mPeakSize);
+    else
+      peakRect = IRECT(fillRect.R - mPeakSize, fillRect.T, fillRect.R, fillRect.B);
+    
+    DrawPeak(g, peakRect, chIdx);
+  }
+  
+  virtual void DrawPeak(IGraphics& g, IRECT& r, int chIdx)
+  {
+    g.FillRect(GetColor(kHL), r);
+  }
+  
+  struct TrackData
+  {
+    float value = 0.;
+  };
+  
+protected:
+  EDirection mDirection = EDirection::kVertical;
+  int mMaxNTracks;
+  WDL_TypedBuf<TrackData> mTrackData;
+  int mNTracks = 1;
+  
+  float mOuterPadding = 10.;
+  float mTrackPadding = 2;
+  float mPeakSize = 5.;
+  bool mDrawTrackFrame = true;
+};
+
 /** Parent for switch controls (including buttons a.k.a. momentary switches)*/
 class ISwitchControlBase : public IControl
 {

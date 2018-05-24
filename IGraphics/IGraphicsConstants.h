@@ -76,8 +76,8 @@ enum EFileAction
 
 enum EDirection
 {
-  kVertical,
-  kHorizontal
+  kVertical = 0,
+  kHorizontal = 1
 };
 
 enum EVColor
