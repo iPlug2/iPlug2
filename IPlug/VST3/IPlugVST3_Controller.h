@@ -56,6 +56,8 @@ public:
   void InformHostOfProgramChange() override  { /* TODO: */}
   void ResizeGraphics() override { /* TODO: */ };
   
+  void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) override;
+  
 private:
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   Steinberg::IPlugView* mView = nullptr;

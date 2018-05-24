@@ -125,12 +125,30 @@ void IPlugBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bool 
 
 void IPlugBase::OnTimer(Timer& t)
 {
+#if !defined VST3C_API && !defined VST3P_API
   while(mParamChangeToUIQueue.ElementsAvailable())
   {
     ParamChange p;
     mParamChangeToUIQueue.Pop(p);
     SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
+  
+  while (mMidiMsgsFromProcessor.ElementsAvailable())
+  {
+    IMidiMsg msg;
+    mMidiMsgsFromProcessor.Pop(msg);
+    OnMidiMsgUI(msg.mStatus, msg.mData1, msg.mData2);
+  }
+#endif
+  
+#if defined VST3P_API
+  while (mMidiMsgsFromProcessor.ElementsAvailable())
+  {
+    IMidiMsg msg;
+    mMidiMsgsFromProcessor.Pop(msg);
+    SendMidiMsgFromProcessor(msg.mStatus, msg.mData1, msg.mData2);
+  }
+#endif
   
   OnIdle();
 }

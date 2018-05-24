@@ -2276,6 +2276,7 @@ OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, U
     msg.mData2 = inData2;
     msg.mOffset = inOffsetSampleFrame;
     _this->ProcessMidiMsg(msg);
+    _this->mMidiMsgsFromProcessor.Push(msg);
     return noErr;
   }
   else

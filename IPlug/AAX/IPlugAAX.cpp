@@ -265,6 +265,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     {
       IMidiMsg msg(pMidiPacket->mTimestamp, pMidiPacket->mData[0], pMidiPacket->mData[1], pMidiPacket->mData[2]);
       ProcessMidiMsg(msg);
+      mMidiMsgsFromProcessor.Push(msg);
     }
   }
   

@@ -463,6 +463,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
               VstMidiEvent* pME = (VstMidiEvent*) pEvent;
               IMidiMsg msg(pME->deltaFrames, pME->midiData[0], pME->midiData[1], pME->midiData[2]);
               _this->ProcessMidiMsg(msg);
+              _this->mMidiMsgsFromProcessor.Push(msg);
+
               //#ifdef TRACER_BUILD
               //  msg.LogMsg();
               //#endif

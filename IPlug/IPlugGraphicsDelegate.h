@@ -21,6 +21,8 @@ public:
   void CloseWindow() override;
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
   virtual void SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  
+  virtual void OnMidiMsgUI(uint8_t status, uint8_t data1, uint8_t data2) override;
 
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override;
   void ResizeGraphicsFromUI() override;

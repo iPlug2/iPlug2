@@ -58,6 +58,7 @@ void IPlugWAM::onMidi(byte status, byte data1, byte data2)
 //   DBGMSG("onMidi\n");
   IMidiMsg msg = {0 /* TODO:what about offset?*/, status, data1, data2};
   ProcessMidiMsg(msg);
+  mMidiMsgsFromProcessor.Push(msg); // TODO: is this right since onMIDI is not called on HPT
 }
 
 void IPlugWAM::onParam(uint32_t idparam, double value)

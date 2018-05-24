@@ -162,3 +162,18 @@ void IGraphicsDelegate::ResizeGraphicsFromUI()
 //  ResizeGraphics();
 }
 
+void IGraphicsDelegate::OnMidiMsgUI(uint8_t status, uint8_t data1, uint8_t data2)
+{
+  assert(mGraphics != nullptr);
+  
+  for (auto c = 0; c < mGraphics->NControls(); c++)
+  {
+    IControl* pControl = mGraphics->GetControl(c);
+    
+    if (pControl->WantsMIDI())
+    {
+      pControl->OnMidi(status, data1, data2);
+    }
+  }
+}
+

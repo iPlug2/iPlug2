@@ -263,6 +263,8 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
   
   if(DoesMIDI())
   {
+    IMidiMsg msg;
+
     //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;
     if (eventList)
@@ -273,13 +275,13 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
         Event event;
         if (eventList->getEvent(i, event) == kResultOk)
         {
-          IMidiMsg msg;
           switch (event.type)
           {
             case Event::kNoteOnEvent:
             {
               msg.MakeNoteOnMsg(event.noteOn.pitch, event.noteOn.velocity * 127, event.sampleOffset, event.noteOn.channel);
               ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
               break;
             }
               
@@ -287,11 +289,17 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
               ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
               break;
             }
           }
         }
       }
+    }
+    
+    while (mMidiMsgsFromController.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
     }
   }
   
@@ -523,3 +531,43 @@ void IPlugVST3Processor::SendControlMessageFromDelegate(int controlTag, int mess
   sendMessage(message);
 }
 
+tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
+{
+  if (!message)
+    return kInvalidArgument;
+  
+  const void* data = nullptr;
+  uint32 size;
+  
+  if (!strcmp (message->getMessageID(), "SMMFUI"))
+  {
+    if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
+    {
+      if (size == sizeof(uint8_t)*3)
+      {
+        uint8_t mmsg[3];
+        memcpy(&mmsg, data, size);
+        IMidiMsg immsg { 0, mmsg[0], mmsg[1], mmsg[2] };
+        mMidiMsgsFromController.Push(immsg);
+      }
+    }
+  }
+  
+  return AudioEffect::notify(message);
+}
+
+void IPlugVST3Processor::SendMidiMsgFromProcessor(uint8_t status, uint8_t data1, uint8_t data2)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID("SMMFP");
+  
+  uint8_t mmsg[3] { status, data1, data2 };
+  
+  message->getAttributes()->setBinary("D", (void*) &mmsg, sizeof(mmsg));
+  
+  sendMessage(message);
+}

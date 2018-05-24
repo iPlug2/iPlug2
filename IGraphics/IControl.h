@@ -69,6 +69,8 @@ public:
   virtual void OnResize() {}
   
   virtual void OnDataFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  
+  virtual void OnMidi(uint8_t status, uint8_t data1, uint8_t data2) {};
 
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
@@ -215,6 +217,9 @@ public:
   
   void SetTag(int tag) { mTag = tag; }
   int GetTag() const { return mTag; }
+  
+  void SetWantsMIDI(bool enable) { mWantsMIDI = true; }
+  bool WantsMIDI() { return mWantsMIDI; }
 
   /** Gets a reference to the class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
@@ -286,6 +291,7 @@ protected:
   bool mMOWhenGrayed = false;
   bool mMEWhenGrayed = false;
   bool mIgnoreMouse = false;
+  bool mWantsMIDI = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;
@@ -660,6 +666,8 @@ public:
     for (auto i=0; i<maxNTracks; i++) {
       mTrackData.Add(TrackData());
     }
+    
+    AttachIControl(this);
   }
   
   void Draw(IGraphics& g) override

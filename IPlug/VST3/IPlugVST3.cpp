@@ -343,6 +343,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             {
               msg.MakeNoteOnMsg(event.noteOn.pitch, event.noteOn.velocity * 127, event.sampleOffset, event.noteOn.channel);
               ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
               break;
             }
 
@@ -350,6 +351,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
               ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
               break;
             }
           }

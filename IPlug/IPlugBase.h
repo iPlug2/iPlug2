@@ -157,6 +157,9 @@ private:
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
+  
+  //VST3 only
+  virtual void SendMidiMsgFromProcessor(uint8_t status, uint8_t data1, uint8_t data2) {};
 
   void OnTimer(Timer& t) override;
 
@@ -169,7 +172,7 @@ public:
   };
   
   IPlugQueue<ParamChange> mParamChangeToUIQueue;
-
+  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32}; // a queue of midi messages that might be triggered by IPlug's SendMidiMsg during process to go out the midi output at high priority
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
 };

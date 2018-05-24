@@ -224,7 +224,7 @@ public: //TODO: these will become protected once stand-alone app is rewritten
   void _SetBypassed(bool bypassed) { mBypassed = bypassed; }
   void _SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
   void _SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
-  const WDL_String& _GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; };
+  const WDL_String& _GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; }
 
 private:
   /** \c true if the plug-in is an instrument */

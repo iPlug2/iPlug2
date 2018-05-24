@@ -31,9 +31,11 @@ public:
 
 #if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
-  FastSinOscillator<sample> mOsc {0., 440.};
+  void ProcessMidiMsg(const IMidiMsg& msg) override;
+
+  FastSinOscillator<sample> mOsc {0., 1.};
   IVMeterControl<2>::IVMeterBallistics mMeterBallistics { kControlTagMeter };
-  IVScopeControl<>::IVScopeBallistics mScopeBallistics { kControlTagScope };
+  IVScopeControl<1>::IVScopeBallistics mScopeBallistics { kControlTagScope };
 
   void OnIdle() override;
 #endif

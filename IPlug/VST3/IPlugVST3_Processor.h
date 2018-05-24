@@ -47,17 +47,18 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
   
 private:
+  void SendMidiMsgFromProcessor(uint8_t status, uint8_t data1, uint8_t data2) override;
+
   bool mSidechainActive = false;
   //IConnectionPoint
-//  tresult PLUGIN_API notify(IMessage* message) override {}; //TODO:
+  tresult PLUGIN_API notify(IMessage* message) override;
 
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
   void PrepareProcessContext();
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
-//  IPlugQueue<IMidiMsg> mMidiMsgsFromController {32}; // a queue of midi messages received from the controller, by clicking keyboard UI etc
-//  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32}; // a queue of midi messages that might be triggered by IPlug's SendMidiMsg during process to go out the midi output at high priority
+  IPlugQueue<IMidiMsg> mMidiMsgsFromController {32}; // a queue of midi messages received from the controller, by clicking keyboard UI etc
 //  IPlugQueue<IMidiMsg> > mMidiMsgsFromProcessorToController {1024}; // a queue of midi messages to send to the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
