@@ -610,13 +610,16 @@ void IVMeterControl::SetMarksAlignment(char alignment, int chId, bool shortenMar
   else
     *MarksAlignPtr(chId) = alignment;
 
-  if (shortenMarksForSides && alignment != 'c')
-    if (chId < 0)
+  if (shortenMarksForSides && alignment != 'c') {
+    if (chId < 0) {
       for (int ch = 0; ch != NumChannels(); ++ch)
         *MarkWidthRPtr(ch) *= 0.3f;
-    else
+    }
+    else {
       *MarkWidthRPtr(chId) *= 0.3f;
-
+    }
+  }
+  
   UpdateMargins(initLM, initRM);
 
   SetDirty();
