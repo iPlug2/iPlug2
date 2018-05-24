@@ -1,3 +1,11 @@
+/*
+ 
+ IPlug MidiSynth Class - Oli Larkin 2018
+ www.olilarkin.co.uk
+ License: MIT
+ 
+*/
+
 #pragma once
 
 /**
@@ -12,6 +20,7 @@
 
 #include "IPlugConstants.h"
 #include "IPlugMidi.h"
+#include "IPlugLogger.h"
 
 #define DEBUG_VOICE_COUNT 0
 
@@ -128,7 +137,15 @@ public:
   }
 
   void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
-
+  
+  /** If you are using this class in a non-traditional mode of polyphony (e.g.to stack loads of voices) you might want to manually SetVoicesActive()
+   * usually this would happen when you trigger notes
+   * @param active should the class report that voices are active */
+  void SetVoicesActive(bool active)
+  {
+    mVoicesAreActive = active;
+  }
+  
   void SetPolyMode(EPolyMode mode)
   {
     mPolyMode = mode; //TODO: implement click safe solution
