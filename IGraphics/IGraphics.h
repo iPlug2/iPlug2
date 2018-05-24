@@ -859,6 +859,8 @@ public:
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
   
+  void GenerateSliderGUI(const IRECT& area, int rows = 4, int columns = 4, EDirection dir = kVertical, const char** pParamNameStrings = nullptr);
+  
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
