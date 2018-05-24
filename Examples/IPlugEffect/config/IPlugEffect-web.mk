@@ -19,8 +19,47 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(CONTROLS_PATH)/IControls.cpp \
 	$(PLATFORMS_PATH)/IGraphicsWeb.cpp
 
+INCLUDE_FLAGS = -I$(PROJECT_ROOT) \
+-I$(WAM_SDK_PATH) \
+-I$(WDL_PATH) \
+-I$(IPLUG_PATH) \
+-I$(IPLUG_EXTRAS_PATH) \
+-I$(IPLUG_WEB_PATH) \
+-I$(IGRAPHICS_PATH) \
+-I$(CONTROLS_PATH) \
+-I$(PLATFORMS_PATH)
+
 #every cpp file that is needed for the WAM audio processor WASM module running in the audio worklet
-WAM_SRC = $(IPLUG_SRC) $(WAM_SDK_PATH)/processor.cpp $(IPLUG_WEB_PATH)/IPlugWAM.cpp
+WAM_SRC = IPlugEffect.cpp \
+$(IPLUG_SRC) \
+$(IPLUG_WEB_PATH)/IPlugWAM.cpp \
+$(WAM_SDK_PATH)/processor.cpp
+
+WAM_CFLAGS = $(INCLUDE_FLAGS) \
+-DWAM_API \
+-DNO_IGRAPHICS \
+-DSAMPLE_TYPE_FLOAT \
+-DNO_PARAMS_MUTEX \
+-DIPLUG_DSP=1 \
+-std=c++11  \
+-Wno-bitwise-op-parentheses
+
+WAM_LDFLAGS = -O2
 
 #every cpp file that is needed for the graphics WASM module
-WEB_SRC = $(IPLUG_SRC) $(IGRAPHICS_SRC) $(IPLUG_WEB_PATH)/IPlugWeb.cpp $(IPLUG_PATH)/IPlugGraphicsDelegate.cpp
+WEB_SRC = IPlugEffect.cpp \
+$(IPLUG_SRC) \
+$(IGRAPHICS_SRC) \
+$(IPLUG_WEB_PATH)/IPlugWeb.cpp \
+$(IPLUG_PATH)/IPlugGraphicsDelegate.cpp
+
+WEB_CFLAGS = $(INCLUDE_FLAGS) \
+-DWEB_API \
+-DSAMPLE_TYPE_FLOAT \
+-DIGRAPHICS_WEB \
+-DNO_PARAMS_MUTEX \
+-DIPLUG_EDITOR=1 \
+-std=c++11 \
+-Wno-bitwise-op-parentheses
+
+WEB_LDFLAGS = -O2

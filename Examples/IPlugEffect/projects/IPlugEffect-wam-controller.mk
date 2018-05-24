@@ -2,31 +2,10 @@ include ./config/IPlugEffect-web.mk
 
 TARGET = ./build-web/scripts/IPlugEffect.js
 
-SRC = $(WEB_SRC) IPlugEffect.cpp
-
 EXPORTS = "['_main']"
 
-CFLAGS = \
--I$(PROJECT_ROOT) \
--I$(WAM_SDK_PATH) \
--I$(WDL_PATH) \
--I$(IPLUG_PATH) \
--I$(IPLUG_EXTRAS_PATH) \
--I$(IPLUG_WEB_PATH) \
--I$(IGRAPHICS_PATH) \
--I$(CONTROLS_PATH) \
--I$(PLATFORMS_PATH) \
--DWEB_API \
--DSAMPLE_TYPE_FLOAT \
--DIGRAPHICS_WEB \
--DNO_PARAMS_MUTEX \
--DIPLUG_EDITOR=1 \
--std=c++11 \
--Wno-bitwise-op-parentheses
-
-LDFLAGS = \
+LDFLAGS = $(WEB_LDFLAGS) \
 -s EXPORTED_FUNCTIONS=$(EXPORTS) \
--O2
 
 JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
@@ -36,4 +15,4 @@ JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 \
 --bind
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(SRC)
+	$(CC) $(WEB_CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(WEB_SRC)
