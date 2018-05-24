@@ -408,7 +408,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     bool handle = true;
     int key = KEY_NONE;
 
-    if (k == 49) key = KEY_SPACE;
+    if (k == 48) key = KEY_TAB;
+    else if (k == 49) key = KEY_SPACE;
     else if (k == 126) key = KEY_UPARROW;
     else if (k == 125) key = KEY_DOWNARROW;
     else if (k == 123) key = KEY_LEFTARROW;

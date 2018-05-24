@@ -25,6 +25,7 @@ typedef PLUG_SAMPLE_DST sample;
 
 enum EIPlugKeyCodes
 {
+  KEY_TAB,
   KEY_SPACE,
   KEY_UPARROW,
   KEY_DOWNARROW,
