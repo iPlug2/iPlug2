@@ -19,19 +19,18 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = DefaultClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   void Draw(IGraphics& g) override;
 
   void Animate(double progress) override
   {
-    mFlashCircleRadius = progress * mRECT.W() / 2.;
+    mFlashCircleRadius = progress * mMaxFlashCircleRadius;
     SetDirty(false);
   }
 
 private:
   float mStep;
-  float mFlashCircleRadius = 0.f;
   EDirection mDirection;
 };
 

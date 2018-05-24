@@ -2,7 +2,7 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std::function<void(IControl*)> actionFunc
+IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
   , const IVColorSpec& colorSpec, int numStates, EDirection dir)
   : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
@@ -10,8 +10,6 @@ IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, std
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  
-  SetActionFunction(DefaultClickActionFunc);
 
   mStep = 1.f / float(mNumStates) - 1.f;
 }
@@ -48,12 +46,8 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
   
   if(GetAnimationFunction())
-  {
-    float mouseDownX, mouseDownY;
-    g.GetMouseDownPoint(mouseDownX, mouseDownY);
-    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
-  }
-  
+    DefaultClickAnimation(g);
+    
   if(mDrawFrame)
     g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
 }

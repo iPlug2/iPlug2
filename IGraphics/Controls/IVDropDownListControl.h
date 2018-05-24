@@ -42,7 +42,7 @@ public:
   
   void Animate(double progress) override
   {
-    mFlashCircleRadius = progress * mRECT.W() / 2.;
+    mFlashCircleRadius = progress * mMaxFlashCircleRadius;
     SetDirty(false);
   }
 
@@ -112,11 +112,7 @@ public:
     }
     
     if(GetAnimationFunction())
-    {
-      float mouseDownX, mouseDownY;
-      g.GetMouseDownPoint(mouseDownX, mouseDownY);
-      g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
-    }
+      DefaultClickAnimation(g);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -363,7 +359,6 @@ private:
   float mLastX = -1.0;
   float mLastY = -1.0;
   int mState = -1;
-  float mFlashCircleRadius = 0.f;
   int mListHeight = 3; // how long the list can get before adding a new column/row
 };
 

@@ -347,11 +347,11 @@ public:
               const IColor* pFGColor = &DEFAULT_FGCOLOR,
               const IColor* pPRColor = &DEFAULT_PRCOLOR,
               const IColor* pFRColor = &DEFAULT_FRCOLOR,
-              const IColor* pHLColor = 0,
-              const IColor* pSHColor = 0,
-              const IColor* pX1Color = 0,
-              const IColor* pX2Color = 0,
-              const IColor* pX3Color = 0)
+              const IColor* pHLColor = &DEFAULT_HLCOLOR,
+              const IColor* pSHColor = &DEFAULT_SHCOLOR,
+              const IColor* pX1Color = &DEFAULT_X1COLOR,
+              const IColor* pX2Color = &DEFAULT_X2COLOR,
+              const IColor* pX3Color = &DEFAULT_X3COLOR)
   {
     AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
@@ -478,6 +478,13 @@ public:
     return handleBounds;
   }
   
+  void DefaultClickAnimation(IGraphics& g)
+  {
+    float mouseDownX, mouseDownY;
+    g.GetMouseDownPoint(mouseDownX, mouseDownY);
+    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
+  }
+  
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
@@ -487,6 +494,8 @@ protected:
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
+  float mFlashCircleRadius = 0.f;
+  float mMaxFlashCircleRadius = 50.f;
 };
 
 /** A basic control to fill a rectangle with a color */

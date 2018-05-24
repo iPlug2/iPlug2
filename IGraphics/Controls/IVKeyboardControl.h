@@ -1,4 +1,5 @@
 #include "IControl.h"
+#include "IPlugMidi.h"
 
 /*
 
@@ -51,8 +52,9 @@ public:
   };
 
   IVKeyboardControl(IDelegate& dlg, IRECT bounds,
-                    int minNote = 36, int maxNote = 60)
-  : IControl(dlg, bounds, kNoParameter)
+                    int minNote = 36, int maxNote = 60,
+                    IActionFunction actionFunc = nullptr)
+  : IControl(dlg, bounds, kNoParameter, actionFunc)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   {
     AttachIControl(this);
@@ -67,6 +69,13 @@ public:
     }
 
     SetMinMaxNote(minNote, maxNote, keepWidth);
+    SetWantsMIDI(true);
+  }
+  
+  void Animate(double progress) override
+  {
+    mFlashCircleRadius = progress * mMaxFlashCircleRadius;
+    SetDirty(false);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -81,18 +90,28 @@ public:
 
     if (!mVelByWheel)
       UpdateVelocity(y);
+    
+    IMidiMsg msg;
+    msg.MakeNoteOnMsg(mKey + 36, mVelocity * 127, 0);
+    
+    GetDelegate().SendMidiMsgFromUI(msg.mStatus, msg.mData1, msg.mData2);
 
-    SetDirty(false);
+    SetDirty(true);
   }
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     if (mKey > -1)
     {
+      IMidiMsg msg;
+      msg.MakeNoteOffMsg(mKey + 36, 0);
+      GetDelegate().SendMidiMsgFromUI(msg.mStatus, msg.mData1, msg.mData2);
+
       mKey = -1;
       mMouseOverKey = -1;
       mVelocity = 0.0;
       mVelByWheel = false;
+      
       SetDirty(false);
     }
   }
@@ -153,6 +172,19 @@ public:
     }
 
     mTargetRECT = mRECT;
+    SetDirty(false);
+  }
+  
+  void OnMidi(uint8_t status, uint8_t data1, uint8_t data2) override
+  {
+    IMidiMsg msg { 0, status, data1, data2 };
+    
+    switch (msg.StatusMsg())
+    {
+      case IMidiMsg::kNoteOn: SetNoteIsPlayed(msg.NoteNumber(), true); break;
+      case IMidiMsg::kNoteOff: SetNoteIsPlayed(msg.NoteNumber(), false); break;
+    }
+    
     SetDirty(false);
   }
 
@@ -262,6 +294,9 @@ public:
       }
     }
 
+    if(GetAnimationFunction())
+      DefaultClickAnimation(g);
+    
 #ifdef _DEBUG
     //g.DrawRect(COLOR_GREEN, mTargetRECT);
     //g.DrawRect(COLOR_BLUE, mRECT);
@@ -326,6 +361,7 @@ public:
     }
     SetDirty(false);
   }
+  
   void SetHeight(float h, bool keepProportions = false)
   {
     if (h <= 0.0) return;
@@ -554,6 +590,7 @@ private:
     }
     else mVelocity = 0.f;
   }
+  
   void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str)
   {
     int oct = midiNoteNum / 12;
