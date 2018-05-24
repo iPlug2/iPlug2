@@ -67,16 +67,13 @@ public:
 
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should pass false as the argument to avoid triggering parameter changes */
   virtual void OnResize() {}
+  
+  virtual void OnDataFromDelegate(int messageTag, int dataSize, const void* pData) {};
 
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
-  
-  /**
-   <#Description#>
-
-   @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything
-   */
+  /** @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything*/
   virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu);
 
   virtual void OnTextEntryCompletion(const char* str) {}
@@ -215,6 +212,9 @@ public:
   /** Get the number of Aux Params for this control */
   int NAuxParams() const { return mAuxParams.GetSize(); }
   /**@}*/
+  
+  void SetTag(int tag) { mTag = tag; }
+  int GetTag() const { return mTag; }
 
   /** Gets a reference to the class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
@@ -261,6 +261,7 @@ public:
 protected:
   IDelegate& mDelegate;
   IGraphics* mGraphics = nullptr;
+  int mTag = kNoTag;
   IRECT mRECT;
   IRECT mTargetRECT;
 

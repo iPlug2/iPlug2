@@ -134,9 +134,10 @@ void IGraphics::AttachPanelBackground(const IColor& color)
   mControls.Insert(0, pBG);
 }
 
-int IGraphics::AttachControl(IControl* pControl)
+int IGraphics::AttachControl(IControl* pControl, int controlTag)
 {
   pControl->SetGraphics(this);
+  pControl->SetTag(controlTag);
   mControls.Add(pControl);
   return mControls.GetSize() - 1;
 }

@@ -58,7 +58,13 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx) {};
   
-  /** This is called by API classes after restoring state and by IPresetsDelegate::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
+  /**  */
+  virtual void OnMidiMsgUI(uint8_t status, uint8_t data1, uint8_t data2) {};
+  
+  /**  */
+  virtual void OnSysexMsgUI(int size, const void* pData) {};
+  
+  /** This is called by API classes after restoring state and by IPluginDelegate::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
   
@@ -67,11 +73,13 @@ public:
   
   /** In IGraphics plug-ins, this method is used to update IControls in the user interface from the plug-in class, when the control is not linked
    * to a parameter, for example a typical use case would be a meter control. It is called by the IPlug "user" a.k.a you - not by an API class.
-   * Somewhere in ProcessBlock() the plug-in would call this method to update the IControl's value.
-   * If you are not using IGraphics,  you could use it in a similar way, as long as your control/meter has a unique index
-   * @param controlIdx The index of the control in the IGraphics::mControls list.
+   * In OnIdle() your plug-in would call this method to update the IControl's value. YOU SHOULD NOT CALL THIS ON THE AUDIO THREAD!
+   * If you are not using IGraphics,  you could use it in a similar way, as long as your control/meter has a unique tag
+   * @param controlTag A tag for the control
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
-  virtual void SetControlValueFromDelegate(int controlIdx, double normalizedValue) {};
+  virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) {};
+  
+  virtual void SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) {};
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
@@ -115,13 +123,15 @@ public:
    * This method is overrided in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI() {};
   
-  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used rather than
+  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used
    * @param status The status byte of the MIDI message
    * @param data1 The first data byte of the MIDI message
    * @param data2 The second data byte of the MIDI message*/
   virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
+
+  virtual void SendSysexMsgFromUI(int size, const uint8_t* pData) {};
   
 protected:
-  /** A list of IParam objects. This list is populated in the delicate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
+  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };

@@ -681,7 +681,7 @@ public:
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
    * @return The index of the control (and the number of controls in the stack) */
-  int AttachControl(IControl* pControl);
+  int AttachControl(IControl* pControl, int controlTag = kNoTag);
 
   /** @param idx The index of the control to get
    * @return A pointer to the IControl object at idx */

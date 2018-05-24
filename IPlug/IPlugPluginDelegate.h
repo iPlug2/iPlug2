@@ -7,7 +7,7 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
-/** This is the class that owns parameter objects, and has methods for serialization of state
+/** This TODO has methods for serialization of state
  *  It provides a base interface for remote editors as well as the main plug-in, because we may have state/preset management in remote editors,
  *  depending on the arrangement/separation we have chosen
  *  It needn't be a "plug-in" that implements this interface, it can also be used for other things

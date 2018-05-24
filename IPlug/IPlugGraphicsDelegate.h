@@ -19,7 +19,9 @@ public:
 // IDelegate
   void* OpenWindow(void* pHandle) override;
   void CloseWindow() override;
-  void SetControlValueFromDelegate(int controlIdx, double normalizedValue) override;
+  virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
+  virtual void SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override;
   void ResizeGraphicsFromUI() override;
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */

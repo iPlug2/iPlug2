@@ -73,13 +73,39 @@ void IGraphicsDelegate::CloseWindow()
 //#endif
 //}
 
-void IGraphicsDelegate::SetControlValueFromDelegate(int controlIdx, double normalizedValue)
+void IGraphicsDelegate::SetControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   assert(mGraphics != nullptr);
 
-  if (controlIdx >= 0 && controlIdx < mGraphics->NControls())
+  if (controlTag > kNoTag)
   {
-    mGraphics->GetControl(controlIdx)->SetValueFromDelegate(normalizedValue);
+    for (auto c = 0; c < mGraphics->NControls(); c++)
+    {
+      IControl* pControl = mGraphics->GetControl(c);
+      
+      if (pControl->GetTag() == controlTag)
+      {
+        pControl->SetValueFromDelegate(normalizedValue);
+      }
+    }
+  }
+}
+
+void IGraphicsDelegate::SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+{
+  assert(mGraphics != nullptr);
+  
+  if (controlTag > kNoTag)
+  {
+    for (auto c = 0; c < mGraphics->NControls(); c++)
+    {
+      IControl* pControl = mGraphics->GetControl(c);
+      
+      if (pControl->GetTag() == controlTag)
+      {
+        pControl->OnDataFromDelegate(messageTag, dataSize, pData);
+      }
+    }
   }
 }
 
@@ -135,3 +161,4 @@ void IGraphicsDelegate::ResizeGraphicsFromUI()
 //  mHeight = mGraphics->WindowHeight();
 //  ResizeGraphics();
 }
+
