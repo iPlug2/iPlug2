@@ -493,3 +493,33 @@ void IPlugVST3Processor::PrepareProcessContext()
   _SetTimeInfo(timeInfo);
   _SetRenderingOffline(offline);
 }
+
+void IPlugVST3Processor::SetControlValueFromDelegate(int controlTag, double normalizedValue)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID("SCVFD");
+  message->getAttributes()->setInt("CT", controlTag);
+  message->getAttributes()->setFloat("NV", normalizedValue);
+  
+  sendMessage(message);
+}
+
+void IPlugVST3Processor::SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID("SCMFD");
+  message->getAttributes()->setInt("CT", controlTag);
+  message->getAttributes()->setInt("MT", messageTag);
+  message->getAttributes()->setBinary("D", pData, dataSize);
+  
+  sendMessage(message);
+}
+

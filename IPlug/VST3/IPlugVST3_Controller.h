@@ -38,7 +38,7 @@ public:
   tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized) override;
 
   //ComponentBase
-  //tresult PLUGIN_API notify (IMessage* message) override {}
+  tresult PLUGIN_API notify (IMessage* message) override;
 
   //IMidiMapping
   tresult PLUGIN_API getMidiControllerAssignment(int32 busIndex, int16 channel, CtrlNumber midiControllerNumber, ParamID& tag) override;

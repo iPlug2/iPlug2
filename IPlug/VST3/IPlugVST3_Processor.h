@@ -34,9 +34,14 @@ public:
   tresult PLUGIN_API setupProcessing(ProcessSetup& newSetup) override;
   tresult PLUGIN_API process(ProcessData& data) override;
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
-  uint32 PLUGIN_API getLatencySamples() override {}; //TODO:
+  uint32 PLUGIN_API getLatencySamples() override { return 0; } //TODO:
   tresult PLUGIN_API setState(IBStream* state) override;
   tresult PLUGIN_API getState(IBStream* state) override;
+  
+  //IPluginDelagete
+  void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
+  void SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in VST3 processor -> param change gets there via IPlugVST3Controller::setParamNormalized
   
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
@@ -44,18 +49,18 @@ public:
 private:
   bool mSidechainActive = false;
   //IConnectionPoint
-  tresult PLUGIN_API notify(IMessage* message) override {}; //TODO:
+//  tresult PLUGIN_API notify(IMessage* message) override {}; //TODO:
 
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
   void PrepareProcessContext();
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
-//   spsc_queue<IMidiMsg, capacity<32> > mMidiMsgsFromController; // a queue of midi messages received from the controller, by clicking keyboard UI etc
-//   spsc_queue<IMidiMsg, capacity<32> > mMidiMsgsFromProcessor; // a queue of midi messages that might be triggered by IPlug's SendMidiMsg during process to go out the midi output at high priority
-//   spsc_queue<IMidiMsg, capacity<1024> > mMidiMsgsFromProcessorToController; // a queue of midi messages to send to the controller
-//   spsc_queue<SysExChunk, capacity<2> > mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
-//   spsc_queue<SysExChunk, capacity<2> > mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
+//  IPlugQueue<IMidiMsg> mMidiMsgsFromController {32}; // a queue of midi messages received from the controller, by clicking keyboard UI etc
+//  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32}; // a queue of midi messages that might be triggered by IPlug's SendMidiMsg during process to go out the midi output at high priority
+//  IPlugQueue<IMidiMsg> > mMidiMsgsFromProcessorToController {1024}; // a queue of midi messages to send to the controller
+//  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
+//  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
 };
 
 IPlugVST3Processor* MakeProcessor();

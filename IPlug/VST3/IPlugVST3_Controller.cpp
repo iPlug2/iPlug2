@@ -362,3 +362,46 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //    notifyProgramListChange(kPresetParam, mCurrentPresetIdx);
 //  }
 //}
+
+tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
+{
+  if (!message)
+    return kInvalidArgument;
+  
+  if (!strcmp (message->getMessageID(), "SCVFD"))
+  {
+    Steinberg::int64 controlTag = kNoTag;
+    double normalizedValue = 0.;
+    
+    if(message->getAttributes()->getInt("CT", controlTag) == kResultFalse)
+      return kResultFalse;
+    
+    if(message->getAttributes()->getFloat("NV", normalizedValue) == kResultFalse)
+      return kResultFalse;
+    
+    SetControlValueFromDelegate((int) controlTag, normalizedValue);
+
+  }
+  else if (!strcmp (message->getMessageID(), "SCMFD"))
+  {
+    const void* data;
+    Steinberg::int64 controlTag = kNoTag;
+    Steinberg::int64 messageTag = kNoTag;
+
+    if(message->getAttributes()->getInt("CT", controlTag) == kResultFalse)
+      return kResultFalse;
+    
+    if(message->getAttributes()->getInt("MT", messageTag) == kResultFalse)
+      return kResultFalse;
+
+    Steinberg::uint32 size;
+    
+    if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
+    {
+      SendControlMessageFromDelegate((int) controlTag, messageTag, size, data);
+      return kResultOk;
+    }
+  }
+  
+  return ComponentBase::notify(message);
+}
