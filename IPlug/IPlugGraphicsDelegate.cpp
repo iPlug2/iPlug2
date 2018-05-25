@@ -162,17 +162,17 @@ void IGraphicsDelegate::ResizeGraphicsFromUI()
 //  ResizeGraphics();
 }
 
-void IGraphicsDelegate::OnMidiMsgUI(uint8_t status, uint8_t data1, uint8_t data2)
+void IGraphicsDelegate::OnMidiMsgUI(const IMidiMsg& msg)
 {
   assert(mGraphics != nullptr);
   
-  for (auto c = 0; c < mGraphics->NControls(); c++)
+  for (auto c = 0; c < mGraphics->NControls(); c++) // TODO: could keep a map
   {
     IControl* pControl = mGraphics->GetControl(c);
     
     if (pControl->WantsMIDI())
     {
-      pControl->OnMidi(status, data1, data2);
+      pControl->OnMidi(msg);
     }
   }
 }

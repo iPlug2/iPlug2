@@ -6,6 +6,7 @@
 #include "ptrlist.h"
 
 #include "IPlugParameter.h"
+#include "IPlugMidi.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects
@@ -59,7 +60,7 @@ public:
   virtual void OnParamChangeUI(int paramIdx) {};
   
   /**  */
-  virtual void OnMidiMsgUI(uint8_t status, uint8_t data1, uint8_t data2) {};
+  virtual void OnMidiMsgUI(const IMidiMsg& msg) {};
   
   /**  */
   virtual void OnSysexMsgUI(int size, const void* pData) {};
@@ -127,7 +128,7 @@ public:
    * @param status The status byte of the MIDI message
    * @param data1 The first data byte of the MIDI message
    * @param data2 The second data byte of the MIDI message*/
-  virtual void SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2) {};
+  virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
   virtual void SendSysexMsgFromUI(int size, const uint8_t* pData) {};
   

@@ -159,7 +159,7 @@ private:
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
   
   //VST3 only
-  virtual void SendMidiMsgFromProcessor(uint8_t status, uint8_t data1, uint8_t data2) {};
+  virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
 
   void OnTimer(Timer& t) override;
 

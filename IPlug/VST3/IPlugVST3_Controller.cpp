@@ -409,11 +409,11 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
     
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
-      if (size == sizeof(uint8_t)*3)
+      if (size == sizeof(IMidiMsg))
       {
-        uint8_t mmsg[3];
-        memcpy(&mmsg, data, size);
-        OnMidiMsgUI(mmsg[0], mmsg[1], mmsg[2]);
+        IMidiMsg msg;
+        memcpy(&msg, data, size);
+        OnMidiMsgUI(msg);
       }
     }
   }
@@ -421,7 +421,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
   return ComponentBase::notify(message);
 }
 
-void IPlugVST3Controller::SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8_t data2)
+void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -429,10 +429,6 @@ void IPlugVST3Controller::SendMidiMsgFromUI(uint8_t status, uint8_t data1, uint8
     return;
   
   message->setMessageID("SMMFUI");
-  
-  uint8_t mmsg[3] { status, data1, data2 };
-  
-  message->getAttributes()->setBinary("D", (void*) &mmsg, sizeof(mmsg));
-
+  message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
   sendMessage(message);
 }

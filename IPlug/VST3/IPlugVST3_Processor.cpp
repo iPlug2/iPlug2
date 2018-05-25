@@ -556,7 +556,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   return AudioEffect::notify(message);
 }
 
-void IPlugVST3Processor::SendMidiMsgFromProcessor(uint8_t status, uint8_t data1, uint8_t data2)
+void IPlugVST3Processor::_TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -564,10 +564,6 @@ void IPlugVST3Processor::SendMidiMsgFromProcessor(uint8_t status, uint8_t data1,
     return;
   
   message->setMessageID("SMMFP");
-  
-  uint8_t mmsg[3] { status, data1, data2 };
-  
-  message->getAttributes()->setBinary("D", (void*) &mmsg, sizeof(mmsg));
-  
+  message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
   sendMessage(message);
 }

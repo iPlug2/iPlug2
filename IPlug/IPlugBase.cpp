@@ -137,7 +137,7 @@ void IPlugBase::OnTimer(Timer& t)
   {
     IMidiMsg msg;
     mMidiMsgsFromProcessor.Pop(msg);
-    OnMidiMsgUI(msg.mStatus, msg.mData1, msg.mData2);
+    OnMidiMsgUI(msg);
   }
 #endif
   
@@ -146,7 +146,7 @@ void IPlugBase::OnTimer(Timer& t)
   {
     IMidiMsg msg;
     mMidiMsgsFromProcessor.Pop(msg);
-    SendMidiMsgFromProcessor(msg.mStatus, msg.mData1, msg.mData2);
+    _TransmitMidiMsgFromProcessor(msg);
   }
 #endif
   

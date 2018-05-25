@@ -47,9 +47,10 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
   
 private:
-  void SendMidiMsgFromProcessor(uint8_t status, uint8_t data1, uint8_t data2) override;
+  void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
 
   bool mSidechainActive = false;
+  //IConnectionPoints
   //IConnectionPoint
   tresult PLUGIN_API notify(IMessage* message) override;
 
