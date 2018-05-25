@@ -516,7 +516,7 @@ void IPlugVST3Processor::SetControlValueFromDelegate(int controlTag, double norm
   sendMessage(message);
 }
 
-void IPlugVST3Processor::SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IPlugVST3Processor::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -528,6 +528,25 @@ void IPlugVST3Processor::SendControlMessageFromDelegate(int controlTag, int mess
   message->getAttributes()->setInt("MT", messageTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   
+  sendMessage(message);
+}
+
+void IPlugVST3Processor::SendMsgFromDelegate(const char* msgID, int dataSize, const void* pData)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  if(dataSize == 0) // allow sending messages with no data
+  {
+    dataSize = 1;
+    uint8_t dummy = 0;
+    pData = &dummy;
+  }
+  
+  message->setMessageID(msgID);
+  message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }
 

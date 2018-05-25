@@ -53,7 +53,7 @@ public:
       while(mQueue.ElementsAvailable())
       {
         mQueue.Pop(d);
-        dlg.SendControlMessageFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
+        dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }
     

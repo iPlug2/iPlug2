@@ -46,6 +46,11 @@ public:
   void SetLatency(int samples) override {};
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; }
   bool SendSysEx(ISysEx& msg) override { return false; }
+  
+  //IPluginDelegate
+  void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?
 };
 
 IPlugWAM* MakePlug();

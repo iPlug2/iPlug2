@@ -398,7 +398,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
     
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
-      SendControlMessageFromDelegate((int) controlTag, (int) messageTag, size, data);
+      SendControlMsgFromDelegate((int) controlTag, (int) messageTag, size, data);
       return kResultOk;
     }
   }

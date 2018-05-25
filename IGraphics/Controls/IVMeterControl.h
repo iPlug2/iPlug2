@@ -50,7 +50,7 @@ public:
       {
         Data d;
         mQueue.Pop(d);
-        dlg.SendControlMessageFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
+        dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }
     

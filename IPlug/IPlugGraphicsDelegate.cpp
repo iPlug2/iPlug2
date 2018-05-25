@@ -91,7 +91,7 @@ void IGraphicsDelegate::SetControlValueFromDelegate(int controlTag, double norma
   }
 }
 
-void IGraphicsDelegate::SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IGraphicsDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
   assert(mGraphics != nullptr);
   

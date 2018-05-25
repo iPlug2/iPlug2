@@ -20,7 +20,7 @@ public:
   void* OpenWindow(void* pHandle) override;
   void CloseWindow() override;
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  virtual void SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   
   virtual void OnMidiMsgUI(const IMidiMsg& msg) override;
 

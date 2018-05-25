@@ -73,3 +73,13 @@ void IPlugWAM::onSysex(byte* msg, uint32_t size)
   ProcessSysEx(sysex);
 }
 
+void IPlugWAM::SetControlValueFromDelegate(int controlTag, double normalizedValue)
+{
+  //TODO:
+}
+
+void IPlugWAM::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+{
+  //TODO:
+}
+

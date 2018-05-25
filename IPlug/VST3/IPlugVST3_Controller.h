@@ -58,7 +58,7 @@ public:
   
   //Overrides for DISTRIBUTED
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
-//  void SendSysexMsgFromUI() override;
+  void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
   void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
 
 private:
