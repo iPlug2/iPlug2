@@ -8,8 +8,8 @@ DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = WDL-OL/IPlug
 PROJECT_NUMBER         = "2.0"
 PROJECT_BRIEF          = "Cross-platform C++ Plug-in Framework"
-PROJECT_LOGO           = 
-OUTPUT_DIRECTORY       = 
+PROJECT_LOGO           =
+OUTPUT_DIRECTORY       =
 CREATE_SUBDIRS         = NO
 ALLOW_UNICODE_NAMES    = NO
 OUTPUT_LANGUAGE        = English
@@ -29,8 +29,8 @@ ABBREVIATE_BRIEF       = "The $name class" \
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = NO
-STRIP_FROM_PATH        = 
-STRIP_FROM_INC_PATH    = 
+STRIP_FROM_PATH        =
+STRIP_FROM_INC_PATH    =
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
 QT_AUTOBRIEF           = NO
@@ -38,9 +38,9 @@ MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
-ALIASES                = 
-TCL_SUBST              = 
-EXTENSION_MAPPING      = 
+ALIASES                =
+TCL_SUBST              =
+EXTENSION_MAPPING      =
 MARKDOWN_SUPPORT       = YES
 AUTOLINK_SUPPORT       = YES
 BUILTIN_STL_SUPPORT    = NO
@@ -86,14 +86,14 @@ GENERATE_TODOLIST      = YES
 GENERATE_TESTLIST      = YES
 GENERATE_BUGLIST       = YES
 GENERATE_DEPRECATEDLIST= YES
-ENABLED_SECTIONS       = 
+ENABLED_SECTIONS       =
 MAX_INITIALIZER_LINES  = 30
 SHOW_USED_FILES        = YES
 SHOW_FILES             = YES
 SHOW_NAMESPACES        = YES
-FILE_VERSION_FILTER    = 
-LAYOUT_FILE            = 
-CITE_BIB_FILES         = 
+FILE_VERSION_FILTER    =
+LAYOUT_FILE            =
+CITE_BIB_FILES         =
 
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
@@ -113,17 +113,18 @@ WARN_LOGFILE           = doxygen_warnings.txt
 #---------------------------------------------------------------------------
 
 INPUT                  = . \
-                         ../IPlug
+                         ../IPlug \
+                         ../IGraphics
 USE_MDFILE_AS_MAINPAGE = ./README.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          =
 RECURSIVE              = YES
-EXCLUDE                = ../IPlug/IGraphics/NanoVG \
-                         ../IPlug/IGraphics/NanoSVG \
-                         ../IPlug/IGraphics/freetype \
-                         ../IPlug/IGraphics/MetalNanoVG \
-                         ../IPlug/IGraphics/AGG \
-                         ../IPlug/IGraphics/stb \
+EXCLUDE                = ../IGraphics/NanoVG \
+                         ../IGraphics/NanoSVG \
+                         ../IGraphics/freetype \
+                         ../IGraphics/MetalNanoVG \
+                         ../IGraphics/AGG \
+                         ../IGraphics/stb \
                          ../IPlug/AAX/IPlugAAX_Describe.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.h \
@@ -140,7 +141,7 @@ EXCLUDE                = ../IPlug/IGraphics/NanoVG \
 
 
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       = 
+EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        = IAutoGUI \
                          IPlugVST3Parameter \
                          NChanDelayLine \
@@ -167,7 +168,7 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \
-                         AuxParam \ 
+                         AuxParam \
                          PNGStreamReader \
                          SVGHolder \
                          APIBitmap \
@@ -176,15 +177,15 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          Rasterizer \
                          DashOptions \
                          alpha_span_generator \
-                         
-EXAMPLE_PATH           = 
+
+EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = 
-INPUT_FILTER           = 
-FILTER_PATTERNS        = 
+IMAGE_PATH             =
+INPUT_FILTER           =
+FILTER_PATTERNS        =
 FILTER_SOURCE_FILES    = NO
-FILTER_SOURCE_PATTERNS = 
+FILTER_SOURCE_PATTERNS =
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -200,7 +201,7 @@ SOURCE_TOOLTIPS        = YES
 USE_HTAGS              = NO
 VERBATIM_HEADERS       = YES
 CLANG_ASSISTED_PARSING = NO
-CLANG_OPTIONS          = 
+CLANG_OPTIONS          =
 
 #---------------------------------------------------------------------------
 # Configuration options related to the alphabetical class index
@@ -208,7 +209,7 @@ CLANG_OPTIONS          =
 
 ALPHABETICAL_INDEX     = NO
 COLS_IN_ALPHA_INDEX    = 5
-IGNORE_PREFIX          = 
+IGNORE_PREFIX          =
 
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
@@ -217,12 +218,12 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = 
-HTML_FOOTER            = 
+HTML_HEADER            =
+HTML_FOOTER            =
 HTML_EXTRA_STYLESHEET  = style.css
-HTML_STYLESHEET        = 
-CHM_FILE               = 
-HHC_LOCATION           = 
+HTML_STYLESHEET        =
+CHM_FILE               =
+HHC_LOCATION           =
 GENERATE_CHI           = NO
 BINARY_TOC             = NO
 TOC_EXPAND             = NO
@@ -235,15 +236,15 @@ FORMULA_TRANSPARENT    = YES
 USE_MATHJAX            = YES
 MATHJAX_FORMAT         = HTML-CSS
 MATHJAX_RELPATH        = https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/
-MATHJAX_EXTENSIONS     = 
-MATHJAX_CODEFILE       = 
+MATHJAX_EXTENSIONS     =
+MATHJAX_CODEFILE       =
 SEARCHENGINE           = YES
 SERVER_BASED_SEARCH    = NO
 EXTERNAL_SEARCH        = NO
-SEARCHENGINE_URL       = 
+SEARCHENGINE_URL       =
 SEARCHDATA_FILE        = searchdata.xml
-EXTERNAL_SEARCH_ID     = 
-EXTRA_SEARCH_MAPPINGS  = 
+EXTERNAL_SEARCH_ID     =
+EXTRA_SEARCH_MAPPINGS  =
 
 #---------------------------------------------------------------------------
 # Configuration options related to the LaTeX output
@@ -311,18 +312,18 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = NO
 EXPAND_ONLY_PREDEF     = NO
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = 
-INCLUDE_FILE_PATTERNS  = 
+INCLUDE_PATH           =
+INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = DOXYGEN_SHOULD_SKIP_THIS NO_IGRAPHICS
-EXPAND_AS_DEFINED      = 
+EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 
 #---------------------------------------------------------------------------
 # Configuration options related to external references
 #---------------------------------------------------------------------------
 
-TAGFILES               = 
-GENERATE_TAGFILE       = 
+TAGFILES               =
+GENERATE_TAGFILE       =
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
 EXTERNAL_PAGES         = YES
@@ -332,14 +333,14 @@ EXTERNAL_PAGES         = YES
 #---------------------------------------------------------------------------
 
 CLASS_DIAGRAMS         = NO
-MSCGEN_PATH            = 
-DIA_PATH               = 
+MSCGEN_PATH            =
+DIA_PATH               =
 HIDE_UNDOC_RELATIONS   = YES
 HAVE_DOT               = YES
 DOT_NUM_THREADS        = 0
 DOT_FONTNAME           = Helvetica
 DOT_FONTSIZE           = 10
-DOT_FONTPATH           = 
+DOT_FONTPATH           =
 CLASS_GRAPH            = YES
 COLLABORATION_GRAPH    = NO
 GROUP_GRAPHS           = YES
@@ -355,11 +356,11 @@ DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = YES
 DOT_PATH               = /usr/local/bin
-DOTFILE_DIRS           = 
-MSCFILE_DIRS           = 
-DIAFILE_DIRS           = 
-PLANTUML_JAR_PATH      = 
-PLANTUML_INCLUDE_PATH  = 
+DOTFILE_DIRS           =
+MSCFILE_DIRS           =
+DIAFILE_DIRS           =
+PLANTUML_JAR_PATH      =
+PLANTUML_INCLUDE_PATH  =
 DOT_GRAPH_MAX_NODES    = 50
 MAX_DOT_GRAPH_DEPTH    = 0
 DOT_TRANSPARENT        = NO
