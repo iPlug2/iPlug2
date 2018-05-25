@@ -65,6 +65,17 @@ public:
   /**  */
   virtual void OnSysexMsgUI(int size, const void* pData) {};
   
+  
+  /**
+   This could be implemented in either DSP or EDITOR to receive a message from the other one
+
+   @param msg <#msg description#>
+   @param dataSize <#dataSize description#>
+   @param pData <#pData description#>
+   @return <#return value description#>
+   */
+  virtual bool OnMessage(const char* msgID, int dataSize, const void* pData) { return false; }
+  
   /** This is called by API classes after restoring state and by IPluginDelegate::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
@@ -81,6 +92,8 @@ public:
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
   virtual void SendControlMessageFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) {};
+  
+  virtual void SendMessageFromDelegate(const char* msg, int dataSize, const void* pData) {};
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
@@ -132,6 +145,8 @@ public:
 
   virtual void SendSysexMsgFromUI(int size, const uint8_t* pData) {};
   
+  virtual void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) {};
+
 protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
   WDL_PtrList<IParam> mParams;

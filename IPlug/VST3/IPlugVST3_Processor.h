@@ -59,7 +59,6 @@ private:
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromController {32}; // a queue of midi messages received from the controller, by clicking keyboard UI etc
 //  IPlugQueue<IMidiMsg> > mMidiMsgsFromProcessorToController {1024}; // a queue of midi messages to send to the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller

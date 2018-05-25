@@ -684,9 +684,13 @@ public:
   int AttachControl(IControl* pControl, int controlTag = kNoTag);
 
   /** @param idx The index of the control to get
-   * @return A pointer to the IControl object at idx */
+   * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
+  /** @param controlTag The tag to look for
+   * @return A pointer to the IControl object with the tag of nullptr if not found */
+  IControl* GetControlWithTag(int controlTag);
+  
   IControl* GetCapturedControl() { if(mMouseCapture > 0) { return GetControl(mMouseCapture); } else return nullptr; }
   
   /** @return The number of controls that have been added to this graphics context */
@@ -859,7 +863,7 @@ public:
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
   
-  void GenerateSliderGUI(const IRECT& area, int rows = 4, int columns = 4, EDirection dir = kVertical, const char** pParamNameStrings = nullptr);
+  void GenerateSliderGUI(const char* group, const IRECT& area, int rows = 4, int columns = 4, EDirection dir = kVertical, const char** pParamNameStrings = nullptr);
   
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;

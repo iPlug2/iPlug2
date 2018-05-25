@@ -432,3 +432,23 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
   sendMessage(message);
 }
+
+void IPlugVST3Controller::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  if(dataSize == 0) // allow sending messages with no data
+  {
+    dataSize = 1;
+    uint8_t dummy = 0;
+    pData = &dummy;
+  }
+  
+  message->setMessageID(msgID);
+  message->getAttributes()->setBinary("D", pData, dataSize);
+  sendMessage(message);
+}
+

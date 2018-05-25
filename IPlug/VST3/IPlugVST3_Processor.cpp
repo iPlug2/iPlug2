@@ -543,12 +543,22 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   {
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
-      if (size == sizeof(uint8_t)*3)
+      if (size == sizeof(IMidiMsg))
       {
-        uint8_t mmsg[3];
-        memcpy(&mmsg, data, size);
-        IMidiMsg immsg { 0, mmsg[0], mmsg[1], mmsg[2] };
-        mMidiMsgsFromController.Push(immsg);
+        IMidiMsg msg;
+        memcpy(&msg, data, size);
+        mMidiMsgsFromController.Push(msg);
+        return kResultOk;
+      }
+    }
+  }
+  else
+  {
+    if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
+    {
+      if(OnMessage(message->getMessageID(), size, data))
+      {
+        return kResultOk;
       }
     }
   }

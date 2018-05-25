@@ -152,3 +152,18 @@ void IPlugBase::OnTimer(Timer& t)
   
   OnIdle();
 }
+
+void IPlugBase::SendMidiMsgFromUI(const IMidiMsg& msg)
+{
+  mMidiMsgsFromController.Push(msg);
+}
+
+void IPlugBase::SendSysexMsgFromUI(int size, const uint8_t* pData)
+{
+  //TODO:
+}
+
+void IPlugBase::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+{
+  OnMessage(msgID, dataSize, pData);
+}

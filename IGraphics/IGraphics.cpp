@@ -154,6 +154,22 @@ void IGraphics::AttachPopupMenuControl(IPopupMenuControlBase* pControl)
   mPopupControl->SetGraphics(this);
 }
 
+IControl* IGraphics::GetControlWithTag(int controlTag)
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    IControl* pControl = *ppControl;
+    if (pControl->GetTag() == controlTag)
+    {
+      return pControl;
+    }
+  }
+  
+  return nullptr;
+}
+
 void IGraphics::HideControl(int paramIdx, bool hide)
 {
   int i, n = mControls.GetSize();

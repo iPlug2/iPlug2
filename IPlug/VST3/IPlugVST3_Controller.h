@@ -56,8 +56,11 @@ public:
   void InformHostOfProgramChange() override  { /* TODO: */}
   void ResizeGraphics() override { /* TODO: */ };
   
+  //Overrides for DISTRIBUTED
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
-  
+//  void SendSysexMsgFromUI() override;
+  void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
+
 private:
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   Steinberg::IPlugView* mView = nullptr;

@@ -150,6 +150,11 @@ public:
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
+  //These are handled in IPlugBase for non DISTRIBUTED APIs
+  void SendMidiMsgFromUI(const IMidiMsg& msg) override;
+  void SendSysexMsgFromUI(int size, const uint8_t* pData) override;
+  void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
+  
   void CreateTimer();
   
 private:
@@ -158,7 +163,7 @@ private:
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
   
-  //VST3 only
+  //DISTRIBUTED ONLY
   virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
 
   void OnTimer(Timer& t) override;
@@ -172,7 +177,9 @@ public:
   };
   
   IPlugQueue<ParamChange> mParamChangeToUIQueue;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32}; // a queue of midi messages that might be triggered by IPlug's SendMidiMsg during process to go out the midi output at high priority
+  IPlugQueue<IMidiMsg> mMidiMsgsFromController {32}; // a queue of midi messages received from the controller, by clicking keyboard UI etc
+  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32};
+  
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
 };
