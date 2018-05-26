@@ -2,13 +2,22 @@
 
 #include "IPlugPlatform.h"
 
-#include "cairo/cairo.h"
 #ifdef OS_MAC
+#include "cairo/cairo.h"
 #define __QUICKDRAW__
 #define __HISERVICES__
 #include "cairo/cairo-quartz.h"
-#else
-#include "cairo/cairo-win32.h"
+#else if define OS_WINDOWS
+#define CAIRO_WIN32_STATIC_BUILD
+
+#pragma comment(lib, "cairo.lib")
+#pragma comment(lib, "pixman.lib")
+#pragma comment(lib, "freetype.lib")
+#pragma comment(lib, "libpng.lib")
+#pragma comment(lib, "zlib.lib")
+
+#include "cairo/src/cairo.h"
+#include "cairo/src/cairo-win32.h"
 #endif
 
 #ifdef IGRAPHICS_FREETYPE

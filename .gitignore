@@ -39,8 +39,10 @@ Ports/*
 *.db-shm
 *.db-wal
 *.opendb
-/Dependencies/IGraphics/Libs
-/IPlug/AUv3
 *.pyc
-/Dependencies/IGraphics/glew/LICENSE.txt
-Dependencies/IGraphics/glew/*
+/IPlug/AUv3
+/Dependencies/IGraphics/glew/
+/Dependencies/Libraries
+/Dependencies/IGraphics/freetype/freetype
+/Dependencies/IGraphics/cairo/cairo
+/Dependencies/IGraphics/cairo/pixman

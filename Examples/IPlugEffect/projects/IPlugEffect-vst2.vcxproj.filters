@@ -35,105 +35,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\png.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngerror.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngget.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngmem.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngpread.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngread.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngrio.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngrtran.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngrutil.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngset.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngtrans.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngwio.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngwrite.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngwtran.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\libpng\pngwutil.c">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\inflate.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\adler32.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\compress.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\crc32.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\deflate.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\gzclose.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\gzlib.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\gzread.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\gzwrite.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\infback.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\inffast.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\inftrees.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\ioapi.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\trees.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\uncompr.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\unzip.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\zip.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\WDL\zlib\zutil.c">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -283,69 +184,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\png.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\pngconf.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\pngdebug.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\pnginfo.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\pnglibconf.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\pngpriv.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\libpng\pngstruct.h">
-      <Filter>IGraphics\Drawing\libpng</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\crc32.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\deflate.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\gzguts.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\inffast.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\inffixed.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\inflate.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\inftrees.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\ioapi.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\trees.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\unzip.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\zconf.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\zip.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\zlib.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\WDL\zlib\zutil.h">
-      <Filter>IGraphics\Drawing\zlib</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">
@@ -368,12 +206,6 @@
     </Filter>
     <Filter Include="IGraphics\Controls">
       <UniqueIdentifier>{fa39707d-4118-45f2-92fb-d407fa5d3288}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IGraphics\Drawing\libpng">
-      <UniqueIdentifier>{8f88bed1-3d59-4739-a3ff-dc91b80fe0ff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IGraphics\Drawing\zlib">
-      <UniqueIdentifier>{d4e1d646-f2b9-47fe-8c8e-ba43d4b4d1ac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

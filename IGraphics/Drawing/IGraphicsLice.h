@@ -5,6 +5,9 @@
 #ifdef OS_MAC
 #include <CoreGraphics/CoreGraphics.h>
 #include "swell.h"
+#elif defined OS_WIN
+#pragma comment(lib, "libpng.lib")
+#pragma comment(lib, "zlib.lib")
 #endif
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
