@@ -8,6 +8,10 @@
 #include "nanovg_gl.h"
 #endif
 
+#if NANOVG_PERF
+#include "perf.c"
+#endif
+
 #pragma mark -
 
 inline int GetBitmapIdx(APIBitmap* pBitmap) { return (int) ((long long) pBitmap->GetBitmap()); }
@@ -96,6 +100,10 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
 IGraphicsNanoVG::IGraphicsNanoVG(IDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
+#if NANOVG_PERF
+  mPerfGraph = new PerfGraph;
+  initGraph(mPerfGraph, GRAPH_RENDER_FPS, "Frame Time");
+ #endif
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
@@ -114,6 +122,10 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
     wglMakeCurrent((HDC)mPlatformContext, nullptr);
     wglDeleteContext(mHGLRC);
   }
+#endif
+
+#if NANOVG_PERF
+  delete mPerfGraph;
 #endif
 }
 
@@ -192,13 +204,26 @@ IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, in
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
-#ifdef OS_MAC
-  mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#if defined OS_MAC || defined OS_IOS
+  mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_TRIPLE_BUFFER /*check!*/);
 #endif
+}
+
+static double GetTimestamp() {
+  static auto start = std::chrono::steady_clock::now();
+  return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
 }
 
 void IGraphicsNanoVG::BeginFrame()
 {
+#if NANOVG_PERF
+  mnvgClearWithColor(mVG, NanoVGColor(COLOR_BLACK));
+  const double timestamp = GetTimestamp();
+  const double timeDiff = timestamp - mPrevTimestamp;
+  updateGraph(mPerfGraph, timeDiff);
+  mPrevTimestamp = timestamp;
+#endif
+  
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
@@ -207,6 +232,9 @@ void IGraphicsNanoVG::BeginFrame()
 
 void IGraphicsNanoVG::EndFrame()
 {
+#if NANOVG_PERF
+  renderGraph(mVG, 5, 5, mPerfGraph);
+#endif
   nvgEndFrame(mVG);
 }
 
@@ -228,7 +256,8 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
 {
-  nvgFontSize(mVG, 16);
+  nvgFontBlur(mVG, 0);
+  nvgFontSize(mVG, 14);
   nvgFontFace(mVG, "sans");
   nvgFillColor(mVG, NanoVGColor(text.mFGColor));
   
@@ -241,7 +270,7 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
     default:
       break;
   }
-  nvgTextAlign(mVG, align | NVG_ALIGN_MIDDLE);
+  nvgTextAlign(mVG, align | NVG_ALIGN_BASELINE);
   
   if(measure)
   {
@@ -252,7 +281,7 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
   }
   else
     nvgText(mVG, bounds.MW() , bounds.MH(), str, NULL);
-  
+
   return true;
 }
 

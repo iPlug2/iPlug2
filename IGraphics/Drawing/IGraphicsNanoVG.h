@@ -9,6 +9,8 @@
 
 #include "IGraphicsPathBase.h"
 
+class PerfGraph;
+
 class NanoVGBitmap : public APIBitmap
 {
 public:
@@ -85,5 +87,9 @@ private:
   NVGcontext* mVG = nullptr;
 #ifdef OS_WIN
   HGLRC mHGLRC = nullptr;
+#endif
+#if NANOVG_PERF
+  PerfGraph* mPerfGraph = nullptr;
+  double mPrevTimestamp = 0.;
 #endif
 };
