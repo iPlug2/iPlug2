@@ -303,82 +303,62 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsConstants.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLice.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLiveEdit.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsStructs.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVDropDownListControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h" />
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.h" />
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.h" />
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice.h" />
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.h" />
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h" />
+    <ClInclude Include="..\..\..\IGraphics\IControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphics.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsAutoGUI.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPathBase.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilites.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h" />
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h" />
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugGraphicsDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\png.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\pngconf.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\pngdebug.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\pnginfo.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\pnglibconf.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\pngpriv.h" />
+    <ClInclude Include="..\..\..\WDL\libpng\pngstruct.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\crc32.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\deflate.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\gzguts.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\inffast.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\inffixed.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\inflate.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\inftrees.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\ioapi.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\trees.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\unzip.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\zconf.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\zip.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\zlib.h" />
+    <ClInclude Include="..\..\..\WDL\zlib\zutil.h" />
     <ClInclude Include="..\IGraphicsTest.h" />
+    <ClInclude Include="..\IGraphicsTest_controls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
+    <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -386,7 +366,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.cpp">
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -394,7 +374,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsLice.cpp">
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -402,7 +382,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -410,7 +390,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -418,36 +398,54 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\IControl.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugGraphicsDelegate.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
+    <ClCompile Include="..\..\..\WDL\libpng\png.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngerror.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngget.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngmem.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngpread.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngread.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngrio.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngrtran.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngrutil.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngset.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngtrans.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngwio.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngwrite.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngwtran.c" />
+    <ClCompile Include="..\..\..\WDL\libpng\pngwutil.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\adler32.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\compress.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\crc32.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\deflate.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\gzclose.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\gzlib.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\gzread.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\infback.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\inffast.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\inflate.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\inftrees.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\ioapi.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\trees.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\uncompr.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\unzip.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\zip.c" />
+    <ClCompile Include="..\..\..\WDL\zlib\zutil.c" />
     <ClCompile Include="..\IGraphicsTest.cpp" />
     <ClCompile Include="..\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.mm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.mm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\IGraphicsTest.rc" />

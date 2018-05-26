@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;</ALL_DEFS>
+    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;$(PNG_DEFS)</ALL_DEFS>
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
     <ROOT_PATH>$(SolutionDir)..\..</ROOT_PATH>
     <WDL_PATH>$(ROOT_PATH)\WDL</WDL_PATH>
@@ -22,8 +22,9 @@
     <CAIRO_PATH>$(IGRAPHICS_DEPS_PATH)\Cairo</CAIRO_PATH>
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG</AGG_PATH>
     <GLEW_PATH>$(IGRAPHICS_DEPS_PATH)\glew\include</GLEW_PATH>
-    <PNG_PATH>$(CAIRO_PATH)/libpng</PNG_PATH>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(GLEW_PATH);$(PNG_PATH)</IGRAPHICS_INC_PATHS>
+    <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
+    <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(GLEW_PATH);$(PNG_PATH);$(ZLIB_PATH)</IGRAPHICS_INC_PATHS>
     <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -49,6 +50,7 @@
     <VST3_INC_PATHS>$(IPLUG_PATH)\VST3;$(VST3_SDK)</VST3_INC_PATHS>
     <AAX_INC_PATHS>$(IPLUG_PATH)\AAX;$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;</AAX_INC_PATHS>
     <AAX_DEFS>AAX_API;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</AAX_DEFS>
+    <PNG_DEFS>_LIB; PNG_USE_PNGVCRD; PNG_LIBPNG_SPECIALBUILD; __MMX__; PNG_HAVE_MMX_COMBINE_ROW; PNG_HAVE_MMX_READ_INTERLACE; PNG_HAVE_MMX_READ_FILTER_ROW</PNG_DEFS>
     <AAX_LIBS>wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
     <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
     <VST2_32_COMMAND_ARGS />
@@ -136,6 +138,9 @@
     <BuildMacro Include="PNG_PATH">
       <Value>$(PNG_PATH)</Value>
     </BuildMacro>
+    <BuildMacro Include="ZLIB_PATH">
+      <Value>$(ZLIB_PATH)</Value>
+    </BuildMacro>
     <BuildMacro Include="IGRAPHICS_INC_PATHS">
       <Value>$(IGRAPHICS_INC_PATHS)</Value>
     </BuildMacro>
@@ -213,6 +218,12 @@
     </BuildMacro>
     <BuildMacro Include="AAX_DEFS">
       <Value>$(AAX_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PNG_DEFS">
+      <Value>$(PNG_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ALL_DEFS">
+      <Value>$(ALL_DEFS)</Value>
     </BuildMacro>
     <BuildMacro Include="AAX_LIBS">
       <Value>$(AAX_LIBS)</Value>

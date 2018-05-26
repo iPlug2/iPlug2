@@ -1,4 +1,13 @@
 #include "IPlugPlatform.h"
+
+#ifdef OS_WIN
+#include <windows.h>
+#include <commctrl.h>
+HWND gHWND;
+HINSTANCE gHINSTANCE;
+UINT gScrollMessage;
+#endif
+
 #include "IGraphicsTest.h"
 #include "resources/resource.h"
 
@@ -6,11 +15,6 @@ IGraphicsTest* gIGraphicsTest = nullptr;
 
 #pragma mark - WINDOWS
 #if defined(OS_WIN)
-#include <windows.h>
-#include <commctrl.h>
-HWND gHWND;
-HINSTANCE gHINSTANCE;
-UINT gScrollMessage;
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
@@ -339,4 +343,4 @@ void tick()
 }
 #endif
 
-#include "IGraphicsTest.cpp"
+//#include "IGraphicsTest.cpp"

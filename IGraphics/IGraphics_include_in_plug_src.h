@@ -5,11 +5,13 @@
 
 #ifndef NO_IGRAPHICS
 
+extern HINSTANCE gHINSTANCE;
+
  #if defined OS_WIN
   IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps);
-    pGraphics->SetPlatformInstance(gHInstance);
+    pGraphics->SetPlatformInstance(gHINSTANCE);
     return pGraphics;
   }
   #elif defined OS_MAC

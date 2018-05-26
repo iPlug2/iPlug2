@@ -10,14 +10,14 @@
 
 #pragma mark - VST2
 #if defined OS_WIN
-  HINSTANCE gHInstance = 0;
+  HINSTANCE gHINSTANCE = 0;
   #if defined(VST2_API) || defined(AAX_API)
   #ifdef __MINGW32__
   extern "C"
   #endif
   BOOL WINAPI DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
   {
-    gHInstance = hDllInst;
+    gHINSTANCE = hDllInst;
     return TRUE;
   }
   #endif

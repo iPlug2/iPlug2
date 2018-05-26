@@ -3,7 +3,7 @@
 /** \file IGraphics_include_in_plug_hdr.h
  \brief IGraphics header include
 
- Include this file in the main header for your plugin/app using IGraphics
+ Include this file in the main header if using IGraphics outside a plugin context
  */
 
 #include "IPlugPlatform.h"
