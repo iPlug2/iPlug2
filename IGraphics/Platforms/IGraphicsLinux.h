@@ -10,7 +10,7 @@
 class IGraphicsLinux final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsLinux(IGraphicsDelegate& dlg, int w, int h, int fps)  final;
+  IGraphicsLinux(IGraphicsEditorDelegate& dlg, int w, int h, int fps)  final;
   virtual ~IGraphicsLinux);
 
   void* OpenWindow(void* pWindow) override;

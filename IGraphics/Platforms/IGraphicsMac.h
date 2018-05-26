@@ -10,7 +10,7 @@
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsMac(IDelegate& dlg, int w, int h, int fps);
+  IGraphicsMac(IEditorDelegate& dlg, int w, int h, int fps);
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }

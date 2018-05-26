@@ -32,7 +32,7 @@ class IGraphicsWeb : public IGraphicsPathBase
 public:
   const char* GetDrawingAPIStr() override { return "WEB"; }
 
-  IGraphicsWeb(IDelegate& dlg, int w, int h, int fps);
+  IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps);
   ~IGraphicsWeb();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;

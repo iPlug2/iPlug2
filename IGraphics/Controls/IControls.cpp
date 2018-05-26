@@ -2,7 +2,7 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
+IVSwitchControl::IVSwitchControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
   , const IVColorSpec& colorSpec, int numStates, EDirection dir)
   : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
@@ -52,7 +52,7 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
 }
 
-IVKnobControl::IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
+IVKnobControl::IVKnobControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx,
                              const IVColorSpec& colorSpec,
                              float aMin, float aMax,
                              EDirection direction, double gearing)
@@ -132,14 +132,14 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+IBSliderControl::IBSliderControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
 {
 }
 
-IBSliderControl::IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IBSliderControl::IBSliderControl(IEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {

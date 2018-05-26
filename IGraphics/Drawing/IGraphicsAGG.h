@@ -151,7 +151,7 @@ public:
     RasterizerType mRasterizer;
   };
 
-  IGraphicsAGG(IDelegate& dlg, int w, int h, int fps);
+  IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps);
   ~IGraphicsAGG();
 
   void SetDisplayScale(int scale) override;

@@ -97,7 +97,7 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
 
 #pragma mark -
 
-IGraphicsNanoVG::IGraphicsNanoVG(IDelegate& dlg, int w, int h, int fps)
+IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
 #if NANOVG_PERF

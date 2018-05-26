@@ -23,7 +23,7 @@ void DefaultClickActionFunc(IControl* pCaller)
   pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
 };
 
-IControl::IControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
@@ -32,7 +32,7 @@ IControl::IControl(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction a
 {
 }
 
-IControl::IControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+IControl::IControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
@@ -334,7 +334,7 @@ void ITextControl::Draw(IGraphics& g)
   }
 }
 
-ICaptionControl::ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
+ICaptionControl::ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
 : ITextControl(dlg, bounds, text)
 , mShowParamLabel(showParamLabel)
 {
@@ -371,7 +371,7 @@ void ICaptionControl::Draw(IGraphics& g)
   return ITextControl::Draw(g);
 }
 
-ISwitchControlBase::ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
+ISwitchControlBase::ISwitchControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(dlg, bounds, paramIdx, actionFunc)
 {

@@ -38,7 +38,7 @@
 #endif
 #endif
 
-class IDelegate;
+class IEditorDelegate;
 class IControl;
 class IPopupMenuControlBase;
 class IParam;
@@ -581,7 +581,7 @@ public:
   virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
 
 #pragma mark - IGraphics base implementation
-  IGraphics(IDelegate& dlg, int w, int h, int fps = 0);
+  IGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0);
   virtual ~IGraphics();
 
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
@@ -655,7 +655,7 @@ public:
 
   /** Gets a Reference to the delegate class that handles communication to and from this graphics context.
     * @return Reference to the delegate */
-  IDelegate& GetDelegate() { return mDelegate; }
+  IEditorDelegate& GetDelegate() { return mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param filename CString filename resource id for the bitmap image \todo check this */
@@ -863,7 +863,7 @@ public:
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
   
-  void GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx, int paramJump, const char* groupName, int rows, int columns, EDirection dir = kVertical, const char** pParamNameStrings = nullptr);
+  void GenerateSliderGUI(const IRECT& area, int startIdx = 0, int endIdx = -1, int paramJump = 0, const char* group = "", int rows = 4, int columns = 4, EDirection dir = kVertical, const char** pParamNameStrings = nullptr);
   
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
@@ -875,7 +875,7 @@ protected:
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
 protected:
-  IDelegate& mDelegate;
+  IEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;

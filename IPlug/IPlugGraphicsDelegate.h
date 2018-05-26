@@ -1,22 +1,22 @@
 #pragma once
 
-#include "IPlugDelegate.h"
+#include "IPlugEditorDelegate.h"
 
 /**
  * @file
- * @copydoc IGraphicsDelegate
+ * @copydoc IGraphicsEditorDelegate
  */
 
 class IGraphics;
 
 /** An IDelgate base class for a SOMETHING that uses IGraphics for it's UI */
-class IGraphicsDelegate : public IDelegate
+class IGraphicsEditorDelegate : public IEditorDelegate
 {
 public:
-  IGraphicsDelegate(int nParams);
-  ~IGraphicsDelegate();
+  IGraphicsEditorDelegate(int nParams);
+  ~IGraphicsEditorDelegate();
 
-// IDelegate
+// IEditorDelegate
   void* OpenWindow(void* pHandle) override;
   void CloseWindow() override;
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
@@ -29,7 +29,7 @@ public:
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() override;
   
-  //IGraphicsDelegate
+  //IGraphicsEditorDelegate
   virtual void AttachGraphics(IGraphics* pGraphics);
   virtual IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
   

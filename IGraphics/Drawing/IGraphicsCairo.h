@@ -41,7 +41,7 @@ class IGraphicsCairo : public IGraphicsPathBase
 public:
   const char* GetDrawingAPIStr() override { return "CAIRO"; }
 
-  IGraphicsCairo(IDelegate& dlg, int w, int h, int fps);
+  IGraphicsCairo(IEditorDelegate& dlg, int w, int h, int fps);
   ~IGraphicsCairo();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;

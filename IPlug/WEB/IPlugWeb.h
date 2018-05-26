@@ -25,13 +25,13 @@ public:
 //  void ResizeGraphics() override {};
 //  void HostSpecificInit() override {};
   
-  //IDelegate
+  //IEditorDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;
 //  void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
 //  void EndInformHostOfParamChangeFromUI(int paramIdx) override;
   
   #ifndef NO_IGRAPHICS
-  //IGraphicsDelegate
+  //IGraphicsEditorDelegate
   void AttachGraphics(IGraphics* pGraphics) override;
   #endif  
 };

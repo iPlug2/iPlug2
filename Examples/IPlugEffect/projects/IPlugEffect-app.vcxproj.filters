@@ -175,7 +175,7 @@
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\IPlugEffect_controls.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.h">

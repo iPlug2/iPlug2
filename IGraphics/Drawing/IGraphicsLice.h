@@ -60,7 +60,7 @@ class IGraphicsLice : public IGraphics
 public:
   const char* GetDrawingAPIStr() override { return "LICE"; }
 
-  IGraphicsLice(IDelegate& dlg, int w, int h, int fps);
+  IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps);
   ~IGraphicsLice();
 
   void SetDisplayScale(int) override;

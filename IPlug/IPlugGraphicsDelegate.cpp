@@ -2,17 +2,17 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-IGraphicsDelegate::IGraphicsDelegate(int nParams)
-: IDelegate(nParams)
+IGraphicsEditorDelegate::IGraphicsEditorDelegate(int nParams)
+: IEditorDelegate(nParams)
 {  
 }
 
-IGraphicsDelegate::~IGraphicsDelegate()
+IGraphicsEditorDelegate::~IGraphicsEditorDelegate()
 {
   DELETE_NULL(mGraphics);
 }
 
-void IGraphicsDelegate::AttachGraphics(IGraphics* pGraphics)
+void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
   if (pGraphics)
   {
@@ -28,7 +28,7 @@ void IGraphicsDelegate::AttachGraphics(IGraphics* pGraphics)
   }
 }
 
-void IGraphicsDelegate::OnRestoreState()
+void IGraphicsEditorDelegate::OnRestoreState()
 {
   if (mGraphics)
   {
@@ -41,7 +41,7 @@ void IGraphicsDelegate::OnRestoreState()
   }
 }
 
-void* IGraphicsDelegate::OpenWindow(void* pHandle)
+void* IGraphicsEditorDelegate::OpenWindow(void* pHandle)
 {
   if(mGraphics)
     return mGraphics->OpenWindow(pHandle);
@@ -49,13 +49,13 @@ void* IGraphicsDelegate::OpenWindow(void* pHandle)
     return nullptr;
 }
 
-void IGraphicsDelegate::CloseWindow()
+void IGraphicsEditorDelegate::CloseWindow()
 {
   if(mGraphics)
     mGraphics->CloseWindow();
 }
 
-//void IGraphicsDelegate::PrintDebugInfo() const
+//void IGraphicsEditorDelegate::PrintDebugInfo() const
 //{
 //  assert(mGraphics != nullptr);
 //
@@ -73,7 +73,7 @@ void IGraphicsDelegate::CloseWindow()
 //#endif
 //}
 
-void IGraphicsDelegate::SetControlValueFromDelegate(int controlTag, double normalizedValue)
+void IGraphicsEditorDelegate::SetControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   assert(mGraphics != nullptr);
 
@@ -91,7 +91,7 @@ void IGraphicsDelegate::SetControlValueFromDelegate(int controlTag, double norma
   }
 }
 
-void IGraphicsDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
   assert(mGraphics != nullptr);
   
@@ -109,7 +109,7 @@ void IGraphicsDelegate::SendControlMsgFromDelegate(int controlTag, int messageTa
   }
 }
 
-void IGraphicsDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
+void IGraphicsEditorDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
 {
   assert(mGraphics != nullptr);
   
@@ -149,11 +149,11 @@ void IGraphicsDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double 
 //    }
 //  }
   
-  IDelegate::SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
+  IEditorDelegate::SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
 }
 
 // TODO: ResizeGraphicsFromUI
-void IGraphicsDelegate::ResizeGraphicsFromUI()
+void IGraphicsEditorDelegate::ResizeGraphicsFromUI()
 {
   assert(mGraphics != nullptr);
 //
@@ -162,7 +162,7 @@ void IGraphicsDelegate::ResizeGraphicsFromUI()
 //  ResizeGraphics();
 }
 
-void IGraphicsDelegate::OnMidiMsgUI(const IMidiMsg& msg)
+void IGraphicsEditorDelegate::OnMidiMsgUI(const IMidiMsg& msg)
 {
   assert(mGraphics != nullptr);
   

@@ -8,14 +8,14 @@
 extern HINSTANCE gHINSTANCE;
 
  #if defined OS_WIN
-  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps);
     pGraphics->SetPlatformInstance(gHINSTANCE);
     return pGraphics;
   }
   #elif defined OS_MAC
-  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);
@@ -25,7 +25,7 @@ extern HINSTANCE gHINSTANCE;
     return pGraphics;
   }
   #elif defined OS_IOS
-  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps);
     pGraphics->SetBundleID(BUNDLE_ID);
@@ -37,7 +37,7 @@ extern HINSTANCE gHINSTANCE;
 
   IGraphics* gGraphics = nullptr;
 
-  IGraphics* MakeGraphics(IDelegate& dlg, int w, int h, int fps = 0)
+  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
     return pGraphics;

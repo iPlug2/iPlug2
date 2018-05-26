@@ -505,7 +505,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-IGraphicsWin::IGraphicsWin(IDelegate& dlg, int w, int h, int fps)
+IGraphicsWin::IGraphicsWin(IEditorDelegate& dlg, int w, int h, int fps)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps)
 {}
 

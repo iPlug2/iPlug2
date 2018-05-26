@@ -8,13 +8,13 @@
 #define UI_FPS 60
 #define BUNDLE_ID "com.OliLarkin.app.IGraphicsTest"
 
-class IGraphicsTest : public IGraphicsDelegate
+class IGraphicsTest : public IGraphicsEditorDelegate
 {
 public:
   IGraphicsTest();
   ~ IGraphicsTest() {}
 
-  //IDelegate
+  //IEditorDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { };

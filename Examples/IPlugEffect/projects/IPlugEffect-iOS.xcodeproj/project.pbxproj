@@ -78,7 +78,7 @@
 		4FFF106A20A0E58600D3092F /* IPlugGraphicsDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106420A0E58600D3092F /* IPlugGraphicsDelegate.h */; };
 		4FFF106C20A0E58600D3092F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */; };
 		4FFF106D20A0E58600D3092F /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */; };
-		4FFF106E20A0E58600D3092F /* IPlugDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106820A0E58600D3092F /* IPlugDelegate.h */; };
+		4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */; };
 		4FFF106F20A0E58600D3092F /* IPlugDelegate_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */; };
 		4FFF107820A0E5A500D3092F /* heapbuf.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF107120A0E5A500D3092F /* heapbuf.h */; };
 		4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF107220A0E5A500D3092F /* wdlstring.h */; };
@@ -253,7 +253,7 @@
 		4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugGraphicsDelegate.cpp; path = ../../../IPlug/IPlugGraphicsDelegate.cpp; sourceTree = "<group>"; };
 		4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginDelegate.cpp; path = ../../../IPlug/IPlugPluginDelegate.cpp; sourceTree = "<group>"; };
 		4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginDelegate.h; path = ../../../IPlug/IPlugPluginDelegate.h; sourceTree = "<group>"; };
-		4FFF106820A0E58600D3092F /* IPlugDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate.h; path = ../../../IPlug/IPlugDelegate.h; sourceTree = "<group>"; };
+		4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
 		4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
 		4FFF107120A0E5A500D3092F /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../../WDL/heapbuf.h; sourceTree = "<group>"; };
 		4FFF107220A0E5A500D3092F /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = "<group>"; };
@@ -515,7 +515,7 @@
 			isa = PBXGroup;
 			children = (
 				4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */,
-				4FFF106820A0E58600D3092F /* IPlugDelegate.h */,
+				4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */,
 				4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */,
 				4FFF106420A0E58600D3092F /* IPlugGraphicsDelegate.h */,
 				4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */,
@@ -598,7 +598,7 @@
 				4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */,
 				4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */,
 				4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */,
-				4FFF106E20A0E58600D3092F /* IPlugDelegate.h in Headers */,
+				4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */,
 				4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */,
 				4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */,
 				4F6369E620A466320022C370 /* IControl.h in Headers */,

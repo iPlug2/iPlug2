@@ -20,24 +20,24 @@
  *
  *  Note on method names: "FromUI" in a method name, means that that method is called by the UI class. Likewise "ToUI" means 
  *  that the method is delivering something wait for it... to the UI.
- *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IDelegate interface,
- *  which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IDelegate is not a plug-in
+ *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
+ *  which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IEditorDelegate is not a plug-in
  *
  *  NOTES:
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
  *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
- *  A parameter OBJECT is also referred to as a "param", in method names such as IDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
+ *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
 
-class IDelegate
+class IEditorDelegate
 {
 public:
-  IDelegate(int nParams)
+  IEditorDelegate(int nParams)
   {
     for (int i = 0; i < nParams; ++i)
       mParams.Add(new IParam());
   }
   
-  virtual ~IDelegate()
+  virtual ~IEditorDelegate()
   {
     mParams.Empty(true);
   }
@@ -109,7 +109,7 @@ public:
   virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx); } // TODO: normalised?
 
 #pragma mark - DELEGATION methods for sending values FROM the user interface
-  // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
+  // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IEditorDelegate
   
   /** Called by the UI at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified

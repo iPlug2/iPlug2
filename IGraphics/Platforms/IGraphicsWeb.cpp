@@ -38,7 +38,7 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
   SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
 }
 
-IGraphicsWeb::IGraphicsWeb(IDelegate& dlg, int w, int h, int fps)
+IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
   printf("HELLO IGraphicsWeb!\n");

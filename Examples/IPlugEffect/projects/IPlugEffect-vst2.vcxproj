@@ -279,7 +279,7 @@
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugGraphicsDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />

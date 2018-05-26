@@ -19,7 +19,7 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = DefaultClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = DefaultClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   void Draw(IGraphics& g) override;
 
@@ -39,12 +39,12 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IDelegate& dlg, IRECT bounds, int paramIdx,
+  IVKnobControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
   
-  IVKnobControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
+  IVKnobControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
@@ -62,7 +62,7 @@ protected:
 class IVSVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IDelegate& dlg, IRECT bounds, ISVG& svg, int paramIdx = kNoParameter)
+  IVSVGKnob(IEditorDelegate& dlg, IRECT bounds, ISVG& svg, int paramIdx = kNoParameter)
     : IKnobControlBase(dlg, bounds, paramIdx)
     , mSVG(svg)
   {
@@ -94,7 +94,7 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  IVSliderControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10, int trackSize = 2)
   : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
@@ -104,7 +104,7 @@ public:
     AttachIControl(this);
   }
   
-  IVSliderControl(IDelegate& dlg, IRECT bounds, IActionFunction aF,
+  IVSliderControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10, int trackSize = 2)
   : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
@@ -126,7 +126,7 @@ private:
 class IVContactControl : public IVSwitchControl
 {
 public:
-  IVContactControl(IDelegate& dlg, IRECT bounds, int paramIdx)
+  IVContactControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx)
   : IVSwitchControl(dlg, bounds, paramIdx)
   {};
 
@@ -145,7 +145,7 @@ public:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap)
+  IBSwitchControl(IEditorDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap)
   : IBitmapControl(dlg, x, y, paramIdx, bitmap) {}
   virtual ~IBSwitchControl() {}
 
@@ -158,13 +158,13 @@ class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
 public:
-  IBKnobControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  IBKnobControl(IEditorDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
   : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap)
   {
   }
   
-  IBKnobControl(IDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  IBKnobControl(IEditorDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
   : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
   , IBitmapBase(bitmap)
   {
@@ -193,12 +193,12 @@ public:
 class IBKnobRotaterControl : public IBKnobControl
 {
 public:
-  IBKnobRotaterControl(IDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(IEditorDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
   : IBKnobControl(plug, IRECT(x, y, bitmap), bitmap, paramIdx)
   {
   }
   
-  IBKnobRotaterControl(IDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(IEditorDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
   : IBKnobControl(plug, bounds.GetCentredInside(bitmap), bitmap, paramIdx)
   {
   }
@@ -216,10 +216,10 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(IDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+  IBSliderControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
   
-  IBSliderControl(IDelegate& dlg, float x, float y, int len, int paramIdx,
+  IBSliderControl(IEditorDelegate& dlg, float x, float y, int len, int paramIdx,
                   IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   
   virtual ~IBSliderControl() {}
@@ -243,7 +243,7 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
+  IBTextControl(IEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
   : ITextControl(dlg, bounds, text, str)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)

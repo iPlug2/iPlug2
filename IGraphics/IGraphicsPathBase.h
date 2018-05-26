@@ -10,7 +10,7 @@
 class IGraphicsPathBase : public IGraphics
 {
 public:
-  IGraphicsPathBase(IDelegate& dlg, int w, int h, int fps) 
+  IGraphicsPathBase(IEditorDelegate& dlg, int w, int h, int fps) 
   : IGraphics(dlg, w, h, fps) 
   {}
 

@@ -93,7 +93,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffect.h">

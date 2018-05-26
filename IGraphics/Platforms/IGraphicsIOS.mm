@@ -32,7 +32,7 @@ NSString* ToNSString(const char* cStr)
 
 #pragma mark -
 
-IGraphicsIOS::IGraphicsIOS(IDelegate& dlg, int w, int h, int fps)
+IGraphicsIOS::IGraphicsIOS(IEditorDelegate& dlg, int w, int h, int fps)
 : IGraphicsNanoVG(dlg, w, h, fps)
 {
   SetDisplayScale(1);

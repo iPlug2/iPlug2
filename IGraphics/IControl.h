@@ -21,7 +21,7 @@
 #include "ptrlist.h"
 
 #include "IGraphics.h"
-#include "IPlugDelegate.h"
+#include "IPlugEditorDelegate.h"
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
@@ -35,16 +35,16 @@ class IControl
 {
 public:
   /** Constructor
-   * @param dlg The class implementing the IDelegate interface that will handle parameter changes.
+   * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
    * In a plug-in, this would typically be your main plug-in class, which inherits from IPlugBaseGraphics, which implements the interface.
    * If you're doing something using IGraphics without IPlugBaseGraphics (e.g. drawing into an extra window), you need to implement the delegate interface somewhere
    * to handle parameter changes.
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
-  IControl(IDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
+  IControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
 
   virtual ~IControl() {}
 
@@ -112,7 +112,7 @@ public:
   int ParamIdx() const { return mParamIdx; }
   const IParam* GetParam();
   
-  /** This method is called from the class implementing the IDelegate interface in order to update a controls mValue and set it to be marked
+  /** This method is called from the class implementing the IEditorDelegate interface in order to update a controls mValue and set it to be marked
    dirty for redraw. This either happens on a parameter changing value or if this control is not linked to a parameter (mParamIdx = kNoParameter);
    @param value Normalised incoming value */
   virtual void SetValueFromDelegate(double value);
@@ -221,10 +221,10 @@ public:
   void SetWantsMIDI(bool enable) { mWantsMIDI = true; }
   bool WantsMIDI() { return mWantsMIDI; }
 
-  /** Gets a reference to the class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.
+  /** Gets a reference to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
-   * @return The class implementing the IDelegate interface that handles parameter changes from this IGraphics instance.*/
-  IDelegate& GetDelegate() { return mDelegate; }
+   * @return The class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.*/
+  IEditorDelegate& GetDelegate() { return mDelegate; }
   
   void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
   IGraphics* GetUI() { return mGraphics; }
@@ -264,7 +264,7 @@ public:
   
 #pragma mark - IControl Member variables
 protected:
-  IDelegate& mDelegate;
+  IEditorDelegate& mDelegate;
   IGraphics* mGraphics = nullptr;
   int mTag = kNoTag;
   IRECT mRECT;
@@ -502,7 +502,7 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IDelegate& dlg, IRECT bounds, const IColor& color)
+  IPanelControl(IEditorDelegate& dlg, IRECT bounds, const IColor& color)
   : IControl(dlg, bounds)
   , mColor(color)
   {
@@ -525,13 +525,13 @@ public:
   /** Creates a bitmap control with a given parameter
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapControl(IEditorDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
 
   /** Creates a bitmap control without a parameter */
-  IBitmapControl(IDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapControl(IEditorDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
   , IBitmapBase(bitmap, blend)
   {
@@ -556,7 +556,7 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IDelegate& dlg, ISVG& svg, IRECT bounds, int paramIdx)
+  ISVGControl(IEditorDelegate& dlg, ISVG& svg, IRECT bounds, int paramIdx)
     : IControl(dlg, bounds, paramIdx)
     , mSVG(svg)
   {}
@@ -578,7 +578,7 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IDelegate& dlg, IRECT bounds, const IText& text, const char* str = "")
+  ITextControl(IEditorDelegate& dlg, IRECT bounds, const IText& text, const char* str = "")
   : IControl(dlg, bounds)
   , mStr(str)
   {
@@ -599,7 +599,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel = true);
+  ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel = true);
   ~ICaptionControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -615,7 +615,7 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  IKnobControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
     : IControl(dlg, bounds, paramIdx)
     , mDirection(direction)
@@ -636,7 +636,7 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  ISliderControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                      EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
   : IControl(dlg, bounds, paramIdx)
   , mDirection(dir)
@@ -645,7 +645,7 @@ public:
     handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
   }
   
-  ISliderControlBase(IDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+  ISliderControlBase(IEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
                      EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
   : IControl(dlg, bounds, aF)
   , mDirection(dir)
@@ -668,7 +668,7 @@ class IVTrackControlBase : public IControl
 , public IVectorBase
 {
 public:
-  IVTrackControlBase(IDelegate& dlg, IRECT bounds, int maxNTracks = 1, const char* trackNames = 0, ...)
+  IVTrackControlBase(IEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, const char* trackNames = 0, ...)
   : IControl(dlg, bounds)
   , mMaxNTracks(maxNTracks)
   {
@@ -759,7 +759,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
+  ISwitchControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
     int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
@@ -773,7 +773,7 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  IDirBrowseControlBase(IEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
   : IControl(dlg, bounds)
   {
     mExtension.Set(extension);
@@ -809,7 +809,7 @@ protected:
 class IPopupMenuControlBase : public IControl
 {
 public:
-  IPopupMenuControlBase(IDelegate& dlg, EDirection direction = kVertical)
+  IPopupMenuControlBase(IEditorDelegate& dlg, EDirection direction = kVertical)
   : IControl(dlg, IRECT(), kNoParameter)
   , mDirection(direction)
   {

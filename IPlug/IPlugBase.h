@@ -145,7 +145,7 @@ public:
    * @param source Specifies the source of this parameter change */
   void OnParamReset(EParamSource source);  //
 
-  //IDelegate
+  //IEditorDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginDelegate::SetParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }

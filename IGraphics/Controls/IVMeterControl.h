@@ -44,7 +44,7 @@ public:
     }
     
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
-    void TransmitData(IDelegate& dlg)
+    void TransmitData(IEditorDelegate& dlg)
     {
       while(mQueue.ElementsAvailable())
       {
@@ -59,7 +59,7 @@ public:
     IPlugQueue<Data> mQueue { 1024 };
   };
   
-  IVMeterControl(IDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
+  IVMeterControl(IEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
   : IVTrackControlBase(dlg, bounds, MAXNC, trackNames)
   {
   }

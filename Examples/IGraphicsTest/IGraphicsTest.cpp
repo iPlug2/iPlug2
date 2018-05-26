@@ -13,7 +13,7 @@ extern UINT gScrollMessage;
 extern IGraphicsTest* gIGraphicsTest;
 
 IGraphicsTest::IGraphicsTest()
-: IGraphicsDelegate(0)
+: IGraphicsEditorDelegate(0)
 {
   IGraphics* pGraphics = MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 

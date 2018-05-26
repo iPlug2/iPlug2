@@ -17,7 +17,7 @@
  *
  *  Note on method names: "FromUI" in a method name, means that that method is called by the UI class. Likewise "ToUI" means
  *  that the method is delivering something wait for it... to the UI.
- *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IDelegate interface,
+ *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
  *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
  *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
  *  A parameter object is also referred to as a "param", in method names such as IPlugBase::GetParam(int paramIdx) and IControl::GetParam(). */

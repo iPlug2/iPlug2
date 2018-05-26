@@ -7,7 +7,7 @@ extern IGraphics* gGraphics;
 void IPlugWeb::AttachGraphics(IGraphics* pGraphics)
 {
   gGraphics = pGraphics;
-  IGraphicsDelegate::AttachGraphics(pGraphics);
+  IGraphicsEditorDelegate::AttachGraphics(pGraphics);
   gGraphics->Draw(gGraphics->GetBounds()); //TODO: weird
 }
 #endif

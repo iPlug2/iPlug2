@@ -56,7 +56,7 @@ public:
   void InformHostOfProgramChange() override  { /* TODO: */}
   void ResizeGraphics() override { /* TODO: */ };
   
-  //IDelegate
+  //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
   void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;

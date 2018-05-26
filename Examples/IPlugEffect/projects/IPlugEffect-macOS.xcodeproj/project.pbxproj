@@ -649,7 +649,7 @@
 		4FD52130202A5B9B00A4D22A /* IPlugAU.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; name = IPlugAU.r; path = ../../../IPlug/AUv2/IPlugAU.r; sourceTree = "<group>"; };
 		4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/AUv2/dfx-au-utilities.c"; sourceTree = "<group>"; };
 		4FD52135202A5BD000A4D22A /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../../IPlug/AUv2/dfx-au-utilities.h"; sourceTree = "<group>"; };
-		4FD7C3A1203372AD009DBA2C /* IPlugDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate.h; path = ../../../IPlug/IPlugDelegate.h; sourceTree = "<group>"; };
+		4FD7C3A1203372AD009DBA2C /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
@@ -913,7 +913,7 @@
 			isa = PBXGroup;
 			children = (
 				4FBAA593207918230054E717 /* IPlugDelegate_select.h */,
-				4FD7C3A1203372AD009DBA2C /* IPlugDelegate.h */,
+				4FD7C3A1203372AD009DBA2C /* IPlugEditorDelegate.h */,
 				4F35DEAB207E5C5A00867D8F /* IPlugPluginDelegate.cpp */,
 				4F35DEAC207E5C5A00867D8F /* IPlugPluginDelegate.h */,
 				4FBAA592207918230054E717 /* IPlugGraphicsDelegate.cpp */,
