@@ -70,6 +70,7 @@ public:
   void LoadFont(const char* name) override;
   
   void DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad) override;
+  void SetPlatformContext(void* pContext) override;
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
@@ -79,7 +80,10 @@ private:
   
   void ClipRegion(const IRECT& r) override { nvgScissor(mVG, r.L, r.T, r.W(), r.H()); }
   void ResetClipRegion() override { nvgResetScissor(mVG); }
-  
+
   WDL_PtrList<NanoVGBitmap> mBitmaps;
   NVGcontext* mVG = nullptr;
+#ifdef OS_WIN
+  HGLRC mHGLRC = nullptr;
+#endif
 };

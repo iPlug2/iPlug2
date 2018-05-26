@@ -23,9 +23,6 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
-      <Filter>IGraphics\Controls</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugGraphicsDelegate.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -34,6 +31,27 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
+      <Filter>IGraphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -75,7 +93,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\IPlugEffect_controls.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -100,16 +117,7 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsAutoGUI.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsIOS.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsIOS_view.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
@@ -163,26 +171,14 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IControl.h">
-      <Filter>IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVDropDownListControl.h">
-      <Filter>IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h">
-      <Filter>IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h">
-      <Filter>IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
-      <Filter>IGraphics\Controls</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugGraphicsDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
       <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IControl.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -207,10 +203,27 @@
     <Filter Include="IGraphics\Controls">
       <UniqueIdentifier>{fa39707d-4118-45f2-92fb-d407fa5d3288}</UniqueIdentifier>
     </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{8c338368-7512-426b-af83-0f50719ca0bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugEffect-web.mk">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugEffect.props">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugEffect.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugEffect-ios.xcconfig">
+      <Filter>config</Filter>
+    </None>
   </ItemGroup>
 </Project>

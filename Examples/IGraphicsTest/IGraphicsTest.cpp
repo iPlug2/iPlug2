@@ -1,14 +1,21 @@
 #include "IGraphicsTest.h"
+#include "resources/resource.h"
+
 #include "IGraphics_include_in_plug_src.h"
 
 #include "IGraphicsTest_controls.h"
 
 #include "IControls.h"
 
+extern HWND gHWND;
+extern HINSTANCE gHINSTANCE;
+extern UINT gScrollMessage;
+extern IGraphicsTest* gIGraphicsTest;
+
 IGraphicsTest::IGraphicsTest()
 : IGraphicsDelegate(0)
 {
-  IGraphics* pGraphics = MakeGraphics(*this, UI_WIDTH, UI_HEIGHT);
+  IGraphics* pGraphics = MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);

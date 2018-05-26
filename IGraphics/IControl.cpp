@@ -5,7 +5,6 @@
 
 #include "dirscan.h"
 
-
 void DefaultAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();

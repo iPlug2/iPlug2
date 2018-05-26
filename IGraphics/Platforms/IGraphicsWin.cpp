@@ -176,8 +176,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         }
 
         IRECT dirtyR;
+
+#ifdef IGRAPHICS_NANOVG
+        dirtyR = pGraphics->GetBounds();
+        {
+#else
         if (pGraphics->IsDirty(dirtyR))
         {
+#endif
           dirtyR.ScaleBounds(pGraphics->GetScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
@@ -337,10 +343,18 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       RECT r;
       if (GetUpdateRect(hWnd, &r, FALSE))
-      { 
+      {
+        #ifdef IGRAPHICS_NANOVG
+        PAINTSTRUCT ps;
+        BeginPaint(hWnd, &ps);
+        #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         ir.ScaleBounds(1. / pGraphics->GetScale());
         pGraphics->Draw(ir);
+        #ifdef IGRAPHICS_NANOVG
+        SwapBuffers((HDC)pGraphics->mPlatformContext);
+        EndPaint(hWnd, &ps);
+        #endif
       }
       return 0;
     }
@@ -632,12 +646,12 @@ void* IGraphicsWin::OpenWindow(void* pParentWnd)
 
   if (nWndClassReg++ == 0)
   {
-    WNDCLASS wndClass = { CS_DBLCLKS, WndProc, 0, 0, mHInstance, 0, LoadCursor(NULL, IDC_ARROW), 0, 0, wndClassName };
+    WNDCLASS wndClass = { CS_DBLCLKS | CS_OWNDC, WndProc, 0, 0, mHInstance, 0, LoadCursor(NULL, IDC_ARROW), 0, 0, wndClassName };
     RegisterClass(&wndClass);
   }
 
   sFPS = FPS();
-  mDelegateWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, // | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+  mDelegateWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE,
                           x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mDelegateWnd);
@@ -1383,7 +1397,7 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
   #include "nanovg.c"
-//#include "nanovg_mtl.m"
+  #include "glad.c"
 #else
   #include "IGraphicsCairo.cpp"
 #endif
