@@ -316,7 +316,6 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h" />
     <ClInclude Include="..\..\..\IGraphics\IControl.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphics.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsAutoGUI.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphicsPathBase.h" />
