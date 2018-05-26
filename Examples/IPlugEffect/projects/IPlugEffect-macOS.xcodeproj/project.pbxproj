@@ -124,14 +124,12 @@
 		4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F78D9BB13B63BA50032E0F3 /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugBase.cpp */; };
 		4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
-		4F815918205D50EB00393585 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8157DD205D50EA00393585 /* LICENSE.txt */; };
 		4F815919205D50EB00393585 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E0205D50EA00393585 /* memorystream.cpp */; };
 		4F81591A205D50EB00393585 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E2205D50EA00393585 /* pluginview.cpp */; };
 		4F81591D205D50EB00393585 /* macexport.exp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E7205D50EA00393585 /* macexport.exp */; };
 		4F81591E205D50EB00393585 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E8205D50EA00393585 /* macmain.cpp */; };
 		4F81591F205D50EB00393585 /* pluginfactoryvst3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E9205D50EA00393585 /* pluginfactoryvst3.cpp */; };
 		4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588D205D50EB00393585 /* vstinitiids.cpp */; };
-		4F81597B205D50EB00393585 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8158BD205D50EB00393585 /* LICENSE.txt */; };
 		4F81597C205D50EB00393585 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
 		4F81597D205D50EB00393585 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C1205D50EB00393585 /* fbuffer.cpp */; };
 		4F81597E205D50EB00393585 /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C5205D50EB00393585 /* fdebug.cpp */; };
@@ -147,7 +145,6 @@
 		4F815988205D50EB00393585 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E0205D50EB00393585 /* coreiids.cpp */; };
 		4F815989205D50EB00393585 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E7205D50EB00393585 /* funknown.cpp */; };
 		4F81598A205D50EB00393585 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158F7205D50EB00393585 /* ustring.cpp */; };
-		4F81598B205D50EB00393585 /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4F8158FC205D50EB00393585 /* LICENSE.txt */; };
 		4F81598C205D51CF00393585 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815896205D50EB00393585 /* vstsinglecomponenteffect.cpp */; };
 		4F81598D205D51F000393585 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81587E205D50EA00393585 /* vstaudioeffect.cpp */; };
 		4F81598E205D51F000393585 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815881205D50EA00393585 /* vstbus.cpp */; };
@@ -1735,9 +1732,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F815918205D50EB00393585 /* LICENSE.txt in Resources */,
-				4F81598B205D50EB00393585 /* LICENSE.txt in Resources */,
-				4F81597B205D50EB00393585 /* LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
