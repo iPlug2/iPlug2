@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IGraphics_include_in_plug_hdr.h"
-#include "IPlugGraphicsDelegate.h"
+#include "IGraphicsEditorDelegate.h"
 
 #define UI_WIDTH 700
 #define UI_HEIGHT 700

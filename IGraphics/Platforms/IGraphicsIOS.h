@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IGraphicsNanoVG.h"
-#include "IPlugGraphicsDelegate.h"
+#include "IGraphicsEditorDelegate.h"
 
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */

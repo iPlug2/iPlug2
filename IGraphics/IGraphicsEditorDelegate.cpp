@@ -1,4 +1,4 @@
-#include "IPlugGraphicsDelegate.h"
+#include "IGraphicsEditorDelegate.h"
 #include "IGraphics.h"
 #include "IControl.h"
 

@@ -22,10 +22,44 @@
 
 /* Begin PBXBuildFile section */
 		4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* MainMenu.xib */; };
+		4F1E0A6020BA2538004FC7D5 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A2C20BA2538004FC7D5 /* IGraphicsLice.h */; };
+		4F1E0A6120BA2538004FC7D5 /* IGraphicsAGG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A2D20BA2538004FC7D5 /* IGraphicsAGG.h */; };
+		4F1E0A6320BA2538004FC7D5 /* IGraphicsLice_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A2F20BA2538004FC7D5 /* IGraphicsLice_src.h */; };
+		4F1E0A6420BA2538004FC7D5 /* IGraphicsCairo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A3020BA2538004FC7D5 /* IGraphicsCairo.h */; };
+		4F1E0A6720BA2538004FC7D5 /* IGraphicsNanoVG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A3320BA2538004FC7D5 /* IGraphicsNanoVG.h */; };
+		4F1E0A6B20BA2538004FC7D5 /* IGraphicsAGG_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A3720BA2538004FC7D5 /* IGraphicsAGG_src.h */; };
+		4F1E0A6F20BA2538004FC7D5 /* IGraphics_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A3B20BA2538004FC7D5 /* IGraphics_include_in_plug_hdr.h */; };
+		4F1E0A7520BA2538004FC7D5 /* IGraphicsMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A4220BA2538004FC7D5 /* IGraphicsMac.h */; };
+		4F1E0A7620BA2538004FC7D5 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A4320BA2538004FC7D5 /* IGraphicsMac.mm */; };
+		4F1E0A7720BA2538004FC7D5 /* IGraphicsMac_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A4420BA2538004FC7D5 /* IGraphicsMac_view.h */; };
+		4F1E0A7820BA2538004FC7D5 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A4520BA2538004FC7D5 /* IGraphicsMac_view.mm */; };
+		4F1E0A7E20BA2538004FC7D5 /* IGraphicsPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A4B20BA2538004FC7D5 /* IGraphicsPopupMenu.h */; };
+		4F1E0A7F20BA2538004FC7D5 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A4C20BA2538004FC7D5 /* IControl.h */; };
+		4F1E0A8020BA2538004FC7D5 /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A4D20BA2538004FC7D5 /* IGraphicsEditorDelegate.cpp */; };
+		4F1E0A8120BA2538004FC7D5 /* IGraphicsUtilites.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A4E20BA2538004FC7D5 /* IGraphicsUtilites.h */; };
+		4F1E0A8220BA2538004FC7D5 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A4F20BA2538004FC7D5 /* IGraphics.cpp */; };
+		4F1E0A8320BA2538004FC7D5 /* IGraphicsPathBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5020BA2538004FC7D5 /* IGraphicsPathBase.h */; };
+		4F1E0A8420BA2538004FC7D5 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5220BA2538004FC7D5 /* IControls.h */; };
+		4F1E0A8520BA2538004FC7D5 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5320BA2538004FC7D5 /* IVScopeControl.h */; };
+		4F1E0A8620BA2538004FC7D5 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5420BA2538004FC7D5 /* IVMeterControl.h */; };
+		4F1E0A8720BA2538004FC7D5 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5520BA2538004FC7D5 /* IVDropDownListControl.h */; };
+		4F1E0A8820BA2538004FC7D5 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5620BA2538004FC7D5 /* IVKeyboardControl.h */; };
+		4F1E0A8920BA2538004FC7D5 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A5720BA2538004FC7D5 /* IControls.cpp */; };
+		4F1E0A8A20BA2538004FC7D5 /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5820BA2538004FC7D5 /* IGraphicsStructs.h */; };
+		4F1E0A8B20BA2538004FC7D5 /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5920BA2538004FC7D5 /* IGraphicsConstants.h */; };
+		4F1E0A8C20BA2538004FC7D5 /* IGraphicsLiveEdit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5A20BA2538004FC7D5 /* IGraphicsLiveEdit.h */; };
+		4F1E0A8D20BA2538004FC7D5 /* IGraphics_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5B20BA2538004FC7D5 /* IGraphics_select.h */; };
+		4F1E0A8E20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5C20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h */; };
+		4F1E0A8F20BA2538004FC7D5 /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5D20BA2538004FC7D5 /* IGraphicsEditorDelegate.h */; };
+		4F1E0A9020BA2538004FC7D5 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A5E20BA2538004FC7D5 /* IControl.cpp */; };
+		4F1E0A9120BA2538004FC7D5 /* IGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A5F20BA2538004FC7D5 /* IGraphics.h */; };
+		4F1E0A9420BA25A0004FC7D5 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A9220BA25A0004FC7D5 /* IPlugPathsMac.mm */; };
+		4F1E0A9520BA25A0004FC7D5 /* IPlugPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A9320BA25A0004FC7D5 /* IPlugPaths.h */; };
+		4F1E0A9620BA25E7004FC7D5 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A3620BA2538004FC7D5 /* IGraphicsNanoVG_src.m */; };
+		4F1E0A9920BA2605004FC7D5 /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A9720BA2605004FC7D5 /* IPlugPluginDelegate.cpp */; };
+		4F1E0A9A20BA2605004FC7D5 /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A9820BA2605004FC7D5 /* IPlugPluginDelegate.h */; };
+		4F1E0A9B20BA2618004FC7D5 /* IGraphicsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */; };
 		4F3ECAAF2038561700630EC5 /* IPlugPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3ECAAE2038561700630EC5 /* IPlugPlatform.h */; };
-		4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB612013C520002C8948 /* IGraphicsMac.m */; };
-		4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB652013C521002C8948 /* IGraphicsMac.mm */; };
-		4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */; };
 		4F6F535C202FD49300FEE3A7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F5359202FD49200FEE3A7 /* main.cpp */; };
 		4F6F5362202FD82800FEE3A7 /* IPlugParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F5360202FD82800FEE3A7 /* IPlugParameter.h */; };
 		4F6F5363202FD82800FEE3A7 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F5361202FD82800FEE3A7 /* IPlugParameter.cpp */; };
@@ -43,11 +77,8 @@
 		4F78DAB113B640470032E0F3 /* swell-menugen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D0213B63489001D0217 /* swell-menugen.h */; };
 		4F78DAB213B640470032E0F3 /* swell-dlggen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D0313B63494001D0217 /* swell-dlggen.h */; };
 		4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D4513B635C8001D0217 /* swellappmain.h */; };
-		4F84626E209CC1D700474F83 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F84626C209CC1D700474F83 /* IPlugGraphicsDelegate.cpp */; };
-		4F84626F209CC1D700474F83 /* IPlugGraphicsDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F84626D209CC1D700474F83 /* IPlugGraphicsDelegate.h */; };
 		4F846271209CC61E00474F83 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F846270209CC61E00474F83 /* knob.png */; };
 		4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
-		4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6B9541FF9C22700049441 /* IControls.cpp */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -59,15 +90,6 @@
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
 		4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; };
-		4FF142841FD4A61E00A65575 /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */; };
-		4FF1428F1FD4A61E00A65575 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF142681FD4A61C00A65575 /* IGraphics.cpp */; };
-		4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF1426D1FD4A61D00A65575 /* IControl.cpp */; };
-		4FF142A71FD4A61E00A65575 /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */; };
-		4FF142A91FD4A61E00A65575 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1426F1FD4A61D00A65575 /* IControl.h */; };
-		4FF142BE1FD4A61E00A65575 /* IGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF142751FD4A61D00A65575 /* IGraphics.h */; };
-		4FF142C51FD4A61E00A65575 /* IGraphicsUtilites.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */; };
-		4FF142D21FD4A61E00A65575 /* IGraphicsLice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */; };
-		4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,37 +104,72 @@
 
 /* Begin PBXFileReference section */
 		4F1B4AE32014D33600BC64D4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../resources/MainMenu.xib; sourceTree = "<group>"; };
+		4F1E0A2C20BA2538004FC7D5 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
+		4F1E0A2D20BA2538004FC7D5 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
+		4F1E0A2E20BA2538004FC7D5 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
+		4F1E0A2F20BA2538004FC7D5 /* IGraphicsLice_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice_src.h; sourceTree = "<group>"; };
+		4F1E0A3020BA2538004FC7D5 /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCairo.h; sourceTree = "<group>"; };
+		4F1E0A3120BA2538004FC7D5 /* IGraphicsAGG_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG_src.cpp; sourceTree = "<group>"; };
+		4F1E0A3320BA2538004FC7D5 /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
+		4F1E0A3420BA2538004FC7D5 /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCairo.cpp; sourceTree = "<group>"; };
+		4F1E0A3520BA2538004FC7D5 /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG.cpp; sourceTree = "<group>"; };
+		4F1E0A3620BA2538004FC7D5 /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
+		4F1E0A3720BA2538004FC7D5 /* IGraphicsAGG_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG_src.h; sourceTree = "<group>"; };
+		4F1E0A3920BA2538004FC7D5 /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
+		4F1E0A3A20BA2538004FC7D5 /* IGraphicsLice_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice_src.cpp; sourceTree = "<group>"; };
+		4F1E0A3B20BA2538004FC7D5 /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
+		4F1E0A3D20BA2538004FC7D5 /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS_view.h; sourceTree = "<group>"; };
+		4F1E0A3E20BA2538004FC7D5 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWeb.cpp; sourceTree = "<group>"; };
+		4F1E0A3F20BA2538004FC7D5 /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsWeb.h; sourceTree = "<group>"; };
+		4F1E0A4020BA2538004FC7D5 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsWin.h; sourceTree = "<group>"; };
+		4F1E0A4120BA2538004FC7D5 /* IGraphicsLinux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLinux.h; sourceTree = "<group>"; };
+		4F1E0A4220BA2538004FC7D5 /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsMac.h; sourceTree = "<group>"; };
+		4F1E0A4320BA2538004FC7D5 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsMac.mm; sourceTree = "<group>"; };
+		4F1E0A4420BA2538004FC7D5 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsMac_view.h; sourceTree = "<group>"; };
+		4F1E0A4520BA2538004FC7D5 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsMac_view.mm; sourceTree = "<group>"; };
+		4F1E0A4620BA2538004FC7D5 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
+		4F1E0A4720BA2538004FC7D5 /* IGraphicsIOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS.mm; sourceTree = "<group>"; };
+		4F1E0A4820BA2538004FC7D5 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWin.cpp; sourceTree = "<group>"; };
+		4F1E0A4920BA2538004FC7D5 /* IGraphicsIOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS.h; sourceTree = "<group>"; };
+		4F1E0A4A20BA2538004FC7D5 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
+		4F1E0A4B20BA2538004FC7D5 /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
+		4F1E0A4C20BA2538004FC7D5 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
+		4F1E0A4D20BA2538004FC7D5 /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
+		4F1E0A4E20BA2538004FC7D5 /* IGraphicsUtilites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilites.h; sourceTree = "<group>"; };
+		4F1E0A4F20BA2538004FC7D5 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
+		4F1E0A5020BA2538004FC7D5 /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
+		4F1E0A5220BA2538004FC7D5 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
+		4F1E0A5320BA2538004FC7D5 /* IVScopeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
+		4F1E0A5420BA2538004FC7D5 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
+		4F1E0A5520BA2538004FC7D5 /* IVDropDownListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVDropDownListControl.h; sourceTree = "<group>"; };
+		4F1E0A5620BA2538004FC7D5 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
+		4F1E0A5720BA2538004FC7D5 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
+		4F1E0A5820BA2538004FC7D5 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
+		4F1E0A5920BA2538004FC7D5 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
+		4F1E0A5A20BA2538004FC7D5 /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
+		4F1E0A5B20BA2538004FC7D5 /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
+		4F1E0A5C20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
+		4F1E0A5D20BA2538004FC7D5 /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
+		4F1E0A5E20BA2538004FC7D5 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
+		4F1E0A5F20BA2538004FC7D5 /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics.h; sourceTree = "<group>"; };
+		4F1E0A9220BA25A0004FC7D5 /* IPlugPathsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPathsMac.mm; path = ../../../IPlug/IPlugPathsMac.mm; sourceTree = "<group>"; };
+		4F1E0A9320BA25A0004FC7D5 /* IPlugPaths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
+		4F1E0A9720BA2605004FC7D5 /* IPlugPluginDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginDelegate.cpp; path = ../../../IPlug/IPlugPluginDelegate.cpp; sourceTree = "<group>"; };
+		4F1E0A9820BA2605004FC7D5 /* IPlugPluginDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginDelegate.h; path = ../../../IPlug/IPlugPluginDelegate.h; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
 		4F3ECAAE2038561700630EC5 /* IPlugPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatform.h; path = ../../../IPlug/IPlugPlatform.h; sourceTree = "<group>"; };
 		4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsTest.cpp; path = ../IGraphicsTest.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F3FB118202273A500622761 /* IGraphicsTest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IGraphicsTest.entitlements; sourceTree = "<group>"; };
-		4F69BB5D2013C520002C8948 /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac.h; path = ../../../IPlug/IGraphics/IGraphicsMac.h; sourceTree = "<group>"; };
-		4F69BB5E2013C520002C8948 /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IGraphicsWeb.h; path = ../../../IPlug/IGraphics/IGraphicsWeb.h; sourceTree = "<group>"; tabWidth = 2; };
-		4F69BB5F2013C520002C8948 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../../IPlug/IGraphics/IGraphicsWin.h; sourceTree = "<group>"; };
-		4F69BB602013C520002C8948 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IPlug/IGraphics/IGraphicsWeb.cpp; sourceTree = "<group>"; tabWidth = 2; };
-		4F69BB612013C520002C8948 /* IGraphicsMac.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IGraphicsMac.m; path = ../../../IPlug/IGraphics/IGraphicsMac.m; sourceTree = "<group>"; };
-		4F69BB622013C521002C8948 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWin.cpp; path = ../../../IPlug/IGraphics/IGraphicsWin.cpp; sourceTree = "<group>"; };
-		4F69BB632013C521002C8948 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IPlug/IGraphics/IGraphicsMac_view.h; sourceTree = "<group>"; };
-		4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IPlug/IGraphics/IGraphicsMac_view.mm; sourceTree = "<group>"; };
-		4F69BB652013C521002C8948 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IPlug/IGraphics/IGraphicsMac.mm; sourceTree = "<group>"; };
 		4F6F5359202FD49200FEE3A7 /* main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = main.cpp; path = ../main.cpp; sourceTree = "<group>"; };
 		4F6F5360202FD82800FEE3A7 /* IPlugParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugParameter.h; path = ../../../IPlug/IPlugParameter.h; sourceTree = "<group>"; };
 		4F6F5361202FD82800FEE3A7 /* IPlugParameter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugParameter.cpp; path = ../../../IPlug/IPlugParameter.cpp; sourceTree = "<group>"; };
 		4F6F5365202FDB9900FEE3A7 /* IGraphicsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsTest.h; path = ../IGraphicsTest.h; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
-		4F84626C209CC1D700474F83 /* IPlugGraphicsDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugGraphicsDelegate.cpp; path = ../../../IPlug/IPlugGraphicsDelegate.cpp; sourceTree = "<group>"; };
-		4F84626D209CC1D700474F83 /* IPlugGraphicsDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugGraphicsDelegate.h; path = ../../../IPlug/IPlugGraphicsDelegate.h; sourceTree = "<group>"; };
 		4F846270209CC61E00474F83 /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = knob.png; path = ../resources/img/knob.png; sourceTree = "<group>"; };
 		4F8B32602014C7D600EF1F61 /* IGraphicsTest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IGraphicsTest.xcconfig; sourceTree = "<group>"; };
-		4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLiveEdit.h; path = ../../../IPlug/IGraphics/IGraphicsLiveEdit.h; sourceTree = "<group>"; };
 		4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BefacoBigKnob.svg; path = ../resources/img/BefacoBigKnob.svg; sourceTree = "<group>"; };
-		4FA6B9531FF9C22700049441 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControls.h; path = ../../../IPlug/IGraphics/IControls.h; sourceTree = "<group>"; };
-		4FA6B9541FF9C22700049441 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IControls.cpp; path = ../../../IPlug/IGraphics/IControls.cpp; sourceTree = "<group>"; };
-		4FA9F9752050BA2B00D0F482 /* IGraphicsPathBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IPlug/IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; };
-		4FBAA59E207918730054E717 /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_src.h; path = ../../../IPlug/IGraphics/IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
-		4FBAA59F207918730054E717 /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_hdr.h; path = ../../../IPlug/IGraphics/IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IGraphicsTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IGraphicsTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
@@ -133,12 +190,6 @@
 		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
 		4FD290A8137C34D700CEBE7E /* IGraphicsTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IGraphicsTest.icns; path = ../resources/IGraphicsTest.icns; sourceTree = "<group>"; };
-		4FDA1DCE20123CAD0027C868 /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsCairo.cpp; path = ../../../IPlug/IGraphics/IGraphicsCairo.cpp; sourceTree = "<group>"; };
-		4FDA1DCF20123CAD0027C868 /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsCairo.h; path = ../../../IPlug/IGraphics/IGraphicsCairo.h; sourceTree = "<group>"; };
-		4FDA1DD120123CCF0027C868 /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsAGG.cpp; path = ../../../IPlug/IGraphics/IGraphicsAGG.cpp; sourceTree = "<group>"; };
-		4FDA1DD220123CCF0027C868 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsAGG.h; path = ../../../IPlug/IGraphics/IGraphicsAGG.h; sourceTree = "<group>"; };
-		4FDA1DD420123CEC0027C868 /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsNanoVG.h; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.h; sourceTree = "<group>"; };
-		4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsNanoVG.cpp; path = ../../../IPlug/IGraphics/IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
 		4FDA1E0E2012CDB30027C868 /* IGraphicsTest.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = IGraphicsTest.rc_mac_menu; path = ../resources/IGraphicsTest.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* IGraphicsTest.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = IGraphicsTest.rc_mac_dlg; path = ../resources/IGraphicsTest.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
@@ -146,16 +197,6 @@
 		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
 		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
-		4FF142631FD4A61C00A65575 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsLice.cpp; path = ../../../IPlug/IGraphics/IGraphicsLice.cpp; sourceTree = "<group>"; };
-		4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsStructs.h; path = ../../../IPlug/IGraphics/IGraphicsStructs.h; sourceTree = "<group>"; };
-		4FF142681FD4A61C00A65575 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphics.cpp; path = ../../../IPlug/IGraphics/IGraphics.cpp; sourceTree = "<group>"; };
-		4FF1426D1FD4A61D00A65575 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IControl.cpp; path = ../../../IPlug/IGraphics/IControl.cpp; sourceTree = "<group>"; };
-		4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsConstants.h; path = ../../../IPlug/IGraphics/IGraphicsConstants.h; sourceTree = "<group>"; };
-		4FF1426F1FD4A61D00A65575 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControl.h; path = ../../../IPlug/IGraphics/IControl.h; sourceTree = "<group>"; };
-		4FF142751FD4A61D00A65575 /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics.h; path = ../../../IPlug/IGraphics/IGraphics.h; sourceTree = "<group>"; };
-		4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsUtilites.h; path = ../../../IPlug/IGraphics/IGraphicsUtilites.h; sourceTree = "<group>"; };
-		4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLice.h; path = ../../../IPlug/IGraphics/IGraphicsLice.h; sourceTree = "<group>"; };
-		4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPopupMenu.h; path = ../../../IPlug/IGraphics/IPopupMenu.h; sourceTree = "<group>"; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../../common.xcconfig; sourceTree = SOURCE_ROOT; };
 		B80972F6206E5A5C0070ACB8 /* IGraphicsTest_controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsTest_controls.h; path = ../IGraphicsTest_controls.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -182,6 +223,7 @@
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
+				4FDA1E102012CDB30027C868 /* resource.h */,
 			);
 			name = IPlugExample;
 			sourceTree = "<group>";
@@ -189,12 +231,14 @@
 		089C1671FE841209C02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F1E0A2A20BA2538004FC7D5 /* IGraphics */,
 				4F6F5361202FD82800FEE3A7 /* IPlugParameter.cpp */,
 				4F6F5360202FD82800FEE3A7 /* IPlugParameter.h */,
 				4F3ECAAE2038561700630EC5 /* IPlugPlatform.h */,
-				4F84626C209CC1D700474F83 /* IPlugGraphicsDelegate.cpp */,
-				4F84626D209CC1D700474F83 /* IPlugGraphicsDelegate.h */,
-				4FF142621FD4A5FD00A65575 /* IGraphics */,
+				4F1E0A9320BA25A0004FC7D5 /* IPlugPaths.h */,
+				4F1E0A9220BA25A0004FC7D5 /* IPlugPathsMac.mm */,
+				4F1E0A9720BA2605004FC7D5 /* IPlugPluginDelegate.cpp */,
+				4F1E0A9820BA2605004FC7D5 /* IPlugPluginDelegate.h */,
 				4FF01613134E0BCD001447BA /* WDL */,
 			);
 			name = Frameworks;
@@ -207,7 +251,6 @@
 				4F1B4AE32014D33600BC64D4 /* MainMenu.xib */,
 				4FDA1E0F2012CDB30027C868 /* IGraphicsTest.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* IGraphicsTest.rc_mac_menu */,
-				4FDA1E102012CDB30027C868 /* resource.h */,
 				4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IGraphicsTest.icns */,
 			);
@@ -232,31 +275,84 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
-		4F69BB5C2013C501002C8948 /* PlatformClasses */ = {
+		4F1E0A2A20BA2538004FC7D5 /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
-				4F69BB652013C521002C8948 /* IGraphicsMac.mm */,
-				4F69BB5D2013C520002C8948 /* IGraphicsMac.h */,
-				4F69BB612013C520002C8948 /* IGraphicsMac.m */,
-				4F69BB632013C521002C8948 /* IGraphicsMac_view.h */,
-				4F69BB642013C521002C8948 /* IGraphicsMac_view.mm */,
-				4F69BB602013C520002C8948 /* IGraphicsWeb.cpp */,
-				4F69BB5E2013C520002C8948 /* IGraphicsWeb.h */,
-				4F69BB622013C521002C8948 /* IGraphicsWin.cpp */,
-				4F69BB5F2013C520002C8948 /* IGraphicsWin.h */,
+				4F1E0A3C20BA2538004FC7D5 /* Platforms */,
+				4F1E0A2B20BA2538004FC7D5 /* Drawing */,
+				4F1E0A5120BA2538004FC7D5 /* Controls */,
+				4F1E0A3B20BA2538004FC7D5 /* IGraphics_include_in_plug_hdr.h */,
+				4F1E0A4B20BA2538004FC7D5 /* IGraphicsPopupMenu.h */,
+				4F1E0A4E20BA2538004FC7D5 /* IGraphicsUtilites.h */,
+				4F1E0A5F20BA2538004FC7D5 /* IGraphics.h */,
+				4F1E0A4F20BA2538004FC7D5 /* IGraphics.cpp */,
+				4F1E0A5020BA2538004FC7D5 /* IGraphicsPathBase.h */,
+				4F1E0A5820BA2538004FC7D5 /* IGraphicsStructs.h */,
+				4F1E0A5920BA2538004FC7D5 /* IGraphicsConstants.h */,
+				4F1E0A5A20BA2538004FC7D5 /* IGraphicsLiveEdit.h */,
+				4F1E0A5B20BA2538004FC7D5 /* IGraphics_select.h */,
+				4F1E0A5C20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h */,
+				4F1E0A5D20BA2538004FC7D5 /* IGraphicsEditorDelegate.h */,
+				4F1E0A4D20BA2538004FC7D5 /* IGraphicsEditorDelegate.cpp */,
+				4F1E0A4C20BA2538004FC7D5 /* IControl.h */,
+				4F1E0A5E20BA2538004FC7D5 /* IControl.cpp */,
 			);
-			name = PlatformClasses;
+			name = IGraphics;
+			path = ../../../IGraphics;
 			sourceTree = "<group>";
 		};
-		4F94ABBD2013B2400058CC5E /* DrawClasses */ = {
+		4F1E0A2B20BA2538004FC7D5 /* Drawing */ = {
 			isa = PBXGroup;
 			children = (
-				4FDA1DD320123CDA0027C868 /* NanoVG */,
-				4FDA1DCC20123C730027C868 /* Lice */,
-				4FDA1DCD20123C8B0027C868 /* Cairo */,
-				4FDA1DD020123CB30027C868 /* AGG */,
+				4F1E0A2C20BA2538004FC7D5 /* IGraphicsLice.h */,
+				4F1E0A2D20BA2538004FC7D5 /* IGraphicsAGG.h */,
+				4F1E0A2E20BA2538004FC7D5 /* IGraphicsLice.cpp */,
+				4F1E0A2F20BA2538004FC7D5 /* IGraphicsLice_src.h */,
+				4F1E0A3020BA2538004FC7D5 /* IGraphicsCairo.h */,
+				4F1E0A3120BA2538004FC7D5 /* IGraphicsAGG_src.cpp */,
+				4F1E0A3320BA2538004FC7D5 /* IGraphicsNanoVG.h */,
+				4F1E0A3420BA2538004FC7D5 /* IGraphicsCairo.cpp */,
+				4F1E0A3520BA2538004FC7D5 /* IGraphicsAGG.cpp */,
+				4F1E0A3620BA2538004FC7D5 /* IGraphicsNanoVG_src.m */,
+				4F1E0A3720BA2538004FC7D5 /* IGraphicsAGG_src.h */,
+				4F1E0A3920BA2538004FC7D5 /* IGraphicsNanoVG.cpp */,
+				4F1E0A3A20BA2538004FC7D5 /* IGraphicsLice_src.cpp */,
 			);
-			name = DrawClasses;
+			path = Drawing;
+			sourceTree = "<group>";
+		};
+		4F1E0A3C20BA2538004FC7D5 /* Platforms */ = {
+			isa = PBXGroup;
+			children = (
+				4F1E0A4220BA2538004FC7D5 /* IGraphicsMac.h */,
+				4F1E0A4320BA2538004FC7D5 /* IGraphicsMac.mm */,
+				4F1E0A4420BA2538004FC7D5 /* IGraphicsMac_view.h */,
+				4F1E0A4520BA2538004FC7D5 /* IGraphicsMac_view.mm */,
+				4F1E0A3D20BA2538004FC7D5 /* IGraphicsIOS_view.h */,
+				4F1E0A3E20BA2538004FC7D5 /* IGraphicsWeb.cpp */,
+				4F1E0A3F20BA2538004FC7D5 /* IGraphicsWeb.h */,
+				4F1E0A4020BA2538004FC7D5 /* IGraphicsWin.h */,
+				4F1E0A4120BA2538004FC7D5 /* IGraphicsLinux.h */,
+				4F1E0A4620BA2538004FC7D5 /* IGraphicsLinux.cpp */,
+				4F1E0A4720BA2538004FC7D5 /* IGraphicsIOS.mm */,
+				4F1E0A4820BA2538004FC7D5 /* IGraphicsWin.cpp */,
+				4F1E0A4920BA2538004FC7D5 /* IGraphicsIOS.h */,
+				4F1E0A4A20BA2538004FC7D5 /* IGraphicsIOS_view.mm */,
+			);
+			path = Platforms;
+			sourceTree = "<group>";
+		};
+		4F1E0A5120BA2538004FC7D5 /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				4F1E0A5220BA2538004FC7D5 /* IControls.h */,
+				4F1E0A5320BA2538004FC7D5 /* IVScopeControl.h */,
+				4F1E0A5420BA2538004FC7D5 /* IVMeterControl.h */,
+				4F1E0A5520BA2538004FC7D5 /* IVDropDownListControl.h */,
+				4F1E0A5620BA2538004FC7D5 /* IVKeyboardControl.h */,
+				4F1E0A5720BA2538004FC7D5 /* IControls.cpp */,
+			);
+			path = Controls;
 			sourceTree = "<group>";
 		};
 		4FD16A0213B6303B001D0217 /* img */ = {
@@ -293,42 +389,6 @@
 			name = SWELL;
 			sourceTree = "<group>";
 		};
-		4FDA1DCC20123C730027C868 /* Lice */ = {
-			isa = PBXGroup;
-			children = (
-				4FF1427C1FD4A61E00A65575 /* IGraphicsLice.h */,
-				4FF142631FD4A61C00A65575 /* IGraphicsLice.cpp */,
-			);
-			name = Lice;
-			sourceTree = "<group>";
-		};
-		4FDA1DCD20123C8B0027C868 /* Cairo */ = {
-			isa = PBXGroup;
-			children = (
-				4FDA1DCF20123CAD0027C868 /* IGraphicsCairo.h */,
-				4FDA1DCE20123CAD0027C868 /* IGraphicsCairo.cpp */,
-			);
-			name = Cairo;
-			sourceTree = "<group>";
-		};
-		4FDA1DD020123CB30027C868 /* AGG */ = {
-			isa = PBXGroup;
-			children = (
-				4FDA1DD220123CCF0027C868 /* IGraphicsAGG.h */,
-				4FDA1DD120123CCF0027C868 /* IGraphicsAGG.cpp */,
-			);
-			name = AGG;
-			sourceTree = "<group>";
-		};
-		4FDA1DD320123CDA0027C868 /* NanoVG */ = {
-			isa = PBXGroup;
-			children = (
-				4FDA1DD420123CEC0027C868 /* IGraphicsNanoVG.h */,
-				4FDA1DD520123CEC0027C868 /* IGraphicsNanoVG.cpp */,
-			);
-			name = NanoVG;
-			sourceTree = "<group>";
-		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
@@ -344,29 +404,6 @@
 			name = WDL;
 			sourceTree = "<group>";
 		};
-		4FF142621FD4A5FD00A65575 /* IGraphics */ = {
-			isa = PBXGroup;
-			children = (
-				4FBAA59F207918730054E717 /* IGraphics_include_in_plug_hdr.h */,
-				4FBAA59E207918730054E717 /* IGraphics_include_in_plug_src.h */,
-				4F69BB5C2013C501002C8948 /* PlatformClasses */,
-				4F94ABBD2013B2400058CC5E /* DrawClasses */,
-				4FF142751FD4A61D00A65575 /* IGraphics.h */,
-				4FF142681FD4A61C00A65575 /* IGraphics.cpp */,
-				4FA9F9752050BA2B00D0F482 /* IGraphicsPathBase.h */,
-				4FF142641FD4A61C00A65575 /* IGraphicsStructs.h */,
-				4FF1426E1FD4A61D00A65575 /* IGraphicsConstants.h */,
-				4FF142771FD4A61D00A65575 /* IGraphicsUtilites.h */,
-				4F99A8F7201129D2004F7C4C /* IGraphicsLiveEdit.h */,
-				4FF1427E1FD4A61E00A65575 /* IPopupMenu.h */,
-				4FF1426F1FD4A61D00A65575 /* IControl.h */,
-				4FF1426D1FD4A61D00A65575 /* IControl.cpp */,
-				4FA6B9531FF9C22700049441 /* IControls.h */,
-				4FA6B9541FF9C22700049441 /* IControls.cpp */,
-			);
-			name = IGraphics;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -374,29 +411,48 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FF142C51FD4A61E00A65575 /* IGraphicsUtilites.h in Headers */,
-				4FF142D21FD4A61E00A65575 /* IGraphicsLice.h in Headers */,
+				4F1E0A8720BA2538004FC7D5 /* IVDropDownListControl.h in Headers */,
 				4F78DAB113B640470032E0F3 /* swell-menugen.h in Headers */,
 				4F78DAB213B640470032E0F3 /* swell-dlggen.h in Headers */,
+				4F1E0A9A20BA2605004FC7D5 /* IPlugPluginDelegate.h in Headers */,
+				4F1E0A8C20BA2538004FC7D5 /* IGraphicsLiveEdit.h in Headers */,
+				4F1E0A8B20BA2538004FC7D5 /* IGraphicsConstants.h in Headers */,
+				4F1E0A8E20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h in Headers */,
+				4F1E0A8A20BA2538004FC7D5 /* IGraphicsStructs.h in Headers */,
 				4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */,
-				4FF142D61FD4A61E00A65575 /* IPopupMenu.h in Headers */,
-				4FF142A91FD4A61E00A65575 /* IControl.h in Headers */,
+				4F1E0A8520BA2538004FC7D5 /* IVScopeControl.h in Headers */,
+				4F1E0A6720BA2538004FC7D5 /* IGraphicsNanoVG.h in Headers */,
 				4F78DA8A13B640050032E0F3 /* mutex.h in Headers */,
+				4F1E0A6020BA2538004FC7D5 /* IGraphicsLice.h in Headers */,
+				4F1E0A8620BA2538004FC7D5 /* IVMeterControl.h in Headers */,
+				4F1E0A6420BA2538004FC7D5 /* IGraphicsCairo.h in Headers */,
+				4F1E0A7F20BA2538004FC7D5 /* IControl.h in Headers */,
+				4F1E0A8320BA2538004FC7D5 /* IGraphicsPathBase.h in Headers */,
+				4F1E0A9120BA2538004FC7D5 /* IGraphics.h in Headers */,
+				4F1E0A6B20BA2538004FC7D5 /* IGraphicsAGG_src.h in Headers */,
+				4F1E0A8820BA2538004FC7D5 /* IVKeyboardControl.h in Headers */,
+				4F1E0A7E20BA2538004FC7D5 /* IGraphicsPopupMenu.h in Headers */,
 				4F78DA8B13B640050032E0F3 /* ptrlist.h in Headers */,
 				4F78DA8C13B640050032E0F3 /* wdlstring.h in Headers */,
+				4F1E0A8F20BA2538004FC7D5 /* IGraphicsEditorDelegate.h in Headers */,
+				4F1E0A6F20BA2538004FC7D5 /* IGraphics_include_in_plug_hdr.h in Headers */,
+				4F1E0A7720BA2538004FC7D5 /* IGraphicsMac_view.h in Headers */,
 				4F6F5366202FDB9900FEE3A7 /* IGraphicsTest.h in Headers */,
+				4F1E0A8420BA2538004FC7D5 /* IControls.h in Headers */,
 				4F3ECAAF2038561700630EC5 /* IPlugPlatform.h in Headers */,
 				4F78DA8D13B640050032E0F3 /* heapbuf.h in Headers */,
-				4FF142841FD4A61E00A65575 /* IGraphicsStructs.h in Headers */,
-				4F84626F209CC1D700474F83 /* IPlugGraphicsDelegate.h in Headers */,
+				4F1E0A8D20BA2538004FC7D5 /* IGraphics_select.h in Headers */,
+				4F1E0A8120BA2538004FC7D5 /* IGraphicsUtilites.h in Headers */,
 				4F78DA8E13B640050032E0F3 /* wdlendian.h in Headers */,
 				4F78DA8F13B640050032E0F3 /* swell.h in Headers */,
+				4F1E0A6320BA2538004FC7D5 /* IGraphicsLice_src.h in Headers */,
+				4F1E0A6120BA2538004FC7D5 /* IGraphicsAGG.h in Headers */,
 				4F78DA9013B640050032E0F3 /* swell-functions.h in Headers */,
+				4F1E0A7520BA2538004FC7D5 /* IGraphicsMac.h in Headers */,
 				4F6F5362202FD82800FEE3A7 /* IPlugParameter.h in Headers */,
 				4F78DA9113B640050032E0F3 /* swell-internal.h in Headers */,
 				4F78DA9213B640050032E0F3 /* swell-types.h in Headers */,
-				4FF142BE1FD4A61E00A65575 /* IGraphics.h in Headers */,
-				4FF142A71FD4A61E00A65575 /* IGraphicsConstants.h in Headers */,
+				4F1E0A9520BA25A0004FC7D5 /* IPlugPaths.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,21 +559,24 @@
 				4F6F5363202FD82800FEE3A7 /* IPlugParameter.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */,
+				4F1E0A9920BA2605004FC7D5 /* IPlugPluginDelegate.cpp in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
+				4F1E0A7620BA2538004FC7D5 /* IGraphicsMac.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
-				4F84626E209CC1D700474F83 /* IPlugGraphicsDelegate.cpp in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
+				4F1E0A9B20BA2618004FC7D5 /* IGraphicsTest.cpp in Sources */,
+				4F1E0A9020BA2538004FC7D5 /* IControl.cpp in Sources */,
+				4F1E0A7820BA2538004FC7D5 /* IGraphicsMac_view.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
-				4F69BB662013C531002C8948 /* IGraphicsMac.m in Sources */,
+				4F1E0A8220BA2538004FC7D5 /* IGraphics.cpp in Sources */,
 				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
-				4F69BB682013C531002C8948 /* IGraphicsMac_view.mm in Sources */,
-				4FF142A21FD4A61E00A65575 /* IControl.cpp in Sources */,
-				4F69BB672013C531002C8948 /* IGraphicsMac.mm in Sources */,
-				4FF1428F1FD4A61E00A65575 /* IGraphics.cpp in Sources */,
-				4FA6B9551FF9C23600049441 /* IControls.cpp in Sources */,
+				4F1E0A9420BA25A0004FC7D5 /* IPlugPathsMac.mm in Sources */,
+				4F1E0A8920BA2538004FC7D5 /* IControls.cpp in Sources */,
+				4F1E0A9620BA25E7004FC7D5 /* IGraphicsNanoVG_src.m in Sources */,
+				4F1E0A8020BA2538004FC7D5 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F6F535C202FD49300FEE3A7 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

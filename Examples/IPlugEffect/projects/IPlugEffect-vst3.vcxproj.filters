@@ -17,7 +17,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugGraphicsDelegate.cpp">
+    <ClCompile Include="..\..\..\IPlug\IGraphicsEditorDelegate.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
@@ -142,7 +142,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugGraphicsDelegate.h">
+    <ClInclude Include="..\..\..\IPlug\IGraphicsEditorDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">

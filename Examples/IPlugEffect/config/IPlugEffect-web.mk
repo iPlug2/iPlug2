@@ -51,7 +51,7 @@ WEB_SRC = IPlugEffect.cpp \
 $(IPLUG_SRC) \
 $(IGRAPHICS_SRC) \
 $(IPLUG_WEB_PATH)/IPlugWeb.cpp \
-$(IPLUG_PATH)/IPlugGraphicsDelegate.cpp
+$(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 
 WEB_CFLAGS = $(INCLUDE_FLAGS) \
 -DWEB_API \

@@ -48,7 +48,8 @@
 		4F8028CB20A24FA9003A66EC /* nanovg_gl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C420A24FA9003A66EC /* nanovg_gl.h */; };
 		4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C520A24FA9003A66EC /* fontstash.h */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
-		4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */; };
+		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
+		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
 		4FF3206720B2C77700269268 /* knob-rotate.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205A20B2C75000269268 /* knob-rotate.png */; };
 		4FF3206820B2C77700269268 /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205B20B2C75000269268 /* BefacoBigKnob.svg */; };
 		4FF3206920B2C77700269268 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FF3205C20B2C75000269268 /* knob.png */; };
@@ -75,7 +76,6 @@
 		4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105520A0E57100D3092F /* BufferedAudioBus.hpp */; };
 		4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105820A0E57100D3092F /* IPlugAUv3.mm */; };
 		4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105920A0E57100D3092F /* IPlugAUv3.h */; };
-		4FFF106A20A0E58600D3092F /* IPlugGraphicsDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106420A0E58600D3092F /* IPlugGraphicsDelegate.h */; };
 		4FFF106C20A0E58600D3092F /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */; };
 		4FFF106D20A0E58600D3092F /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */; };
 		4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */; };
@@ -217,6 +217,8 @@
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugEffect-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugEffect-ios.xcconfig"; path = "../config/IPlugEffect-ios.xcconfig"; sourceTree = "<group>"; };
+		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
+		4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
 		4FF3204920B2BC4C00269268 /* IPlugPaths.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
 		4FF3205A20B2C75000269268 /* knob-rotate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "knob-rotate.png"; sourceTree = "<group>"; };
 		4FF3205B20B2C75000269268 /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = BefacoBigKnob.svg; sourceTree = "<group>"; };
@@ -249,8 +251,6 @@
 		4FFF105820A0E57100D3092F /* IPlugAUv3.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAUv3.mm; path = ../../../IPlug/AUv3/IPlugAUv3.mm; sourceTree = "<group>"; };
 		4FFF105920A0E57100D3092F /* IPlugAUv3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUv3.h; path = ../../../IPlug/AUv3/IPlugAUv3.h; sourceTree = "<group>"; };
 		4FFF105A20A0E57100D3092F /* IPlugViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugViewController.mm; path = ../../../IPlug/AUv3/IPlugViewController.mm; sourceTree = "<group>"; };
-		4FFF106420A0E58600D3092F /* IPlugGraphicsDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugGraphicsDelegate.h; path = ../../../IPlug/IPlugGraphicsDelegate.h; sourceTree = "<group>"; };
-		4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugGraphicsDelegate.cpp; path = ../../../IPlug/IPlugGraphicsDelegate.cpp; sourceTree = "<group>"; };
 		4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginDelegate.cpp; path = ../../../IPlug/IPlugPluginDelegate.cpp; sourceTree = "<group>"; };
 		4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginDelegate.h; path = ../../../IPlug/IPlugPluginDelegate.h; sourceTree = "<group>"; };
 		4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
@@ -313,19 +313,21 @@
 			isa = PBXGroup;
 			children = (
 				4F63697520A463AF0022C370 /* Drawing */,
-				4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */,
 				4F63698320A463AF0022C370 /* Platforms */,
+				4F63699620A463AF0022C370 /* Controls */,
+				4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */,
 				4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */,
 				4F63699320A463AF0022C370 /* IGraphicsUtilites.h */,
+				4F6369A420A463AF0022C370 /* IGraphics.h */,
 				4F63699420A463AF0022C370 /* IGraphics.cpp */,
 				4F63699520A463AF0022C370 /* IGraphicsPathBase.h */,
-				4F63699620A463AF0022C370 /* Controls */,
 				4F63699F20A463AF0022C370 /* IGraphicsStructs.h */,
 				4F6369A020A463AF0022C370 /* IGraphicsConstants.h */,
 				4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */,
 				4F6369A220A463AF0022C370 /* IGraphics_select.h */,
 				4F6369A320A463AF0022C370 /* IGraphics_include_in_plug_src.h */,
-				4F6369A420A463AF0022C370 /* IGraphics.h */,
+				4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */,
+				4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */,
 				4F6369E520A466320022C370 /* IControl.cpp */,
 				4F6369E420A466320022C370 /* IControl.h */,
 			);
@@ -458,8 +460,11 @@
 		4FFF102E20A0E54400D3092F /* IPlug */ = {
 			isa = PBXGroup;
 			children = (
-				4FFF106320A0E57900D3092F /* Delegates */,
 				4FFF105220A0E56400D3092F /* AUv3 */,
+				4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */,
+				4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */,
+				4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */,
+				4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */,
 				4FFF103520A0E55900D3092F /* IPlug_include_in_plug_hdr.h */,
 				4FFF103720A0E55900D3092F /* IPlug_include_in_plug_src.h */,
 				4FFF103F20A0E55A00D3092F /* IPlugBase.h */,
@@ -509,19 +514,6 @@
 				4FFF105A20A0E57100D3092F /* IPlugViewController.mm */,
 			);
 			name = AUv3;
-			sourceTree = "<group>";
-		};
-		4FFF106320A0E57900D3092F /* Delegates */ = {
-			isa = PBXGroup;
-			children = (
-				4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */,
-				4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */,
-				4FFF106520A0E58600D3092F /* IPlugGraphicsDelegate.cpp */,
-				4FFF106420A0E58600D3092F /* IPlugGraphicsDelegate.h */,
-				4FFF106620A0E58600D3092F /* IPlugPluginDelegate.cpp */,
-				4FFF106720A0E58600D3092F /* IPlugPluginDelegate.h */,
-			);
-			name = Delegates;
 			sourceTree = "<group>";
 		};
 		91D3DA0B1B023C03008FFFBB = {
@@ -574,7 +566,6 @@
 				4FFF104920A0E55A00D3092F /* IPlugProcessor.h in Headers */,
 				4FFF107A20A0E5A500D3092F /* wdl_base64.h in Headers */,
 				4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */,
-				4FFF106A20A0E58600D3092F /* IPlugGraphicsDelegate.h in Headers */,
 				4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */,
 				4FFF106D20A0E58600D3092F /* IPlugPluginDelegate.h in Headers */,
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
@@ -602,6 +593,7 @@
 				4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */,
 				4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */,
 				4F6369E620A466320022C370 /* IControl.h in Headers */,
+				4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */,
 				4FFF104820A0E55A00D3092F /* IPlug_include_in_plug_src.h in Headers */,
 				4FFF105020A0E55A00D3092F /* IPlugBase.h in Headers */,
 				4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */,
@@ -797,11 +789,11 @@
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
 				4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */,
+				4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
 				4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */,
 				4FF3206E20B2C84500269268 /* IPlugPathsIOS.mm in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
-				4FBDD24220A260070054B111 /* IPlugGraphicsDelegate.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginDelegate.cpp in Sources */,
