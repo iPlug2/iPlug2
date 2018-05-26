@@ -19,7 +19,6 @@
 *xcuserdata*
 *.xcschememanagement.plist
 build-*
-
 _*
 Dependencies/IPlug/VST3_SDK/*
 Dependencies/IPlug/VST2_SDK/*
@@ -27,20 +26,15 @@ Dependencies/IPlug/AAX_SDK/*
 Dependencies/IPlug/WAM_AWP/*
 Dependencies/IPlug/WAM_SDK/*
 Dependencies/IGraphics/AGG/*
-
 Icon?
 .DS_Stor*
-
 Documentation/html
 Documentation/doxygen_warnings.txt
 IPlugExamples/build_errors.log
 IPlugExamples/duplicate.pyc
-
 .vscode/
-
 *Projects/*
 Ports/*
-
 /ReaperExtensions
 *.db-shm
 *.db-wal
@@ -48,3 +42,5 @@ Ports/*
 /Dependencies/IGraphics/Libs
 /IPlug/AUv3
 *.pyc
+/Dependencies/IGraphics/glew/LICENSE.txt
+Dependencies/IGraphics/glew/*

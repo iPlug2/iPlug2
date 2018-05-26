@@ -63,8 +63,8 @@ void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
-  info.x = mMouseX = GET_X_LPARAM(lParam) / GetScale();
-  info.y = mMouseY = GET_Y_LPARAM(lParam) / GetScale();
+  info.x = mCursorX = GET_X_LPARAM(lParam) / GetScale();
+  info.y = mCursorY = GET_Y_LPARAM(lParam) / GetScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), (wParam & MK_SHIFT), (wParam & MK_CONTROL),
 #ifdef AAX_API
     GetAsyncKeyState(VK_MENU) < 0
@@ -77,8 +77,8 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 
 inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float& dX, float& dY, LPARAM lParam, WPARAM wParam)
 {
-  float oldX = mMouseX;
-  float oldY = mMouseY;
+  float oldX = mCursorX;
+  float oldY = mCursorY;
   
   IMouseInfo info = GetMouseInfo(lParam, wParam);
 
@@ -581,32 +581,32 @@ void IGraphicsWin::Resize(int w, int h, float scale)
   }
 }
 
-void IGraphicsWin::HideMouseCursor(bool hide)
-{
-  if(hide)
-  {
-    if (mCursorHidden)
-    {
-      SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
-      ShowCursor(true);
-      mCursorHidden = false;
-    }
-  }
-  else
-  {
-    if (!mCursorHidden)
-    {
-      POINT p;
-      GetCursorPos(&p);
-      
-      mHiddenMousePointX = p.x;
-      mHiddenMousePointY = p.y;
-      
-      ShowCursor(false);
-      mCursorHidden = true;
-    }
-  }
-}
+//void IGraphicsWin::HideMouseCursor(bool hide)
+//{
+  //if(hide)
+  //{
+  //  if (mCursorHidden)
+  //  {
+  //    SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
+  //    ShowCursor(true);
+  //    mCursorHidden = false;
+  //  }
+  //}
+  //else
+  //{
+  //  if (!mCursorHidden)
+  //  {
+  //    POINT p;
+  //    GetCursorPos(&p);
+  //    
+  //    mHiddenMousePointX = p.x;
+  //    mHiddenMousePointY = p.y;
+  //    
+  //    ShowCursor(false);
+  //    mCursorHidden = true;
+  //  }
+  //}
+//}
 
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
 {
@@ -942,8 +942,8 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     InvalidateRect(mDelegateWnd, &r, FALSE);
   }
   
-  if(pCaller)
-    pCaller->OnPopupMenuSelection(result)
+  if (pCaller)
+    pCaller->OnPopupMenuSelection(result);
   
   return result;
 }
@@ -1037,8 +1037,8 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
     
   dirCStr[0] = '\0';
     
-  if (!path.GetLength())
-    DesktopPath(path);
+  //if (!path.GetLength())
+  //  DesktopPath(path);
     
   UTF8ToUTF16(dirCStr, path.Get(), _MAX_PATH);
     
@@ -1133,7 +1133,7 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   memset(&bi, 0, sizeof(bi));
   
   bi.ulFlags   = BIF_USENEWUI;
-  bi.hwndOwner = mPlugWnd;
+  bi.hwndOwner = mDelegateWnd;
   bi.lpszTitle = "Choose a Directory";
   
   // must call this if using BIF_USENEWUI
@@ -1372,17 +1372,19 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifndef NO_IGRAPHICS
-#ifdef IGRAPHICS_AGG
-#include "IGraphicsAGG.cpp"
-#include "agg_win_pmap.cpp"
-#include "agg_win_font.cpp"
+#if defined IGRAPHICS_AGG
+  #include "IGraphicsAGG.cpp"
+  #include "agg_win_pmap.cpp"
+  #include "agg_win_font.cpp"
 #elif defined IGRAPHICS_CAIRO
-#include "IGraphicsCairo.cpp"
+  #include "IGraphicsCairo.cpp"
+#elif defined IGRAPHICS_LICE
+  #include "IGraphicsLice.cpp"
 #elif defined IGRAPHICS_NANOVG
-#include "IGraphicsNanoVG.cpp"
-#include "nanovg.c"
+  #include "IGraphicsNanoVG.cpp"
+  #include "nanovg.c"
 //#include "nanovg_mtl.m"
 #else
-#include "IGraphicsCairo.cpp"
+  #include "IGraphicsCairo.cpp"
 #endif
 #endif

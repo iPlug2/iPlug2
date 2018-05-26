@@ -31,7 +31,10 @@ public:
 };
 
 #else
+
+#ifdef OS_MAC
 #include "swell.h"
+#endif
 
 /**
  * @file This file includes classes for implementing timers - in order to get a regular callback on the message thread

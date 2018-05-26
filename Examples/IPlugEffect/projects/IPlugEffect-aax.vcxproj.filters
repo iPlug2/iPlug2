@@ -2,33 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IControl.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IControls.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphics.cpp">
-      <Filter>IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.cpp">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.cpp">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsLice.cpp">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.cpp">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -61,54 +34,6 @@
     <ClInclude Include="..\IPlugEffect.h" />
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControl.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IControls.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphics.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsConstants.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLiveEdit.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsStructs.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsUtilites.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac.h">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.h">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.h">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsAGG.h">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsCairo.h">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsLice.h">
-      <Filter>IGraphics\DrawClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsNanoVG.h">
-      <Filter>IGraphics\DrawClasses</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
       <Filter>IPlug</Filter>
@@ -171,15 +96,6 @@
     <Filter Include="resources">
       <UniqueIdentifier>{a579504a-f161-47bd-bd30-7f18317f0e93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IGraphics">
-      <UniqueIdentifier>{9cd3663b-c350-48a3-9b49-df75c3d48225}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IGraphics\PlatformClasses">
-      <UniqueIdentifier>{b42fdab9-955d-4eaa-a49a-5364ce463b6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IGraphics\DrawClasses">
-      <UniqueIdentifier>{8a1be953-11bb-495d-84f0-46e5555e22f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IPlug">
       <UniqueIdentifier>{047ecfad-1a55-49a2-8621-1a4ad2905606}</UniqueIdentifier>
     </Filter>
@@ -189,17 +105,6 @@
     <Filter Include="IPlug\AAX\Libs">
       <UniqueIdentifier>{7d636beb-b5d6-4b75-b2a5-27b00d8f37d2}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.m">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </None>
-    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac.mm">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </None>
-    <None Include="..\..\..\IPlug\IGraphics\IGraphicsMac_view.mm">
-      <Filter>IGraphics\PlatformClasses</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
