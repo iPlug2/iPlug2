@@ -2,7 +2,7 @@
 
 /**
  * @file
- * @brief IPlug logging a.k.a tracing functionailty
+ * @brief IPlug logging a.k.a tracing functionality
  *
  * To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
  * To simply create a trace entry in the log:    TRACE;

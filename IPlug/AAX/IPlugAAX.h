@@ -82,7 +82,7 @@ public:
   AAX_Result CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoolean* pIsEqual) const override;
 
   //IPlugAAX
-  /** This is needed in chunks based plugins to tell PT a non-indexed param changed and to turn on the compare light. You can call this method from your plug-in implementation by doing a dynamic_cast in order to convert an "IPlug" into a "IPlugAAX"
+  /** This is needed in chunks based plug-ins to tell PT a non-indexed param changed and to turn on the compare light. You can call this method from your plug-in implementation by doing a dynamic_cast in order to convert an "IPlug" into a "IPlugAAX"
    */
   void DirtyPTCompareState() { mNumPlugInChanges++; }
 
