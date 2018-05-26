@@ -381,6 +381,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (_this->HasUI())
       {
+        _this->OnUIClose();
         _this->CloseWindow();
         return 1;
       }

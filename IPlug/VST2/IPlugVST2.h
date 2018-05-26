@@ -17,11 +17,11 @@ struct IPlugInstanceInfo
   audioMasterCallback mVSTHostCallback;
 };
 
-/**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase
-*   @ingroup APIClasses
-*/
-class IPlugVST2 : public IPlugBase
-                , public IPlugProcessor<PLUG_SAMPLE_DST>
+/**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
+*   @ingroup APIClasses */
+class IPlugVST2 : public IPLUG_BASE_CLASS
+               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugPresetHandler
 {
 public:
   IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);
@@ -41,8 +41,8 @@ public:
   bool SendSysEx(ISysEx& msg) override;
 
   //IPlugVST
-  audioMasterCallback GetHostCallback() { return mHostCallback; }
-  AEffect GetAEffect() { return mAEffect; }
+  audioMasterCallback& GetHostCallback() { return mHostCallback; }
+  AEffect& GetAEffect() { return mAEffect; }
 
 private:
   /**
@@ -75,9 +75,9 @@ private:
 
   IByteChunk mState;     // Persistent storage if the host asks for plugin state.
   IByteChunk mBankState; // Persistent storage if the host asks for bank state.
-  audioMasterCallback mHostCallback;
-public:
+protected:
   AEffect mAEffect;
+  audioMasterCallback mHostCallback;
 };
 
 IPlugVST2* MakePlug();
