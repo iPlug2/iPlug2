@@ -1,6 +1,12 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
+#ifdef OS_WIN
+#pragma comment(lib, "opengl32.lib")
+#define NANOVG_GL2_IMPLEMENTATION
+#include <glad/glad.h>
+#include "nanovg_gl.h"
+#endif
 
 #pragma mark -
 
@@ -96,9 +102,18 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 {
   mBitmaps.Empty(true);
   
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_IOS
   if(mVG)
     nvgDeleteMTL(mVG);
+#endif
+
+#ifdef OS_WIN
+  if (mVG)
+    nvgDeleteGL2(mVG);
+  if (mHGLRC) {
+    wglMakeCurrent((HDC)mPlatformContext, nullptr);
+    wglDeleteContext(mHGLRC);
+  }
 #endif
 }
 
@@ -131,6 +146,45 @@ void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
 }
 
+void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
+  mPlatformContext = pContext;
+#ifdef OS_WIN
+  if (pContext) {
+    PIXELFORMATDESCRIPTOR pfd =
+    {
+      sizeof(PIXELFORMATDESCRIPTOR),
+      1,
+      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
+      PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
+      32, // Colordepth of the framebuffer.
+      0, 0, 0, 0, 0, 0,
+      0,
+      0,
+      0,
+      0, 0, 0, 0,
+      24, // Number of bits for the depthbuffer
+      8, // Number of bits for the stencilbuffer
+      0, // Number of Aux buffers in the framebuffer.
+      PFD_MAIN_PLANE,
+      0,
+      0, 0, 0
+    };
+
+    HDC dc = (HDC)pContext;
+
+    int fmt = ChoosePixelFormat(dc, &pfd);
+    SetPixelFormat(dc, fmt, &pfd);
+
+    mHGLRC = wglCreateContext(dc);
+    wglMakeCurrent(dc, mHGLRC);
+    if (!gladLoadGL())
+      throw std::runtime_error{"Error initializing glad"};
+    glGetError();
+    mVG = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+  }
+#endif
+}
+
 IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale)
 {
   return bitmap;
@@ -138,13 +192,16 @@ IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, in
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
 {
-#if defined OS_MAC || defined OS_IOS
+#ifdef OS_MAC
   mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 #endif
 }
 
 void IGraphicsNanoVG::BeginFrame()
 {
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
   nvgBeginFrame(mVG, Width(), Height(), GetDisplayScale());
 }
 
