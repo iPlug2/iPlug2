@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/projects/IPlugEffect-iOS.xcodeproj">
+      location = "group:projects/IPlugEffect-iOS.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj">
+      location = "group:projects/IPlugEffect-macOS.xcodeproj">
    </FileRef>
 </Workspace>
