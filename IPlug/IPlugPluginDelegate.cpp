@@ -1,4 +1,4 @@
-#include "IPlugPluginDelegate.h"
+#include "IPlugPluginBase.h"
 #include "wdlendian.h"
 #include "wdl_base64.h"
 

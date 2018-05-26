@@ -56,8 +56,8 @@
 		4F1E0A9420BA25A0004FC7D5 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A9220BA25A0004FC7D5 /* IPlugPathsMac.mm */; };
 		4F1E0A9520BA25A0004FC7D5 /* IPlugPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A9320BA25A0004FC7D5 /* IPlugPaths.h */; };
 		4F1E0A9620BA25E7004FC7D5 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A3620BA2538004FC7D5 /* IGraphicsNanoVG_src.m */; };
-		4F1E0A9920BA2605004FC7D5 /* IPlugPluginDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A9720BA2605004FC7D5 /* IPlugPluginDelegate.cpp */; };
-		4F1E0A9A20BA2605004FC7D5 /* IPlugPluginDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A9820BA2605004FC7D5 /* IPlugPluginDelegate.h */; };
+		4F1E0A9920BA2605004FC7D5 /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1E0A9720BA2605004FC7D5 /* IPlugPluginBase.cpp */; };
+		4F1E0A9A20BA2605004FC7D5 /* IPlugPluginBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1E0A9820BA2605004FC7D5 /* IPlugPluginBase.h */; };
 		4F1E0A9B20BA2618004FC7D5 /* IGraphicsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */; };
 		4F3ECAAF2038561700630EC5 /* IPlugPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3ECAAE2038561700630EC5 /* IPlugPlatform.h */; };
 		4F6F535C202FD49300FEE3A7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F5359202FD49200FEE3A7 /* main.cpp */; };
@@ -154,8 +154,8 @@
 		4F1E0A5F20BA2538004FC7D5 /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics.h; sourceTree = "<group>"; };
 		4F1E0A9220BA25A0004FC7D5 /* IPlugPathsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPathsMac.mm; path = ../../../IPlug/IPlugPathsMac.mm; sourceTree = "<group>"; };
 		4F1E0A9320BA25A0004FC7D5 /* IPlugPaths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
-		4F1E0A9720BA2605004FC7D5 /* IPlugPluginDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginDelegate.cpp; path = ../../../IPlug/IPlugPluginDelegate.cpp; sourceTree = "<group>"; };
-		4F1E0A9820BA2605004FC7D5 /* IPlugPluginDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginDelegate.h; path = ../../../IPlug/IPlugPluginDelegate.h; sourceTree = "<group>"; };
+		4F1E0A9720BA2605004FC7D5 /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; };
+		4F1E0A9820BA2605004FC7D5 /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
@@ -237,8 +237,8 @@
 				4F3ECAAE2038561700630EC5 /* IPlugPlatform.h */,
 				4F1E0A9320BA25A0004FC7D5 /* IPlugPaths.h */,
 				4F1E0A9220BA25A0004FC7D5 /* IPlugPathsMac.mm */,
-				4F1E0A9720BA2605004FC7D5 /* IPlugPluginDelegate.cpp */,
-				4F1E0A9820BA2605004FC7D5 /* IPlugPluginDelegate.h */,
+				4F1E0A9720BA2605004FC7D5 /* IPlugPluginBase.cpp */,
+				4F1E0A9820BA2605004FC7D5 /* IPlugPluginBase.h */,
 				4FF01613134E0BCD001447BA /* WDL */,
 			);
 			name = Frameworks;
@@ -414,7 +414,7 @@
 				4F1E0A8720BA2538004FC7D5 /* IVDropDownListControl.h in Headers */,
 				4F78DAB113B640470032E0F3 /* swell-menugen.h in Headers */,
 				4F78DAB213B640470032E0F3 /* swell-dlggen.h in Headers */,
-				4F1E0A9A20BA2605004FC7D5 /* IPlugPluginDelegate.h in Headers */,
+				4F1E0A9A20BA2605004FC7D5 /* IPlugPluginBase.h in Headers */,
 				4F1E0A8C20BA2538004FC7D5 /* IGraphicsLiveEdit.h in Headers */,
 				4F1E0A8B20BA2538004FC7D5 /* IGraphicsConstants.h in Headers */,
 				4F1E0A8E20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h in Headers */,
@@ -559,7 +559,7 @@
 				4F6F5363202FD82800FEE3A7 /* IPlugParameter.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */,
-				4F1E0A9920BA2605004FC7D5 /* IPlugPluginDelegate.cpp in Sources */,
+				4F1E0A9920BA2605004FC7D5 /* IPlugPluginBase.cpp in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4F1E0A7620BA2538004FC7D5 /* IGraphicsMac.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,

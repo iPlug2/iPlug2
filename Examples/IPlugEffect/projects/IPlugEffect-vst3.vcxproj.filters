@@ -23,7 +23,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugPluginDelegate.cpp">
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">

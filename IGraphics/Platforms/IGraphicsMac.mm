@@ -8,7 +8,7 @@
 #include "IControl.h"
 #import "IGraphicsMac_view.h"
 
-#include "IPlugPluginDelegate.h"
+#include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
 #include "swell.h"

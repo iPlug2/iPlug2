@@ -5,7 +5,7 @@
 #include "IGraphicsIOS.h"
 #include "IControl.h"
 
-#include "IPlugPluginDelegate.h"
+#include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
 NSString* ToNSString(const char* cStr)

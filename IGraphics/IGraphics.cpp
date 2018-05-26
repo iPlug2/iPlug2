@@ -12,7 +12,7 @@
 #endif
 
 #include "IPlugParameter.h"
-#include "IPlugPluginDelegate.h"
+#include "IPlugPluginBase.h"
 
 #ifdef DEBUG
 #ifndef OS_WEB

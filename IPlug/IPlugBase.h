@@ -7,7 +7,7 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
-#include "IPlugPluginDelegate.h"
+#include "IPlugPluginBase.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
