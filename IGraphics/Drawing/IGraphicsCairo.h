@@ -7,7 +7,7 @@
 #define __QUICKDRAW__
 #define __HISERVICES__
 #include "cairo/cairo-quartz.h"
-#else if define OS_WINDOWS
+#elif defined OS_WINDOWS
 #define CAIRO_WIN32_STATIC_BUILD
 
 #pragma comment(lib, "cairo.lib")
