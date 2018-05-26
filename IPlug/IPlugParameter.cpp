@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "IPlugParameter.h"
+#include "IPlugLogger.h"
 
 #pragma mark - Shape
 
@@ -171,6 +172,11 @@ void IParam::InitGain(const char *name, double defaultVal, double minVal, double
 void IParam::InitPercentage(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
 {
   InitDouble(name, defaultVal, minVal, maxVal, 1, "%", flags, group, nullptr, kUnitPercentage);
+}
+
+void IParam::InitAngleDegrees(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "degrees", flags, group, nullptr, kUnitDegrees);
 }
 
 void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr, const char* newGroup)
