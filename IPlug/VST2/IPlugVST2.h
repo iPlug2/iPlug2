@@ -19,9 +19,8 @@ struct IPlugInstanceInfo
 
 /**  VST2.4 API base class for an IPlug plug-in, inherits from IPlugBase or IPlugBaseGraphics
 *   @ingroup APIClasses */
-class IPlugVST2 : public IPLUG_BASE_CLASS
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
-               , public IPlugPresetHandler
+class IPlugVST2 : public IPlugBase
+                , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);
