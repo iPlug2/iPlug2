@@ -224,9 +224,12 @@ void IGraphicsNanoVG::BeginFrame()
   mPrevTimestamp = timestamp;
 #endif
   
+#ifdef OS_WIN
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
+#endif
+  
   nvgBeginFrame(mVG, Width(), Height(), GetDisplayScale());
 }
 
