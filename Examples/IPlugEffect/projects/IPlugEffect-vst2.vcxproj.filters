@@ -35,6 +35,24 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />

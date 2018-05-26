@@ -1396,7 +1396,7 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
   #include "nanovg.c"
-//#include "nanovg_mtl.m"
+  #include "glad.c"
 #else
   #include "IGraphicsCairo.cpp"
 #endif
