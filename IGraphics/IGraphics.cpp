@@ -12,6 +12,7 @@
 #endif
 
 #include "IPlugParameter.h"
+#include "IPlugPluginDelegate.h"
 
 #ifdef DEBUG
 #ifndef OS_WEB
@@ -20,6 +21,7 @@
 #endif
 
 #include "IControl.h"
+#include "IControls.h"
 
 #ifndef OS_WEB
 struct SVGHolder
