@@ -41,7 +41,6 @@
 		4F03A5B120A4621100EBDFFB /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F03A55820A4621000EBDFFB /* IGraphics.cpp */; };
 		4F03A5B220A4621100EBDFFB /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F03A55820A4621000EBDFFB /* IGraphics.cpp */; };
 		4F03A5B320A4621100EBDFFB /* IGraphics_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A55920A4621000EBDFFB /* IGraphics_include_in_plug_src.h */; };
-		4F03A5B420A4621100EBDFFB /* IGraphicsAutoGUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A55A20A4621000EBDFFB /* IGraphicsAutoGUI.h */; };
 		4F03A5B520A4621100EBDFFB /* IGraphicsPathBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A55B20A4621000EBDFFB /* IGraphicsPathBase.h */; };
 		4F03A5B620A4621100EBDFFB /* IGraphics_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A55C20A4621000EBDFFB /* IGraphics_select.h */; };
 		4F03A5B720A4621100EBDFFB /* IGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A55D20A4621000EBDFFB /* IGraphics.h */; };
@@ -383,7 +382,6 @@
 		4F03A55720A4621000EBDFFB /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_hdr.h; path = ../../../IGraphics/IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4F03A55820A4621000EBDFFB /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphics.cpp; path = ../../../IGraphics/IGraphics.cpp; sourceTree = "<group>"; };
 		4F03A55920A4621000EBDFFB /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_src.h; path = ../../../IGraphics/IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
-		4F03A55A20A4621000EBDFFB /* IGraphicsAutoGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsAutoGUI.h; path = ../../../IGraphics/IGraphicsAutoGUI.h; sourceTree = "<group>"; };
 		4F03A55B20A4621000EBDFFB /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; };
 		4F03A55C20A4621000EBDFFB /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics_select.h; path = ../../../IGraphics/IGraphics_select.h; sourceTree = "<group>"; };
 		4F03A55D20A4621000EBDFFB /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics.h; path = ../../../IGraphics/IGraphics.h; sourceTree = "<group>"; };
@@ -825,7 +823,6 @@
 				4F03A55C20A4621000EBDFFB /* IGraphics_select.h */,
 				4F03A55820A4621000EBDFFB /* IGraphics.cpp */,
 				4F03A55D20A4621000EBDFFB /* IGraphics.h */,
-				4F03A55A20A4621000EBDFFB /* IGraphicsAutoGUI.h */,
 				4F03A56A20A4621100EBDFFB /* IGraphicsConstants.h */,
 				4F03A55620A4621000EBDFFB /* IGraphicsLiveEdit.h */,
 				4F03A55B20A4621000EBDFFB /* IGraphicsPathBase.h */,
@@ -1444,7 +1441,6 @@
 				4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */,
 				4F03A5D420A4621100EBDFFB /* IGraphicsUtilites.h in Headers */,
 				4F03A5AA20A4621100EBDFFB /* IGraphicsLiveEdit.h in Headers */,
-				4F03A5B420A4621100EBDFFB /* IGraphicsAutoGUI.h in Headers */,
 				4F6369EA20A466470022C370 /* IControl.h in Headers */,
 				4F03A5DF20A4621100EBDFFB /* IGraphicsWin.h in Headers */,
 				4F63696520A463090022C370 /* IVKeyboardControl.h in Headers */,

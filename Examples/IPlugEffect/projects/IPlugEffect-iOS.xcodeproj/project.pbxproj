@@ -36,7 +36,6 @@
 		4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A020A463AF0022C370 /* IGraphicsConstants.h */; };
 		4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A220A463AF0022C370 /* IGraphics_select.h */; };
 		4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A320A463AF0022C370 /* IGraphics_include_in_plug_src.h */; };
-		4F6369D320A463AF0022C370 /* IGraphicsAutoGUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A520A463AF0022C370 /* IGraphicsAutoGUI.h */; };
 		4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */; };
 		4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699020A463AF0022C370 /* IGraphicsIOS.h */; };
 		4F6369E620A466320022C370 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369E420A466320022C370 /* IControl.h */; };
@@ -202,7 +201,6 @@
 		4F6369A220A463AF0022C370 /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
 		4F6369A320A463AF0022C370 /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
 		4F6369A420A463AF0022C370 /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics.h; sourceTree = "<group>"; };
-		4F6369A520A463AF0022C370 /* IGraphicsAutoGUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAutoGUI.h; sourceTree = "<group>"; };
 		4F6369D820A464060022C370 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
 		4F6369E420A466320022C370 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
 		4F6369E520A466320022C370 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
@@ -328,7 +326,6 @@
 				4F6369A220A463AF0022C370 /* IGraphics_select.h */,
 				4F6369A320A463AF0022C370 /* IGraphics_include_in_plug_src.h */,
 				4F6369A420A463AF0022C370 /* IGraphics.h */,
-				4F6369A520A463AF0022C370 /* IGraphicsAutoGUI.h */,
 				4F6369E520A466320022C370 /* IControl.cpp */,
 				4F6369E420A466320022C370 /* IControl.h */,
 			);
@@ -578,7 +575,6 @@
 				4FFF107A20A0E5A500D3092F /* wdl_base64.h in Headers */,
 				4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */,
 				4FFF106A20A0E58600D3092F /* IPlugGraphicsDelegate.h in Headers */,
-				4F6369D320A463AF0022C370 /* IGraphicsAutoGUI.h in Headers */,
 				4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */,
 				4FFF106D20A0E58600D3092F /* IPlugPluginDelegate.h in Headers */,
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
