@@ -42,7 +42,7 @@ public:
  *
  */
 
-class Timer;
+struct Timer;
 
 class ITimerCallback
 {
