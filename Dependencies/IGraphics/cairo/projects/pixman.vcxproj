@@ -19,50 +19,50 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-access-accessors.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-access.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-arm.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-bits-image.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-combine-float.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-combine32.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-conical-gradient.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-edge-accessors.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-edge.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-fast-path.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-filter.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-general.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-glyph.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-gradient-walker.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-image.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-implementation.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-linear-gradient.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-matrix.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-mips.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-mmx.c">
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-access-accessors.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-access.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-arm.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-bits-image.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-combine-float.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-combine32.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-conical-gradient.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-edge-accessors.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-edge.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-fast-path.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-filter.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-general.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-glyph.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-gradient-walker.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-image.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-implementation.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-linear-gradient.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-matrix.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-mips.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-mmx.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-noop.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-ppc.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-radial-gradient.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-region16.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-region32.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-solid-fill.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-sse2.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-ssse3.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-timer.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-trap.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-utils.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman-x86.c" />
-    <ClCompile Include="$(SolutionDir)pixman\pixman\pixman.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-noop.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-ppc.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-radial-gradient.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-region16.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-region32.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-solid-fill.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-sse2.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-ssse3.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-timer.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-trap.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-utils.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-x86.c" />
+    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman-accessor.h" />
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman-combine32.h" />
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman-compiler.h" />
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman-edge-imp.h" />
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman-inlines.h" />
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman-private.h" />
-    <ClInclude Include="$(SolutionDir)pixman\pixman\pixman.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-accessor.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-combine32.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-compiler.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-edge-imp.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-inlines.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-private.h" />
+    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{99DEBA75-75B6-4578-B8D4-5A3FE15338B1}</ProjectGuid>
@@ -144,7 +144,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <DisableSpecificWarnings>4244;4146;4312;4267;</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,7 +161,7 @@
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>4244;4146;4312;4267;</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -181,7 +181,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <DisableSpecificWarnings>4244;4146;4312;4267;</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -203,7 +203,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <DisableSpecificWarnings>4244;4146;4312;4267;</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>$(SolutionDir)pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\pixman\pixman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
