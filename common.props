@@ -4,20 +4,26 @@
   <PropertyGroup Label="UserMacros">
     <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;</ALL_DEFS>
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
-    <WDL_PATH>$(SolutionDir)..\..\WDL</WDL_PATH>
+    <ROOT_PATH>$(SolutionDir)..\..</ROOT_PATH>
+    <WDL_PATH>$(ROOT_PATH)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
-    <IPLUG_PATH>$(SolutionDir)..\..\IPlug</IPLUG_PATH>
+    <IPLUG_PATH>$(ROOT_PATH)\IPlug</IPLUG_PATH>
     <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
     <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH)</IPLUG_INC_PATHS>
-    <IGRAPHICS_PATH>$(IPLUG_PATH)\IGraphics</IGRAPHICS_PATH>
-    <ICONTROLS_PATH>$(IGRAPHICS_PATH)\IControls</ICONTROLS_PATH>
-    <DEPS_PATH>$(SolutionDir)..\..\Dependencies</DEPS_PATH>
+    <IGRAPHICS_PATH>$(ROOT_PATH)\IGraphics</IGRAPHICS_PATH>
+    <CONTROLS_PATH>$(IGRAPHICS_PATH)\Controls</CONTROLS_PATH>
+    <PLATFORMS_PATH>$(IGRAPHICS_PATH)\Platforms</PLATFORMS_PATH>
+    <DRAWING_PATH>$(IGRAPHICS_PATH)\Drawing</DRAWING_PATH>
+    <DEPS_PATH>$(ROOT_PATH)\Dependencies</DEPS_PATH>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
     <NANOSVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoSVG\src</NANOSVG_PATH>
+    <CAIRO_PATH>$(IGRAPHICS_DEPS_PATH)\Cairo</CAIRO_PATH>
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG</AGG_PATH>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH)</IGRAPHICS_INC_PATHS>
+    <GLEW_PATH>$(IGRAPHICS_DEPS_PATH)\glew\include</GLEW_PATH>
+    <PNG_PATH>$(CAIRO_PATH)/libpng</PNG_PATH>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(GLEW_PATH);$(PNG_PATH)</IGRAPHICS_INC_PATHS>
     <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -33,7 +39,7 @@
     <AAX_32_PATH>$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
     <AAX_64_PATH>$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;</APP_DEFS>
-    <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;</VST2_DEFS>
+    <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;IPLUG_EDITOR=1;IPLUG_DSP=1</VST2_DEFS>
     <VST3_DEFS>VST3_API;UNICODE_OFF</VST3_DEFS>
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
@@ -63,6 +69,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CAIRO_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
       <AdditionalDependencies />
@@ -72,6 +79,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <BuildMacro Include="ROOT_PATH">
+      <Value>$(ROOT_PATH)</Value>
+    </BuildMacro>
     <BuildMacro Include="WDL_PATH">
       <Value>$(WDL_PATH)</Value>
     </BuildMacro>
@@ -90,8 +100,14 @@
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="ICONTROLS_PATH">
-      <Value>$(ICONTROLS_PATH)</Value>
+    <BuildMacro Include="CONTROLS_PATH">
+      <Value>$(CONTROLS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PLATFORMS_PATH">
+      <Value>$(PLATFORMS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DRAWING_PATH">
+      <Value>$(DRAWING_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="DEPS_PATH">
       <Value>$(DEPS_PATH)</Value>
@@ -108,8 +124,17 @@
     <BuildMacro Include="NANOSVG_PATH">
       <Value>$(NANOSVG_PATH)</Value>
     </BuildMacro>
+    <BuildMacro Include="CAIRO_PATH">
+      <Value>$(CAIRO_PATH)</Value>
+    </BuildMacro>
     <BuildMacro Include="AGG_PATH">
       <Value>$(AGG_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GLEW_PATH">
+      <Value>$(GLEW_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PNG_PATH">
+      <Value>$(PNG_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="IGRAPHICS_INC_PATHS">
       <Value>$(IGRAPHICS_INC_PATHS)</Value>

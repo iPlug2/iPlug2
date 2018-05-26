@@ -44,7 +44,7 @@ public:
   
   /** Get a pointer to one of the delegate's IParam objects
    * @param paramIdx The index of the parameter object to be got
-   * @return A pointer to the IParam object at paramIdx */
+   * @return A pointer to the IParam object at paramIdx or nullptr if paramIdx is invalid */
   IParam* GetParam(int paramIdx) { return mParams.Get(paramIdx); }
   
   /** @return Returns the number of parameters that belong to the plug-in. */
@@ -111,14 +111,14 @@ public:
 #pragma mark - DELEGATION methods for sending values FROM the user interface
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IDelegate
   
-  /** Called by the user interface at the beginning of a parameter change gesture, in order to notify the host
+  /** Called by the UI at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified
    * The host may be trying to automate the parameter as well, so it needs to relinquish control when the user is
    * modifying something in the user interface.
    * @param paramIdx The index of the parameter that is changing value */
   virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** Called by the user interface during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
+  /** Called by the UI during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
@@ -138,7 +138,7 @@ public:
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
   /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in api class first when we click a button in our UI
-   * This method is overrided in various classes that inherit this interface to implement that behaviour */
+   * This method is implemented in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI() {};
   
   /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used
@@ -152,6 +152,6 @@ public:
   virtual void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) {};
 
 protected:
-  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plugin class implementation constructor */
+  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
