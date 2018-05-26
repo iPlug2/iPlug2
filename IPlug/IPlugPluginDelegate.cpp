@@ -193,38 +193,36 @@ void IPluginDelegate::CopyParamValues(const char* inGroup, const char *outGroup)
   }
 }
 
-void IPluginDelegate::ModifyParamValues(int startIdx, int endIdx, std::function<void(IParam&)>func)
+void IPluginDelegate::ForParamInRange(int startIdx, int endIdx, std::function<void(int paramIdx, IParam&)>func)
 {
   for (auto p = startIdx; p <= endIdx; p++)
   {
-    func(* GetParam(p));
+    func(p, * GetParam(p));
   }
 }
 
-void IPluginDelegate::ModifyParamValues(const char* paramGroup, std::function<void (IParam &)> func)
+void IPluginDelegate::ForParamInGroup(const char* paramGroup, std::function<void (int paramIdx, IParam&)> func)
 {
   for (auto p = 0; p < NParams(); p++)
   {
     IParam* pParam = GetParam(p);
     if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
     {
-      func(*pParam);
+      func(p, *pParam);
     }
   }
 }
 
 void IPluginDelegate::DefaultParamValues(int startIdx, int endIdx)
 {
-  ModifyParamValues(startIdx, endIdx, [](IParam& param)
-                    {
+  ForParamInRange(startIdx, endIdx, [](int paramIdx, IParam& param) {
                       param.SetToDefault();
                     });
 }
 
 void IPluginDelegate::DefaultParamValues(const char* paramGroup)
 {
-  ModifyParamValues(paramGroup, [](IParam& param)
-                    {
+  ForParamInGroup(paramGroup, [](int paramIdx, IParam& param) {
                       param.SetToDefault();
                     });
 }
@@ -235,8 +233,7 @@ void IPluginDelegate::RandomiseParamValues(int startIdx, int endIdx)
   std::default_random_engine gen(rd());
   std::uniform_real_distribution<> dis(0., 1.);
   
-  ModifyParamValues(startIdx, endIdx, [&gen, &dis](IParam& param)
-                    {
+  ForParamInRange(startIdx, endIdx, [&gen, &dis](int paramIdx, IParam& param) {
                       param.SetNormalized(dis(gen));
                     });
 }
@@ -247,8 +244,7 @@ void IPluginDelegate::RandomiseParamValues(const char *paramGroup)
   std::default_random_engine gen(rd());
   std::uniform_real_distribution<> dis(0., 1.);
   
-  ModifyParamValues(paramGroup, [&gen, &dis](IParam& param)
-                    {
+  ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
                       param.SetNormalized(dis(gen));
                     });
 }
