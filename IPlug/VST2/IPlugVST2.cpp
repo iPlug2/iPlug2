@@ -812,6 +812,13 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
 
   _SetTimeInfo(timeInfo);
   _SetRenderingOffline(renderingOffline);
+
+  IMidiMsg msg;
+
+  while (mMidiMsgsFromController.Pop(msg))
+  {
+    ProcessMidiMsg(msg);
+  }
 }
 
 // Deprecated.
