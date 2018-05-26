@@ -279,12 +279,12 @@ public:
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify
    * @param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default, modify certain params based on their group */
-  void ModifyParamValues(int startIdx, int endIdx, std::function<void(IParam& param)> func);
+  void ForParamInRange(int startIdx, int endIdx, std::function<void(int paramIdx, IParam& param)> func);
   
   /** Modify a parameter group simulataneously
    * @param paramGroup The name of the group to modify
    * @param param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
-  void ModifyParamValues(const char* paramGroup, std::function<void(IParam& param)> func);
+  void ForParamInGroup(const char* paramGroup, std::function<void(int paramIdx, IParam& param)> func);
   
   /** Copy a range of parameter values
    * @param startIdx The index of the first parameter value to copy
@@ -297,7 +297,7 @@ public:
    * @param outGroup The name of the group to copy to */
   void CopyParamValues(const char* inGroup, const char* outGroup);
   
-  /** Randomise parameter values within a range. NOTE for more flexibility in terms of RNG etc, use ModifyParamValues()
+  /** Randomise parameter values within a range. NOTE for more flexibility in terms of RNG etc, use ForParamInRange()
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
   void RandomiseParamValues(int startIdx, int endIdx);
