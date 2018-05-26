@@ -177,12 +177,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         IRECT dirtyR;
 
+#ifdef IGRAPHICS_NANOVG
+        dirtyR = pGraphics->GetBounds();
+        {
+#else
         if (pGraphics->IsDirty(dirtyR))
         {
-#ifdef IGRAPHICS_NANOVG
-          dirtyR = pGraphics->GetBounds();
 #endif
-
           dirtyR.ScaleBounds(pGraphics->GetScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 

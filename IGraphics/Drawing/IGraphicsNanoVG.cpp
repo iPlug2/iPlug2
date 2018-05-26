@@ -312,6 +312,7 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
 
 void IGraphicsNanoVG::LoadFont(const char* name)
 {
+#ifdef OS_MAC
   //TODO: remove these hard coded paths!
   int fontIcons = nvgCreateFont(mVG, "icons", "/Users/oli/Dev/MyPlugins/entypo.ttf");
   if (fontIcons == -1) {
@@ -329,6 +330,26 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   if (fontEmoji == -1) {
     DBGMSG("Could not add font emoji.\n");
   }
+#elif defined OS_WIN
+  //TODO: remove these hard coded paths!
+  int fontIcons = nvgCreateFont(mVG, "icons", "C:/Users/Oliver Larkin/Dev/MyPlugins/entypo.ttf");
+  if (fontIcons == -1) {
+    DBGMSG("Could not add font icons.\n");
+  }
+  int fontNormal = nvgCreateFont(mVG, "sans", "C:/Users/Oliver Larkin/Dev/MyPlugins/Roboto-Regular.ttf");
+  if (fontNormal == -1) {
+    DBGMSG("Could not add font normal.\n");
+  }
+  int fontBold = nvgCreateFont(mVG, "sans-bold", "C:/Users/Oliver Larkin/Dev/MyPlugins/Roboto-Bold.ttf");
+  if (fontBold == -1) {
+    DBGMSG("Could not add font bold.\n");
+  }
+  int fontEmoji = nvgCreateFont(mVG, "emoji", "C:/Users/Oliver Larkin/Dev/MyPlugins/NotoEmoji-Regular.ttf");
+  if (fontEmoji == -1) {
+    DBGMSG("Could not add font emoji.\n");
+  }
+#endif
+
   nvgAddFallbackFontId(mVG, fontNormal, fontEmoji);
   nvgAddFallbackFontId(mVG, fontBold, fontEmoji);
 }
