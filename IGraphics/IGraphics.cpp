@@ -1265,6 +1265,9 @@ void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx,
   }
   else
   {
+    if(endIdx == -1)
+      endIdx = dlg.NParams() - 1;
+    
     dlg.ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param){
       makeCell(paramIdx, param);
     });
