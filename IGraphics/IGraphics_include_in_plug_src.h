@@ -5,9 +5,9 @@
 
 #ifndef NO_IGRAPHICS
 
-extern HINSTANCE gHINSTANCE;
-
  #if defined OS_WIN
+  extern HINSTANCE gHINSTANCE;
+
   IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps);
