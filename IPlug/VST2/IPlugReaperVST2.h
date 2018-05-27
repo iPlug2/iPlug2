@@ -7,10 +7,10 @@
 #define REAPERAPI_IMPLEMENT
 #include "reaper_plugin_functions.h"
 
-class IPlugReaper : public IPlugVST2
+class IPlugReaperVST2 : public IPlugVST2
 {
 public:
-  IPlugReaper(IPlugInstanceInfo instanceInfo, IPlugConfig config)
+  IPlugReaperVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config)
   : IPlugVST2(instanceInfo, config)
   {
     int errorCount = REAPERAPI_LoadAPI([this](const char* str) {

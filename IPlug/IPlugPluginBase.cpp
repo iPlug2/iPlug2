@@ -3,7 +3,7 @@
 #include "wdl_base64.h"
 
 IPluginBase::IPluginBase(int nParams, int nPresets)
-: IPLUGIN_SUPER_CLASS(nParams)
+: EDITOR_DELEGATE_CLASS(nParams)
 {  
 #ifndef NO_PRESETS
   for (int i = 0; i < nPresets; ++i)

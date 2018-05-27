@@ -1,7 +1,7 @@
 #ifdef NO_IGRAPHICS
   #include "IPlugEditorDelegate.h"
-  typedef IEditorDelegate IPLUGIN_SUPER_CLASS;
+  typedef IEditorDelegate EDITOR_DELEGATE_CLASS;
 #else
   #include "IGraphicsEditorDelegate.h"
-  typedef IGraphicsEditorDelegate IPLUGIN_SUPER_CLASS;
+  typedef IGraphicsEditorDelegate EDITOR_DELEGATE_CLASS;
 #endif

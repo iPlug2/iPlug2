@@ -21,7 +21,7 @@
  *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
  *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugAPIBase.
  *  A parameter object is also referred to as a "param", in method names such as IPlugAPIBase::GetParam(int paramIdx) and IControl::GetParam(). */
-class IPluginBase : public IPLUGIN_SUPER_CLASS
+class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
 public:
   IPluginBase(int nParams, int nPresets);
