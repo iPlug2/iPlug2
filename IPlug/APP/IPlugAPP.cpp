@@ -5,7 +5,7 @@
 extern HWND gHWND;
 
 IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugBase(c, kAPIAPP)
+: IPlugAPIBase(c, kAPIAPP)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
 {
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);

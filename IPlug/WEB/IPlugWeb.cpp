@@ -22,7 +22,7 @@ void IPlugWeb::SetParameterValueFromUI(int paramIdx, double value)
   jsname.SetFormatted(64, "%s_WAM", GetPluginName()); // TODO: move me
   emscripten::val::global(jsname.Get()).call<void>("setParam", paramIdx, value);
   
-  IPlugBase::SetParameterValueFromUI(paramIdx, value);
+  IPlugAPIBase::SetParameterValueFromUI(paramIdx, value);
 };
 
 //void IPlugWeb::EndInformHostOfParamChangeFromUI(int paramIdx)

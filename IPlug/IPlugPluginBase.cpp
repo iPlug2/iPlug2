@@ -2,7 +2,7 @@
 #include "wdlendian.h"
 #include "wdl_base64.h"
 
-IPluginDelegate::IPluginDelegate(int nParams, int nPresets)
+IPluginBase::IPluginBase(int nParams, int nPresets)
 : IPLUGIN_SUPER_CLASS(nParams)
 {  
 #ifndef NO_PRESETS
@@ -11,14 +11,14 @@ IPluginDelegate::IPluginDelegate(int nParams, int nPresets)
 #endif
 }
 
-IPluginDelegate::~IPluginDelegate()
+IPluginBase::~IPluginBase()
 {
 #ifndef NO_PRESETS
   mPresets.Empty(true);
 #endif
 }
 
-int IPluginDelegate::GetPluginVersion(bool decimal) const
+int IPluginBase::GetPluginVersion(bool decimal) const
 {
   if (decimal)
     return GetDecimalVersion(mVersion);
@@ -26,7 +26,7 @@ int IPluginDelegate::GetPluginVersion(bool decimal) const
     return mVersion;
 }
 
-void IPluginDelegate::GetPluginVersionStr(WDL_String& str) const
+void IPluginBase::GetPluginVersionStr(WDL_String& str) const
 {
   GetVersionStr(mVersion, str);
 #if defined TRACER_BUILD
@@ -37,7 +37,7 @@ void IPluginDelegate::GetPluginVersionStr(WDL_String& str) const
 #endif
 }
 
-int IPluginDelegate::GetHostVersion(bool decimal)
+int IPluginBase::GetHostVersion(bool decimal)
 {
   GetHost();
   if (decimal)
@@ -47,13 +47,13 @@ int IPluginDelegate::GetHostVersion(bool decimal)
   return mHostVersion;
 }
 
-void IPluginDelegate::GetHostVersionStr(WDL_String& str)
+void IPluginBase::GetHostVersionStr(WDL_String& str)
 {
   GetHost();
   GetVersionStr(mHostVersion, str);
 }
 
-const char* IPluginDelegate::GetAPIStr() const
+const char* IPluginBase::GetAPIStr() const
 {
   switch (GetAPI())
   {
@@ -67,7 +67,7 @@ const char* IPluginDelegate::GetAPIStr() const
   }
 }
 
-const char* IPluginDelegate::GetArchStr() const
+const char* IPluginBase::GetArchStr() const
 {
 #ifdef ARCH_64BIT
   return "x64";
@@ -76,7 +76,7 @@ const char* IPluginDelegate::GetArchStr() const
 #endif
 }
 
-void IPluginDelegate::GetBuildInfoStr(WDL_String& str) const
+void IPluginBase::GetBuildInfoStr(WDL_String& str) const
 {
   WDL_String version;
   GetPluginVersionStr(version);
@@ -84,7 +84,7 @@ void IPluginDelegate::GetBuildInfoStr(WDL_String& str) const
 }
 
 #pragma mark -
-void IPluginDelegate::OnParamChange(int paramIdx, EParamSource source, int sampleOffset)
+void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOffset)
 {
   Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
   OnParamChange(paramIdx);
@@ -92,7 +92,7 @@ void IPluginDelegate::OnParamChange(int paramIdx, EParamSource source, int sampl
 
 #pragma mark -
 
-bool IPluginDelegate::SerializeParams(IByteChunk& chunk)
+bool IPluginBase::SerializeParams(IByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -107,7 +107,7 @@ bool IPluginDelegate::SerializeParams(IByteChunk& chunk)
   return savedOK;
 }
 
-int IPluginDelegate::UnserializeParams(const IByteChunk& chunk, int startPos)
+int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 {
   TRACE;
   int i, n = mParams.GetSize(), pos = startPos;
@@ -125,7 +125,7 @@ int IPluginDelegate::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginDelegate::InitFromDelegate(IPluginDelegate& delegate)
+void IPluginBase::InitFromDelegate(IPluginBase& delegate)
 {
   for (auto p = 0; p < delegate.NParams(); p++)
   {
@@ -135,7 +135,7 @@ void IPluginDelegate::InitFromDelegate(IPluginDelegate& delegate)
   }
 }
 
-void IPluginDelegate::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
+void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;
   for (auto p = startIdx; p <= endIdx; p++)
@@ -145,7 +145,7 @@ void IPluginDelegate::InitParamRange(int startIdx, int endIdx, int countStart, c
   }
 }
 
-void IPluginDelegate::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr, const char* replaceStr, const char* newGroup)
+void IPluginBase::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int startIdx, const char* searchStr, const char* replaceStr, const char* newGroup)
 {
   for (auto p = cloneStartIdx; p <= cloneEndIdx; p++)
   {
@@ -156,7 +156,7 @@ void IPluginDelegate::CloneParamRange(int cloneStartIdx, int cloneEndIdx, int st
   }
 }
 
-void IPluginDelegate::CopyParamValues(int startIdx, int destIdx, int nParams)
+void IPluginBase::CopyParamValues(int startIdx, int destIdx, int nParams)
 {
   assert((startIdx + nParams) < NParams());
   assert((destIdx + nParams) < NParams());
@@ -168,7 +168,7 @@ void IPluginDelegate::CopyParamValues(int startIdx, int destIdx, int nParams)
   }
 }
 
-void IPluginDelegate::CopyParamValues(const char* inGroup, const char *outGroup)
+void IPluginBase::CopyParamValues(const char* inGroup, const char *outGroup)
 {
   WDL_PtrList<IParam> inParams, outParams;
   
@@ -193,7 +193,7 @@ void IPluginDelegate::CopyParamValues(const char* inGroup, const char *outGroup)
   }
 }
 
-void IPluginDelegate::ForParamInRange(int startIdx, int endIdx, std::function<void(int paramIdx, IParam&)>func)
+void IPluginBase::ForParamInRange(int startIdx, int endIdx, std::function<void(int paramIdx, IParam&)>func)
 {
   for (auto p = startIdx; p <= endIdx; p++)
   {
@@ -201,7 +201,7 @@ void IPluginDelegate::ForParamInRange(int startIdx, int endIdx, std::function<vo
   }
 }
 
-void IPluginDelegate::ForParamInGroup(const char* paramGroup, std::function<void (int paramIdx, IParam&)> func)
+void IPluginBase::ForParamInGroup(const char* paramGroup, std::function<void (int paramIdx, IParam&)> func)
 {
   for (auto p = 0; p < NParams(); p++)
   {
@@ -213,21 +213,21 @@ void IPluginDelegate::ForParamInGroup(const char* paramGroup, std::function<void
   }
 }
 
-void IPluginDelegate::DefaultParamValues(int startIdx, int endIdx)
+void IPluginBase::DefaultParamValues(int startIdx, int endIdx)
 {
   ForParamInRange(startIdx, endIdx, [](int paramIdx, IParam& param) {
                       param.SetToDefault();
                     });
 }
 
-void IPluginDelegate::DefaultParamValues(const char* paramGroup)
+void IPluginBase::DefaultParamValues(const char* paramGroup)
 {
   ForParamInGroup(paramGroup, [](int paramIdx, IParam& param) {
                       param.SetToDefault();
                     });
 }
 
-void IPluginDelegate::RandomiseParamValues(int startIdx, int endIdx)
+void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
   std::random_device rd;
   std::default_random_engine gen(rd());
@@ -238,7 +238,7 @@ void IPluginDelegate::RandomiseParamValues(int startIdx, int endIdx)
                     });
 }
 
-void IPluginDelegate::RandomiseParamValues(const char *paramGroup)
+void IPluginBase::RandomiseParamValues(const char *paramGroup)
 {
   std::random_device rd;
   std::default_random_engine gen(rd());
@@ -264,7 +264,7 @@ IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
   return 0;
 }
 
-void IPluginDelegate::MakeDefaultPreset(const char* name, int nPresets)
+void IPluginBase::MakeDefaultPreset(const char* name, int nPresets)
 {
   for (int i = 0; i < nPresets; ++i)
   {
@@ -278,7 +278,7 @@ void IPluginDelegate::MakeDefaultPreset(const char* name, int nPresets)
   }
 }
 
-void IPluginDelegate::MakePreset(const char* name, ...)
+void IPluginBase::MakePreset(const char* name, ...)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -299,7 +299,7 @@ void IPluginDelegate::MakePreset(const char* name, ...)
   }
 }
 
-void IPluginDelegate::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
+void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, ...)
 {
   TRACE;
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
@@ -342,7 +342,7 @@ void IPluginDelegate::MakePresetFromNamedParams(const char* name, int nParamsNam
   }
 }
 
-void IPluginDelegate::MakePresetFromChunk(const char* name, IByteChunk& chunk)
+void IPluginBase::MakePresetFromChunk(const char* name, IByteChunk& chunk)
 {
   IPreset* pPreset = GetNextUninitializedPreset(&mPresets);
   if (pPreset)
@@ -354,7 +354,7 @@ void IPluginDelegate::MakePresetFromChunk(const char* name, IByteChunk& chunk)
   }
 }
 
-void IPluginDelegate::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
+void IPluginBase::MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk)
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
@@ -378,13 +378,13 @@ void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
   sprintf(str, "%s %d", DEFAULT_USER_PRESET_NAME, nDefaultNames + 1);
 }
 
-void IPluginDelegate::EnsureDefaultPreset()
+void IPluginBase::EnsureDefaultPreset()
 {
   TRACE;
   MakeDefaultPreset("Empty", mPresets.GetSize());
 }
 
-void IPluginDelegate::PruneUninitializedPresets()
+void IPluginBase::PruneUninitializedPresets()
 {
   TRACE;
   int i = 0;
@@ -402,7 +402,7 @@ void IPluginDelegate::PruneUninitializedPresets()
   }
 }
 
-bool IPluginDelegate::RestorePreset(int idx)
+bool IPluginBase::RestorePreset(int idx)
 {
   TRACE;
   bool restoredOK = false;
@@ -431,7 +431,7 @@ bool IPluginDelegate::RestorePreset(int idx)
   return restoredOK;
 }
 
-bool IPluginDelegate::RestorePreset(const char* name)
+bool IPluginBase::RestorePreset(const char* name)
 {
   if (CStringHasContents(name))
   {
@@ -448,7 +448,7 @@ bool IPluginDelegate::RestorePreset(const char* name)
   return false;
 }
 
-const char* IPluginDelegate::GetPresetName(int idx)
+const char* IPluginBase::GetPresetName(int idx)
 {
   if (idx >= 0 && idx < mPresets.GetSize())
   {
@@ -457,7 +457,7 @@ const char* IPluginDelegate::GetPresetName(int idx)
   return "";
 }
 
-void IPluginDelegate::ModifyCurrentPreset(const char* name)
+void IPluginBase::ModifyCurrentPreset(const char* name)
 {
   if (mCurrentPresetIdx >= 0 && mCurrentPresetIdx < mPresets.GetSize())
   {
@@ -475,7 +475,7 @@ void IPluginDelegate::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPluginDelegate::SerializePresets(IByteChunk& chunk)
+bool IPluginBase::SerializePresets(IByteChunk& chunk)
 {
   TRACE;
   bool savedOK = true;
@@ -496,7 +496,7 @@ bool IPluginDelegate::SerializePresets(IByteChunk& chunk)
   return savedOK;
 }
 
-int IPluginDelegate::UnserializePresets(IByteChunk& chunk, int startPos)
+int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
 {
   TRACE;
   WDL_String name;
@@ -524,7 +524,7 @@ int IPluginDelegate::UnserializePresets(IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginDelegate::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
+void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
 {
   // static bool sDumped = false;
   bool sDumped = false;
@@ -562,7 +562,7 @@ void IPluginDelegate::DumpPresetSrcCode(const char* filename, const char* paramE
   }
 }
 
-void IPluginDelegate::DumpAllPresetsBlob(const char* filename)
+void IPluginBase::DumpAllPresetsBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   
@@ -584,7 +584,7 @@ void IPluginDelegate::DumpAllPresetsBlob(const char* filename)
   fclose(fp);
 }
 
-void IPluginDelegate::DumpPresetBlob(const char* filename)
+void IPluginBase::DumpPresetBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   fprintf(fp, "MakePresetFromBlob(\"name\", \"");
@@ -600,7 +600,7 @@ void IPluginDelegate::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
-void IPluginDelegate::DumpBankBlob(const char* filename)
+void IPluginBase::DumpBankBlob(const char* filename)
 {
   FILE* fp = fopen(filename, "w");
   
@@ -630,7 +630,7 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPluginDelegate::SaveProgramAsFXP(const char* file)
+bool IPluginBase::SaveProgramAsFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -703,7 +703,7 @@ bool IPluginDelegate::SaveProgramAsFXP(const char* file)
   return false;
 }
 
-bool IPluginDelegate::SaveBankAsFXB(const char* file)
+bool IPluginBase::SaveBankAsFXB(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -808,7 +808,7 @@ bool IPluginDelegate::SaveBankAsFXB(const char* file)
     return false;
 }
 
-bool IPluginDelegate::LoadProgramFromFXP(const char* file)
+bool IPluginBase::LoadProgramFromFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -899,7 +899,7 @@ bool IPluginDelegate::LoadProgramFromFXP(const char* file)
   return false;
 }
 
-bool IPluginDelegate::LoadBankFromFXB(const char* file)
+bool IPluginBase::LoadBankFromFXB(const char* file)
 {
   if (CStringHasContents(file))
   {

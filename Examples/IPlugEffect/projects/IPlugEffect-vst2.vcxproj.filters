@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
@@ -57,7 +57,7 @@
   <ItemGroup>
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\IPlugEffect.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">

@@ -9,7 +9,7 @@
 #include "faust/gui/MidiUI.h"
 #include "assocarray.h"
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 
 #include "Oversampler.h"
 
@@ -106,7 +106,7 @@ public:
       DBGMSG("IPlugFaust-%s:: No parameter named %s\n", mName.Get(), labelToLookup);
   }
 
-  int CreateIPlugParameters(IPlugBase* pPlug, int startIdx = 0)
+  int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, bool setToDefault = false)
   {
     assert(pPlug != nullptr);
     
@@ -249,7 +249,7 @@ protected:
   WDL_PtrList<FAUSTFLOAT> mZones;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
-  IPlugBase* mPlug = nullptr;
+  IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
 };
 

@@ -38,7 +38,7 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 #endif //CUSTOM_BUSTYPE_FUNC
 
 IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugBase(c, kAPIVST3)
+: IPlugAPIBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
 {
   setControllerClass(instanceInfo.mOtherGUID);

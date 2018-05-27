@@ -19,13 +19,13 @@
  *  that the method is delivering something wait for it... to the UI.
  *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
  *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
- *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugBase.
- *  A parameter object is also referred to as a "param", in method names such as IPlugBase::GetParam(int paramIdx) and IControl::GetParam(). */
-class IPluginDelegate : public IPLUGIN_SUPER_CLASS
+ *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugAPIBase.
+ *  A parameter object is also referred to as a "param", in method names such as IPlugAPIBase::GetParam(int paramIdx) and IControl::GetParam(). */
+class IPluginBase : public IPLUGIN_SUPER_CLASS
 {
 public:
-  IPluginDelegate(int nParams, int nPresets);
-  virtual ~IPluginDelegate();
+  IPluginBase(int nParams, int nPresets);
+  virtual ~IPluginBase();
   
 #pragma mark - Plug-in properties
   /** @return the name of the plug-in as a CString */
@@ -77,7 +77,7 @@ public:
   const char* GetArchStr() const;
   
   /** @brief Used to get the build date of the plug-in and architecture/api details in one string
-   * @note since the implementation is in IPlugBase.cpp, you may want to touch that file as part of your build script to force recompilation
+   * @note since the implementation is in IPlugAPIBase.cpp, you may want to touch that file as part of your build script to force recompilation
    * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
   void GetBuildInfoStr(WDL_String& str) const;
   
@@ -247,7 +247,7 @@ public:
   
   /** Initialise this delegate from another one
    * @param delegate The delegate to clone */
-  void InitFromDelegate(IPluginDelegate& delegate);
+  void InitFromDelegate(IPluginBase& delegate);
   
   /** Initialise a range of parameters simultaneously. This mirrors the arguments available in IParam::InitDouble, for maximum flexibility
    * @param startIdx The index of the first parameter to initialise

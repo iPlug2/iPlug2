@@ -5,14 +5,14 @@
 #undef strnicmp
 #include "public.sdk/source/vst/vsteditcontroller.h"
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 
 using namespace Steinberg;
 using namespace Vst;
 
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
-                          , public IPlugBase
+                          , public IPlugAPIBase
 {
 public:
   struct IPlugInstanceInfo
@@ -49,7 +49,7 @@ public:
   DELEGATE_REFCOUNT (EditControllerEx1)
   tresult PLUGIN_API queryInterface (const char* iid, void** obj) override;
   
-  //IPlugBase
+  //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }

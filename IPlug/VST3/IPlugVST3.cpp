@@ -48,7 +48,7 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 #pragma mark - IPlugVST3 Constructor
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugBase(c, kAPIVST3)
+: IPlugAPIBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
 {
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
@@ -754,7 +754,7 @@ tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 program
   return kResultFalse;
 }
 
-#pragma mark IPlugBase overrides
+#pragma mark IPlugAPIBase overrides
 
 void IPlugVST3::BeginInformHostOfParamChange(int idx)
 {

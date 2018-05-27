@@ -80,7 +80,7 @@ public:
    */
   virtual bool OnMessage(const char* msgID, int dataSize, const void* pData) { return false; }
   
-  /** This is called by API classes after restoring state and by IPluginDelegate::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
+  /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
   
@@ -100,7 +100,7 @@ public:
   virtual void SendMsgFromDelegate(const char* msg, int dataSize, const void* pData) {};
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
-   * This method should only be called from the main thread. The similarly named IPlugBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
+   * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated

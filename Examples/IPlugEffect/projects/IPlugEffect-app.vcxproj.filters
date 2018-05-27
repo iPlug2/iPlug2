@@ -17,7 +17,7 @@
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWeb.cpp">
       <Filter>IGraphics\PlatformClasses</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
@@ -37,12 +37,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugAPP.cpp">
       <Filter>IPlug\APP</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp">
-      <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
@@ -117,7 +111,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
@@ -164,9 +158,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugAPP.h">
       <Filter>IPlug\APP</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
-      <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
       <Filter>IPlug</Filter>

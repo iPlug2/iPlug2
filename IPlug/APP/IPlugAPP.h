@@ -8,7 +8,7 @@
 
 
 #include "IPlugPlatform.h"
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
 #include "RtMidi.h"
@@ -29,16 +29,16 @@
   };
 #endif
 
-/**  Standalone application base class for an IPlug plug-in, inherits from IPlugBase
+/**  Standalone application base class for an IPlug plug-in, inherits from IPlugAPIBase
 *   @ingroup APIClasses
 */
-class IPlugAPP : public IPlugBase
+class IPlugAPP : public IPlugAPIBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
-  //IPlugBase
+  //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override {};
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};

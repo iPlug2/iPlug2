@@ -7,14 +7,14 @@
 #include "public.sdk/source/vst/hosting/parameterchanges.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
 using namespace Steinberg;
 using namespace Vst;
 
 class IPlugVST3Processor : public AudioEffect
-                         , public IPlugBase
+                         , public IPlugAPIBase
                          , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
@@ -38,7 +38,7 @@ public:
   tresult PLUGIN_API setState(IBStream* state) override;
   tresult PLUGIN_API getState(IBStream* state) override;
   
-  //IPluginDelegate
+  //IPluginBase
   void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in VST3 processor -> param change gets there via IPlugVST3Controller::setParamNormalized

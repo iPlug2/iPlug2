@@ -439,7 +439,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pDataSize = sizeof (void*);
       if (pData)
       {
-        ((void**) pData)[0] = (void*) static_cast<IPlugBase*> (this);
+        ((void**) pData)[0] = (void*) static_cast<IPlugAPIBase*> (this);
       }
       else {
         *pWriteable = false;
@@ -1718,7 +1718,7 @@ void IPlugAU::ClearConnections()
 #pragma mark - IPlugAU Constructor
 
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugBase(c, kAPIAU)
+: IPlugAPIBase(c, kAPIAU)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
 {
   Trace(TRACELOC, "%s", c.pluginName);
@@ -1855,7 +1855,7 @@ void IPlugAU::PreProcess()
 
 EHost IPlugAU::GetHost()
 {
-  EHost host = IPlugBase::GetHost();
+  EHost host = IPlugAPIBase::GetHost();
   if (host == kHostUninit)
   {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
@@ -1868,14 +1868,14 @@ EHost IPlugAU::GetHost()
         CStrLocal str(id);
         //CFStringRef versStr = (CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
         SetHost(str.mCStr, 0);
-        host = IPlugBase::GetHost();
+        host = IPlugAPIBase::GetHost();
       }
     }
     
     if (host == kHostUninit)
     {
       SetHost("", 0);
-      host = IPlugBase::GetHost();
+      host = IPlugAPIBase::GetHost();
     }
   }
   return host;

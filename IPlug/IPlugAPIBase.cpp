@@ -6,10 +6,10 @@
 
 #include "wdlendian.h"
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 
-IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
-  : IPluginDelegate(c.nParams, c.nPresets)
+IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
+  : IPluginBase(c.nParams, c.nPresets)
   , mParamChangeToUIQueue(512) // TODO: CONSTANT
 {
   mUniqueID = c.uniqueID;
@@ -29,7 +29,7 @@ IPlugBase::IPlugBase(IPlugConfig c, EAPI plugAPI)
   mParamDisplayStr.Set("", MAX_PARAM_DISPLAY_LEN);
 }
 
-IPlugBase::~IPlugBase()
+IPlugAPIBase::~IPlugAPIBase()
 {
   if(mTimer)
   {
@@ -40,18 +40,18 @@ IPlugBase::~IPlugBase()
   TRACE;
 }
 
-void IPlugBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results)
+void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results)
 {
   for (int i = 0; i < count; i++)
     results.Add(i);
 }
 
-void IPlugBase::CreateTimer()
+void IPlugAPIBase::CreateTimer()
 {
   mTimer = Timer::Create(*this, 20); // TODO: CONSTANT
 }
 
-bool IPlugBase::CompareState(const uint8_t* pIncomingState, int startPos)
+bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
 {
   bool isEqual = true;
   
@@ -72,7 +72,7 @@ bool IPlugBase::CompareState(const uint8_t* pIncomingState, int startPos)
 
 #pragma mark -
 
-void IPlugBase::PrintDebugInfo() const
+void IPlugAPIBase::PrintDebugInfo() const
 {
   WDL_String buildInfo;
   GetBuildInfoStr(buildInfo);
@@ -81,7 +81,7 @@ void IPlugBase::PrintDebugInfo() const
 
 #pragma mark -
 
-void IPlugBase::SetHost(const char* host, int version)
+void IPlugAPIBase::SetHost(const char* host, int version)
 {
   mHost = LookUpHost(host);
   mHostVersion = version;
@@ -91,7 +91,7 @@ void IPlugBase::SetHost(const char* host, int version)
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
 }
 
-void IPlugBase::SetParameterValue(int idx, double normalizedValue)
+void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
 {
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
   GetParam(idx)->SetNormalized(normalizedValue);
@@ -99,7 +99,7 @@ void IPlugBase::SetParameterValue(int idx, double normalizedValue)
   OnParamChange(idx, kGUI);
 }
 
-void IPlugBase::OnParamReset(EParamSource source)
+void IPlugAPIBase::OnParamReset(EParamSource source)
 {
   for (int i = 0; i < mParams.GetSize(); ++i)
   {
@@ -107,7 +107,7 @@ void IPlugBase::OnParamReset(EParamSource source)
   }
 }
 
-void IPlugBase::DirtyParameters()
+void IPlugAPIBase::DirtyParameters()
 {
   for (int p = 0; p < NParams(); p++)
   {
@@ -116,14 +116,14 @@ void IPlugBase::DirtyParameters()
   }
 }
 
-void IPlugBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
+void IPlugAPIBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized)
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
   mParamChangeToUIQueue.Push(ParamChange { paramIdx, value, normalized } );
 }
 
-void IPlugBase::OnTimer(Timer& t)
+void IPlugAPIBase::OnTimer(Timer& t)
 {
 #if !defined VST3C_API && !defined VST3P_API
   while(mParamChangeToUIQueue.ElementsAvailable())
@@ -153,17 +153,17 @@ void IPlugBase::OnTimer(Timer& t)
   OnIdle();
 }
 
-void IPlugBase::SendMidiMsgFromUI(const IMidiMsg& msg)
+void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
   mMidiMsgsFromController.Push(msg);
 }
 
-void IPlugBase::SendSysexMsgFromUI(int size, const uint8_t* pData)
+void IPlugAPIBase::SendSysexMsgFromUI(int size, const uint8_t* pData)
 {
   //TODO:
 }
 
-void IPlugBase::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+void IPlugAPIBase::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
 {
   OnMessage(msgID, dataSize, pData);
 }

@@ -14,7 +14,7 @@
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphicsEditorDelegate.cpp">
@@ -133,7 +133,7 @@
     <ClInclude Include="..\..\..\IGraphics\IControl.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">

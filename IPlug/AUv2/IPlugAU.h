@@ -13,7 +13,7 @@
 #include <AudioToolbox/AudioUnitUtilities.h>
 #include <AvailabilityMacros.h>
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
 struct AudioComponentPlugInInstance
@@ -34,17 +34,17 @@ struct IPlugInstanceInfo
   WDL_String mCocoaViewFactoryClassName;
 };
 
-/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugBase
+/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugAPIBase
 *   @ingroup APIClasses
 */
-class IPlugAU : public IPlugBase
+class IPlugAU : public IPlugAPIBase
               , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugAU();
 
-//IPlugBase
+//IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;

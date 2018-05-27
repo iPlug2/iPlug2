@@ -1,7 +1,7 @@
 #include "IPlugWAM.h"
 
 IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugBase(c, kAPIWAM)
+  : IPlugAPIBase(c, kAPIWAM)
   , IPlugProcessor<float>(c, kAPIWAM)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);

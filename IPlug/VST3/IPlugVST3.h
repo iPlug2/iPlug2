@@ -16,7 +16,7 @@
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
 /** Used to pass various instance info to the API class, where needed */
@@ -27,10 +27,10 @@ class IPlugVST3View;
 using namespace Steinberg;
 
 #pragma mark - IPlugVST3 constructor
-/**  VST3 base class for an IPlug plug-in, inherits from IPlugBase
+/**  VST3 base class for an IPlug plug-in, inherits from IPlugAPIBase
 *   @ingroup APIClasses
 */
-class IPlugVST3 : public IPlugBase
+class IPlugVST3 : public IPlugAPIBase
                 , public IPlugProcessor<PLUG_SAMPLE_DST>
                 , public Vst::SingleComponentEffect
 {
@@ -38,7 +38,7 @@ public:
   IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugVST3();
 
-  //IPlugBase
+  //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;

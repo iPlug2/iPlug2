@@ -1,7 +1,7 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 #include "processor.h"
 
@@ -13,7 +13,7 @@ struct IPlugInstanceInfo
 
 /** WebAudioModule (WAM) API base class for an IPlug plug-in
  * @ingroup APIClasses */
-class IPlugWAM : public IPlugBase
+class IPlugWAM : public IPlugAPIBase
                , public IPlugProcessor<float>
                , public Processor
 {
@@ -33,7 +33,7 @@ public:
 //  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
   virtual void onParam(uint32_t idparam, double value) override;
 
-  //IPlugBase
+  //IPlugAPIBase
 //   void BeginInformHostOfParamChange(int idx) override {};
 //   void InformHostOfParamChange(int idx, double normalizedValue) override {};
 //   void EndInformHostOfParamChange(int idx) override {};
@@ -47,7 +47,7 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; }
   bool SendSysEx(ISysEx& msg) override { return false; }
   
-  //IPluginDelegate
+  //IPluginBase
   void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?

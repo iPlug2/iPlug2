@@ -415,10 +415,8 @@
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.cpp" />
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAAX.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
@@ -462,8 +460,7 @@
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h" />
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_TaperDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAAX.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />

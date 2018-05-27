@@ -348,8 +348,7 @@
     <ClInclude Include="..\..\..\IPlug\IGraphics\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IGraphics\IPopupMenu.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPP.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
@@ -423,10 +422,8 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IGraphics\IGraphicsWin.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPP.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>

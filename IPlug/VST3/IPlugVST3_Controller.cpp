@@ -12,7 +12,7 @@ using namespace Steinberg;
 using namespace Steinberg::Vst;
 
 IPlugVST3Controller::IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugBase(c, kAPIVST3)
+: IPlugAPIBase(c, kAPIVST3)
 , mProcessorGUID(instanceInfo.mOtherGUID)
 {
 }

@@ -65,12 +65,12 @@
 		4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103620A0E55900D3092F /* IPlugParameter.h */; };
 		4FFF104820A0E55A00D3092F /* IPlug_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103720A0E55900D3092F /* IPlug_include_in_plug_src.h */; };
 		4FFF104920A0E55A00D3092F /* IPlugProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103820A0E55900D3092F /* IPlugProcessor.h */; };
-		4FFF104B20A0E55A00D3092F /* IPlugBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103A20A0E55900D3092F /* IPlugBase.cpp */; };
+		4FFF104B20A0E55A00D3092F /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103A20A0E55900D3092F /* IPlugAPIBase.cpp */; };
 		4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103B20A0E55A00D3092F /* IPlugStructs.h */; };
 		4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103C20A0E55A00D3092F /* IPlugUtilities.h */; };
 		4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103D20A0E55A00D3092F /* IPlugMidi.h */; };
 		4FFF104F20A0E55A00D3092F /* IPlugLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103E20A0E55A00D3092F /* IPlugLogger.h */; };
-		4FFF105020A0E55A00D3092F /* IPlugBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103F20A0E55A00D3092F /* IPlugBase.h */; };
+		4FFF105020A0E55A00D3092F /* IPlugAPIBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103F20A0E55A00D3092F /* IPlugAPIBase.h */; };
 		4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105320A0E57000D3092F /* IPlugAUAudioUnit.mm */; };
 		4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105420A0E57000D3092F /* IPlugAUAudioUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105520A0E57100D3092F /* BufferedAudioBus.hpp */; };
@@ -237,12 +237,12 @@
 		4FFF103720A0E55900D3092F /* IPlug_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlug_include_in_plug_src.h; path = ../../../IPlug/IPlug_include_in_plug_src.h; sourceTree = "<group>"; };
 		4FFF103820A0E55900D3092F /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; };
 		4FFF103920A0E55900D3092F /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; };
-		4FFF103A20A0E55900D3092F /* IPlugBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugBase.cpp; path = ../../../IPlug/IPlugBase.cpp; sourceTree = "<group>"; };
+		4FFF103A20A0E55900D3092F /* IPlugAPIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPIBase.cpp; path = ../../../IPlug/IPlugAPIBase.cpp; sourceTree = "<group>"; };
 		4FFF103B20A0E55A00D3092F /* IPlugStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugStructs.h; path = ../../../IPlug/IPlugStructs.h; sourceTree = "<group>"; };
 		4FFF103C20A0E55A00D3092F /* IPlugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugUtilities.h; path = ../../../IPlug/IPlugUtilities.h; sourceTree = "<group>"; };
 		4FFF103D20A0E55A00D3092F /* IPlugMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugMidi.h; path = ../../../IPlug/IPlugMidi.h; sourceTree = "<group>"; };
 		4FFF103E20A0E55A00D3092F /* IPlugLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugLogger.h; path = ../../../IPlug/IPlugLogger.h; sourceTree = "<group>"; };
-		4FFF103F20A0E55A00D3092F /* IPlugBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugBase.h; path = ../../../IPlug/IPlugBase.h; sourceTree = "<group>"; };
+		4FFF103F20A0E55A00D3092F /* IPlugAPIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAPIBase.h; path = ../../../IPlug/IPlugAPIBase.h; sourceTree = "<group>"; };
 		4FFF104020A0E55A00D3092F /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; };
 		4FFF105320A0E57000D3092F /* IPlugAUAudioUnit.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAUAudioUnit.mm; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.mm; sourceTree = "<group>"; };
 		4FFF105420A0E57000D3092F /* IPlugAUAudioUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAUAudioUnit.h; path = ../../../IPlug/AUv3/IPlugAUAudioUnit.h; sourceTree = "<group>"; };
@@ -467,8 +467,8 @@
 				4FFF106720A0E58600D3092F /* IPlugPluginBase.h */,
 				4FFF103520A0E55900D3092F /* IPlug_include_in_plug_hdr.h */,
 				4FFF103720A0E55900D3092F /* IPlug_include_in_plug_src.h */,
-				4FFF103F20A0E55A00D3092F /* IPlugBase.h */,
-				4FFF103A20A0E55900D3092F /* IPlugBase.cpp */,
+				4FFF103F20A0E55A00D3092F /* IPlugAPIBase.h */,
+				4FFF103A20A0E55900D3092F /* IPlugAPIBase.cpp */,
 				4FFF103820A0E55900D3092F /* IPlugProcessor.h */,
 				4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */,
 				4FFF103620A0E55900D3092F /* IPlugParameter.h */,
@@ -595,7 +595,7 @@
 				4F6369E620A466320022C370 /* IControl.h in Headers */,
 				4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */,
 				4FFF104820A0E55A00D3092F /* IPlug_include_in_plug_src.h in Headers */,
-				4FFF105020A0E55A00D3092F /* IPlugBase.h in Headers */,
+				4FFF105020A0E55A00D3092F /* IPlugAPIBase.h in Headers */,
 				4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */,
 				4FFF104620A0E55A00D3092F /* IPlug_include_in_plug_hdr.h in Headers */,
 			);
@@ -798,7 +798,7 @@
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginBase.cpp in Sources */,
 				4FFF108C20A1036200D3092F /* IPlugEffect.cpp in Sources */,
-				4FFF104B20A0E55A00D3092F /* IPlugBase.cpp in Sources */,
+				4FFF104B20A0E55A00D3092F /* IPlugAPIBase.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

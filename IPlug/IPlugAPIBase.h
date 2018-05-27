@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @copydoc IPlugBase
+ * @copydoc IPlugAPIBase
  * @defgroup APIClasses IPlug::APIClasses
 */
 
@@ -25,13 +25,13 @@ struct IPlugConfig;
 
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
-class IPlugBase : public IPluginDelegate
-                , public ITimerCallback
+class IPlugAPIBase : public IPluginBase
+                   , public ITimerCallback
 {
 
 public:
-  IPlugBase(IPlugConfig config, EAPI plugAPI);
-  virtual ~IPlugBase();
+  IPlugAPIBase(IPlugConfig config, EAPI plugAPI);
+  virtual ~IPlugAPIBase();
 
 #pragma mark - Methods you can implement/override in your plug-in class - you do not call these methods
 
@@ -99,8 +99,8 @@ public:
   /** Override this method to get an "idle"" call on the main thread */
   virtual void OnIdle() {}
     
-#pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugBase.cpp;
-  /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugBases, for specific functionality, such as printing UI details. */
+#pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp;
+  /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
   /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
@@ -118,7 +118,7 @@ public:
   virtual void EndInformHostOfParamChange(int paramIdx) {};
 
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
-   * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugBase::OnParamChange();
+   * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugAPIBase::OnParamChange();
    * @param paramIdx The index of the parameter that changed
    * @param normalizedValue The new (normalised) value*/
   void SetParameterValue(int paramIdx, double normalizedValue);
@@ -146,11 +146,11 @@ public:
   void OnParamReset(EParamSource source);  //
 
   //IEditorDelegate
-  void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginDelegate::SetParameterValueFromUI(paramIdx, value); }
+  void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SetParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  //These are handled in IPlugBase for non DISTRIBUTED APIs
+  //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(int size, const uint8_t* pData) override;
   void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;

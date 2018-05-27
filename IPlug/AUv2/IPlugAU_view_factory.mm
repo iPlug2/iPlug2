@@ -3,13 +3,13 @@
 #include <AudioUnit/AUCocoaUIView.h>
 
 #include "config.h"   // This is your plugin's config.h.
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 @interface AUV2_VIEW_CLASS : NSObject <AUCocoaUIBase>
 {
-  IPlugBase* mPlug;
+  IPlugAPIBase* mPlug;
 }
 - (id) init;
 - (NSView*) uiViewForAudioUnit: (AudioUnit) audioUnit withSize: (NSSize) preferredSize;
@@ -36,7 +36,7 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
   if (AudioUnitGetProperty (audioUnit, kIPlugObjectPropertyID,
                             kAudioUnitScope_Global, 0, pointers, &propertySize) == noErr)
   {
-    mPlug = (IPlugBase*) pointers[0];
+    mPlug = (IPlugAPIBase*) pointers[0];
     
     if (mPlug)
     {

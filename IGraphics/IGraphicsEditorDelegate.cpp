@@ -60,7 +60,7 @@ void IGraphicsEditorDelegate::CloseWindow()
 //  assert(mGraphics != nullptr);
 //
 //  if(!mGraphics)
-//    return IPlugBase::PrintDebugInfo();
+//    return IPlugAPIBase::PrintDebugInfo();
 //
 //  WDL_String buildInfo;
 //  GetBuildInfoStr(buildInfo);

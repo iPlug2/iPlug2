@@ -9,7 +9,7 @@ PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
 IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 
-IPLUG_SRC = $(IPLUG_PATH)/IPlugBase.cpp \
+IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
 	$(IPLUG_PATH)/IPlugPluginBase.cpp \
 	# $(IPLUG_PATH)/IPlugTimer.cpp

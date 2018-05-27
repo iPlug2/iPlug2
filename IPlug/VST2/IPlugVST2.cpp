@@ -15,7 +15,7 @@ int VSTSpkrArrType(int nchan)
 }
 
 IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugBase(c, kAPIVST2)
+  : IPlugAPIBase(c, kAPIVST2)
   , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
@@ -95,7 +95,7 @@ void IPlugVST2::InformHostOfProgramChange()
 
 EHost IPlugVST2::GetHost()
 {
-  EHost host = IPlugBase::GetHost();
+  EHost host = IPlugAPIBase::GetHost();
 
   if (host == kHostUninit)
   {
@@ -114,7 +114,7 @@ EHost IPlugVST2::GetHost()
     }
 
     SetHost(productStr, version);
-    host = IPlugBase::GetHost();
+    host = IPlugAPIBase::GetHost();
   }
 
   return host;
@@ -404,7 +404,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         if (isBank)
         {
           _this->ModifyCurrentPreset();
-          savedOK = static_cast<IPluginDelegate*>(_this)->SerializePresets(chunk);
+          savedOK = static_cast<IPluginBase*>(_this)->SerializePresets(chunk);
         }
         else
         {
@@ -433,7 +433,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 
         if (isBank)
         {
-          pos = static_cast<IPluginDelegate*>(_this)->UnserializePresets(chunk, pos);
+          pos = static_cast<IPluginBase*>(_this)->UnserializePresets(chunk, pos);
         }
         else
         {

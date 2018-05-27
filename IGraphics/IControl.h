@@ -36,9 +36,9 @@ class IControl
 public:
   /** Constructor
    * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
-   * In a plug-in, this would typically be your main plug-in class, which inherits from IPlugBaseGraphics, which implements the interface.
-   * If you're doing something using IGraphics without IPlugBaseGraphics (e.g. drawing into an extra window), you need to implement the delegate interface somewhere
-   * to handle parameter changes.
+   * In a plug-in, this would typically be your main plug-in class
+   * If you're doing something using IGraphics on its own (e.g. drawing into an extra window), you need to implement the IEditorDelegate interface somewhere
+   * to handle dummy "parameter" changes.
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */

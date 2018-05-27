@@ -1238,7 +1238,7 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx, int paramJump, const char* groupName, int rows, int columns, EDirection dir, const char** pParamNameStrings)
 {
-  IPluginDelegate& dlg = dynamic_cast<IPluginDelegate&>(GetDelegate()); // TODO: will crash if not a plugin
+  IPluginBase& dlg = dynamic_cast<IPluginBase&>(GetDelegate()); // TODO: will crash if not a plugin
   
   IRECT sliderBounds = bounds;
   int cellIdx = 0;

@@ -97,7 +97,7 @@ bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   {
     WDL_String musicFolder;
     SandboxSafeAppSupportPath(musicFolder);
-    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginDelegate&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
+    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginBase&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
     NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
     NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
 

@@ -233,7 +233,7 @@ template<class TIN = PLUG_SAMPLE_SRC, class TOUT = PLUG_SAMPLE_DST>
 struct IChannelData
 {
   bool mConnected = false;
-  TOUT** mData = nullptr; // If this is for an input channel, points into IPlugBase::mInData, if it's for an output channel points into IPlugBase::mOutData
+  TOUT** mData = nullptr; // If this is for an input channel, points into IPlugProcessor::mInData, if it's for an output channel points into IPlugProcessor::mOutData
   TIN* mIncomingData = nullptr;
   WDL_TypedBuf<TOUT> mScratchBuf;
   WDL_String mLabel = WDL_String("");

@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugBase.cpp">
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
@@ -20,12 +20,6 @@
     <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugBaseGraphics.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugPresets.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -35,7 +29,7 @@
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugBase.h">
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
@@ -77,9 +71,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h">
       <Filter>IPlug\AAX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugBaseGraphics.h">
-      <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
       <Filter>IPlug</Filter>

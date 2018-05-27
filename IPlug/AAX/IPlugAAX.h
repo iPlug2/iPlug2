@@ -8,7 +8,7 @@
 
 
 #include "IPlugPlatform.h"
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
 #include "IPlugAAX_Parameters.h"
@@ -43,10 +43,10 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
-/**  AAX API base class for an IPlug plug-in, inherits from IPlugBase 
+/**  AAX API base class for an IPlug plug-in, inherits from IPlugAPIBase 
 *   @ingroup APIClasses
 */
-class IPlugAAX : public IPlugBase
+class IPlugAAX : public IPlugAPIBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public AAX_CIPlugParameters
 {
@@ -54,7 +54,7 @@ public:
   IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugAAX();
   
-  //IPlugBase Overrides
+  //IPlugAPIBase Overrides
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;

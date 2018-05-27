@@ -1,7 +1,7 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
-#include "IPlugBase.h"
+#include "IPlugAPIBase.h"
 #include <emscripten/val.h>
 
 /** Used to pass various instance info to the API class */
@@ -9,14 +9,14 @@ struct IPlugInstanceInfo
 {};
 
 /**  */
-class IPlugWeb : public IPlugBase
+class IPlugWeb : public IPlugAPIBase
 {
 public:
   IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
-  : IPlugBase(config, kAPIWEB)
+  : IPlugAPIBase(config, kAPIWEB)
   {}
 
-  //IPlugBase
+  //IPlugAPIBase
 //  void BeginInformHostOfParamChange(int idx) override {};
 //  void InformHostOfParamChange(int idx, double normalizedValue) override {};
 //  void EndInformHostOfParamChange(int idx) override {};
