@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Python shell script for Duplicating WDL-OL IPlug Projects
-# Oli Larkin 2012-2017 http://www.olilarkin.co.uk
+# Oli Larkin 2012-2018 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd
@@ -28,7 +28,7 @@ import fileinput, glob, string, sys, os, re, uuid
 from shutil import copy, copytree, ignore_patterns, rmtree
 from os.path import join
 
-VERSION = "0.92"
+VERSION = "0.93"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -37,6 +37,7 @@ DONT_COPY = (".vs", "*.exe", "*.dmg", "*.pkg", "*.mpkg", "*.svn", "*.ncb", "*.su
 
 SUBFOLDERS_TO_SEARCH = [
 "projects",
+"config",
 "resources",
 "installer",
 "scripts",
