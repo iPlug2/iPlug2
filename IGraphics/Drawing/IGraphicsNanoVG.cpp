@@ -362,6 +362,8 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   if (fontEmoji == -1) {
     DBGMSG("Could not add font emoji.\n");
   }
+  nvgAddFallbackFontId(mVG, fontNormal, fontEmoji);
+  nvgAddFallbackFontId(mVG, fontBold, fontEmoji);
 #elif defined OS_WIN
   //TODO: remove these hard coded paths!
   int fontIcons = nvgCreateFont(mVG, "icons", "C:/Users/Oliver Larkin/Dev/MyPlugins/entypo.ttf");
@@ -380,10 +382,9 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   if (fontEmoji == -1) {
     DBGMSG("Could not add font emoji.\n");
   }
-#endif
-
   nvgAddFallbackFontId(mVG, fontNormal, fontEmoji);
   nvgAddFallbackFontId(mVG, fontBold, fontEmoji);
+#endif
 }
 
 void IGraphicsNanoVG::DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad)
