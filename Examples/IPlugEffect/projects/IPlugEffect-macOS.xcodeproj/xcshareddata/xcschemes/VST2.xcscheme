@@ -58,6 +58,12 @@
             ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "$(SRCROOT)/../IPlugEffect.RPP"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
