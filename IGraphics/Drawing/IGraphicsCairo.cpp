@@ -99,6 +99,7 @@ IGraphicsCairo::IGraphicsCairo(IEditorDelegate& dlg, int w, int h, int fps)
 , mSurface(nullptr)
 , mContext(nullptr)
 {
+  DBGMSG("IGraphics Cairo @ %i FPS", fps);
 }
 
 IGraphicsCairo::~IGraphicsCairo() 

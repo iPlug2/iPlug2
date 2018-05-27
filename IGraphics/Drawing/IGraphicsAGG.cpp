@@ -143,6 +143,7 @@ IGraphicsAGG::IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps)
 , mFontCurves(mFontManager.path_adaptor())
 , mFontContour(mFontCurves)
 {
+  DBGMSG("IGraphics AGG @ %i FPS", fps);
 }
 
 IGraphicsAGG::~IGraphicsAGG()
