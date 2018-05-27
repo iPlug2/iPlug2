@@ -4,6 +4,7 @@
 #define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member {#class, file, nvoices, rate}
 #else
 #define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member {#class, file, nvoices, rate}
+// if this file is not found, you need to run the code without FAUST_COMPILED defined and make sure to call CompileCPP();
 #include "FaustCode.hpp"
 typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 #endif
@@ -17,19 +18,20 @@ typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 #include <map>
 
 #include "IPlugPlatform.h"
+#include "IPlugConstants.h"
 
 #include <sys/stat.h>
 
 #if defined OS_MAC || defined OS_LINUX
 typedef struct stat StatType;
-typedef timespec Time;
+typedef timespec StatTime;
 
 static inline int GetStat(const char* pPath, StatType* pStatbuf) { return stat(pPath, pStatbuf); }
-static inline Time GetModifiedTime(StatType &s) { return s.st_mtimespec; }
-static inline bool Equal(Time a, Time b) { return (a.tv_sec == b.tv_sec && a.tv_nsec == b.tv_nsec); }
-static inline Time TimeZero()
+static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtimespec; }
+static inline bool Equal(StatTime a, StatTime b) { return (a.tv_sec == b.tv_sec && a.tv_nsec == b.tv_nsec); }
+static inline StatTime TimeZero()
 {
-  Time ts;
+  StatTime ts;
   ts.tv_sec = 0;
   ts.tv_nsec = 0;
   return ts;
@@ -44,7 +46,7 @@ static inline bool Equal(Time a, Time b) { return a == b; }
 static inline Time TimeZero() { return (Time) 0; }
 #endif
 
-#define FAUSTFLOAT double
+typedef sample FAUSTFLOAT;
 
 #include "faust/dsp/llvm-dsp.h"
 #include "IPlugFaust.h"
@@ -124,13 +126,13 @@ class FaustGen : public IPlugFaust,
     {
       void declare(const char *key, const char *value)
       {
-        //      DBGMSG("FaustGen: metadata:\n");
-        //
-        //      if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
-        //      {
-        //        DBGMSG("\t\tkey:%s : %s\n", key, value);
-        //      }
-        //
+        DBGMSG("FaustGen: metadata:\n");
+
+        if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
+        {
+          DBGMSG("\t\tkey:%s : %s\n", key, value);
+        }
+
         (*this)[key] = value;
       }
 
@@ -169,7 +171,7 @@ class FaustGen : public IPlugFaust,
     static int sFactoryCounter;
     static map<string, Factory*> sFactoryMap;
     WDL_String mInputDSPFile;
-    Time mPreviousTime;
+    StatTime mPreviousTime;
   };
 public:
 
@@ -193,7 +195,7 @@ public:
    * @return \c true on success */
   static bool CompileCPP();
 
-  void SetAutoRecompile(bool enable) override;
+  void SetAutoRecompile(bool enable);
 
   //ITimerCallback
   void OnTimer(Timer& timer) override;

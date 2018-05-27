@@ -55,7 +55,7 @@ public:
    * @return \c true on success */
   static bool CompileCPP() { return true; }
 
-  virtual void SetAutoRecompile(bool enable) {}
+  static void SetAutoRecompile(bool enable) {}
   
   void FreeDSP()
   {
@@ -81,48 +81,56 @@ public:
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
+    assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
+    
     if (mDSP)
       mDSP->compute(nFrames, inputs, outputs);
   }
 
-  void SetParameterValue(int paramIdx, double normalizedValue)
+  void SetParameterValue(int paramIdx, double nonNormalizedValue)
   {
     assert(paramIdx < NParams());
     
     if(mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = normalizedValue;
+      *(mZones.Get(paramIdx)) = nonNormalizedValue;
     else
       DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
   }
 
-  void SetParameterValue(const char* labelToLookup, double normalizedValue)
+  void SetParameterValue(const char* labelToLookup, double nonNormalizedValue)
   {
     FAUSTFLOAT* dest = nullptr;
     dest = mMap.Get(labelToLookup, nullptr);
 
     if(dest)
-      *dest = normalizedValue;
+      *dest = nonNormalizedValue;
     else
       DBGMSG("IPlugFaust-%s:: No parameter named %s\n", mName.Get(), labelToLookup);
   }
 
-  int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, bool setToDefault = false)
+  int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, int endIdx = -1, bool setToDefault = true)
   {
     assert(pPlug != nullptr);
     
     mPlug = pPlug;
     
     int plugParamIdx = mIPlugParamStartIdx = startIdx;
+    
+    if(endIdx == -1)
+      endIdx = pPlug->NParams() - 1;
+    
 
-    for (auto p = 0; p < NParams(); p++)
+    for (auto p = 0; p < endIdx; p++)
     {
-      plugParamIdx += p;
-      assert(plugParamIdx < pPlug->NParams());
+      assert(plugParamIdx + p < pPlug->NParams()); // plugin needs to have enough params!
 
-      IParam* pParam = pPlug->GetParam(plugParamIdx);
-      double currentValue = pParam->Value();
+      IParam* pParam = pPlug->GetParam(plugParamIdx + p);
+      const double currentValueNormalised = pParam->GetNormalized();
       pParam->Init(*mParams.Get(p));
-      pParam->Set(currentValue);
+      if(setToDefault)
+        pParam->SetToDefault();
+      else
+        pParam->SetNormalized(currentValueNormalised);
     }
 
     return plugParamIdx;
@@ -225,9 +233,15 @@ protected:
     {
       CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
     }
+    
+    DBGMSG("%i parameters\n", NParams());
+    for(auto p = 0; p < NParams(); p++)
+    {
+      DBGMSG("%i %s\n", p, mParams.Get(p)->GetNameForHost());
+    }
   }
 
-  int FindExistingParameterWithName(const char* name)
+  int FindExistingParameterWithName(const char* name) // TODO: this needs to check meta data too - incase of grouping
   {
     for(auto p = 0; p < NParams(); p++)
     {

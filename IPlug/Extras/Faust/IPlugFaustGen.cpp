@@ -184,7 +184,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     {
       pDSP = CreateDSPInstance();
       pDSP->metadata(&meta);
-      DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
+      DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s) %i parameters\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
       goto end;
     }
   }
@@ -529,7 +529,8 @@ bool FaustGen::CompileCPP()
     outputFile = inputFile;
     outputFile.remove_fileext();
     outputFile.AppendFormatted(1024, ".tmp");
-    command.SetFormatted(1024, "%s -cn %s -double -i -a %s %s -o %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
+    //-double
+    command.SetFormatted(1024, "%s -cn %s -i -a %s %s -o %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
 
     DBGMSG("exec: %s\n", command.Get());
 
@@ -572,8 +573,8 @@ void FaustGen::OnTimer(Timer& timer)
     pInputFile = &f.second->mInputDSPFile;
     StatType buf;
     GetStat(pInputFile->Get(), &buf);
-    Time oldTime = f.second->mPreviousTime;
-    Time newTime = GetModifiedTime(buf);
+    StatTime oldTime = f.second->mPreviousTime;
+    StatTime newTime = GetModifiedTime(buf);
 
     if(!Equal(newTime, oldTime))
     {
@@ -596,6 +597,7 @@ void FaustGen::OnTimer(Timer& timer)
   }
 }
 
+//static
 void FaustGen::SetAutoRecompile(bool enable)
 {
   if(enable)
