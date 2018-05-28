@@ -562,7 +562,7 @@ public:
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Set the platform draw context
-   Used with IGraphicsLice (possibly others) in order to set the CoreGraphics CGContextRef context on macOS and the GDI HDC draw context handle on Windows. On macOS, this is called by the platform IGraphics class IGraphicsMac, on Windows it is called by the drawing class e.g. IGraphicsLice.
+   Used with IGraphicsLice (possibly others) in order to set the CoreGraphics CGContextRef context on macOS and the GDI HDC draw context handle on Windows. On macOS, this is called by the platform IGraphics class.
    * @param pContext void pointer to CGContextRef or HDC */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 

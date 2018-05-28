@@ -7,8 +7,8 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
-/** This TODO has methods for serialization of state
- *  It provides a base interface for remote editors as well as the main plug-in, because we may have state/preset management in remote editors,
+/** This is the main plugin base class provides a base interface for remote editors as well as the main plug-in,
+ *  because we may have state/preset management in remote editors
  *  depending on the arrangement/separation we have chosen
  *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
  *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
