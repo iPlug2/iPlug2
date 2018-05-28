@@ -24,9 +24,15 @@
 
 from __future__ import generators
 
-import fileinput, glob, string, sys, os, re, uuid
+import fileinput, glob, string, sys, os, re, uuid, pprint, random
 from shutil import copy, copytree, ignore_patterns, rmtree
 from os.path import join
+
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+
+sys.path.insert(0, scriptpath + '/../scripts/')
+
+from parse_config import parse_config, parse_xcconfig, write_config
 
 VERSION = "0.93"
 
@@ -49,6 +55,9 @@ SUBFOLDERS_TO_SEARCH = [
 "project.xcworkspace",
 "Images.xcassets"
 ]
+
+def randomFourChar(chars=string.ascii_letters + string.digits):
+  return ''.join(random.choice(chars) for _ in range(4))
 
 def checkdirname(name, searchproject):
   "check if directory name matches with the given pattern"
@@ -186,11 +195,21 @@ def main():
     for dir in dirwalk(cpath, input, output, "AcmeInc", manufacturer):
       pass
 
-    print("\ncopying gitignore template into project folder")
+    print("\ncopying gitignore template into project folder\n")
 
     copy('gitignore_template', output + "/.gitignore")
 
-    print("\ndone - don't forget to change PLUG_UID and MFR_UID in config.h")
+    config = parse_config(output)
+
+    config['PLUG_UID'] = randomFourChar()
+    config['PLUG_MFR_UID'] = 'Acme'
+
+    write_config(output, config)
+
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(config)
+
+    print("\ndone - don't forget to change MFR_UID in config.h")
 
 if __name__ == '__main__':
   main()
