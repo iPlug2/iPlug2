@@ -33,7 +33,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
 
-  FastSinOscillator<sample> mOsc {0., 1.};
+  FastSinOscillator<sample> mOsc {0., 440.};
   IVMeterControl<2>::IVMeterBallistics mMeterBallistics { kControlTagMeter };
   IVScopeControl<1>::IVScopeBallistics mScopeBallistics { kControlTagScope };
 
