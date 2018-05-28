@@ -816,7 +816,7 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
 
   IMidiMsg msg;
 
-  while (mMidiMsgsFromController.Pop(msg))
+  while (mMidiMsgsFromEditor.Pop(msg))
   {
     ProcessMidiMsg(msg);
   }

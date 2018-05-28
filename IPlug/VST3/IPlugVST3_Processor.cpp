@@ -297,7 +297,7 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
       }
     }
     
-    while (mMidiMsgsFromController.Pop(msg))
+    while (mMidiMsgsFromEditor.Pop(msg))
     {
       ProcessMidiMsg(msg);
     }
@@ -566,7 +566,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
       {
         IMidiMsg msg;
         memcpy(&msg, data, size);
-        mMidiMsgsFromController.Push(msg);
+        mMidiMsgsFromEditor.Push(msg);
         return kResultOk;
       }
     }

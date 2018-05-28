@@ -155,7 +155,7 @@ void IPlugAPIBase::OnTimer(Timer& t)
 
 void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  mMidiMsgsFromController.Push(msg);
+  mMidiMsgsFromEditor.Push(msg);
 }
 
 void IPlugAPIBase::SendSysexMsgFromUI(int size, const uint8_t* pData)
