@@ -78,6 +78,7 @@ void PLUG_CLASS_NAME::CreateUI()
   const int nColumns = 4;
   int cellIdx = 0;
   IRECT bounds = pGraphics->GetBounds();
+  pGraphics->LoadFont("Roboto-Regular.ttf");
   IColor color;
   
   pGraphics->AttachControl(new IVMeterControl<2>(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.)), kControlTagMeter);

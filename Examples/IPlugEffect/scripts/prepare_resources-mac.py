@@ -36,6 +36,10 @@ def main():
 
     shutil.copytree(projectpath + "/resources/img/", dst, ignore=shutil.ignore_patterns(*DONT_COPY))
 
+    fonts = os.listdir(projectpath + "/resources/fonts/")
+    for font in fonts:
+      shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+
   print "Processing Info.plist files..."
 
 # VST3

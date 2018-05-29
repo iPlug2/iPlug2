@@ -19,9 +19,10 @@ IGraphicsTest::IGraphicsTest()
 
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->HandleMouseOver(true);
-  pGraphics->LoadFont("Arial");//dummy
   IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);
-
+  pGraphics->LoadFont("Roboto-Regular.ttf");
+  pGraphics->LoadFont("Montserrat-LightItalic.ttf");
+  
   pGraphics->AttachControl(new IGradientControl(*this, IRECT(20, 20, 150, 120), -1));
   pGraphics->AttachControl(new IPolyControl(*this, IRECT(20, 200, 150, 330), -1));
   pGraphics->AttachControl(new IArcControl(*this, IRECT(220, 20, 320, 120), -1));

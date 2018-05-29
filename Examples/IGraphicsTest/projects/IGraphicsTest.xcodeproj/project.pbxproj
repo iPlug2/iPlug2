@@ -79,6 +79,8 @@
 		4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D4513B635C8001D0217 /* swellappmain.h */; };
 		4F846271209CC61E00474F83 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F846270209CC61E00474F83 /* knob.png */; };
 		4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4FC82B5120BD659500722133 /* Montserrat-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4F20BD659500722133 /* Montserrat-LightItalic.ttf */; };
+		4FC82B5220BD659500722133 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B5020BD659500722133 /* Roboto-Regular.ttf */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -170,6 +172,8 @@
 		4F846270209CC61E00474F83 /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = knob.png; path = ../resources/img/knob.png; sourceTree = "<group>"; };
 		4F8B32602014C7D600EF1F61 /* IGraphicsTest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IGraphicsTest.xcconfig; sourceTree = "<group>"; };
 		4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BefacoBigKnob.svg; path = ../resources/img/BefacoBigKnob.svg; sourceTree = "<group>"; };
+		4FC82B4F20BD659500722133 /* Montserrat-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-LightItalic.ttf"; sourceTree = "<group>"; };
+		4FC82B5020BD659500722133 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IGraphicsTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IGraphicsTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
@@ -247,6 +251,7 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FC82B4E20BD659500722133 /* fonts */,
 				4FD16A0213B6303B001D0217 /* img */,
 				4F1B4AE32014D33600BC64D4 /* MainMenu.xib */,
 				4FDA1E0F2012CDB30027C868 /* IGraphicsTest.rc_mac_dlg */,
@@ -353,6 +358,16 @@
 				4F1E0A5720BA2538004FC7D5 /* IControls.cpp */,
 			);
 			path = Controls;
+			sourceTree = "<group>";
+		};
+		4FC82B4E20BD659500722133 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				4FC82B4F20BD659500722133 /* Montserrat-LightItalic.ttf */,
+				4FC82B5020BD659500722133 /* Roboto-Regular.ttf */,
+			);
+			name = fonts;
+			path = ../resources/fonts;
 			sourceTree = "<group>";
 		};
 		4FD16A0213B6303B001D0217 /* img */ = {
@@ -523,9 +538,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F78D88613B6382B0032E0F3 /* IGraphicsTest.icns in Resources */,
+				4FC82B5220BD659500722133 /* Roboto-Regular.ttf in Resources */,
 				4F846271209CC61E00474F83 /* knob.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
+				4F78D88613B6382B0032E0F3 /* IGraphicsTest.icns in Resources */,
+				4FC82B5120BD659500722133 /* Montserrat-LightItalic.ttf in Resources */,
 				4F1B4AE42014D33600BC64D4 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

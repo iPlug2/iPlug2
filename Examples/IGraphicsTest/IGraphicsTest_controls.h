@@ -290,10 +290,10 @@ public:
     int size = (std::rand() % 40) + 5;
     int style = (std::rand() % 3);
     int align = (std::rand() % 3);
-    int type = (std::rand() % 4);
+    int type = (std::rand() % 2);
     mStringIndex = (std::rand() % 6);
 
-    const char* types[] = { "Arial", "Chicago" , "Times", "Palatino" };
+    const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
     mText = IText(IColor::GetRandomColor(), size, types[type], (IText::EStyle) style, (IText::EAlign) align);
   }
