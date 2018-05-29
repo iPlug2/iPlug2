@@ -680,6 +680,11 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
 #include "IGraphicsNanoVG.cpp"
+
+#ifdef IGRAPHICS_FREETYPE
+#define FONS_USE_FREETYPE
+#endif
+
 #include "nanovg.c"
 //#include "nanovg_mtl.m"
 #else

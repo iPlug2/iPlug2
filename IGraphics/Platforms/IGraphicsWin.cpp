@@ -1396,6 +1396,9 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
   #include "IGraphicsLice.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
+#ifdef IGRAPHICS_FREETYPE
+#define FONS_USE_FREETYPE
+#endif
   #include "nanovg.c"
   #include "glad.c"
 #else

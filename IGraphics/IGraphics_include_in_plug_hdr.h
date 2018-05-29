@@ -10,10 +10,6 @@
 
 #ifndef NO_IGRAPHICS
 
-#ifdef IGRAPHICS_FREETYPE
-  #define FONS_USE_FREETYPE
-#endif
-
 #ifdef OS_WIN
   #include "IGraphicsWin.h"
 #elif defined OS_MAC
