@@ -653,9 +653,9 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   float GetDisplayScale() const { return mDisplayScale; }
 
-  /** Gets a Reference to the delegate class that handles communication to and from this graphics context.
-    * @return Reference to the delegate */
-  IEditorDelegate& GetDelegate() { return mDelegate; }
+  /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
+   * @return pointer to the delegate */
+  IEditorDelegate* GetDelegate() { return &mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param filename CString filename resource id for the bitmap image \todo check this */

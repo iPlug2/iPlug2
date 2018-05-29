@@ -93,7 +93,7 @@ void IGraphics::Resize(int w, int h, float scale)
   if (oldScale != scale)
     OnDisplayScale();
 
-  GetDelegate().ResizeGraphicsFromUI();
+  GetDelegate()->ResizeGraphicsFromUI();
 }
 
 void IGraphics::OnDisplayScale()
@@ -1064,7 +1064,7 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #if defined(DEBUG) && defined(APP_API)
   if(enable)
   {
-    mLiveEdit = new IGraphicsLiveEdit(GetDelegate(), file, gridsize);
+    mLiveEdit = new IGraphicsLiveEdit(mDelegate, file, gridsize);
     mLiveEdit->SetGraphics(this);
   }
   else
@@ -1238,7 +1238,9 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx, int paramJump, const char* groupName, int rows, int columns, EDirection dir, const char** pParamNameStrings)
 {
-  IPluginBase& dlg = dynamic_cast<IPluginBase&>(GetDelegate()); // TODO: will crash if not a plugin
+  IPluginBase* dlg = dynamic_cast<IPluginBase*>(GetDelegate());
+  
+  assert(dlg != nullptr);
   
   IRECT sliderBounds = bounds;
   int cellIdx = 0;
@@ -1252,23 +1254,23 @@ void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx,
   std::function<void(int, IParam&)> makeCell = [&](int paramIdx, IParam& param) {
     IRECT r = sliderBounds.GetGridCell(cellIdx++, rows, columns);
     IRECT sliderInfoRect = r.SubRectVertical(2, 0);
-    AttachControl(new ITextControl(dlg, sliderInfoRect.FracRectHorizontal(0.75), labelText, param.GetNameForHost()));
-    AttachControl(new ICaptionControl(dlg, sliderInfoRect.FracRectHorizontal(0.25, true), paramIdx, labelText, true));
-    AttachControl(new IVSliderControl(dlg, r.SubRectVertical(2, 1), paramIdx, DEFAULT_SPEC, EDirection::kHorizontal));
+    AttachControl(new ITextControl(*dlg, sliderInfoRect.FracRectHorizontal(0.75), labelText, param.GetNameForHost()));
+    AttachControl(new ICaptionControl(*dlg, sliderInfoRect.FracRectHorizontal(0.25, true), paramIdx, labelText, true));
+    AttachControl(new IVSliderControl(*dlg, r.SubRectVertical(2, 1), paramIdx, DEFAULT_SPEC, EDirection::kHorizontal));
   };
 
   if(CStringHasContents(groupName))
   {
-    dlg.ForParamInGroup(groupName, [&](int paramIdx, IParam& param){
+    dlg->ForParamInGroup(groupName, [&](int paramIdx, IParam& param){
       makeCell(paramIdx, param);
     });
   }
   else
   {
     if(endIdx == -1)
-      endIdx = dlg.NParams() - 1;
+      endIdx = dlg->NParams() - 1;
     
-    dlg.ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param){
+    dlg->ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param){
       makeCell(paramIdx, param);
     });
   }

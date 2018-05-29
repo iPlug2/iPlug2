@@ -221,10 +221,10 @@ public:
   void SetWantsMIDI(bool enable) { mWantsMIDI = true; }
   bool WantsMIDI() { return mWantsMIDI; }
 
-  /** Gets a reference to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
+  /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.*/
-  IEditorDelegate& GetDelegate() { return mDelegate; }
+  IEditorDelegate* GetDelegate() { return &mDelegate; }
   
   void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
   IGraphics* GetUI() { return mGraphics; }

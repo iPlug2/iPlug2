@@ -143,14 +143,20 @@ bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   {
     WDL_String musicFolder;
     SandboxSafeAppSupportPath(musicFolder);
-    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginBase&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
-    NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-
-    if (pPath)
+    IPluginBase* pPlugin = dynamic_cast<IPluginBase*>(GetDelegate());
+    
+    if(pPlugin != nullptr)
     {
-      fullPath.Set([pPath UTF8String]);
-      return true;
+  
+      NSString* pPluginName = [NSString stringWithCString: pPlugin->GetPluginName() encoding:NSUTF8StringEncoding];
+      NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
+      NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+
+      if (pPath)
+      {
+        fullPath.Set([pPath UTF8String]);
+        return true;
+      }
     }
   }
 
