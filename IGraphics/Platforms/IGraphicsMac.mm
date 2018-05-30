@@ -190,8 +190,9 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
+#ifdef IGRAPHICS_LICE
   CocoaAutoReleasePool pool;
-
+#endif
   return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 }
 
