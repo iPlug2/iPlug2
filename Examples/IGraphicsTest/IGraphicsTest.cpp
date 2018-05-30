@@ -23,11 +23,17 @@ IGraphicsTest::IGraphicsTest()
   pGraphics->LoadFont("Roboto-Regular.ttf");
   pGraphics->LoadFont("Montserrat-LightItalic.ttf");
   
-  pGraphics->AttachControl(new IGradientControl(*this, IRECT(20, 20, 150, 120), -1));
-  pGraphics->AttachControl(new IPolyControl(*this, IRECT(20, 200, 150, 330), -1));
-  pGraphics->AttachControl(new IArcControl(*this, IRECT(220, 20, 320, 120), -1));
-  pGraphics->AttachControl(new IBKnobControl(*this, 220, 200, knobBitmap, -1));
-  pGraphics->AttachControl(new RandomTextControl(*this, IRECT(220, 260, 380, 380)));
+  IRECT bounds = pGraphics->GetBounds();
+  
+  int rows = 4;
+  int cols = 4;
+  int cellIdx = 0;
+  
+  pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), knobBitmap, -1));
+  pGraphics->AttachControl(new RandomTextControl(*this, bounds.GetGridCell(cellIdx++, rows, cols)));
   pGraphics->GetControl(2)->SetValueFromDelegate((double) rand() / RAND_MAX);
   pGraphics->GetControl(3)->SetValueFromDelegate((double) rand() / RAND_MAX);
   pGraphics->GetControl(4)->SetValueFromDelegate((double) rand() / RAND_MAX);

@@ -287,7 +287,7 @@ public:
 
   void Randomise()
   {
-    int size = (std::rand() % 40) + 5;
+    int size = (std::rand() % 100) + 5;
     int style = (std::rand() % 3);
     int align = (std::rand() % 3);
     int type = (std::rand() % 2);
@@ -298,12 +298,16 @@ public:
     mText = IText(IColor::GetRandomColor(), size, types[type], (IText::EStyle) style, (IText::EAlign) align);
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
     const char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
 
-    graphics.FillRect(COLOR_BLACK, mRECT);
-    graphics.DrawText(mText, words[mStringIndex], mRECT);
+    g.FillRect(COLOR_BLACK, mRECT);
+    
+    IRECT bounds;
+    g.MeasureText(mText, words[mStringIndex], bounds);
+    g.FillRect(COLOR_GREEN, bounds);
+    g.DrawText(mText, words[mStringIndex], mRECT);
   }
 
 private:
