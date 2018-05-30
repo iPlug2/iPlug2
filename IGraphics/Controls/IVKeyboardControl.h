@@ -94,7 +94,7 @@ public:
     IMidiMsg msg;
     msg.MakeNoteOnMsg(mKey + 36, mVelocity * 127, 0);
     
-    GetDelegate().SendMidiMsgFromUI(msg);
+    GetDelegate()->SendMidiMsgFromUI(msg);
 
     SetDirty(true);
   }
@@ -105,7 +105,7 @@ public:
     {
       IMidiMsg msg;
       msg.MakeNoteOffMsg(mKey + 36, 0);
-      GetDelegate().SendMidiMsgFromUI(msg);
+      GetDelegate()->SendMidiMsgFromUI(msg);
 
       mKey = -1;
       mMouseOverKey = -1;
@@ -181,6 +181,7 @@ public:
     {
       case IMidiMsg::kNoteOn: SetNoteIsPlayed(msg.NoteNumber(), true); break;
       case IMidiMsg::kNoteOff: SetNoteIsPlayed(msg.NoteNumber(), false); break;
+      default: break;
     }
     
     SetDirty(false);
