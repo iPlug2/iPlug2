@@ -20,7 +20,7 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
 {
   mVG = pContext;
   int w = 0, h = 0;
-  long long idx = nvgCreateImage(mVG, path, 0);
+  int idx = nvgCreateImage(mVG, path, 0);
   nvgImageSize(mVG, idx, &w, &h);
       
   SetBitmap((void*) idx, w, h, sourceScale);
@@ -261,9 +261,11 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
 {
+  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
+  
   nvgFontBlur(mVG, 0);
-  nvgFontSize(mVG, 14);
-  nvgFontFace(mVG, "sans");
+  nvgFontSize(mVG, text.mSize);
+  nvgFontFace(mVG, text.mFont);
   nvgFillColor(mVG, NanoVGColor(text.mFGColor));
   
   int align = 0;
@@ -346,15 +348,20 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
 
 void IGraphicsNanoVG::LoadFont(const char* name)
 {
+  WDL_String fontNameWithoutExt(name, (int) strlen(name));
+  fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
   OSFindResource(name, "ttf", fullPath);
   
-  int fontID = nvgCreateFont(mVG, name, fullPath.Get());
+  int fontID = -1;
   
-  if (fontID == -1)
-  {
-    DBGMSG("Could not add font %s\n", name);
+  if(fullPath.GetLength())
+    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+  else {
+    DBGMSG("Could not locate font %s\n", name);
   }
+  
+  assert (fontID != -1); // font not found!
 }
 
 void IGraphicsNanoVG::DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad)
