@@ -141,30 +141,33 @@ void IPlugAPIBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bo
 
 void IPlugAPIBase::OnTimer(Timer& t)
 {
-#if !defined VST3C_API && !defined VST3P_API
-  while(mParamChangeToUIQueue.ElementsAvailable())
+  if(HasUI())
   {
-    ParamChange p;
-    mParamChangeToUIQueue.Pop(p);
-    SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+  #if !defined VST3C_API && !defined VST3P_API
+    while(mParamChangeToUIQueue.ElementsAvailable())
+    {
+      ParamChange p;
+      mParamChangeToUIQueue.Pop(p);
+      SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+    }
+    
+    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    {
+      IMidiMsg msg;
+      mMidiMsgsFromProcessor.Pop(msg);
+      OnMidiMsgUI(msg);
+    }
+  #endif
+    
+  #if defined VST3P_API
+    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    {
+      IMidiMsg msg;
+      mMidiMsgsFromProcessor.Pop(msg);
+      _TransmitMidiMsgFromProcessor(msg);
+    }
+  #endif
   }
-  
-  while (mMidiMsgsFromProcessor.ElementsAvailable())
-  {
-    IMidiMsg msg;
-    mMidiMsgsFromProcessor.Pop(msg);
-    OnMidiMsgUI(msg);
-  }
-#endif
-  
-#if defined VST3P_API
-  while (mMidiMsgsFromProcessor.ElementsAvailable())
-  {
-    IMidiMsg msg;
-    mMidiMsgsFromProcessor.Pop(msg);
-    _TransmitMidiMsgFromProcessor(msg);
-  }
-#endif
   
   OnIdle();
 }
