@@ -204,7 +204,7 @@ def main():
     config['PLUG_UID'] = randomFourChar()
     config['PLUG_MFR_UID'] = 'Acme'
 
-    write_config(output, config)
+    # write_config(output, config)
 
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(config)
