@@ -142,12 +142,12 @@ class FaustGen : public IPlugFaust,
     {
       void declare(const char *key, const char *value)
       {
-        DBGMSG("FaustGen: metadata:\n");
+//        DBGMSG("FaustGen: metadata:\n");
 
-        if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
-        {
-          DBGMSG("\t\tkey:%s : %s\n", key, value);
-        }
+//        if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
+//        {
+//          DBGMSG("\t\tkey:%s : %s\n", key, value);
+//        }
 
         (*this)[key] = value;
       }
