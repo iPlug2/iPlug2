@@ -30,3 +30,4 @@ public:
 	}
 };
 
+#undef FAUSTCLASS
