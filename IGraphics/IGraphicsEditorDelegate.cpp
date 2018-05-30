@@ -112,6 +112,7 @@ void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int mes
 void IGraphicsEditorDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
 {
   assert(mGraphics != nullptr); // Did you attach an IGraphics yet?
+  //- maybe you wanted to #define NO_IGRAPHICS or set PLUG_HAS_UI to 0?
   
   if (!normalized)
     value = GetParam(paramIdx)->ToNormalized(value);
