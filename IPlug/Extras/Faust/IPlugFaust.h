@@ -97,16 +97,29 @@ public:
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
-    assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
-    
-    if (mDSP)
+    if (mDSP) {
+      assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       mDSP->compute(nFrames, inputs, outputs);
+    }
+//    else silence?
   }
 
+  void SetParameterValueNormalised(int paramIdx, double normalizedValue)
+  {
+    assert(paramIdx < NParams());
+    mParams.Get(paramIdx)->SetNormalized(normalizedValue);
+    
+    if(mZones.GetSize() == NParams())
+      *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
+    else
+      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+  }
+  
   void SetParameterValue(int paramIdx, double nonNormalizedValue)
   {
     assert(paramIdx < NParams());
-    
+    mParams.Get(paramIdx)->Set(nonNormalizedValue);
+
     if(mZones.GetSize() == NParams())
       *(mZones.Get(paramIdx)) = nonNormalizedValue;
     else
@@ -117,6 +130,7 @@ public:
   {
     FAUSTFLOAT* dest = nullptr;
     dest = mMap.Get(labelToLookup, nullptr);
+//    mParams.Get(paramIdx)->Set(nonNormalizedValue);
 
     if(dest)
       *dest = nonNormalizedValue;
