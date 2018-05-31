@@ -1236,7 +1236,7 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
   }
 }
 
-void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx, int paramJump, const char* groupName, int rows, int columns, EDirection dir, const char** pParamNameStrings)
+void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx, int paramJump, const char* groupName, int rows, int columns, EDirection dir, const IText& labelText, const char** pParamNameStrings)
 {
   IPluginBase* dlg = dynamic_cast<IPluginBase*>(GetDelegate());
   
@@ -1244,7 +1244,6 @@ void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx,
   
   IRECT sliderBounds = bounds;
   int cellIdx = 0;
-  IText labelText;
 
   // header row is the first row
   //  IRECT header = bounds.SubRect(dir, rows + 1, 0);
