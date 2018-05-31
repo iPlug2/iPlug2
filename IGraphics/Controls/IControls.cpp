@@ -101,10 +101,18 @@ void IVSliderControl::Draw(IGraphics& g)
   g.FillRect(GetColor(kFG), mTrack);
   g.FillRect(GetColor(kSH), filledTrack);
   
-  g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
-  
+  if(mDirection == kVertical)
+    g.FillCircle(GetColor(kX1), filledTrack.MW(), filledTrack.T , halfHandleSize);
+  else
+    g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
+
   if(GetMouseIsOver())
-    g.FillCircle(GetColor(kSH), filledTrack.R, filledTrack.MH(), halfHandleSize);
+  {
+    if(mDirection == kVertical)
+      g.FillCircle(GetColor(kSH), filledTrack.MW(), filledTrack.T , halfHandleSize);
+    else
+      g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
+  }
 }
 
 void IVSliderControl::OnResize()
