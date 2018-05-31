@@ -49,9 +49,9 @@ public:
     UpdateCoefficients();
   }
 
-  void SetFreqCPS(double freqCPS) { mNewState.freq = BOUNDED(freqCPS, 10, 20000.); }
-  void SetQ(double Q) { mNewState.Q = BOUNDED(Q, 0.1, 100.); }
-  void SetGain(double gainDB) { mNewState.gain = BOUNDED(gainDB, -36, 36.); }
+  void SetFreqCPS(double freqCPS) { mNewState.freq = Clip(freqCPS, 10, 20000.); }
+  void SetQ(double Q) { mNewState.Q = Clip(Q, 0.1, 100.); }
+  void SetGain(double gainDB) { mNewState.gain = Clip(gainDB, -36, 36.); }
   void SetMode(EMode mode) { mNewState.mode = mode; }
   void SetSampleRate(double sampleRate) { mNewState.sampleRate = sampleRate; }
 
