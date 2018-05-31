@@ -147,7 +147,7 @@ public:
     int plugParamIdx = mIPlugParamStartIdx = startIdx;
     
     if(endIdx == -1)
-      endIdx = pPlug->NParams() - 1;
+      endIdx = pPlug->NParams();
     
 
     for (auto p = 0; p < endIdx; p++)
