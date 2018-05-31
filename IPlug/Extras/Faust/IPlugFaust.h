@@ -95,10 +95,13 @@ public:
 //    TODO:
   }
 
-  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames, int maxNinputs, int maxNOutputs)
   {
     if (mDSP) {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
+
+      assert((mDSP->getNumInputs() <= maxNinputs) && (mDSP->getNumOutputs() <= maxNOutputs)); // don't have enough buffers to process the DSP
+
       mDSP->compute(nFrames, inputs, outputs);
     }
 //    else silence?
