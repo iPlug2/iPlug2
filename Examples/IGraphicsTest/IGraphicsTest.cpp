@@ -68,6 +68,8 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       delete gIGraphicsTest;
 #ifdef OS_WIN
       PostQuitMessage(0);
+#else
+      SWELL_PostQuitMessage(hwndDlg);
 #endif
       return 0;
     case WM_CLOSE:

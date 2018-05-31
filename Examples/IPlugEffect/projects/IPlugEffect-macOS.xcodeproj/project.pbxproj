@@ -89,6 +89,13 @@
 		4F3862F22014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F3862F32014BBEC0009F402 /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
 		4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
+		4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F5F344620C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F5F344720C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F63695A20A463090022C370 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695220A463090022C370 /* IControls.h */; };
 		4F63696320A463090022C370 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695520A463090022C370 /* IVMeterControl.h */; };
 		4F63696420A463090022C370 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695620A463090022C370 /* IVDropDownListControl.h */; };
@@ -223,13 +230,6 @@
 		4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
-		4FF3205020B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
-		4FF3205120B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
-		4FF3205220B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
-		4FF3205320B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
-		4FF3205420B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
-		4FF3205520B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
-		4FF3205620B2BFAB00269268 /* IPlugPathsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */; };
 		4FF3205820B2BFAB00269268 /* IPlugPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF3204F20B2BFAB00269268 /* IPlugPaths.h */; };
 		4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
 		4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
@@ -454,6 +454,7 @@
 		4F4CC38C1549B92900A9EA21 /* AAXLibrary_common_debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = AAXLibrary_common_debug.xcconfig; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary_common_debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F4CC38D1549B92900A9EA21 /* AAXLibrary_common_release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = AAXLibrary_common_release.xcconfig; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary_common_release.xcconfig; sourceTree = SOURCE_ROOT; };
 		4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Describe.cpp; path = ../../../IPlug/AAX/IPlugAAX_Describe.cpp; sourceTree = SOURCE_ROOT; };
+		4F5F344020C0226200487201 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
 		4F63695520A463090022C370 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
 		4F63695620A463090022C370 /* IVDropDownListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVDropDownListControl.h; sourceTree = "<group>"; };
@@ -625,6 +626,8 @@
 		4FC3EFEC2086CE5600BD11FA /* stringconvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringconvert.cpp; sourceTree = "<group>"; };
 		4FC3EFED2086CE5600BD11FA /* stringconvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringconvert.h; sourceTree = "<group>"; };
 		4FC3EFEE2086CE5600BD11FA /* uid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uid.h; sourceTree = "<group>"; };
+		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
+		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
@@ -663,7 +666,6 @@
 		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
 		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
-		4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPathsMac.mm; path = ../../../IPlug/IPlugPathsMac.mm; sourceTree = "<group>"; };
 		4FF3204F20B2BFAB00269268 /* IPlugPaths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
 		4FF7B0D4156A825000E6CB12 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = common.xcconfig; path = ../../../common.xcconfig; sourceTree = SOURCE_ROOT; };
 		4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AAXLibrary.xcodeproj; path = ../../../Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/MacBuild/AAXLibrary.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -767,6 +769,8 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FC82B4620BD522B00722133 /* fonts */,
+				4FC82B4520BD522B00722133 /* img */,
 				4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */,
 				4F3FB118202273A500622761 /* IPlugEffect-macOS.entitlements */,
 				4F98C32C20A7678800F120A9 /* IPlugViewController.xib */,
@@ -1014,7 +1018,7 @@
 				4F78D90513B63BA50032E0F3 /* IPlugMidi.h */,
 				4F78D8FA13B63BA50032E0F3 /* IPlugLogger.h */,
 				4FF3204F20B2BFAB00269268 /* IPlugPaths.h */,
-				4FF3204D20B2BFAB00269268 /* IPlugPathsMac.mm */,
+				4F5F344020C0226200487201 /* IPlugPaths.mm */,
 			);
 			name = IPlug;
 			sourceTree = "<group>";
@@ -1883,6 +1887,7 @@
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4FC3B8372077B9E100589CDA /* swell-misc.mm in Sources */,
 				4F03A5AD20A4621100EBDFFB /* IGraphics.cpp in Sources */,
+				4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F6369EC20A466470022C370 /* IControl.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -1892,7 +1897,6 @@
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F03A5EB20A4621100EBDFFB /* IGraphicsMac_view.mm in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
-				4FF3205120B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1904,7 +1908,6 @@
 				4FAEBD30209DAF76002E6392 /* IPlugAUv3.mm in Sources */,
 				4F6369E220A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F6369F020A466470022C370 /* IControl.cpp in Sources */,
-				4FF3205520B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 				4F63697220A463090022C370 /* IControls.cpp in Sources */,
 				4FAEBD34209DAF87002E6392 /* IPlugParameter.cpp in Sources */,
 				4FAEBD3D209DAFF3002E6392 /* swell-misc.mm in Sources */,
@@ -1915,6 +1918,7 @@
 				4FAEBD3F209DB12E002E6392 /* IPlugEffect.cpp in Sources */,
 				4FAEBD36209DAF95002E6392 /* IPlugPluginBase.cpp in Sources */,
 				4FAEBD35209DAF87002E6392 /* IPlugTimer.cpp in Sources */,
+				4F5F344620C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FAEBD32209DAF76002E6392 /* IPlugViewController.mm in Sources */,
 				4FAEBD3E209DAFF3002E6392 /* swell-gdi.mm in Sources */,
 				4FAEBD33209DAF87002E6392 /* IPlugAPIBase.cpp in Sources */,
@@ -1928,7 +1932,6 @@
 				4F03A5AF20A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F6369E020A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F6369EE20A466470022C370 /* IControl.cpp in Sources */,
-				4FF3205320B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 				4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */,
 				4F63697020A463090022C370 /* IControls.cpp in Sources */,
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
@@ -1940,6 +1943,7 @@
 				4FC3B8392077B9E200589CDA /* swell-misc.mm in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
+				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4F3862F22014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
@@ -1960,7 +1964,6 @@
 				4F81597E205D50EB00393585 /* fdebug.cpp in Sources */,
 				4F9828B7140A9EB700F3FCC1 /* swell-gdi.mm in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */,
-				4FF3205220B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 				4F81597F205D50EB00393585 /* fdynlib.cpp in Sources */,
 				4F815919205D50EB00393585 /* memorystream.cpp in Sources */,
 				4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */,
@@ -1974,6 +1977,7 @@
 				4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F81591E205D50EB00393585 /* macmain.cpp in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
+				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
@@ -2013,8 +2017,8 @@
 				4F6369EF20A466470022C370 /* IControl.cpp in Sources */,
 				4F03A5B020A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
+				4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
-				4FF3205420B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 				4F03A5E620A4621100EBDFFB /* IGraphicsMac.mm in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugEffect.cpp in Sources */,
@@ -2056,13 +2060,13 @@
 				4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
+				4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4F10D3D5203A6711003EF82A /* RtAudio.cpp in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
-				4FF3205020B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 				4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */,
 				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
 				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
@@ -2088,7 +2092,6 @@
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IPlugEffect.cpp in Sources */,
-				4FF3205620B2BFAB00269268 /* IPlugPathsMac.mm in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactoryvst3.cpp in Sources */,
 				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
 				4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */,
@@ -2124,6 +2127,7 @@
 				4FFBB92F20863B0E00DDD0E7 /* macexport.exp in Sources */,
 				4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */,
 				4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */,
+				4F5F344720C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2589,7 +2593,7 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
-				PRODUCT_NAME = "AllOSX_32&64_intel";
+				PRODUCT_NAME = "All macOS";
 			};
 			name = Debug;
 		};
@@ -2599,7 +2603,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				PRODUCT_NAME = "AllOSX_32&64_intel";
+				PRODUCT_NAME = "All macOS";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2607,7 +2611,7 @@
 		4F78DAF413B643610032E0F3 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "AllOSX_32&64_intel";
+				PRODUCT_NAME = "All macOS";
 			};
 			name = Tracer;
 		};
@@ -2857,7 +2861,6 @@
 					"$(inherited)",
 					"$(VST3_SDK)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = IPlugEffectVST3Controller;
 				SDKROOT = macosx;
@@ -2891,7 +2894,6 @@
 					"$(inherited)",
 					"$(VST3_SDK)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = IPlugEffectVST3Controller;
 				SDKROOT = macosx;
@@ -2925,7 +2927,6 @@
 					"$(inherited)",
 					"$(VST3_SDK)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = IPlugEffectVST3Controller;
 				SDKROOT = macosx;

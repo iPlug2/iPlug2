@@ -174,6 +174,8 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_DESTROY:
       if (gHWND)
         DestroyWindow(gHWND);
+  
+
       break;
     case SWELLAPP_PROCESSMESSAGE: // can hook keyboard input here
       // parm1 = (MSG*), should we want it -- look in swell.h to see what the return values refer to
