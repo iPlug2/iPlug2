@@ -14,8 +14,11 @@
  ==============================================================================
  */
 
+#include "IPlugPlatform.h"
 #include "IPlugPaths.h"
 #include "IPlugConstants.h"
+
+#ifdef OS_MAC
 
 void HostPath(WDL_String& path, const char* bundleID)
 {
@@ -93,3 +96,5 @@ void SandboxSafeAppSupportPath(WDL_String& path)
   NSString *pUserMusicDirectory = [pPaths objectAtIndex:0];
   path.Set([pUserMusicDirectory UTF8String]);
 }
+
+#endif
