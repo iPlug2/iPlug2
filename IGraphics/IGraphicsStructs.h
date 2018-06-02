@@ -478,6 +478,7 @@ struct IText
 {
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
+  enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
 
   IText(const IColor& color = DEFAULT_TEXTENTRY_FGCOLOR,
@@ -485,6 +486,7 @@ struct IText
         const char* font = nullptr,
         EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
+        EVAlign valign = kVAlignMiddle,
         int orientation = 0,
         EQuality quality = kQualityDefault,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
@@ -493,6 +495,7 @@ struct IText
     , mFGColor(color)
     , mStyle(style)
     , mAlign(align)
+    , mVAlign(valign)
     , mOrientation(orientation)
     , mQuality(quality)
     , mTextEntryBGColor(TEBGColor)
