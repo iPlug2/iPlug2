@@ -509,6 +509,8 @@ void FaustGen::Init(int maxNInputs, int maxNOutputs)
   mDSP->buildUserInterface(this);
   mDSP->init(DEFAULT_SAMPLE_RATE);
 
+  assert((mDSP->getNumInputs() <= maxNinputs) && (mDSP->getNumOutputs() <= maxNOutputs)); // don't have enough buffers to process the DSP
+  
   if ((mFactory->mNInputs != mDSP->getNumInputs()) || (mFactory->mNOutputs != mDSP->getNumOutputs()))
   {
     //TODO: do something when I/O is wrong
