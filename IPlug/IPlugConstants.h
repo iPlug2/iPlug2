@@ -113,6 +113,10 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define MAX_BLOB_LENGTH 2048
 #endif
 
+#ifndef IDLE_TIMER_RATE
+#define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
+#endif
+
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'

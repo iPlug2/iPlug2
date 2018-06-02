@@ -192,8 +192,8 @@ public:
     bool normalized; // TODO: we shouldn't bother with this
   };
   
-  IPlugQueue<ParamChange> mParamChangeToUIQueue;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {32}; // a queue of midi messages received from the controller, by clicking keyboard UI etc
+  IPlugQueue<ParamChange> mParamChangeFromProcessor;
+  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {32}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
   IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32};
   
   WDL_String mParamDisplayStr;

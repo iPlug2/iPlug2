@@ -26,7 +26,7 @@
 
 IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)
-  , mParamChangeToUIQueue(512) // TODO: CONSTANT
+  , mParamChangeFromProcessor(512) // TODO: CONSTANT
 {
   mUniqueID = c.uniqueID;
   mMfrID = c.mfrID;
@@ -64,7 +64,7 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
 
 void IPlugAPIBase::CreateTimer()
 {
-  mTimer = Timer::Create(*this, 20); // TODO: CONSTANT
+  mTimer = Timer::Create(*this, IDLE_TIMER_RATE);
 }
 
 bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
@@ -136,7 +136,7 @@ void IPlugAPIBase::_SendParameterValueToUIFromAPI(int paramIdx, double value, bo
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
-  mParamChangeToUIQueue.Push(ParamChange { paramIdx, value, normalized } );
+  mParamChangeFromProcessor.Push(ParamChange { paramIdx, value, normalized } );
 }
 
 void IPlugAPIBase::OnTimer(Timer& t)
@@ -144,10 +144,10 @@ void IPlugAPIBase::OnTimer(Timer& t)
   if(HasUI())
   {
   #if !defined VST3C_API && !defined VST3P_API
-    while(mParamChangeToUIQueue.ElementsAvailable())
+    while(mParamChangeFromProcessor.ElementsAvailable())
     {
       ParamChange p;
-      mParamChangeToUIQueue.Pop(p);
+      mParamChangeFromProcessor.Pop(p);
       SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
     }
     
