@@ -309,9 +309,9 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter:   nvgLineJoin(mVG, NVG_MITER);   break;
-    case kJoinRound:   nvgLineJoin(mVG, NVG_ROUND);   break;
-    case kJoinBevel:   nvgLineJoin(mVG, NVG_BEVEL);   break;
+    case kJoinMiter: nvgLineJoin(mVG, NVG_MITER);   break;
+    case kJoinRound: nvgLineJoin(mVG, NVG_ROUND);   break;
+    case kJoinBevel: nvgLineJoin(mVG, NVG_BEVEL);   break;
   }
   
   nvgMiterLimit(mVG, options.mMiterLimit);

@@ -33,12 +33,12 @@ public:
 
   void BeginFrame() override;
   void EndFrame() override;
-  void ViewInitialized(void* layer) override;
+  void ViewInitialized(void* pLayer) override;
   
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
-  void PathClear() override { nvgBeginPath(mVG); }
-  void PathStart() override { }
+  void PathClear() override { } //TODO:?
+  void PathStart() override { nvgBeginPath(mVG); }
   void PathClose() override { nvgClosePath(mVG); }
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);}
