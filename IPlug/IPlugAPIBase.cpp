@@ -182,7 +182,7 @@ void IPlugAPIBase::SendSysexMsgFromUI(int size, const uint8_t* pData)
   //TODO:
 }
 
-void IPlugAPIBase::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+void IPlugAPIBase::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
-  OnMessage(msgID, dataSize, pData);
+  OnMessage(messageTag, dataSize, pData);
 }

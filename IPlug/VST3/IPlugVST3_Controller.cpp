@@ -449,7 +449,7 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+void IPlugVST3Controller::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -463,7 +463,8 @@ void IPlugVST3Controller::SendMsgFromUI(const char* msgID, int dataSize, const v
     pData = &dummy;
   }
   
-  message->setMessageID(msgID);
+  message->setMessageID("SMFUI");
+  message->getAttributes()->setInt("MT", messageTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }

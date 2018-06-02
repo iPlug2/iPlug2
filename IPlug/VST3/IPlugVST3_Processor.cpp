@@ -574,7 +574,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   const void* data = nullptr;
   uint32 size;
   
-  if (!strcmp (message->getMessageID(), "SMMFUI"))
+  if (!strcmp (message->getMessageID(), "SMMFUI")) // midi message from UI
   {
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
@@ -585,16 +585,25 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
         mMidiMsgsFromEditor.Push(msg);
         return kResultOk;
       }
+      
+      return kResultFalse;
     }
   }
-  else
+  else if (!strcmp (message->getMessageID(), "SMFUI")) // message from UI
   {
-    if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
+    int64 val;
+    
+    if (message->getAttributes()->getInt("MT", val) == kResultOk)
     {
-      if(OnMessage(message->getMessageID(), size, data))
+      if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
       {
-        return kResultOk;
+        if(OnMessage((int) val, size, data))
+        {
+          return kResultOk;
+        }
       }
+      
+      return kResultFalse;
     }
   }
   

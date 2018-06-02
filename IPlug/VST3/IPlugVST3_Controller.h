@@ -75,7 +75,7 @@ public:
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
-  void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
+  void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
 
 private:
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }

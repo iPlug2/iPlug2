@@ -94,7 +94,7 @@ public:
    @param pData <#pData description#>
    @return <#return value description#>
    */
-  virtual bool OnMessage(const char* msgID, int dataSize, const void* pData) { return false; }
+  virtual bool OnMessage(int messageTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it */
@@ -165,7 +165,7 @@ public:
 
   virtual void SendSysexMsgFromUI(int size, const uint8_t* pData) {};
   
-  virtual void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) {};
+  virtual void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
 
 protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */

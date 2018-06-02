@@ -169,7 +169,7 @@ public:
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(int size, const uint8_t* pData) override;
-  void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
+  void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
   void CreateTimer();
   
