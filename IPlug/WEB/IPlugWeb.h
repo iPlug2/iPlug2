@@ -29,23 +29,15 @@ class IPlugWeb : public IPlugAPIBase
 {
 public:
   IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config);
-
-  //IPlugAPIBase
-//  void BeginInformHostOfParamChange(int idx) override {};
-//  void InformHostOfParamChange(int idx, double normalizedValue) override {};
-//  void EndInformHostOfParamChange(int idx) override {};
-//  void InformHostOfProgramChange() override {};
   EHost GetHost() override { return EHost::kHostWWW; }
-//  void ResizeGraphics() override {};
-//  void HostSpecificInit() override {};
-  
+
   //IEditorDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;
 //  void BeginInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 //  void EndInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
-  void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
+  void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
   #ifndef NO_IGRAPHICS
   //IGraphicsEditorDelegate

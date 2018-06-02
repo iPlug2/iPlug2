@@ -18,7 +18,7 @@
 
 using namespace emscripten;
 
-IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
+IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 : IPlugAPIBase(config, kAPIWEB)
 {
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
@@ -47,7 +47,7 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 //  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", "midiMsg", "", );
 }
 
-void IPlugWeb::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+void IPlugWeb::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
 //  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", msgID, "", "");
 }
