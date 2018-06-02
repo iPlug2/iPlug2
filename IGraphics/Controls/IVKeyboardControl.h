@@ -91,11 +91,13 @@ public:
     if (!mVelByWheel)
       UpdateVelocity(y);
     
-    IMidiMsg msg;
-    msg.MakeNoteOnMsg(mKey + 36, mVelocity * 127, 0);
+    if(mKey > -1) { // TODO: need to send a note of when dragging around the keyboard!
+      IMidiMsg msg;
+      msg.MakeNoteOnMsg(mKey + 36, mVelocity * 127, 0);
+      
+      GetDelegate()->SendMidiMsgFromUI(msg);
+    }
     
-    GetDelegate()->SendMidiMsgFromUI(msg);
-
     SetDirty(true);
   }
 
@@ -309,6 +311,8 @@ public:
     g.DrawText(txt, ti.Get(), tr);
 #endif
   }
+  
+#pragma mark -
 
   void SetMinMaxNote(int min, int max, bool keepWidth = true)
   {
