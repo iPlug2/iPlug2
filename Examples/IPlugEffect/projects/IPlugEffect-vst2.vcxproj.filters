@@ -23,9 +23,6 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IGraphicsEditorDelegate.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -51,6 +48,9 @@
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -171,13 +171,13 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphicsEditorDelegate.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
   </ItemGroup>

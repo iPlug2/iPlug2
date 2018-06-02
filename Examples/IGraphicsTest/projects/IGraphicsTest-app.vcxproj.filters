@@ -36,7 +36,10 @@
       <Filter>IGraphics\Platforms</Filter>
     </ClCompile>
     <ClCompile Include="..\IGraphicsTest.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IGraphicsEditorDelegate.cpp">
+    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
   </ItemGroup>
@@ -124,7 +127,10 @@
     </ClInclude>
     <ClInclude Include="..\IGraphicsTest.h" />
     <ClInclude Include="..\IGraphicsTest_controls.h" />
-    <ClInclude Include="..\..\..\IPlug\IGraphicsEditorDelegate.h">
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
