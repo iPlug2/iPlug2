@@ -1236,26 +1236,32 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
   }
 }
 
-void IGraphics::GenerateSliderGUI(const IRECT& bounds, int startIdx, int endIdx, int paramJump, const char* groupName, int rows, int columns, EDirection dir, const IText& labelText, const char** pParamNameStrings)
+void IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHeight, int startIdx, int endIdx, int paramJump, const char* groupName, EDirection dir, const IText& labelText, const char** pParamNameStrings)
 {
   IPluginBase* dlg = dynamic_cast<IPluginBase*>(GetDelegate());
   
   assert(dlg != nullptr);
   
-  IRECT sliderBounds = bounds;
+  float cellsPerRow = bounds.W() / (float) cellWidth;
+  float cellsPerCol = bounds.H() / (float) cellHeight;
+  
+  int cols = std::floor(cellsPerRow);
+  int rows = std::floor(cellsPerCol);
+
   int cellIdx = 0;
 
-  // header row is the first row
-  //  IRECT header = bounds.SubRect(dir, rows + 1, 0);
-  //  IRECT sliders = bounds.GetPadded(0, header.H(), 0, 0);
-  //  AttachControl(new IPanelControl(dlg, header, DEFAULT_GRAPHICS_BGCOLOR));
+  IRECT header = IRECT(bounds.L, bounds.T, bounds.R, bounds.T + cellHeight).GetPadded(-2);
+  IRECT sliderBounds = bounds.GetPadded(0, cellHeight, 0, 0);
+  AttachControl(new IPanelControl(*dlg, header, DEFAULT_GRAPHICS_BGCOLOR));
   
   std::function<void(int, IParam&)> makeCell = [&](int paramIdx, IParam& param) {
-    IRECT r = sliderBounds.GetGridCell(cellIdx++, rows, columns);
+    IRECT r = sliderBounds.GetGridCell(cellIdx++, rows - 1, cols).GetPadded(-2);
     IRECT sliderInfoRect = r.SubRectVertical(2, 0);
+    AttachControl(new IPanelControl(*dlg, r, IColor::GetRandomColor()));
+
     AttachControl(new ITextControl(*dlg, sliderInfoRect.FracRectHorizontal(0.75), labelText, param.GetNameForHost()));
-    AttachControl(new ICaptionControl(*dlg, sliderInfoRect.FracRectHorizontal(0.25, true), paramIdx, labelText, true));
-    AttachControl(new IVSliderControl(*dlg, r.SubRectVertical(2, 1), paramIdx, DEFAULT_SPEC, EDirection::kHorizontal));
+//    AttachControl(new ICaptionControl(*dlg, sliderInfoRect.FracRectHorizontal(0.25, true), paramIdx, labelText, true));
+    AttachControl(new IVSliderControl(*dlg, r, paramIdx, DEFAULT_SPEC, EDirection::kHorizontal));
   };
 
   if(CStringHasContents(groupName))
