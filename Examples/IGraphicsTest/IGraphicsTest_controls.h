@@ -17,10 +17,10 @@ public:
     SetUpMenu();
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
-    graphics.FillRect(COLOR_BLUE, mRECT);
-    graphics.DrawText(mText, mLabel.Get(), mRECT);
+    g.FillRect(COLOR_BLUE, mRECT);
+    g.DrawText(mText, mLabel.Get(), mRECT);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -65,16 +65,16 @@ public:
     IKnobControlBase::OnMouseUp(x, y, mod);
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
-    graphics.FillRect(COLOR_WHITE, mRECT.GetPadded(-2));
-    graphics.DrawRect(COLOR_BLACK, mRECT.GetPadded(-2));
+    g.FillRect(COLOR_WHITE, mRECT.GetPadded(-2));
+    g.DrawRect(COLOR_BLACK, mRECT.GetPadded(-2));
     float angle = mAngle1 + (float) mValue * (mAngle2 - mAngle1);
-    graphics.FillArc(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
-    graphics.DrawArc(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
-    graphics.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), angle, 0.f, mRECT.W() * 0.49f);
-    graphics.FillCircle(COLOR_WHITE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
-    graphics.DrawCircle(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
+    g.FillArc(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
+    g.DrawArc(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
+    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), angle, 0.f, mRECT.W() * 0.49f);
+    g.FillCircle(COLOR_WHITE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
+    g.DrawCircle(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
 
     angle = DegToRad(angle-90.f);
 
@@ -85,8 +85,8 @@ public:
     float x3 = mRECT.MW() + cosf(angle) * mRECT.W() * 0.44f;
     float y3 = mRECT.MH() + sinf(angle) * mRECT.W() * 0.44f;
 
-    graphics.FillTriangle(COLOR_WHITE, x1, y1, x2, y2, x3, y3);
-    graphics.DrawTriangle(COLOR_BLACK, x1, y1, x2, y2, x3, y3);
+    g.FillTriangle(COLOR_WHITE, x1, y1, x2, y2, x3, y3);
+    g.DrawTriangle(COLOR_BLACK, x1, y1, x2, y2, x3, y3);
   }
 
 private:
@@ -115,7 +115,7 @@ public:
   }
 
 private:
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
     float xarray[32];
     float yarray[32];
@@ -124,8 +124,8 @@ private:
     float incr = (2.f * (float) PI) / npoints;
     float cr = (float) mValue * (mRECT.W() / 2.f);
 
-    graphics.FillRoundRect(COLOR_WHITE, mRECT.GetPadded(-2.f), cr);
-    graphics.DrawRoundRect(COLOR_BLACK, mRECT.GetPadded(-2.f), cr);
+    g.FillRoundRect(COLOR_WHITE, mRECT.GetPadded(-2.f), cr);
+    g.DrawRoundRect(COLOR_BLACK, mRECT.GetPadded(-2.f), cr);
 
     for (int i = 0; i < npoints; i++)
     {
@@ -133,8 +133,8 @@ private:
       yarray[i] = mRECT.MH() + cosf(angle + (float) i * incr) * mRECT.W() * 0.45f;
     }
 
-    graphics.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
-    graphics.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
+    g.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
+    g.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
   }
 };
 
@@ -153,20 +153,21 @@ public:
     SetDirty(false);
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
-    if (graphics.HasPathSupport())
+    if (g.HasPathSupport())
     {
       double cr = mValue * (mRECT.H() / 2.0);
-      graphics.PathRoundRect(mRECT.GetPadded(-2), cr);
+      g.PathStart();
+      g.PathRoundRect(mRECT.GetPadded(-2), cr);
       IFillOptions fillOptions;
       IStrokeOptions strokeOptions;
       fillOptions.mPreserve = true;
-      graphics.PathFill(mPattern, fillOptions);
-      graphics.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
+      g.PathFill(mPattern, fillOptions);
+      g.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
     }
     else
-      graphics.DrawText(mText, "UNSUPPORTED", mRECT);
+      g.DrawText(mText, "UNSUPPORTED", mRECT);
   }
 
   void RandomiseGradient()
@@ -210,17 +211,17 @@ public:
     SetDirty(false);
   }
 
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
-    graphics.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
+    g.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
 
-    if (graphics.HasPathSupport())
+    if (g.HasPathSupport())
     {
       double r = mValue * (mRECT.H() / 2.0);
       if (mShape == 0)
       {
-        graphics.PathCircle(mRECT.MW(), mRECT.MH(), r);
-        graphics.PathCircle(mRECT.MW(), mRECT.MH(), r * 0.5);
+        g.PathCircle(mRECT.MW(), mRECT.MH(), r);
+        g.PathCircle(mRECT.MW(), mRECT.MH(), r * 0.5);
       }
       else if (mShape == 1)
       {
@@ -230,8 +231,8 @@ public:
         pad1 = (size1.W() / 2.0) * (1.0 - mValue);
         pad2 = (size1.H() / 2.0) * (1.0 - mValue);
         IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
-        graphics.PathRect(size1);
-        graphics.PathRect(size2);
+        g.PathRect(size1);
+        g.PathRect(size2);
       }
       else if (mShape == 2)
       {
@@ -241,15 +242,15 @@ public:
         pad1 = (size1.W() / 2.0) * (1.0 - mValue);
         pad2 = (size1.H() / 2.0) * (1.0 - mValue);
         IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
-        graphics.PathRoundRect(size1, size1.H() * 0.125);
-        graphics.PathRoundRect(size2, size2.H() * 0.125);
+        g.PathRoundRect(size1, size1.H() * 0.125);
+        g.PathRoundRect(size2, size2.H() * 0.125);
       }
       else if (mShape == 3)
       {
-        graphics.PathMoveTo(mRECT.L, mRECT.B);
-        graphics.PathCurveTo(mRECT.L + mRECT.W() * 0.125, mRECT.T + mRECT.H() * 0.725, mRECT.L + mRECT.W() * 0.25, mRECT.T + mRECT.H() * 0.35, mRECT.MW(), mRECT.MH());
-        graphics.PathLineTo(mRECT.MW(), mRECT.B);
-        graphics.PathClose();
+        g.PathMoveTo(mRECT.L, mRECT.B);
+        g.PathCurveTo(mRECT.L + mRECT.W() * 0.125, mRECT.T + mRECT.H() * 0.725, mRECT.L + mRECT.W() * 0.25, mRECT.T + mRECT.H() * 0.35, mRECT.MW(), mRECT.MH());
+        g.PathLineTo(mRECT.MW(), mRECT.B);
+        g.PathClose();
       }
 
       IFillOptions fillOptions;
@@ -258,11 +259,11 @@ public:
       IStrokeOptions strokeOptions;
       float dashes[] = { 11, 4, 7 };
       strokeOptions.mDash.SetDash(dashes, 0.0, 2);
-      graphics.PathFill(COLOR_BLACK, fillOptions);
-      graphics.PathStroke(COLOR_WHITE, 1, strokeOptions);
+      g.PathFill(COLOR_BLACK, fillOptions);
+      g.PathStroke(COLOR_WHITE, 1, strokeOptions);
     }
     else
-      graphics.DrawText(mText, "UNSUPPORTED", mRECT);
+      g.DrawText(mText, "UNSUPPORTED", mRECT);
   }
 
 private:
@@ -313,3 +314,68 @@ public:
 private:
   int mStringIndex;
 };
+
+class DrawingTest : public IControl
+{
+public:
+  DrawingTest(IEditorDelegate& plug, IRECT bounds)
+  : IControl(plug, bounds, -1)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(COLOR_BLUE, mRECT);
+//    g.FillRect(COLOR_RED, mRECT.GetRandomSubRect());
+#ifdef IGRAPHICS_NANOVG
+
+    NVGcontext* vg = (NVGcontext*) g.GetData();
+    //
+    const int h = 28;
+    const int w = mRECT.W();
+    const int x = mRECT.L;
+    const int y = mRECT.T;
+    const float pos = 0.5;
+    //
+    NVGpaint bg, knob;
+    float cy = y+(int)(h*0.5f);
+    float kr = (int)(h*0.25f);
+
+    nvgSave(vg);
+    //  nvgClearState(vg);
+
+    //Slot
+    bg = nvgBoxGradient(vg, x,cy-2+1, w,4, 2,2, nvgRGBA(0,0,0,32), nvgRGBA(0,0,0,128));
+    nvgBeginPath(vg);
+    nvgRoundedRect(vg, x,cy-2, w,4, 2);
+    nvgFillPaint(vg, bg);
+    nvgFill(vg);
+
+    // Knob Shadow
+    bg = nvgRadialGradient(vg, x+(int)(pos*w),cy+1, kr-3,kr+3, nvgRGBA(0,0,0,64), nvgRGBA(0,0,0,0));
+    nvgBeginPath(vg);
+    nvgRect(vg, x+(int)(pos*w)-kr-5,cy-kr-5,kr*2+5+5,kr*2+5+5+3);
+    nvgCircle(vg, x+(int)(pos*w),cy, kr);
+    nvgPathWinding(vg, NVG_HOLE);
+    nvgFillPaint(vg, bg);
+    nvgFill(vg);
+
+    // Knob
+    knob = nvgLinearGradient(vg, x,cy-kr,x,cy+kr, nvgRGBA(255,255,255,16), nvgRGBA(0,0,0,16));
+    nvgBeginPath(vg);
+    nvgCircle(vg, x+(int)(pos*w),cy, kr-1);
+    nvgFillColor(vg, nvgRGBA(255,255,255,255));
+    nvgFill(vg);
+    nvgFillPaint(vg, knob);
+    nvgFill(vg);
+
+    nvgBeginPath(vg);
+    nvgCircle(vg, x+(int)(pos*w),cy, kr-0.5f);
+    nvgStrokeColor(vg, nvgRGBA(0,0,0,92));
+    nvgStroke(vg);
+
+    nvgRestore(vg);
+#endif
+  }
+};
+
