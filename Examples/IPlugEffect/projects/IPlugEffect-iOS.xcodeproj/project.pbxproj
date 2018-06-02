@@ -47,6 +47,8 @@
 		4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C320A24FA9003A66EC /* nanovg.h */; };
 		4F8028CB20A24FA9003A66EC /* nanovg_gl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C420A24FA9003A66EC /* nanovg_gl.h */; };
 		4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C520A24FA9003A66EC /* fontstash.h */; };
+		4FADA9C420C20367003075D3 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4820BD524700722133 /* fonts */; };
+		4FADA9C520C20367003075D3 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4720BD524700722133 /* img */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
@@ -692,6 +694,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FADA9C420C20367003075D3 /* fonts in Resources */,
+				4FADA9C520C20367003075D3 /* img in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */,
 				4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */,
