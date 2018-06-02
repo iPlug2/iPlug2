@@ -41,8 +41,6 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps)
 : IGraphicsPathBase(dlg, w, h, fps)
 {
-  printf("HELLO IGraphicsWeb!\n");
-
   val imgs = val::global("Module")["preloadedImages"];
   mPreloadedImages = new RetainVal(imgs);
   

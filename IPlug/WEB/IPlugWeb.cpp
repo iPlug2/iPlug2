@@ -16,6 +16,14 @@
 
 #include "IPlugWeb.h"
 
+using namespace emscripten;
+
+IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
+: IPlugAPIBase(config, kAPIWEB)
+{
+  mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
+}
+
 #ifndef NO_IGRAPHICS
 #include "IGraphicsWeb.h"
 extern IGraphics* gGraphics;
@@ -28,19 +36,19 @@ void IPlugWeb::AttachGraphics(IGraphics* pGraphics)
 }
 #endif
 
-//void IPlugWeb::BeginInformHostOfParamChangeFromUI(int paramIdx)
-//{
-//};
-
 void IPlugWeb::SetParameterValueFromUI(int paramIdx, double value)
 {
-  WDL_String jsname;
-  jsname.SetFormatted(64, "%s_WAM", GetPluginName()); // TODO: move me
-  emscripten::val::global(jsname.Get()).call<void>("setParam", paramIdx, value);
-  
-  IPlugAPIBase::SetParameterValueFromUI(paramIdx, value);
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
+  IPlugAPIBase::SetParameterValueFromUI(paramIdx, value); // call super class in order to make sure OnParamChangeUI() gets triggered
 };
 
-//void IPlugWeb::EndInformHostOfParamChangeFromUI(int paramIdx)
-//{
-//}
+void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
+{
+//  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", "midiMsg", "", );
+}
+
+void IPlugWeb::SendMsgFromUI(const char* msgID, int dataSize, const void* pData)
+{
+//  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", msgID, "", "");
+}
+

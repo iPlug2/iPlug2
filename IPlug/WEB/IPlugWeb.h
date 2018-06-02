@@ -28,9 +28,7 @@ struct IPlugInstanceInfo
 class IPlugWeb : public IPlugAPIBase
 {
 public:
-  IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
-  : IPlugAPIBase(config, kAPIWEB)
-  {}
+  IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config);
 
   //IPlugAPIBase
 //  void BeginInformHostOfParamChange(int idx) override {};
@@ -43,13 +41,19 @@ public:
   
   //IEditorDelegate
   void SetParameterValueFromUI(int paramIdx, double value) override;
-//  void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
-//  void EndInformHostOfParamChangeFromUI(int paramIdx) override;
+//  void BeginInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
+//  void EndInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
+  void SendMidiMsgFromUI(const IMidiMsg& msg) override;
+  void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
+  void SendMsgFromUI(const char* msgID, int dataSize = 0, const void* pData = nullptr) override;
   
   #ifndef NO_IGRAPHICS
   //IGraphicsEditorDelegate
   void AttachGraphics(IGraphics* pGraphics) override;
-  #endif  
+  #endif
+  
+private:
+  WDL_String mWAMCtrlrJSObjectName;
 };
 
 IPlugWeb* MakePlug();
