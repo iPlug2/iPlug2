@@ -96,5 +96,18 @@ void SandboxSafeAppSupportPath(WDL_String& path)
   NSString *pUserMusicDirectory = [pPaths objectAtIndex:0];
   path.Set([pUserMusicDirectory UTF8String]);
 }
+#else
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+//  NSArray* pPaths;
+//  if (isSystem)
+//    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES);
+//  else
+//    pPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+//  
+//  NSString* pApplicationSupportDirectory = [pPaths objectAtIndex:0];
+//  path.SetFormatted(MAX_MACOS_PATH_LEN, "%s/Audio/Presets/%s/%s/", [pApplicationSupportDirectory UTF8String], mfrName, pluginName);
+}
 
 #endif
