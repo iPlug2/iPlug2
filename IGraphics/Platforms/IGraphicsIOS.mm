@@ -64,10 +64,16 @@ bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* s
   
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(GetBundleID())];
   NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
   
   if (isCorrectType && pBundle && pFile)
   {
-    NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
+    NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+    NSString* pPath = nullptr;
+    if(strcmp(searchExt, "png") == 0)
+      pPath = [[[[pParent stringByAppendingString:@"/img/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
+    else if(strcmp(searchExt, "ttf") == 0)
+      pPath = [[[[pParent stringByAppendingString:@"/fonts/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
     
     if (pPath)
     {
@@ -93,20 +99,20 @@ bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
   NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
   
-  if (isCorrectType && pFile)
-  {
-    WDL_String musicFolder;
-    SandboxSafeAppSupportPath(musicFolder);
-    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginBase&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
-    NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-
-    if (pPath)
-    {
-      fullPath.Set([pPath UTF8String]);
-      return true;
-    }
-  }
+//  if (isCorrectType && pFile)
+//  {
+//    WDL_String musicFolder;
+//    SandboxSafeAppSupportPath(musicFolder);
+//    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginBase&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
+//    NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
+//    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+//
+//    if (pPath)
+//    {
+//      fullPath.Set([pPath UTF8String]);
+//      return true;
+//    }
+//  }
   
   fullPath.Set("");
   return false;
@@ -116,22 +122,8 @@ bool IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String
 {
   if(CStringHasContents(name))
   {
-    // first check this bundle
     if(GetResourcePathFromBundle(name, type, result))
       return true;
-    
-    // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
-    if(GetResourcePathFromUsersMusicFolder(name, type, result))
-      return true;
-    
-    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skinablle UI)
-    NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-    
-    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-    {
-      result.Set([pPath UTF8String]);
-      return true;
-    }
   }
   return false;
 }
