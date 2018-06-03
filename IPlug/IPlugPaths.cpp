@@ -14,8 +14,11 @@
  ==============================================================================
  */
 
-#include <windows.h>
+#include "IPlugPlatform.h"
 #include "IPlugPaths.h"
+
+#ifdef OS_WIN
+#include <windows.h>
 
 static void GetModulePath(HMODULE hModule, WDL_String& path)
 {
@@ -67,13 +70,16 @@ void AppSupportPath(WDL_String& path, bool isSystem)
 void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
   if (!isSystem)
-  {
     GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
-  }
   else
-  {
     AppSupportPath(path, true);
-  }
   
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
+#elif defined OS_WEB
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  path.Set("");
+}
+
+#endif
