@@ -121,16 +121,16 @@ void IGraphicsWeb::PathStroke(const IPattern& pattern, float thickness, const IS
   
   switch (options.mCapOption)
   {
-    case kCapButt:    context.set("lineCap", "butt");      break;
-    case kCapRound:   context.set("lineCap", "round");     break;
-    case kCapSquare:  context.set("lineCap", "square");    break;
+    case kCapButt: context.set("lineCap", "butt"); break;
+    case kCapRound: context.set("lineCap", "round"); break;
+    case kCapSquare: context.set("lineCap", "square"); break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter:  context.set("lineJoin", "miter");      break;
-    case kJoinRound:  context.set("lineJoin", "round");      break;
-    case kJoinBevel:  context.set("lineJoin", "bevel");      break;
+    case kJoinMiter: context.set("lineJoin", "miter"); break;
+    case kJoinRound: context.set("lineJoin", "round"); break;
+    case kJoinBevel: context.set("lineJoin", "bevel"); break;
   }
   
   context.set("miterLimit", options.mMiterLimit);
