@@ -17,6 +17,7 @@
 #pragma once
 #include <cassert>
 #include <cstdint>
+#include <cstdio>
 
 #ifdef TRACER_BUILD
 #include "IPlugLogger.h"
