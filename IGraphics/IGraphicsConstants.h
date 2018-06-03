@@ -38,13 +38,13 @@ static const float GRAYED_ALPHA = 0.25f;
   const char* const DEFAULT_FONT = "Verdana";
   const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_MAC
-  const char* const DEFAULT_FONT = "Monaco";
+  const char* const DEFAULT_FONT = "Roboto-Regular";
   const int DEFAULT_TEXT_SIZE = 10;
   #ifndef DEFAULT_PATH
   static const char* DEFAULT_PATH = "~/Desktop";
   #endif
 #elif defined OS_IOS
-  const char* const DEFAULT_FONT = "Monaco";
+  const char* const DEFAULT_FONT = "Roboto-Regular";
   const int DEFAULT_TEXT_SIZE = 10;
 #elif defined OS_LINUX
   const char* const DEFAULT_FONT = "DejaVu Sans";
