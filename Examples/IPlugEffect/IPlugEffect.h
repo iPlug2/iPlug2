@@ -4,8 +4,11 @@
 #include "Extras/Oscillator.h"
 #include "IVMeterControl.h"
 #include "IVScopeControl.h"
+#include "IPlugEffect_DSP.h"
 
 const int kNumPrograms = 1;
+
+#define MAX_VOICES 32
 
 enum EControlTags
 {
@@ -32,11 +35,13 @@ public:
 #if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
-
+  void OnReset() override;
+  
   FastSinOscillator<sample> mOsc {0., 440.};
   IVMeterControl<2>::IVMeterBallistics mMeterBallistics { kControlTagMeter };
   IVScopeControl<1>::IVScopeBallistics mScopeBallistics { kControlTagScope };
-
+  IPlugEffectDSP mDSP {16};
+  
   void OnIdle() override;
 #endif
 };

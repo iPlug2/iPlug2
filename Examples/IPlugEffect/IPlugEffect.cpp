@@ -6,7 +6,8 @@ PLUG_CLASS_NAME::PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo)
 {
   TRACE;
   GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
-  
+//  GetParam(kPolyMode)->InitEnum("Polyphony", MidiSynth::kPolyModePoly, MidiSynth::kNumPolyModes, "", IParam::kFlagsNone, "", "Polyphonic", "Monophonic", "Legato");
+
 #if IPLUG_EDITOR && !defined NO_IGRAPHICS
   CreateUI(); // this could be called by superclass - OnCreateUI?
 #endif
@@ -19,15 +20,22 @@ void PLUG_CLASS_NAME::ProcessBlock(sample** inputs, sample** outputs, int nFrame
 {
   const double gain = GetParam(kGain)->Value() / 100.;
 
-  const int nChans = NOutChansConnected();
-  for (auto s = 0; s < nFrames; s++) {
-    for (auto c = 0; c < nChans; c++) {
-      outputs[c][s] = mOsc.Process() * gain;//
-    }
-  }
+//  const int nChans = NOutChansConnected();
+//  for (auto s = 0; s < nFrames; s++) {
+//    for (auto c = 0; c < nChans; c++) {
+//      outputs[c][s] = mOsc.Process() * gain;//
+//    }
+//  }
+  
+  mDSP.ProcessBlock(inputs, outputs, 2, nFrames);
   
   mMeterBallistics.ProcessBlock(outputs, nFrames);
   mScopeBallistics.ProcessBlock(outputs, nFrames);
+}
+
+void PLUG_CLASS_NAME::OnReset()
+{
+  mDSP.Reset(GetSampleRate(), GetBlockSize());
 }
 
 void PLUG_CLASS_NAME::ProcessMidiMsg(const IMidiMsg& msg)
@@ -52,6 +60,7 @@ void PLUG_CLASS_NAME::ProcessMidiMsg(const IMidiMsg& msg)
   
 handle:
   mOsc.SetFreqCPS(440. * pow(2., (msg.NoteNumber() - 69.) / 12.));
+  mDSP.ProcessMidiMsg(msg);
   SendMidiMsg(msg);
 }
 
@@ -136,7 +145,6 @@ void PLUG_CLASS_NAME::CreateUI()
   //  pGraphics->EnableLiveEdit(true);
   //  pGraphics->ShowControlBounds(true);
   //  pGraphics->ShowAreaDrawn(true);
-  
 }
 
 #endif
