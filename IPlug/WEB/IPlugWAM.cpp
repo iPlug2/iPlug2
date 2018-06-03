@@ -61,20 +61,64 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
 void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
 {
-//  DBGMSG("onProcess\n");
   _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
   _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
   _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, GetBlockSize());
   _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, GetBlockSize());
   _ProcessBuffers((float) 0.0f, GetBlockSize());
+  
+  if(mBlockCounter == 0)
+  {
+    // TODO: IPlugAPIBase:OnIdle() should be called on the main thread - how to do that in audio worklet processor?
+    OnIdle();
+    
+    mBlockCounter = 8; // 8 * 128 samples = 23ms @ 44100 sr
+  }
+  
+  mBlockCounter--;
 }
+
+void IPlugWAM::onMessage(char* verb, char* res, double data)
+{
+  if(strcmp(verb, "SMMFUI") == 0)
+  {
+    uint8_t data[3];
+    char* pChar = strtok(res, ":");
+    int i = 0;
+    while (pChar != nullptr)
+    {
+      data[i++] = atoi(pChar);
+      pChar = strtok (nullptr, ":");
+    }
+    
+    IMidiMsg msg = {0, data[0], data[1], data[2]};
+    ProcessMidiMsg(msg); // TODO: should queue to mMidiMsgsFromEditor?
+  }
+}
+
+//void IPlugWAM::onMessage(char* verb, char* res, char* data)
+//{
+//  DBGMSG("IPlugWAM2:: onMessage %s %s %s\n", verb, res, data);
+//}
+//
+//void IPlugWAM::onMessage(char* verb, char* res, void* data, uint32_t size)
+//{
+//  DBGMSG("IPlugWAM3:: onMessage %s %s VOID\n", verb, res);
+//}
 
 void IPlugWAM::onMidi(byte status, byte data1, byte data2)
 {
 //   DBGMSG("onMidi\n");
-  IMidiMsg msg = {0 /* TODO:what about offset?*/, status, data1, data2};
-  ProcessMidiMsg(msg);
-  mMidiMsgsFromProcessor.Push(msg); // TODO: is this right since onMIDI is not called on HPT
+  IMidiMsg msg = {0, status, data1, data2};
+  ProcessMidiMsg(msg); // onMidi is not called on HPT. We could queue things up, but just process the message straightaway for now
+  //mMidiMsgsFromProcessor.Push(msg);
+  
+  WDL_String dataStr;
+  dataStr.SetFormatted(16, "%i:%i:%i", msg.mStatus, msg.mData1, msg.mData2);
+  
+  // TODO: in the future this will be done via shared array buffer
+  // if onMidi ever gets called on HPT, should defer via queue
+  postMessage("SMMFD", dataStr.Get(), "");
 }
 
 void IPlugWAM::onParam(uint32_t idparam, double value)
@@ -85,17 +129,28 @@ void IPlugWAM::onParam(uint32_t idparam, double value)
 
 void IPlugWAM::onSysex(byte* msg, uint32_t size)
 {
-  ISysEx sysex = {0 /* TODO:what about offset?*/, msg, (int) size };
+  ISysEx sysex = {0, msg, (int) size };
   ProcessSysEx(sysex);
 }
 
 void IPlugWAM::SetControlValueFromDelegate(int controlTag, double normalizedValue)
 {
-  //TODO:
+  WDL_String propStr;
+  WDL_String dataStr;
+
+  propStr.SetFormatted(16, "%i", controlTag);
+  dataStr.SetFormatted(16, "%f", normalizedValue);
+
+  // TODO: in the future this will be done via shared array buffer
+  postMessage("SCVFD", propStr.Get(), dataStr.Get());
 }
 
 void IPlugWAM::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
-  //TODO:
+  WDL_String propStr;
+  propStr.SetFormatted(16, "%i:%i", controlTag, messageTag);
+  
+  // TODO: in the future this will be done via shared array buffer
+  postMessage("SCMFD", propStr.Get(), pData, (uint32_t) dataSize);
 }
 

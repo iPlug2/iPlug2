@@ -35,17 +35,17 @@
   #elif defined OS_WEB
   #include <emscripten.h>
 
-  IGraphics* gGraphics = nullptr;
+  IGraphicsWeb* gGraphics = nullptr;
 
   IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0)
   {
-    IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps);
-    return pGraphics;
+    gGraphics = new IGraphicsWeb(dlg, w, h, fps);
+    return gGraphics;
   }
 
   void StartMainLoopTimer()
   {
-    emscripten_set_main_loop(dynamic_cast<IGraphicsWeb*>(gGraphics)->OnMainLoopTimer, gGraphics->FPS(), 1);
+    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, gGraphics->FPS(), 1);
   }
   #else
     #error "No OS defined!"

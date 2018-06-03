@@ -360,7 +360,7 @@ extern "C"
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 
-  IPlug* gPlug = nullptr;
+  IPlugWeb* gPlug = nullptr;
   extern void StartMainLoopTimer();
 
   int main()

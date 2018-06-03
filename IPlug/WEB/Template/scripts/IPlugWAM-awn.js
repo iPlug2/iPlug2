@@ -20,4 +20,21 @@ class IPlugWAMController extends WAMController
       }) }) }) });
     })
   }
+
+  onmessage(msg) {
+    if(msg.type == "descriptor") {
+      console.log("got WAM descriptor...");
+    }
+    if(msg.verb == "SCMFD") {
+      var res = msg.prop.split(":");
+      Module.SCMFD(parseInt(res[0]), parseInt(res[1]), 0);
+    }
+    else if(msg.verb == "SCVFD") {
+      Module.SCVFD(parseInt(msg.prop), parseFloat(msg.data));
+    }
+    else if(msg.verb == "SMMFD") {
+      var res = msg.prop.split(":");
+      Module.SMMFD(parseInt(res[0]), parseInt(res[1]), parseInt(res[2]));
+    }
+  }
 }

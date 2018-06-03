@@ -15,6 +15,7 @@
  */
 
 #include "IPlugWeb.h"
+#include <emscripten/bind.h>
 
 using namespace emscripten;
 
@@ -24,18 +25,6 @@ IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
 }
 
-#ifndef NO_IGRAPHICS
-#include "IGraphicsWeb.h"
-extern IGraphics* gGraphics;
-
-void IPlugWeb::AttachGraphics(IGraphics* pGraphics)
-{
-  gGraphics = pGraphics;
-  IGraphicsEditorDelegate::AttachGraphics(pGraphics);
-  gGraphics->Draw(gGraphics->GetBounds()); //TODO: weird
-}
-#endif
-
 void IPlugWeb::SetParameterValueFromUI(int paramIdx, double value)
 {
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
@@ -44,7 +33,10 @@ void IPlugWeb::SetParameterValueFromUI(int paramIdx, double value)
 
 void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-//  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", "midiMsg", "", );
+  WDL_String dataStr;
+  dataStr.SetFormatted(16, "%i:%i:%i", msg.mStatus, msg.mData1, msg.mData2);
+
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SMMFUI"), std::string(dataStr.Get()));
 }
 
 void IPlugWeb::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
@@ -52,3 +44,30 @@ void IPlugWeb::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
 //  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", msgID, "", "");
 }
 
+extern IPlugWeb* gPlug;
+
+// could probably do this without these extra functions
+// https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#deriving-from-c-classes-in-javascript
+void _SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize)
+{
+//  DBGMSG("%i %i %i\n", controlTag, messageTag, dataSize);
+//  gPlug->SendControlMsgFromDelegate(controlTag, messageTag, dataSize, nullptr);
+}
+
+void _SetControlValueFromDelegate(int controlTag, double normalizedValue)
+{
+//  DBGMSG("%i %f\n", controlTag, normalizedValue);
+  gPlug->SetControlValueFromDelegate(controlTag, normalizedValue);
+}
+
+void _SendMidiMsgFromDelegate(int status, int data1, int data2)
+{
+  IMidiMsg msg {0, (uint8_t) status, (uint8_t) data1, (uint8_t) data2};
+  gPlug->SendMidiMsgFromDelegate(msg);
+}
+
+EMSCRIPTEN_BINDINGS(IPlugWeb) {
+  function("SCMFD", &_SendControlMsgFromDelegate, allow_raw_pointers());
+  function("SCVFD", &_SetControlValueFromDelegate);
+  function("SMMFD", &_SendMidiMsgFromDelegate);
+}

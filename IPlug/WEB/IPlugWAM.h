@@ -44,7 +44,7 @@ public:
   virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
   virtual void onMidi(byte status, byte data1, byte data2) override;
   virtual void onSysex(byte* msg, uint32_t size) override;
-//  virtual void onMessage(char* verb, char* res, double data) override;
+  virtual void onMessage(char* verb, char* res, double data) override;
 //  virtual void onMessage(char* verb, char* res, char* data) override;
 //  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
   virtual void onParam(uint32_t idparam, double value) override;
@@ -54,10 +54,14 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; }
   bool SendSysEx(ISysEx& msg) override { return false; }
   
-  //IEditorDelegate
+  //IEditorDelegate - these are overwritten because we need to use WAM messaging system
   void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?
+  void SendMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override {};
+  
+private:
+  int mBlockCounter = 0;
 };
 
 IPlugWAM* MakePlug();

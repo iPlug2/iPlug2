@@ -22,7 +22,7 @@ public:
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   
-  virtual void OnMidiMsgUI(const IMidiMsg& msg) override;
+  virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
 
   void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override;
   void ResizeGraphicsFromUI() override;

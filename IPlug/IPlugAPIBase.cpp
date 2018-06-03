@@ -143,6 +143,7 @@ void IPlugAPIBase::OnTimer(Timer& t)
 {
   if(HasUI())
   {
+    // in distributed VST 3, parameter changes are managed by the host
   #if !defined VST3C_API && !defined VST3P_API
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
@@ -155,10 +156,11 @@ void IPlugAPIBase::OnTimer(Timer& t)
     {
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
-      OnMidiMsgUI(msg);
+      SendMidiMsgFromDelegate(msg);
     }
   #endif
     
+    // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
   #if defined VST3P_API
     while (mMidiMsgsFromProcessor.ElementsAvailable())
     {

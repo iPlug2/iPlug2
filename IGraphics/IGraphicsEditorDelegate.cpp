@@ -163,7 +163,7 @@ void IGraphicsEditorDelegate::ResizeGraphicsFromUI()
 //  ResizeGraphics();
 }
 
-void IGraphicsEditorDelegate::OnMidiMsgUI(const IMidiMsg& msg)
+void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
   assert(mGraphics != nullptr);
   
@@ -176,5 +176,7 @@ void IGraphicsEditorDelegate::OnMidiMsgUI(const IMidiMsg& msg)
       pControl->OnMidi(msg);
     }
   }
+  
+  IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 

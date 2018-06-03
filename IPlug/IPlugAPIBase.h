@@ -181,7 +181,7 @@ private:
   
   //DISTRIBUTED ONLY
   virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
-
+  
   void OnTimer(Timer& t) override;
 
 public:

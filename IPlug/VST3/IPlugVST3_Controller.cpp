@@ -418,7 +418,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
       return kResultOk;
     }
   }
-  else if (!strcmp (message->getMessageID(), "SMMFP"))
+  else if (!strcmp (message->getMessageID(), "SMMFD"))
   {
     const void* data = nullptr;
     uint32 size;
@@ -429,7 +429,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
       {
         IMidiMsg msg;
         memcpy(&msg, data, size);
-        OnMidiMsgUI(msg);
+        SendMidiMsgFromDelegate(msg);
       }
     }
   }

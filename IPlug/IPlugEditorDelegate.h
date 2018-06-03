@@ -79,21 +79,13 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx) {};
   
-  /**  */
+  /** TODO: */
   virtual void OnMidiMsgUI(const IMidiMsg& msg) {};
   
-  /**  */
+  /** TODO: */
   virtual void OnSysexMsgUI(int size, const void* pData) {};
   
-  
-  /**
-   This could be implemented in either DSP or EDITOR to receive a message from the other one
-
-   @param msg <#msg description#>
-   @param dataSize <#dataSize description#>
-   @param pData <#pData description#>
-   @return <#return value description#>
-   */
+  /** This could be implemented in either DSP or EDITOR to receive a message from the other one */
   virtual bool OnMessage(int messageTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
@@ -103,6 +95,7 @@ public:
 #pragma mark - DELEGATION methods for sending values TO the user interface
   // The following methods are called from the plug-in/delegate class in order to update the user interface.
   
+  /** TODO: SCVFD */
   /** In IGraphics plug-ins, this method is used to update IControls in the user interface from the plug-in class, when the control is not linked
    * to a parameter, for example a typical use case would be a meter control. It is called by the IPlug "user" a.k.a you - not by an API class.
    * In OnIdle() your plug-in would call this method to update the IControl's value. YOU SHOULD NOT CALL THIS ON THE AUDIO THREAD!
@@ -111,9 +104,14 @@ public:
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
+  /** TODO: SCMFD */
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) {};
   
-  virtual void SendMsgFromDelegate(const char* msg, int dataSize, const void* pData) {};
+  /** TODO: SMFD */
+  virtual void SendMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  
+  /** TODO: SMMFD */
+  virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
@@ -157,14 +155,17 @@ public:
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI() {};
   
+  /** TODO: SMMFUI */
   /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used
    * @param status The status byte of the MIDI message
    * @param data1 The first data byte of the MIDI message
    * @param data2 The second data byte of the MIDI message*/
   virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
+  /** TODO: SSMFUI */
   virtual void SendSysexMsgFromUI(int size, const uint8_t* pData) {};
   
+  /** TODO: SMFUI */
   virtual void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
 
 protected:

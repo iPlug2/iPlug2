@@ -547,7 +547,7 @@ void IPlugVST3Processor::SendControlMsgFromDelegate(int controlTag, int messageT
   sendMessage(message);
 }
 
-void IPlugVST3Processor::SendMsgFromDelegate(const char* msgID, int dataSize, const void* pData)
+void IPlugVST3Processor::SendMsgFromDelegate(int messageTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -561,7 +561,8 @@ void IPlugVST3Processor::SendMsgFromDelegate(const char* msgID, int dataSize, co
     pData = &dummy;
   }
   
-  message->setMessageID(msgID);
+  message->setMessageID("SMFD");
+  message->getAttributes()->setInt("MT", messageTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }
@@ -617,7 +618,7 @@ void IPlugVST3Processor::_TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
   if (!message)
     return;
   
-  message->setMessageID("SMMFP");
+  message->setMessageID("SMMFD");
   message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
   sendMessage(message);
 }

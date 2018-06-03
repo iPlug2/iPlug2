@@ -31,19 +31,14 @@ public:
   IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   EHost GetHost() override { return EHost::kHostWWW; }
 
-  //IEditorDelegate
+  //IEditorDelegate  
   void SetParameterValueFromUI(int paramIdx, double value) override;
 //  void BeginInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 //  void EndInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
   void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
-  
-  #ifndef NO_IGRAPHICS
-  //IGraphicsEditorDelegate
-  void AttachGraphics(IGraphics* pGraphics) override;
-  #endif
-  
+
 private:
   WDL_String mWAMCtrlrJSObjectName;
 };
