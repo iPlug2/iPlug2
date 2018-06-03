@@ -30,6 +30,7 @@ public:
   }
 
 private:
+  WDL_String mStr;
   float mStep;
   EDirection mDirection;
 };
@@ -96,7 +97,7 @@ class IVSliderControl : public ISliderControlBase
 public:
   IVSliderControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10, int trackSize = 2)
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 8, int trackSize = 2)
   : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
   , mTrackSize(trackSize)
@@ -106,7 +107,7 @@ public:
   
   IVSliderControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 10, int trackSize = 2)
+                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 8, int trackSize = 2)
   : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
   , mTrackSize(trackSize)

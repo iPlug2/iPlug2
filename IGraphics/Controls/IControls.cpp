@@ -10,7 +10,8 @@ IVSwitchControl::IVSwitchControl(IEditorDelegate& dlg, IRECT bounds, int paramId
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-
+  mStr.Set("Hello");
+  mText.mSize = 20;
   mStep = 1.f / float(mNumStates) - 1.f;
 }
 
@@ -18,7 +19,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
 
-  const IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
+  IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
   const float cornerRadius = mRoundness * (handleBounds.W() / 2.);
 
   if (mValue > 0.5)
@@ -44,6 +45,8 @@ void IVSwitchControl::Draw(IGraphics& g)
   
   if(mMouseIsOver)
     g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
+  
+  g.DrawText(mText, mStr.Get(), handleBounds);
   
   if(GetAnimationFunction())
     DefaultClickAnimation(g);
@@ -90,8 +93,62 @@ void IVKnobControl::Draw(IGraphics& g)
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
 }
 
+#ifdef IGRAPHICS_NANOVG
+#include "nanovg.h"
+#endif
+
 void IVSliderControl::Draw(IGraphics& g)
 {
+#ifdef IGRAPHICS_NANOVG
+  
+  NVGcontext* vg = (NVGcontext*) g.GetData();
+//
+  const int h = mTrack.H();
+  const int w = mTrack.W();
+  const int x = mTrack.L;
+  const int y = mTrack.T;
+  const float pos = mValue;
+//
+  NVGpaint bg, knob;
+  float cy = y+(int)(h*0.5f);
+  float kr = mHandleSize;
+
+  nvgSave(vg);
+  //  nvgClearState(vg);
+
+//   Slot
+  bg = nvgBoxGradient(vg, x,cy-2+1, w,4, 2,2, nvgRGBA(0,0,0,32), nvgRGBA(0,0,0,128));
+  nvgBeginPath(vg);
+  nvgRoundedRect(vg, x,cy-2, w,4, 2);
+  nvgFillPaint(vg, bg);
+  nvgFill(vg);
+  
+
+  // Knob Shadow
+  bg = nvgRadialGradient(vg, x+(int)(pos*w),cy+1, kr-3,kr+3, nvgRGBA(0,0,0,64), nvgRGBA(0,0,0,0));
+  nvgBeginPath(vg);
+  nvgRect(vg, x+(int)(pos*w)-kr-5,cy-kr-5,kr*2+5+5,kr*2+5+5+3);
+  nvgCircle(vg, x+(int)(pos*w),cy, kr);
+  nvgPathWinding(vg, NVG_HOLE);
+  nvgFillPaint(vg, bg);
+  nvgFill(vg);
+
+  // Knob
+  knob = nvgLinearGradient(vg, x,cy-kr,x,cy+kr, nvgRGBA(255,255,255,16), nvgRGBA(0,0,0,16));
+  nvgBeginPath(vg);
+  nvgCircle(vg, x+(int)(pos*w),cy, kr-1);
+  nvgFillColor(vg, nvgRGBA(255,255,255,255));
+  nvgFill(vg);
+  nvgFillPaint(vg, knob);
+  nvgFill(vg);
+
+  nvgBeginPath(vg);
+  nvgCircle(vg, x+(int)(pos*w),cy, kr-0.5f);
+  nvgStrokeColor(vg, nvgRGBA(0,0,0,92));
+  nvgStroke(vg);
+
+  nvgRestore(vg);
+#else
   g.FillRect(GetColor(kBG), mRECT);
 
   const float halfHandleSize = mHandleSize / 2.f;
@@ -113,6 +170,7 @@ void IVSliderControl::Draw(IGraphics& g)
     else
       g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
   }
+#endif
 }
 
 void IVSliderControl::OnResize()
