@@ -6,19 +6,22 @@ cd ..
 
 pwd
 
-# trash the whole build-web folder
-if [ -d build-web ]
+if [ -d build-web/.git ]
 then
-  rm -r build-web
+  # trash only the scripts folder
+  if [ -d build-web/scripts ]
+  then
+    rm -r build-web/scripts
+  fi
+else
+  # trash the whole build-web folder
+  if [ -d build-web ]
+  then
+    rm -r build-web
+  fi
+
+  mkdir build-web
 fi
-
-mkdir build-web
-
-# trash only the scripts folder - uncomment if you have customised your html
-# if [ -d build-web/scripts ]
-# then
-#   rm -r build-web/scripts
-# fi
 
 mkdir build-web/scripts
 
